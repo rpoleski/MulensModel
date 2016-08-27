@@ -1,0 +1,22 @@
+import MulensModel
+import matplotlib.pyplot as pl
+from astropy import units as u
+
+data = []
+data.add(MulensModel.UlensData(file_name = 'some_file.dat'))
+pl.plot(data[0].t('JD'), data[0].mag)
+pl.plot(data[0].hjd, data[0].mag)
+
+model = MulensModel.Model()
+model.parameters(t_0=7600., u_0=0.01, t_E=34.*u.day)
+pl.plot(model.t, model.mag) # Symmetry with data plotting?
+
+event = MulensModel.Event(datasets=data, model=model)
+
+pl.subplot(2, 1, 1)
+pl.plot(event.fit.t[0], event.fit.mag_data[0])
+pl.plot(event.fit.t[0], event.fit.mag_model[0])
+
+pl.subplot(2, 1, 2)
+pl.plot(event.fit.t[0], event.fit.res[0]) #res_data?
+
