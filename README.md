@@ -5,7 +5,7 @@ We present a python package for modelling of microlensing events. The package ai
 
 ### Second order effects
 
-|Description|Affects source trajectory?|Affects mag. map?|Affects transformation<br> of mag. curve to light curve?|   
+|Description|Affects<br> source<br> trajectory?|Affects<br> mag. map?|Affects<br> transformation<br> of mag. curve to<br> light curve?|   
 |---|:---:|:---:|:---:|  
 |flux constrained      | | | + |
 |finite source         | | + | |
@@ -33,7 +33,7 @@ How to work on new code?
 1. Write use cases if they don't exist yet.  
 2. Find the objects, some of them may not be visible in use cases.  
 3. Organize the objects and how they interact, if needed update documents/Classes.md file.  
-4. Write a few unit tests _before_ you write any function.  
+4. Write a few unit tests __before__ you write any function.  
 5. Write the function and work on it until unit tests are passed.  
 
 
