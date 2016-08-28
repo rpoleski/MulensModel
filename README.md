@@ -5,12 +5,24 @@ We present a python package for modelling of microlensing events. The package ai
 
 ### Second order effects
 
-TBD
+|Description|Affects source trajectory?|Affects mag. map?|Affects transformation<br> of mag. curve to light curve?|   
+|---|:---:|:---:|:---:|  
+|flux constrained      | | | + |
+|finite source         | | + | |
+|limb darkening        | | + | |
+|ellipsoidal source    | | + | |
+|parallax              | + | | |
+|xallarap              | + | | |
+|multiple sources      | | | + |
+|binary lens           | | + | |
+|binary lens ds/dt     | | + | |
+|binary lens d$\alpha$/dt | + | | |
+|triple lens - future  | | + | |
 
 
 ### Model conventions
 
-TBD 
+TBD
 
 
 ### How do we develop the code?
