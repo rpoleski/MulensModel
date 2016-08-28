@@ -1,5 +1,7 @@
-import MulensModel
 import numpy as np
+
+import MulensModel
+
 
 t = np.arange(7000.,7600.,0.1)
 q = np.zeros(t.size)

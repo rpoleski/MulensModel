@@ -1,5 +1,7 @@
-import MulensModel
 from astropy import units as u
+
+import MulensModel
+
 
 e = MulensModel.Event()
 e.model = MulensModel.Model(...)    # define in one of the ways from previous use cases

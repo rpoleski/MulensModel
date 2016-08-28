@@ -1,6 +1,8 @@
-import MulensModel 
 import matplotlib.pyplot as pl
 from astropy import units as u 
+
+import MulensModel
+
 
 data=MulensModel.UlensData(file_name='some_file.dat')
 

@@ -1,5 +1,7 @@
-import MulensModel
 from astropy import units as u
+
+import MulensModel
+
 
 # first way
 lens = MulensModel.Lens(n_components=3)

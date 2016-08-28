@@ -1,5 +1,7 @@
-import MulensModel
 from astropy import units as u
+
+import MulensModel
+
 
 l = MulensModel.Lens(n_components=2)
 l.m_1 = 1.0 * u.M_sun
