@@ -15,7 +15,14 @@ TBD
 
 ### How do we develop the code?
 
-We try to follow [PEP 8](https://www.python.org/dev/peps/pep-0008/)
+We try to follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) conventions.
+
+How to work on new code?
+1. Write use cases if they don't exist yet. 
+1. Find the objects, some of them may not be visible in use cases.
+1. Organize the objects and how they interact, if needed update documents/Classes.md file.
+1. Write a few unit tests _before_ you write any function.
+1. Write the function and work on it until unit tests are passed. 
 
 
 #### Naming conventions
