@@ -17,7 +17,7 @@ print(e.model.t, e.model.A, e.model.flux, e.model.mag)
 
 print(e.chi2)
 
-print(e.model.banpass, e.model.source_flux, e.model.blend_flux) # default value of e.model.banpass is e.data[0].bandpass or 'W149' if no data; for source_flux -> 1.0; for blend_flux -> 0.0
+print(e.model.bandpass, e.model.source_flux, e.model.blend_flux) # default value of e.model.bandpass is e.data[0].bandpass or 'W149' if no data; for source_flux -> 1.0; for blend_flux -> 0.0
 
 for dataset in e.datasets:
     pl.plot(dataset.t, dataset.mag)
