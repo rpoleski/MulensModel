@@ -5,7 +5,7 @@ import MulensModel
 
 
 data = []
-data.add(MulensModel.UlensData(file_name = 'some_file.dat'))
+data.append(MulensModel.UlensData(file_name = 'some_file.dat'))
 pl.plot(data[0].t('JD'), data[0].mag)
 pl.plot(data[0].hjd, data[0].mag)
 
