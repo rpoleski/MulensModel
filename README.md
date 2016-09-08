@@ -22,7 +22,13 @@ We present a python package for modelling of microlensing events. The package ai
 
 ### Model conventions
 
-TBD
+* Gould 2000 [http://adsabs.harvard.edu/abs/2000ApJ...542..785G](http://adsabs.harvard.edu/abs/2000ApJ...542..785G)
+* Skowron et al. 2011 [http://adsabs.harvard.edu/abs/2011ApJ...738...87S](http://adsabs.harvard.edu/abs/2011ApJ...738...87S) - appendix A
+
+Definitions of microlensing parameters:
+
+* t_eff - Gould 2013 [http://arxiv.org/abs/1312.6692](http://arxiv.org/abs/1312.6692)
+* MORE TO BE ADDED
 
 
 ### How do we develop the code?
