@@ -7,7 +7,7 @@ t = np.arange(7000.,7600.,0.1)
 q = np.zeros(t.size)
 e = np.zeros(t.size)
 
-d = MulensModel.UlensData(np.array(t,q,e), satellite='K2')
+d = MulensModel.MulensData(np.array(t,q,e), satellite='K2')
 
 print(d.satellite)
 
