@@ -6,8 +6,8 @@ import MulensModel
 e = MulensModel.Event()
 e.model = MulensModel.Model(...)    # define in one of the ways from previous use cases
 
-e.ra = 270.12345 * u.deg
-e.dec = -27.6789 * u.deg
+e.model.ra = 270.12345 * u.deg
+e.model.dec = -27.6789 * u.deg
 
 e.datasets.append(MulensModel.UlensData(np.array(hjd), np.array(m), np.array(e)))    # where t, m, e are previously read/defined numpy arrays
 

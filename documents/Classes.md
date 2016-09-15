@@ -6,16 +6,15 @@
 * datasets - list of UlensData instances
 * fit - instance of Fit
 * get_chi2()
-* ra
-* dec
 * chi2
 
 ### Class Model
 * lens - instance of Lens
 * source - instance of Source
-* parameters()
 * caustic - has properties x & y
 * trajectory - has properties x & y
+* ra
+* dec
 * t_0
 * u_0
 * t_E
@@ -23,7 +22,7 @@
 * alpha
 * s - property of subclass Lens ???
 * q - property of subclass Lens ???
-* t - array
+* time - array
 * hjd - array
 * mag - array
 * A - array
