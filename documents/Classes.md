@@ -32,6 +32,8 @@
 * bandpass
 * source_flux
 * blend_flux
+* pi_E
+* t_0_par
 
 ### Class Fit
 * t - list of arrays
