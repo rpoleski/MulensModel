@@ -19,6 +19,8 @@ We present a python package for modelling of microlensing events. The package ai
 |binary lens d$\alpha$/dt | + | | |
 |triple lens - future  | | + | |
 
+**Astrometric microlensing** - we don't plan to support astrometric microlensing at this point, but we recognize that it will be used routinely in WFIRST data. Hence, we want to write the code that could be relatively easily upgraded to handle astrometric microlensing. If you see a point that could be problematic if astrometry is added, _please report it here_. 
+
 
 ### Model conventions
 
