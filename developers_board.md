@@ -11,5 +11,10 @@
 * Fitting PSPL with free blending and fixed no blending.
 * Scaling of observed data to a scale of other dataset. We normally do it to transform follow-up data to survey magnitude scale so that they can be presented on a single plot. 
 * Class Model should not allow accesing attributes that shouldn't be there, eg., q for single lens case.
+* Transform t_E and other parameters between geocentric and heliocentric frames.
+* EMCEE example - see [website](http://dan.iel.fm/emcee/current/user/line/).
+* Errorbar scaling, in particular the two parameter.
+* Source limb darkening profile: use of gamma and u conventions, obtaining the value from outside sources (Claret papers). 
+
 
 

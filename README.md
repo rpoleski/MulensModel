@@ -37,7 +37,7 @@ Definitions of microlensing parameters:
 
 ### How do we develop the code?
 
-We try to follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) conventions.
+For tasks to be done see [developers board file](developers_board.md).  
 
 How to work on new code?  
 1. Write use cases if they don't exist yet.  
@@ -45,6 +45,8 @@ How to work on new code?
 3. Organize the objects and how they interact, if needed update documents/Classes.md file.  
 4. Write a few unit tests __before__ you write any function.  
 5. Write the function and work on it until unit tests are passed.  
+
+We try to follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) conventions.  
 
 
 #### Naming conventions
