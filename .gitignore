@@ -6,3 +6,9 @@ __pycache__/
 # simple editor backups
 *~
 
+# vim backups
+.*.swp
+
+# unit tests
+.cache/
+
