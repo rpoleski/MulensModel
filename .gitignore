@@ -1,4 +1,8 @@
 
+# Byte-compiled / optimized 
+__pycache__/
+*.py[cod]
+
 # simple editor backups
 *~
 
