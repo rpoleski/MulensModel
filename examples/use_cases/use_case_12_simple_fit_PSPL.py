@@ -12,7 +12,7 @@ t_E = 100.
 model = MulensModel.Model()
 model.parameters(t_0=t_0, u_0=u_0, t_E=t_E)
 
-data=MulensModel.UlensData(file_name="data_file.dat")
+data=MulensModel.MulensData(file_name="data_file.dat")
 
 event = MulensModel.Event(datasets=data, model=model)
 

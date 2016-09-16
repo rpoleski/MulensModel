@@ -3,7 +3,7 @@
 
 ### Class Event
 * model - instance of Model
-* datasets - list of UlensData instances
+* datasets - list of MulensData instances
 * fit - instance of Fit
 * get_chi2()
 * chi2
@@ -61,7 +61,7 @@
 ### Class Source
 * distance
 
-### Class UlensData
+### Class MulensData
 * satellite
 * t
 * hjd
