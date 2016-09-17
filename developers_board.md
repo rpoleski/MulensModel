@@ -16,6 +16,6 @@
 * EMCEE example - see [website](http://dan.iel.fm/emcee/current/user/line/).
 * Errorbar scaling, in particular the two parameter.
 * Source limb darkening profile: use of gamma and u conventions, obtaining the value from outside sources (Claret papers). 
-
+* RA & Dec in Model - get galactic and elliptical coordinates.
 
 

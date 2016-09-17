@@ -42,7 +42,7 @@ For tasks to be done see [developers board file](developers_board.md).
 How to work on new code?  
 1. Write use cases if they don't exist yet.  
 2. Find the objects, some of them may not be visible in use cases.  
-3. Organize the objects and how they interact, if needed update documents/Classes.md file.  
+3. Organize the objects and how they interact, if needed update [documents/Classes.md](documents/Classes.md) file.  
 4. Write a few unit tests __before__ you write any function.  
 5. Write the function and work on it until unit tests are passed.  
 
