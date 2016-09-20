@@ -67,5 +67,5 @@
 * hjd
 * mag
 * err_mag
-
+* bad
 
