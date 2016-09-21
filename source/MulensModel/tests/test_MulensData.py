@@ -1,4 +1,5 @@
 import sys
+import unittest
 import numpy as np
 from MulensModel.mulensdata import MulensData
 
@@ -37,11 +38,21 @@ def test_get_jd_zeropoint_5():
     test_data = MulensData()
     assert test_data._get_jd_zeropoint(np.array((2457500.,2457501.))) == 0.
 
-def test_get_jd_zeropoint_6():
-    test_data = MulensData()
-    try:
-        assert test_data._get_jd_zeropoint(np.array((np.nan, np.nan))) == 0.
-    except ValueError:
-        assert 1==1
+
+class GetJDZeropointBadInput(unittest.TestCase):
+    def test_get_jd_zeropoint_6(self):
+        test_data = MulensData()
+        self.assertRaises(ValueError,test_data._get_jd_zeropoint, 
+                          np.array((np.nan, np.nan)))
+
+    def test_get_jd_zeropoint_7(self):
+        test_data = MulensData()
+        self.assertRaises(ValueError,test_data._get_jd_zeropoint,
+                          np.array((np.nan, 7500.)))
+
+    def test_get_jd_zeropoint_8(self):
+        test_data = MulensData()
+        self.assertRaises(ValueError, test_data._get_jd_zeropoint, 
+                          np.array((2450000.,7500.)))
 
 
