@@ -16,7 +16,9 @@ class MulensData(object):
 
     def _get_jd_zeropoint(self, jd_vector):
         """guess what is zeropoint of JD used"""
-        if all(jd_vector > 2000.) and all(jd_vector < 10000.):
+        if not hasattr(jd_vector, '__iter__'):
+	    jd_vector = np.array([jd_vector])
+        if all(jd_vector > 2000.) and all(jd_vector < 12000.):
             return 2450000.
         if all(jd_vector > 52000.) and all(jd_vector < 70000.):
             return 2400000.

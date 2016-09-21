@@ -16,16 +16,15 @@ data=MulensModel.MulensData(file_name="data_file.dat")
 
 event = MulensModel.Event(datasets=data, model=model)
 
-def lnlike(theta):
-    global event
-    global parameters_to_fit
+def lnlike(theta, event, parameters_to_fit):
 
     for key, val in iterate(parameters_to_fit):
         setattr(event.model, val, theta[key])
 
     return -0.5 * event.get_chi2()
 
-ult = op.minimize(lnlike, [t_0, u_0, t_E])
+
+result = op.minimize(lnlike, [t_0, u_0, t_E], args=(event, parameters_to_fit))
 fit_t_0, fit_u_0, fit_t_E = result("x")
 
 for key, val in iterate(parameters_to_fit):
