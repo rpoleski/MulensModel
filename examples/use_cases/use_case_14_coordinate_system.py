@@ -15,6 +15,11 @@ import astropy.units as u
 import numpy as np
 
 def convert_cof_mag2mass(t0,te,u0,alpha,s,q):
+"""
+function to convert from center of magnification to center of mass
+coordinates. Note that this function is for illustration only. It has
+not been tested and may have sign errors.
+"""
     if s <= 1.0:
         return t0, u0
     else:
