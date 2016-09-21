@@ -1,9 +1,12 @@
-
+import sys
 import numpy as np
 from MulensModel.mulensdata import MulensData
 
 
-SAMPLE_FILE_01 = "../../../data/phot_ob08092_O4.dat"
+for path in sys.path:
+    if path.find("MulensModel") > 0:
+        MODULE_PATH = "/".join(path.split("/")[:-1])
+SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 
 def test_file_read():
     '''read sample file and check if values match'''
@@ -40,4 +43,5 @@ def test_get_jd_zeropoint_6():
         assert test_data._get_jd_zeropoint(np.array((np.nan, np.nan))) == 0.
     except ValueError:
         assert 1==1
+
 
