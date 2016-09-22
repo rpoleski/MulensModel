@@ -21,6 +21,6 @@ print(e.model.bandpass, e.model.source_flux, e.model.blend_flux) # default value
 
 for dataset in e.datasets:
     pl.plot(dataset.time, dataset.mag)
-    pl.plot(e.model.time_data[i], e.model.mag_data[i]) ### What is i?###
+    pl.plot(e.model.time_data[dataset], e.model.mag_data[dataset]) 
 
 
