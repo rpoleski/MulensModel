@@ -1,5 +1,8 @@
+import sys
 import numpy as np
 from astropy.time import Time
+
+assert sys.version_info >= (3, 0)
 
 class MulensData(object):
     def __init__(self, file_name=None):
@@ -9,6 +12,10 @@ class MulensData(object):
             self._time = Time(vector_1+self._jd_zeropoint, format="jd")
             self.mag = vector_2
             self.err_mag = vector_3
+
+    @property
+    def jd(self):
+	return self._time.jd
 
     @property
     def time(self):
