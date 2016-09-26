@@ -3,12 +3,12 @@ import numpy as np
 class Fit(object);
     def __init__(self, data=None, A=None):
         self._datasets = data
-        self._A = A
+        self._A = A #What is A? A-->magnification?
            
     def fit_fluxes(self):
         """fit source(s) and blending fluxes"""
         if len(self._A[0].shape) == 1:
-            n_fluxes = 2
+            n_fluxes = 2 #Why have one "fluxes" vector instead of source_flux and blend_flux?
         else:
             n_fluxes, __ = self._A[0].shape 
             n_fluxes += 1
@@ -19,6 +19,16 @@ class Fit(object);
             x[0:(n_fluxes-1),] = self._A[n_data]
             y = data.flux
             results = np.linalg.lstsq(x, y)[0] # F_s1, F_s2..., F_b
+        """
+        Suggest:
+        n_datasets, __ = self._A[0].shape
+        for n_data, dataset in enumerate(self._datasets):
+            x = np.empty(2.*n_datasets, len(dataset))
+            x[0:(2.*n_datasets-1),] = self._A[n_data]
+            y = data.flux
+            results = np.linalg.lstsq(x, y)[0] # F_s1, F_s2..., F_b
+        """
+        #How would this work for binary source?
 
             
 class Event(object):
@@ -28,6 +38,7 @@ class Event(object):
     def get_chi2(self):
         """calculates chi^2 of current model"""
         self.fit(data=self.datasets, A=self.model.A)
+        # self.fit = Fit(data=self.datasets, A=self.model.A) ?
         self.fit.fit_fluxes()
         chi2 = []
         for dataset in self.datasets:
