@@ -35,6 +35,7 @@ event.chi2_0 = len(data) * 1.
 ndim = len(parameters_values)
 nwalkers = 100
 nsteps = 500
+burn = 50
 
 start = [parameters_values * (1 + 1e-4 * np.random.randn(ndim)) for i in range(nwalkers)]
 
@@ -42,4 +43,10 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(event, parameters_
 
 sampler.run_mcmc(start, nsteps)
 
+samples = sampler.chain[:, burn:, :].reshape((-1, ndim))
+
+results = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]), zip(*np.percentile(samples, [16, 50, 84], axis=0)))
+
+for r in results:
+    print(*r)
 
