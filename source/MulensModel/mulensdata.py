@@ -13,7 +13,7 @@ class MulensData(object):
 
     @property
     def jd(self):
-	return self._time.jd
+        return self._time.jd
 
     @property
     def time(self):
@@ -33,7 +33,7 @@ class MulensData(object):
     def _get_jd_zeropoint(self, jd_vector):
         """guess what is zeropoint of JD used"""
         if not hasattr(jd_vector, '__iter__'):
-	    jd_vector = np.array([jd_vector])
+            jd_vector = np.array([jd_vector])
         if all(jd_vector > 2000.) and all(jd_vector < 12000.):
             return 2450000.
         if all(jd_vector > 52000.) and all(jd_vector < 70000.):
