@@ -8,7 +8,7 @@ import MulensModel
 
 def lnlike(theta, event, parameters_to_fit):
     for key, val in iterate(parameters_to_fit):
-        setattr(event, val, theta[key])
+        setattr(event.model, val, theta[key])
     return -0.5 * (event.get_chi2() - event.chi2_0)
 
 def lnprior(theta):
