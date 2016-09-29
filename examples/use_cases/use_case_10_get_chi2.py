@@ -13,7 +13,7 @@ e = MulensModel.Event(datasets=data, model = model) # note that data is an insta
 
 e.get_chi2()
 
-print(e.model.time, e.model.A, e.model.flux, e.model.mag)
+print(e.model.time, e.model.magnification, e.model.flux, e.model.mag)
 
 print(e.chi2)
 

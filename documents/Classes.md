@@ -25,7 +25,7 @@
 * time - array
 * hjd - array
 * mag - array
-* A - array
+* magnification - array
 * flux - array
 * mag - array
 * theta_E
