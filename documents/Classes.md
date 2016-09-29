@@ -63,9 +63,12 @@
 
 ### Class MulensData
 * satellite
-* t
+* time
 * hjd
 * mag
 * err_mag
 * bad
+* flux
+* err_flux
+* mag_fmt
 
