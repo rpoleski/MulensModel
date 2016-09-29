@@ -1,20 +1,26 @@
 from astropy import units as u
 
+message_max_masses = 'A maximum of 2 masses is supported.'
+
 class Lens(object):
     def __init__(self, n_components=1):
         if n_components > 2:
-            raise ValueError('A maximum of 2 masses is supported.')
+            raise ValueError(message_max_masses)
         else:
             self.n_components = n_components
 
     @property
     def total_mass(self):
-        if self.n_components == 1:
-            return self._mass_1
-        elif self.n_components == 2:
-            return self._mass_1+self._mass_2
-        else:
-            return None
+        try:
+            return self._total_mass
+        except AttributeError:
+            if self.n_components == 1:
+                self._total_mass = self._mass_1
+            elif self.n_components == 2:
+                self._total_mass = self._mass_1+self._mass_2
+            else:
+                raise ValueError(message_max_masses)
+            return self._total_mass
 
     @total_mass.setter
     def total_mass(self,new_mass):
