@@ -23,6 +23,8 @@ class MulensData(object):
                 (self.mag, self.mag_flux) = Utils.get_mag_and_err_from_flux(flux=self.flux, err_flux=self.err_flux)
             else:
                 raise ValueError('unkonown format of brightness in ' + file_name + ' file')
+            self._input_values = vector_2
+            self._input_values_err = vector_3
 
     @property
     def jd(self):
