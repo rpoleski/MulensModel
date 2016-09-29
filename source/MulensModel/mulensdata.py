@@ -2,14 +2,27 @@ import sys
 import numpy as np
 from astropy.time import Time
 
+from MulensModel.utils import Utils
+
+
 class MulensData(object):
-    def __init__(self, file_name=None,date_fmt="jd"):
+    def __init__(self, file_name=None, date_fmt="jd", mag_fmt="mag"):
         if file_name is not None:
             vector_1, vector_2, vector_3 = np.loadtxt(fname=file_name, unpack=True)
             self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt)
             self._time = Time(vector_1+self._date_zeropoint, format="jd")
-            self.mag = vector_2
-            self.err_mag = vector_3
+            if mag_fmt == "mag":
+                self.input_fmt = mag_fmt
+                self.mag = vector_2
+                self.err_mag = vector_3
+                (self.flux, self.err_flux) = Utils.get_flux_and_err_from_mag(mag=self.mag, err_mag=self.err_mag)
+            elif mag_fmt == "flux":
+                self.input_fmt = mag_fmt
+                self.flux = vector_2
+                self.err_flux = vector_3
+                (self.mag, self.mag_flux) = Utils.get_mag_and_err_from_flux(flux=self.flux, err_flux=self.err_flux)
+            else:
+                raise ValueError('unkonown format of brightness in ' + file_name + ' file')
 
     @property
     def jd(self):
