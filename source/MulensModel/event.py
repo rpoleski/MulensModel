@@ -1,34 +1,7 @@
 import numpy as np
 
-class Fit(object);
-    def __init__(self, data=None, magnification=None):
-        self._datasets = data
-        self._magnification = magnification
-           
-    def fit_fluxes(self):
-        """fit source(s) and blending fluxes"""
-        if len(self._magnification[0].shape) == 1:
-            n_fluxes = 2 #Why have one "fluxes" vector instead of source_flux and blend_flux?
-        else:
-            n_fluxes, __ = self._magnification[0].shape 
-            n_fluxes += 1
-        x = np.empty([n_fluxes, len(dataset)])
-        x[n_fluxes-1] = 1.
-        for n_data, dataset in enumerate(self._datasets):
-            x = np.empty(n_fluxes, len(dataset))
-            x[0:(n_fluxes-1),] = self._magnification[n_data]
-            y = data.flux
-            results = np.linalg.lstsq(x, y)[0] # F_s1, F_s2..., F_b
-        """
-        Suggest:
-        n_datasets, __ = self._magnification[0].shape
-        for n_data, dataset in enumerate(self._datasets):
-            x = np.empty(2.*n_datasets, len(dataset))
-            x[0:(2.*n_datasets-1),] = self._magnification[n_data]
-            y = data.flux
-            results = np.linalg.lstsq(x, y)[0] # F_s1, F_s2..., F_b
-        """
-        #How would this work for binary source?
+from MulensModel.utils import Utils
+from MulensModel.fit import Fit
 
             
 class Event(object):
@@ -37,12 +10,11 @@ class Event(object):
 
     def get_chi2(self):
         """calculates chi^2 of current model"""
-        self.fit(data=self.datasets, magnification=self.model.magnification)
-        # self.fit = Fit(data=self.datasets, magnification=self.model.magnification) ?
+        self.fit = Fit(data=self.datasets, magnification=self.model.magnification) 
         self.fit.fit_fluxes()
         chi2 = []
         for dataset in self.datasets:
-            diff = dataset._input_values - fit.get_input_values(data=dataset)
+            diff = dataset._input_values - fit.get_input_format(data=dataset)
             select = (not dataset.bad)
             chi2.append((diff[select] / dataset._input_values_err[select])**2)
         self.chi2 = sum(chi2)
