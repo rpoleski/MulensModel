@@ -4,7 +4,7 @@ message_max_masses = 'A maximum of 2 masses is supported.'
 
 class Lens(object):
     def __init__(self, n_components=None,mass=None,mass_1=None,mass_2=None,
-                 distance=None,q=None):
+                 distance=None,q=None,s=None):
         if n_components > 2:
             raise ValueError(message_max_masses)
         else:
@@ -27,6 +27,8 @@ class Lens(object):
             while self.n_components < 2:
                 self.n_components +=1
             self.q = q
+        if s != None:
+            self.s = s
 
     @property
     def total_mass(self):
@@ -127,14 +129,14 @@ class Lens(object):
 
     @property
     def q(self):
-        if self.n_components != 2:
+        if self.n_components < 2:
             raise AttributeError('q is only defined if there are 2 bodies.')
         else:
             return self._mass_2/self._mass_1
 
     @q.setter
     def q(self,new_q):
-        if self.n_components != 2:
+        if self.n_components < 2:
             raise AttributeError('q is only defined if there are 2 bodies.')
         else:
             try:
@@ -145,3 +147,17 @@ class Lens(object):
                     self._mass_2 = new_q*self._mass_1
                 except AttributeError:
                     raise AttributeError('Either mass_1 or total_mass must be defined before q.')
+
+    @property
+    def s(self):
+        if self.n_components < 2:
+            raise AttributeError('q is only defined if there are 2 bodies.')
+        else:
+            return self._s
+
+    @s.setter
+    def s(self,new_s):
+        if self.n_components < 2:
+            raise AttributeError('q is only defined if there are 2 bodies.')
+        else:
+            self._s = new_s
