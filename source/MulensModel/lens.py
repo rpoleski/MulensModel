@@ -3,11 +3,30 @@ from astropy import units as u
 message_max_masses = 'A maximum of 2 masses is supported.'
 
 class Lens(object):
-    def __init__(self, n_components=1):
+    def __init__(self, n_components=None,mass=None,mass_1=None,mass_2=None,
+                 distance=None,q=None):
         if n_components > 2:
             raise ValueError(message_max_masses)
         else:
             self.n_components = n_components
+        if mass != None:
+            if n_components == None:
+                self.n_components = 1
+            self.mass = mass
+        if mass_1 != None:
+            if n_components == None:
+                self.n_components = 1
+            self.mass_1 = mass_1
+        if mass_2 != None:
+            while self.n_components < 2:
+                self.n_components +=1
+            self.mass_2 = mass_2
+        if distance != None:
+            self.distance = distance
+        if q != None:
+            while self.n_components < 2:
+                self.n_components +=1
+            self.q = q
 
     @property
     def total_mass(self):
@@ -54,10 +73,7 @@ class Lens(object):
 
     @property
     def mass_1(self):
-        if self.n_components == 1:
-            return self._mass
-        else:
-            return self._mass_1
+        return self._mass_1
 
     @mass_1.setter
     def mass_1(self,new_mass):
