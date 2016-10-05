@@ -1,138 +1,112 @@
 from astropy import units as u
+import numpy as np
 
-message_max_masses = 'A maximum of 2 masses is supported.'
 
 class Lens(object):
-    def __init__(self, n_components=None,mass=None,mass_1=None,mass_2=None,
-                 a_proj=None,distance=None,q=None,s=None):
-        if n_components > 2:
-            raise ValueError(message_max_masses)
-        else:
-            self.n_components = n_components
-        if mass != None:
-            if n_components == None:
-                self.n_components = 1
-            self.mass = mass
-        if mass_1 != None:
-            if n_components == None:
-                self.n_components = 1
-            self.mass_1 = mass_1
-        if mass_2 != None:
-            while self.n_components < 2:
-                try:
-                    self.n_components +=1
-                except AttributeError:
-                    self.n_components = 2
-            self.mass_2 = mass_2
-        if distance != None:
-            self.distance = distance
+    def __init__(self, total_mass=None,mass=None,mass_1=None,mass_2=None,
+                 a_proj=None,distance=None,q=None,s=None,epsilon=None):
+        """
+        Define a Lens object. Standard parameter combinations:
+        (s, q)
+        (mass, distance)
+        (mass_1, mass_2, a_proj, distance)
+        (total_mass, epsilon, distance)
+        (epsilon, s)
+        Note that s, q, and epsilon may be lists or numpy arrays.
+        """
         if q != None:
-            self.n_components = 2
             self.q = q
-        if s != None:
-            self.s = s
+            if s != None:
+                self.s = s
+            else:
+                raise AttributeError('if q is defined, s must also be defined.')
+            if mass_1 != None:
+                self._total_mass = mass_1*(1.+q)
+        if total_mass != None:
+            self._total_mass = total_mass
+        if epsilon != None:
+            self._epsilon = np.array(epsilon)
+        if mass_2 != None:
+            self._total_mass = mass_1+mass_2
+            self._epsilon = np.array([mass_1/self.total_mass,mass_2/self.total_mass])
+        else:
+            if mass_1 != None and q == None:
+                self._set_single_mass(mass_1)
+            if mass != None:
+                self._set_single_mass(mass)
+        if distance != None:
+            self._distance = distance
         if a_proj != None:
-            self.a_proj = a_proj
+            self._a_proj = a_proj
 
     def __repr__(self):
         pass
 
     @property
     def total_mass(self):
-        try:
-            return self._total_mass
-        except AttributeError:
-            if self.n_components == 1:
-                self._total_mass = self._mass_1
-            elif self.n_components == 2:
-                self._total_mass = self._mass_1*(1.+self._q)
-            else:
-                raise ValueError(message_max_masses)
-            return self._total_mass
+        return self._total_mass
 
     @total_mass.setter
     def total_mass(self,new_mass):
-        if type(new_mass) != u.Quantity:
-            raise TypeError('mass_1 must have astropy units, i.e. it must be an astropy.units Quantity.')
-        else:
-            if (new_mass.unit == "solMass" or new_mass.unit == "jupiterMass"
-                or new_mass.unit == "earthMass"):
-                self._total_mass = new_mass
-            else:
-                raise u.UnitsError('Allowed units are "solMass", "jupiterMass", or "earthMass"')
-
+        self._total_mass = total_mass
 
     @property
-    def mass(self):
-        if self.n_components == 1:
-            return self._mass_1
+    def epsilon(self):
+        return self._epsilon
+
+    @epsilon.setter
+    def epsilon(self,new_epsilon):
+        self._epsilon = np.array(new_epsilon)
+
+    @property
+    def mass(self): 
+        if self._epsilon.size > 1:
+            raise TypeError('mass can only be defined for a point lens')
         else:
-            return self.total_mass
+            return self._total_mass
 
     @mass.setter
     def mass(self,new_mass):
-        if type(new_mass) != u.Quantity:
-            raise TypeError('mass_1 must have astropy units, i.e. it must be an astropy.units Quantity.')
-        else:
-            if (new_mass.unit == "solMass" or new_mass.unit == "jupiterMass"
-                or new_mass.unit == "earthMass"):
-                self._mass_1 = new_mass
+        try:
+            if self._epsilon.size > 1:
+                raise TypeError('mass can only be defined for a point lens')
             else:
-                raise u.UnitsError('Allowed units are "solMass", "jupiterMass", or "earthMass"')
+                self._set_single_mass(new_mass)
+        except AttributeError:
+            self._set_single_mass(new_mass)
 
     @property
     def mass_1(self):
-        try:
-            return self._mass_1
-        except AttributeError:
-            return self._total_mass/(1.+self._q)
+        return self._total_mass*self._epsilon[0]
 
     @mass_1.setter
     def mass_1(self,new_mass):
-        if type(new_mass) != u.Quantity:
-            raise TypeError('mass_1 must have astropy units, i.e. it must be an astropy.units Quantity.')
-        else:
-            if (new_mass.unit == "solMass" or new_mass.unit == "jupiterMass"
-                or new_mass.unit == "earthMass"):
-                self._mass_1 = new_mass
-            else:
-                raise u.UnitsError('Allowed units are "solMass", "jupiterMass", or "earthMass"')
+        try:
+            self._change_mass(new_mass,0)
+        except AttributeError:
+            self._set_single_mass(new_mass)
 
     @property
     def mass_2(self):
-        if self.n_components == 1:
-            raise ValueError('Only one mass is defined')
-        else:
-            try:
-                return self._q*self._mass_1
-            except AttributeError:
-                return self._total_mass/((1./self._q)+1.)
+        return self._total_mass*self._epsilon[1]
 
     @mass_2.setter
     def mass_2(self,new_mass,add=False):
-        if self.n_components == 1 and add == False:
-            raise ValueError('n_components=1; either increase the number of components or use add=True.')
+        if self._epsilon.size > 1:
+            self._change_mass(new_mass,1)
         else:
-            if type(new_mass) != u.Quantity:
-                raise TypeError('mass_1 must have astropy units, i.e. it must be an astropy.units Quantity.')
-            else:
-                if (new_mass.unit == "solMass" 
-                    or new_mass.unit == "jupiterMass"
-                    or new_mass.unit == "earthMass"):
-                    try: 
-                        self._q = (new_mass/self._mass_1).decompose()
-                    except:
-                        try:
-                            self._q = (new_mass
-                                       /(self._total_mass-new_mass)).decompose()
-                            self._mass_1 = new_mass/self._q
-                        except AttributeError:
-                            raise AttributeError('Either mass_1 or total_mass must be defined before mass_2.')
-                    if self.n_components < 2:
-                        self.n_components += 1
-                else:
-                    raise u.UnitsError('Allowed units are "solMass", "jupiterMass", or "earthMass"')
+            self._add_mass(new_mass,1)
 
+    @property
+    def mass_3(self):
+        return self._total_mass*self._epsilon[2]
+
+    @mass_3.setter
+    def mass_3(self,new_mass,add=False):
+        if self._epsilon.size > 2:
+            self._change_mass(new_mass,2)
+        else:
+            self._add_mass(new_mass,2)
 
     @property
     def distance(self):
@@ -151,36 +125,58 @@ class Lens(object):
 
     @property
     def q(self):
-        if self.n_components < 2:
-            raise AttributeError('q is only defined if there are 2 bodies.')
+        if self._epsilon.size > 1:
+            return self._epsilon[1:]/self._epsilon[0]
         else:
-            return self._q
+            raise AttributeError('Lens has only one body')
 
     @q.setter
     def q(self,new_q):
-        if self.n_components < 2:
-            raise AttributeError('q is only defined if there are 2 bodies.')
-        else:
-            self._q = new_q
+        """
+        Note: if total_mass is defined before q, it is assumed this is the
+        mass of the primary. If you want this to actually be the total mass,
+        define it after defining q.
+        """
+        new_q = np.insert(new_q,0,1.)
+        self._epsilon = new_q/np.sum(new_q)
+        try:
+            if np.array(new_q).size == self._epsilon.size-1:
+        #Case 3: the entire lens is defined (new_q changes the values of q)
+                pass
+            else:
+        #Case 2: the primary is defined (new_q adds masses)
+                self._total_mass = self._total_mass*np.sum(new_q)
+        except AttributeError:
+        #Case 1: nothing is initialized (new_q directly sets epsilon)
+            pass
 
     @property
     def s(self):
-        if self.n_components < 2:
-            raise AttributeError('q is only defined if there are 2 bodies.')
-        else:
-            return self._s
+        return self._s
 
     @s.setter
     def s(self,new_s):
-        if self.n_components < 2:
-            raise AttributeError('q is only defined if there are 2 bodies.')
-        else:
-            self._s = new_s
+        self._s = new_s
 
     @property
     def a_proj(self):
-        pass
+        return self._a_proj
 
     @a_proj.setter
     def a_proj(self,new_a_proj):
-        pass
+        self._a_proj = new_a_proj
+
+    def _change_mass(self,new_mass,index):
+        new_total_mass = self._total_mass(1. - self._epsilon[index])+new_mass
+        self._epsilon = self._total_mass*self._epsilon/new_total_mass
+        self._total_mass = new_total_mass
+
+    def _set_single_mass(self,new_mass):
+        self._total_mass = new_mass
+        self._epsilon = np.array([1.0])
+
+    def _add_mass(self,new_mass,index):
+        new_total_mass = self._total_mass+new_mass
+        self._epsilon = self._total_mass*self._epsilon/new_total_mass
+        self._epsilon = np.insert(self._epsilon, index,new_mass/new_total_mass)
+        self._total_mass = new_total_mass
