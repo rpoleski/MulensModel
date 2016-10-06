@@ -1,6 +1,6 @@
 class ModelParameters(object):
-    def __init__(self,t_0=0., u_0=0., t_E=0., rho=None,s=None,
-                 q=None,alpha=None):
+    def __init__(self, t_0=0., u_0=0., t_E=0., rho=None, s=None,
+                 q=None, alpha=None):
         pass
 
 class Model(object):
@@ -12,10 +12,10 @@ class Model(object):
     unpredictable.
     2. Does not permit parallax
     """
-    def __init__(self,parameters=None,
-                 t0=None,u0=None,tE=None,rho=None,s=None,q=None,
+    def __init__(self, parameters=None,
+                 t_0=None, u_0=None, t_E=None, rho=None, s=None, q=None,
                  alpha=None,
-                 lens=None,source=None,mu_rel=None):
+                 lens=None, source=None, mu_rel=None):
         """
         Three ways to define the model:
         parameters = a ModelParameters() object
@@ -23,11 +23,11 @@ class Model(object):
         specify physical properties: lens= a Lens() object, 
             source= a Source() object, mu_rel
         """
-        if parameters != None:
+        if parameters is not None:
             pass
-        elif t0 != None:
+        elif t_0 is not None:
             pass
-        elif source != None:
+        elif source is not None:
             pass
         else:
             raise TypeError('Not a valid model definiion')
