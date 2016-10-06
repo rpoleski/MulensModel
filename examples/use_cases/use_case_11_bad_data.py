@@ -20,7 +20,7 @@ clean_data requires fitting a model...
 """
 event.get_chi2() #should mask bad data
 
-pl.scatter(data.time, data.mag,marker="o", facecolor=None)
+pl.scatter(data.time, data.mag, marker="o", facecolor=None)
 pl.scatter(data.time[data.good], data.mag[not data.bad], marker="o", facecolor="black")
 pl.scatter(data.time[data.bad], data.mag[data.bad], marker="x")
 

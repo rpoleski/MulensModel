@@ -3,8 +3,8 @@ import numpy as np
 
 
 class Lens(object):
-    def __init__(self, total_mass=None,mass=None,mass_1=None,mass_2=None,
-                 a_proj=None,distance=None,q=None,s=None,epsilon=None):
+    def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
+                 a_proj=None, distance=None, q=None, s=None, epsilon=None):
         """
         Define a Lens object. Standard parameter combinations:
         (s, q)
@@ -14,29 +14,29 @@ class Lens(object):
         (epsilon, s)
         Note that s, q, and epsilon may be lists or numpy arrays.
         """
-        if q != None:
+        if q is not None:
             self.q = q
-            if s != None:
+            if s is not None:
                 self.s = s
             else:
                 raise AttributeError('if q is defined, s must also be defined.')
-            if mass_1 != None:
+            if mass_1 is not None:
                 self._total_mass = mass_1*(1.+q)
-        if total_mass != None:
+        if total_mass is not None:
             self._total_mass = total_mass
-        if epsilon != None:
+        if epsilon is not None:
             self._epsilon = np.array(epsilon)
-        if mass_2 != None:
-            self._total_mass = mass_1+mass_2
-            self._epsilon = np.array([mass_1/self.total_mass,mass_2/self.total_mass])
+        if mass_2 is not None:
+            self._total_mass = mass_1 + mass_2
+            self._epsilon = np.array([mass_1/self.total_mass, mass_2/self.total_mass])
         else:
-            if mass_1 != None and q == None:
+            if mass_1 is not None and q is None:
                 self._set_single_mass(mass_1)
-            if mass != None:
+            if mass is not None:
                 self._set_single_mass(mass)
-        if distance != None:
+        if distance is not None:
             self._distance = distance
-        if a_proj != None:
+        if a_proj is not None:
             self._a_proj = a_proj
 
     def __repr__(self):
@@ -66,7 +66,7 @@ class Lens(object):
             return self._total_mass
 
     @mass.setter
-    def mass(self,new_mass):
+    def mass(self, new_mass):
         try:
             if self._epsilon.size > 1:
                 raise TypeError('mass can only be defined for a point lens')
@@ -77,7 +77,7 @@ class Lens(object):
 
     @property
     def mass_1(self):
-        return self._total_mass*self._epsilon[0]
+        return self._total_mass * self._epsilon[0]
 
     @mass_1.setter
     def mass_1(self,new_mass):
@@ -88,10 +88,10 @@ class Lens(object):
 
     @property
     def mass_2(self):
-        return self._total_mass*self._epsilon[1]
+        return self._total_mass * self._epsilon[1]
 
     @mass_2.setter
-    def mass_2(self,new_mass,add=False):
+    def mass_2(self, new_mass, add=False):
         if self._epsilon.size > 1:
             self._change_mass(new_mass,1)
         else:
@@ -99,21 +99,21 @@ class Lens(object):
 
     @property
     def mass_3(self):
-        return self._total_mass*self._epsilon[2]
+        return self._total_mass * self._epsilon[2]
 
     @mass_3.setter
-    def mass_3(self,new_mass,add=False):
+    def mass_3(self, new_mass, add=False):
         if self._epsilon.size > 2:
-            self._change_mass(new_mass,2)
+            self._change_mass(new_mass, 2)
         else:
-            self._add_mass(new_mass,2)
+            self._add_mass(new_mass, 2)
 
     @property
     def distance(self):
         return self._distance
 
     @distance.setter
-    def distance(self,new_distance):
+    def distance(self, new_distance):
         if type(new_distance) != u.Quantity:
             raise TypeError('distance must have astropy units, i.e. it must be an astropy.units Quantity.')
         else:
@@ -126,7 +126,7 @@ class Lens(object):
     @property
     def q(self):
         if self._epsilon.size > 1:
-            return self._epsilon[1:]/self._epsilon[0]
+            return self._epsilon[1:] / self._epsilon[0]
         else:
             raise AttributeError('Lens has only one body')
 
@@ -137,15 +137,15 @@ class Lens(object):
         mass of the primary. If you want this to actually be the total mass,
         define it after defining q.
         """
-        new_q = np.insert(new_q,0,1.)
-        self._epsilon = new_q/np.sum(new_q)
+        new_q = np.insert(new_q, 0,1.)
+        self._epsilon = new_q / np.sum(new_q)
         try:
-            if np.array(new_q).size == self._epsilon.size-1:
+            if np.array(new_q).size == self._epsilon.size - 1:
         #Case 3: the entire lens is defined (new_q changes the values of q)
                 pass
             else:
         #Case 2: the primary is defined (new_q adds masses)
-                self._total_mass = self._total_mass*np.sum(new_q)
+                self._total_mass = self._total_mass * np.sum(new_q)
         except AttributeError:
         #Case 1: nothing is initialized (new_q directly sets epsilon)
             pass
@@ -163,20 +163,20 @@ class Lens(object):
         return self._a_proj
 
     @a_proj.setter
-    def a_proj(self,new_a_proj):
+    def a_proj(self, new_a_proj):
         self._a_proj = new_a_proj
 
-    def _change_mass(self,new_mass,index):
-        new_total_mass = self._total_mass(1. - self._epsilon[index])+new_mass
-        self._epsilon = self._total_mass*self._epsilon/new_total_mass
+    def _change_mass(self, new_mass, index):
+        new_total_mass = self._total_mass(1. - self._epsilon[index]) + new_mass
+        self._epsilon = self._total_mass * self._epsilon / new_total_mass
         self._total_mass = new_total_mass
 
-    def _set_single_mass(self,new_mass):
+    def _set_single_mass(self, new_mass):
         self._total_mass = new_mass
         self._epsilon = np.array([1.0])
 
-    def _add_mass(self,new_mass,index):
-        new_total_mass = self._total_mass+new_mass
-        self._epsilon = self._total_mass*self._epsilon/new_total_mass
-        self._epsilon = np.insert(self._epsilon, index,new_mass/new_total_mass)
+    def _add_mass(self, new_mass, index):
+        new_total_mass = self._total_mass + new_mass
+        self._epsilon = self._total_mass * self._epsilon / new_total_mass
+        self._epsilon = np.insert(self._epsilon, index, new_mass/new_total_mass)
         self._total_mass = new_total_mass
