@@ -5,8 +5,10 @@
 * model - instance of Model
 * datasets - list of MulensData instances
 * fit - instance of Fit
-* get_chi2()
 * chi2
+* get_chi2()
+* clean_data()
+* estimate_model_params()
 
 ### Class Model
 * lens - instance of Lens
@@ -34,22 +36,29 @@
 * blend_flux
 * pi_E
 * t_0_par
+* time_data
+* mag_data
+* parameters()
+* parallax()
+* plot_lightcurve()
+* plot_trajectory()
+* finite_source()
 
 ### Class Fit
-* t - list of arrays
+* time - list of arrays
 * mag_data - list of arrays
 * mag_model - list of arrays
 * res - list of arrays
 
 ### Class Lens
-* set_componenet()
 * n_components
 * component[]
 * s
 * q
-* m_1
-* m_2
+* mass_1
+* mass_2
 * distance
+* set_componenet()
 * and for future triple lens:
   * s_2
   * q_2
@@ -60,6 +69,8 @@
 
 ### Class Source
 * distance
+* angular_size
+* I_mag
 
 ### Class MulensData
 * satellite
