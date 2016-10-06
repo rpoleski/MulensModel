@@ -13,7 +13,7 @@ point_lens.blend.Imag = 20.
 point_lens.plot_lightcurve(range=[-1.,1.])
 
 #2 bodies - Version 1
-l = MulensModel.Lens(n_components=2)
+l = MulensModel.Lens()
 l.mass_1 = 1.0*u.solMass
 l.mass_2 = 0.1*u.jupiterMass
 l.distance = 2.e3*u.pc
