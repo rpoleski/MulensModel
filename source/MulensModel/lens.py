@@ -92,6 +92,11 @@ class Lens(object):
 
     @mass_2.setter
     def mass_2(self, new_mass, add=False):
+        """
+        Note that if total_mass is defined before mass_2, and there is
+        no epsilon corresponding to mass_2, this function will proceed
+        to add mass_2 to the total_mass.
+        """
         if self._epsilon.size > 1:
             self._change_mass(new_mass,1)
         else:
@@ -103,6 +108,11 @@ class Lens(object):
 
     @mass_3.setter
     def mass_3(self, new_mass, add=False):
+        """
+        Note that if total_mass is defined before mass_3, and there is
+        no epsilon corresponding to mass_3, this function will proceed
+        to add mass_3 to the total_mass.
+        """
         if self._epsilon.size > 2:
             self._change_mass(new_mass, 2)
         else:
