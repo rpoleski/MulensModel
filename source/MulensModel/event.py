@@ -14,9 +14,9 @@ class Event(object):
         self.fit.fit_fluxes()
         chi2 = []
         for dataset in self.datasets:
-            diff = dataset._input_values - fit.get_input_format(data=dataset)
-            select = (not dataset.bad)
-            chi2.append((diff[select] / dataset._input_values_err[select])**2)
+            diff = dataset._input_values - self.fit.get_input_format(data=dataset)
+            select = np.logical_not(dataset.bad)
+            chi2.append(sum((diff[select] / dataset._input_values_err[select])**2))
         self.chi2 = sum(chi2)
         return self.chi2
 

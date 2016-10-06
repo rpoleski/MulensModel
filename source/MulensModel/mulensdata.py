@@ -25,6 +25,7 @@ class MulensData(object):
                 raise ValueError('unkonown format of brightness in ' + file_name + ' file')
             self._input_values = vector_2
             self._input_values_err = vector_3
+            self.bad = len(vector_1) * [False]
 
     @property
     def jd(self):

@@ -3,9 +3,13 @@ import numpy as np
 from MulensModel.utils import Utils
 
 
-class Fit(object);
+class Fit(object):
     def __init__(self, data=None, magnification=None):
-        self._datasets = data
+        """
+        data - a list of MulensModel datasets
+        magnification - a list of numpy arrays, each list element is (n_epochs) x (n_sources)
+        """
+        self._datasets = data 
         self._magnification = magnification
            
     def fit_fluxes(self):
@@ -18,35 +22,42 @@ class Fit(object);
         self._flux_blending = dict()
         self._flux_sources = dict()
         for i_dataset, dataset in enumerate(self._datasets):
-            x = np.empty(n_fluxes, len(dataset))
+            x = np.empty(shape=(n_fluxes, len(dataset.jd)))
             x[0:(n_fluxes-1),] = self._magnification[i_dataset]
             x[n_fluxes-1] = 1.
-            results = np.linalg.lstsq(x, self._datasets[i_dataset])[0] # F_s1, F_s2..., F_b
+            xT = x.T
+            y = self._datasets[i_dataset].flux
+            variance = self._datasets[i_dataset].err_flux**-2
+            y *= variance
+            for i,var in enumerate(variance):
+		xT[i] *= var
+            results = np.linalg.lstsq(xT, y)[0] # F_s1, F_s2..., F_b
+            #print(results) # 41.81485 0.68119 for MAG_ZEROPOINT = 18
             self._flux_blending[dataset] = results[-1]
-            self._flux_sources[dataset] = result[:-1]
+            self._flux_sources[dataset] = results[:-1]
 
     def get_input_format(self, data=None):
         """return model in the same format as given dataset was input"""
         if data is None:
             raise ValueError('Fit.get_input_format() dataset not provided')
-        n_sources = self._magnification[0].shape[0]
-        flux = np.ones() * self._flux_blending[data]
-
         if len(self._magnification[0].shape) == 1:
             n_sources = 1
         else:
-            n_sources = self._magnification[0].shape[0]
+            n_sources = self._magnification[0].shape[0]            
+
         index = self._datasets.index(data)
 
+        flux = np.ones(len(self._magnification[0])) * self._flux_blending[data]
+
         if n_sources == 1:
-            flux += self._flux_sources[data][0] * self._magnification[index]
-        else
+            flux += self._flux_sources[data] * self._magnification[index]
+        else:
             for i in range(n_sources):
                 flux += self._flux_sources[data][i] * self._magnification[index][i]
 
-        if data.mag_fmt == "mag":
-            result = get_mag_from_flux(flux)
-        elif data.mag_fmt == "flux":
+        if data.input_fmt == "mag":
+            result = Utils.get_mag_from_flux(flux)
+        elif data.input_fmt == "flux":
             result = flux
         else:
             raise ValueError('Fit.get_input_format() unrecognized data input format')
