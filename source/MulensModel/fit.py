@@ -32,6 +32,10 @@ class Fit(object):
             for i,var in enumerate(variance):
 		xT[i] *= var
             results = np.linalg.lstsq(xT, y)[0] # F_s1, F_s2..., F_b
+            #results[0] = 1664.6791620618908
+            #results[1] = 27.118662350933683
+
+            # print(sum(variance * (np.dot(xx.T, results) - self._datasets[i_dataset].flux)**2))
             #print(results) # 41.81485 0.68119 for MAG_ZEROPOINT = 18
             self._flux_blending[dataset] = results[-1]
             self._flux_sources[dataset] = results[:-1]

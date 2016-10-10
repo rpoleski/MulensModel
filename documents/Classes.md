@@ -29,7 +29,6 @@
 * mag - array
 * magnification - array
 * flux - array
-* mag - array
 * theta_E
 * bandpass
 * source_flux
