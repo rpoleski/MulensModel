@@ -27,15 +27,15 @@ class Fit(object):
             x[n_fluxes-1] = 1.
             xT = x.T
             y = self._datasets[i_dataset].flux
-            variance = self._datasets[i_dataset].err_flux**-2
-            y *= variance
-            for i,var in enumerate(variance):
-                xT[i] *= var
+            variance_inverse = self._datasets[i_dataset].err_flux**-2
+            y *= variance_inverse
+            for i,vari in enumerate(variance_inverse):
+                xT[i] *= vari
             results = np.linalg.lstsq(xT, y)[0] # F_s1, F_s2..., F_b
             #results[0] = 1664.6791620618908
             #results[1] = 27.118662350933683
 
-            # print(sum(variance * (np.dot(xx.T, results) - self._datasets[i_dataset].flux)**2))
+            # print(sum(variance_inverse * (np.dot(xx.T, results) - self._datasets[i_dataset].flux)**2))
             #print(results) # 41.81485 0.68119 for MAG_ZEROPOINT = 18
             self._flux_blending[dataset] = results[-1]
             self._flux_sources[dataset] = results[:-1]
@@ -67,5 +67,3 @@ class Fit(object):
             raise ValueError('Fit.get_input_format() unrecognized data input format')
         return result
     
-            
-
