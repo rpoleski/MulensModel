@@ -35,7 +35,7 @@ class MulensData(object):
     def time(self):
         return self._time.jd - self._date_zeropoint
 
-    def _get_date_zeropoint(self,date_fmt="jd"):
+    def _get_date_zeropoint(self, date_fmt="jd"):
         """ Return the zeropoint of the date so it can be converted to
         the standard 245#### format."""
         if date_fmt == "jd" or date_fmt == "hjd":

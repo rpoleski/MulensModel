@@ -30,7 +30,7 @@ class Fit(object):
             variance = self._datasets[i_dataset].err_flux**-2
             y *= variance
             for i,var in enumerate(variance):
-		xT[i] *= var
+                xT[i] *= var
             results = np.linalg.lstsq(xT, y)[0] # F_s1, F_s2..., F_b
             #results[0] = 1664.6791620618908
             #results[1] = 27.118662350933683

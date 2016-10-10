@@ -9,7 +9,7 @@ data=MulensModel.MulensData(file_name='some_file.dat')
 model = MulensModel.Model()
 model.parameters(t_0=7600., u_0=0.01, t_E=34.*u.day)
 
-e = MulensModel.Event(datasets=data, model = model) # note that data is an instance of Mulens.Data but e.datasets is a list
+e = MulensModel.Event(datasets=data, model=model) # note that data is an instance of Mulens.Data but e.datasets is a list
 
 e.get_chi2()
 
