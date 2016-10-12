@@ -44,22 +44,37 @@ class Lens(object):
 
     @property
     def total_mass(self):
+        """
+        The total mass of the lens (sum of all components).
+        """
         return self._total_mass
 
     @total_mass.setter
     def total_mass(self,new_mass):
+        """
+        The total mass of the lens (sum of all components).
+        """
         self._total_mass = total_mass
 
     @property
     def epsilon(self):
+        """
+        An array of mass ratios for each lens components: m_i/total_mass.
+        """
         return self._epsilon
 
     @epsilon.setter
     def epsilon(self,new_epsilon):
+        """
+        The total mass of the lens (sum of all components).
+        """
         self._epsilon = np.array(new_epsilon)
 
     @property
     def mass(self): 
+        """
+        The mass of a point lens --> total mass.
+        """
         if self._epsilon.size > 1:
             raise TypeError('mass can only be defined for a point lens')
         else:
@@ -67,6 +82,9 @@ class Lens(object):
 
     @mass.setter
     def mass(self, new_mass):
+        """
+        The mass of a point lens --> total mass.
+        """
         try:
             if self._epsilon.size > 1:
                 raise TypeError('mass can only be defined for a point lens')
@@ -77,10 +95,16 @@ class Lens(object):
 
     @property
     def mass_1(self):
+        """
+        The mass of the primary. Defined as total_mass * epsilon[0].
+        """
         return self._total_mass * self._epsilon[0]
 
     @mass_1.setter
     def mass_1(self,new_mass):
+        """
+        The mass of the primary. Defined as total_mass * epsilon[0].
+        """
         try:
             self._change_mass(new_mass,0)
         except AttributeError:
@@ -88,11 +112,16 @@ class Lens(object):
 
     @property
     def mass_2(self):
+        """
+        The mass of the secondary. Defined as total_mass * epsilon[1].
+        """
         return self._total_mass * self._epsilon[1]
 
     @mass_2.setter
     def mass_2(self, new_mass, add=False):
         """
+        The mass of the secondary. Defined as total_mass * epsilon[1].
+
         Note that if total_mass is defined before mass_2, and there is
         no epsilon corresponding to mass_2, this function will proceed
         to add mass_2 to the total_mass.
@@ -104,11 +133,16 @@ class Lens(object):
 
     @property
     def mass_3(self):
+        """
+        The mass of the tertiary. Defined as total_mass * epsilon[2].
+        """
         return self._total_mass * self._epsilon[2]
 
     @mass_3.setter
     def mass_3(self, new_mass, add=False):
         """
+        The mass of the tertiary. Defined as total_mass * epsilon[2].
+
         Note that if total_mass is defined before mass_3, and there is
         no epsilon corresponding to mass_3, this function will proceed
         to add mass_3 to the total_mass.
@@ -120,10 +154,17 @@ class Lens(object):
 
     @property
     def distance(self):
+        """
+        The distance to the lens. 
+        """
         return self._distance
 
     @distance.setter
     def distance(self, new_distance):
+        """
+        The distance to the lens.
+        """
+        #Have not checked what happens if the distance is entered in lyr or AU.
         if type(new_distance) != u.Quantity:
             raise TypeError('distance must have astropy units, i.e. it must be an astropy.units Quantity.')
         else:
@@ -135,6 +176,10 @@ class Lens(object):
 
     @property
     def q(self):
+        """
+        Array of mass ratios defined relative to the primary (m_i/m_1). Size is
+        number of components -1.
+        """
         if self._epsilon.size > 1:
             return self._epsilon[1:] / self._epsilon[0]
         else:
@@ -143,6 +188,9 @@ class Lens(object):
     @q.setter
     def q(self,new_q):
         """
+        Array of mass ratios defined relative to the primary (m_i/m_1). Size is
+        number of components -1.
+
         Note: if total_mass is defined before q, it is assumed this is the
         mass of the primary. If you want this to actually be the total mass,
         define it after defining q.
@@ -162,31 +210,62 @@ class Lens(object):
 
     @property
     def s(self):
+        """
+        Separation between the components of the lens as a fraction of
+        the Einstein ring.
+        """
+        #Definitions for more than 2 lens bodies TBD
         return self._s
 
     @s.setter
     def s(self,new_s):
+        """
+        Separation between the components of the lens as a fraction of
+        the Einstein ring.
+        """
         self._s = new_s
 
     @property
     def a_proj(self):
+        """
+        Projected eparation between the components of the lens in AU.
+        """
         return self._a_proj
 
     @a_proj.setter
     def a_proj(self, new_a_proj):
+        """
+        Projected eparation between the components of the lens in AU.
+        """
         self._a_proj = new_a_proj
 
     def _change_mass(self, new_mass, index):
+        """
+        Private function: updates total_mass and epsilon array if the
+        mass of one of the components is changed. e.g. mass_2 is
+        changed from 1 MJup to 2 MJup.
+        """
         new_total_mass = self._total_mass(1. - self._epsilon[index]) + new_mass
         self._epsilon = self._total_mass * self._epsilon / new_total_mass
         self._total_mass = new_total_mass
 
     def _set_single_mass(self, new_mass):
+        """
+        Private function: Initializes total_mass and epsilon if only
+        one mass componenet is defined (i.e. a point lens).
+        """
         self._total_mass = new_mass
         self._epsilon = np.array([1.0])
 
     def _add_mass(self, new_mass, index):
+        """
+        Private function: Updates the total_mass and adds a component
+        to the epsilon array if masses are added
+        sequentially. e.g. the lens is defined by defining mass_1 and
+        mass_2.
+        """
         new_total_mass = self._total_mass + new_mass
         self._epsilon = self._total_mass * self._epsilon / new_total_mass
-        self._epsilon = np.insert(self._epsilon, index, new_mass/new_total_mass)
+        self._epsilon = np.insert(self._epsilon, index, 
+                                  new_mass / new_total_mass)
         self._total_mass = new_total_mass
