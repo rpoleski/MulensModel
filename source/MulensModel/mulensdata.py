@@ -30,7 +30,7 @@ class MulensData(object):
         elif mag_fmt == "flux":
             self.flux = self._input_values
             self.err_flux = self._input_values_err
-            (self.mag, self.mag_flux) = Utils.get_mag_and_err_from_flux(flux=self.flux, err_flux=self.err_flux)
+            (self.mag, self.err_mag) = Utils.get_mag_and_err_from_flux(flux=self.flux, err_flux=self.err_flux)
         else:
             raise ValueError('unkonown format of brightness in ' + file_name + ' file')
         self.bad = len(self._time) * [False]
