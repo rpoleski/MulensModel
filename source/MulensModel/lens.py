@@ -14,6 +14,7 @@ class Lens(object):
         (epsilon, s)
         Note that s, q, and epsilon may be lists or numpy arrays.
         """
+        self._caustic=None
         if q is not None:
             self.q = q
             if s is not None:
@@ -45,7 +46,8 @@ class Lens(object):
     @property
     def total_mass(self):
         """
-        The total mass of the lens (sum of all components).
+        The total mass of the lens (sum of all components). An
+        astropy.Quantity with mass units.
         """
         return self._total_mass
 
@@ -56,7 +58,8 @@ class Lens(object):
     @property
     def epsilon(self):
         """
-        An array of mass ratios for each lens components: m_i/total_mass.
+        An array of mass ratios for each lens components:
+        m_i/total_mass. A numpy array.
         """
         return self._epsilon
 
@@ -67,7 +70,8 @@ class Lens(object):
     @property
     def mass(self): 
         """
-        The mass of a point lens --> total mass.
+        The mass of a point lens --> total mass. An astropy.Quantity
+        with mass units.
         """
         if self._epsilon.size > 1:
             raise TypeError('mass can only be defined for a point lens')
@@ -76,9 +80,6 @@ class Lens(object):
 
     @mass.setter
     def mass(self, new_mass):
-        """
-        The mass of a point lens --> total mass.
-        """
         try:
             if self._epsilon.size > 1:
                 raise TypeError('mass can only be defined for a point lens')
@@ -90,7 +91,8 @@ class Lens(object):
     @property
     def mass_1(self):
         """
-        The mass of the primary. Defined as total_mass * epsilon[0].
+        The mass of the primary. Defined as total_mass *
+        epsilon[0]. An astropy.Quantity with mass units.
         """
         return self._total_mass * self._epsilon[0]
 
@@ -104,7 +106,8 @@ class Lens(object):
     @property
     def mass_2(self):
         """
-        The mass of the secondary. Defined as total_mass * epsilon[1].
+        The mass of the secondary. Defined as total_mass *
+        epsilon[1]. An astropy.Quantity with mass units.
         """
         return self._total_mass * self._epsilon[1]
 
@@ -123,7 +126,8 @@ class Lens(object):
     @property
     def mass_3(self):
         """
-        The mass of the tertiary. Defined as total_mass * epsilon[2].
+        The mass of the tertiary. Defined as total_mass *
+        epsilon[2]. An astropy.Quantity with mass units.
         """
         return self._total_mass * self._epsilon[2]
 
@@ -142,7 +146,8 @@ class Lens(object):
     @property
     def distance(self):
         """
-        The distance to the lens. 
+        The distance to the lens. An astropy.Quantity with distance
+        units.
         """
         return self._distance
 
@@ -162,7 +167,7 @@ class Lens(object):
     def q(self):
         """
         Array of mass ratios defined relative to the primary (m_i/m_1). Size is
-        number of components -1.
+        number of components -1. A numpy.array or single value.
         """
         if self._epsilon.size > 1:
             return self._epsilon[1:] / self._epsilon[0]
@@ -193,7 +198,7 @@ class Lens(object):
     def s(self):
         """
         Separation between the components of the lens as a fraction of
-        the Einstein ring.
+        the Einstein ring. A numpy.array or single value.
         """
         #Definitions for more than 2 lens bodies TBD
         return self._s
@@ -205,7 +210,8 @@ class Lens(object):
     @property
     def a_proj(self):
         """
-        Projected eparation between the components of the lens in AU.
+        Projected separation between the components of the lens in
+        AU. An astropy.Quantity with distance units.
         """
         return self._a_proj
 
@@ -244,3 +250,27 @@ class Lens(object):
                                   new_mass / new_total_mass)
         self._total_mass = new_total_mass
 
+
+    @property
+    def caustic(self):
+        """
+        The x,y coordinates (scaled to the Einstein ring) of the
+        caustic structure.
+        """
+        if self._caustic is None:
+            self._caustic = self._calculate_caustics()
+        return self._caustic
+
+    def plot_caustics(self):
+        """
+        A function to plot the x,y coordinates (scaled to the
+        Einstein ring) of the caustics.
+        """
+        pass
+
+    def _calculate_caustics(self):
+        """
+        Private function: calculate the x,y coordinates (scaled to the
+        Einstein ring) of the caustics.
+        """
+        pass
