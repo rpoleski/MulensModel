@@ -5,6 +5,18 @@
 1. How to handle changes in origin of the coordinate system? Internally we're working in the center of mass, but fitting is sometimes much faster if the system is relative to, e.g., planetary caustic or a cusp. Also think how this should be done for triple lenses. 
 1. How to handle full reparametrization of the model? Cassan 2008 is particular example. 
 
+## October 2016 goals:
+1.    Allow fits with fixed no blending.
+2.    Make sure get_chi2() works properly for simple binary source model.
+3.    Finish MulensData() definition that includes JD-HJD conversion.
+4.    Expand unit tests (and code they test) for Event and Model, write them for Fit class.
+5.    Calculate source trajectory with annual parallax effect.
+
+## Specific tasks to be performed
+
+* get rid off get_jd_zeropoint from MulensData and its tests
+* write tests for MulensData(data_list=...)
+* in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
 
 ## Use cases to be written 
 
