@@ -50,10 +50,7 @@ class Lens(object):
         return self._total_mass
 
     @total_mass.setter
-    def total_mass(self,new_mass):
-        """
-        The total mass of the lens (sum of all components).
-        """
+    def total_mass(self, new_mass):
         self._total_mass = total_mass
 
     @property
@@ -64,10 +61,7 @@ class Lens(object):
         return self._epsilon
 
     @epsilon.setter
-    def epsilon(self,new_epsilon):
-        """
-        The total mass of the lens (sum of all components).
-        """
+    def epsilon(self, new_epsilon):
         self._epsilon = np.array(new_epsilon)
 
     @property
@@ -101,12 +95,9 @@ class Lens(object):
         return self._total_mass * self._epsilon[0]
 
     @mass_1.setter
-    def mass_1(self,new_mass):
-        """
-        The mass of the primary. Defined as total_mass * epsilon[0].
-        """
+    def mass_1(self, new_mass):
         try:
-            self._change_mass(new_mass,0)
+            self._change_mass(new_mass, 0)
         except AttributeError:
             self._set_single_mass(new_mass)
 
@@ -120,16 +111,14 @@ class Lens(object):
     @mass_2.setter
     def mass_2(self, new_mass, add=False):
         """
-        The mass of the secondary. Defined as total_mass * epsilon[1].
-
         Note that if total_mass is defined before mass_2, and there is
         no epsilon corresponding to mass_2, this function will proceed
         to add mass_2 to the total_mass.
         """
         if self._epsilon.size > 1:
-            self._change_mass(new_mass,1)
+            self._change_mass(new_mass, 1)
         else:
-            self._add_mass(new_mass,1)
+            self._add_mass(new_mass, 1)
 
     @property
     def mass_3(self):
@@ -141,8 +130,6 @@ class Lens(object):
     @mass_3.setter
     def mass_3(self, new_mass, add=False):
         """
-        The mass of the tertiary. Defined as total_mass * epsilon[2].
-
         Note that if total_mass is defined before mass_3, and there is
         no epsilon corresponding to mass_3, this function will proceed
         to add mass_3 to the total_mass.
@@ -161,10 +148,7 @@ class Lens(object):
 
     @distance.setter
     def distance(self, new_distance):
-        """
-        The distance to the lens.
-        """
-        #Have not checked what happens if the distance is entered in lyr or AU.
+        #Have not checked what happens if the distance is entered in lyr or AU. Probably we should use new_distance.decompose()
         if type(new_distance) != u.Quantity:
             raise TypeError('distance must have astropy units, i.e. it must be an astropy.units Quantity.')
         else:
@@ -186,16 +170,13 @@ class Lens(object):
             raise AttributeError('Lens has only one body')
 
     @q.setter
-    def q(self,new_q):
+    def q(self, new_q):
         """
-        Array of mass ratios defined relative to the primary (m_i/m_1). Size is
-        number of components -1.
-
         Note: if total_mass is defined before q, it is assumed this is the
         mass of the primary. If you want this to actually be the total mass,
         define it after defining q.
         """
-        new_q = np.insert(new_q, 0,1.)
+        new_q = np.insert(new_q, 0, 1.)
         self._epsilon = new_q / np.sum(new_q)
         try:
             if np.array(new_q).size == self._epsilon.size - 1:
@@ -218,11 +199,7 @@ class Lens(object):
         return self._s
 
     @s.setter
-    def s(self,new_s):
-        """
-        Separation between the components of the lens as a fraction of
-        the Einstein ring.
-        """
+    def s(self, new_s):
         self._s = new_s
 
     @property
@@ -234,9 +211,6 @@ class Lens(object):
 
     @a_proj.setter
     def a_proj(self, new_a_proj):
-        """
-        Projected eparation between the components of the lens in AU.
-        """
         self._a_proj = new_a_proj
 
     def _change_mass(self, new_mass, index):
@@ -269,3 +243,4 @@ class Lens(object):
         self._epsilon = np.insert(self._epsilon, index, 
                                   new_mass / new_total_mass)
         self._total_mass = new_total_mass
+
