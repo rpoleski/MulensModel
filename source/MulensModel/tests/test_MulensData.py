@@ -38,6 +38,14 @@ def test_get_date_zeropoint_4():
 def test_get_date_zeropoint_5():
     test_data = MulensData()
     assert test_data._get_date_zeropoint(date_fmt="mjd") == 2400000.
+    
+def test_data_list_1():
+    t = np.array([7500., 7501.])
+    m = np.array([21.0, 21.1])
+    e = np.array([0.001, 1.000])
+    data = MulensData([t, m, e], date_fmt="jdprime")
+    np.testing.assert_almost_equal(data.time, t, err_msg='problem with time vector in MulensData')
+    np.testing.assert_almost_equal(data.time_zeropoint, 2450000., err_msg='problem with time zeropoint')
 
 class GetDateZeropointBadInput(unittest.TestCase):
     def test_get_date_zeropoint_6(self):
@@ -85,5 +93,3 @@ class GetJDZeropointBadInput(unittest.TestCase):
         test_data = MulensData()
         self.assertRaises(ValueError, test_data._get_jd_zeropoint, 
                           np.array((2450000.,7500.)))
-
-
