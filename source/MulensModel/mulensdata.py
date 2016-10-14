@@ -3,7 +3,7 @@ import numpy as np
 from astropy.time import Time
 
 from MulensModel.utils import Utils
-
+from MulensModel.mulenstime import MulensTime
 
 class MulensData(object):
     def __init__(self, file_name=None, date_fmt="jd", mag_fmt="mag"):
@@ -26,6 +26,8 @@ class MulensData(object):
             self._input_values = vector_2
             self._input_values_err = vector_3
             self.bad = len(vector_1) * [False]
+
+
 
     @property
     def jd(self):
@@ -57,4 +59,3 @@ class MulensData(object):
         if all(jd_vector > 2452000.):
             return 0.
         raise ValueError('Unrecognized format of JD')
-
