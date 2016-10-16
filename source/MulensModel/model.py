@@ -27,17 +27,17 @@ class ModelParameters(object):
             "t_0 (HJD')", 'u_0', 
             't_E ({0})'.format(self._t_E.unit))
         values = '{0:>11.5f} {1:>9.6f} {2:>10.4f}'.format(
-            self.t_0, self._u_0,self.t_E)
+            self.t_0, self._u_0, self.t_E)
         try:
-            variables = '{0} {1:>7}'.format(variables,'rho')
-            values = '{0} {1:>7.5f}'.format(values,self._rho)
+            variables = '{0} {1:>7}'.format(variables, 'rho')
+            values = '{0} {1:>7.5f}'.format(values, self._rho)
         except AttributeError:
             pass
         try:
             variables = '{0} {1:>9} {2:>12} {3:>11}'.format(
-                variables,'s','q', 'alpha ({0})'.format(self._alpha.unit))
+                variables, 's', 'q', 'alpha ({0})'.format(self._alpha.unit))
             values = '{0} {1:>9.5f} {2:>12.8f} {3:>11.5f}'.format(
-                values,self._s, self._q, self._alpha.value)
+                values, self._s, self._q, self._alpha.value)
         except AttributeError:
             pass
         return 'ModelParameters:\n{0}\n{1}\n'.format(variables, values)
@@ -52,11 +52,11 @@ class ModelParameters(object):
         return self._t_0.time
 
     @t_0.setter
-    def t_0(self,new_t_0,date_fmt="hjdprime"):
+    def t_0(self, new_t_0, date_fmt="hjdprime"):
         if type(new_t_0) is MulensTime:
             self._t_0 = new_t_0
         else:
-            self._t_0 = MulensTime(new_t_0,date_fmt=date_fmt)
+            self._t_0 = MulensTime(new_t_0, date_fmt=date_fmt)
 
     @property
     def t_E(self):
@@ -66,7 +66,7 @@ class ModelParameters(object):
         return self._t_E.value
     
     @t_E.setter
-    def t_E(self,new_t_E):
+    def t_E(self, new_t_E):
         if type(new_t_E) is u.Quantity:
             self._t_E = new_t_E
         else:
@@ -78,6 +78,7 @@ class ModelParameters(object):
         The angle of the source trajectory relative to the binary axis
         (or primary-secondary axis). Measured CW/CCW (TBD). An
         astropy.Quantity. "deg" is the default unit.
+        TBD - make sure CW/CCW convention is according to Skowron+11 appendix A
         """
         return self._alpha
 
@@ -169,7 +170,7 @@ class Model(object):
         pass
 
     @lens.setter
-    def lens(self,new_lens):
+    def lens(self, new_lens):
         pass
 
     @property
@@ -177,17 +178,20 @@ class Model(object):
         pass
 
     @source.setter
-    def source(self,new_lens):
+    def source(self, new_lens):
         pass
     
 
 if __name__ == "__main__":
     print('test __repr__ for ModelParameters()')
-    params_1 = ModelParameters(t_0=7620.,u_0=0.001,t_E=23.*u.day)
+
+    params_1 = ModelParameters(t_0=7620., u_0=0.001, t_E=23.*u.day)
     print(params_1)
-    params_2 = ModelParameters(t_0=7600.,u_0=0.3,t_E=423.*u.day,
-                               rho=0.001, s=1.4,q=0.002, alpha=0.4*u.rad)
+
+    params_2 = ModelParameters(t_0=7600., u_0=0.3, t_E=423.*u.day,
+                               rho=0.001, s=1.4, q=0.002, alpha=0.4*u.rad)
     print(params_2)
-    params_3 = ModelParameters(t_0=6100.,u_0=0.24,t_E=0.6,
-                               rho=0.0006, s=0.1,q=0.4, alpha=12.)
+    params_3 = ModelParameters(t_0=6100., u_0=0.24, t_E=0.6,
+                               rho=0.0006, s=0.1, q=0.4, alpha=12.)
     print(params_3)
+
