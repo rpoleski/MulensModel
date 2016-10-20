@@ -20,7 +20,7 @@ def test_get_date_zeropoint_4():
 
 def test_get_date_zeropoint_5():
     test_data = MulensTime()
-    assert test_data._get_date_zeropoint(date_fmt="mjd") == 2400000.
+    assert test_data._get_date_zeropoint(date_fmt="mjd") == 2400000.5
 
 class GetDateZeropointBadInput(unittest.TestCase):
     def test_get_date_zeropoint_6(self):

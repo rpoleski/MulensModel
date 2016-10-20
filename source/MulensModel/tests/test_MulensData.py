@@ -37,7 +37,7 @@ def test_get_date_zeropoint_4():
 
 def test_get_date_zeropoint_5():
     test_data = MulensData()
-    assert test_data._get_date_zeropoint(date_fmt="mjd") == 2400000.
+    assert test_data._get_date_zeropoint(date_fmt="mjd") == 2400000.5
     
 def test_data_list_1():
     t = np.array([7500., 7501.])

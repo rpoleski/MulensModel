@@ -60,7 +60,7 @@ class MulensData(object):
         if date_fmt == "jdprime" or date_fmt == "hjdprime":
             return 2450000.
         if date_fmt == "mjd":
-            return 2400000.
+            return 2400000.5
         raise ValueError('Invalid value for date_fmt. Allowed values: "jd", "hjd", "jdprime", "hjdprime", "mjd"')
 
     def _get_jd_zeropoint(self, jd_vector):
