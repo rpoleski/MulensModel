@@ -40,5 +40,5 @@ def test_event_get_chi2():
     
     
 #if __name__ == "__main__":
-#    test_fit_1()
+#    test_event_get_chi2()
     
