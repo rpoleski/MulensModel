@@ -105,19 +105,25 @@ class Model(object):
         """
         Three ways to define the model:
         parameters = a ModelParameters() object
-        specify t0, u0, tE (optionally: rho, s, q, alpha)
+        specify t_0, u_0, t_E (optionally: rho, s, q, alpha)
         specify physical properties: lens= a Lens() object, 
             source= a Source() object, mu_rel
         """
         self.parameters = ModelParameters()
         if parameters is not None:
             pass
-        elif t_0 is not None:
+        if t_0 is not None:
             self.t_0 = t_0
-        elif source is not None:
+        if u_0 is not None:
+            self.u_0 = u_0
+        if t_E is not None:
+            self.t_E = t_E
+        if rho is not None:
+            self.rho = rho
+        if source is not None:
             pass
-        else:
-            raise TypeError('Not a valid model definiion')
+       # else:
+       #     raise TypeError('Not a valid model definiion')
         self._magnification = None
 
     @property

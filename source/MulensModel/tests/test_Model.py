@@ -21,4 +21,18 @@ def test_model_PSPL_1():
     model.set_datasets([data])
     np.testing.assert_almost_equal(model.magnification, [np.array([1.028720763, 2.10290259, 1.26317278])], err_msg="PSPL model returns wrong values")
 
+def test_model_init_1():
+    """tests if basic parameters of Model.__init__() are properly passed"""
+    t_0 = 5432.10987
+    u_0 = 0.001
+    t_E = 123.456
+    rho = 0.0123
+    m = Model(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho)
+    np.testing.assert_almost_equal(m.t_0, t_0, err_msg='t_0 not set properly')
+    np.testing.assert_almost_equal(m.u_0, u_0, err_msg='u_0 not set properly')
+    np.testing.assert_almost_equal(m.t_E, t_E, err_msg='t_E not set properly')
+    np.testing.assert_almost_equal(m.rho, rho, err_msg='rho not set properly')
+
+if __name__ == "__main__":
+    test_model_init_1()
 
