@@ -109,16 +109,16 @@ class Model(object):
         specify physical properties: lens= a Lens() object, 
             source= a Source() object, mu_rel
         """
+        self.parameters = ModelParameters()
         if parameters is not None:
             pass
         elif t_0 is not None:
-            pass
+            self.t_0 = t_0
         elif source is not None:
             pass
         else:
             raise TypeError('Not a valid model definiion')
         self._magnification = None
-        self.parameters = ModelParameters()
 
     @property
     def t_0(self):
