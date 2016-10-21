@@ -36,9 +36,16 @@ def test_event_get_chi2():
     ev.datasets = [data]
     chi2 = ev.get_chi2()
     #print(chi2)
+    assert type(chi2) is float or type(chi2) is np.float64, 'wrong type of chi2'
     assert chi2 > 427. and chi2 < 429., 'problem in resulting chi2'
-    
-    
+   
+class TestEvent(unittest.TestCase):
+    def test_event_init_1(self):
+        self.assertRaises(ValueError, ev=Event(model=3.14))
+
+    def test_event_init_2(self):
+        self.assertRaises(ValueError, ev=Event(datasets='this_is_just_a_string'))
+
 #if __name__ == "__main__":
 #    test_event_get_chi2()
     

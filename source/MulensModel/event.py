@@ -8,8 +8,16 @@ from MulensModel.model import Model
             
 class Event(object):
     def __init__(self, datasets=None, model=None):
-        self._model = model
-        self._set_datasets(datasets)
+        if model is None or isinstance(model, Model):
+            self._model = model
+        else:
+            self._model = None
+            ValueError('incorrect argument model of class Event()')
+        if isinstance(datasets, (list, tuple)) or datasets is None:
+            self._set_datasets(datasets)
+        else:
+            ValueError('incorrect argument datasets of class Event()')
+            
 
     @property
     def datasets(self):
@@ -22,6 +30,9 @@ class Event(object):
 
     def _set_datasets(self, new_value):
         """sets the value of self._datasets; can be called by __init__ or @datasets.setter; passes datasets to property self._model"""
+        if new_value is None:
+            self._datasets = None
+            return
         self._datasets = new_value
         if isinstance(self._model, Model):
             self._model.set_datasets(self._datasets)
@@ -42,4 +53,11 @@ class Event(object):
         self.chi2 = sum(chi2)
         return self.chi2
 
+    def clean_data(self):
+        """masks outlying datapoints"""
+        pass
+
+    def estimate_model_params(self):
+        """estiamtes model parameters without fitting them"""
+        pass
 
