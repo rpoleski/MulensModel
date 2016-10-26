@@ -150,7 +150,7 @@ class ModelParameters(object):
         return self._pi_E
 
     @pi_E.setter
-    def pi_E(self, pi_E ref=None):
+    def pi_E(self, pi_E, ref=None):
         self._pi_E = _MulensParallaxVector(pi_E=pi_E, ref=ref)
 
     @property
