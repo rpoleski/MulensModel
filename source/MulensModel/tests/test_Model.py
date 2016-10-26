@@ -2,6 +2,7 @@
 
 import sys
 import numpy as np
+import unittest
 from astropy.time import Time
 
 from MulensModel.model import Model
@@ -15,7 +16,7 @@ def test_model_PSPL_1():
     t_E = 17.94002
     times = np.array([t_0-2.5*t_E, t_0, t_0+t_E])
     data = MulensData(data_list=[times, times*0., times*0.], date_fmt='jdprime')
-    model = Model(t_0=t_0)
+    model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
     model.u_0 = u_0
     model.t_E = t_E
     model.set_datasets([data])
@@ -33,6 +34,19 @@ def test_model_init_1():
     np.testing.assert_almost_equal(m.t_E, t_E, err_msg='t_E not set properly')
     np.testing.assert_almost_equal(m.rho, rho, err_msg='rho not set properly')
 
+class TestModel(unittest.TestCase):
+    def test_not_enough_data(self):
+        """assures that t_0, u_0, and t_E are all specified"""
+        with self.assertRaises(TypeError):
+            m = Model(t_0=1.)
+        with self.assertRaises(TypeError):
+            m = Model(t_0=1., u_0=1.)
+        with self.assertRaises(TypeError):
+            m = Model(t_0=1., t_E=1.)
+        with self.assertRaises(TypeError):
+            m = Model(t_E=1., u_0=1.)
+
 if __name__ == "__main__":
     test_model_init_1()
+
 
