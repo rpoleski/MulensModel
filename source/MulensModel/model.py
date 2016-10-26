@@ -3,13 +3,49 @@ from astropy import units as u
 
 from MulensModel.mulenstime import MulensTime
 
+class _MulensParallaxVector(object):
+    """
+    A class for the microlens parallax, which is a vector. May be
+    specified either relative to the sky ("NorthEast") or relative to
+    the binary axis ("ParPerp"). "NorthEast" is default.
+    """
+    def __init__(self, pi_E_1=None, pi_E_2=None, pi_E=None, ref=None):
+        if ref is None:
+            self.ref = "NorthEast"
+        else:
+            self.ref = ref
+        if pi_E_1 is not None:
+            if pi_E_2 is not None:
+                self.vector = np.array((pi_E_1,pi_E_2))
+            else:
+                raise AttributeError('pi_E has 2 components')
+        else:
+            if pi_E is not None:
+                pi_E = np.array(pi_E)
+                if pi_E.size is 2:
+                    self.vector = pi_E
+                else:
+                    raise AttributeError('pi_E has 2 components')
+
+    def __repr__(self):
+        parallax_str = "pi_E"
+        if self.ref == "NorthEast":
+            parallax_str= "(pi_E_N, pi_E_E)"
+        if self.ref == "ParPerp":
+            parallax_str = "(pi_E_par, pi_E_perp)"
+        return "{0} = ({1}, {2})".format(parallax_str, self.vector[0], 
+                                         self.vector[1])
+
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
-    t_E, rho, s, q, alpha). Can handle point lens or binary lens. 
+    t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
+    lens. pi_E assumes NE coordinates (Parallel,Perpendicular
+    coordinates are not supported).
     """
-    def __init__(self, t_0=0., u_0=0., t_E=0., rho=None, s=None,
-                 q=None, alpha=None):
+    def __init__(self, t_0=0., u_0=1., t_E=1., rho=None, s=None,
+                 q=None, alpha=None, pi_E=None,pi_E_N=None, pi_E_E=None,
+                 pi_E_ref=None):
         self.t_0 = t_0
         self._u_0 = u_0
         self.t_E = t_E
@@ -21,6 +57,21 @@ class ModelParameters(object):
             self._q = q
         if alpha is not None:
             self.alpha = alpha
+
+        """
+        Define the parallax if appropriate. Does not check for
+        collisions (e.g. if the user specifies both pi_E and (pi_E_N,
+        pi_E_E).
+        """
+        if pi_E is not None:
+            self._pi_E = _MulensParallaxVector(pi_E, ref=pi_E_ref)
+        if pi_E_N is not None:
+            if pi_E_E is not None:
+                self._pi_E = _MulensParallaxVector(pi_E_1=pi_E_N, 
+                                                   pi_E_2=pi_E_E, 
+                                                   ref="NorthEast")
+            else:
+                raise AttributeError('pi_E has 2 components')
 
     def __repr__(self):
         variables = '{0:>11} {1:>9} {2:>10}'.format(
@@ -88,6 +139,48 @@ class ModelParameters(object):
             self._alpha = new_alpha
         else:
             self._alpha = new_alpha * u.deg
+
+    @property
+    def pi_E(self):
+        """
+        The microlens parallax vector. May be specified either
+        relative to the sky ("NorthEast") or relative to the binary
+        axis ("ParPerp"). "NorthEast" is default.
+        """
+        return self._pi_E
+
+    @pi_E.setter
+    def pi_E(self, pi_E ref=None):
+        self._pi_E = _MulensParallaxVector(pi_E=pi_E, ref=ref)
+
+    @property
+    def pi_E_N(self):
+        """
+        The North component of the microlens parallax vector.
+        """
+        return self._pi_E.vector[0]
+
+    @pi_E_N.setter
+    def pi_E_N(self,new_value):
+        try:
+            self._pi_E.vector[0] = new_value
+        except AttributeError:
+            self._pi_E = _MulensParallaxVector(pi_E_N=pi_E_N, pi_E_E=0., 
+                                               ref=ref)
+    @property
+    def pi_E_E(self):
+        """
+        The East component of the microlens parallax vector.
+        """
+        return self._pi_E.vector[1]
+
+    @pi_E_E.setter
+    def pi_E_E(self,new_value):
+        try:
+            self._pi_E.vector[1] = new_value
+        except AttributeError:
+            self._pi_E = _MulensParallaxVector(pi_E_N=0., pi_E_E=pi_E_E, 
+                                               ref=ref)
 
 class Model(object):
     """
