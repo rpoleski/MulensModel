@@ -30,7 +30,7 @@ def test_event_get_chi2():
     mag_model = (u2 + 2.) / (u * (u2 + 4.)**.5)
     
     ev = Event()
-    mod = Model(t_0=t_0)
+    mod = Model(t_0=t_0, u_0=u_0, t_E=t_E)
     mod.magnification = [mag_model]
     ev.model = mod
     ev.datasets = [data]
