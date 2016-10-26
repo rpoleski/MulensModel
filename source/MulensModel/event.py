@@ -8,10 +8,11 @@ from MulensModel.model import Model
             
 class Event(object):
     def __init__(self, datasets=None, model=None):
-        if model is None or isinstance(model, Model):
+        if isinstance(model, Model):
             self._model = model
-        else:
+        elif model is None:
             self._model = None
+        else:
             ValueError('incorrect argument model of class Event()')
         if isinstance(datasets, (list, tuple)) or datasets is None:
             self._set_datasets(datasets)
