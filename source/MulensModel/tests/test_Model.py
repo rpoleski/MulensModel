@@ -34,7 +34,10 @@ def test_model_init_1():
     np.testing.assert_almost_equal(m.t_E, t_E, err_msg='t_E not set properly')
     np.testing.assert_almost_equal(m.rho, rho, err_msg='rho not set properly')
 
-#class TestModel(unittest.TestCase):
+class TestModel(unittest.TestCase):
+    def test_negative_t_E(self):
+        with self.assertRaises(ValueError):
+            m = Model(t_E=-100.)
 #    def test_not_enough_data(self):
 #        """assures that t_0, u_0, and t_E are all specified"""
 #        with self.assertRaises(TypeError):
