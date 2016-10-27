@@ -5,7 +5,7 @@ import numpy as np
 import unittest
 from astropy.time import Time
 
-from MulensModel.model import Model
+from MulensModel.model import Model, ModelParameters
 from MulensModel.mulensdata import MulensData
 
 
@@ -38,6 +38,13 @@ class TestModel(unittest.TestCase):
     def test_negative_t_E(self):
         with self.assertRaises(ValueError):
             m = Model(t_E=-100.)
+
+class TestModelParallax(unittest.TestCase):
+    def test_too_many_parameters_for_init(self):
+        with self.assertRaises(ValueError):
+            mp = ModelParameters(pi_E=(1., 1.), pi_E_N=1.)
+        with self.assertRaises(ValueError):
+            mp = ModelParameters(pi_E=(1., 1.), pi_E_E=1.)
 
 def test_model_parallax():
     model_1 = Model()

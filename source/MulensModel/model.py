@@ -16,7 +16,7 @@ class _MulensParallaxVector(object):
             self.ref = ref
         if pi_E_1 is not None:
             if pi_E_2 is not None:
-                self.vector = np.array((pi_E_1,pi_E_2))
+                self.vector = np.array((pi_E_1, pi_E_2))
             else:
                 raise AttributeError('pi_E has 2 components')
         else:
@@ -40,11 +40,11 @@ class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
     t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
-    lens. pi_E assumes NE coordinates (Parallel,Perpendicular
+    lens. pi_E assumes NE coordinates (Parallel, Perpendicular
     coordinates are not supported).
     """
     def __init__(self, t_0=0., u_0=1., t_E=1., rho=None, s=None,
-                 q=None, alpha=None, pi_E=None,pi_E_N=None, pi_E_E=None,
+                 q=None, alpha=None, pi_E=None, pi_E_N=None, pi_E_E=None,
                  pi_E_ref=None):
         self.t_0 = t_0
         self._u_0 = u_0
@@ -63,6 +63,8 @@ class ModelParameters(object):
         collisions (e.g. if the user specifies both pi_E and (pi_E_N,
         pi_E_E).
         """
+        if pi_E is not None and (pi_E_N is not None or pi_E_E is not None):
+            raise ValueError('Microlensing parallax specified in 2 ways at the same time')
         if pi_E is not None:
             self._pi_E = _MulensParallaxVector(pi_E, ref=pi_E_ref)
         if pi_E_N is not None:
@@ -163,7 +165,7 @@ class ModelParameters(object):
         return self._pi_E.vector[0]
 
     @pi_E_N.setter
-    def pi_E_N(self,new_value):
+    def pi_E_N(self, new_value):
         try:
             self._pi_E.vector[0] = new_value
         except AttributeError:
@@ -177,7 +179,7 @@ class ModelParameters(object):
         return self._pi_E.vector[1]
 
     @pi_E_E.setter
-    def pi_E_E(self,new_value):
+    def pi_E_E(self, new_value):
         try:
             self._pi_E.vector[1] = new_value
         except AttributeError:
