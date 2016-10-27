@@ -12,19 +12,24 @@ class Fit(object):
         self._datasets = data 
         self._magnification = magnification
            
-    def fit_fluxes(self):
+    def fit_fluxes(self, fit_blending=True):
         """fit source(s) and blending fluxes"""
         if len(self._magnification[0].shape) == 1:
             n_sources = 1
         else:
             n_sources = self._magnification[0].shape[0]
-        n_fluxes = n_sources + 1
+        n_fluxes = n_sources
+        if fit_blending:
+            n_fluxes += 1
         self._flux_blending = dict()
         self._flux_sources = dict()
         for i_dataset, dataset in enumerate(self._datasets):
             x = np.empty(shape=(n_fluxes, len(dataset.jd)))
-            x[0:(n_fluxes-1),] = self._magnification[i_dataset]
-            x[n_fluxes-1] = 1.
+            if fit_blending:
+                x[0:(n_fluxes-1),] = self._magnification[i_dataset]
+                x[n_fluxes-1] = 1.
+            else:
+                x = self._magnification[i_dataset]
             xT = x.T
             y = self._datasets[i_dataset].flux
             variance_inverse = self._datasets[i_dataset].err_flux**-2
@@ -37,8 +42,12 @@ class Fit(object):
 
             # print(sum(variance_inverse * (np.dot(xx.T, results) - self._datasets[i_dataset].flux)**2))
             #print(results) # 41.81485 0.68119 for MAG_ZEROPOINT = 18
-            self._flux_blending[dataset] = results[-1]
-            self._flux_sources[dataset] = results[:-1]
+            if fit_blending:
+                self._flux_blending[dataset] = results[-1]
+                self._flux_sources[dataset] = results[:-1]
+            else:
+                self._flux_blending[dataset] = 0.
+                self._flux_sources[dataset] = results
 
     def get_input_format(self, data=None):
         """return model in the same format as given dataset was input"""
