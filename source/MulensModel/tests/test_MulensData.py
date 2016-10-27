@@ -1,6 +1,10 @@
 import sys
 import unittest
 import numpy as np
+
+from astropy.coordinates import SkyCoord
+from astropy import units as u
+
 from MulensModel.mulensdata import MulensData
 
 
@@ -17,6 +21,18 @@ def test_file_read():
     np.testing.assert_almost_equal(data.time[0], 5264.84100, err_msg="time of first line doesn't match")
     
     assert data.mag[-1] == 13.913, "magnitude of the last line doesn't match"
+
+def test_HJD_JD_conversion():
+    '''test if heliocentric correction is calculated properly'''
+    t_jd = np.array([7572.458333])
+    t_hjd = np.array([7572.464055])
+    mag = 16. + 0. * t_jd
+    err = 0.01 + 0. * t_jd
+    coords = SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
+    d_jd = MulensData([t_jd, mag, err],  date_fmt="jdprime", coords=coords)
+    np.testing.assert_almost_equal(d_jd.hjd-d_jd.time_zeropoint, t_hjd)
+    d_hjd =  MulensData([t_hjd, mag, err],  date_fmt="hjdprime", coords=coords)
+    np.testing.assert_almost_equal(d_jd.jd-d_jd.time_zeropoint, t_jd)
 
 def test_get_date_zeropoint_1():
     test_data = MulensData()
