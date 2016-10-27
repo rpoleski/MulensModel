@@ -217,9 +217,6 @@ class Model(object):
             self.rho = rho
         if source is not None:
             pass
-#        print(self.t_0, self.u_0, self.t_E)
-#        if self.t_0 is None or self.u_0 is None or self.t_E is None:
-#            raise TypeError('Not a valid model definiion')
         self._magnification = None
 
     @property

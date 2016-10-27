@@ -1,7 +1,6 @@
 import unittest
 from MulensModel.mulenstime import MulensTime
 
-### Test get_date_zeropoint
 def test_get_date_zeropoint_1():
     test_data = MulensTime()
     assert test_data._get_date_zeropoint(date_fmt="jd") == 0.
@@ -32,7 +31,6 @@ class GetDateZeropointBadInput(unittest.TestCase):
         self.assertRaises(ValueError, test_data._get_date_zeropoint, "JD")
 
 """
-### Test get_jd_zeropoint
 def test_get_jd_zeropoint_1():
     test_data = MulensTime()
     assert test_data._get_jd_zeropoint(7500.) == 2450000.

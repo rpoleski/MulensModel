@@ -9,7 +9,7 @@ for path in sys.path:
         MODULE_PATH = "/".join(path.split("/")[:-1])
 SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 
-### Test file_read
+
 def test_file_read():
     '''read sample file and check if values match'''
     data = MulensData(file_name=SAMPLE_FILE_01)
@@ -18,7 +18,6 @@ def test_file_read():
     
     assert data.mag[-1] == 13.913, "magnitude of the last line doesn't match"
 
-### Test get_date_zeropoint
 def test_get_date_zeropoint_1():
     test_data = MulensData()
     assert test_data._get_date_zeropoint(date_fmt="jd") == 0.
@@ -56,7 +55,6 @@ class GetDateZeropointBadInput(unittest.TestCase):
         test_data = MulensData()
         self.assertRaises(ValueError, test_data._get_date_zeropoint, "JD")
 
-### Test get_jd_zeropoint
 def test_get_jd_zeropoint_1():
     test_data = MulensData()
     assert test_data._get_jd_zeropoint(7500.) == 2450000.
@@ -93,3 +91,4 @@ class GetJDZeropointBadInput(unittest.TestCase):
         test_data = MulensData()
         self.assertRaises(ValueError, test_data._get_jd_zeropoint, 
                           np.array((2450000.,7500.)))
+

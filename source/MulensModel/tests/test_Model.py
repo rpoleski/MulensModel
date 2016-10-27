@@ -38,16 +38,6 @@ class TestModel(unittest.TestCase):
     def test_negative_t_E(self):
         with self.assertRaises(ValueError):
             m = Model(t_E=-100.)
-#    def test_not_enough_data(self):
-#        """assures that t_0, u_0, and t_E are all specified"""
-#        with self.assertRaises(TypeError):
-#            m = Model(t_0=1.)
-#        with self.assertRaises(TypeError):
-#            m = Model(t_0=1., u_0=1.)
-#        with self.assertRaises(TypeError):
-#            m = Model(t_0=1., t_E=1.)
-#        with self.assertRaises(TypeError):
-#            m = Model(t_E=1., u_0=1.)
 
 def test_model_parallax():
     model_1 = Model()
@@ -69,5 +59,3 @@ def test_model_parallax():
 #    assert model_4.pi_E_N == 0.7
 #    assert model_4.pi_E_E == 0.8
 
-if __name__ == "__main__":
-    test_model_init_1()
