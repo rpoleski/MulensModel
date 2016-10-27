@@ -20,16 +20,16 @@ class MulensData(object):
         """internal function to initialized data using a few numpy arrays"""
         self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt)
         self._time = Time(time+self._date_zeropoint, format="jd")
-        self._input_values = brightness
-        self._input_values_err = err_brightness        
+        self._brightness_input = brightness
+        self._brightness_input_err = err_brightness        
         self.input_fmt = mag_fmt
         if mag_fmt == "mag":
-            self.mag = self._input_values
-            self.err_mag = self._input_values_err
+            self.mag = self._brightness_input
+            self.err_mag = self._brightness_input_err
             (self.flux, self.err_flux) = Utils.get_flux_and_err_from_mag(mag=self.mag, err_mag=self.err_mag)
         elif mag_fmt == "flux":
-            self.flux = self._input_values
-            self.err_flux = self._input_values_err
+            self.flux = self._brightness_input
+            self.err_flux = self._brightness_input_err
             (self.mag, self.err_mag) = Utils.get_mag_and_err_from_flux(flux=self.flux, err_flux=self.err_flux)
         else:
             raise ValueError('unkonown format of brightness in ' + file_name + ' file')
@@ -74,3 +74,4 @@ class MulensData(object):
         if all(jd_vector > 2452000.):
             return 0.
         raise ValueError('Unrecognized format of JD')
+
