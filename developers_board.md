@@ -14,6 +14,10 @@
 
 ## Specific tasks to be performed
 
+* change "type(val) is SomeType" to "isinstance(val, SomeType)"
+* one class per file?
+* no unit tests for private functions: \_fun()
+* long lines & PEP8
 * get rid off get_jd_zeropoint from MulensData and its tests
 * write tests for MulensData(data_list=...)
 * in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
