@@ -64,7 +64,8 @@ class ModelParameters(object):
         pi_E_E).
         """
         if pi_E is not None and (pi_E_N is not None or pi_E_E is not None):
-            raise ValueError('Microlensing parallax specified in 2 ways at the same time')
+            msg = 'Microlensing parallax specified in 2 ways at the same time'
+            raise ValueError(msg)
         if pi_E is not None:
             self._pi_E = _MulensParallaxVector(pi_E, ref=pi_E_ref)
         if pi_E_N is not None:
@@ -116,7 +117,8 @@ class ModelParameters(object):
         """
         The Einstein timescale. An astropy.Quantity. "day" is the default unit.
         """
-        return self._t_E.value # maybe some unit check, so that it doesn't return 1. for 1*u.year
+        return self._t_E.value 
+        # maybe some unit check, so that it doesn't return 1. for 1*u.year
     
     @t_E.setter
     def t_E(self, new_t_E):

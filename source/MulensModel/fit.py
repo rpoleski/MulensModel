@@ -7,7 +7,8 @@ class Fit(object):
     def __init__(self, data=None, magnification=None):
         """
         data - a list of MulensModel datasets
-        magnification - a list of numpy arrays, each list element is (n_epochs) x (n_sources)
+        magnification - a list of numpy arrays, 
+            each list element is (n_epochs) x (n_sources)
         """
         self._datasets = data 
         self._magnification = magnification
@@ -63,13 +64,15 @@ class Fit(object):
             flux += self._flux_sources[data] * self._magnification[index]
         else:
             for i in range(n_sources):
-                flux += self._flux_sources[data][i] * self._magnification[index][i]
+                flux += self._flux_sources[data][i] \
+                      * self._magnification[index][i]
 
         if data.input_fmt == "mag":
             result = Utils.get_mag_from_flux(flux)
         elif data.input_fmt == "flux":
             result = flux
         else:
-            raise ValueError('Fit.get_input_format() unrecognized data input format')
+            msg = 'Fit.get_input_format() unrecognized data input format'
+            raise ValueError(msg)
         return result
     

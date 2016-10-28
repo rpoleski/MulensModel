@@ -18,7 +18,8 @@ def test_file_read():
     '''read sample file and check if values match'''
     data = MulensData(file_name=SAMPLE_FILE_01)
 
-    np.testing.assert_almost_equal(data.time[0], 5264.84100, err_msg="time of first line doesn't match")
+    np.testing.assert_almost_equal(data.time[0], 5264.84100, 
+                                   err_msg="time of first line doesn't match")
     
     assert data.mag[-1] == 13.913, "magnitude of the last line doesn't match"
 
@@ -59,8 +60,10 @@ def test_data_list_1():
     m = np.array([21.0, 21.1])
     e = np.array([0.001, 1.000])
     data = MulensData([t, m, e], date_fmt="jdprime")
-    np.testing.assert_almost_equal(data.time, t, err_msg='problem with time vector in MulensData')
-    np.testing.assert_almost_equal(data.time_zeropoint, 2450000., err_msg='problem with time zeropoint')
+    np.testing.assert_almost_equal(data.time, t, err_msg
+                                   ='problem with time vector in MulensData')
+    np.testing.assert_almost_equal(data.time_zeropoint, 2450000., 
+                                   err_msg='problem with time zeropoint')
 
 class GetDateZeropointBadInput(unittest.TestCase):
     def test_get_date_zeropoint_6(self):
