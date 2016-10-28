@@ -32,16 +32,13 @@ class Fit(object):
                 x = self._magnification[i_dataset]
             xT = x.T
             y = self._datasets[i_dataset].flux
-            variance_inverse = self._datasets[i_dataset].err_flux**-2
-            y *= variance_inverse
-            for i,vari in enumerate(variance_inverse):
-                xT[i] *= vari
+            sigma_inverse = 1. / self._datasets[i_dataset].err_flux
+            y *= sigma_inverse
+            for i, sig_inv in enumerate(sigma_inverse):
+                xT[i] *= sig_inv
+            
             results = np.linalg.lstsq(xT, y)[0] # F_s1, F_s2..., F_b
-            #results[0] = 1664.6791620618908
-            #results[1] = 27.118662350933683
-
-            # print(sum(variance_inverse * (np.dot(xx.T, results) - self._datasets[i_dataset].flux)**2))
-            #print(results) # 41.81485 0.68119 for MAG_ZEROPOINT = 18
+            
             if fit_blending:
                 self._flux_blending[dataset] = results[-1]
                 self._flux_sources[dataset] = results[:-1]
