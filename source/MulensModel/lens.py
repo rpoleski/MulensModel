@@ -1,6 +1,7 @@
-from astropy import units as u
 import numpy as np
+from math import fsum
 
+from astropy import units as u
 
 class Lens(object):
     def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
@@ -182,14 +183,14 @@ class Lens(object):
         define it after defining q.
         """
         new_q = np.insert(new_q, 0, 1.)
-        self._epsilon = new_q / np.sum(new_q)
+        self._epsilon = new_q / fsum(new_q)
         try:
             if np.array(new_q).size == self._epsilon.size - 1:
         #Case 3: the entire lens is defined (new_q changes the values of q)
                 pass
             else:
         #Case 2: the primary is defined (new_q adds masses)
-                self._total_mass = self._total_mass * np.sum(new_q)
+                self._total_mass = self._total_mass * fsum(new_q)
         except AttributeError:
         #Case 1: nothing is initialized (new_q directly sets epsilon)
             pass

@@ -1,4 +1,5 @@
 import numpy as np
+from math import fsum
 
 from MulensModel.utils import Utils
 from MulensModel.fit import Fit
@@ -50,8 +51,8 @@ class Event(object):
         for dataset in self.datasets:
             diff = dataset._brightness_input - self.fit.get_input_format(data=dataset)
             select = np.logical_not(dataset.bad)
-            chi2.append(sum((diff[select] / dataset._brightness_input_err[select])**2))
-        self.chi2 = sum(chi2)
+            chi2.append(fsum((diff[select] / dataset._brightness_input_err[select])**2))
+        self.chi2 = fsum(chi2)
         return self.chi2
 
     def clean_data(self):
