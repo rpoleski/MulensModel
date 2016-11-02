@@ -45,11 +45,14 @@ class Event(object):
     #    else:
     #        raise ValueError('
 
-    def get_chi2(self):
+    def get_chi2(self, fit_blending_all=None):
         """calculates chi^2 of current model"""
         self.fit = Fit(data=self.datasets, 
                        magnification=self.model.magnification) 
-        self.fit.fit_fluxes()
+        if fit_blending_all is not None:
+            self.fit.fit_fluxes(fit_blending_all=fit_blending_all)
+        else:
+            self.fit.fit_fluxes()
         chi2 = []
         for dataset in self.datasets:
             diff = dataset._brightness_input \
