@@ -74,15 +74,21 @@ This is a high-level unit test for parallax. The "true" values were calculated f
 """
 def test_annual_parallax_calculation():
     t_0 = 7479.5 #April 1 2016, a time when parallax is large
+    times = np.array([t_0-1., t_0, t_0+1.])
+    true_no_par = np.array([7.12399067,10.0374609, 7.12399067])
+    true_with_par = np.array([7.12376832, 10.0386009, 7.13323363])
 
-    model = Model(t_0=t_0, u_0=0.1,t_E=10.,pi_E=(0.3,0.5),
+    model_with_par = Model(t_0=t_0, u_0=0.1,t_E=10.,pi_E=(0.3,0.5),
                   coords='17:57:05 -30:22:59')
-    model.parallax(satellite=False,earth_orbital=True,topocentric=False)
-    model.t_0_par = 7479.
-    model.time = np.array([t_0-1., t_0, t_0+1.])
-    model.fs = 1.0
-    model.fb = 0.0
+    model_with_par.parallax(satellite=False,earth_orbital=True,
+                            topocentric=False)
+    model_with_par.t_0_par = 7479.
+    model_with_par.time = times
     
-    np.testing.assert_almost_equal(model.mag[0], 15.8682255)#no par: 15.8681916
-    np.testing.assert_almost_equal(model.mag[1], 15.495817)#no par: 15.4959403
-    np.testing.assert_almost_equal(model.mag[2], 15.8667839)#no par: 15.8681916
+    model_no_par = Model(t_0=t_0, u_0=0.1,t_E=10.,pi_E=(0.3,0.5),
+                  coords='17:57:05 -30:22:59')
+    model_no_par.parallax(satellite=False,earth_orbital=False,topocentric=False)
+    model_no_par.time = times
+    
+    np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
+    np.testing.assert_almost_equal(model_with_par.magnification, true_with_par)
