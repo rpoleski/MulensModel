@@ -5,7 +5,8 @@ import numpy as np
 import unittest
 from astropy.time import Time
 
-from MulensModel.model import Model, ModelParameters
+from MulensModel.model import Model
+from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 
 
@@ -50,9 +51,9 @@ class TestModelParallax(unittest.TestCase):
 
 def test_model_parallax():
     model_1 = Model()
-#    model_1.pi_E((0.1,0.2))
-#    assert model_1.pi_E_N == 0.1
-#    assert model_1.pi_E_E == 0.2
+    model_1.pi_E = (0.1,0.2)
+    assert model_1.pi_E_N == 0.1
+    assert model_1.pi_E_E == 0.2
 
     model_2 = Model()
     model_2.pi_E_N = 0.3
@@ -60,11 +61,11 @@ def test_model_parallax():
     assert model_2.pi_E_N == 0.3
     assert model_2.pi_E_E == 0.4
 
-#    model_3 = Model(pi_E=(0.5,0.6))
-#    assert model_3.pi_E_N == 0.5
-#    assert model_3.pi_E_E == 0.6
+    model_3 = Model(pi_E=(0.5,0.6))
+    assert model_3.pi_E_N == 0.5
+    assert model_3.pi_E_E == 0.6
 
-#    model_4 = Model(pi_E_N=0.7, pi_E_E=0.8)
-#    assert model_4.pi_E_N == 0.7
-#    assert model_4.pi_E_E == 0.8
+    model_4 = Model(pi_E_N=0.7, pi_E_E=0.8)
+    assert model_4.pi_E_N == 0.7
+    assert model_4.pi_E_E == 0.8
 
