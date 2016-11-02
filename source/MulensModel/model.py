@@ -19,10 +19,11 @@ class Model(object):
                  lens=None, source=None, mu_rel=None):
         """
         Three ways to define the model:
-        parameters = a ModelParameters() object
-        specify t_0, u_0, t_E (optionally: rho, s, q, alpha)
-        specify physical properties: lens= a Lens() object, 
+        1. parameters = a ModelParameters() object
+        2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha,pi_E)
+        3. specify physical properties: lens= a Lens() object, 
             source= a Source() object, mu_rel
+        method 3 not implemented.
         """
         self.parameters = ModelParameters(t_0=t_0, u_0=u_0, t_E=t_E)
         if parameters is not None:

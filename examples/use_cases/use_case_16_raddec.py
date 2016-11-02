@@ -26,7 +26,7 @@ my_data = MulensModel.MulensData(file_name='test.data', format='HJD')
 model_params = MulensModel.ModelParameters(t_0=7500., u_0=0.2, t_E=32.,
                                            pi_EN=0.1, pi_EE=-0.2)
 event = MulensModel.Event(datasets=[my_data], 
-                          model=MulensModel(paramters=model_params), 
+                          model=MulensModel(parameters=model_params), 
                           coords='18:00:00 -30:00:00')
 
 #Given these three different cases, it will be possible to specify
