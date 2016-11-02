@@ -71,17 +71,18 @@ def test_model_parallax_definition():
 
 """
 This is a high-level unit test for parallax. The "true" values were calculated from the sfit routine assuming fs=1.0, fb=0.0.
+"""
 def test_annual_parallax_calculation():
     t_0 = 7479.5 #April 1 2016, a time when parallax is large
-    times = np.array([t_0-1., t_0, t_0+1.])
-    data = MulensData(data_list=[times, times*0., times*0.], date_fmt='jdprime')
 
-    model = Model(t_0=t_0, u_0=0.1,t_E=10.,pi_E=(0.3,0.5))
+    model = Model(t_0=t_0, u_0=0.1,t_E=10.,pi_E=(0.3,0.5),
+                  coords='17:57:05 -30:22:59')
     model.parallax(satellite=False,earth_orbital=True,topocentric=False)
     model.t_0_par = 7479.
+    model.time = np.array([t_0-1., t_0, t_0+1.])
+    model.fs = 1.0
+    model.fb = 0.0
     
-    event = Event(datasets=data,model=model,coords='17:57:05 -30:22:59')
-    np.testing.assert_almost_equal(event.fit.mag_data[0], 15.8682255)
-    np.testing.assert_almost_equal(event.fit.mag_data[1], 15.495817)
-    np.testing.assert_almost_equal(event.fit.mag_data[2], 15.8667839)
-"""
+    np.testing.assert_almost_equal(model.mag[0], 15.8682255)#no par: 15.8681916
+    np.testing.assert_almost_equal(model.mag[1], 15.495817)#no par: 15.4959403
+    np.testing.assert_almost_equal(model.mag[2], 15.8667839)#no par: 15.8681916
