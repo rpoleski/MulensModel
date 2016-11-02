@@ -32,6 +32,7 @@ Definitions of microlensing parameters:
 * t_eff - Gould 2013 [http://arxiv.org/abs/1312.6692](http://arxiv.org/abs/1312.6692)
 * caustic crossing parameters - Cassan 2008 [http://adsabs.harvard.edu/abs/2008A%26A...491..587C](http://adsabs.harvard.edu/abs/2008A%26A...491..587C)
 * single caustic crossing parameters - Albrow et al. 1999c [http://adsabs.harvard.edu/abs/1999ApJ...522.1022A](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A)
+* caustic size _w_ [http://adsabs.harvard.edu/abs/2009ApJ...698.1826D](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [http://adsabs.harvard.edu/abs/2005ApJ...630..535C](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
 * check if new parameters are defined here: Liebig, D'Ago, Bozza, and Dominik 2015 [http://adsabs.harvard.edu/abs/2015MNRAS.450.1565L](http://adsabs.harvard.edu/abs/2015MNRAS.450.1565L)
 * MORE TO BE ADDED
 

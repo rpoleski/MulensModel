@@ -1,4 +1,5 @@
 import numpy as np
+from math import fsum
 
 from MulensModel.utils import Utils
 from MulensModel.fit import Fit
@@ -30,7 +31,9 @@ class Event(object):
         self._set_datasets(new_value)
 
     def _set_datasets(self, new_value):
-        """sets the value of self._datasets; can be called by __init__ or @datasets.setter; passes datasets to property self._model"""
+        """sets the value of self._datasets
+        can be called by __init__ or @datasets.setter
+        passes datasets to property self._model"""
         if new_value is None:
             self._datasets = None
             return
@@ -44,14 +47,17 @@ class Event(object):
 
     def get_chi2(self):
         """calculates chi^2 of current model"""
-        self.fit = Fit(data=self.datasets, magnification=self.model.magnification) 
+        self.fit = Fit(data=self.datasets, 
+                       magnification=self.model.magnification) 
         self.fit.fit_fluxes()
         chi2 = []
         for dataset in self.datasets:
-            diff = dataset._input_values - self.fit.get_input_format(data=dataset)
+            diff = dataset._brightness_input \
+                 - self.fit.get_input_format(data=dataset)
             select = np.logical_not(dataset.bad)
-            chi2.append(sum((diff[select] / dataset._input_values_err[select])**2))
-        self.chi2 = sum(chi2)
+            chi2.append(fsum((diff[select] 
+                        / dataset._brightness_input_err[select])**2))
+        self.chi2 = fsum(chi2)
         return self.chi2
 
     def clean_data(self):
@@ -61,4 +67,3 @@ class Event(object):
     def estimate_model_params(self):
         """estiamtes model parameters without fitting them"""
         pass
-

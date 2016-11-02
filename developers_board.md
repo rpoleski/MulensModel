@@ -14,6 +14,16 @@
 
 ## Specific tasks to be performed
 
+* __fix no blending in Fit__
+* __test case for get_chi2() and double source model__
+* __annual parallax unit test__
+* __parallax classes - APIs__
+* __annual parallax calculation__
+* MulensTime._get_date_zeropoint() and MulensData._get_date_zeropoint() - use dictionary 
+* change "type(val) is SomeType" to "isinstance(val, SomeType)"
+* one class per file?
+* no unit tests for private functions: \_fun()
+* Fit() should use marginalized distributions of fluxes
 * get rid off get_jd_zeropoint from MulensData and its tests
 * write tests for MulensData(data_list=...)
 * in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
@@ -25,7 +35,6 @@
 * Scaling of observed data to a scale of other dataset. We normally do it to transform follow-up data to survey magnitude scale so that they can be presented on a single plot. 
 * Class Model should not allow accesing attributes that shouldn't be there, eg., q for single lens case.
 * Transform t_E and other parameters between geocentric and heliocentric frames.
-* EMCEE example - see [website](http://dan.iel.fm/emcee/current/user/line/).
 * Errorbar scaling, in particular the two parameter.
 * Source limb darkening profile: use of gamma and u conventions, obtaining the value from outside sources (Claret papers). 
 * RA & Dec in Model - get galactic (.galactic) and elliptical coordinates (from astropy.coordinates import GeocentricTrueEcliptic; .transform_to(GeocentricTrueEcliptic)).

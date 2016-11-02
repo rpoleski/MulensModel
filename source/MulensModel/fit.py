@@ -7,38 +7,45 @@ class Fit(object):
     def __init__(self, data=None, magnification=None):
         """
         data - a list of MulensModel datasets
-        magnification - a list of numpy arrays, each list element is (n_epochs) x (n_sources)
+        magnification - a list of numpy arrays, 
+            each list element is (n_epochs) x (n_sources)
         """
         self._datasets = data 
         self._magnification = magnification
            
-    def fit_fluxes(self):
+    def fit_fluxes(self, fit_blending=True):
         """fit source(s) and blending fluxes"""
         if len(self._magnification[0].shape) == 1:
             n_sources = 1
         else:
             n_sources = self._magnification[0].shape[0]
-        n_fluxes = n_sources + 1
+        n_fluxes = n_sources
+        if fit_blending:
+            n_fluxes += 1
         self._flux_blending = dict()
         self._flux_sources = dict()
         for i_dataset, dataset in enumerate(self._datasets):
             x = np.empty(shape=(n_fluxes, len(dataset.jd)))
-            x[0:(n_fluxes-1),] = self._magnification[i_dataset]
-            x[n_fluxes-1] = 1.
+            if fit_blending:
+                x[0:(n_fluxes-1),] = self._magnification[i_dataset]
+                x[n_fluxes-1] = 1.
+            else:
+                x = self._magnification[i_dataset]
             xT = x.T
             y = self._datasets[i_dataset].flux
-            variance_inverse = self._datasets[i_dataset].err_flux**-2
-            y *= variance_inverse
-            for i,vari in enumerate(variance_inverse):
-                xT[i] *= vari
+            sigma_inverse = 1. / self._datasets[i_dataset].err_flux
+            y *= sigma_inverse
+            for i, sig_inv in enumerate(sigma_inverse):
+                xT[i] *= sig_inv
+            
             results = np.linalg.lstsq(xT, y)[0] # F_s1, F_s2..., F_b
-            #results[0] = 1664.6791620618908
-            #results[1] = 27.118662350933683
-
-            # print(sum(variance_inverse * (np.dot(xx.T, results) - self._datasets[i_dataset].flux)**2))
-            #print(results) # 41.81485 0.68119 for MAG_ZEROPOINT = 18
-            self._flux_blending[dataset] = results[-1]
-            self._flux_sources[dataset] = results[:-1]
+            
+            if fit_blending:
+                self._flux_blending[dataset] = results[-1]
+                self._flux_sources[dataset] = results[:-1]
+            else:
+                self._flux_blending[dataset] = 0.
+                self._flux_sources[dataset] = results
 
     def get_input_format(self, data=None):
         """return model in the same format as given dataset was input"""
@@ -57,13 +64,15 @@ class Fit(object):
             flux += self._flux_sources[data] * self._magnification[index]
         else:
             for i in range(n_sources):
-                flux += self._flux_sources[data][i] * self._magnification[index][i]
+                flux += self._flux_sources[data][i] \
+                      * self._magnification[index][i]
 
         if data.input_fmt == "mag":
             result = Utils.get_mag_from_flux(flux)
         elif data.input_fmt == "flux":
             result = flux
         else:
-            raise ValueError('Fit.get_input_format() unrecognized data input format')
+            msg = 'Fit.get_input_format() unrecognized data input format'
+            raise ValueError(msg)
         return result
     

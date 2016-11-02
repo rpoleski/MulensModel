@@ -22,5 +22,6 @@ class MulensTime(object):
             return 2450000.
         if date_fmt == "mjd":
             return 2400000.5
-        raise ValueError('Invalid value for date_fmt. Allowed values: "jd", "hjd", "jdprime", "hjdprime", "mjd"')
+        lst = '"jd", "hjd", "jdprime", "hjdprime", "mjd"'    
+        raise ValueError('Invalid value for date_fmt. Allowed values: ' + lst)
 

@@ -1,5 +1,6 @@
-from astropy import units as u
 import numpy as np
+from math import fsum
+from astropy import units as u
 
 class Lens(object):
     def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
@@ -19,16 +20,18 @@ class Lens(object):
             if s is not None:
                 self.s = s
             else:
-                raise AttributeError('if q is defined, s must also be defined.')
+                msg = 'if q is defined, s must also be defined.'
+                raise AttributeError(msg)
             if mass_1 is not None:
-                self._total_mass = mass_1*(1.+q)
+                self._total_mass = mass_1 * (1. + q)
         if total_mass is not None:
             self._total_mass = total_mass
         if epsilon is not None:
             self._epsilon = np.array(epsilon)
         if mass_2 is not None:
             self._total_mass = mass_1 + mass_2
-            self._epsilon = np.array([mass_1/self.total_mass, mass_2/self.total_mass])
+            self._epsilon = np.array(
+                            [mass_1/self.total_mass, mass_2/self.total_mass])
         else:
             if mass_1 is not None and q is None:
                 self._set_single_mass(mass_1)
@@ -152,9 +155,12 @@ class Lens(object):
 
     @distance.setter
     def distance(self, new_distance):
-        #Have not checked what happens if the distance is entered in lyr or AU. Probably we should use new_distance.decompose()
+        """Have not checked what happens if the distance is entered in lyr 
+        or AU. Probably we should use new_distance.decompose()"""
         if type(new_distance) != u.Quantity:
-            raise TypeError('distance must have astropy units, i.e. it must be an astropy.units Quantity.')
+            msg1 = 'distance must have astropy units, '
+            msg2 = 'i.e. it must be an astropy.units Quantity.'
+            raise TypeError(msg1 + msg2)
         else:
             if (new_distance.unit == "pc" or new_distance.unit == "AU" 
                 or new_distance.unit == "lyr"):
@@ -181,14 +187,14 @@ class Lens(object):
         define it after defining q.
         """
         new_q = np.insert(new_q, 0, 1.)
-        self._epsilon = new_q / np.sum(new_q)
+        self._epsilon = new_q / fsum(new_q)
         try:
             if np.array(new_q).size == self._epsilon.size - 1:
         #Case 3: the entire lens is defined (new_q changes the values of q)
                 pass
             else:
         #Case 2: the primary is defined (new_q adds masses)
-                self._total_mass = self._total_mass * np.sum(new_q)
+                self._total_mass = self._total_mass * fsum(new_q)
         except AttributeError:
         #Case 1: nothing is initialized (new_q directly sets epsilon)
             pass
