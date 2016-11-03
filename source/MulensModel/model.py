@@ -18,7 +18,7 @@ class Model(object):
                  pi_E=None, pi_E_N=None, pi_E_E=None,
                  pi_E_ref=None,
                  lens=None, source=None, mu_rel=None,
-                 coords=None,ra=None,dec=None):
+                 coords=None, ra=None, dec=None):
         """
         Three ways to define the model:
         1. parameters = a ModelParameters() object
@@ -70,13 +70,13 @@ class Model(object):
 
         coords_msg = 'Must specify both or neither of ra and dec'
         if coords is not None:
-            if isinstance(coords,SkyCoord):
+            if isinstance(coords, SkyCoord):
                 self._coords = coords
             else:
-                self._coords = SkyCoord(coords,unit=(u.hourangle,u.deg))
+                self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
         if ra is not None:
             if dec is not None:
-                self._coords = SkyCoord(ra, dec, unit=(u.hourangle,u.deg))
+                self._coords = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
             else:
                 raise AttributeError(coords_msg)
         else:
@@ -202,11 +202,11 @@ class Model(object):
         return self._coords
 
     @coords.setter
-    def coords(self,new_value):
-        if isinstance(new_value,SkyCoord):
+    def coords(self, new_value):
+        if isinstance(new_value, SkyCoord):
             self._coords = new_value
         else:
-            self._coords = SkyCoord(new_value, unit=(u.hourangle,u.deg))
+            self._coords = SkyCoord(new_value, unit=(u.hourangle, u.deg))
 
     @property
     def ra(self):
@@ -223,7 +223,7 @@ class Model(object):
         try:
             self._coords.ra = new_value
         except AttributeError:
-            self._coords = SkyCoord(new_value,0.0,unit=(u.hourangle,u.deg))
+            self._coords = SkyCoord(new_value, 0.0, unit=(u.hourangle, u.deg))
 
     @property
     def dec(self):
@@ -240,7 +240,7 @@ class Model(object):
         try:
             self._coords.dec = new_value
         except AttributeError:
-            self._coords = SkyCoord(0.0,new_value,unit=(u.hourangle,u.deg))
+            self._coords = SkyCoord(0.0, new_value, unit=(u.hourangle, u.deg))
 
 if __name__ == "__main__":
     model_1 = Model(coords="18:00:00 -30:00:00")
