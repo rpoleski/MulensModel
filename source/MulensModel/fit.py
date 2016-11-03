@@ -58,7 +58,7 @@ class Fit(object):
             n_sources = self._magnification[0].shape[0]            
 
         index = self._datasets.index(data)
-        flux = np.ones(len(self._magnification[0])) * self._flux_blending[data]
+        flux = np.ones(len(data.time)) * self._flux_blending[data]
 
         if n_sources == 1:
             flux += self._flux_sources[data] * self._magnification[index]
