@@ -51,7 +51,7 @@ class TestModelParallax(unittest.TestCase):
 
 def test_model_parallax_definition():
     model_1 = Model()
-    model_1.pi_E = (0.1,0.2)
+    model_1.pi_E = (0.1, 0.2)
     assert model_1.pi_E_N == 0.1
     assert model_1.pi_E_E == 0.2
 
@@ -61,7 +61,7 @@ def test_model_parallax_definition():
     assert model_2.pi_E_N == 0.3
     assert model_2.pi_E_E == 0.4
 
-    model_3 = Model(pi_E=(0.5,0.6))
+    model_3 = Model(pi_E=(0.5, 0.6))
     assert model_3.pi_E_N == 0.5
     assert model_3.pi_E_E == 0.6
 
@@ -75,20 +75,23 @@ This is a high-level unit test for parallax. The "true" values were calculated f
 def test_annual_parallax_calculation():
     t_0 = 7479.5 #April 1 2016, a time when parallax is large
     times = np.array([t_0-1., t_0, t_0+1.])
-    true_no_par = np.array([7.12399067,10.0374609, 7.12399067])
-    true_with_par = np.array([7.12376832, 10.0386009, 7.13323363])
+    true_no_par = [np.array([7.12399067,10.0374609, 7.12399067])]
+    true_with_par = [np.array([7.12376832, 10.0386009, 7.13323363])]
 
     model_with_par = Model(t_0=t_0, u_0=0.1,t_E=10.,pi_E=(0.3,0.5),
                   coords='17:57:05 -30:22:59')
-    model_with_par.parallax(satellite=False,earth_orbital=True,
+    model_with_par.parallax(satellite=False, earth_orbital=True,
                             topocentric=False)
-    model_with_par.t_0_par = 7479.
-    model_with_par.time = times
+    ones = np.ones(len(times))                    
+    data = MulensData(data_list=[times, ones, ones])
+    model_with_par.set_datasets([data])
     
-    model_no_par = Model(t_0=t_0, u_0=0.1,t_E=10.,pi_E=(0.3,0.5),
+    model_with_par.t_0_par = 7479.
+    
+    model_no_par = Model(t_0=t_0, u_0=0.1, t_E=10.,pi_E=(0.3, 0.5),
                   coords='17:57:05 -30:22:59')
-    model_no_par.parallax(satellite=False,earth_orbital=False,topocentric=False)
-    model_no_par.time = times
+    model_no_par.set_datasets([data])
+    model_no_par.parallax(satellite=False, earth_orbital=False, topocentric=False)
     
     np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
     np.testing.assert_almost_equal(model_with_par.magnification, true_with_par)
