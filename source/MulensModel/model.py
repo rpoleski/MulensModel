@@ -156,6 +156,13 @@ class Model(object):
     def pi_E_E(self, value):
         self.parameters.pi_E_E = value
 
+    def _trajectory(self):
+        """calculates source trajectory"""
+        self._trajectory_x = []
+        self._trajectory_y = []
+        for dataset in self._datasets:
+            self._trajectory_x.append((dataset.time - self.t_0) / self.t_E)
+            self._trajectory_y.append(self.u_0*np.ones(len(dataset.time)))
 
     @property
     def magnification(self):
@@ -163,11 +170,10 @@ class Model(object):
         if self._magnification is not None:
             return self._magnification
         self._magnification = []
-        for dataset in self._datasets:
-            time_diff = (dataset.time - self.t_0) / self.t_E
-            u2 = self.u_0 * self.u_0 + time_diff * time_diff
-            u = np.sqrt(u2)
-            self._magnification.append((u2 + 2.) / (u * np.sqrt(u2 + 4.)))
+        self._trajectory()
+        for i_data in range(len(self._datasets)):
+            u2 = self._trajectory_x[i_data]**2 + self._trajectory_y[i_data]**2
+            self._magnification.append((u2 + 2.) / np.sqrt(u2 * (u2 + 4.)))
         return self._magnification
 
     @magnification.setter
