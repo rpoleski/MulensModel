@@ -59,7 +59,7 @@ def test_data_list_1():
     t = np.array([7500., 7501.])
     m = np.array([21.0, 21.1])
     e = np.array([0.001, 1.000])
-    data = MulensData([t, m, e], date_fmt="jdprime")
+    data = MulensData(data_list=[t, m, e], date_fmt="jdprime")
     np.testing.assert_almost_equal(data.time, t, err_msg
                                    ='problem with time vector in MulensData')
     np.testing.assert_almost_equal(data.time_zeropoint, 2450000., 

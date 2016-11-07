@@ -1,15 +1,13 @@
-## October 2016 goals:
-1.    Allow fits with fixed no blending.
-2.    Make sure get_chi2() works properly for simple binary source model.
-3.    Finish MulensData() definition that includes JD-HJD conversion.
-4.    Expand unit tests (and code they test) for Event and Model, write them for Fit class.
-5.    Calculate source trajectory with annual parallax effect.
+## November 2016 goals:
+1.    Verify that annual parallax works fine.
+2.    Add satellite parallax calculations.
+3.    Limit list of specific tasks below to around 10 (or less).
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
-* __parallax classes - APIs__
-* __annual parallax calculation__
+* __annual parallax calculation - test accuracy__
+* __satellite parallax__
 * move long unit tests to the end
 * one class per file
 * one test file per class
@@ -19,12 +17,13 @@
 * remove EMPTY files
 * pass datasets from Event to Model or vice versa
 * check longest files - does every function have a description?
+* add Reduced JD to accepted time formats
+* add a check (and warning if found) that data specified are before 1992 or after 2050
 * change "type(val) is SomeType" to "isinstance(val, SomeType)"
 * better import of the module so that all main classes are accesiable
 * no unit tests for private functions: \_fun()
 * Fit() should use marginalized distributions of fluxes
 * get rid off get_jd_zeropoint from MulensData and its tests
-* write tests for MulensData(data_list=...)
 * in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
 
 ## Decisions we should make:
