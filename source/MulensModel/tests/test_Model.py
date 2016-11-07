@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 import sys
 import numpy as np
 import unittest
@@ -74,16 +72,16 @@ This is a high-level unit test for parallax. The "true" values were calculated f
 """
 def test_annual_parallax_calculation():
     t_0 = 7479.5 #April 1 2016, a time when parallax is large
-    times = np.array([t_0-1., t_0, t_0+1.])
-    true_no_par = [np.array([7.12399067,10.0374609, 7.12399067])]
-    true_with_par = [np.array([7.12376832, 10.0386009, 7.13323363])]
+    times = np.array([t_0-1., t_0, t_0+1., t_0+1.])
+    true_no_par = [np.array([7.12399067,10.0374609, 7.12399067, 7.12399067])]
+    true_with_par = [np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])]
 
-    model_with_par = Model(t_0=t_0, u_0=0.1,t_E=10.,pi_E=(0.3,0.5),
+    model_with_par = Model(t_0=t_0, u_0=0.1, t_E=10. ,pi_E=(0.3,0.5),
                   coords='17:57:05 -30:22:59')
     model_with_par.parallax(satellite=False, earth_orbital=True,
                             topocentric=False)
     ones = np.ones(len(times))                    
-    data = MulensData(data_list=[times, ones, ones])
+    data = MulensData(data_list=[times, ones, ones], date_fmt='jdprime')
     model_with_par.set_datasets([data])
     
     model_with_par.t_0_par = 7479.
@@ -94,4 +92,7 @@ def test_annual_parallax_calculation():
     model_no_par.parallax(satellite=False, earth_orbital=False, topocentric=False)
     
     np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
-    np.testing.assert_almost_equal(model_with_par.magnification, true_with_par)
+    np.testing.assert_almost_equal(model_with_par.magnification, true_with_par, decimal=3)
+
+if __name__ == '__main__':
+    test_annual_parallax_calculation()

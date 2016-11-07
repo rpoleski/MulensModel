@@ -1,6 +1,7 @@
 import numpy as np
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, get_body_barycentric, EarthLocation
 from astropy import units as u
+from astropy.time import Time, TimeDelta
 
 from MulensModel.modelparameters import ModelParameters
 
@@ -56,7 +57,7 @@ class Model(object):
                     self.pi_E_E = pi_E_E
                 else:
                     self.parameters.pi_E = MulensParallaxVector(
-                        pi_E_1=pi_E_N,pi_E_2=pi_E_E, ref=pi_E_ref)
+                        pi_E_1=pi_E_N, pi_E_2=pi_E_E, ref=pi_E_ref)
             else:
                 raise AttributeError(par_msg)
         else:
@@ -84,6 +85,9 @@ class Model(object):
                 raise AttributeError(coords_msg)
 
         self._magnification = None
+        self._parallax_earth_orbital = False
+        self._parallax_satellite = False
+        self._parallax_topocentric = False
 
     @property
     def t_0(self):
@@ -160,9 +164,34 @@ class Model(object):
         """calculates source trajectory"""
         self._trajectory_x = []
         self._trajectory_y = []
+        if self._parallax_satellite is not False:
+            raise ValueError('Satellite parallax not coded yet')
+        if self._parallax_topocentric is not False:
+            raise ValueError('Topocentric parallax not coded yet')        
         for dataset in self._datasets:
-            self._trajectory_x.append((dataset.time - self.t_0) / self.t_E)
-            self._trajectory_y.append(self.u_0*np.ones(len(dataset.time)))
+            vector_x = (dataset.time - self.t_0) / self.t_E
+            vector_y = self.u_0 * np.ones(len(dataset.time))
+            if self._parallax_earth_orbital is True:
+                earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
+                time_ref = Time(self.t_0_par+2450000., format="jd", 
+                          location=earth_center)
+                dt = TimeDelta(3600.0, format='sec')
+                position_ref = get_body_barycentric(body='earth', time=time_ref)
+                position_ref_dt = get_body_barycentric(body='earth', time=time_ref+dt)
+                velocity = (position_ref_dt.xyz - position_ref.xyz) / dt
+                position = get_body_barycentric(body='earth', time=dataset._time)
+                ds = []
+                for i in range(len(dataset._time)):
+                    ds.append(position[i].xyz - (dataset._time[i] - time_ref) * velocity - position_ref.xyz)
+                delta_s = u.Quantity(ds)
+                delta_s_e = -delta_s[:,0]
+                delta_s_n = delta_s[:,2]
+                delta_tau = delta_s_n.value * self.pi_E_N + delta_s_e.value * self.pi_E_E
+                delta_beta = -delta_s_n.value * self.pi_E_E + delta_s_e.value * self.pi_E_N
+                vector_x += delta_tau
+                vector_y += delta_beta
+            self._trajectory_x.append(vector_x)
+            self._trajectory_y.append(vector_y)
 
     @property
     def magnification(self):
@@ -247,6 +276,12 @@ class Model(object):
             self._coords.dec = new_value
         except AttributeError:
             self._coords = SkyCoord(0.0, new_value, unit=(u.hourangle, u.deg))
+
+    def parallax(self, earth_orbital=False, satellite=False, topocentric=False):
+        """specifies which types of the parallax will be included in calculations"""
+        self._parallax_earth_orbital = earth_orbital
+        self._parallax_satellite = satellite
+        self._parallax_topocentric = topocentric
 
 if __name__ == "__main__":
     model_1 = Model(coords="18:00:00 -30:00:00")
