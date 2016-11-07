@@ -14,7 +14,6 @@
 * one class per file
 * one test file per class
 * add check on astropy version minimum 1.2 in MulensData
-* unit test for Fit.get\_input\_format()
 * write @property for Model that returns Galactic and ecliptic coordinates based on \_coords
 * MulensTime._get_date_zeropoint() and MulensData._get_date_zeropoint() - use dictionary 
 * remove EMPTY files

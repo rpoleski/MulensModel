@@ -1,10 +1,11 @@
 import numpy as np
+import warnings
 
 from MulensModel.utils import Utils
 
 
 class Fit(object):
-    def __init__(self, data=None, magnification=None):
+    def __init__(self, data=None, magnification=None, n_sources=None):
         """
         data - a list of MulensModel datasets
         magnification - a list of numpy arrays, 
@@ -12,18 +13,25 @@ class Fit(object):
         """
         self._datasets = data 
         self._magnification = magnification
+        if magnification is None and n_sources is None:
+            raise ValueError('Fit class requires magnifications vectors' 
+                    + ' or number of sources directly specified')
+        self._n_sources = n_sources
+        self._flux_blending = dict()
+        self._flux_sources = dict()        
            
     def fit_fluxes(self, fit_blending_all=True):
         """fit source(s) and blending fluxes"""
-        if len(self._magnification[0].shape) == 1:
-            n_sources = 1
+        if self._n_sources is not None:
+            n_sources = self._n_sources
         else:
-            n_sources = self._magnification[0].shape[0]
+            if len(self._magnification[0].shape) == 1:
+                n_sources = 1
+            else:
+                n_sources = self._magnification[0].shape[0]
         n_fluxes = n_sources
         if fit_blending_all:
             n_fluxes += 1
-        self._flux_blending = dict()
-        self._flux_sources = dict()
         for i_dataset, dataset in enumerate(self._datasets):
             x = np.empty(shape=(n_fluxes, len(dataset.jd)))
             if fit_blending_all:
@@ -52,15 +60,26 @@ class Fit(object):
         """return model in the same format as given dataset was input"""
         if data is None:
             raise ValueError('Fit.get_input_format() dataset not provided')
-        if len(self._magnification[0].shape) == 1:
-            n_sources = 1
+        if self._n_sources is not None:
+            n_sources = self._n_sources
         else:
-            n_sources = self._magnification[0].shape[0]            
+            if len(self._magnification[0].shape) == 1:
+                n_sources = 1
+            else:
+                n_sources = self._magnification[0].shape[0]
 
         index = self._datasets.index(data)
+        if data not in self._flux_blending:
+            self._flux_blending[data] = 0. 
+            warnings.warn("Blending flux not set. This is strange...", 
+                            SyntaxWarning)
         flux = np.ones(len(data.time)) * self._flux_blending[data]
 
         if n_sources == 1:
+            if data not in self._flux_sources:
+                self._flux_sources[data] = 1. 
+                warnings.warn("Source flux not set. This is strange...", 
+                                SyntaxWarning)
             flux += self._flux_sources[data] * self._magnification[index]
         else:
             for i in range(n_sources):
