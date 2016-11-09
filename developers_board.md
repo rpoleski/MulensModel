@@ -9,6 +9,7 @@
 * __annual parallax calculation - test accuracy__
 * __satellite parallax__
 * move long unit tests to the end
+* t\_0\_par is MulensTime instance
 * one class per file
 * one test file per class
 * add check on astropy version minimum 1.2 in MulensData
@@ -25,10 +26,13 @@
 * Fit() should use marginalized distributions of fluxes
 * get rid off get_jd_zeropoint from MulensData and its tests
 * in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
+* all comments are sentences
+* use case 16 - code all coords features
+* event coords - Galactic and Ecliptic frames
+* add Reduced JD and RHJD
 
 ## Decisions we should make:
 
-1. Naming: magnification or mag or amplification.
 1. What conventions do we want for time vector in input files? There are 2 problems currently: 1) astropy supports only JD, not HJD, and 2) WFIRST will be observing post JD=2460000, so most frequently used shorthand format JD' = JD-2450000. = ABCD.XXXXX will have to be modified or extended to 1ABCD.XXXXX. 
 1. How to handle changes in origin of the coordinate system? Internally we're working in the center of mass, but fitting is sometimes much faster if the system is relative to, e.g., planetary caustic or a cusp. Also think how this should be done for triple lenses. 
 1. How to handle full reparametrization of the model? Cassan 2008 is particular example. 
