@@ -20,7 +20,6 @@
 * check longest files - does every function have a description?
 * add Reduced JD to accepted time formats
 * add a check (and warning if found) that data specified are before 1992 or after 2050
-* change "type(val) is SomeType" to "isinstance(val, SomeType)"
 * better import of the module so that all main classes are accesiable
 * no unit tests for private functions: \_fun()
 * Fit() should use marginalized distributions of fluxes
