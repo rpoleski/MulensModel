@@ -14,9 +14,9 @@ point_lens.plot_lightcurve(range=[-1.,1.])
 
 #2 bodies - Version 1
 l = MulensModel.Lens()
-l.mass_1 = 1.0*u.solMass
-l.mass_2 = 0.1*u.jupiterMass
-l.distance = 2.e3*u.pc
+l.mass_1 = 1.0 * u.solMass
+l.mass_2 = 0.1 * u.jupiterMass
+l.distance = 2.e3 * u.pc
 
 s = MulensModel.Source()
 s.distance = 8.e3*u.pc
@@ -29,8 +29,8 @@ print(m.theta_E)
 #2 bodies - Version 2
 two_body_lens = MulensModel.Lens(s=1.2, q=10.e-4)
 two_body_lens.plot_caustics()
-two_body_model = MulensModel.Model(t_0=5400., u_0=0.001, t_E=14.*u.day, rho=0.001,
-                                   s=two_body_lens.q, s=two_body_lens.s,
-                                   alpha = 261.*u.deg)
+two_body_model = MulensModel.Model(
+    t_0=5400., u_0=0.001, t_E=14.*u.day, rho=0.001, s=two_body_lens.q, 
+    s=two_body_lens.s, alpha=261.*u.deg)
 two_body_model.plot_trajectory(caustics=True)
 

@@ -28,8 +28,31 @@
 * event coords - Galactic and Ecliptic frames
 * add Reduced JD and RHJD
 * in Model: Fix ra and dec setters
-* in Model: allow parameters to be set as in use case 01
-* Reconsider implementation of plotting in use case 08
+* Reconsider implementation of plotting in use case 08 (perhaps more
+  like use case 02 or based on use_case 10)
+
+### Non-functional elements of use cases:
+* 01: Model does not allow parameters to be set in this way (see also use cases 08, 10, 12, 13, 16)
+* 02: Entire use case not implemented
+  * 02: Model does not support defining the model by the lens and source (see also use case 03).
+  * 02: Model does not support plot_lightcurve()
+  * 02: Model does not support theta_E (see also use case 03)
+* 03: Model does not support source and blend fluxes or magnitudes. Consequently, it also does not support plotting time vs. magnitude.
+* 03: Model does not support any plotting. Needs plot_lightcurve, plot_caustics, plot_trajectory. plot_caustics is actually meant to be a function in Lens.
+* 04: definition of ra and dec not supported. see also point above and use case 13.
+* 04: Event does not support append (as in append a new dataset)
+* 05: MulensData does not support satellite
+* 06: WFIRST data not implemented, MulensData also does not support bandpass
+* 07: This version of defining a Lens is not implemented.
+* 08: see above
+* 09: Finite source effects not implemented.
+* 10: source_flux and blend_flux not supported by Model. I'm not sure
+  the plotting would work either.
+* 11: Entire use case not implemented
+* 12: Event does not support chi2_0
+* 13: ModelParameters does not support frame_origin 
+* 16: MulensData does not support ra, dec. Event does not support coords (or ra, dec).
+
 
 ## Decisions we should make:
 

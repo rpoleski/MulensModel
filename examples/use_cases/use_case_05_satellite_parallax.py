@@ -12,7 +12,8 @@ d = MulensModel.MulensData(np.array(t, q, e), satellite='K2')
 print(d.satellite)
 
 m = MulensModel.Model()
-m.parallax(satellite=True, earth_orbital=False, topocentric=False) #default is all True
+m.parallax(satellite=True, earth_orbital=False, topocentric=False) 
+#default is all True
 
 
 

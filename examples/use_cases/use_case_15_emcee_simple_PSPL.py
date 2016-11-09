@@ -27,7 +27,7 @@ model = MulensModel.Model()
 for key, val in iterate(parameters_to_fit):
     setattr(model, val, parameters_values[key])
 
-data=MulensModel.MulensData(file_name="data_file.dat")
+data = MulensModel.MulensData(file_name="data_file.dat")
 
 event = MulensModel.Event(datasets=data, model=model)
 event.chi2_0 = len(data) * 1.
@@ -37,15 +37,19 @@ nwalkers = 100
 nsteps = 500
 burn = 50
 
-start = [parameters_values * (1 + 1e-4 * np.random.randn(ndim)) for i in range(nwalkers)]
+start = [parameters_values * (1 + 1e-4 * np.random.randn(ndim)) 
+         for i in range(nwalkers)]
 
-sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(event, parameters_to_fit))
+sampler = emcee.EnsembleSampler(
+    nwalkers, ndim, lnprob, args=(event, parameters_to_fit))
 
 sampler.run_mcmc(start, nsteps)
 
 samples = sampler.chain[:, burn:, :].reshape((-1, ndim))
 
-results = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]), zip(*np.percentile(samples, [16, 50, 84], axis=0)))
+results = map(
+    lambda v: (v[1], v[2]-v[1], v[1]-v[0]), 
+    zip(*np.percentile(samples, [16, 50, 84], axis=0)))
 
 for r in results:
     print(*r)

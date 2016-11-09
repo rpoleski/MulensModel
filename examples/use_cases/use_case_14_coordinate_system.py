@@ -23,11 +23,11 @@ not been tested and may have sign errors.
     if s <= 1.0:
         return t0, u0
     else:
-        delta = q/(1.+q)/s
-        delta_u0 = delta*np.sin(alpha*np.pi/180.)
-        delta_tau = delta*np.cos(alpha*np.pi/180.)
-        t0_prime = t0+delta_tau*te
-        u0_prime = u0+delta_u0
+        delta = q / (1. + q) / s
+        delta_u0 = delta * np.sin(alpha * np.pi / 180.)
+        delta_tau = delta * np.cos(alpha * np.pi / 180.)
+        t0_prime = t0 + delta_tau * te
+        u0_prime = u0 + delta_u0
         return t0_prime, u0_prime
 
 t0_center_of_mag = 7000.
@@ -42,14 +42,14 @@ s = 1.1
 q = 0.001
 
 t0_center_of_mass, u0_center_of_mass = convert_cof_mag2mass(
-        t0_center_of_mag,te,u0_center_of_mag, alpha_center_of_mag, s, q)
+        t0_center_of_mag, te, u0_center_of_mag, alpha_center_of_mag, s, q)
 
 print('Center of mass: {0}, {1}'.format(t0_center_of_mass,u0_center_of_mass)
 
 #Alternatively,
 
 model = MulensModel.Model()
-model.parameters(t_0=7000.,u_0=0.1,t_E=30., rho=0.001,alpha=30*u.deg, 
-                 s=1.1,q=0.001, frame_origin='magnification')
+model.parameters(t_0=7000.,u_0=0.1,t_E=30., rho=0.001, alpha=30*u.deg, 
+                 s=1.1, q=0.001, frame_origin='magnification')
 
-print(model.parameters.t0,model.parameters.u0)
+print(model.parameters.t0, model.parameters.u0)
