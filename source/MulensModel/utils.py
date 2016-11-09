@@ -3,7 +3,7 @@ import numpy as np
 MAG_ZEROPOINT = 22. # Defines magnitude at which flux = 1.
 
 class Utils(object):
-    '''a number of small functions used in differen places'''
+    '''a number of small functions used in differen tplaces'''
 
     def get_flux_from_mag(mag):
         '''transform magnitudes into fluxes'''
