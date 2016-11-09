@@ -8,7 +8,6 @@
 
 * __annual parallax calculation - test accuracy__
 * __satellite parallax__
-* move long unit tests to the end
 * t\_0\_par is MulensTime instance
 * one class per file
 * one test file per class
@@ -23,7 +22,6 @@
 * better import of the module so that all main classes are accesiable
 * no unit tests for private functions: \_fun()
 * Fit() should use marginalized distributions of fluxes
-* get rid off get_jd_zeropoint from MulensData and its tests
 * in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
 * all comments are sentences
 * use case 16 - code all coords features
