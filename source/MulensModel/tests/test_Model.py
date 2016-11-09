@@ -87,5 +87,3 @@ def test_annual_parallax_calculation():
     np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
     np.testing.assert_almost_equal(model_with_par.magnification, true_with_par, decimal=3)
 
-if __name__ == '__main__':
-    test_annual_parallax_calculation()

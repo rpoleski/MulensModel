@@ -35,10 +35,7 @@ class MulensData(object):
     def _initialize(self, date_fmt, mag_fmt, time=None, brightness=None, 
                     err_brightness=None):
         """internal function to initialized data using a few numpy arrays"""
-        self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt)
-        earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
-        self._time = Time(time+self._date_zeropoint, format="jd", 
-                          location=earth_center)
+        self._time = MulensTime(time=time, date_fmt=date_fmt)
         if date_fmt == 'hjd' or date_fmt == 'hjdprime':
             self._time_type = 'hjd'
         else:
@@ -60,7 +57,7 @@ class MulensData(object):
         else:
             msg = 'unknown format of brightness in ' + file_name + ' file'
             raise ValueError(msg)
-        self.bad = len(self._time) * [False]
+        self.bad = len(self._time.jd) * [False]
 
     @property
     def jd(self):
@@ -76,7 +73,7 @@ class MulensData(object):
         if self._time_type == 'hjd':
             return self._time.jd
         else:
-            return (self._time + self._time_correction).jd
+            return (self._time.astropy_time + self._time_correction).jd
 
     @property
     def _time_correction(self):
@@ -86,29 +83,17 @@ class MulensData(object):
                 raise ValueError('Event coordinates in MulensData not set')
             star = SkyCoord(self._target, unit=(u.hour, u.degree), 
                             frame='icrs')
-            self._time_corr = self._time.light_travel_time(star, 
+            self._time_corr = self._time.astropy_time.light_travel_time(star, 
                             'heliocentric')
         return self._time_corr
 
     @property
     def time(self):
         """short verion of time vector"""
-        return self._time.jd - self._date_zeropoint
+        return self._time.jd - self._time.zeropoint
 
     @property
     def time_zeropoint(self):
         """return the zeropoint of time vector"""
-        return self._date_zeropoint
-
-    def _get_date_zeropoint(self, date_fmt="jd"):
-        """ Return the zeropoint of the date so it can be converted to
-        the standard 245#### format."""
-        if date_fmt == "jd" or date_fmt == "hjd":
-            return 0.
-        if date_fmt == "jdprime" or date_fmt == "hjdprime":
-            return 2450000.
-        if date_fmt == "mjd":
-            return 2400000.5
-        lst = '"jd", "hjd", "jdprime", "hjdprime", "mjd"'
-        raise ValueError('Invalid value for date_fmt. Allowed values: '+lst)
+        return self._time.zeropoint
 

@@ -1,9 +1,24 @@
 from astropy.time import Time
+from astropy.coordinates import SkyCoord, EarthLocation
+from astropy import units as u
+
 
 class MulensTime(object):
-    def __init__(self,time=0.,date_fmt="jd"):
+    def __init__(self, time=0., date_fmt="jd"):
         self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt)
-        self._time = Time(time+self._date_zeropoint, format="jd")
+        earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
+        self._time = Time(time+self._date_zeropoint, format="jd",
+                            location=earth_center)
+
+    @property
+    def astropy_time(self):
+        """return astropy.Time object"""
+        return self._time
+
+    @property
+    def zeropoint(self):
+        """return the zeropoint of time"""
+        return self._date_zeropoint
 
     @property
     def jd(self):

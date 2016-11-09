@@ -179,10 +179,10 @@ class Model(object):
                 position_ref = get_body_barycentric(body='earth', time=time_ref)
                 position_ref_dt = get_body_barycentric(body='earth', time=time_ref+dt)
                 velocity = (position_ref_dt.xyz - position_ref.xyz) / dt
-                position = get_body_barycentric(body='earth', time=dataset._time)
+                position = get_body_barycentric(body='earth', time=dataset._time.astropy_time)
                 ds = []
-                for i in range(len(dataset._time)):
-                    ds.append(position[i].xyz - (dataset._time[i] - time_ref) * velocity - position_ref.xyz)
+                for i in range(len(dataset._time.astropy_time)):
+                    ds.append(position[i].xyz - (dataset._time.astropy_time[i] - time_ref) * velocity - position_ref.xyz)
                 delta_s = u.Quantity(ds)
                 delta_s_e = -delta_s[:,0]
                 delta_s_n = delta_s[:,2]

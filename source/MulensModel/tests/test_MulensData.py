@@ -36,24 +36,34 @@ def long_test_HJD_JD_conversion():
     np.testing.assert_almost_equal(d_jd.jd-d_jd.time_zeropoint, t_jd)
 
 def test_get_date_zeropoint_1():
-    test_data = MulensData()
-    assert test_data._get_date_zeropoint(date_fmt="jd") == 0.
+    vec = np.array([1., 1.])
+    dl = [vec, vec, vec*0.1]
+    test_data = MulensData(data_list=dl, date_fmt="jd")
+    assert test_data.time_zeropoint == 0.
 
 def test_get_date_zeropoint_2():
-    test_data = MulensData()
-    assert test_data._get_date_zeropoint(date_fmt="hjd") == 0.
+    vec = np.array([1., 1.])
+    dl = [vec, vec, vec*0.1]
+    test_data = MulensData(data_list=dl, date_fmt="hjd")
+    assert test_data.time_zeropoint == 0.
 
 def test_get_date_zeropoint_3():
-    test_data = MulensData()
-    assert test_data._get_date_zeropoint(date_fmt="jdprime") == 2450000.
+    vec = np.array([1., 1.])
+    dl = [vec, vec, vec*0.1]
+    test_data = MulensData(data_list=dl, date_fmt="jdprime")
+    assert test_data.time_zeropoint == 2450000.
 
 def test_get_date_zeropoint_4():
-    test_data = MulensData()
-    assert test_data._get_date_zeropoint(date_fmt="hjdprime") == 2450000.
+    vec = np.array([1., 1.])
+    dl = [vec, vec, vec*0.1]
+    test_data = MulensData(data_list=dl, date_fmt="hjdprime")
+    assert test_data.time_zeropoint == 2450000.
 
 def test_get_date_zeropoint_5():
-    test_data = MulensData()
-    assert test_data._get_date_zeropoint(date_fmt="mjd") == 2400000.5
+    vec = np.array([1., 1.])
+    dl = [vec, vec, vec*0.1]
+    test_data = MulensData(data_list=dl, date_fmt="mjd")
+    assert test_data.time_zeropoint == 2400000.5
     
 def test_data_list_1():
     t = np.array([7500., 7501.])
@@ -67,10 +77,14 @@ def test_data_list_1():
 
 class GetDateZeropointBadInput(unittest.TestCase):
     def test_get_date_zeropoint_6(self):
-        test_data = MulensData()
-        self.assertRaises(ValueError, test_data._get_date_zeropoint, "Potato")
+        with self.assertRaises(ValueError):
+            vec = np.array([1., 1.])
+            dl = [vec, vec, vec*0.1]
+            test_data = MulensData(data_list=dl, date_fmt="Potato")
 
     def test_get_date_zeropoint_7(self):
-        test_data = MulensData()
-        self.assertRaises(ValueError, test_data._get_date_zeropoint, "JD")
+        with self.assertRaises(ValueError):
+            vec = np.array([1., 1.])
+            dl = [vec, vec, vec*0.1]
+            test_data = MulensData(data_list=dl, date_fmt="JD")
 
