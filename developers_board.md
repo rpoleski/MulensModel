@@ -8,7 +8,6 @@
 
 * __annual parallax calculation - test accuracy__
 * __satellite parallax__
-* move long unit tests to the end
 * t\_0\_par is MulensTime instance
 * one class per file
 * one test file per class

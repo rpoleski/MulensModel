@@ -23,7 +23,7 @@ def test_file_read():
     
     assert data.mag[-1] == 13.913, "magnitude of the last line doesn't match"
 
-def test_HJD_JD_conversion():
+def long_test_HJD_JD_conversion():
     '''test if heliocentric correction is calculated properly'''
     t_jd = np.array([7572.458333])
     t_hjd = np.array([7572.464055])
