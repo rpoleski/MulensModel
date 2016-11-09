@@ -2,7 +2,6 @@ import scipy.optimize as op
 
 import MulensModel
 
-
 parameters_to_fit = ["t_0", "u_0", "t_E"]
 
 t_0 = 7000.1

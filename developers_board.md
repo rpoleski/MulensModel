@@ -29,6 +29,9 @@
 * use case 16 - code all coords features
 * event coords - Galactic and Ecliptic frames
 * add Reduced JD and RHJD
+* in Model: Fix ra and dec setters
+* in Model: allow parameters to be set as in use case 01
+* Reconsider implementation of plotting in use case 08
 
 ## Decisions we should make:
 
