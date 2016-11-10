@@ -3,6 +3,14 @@ from astropy.coordinates import SkyCoord, EarthLocation
 from astropy import units as u
 
 
+zeropoints = {}
+zeropoints["jd"] = 0.
+zeropoints["jdprime"] = 2450000.
+zeropoints["mjd"] = 2400000.5
+zeropoints["hjd"] = zeropoints["jd"]
+zeropoints["hjdprime"] = zeropoints["jdprime"]
+
+
 class MulensTime(object):
     def __init__(self, time=0., date_fmt="jd"):
         self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt)
@@ -31,12 +39,8 @@ class MulensTime(object):
     def _get_date_zeropoint(self, date_fmt="jd"):
         """ Return the zeropoint of the date so it can be converted to
         the standard 245#### format."""
-        if date_fmt == "jd" or date_fmt == "hjd":
-            return 0.
-        if date_fmt == "jdprime" or date_fmt == "hjdprime":
-            return 2450000.
-        if date_fmt == "mjd":
-            return 2400000.5
-        lst = '"jd", "hjd", "jdprime", "hjdprime", "mjd"'    
-        raise ValueError('Invalid value for date_fmt. Allowed values: ' + lst)
+        if date_fmt not in zeropoints.keys():
+            lst = '"' + '", "'.join(list(zeropoints.keys())) + '"'
+            raise ValueError('Invalid value for date_fmt. Allowed values: ' + lst)
+        return zeropoints[date_fmt]
 
