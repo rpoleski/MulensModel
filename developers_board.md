@@ -22,10 +22,8 @@
 * no unit tests for private functions: \_fun()
 * Fit() should use marginalized distributions of fluxes
 * in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
-* all comments are sentences
+* all "#" comments are sentences
 * use case 16 - code all coords features
-* event coords - Galactic and Ecliptic frames
-* add Reduced JD and RHJD
 * in Model: Fix ra and dec setters
 * Reconsider implementation of plotting in use case 08 (perhaps more
   like use case 02 or based on use_case 10)
