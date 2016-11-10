@@ -5,9 +5,11 @@ from astropy import units as u
 
 zeropoints = {}
 zeropoints["jd"] = 0.
-zeropoints["jdprime"] = 2450000.
+zeropoints["rjd"] = 2400000.
 zeropoints["mjd"] = 2400000.5
+zeropoints["jdprime"] = 2450000.
 zeropoints["hjd"] = zeropoints["jd"]
+zeropoints["rhjd"] = zeropoints["rjd"]
 zeropoints["hjdprime"] = zeropoints["jdprime"]
 
 

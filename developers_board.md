@@ -15,7 +15,6 @@
 * remove EMPTY files
 * pass datasets from Event to Model or vice versa
 * check longest files - does every function have a description?
-* add Reduced JD to accepted time formats
 * add a check (and warning if found) that data specified are before 1992 or after 2050
 * better import of the module so that all main classes are accesiable
 * Fit() should use marginalized distributions of fluxes
