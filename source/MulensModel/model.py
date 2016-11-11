@@ -184,11 +184,7 @@ class Model(object):
                 product = np.outer(delta_time.to(u.d).value, velocity.value) * u.d * velocity.unit 
                 # We calculated prodcut in this strange way because np.outer() 
                 # destroys information about units of its arguments
-                #delta_s = position.xyz.T - product - position_ref.xyz.T
-                ds = []
-                for i in range(len(dataset._time.astropy_time)):
-                    ds.append(position[i].xyz - (dataset._time.astropy_time[i] - time_ref) * velocity - position_ref.xyz)
-                delta_s = u.Quantity(ds)
+                delta_s = position.xyz.T - product - position_ref.xyz.T
                 delta_s_e = -delta_s[:,0]
                 delta_s_n = delta_s[:,2]
                 delta_tau = delta_s_n.value * self.pi_E_N + delta_s_e.value * self.pi_E_E
