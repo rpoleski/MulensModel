@@ -85,5 +85,5 @@ def test_annual_parallax_calculation():
     model_no_par.parallax(satellite=False, earth_orbital=False, topocentric=False)
     
     np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
-    np.testing.assert_almost_equal(model_with_par.magnification, true_with_par, decimal=3)
+    np.testing.assert_almost_equal(model_with_par.magnification, true_with_par, decimal=4)
 

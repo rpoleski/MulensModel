@@ -180,6 +180,11 @@ class Model(object):
                 position_ref_dt = get_body_barycentric(body='earth', time=time_ref+dt)
                 velocity = (position_ref_dt.xyz - position_ref.xyz) / dt
                 position = get_body_barycentric(body='earth', time=dataset._time.astropy_time)
+                delta_time = dataset._time.astropy_time - time_ref
+                product = np.outer(delta_time.to(u.d).value, velocity.value) * u.d * velocity.unit 
+                # We calculated prodcut in this strange way because np.outer() 
+                # destroys information about units of its arguments
+                #delta_s = position.xyz.T - product - position_ref.xyz.T
                 ds = []
                 for i in range(len(dataset._time.astropy_time)):
                     ds.append(position[i].xyz - (dataset._time.astropy_time[i] - time_ref) * velocity - position_ref.xyz)
