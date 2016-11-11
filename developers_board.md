@@ -12,7 +12,6 @@
 * one test file per class
 * add check on astropy version minimum 1.2 in MulensData
 * write @property for Model that returns Galactic and ecliptic coordinates based on \_coords
-* remove EMPTY files
 * pass datasets from Event to Model or vice versa
 * check longest files - does every function have a description?
 * add a check (and warning if found) that data specified are before 1992 or after 2050
