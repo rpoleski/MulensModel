@@ -88,6 +88,7 @@ class Model(object):
         self._parallax_earth_orbital = False
         self._parallax_satellite = False
         self._parallax_topocentric = False
+        self._delta_annual = {}
 
     @property
     def t_0(self):
@@ -172,27 +173,37 @@ class Model(object):
             vector_x = (dataset.time - self.t_0) / self.t_E
             vector_y = self.u_0 * np.ones(len(dataset.time))
             if self._parallax_earth_orbital is True:
-                earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
-                time_ref = Time(self.t_0_par+2450000., format="jd", 
-                          location=earth_center)
-                dt = TimeDelta(3600.0, format='sec')
-                position_ref = get_body_barycentric(body='earth', time=time_ref)
-                position_ref_dt = get_body_barycentric(body='earth', time=time_ref+dt)
-                velocity = (position_ref_dt.xyz - position_ref.xyz) / dt
-                position = get_body_barycentric(body='earth', time=dataset._time.astropy_time)
-                delta_time = dataset._time.astropy_time - time_ref
-                product = np.outer(delta_time.to(u.d).value, velocity.value) * u.d * velocity.unit 
-                # We calculated prodcut in this strange way because np.outer() 
-                # destroys information about units of its arguments
-                delta_s = position.xyz.T - product - position_ref.xyz.T
-                delta_s_e = -delta_s[:,0]
-                delta_s_n = delta_s[:,2]
-                delta_tau = delta_s_n.value * self.pi_E_N + delta_s_e.value * self.pi_E_E
-                delta_beta = -delta_s_n.value * self.pi_E_E + delta_s_e.value * self.pi_E_N
+                (delta_tau, delta_beta) = self._annual_parallax_trajectory(dataset)
                 vector_x += delta_tau
                 vector_y += delta_beta
             self._trajectory_x.append(vector_x)
             self._trajectory_y.append(vector_y)
+
+    def _get_delta_annual(self, dataset):
+        """calculates projected Earth positions required by annual parallax"""
+        earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
+        time_ref = Time(self.t_0_par+2450000., format="jd", location=earth_center)
+        dt = TimeDelta(3600.0, format='sec')
+        position_ref = get_body_barycentric(body='earth', time=time_ref)
+        position_ref_dt = get_body_barycentric(body='earth', time=time_ref+dt)
+        velocity = (position_ref_dt.xyz - position_ref.xyz) / dt
+        position = get_body_barycentric(body='earth', time=dataset._time.astropy_time)
+        delta_time = dataset._time.astropy_time - time_ref
+        product = np.outer(delta_time.to(u.d).value, velocity.value) * u.d * velocity.unit
+        # We calculated prodcut in this strange way because np.outer()
+        # destroys information about units of its arguments
+        delta_s = position.xyz.T - product - position_ref.xyz.T
+        self._delta_annual[dataset] = {}
+        self._delta_annual[dataset]['E'] = -delta_s[:,0]
+        self._delta_annual[dataset]['N'] = delta_s[:,2]
+
+    def _annual_parallax_trajectory(self, dataset):
+        """calcualate annual parallax component of trajectory"""
+        if dataset not in self._delta_annual:
+            self._get_delta_annual(dataset)
+        delta_tau = self._delta_annual[dataset]['N'] * self.pi_E_N + self._delta_annual[dataset]['E'] * self.pi_E_E
+        delta_beta = -self._delta_annual[dataset]['N'] * self.pi_E_E + self._delta_annual[dataset]['E'] * self.pi_E_N
+        return (delta_tau, delta_beta)
 
     @property
     def magnification(self):

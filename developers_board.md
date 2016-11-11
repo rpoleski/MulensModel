@@ -23,7 +23,7 @@
 * in Model: Fix ra and dec setters
 * Reconsider implementation of plotting in use case 08 (perhaps more
   like use case 02 or based on use_case 10)
-* __in Model.\_trajectory: 1) make "if self.\_parallax\_earth\_orbital is True:" a function; 2) find optimal dt; 3) store delta\_s\_e and delta\_s\_n__
+* __in Model.\_get\_delta\_annual() find optimal dt__
 
 ### Non-functional elements of use cases:
 * 01: Model does not allow parameters to be set in this way (see also use cases 08, 10, 12, 13, 16)
