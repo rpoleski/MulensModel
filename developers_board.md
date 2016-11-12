@@ -8,6 +8,7 @@
 
 * __annual parallax calculation - test accuracy__
 * __satellite parallax__
+* move HJD-JD correction from MulensData to MulensTime
 * t\_0\_par is MulensTime instance
 * one test file per class
 * add check on astropy version minimum 1.2 in MulensData

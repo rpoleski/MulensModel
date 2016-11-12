@@ -69,7 +69,7 @@ class MulensData(object):
 
     @property
     def hjd(self):
-        """full HJD JD time vector"""
+        """full HJD time vector"""
         if self._time_type == 'hjd':
             return self._time.jd
         else:
@@ -89,7 +89,7 @@ class MulensData(object):
 
     @property
     def time(self):
-        """short verion of time vector"""
+        """short version of time vector"""
         return self._time.jd - self._time.zeropoint
 
     @property
