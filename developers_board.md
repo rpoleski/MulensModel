@@ -25,6 +25,7 @@
 * Reconsider implementation of plotting in use case 08 (perhaps more
   like use case 02 or based on use_case 10)
 * __in Model.\_get\_delta\_annual() find optimal dt__
+* make sure Event.\_\_init\_\_ is correct
 
 ### Non-functional elements of use cases:
 * 01: Model does not allow parameters to be set in this way (see also use cases 08, 10, 12, 13, 16)
