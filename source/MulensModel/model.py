@@ -84,7 +84,7 @@ class Model(object):
             if ra is not None:
                 raise AttributeError(coords_msg)
 
-        self._magnification = None
+        self.reset_magnification()
         self._parallax_earth_orbital = False
         self._parallax_satellite = False
         self._parallax_topocentric = False
@@ -101,6 +101,7 @@ class Model(object):
     @t_0.setter
     def t_0(self, value):
         self.parameters.t_0 = value
+        self.reset_magnification()
 
     @property
     def u_0(self):
@@ -113,6 +114,7 @@ class Model(object):
     @u_0.setter
     def u_0(self, value):
         self.parameters._u_0 = value
+        self.reset_magnification()
 
     @property
     def t_E(self):
@@ -124,7 +126,8 @@ class Model(object):
     @t_E.setter
     def t_E(self, value):
         self.parameters.t_E = value
-
+        self.reset_magnification()
+        
     @property
     def pi_E(self):
         """
@@ -138,6 +141,7 @@ class Model(object):
     @pi_E.setter
     def pi_E(self, value):
         self.parameters.pi_E = value
+        self.reset_magnification()
 
     @property
     def pi_E_N(self):
@@ -149,6 +153,7 @@ class Model(object):
     @pi_E_N.setter
     def pi_E_N(self, value):
         self.parameters.pi_E_N = value
+        self.reset_magnification()
 
     @property
     def pi_E_E(self):
@@ -160,6 +165,7 @@ class Model(object):
     @pi_E_E.setter
     def pi_E_E(self, value):
         self.parameters.pi_E_E = value
+        self.reset_magnification()
 
     def _trajectory(self):
         """calculates source trajectory"""
@@ -220,6 +226,10 @@ class Model(object):
     @magnification.setter
     def magnification(self, new_value):
         self._magnification = new_value
+        
+    def reset_magnification(self):
+        """destroy existing information on magnification - call it after you change parameters"""
+        self._magnification = None
 
     def set_datasets(self, datasets):
         """set _datasets property"""
