@@ -112,14 +112,14 @@ class ModelParameters(object):
         The Einstein timescale. An astropy.Quantity. "day" is the default unit.
         """
         return self._t_E.value 
-        # maybe some unit check, so that it doesn't return 1. for 1*u.year
+        # Add some unit check, so that it doesn't return 1. for 1*u.year
     
     @t_E.setter
     def t_E(self, new_t_E):
         if new_t_E < 0.:
             raise ValueError('Einstein timescale cannot be negaitve')
         if isinstance(new_t_E, u.Quantity): 
-            # also maybe check if unit is time unit?
+            # Add a check if the unit is time unit?
             self._t_E = new_t_E
         else:
             self._t_E = new_t_E * u.day

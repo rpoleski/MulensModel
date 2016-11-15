@@ -40,10 +40,6 @@ class Event(object):
         self._datasets = new_value
         if isinstance(self._model, Model):
             self._model.set_datasets(self._datasets)
-    #    if isinstance(new_value, list):
-    #        self._datasets = new_value
-    #    else:
-    #        raise ValueError('
 
     def get_chi2(self, fit_blending_all=None):
         """calculates chi^2 of current model"""

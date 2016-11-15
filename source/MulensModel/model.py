@@ -196,8 +196,8 @@ class Model(object):
         position = get_body_barycentric(body='earth', time=dataset._time.astropy_time)
         delta_time = dataset._time.astropy_time - time_ref
         product = np.outer(delta_time.to(u.d).value, velocity.value) * u.d * velocity.unit
-        # We calculated prodcut in this strange way because np.outer()
-        # destroys information about units of its arguments
+        # We calculated product in this strange way because np.outer()
+        # destroys information about units of its arguments.
         delta_s = position.xyz.T - product - position_ref.xyz.T
         self._delta_annual[dataset] = {}
         self._delta_annual[dataset]['E'] = -delta_s[:,0]

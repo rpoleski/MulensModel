@@ -47,7 +47,7 @@ class Fit(object):
             for i, sig_inv in enumerate(sigma_inverse):
                 xT[i] *= sig_inv
             
-            results = np.linalg.lstsq(xT, y)[0] # F_s1, F_s2..., F_b
+            results = np.linalg.lstsq(xT, y)[0] # These values are: F_s1, F_s2,..., F_b.
 
             if fit_blending_all:
                 self._flux_blending[dataset] = results[-1]

@@ -19,7 +19,6 @@
 * better import of the module so that all main classes are accesiable
 * Fit() should use marginalized distributions of fluxes
 * in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
-* all "#" comments are sentences
 * use case 16 - code all coords features
 * in Model: Fix ra and dec setters
 * Reconsider implementation of plotting in use case 08 (perhaps more
