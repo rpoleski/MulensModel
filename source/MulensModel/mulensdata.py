@@ -11,6 +11,7 @@ from MulensModel.mulenstime import MulensTime
 class MulensData(object):
     def __init__(self, data_list=None, file_name=None, date_fmt="jd", 
                  mag_fmt="mag", coords=None):
+        date_fmt = date_fmt.lower()
         if data_list is not None and file_name is not None:
             m = 'MulensData cannot be initialized with data_list and file_name'
             raise ValueError(m)
@@ -19,8 +20,8 @@ class MulensData(object):
             self._initialize(date_fmt, mag_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3)
         elif file_name is not None:
-            vector_1, vector_2, vector_3 = np.loadtxt(fname=file_name, 
-                                                      unpack=True)
+            vector_1, vector_2, vector_3 = np.loadtxt(
+                fname=file_name, unpack=True, usecols=(0,1,2))
             self._initialize(date_fmt, mag_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3)
 
