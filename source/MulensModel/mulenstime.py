@@ -15,7 +15,7 @@ zeropoints["hjdprime"] = zeropoints["jdprime"]
 
 class MulensTime(object):
     def __init__(self, time=0., date_fmt="jd"):
-        self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt)
+        self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt.lower())
         earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
         self._time = Time(time+self._date_zeropoint, format="jd",
                             location=earth_center)

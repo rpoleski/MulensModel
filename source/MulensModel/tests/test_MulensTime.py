@@ -35,5 +35,5 @@ class GetDateZeropointBadInput(unittest.TestCase):
 
     def test_get_date_zeropoint_7(self):
         with self.assertRaises(ValueError):
-            test_data = MulensTime(date_fmt="JD")
+            test_data = MulensTime(date_fmt="J_D")
 
