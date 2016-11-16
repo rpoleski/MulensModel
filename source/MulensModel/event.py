@@ -15,7 +15,7 @@ class Event(object):
             self._model = None
         else:
             ValueError('incorrect argument model of class Event()')
-        if isinstance(datasets, (list, tuple)) or datasets is None:
+        if isinstance(datasets, (list, tuple, MulensData)) or datasets is None:
             self._set_datasets(datasets)
         else:
             ValueError('incorrect argument datasets of class Event()')
@@ -30,10 +30,26 @@ class Event(object):
     def datasets(self, new_value):
         self._set_datasets(new_value)
 
+    @property
+    def model(self):
+        """an instance of Model"""
+        return self._model
+
+    @model.setter
+    def model(self, new_value):
+        self._model = (new_value)
+        try:
+            if self._datasets is not None:
+                self._model.set_datasets(self._datasets)
+        except:
+            pass
+
     def _set_datasets(self, new_value):
         """sets the value of self._datasets
         can be called by __init__ or @datasets.setter
         passes datasets to property self._model"""
+        if isinstance(new_value, MulensData):
+            new_value = [new_value]
         if new_value is None:
             self._datasets = None
             return
