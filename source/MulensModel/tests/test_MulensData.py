@@ -86,5 +86,5 @@ class GetDateZeropointBadInput(unittest.TestCase):
         with self.assertRaises(ValueError):
             vec = np.array([1., 1.])
             dl = [vec, vec, vec*0.1]
-            test_data = MulensData(data_list=dl, date_fmt="JD")
+            test_data = MulensData(data_list=dl, date_fmt="J_D")
 
