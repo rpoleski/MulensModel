@@ -10,8 +10,8 @@ import MulensModel.utils
 
 
 for path in sys.path:
-    if path.find("MulensModel") > 0:
-        MODULE_PATH = "/".join(path.split("/")[:-1])
+    if path.find("MulensModel/source") > 0:
+        MODULE_PATH = "/".join(path.split("/source")[:-1])
 SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 
 def test_fit_get_input_format():

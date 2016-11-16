@@ -9,8 +9,8 @@ from MulensModel.mulensdata import MulensData
 
 
 for path in sys.path:
-    if path.find("MulensModel") > 0:
-        MODULE_PATH = "/".join(path.split("/")[:-1])
+    if path.find("MulensModel/source") > 0:
+        MODULE_PATH = "/".join(path.split("/source")[:-1])
 SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 
 
@@ -81,10 +81,4 @@ class GetDateZeropointBadInput(unittest.TestCase):
             vec = np.array([1., 1.])
             dl = [vec, vec, vec*0.1]
             test_data = MulensData(data_list=dl, date_fmt="Potato")
-
-    def test_get_date_zeropoint_7(self):
-        with self.assertRaises(ValueError):
-            vec = np.array([1., 1.])
-            dl = [vec, vec, vec*0.1]
-            test_data = MulensData(data_list=dl, date_fmt="JD")
 
