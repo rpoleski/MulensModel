@@ -66,7 +66,7 @@ class MulensData(object):
         if self._time_type == 'jd':
             return self._time.jd
         else:
-            return (self._time - self._time_correction).jd
+            return (self._time.astropy_time - self._time_correction).jd
 
     @property
     def hjd(self):
