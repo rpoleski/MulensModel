@@ -12,6 +12,7 @@ class MulensData(object):
     def __init__(self, data_list=None, file_name=None, date_fmt="jd", 
                  mag_fmt="mag", coords=None):
         date_fmt = date_fmt.lower()
+        self._n_epochs = None
         if data_list is not None and file_name is not None:
             m = 'MulensData cannot be initialized with data_list and file_name'
             raise ValueError(m)
@@ -37,6 +38,9 @@ class MulensData(object):
                     err_brightness=None):
         """internal function to initialized data using a few numpy arrays"""
         self._time = MulensTime(time=time, date_fmt=date_fmt)
+        self._n_epochs = len(time)
+        if len(brightness) != self._n_epochs or len(err_brightness) != self._n_epochs:
+            raise ValueError('input data in MulesData have different lengths')
         if date_fmt == 'hjd' or date_fmt == 'hjdprime':
             self._time_type = 'hjd'
         else:
@@ -58,7 +62,12 @@ class MulensData(object):
         else:
             msg = 'unknown format of brightness in ' + file_name + ' file'
             raise ValueError(msg)
-        self.bad = len(self._time.jd) * [False]
+        self.bad = self.n_epochs * [False]
+
+    @property
+    def n_epochs(self):
+        """give number of epochs"""
+        return self._n_epochs
 
     @property
     def jd(self):
