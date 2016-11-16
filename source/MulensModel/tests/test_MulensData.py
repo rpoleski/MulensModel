@@ -75,7 +75,15 @@ def test_data_list_1():
     np.testing.assert_almost_equal(data.time_zeropoint, 2450000., 
                                    err_msg='problem with time zeropoint')
 
-class GetDateZeropointBadInput(unittest.TestCase):
+class test(unittest.TestCase):
+    def test_wrong_length(self):
+        with self.assertRaises(ValueError):
+            t = np.array([7500., 7501.])
+            m = np.array([21.0, 21.1])
+            e_long = np.array([0.001, 1.000, 0.1])
+            data = MulensData(data_list=[t, m, e_long], date_fmt="jdprime")
+
+#class GetDateZeropointBadInput(unittest.TestCase):
     def test_get_date_zeropoint_6(self):
         with self.assertRaises(ValueError):
             vec = np.array([1., 1.])
