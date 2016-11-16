@@ -9,7 +9,7 @@ import MulensModel
 def lnlike(theta, event, parameters_to_fit):
     for key, val in enumerate(parameters_to_fit):
         setattr(event.model, val, theta[key])
-    return -0.5 * (event.get_chi2() - event.chi2_0)
+    return -0.5 * (event.get_chi2() - chi2_0)
 
 def lnprior(theta):
     return 0.0
@@ -30,7 +30,7 @@ for key, val in enumerate(parameters_to_fit):
 data = MulensModel.MulensData(file_name="data_file.dat")
 
 event = MulensModel.Event(datasets=data, model=model)
-event.chi2_0 = len(data.jd) * 1.
+chi2_0 = len(data.jd) * 1.
 
 ndim = len(parameters_values)
 nwalkers = 100
