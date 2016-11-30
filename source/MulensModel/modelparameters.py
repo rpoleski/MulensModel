@@ -58,9 +58,9 @@ class ModelParameters(object):
         except AttributeError:
             values = '{0} {1:>9}'.format(values, None)
         try:
-            values = '{0} {2:>10.4f}'.format(values,self.tE)
+            values = '{0} {1:>10.4f}'.format(values,self.t_E)
         except AttributeError:
-            values = '{0} {2:>10}'.format(values,None)
+            values = '{0} {1:>10}'.format(values,None)
         try:
             variables = '{0} {1:>7}'.format(variables, 'rho')
             values = '{0} {1:>7.5f}'.format(values, self._rho)

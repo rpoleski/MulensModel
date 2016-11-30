@@ -32,9 +32,13 @@ class Model(object):
         astropy.coordinates.SkyCoord object, otherwise assumes RA is
         in hour angle and DEC is in degrees.
         """
-        self.parameters = ModelParameters(t_0=t_0, u_0=u_0, t_E=t_E)
-        if parameters is not None:
-            self.parameters = ModelParameters()
+        if isinstance(parameters, ModelParameters):
+            self._parameters = parameters
+        elif parameters is None:
+            self._parameters = ModelParameters()
+        else:
+            raise TypeError(
+                "If specified, parameters must be a ModelParameters object.")
         if t_0 is not None:
             self.t_0 = t_0
         if u_0 is not None:
@@ -49,14 +53,14 @@ class Model(object):
             if pi_E_ref is None:
                 self.pi_E = pi_E
             else:
-                self.parameters.pi_E = MulensParallaxVector(pi_E, ref=pi_E_ref)
+                self._parameters.pi_E = MulensParallaxVector(pi_E, ref=pi_E_ref)
         if pi_E_N is not None:
             if pi_E_E is not None:
                 if pi_E_ref is None:
                     self.pi_E_N = pi_E_N
                     self.pi_E_E = pi_E_E
                 else:
-                    self.parameters.pi_E = MulensParallaxVector(
+                    self._parameters.pi_E = MulensParallaxVector(
                         pi_E_1=pi_E_N, pi_E_2=pi_E_E, ref=pi_E_ref)
             else:
                 raise AttributeError(par_msg)
@@ -96,11 +100,11 @@ class Model(object):
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
-        return self.parameters.t_0
+        return self._parameters.t_0
 
     @t_0.setter
     def t_0(self, value):
-        self.parameters.t_0 = value
+        self._parameters.t_0 = value
         self.reset_magnification()
 
     @property
@@ -109,11 +113,11 @@ class Model(object):
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
-        return self.parameters._u_0
+        return self._parameters._u_0
     
     @u_0.setter
     def u_0(self, value):
-        self.parameters._u_0 = value
+        self._parameters._u_0 = value
         self.reset_magnification()
 
     @property
@@ -121,11 +125,11 @@ class Model(object):
         """
         The Einstein timescale. An astropy.Quantity. "day" is the default unit.
         """
-        return self.parameters.t_E
+        return self._parameters.t_E
 
     @t_E.setter
     def t_E(self, value):
-        self.parameters.t_E = value
+        self._parameters.t_E = value
         self.reset_magnification()
         
     @property
@@ -136,11 +140,11 @@ class Model(object):
         axis ("ParPerp"). "NorthEast" is default. A
         MulensParallaxVector object.
         """
-        return self.parameters.pi_E
+        return self._parameters.pi_E
 
     @pi_E.setter
     def pi_E(self, value):
-        self.parameters.pi_E = value
+        self._parameters.pi_E = value
         self.reset_magnification()
 
     @property
@@ -148,11 +152,11 @@ class Model(object):
         """
         The North component of the microlens parallax vector.
         """
-        return self.parameters.pi_E_N
+        return self._parameters.pi_E_N
 
     @pi_E_N.setter
     def pi_E_N(self, value):
-        self.parameters.pi_E_N = value
+        self._parameters.pi_E_N = value
         self.reset_magnification()
 
     @property
@@ -160,12 +164,22 @@ class Model(object):
         """
         The East component of the microlens parallax vector.
         """
-        return self.parameters.pi_E_E
+        return self._parameters.pi_E_E
 
     @pi_E_E.setter
     def pi_E_E(self, value):
-        self.parameters.pi_E_E = value
+        self._parameters.pi_E_E = value
         self.reset_magnification()
+
+    def parameters(
+        self, t_0=0., u_0=None, t_E=1., rho=None, s=None, q=None, alpha=None, 
+        pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
+        if u_0 is None:
+            return "{0}".format(self._parameters)
+        else:
+            self._parameters = ModelParameters(
+                t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
+                pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
 
     def _trajectory(self):
         """calculates source trajectory"""

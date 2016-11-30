@@ -45,4 +45,3 @@ class MulensTime(object):
             lst = '"' + '", "'.join(list(zeropoints.keys())) + '"'
             raise ValueError('Invalid value for date_fmt. Allowed values: ' + lst)
         return zeropoints[date_fmt]
-
