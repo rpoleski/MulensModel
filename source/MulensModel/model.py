@@ -70,10 +70,17 @@ class Model(object):
             if pi_E_E is not None:
                 raise AttributeError(par_msg)
 
-        if lens is not None:
-            pass
-        if source is not None:
-            pass
+        #Replace with MulensSystem object
+        if lens is not None :
+            if source is None:
+                raise AttributeError(
+                    'If lens is specified, source must also be specified.')
+            else:
+                self.lens = lens
+                self.source = source
+        if source is not None and lens is None:
+            raise AttributeError(
+                'If source is specified, lens must also be specified.')
 
         coords_msg = 'Must specify both or neither of ra and dec'
         if coords is not None:

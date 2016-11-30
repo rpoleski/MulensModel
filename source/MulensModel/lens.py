@@ -148,8 +148,7 @@ class Lens(object):
     @property
     def distance(self):
         """
-        The distance to the lens. An astropy.Quantity with distance
-        units.
+        The distance to the lens. An astropy Quantity.
         """
         return self._distance
 
@@ -157,7 +156,7 @@ class Lens(object):
     def distance(self, new_distance):
         """Have not checked what happens if the distance is entered in lyr 
         or AU. Probably we should use new_distance.decompose()"""
-        if type(new_distance) != u.Quantity:
+        if not isinstance(new_distance, u.Quantity):
             msg1 = 'distance must have astropy units, '
             msg2 = 'i.e. it must be an astropy.units Quantity.'
             raise TypeError(msg1 + msg2)
@@ -167,6 +166,19 @@ class Lens(object):
                 self._distance = new_distance
             else:
                 raise u.UnitsError('Allowed units are "pc", "AU", or "lyr"') 
+
+    @property
+    def pi_L(self):
+        """
+        The parallax to the lens in millarcseconds.
+        """
+        return self._distance.to(u.mas, equivalencies=u.parallax())
+
+    @pi_L.setter
+    def pi_L(self, new_value):
+        if not isinstance(new_value, u.Quantity):
+            new_value = new_value * u.mas
+        self._distance = new_value.to(u.pc, equivalencies=u.parallax())
 
     @property
     def q(self):

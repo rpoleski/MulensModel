@@ -3,6 +3,7 @@ from astropy import units as u
 import MulensModel
 
 point_lens_2 = MulensModel.Model(t_0=7600., u_0=0.1, t_E=25.*u.day)
+print(point_lens_2.parameters())
 point_lens_2.plot_lightcurve()
 
 planet_model = MulensModel.Model(
