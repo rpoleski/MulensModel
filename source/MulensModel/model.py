@@ -177,7 +177,7 @@ class Model(object):
             raise ValueError('Topocentric parallax not coded yet')        
         for dataset in self._datasets:
             vector_x = (dataset.time - self.t_0) / self.t_E
-            vector_y = self.u_0 * np.ones(len(dataset.time))
+            vector_y = self.u_0 * np.ones(dataset.n_epochs)
             if self._parallax_earth_orbital is True:
                 (delta_tau, delta_beta) = self._annual_parallax_trajectory(dataset)
                 vector_x += delta_tau

@@ -33,14 +33,14 @@ class Fit(object):
         if fit_blending_all:
             n_fluxes += 1
         for i_dataset, dataset in enumerate(self._datasets):
-            x = np.empty(shape=(n_fluxes, len(dataset.jd)))
+            x = np.empty(shape=(n_fluxes, dataset.n_epochs))
             if fit_blending_all:
                 x[0:(n_fluxes-1),] = self._magnification[i_dataset]
                 x[n_fluxes-1] = 1.
             else:
                 x = self._magnification[i_dataset]
             xT = np.copy(x).T
-            xT.shape = (len(dataset.jd), n_fluxes)
+            xT.shape = (dataset.n_epochs, n_fluxes)
             y = np.copy(self._datasets[i_dataset].flux)
             sigma_inverse = 1. / self._datasets[i_dataset].err_flux
             y *= sigma_inverse
@@ -73,7 +73,7 @@ class Fit(object):
             self._flux_blending[data] = 0. 
             warnings.warn("Blending flux not set. This is strange...", 
                             SyntaxWarning)
-        flux = np.ones(len(data.time)) * self._flux_blending[data]
+        flux = np.ones(data.n_epochs) * self._flux_blending[data]
 
         if n_sources == 1:
             if data not in self._flux_sources:
