@@ -2,6 +2,8 @@ import numpy as np
 from astropy.coordinates import SkyCoord, get_body_barycentric, EarthLocation
 from astropy import units as u
 from astropy.time import Time, TimeDelta
+from astropy.coordinates.builtin_frames.utils import get_jd12
+from astropy import _erfa as erfa
 
 from MulensModel.modelparameters import ModelParameters
 
@@ -189,10 +191,13 @@ class Model(object):
         """calculates projected Earth positions required by annual parallax"""
         earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
         time_ref = Time(self.t_0_par+2450000., format="jd", location=earth_center)
-        dt = TimeDelta(3600.0, format='sec')
         position_ref = get_body_barycentric(body='earth', time=time_ref)
-        position_ref_dt = get_body_barycentric(body='earth', time=time_ref+dt)
-        velocity = (position_ref_dt.xyz - position_ref.xyz) / dt
+        # the 3 lines below, that calculate velocity for t_0_par, are based on astropy 1.3 
+        # https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
+        jd1, jd2 = get_jd12(time_ref, 'tdb')
+        earth_pv_helio, earth_pv_bary = erfa.epv00(jd1, jd2)
+        velocity = earth_pv_bary[..., 1, :] * u.au / u.day
+        
         position = get_body_barycentric(body='earth', time=dataset._time.astropy_time)
         delta_time = dataset._time.astropy_time - time_ref
         product = np.outer(delta_time.to(u.d).value, velocity.value) * u.d * velocity.unit
