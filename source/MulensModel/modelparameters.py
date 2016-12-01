@@ -89,7 +89,8 @@ class ModelParameters(object):
         if isinstance(new_t_0, MulensTime):
             self._t_0 = new_t_0
         else:
-            self._t_0 = MulensTime(new_t_0, date_fmt="hjdprime")
+            self._t_0 = MulensTime(new_t_0, date_fmt="jdprime")
+            #self._t_0 = MulensTime(new_t_0, date_fmt="hjdprime") # XXX
 
     @property
     def u_0(self):

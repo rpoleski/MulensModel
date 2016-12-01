@@ -11,7 +11,6 @@
 * replace Model.reset\_magnification() with remembering parameters for calculated model in an instance of ModelParameters
 * when checking units use unie.physical\_type
 * full test of HJD-JD correction in MulensData and Fit
-* move HJD-JD correction from MulensData to MulensTime
 * t\_0\_par is MulensTime instance
 * one test file per class
 * add check on astropy version minimum 1.2 in MulensData
