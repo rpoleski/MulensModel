@@ -8,6 +8,15 @@ from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 
 
+for path in sys.path:
+    if path.find("MulensModel/source") > 0:
+        MODULE_PATH = "/".join(path.split("/source")[:-1])
+SAMPLE_FILE_02 = MODULE_PATH + "/data/phot_ob151100_OGLE_v1.dat"
+SAMPLE_FILE_03 = MODULE_PATH + "/data/phot_ob151100_Spitzer_2_v2.dat"
+SAMPLE_FILE_03_EPH = MODULE_PATH + "/data/Spitzer_ephemrides_01.dat"
+SAMPLE_FILE_02_REF = MODULE_PATH + "/data/ob151100_OGLE_ref_v1.dat"
+SAMPLE_FILE_03_REF = MODULE_PATH + "/data/ob151100_Spitzer_ref_v1.dat"
+
 def test_model_PSPL_1():
     """tests basic evaluation of Paczynski model"""
     t_0 = 5379.57091
@@ -69,7 +78,7 @@ def test_annual_parallax_calculation():
     true_no_par = [np.array([7.12399067,10.0374609, 7.12399067, 7.12399067])]
     true_with_par = [np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])]
 
-    model_with_par = Model(t_0=t_0, u_0=0.1, t_E=10. ,pi_E=(0.3,0.5),
+    model_with_par = Model(t_0=t_0, u_0=0.1, t_E=10., pi_E=(0.3, 0.5),
                   coords='17:57:05 -30:22:59')
     model_with_par.parallax(satellite=False, earth_orbital=True,
                             topocentric=False)
@@ -79,11 +88,30 @@ def test_annual_parallax_calculation():
     
     model_with_par.t_0_par = 7479.
     
-    model_no_par = Model(t_0=t_0, u_0=0.1, t_E=10.,pi_E=(0.3, 0.5),
+    model_no_par = Model(t_0=t_0, u_0=0.1, t_E=10., pi_E=(0.3, 0.5),
                   coords='17:57:05 -30:22:59')
     model_no_par.set_datasets([data])
     model_no_par.parallax(satellite=False, earth_orbital=False, topocentric=False)
     
     np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
     np.testing.assert_almost_equal(model_with_par.magnification, true_with_par, decimal=4)
+
+
+def test_satellite_and_annual_parallax_calculation():
+    model_with_par = Model(t_0=7181.93930, u_0=0.08858, t_E=20.23090, pi_E_N=-0.05413, pi_E_E=-0.16434, coords="18:17:54.74 -22:59:33.4")
+    model_with_par.parallax(satellite=True, earth_orbital=True, topocentric=False)
+    model_with_par.parallax(satellite=False, earth_orbital=True, topocentric=False)
+    model_with_par.t_0_par = 7181.9
+
+    date_fmt = "jdprime" # Should be "hjdprime"
+    data_OGLE = MulensData(file_name=SAMPLE_FILE_02, date_fmt=date_fmt)
+    data_Spitzer = MulensData(file_name=SAMPLE_FILE_03, date_fmt=date_fmt, satellite="Spitzer", ephemrides_file=SAMPLE_FILE_03_EPH)
+    model_with_par.set_datasets([data_OGLE, data_Spitzer])
+    model_with_par.t_0_par = 7181.9
+
+    ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True, usecols=[5])
+    ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True, usecols=[5])
+
+    np.testing.assert_almost_equal(model_with_par.magnification[0], ref_OGLE, decimal=4)
+    np.testing.assert_almost_equal(model_with_par.magnification[1], ref_Spitzer, decimal=4)
 
