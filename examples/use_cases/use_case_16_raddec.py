@@ -21,6 +21,12 @@ model.parameters(t_0=t_0, u_0=u_0, t_E=t_E, pi_E=[0.1,-1.2],
 #Should also be able to specify the coordinates in the same 3 ways as
 #for the data case.
 
+#Access Galactic and ecliptic coordinates:
+print(model.galactic_l)
+print(model.galactic_b)
+print(model.ecliptic_lon)
+print(model.ecliptic_lat)
+
 #Sepcifying coordinates for an event
 my_data = MulensModel.MulensData(file_name='test.data', format='HJD')
 model_params = MulensModel.ModelParameters(

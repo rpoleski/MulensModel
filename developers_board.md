@@ -66,6 +66,4 @@
 * Transform t_E and other parameters between geocentric and heliocentric frames.
 * Errorbar scaling, in particular the two parameter.
 * Source limb darkening profile: use of gamma and u conventions, obtaining the value from outside sources (Claret papers). 
-* RA & Dec in Model - get galactic (.galactic) and elliptical coordinates (from astropy.coordinates import GeocentricTrueEcliptic; .transform_to(GeocentricTrueEcliptic)).
-
 
