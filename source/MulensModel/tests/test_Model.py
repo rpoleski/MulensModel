@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import unittest
 from astropy.time import Time
+from astropy import units as u
 
 from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters
@@ -71,14 +72,15 @@ def test_model_parallax_definition():
     assert model_4.pi_E_E == 0.8
 
 def test_coords_transformation():
+    """this was tested using http://ned.ipac.caltech.edu/forms/calculator.html"""
     coords = "17:54:32.1 -30:12:34.0"
     model = Model(coords=coords)
 
-    np.testing.assert_almost_equal(model.galactic_l, (359.90100049-360.)*u.deg)
-    np.testing.assert_almost_equal(model.galactic_b, -2.31694073*u.deg)
+    np.testing.assert_almost_equal(model.galactic_l.value, 359.90100049-360., decimal=4)
+    np.testing.assert_almost_equal(model.galactic_b.value, -2.31694073, decimal=3)
 
-    np.testing.assert_almost_equal(model.ecliptic_lon, 268.81102051*u.deg)
-    np.testing.assert_almost_equal(model.ecliptic_lat, -6.77579203*u.deg)
+    np.testing.assert_almost_equal(model.ecliptic_lon.value, 268.81102051, decimal=1)
+    np.testing.assert_almost_equal(model.ecliptic_lat.value, -6.77579203, decimal=2)
 
 """
 This is a high-level unit test for parallax. The "true" values were calculated from the sfit routine assuming fs=1.0, fb=0.0.

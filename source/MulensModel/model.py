@@ -1,8 +1,9 @@
 import numpy as np
 from astropy.coordinates import SkyCoord, get_body_barycentric, EarthLocation
+from astropy.coordinates.builtin_frames.utils import get_jd12
+from astropy.coordinates import GeocentricTrueEcliptic
 from astropy import units as u
 from astropy.time import Time, TimeDelta
-from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy import _erfa as erfa
 
 from MulensModel.modelparameters import ModelParameters
@@ -324,6 +325,29 @@ class Model(object):
             self._coords.dec = new_value
         except AttributeError:
             self._coords = SkyCoord(0.0, new_value, unit=(u.hourangle, u.deg))
+
+    @property
+    def galactic_l(self):
+        """Galactic longitude"""
+        l = self._coords.galactic.l
+        if l > 180.*u.deg:
+            l = l - 360*u.deg
+        return l
+
+    @property
+    def galactic_b(self):
+        """Galactic latitude"""
+        return self._coords.galactic.b
+
+    @property
+    def ecliptic_lon(self):
+        """ecliptic longitude"""
+        return self._coords.transform_to(GeocentricTrueEcliptic).lon
+
+    @property
+    def ecliptic_lat(self):
+        """ecliptic latitude"""
+        return self._coords.transform_to(GeocentricTrueEcliptic).lat
 
     def parallax(self, earth_orbital=False, satellite=False, topocentric=False):
         """specifies which types of the parallax will be included in calculations"""

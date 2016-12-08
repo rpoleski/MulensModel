@@ -14,7 +14,6 @@
 * t\_0\_par is MulensTime instance
 * one test file per class
 * add check on astropy version minimum 1.2 in MulensData
-* write @property for Model that returns Galactic and ecliptic coordinates based on \_coords
 * pass datasets from Event to Model or vice versa
 * check longest files - does every function have a description?
 * add a check (and warning if found) that data specified are before 1992 or after 2050
@@ -27,6 +26,7 @@
   like use case 02 or based on use_case 10)
 * __in Model.\_get\_delta\_annual() find optimal dt__
 * make sure Event.\_\_init\_\_ is correct
+* improve accuracy of test\_annual\_parallax\_calculation() in tests/test\_Model.py
 
 ### Non-functional elements of use cases:
 * 01: Model does not allow parameters to be set in this way (see also use cases 08, 10, 12, 13, 16)
