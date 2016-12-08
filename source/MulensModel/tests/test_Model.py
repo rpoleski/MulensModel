@@ -17,6 +17,7 @@ SAMPLE_FILE_03_EPH = MODULE_PATH + "/data/Spitzer_ephemrides_01.dat"
 SAMPLE_FILE_02_REF = MODULE_PATH + "/data/ob151100_OGLE_ref_v1.dat"
 SAMPLE_FILE_03_REF = MODULE_PATH + "/data/ob151100_Spitzer_ref_v1.dat"
 
+
 def test_model_PSPL_1():
     """tests basic evaluation of Paczynski model"""
     t_0 = 5379.57091
@@ -69,6 +70,16 @@ def test_model_parallax_definition():
     assert model_4.pi_E_N == 0.7
     assert model_4.pi_E_E == 0.8
 
+def test_coords_transformation():
+    coords = "17:54:32.1 -30:12:34.0"
+    model = Model(coords=coords)
+
+    np.testing.assert_almost_equal(model.galactic_l, (359.90100049-360.)*u.deg)
+    np.testing.assert_almost_equal(model.galactic_b, -2.31694073*u.deg)
+
+    np.testing.assert_almost_equal(model.ecliptic_lon, 268.81102051*u.deg)
+    np.testing.assert_almost_equal(model.ecliptic_lat, -6.77579203*u.deg)
+
 """
 This is a high-level unit test for parallax. The "true" values were calculated from the sfit routine assuming fs=1.0, fb=0.0.
 """
@@ -95,7 +106,6 @@ def test_annual_parallax_calculation():
     
     np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
     np.testing.assert_almost_equal(model_with_par.magnification, true_with_par, decimal=4)
-
 
 def test_satellite_and_annual_parallax_calculation():
     model_with_par = Model(t_0=7181.93930, u_0=0.08858, t_E=20.23090, pi_E_N=-0.05413, pi_E_E=-0.16434, coords="18:17:54.74 -22:59:33.4")
