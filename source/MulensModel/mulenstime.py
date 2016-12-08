@@ -69,9 +69,7 @@ class MulensTime(object):
                 msg1 = 'Event coordinates in MulensTime not set.\n'
                 msg2 = "They're needed to calculate JD-HJD correction."
                 raise ValueError(msg1 + msg2)
-            star = SkyCoord(self._target, unit=(u.hour, u.degree), 
-                            frame='icrs')
-            self._time_corr = self._time.light_travel_time(star, 
+            self._time_corr = self._time.light_travel_time(self._target, 
                             'heliocentric')
         return self._time_corr
         
