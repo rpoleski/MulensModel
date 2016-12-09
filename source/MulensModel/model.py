@@ -22,13 +22,13 @@ class Model(object):
                  t_0=0., u_0=None, t_E=0., rho=None, s=None, q=None,
                  alpha=None,
                  pi_E=None, pi_E_N=None, pi_E_E=None,
-                 pi_E_ref=None,
+                 pi_E_ref=None, t_0_par=None, 
                  lens=None, source=None, mu_rel=None,
                  coords=None, ra=None, dec=None):
         """
         Three ways to define the model:
         1. parameters = a ModelParameters() object
-        2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha,pi_E)
+        2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par)
         3. specify physical properties: lens= a Lens() object, 
             source= a Source() object, mu_rel
         method 3 not implemented.
@@ -52,6 +52,7 @@ class Model(object):
             self.t_E = t_E
         if rho is not None:
             self.rho = rho
+        self.t_0_par = t_0_par
         
         par_msg = 'Must specify both or neither of pi_E_N and pi_E_E'
         if pi_E is not None:
@@ -183,6 +184,21 @@ class Model(object):
         self._parameters.pi_E_E = value
         self.reset_magnification()
 
+    @property
+    def t_0_par(self):
+        """reference time for parameters, in particular microlensing parallax"""
+        return self._t_0_par
+
+    @t_0_par.setter
+    def t_0_par(self, value):
+        if isinstance(value, MulensTime):
+            self._t_0_par = value
+        elif value is None:
+            self._t_0_par = None
+        else:
+            self._t_0_par = MulensTime(value)
+        self.reset_magnification()
+
     def parameters(
         self, t_0=0., u_0=None, t_E=1., rho=None, s=None, q=None, alpha=None, 
         pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
@@ -213,10 +229,11 @@ class Model(object):
 
     def _get_delta_annual(self, dataset):
         """calculates projected Earth positions required by annual parallax"""
-        #earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
-        #time_ref = Time(self.t_0_par+2450000., format="jd", location=earth_center)
-        time_ref_here = MulensTime(self.t_0_par, date_fmt="jdprime")
-        time_ref = time_ref_here.astropy_time
+        if self.t_0_par is None:
+            msg1 = 'Annual parallax effect cannot be '
+            msg2 = 'calculated if t_0_par is not set'
+            raise ValueError(msg1 + msg2)
+        time_ref = self.t_0_par.astropy_time
         position_ref = get_body_barycentric(body='earth', time=time_ref)
         # the 3 lines below, that calculate velocity for t_0_par, are based on astropy 1.3 
         # https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py

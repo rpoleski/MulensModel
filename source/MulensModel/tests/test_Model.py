@@ -99,7 +99,7 @@ def test_annual_parallax_calculation():
     data = MulensData(data_list=[times, ones, ones], date_fmt='jdprime')
     model_with_par.set_datasets([data])
     
-    model_with_par.t_0_par = 7479.
+    model_with_par.t_0_par = 2457479.
     
     model_no_par = Model(t_0=t_0, u_0=0.1, t_E=10., pi_E=(0.3, 0.5),
                   coords='17:57:05 -30:22:59')
@@ -112,7 +112,7 @@ def test_annual_parallax_calculation():
 def test_satellite_and_annual_parallax_calculation():
     model_with_par = Model(t_0=7181.93930, u_0=0.08858, t_E=20.23090, pi_E_N=-0.05413, pi_E_E=-0.16434, coords="18:17:54.74 -22:59:33.4")
     model_with_par.parallax(satellite=True, earth_orbital=True, topocentric=False)
-    model_with_par.t_0_par = 7181.9
+    model_with_par.t_0_par = 2457181.9
 
     date_fmt = "jdprime" # Should be "hjdprime"
     data_OGLE = MulensData(file_name=SAMPLE_FILE_02, date_fmt=date_fmt)
