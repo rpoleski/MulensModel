@@ -14,12 +14,11 @@ class Event(object):
         elif model is None:
             self._model = None
         else:
-            ValueError('incorrect argument model of class Event()')
+            raise TypeError('incorrect argument model of class Event()')
         if isinstance(datasets, (list, tuple, MulensData)) or datasets is None:
             self._set_datasets(datasets)
         else:
-            ValueError('incorrect argument datasets of class Event()')
-            
+            raise TypeError('incorrect argument datasets of class Event()') 
 
     @property
     def datasets(self):

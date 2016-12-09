@@ -82,7 +82,10 @@ def test_event_get_chi2_double_source_simple():
 
 class TestEvent(unittest.TestCase):
     def test_event_init_1(self):
-        self.assertRaises(ValueError, ev=Event(model=3.14))
+        with self.assertRaises(TypeError):
+            ev = Event(model=3.14)
 
     def test_event_init_2(self):
-        self.assertRaises(ValueError, ev=Event(datasets='some_string'))
+        with self.assertRaises(TypeError):
+            ev = Event(datasets='some_string')
+
