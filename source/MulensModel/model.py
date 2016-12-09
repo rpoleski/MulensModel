@@ -7,6 +7,8 @@ from astropy.time import Time, TimeDelta
 from astropy import _erfa as erfa
 
 from MulensModel.modelparameters import ModelParameters
+from MulensModel.mulenstime import MulensTime
+
 
 class Model(object):
     """
@@ -211,8 +213,10 @@ class Model(object):
 
     def _get_delta_annual(self, dataset):
         """calculates projected Earth positions required by annual parallax"""
-        earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
-        time_ref = Time(self.t_0_par+2450000., format="jd", location=earth_center)
+        #earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
+        #time_ref = Time(self.t_0_par+2450000., format="jd", location=earth_center)
+        time_ref_here = MulensTime(self.t_0_par, date_fmt="jdprime")
+        time_ref = time_ref_here.astropy_time
         position_ref = get_body_barycentric(body='earth', time=time_ref)
         # the 3 lines below, that calculate velocity for t_0_par, are based on astropy 1.3 
         # https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
