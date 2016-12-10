@@ -16,7 +16,7 @@ SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 
 def test_fit_get_input_format():
     '''read sample file and get brightness in its original format'''
-    dataset = MulensData(file_name=SAMPLE_FILE_01)
+    dataset = MulensData(file_name=SAMPLE_FILE_01, date_fmt='jdprime')
     fit = Fit(data=[dataset], magnification=
                                 [np.array([1.]*len(dataset.time))])                                
     input_fmt = fit.get_input_format(data=dataset)

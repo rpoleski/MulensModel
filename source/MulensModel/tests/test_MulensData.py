@@ -16,7 +16,7 @@ SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 
 def test_file_read():
     '''read sample file and check if values match'''
-    data = MulensData(file_name=SAMPLE_FILE_01)
+    data = MulensData(file_name=SAMPLE_FILE_01, date_fmt='jdprime')
 
     np.testing.assert_almost_equal(data.time[0], 5264.84100, 
                                    err_msg="time of first line doesn't match")
@@ -37,13 +37,13 @@ def long_test_HJD_JD_conversion():
 
 def test_get_date_zeropoint_1():
     vec = np.array([1., 1.])
-    dl = [vec, vec, vec*0.1]
+    dl = [vec*2455000., vec, vec*0.1]
     test_data = MulensData(data_list=dl, date_fmt="jd")
     assert test_data.time_zeropoint == 0.
 
 def test_get_date_zeropoint_2():
     vec = np.array([1., 1.])
-    dl = [vec, vec, vec*0.1]
+    dl = [vec*2455000., vec, vec*0.1]
     test_data = MulensData(data_list=dl, date_fmt="hjd")
     assert test_data.time_zeropoint == 0.
 
@@ -61,7 +61,7 @@ def test_get_date_zeropoint_4():
 
 def test_get_date_zeropoint_5():
     vec = np.array([1., 1.])
-    dl = [vec, vec, vec*0.1]
+    dl = [vec*65000., vec, vec*0.1]
     test_data = MulensData(data_list=dl, date_fmt="mjd")
     assert test_data.time_zeropoint == 2400000.5
     

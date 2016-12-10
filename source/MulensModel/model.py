@@ -3,7 +3,6 @@ from astropy.coordinates import SkyCoord, get_body_barycentric, EarthLocation
 from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy.coordinates import GeocentricTrueEcliptic
 from astropy import units as u
-from astropy.time import Time, TimeDelta
 from astropy import _erfa as erfa
 
 from MulensModel.modelparameters import ModelParameters
