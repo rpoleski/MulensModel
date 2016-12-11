@@ -2,6 +2,8 @@ from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation
 from astropy import units as u
 
+from MulensModel.utils import Utils
+
 
 zeropoints = {}
 zeropoints["jd"] = 0.
@@ -78,6 +80,8 @@ class MulensTime(object):
                 msg1 = 'Event coordinates in MulensTime not set.\n'
                 msg2 = "They're needed to calculate JD-HJD correction."
                 raise ValueError(msg1 + msg2)
+            if not Utils.astropy_version_check('1.2'):
+                raise ValueError('Astropy 1.2 required for Time.light_travel_time()')
             self._time_corr = self._time.light_travel_time(self._target, 
                             'heliocentric')
         return self._time_corr

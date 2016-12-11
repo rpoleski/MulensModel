@@ -9,20 +9,17 @@
 * __annual parallax calculation - test accuracy__
 * __satellite parallax__
 * replace Model.reset\_magnification() with remembering parameters for calculated model in an instance of ModelParameters
-* when checking units use unie.physical\_type
+* when checking units use Unit.physical\_type
 * full test of HJD-JD correction in MulensData and Fit
 * one test file per class
-* add check on astropy version minimum 1.2 in MulensData
 * pass datasets from Event to Model or vice versa
 * check longest files - does every function have a description?
-* add a check (and warning if found) that data specified are before 1992 or after 2050
 * better import of the module so that all main classes are accesiable
 * Fit() should use marginalized distributions of fluxes
 * use case 16 - code all coords features
 * in Model: Fix ra and dec setters
 * Reconsider implementation of plotting in use case 08 (perhaps more
   like use case 02 or based on use_case 10)
-* __in Model.\_get\_delta\_annual() find optimal dt__
 * make sure Event.\_\_init\_\_ is correct
 * improve accuracy of test\_annual\_parallax\_calculation() in tests/test\_Model.py
 
