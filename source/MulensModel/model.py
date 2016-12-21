@@ -86,6 +86,7 @@ class Model(object):
                 'If source is specified, lens must also be specified.')
 
         coords_msg = 'Must specify both or neither of ra and dec'
+        self._coords = None
         if coords is not None:
             if isinstance(coords, SkyCoord):
                 self._coords = coords
@@ -321,13 +322,13 @@ class Model(object):
 
     @ra.setter
     def ra(self, new_value):
-        """
-        Does not work. See __name__=="__main__"
-        """
         try:
             self._coords.ra = new_value
         except AttributeError:
-            self._coords = SkyCoord(new_value, 0.0, unit=(u.hourangle, u.deg))
+            if self._coords is None:
+                self._coords = SkyCoord(new_value, 0.0, unit=(u.hourangle, u.deg))
+            else:
+                self._coords = SkyCoord(new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
 
     @property
     def dec(self):
@@ -338,13 +339,13 @@ class Model(object):
 
     @dec.setter
     def dec(self, new_value):
-        """
-        Does not work. See __name__=="__main__"
-        """
         try:
             self._coords.dec = new_value
         except AttributeError:
-            self._coords = SkyCoord(0.0, new_value, unit=(u.hourangle, u.deg))
+            if self._coords is None:
+                self._coords = SkyCoord(0.0, new_value, unit=(u.hourangle, u.deg))
+            else:
+                self._coords = SkyCoord(self._coords.ra, new_value, unit=(u.hourangle, u.deg))
 
     @property
     def galactic_l(self):
@@ -374,18 +375,4 @@ class Model(object):
         self._parallax_earth_orbital = earth_orbital
         self._parallax_satellite = satellite
         self._parallax_topocentric = topocentric
-
-if __name__ == "__main__":
-    model_1 = Model(coords="18:00:00 -30:00:00")
-    print(model_1.coords,model_1.ra,model_1.dec)
-
-    model_2 = Model()
-    model_2.ra = "17:00:00"
-    print(model_2.coords,model_2.ra,model_2.dec)
-    model_2.dec = "40:03:01"
-    print(model_2.coords,model_2.ra,model_2.dec)
-
-    model_3 = Model()
-    model_3.coords = "17:00:00 -27:32:14"
-    print(model_3.coords,model_3.ra,model_3.dec)
 

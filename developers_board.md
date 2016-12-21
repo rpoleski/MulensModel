@@ -24,7 +24,6 @@
 * better import of the module so that all main classes are accesiable
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * use case 16 - code all coords features
-* in Model: Fix ra and dec setters
 * Reconsider implementation of plotting in use case 08 (perhaps more like use case 02 or based on use_case 10)
 * make sure Event.\_\_init\_\_ is correct
 * Add __repr__ functions to Lens and Source
