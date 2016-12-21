@@ -1,4 +1,5 @@
 import numpy as np
+from astropy import __version__ as astropy__version__
 
 MAG_ZEROPOINT = 22. # Defines magnitude at which flux = 1.
 
@@ -31,4 +32,12 @@ class Utils(object):
         return (mag, err_mag)
     get_mag_and_err_from_flux = staticmethod(get_mag_and_err_from_flux)
 
+    def astropy_version_check(minimum):
+        '''check if astropy is installed at given or later version (input as a string)'''
+        current = astropy__version__.split(".")
+        required = minimum.split(".")
+        for i in range(len(required)):
+            if int(current[i]) < int(required[i]):
+                return False
+        return True
 

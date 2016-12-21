@@ -22,7 +22,7 @@ def test_event_get_chi2():
     u_0 = 0.52298
     t_E = 17.94002
     
-    data = MulensData(file_name=SAMPLE_FILE_01)
+    data = MulensData(file_name=SAMPLE_FILE_01, date_fmt='jdprime')
     
     ev = Event()
     mod = Model(t_0=t_0, u_0=u_0, t_E=t_E)
@@ -48,7 +48,7 @@ def test_event_get_chi2_double_source_simple():
     u_0 = 0.52298
     t_E = 17.94002
     
-    data = MulensData(file_name=SAMPLE_FILE_01)
+    data = MulensData(file_name=SAMPLE_FILE_01, date_fmt='jdprime')
   
     t_02 = 5800.
     u_02 = 0.01
@@ -82,7 +82,10 @@ def test_event_get_chi2_double_source_simple():
 
 class TestEvent(unittest.TestCase):
     def test_event_init_1(self):
-        self.assertRaises(ValueError, ev=Event(model=3.14))
+        with self.assertRaises(TypeError):
+            ev = Event(model=3.14)
 
     def test_event_init_2(self):
-        self.assertRaises(ValueError, ev=Event(datasets='some_string'))
+        with self.assertRaises(TypeError):
+            ev = Event(datasets='some_string')
+

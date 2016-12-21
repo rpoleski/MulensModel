@@ -1,11 +1,13 @@
 import numpy as np
 from astropy.coordinates import SkyCoord, get_body_barycentric, EarthLocation
-from astropy import units as u
-from astropy.time import Time, TimeDelta
 from astropy.coordinates.builtin_frames.utils import get_jd12
+from astropy.coordinates import GeocentricTrueEcliptic
+from astropy import units as u
 from astropy import _erfa as erfa
 
 from MulensModel.modelparameters import ModelParameters
+from MulensModel.mulenstime import MulensTime
+
 
 class Model(object):
     """
@@ -19,13 +21,13 @@ class Model(object):
                  t_0=0., u_0=None, t_E=0., rho=None, s=None, q=None,
                  alpha=None,
                  pi_E=None, pi_E_N=None, pi_E_E=None,
-                 pi_E_ref=None,
+                 pi_E_ref=None, t_0_par=None, 
                  lens=None, source=None, mu_rel=None,
                  coords=None, ra=None, dec=None):
         """
         Three ways to define the model:
         1. parameters = a ModelParameters() object
-        2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha,pi_E)
+        2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par)
         3. specify physical properties: lens= a Lens() object, 
             source= a Source() object, mu_rel
         method 3 not implemented.
@@ -49,6 +51,7 @@ class Model(object):
             self.t_E = t_E
         if rho is not None:
             self.rho = rho
+        self.t_0_par = t_0_par
         
         par_msg = 'Must specify both or neither of pi_E_N and pi_E_E'
         if pi_E is not None:
@@ -180,6 +183,21 @@ class Model(object):
         self._parameters.pi_E_E = value
         self.reset_magnification()
 
+    @property
+    def t_0_par(self):
+        """reference time for parameters, in particular microlensing parallax"""
+        return self._t_0_par
+
+    @t_0_par.setter
+    def t_0_par(self, value):
+        if isinstance(value, MulensTime):
+            self._t_0_par = value
+        elif value is None:
+            self._t_0_par = None
+        else:
+            self._t_0_par = MulensTime(value)
+        self.reset_magnification()
+
     def parameters(
         self, t_0=0., u_0=None, t_E=1., rho=None, s=None, q=None, alpha=None, 
         pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
@@ -210,8 +228,11 @@ class Model(object):
 
     def _get_delta_annual(self, dataset):
         """calculates projected Earth positions required by annual parallax"""
-        earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
-        time_ref = Time(self.t_0_par+2450000., format="jd", location=earth_center)
+        if self.t_0_par is None:
+            msg1 = 'Annual parallax effect cannot be '
+            msg2 = 'calculated if t_0_par is not set'
+            raise ValueError(msg1 + msg2)
+        time_ref = self.t_0_par.astropy_time
         position_ref = get_body_barycentric(body='earth', time=time_ref)
         # the 3 lines below, that calculate velocity for t_0_par, are based on astropy 1.3 
         # https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
@@ -324,6 +345,29 @@ class Model(object):
             self._coords.dec = new_value
         except AttributeError:
             self._coords = SkyCoord(0.0, new_value, unit=(u.hourangle, u.deg))
+
+    @property
+    def galactic_l(self):
+        """Galactic longitude"""
+        l = self._coords.galactic.l
+        if l > 180.*u.deg:
+            l = l - 360*u.deg
+        return l
+
+    @property
+    def galactic_b(self):
+        """Galactic latitude"""
+        return self._coords.galactic.b
+
+    @property
+    def ecliptic_lon(self):
+        """ecliptic longitude"""
+        return self._coords.transform_to(GeocentricTrueEcliptic).lon
+
+    @property
+    def ecliptic_lat(self):
+        """ecliptic latitude"""
+        return self._coords.transform_to(GeocentricTrueEcliptic).lat
 
     def parallax(self, earth_orbital=False, satellite=False, topocentric=False):
         """specifies which types of the parallax will be included in calculations"""

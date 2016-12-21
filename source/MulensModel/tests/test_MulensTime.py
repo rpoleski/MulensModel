@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 
 from MulensModel.mulenstime import MulensTime
 
@@ -36,4 +37,20 @@ class GetDateZeropointBadInput(unittest.TestCase):
     def test_get_date_zeropoint_7(self):
         with self.assertRaises(ValueError):
             test_data = MulensTime(date_fmt="J_D")
+
+    def test_zeropoint_9(self):
+        with self.assertRaises(ValueError):
+            test_data = MulensTime(7000., date_fmt="rhjd")
+
+    def test_zeropoint_10(self):
+        with self.assertRaises(ValueError):
+            test_data = MulensTime(np.array([7000., 7001.]))
+
+    def test_zeropoint_11(self):
+        with self.assertRaises(ValueError):
+            test_data = MulensTime(np.array([57000., 7000.]), date_fmt="jdprime")
+
+    def test_zeropoint_12(self):
+        with self.assertRaises(ValueError):
+            test_data = MulensTime(np.array([57000.]))
 

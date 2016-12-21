@@ -1,36 +1,37 @@
-## November 2016 goals:
-1.    Verify that annual parallax works fine.
-2.    Add satellite parallax calculations.
-3.    Limit list of specific tasks below to around 10 (or less).
+## December 2016 goals:
+1. Satellite parallax calculations.
+2. Guessing parameters of PSPL model.
+3. PSBL calculation.
+4. Start preparing the manual.
+
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
-* __annual parallax calculation - test accuracy__
 * __satellite parallax__
+* __PSBL calculation__
+* __guessing parameters of PSPL model__
+* __start manual preparations__
+* anything from use cases at the end of this page
+* fluxes fixed in chi^2 calculation
+* annual parallax calculation - verify with VBB
 * replace Model.reset\_magnification() with remembering parameters for calculated model in an instance of ModelParameters
-* when checking units use unie.physical\_type
+* when checking units use Unit.physical\_type
 * full test of HJD-JD correction in MulensData and Fit
-* move HJD-JD correction from MulensData to MulensTime
-* t\_0\_par is MulensTime instance
 * one test file per class
-* add check on astropy version minimum 1.2 in MulensData
-* write @property for Model that returns Galactic and ecliptic coordinates based on \_coords
 * pass datasets from Event to Model or vice versa
-* check longest files - does every function have a description?
-* add a check (and warning if found) that data specified are before 1992 or after 2050
+* does every function have a description? 
 * better import of the module so that all main classes are accesiable
-* Fit() should use marginalized distributions of fluxes
-* in unit tests if you want to assert that exception was raised then use [these](http://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception) methods
+* Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * use case 16 - code all coords features
 * in Model: Fix ra and dec setters
-* Reconsider implementation of plotting in use case 08 (perhaps more
-  like use case 02 or based on use_case 10)
-* __in Model.\_get\_delta\_annual() find optimal dt__
+* Reconsider implementation of plotting in use case 08 (perhaps more like use case 02 or based on use_case 10)
 * make sure Event.\_\_init\_\_ is correct
 * Add __repr__ functions to Lens and Source
 * In Lens, add checks for new_mass as an astropy.units.Quantity and
   use solMass as default if not set.
+* improve accuracy of test\_annual\_parallax\_calculation() in tests/test\_Model.py
+
 
 ### Non-functional elements of use cases:
 * 01: model does not support time, caustics, trajectory
@@ -57,7 +58,6 @@
 
 ## Decisions we should make:
 
-1. What conventions do we want for time vector in input files? There are 2 problems currently: 1) astropy supports only JD, not HJD, and 2) WFIRST will be observing post JD=2460000, so most frequently used shorthand format JD' = JD-2450000. = ABCD.XXXXX will have to be modified or extended to 1ABCD.XXXXX. 
 1. How to handle changes in origin of the coordinate system? Internally we're working in the center of mass, but fitting is sometimes much faster if the system is relative to, e.g., planetary caustic or a cusp. Also think how this should be done for triple lenses. 
 1. How to handle full reparametrization of the model? Cassan 2008 is particular example. 
 
@@ -70,6 +70,4 @@
 * Transform t_E and other parameters between geocentric and heliocentric frames.
 * Errorbar scaling, in particular the two parameter.
 * Source limb darkening profile: use of gamma and u conventions, obtaining the value from outside sources (Claret papers). 
-* RA & Dec in Model - get galactic (.galactic) and elliptical coordinates (from astropy.coordinates import GeocentricTrueEcliptic; .transform_to(GeocentricTrueEcliptic)).
-
 
