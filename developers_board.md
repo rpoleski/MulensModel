@@ -28,9 +28,12 @@
   like use case 02 or based on use_case 10)
 * __in Model.\_get\_delta\_annual() find optimal dt__
 * make sure Event.\_\_init\_\_ is correct
+* Add __repr__ functions to Lens and Source
+* In Lens, add checks for new_mass as an astropy.units.Quantity and
+  use solMass as default if not set.
 
 ### Non-functional elements of use cases:
-* 01: Model does not allow parameters to be set in this way (see also use cases 08, 10, 12, 13, 16)
+* 01: model does not support time, caustics, trajectory
 * 02: Entire use case not implemented
   * 02: Model does not support defining the model by the lens and source (see also use case 03).
   * 02: Model does not support plot_lightcurve()
