@@ -20,14 +20,15 @@ for path in sys.path:
         MODULE_PATH = "/".join(path.split("/source")[:-1])
 SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 data = MulensData(
-    file_name=SAMPLE_FILE_01, date_fmt='HJDprime')
+    file_name=SAMPLE_FILE_01, date_fmt='HJDprime',
+    coords="17:47:29.42 -34:43:35.6")
 
 #Initialize the fit
 parameters_to_fit = ["t_0", "u_0", "t_E"]
 t_0 = 5380.
 u_0 = 0.5
 t_E = 18.
-model = Model(t_0=t_0, u_0=u_0, t_E=t_E, coords="17:47:29.42 -34:43:35.6")
+model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
 
 #Link the data and the model
 ev = Event(datasets=data, model=model)

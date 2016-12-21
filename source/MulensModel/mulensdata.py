@@ -9,9 +9,26 @@ from MulensModel.mulenstime import MulensTime
 
 class MulensData(object):
     def __init__(self, data_list=None, file_name=None, date_fmt="jd", 
-                 mag_fmt="mag", coords=None):
+                 mag_fmt="mag", coords=None, ra=None, dec=None):
         date_fmt = date_fmt.lower()
-        self._n_epochs = None      
+        self._n_epochs = None   
+
+        coords_msg = 'Must specify both or neither of ra and dec'
+        self._coords = None
+        if coords is not None:
+            if isinstance(coords, SkyCoord):
+                self._coords = coords
+            else:
+                self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
+        if ra is not None:
+            if dec is not None:
+                self._coords = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
+            else:
+                raise AttributeError(coords_msg)
+        else:
+            if ra is not None:
+                raise AttributeError(coords_msg)
+
         if data_list is not None and file_name is not None:
             m = 'MulensData cannot be initialized with data_list and file_name'
             raise ValueError(m)
@@ -19,13 +36,13 @@ class MulensData(object):
             vector_1, vector_2, vector_3 = list(data_list) 
             self._initialize(date_fmt, mag_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
-                             coords=coords)
+                             coords=self._coords)
         elif file_name is not None:
             vector_1, vector_2, vector_3 = np.loadtxt(
                 fname=file_name, unpack=True, usecols=(0,1,2))
             self._initialize(date_fmt, mag_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
-                             coords=coords)
+                             coords=self._coords)
     
     def _initialize(self, date_fmt, mag_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):
@@ -80,3 +97,58 @@ class MulensData(object):
     def time_zeropoint(self):
         """return the zeropoint of time vector"""
         return self._time.zeropoint
+
+    @property
+    def coords(self):
+        """
+        Sky coordinates (RA,Dec)
+        """
+        return self._coords
+
+    @coords.setter
+    def coords(self, new_value):
+        if isinstance(new_value, SkyCoord):
+            self._coords = new_value
+        else:
+            self._coords = SkyCoord(new_value, unit=(u.hourangle, u.deg))
+        self._time._target = self._coords
+
+    @property
+    def ra(self):
+        """
+        Right Ascension
+        """
+        return self._coords.ra
+
+    @ra.setter
+    def ra(self, new_value):
+        try:
+            self._coords.ra = new_value
+        except AttributeError:
+            if self._coords is None:
+                self._coords = SkyCoord(
+                    new_value, 0.0, unit=(u.hourangle, u.deg))
+            else:
+                self._coords = SkyCoord(
+                    new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
+        self._time._target = self._coords
+
+    @property
+    def dec(self):
+        """
+        Declination
+        """
+        return self._coords.dec
+
+    @dec.setter
+    def dec(self, new_value):
+        try:
+            self._coords.dec = new_value
+        except AttributeError:
+            if self._coords is None:
+                self._coords = SkyCoord(
+                    0.0, new_value, unit=(u.hourangle, u.deg))
+            else:
+                self._coords = SkyCoord(
+                    self._coords.ra, new_value, unit=(u.hourangle, u.deg))
+        self._time._target = self._coords

@@ -326,9 +326,11 @@ class Model(object):
             self._coords.ra = new_value
         except AttributeError:
             if self._coords is None:
-                self._coords = SkyCoord(new_value, 0.0, unit=(u.hourangle, u.deg))
+                self._coords = SkyCoord(
+                    new_value, 0.0, unit=(u.hourangle, u.deg))
             else:
-                self._coords = SkyCoord(new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
+                self._coords = SkyCoord(
+                    new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
 
     @property
     def dec(self):
@@ -343,9 +345,11 @@ class Model(object):
             self._coords.dec = new_value
         except AttributeError:
             if self._coords is None:
-                self._coords = SkyCoord(0.0, new_value, unit=(u.hourangle, u.deg))
+                self._coords = SkyCoord(
+                    0.0, new_value, unit=(u.hourangle, u.deg))
             else:
-                self._coords = SkyCoord(self._coords.ra, new_value, unit=(u.hourangle, u.deg))
+                self._coords = SkyCoord(
+                    self._coords.ra, new_value, unit=(u.hourangle, u.deg))
 
     @property
     def galactic_l(self):
