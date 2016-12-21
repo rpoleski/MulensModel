@@ -61,23 +61,22 @@ def test_data_coords():
     data_3.coords = '17:00:00 -27:32:14'
     assert data_3.coords.to_string('hmsdms') == '17h00m00s -27d32m14s'
 
-"""
-Function not yet implemented
 def test_event_coords():
-    coord_str_data = '00h00m15s -75d30m15s'
-    coord_str_event = '15h30m00s 45d00m00s'
+    coord_str_event = '15h30m00s +45d00m00s'
     data = MulensData(
         file_name=SAMPLE_FILE_01, date_fmt='jdprime', 
         coords='00:00:15 -75:30:15')
-
     model = Model()
-    event = Event(data=data, model=model, coords='15:30:00 45:00:00')
+
+    event = Event(datasets=data, model=model, coords='15:30:00 45:00:00')
     assert event.coords.to_string('hmsdms') == coord_str_event
     assert event.model.coords.to_string('hmsdms') == coord_str_event
-    assert event.data.coords.to_string('hmsdms') == coord_str_event
+    assert event.datasets[0].coords.to_string('hmsdms') == coord_str_event
 
+    coord_str_data = '00h00m15s -75d30m15s'
+    data.coords = '00:00:15 -75:30:15'
     event_2 = Event(coords='15:30:00 45:00:00')
     event_2.datasets = [data]
     assert event_2.coords.to_string('hmsdms') == coord_str_data
-    assert event_2.data.coords.to_string('hmsdms') == coord_str_data
-"""
+    assert event_2.datasets[0].coords.to_string('hmsdms') == coord_str_data
+
