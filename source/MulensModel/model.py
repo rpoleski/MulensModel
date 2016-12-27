@@ -227,6 +227,19 @@ class Model(object):
             self._trajectory_x.append(vector_x)
             self._trajectory_y.append(vector_y)
 
+    def _get_delta_satellite(self, dataset):
+        """calculates differences of Earth and satellite positions projected on the plane of the sky at event position"""
+        direction = self._coords.cartesian
+        north = np.array([1., 0., 0.])
+        east_projected = np.cross(north, direction)
+        east_projected /= np.linalg.norm(east_projected)
+        north_projected = np.cross(direction, east_projected)
+        # satellite = SkyCoord(ra=ra_sat*u.degree, dec=dec_sat*u.degree, frame='icrs')
+        # res_n = -np.dot(satellite.cartesian, north_projected)
+        # res_e = -np.dot(satellite.cartesian, east_projected)
+        # res_d = -np.dot(satellite.cartesian, direction)
+        pass
+
     def _get_delta_annual(self, dataset):
         """calculates projected Earth positions required by annual parallax"""
         if self.t_0_par is None:
