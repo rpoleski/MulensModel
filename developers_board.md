@@ -24,12 +24,13 @@
 * better import of the module so that all main classes are accesiable
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * use case 16 - code all coords features
-* Reconsider implementation of plotting in use case 08 (perhaps more like use case 02 or based on use_case 10)
+* Reconsider implementation of plotting in use case 08 (perhaps more like use case 02 or based on use case 10)
 * make sure Event.\_\_init\_\_ is correct
 * Add __repr__ functions to Lens and Source
-* In Lens, add checks for new_mass as an astropy.units.Quantity and
+* In Lens, add checks for new\_mass as an astropy.units.Quantity and
   use solMass as default if not set.
 * improve accuracy of test\_annual\_parallax\_calculation() in tests/test\_Model.py
+* Classes Model and Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 
 
 ### Non-functional elements of use cases:
