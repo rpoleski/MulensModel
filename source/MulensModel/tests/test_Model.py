@@ -126,13 +126,20 @@ def do_annual_parallax_test(filename):
         pi_E_E=float(ulens_params[6]), 
         coords=SkyCoord(
             event_params[1]+' '+event_params[2],unit=(u.deg,u.deg)))
-    model.t_0_par = float(ulens_params[2])
+    model.t_0_par = float(ulens_params[2]) + 2450000.
+    time = data[:,0]
+    dataset = MulensData([time, 20.+time*0., 0.1+time*0,], date_fmt="jdprime")
+    model.set_datasets([dataset])
     model.parallax(satellite=False, earth_orbital=True, topocentric=False)
-    return np.testing.assert_almost_equal(model.magnification, data[:,1])
+    return np.testing.assert_almost_equal(model.magnification[0], data[:,1], decimal=4)
 
 def test_annual_parallax_calculation_2():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)
+
+def test_annual_parallax_calculation_3():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_02)
+
+def test_annual_parallax_calculation_4():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
 
 def test_satellite_and_annual_parallax_calculation():
@@ -150,4 +157,7 @@ def test_satellite_and_annual_parallax_calculation():
 
     np.testing.assert_almost_equal(model_with_par.magnification[0], ref_OGLE, decimal=4)
     np.testing.assert_almost_equal(model_with_par.magnification[1], ref_Spitzer, decimal=4)
+
+if __name__ == '__main__':
+    do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
 
