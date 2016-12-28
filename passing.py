@@ -39,7 +39,8 @@ class LikeEvent(object):
         for dataset in self._datasets:
             if dataset.ra is not None:
                 self.set_ra_no_dependencies(dataset.ra)
-
+        for dataset in self._datasets:
+            dataset.set_ra_no_dependencies(self.ra)
 
 class LikeMulensData(object):
     def __init__(self, ra=None, event=None):
