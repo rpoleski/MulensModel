@@ -3,6 +3,7 @@ import numpy as np
 import unittest
 from astropy.time import Time
 from astropy import units as u
+from astropy.coordinates import SkyCoord
 
 from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters
@@ -17,6 +18,9 @@ SAMPLE_FILE_03 = MODULE_PATH + "/data/phot_ob151100_Spitzer_2_v2.dat"
 SAMPLE_FILE_03_EPH = MODULE_PATH + "/data/Spitzer_ephemrides_01.dat"
 SAMPLE_FILE_02_REF = MODULE_PATH + "/data/ob151100_OGLE_ref_v1.dat"
 SAMPLE_FILE_03_REF = MODULE_PATH + "/data/ob151100_Spitzer_ref_v1.dat"
+SAMPLE_ANNUAL_PARALLAX_FILE_01 = MODULE_PATH + "/data/parallax_test_1.dat"
+SAMPLE_ANNUAL_PARALLAX_FILE_02 = MODULE_PATH + "/data/parallax_test_2.dat"
+SAMPLE_ANNUAL_PARALLAX_FILE_03 = MODULE_PATH + "/data/parallax_test_3.dat"
 
 
 def test_model_PSPL_1():
@@ -108,6 +112,28 @@ def test_annual_parallax_calculation():
     
     np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
     np.testing.assert_almost_equal(model_with_par.magnification, true_with_par, decimal=4)
+
+def do_annual_parallax_test(filename):
+    file = open(filename)
+    lines = file.readlines()
+    file.close()
+    ulens_params = lines[3].split()
+    event_params = lines[4].split()
+    data = np.loadtxt(filename,dtype=None)
+    model = Model(
+        t_0=float(ulens_params[1]), u_0=float(ulens_params[3]), 
+        t_E=float(ulens_params[4]), pi_E_N=float(ulens_params[5]), 
+        pi_E_E=float(ulens_params[6]), 
+        coords=SkyCoord(
+            event_params[1]+' '+event_params[2],unit=(u.deg,u.deg)))
+    model.t_0_par = float(ulens_params[2])
+    model.parallax(satellite=False, earth_orbital=True, topocentric=False)
+    return np.testing.assert_almost_equal(model.magnification, data[:,1])
+
+def test_annual_parallax_calculation_2():
+    do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)
+    do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_02)
+    do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
 
 def test_satellite_and_annual_parallax_calculation():
     model_with_par = Model(t_0=7181.93930, u_0=0.08858, t_E=20.23090, pi_E_N=-0.05413, pi_E_E=-0.16434, coords="18:17:54.74 -22:59:33.4")
