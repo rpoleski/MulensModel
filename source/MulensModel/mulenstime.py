@@ -16,7 +16,13 @@ zeropoints["hjdprime"] = zeropoints["jdprime"]
 
 
 class MulensTime(object):
-    def __init__(self, time=0., date_fmt="jd", coords=None):
+    def __init__(self, time=0., date_fmt=None, coords=None):
+        if date_fmt is None:
+            if self._guess_prime(time):
+                date_fmt='jdprime'
+            else:
+                date_fmt='jd'
+
         self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt.lower())
         if 'hjd' in date_fmt.lower():
             self._time_type = 'hjd'
@@ -45,6 +51,9 @@ class MulensTime(object):
             else:
                 msg = 'unsupported format of coords parameter in MulensData()'
                 raise ValueError(msg)        
+
+    def __repr__(self):
+        return '{0} JD'.format(self._time.jd)
 
     @property
     def astropy_time(self):
@@ -97,3 +106,13 @@ class MulensTime(object):
             lst = '"' + '", "'.join(list(zeropoints.keys())) + '"'
             raise ValueError('Invalid value for date_fmt. Allowed values: ' + lst)
         return zeropoints[date_fmt]
+
+    def _guess_prime(self,time):
+        if hasattr(time, '__iter__'):
+            test_time = time[0]
+        else:
+            test_time = time
+        if test_time < 40000:
+            return True
+        else:
+            return False
