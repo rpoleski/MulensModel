@@ -234,11 +234,14 @@ class Model(object):
         east_projected = np.cross(north, direction)
         east_projected /= np.linalg.norm(east_projected)
         north_projected = np.cross(direction, east_projected)
-        # satellite = SkyCoord(ra=ra_sat*u.degree, dec=dec_sat*u.degree, frame='icrs')
+        # [get (ra_sat, dec_sat, dist_sat) from file]
+        # [interpolate to observing epochs]
+        # satellite = SkyCoord(ra=ra_sat, dec=dec_sat, distance=dist_sat, frame='icrs')
+        # satellite.transform_to(frame=self._coords.frame)
         # res_n = -np.dot(satellite.cartesian, north_projected)
         # res_e = -np.dot(satellite.cartesian, east_projected)
         # res_d = -np.dot(satellite.cartesian, direction)
-        pass
+        # return res_n, res_e, res_d
 
     def _get_delta_annual(self, dataset):
         """calculates projected Earth positions required by annual parallax"""
