@@ -6,12 +6,17 @@ from astropy import units as u
 
 from MulensModel.utils import Utils
 from MulensModel.mulenstime import MulensTime
+from MulensModel.horizons import Horizons
+
 
 class MulensData(object):
     def __init__(self, data_list=None, file_name=None, date_fmt="jd", 
-                 mag_fmt="mag", coords=None, ra=None, dec=None):
+                 mag_fmt="mag", coords=None, ra=None, dec=None, 
+                 satellite=None, ephemrides_file=None):
         date_fmt = date_fmt.lower()
-        self._n_epochs = None   
+        self._n_epochs = None  
+        self._horizons = None
+        self._satellite_skycoord = None
 
         coords_msg = 'Must specify both or neither of ra and dec'
         self._coords = None
@@ -43,7 +48,17 @@ class MulensData(object):
             self._initialize(date_fmt, mag_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
-    
+        
+        if satellite is None:
+            if ephemrides_file is not None:
+                raise ValueError("For datasets with satellite ephemerides file you have to provide satellite name")
+            self.is_satellite = False 
+        else:
+            if ephemrides_file is None:
+                raise ValueError("Currently ephemerides_file has to be specified for each satellite dataset")
+            self.ephemrides_file = ephemrides_file
+            self.is_satellite = True
+
     def _initialize(self, date_fmt, mag_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):
         """internal function to initialized data using a few numpy arrays"""
@@ -152,3 +167,20 @@ class MulensData(object):
                 self._coords = SkyCoord(
                     self._coords.ra, new_value, unit=(u.hourangle, u.deg))
         self._time._target = self._coords
+
+    @property
+    def satellite_skycoord(self):
+        """return Astropy SkyCoord of satellite for epochs covered by the dataset"""
+        if self.is_satellite is not True:
+            raise ValueError("You're trying to get satellite information for dataset that has no satellite information")
+        if self._satellite_skycoord is None:
+            if self._horizons is None:
+                self._horizons = Horizons(self.ephemrides_file)
+            times = self.jd - 2450000.
+            x = np.interp(times, self._horizons.time, self._horizons.xyz.x)
+            y = np.interp(times, self._horizons.time, self._horizons.xyz.y)
+            z = np.interp(times, self._horizons.time, self._horizons.xyz.z)
+            self._satellite_skycoord = SkyCoord(x=x, y=y, z=z, representation='cartesian')
+            self._satellite_skycoord.representation = 'spherical'
+        return self._satellite_skycoord
+

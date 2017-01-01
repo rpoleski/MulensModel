@@ -9,8 +9,10 @@
 (__boldfaced__ correspond to this month goals)
 
 * horizons.py - change "Time(...).jd - 2450000" to something normal
-* add unit tests for Horizons
+* MulensData - change "self.jd - 2450000." to something normal
+* add unit tests for Horizons and MulensData.satellite_skycoord
 * move some parts of horizons.py to utils.py
+* check if Horizons e-mail is for correct satellite
 * __PSBL calculation__
 * __guessing parameters of PSPL model__
 * __start manual preparations__
@@ -33,6 +35,7 @@
   use solMass as default if not set.
 * improve accuracy of test\_annual\_parallax\_calculation() in tests/test\_Model.py
 * Classes Model and Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
+* on-line access to JPL Horizons 
 
 
 ### Non-functional elements of use cases:
