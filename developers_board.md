@@ -8,7 +8,9 @@
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
-* __satellite parallax__
+* horizons.py - change "Time(...).jd - 2450000" to something normal
+* add unit tests for Horizons
+* move some parts of horizons.py to utils.py
 * __PSBL calculation__
 * __guessing parameters of PSPL model__
 * __start manual preparations__
