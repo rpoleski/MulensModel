@@ -8,6 +8,7 @@
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
+* model.py - move dot() somewhere else
 * horizons.py - change "Time(...).jd - 2450000" to something normal
 * MulensData - change "self.jd - 2450000." to something normal
 * add unit tests for Horizons and MulensData.satellite_skycoord

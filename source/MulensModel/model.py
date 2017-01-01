@@ -9,6 +9,11 @@ from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulenstime import MulensTime
 
 
+def dot(cartesian, vector):
+    """dot product of Astropy CartersianRepresentation and np.array"""
+    return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
+
+
 class Model(object):
     """
     Caveats:
@@ -106,6 +111,7 @@ class Model(object):
         self._parallax_satellite = False
         self._parallax_topocentric = False
         self._delta_annual = {}
+        self._delta_satellite = {}
 
     @property
     def t_0(self):
@@ -213,35 +219,47 @@ class Model(object):
         """calculates source trajectory"""
         self._trajectory_x = []
         self._trajectory_y = []
-        if self._parallax_satellite is not False:
-            raise ValueError('Satellite parallax not coded yet')
         if self._parallax_topocentric is not False:
-            raise ValueError('Topocentric parallax not coded yet')        
+            raise ValueError('Topocentric parallax not coded yet')
+        n_satellite = 0 
         for dataset in self._datasets:
             vector_x = (dataset.time - self.t_0) / self.t_E
             vector_y = self.u_0 * np.ones(dataset.n_epochs)
-            if self._parallax_earth_orbital is True:
+            if self._parallax_earth_orbital:
                 (delta_tau, delta_beta) = self._annual_parallax_trajectory(dataset)
                 vector_x += delta_tau
                 vector_y += delta_beta
+            if self._parallax_satellite and dataset.is_satellite: 
+                (delta_tau, delta_beta) = self._satellite_parallax_trajectory(dataset)
+                vector_x += delta_tau
+                vector_y += delta_beta
+                n_satellite += 1 
             self._trajectory_x.append(vector_x)
             self._trajectory_y.append(vector_y)
+        if self._parallax_satellite and n_satellite == 0:
+            raise ValueError('Satellite parallax turned on, but no satellite data provided')
 
     def _get_delta_satellite(self, dataset):
         """calculates differences of Earth and satellite positions projected on the plane of the sky at event position"""
-        direction = self._coords.cartesian
-        north = np.array([1., 0., 0.])
+        direction = np.array(self._coords.cartesian.xyz.value)
+        north = np.array([0., 0., 1.])
         east_projected = np.cross(north, direction)
         east_projected /= np.linalg.norm(east_projected)
         north_projected = np.cross(direction, east_projected)
-        # [get (ra_sat, dec_sat, dist_sat) from file]
-        # [interpolate to observing epochs]
-        # satellite = SkyCoord(ra=ra_sat, dec=dec_sat, distance=dist_sat, frame='icrs')
-        # satellite.transform_to(frame=self._coords.frame)
-        # res_n = -np.dot(satellite.cartesian, north_projected)
-        # res_e = -np.dot(satellite.cartesian, east_projected)
-        # res_d = -np.dot(satellite.cartesian, direction)
-        # return res_n, res_e, res_d
+        satellite = dataset.satellite_skycoord
+        satellite.transform_to(frame=self._coords.frame) # We want to be sure frames are the same.
+        self._delta_satellite[dataset] = {}
+        self._delta_satellite[dataset]['N'] = -dot(satellite.cartesian, north_projected)
+        self._delta_satellite[dataset]['E'] = -dot(satellite.cartesian, east_projected)
+        self._delta_satellite[dataset]['D'] = -dot(satellite.cartesian, direction)
+
+    def _satellite_parallax_trajectory(self, dataset):
+        """calcualate satellite parallax component of trajectory"""
+        if dataset not in self._delta_satellite:
+            self._get_delta_satellite(dataset)
+        delta_tau = self._delta_satellite[dataset]['N'] * self.pi_E_N + self._delta_satellite[dataset]['E'] * self.pi_E_E
+        delta_beta = -self._delta_satellite[dataset]['N'] * self.pi_E_E + self._delta_satellite[dataset]['E'] * self.pi_E_N
+        return (delta_tau, delta_beta)
 
     def _get_delta_annual(self, dataset):
         """calculates projected Earth positions required by annual parallax"""
