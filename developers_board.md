@@ -8,6 +8,10 @@
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
+* t\_0 - make it instance of MulensTime
+* store time information in the format it was input?
+* single Event can have many instances of Model associated with it
+* add set\_default\_date\_fmt()
 * model.py - move dot() somewhere else
 * horizons.py - change "Time(...).jd - 2450000" to something normal
 * MulensData - change "self.jd - 2450000." to something normal
