@@ -79,6 +79,8 @@ class Model(object):
                 raise AttributeError(par_msg)
 
         #Replace with MulensSystem object
+        #If lens and source are defined, but t0, tE are not, then 
+        #set t0=0.,tE=1.
         if lens is not None :
             if source is None:
                 raise AttributeError(

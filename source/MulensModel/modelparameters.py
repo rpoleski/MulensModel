@@ -11,13 +11,15 @@ class ModelParameters(object):
     lens. pi_E assumes NE coordinates (Parallel, Perpendicular
     coordinates are not supported).
     """
-    def __init__(self, t_0=0., u_0=None, t_E=1., rho=None, s=None,
+    def __init__(self, t_0=None, u_0=None, t_E=None, rho=None, s=None,
                  q=None, alpha=None, pi_E=None, pi_E_N=None, pi_E_E=None,
                  pi_E_ref=None):
-        self.t_0 = t_0
+        if t_0 is not None:
+            self.t_0 = t_0
         if u_0 is not None:
             self._u_0 = u_0
-        self.t_E = t_E
+        if t_E is not None:
+            self.t_E = t_E
         if rho is not None:
             self._rho = rho
         if s is not None:

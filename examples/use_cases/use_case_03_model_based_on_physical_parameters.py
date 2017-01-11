@@ -2,15 +2,15 @@ from astropy import units as u
 
 import MulensModel
 
-#Point Lens: Implementation of MulensModel
+#Point Lens: Implementation of MulensSystem
 my_lens = MulensModel.Lens(mass=0.5*u.Mass, distance=6.e3*u.pc)
 my_source = MulensModel.Source(distance=8.e3*u.pc)
+my_system = MulensModel.MulensSystem(lens=my_lens, source=my_source)
+my_system.print_properties()
+my_system.plot_magnification(u0=0.3)
 
-point_lens = MulensModel.Model(u_0=0.1, lens=my_lens, source=my_source)
-point_lens.plot_lightcurve() #plots magnification curve over +/-2*tE
-point_lens.source.I_mag = 18.
-point_lens.blend.I_mag = 20. # what type of object is MulensModel.Model.blend ???
-point_lens.plot_lightcurve(range=[-1.,1.])
+my_system.mu_rel = 3. * u.mas / u.yr
+my_model = MulensModel.Model(t0=7620., u0=0.3, tE=my_system.tE)
 
 #2 bodies - Version 1: Implementation of MulensSystem
 two_body_lens = MulensModel.Lens()
