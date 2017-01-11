@@ -42,6 +42,7 @@
 * improve accuracy of test\_annual\_parallax\_calculation() in tests/test\_Model.py
 * Classes Model and Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 * on-line access to JPL Horizons 
+* Remove lens, source, and mu_rel (and property functions) from Model
 
 
 ### Non-functional elements of use cases:
