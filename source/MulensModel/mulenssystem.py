@@ -1,8 +1,11 @@
 import numpy as np
 from astropy import units as u
+import matplotlib.pyplot as pl
 
 from MulensModel.lens import Lens
 from MulensModel.source import Source
+from MulensModel.model import Model
+from MulensModel.modelparameters import ModelParameters
 
 class MulensSystem(object):
     """
@@ -23,6 +26,15 @@ class MulensSystem(object):
             self.mu_rel = mu_rel
         else:
             self._mu_rel = None
+
+    def __repr__(self):
+        output_str = '------\n{0}\n{1}\ntheta_E = {2}\n'.format(
+            self.lens, self.source, self.theta_E)
+        if self._mu_rel is not None:
+            mu_rel_str = 'mu_rel = {0}\n'.format(self._mu_rel)
+            t_E_str = 't_E = {0}\n'.format(self.t_E)
+            output_str += mu_rel_str+t_E_str
+        return output_str+'-------'
 
     @property
     def lens(self):
@@ -97,6 +109,30 @@ class MulensSystem(object):
         except:
             return None
 
+    def plot_magnification(self, u_0, alpha=None):
+        """
+        DNW because Model cannot return magnification unless there are data.
+        Plot the magnification curve for the lens. u_0 must always be
+        specified. If the lens has more than one body, alpha must also
+        be specified.
+        """
+        parameters = ModelParameters(t_0=0., u_0=u_0)
+        if self.t_E is not None:
+            parameters.t_E = self.t_E
+        else:
+            parameters.t_E = 1.
+        if self.source.angular_size is not None:
+            parameters.rho = (self.source.angular_size.to(u.mas) 
+                              / self.theta_E.to(u.mas))
+        else:
+            parameters.rho = None
+        if self.lens.n_masses > 1:
+            parameters.q = self.lens.q
+            parameters.s = self.lens.s
+            parameters.alpha = alpha
+        model = Model(parameters=parameters)
+        pl.plot(model.time, model.magnification)#don't think this works
+
 if __name__ == "__main__":
     import astropy.units as u
     my_lens = Lens(mass=0.5*u.solMass, distance=6.e3*u.pc)
@@ -105,3 +141,4 @@ if __name__ == "__main__":
     print(my_source.distance)
     point_lens = MulensSystem(lens=my_lens, source=my_source)
     print(point_lens.theta_E)
+    print(point_lens)

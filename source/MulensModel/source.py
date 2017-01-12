@@ -14,7 +14,7 @@ class Source(object):
             self.limb_darkening = LimbDarkeningCoeffs()
 
     def __repr__(self):
-        pass
+        return('Source Distance: {0}'.format(self.distance))
 
     @property
     def distance(self):
@@ -51,3 +51,4 @@ class Source(object):
             new_value = new_value * u.mas
         self._distance = new_value.to(u.pc, equivalencies=u.parallax())
             
+        
