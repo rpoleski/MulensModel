@@ -28,6 +28,11 @@ class ModelParameters(object):
             self._q = q
         if alpha is not None:
             self.alpha = alpha
+        self._n_lenses = None
+        if s is None and q is None and alpha is None:
+            self._n_lenses = 1
+        else:
+            self._n_lenses = 2
 
         """
         Define the parallax if appropriate. Does not check for
@@ -77,6 +82,10 @@ class ModelParameters(object):
             pass
         return 'ModelParameters:\n{0}\n{1}\n'.format(variables, values)
 
+    @property
+    def n_lenses(self):
+        """number of objects in the lens system"""
+        return self._n_lenses
 
     @property
     def t_0(self):

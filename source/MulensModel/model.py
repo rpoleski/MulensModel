@@ -23,7 +23,7 @@ class Model(object):
     unpredictable.
     """
     def __init__(self, parameters=None,
-                 t_0=0., u_0=None, t_E=0., rho=None, s=None, q=None,
+                 t_0=None, u_0=None, t_E=None, rho=None, s=None, q=None,
                  alpha=None,
                  pi_E=None, pi_E_N=None, pi_E_E=None,
                  pi_E_ref=None, t_0_par=None, 
@@ -235,7 +235,8 @@ class Model(object):
                 (delta_tau, delta_beta) = self._satellite_parallax_trajectory(dataset)
                 vector_x += delta_tau
                 vector_y += delta_beta
-                n_satellite += 1 
+                n_satellite += 1
+            #if self._parameters.n_lenses == 2:
             self._trajectory_x.append(vector_x)
             self._trajectory_y.append(vector_y)
         if self._parallax_satellite and n_satellite == 0:
