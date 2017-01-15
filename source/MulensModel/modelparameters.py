@@ -101,6 +101,7 @@ class ModelParameters(object):
             self._t_0 = new_t_0
         else:
             self._t_0 = MulensTime(new_t_0, date_fmt="jdprime")
+            #self._t_0 = MulensTime(new_t_0, date_fmt="jd")
             #self._t_0 = MulensTime(new_t_0, date_fmt="hjdprime") # XXX
 
     @property
