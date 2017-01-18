@@ -1,4 +1,5 @@
 import numpy as np
+from math import fsum
 from astropy.coordinates import SkyCoord, get_body_barycentric, EarthLocation
 from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy.coordinates import GeocentricTrueEcliptic
@@ -207,7 +208,7 @@ class Model(object):
             raise ValueError('Topocentric parallax not coded yet')
         n_satellite = 0 
         for dataset in self._datasets:
-            vector_tau = (dataset.time - self.t_0) / self.t_E
+            vector_tau = (dataset.time + dataset.time_zeropoint - (self.t_0 + self._parameters._t_0.zeropoint)) / self.t_E
             vector_u = self.u_0 * np.ones(dataset.n_epochs)
             if self._parallax_earth_orbital:
                 (delta_tau, delta_u) = self._annual_parallax_trajectory(dataset)
@@ -300,9 +301,37 @@ class Model(object):
                 u2 = self._trajectory_x[i_data]**2 + self._trajectory_y[i_data]**2
                 self._magnification.append((u2 + 2.) / np.sqrt(u2 * (u2 + 4.)))
             elif self._parameters.n_lenses == 2:
-                u2 = self._trajectory_x[i_data]**2 + self._trajectory_y[i_data]**2
-                self._magnification.append((u2 + 2.) / np.sqrt(u2 * (u2 + 4.)))
-                # THIS IS WRONG, but meant to be changed
+                q = self._parameters.q
+                s = self._parameters.s
+                m1 = 1. / (1. + q)
+                m2 = q / (1. + q)
+                # See Witt & Mao (1995) for details.
+                m = 0.5 * (m1 + m2) # Quantity m equals 1/2 according to the above definition
+                dm = 0.5 * (m2 - m1)
+                z1 = -0.5 * s + 0.j
+                z2 = 0.5 * s + 0.j
+                zeta = self._trajectory_x[i_data] - s + self._trajectory_y[i_data] * 1.j
+                zeta_c = np.conjugate(zeta)
+                c5 = z1**2 - zeta_c**2
+                c4 = -2.*m*zeta_c + zeta*zeta_c**2 - 2.*dm*z1 - zeta*z1**2
+                c3 = 4.*m*zeta*zeta_c + 4.*dm*zeta_c*z1 + 2.*(zeta_c*z1)**2 - 2.*z1**4
+                c2 = 4.*m**2*zeta + 4.*m*dm*z1 - 4.*dm*zeta*zeta_c*z1 - 2.*zeta*zeta_c**2*z1**2 + 4.*dm*z1**3 + 2.*zeta*z1**4
+                c1 = -8.*m*dm*zeta*z1 - 4.*dm**2*z1**2 - 4.*(m*z1)**2 - 4.*m*zeta*zeta_c*z1**2 - 4.*dm*zeta_c*z1**3 - zeta_c**2*z1**4 + z1**6
+                c0 = 4.*dm**2*zeta + 4.*m*dm*z1 + 4.*dm*zeta*zeta_c*z1 + 2.*m*zeta_c*z1**2 + zeta*zeta_c**2*z1**2 - 2.*dm*z1**3 - zeta*z1**4
+                c0 *= z1**2
+                c = np.array([c0, c1, c2, c3, c4, c5]).reshape(6)
+                roots = np.polynomial.polynomial.polyroots(c)
+                solution_c = np.conjugate(zeta_c + m1 / (roots-z1) + m2 / (roots-z2))
+                correct = np.ones(5, dtype = bool)
+                for i in range(5): # Here we check if solutions of the polynomial are also solutions of the lens equation
+                    j = np.argmin(abs((solution_c-roots[i])**2))
+                    print(i, abs((solution_c-roots[i])**2)[j], roots[i], solution_c[j])
+                    if i != j:
+                        correct[i] = False
+                roots_c = np.conjugate(roots)
+                dzeta_dz_c = m1 / (z1-roots_c)**2 + m2 / (z2-roots_c)**2
+                det_j = 1. - dzeta_dz_c * np.conjugate(dzeta_dz_c)
+                self._magnification.append([fsum(1./abs(det_j[correct]))])
             else:
                 raise Exception("magnification for more than 2 lenses not handled yet")
         return self._magnification

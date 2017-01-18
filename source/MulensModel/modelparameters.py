@@ -155,6 +155,16 @@ class ModelParameters(object):
             self._alpha = new_alpha * u.deg
 
     @property
+    def q(self):
+        """mass ratio of two lens components"""
+        return self._q
+        
+    @property
+    def s(self):
+        """separation of two lens components relative to Einstein ring size"""
+        return self._s
+
+    @property
     def pi_E(self):
         """
         The microlens parallax vector. May be specified either
