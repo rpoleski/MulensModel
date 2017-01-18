@@ -158,12 +158,22 @@ def test_satellite_and_annual_parallax_calculation():
     np.testing.assert_almost_equal(model_with_par.magnification[0], ref_OGLE, decimal=2)
     np.testing.assert_almost_equal(model_with_par.magnification[1]/ref_Spitzer, np.array([1]*len(ref_Spitzer)), decimal=3)
 
+def test_init_parameters():
+    t_0 = 6141.593
+    u_0 = 0.5425
+    t_E = 62.63*u.day
+    params = ModelParameters(t_0=t_0, u_0=u_0, t_E=t_E)
+    model = Model(parameters=params)
+    np.testing.assert_almost_equal(model.t_0, t_0)
+    np.testing.assert_almost_equal(model.u_0, u_0)
+    np.testing.assert_almost_equal(model.t_E, t_E.value)
+
 def test_BLPS_01():
-    model = Model(t_0=6141.593, u_0=0.5425, t_E=62.63*u.day, alpha=49.58*u.deg, s=1.3500, q=0.00578)
+    params = ModelParameters(t_0=2456141.593, u_0=0.5425, t_E=62.63*u.day, alpha=49.58*u.deg, s=1.3500, q=0.00578)
+    model = Model(parameters=params)
     t = np.array([2456112.5])
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     m = model.magnification[0][0]
     np.testing.assert_almost_equal(m, 4.710563917)
-    
     

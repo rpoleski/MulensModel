@@ -207,17 +207,28 @@ class Model(object):
             raise ValueError('Topocentric parallax not coded yet')
         n_satellite = 0 
         for dataset in self._datasets:
-            vector_x = (dataset.time - self.t_0) / self.t_E
-            vector_y = self.u_0 * np.ones(dataset.n_epochs)
+            vector_tau = (dataset.time - self.t_0) / self.t_E
+            vector_u = self.u_0 * np.ones(dataset.n_epochs)
             if self._parallax_earth_orbital:
-                (delta_tau, delta_beta) = self._annual_parallax_trajectory(dataset)
-                vector_x += delta_tau
-                vector_y += delta_beta
+                (delta_tau, delta_u) = self._annual_parallax_trajectory(dataset)
+                vector_tau += delta_tau
+                vector_u += delta_u
             if self._parallax_satellite and dataset.is_satellite: 
-                (delta_tau, delta_beta) = self._satellite_parallax_trajectory(dataset)
-                vector_x += delta_tau
-                vector_y += delta_beta
-                n_satellite += 1 
+                (delta_tau, delta_u) = self._satellite_parallax_trajectory(dataset)
+                vector_tau += delta_tau
+                vector_u += delta_u
+                n_satellite += 1
+            if self._parameters.n_lenses == 1:
+                vector_x = vector_tau
+                vector_y = vector_u
+            elif self._parameters.n_lenses == 2:
+                sin_alpha = np.sin(self._parameters.alpha)
+                cos_alpha = np.cos(self._parameters.alpha)
+                vector_x = vector_u * sin_alpha - vector_tau * cos_alpha
+                vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
+                vector_x += self._parameters._s / 2.
+            else:
+                raise Exception("trajectory for more than 2 lenses not handled yet")
             self._trajectory_x.append(vector_x)
             self._trajectory_y.append(vector_y)
         if self._parallax_satellite and n_satellite == 0:
@@ -285,8 +296,15 @@ class Model(object):
         self._magnification = []
         self._trajectory()
         for i_data in range(len(self._datasets)):
-            u2 = self._trajectory_x[i_data]**2 + self._trajectory_y[i_data]**2
-            self._magnification.append((u2 + 2.) / np.sqrt(u2 * (u2 + 4.)))
+            if self._parameters.n_lenses == 1:
+                u2 = self._trajectory_x[i_data]**2 + self._trajectory_y[i_data]**2
+                self._magnification.append((u2 + 2.) / np.sqrt(u2 * (u2 + 4.)))
+            elif self._parameters.n_lenses == 2:
+                u2 = self._trajectory_x[i_data]**2 + self._trajectory_y[i_data]**2
+                self._magnification.append((u2 + 2.) / np.sqrt(u2 * (u2 + 4.)))
+                # THIS IS WRONG, but meant to be changed
+            else:
+                raise Exception("magnification for more than 2 lenses not handled yet")
         return self._magnification
 
     @magnification.setter
