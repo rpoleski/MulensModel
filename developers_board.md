@@ -8,6 +8,7 @@
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
+* correct vector\_tau = (...) in Model.\_trajectory
 * example usage of JPL Horizons
 * t\_0 - make it instance of MulensTime
 * store time information in the format it was input?
