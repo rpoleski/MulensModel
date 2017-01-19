@@ -8,6 +8,9 @@
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
+* BinaryLensEquation() - define conventiones for source X/Y and positions of lens components
+* BinaryLensEquation() - accurate summation instead of sum() or just normal "a+b"
+* should BinaryLensEquation() accept source\_x/y as lists or arrays?
 * correct vector\_tau = (...) in Model.\_trajectory
 * example usage of JPL Horizons
 * t\_0 - make it instance of MulensTime
