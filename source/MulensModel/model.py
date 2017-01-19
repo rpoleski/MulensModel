@@ -29,15 +29,11 @@ class Model(object):
                  alpha=None,
                  pi_E=None, pi_E_N=None, pi_E_E=None,
                  pi_E_ref=None, t_0_par=None, 
-                 lens=None, source=None, mu_rel=None,
                  coords=None, ra=None, dec=None):
         """
-        Three ways to define the model:
+        Two ways to define the model:
         1. parameters = a ModelParameters() object
         2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par)
-        3. specify physical properties: lens= a Lens() object, 
-            source= a Source() object, mu_rel
-        method 3 not implemented.
 
         When defining event coordinates, may specify coords as an
         astropy.coordinates.SkyCoord object, otherwise assumes RA is
@@ -79,20 +75,6 @@ class Model(object):
         else:
             if pi_E_E is not None:
                 raise AttributeError(par_msg)
-
-        #Replace with MulensSystem object
-        #If lens and source are defined, but t0, tE are not, then 
-        #set t0=0.,tE=1.
-        if lens is not None :
-            if source is None:
-                raise AttributeError(
-                    'If lens is specified, source must also be specified.')
-            else:
-                self.lens = lens
-                self.source = source
-        if source is not None and lens is None:
-            raise AttributeError(
-                'If source is specified, lens must also be specified.')
 
         coords_msg = 'Must specify both or neither of ra and dec'
         self._coords = None
@@ -340,22 +322,6 @@ class Model(object):
     def set_datasets(self, datasets):
         """set _datasets property"""
         self._datasets = datasets
-
-    @property
-    def lens(self):
-        pass
-
-    @lens.setter
-    def lens(self, new_lens):
-        pass
-
-    @property
-    def source(self):
-        pass
-
-    @source.setter
-    def source(self, new_lens):
-        pass
 
     @property
     def coords(self):

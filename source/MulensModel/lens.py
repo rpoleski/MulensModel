@@ -43,7 +43,12 @@ class Lens(object):
             self._a_proj = a_proj
 
     def __repr__(self):
-        pass
+        try:
+            return('Lens Total Mass: {0}'.format(self._total_mass))
+        except NameError:
+            return('Lens components: {0}'.format(self._q))
+        else:
+            return('Lens.py __repr__ error')
 
     @property
     def total_mass(self):
@@ -68,6 +73,18 @@ class Lens(object):
     @epsilon.setter
     def epsilon(self, new_epsilon):
         self._epsilon = np.array(new_epsilon)
+
+    @property
+    def n_masses(self):
+        """
+        number of masses in the system.
+        """
+        try:
+            return len(self._epsilon)
+        except NameError:
+            return 1
+        else:
+            return "lens.py: exception in Lens.n_masses"
 
     @property
     def mass(self): 

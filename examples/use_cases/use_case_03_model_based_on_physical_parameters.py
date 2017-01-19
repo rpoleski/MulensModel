@@ -6,7 +6,7 @@ import MulensModel
 my_lens = MulensModel.Lens(mass=0.5*u.Mass, distance=6.e3*u.pc)
 my_source = MulensModel.Source(distance=8.e3*u.pc)
 my_system = MulensModel.MulensSystem(lens=my_lens, source=my_source)
-my_system.print_properties()
+print(my_system)
 my_system.plot_magnification(u0=0.3)
 
 my_system.mu_rel = 3. * u.mas / u.yr
@@ -22,7 +22,7 @@ source = MulensModel.Source()
 source.distance = 8.e3*u.pc
 
 two_body_system = MulensModel.MulensSystem(lens=two_body_lens, source=source)
-print(two_body_system.theta_E)
+print(two_body_system)
 
 #2 bodies - Version 2: Implementation of MulensModel
 two_body_lens_v2 = MulensModel.Lens(s=1.2, q=10.e-4)

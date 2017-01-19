@@ -14,6 +14,29 @@ class ModelParameters(object):
     def __init__(self, t_0=None, u_0=None, t_E=None, rho=None, s=None,
                  q=None, alpha=None, pi_E=None, pi_E_N=None, pi_E_E=None,
                  pi_E_ref=None):
+        """
+        Set up parameters for a MulensModel.Model object.
+        
+        Attributes:
+            t_0: time of closest approach between source and lens
+            u_0: impact parameter between source and lens (in Einstein radii)
+            t_E: Einstein crossing time
+            rho: source size as a fraction of the Einstein radius
+            s: separation between primary and companion(s) (in Einstein radii)
+            q: mass ratio between primary and companion(s)
+            alpha: angle of source trajectory relative to binary axis (CCW???)
+
+            parallax vector may be defined 
+            EITHER as:
+               pi_E: list, tuple, or np.array of 2 values
+               pi_E_ref: defines reference system for pi_E (see
+                   MulensParallaxVector)
+            OR:
+               pi_E_N: North component of the parallax
+               pi_E_E: East component of the parallax
+               
+        """
+        #Initialize standard parameters if they are set.
         if t_0 is not None:
             self.t_0 = t_0
         if u_0 is not None:
