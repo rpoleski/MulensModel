@@ -1,37 +1,37 @@
-## December 2016 goals:
-1. Satellite parallax calculations.
-2. Guessing parameters of PSPL model.
-3. PSBL calculation.
-4. Start preparing the manual.
+## Jan 2017 goals:
+1. Hexadecapole calculations.
+2. Time issues resolved.
+3. Manual for PSPL fitting.
 
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
-* BinaryLensEquation() - define conventiones for source X/Y and positions of lens components
+* __Hexadecapole__
+* __PSPL manual__
+* __BinaryLensEquation() - define conventiones for source X/Y and positions of lens components__
+* __binary calculations - define if s is relative to total mass etc.__
 * BinaryLensEquation() - accurate summation instead of sum() or just normal "a+b"
-* should BinaryLensEquation() accept source\_x/y as lists or arrays?
-* correct vector\_tau = (...) in Model.\_trajectory
+* __should BinaryLensEquation() accept source\_x/y as lists or arrays?__
+* __correct vector\_tau = (...) in Model.\_trajectory__
 * example usage of JPL Horizons
-* t\_0 - make it instance of MulensTime
-* store time information in the format it was input?
+* __store time information in the format it was input?__
 * single Event can have many instances of Model associated with it
-* add set\_default\_date\_fmt()
+* __add set\_default\_date\_fmt()__
 * model.py - move dot() somewhere else
-* horizons.py - change "Time(...).jd - 2450000" to something normal
-* MulensData - change "self.jd - 2450000." to something normal
+* __horizons.py - change "Time(...).jd - 2450000" to something normal__
+* __MulensData - change "self.jd - 2450000." to something normal__
 * add unit tests for Horizons and MulensData.satellite_skycoord
 * move some parts of horizons.py to utils.py
 * check if Horizons e-mail is for correct satellite
-* __PSBL calculation__
-* __guessing parameters of PSPL model__
+* guessing parameters of PSPL model
 * __start manual preparations__
 * anything from use cases at the end of this page
 * fluxes fixed in chi^2 calculation
 * annual parallax calculation - verify with VBB
 * replace Model.reset\_magnification() with remembering parameters for calculated model in an instance of ModelParameters
 * when checking units use Unit.physical\_type
-* full test of HJD-JD correction in MulensData and Fit
+* __full test of HJD-JD correction in MulensData and Fit__
 * one test file per class
 * pass datasets from Event to Model or vice versa
 * does every function have a description? 
@@ -76,6 +76,7 @@
 
 1. How to handle changes in origin of the coordinate system? Internally we're working in the center of mass, but fitting is sometimes much faster if the system is relative to, e.g., planetary caustic or a cusp. Also think how this should be done for triple lenses. 
 1. How to handle full reparametrization of the model? Cassan 2008 is particular example. 
+
 
 ## Use cases to be written 
 
