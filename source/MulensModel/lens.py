@@ -3,6 +3,27 @@ from math import fsum
 from astropy import units as u
 
 class Lens(object):
+    """
+    A mass or system of masses.
+    
+    Attributes:
+        total_mass: Total mass of the lens system
+        epsilon: mass fraction for each component relative to the total mass
+        q: mass ratio for companions relative to the primary
+        s: separation between the companions and the primary as a
+            fraction of the Einstein radius.
+        mass: mass of the lens for a point mass
+        mass_1: mass of the primary
+        mass_2: mass of the secondary
+        n_masses: total number of masses in the system
+        distance: distance to the lens in pc.
+        pi_L: parallax of the lens in mas.
+
+    TO DO:
+        - problem with tracking number of masses, esp when
+          successively defining masses (see test_Lens.py)
+        - implement triple+ systems
+    """
     def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
                  a_proj=None, distance=None, q=None, s=None, epsilon=None):
         """
@@ -15,6 +36,7 @@ class Lens(object):
         Note that s, q, and epsilon may be lists or numpy arrays.
         """
         self._caustic=None
+        #Set up system from s and q if defined
         if q is not None:
             self.q = q
             if s is not None:
@@ -22,12 +44,18 @@ class Lens(object):
             else:
                 msg = 'if q is defined, s must also be defined.'
                 raise AttributeError(msg)
+
+            #include system mass if appropriate
             if mass_1 is not None:
                 self._total_mass = mass_1 * (1. + q)
+
+        #Set total_mass and epsilon if defined
         if total_mass is not None:
             self._total_mass = total_mass
         if epsilon is not None:
             self._epsilon = np.array(epsilon)
+
+        #Set total_mass, epsilon from mass_1 and mass_2
         if mass_2 is not None:
             self._total_mass = mass_1 + mass_2
             self._epsilon = np.array(
@@ -37,12 +65,15 @@ class Lens(object):
                 self._set_single_mass(mass_1)
             if mass is not None:
                 self._set_single_mass(mass)
+
+        #Set distance and projected separation
         if distance is not None:
             self._distance = distance
         if a_proj is not None:
             self._a_proj = a_proj
 
     def __repr__(self):
+        """Make a nice string representation of the mass. NEEDS WORK."""
         try:
             return('Lens Total Mass: {0}'.format(self._total_mass))
         except NameError:
@@ -215,8 +246,12 @@ class Lens(object):
         mass of the primary. If you want this to actually be the total mass,
         define it after defining q.
         """
+        #Update epsilon
         new_q = np.insert(new_q, 0, 1.)
         self._epsilon = new_q / fsum(new_q)
+
+        #Update total_mass: DOES NOT LOOK LIKE IT WORKS RIGHT. Maybe
+        #goes before update epsilon?
         try:
             if np.array(new_q).size == self._epsilon.size - 1:
         #Case 3: the entire lens is defined (new_q changes the values of q)
