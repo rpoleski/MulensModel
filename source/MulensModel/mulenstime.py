@@ -17,32 +17,52 @@ zeropoints["hjdprime"] = zeropoints["jdprime"]
 
 class MulensTime(object):
     def __init__(self, time=0., date_fmt=None, coords=None):
-        if date_fmt is None:
-            if self._guess_prime(time):
-                date_fmt='jdprime'
-            else:
-                date_fmt='jd'
+        """
+        Store a time (or time vector) as a MulensTime object.
 
-        self._date_zeropoint = self._get_date_zeropoint(date_fmt=date_fmt.lower())
+        ARGUMENTS:
+            time (required): the time
+            date_fmt (optional): the date format/time reference frame
+                (e.g. HJD, HJD', MJD)
+            coords (optional): coordinates of the event *should be removed*
+        """
+        # Set the date zeropoint if necessary
+        if date_fmt is None:
+            self._date_zeropoint = 0.
+        else:
+            self._date_zeropoint = self._get_date_zeropoint(
+                date_fmt=date_fmt.lower())
+
+        # Heliocentric or Geocentric?
         if 'hjd' in date_fmt.lower():
             self._time_type = 'hjd'
         elif 'jd' in date_fmt.lower():
             self._time_type = 'jd'
         else:
             raise ValueError('Unrecognized time type (HJD/JD)')
+
+        # Convert time to Astropy time in JD.
         earth_center = EarthLocation.from_geocentric(0., 0., 0., u.m)
         self._time = Time(time+self._date_zeropoint, format="jd",
                             location=earth_center)
+
+        # Check that the time is consistent with the format
         if hasattr(time, '__iter__'):
             if any(self._time.jd < 2448600): # This corresponds to Dec 1991.
-                raise ValueError('The time set is too early: {:}'.format(self._time.jd))
+                raise ValueError(
+                    'The time set is too early: {:}'.format(self._time.jd))
             elif any(self._time.jd > 2470000): # This corresponds to Jul 2050.
-                raise ValueError('The time set is too late: {:}'.format(self._time.jd))
+                raise ValueError(
+                    'The time set is too late: {:}'.format(self._time.jd))
         else:
             if self._time.jd < 2448600 and time != 0.:
-                raise ValueError('The time set is too early: {:}'.format(self._time.jd))
+                raise ValueError(
+                    'The time set is too early: {:}'.format(self._time.jd))
             elif self._time.jd > 2470000 and time != 0.:
-                raise ValueError('The time set is too late: {:}'.format(self._time.jd))
+                raise ValueError(
+                    'The time set is too late: {:}'.format(self._time.jd))
+
+        # Other defaults
         self._time_corr = None
         self._target = None
         if coords is not None:
@@ -100,8 +120,10 @@ class MulensTime(object):
         return self.jd - self._date_zeropoint
 
     def _get_date_zeropoint(self, date_fmt="jd"):
-        """ Return the zeropoint of the date so it can be converted to
-        the standard 245#### format."""
+        """ 
+        Return the zeropoint of the date so it can be converted to
+        the standard 245#### format.
+        """
         if date_fmt not in zeropoints.keys():
             lst = '"' + '", "'.join(list(zeropoints.keys())) + '"'
             raise ValueError('Invalid value for date_fmt. Allowed values: ' + lst)

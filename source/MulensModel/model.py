@@ -39,6 +39,7 @@ class Model(object):
         astropy.coordinates.SkyCoord object, otherwise assumes RA is
         in hour angle and DEC is in degrees.
         """
+        # Initialize the parameters of the model
         if isinstance(parameters, ModelParameters):
             self._parameters = parameters
         elif parameters is None:
@@ -46,6 +47,8 @@ class Model(object):
         else:
             raise TypeError(
                 "If specified, parameters must be a ModelParameters object.")
+
+        # Set each model parameter
         if t_0 is not None:
             self.t_0 = t_0
         if u_0 is not None:
@@ -56,6 +59,7 @@ class Model(object):
             self.rho = rho
         self.t_0_par = t_0_par
         
+        # Set the parallax
         par_msg = 'Must specify both or neither of pi_E_N and pi_E_E'
         if pi_E is not None:
             if pi_E_ref is None:
@@ -76,6 +80,7 @@ class Model(object):
             if pi_E_E is not None:
                 raise AttributeError(par_msg)
 
+        # Set the coordinates of the event
         coords_msg = 'Must specify both or neither of ra and dec'
         self._coords = None
         if coords is not None:
@@ -92,6 +97,7 @@ class Model(object):
             if ra is not None:
                 raise AttributeError(coords_msg)
 
+        # Set some defaults
         self.reset_magnification()
         self._parallax_earth_orbital = False
         self._parallax_satellite = False
@@ -191,6 +197,7 @@ class Model(object):
             self._t_0_par = MulensTime(value)
         self.reset_magnification()
 
+    @property
     def parameters(
         self, t_0=0., u_0=None, t_E=1., rho=None, s=None, q=None, alpha=None, 
         pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
@@ -205,21 +212,30 @@ class Model(object):
         """calculates source trajectory"""
         self._trajectory_x = []
         self._trajectory_y = []
+
         if self._parallax_topocentric is not False:
             raise ValueError('Topocentric parallax not coded yet')
+
         n_satellite = 0 
         for dataset in self._datasets:
-            vector_tau = (dataset.time + dataset.time_zeropoint - (self.t_0 + self._parameters._t_0.zeropoint)) / self.t_E
+            vector_tau = (
+                (dataset.time + dataset.time_zeropoint 
+                 - (self.t_0 + self._parameters._t_0.zeropoint)) #time
+                / self.t_E)
             vector_u = self.u_0 * np.ones(dataset.n_epochs)
+
             if self._parallax_earth_orbital:
                 (delta_tau, delta_u) = self._annual_parallax_trajectory(dataset)
                 vector_tau += delta_tau
                 vector_u += delta_u
+
             if self._parallax_satellite and dataset.is_satellite: 
-                (delta_tau, delta_u) = self._satellite_parallax_trajectory(dataset)
+                (delta_tau, delta_u) = self._satellite_parallax_trajectory(
+                    dataset)
                 vector_tau += delta_tau
                 vector_u += delta_u
                 n_satellite += 1
+
             if self._parameters.n_lenses == 1:
                 vector_x = vector_tau
                 vector_y = vector_u
@@ -230,14 +246,21 @@ class Model(object):
                 vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
                 vector_x += self._parameters._s / 2.
             else:
-                raise Exception("trajectory for more than 2 lenses not handled yet")
+                raise Exception(
+                    "trajectory for more than 2 lenses not handled yet")
+
             self._trajectory_x.append(vector_x)
             self._trajectory_y.append(vector_y)
+
         if self._parallax_satellite and n_satellite == 0:
-            raise ValueError('Satellite parallax turned on, but no satellite data provided')
+            raise ValueError(
+                'Satellite parallax turned on, but no satellite data provided')
 
     def _get_delta_satellite(self, dataset):
-        """calculates differences of Earth and satellite positions projected on the plane of the sky at event position"""
+        """
+        calculates differences of Earth and satellite positions
+        projected on the plane of the sky at event position
+        """
         direction = np.array(self._coords.cartesian.xyz.value)
         north = np.array([0., 0., 1.])
         east_projected = np.cross(north, direction)
@@ -246,16 +269,23 @@ class Model(object):
         satellite = dataset.satellite_skycoord
         satellite.transform_to(frame=self._coords.frame) # We want to be sure frames are the same.
         self._delta_satellite[dataset] = {}
-        self._delta_satellite[dataset]['N'] = -dot(satellite.cartesian, north_projected)
-        self._delta_satellite[dataset]['E'] = -dot(satellite.cartesian, east_projected)
-        self._delta_satellite[dataset]['D'] = -dot(satellite.cartesian, direction)
+        self._delta_satellite[dataset]['N'] = -dot(
+            satellite.cartesian, north_projected)
+        self._delta_satellite[dataset]['E'] = -dot(
+            satellite.cartesian, east_projected)
+        self._delta_satellite[dataset]['D'] = -dot(
+            satellite.cartesian, direction)
 
     def _satellite_parallax_trajectory(self, dataset):
         """calcualate satellite parallax component of trajectory"""
         if dataset not in self._delta_satellite:
             self._get_delta_satellite(dataset)
-        delta_tau = self._delta_satellite[dataset]['N'] * self.pi_E_N + self._delta_satellite[dataset]['E'] * self.pi_E_E
-        delta_beta = -self._delta_satellite[dataset]['N'] * self.pi_E_E + self._delta_satellite[dataset]['E'] * self.pi_E_N
+        delta_tau = (self._delta_satellite[dataset]['N'] 
+                     * self.pi_E_N + self._delta_satellite[dataset]['E'] 
+                     * self.pi_E_E)
+        delta_beta = (-self._delta_satellite[dataset]['N'] 
+                       * self.pi_E_E + self._delta_satellite[dataset]['E'] 
+                       * self.pi_E_N)
         return (delta_tau, delta_beta)
 
     def _get_delta_annual(self, dataset):
@@ -264,17 +294,21 @@ class Model(object):
             msg1 = 'Annual parallax effect cannot be '
             msg2 = 'calculated if t_0_par is not set'
             raise ValueError(msg1 + msg2)
-        time_ref = self.t_0_par.astropy_time
+
+        time_ref = self.t_0_par.astropy_time #time
         position_ref = get_body_barycentric(body='earth', time=time_ref)
-        # the 3 lines below, that calculate velocity for t_0_par, are based on astropy 1.3 
+        # the 3 lines below, that calculate velocity for t_0_par, are
+        # based on astropy 1.3
         # https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
         jd1, jd2 = get_jd12(time_ref, 'tdb')
         earth_pv_helio, earth_pv_bary = erfa.epv00(jd1, jd2)
         velocity = earth_pv_bary[..., 1, :] * u.au / u.day
         
-        position = get_body_barycentric(body='earth', time=dataset._time.astropy_time)
+        position = get_body_barycentric(
+            body='earth', time=dataset._time.astropy_time)
         delta_time = dataset._time.astropy_time - time_ref
-        product = np.outer(delta_time.to(u.d).value, velocity.value) * u.d * velocity.unit
+        product = (np.outer(delta_time.to(u.d).value, velocity.value) 
+                   * u.d * velocity.unit)
         # We calculated product in this strange way because np.outer()
         # destroys information about units of its arguments.
         delta_s = position.xyz.T - product - position_ref.xyz.T
@@ -286,8 +320,13 @@ class Model(object):
         """calcualate annual parallax component of trajectory"""
         if dataset not in self._delta_annual:
             self._get_delta_annual(dataset)
-        delta_tau = self._delta_annual[dataset]['N'] * self.pi_E_N + self._delta_annual[dataset]['E'] * self.pi_E_E
-        delta_beta = -self._delta_annual[dataset]['N'] * self.pi_E_E + self._delta_annual[dataset]['E'] * self.pi_E_N
+
+        delta_tau = (self._delta_annual[dataset]['N'] 
+                     * self.pi_E_N + self._delta_annual[dataset]['E'] 
+                     * self.pi_E_E)
+        delta_beta = (-self._delta_annual[dataset]['N'] 
+                       * self.pi_E_E + self._delta_annual[dataset]['E'] 
+                       * self.pi_E_N)
         return (delta_tau, delta_beta)
 
     @property
@@ -299,16 +338,21 @@ class Model(object):
         self._trajectory()
         for i_data in range(len(self._datasets)):
             if self._parameters.n_lenses == 1:
-                u2 = self._trajectory_x[i_data]**2 + self._trajectory_y[i_data]**2
+                u2 = (self._trajectory_x[i_data]**2 
+                      + self._trajectory_y[i_data]**2)
                 self._magnification.append((u2 + 2.) / np.sqrt(u2 * (u2 + 4.)))
             elif self._parameters.n_lenses == 2:
                 q = self._parameters.q
                 m1 = 1. / (1. + q)
                 m2 = q / (1. + q)
-                binary_lens_eq = BinaryLensEquation(mass_1=m1, mass_2=m2, separation=self._parameters.s, source_x=self._trajectory_x[i_data], source_y=self._trajectory_y[i_data])
+                binary_lens_eq = BinaryLensEquation(
+                    mass_1=m1, mass_2=m2, separation=self._parameters.s, 
+                    source_x=self._trajectory_x[i_data], 
+                    source_y=self._trajectory_y[i_data])
                 self._magnification.append(binary_lens_eq.total_magnification)
             else:
-                raise Exception("magnification for more than 2 lenses not handled yet")
+                raise Exception(
+                    "magnification for more than 2 lenses not handled yet")
         return self._magnification
 
     @magnification.setter
@@ -316,7 +360,10 @@ class Model(object):
         self._magnification = new_value
         
     def reset_magnification(self):
-        """destroy existing information on magnification - call it after you change parameters"""
+        """
+        destroy existing information on magnification - call it
+        after you change parameters
+        """
         self._magnification = None
 
     def set_datasets(self, datasets):

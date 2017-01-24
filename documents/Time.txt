@@ -1,0 +1,92 @@
+Thoughts on Time and How to Handle It - JCY
+
+We have a problem in handling time/date systems in a natural
+way. Astronomers have several different time reference systems in
+use. For Microlensers specifically, common ones are HJD and HJD' ( =
+HJD-2450000.), MJD and MJD', and also JD, etc. 
+
+Note: Due to parallax and JD <--> HJD conversions, the time reference may
+also care about the event coordinates.
+
+Note 2: I am using "time reference frame" here to mean HJD vs. HJD'
+vs. JD etc. In the code, we call this "date_fmt."
+
+----
+
+There are two cases in which we care about the specific time reference frame:
+
+1. More than one time reference frame is in use.
+
+2. We need to calculate parallax (which assumes HJD).
+
+There are two places where time information is input:
+
+1. Reading in data sets
+
+2. Setting parameters: e.g. t_0 (or t_0,par or t_binary)
+
+Time information is used:
+
+1. When calculating the model magnifications (which really means
+calculating the source trajectory, which in turn means calculating tau).
+
+----
+
+If no time reference frame is specified, *everything should just
+work*. In practice, this means assuming that t_0 is in the same frame
+as the data (and the data are all in the same frame as each other). 
+
+IN ADDITION, parallax depends on working in HJD. In practice, up to
+this point, this was not critical, but may be important in the
+future. For terrestrial parallax, as long as the times are all in the
+same system, they will experience the same ~8 minute offset in
+time. For orbital parallax, an 8 minute offset is a relatively minor
+error. However, for satellite parallax with the orbital parallax
+effect, especially with WFIRST data, this may become
+significant. Regardless, the way to handle this is to set the
+assumption that the data are either in HJD or HJD' and then have one
+check to distiguish between them.
+
+-
+
+If a time reference frame *IS* specified, then there should be a
+master reference frame.
+
+1. If TRF is specified for one dataset, and no others, that is the
+master frame.
+
+2. If TRF is specified for multiple datasets, then the user should
+choose one dataset as master, otherwise the code defaults to the first
+data set.
+
+3. If the TRF is not specified for t_0, it is assumed to be in the
+master frame.
+
+BUT, the only time we should care about any of this, is 
+
+1. if there are multiple TRFs in use
+
+OR 
+
+2. we are calculating parallax.
+
+----
+
+My goal should be to come up with a way to handle time with a minimum of fuss.
+
+Classes that access TRF:
+
+model.py
+modelparameters.py
+mulenstime.py
+mulensdata.py
+
+It seems to me, that 
+
+if date_fmt is None:
+   time = input_time
+else:
+   time = MulensTime(input_time,date_fmt=date_fmt)
+
+But, the question is how to make use of time if some elements are
+MulensTime objects and some are not or if there are a mix of date_fmt.
