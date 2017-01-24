@@ -40,4 +40,11 @@ class Utils(object):
             if int(current[i]) < int(required[i]):
                 return False
         return True
-
+        
+    def last_non_space_char_before(line, n_before):
+        """find last non-space character before given character"""
+        for i in range(n_before-1, 0, -1):
+            if line[i] != " ":
+                return i
+        return -1
+    last_non_space_char_before = staticmethod(last_non_space_char_before)

@@ -4,13 +4,8 @@ from astropy.coordinates import SkyCoord
 from astropy.time import Time
 import astropy.units as u
 
+from MulensModel.utils import Utils
 
-def last_non_space_char_before(line, n_before):
-    """find last non-space character before given character"""
-    for i in range(n_before-1, 0, -1):
-        if line[i] != " ":
-            return i
-    return -1
 
 month_3letter_to_2digit = {
         'Jan' : '01',
@@ -49,10 +44,22 @@ class Horizons(object):
         self.data_lists = {}
         for key in self._names:
             self.data_lists[key] = []
+            
+        self._read_horizons_file(file_name)
         
+        for key in apply_float:
+            for j in range(len(self.data_lists[key])):
+                self.data_lists[key][j] = float(self.data_lists[key][j])
+        for key in apply_date_change:
+            for j in range(len(self.data_lists[key])):
+                self.data_lists[key][j] = date_change(self.data_lists[key][j])
+
+    def _read_horizons_file(self, file_name):
+        """reads standard output from JPL Horizons"""
         with open(file_name) as in_file:
             mode = None # Other possible values are: 'header', 'header_done', 'main', and 'finished'.
-            for (n_line, l) in enumerate(in_file.readlines()):
+            # This gives information in which part of the Horizons file we are currently in.
+            for l in in_file.readlines():
                 line = l[:-1]
                 if len(line) == 0:
                     continue
@@ -80,10 +87,12 @@ class Horizons(object):
                     else:
                         if mode == 'main':
                             raise ValueError('error: {:}'.format(line))
+                        
                 if mode != mode_save:
-                    continue
+                    continue # Mode has changed so current line is done. 
+                    
                 if mode == 'header':
-                    (char_beg, char_end) = self._parse_header(line)
+                    (char_beg, char_end) = self._parse_header_line(line)
                 elif mode == 'main': # This is where we parse main data table.
                     for key, value in char_beg.items():
                         text = line[value:char_end[key]]
@@ -91,14 +100,8 @@ class Horizons(object):
                 elif mode != None:
                     raise ValueError('unexpected input: {:}'.format(line))
         
-        for key in apply_float:
-            for j in range(len(self.data_lists[key])):
-                self.data_lists[key][j] = float(self.data_lists[key][j])
-        for key in apply_date_change:
-            for j in range(len(self.data_lists[key])):
-                self.data_lists[key][j] = date_change(self.data_lists[key][j])
 
-    def _parse_header(self, line):
+    def _parse_header_line(self, line):
         """parse line with table header from JPL Horizons"""
         char_beg = {}
         char_end = {}
@@ -106,7 +109,7 @@ class Horizons(object):
             find = line.find(value)
             if find == -1:
                 raise ValueError('Header key not found: {:}'.format(value))
-            char_beg[key] = last_non_space_char_before(line, find) + 1
+            char_beg[key] = Utils.last_non_space_char_before(line, find) + 1
             char_end[key] = find + len(value)
         return (char_beg, char_end)
 
