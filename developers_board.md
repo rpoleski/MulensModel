@@ -70,7 +70,7 @@
 * 12: Event does not support chi2_0
 * 13: ModelParameters does not support frame_origin 
 * 16: MulensData does not support ra, dec. Event does not support coords (or ra, dec).
-
+* 17: Exposure time, integration over exposure time, time defined as center of integration
 
 ## Decisions we should make:
 
