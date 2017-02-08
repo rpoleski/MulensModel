@@ -2,12 +2,12 @@ import numpy as np
 
 from astropy.coordinates import SkyCoord
 import astropy.units as u
+from astropy.time import Time
 
 from MulensModel.utils import Utils
 
-#This must be broken now because nowhere does it ever convert string
-#time to 245XXXX time. This could be done using astropy.Time, but
-#should be stored as a value (i.e. time = Time(string).jd - JCY).
+#There is nothing that specifies Time reference frame and scale
+#(i.e. HJD_UTC vs. BJD_TDB.
 
 month_3letter_to_2digit = {
         'Jan' : '01',
@@ -119,7 +119,7 @@ class Horizons(object):
     def time(self):
         """return time vector in whatever format was input"""
         if self._time is None:
-            self._time = self.data_lists['date']
+            self._time = Time(self.data_lists['date'], format='iso').jd
         return self._time
 
     @ property 

@@ -8,6 +8,7 @@ from MulensModel.utils import Utils
 from MulensModel.horizons import Horizons
 
 #data_list and ephemrides_file must have the same time standard.
+#To implement: add_2450000 = T/F, mjd2hjd = T/F, add_2460000 = T/F
 class MulensData(object):
     def __init__(self, data_list=None, file_name=None,
                  mag_fmt="mag", coords=None, ra=None, dec=None, 
