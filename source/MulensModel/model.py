@@ -10,6 +10,10 @@ from astropy.time import Time
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.binarylensequation import BinaryLensEquation
 
+#JCY: some probable problems with annual parallax due to interface
+#with astropy functions get_body_barycentric and get_jd12. These must
+#depend on both reference frame and time standard. But it is only
+#possible to set time standard and jd vs. mjd.
 
 def dot(cartesian, vector):
     """dot product of Astropy CartersianRepresentation and np.array"""
@@ -295,7 +299,7 @@ class Model(object):
             body='earth', time=Time(time_ref,format='jd',scale='tdb')) 
         #seems that get_body_barycentric depends on time system, but there is
         #no way to set BJD_TDB in astropy.Time()
-        
+        #Likewise, get_jd12 depends on time system. 
 
         """
         the 3 lines below, that calculate velocity for t_0_par, are
@@ -320,6 +324,8 @@ class Model(object):
 
     def _annual_parallax_trajectory(self, dataset):
         """calcualate annual parallax component of trajectory"""
+        print('WARNING - Some probable problems with annual parallax due to interface with astropy functions get_body_barycentric and get_jd12. These must depend on both reference frame and time standard. But it is only possible to set time standard and jd vs. mjd. - JCY')
+
         if dataset not in self._delta_annual:
             self._get_delta_annual(dataset)
 

@@ -5,6 +5,9 @@ import astropy.units as u
 
 from MulensModel.utils import Utils
 
+#This must be broken now because nowhere does it ever convert string
+#time to 245XXXX time. This could be done using astropy.Time, but
+#should be stored as a value (i.e. time = Time(string).jd - JCY).
 
 month_3letter_to_2digit = {
         'Jan' : '01',

@@ -7,6 +7,7 @@ from astropy import units as u
 from MulensModel.utils import Utils
 from MulensModel.horizons import Horizons
 
+#data_list and ephemrides_file must have the same time standard.
 class MulensData(object):
     def __init__(self, data_list=None, file_name=None,
                  mag_fmt="mag", coords=None, ra=None, dec=None, 
