@@ -19,9 +19,7 @@ for path in sys.path:
     if path.find("MulensModel/source") > 0:
         MODULE_PATH = "/".join(path.split("/source")[:-1])
 SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
-data = MulensData(
-    file_name=SAMPLE_FILE_01, date_fmt='HJDprime',
-    coords="17:47:29.42 -34:43:35.6")
+data = MulensData(file_name=SAMPLE_FILE_01)
 
 #Initialize the fit
 parameters_to_fit = ["t_0", "u_0", "t_E"]
@@ -42,6 +40,7 @@ def lnlike(theta, event, parameters_to_fit):
 #Find the best-fit parameters
 result = op.minimize(lnlike, x0=[t_0, u_0, t_E], 
         args=(ev, parameters_to_fit), method='Nelder-Mead')
+print(result.x)
 fit_t_0, fit_u_0, fit_t_E = result.x
 
 #Save the best-fit parameters
@@ -52,7 +51,7 @@ chi2 = ev.get_chi2()
 #Output the fit parameters
 print(
     'Best Fit: t_0 = {0:12.5f}, u_0 = {1:6.4f}, t_E = {2:8.3f}'.format(
-        fit_t_0, fit_u_0, fit_tE))
+        fit_t_0, fit_u_0, fit_t_E))
 print('Chi2 = {0:12.2f}'.format(chi2))
 print('op.minimize result:')
 print(result)

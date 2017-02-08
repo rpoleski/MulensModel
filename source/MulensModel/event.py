@@ -89,7 +89,8 @@ class Event(object):
                 if dataset.coords is not None:
                     self._update_coords(coords=dataset.coords)
         if isinstance(new_value, MulensData):
-            self._update_coords(coords=new_value.coords)
+            if new_value.coords is not None:
+                self._update_coords(coords=new_value.coords)
             new_value = [new_value]
         if new_value is None:
             self._datasets = None

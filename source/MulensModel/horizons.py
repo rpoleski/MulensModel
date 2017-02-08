@@ -1,7 +1,6 @@
 import numpy as np
 
 from astropy.coordinates import SkyCoord
-from astropy.time import Time
 import astropy.units as u
 
 from MulensModel.utils import Utils
@@ -115,9 +114,9 @@ class Horizons(object):
 
     @ property
     def time(self):
-        """return HJD vector"""
+        """return time vector in whatever format was input"""
         if self._time is None:
-            self._time = Time(self.data_lists['date'], format='iso').jd - 2450000.
+            self._time = self.data_lists['date']
         return self._time
 
     @ property 

@@ -38,7 +38,7 @@ def test_model_coords():
 def test_data_coords():
     coords = SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
     data_1 = MulensData(
-        file_name=SAMPLE_FILE_01, date_fmt='jdprime',
+        file_name=SAMPLE_FILE_01,
         coords='18:00:00 -30:00:00')
     assert isinstance(data_1.coords, SkyCoord)
     assert data_1.coords.ra == coords.ra
@@ -49,22 +49,21 @@ def test_data_coords():
     dec_2 = '40:03:01'
     coords_2 = SkyCoord(
         '{0} {1}'.format(ra_2, dec_2), unit=(u.hourangle, u.deg))
-    data_2 = MulensData(file_name=SAMPLE_FILE_01, date_fmt='jdprime')
+    data_2 = MulensData(file_name=SAMPLE_FILE_01)
     data_2.ra = ra_2
     data_2.dec = dec_2
     assert data_2.coords.ra == coords_2.ra
     assert data_2.coords.dec == coords_2.dec
     assert data_2.coords.to_string('hmsdms') == '17h00m00s +40d03m01s'
-    assert data_2._time._target.to_string('hmsdms') == '17h00m00s +40d03m01s'
 
-    data_3 = MulensData(file_name=SAMPLE_FILE_01, date_fmt='jdprime')
+    data_3 = MulensData(file_name=SAMPLE_FILE_01)
     data_3.coords = '17:00:00 -27:32:14'
     assert data_3.coords.to_string('hmsdms') == '17h00m00s -27d32m14s'
 
 def test_event_coords():
     coord_str_event = '15h30m00s +45d00m00s'
     data = MulensData(
-        file_name=SAMPLE_FILE_01, date_fmt='jdprime', 
+        file_name=SAMPLE_FILE_01,
         coords='00:00:15 -75:30:15')
     model = Model()
 
@@ -84,6 +83,8 @@ def test_event_coords():
     event_3.model.coords = '5:10:15 20:25:30'
     new_coord_str = '05h10m15s +20d25m30s'
     assert event_3.model.coords.to_string('hmsdms') == new_coord_str
-    assert event_3.coords.to_string('hmsdms') == new_coord_str
-    assert event_3.datasets[0].coords.to_string('hmsdms') == new_coord_str
+    #assert event_3.coords.to_string('hmsdms') == new_coord_str
+    #assert event_3.datasets[0].coords.to_string('hmsdms') == new_coord_str
+    #I don't think this worked previously, and I don't think it should
+    #be allowed. - JCY
 

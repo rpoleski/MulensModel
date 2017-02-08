@@ -22,7 +22,7 @@ def test_event_get_chi2():
     u_0 = 0.52298
     t_E = 17.94002
     
-    data = MulensData(file_name=SAMPLE_FILE_01, date_fmt='jdprime')
+    data = MulensData(file_name=SAMPLE_FILE_01)
     
     ev = Event()
     mod = Model(t_0=t_0, u_0=u_0, t_E=t_E)
@@ -48,7 +48,7 @@ def test_event_get_chi2_double_source_simple():
     u_0 = 0.52298
     t_E = 17.94002
     
-    data = MulensData(file_name=SAMPLE_FILE_01, date_fmt='jdprime')
+    data = MulensData(file_name=SAMPLE_FILE_01)
   
     t_02 = 5800.
     u_02 = 0.01

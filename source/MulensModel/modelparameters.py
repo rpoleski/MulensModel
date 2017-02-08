@@ -1,7 +1,6 @@
 import numpy as np
 from astropy import units as u
 
-from MulensModel.mulenstime import MulensTime
 from MulensModel.mulensparallaxvector import MulensParallaxVector
 
 class ModelParameters(object):
@@ -116,21 +115,16 @@ class ModelParameters(object):
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
-        return self._t_0.time
+        return self._t_0
 
     @t_0.setter
     def t_0(self, new_t_0):
-        if isinstance(new_t_0, MulensTime):
-            self._t_0 = new_t_0
-        else:
-            self._t_0 = MulensTime(new_t_0, date_fmt="jdprime")
-            #self._t_0 = MulensTime(new_t_0, date_fmt="jd")
-            #self._t_0 = MulensTime(new_t_0, date_fmt="hjdprime") # XXX
+        self._t_0 = new_t_0
 
     @property
     def u_0(self):
         """
-        The time of minimum projected separation between the source
+        The minimum projected separation between the source
         and the lens center of mass.
         """
         if self._u_0 is not None:

@@ -5,9 +5,9 @@ from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy.coordinates import GeocentricTrueEcliptic
 from astropy import units as u
 from astropy import _erfa as erfa
+from astropy.time import Time
 
 from MulensModel.modelparameters import ModelParameters
-from MulensModel.mulenstime import MulensTime
 from MulensModel.binarylensequation import BinaryLensEquation
 
 
@@ -189,12 +189,7 @@ class Model(object):
 
     @t_0_par.setter
     def t_0_par(self, value):
-        if isinstance(value, MulensTime):
-            self._t_0_par = value
-        elif value is None:
-            self._t_0_par = None
-        else:
-            self._t_0_par = MulensTime(value)
+        self._t_0_par = value
         self.reset_magnification()
 
     @property
@@ -219,8 +214,7 @@ class Model(object):
         n_satellite = 0 
         for dataset in self._datasets:
             vector_tau = (
-                (dataset.time + dataset.time_zeropoint 
-                 - (self.t_0 + self._parameters._t_0.zeropoint)) #time
+                (dataset.time - self.t_0)
                 / self.t_E)
             vector_u = self.u_0 * np.ones(dataset.n_epochs)
 
@@ -295,19 +289,27 @@ class Model(object):
             msg2 = 'calculated if t_0_par is not set'
             raise ValueError(msg1 + msg2)
 
-        time_ref = self.t_0_par.astropy_time #time
-        position_ref = get_body_barycentric(body='earth', time=time_ref)
-        # the 3 lines below, that calculate velocity for t_0_par, are
-        # based on astropy 1.3
-        # https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
-        jd1, jd2 = get_jd12(time_ref, 'tdb')
+        time_ref = self.t_0_par
+
+        position_ref = get_body_barycentric(
+            body='earth', time=Time(time_ref,format='jd',scale='tdb')) 
+        #seems that get_body_barycentric depends on time system, but there is
+        #no way to set BJD_TDB in astropy.Time()
+        
+
+        """
+        the 3 lines below, that calculate velocity for t_0_par, are
+        based on astropy 1.3
+        https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
+        """
+        jd1, jd2 = get_jd12(Time(time_ref,format='jd',scale='tdb'), 'tdb')
         earth_pv_helio, earth_pv_bary = erfa.epv00(jd1, jd2)
         velocity = earth_pv_bary[..., 1, :] * u.au / u.day
         
         position = get_body_barycentric(
-            body='earth', time=dataset._time.astropy_time)
-        delta_time = dataset._time.astropy_time - time_ref
-        product = (np.outer(delta_time.to(u.d).value, velocity.value) 
+            body='earth', time=Time(dataset._time,format='jd', scale='tdb'))
+        delta_time = dataset._time - time_ref
+        product = (np.outer(delta_time, velocity.value) 
                    * u.d * velocity.unit)
         # We calculated product in this strange way because np.outer()
         # destroys information about units of its arguments.

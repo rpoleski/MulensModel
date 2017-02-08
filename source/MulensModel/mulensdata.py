@@ -5,15 +5,12 @@ from astropy.coordinates import SkyCoord, EarthLocation
 from astropy import units as u
 
 from MulensModel.utils import Utils
-from MulensModel.mulenstime import MulensTime
 from MulensModel.horizons import Horizons
 
-
 class MulensData(object):
-    def __init__(self, data_list=None, file_name=None, date_fmt="jd", 
+    def __init__(self, data_list=None, file_name=None,
                  mag_fmt="mag", coords=None, ra=None, dec=None, 
                  satellite=None, ephemrides_file=None):
-        date_fmt = date_fmt.lower()
         self._n_epochs = None  
         self._horizons = None
         self._satellite_skycoord = None
@@ -39,38 +36,38 @@ class MulensData(object):
             raise ValueError(m)
         elif data_list is not None:
             vector_1, vector_2, vector_3 = list(data_list) 
-            self._initialize(date_fmt, mag_fmt, time=vector_1, 
+            self._initialize(mag_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
         elif file_name is not None:
             vector_1, vector_2, vector_3 = np.loadtxt(
                 fname=file_name, unpack=True, usecols=(0,1,2))
-            self._initialize(date_fmt, mag_fmt, time=vector_1, 
+            self._initialize(mag_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
         
         if satellite is None:
             if ephemrides_file is not None:
-                raise ValueError("For datasets with satellite ephemerides file you have to provide satellite name")
+                raise ValueError(
+                    "For datasets with satellite ephemerides file you have"
+                    +" to provide satellite name")
             self.is_satellite = False 
         else:
             if ephemrides_file is None:
-                raise ValueError("Currently ephemerides_file has to be specified for each satellite dataset")
+                raise ValueError(
+                    "Currently ephemerides_file has to be specified for each"
+                    +" satellite dataset")
             self.ephemrides_file = ephemrides_file
             self.is_satellite = True
 
-    def _initialize(self, date_fmt, mag_fmt, time=None, brightness=None, 
+    def _initialize(self, mag_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):
         """internal function to initialized data using a few numpy arrays"""
-        self._time = MulensTime(time=time, date_fmt=date_fmt, coords=coords)
+        self._time = time
         self._n_epochs = len(time)
-        if len(brightness) != self._n_epochs or len(err_brightness) != self._n_epochs:
+        if ((len(brightness) != self._n_epochs) 
+            or (len(err_brightness) != self._n_epochs)):
             raise ValueError('input data in MulesData have different lengths')
-        if date_fmt == 'hjd' or date_fmt == 'hjdprime':
-            self._time_type = 'hjd'
-        else:
-            self._time_type = 'jd'
-        self._time_corr = None
         self._brightness_input = brightness
         self._brightness_input_err = err_brightness        
         self.input_fmt = mag_fmt
@@ -87,6 +84,7 @@ class MulensData(object):
         else:
             msg = 'unknown format of brightness in ' + file_name + ' file'
             raise ValueError(msg)
+
         self.bad = self.n_epochs * [False]
 
     @property
@@ -95,23 +93,9 @@ class MulensData(object):
         return self._n_epochs
 
     @property
-    def jd(self):
-        return self._time.jd
-
-    @property
-    def hjd(self):
-        """full HJD time vector"""
-        return self._time.hjd
-
-    @property
     def time(self):
         """short version of time vector"""
-        return self._time.jd - self._time.zeropoint
-
-    @property
-    def time_zeropoint(self):
-        """return the zeropoint of time vector"""
-        return self._time.zeropoint
+        return self._time
 
     @property
     def coords(self):
@@ -126,7 +110,6 @@ class MulensData(object):
             self._coords = new_value
         else:
             self._coords = SkyCoord(new_value, unit=(u.hourangle, u.deg))
-        self._time._target = self._coords
 
     @property
     def ra(self):
@@ -146,7 +129,6 @@ class MulensData(object):
             else:
                 self._coords = SkyCoord(
                     new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
-        self._time._target = self._coords
 
     @property
     def dec(self):
@@ -166,7 +148,6 @@ class MulensData(object):
             else:
                 self._coords = SkyCoord(
                     self._coords.ra, new_value, unit=(u.hourangle, u.deg))
-        self._time._target = self._coords
 
     @property
     def satellite_skycoord(self):
@@ -176,10 +157,12 @@ class MulensData(object):
         if self._satellite_skycoord is None:
             if self._horizons is None:
                 self._horizons = Horizons(self.ephemrides_file)
-            times = self.jd - 2450000.
-            x = np.interp(times, self._horizons.time, self._horizons.xyz.x)
-            y = np.interp(times, self._horizons.time, self._horizons.xyz.y)
-            z = np.interp(times, self._horizons.time, self._horizons.xyz.z)
+            x = np.interp(
+                self._times, self._horizons.time, self._horizons.xyz.x)
+            y = np.interp(
+                self._times, self._horizons.time, self._horizons.xyz.y)
+            z = np.interp(
+                self._times, self._horizons.time, self._horizons.xyz.z)
             self._satellite_skycoord = SkyCoord(x=x, y=y, z=z, representation='cartesian')
             self._satellite_skycoord.representation = 'spherical'
         return self._satellite_skycoord
