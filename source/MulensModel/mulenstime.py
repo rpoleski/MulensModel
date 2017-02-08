@@ -29,6 +29,7 @@ class MulensTime(object):
         # Set the date zeropoint if necessary
         if date_fmt is None:
             self._date_zeropoint = 0.
+            date_fmt = 'jd'
         else:
             self._date_zeropoint = self._get_date_zeropoint(
                 date_fmt=date_fmt.lower())
