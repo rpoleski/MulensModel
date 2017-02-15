@@ -15,13 +15,18 @@ class Horizons(object):
     def __init__(self, file_name=None):
         self._time = None
         self._xyz = None
-        self._names = {}
+        self._names = {} # This dictionary records the HORIZONS column names 
+                         # (values) and normal ways we understand them (keys).
         self._names['date'] = 'Date__(UT)__HR:MN'
         self._names['ra_dec'] = 'R.A._(ICRF/J2000.0)_DEC'
         self._names['distance'] = 'delta'
-        apply_float = ['distance']
-        apply_date_change = ['date']
-        self.data_lists = {}
+        apply_float = ['distance'] # List of columns to which float() 
+                                   # operator is applied.
+        apply_date_change = ['date'] # List of columns to which date
+                                     # format change function is applied. 
+        self.data_lists = {} # Dictionary with all the data read from 
+                             # HORIZONS table. Keys are the same as in 
+                             # self._names and values are lists of data read. 
         for key in self._names:
             self.data_lists[key] = []
             
@@ -43,30 +48,12 @@ class Horizons(object):
                 line = l[:-1]
                 if len(line) == 0:
                     continue
-                mode_save = mode
+                mode_save = mode # Value of mode variable is remembered before the line is parsed. 
+                
                 if line[0] == '$':
-                    if line == '$$SOE':
-                        if mode == 'header_done':
-                            mode = 'main'
-                        else:
-                            raise ValueError('error: {:}'.format(line))
-                    elif line == '$$EOE':
-                        if mode == 'main':
-                            mode = 'finished'
-                            break
-                        else:
-                            raise ValueError('error: {:}'.format(line))
-                    else:
-                        raise ValueError('unexpected input: {:}'.format(line))
+                    self._process_dollar_line(line, mode)
                 elif line[0] == '*':
-                    if len(line) != 79:
-                        if mode is None:
-                            mode = 'header'
-                        elif mode == 'header':
-                            mode = 'header_done'
-                    else:
-                        if mode == 'main':
-                            raise ValueError('error: {:}'.format(line))
+                    self._process_star_line(line, mode)
                         
                 if mode != mode_save:
                     continue # Mode has changed so current line is done. 
@@ -79,7 +66,33 @@ class Horizons(object):
                         self.data_lists[key].append(text)
                 elif mode != None:
                     raise ValueError('unexpected input: {:}'.format(line))
-        
+    
+    def _process_dollar_line(self, line, mode):
+        """deals with the line that starts with '$'"""
+        if line == '$$SOE': # $$SOE marks start of data table.
+            if mode == 'header_done':
+                mode = 'main'
+            else:
+                raise ValueError('error: {:}'.format(line))
+        elif line == '$$EOE': # $$EOE marks end of data table.
+            if mode == 'main':
+                mode = 'finished'
+                break
+            else:
+                raise ValueError('error: {:}'.format(line))
+        else:
+            raise ValueError('unexpected input: {:}'.format(line))        
+
+    def _process_star_line(self, line, mode):
+        """deals with the line that starts with '*'"""
+        if len(line) != 79:
+            if mode is None:
+                mode = 'header'
+            elif mode == 'header':
+                mode = 'header_done'
+        else:
+            if mode == 'main':
+                raise ValueError('error: {:}'.format(line))
 
     def _parse_header_line(self, line):
         """parse line with table header from JPL Horizons"""
@@ -105,7 +118,9 @@ class Horizons(object):
     def xyz(self):
         """return X,Y,Z positions"""
         if self._xyz is None:
-            self._xyz = SkyCoord(self.data_lists['ra_dec'], distance=self.data_lists['distance'], unit=(u.hourangle, u.deg, u.au)).cartesian
+            self._xyz = SkyCoord(self.data_lists['ra_dec'], 
+                                distance=self.data_lists['distance'], 
+                                unit=(u.hourangle, u.deg, u.au)).cartesian
         return self._xyz
 
 
