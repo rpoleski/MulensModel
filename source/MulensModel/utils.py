@@ -1,4 +1,6 @@
 import numpy as np
+from math import fsum
+
 from astropy import __version__ as astropy__version__
 
 MAG_ZEROPOINT = 22. # Defines magnitude at which flux = 1.
@@ -48,3 +50,11 @@ class Utils(object):
                 return i
         return -1
     last_non_space_char_before = staticmethod(last_non_space_char_before)
+
+    def complex_fsum(arguments):
+        """accurate floating points sum of complex numbers in iterable arguments"""
+        real = [arg.real for arg in arguments]
+        imag = [arg.imag for arg in arguments]
+        return fsum(real) + fsum(imag) * 1j
+    complex_fsum = staticmethod(complex_fsum)
+

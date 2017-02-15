@@ -1,7 +1,8 @@
-## Jan 2017 goals:
-1. Hexadecapole calculations.
-2. Time issues resolved.
+## Feb 2017 goals:
+1. Hexadecapole calculations (ensure correct coordinate system, quadrupole, output of root distances, remove binarylensequationapprox.py and binarylensequation.py)
+2. Time issues resolved (add\_2450000, mjd2hjd, jd12 time format, get\_body\_barycenter time format, time in horizons.py)
 3. Manual for PSPL fitting.
+4. Plotting in Model class.
 
 
 ## Specific tasks to be performed

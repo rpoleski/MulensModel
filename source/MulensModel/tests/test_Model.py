@@ -131,7 +131,7 @@ def do_annual_parallax_test(filename):
     dataset = MulensData([time, 20.+time*0., 0.1+time*0,])
     model.set_datasets([dataset])
     model.parallax(satellite=False, earth_orbital=True, topocentric=False)
-    return np.testing.assert_almost_equal(model.magnification[0], data[:,1], decimal=4)
+    return np.testing.assert_almost_equal(model.magnification[0] / data[:,1], 1.0, decimal=4)
 
 def test_annual_parallax_calculation_2():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)

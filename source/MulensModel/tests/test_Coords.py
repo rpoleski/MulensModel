@@ -88,3 +88,4 @@ def test_event_coords():
     #I don't think this worked previously, and I don't think it should
     #be allowed. - JCY
 
+
