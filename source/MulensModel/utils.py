@@ -56,4 +56,5 @@ class Utils(object):
         real = [arg.real for arg in arguments]
         imag = [arg.imag for arg in arguments]
         return fsum(real) + fsum(imag) * 1j
+    complex_fsum = staticmethod(complex_fsum)
 
