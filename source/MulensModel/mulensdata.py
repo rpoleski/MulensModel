@@ -8,14 +8,16 @@ from MulensModel.utils import Utils
 from MulensModel.horizons import Horizons
 
 #data_list and ephemrides_file must have the same time standard.
-#To implement: add_2450000 = T/F, mjd2hjd = T/F, add_2460000 = T/F
+#To implement: mjd2hjd = T/F
 class MulensData(object):
     def __init__(self, data_list=None, file_name=None,
                  mag_fmt="mag", coords=None, ra=None, dec=None, 
-                 satellite=None, ephemrides_file=None):
+                 satellite=None, ephemrides_file=None, add_2450000=False,
+                 add_2460000=False):
         self._n_epochs = None  
         self._horizons = None
         self._satellite_skycoord = None
+        self._init_keys = {'add245':add_2450000, 'add246':add_2460000}
 
         coords_msg = 'Must specify both or neither of ra and dec'
         self._coords = None
@@ -65,14 +67,22 @@ class MulensData(object):
     def _initialize(self, mag_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):
         """internal function to initialized data using a few numpy arrays"""
+        if self._init_keys['add245']:
+            time += 2450000.
+        elif self._init_keys['add246']:
+            time += 2460000.
+
         self._time = time
         self._n_epochs = len(time)
+
         if ((len(brightness) != self._n_epochs) 
             or (len(err_brightness) != self._n_epochs)):
             raise ValueError('input data in MulesData have different lengths')
+
         self._brightness_input = brightness
         self._brightness_input_err = err_brightness        
         self.input_fmt = mag_fmt
+
         if mag_fmt == "mag":
             self.mag = self._brightness_input
             self.err_mag = self._brightness_input_err
@@ -160,11 +170,11 @@ class MulensData(object):
             if self._horizons is None:
                 self._horizons = Horizons(self.ephemrides_file)
             x = np.interp(
-                self._times, self._horizons.time, self._horizons.xyz.x)
+                self._time, self._horizons.time, self._horizons.xyz.x)
             y = np.interp(
-                self._times, self._horizons.time, self._horizons.xyz.y)
+                self._time, self._horizons.time, self._horizons.xyz.y)
             z = np.interp(
-                self._times, self._horizons.time, self._horizons.xyz.z)
+                self._time, self._horizons.time, self._horizons.xyz.z)
             self._satellite_skycoord = SkyCoord(x=x, y=y, z=z, representation='cartesian')
             self._satellite_skycoord.representation = 'spherical'
         return self._satellite_skycoord
