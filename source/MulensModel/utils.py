@@ -3,7 +3,24 @@ from math import fsum
 
 from astropy import __version__ as astropy__version__
 
+
 MAG_ZEROPOINT = 22. # Defines magnitude at which flux = 1.
+
+month_3letter_to_2digit = {
+        'Jan' : '01',
+        'Feb' : '02',
+        'Mar' : '03',
+        'Apr' : '04',
+        'May' : '05',
+        'Jun' : '06',
+        'Jul' : '07',
+        'Aug' : '08',
+        'Sep' : '09',
+        'Oct' : '10',
+        'Nov' : '11',
+        'Dec' : '12'
+        }
+        
 
 class Utils(object):
     '''a number of small functions used in different places'''
@@ -42,6 +59,15 @@ class Utils(object):
             if int(current[i]) < int(required[i]):
                 return False
         return True
+        
+    def date_change(text):
+        """changes format: ' 2015-Oct-30 12:00' -> '2015-10-30 12:00' """
+        n1 = text.find("-")
+        n2 = text.rfind("-")
+        if n1 == -1 or n1 == n2:
+            raise ValueError("Can't run date_change() for {:}".format(text))
+        return text[1:n1+1] + month_3letter_to_2digit[text[n1+1:n2]] + text[n2:]    
+    date_change = staticmethod(date_change)
         
     def last_non_space_char_before(line, n_before):
         """find last non-space character before given character"""

@@ -11,30 +11,6 @@ from MulensModel.utils import Utils
 # Radek: See copy-pasted texts at the bottom of this file.
 
 
-month_3letter_to_2digit = {
-        'Jan' : '01',
-        'Feb' : '02',
-        'Mar' : '03',
-        'Apr' : '04',
-        'May' : '05',
-        'Jun' : '06',
-        'Jul' : '07',
-        'Aug' : '08',
-        'Sep' : '09',
-        'Oct' : '10',
-        'Nov' : '11',
-        'Dec' : '12'
-        }
-
-def date_change(text):
-    """changes format: ' 2015-Oct-30 12:00' -> '2015-10-30 12:00' """
-    n1 = text.find("-")
-    n2 = text.rfind("-")
-    if n1 == -1 or n1 == n2:
-        raise ValueError("Can't run date_change() for {:}".format(text))
-    return text[1:n1+1] + month_3letter_to_2digit[text[n1+1:n2]] + text[n2:]
-
-
 class Horizons(object):
     def __init__(self, file_name=None):
         self._time = None
@@ -56,7 +32,7 @@ class Horizons(object):
                 self.data_lists[key][j] = float(self.data_lists[key][j])
         for key in apply_date_change:
             for j in range(len(self.data_lists[key])):
-                self.data_lists[key][j] = date_change(self.data_lists[key][j])
+                self.data_lists[key][j] = Utils.date_change(self.data_lists[key][j])
 
     def _read_horizons_file(self, file_name):
         """reads standard output from JPL Horizons"""
