@@ -52,6 +52,9 @@ class Horizons(object):
                 
                 if line[0] == '$':
                     self._process_dollar_line(line, mode)
+                    if mode == 'finished': # Mode 'finished' means we have arrived at the line 
+                                           # that indicates end of data table
+                        break
                 elif line[0] == '*':
                     self._process_star_line(line, mode)
                         
@@ -77,7 +80,6 @@ class Horizons(object):
         elif line == '$$EOE': # $$EOE marks end of data table.
             if mode == 'main':
                 mode = 'finished'
-                break
             else:
                 raise ValueError('error: {:}'.format(line))
         else:
