@@ -67,6 +67,13 @@ class MulensData(object):
     def _initialize(self, mag_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):
         """internal function to initialized data using a few numpy arrays"""
+        n_additions = 0
+        for (key, value) in self._init_keys.items():
+            n_additions += value
+        if n_additions > 1:
+            msg = 'More than one delta time found in MulensData._initialize()'
+            raise ValueError(msg)
+
         if self._init_keys['add245']:
             time += 2450000.
         elif self._init_keys['add246']:
