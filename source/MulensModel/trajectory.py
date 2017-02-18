@@ -16,7 +16,10 @@ class Trajectory(object):
         coords=None, satellite_coords=None):
 
         #Save parameters
-        self.times = times
+        if isinstance(times, (list, tuple, np.ndarray)):
+            self.times = times
+        else:
+            self.times = np.array(times)
         self.parameters = parameters
         self.parallax = parallax
         self.t_0_par = t_0_par

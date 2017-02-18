@@ -3,6 +3,7 @@ from math import fsum
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 from astropy.coordinates import GeocentricTrueEcliptic
+import matplotlib.pyplot as pl
 
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -24,6 +25,11 @@ class Model(object):
     possible to define s, a_proj, and a source distance that are not
     self-consistent. Under these circumstances, the behavior may be
     unpredictable.
+
+    2. satellite parallax works for datasets, but not for
+    model. i.e. The satellite parallax will be calculated correctly
+    for the model evaluated at the data points, but satellite parallax
+    is not implemented for the model alone.
     """
 
     def __init__(self, parameters=None,
@@ -103,8 +109,9 @@ class Model(object):
         self._parallax = {'earth_orbital':False, 
                           'satellite':False, 
                           'topocentric':False}
-        self._delta_annual = {}
-        self._delta_satellite = {}
+        self._satellite_coords = None
+        #self._delta_annual = {}
+        #self._delta_satellite = {}
 
     @property
     def t_0(self):
@@ -197,6 +204,20 @@ class Model(object):
                 t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
                 pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
 
+    def magnification(self, time, satellite_coords=None):
+        """
+        calculate the model magnification for the given time(s).
+        """
+        if satellite_coords is None:
+            satellite_coords = self._satellite_coords
+
+        magnification_curve = MagnificationCurve(
+            time, parameters=self._parameters, 
+            parallax=self._parallax, t_0_par=self.t_0_par,
+            coords=self._coords, 
+            satellite_coords=satellite_coords)
+        return magnification_curve.magnification
+
     @property
     def data_magnification(self):
         """a list of magnifications calculated for every dataset time vector"""
@@ -211,12 +232,9 @@ class Model(object):
             else:
                 dataset_satellite_coords = None
 
-            magnification_curve = MagnificationCurve(
-                dataset.time, parameters=self._parameters, 
-                parallax=self._parallax, t_0_par=self.t_0_par,
-                coords=self._coords, 
-                satellite_coords=dataset_satellite_coords)
-            self._data_magnification.append(magnification_curve.magnification)
+            magnification = self.magnification(
+                dataset.time, satellite_coords=dataset_satellite_coords)
+            self._data_magnification.append(magnification)
 
         return self._data_magnification
         
@@ -310,6 +328,25 @@ class Model(object):
         self._parallax['topocentric'] = topocentric
 
 
+    def plot(self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
+        n_epochs=None,**kwargs):
+        """
+        plot the model light curve.
+        """
+        if times is None:
+            if t_range is not None:
+                t_start = t_range[0]
+                t_stop = t_range[1]
+
+            times = self.set_times(
+                parameters=self._parameters, t_start=t_start, t_stop=t_stop, dt=dt, 
+                n_epochs=n_epochs)
+
+        pl.plot(times, self.magnification(times),**kwargs)
+        pl.ylabel('Magnification')
+        pl.xlabel('Time')
+
+
     def set_times(
         self, parameters=None, t_start=None, t_stop=None, dt=None, 
         n_epochs=None):
@@ -321,13 +358,13 @@ class Model(object):
             #initialize t_start, t_stop, dt if not set
         n_tE = 1.5
         if t_start is None:
-            t_start = parameters.t_0 - (n_tE * parameters.t_E)
+            t_start = self.t_0 - (n_tE * self.t_E)
         if t_stop is None:
-            t_stop = parameters.t_0 + (n_tE * parameters.t_E)
+            t_stop = self.t_0 + (n_tE * self.t_E)
                 
         if dt is None:
             if n_epochs is None:
                 n_epochs = 1000
-            dt = (t_start - t_stop)/n_epochs
+            dt = (t_stop - t_start)/n_epochs
 
         return np.arange(t_start, t_stop+dt, dt)
