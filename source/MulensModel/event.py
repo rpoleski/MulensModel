@@ -104,7 +104,7 @@ class Event(object):
         """calculates chi^2 of current model by fitting for fs and fb"""
         #Define a Fit given the model and perform linear fit for fs and fb
         self.fit = Fit(data=self.datasets, 
-                       magnification=self.model.magnification) 
+                       magnification=self.model.data_magnification) 
         if fit_blending_all is not None:
             self.fit.fit_fluxes(fit_blending_all=fit_blending_all)
         else:

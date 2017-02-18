@@ -172,6 +172,7 @@ class MulensData(object):
     def satellite_skycoord(self):
         """return Astropy SkyCoord of satellite for epochs covered by the dataset"""
         if self.is_satellite is not True:
+            #Why not make this return None?
             raise ValueError("You're trying to get satellite information for dataset that has no satellite information")
         if self._satellite_skycoord is None:
             if self._horizons is None:
