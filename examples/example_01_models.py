@@ -1,7 +1,9 @@
-from MulensModel.model import Model
-
 import matplotlib.pyplot as pl
 import numpy as np
+
+import MulensModel
+from MulensModel.model import Model
+
 
 # Create a PSPL model
 t_0 = 3583.

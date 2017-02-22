@@ -5,14 +5,14 @@ from astropy.time import Time
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
+import MulensModel
 from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 
 
-for path in sys.path:
-    if path.find("MulensModel/source") > 0:
-        MODULE_PATH = "/".join(path.split("/source")[:-1])
+MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
+
 SAMPLE_FILE_02 = MODULE_PATH + "/data/phot_ob151100_OGLE_v1.dat" #HJD'
 SAMPLE_FILE_03 = MODULE_PATH + "/data/phot_ob151100_Spitzer_2_v2.dat" #HJD'
 SAMPLE_FILE_03_EPH = MODULE_PATH + "/data/Spitzer_ephemrides_01.dat" #UTC
