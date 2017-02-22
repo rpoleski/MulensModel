@@ -28,16 +28,24 @@ class Fit(object):
             n_sources (optional): the number of microlens sources
         """
         # Initialize self._datasets, self._magnification, and self._n_sources
-        self._datasets = data 
-        self._magnification = magnification
+        if isinstance(data, list):
+            self._datasets = data 
+        else:
+            self._datasets = [data]
+
+        if isinstance(magnification, list):
+            self._magnification = magnification
+        else:
+            self._magnificaiton = [magnification]
+
         if magnification is None and n_sources is None:
             raise ValueError('Fit class requires magnifications vectors' 
                     + ' or number of sources directly specified')
         self._n_sources = n_sources
         
-        #Set up dictionaries for flux parameters
+        #Set up numpy arrays for flux parameters
         self._flux_blending = dict()
-        self._flux_sources = dict()        
+        self._flux_sources = dict()
 
            
     def fit_fluxes(self, fit_blending_all=True):

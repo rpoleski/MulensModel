@@ -8,6 +8,8 @@ import matplotlib.pyplot as pl
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.utils import Utils
+from MulensModel.fit import Fit
+from MulensModel.mulensdata import MulensData
 
 #JCY: some probable problems with annual parallax due to interface
 #with astropy functions get_body_barycentric and get_jd12. These must
@@ -113,6 +115,9 @@ class Model(object):
         self._satellite_coords = None
         #self._delta_annual = {}
         #self._delta_satellite = {}
+
+    def __repr__(self):
+        return '{0}'.format(self._parameters)
 
     @property
     def t_0(self):
@@ -228,17 +233,25 @@ class Model(object):
         self._data_magnification = []
 
         for dataset in self._datasets:
-            if dataset.is_satellite:
-                dataset_satellite_coords = dataset.satellite_skycoord
-            else:
-                dataset_satellite_coords = None
-
-            magnification = self.magnification(
-                dataset.time, satellite_coords=dataset_satellite_coords)
+            magnification = self.get_data_magnification(dataset)
             self._data_magnification.append(magnification)
 
         return self._data_magnification
         
+    def get_data_magnification(self, dataset):
+        """
+        Get the model magnification for a given dataset.
+        """
+        if dataset.is_satellite:
+            dataset_satellite_coords = dataset.satellite_skycoord
+        else:
+            dataset_satellite_coords = None
+            
+        magnification = self.magnification(
+            dataset.time, satellite_coords=dataset_satellite_coords)
+        return magnification
+        
+
     def set_datasets(self, datasets):
         """set _datasets property"""
         self._datasets = datasets
@@ -357,12 +370,11 @@ class Model(object):
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
-        if data_ref is not None:
-            raise NotImplementedError('data_ref in model.plot_lc')
-        else:
-            if (f_source is None) or (f_blend is None):
-                raise AttributeError(
-                    'Either data_ref or f_source and f_blend must be set')
+        if (f_source is None) and (f_blend is None):
+            f_source, f_blend = self.get_ref_fluxes(data_ref=data_ref)
+        elif (f_source is None) or (f_blend is None):
+            raise AttributeError(
+                'If f_source is set, f_blend must also be set and vice versa.')
             
         flux = f_source * self.magnification(times) + f_blend
 
@@ -373,7 +385,39 @@ class Model(object):
         ymin, ymax = pl.gca().get_ylim()
         if ymax > ymin:
             pl.gca().invert_yaxis()
-        
+
+    def get_ref_fluxes(self, data_ref=None):
+        """
+        Determine the reference flux system from the
+        datasets. data_ref may either be a dataset or the index of a
+        dataset (if model.set_datasets() was previously called). If
+        data_ref is not set, it will use the first dataset. If you
+        call this without calling set_datasets() first, there will be
+        an exception and that's on you.
+        """
+        if data_ref is None:
+            data = self._datasets[0]
+        elif isinstance(data_ref, MulensData):
+            data = data_ref
+        else:
+            data = self._datasets[data_ref]
+
+        fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
+        fit.fit_fluxes()
+        f_source = fit._flux_sources[data]
+        f_blend = fit._flux_blending[data]
+
+        return f_source, f_blend
+
+    def plot_data(self, data_ref=None):
+        """
+        Plot the data scaled to the model. If data_ref is not
+        specified, uses the first dataset as the flux
+        reference. 
+        """
+
+        all_data_fit = Fit(
+            data=self._datasets, magnification=self.data_magnification())
 
     def set_times(
         self, parameters=None, t_range=None, t_start=None, t_stop=None, 

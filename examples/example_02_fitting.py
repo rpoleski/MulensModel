@@ -6,6 +6,7 @@ data file phot_ob08092_04.dat.
 import sys
 import numpy as np
 import scipy.optimize as op
+import matplotlib.pyplot as pl
 
 from MulensModel.mulensdata import MulensData
 from MulensModel.fit import Fit
@@ -35,6 +36,7 @@ ev = Event(datasets=data, model=model)
 def lnlike(theta, event, parameters_to_fit):
     for key, val in enumerate(parameters_to_fit):
         setattr(event.model, val, theta[key])
+    print('{0} {1}'.format(event.model,event.get_chi2()))
     return event.get_chi2()
         
 #Find the best-fit parameters
@@ -56,3 +58,18 @@ print('Chi2 = {0:12.2f}'.format(chi2))
 print('op.minimize result:')
 print(result)
 
+#Plot and compare the two models
+init_model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+final_model = Model(t_0=fit_t_0, u_0=fit_u_0, t_E=fit_t_E)
+pl.figure()
+init_model.plot_lc(data_ref=data)
+final_model.plot_lc(data_ref=data)
+
+#with the data
+"""
+pl.figure()
+ev.plot_model()
+ev.plot_data()
+"""
+
+pl.show()

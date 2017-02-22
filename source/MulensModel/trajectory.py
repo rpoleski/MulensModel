@@ -135,7 +135,7 @@ class Trajectory(object):
         east_projected = np.cross(north, direction)
         east_projected /= np.linalg.norm(east_projected)
         north_projected = np.cross(direction, east_projected)
-        satellite = self.satellite_skycoord
+        satellite = self.satellite_skycoord # This is not called
         # We want to be sure frames are the same.
         satellite.transform_to(frame=self._coords.frame) 
             
