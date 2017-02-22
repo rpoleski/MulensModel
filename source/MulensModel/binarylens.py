@@ -139,10 +139,12 @@ class BinaryLens(object):
                 source_x=source_x, source_y=source_y)
 
     def point_source_magnification(self, source_x, source_y):
-        """calculates point source magnification for given position"""
-        # Specify coordinate system convention!
+        """calculates point source magnification for given position
+        in a coordinate system where higher mass is at the origin
+        and lower mass is at (separation, 0)"""
         return self._point_source_Witt_Mao_95(
-                source_x=source_x, source_y=source_y)
+                source_x=source_x + self.separation / 2., 
+                source_y=source_y)
 
     def _get_magnification_w_plus(self, source_x, source_y, radius, 
                                   magnification_center=None):
@@ -213,7 +215,7 @@ if __name__ == '__main__':
     q = 0.00578
     m1 = 1. / (1. + q)
     m2 = q / (1. + q)
-    x = 1.38920106
+    x = 1.38920106 - s/2.
     y = 0.00189679
     rho = 0.001
     gamma = 0.5
