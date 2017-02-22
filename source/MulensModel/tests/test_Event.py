@@ -82,9 +82,6 @@ def test_event_get_chi2_double_source_simple():
  
 """
 def test_event_get_chi2():
-    """
-    If event.model is updated, the chi2 should change.
-    """
     #Generate a model
     t_0 = 5380.
     u_0 = 0.5

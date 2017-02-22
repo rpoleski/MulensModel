@@ -16,9 +16,6 @@ from MulensModel.mulensdata import MulensData
 #depend on both reference frame and time standard. But it is only
 #possible to set time standard and jd vs. mjd.
 
-def dot(cartesian, vector):
-    """dot product of Astropy CartersianRepresentation and np.array"""
-    return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
 
 
 class Model(object):
@@ -112,7 +109,7 @@ class Model(object):
         self._parallax = {'earth_orbital':False, 
                           'satellite':False, 
                           'topocentric':False}
-        self._satellite_coords = None
+        self._satellite_skycoord = None
         #self._delta_annual = {}
         #self._delta_satellite = {}
 
@@ -210,18 +207,18 @@ class Model(object):
                 t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
                 pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
 
-    def magnification(self, time, satellite_coords=None):
+    def magnification(self, time, satellite_skycoord=None):
         """
         calculate the model magnification for the given time(s).
         """
-        if satellite_coords is None:
-            satellite_coords = self._satellite_coords
+        if satellite_skycoord is None:
+            satellite_skycoord = self._satellite_skycoord
 
         magnification_curve = MagnificationCurve(
             time, parameters=self._parameters, 
             parallax=self._parallax, t_0_par=self.t_0_par,
             coords=self._coords, 
-            satellite_coords=satellite_coords)
+            satellite_skycoord=satellite_skycoord)
         return magnification_curve.magnification
 
     @property
@@ -243,12 +240,12 @@ class Model(object):
         Get the model magnification for a given dataset.
         """
         if dataset.is_satellite:
-            dataset_satellite_coords = dataset.satellite_skycoord
+            dataset_satellite_skycoord = dataset.satellite_skycoord
         else:
-            dataset_satellite_coords = None
+            dataset_satellite_skycoord = None
             
         magnification = self.magnification(
-            dataset.time, satellite_coords=dataset_satellite_coords)
+            dataset.time, satellite_skycoord=dataset_satellite_skycoord)
         return magnification
         
 

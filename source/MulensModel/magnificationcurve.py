@@ -10,13 +10,13 @@ class MagnificationCurve(object):
     """
     def __init__(
         self, times, parameters=None, parallax=None, t_0_par=None,
-        coords=None, satellite_coords=None):
+        coords=None, satellite_skycoord=None):
 
         self.times = times
         self.parameters = parameters
         self.trajectory = Trajectory(
             self.times, parameters=parameters, parallax=parallax, 
-            t_0_par=t_0_par, coords=coords, satellite_coords=satellite_coords)
+            t_0_par=t_0_par, coords=coords, satellite_skycoord=satellite_skycoord)
         self.get_magnification()
 
 

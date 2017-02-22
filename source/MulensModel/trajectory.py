@@ -5,6 +5,9 @@ from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy import _erfa as erfa
 from astropy.time import Time
 
+def dot(cartesian, vector):
+    """dot product of Astropy CartersianRepresentation and np.array"""
+    return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
 
 class Trajectory(object):
     """
@@ -14,7 +17,7 @@ class Trajectory(object):
     """
     def __init__(
         self, times, parameters=None, parallax=None, t_0_par=None,
-        coords=None, satellite_coords=None):
+        coords=None, satellite_skycoord=None):
 
         #Save parameters
         if isinstance(times, (list, tuple, np.ndarray)):
@@ -25,7 +28,7 @@ class Trajectory(object):
         self.parallax = parallax
         self.t_0_par = t_0_par
         self.coords = coords
-        self.satellite_coords = satellite_coords
+        self.satellite_skycoord = satellite_skycoord
 
         #Calculate trajectory
         self.get_xy()
@@ -46,11 +49,10 @@ class Trajectory(object):
             vector_u += delta_u
 
 
-        if self.parallax['satellite'] and self.satellite_coords is not None: 
+        if self.parallax['satellite'] and self.satellite_skycoord is not None: 
             [delta_tau, delta_u] = self._satellite_parallax_trajectory()
             vector_tau += delta_tau
             vector_u += delta_u
-            n_satellite += 1
 
         if self.parameters.n_lenses == 1:
             vector_x = vector_tau
@@ -137,7 +139,7 @@ class Trajectory(object):
         north_projected = np.cross(direction, east_projected)
         satellite = self.satellite_skycoord # This is not called
         # We want to be sure frames are the same.
-        satellite.transform_to(frame=self._coords.frame) 
+        satellite.transform_to(frame=self.coords.frame) 
             
         delta_satellite = {}
         delta_satellite['N'] = -dot(satellite.cartesian, north_projected)
