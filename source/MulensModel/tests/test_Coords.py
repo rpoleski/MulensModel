@@ -3,13 +3,13 @@ import numpy as np
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
+import MulensModel
 from MulensModel.model import Model
 from MulensModel.mulensdata import MulensData
 from MulensModel.event import Event
 
-for path in sys.path:
-    if path.find("MulensModel/source") > 0:
-        MODULE_PATH = "/".join(path.split("/source")[:-1])
+
+MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])        
 SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 
 def test_model_coords():

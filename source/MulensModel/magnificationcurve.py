@@ -1,6 +1,8 @@
 import numpy as np
+
 from MulensModel.trajectory import Trajectory
-from MulensModel.binarylensequation import BinaryLensEquation
+from MulensModel.binarylens import BinaryLens
+
 
 class MagnificationCurve(object):
     """
@@ -41,9 +43,15 @@ class MagnificationCurve(object):
         q = self.parameters.q
         m1 = 1. / (1. + q)
         m2 = q / (1. + q)
-        binary_lens_eq = BinaryLensEquation(
-            mass_1=m1, mass_2=m2, separation=self.parameters.s, 
-            source_x=self.trajectory.x, 
-            source_y=self.trajectory.y)
+        binary_lens = BinaryLens(mass_1=m1, mass_2=m2, 
+                                    separation=self.parameters.s)
         
-        return binary_lens_eq.total_magnification
+        magnification = []
+        for i in range(len(self.trajectory.x)):
+            x = self.trajectory.x
+            y = self.trajectory.y
+            m = binary_lens.point_source_magnification(source_x=x, source_y=y)
+            magnification.append(m)
+            
+        return np.array(magnification)
+        

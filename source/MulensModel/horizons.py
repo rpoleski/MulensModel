@@ -41,6 +41,7 @@ class Horizons(object):
 
     def _read_horizons_file(self, file_name):
         """reads standard output from JPL Horizons"""
+        mode_save = "START"
         with open(file_name) as in_file:
             mode = None # Other possible values are: 'header', 'header_done', 'main', and 'finished'.
             # This gives information in which part of the Horizons file we are currently in.
@@ -51,12 +52,12 @@ class Horizons(object):
                 mode_save = mode # Value of mode variable is remembered before the line is parsed. 
                 
                 if line[0] == '$':
-                    self._process_dollar_line(line, mode)
+                    mode = self._process_dollar_line(line, mode)
                     if mode == 'finished': # Mode 'finished' means we have arrived at the line 
                                            # that indicates end of data table
                         break
                 elif line[0] == '*':
-                    self._process_star_line(line, mode)
+                    mode = self._process_star_line(line, mode)
                         
                 if mode != mode_save:
                     continue # Mode has changed so current line is done. 
@@ -84,6 +85,7 @@ class Horizons(object):
                 raise ValueError('error: {:}'.format(line))
         else:
             raise ValueError('unexpected input: {:}'.format(line))        
+        return mode
 
     def _process_star_line(self, line, mode):
         """deals with the line that starts with '*'"""
@@ -95,6 +97,7 @@ class Horizons(object):
         else:
             if mode == 'main':
                 raise ValueError('error: {:}'.format(line))
+        return mode
 
     def _parse_header_line(self, line):
         """parse line with table header from JPL Horizons"""

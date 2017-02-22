@@ -5,6 +5,7 @@ from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy import _erfa as erfa
 from astropy.time import Time
 
+
 class Trajectory(object):
     """
     The (dimensionless) X, Y trajectory of the source in the
@@ -36,7 +37,7 @@ class Trajectory(object):
         """
         vector_tau = (
             (self.times - self.parameters.t_0)
-            / self.parameters.t_E)
+            / float(self.parameters.t_E))
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
         
         if self.parallax['earth_orbital']:
@@ -59,7 +60,6 @@ class Trajectory(object):
             cos_alpha = np.cos(self.parameters.alpha)
             vector_x = vector_u * sin_alpha - vector_tau * cos_alpha
             vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
-            vector_x += self.parameters.s / 2.
         else:
             raise Exception(
                 "trajectory for more than 2 lenses not handled yet")

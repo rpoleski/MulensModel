@@ -1,13 +1,14 @@
 #! /usr/bin/env python
 """
 Example usage of MulensModel to fit a point lens light curve to the
-data file phot_ob08092_04.dat.
+data file phot_ob08092_O4.dat.
 """
 import sys
 import numpy as np
 import scipy.optimize as op
 import matplotlib.pyplot as pl
 
+import MulensModel
 from MulensModel.mulensdata import MulensData
 from MulensModel.fit import Fit
 from MulensModel.event import Event
@@ -16,9 +17,7 @@ from MulensModel.utils import Utils
 
 
 #Read in the data file
-for path in sys.path:
-    if path.find("MulensModel/source") > 0:
-        MODULE_PATH = "/".join(path.split("/source")[:-1])
+MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
 SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 data = MulensData(file_name=SAMPLE_FILE_01)
 
