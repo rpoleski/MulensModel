@@ -36,7 +36,7 @@ class Trajectory(object):
         """
         vector_tau = (
             (self.times - self.parameters.t_0)
-            / self.parameters.t_E)
+            / float(self.parameters.t_E))
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
         
         if self.parallax['earth_orbital']:

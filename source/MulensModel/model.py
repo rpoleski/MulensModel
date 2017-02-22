@@ -397,6 +397,6 @@ class Model(object):
         if dt is None:
             if n_epochs is None:
                 n_epochs = 1000
-            dt = (t_stop - t_start)/n_epochs
+            dt = (t_stop - t_start) / float(n_epochs)
 
         return np.arange(t_start, t_stop+dt, dt)
