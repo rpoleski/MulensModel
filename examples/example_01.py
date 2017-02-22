@@ -56,3 +56,20 @@ print('Chi2 = {0:12.2f}'.format(chi2))
 print('op.minimize result:')
 print(result)
 
+#Plot the Results
+pl.figure()
+pl.title('Initial vs. Final Model')
+initial_model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+initial_model.plot(label='Initial',color='red', linestyle=':')
+ev.model.plot(label='Final',color='black', linestyle='-')
+pl.legend(loc='best')
+
+"""
+pl.figure()
+pl.title('Data and Fit')
+ev.plot(residuals=True,legend=True)
+"""
+pl.show()
+
+#Output the scaled data to a file (for making your own plots)
+ev.output_lightcurve()

@@ -7,6 +7,7 @@ import matplotlib.pyplot as pl
 
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
+from MulensModel.utils import Utils
 
 #JCY: some probable problems with annual parallax due to interface
 #with astropy functions get_body_barycentric and get_jd12. These must
@@ -328,34 +329,65 @@ class Model(object):
         self._parallax['topocentric'] = topocentric
 
 
-    def plot(self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None,**kwargs):
+    def plot_magnification(
+        self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
+        n_epochs=None, **kwargs):
         """
-        plot the model light curve.
+        plot the model magnification curve.
         """
         if times is None:
-            if t_range is not None:
-                t_start = t_range[0]
-                t_stop = t_range[1]
-
             times = self.set_times(
-                parameters=self._parameters, t_start=t_start, t_stop=t_stop, dt=dt, 
+                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
         pl.plot(times, self.magnification(times),**kwargs)
         pl.ylabel('Magnification')
         pl.xlabel('Time')
 
+    def plot_lc(
+        self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
+        n_epochs=None, data_ref=None, f_source=None, f_blend=None, **kwargs):
+        """
+        plot the model light curve in magnitudes.
+        """
+        if times is None:
+            times = self.set_times(
+                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_stop=t_stop, dt=dt, 
+                n_epochs=n_epochs)
+
+        if data_ref is not None:
+            raise NotImplementedError('data_ref in model.plot_lc')
+        else:
+            if (f_source is None) or (f_blend is None):
+                raise AttributeError(
+                    'Either data_ref or f_source and f_blend must be set')
+            
+        flux = f_source * self.magnification(times) + f_blend
+
+        pl.plot(times, Utils.get_mag_from_flux(flux),**kwargs)
+        pl.ylabel('Magnitude')
+        pl.xlabel('Time')
+        
+        ymin, ymax = pl.gca().get_ylim()
+        if ymax > ymin:
+            pl.gca().invert_yaxis()
+        
 
     def set_times(
-        self, parameters=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None):
+        self, parameters=None, t_range=None, t_start=None, t_stop=None, 
+        dt=None, n_epochs=None):
         """
         If given, set up a time vector based on t_start, t_stop,
         and (dt or n_epochs). If not given, intialize the time
         vector based on the model parameters.
         """
             #initialize t_start, t_stop, dt if not set
+        if t_range is not None:
+            t_start = t_range[0]
+            t_stop = t_range[1]
+
         n_tE = 1.5
         if t_start is None:
             t_start = self.t_0 - (n_tE * self.t_E)

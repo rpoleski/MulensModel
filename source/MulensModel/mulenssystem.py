@@ -131,7 +131,7 @@ class MulensSystem(object):
             parameters.s = self.lens.s
             parameters.alpha = alpha
         model = Model(parameters=parameters)
-        pl.plot(model.time, model.magnification)#don't think this works
+        model.plot_magnification()
 
 if __name__ == "__main__":
     import astropy.units as u

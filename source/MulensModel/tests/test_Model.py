@@ -34,7 +34,7 @@ def test_model_PSPL_1():
     model.u_0 = u_0
     model.t_E = t_E
     model.set_datasets([data])
-    np.testing.assert_almost_equal(model.magnification, [
+    np.testing.assert_almost_equal(model.data_magnification, [
             np.array([1.028720763, 2.10290259, 1.26317278])], 
             err_msg="PSPL model returns wrong values")
 
@@ -110,8 +110,8 @@ def test_annual_parallax_calculation():
     model_no_par.set_datasets([data])
     model_no_par.parallax(satellite=False, earth_orbital=False, topocentric=False)
     
-    np.testing.assert_almost_equal(model_no_par.magnification, true_no_par)
-    np.testing.assert_almost_equal(model_with_par.magnification, true_with_par, decimal=4)
+    np.testing.assert_almost_equal(model_no_par.data_magnification, true_no_par)
+    np.testing.assert_almost_equal(model_with_par.data_magnification, true_with_par, decimal=4)
 
 def do_annual_parallax_test(filename):
     file = open(filename)
@@ -127,11 +127,11 @@ def do_annual_parallax_test(filename):
         coords=SkyCoord(
             event_params[1]+' '+event_params[2], unit=(u.deg, u.deg)))
     model.t_0_par = float(ulens_params[2])+2450000.
-    time = data[:,0]+2450000.
-    dataset = MulensData([time, 20.+time*0., 0.1+time*0,])
+    time = data[:,0]
+    dataset = MulensData([time, 20.+time*0., 0.1+time*0,], add_2450000=True)
     model.set_datasets([dataset])
     model.parallax(satellite=False, earth_orbital=True, topocentric=False)
-    return np.testing.assert_almost_equal(model.magnification[0] / data[:,1], 1.0, decimal=4)
+    return np.testing.assert_almost_equal(model.data_magnification[0] / data[:,1], 1.0, decimal=4)
 
 def test_annual_parallax_calculation_2():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)
@@ -142,25 +142,23 @@ def test_annual_parallax_calculation_3():
 def test_annual_parallax_calculation_4():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
 
-"""
+
 #This unit test needs to be reworked so all data sets and ephemerides files are on the same 245XXXX time system.
 def test_satellite_and_annual_parallax_calculation():
     model_with_par = Model(t_0=2457181.93930, u_0=0.08858, t_E=20.23090, pi_E_N=-0.05413, pi_E_E=-0.16434, coords="18:17:54.74 -22:59:33.4")
     model_with_par.parallax(satellite=True, earth_orbital=True, topocentric=False)
     model_with_par.t_0_par = 2457181.9
 
-    data_OGLE = MulensData(file_name=SAMPLE_FILE_02)
-    data_OGLE._time += 2450000.
-    data_Spitzer = MulensData(file_name=SAMPLE_FILE_03,satellite="Spitzer", ephemrides_file=SAMPLE_FILE_03_EPH)
-    data_Spitzer._time += 2450000.
+    data_OGLE = MulensData(file_name=SAMPLE_FILE_02,add_2450000=True)
+    data_Spitzer = MulensData(file_name=SAMPLE_FILE_03,satellite="Spitzer", ephemrides_file=SAMPLE_FILE_03_EPH,add_2450000=True)
     model_with_par.set_datasets([data_OGLE, data_Spitzer])
 
     ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True, usecols=[5])
     ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True, usecols=[5])
 
-    np.testing.assert_almost_equal(model_with_par.magnification[0], ref_OGLE, decimal=2)
-    np.testing.assert_almost_equal(model_with_par.magnification[1]/ref_Spitzer, np.array([1]*len(ref_Spitzer)), decimal=3)
-"""
+    np.testing.assert_almost_equal(model_with_par.data_magnification[0], ref_OGLE, decimal=2)
+    np.testing.assert_almost_equal(model_with_par.data_magnification[1]/ref_Spitzer, np.array([1]*len(ref_Spitzer)), decimal=3)
+
 
 def test_init_parameters():
     t_0 = 6141.593
@@ -178,7 +176,7 @@ def test_BLPS_01():
     t = np.array([6112.5])
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
-    m = model.magnification[0][0]
+    m = model.data_magnification[0][0]
     np.testing.assert_almost_equal(m, 4.691830781584699) # This value comes from early version of this code.
     # np.testing.assert_almost_equal(m, 4.710563917) # This value comes from Andy's getbinp().
     
