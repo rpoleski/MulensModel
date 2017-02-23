@@ -16,7 +16,6 @@
 * __correct vector\_tau = (...) in Model.\_trajectory__
 * example usage of JPL Horizons
 * single Event can have many instances of Model associated with it
-* trajectory.py - move dot() somewhere else
 * __horizons.py - change "Time(...).jd - 2450000" to something normal__
 * __MulensData - change "self.jd - 2450000." to something normal__
 * add unit tests for Horizons and MulensData.satellite\_skycoord

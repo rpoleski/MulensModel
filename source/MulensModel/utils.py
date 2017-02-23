@@ -84,3 +84,8 @@ class Utils(object):
         return fsum(real) + fsum(imag) * 1j
     complex_fsum = staticmethod(complex_fsum)
 
+    def dot(cartesian, vector):
+        """dot product of Astropy CartersianRepresentation and np.array"""
+        return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
+    dot = staticmethod(dot)
+    

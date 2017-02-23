@@ -5,9 +5,8 @@ from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy import _erfa as erfa
 from astropy.time import Time
 
-def dot(cartesian, vector):
-    """dot product of Astropy CartersianRepresentation and np.array"""
-    return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
+from MulensModel import utils
+
 
 class Trajectory(object):
     """
@@ -142,6 +141,7 @@ class Trajectory(object):
         satellite.transform_to(frame=self.coords.frame) 
             
         delta_satellite = {}
+        dot = utils.Utils.dot
         delta_satellite['N'] = -dot(satellite.cartesian, north_projected)
         delta_satellite['E'] = -dot(satellite.cartesian, east_projected)
         delta_satellite['D'] = -dot(satellite.cartesian, direction)
