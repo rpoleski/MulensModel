@@ -17,9 +17,15 @@ class MagnificationCurve(object):
         self.trajectory = Trajectory(
             self.times, parameters=parameters, parallax=parallax, 
             t_0_par=t_0_par, coords=coords, satellite_skycoord=satellite_skycoord)
-        self.get_magnification()
+        self._magnification = None
+            
+    @property
+    def magnification(self):
+        """provide vector of magnifications"""
+        return self.get_magnification()
 
     def get_magnification(self):
+        """calculate magnification"""
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -27,8 +33,8 @@ class MagnificationCurve(object):
         else:
             raise Exception(
                 "magnification for more than 2 lenses not handled yet")
-        self.magnification = magnification
-        return self.magnification
+        self._magnification = magnification
+        return self._magnification
 
     def get_point_lens_magnification(self):
         """Calculate the Point Lens magnification. """
