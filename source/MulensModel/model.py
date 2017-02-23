@@ -33,8 +33,8 @@ class Model(object):
     """
 
     def __init__(self, parameters=None,
-                 t_0=None, u_0=None, t_E=None, rho=None, s=None, q=None,
-                 alpha=None,
+                 t_0=None, u_0=None, t_E=None, rho=None, 
+                 s=None, q=None, alpha=None,
                  pi_E=None, pi_E_N=None, pi_E_E=None,
                  pi_E_ref=None, t_0_par=None, 
                  coords=None, ra=None, dec=None):
@@ -65,6 +65,12 @@ class Model(object):
             self.t_E = t_E
         if rho is not None:
             self.rho = rho
+        if s is not None:
+            self.s = s
+        if q is not None:
+            self.q = q
+        if alpha is not None:
+            self.alpha = alpha
         self.t_0_par = t_0_par
         
         # Set the parallax
@@ -197,6 +203,33 @@ class Model(object):
         self._t_0_par = value
 
     @property
+    def s(self):
+        """lens components separation in units of theta_E"""
+        return self._parameters.s
+
+    @s.setter
+    def s(self, value):
+        self._parameters.s = value
+
+    @property
+    def q(self):
+        """mass ratio of lens components"""
+        return self._parameters.q
+
+    @q.setter
+    def q(self, value):
+        self._parameters.q = value
+
+    @property
+    def alpha(self):
+        """angle between lens axis and source trajectory"""
+        return self._parameters.alpha
+
+    @alpha.setter
+    def alpha(self, value):
+        self._parameters.alpha = value
+
+    @property
     def parameters(
         self, t_0=0., u_0=None, t_E=1., rho=None, s=None, q=None, alpha=None, 
         pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
@@ -248,7 +281,6 @@ class Model(object):
             dataset.time, satellite_skycoord=dataset_satellite_skycoord)
         return magnification
         
-
     def set_datasets(self, datasets):
         """set _datasets property"""
         self._datasets = datasets
@@ -310,8 +342,8 @@ class Model(object):
     def galactic_l(self):
         """Galactic longitude"""
         l = self._coords.galactic.l
-        if l > 180.*u.deg:
-            l = l - 360*u.deg
+        if l > 180. * u.deg:
+            l = l - 360. * u.deg
         return l
 
     @property
@@ -441,3 +473,4 @@ class Model(object):
             dt = (t_stop - t_start) / float(n_epochs)
 
         return np.arange(t_start, t_stop+dt, dt)
+

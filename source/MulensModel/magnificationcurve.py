@@ -19,7 +19,6 @@ class MagnificationCurve(object):
             t_0_par=t_0_par, coords=coords, satellite_skycoord=satellite_skycoord)
         self.get_magnification()
 
-
     def get_magnification(self):
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
@@ -31,13 +30,11 @@ class MagnificationCurve(object):
         self.magnification = magnification
         return self.magnification
 
-
     def get_point_lens_magnification(self):
         """Calculate the Point Lens magnification. """
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
         return (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
     
-
     def get_binary_lens_magnification(self):
         """Calculate the Binary magnification. """
         q = self.parameters.q
@@ -48,8 +45,8 @@ class MagnificationCurve(object):
         
         magnification = []
         for i in range(len(self.trajectory.x)):
-            x = self.trajectory.x
-            y = self.trajectory.y
+            x = self.trajectory.x[i]
+            y = self.trajectory.y[i]
             m = binary_lens.point_source_magnification(source_x=x, source_y=y)
             magnification.append(m)
             
