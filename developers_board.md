@@ -1,6 +1,6 @@
 ## Feb 2017 goals:
-1. Hexadecapole calculations (ensure correct coordinate system, quadrupole, output of root distances, remove binarylensequationapprox.py and binarylensequation.py)
-2. Time issues resolved (add\_2450000, mjd2hjd, jd12 time format, get\_body\_barycenter time format, time in horizons.py)
+1. Hexadecapole calculations (quadrupole, output of root distances, hexadecapole tests)
+2. Time issues resolved (mjd2hjd, jd12 time format, get\_body\_barycenter time format, time in horizons.py)
 3. Manual for PSPL fitting.
 4. Plotting in Model class.
 
@@ -10,29 +10,23 @@
 
 * __Hexadecapole__
 * __PSPL manual__
-* __BinaryLensEquation() - define conventiones for source X/Y and positions of lens components__
 * __binary calculations - define if s is relative to total mass etc.__
 * BinaryLensEquation() - accurate summation instead of sum() or just normal "a+b"
-* __should BinaryLensEquation() accept source\_x/y as lists or arrays?__
+* __should BinaryLens() accept source\_x/y as lists or arrays?__
 * __correct vector\_tau = (...) in Model.\_trajectory__
 * example usage of JPL Horizons
-* __store time information in the format it was input?__
 * single Event can have many instances of Model associated with it
-* __add set\_default\_date\_fmt()__
-* model.py - move dot() somewhere else
+* trajectory.py - move dot() somewhere else
 * __horizons.py - change "Time(...).jd - 2450000" to something normal__
 * __MulensData - change "self.jd - 2450000." to something normal__
-* add unit tests for Horizons and MulensData.satellite_skycoord
-* move some parts of horizons.py to utils.py
+* add unit tests for Horizons and MulensData.satellite\_skycoord
 * check if Horizons e-mail is for correct satellite
 * guessing parameters of PSPL model
 * __start manual preparations__
 * anything from use cases at the end of this page
 * fluxes fixed in chi^2 calculation
 * annual parallax calculation - verify with VBB
-* replace Model.reset\_magnification() with remembering parameters for calculated model in an instance of ModelParameters
 * when checking units use Unit.physical\_type
-* __full test of HJD-JD correction in MulensData and Fit__
 * one test file per class
 * pass datasets from Event to Model or vice versa
 * does every function have a description? 
