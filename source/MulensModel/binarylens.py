@@ -186,11 +186,15 @@ class BinaryLens(object):
                                     source_x=source_x, source_y=source_y)
         return 0.25 * fsum(out) - magnification_center
 
-    def hexadecapole_magnification(self, source_x, source_y, 
-                                    rho, gamma, quadrupole=False):
+    def hexadecapole_magnification(self, source_x, source_y, rho, gamma, 
+                                  quadrupole=False, all_approximations=False):
         """hexadecpole approximation of binary-lens/finite-source 
         calculations - based on Gould 2008 ApJ 681, 1593"""
         # In this function, variables named a_* depict magnification.
+        if quadrupole and all_approximations:
+            msg = 'Inconsisient parameters of {:}'
+            raise ValueError(msg.format('BinaryLens.hexadecapole_magnification()'))
+        
         a_center = self.point_source_magnification(
                                     source_x=source_x, source_y=source_y)
         a_rho_half_plus = self._get_magnification_w_plus(source_x=source_x, 
@@ -204,11 +208,11 @@ class BinaryLens(object):
         a_2_rho_square = (16. * a_rho_half_plus - a_rho_plus) / 3. 
         
         # Gould 2008 eq. 6 (part 1/2):
-        a_finite = a_center + a_2_rho_square * (1. - 0.2 * gamma)
+        a_quadrupole = a_center + a_2_rho_square * (1. - 0.2 * gamma)
         
-        # At this point, a_finite is quadrupole approximation.
+        # At this point is quadrupole approximation is finished
         if quadrupole:
-            return a_finite
+            return a_quadrupole
         
         a_rho_times = self._get_magnification_w_times(source_x=source_x, 
                                                 source_y=source_y, radius=rho, 
@@ -217,8 +221,13 @@ class BinaryLens(object):
         # This is Gould (2008) eq. 9:
         a_4_rho_power4 = 0.5 * (a_rho_plus + a_rho_times) - a_2_rho_square
         # This is Gould (2008) eq. 6 (part 2/2):
-        a_finite += a_4_rho_power4 * (1. - 11. * gamma / 35.)
-        return a_finite
+        a_add = a_4_rho_power4 * (1. - 11. * gamma / 35.)
+        a_hexadecapole = a_quadrupole + a_add
+        
+        if all_approximations:
+            return (a_hexadecapole, a_quadrupole, a_center)
+        else:
+            return a_hexadecapole
         
 
 if __name__ == '__main__':
@@ -238,4 +247,6 @@ if __name__ == '__main__':
     print(aa)
     aaa = bl.hexadecapole_magnification(x, y, rho, gamma, quadrupole=True)
     print(aaa)
+    aaaa = bl.hexadecapole_magnification(x, y, rho, gamma, all_approximations=True)
+    print(aaaa)
     
