@@ -85,7 +85,7 @@ class BinaryLens(object):
             self._last_polynomial_input = polynomial_input
         return self._polynomial_roots_WM95
 
-    def _polynomial_roots_ok_WM95(self, source_x, source_y):
+    def _polynomial_roots_ok_WM95(self, source_x, source_y, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots_WM95(source_x=source_x, 
                                                    source_y=source_y)
@@ -97,19 +97,26 @@ class BinaryLens(object):
         # This backs-up the lens equation.
         
         out = []
+        distances = []
         for (i, root) in enumerate(roots):
-            min_distance_arg = np.argmin(abs((solutions-root)**2)) #Can we use Utils.complex_fsum()-like function here?
+            distances_from_root = abs((solutions-root)**2)
+            min_distance_arg = np.argmin(distances_from_root) #Can we use Utils.complex_fsum()-like function here?
             if i == min_distance_arg:
                 out.append(root)
-        # The values of abs((solutions-root)**2) are a diagnostic on how good the numerical accuracy is.
+                distances.append(distances_from_root[min_distance_arg])
+        # The values in distances[] are a diagnostic on how good the numerical accuracy is.
 
         if len(out) not in [3, 5]:
             msg = 'CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: {:} {:} {:} {:} {:}'
             txt = msg.format(repr(self.mass_1), repr(self.mass_2), 
                     repr(self.separation), repr(source_x), repr(source_y))
             # The repr() function gives absolute accuracy of float values allowing reproducing the results. 
-            raise ValueError(txt)            
-        return np.array(out)
+            raise ValueError(txt)
+        
+        if return_distances:
+            return (np.array(out), np.array(distances))
+        else:
+            return np.array(out)
         
     def _jacobian_determinant_ok_WM95(self, source_x, source_y):
         """determinants of lens equation Jacobian for verified roots"""
