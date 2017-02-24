@@ -1,5 +1,5 @@
 ## Feb 2017 goals:
-1. Hexadecapole calculations (quadrupole, output of root distances, hexadecapole tests)
+1. Hexadecapole calculations (output of root distances, hexadecapole tests)
 2. Time issues resolved (mjd2hjd, jd12 time format, get\_body\_barycenter time format, time in horizons.py)
 3. Manual for PSPL fitting.
 4. Plotting in Model class.

@@ -179,7 +179,8 @@ class BinaryLens(object):
                                     source_x=source_x, source_y=source_y)
         return 0.25 * fsum(out) - magnification_center
 
-    def hexadecapole_magnification(self, source_x, source_y, rho, gamma):
+    def hexadecapole_magnification(self, source_x, source_y, 
+                                    rho, gamma, quadrupole=False):
         """hexadecpole approximation of binary-lens/finite-source 
         calculations - based on Gould 2008 ApJ 681, 1593"""
         # In this function, variables named a_* depict magnification.
@@ -197,7 +198,10 @@ class BinaryLens(object):
         
         # Gould 2008 eq. 6 (part 1/2):
         a_finite = a_center + a_2_rho_square * (1. - 0.2 * gamma)
+        
         # At this point, a_finite is quadrupole approximation.
+        if quadrupole:
+            return a_finite
         
         a_rho_times = self._get_magnification_w_times(source_x=source_x, 
                                                 source_y=source_y, radius=rho, 
@@ -225,4 +229,6 @@ if __name__ == '__main__':
     print(a)
     aa = bl.hexadecapole_magnification(x, y, rho, gamma)
     print(aa)
+    aaa = bl.hexadecapole_magnification(x, y, rho, gamma, quadrupole=True)
+    print(aaa)
     
