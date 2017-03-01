@@ -6,122 +6,90 @@ from astropy.time import Time
 
 from MulensModel.utils import Utils
 
-#There is nothing that specifies Time reference frame and scale
-#(i.e. HJD_UTC vs. BJD_TDB.
-# Radek: See copy-pasted texts at the bottom of this file.
-
+"""
+All of the documentation Radek could find on Time reference frames and
+scales (e.g. HJD_UTC vs. BJD_TDB) for astropy.Time and JPL Horizons
+are copied at the end of this file.
+"""
 
 class Horizons(object):
+    """
+    An Object to read and hold the standard JPL Horizons output,
+    i.e. satellite ephemerides.
+    """
+
     def __init__(self, file_name=None):
+        """
+        set up a Horizons object using file_name. Reads in, converts,
+        and stores the file.
+        """
+        #initialize components
         self._time = None
         self._xyz = None
-        self._names = {} # This dictionary records the HORIZONS column names 
-                         # (values) and normal ways we understand them (keys).
-        self._names['date'] = 'Date__(UT)__HR:MN'
-        self._names['ra_dec'] = 'R.A._(ICRF/J2000.0)_DEC'
-        self._names['distance'] = 'delta'
-        apply_float = ['distance'] # List of columns to which float() 
-                                   # operator is applied.
-        apply_date_change = ['date'] # List of columns to which date
-                                     # format change function is applied. 
-        self.data_lists = {} # Dictionary with all the data read from 
-                             # HORIZONS table. Keys are the same as in 
-                             # self._names and values are lists of data read. 
-        for key in self._names:
-            self.data_lists[key] = []
-            
-        self._read_horizons_file(file_name)
+
+        #Read in the Horizons file
+        self.file_properties = {"file_name":file_name}
+        self._read_horizons_file()
         
-        for key in apply_float:
-            for j in range(len(self.data_lists[key])):
-                self.data_lists[key][j] = float(self.data_lists[key][j])
-        for key in apply_date_change:
-            for j in range(len(self.data_lists[key])):
-                self.data_lists[key][j] = Utils.date_change(self.data_lists[key][j])
+    def _get_start_end(self):
+        """
+        Find the start (self.start_ind) and end (self.stop_ind) points
+        for the data in the Horizons file (i.e. the end of the header
+        and beginning of the footer). Also counts the lines in the
+        file. (self.line_count)
+        """
+        in_file = open(self.file_properties['file_name'], 'r')
+        self.file_properties['line_count'] = 0
+        for i, line in enumerate(in_file):
+            #Check for "start data" string
+            if line[0:5] == '$$SOE':
+                self.file_properties['start_ind'] = i
 
-    def _read_horizons_file(self, file_name):
-        """reads standard output from JPL Horizons"""
-        mode_save = "START"
-        with open(file_name) as in_file:
-            mode = None # Other possible values are: 'header', 'header_done', 'main', and 'finished'.
-            # This gives information in which part of the Horizons file we are currently in.
-            for l in in_file.readlines():
-                line = l[:-1]
-                if len(line) == 0:
-                    continue
-                mode_save = mode # Value of mode variable is remembered before the line is parsed. 
-                
-                if line[0] == '$':
-                    mode = self._process_dollar_line(line, mode)
-                    if mode == 'finished': # Mode 'finished' means we have arrived at the line 
-                                           # that indicates end of data table
-                        break
-                elif line[0] == '*':
-                    mode = self._process_star_line(line, mode)
-                        
-                if mode != mode_save:
-                    continue # Mode has changed so current line is done. 
-                    
-                if mode == 'header':
-                    (char_beg, char_end) = self._parse_header_line(line)
-                elif mode == 'main': # This is where we parse main data table.
-                    for key, value in char_beg.items():
-                        text = line[value:char_end[key]]
-                        self.data_lists[key].append(text)
-                elif mode != None:
-                    raise ValueError('unexpected input: {:}'.format(line))
-    
-    def _process_dollar_line(self, line, mode):
-        """deals with the line that starts with '$'"""
-        if line == '$$SOE': # $$SOE marks start of data table.
-            if mode == 'header_done':
-                mode = 'main'
-            else:
-                raise ValueError('error: {:}'.format(line))
-        elif line == '$$EOE': # $$EOE marks end of data table.
-            if mode == 'main':
-                mode = 'finished'
-            else:
-                raise ValueError('error: {:}'.format(line))
-        else:
-            raise ValueError('unexpected input: {:}'.format(line))        
-        return mode
+            #Check for "end data" string
+            if line[0:5] == '$$EOE':
+                self.file_properties['stop_ind'] = i
 
-    def _process_star_line(self, line, mode):
-        """deals with the line that starts with '*'"""
-        if len(line) != 79:
-            if mode is None:
-                mode = 'header'
-            elif mode == 'header':
-                mode = 'header_done'
-        else:
-            if mode == 'main':
-                raise ValueError('error: {:}'.format(line))
-        return mode
+            #Count total number of lines
+            self.file_properties['line_count'] += 1
+        in_file.close()
 
-    def _parse_header_line(self, line):
-        """parse line with table header from JPL Horizons"""
-        char_beg = {}
-        char_end = {}
-        for (key, value) in self._names.items():
-            find = line.find(value)
-            if find == -1:
-                raise ValueError('Header key not found: {:}'.format(value))
-            char_beg[key] = Utils.last_non_space_char_before(line, find) + 1
-            char_end[key] = find + len(value)
-        return (char_beg, char_end)
+    def _read_horizons_file(self):
+        """
+        reads standard output from JPL Horizons into self.data_lists
+        """
+        #Read in the file
+        self._get_start_end()
+        data = np.genfromtxt(
+            self.file_properties['file_name'],
+            dtype=[('date', 'S17'), ('ra_dec', 'S23'), ('distance', 'f8'), 
+                   ('foo', 'S23')],
+            delimiter=[18,29,18,24],autostrip=True,
+            skip_header=self.file_properties['start_ind'] + 1, 
+            skip_footer=(self.file_properties['line_count']
+                         -self.file_properties['stop_ind']))
+
+        #Fix time format
+        for i, date in enumerate(data['date']):
+            data['date'][i] = Utils.date_change(date)
+
+        self.data_lists = data
 
     @ property
     def time(self):
-        """return time vector in whatever format was input"""
+        """
+        return times in TDB (reference frame depends on Horizons input)
+        """
         if self._time is None:
-            times = Time(self.data_lists['date'], format='iso', scale='utc') # Currently we assume HORIZONS works in UTC.
+            # Currently we assume HORIZONS works in UTC.
+            times = Time(self.data_lists['date'], format='iso', scale='utc')
             self._time = times.tdb.jd 
         return self._time
 
     @ property 
     def xyz(self):
-        """return X,Y,Z positions"""
+        """
+        return X,Y,Z positions based on RA, DEC and distance
+        """
         if self._xyz is None:
             self._xyz = SkyCoord(self.data_lists['ra_dec'], 
                                 distance=self.data_lists['distance'], 
