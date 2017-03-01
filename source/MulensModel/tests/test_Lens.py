@@ -60,19 +60,18 @@ def test_a_proj_success():
 class TestEpsilonRoutines(unittest.TestCase):
     def test_3_body_success(self):
         lens_1 = Lens(total_mass=1.3*u.solMass,q=[0.1,0.2],s=[0.1,0.3])
-        print(lens_1.mass_3,lens_1.epsilon[2])
+        
         self.assertAlmostEqual(lens_1.mass_1.value, 1., places=7)
         self.assertAlmostEqual(lens_1.mass_2.value, 0.1, places=7)
         self.assertAlmostEqual(lens_1.mass_3.value, 0.2, places=7)
 
         lens_2 = Lens()
         lens_2.mass_1 = 0.7*u.solMass
-        print(lens_2.total_mass,lens_2.epsilon)
         lens_2.mass_2 = 0.1*u.solMass
-        print(lens_2.total_mass,lens_2.epsilon)
         lens_2.mass_3 = 0.2*u.solMass
-        print(lens_2.total_mass,lens_2.epsilon)
+        
         self.assertAlmostEqual(lens_2.mass_1.value, 0.7, places=7)
         self.assertAlmostEqual(lens_2.mass_2.value, 0.1, places=7)
         self.assertAlmostEqual(lens_2.mass_3.value, 0.2, places=7)
         self.assertAlmostEqual(lens_2.total_mass.value, 1., places=7)
+
