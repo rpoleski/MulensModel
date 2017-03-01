@@ -64,6 +64,8 @@ class Utils(object):
         """
         changes format: '2015-Oct-30 12:00' -> '2015-10-30 12:00' 
         """
+        print("text type is {:}".format(type(text)))
+        print("'-' type is {:}".format(type('-')))
         str_components = text.split('-')
         if len(str_components) == 1:
             raise ValueError("Can't run date_change() for {:}".format(text))
