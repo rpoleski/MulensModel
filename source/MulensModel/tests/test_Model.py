@@ -18,9 +18,12 @@ SAMPLE_FILE_03 = MODULE_PATH + "/data/phot_ob151100_Spitzer_2_v2.dat" #HJD'
 SAMPLE_FILE_03_EPH = MODULE_PATH + "/data/Spitzer_ephemrides_01.dat" #UTC
 SAMPLE_FILE_02_REF = MODULE_PATH + "/data/ob151100_OGLE_ref_v1.dat" #HJD'
 SAMPLE_FILE_03_REF = MODULE_PATH + "/data/ob151100_Spitzer_ref_v1.dat" #HJD'
+
 SAMPLE_ANNUAL_PARALLAX_FILE_01 = MODULE_PATH + "/data/parallax_test_1.dat"#HJD'
 SAMPLE_ANNUAL_PARALLAX_FILE_02 = MODULE_PATH + "/data/parallax_test_2.dat"#HJD'
 SAMPLE_ANNUAL_PARALLAX_FILE_03 = MODULE_PATH + "/data/parallax_test_3.dat"#HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_04 = MODULE_PATH + "/data/parallax_test_4.dat"#HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_05 = MODULE_PATH + "/data/parallax_test_5.dat"#HJD'
 
 
 def test_model_PSPL_1():
@@ -108,10 +111,13 @@ def test_annual_parallax_calculation():
     model_no_par = Model(t_0=t_0, u_0=0.1, t_E=10., pi_E=(0.3, 0.5),
                   coords='17:57:05 -30:22:59')
     model_no_par.set_datasets([data])
-    model_no_par.parallax(satellite=False, earth_orbital=False, topocentric=False)
+    model_no_par.parallax(
+        satellite=False, earth_orbital=False, topocentric=False)
     
-    np.testing.assert_almost_equal(model_no_par.data_magnification, true_no_par)
-    np.testing.assert_almost_equal(model_with_par.data_magnification, true_with_par, decimal=4)
+    np.testing.assert_almost_equal(
+        model_no_par.data_magnification, true_no_par)
+    np.testing.assert_almost_equal(
+        model_with_par.data_magnification, true_with_par, decimal=4)
 
 def do_annual_parallax_test(filename):
     file = open(filename)
@@ -131,7 +137,8 @@ def do_annual_parallax_test(filename):
     dataset = MulensData([time, 20.+time*0., 0.1+time*0,], add_2450000=True)
     model.set_datasets([dataset])
     model.parallax(satellite=False, earth_orbital=True, topocentric=False)
-    return np.testing.assert_almost_equal(model.data_magnification[0] / data[:,1], 1.0, decimal=4)
+    return np.testing.assert_almost_equal(
+        model.data_magnification[0] / data[:,1], 1.0, decimal=4)
 
 def test_annual_parallax_calculation_2():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)
@@ -141,6 +148,12 @@ def test_annual_parallax_calculation_3():
 
 def test_annual_parallax_calculation_4():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
+
+def test_annual_parallax_calculation_5():
+    do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_04)
+
+def test_annual_parallax_calculation_6():
+    do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_05)
 
 
 #This unit test needs to be reworked so all data sets and ephemerides files are on the same 245XXXX time system.
