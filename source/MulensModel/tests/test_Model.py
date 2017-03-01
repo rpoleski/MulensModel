@@ -89,10 +89,10 @@ def test_coords_transformation():
     np.testing.assert_almost_equal(model.ecliptic_lon.value, 268.81102051, decimal=1)
     np.testing.assert_almost_equal(model.ecliptic_lat.value, -6.77579203, decimal=2)
 
-"""
-This is a high-level unit test for parallax. The "true" values were calculated from the sfit routine assuming fs=1.0, fb=0.0.
-"""
 def test_annual_parallax_calculation():
+    """
+    This is a high-level unit test for parallax. The "true" values were calculated from the sfit routine assuming fs=1.0, fb=0.0.
+    """
     t_0 = 2457479.5 #April 1 2016, a time when parallax is large
     times = np.array([t_0-1., t_0, t_0+1., t_0+1.])
     true_no_par = [np.array([7.12399067,10.0374609, 7.12399067, 7.12399067])]
@@ -120,6 +120,7 @@ def test_annual_parallax_calculation():
         model_with_par.data_magnification, true_with_par, decimal=4)
 
 def do_annual_parallax_test(filename):
+    """testing funcations called by a few unit tests"""
     file = open(filename)
     lines = file.readlines()
     file.close()
@@ -127,12 +128,15 @@ def do_annual_parallax_test(filename):
     event_params = lines[4].split()
     data = np.loadtxt(filename, dtype=None)
     model = Model(
-        t_0=float(ulens_params[1])+2450000., u_0=float(ulens_params[3]), 
-        t_E=float(ulens_params[4]), pi_E_N=float(ulens_params[5]), 
+        t_0=float(ulens_params[1])+2450000., 
+        u_0=float(ulens_params[3]), 
+        t_E=float(ulens_params[4]), 
+        pi_E_N=float(ulens_params[5]), 
         pi_E_E=float(ulens_params[6]), 
         coords=SkyCoord(
             event_params[1]+' '+event_params[2], unit=(u.deg, u.deg)))
     model.t_0_par = float(ulens_params[2])+2450000.
+    
     time = data[:,0]
     dataset = MulensData([time, 20.+time*0., 0.1+time*0,], add_2450000=True)
     model.set_datasets([dataset])
@@ -158,6 +162,7 @@ def test_annual_parallax_calculation_6():
 
 #This unit test needs to be reworked so all data sets and ephemerides files are on the same 245XXXX time system.
 def test_satellite_and_annual_parallax_calculation():
+    """test parallax calculation with Spitzer data"""
     model_with_par = Model(t_0=2457181.93930, u_0=0.08858, t_E=20.23090, pi_E_N=-0.05413, pi_E_E=-0.16434, coords="18:17:54.74 -22:59:33.4")
     model_with_par.parallax(satellite=True, earth_orbital=True, topocentric=False)
     model_with_par.t_0_par = 2457181.9
@@ -172,8 +177,8 @@ def test_satellite_and_annual_parallax_calculation():
     np.testing.assert_almost_equal(model_with_par.data_magnification[0], ref_OGLE, decimal=2)
     np.testing.assert_almost_equal(model_with_par.data_magnification[1]/ref_Spitzer, np.array([1]*len(ref_Spitzer)), decimal=3)
 
-
 def test_init_parameters():
+    """are parameters properly passed between Model and ModelParameters?"""
     t_0 = 6141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
@@ -184,6 +189,7 @@ def test_init_parameters():
     np.testing.assert_almost_equal(model.t_E, t_E.value)
 
 def test_BLPS_01():
+    """simple binary lens with point source"""
     params = ModelParameters(t_0=6141.593, u_0=0.5425, t_E=62.63*u.day, alpha=49.58*u.deg, s=1.3500, q=0.00578)
     model = Model(parameters=params)
     t = np.array([6112.5])
@@ -192,4 +198,4 @@ def test_BLPS_01():
     m = model.data_magnification[0][0]
     np.testing.assert_almost_equal(m, 4.691830781584699) # This value comes from early version of this code.
     # np.testing.assert_almost_equal(m, 4.710563917) # This value comes from Andy's getbinp().
-    
+   
