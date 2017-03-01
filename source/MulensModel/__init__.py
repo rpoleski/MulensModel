@@ -7,3 +7,4 @@ from MulensModel.mulensdata import *
 from MulensModel.mulensparallaxvector import *
 from MulensModel.mulenstime import *
 from MulensModel.source import *
+from MulensModel.binarylens import BinaryLens
