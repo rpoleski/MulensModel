@@ -5,6 +5,9 @@ from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy import _erfa as erfa
 from astropy.time import Time
 
+from MulensModel import utils
+
+
 class Trajectory(object):
     """
     The (dimensionless) X, Y trajectory of the source in the
@@ -13,7 +16,7 @@ class Trajectory(object):
     """
     def __init__(
         self, times, parameters=None, parallax=None, t_0_par=None,
-        coords=None, satellite_coords=None):
+        coords=None, satellite_skycoord=None):
 
         #Save parameters
         if isinstance(times, (list, tuple, np.ndarray)):
@@ -24,7 +27,7 @@ class Trajectory(object):
         self.parallax = parallax
         self.t_0_par = t_0_par
         self.coords = coords
-        self.satellite_coords = satellite_coords
+        self.satellite_skycoord = satellite_skycoord
 
         #Calculate trajectory
         self.get_xy()
@@ -36,7 +39,7 @@ class Trajectory(object):
         """
         vector_tau = (
             (self.times - self.parameters.t_0)
-            / self.parameters.t_E)
+            / float(self.parameters.t_E))
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
         
         if self.parallax['earth_orbital']:
@@ -45,11 +48,10 @@ class Trajectory(object):
             vector_u += delta_u
 
 
-        if self.parallax['satellite'] and self.satellite_coords is not None: 
+        if self.parallax['satellite'] and self.satellite_skycoord is not None: 
             [delta_tau, delta_u] = self._satellite_parallax_trajectory()
             vector_tau += delta_tau
             vector_u += delta_u
-            n_satellite += 1
 
         if self.parameters.n_lenses == 1:
             vector_x = vector_tau
@@ -59,7 +61,6 @@ class Trajectory(object):
             cos_alpha = np.cos(self.parameters.alpha)
             vector_x = vector_u * sin_alpha - vector_tau * cos_alpha
             vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
-            vector_x += self.parameters.s / 2.
         else:
             raise Exception(
                 "trajectory for more than 2 lenses not handled yet")
@@ -135,11 +136,12 @@ class Trajectory(object):
         east_projected = np.cross(north, direction)
         east_projected /= np.linalg.norm(east_projected)
         north_projected = np.cross(direction, east_projected)
-        satellite = self.satellite_skycoord
+        satellite = self.satellite_skycoord # This is not called
         # We want to be sure frames are the same.
-        satellite.transform_to(frame=self._coords.frame) 
+        satellite.transform_to(frame=self.coords.frame) 
             
         delta_satellite = {}
+        dot = utils.Utils.dot
         delta_satellite['N'] = -dot(satellite.cartesian, north_projected)
         delta_satellite['E'] = -dot(satellite.cartesian, east_projected)
         delta_satellite['D'] = -dot(satellite.cartesian, direction)

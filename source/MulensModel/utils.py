@@ -61,12 +61,17 @@ class Utils(object):
         return True
         
     def date_change(text):
-        """changes format: ' 2015-Oct-30 12:00' -> '2015-10-30 12:00' """
-        n1 = text.find("-")
-        n2 = text.rfind("-")
-        if n1 == -1 or n1 == n2:
+        """
+        changes format: '2015-Oct-30 12:00' -> '2015-10-30 12:00' 
+        """
+        print("text type is {:}".format(type(text)))
+        print("'-' type is {:}".format(type('-')))
+        str_components = text.split('-')
+        if len(str_components) == 1:
             raise ValueError("Can't run date_change() for {:}".format(text))
-        return text[1:n1+1] + month_3letter_to_2digit[text[n1+1:n2]] + text[n2:]    
+        return '-'.join((
+            str_components[0], month_3letter_to_2digit[str_components[1]],
+            str_components[2]))
     date_change = staticmethod(date_change)
         
     def last_non_space_char_before(line, n_before):
@@ -84,3 +89,8 @@ class Utils(object):
         return fsum(real) + fsum(imag) * 1j
     complex_fsum = staticmethod(complex_fsum)
 
+    def dot(cartesian, vector):
+        """dot product of Astropy CartersianRepresentation and np.array"""
+        return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
+    dot = staticmethod(dot)
+    

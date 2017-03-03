@@ -109,9 +109,8 @@ class MulensSystem(object):
         except:
             return None
 
-    def plot_magnification(self, u_0, alpha=None):
+    def plot_magnification(self, u_0, alpha=None,**kwargs):
         """
-        DNW because Model cannot return magnification unless there are data.
         Plot the magnification curve for the lens. u_0 must always be
         specified. If the lens has more than one body, alpha must also
         be specified.
@@ -121,24 +120,18 @@ class MulensSystem(object):
             parameters.t_E = self.t_E
         else:
             parameters.t_E = 1.
+
         if self.source.angular_size is not None:
             parameters.rho = (self.source.angular_size.to(u.mas) 
                               / self.theta_E.to(u.mas))
         else:
             parameters.rho = None
+
         if self.lens.n_masses > 1:
             parameters.q = self.lens.q
             parameters.s = self.lens.s
             parameters.alpha = alpha
-        model = Model(parameters=parameters)
-        pl.plot(model.time, model.magnification)#don't think this works
 
-if __name__ == "__main__":
-    import astropy.units as u
-    my_lens = Lens(mass=0.5*u.solMass, distance=6.e3*u.pc)
-    print(my_lens.mass)
-    my_source = Source(distance=8.e3*u.pc)
-    print(my_source.distance)
-    point_lens = MulensSystem(lens=my_lens, source=my_source)
-    print(point_lens.theta_E)
-    print(point_lens)
+        model = Model(parameters=parameters)
+        model.plot_magnification(**kwargs)
+

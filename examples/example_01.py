@@ -15,9 +15,7 @@ from MulensModel.utils import Utils
 
 
 #Read in the data file
-for path in sys.path:
-    if path.find("MulensModel/source") > 0:
-        MODULE_PATH = "/".join(path.split("/source")[:-1])
+MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
 SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
 data = MulensData(file_name=SAMPLE_FILE_01)
 
@@ -56,3 +54,20 @@ print('Chi2 = {0:12.2f}'.format(chi2))
 print('op.minimize result:')
 print(result)
 
+#Plot the Results
+pl.figure()
+pl.title('Initial vs. Final Model')
+initial_model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+initial_model.plot(label='Initial',color='red', linestyle=':')
+ev.model.plot(label='Final',color='black', linestyle='-')
+pl.legend(loc='best')
+
+"""
+pl.figure()
+pl.title('Data and Fit')
+ev.plot(residuals=True,legend=True)
+"""
+pl.show()
+
+#Output the scaled data to a file (for making your own plots)
+ev.output_lightcurve()

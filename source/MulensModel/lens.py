@@ -74,10 +74,11 @@ class Lens(object):
 
     def __repr__(self):
         """Make a nice string representation of the mass. NEEDS WORK."""
+        dist_str = 'Lens Distance: {0}\n'.format(self._distance)
         try:
-            return('Lens Total Mass: {0}'.format(self._total_mass))
+            return('{1}Lens Total Mass: {0}'.format(self._total_mass, dist_str))
         except NameError:
-            return('Lens components: {0}'.format(self._q))
+            return('{1}Lens components: {0}'.format(self._q, dist_str))
         else:
             return('Lens.py __repr__ error')
 

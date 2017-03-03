@@ -3,6 +3,7 @@ from astropy import units as u
 
 from MulensModel.mulensparallaxvector import MulensParallaxVector
 
+
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
@@ -36,6 +37,9 @@ class ModelParameters(object):
                
         """
         #Initialize standard parameters if they are set.
+        self._s = None
+        self._q = None
+        self._alpha = None
         if t_0 is not None:
             self.t_0 = t_0
         if u_0 is not None:
@@ -50,11 +54,6 @@ class ModelParameters(object):
             self._q = q
         if alpha is not None:
             self.alpha = alpha
-        self._n_lenses = None
-        if s is None and q is None and alpha is None:
-            self._n_lenses = 1
-        else:
-            self._n_lenses = 2
 
         """
         Define the parallax if appropriate. Does not check for
@@ -107,7 +106,11 @@ class ModelParameters(object):
     @property
     def n_lenses(self):
         """number of objects in the lens system"""
-        return self._n_lenses
+        if self._s is None and self._q is None and self._alpha is None:
+            return 1
+        else:
+            return 2
+
 
     @property
     def t_0(self):
@@ -176,10 +179,18 @@ class ModelParameters(object):
         """mass ratio of two lens components"""
         return self._q
         
+    @q.setter
+    def q(self, new_q):
+        self._q = new_q
+    
     @property
     def s(self):
         """separation of two lens components relative to Einstein ring size"""
         return self._s
+
+    @s.setter
+    def s(self, new_s):
+        self._s = new_s
 
     @property
     def pi_E(self):

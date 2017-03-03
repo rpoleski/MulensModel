@@ -85,7 +85,7 @@ class BinaryLens(object):
             self._last_polynomial_input = polynomial_input
         return self._polynomial_roots_WM95
 
-    def _polynomial_roots_ok_WM95(self, source_x, source_y):
+    def _polynomial_roots_ok_WM95(self, source_x, source_y, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots_WM95(source_x=source_x, 
                                                    source_y=source_y)
@@ -97,19 +97,26 @@ class BinaryLens(object):
         # This backs-up the lens equation.
         
         out = []
+        distances = []
         for (i, root) in enumerate(roots):
-            min_distance_arg = np.argmin(abs((solutions-root)**2)) #Can we use Utils.complex_fsum()-like function here?
+            distances_from_root = abs((solutions-root)**2)
+            min_distance_arg = np.argmin(distances_from_root) #Can we use Utils.complex_fsum()-like function here?
             if i == min_distance_arg:
                 out.append(root)
-        # The values of abs((solutions-root)**2) are a diagnostic on how good the numerical accuracy is.
+                distances.append(distances_from_root[min_distance_arg])
+        # The values in distances[] are a diagnostic on how good the numerical accuracy is.
 
         if len(out) not in [3, 5]:
             msg = 'CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: {:} {:} {:} {:} {:}'
             txt = msg.format(repr(self.mass_1), repr(self.mass_2), 
                     repr(self.separation), repr(source_x), repr(source_y))
             # The repr() function gives absolute accuracy of float values allowing reproducing the results. 
-            raise ValueError(txt)            
-        return np.array(out)
+            raise ValueError(txt)
+        
+        if return_distances:
+            return (np.array(out), np.array(distances))
+        else:
+            return np.array(out)
         
     def _jacobian_determinant_ok_WM95(self, source_x, source_y):
         """determinants of lens equation Jacobian for verified roots"""
@@ -139,10 +146,12 @@ class BinaryLens(object):
                 source_x=source_x, source_y=source_y)
 
     def point_source_magnification(self, source_x, source_y):
-        """calculates point source magnification for given position"""
-        # Specify coordinate system convention!
+        """calculates point source magnification for given position
+        in a coordinate system where higher mass is at the origin
+        and lower mass is at (separation, 0)"""
         return self._point_source_Witt_Mao_95(
-                source_x=source_x, source_y=source_y)
+                source_x=source_x + self.separation / 2., 
+                source_y=source_y)
 
     def _get_magnification_w_plus(self, source_x, source_y, radius, 
                                   magnification_center=None):
@@ -177,10 +186,15 @@ class BinaryLens(object):
                                     source_x=source_x, source_y=source_y)
         return 0.25 * fsum(out) - magnification_center
 
-    def hexadecapole_magnification(self, source_x, source_y, rho, gamma):
+    def hexadecapole_magnification(self, source_x, source_y, rho, gamma, 
+                                  quadrupole=False, all_approximations=False):
         """hexadecpole approximation of binary-lens/finite-source 
         calculations - based on Gould 2008 ApJ 681, 1593"""
         # In this function, variables named a_* depict magnification.
+        if quadrupole and all_approximations:
+            msg = 'Inconsisient parameters of {:}'
+            raise ValueError(msg.format('BinaryLens.hexadecapole_magnification()'))
+        
         a_center = self.point_source_magnification(
                                     source_x=source_x, source_y=source_y)
         a_rho_half_plus = self._get_magnification_w_plus(source_x=source_x, 
@@ -194,8 +208,11 @@ class BinaryLens(object):
         a_2_rho_square = (16. * a_rho_half_plus - a_rho_plus) / 3. 
         
         # Gould 2008 eq. 6 (part 1/2):
-        a_finite = a_center + a_2_rho_square * (1. - 0.2 * gamma)
-        # At this point, a_finite is quadrupole approximation.
+        a_quadrupole = a_center + a_2_rho_square * (1. - 0.2 * gamma)
+        
+        # At this point is quadrupole approximation is finished
+        if quadrupole:
+            return a_quadrupole
         
         a_rho_times = self._get_magnification_w_times(source_x=source_x, 
                                                 source_y=source_y, radius=rho, 
@@ -204,8 +221,13 @@ class BinaryLens(object):
         # This is Gould (2008) eq. 9:
         a_4_rho_power4 = 0.5 * (a_rho_plus + a_rho_times) - a_2_rho_square
         # This is Gould (2008) eq. 6 (part 2/2):
-        a_finite += a_4_rho_power4 * (1. - 11. * gamma / 35.)
-        return a_finite
+        a_add = a_4_rho_power4 * (1. - 11. * gamma / 35.)
+        a_hexadecapole = a_quadrupole + a_add
+        
+        if all_approximations:
+            return (a_hexadecapole, a_quadrupole, a_center)
+        else:
+            return a_hexadecapole
         
 
 if __name__ == '__main__':
@@ -213,7 +235,7 @@ if __name__ == '__main__':
     q = 0.00578
     m1 = 1. / (1. + q)
     m2 = q / (1. + q)
-    x = 1.38920106
+    x = 1.38920106 - s/2.
     y = 0.00189679
     rho = 0.001
     gamma = 0.5
@@ -223,4 +245,8 @@ if __name__ == '__main__':
     print(a)
     aa = bl.hexadecapole_magnification(x, y, rho, gamma)
     print(aa)
+    aaa = bl.hexadecapole_magnification(x, y, rho, gamma, quadrupole=True)
+    print(aaa)
+    aaaa = bl.hexadecapole_magnification(x, y, rho, gamma, all_approximations=True)
+    print(aaaa)
     
