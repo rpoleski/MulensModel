@@ -25,18 +25,22 @@ class Source(object):
 
     @distance.setter
     def distance(self, new_distance):
-        """Have not checked what happens if the distance is entered in lyr 
-        or AU. Probably we should use new_distance.decompose()"""
+        """
+        The distance should either be given in pc, or if no unit is
+        given, the value is assumed to be kpc if it is <50 and in pc
+        otherwise.
+        """
         if not isinstance(new_distance, u.Quantity):
-            msg1 = 'distance must have astropy units, '
-            msg2 = 'i.e. it must be an astropy.units Quantity.'
-            raise TypeError(msg1 + msg2)
+            if new_distance < 50:
+                self._distance = new_distance * 1000. * u.pc
+            else:
+                self._distance = new_distance * u.pc
         else:
-            if (new_distance.unit == "pc" or new_distance.unit == "AU" 
-                or new_distance.unit == "lyr"):
+            if (new_distance.unit == "pc") or (new_distance.unit == "kpc"):
                 self._distance = new_distance
             else:
-                raise u.UnitsError('Allowed units are "pc", "AU", or "lyr"') 
+                raise u.UnitsError(
+                    'Allowed units for Source distance are "pc" or "kpc"') 
 
     @property
     def pi_S(self):

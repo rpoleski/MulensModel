@@ -34,6 +34,13 @@ class Lens(object):
         (total_mass, epsilon, distance)
         (epsilon, s)
         Note that s, q, and epsilon may be lists or numpy arrays.
+
+        If units are not specified for mass, it is assumed the value
+        given is in Solar Masses. 
+
+        If units are not specified for distance, and the value given
+        is <50, it is assumed the value is given in kpc. Otherwise, pc
+        are assumed.
         """
         self._caustic=None
         #Set up system from s and q if defined
@@ -47,17 +54,17 @@ class Lens(object):
 
             #include system mass if appropriate
             if mass_1 is not None:
-                self._total_mass = mass_1 * (1. + q)
+                self.total_mass = mass_1 * (1. + q)
 
         #Set total_mass and epsilon if defined
         if total_mass is not None:
-            self._total_mass = total_mass
+            self.total_mass = total_mass
         if epsilon is not None:
             self._epsilon = np.array(epsilon)
 
         #Set total_mass, epsilon from mass_1 and mass_2
         if mass_2 is not None:
-            self._total_mass = mass_1 + mass_2
+            self.total_mass = mass_1 + mass_2
             self._epsilon = np.array(
                             [mass_1/self.total_mass, mass_2/self.total_mass])
         else:
@@ -68,7 +75,7 @@ class Lens(object):
 
         #Set distance and projected separation
         if distance is not None:
-            self._distance = distance
+            self.distance = distance
         if a_proj is not None:
             self._a_proj = a_proj
 
@@ -92,7 +99,10 @@ class Lens(object):
 
     @total_mass.setter
     def total_mass(self, new_mass):
-        self._total_mass = total_mass
+        if not isinstance(new_mass, u.Quantity):
+            new_mass = new_mass * u.solMass
+
+        self._total_mass = new_mass
 
     @property
     def epsilon(self):
@@ -125,9 +135,10 @@ class Lens(object):
         with mass units.
         """
         if self._epsilon.size > 1:
-            raise TypeError('mass can only be defined for a point lens')
+            raise TypeError(
+                'mass can only be defined for a point lens. use total_mass for multiple bodies')
         else:
-            return self._total_mass
+            return self.total_mass
 
     @mass.setter
     def mass(self, new_mass):
@@ -145,7 +156,7 @@ class Lens(object):
         The mass of the primary. Defined as total_mass *
         epsilon[0]. An astropy.Quantity with mass units.
         """
-        return self._total_mass * self._epsilon[0]
+        return self.total_mass * self._epsilon[0]
 
     @mass_1.setter
     def mass_1(self, new_mass):
@@ -160,7 +171,7 @@ class Lens(object):
         The mass of the secondary. Defined as total_mass *
         epsilon[1]. An astropy.Quantity with mass units.
         """
-        return self._total_mass * self._epsilon[1]
+        return self.total_mass * self._epsilon[1]
 
     @mass_2.setter
     def mass_2(self, new_mass, add=False):
@@ -180,7 +191,7 @@ class Lens(object):
         The mass of the tertiary. Defined as total_mass *
         epsilon[2]. An astropy.Quantity with mass units.
         """
-        return self._total_mass * self._epsilon[2]
+        return self.total_mass * self._epsilon[2]
 
     @mass_3.setter
     def mass_3(self, new_mass, add=False):
@@ -203,18 +214,22 @@ class Lens(object):
 
     @distance.setter
     def distance(self, new_distance):
-        """Have not checked what happens if the distance is entered in lyr 
-        or AU. Probably we should use new_distance.decompose()"""
+        """
+        The distance should either be given in pc, or if no unit is
+        given, the value is assumed to be kpc if it is <50 and in pc
+        otherwise.
+        """
         if not isinstance(new_distance, u.Quantity):
-            msg1 = 'distance must have astropy units, '
-            msg2 = 'i.e. it must be an astropy.units Quantity.'
-            raise TypeError(msg1 + msg2)
+            if new_distance < 50:
+                self._distance = new_distance * 1000. * u.pc
+            else:
+                self._distance = new_distance * u.pc
         else:
-            if (new_distance.unit == "pc" or new_distance.unit == "AU" 
-                or new_distance.unit == "lyr"):
+            if (new_distance.unit == "pc") or (new_distance.unit == "kpc"):
                 self._distance = new_distance
             else:
-                raise u.UnitsError('Allowed units are "pc", "AU", or "lyr"') 
+                raise u.UnitsError(
+                    'Allowed units for Lens distance are "pc" or "kpc"') 
 
     @property
     def pi_L(self):
@@ -295,6 +310,9 @@ class Lens(object):
         mass of one of the components is changed. e.g. mass_2 is
         changed from 1 MJup to 2 MJup.
         """
+        if not isinstance(new_mass, u.Quantity):
+            new_mass = new_mass * u.solMass
+
         new_total_mass = self._total_mass(1. - self._epsilon[index]) + new_mass
         self._epsilon = self._total_mass * self._epsilon / new_total_mass
         self._total_mass = new_total_mass
@@ -304,7 +322,11 @@ class Lens(object):
         Private function: Initializes total_mass and epsilon if only
         one mass componenet is defined (i.e. a point lens).
         """
-        self._total_mass = new_mass
+        if isinstance(new_mass, u.Quantity):
+            self._total_mass = new_mass
+        else:
+            self._total_mass = new_mass * u.solMass
+
         self._epsilon = np.array([1.0])
 
     def _add_mass(self, new_mass, index):
@@ -314,6 +336,9 @@ class Lens(object):
         sequentially. e.g. the lens is defined by defining mass_1 and
         mass_2.
         """
+        if not isinstance(new_mass, u.Quantity):
+            new_mass = new_mass * u.solMass
+
         new_total_mass = self._total_mass + new_mass
         self._epsilon = self._total_mass * self._epsilon / new_total_mass
         self._epsilon = np.insert(self._epsilon, index, 
