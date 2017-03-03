@@ -99,6 +99,22 @@ class MulensSystem(object):
             * self.pi_rel.to(u.mas))
 
     @property
+    def r_E(self):
+        """
+        The physical size of the Einstein Radius in the Lens plane (in AU).
+        """
+        return (self.lens.distance * self.theta_E.to(
+                '',equivalencies=u.dimensionless_angles())).to(u.au)
+
+    @property
+    def r_E_tilde(self):
+        """
+        The physical size of the Einstein Radius projected onto the
+        Observer plane (in AU).
+        """
+        return self.r_E * self.source.distance / (self.source.distance - self.lens.distance)
+
+    @property
     def t_E(self):
         """
         The Einstein crossing time (in days).
