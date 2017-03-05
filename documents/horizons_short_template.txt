@@ -1,0 +1,47 @@
+!$$SOF (ssd)    JPL/Horizons Execution Control VARLIST
+!
+! based on:
+!ftp://ssd.jpl.nasa.gov/pub/ssd/horizons_batch_example.brief
+! for full description check:
+!ftp://ssd.jpl.nasa.gov/pub/ssd/horizons_batch_example.long
+!
+!+++++++++++++++++++++++++++++++++++++++++++++++++++
+! NOTE:   First line in this file must start !$$SOF
+!         Last line in this file must start !$$EOF
+!         Assigned values should be in quotes
+!+++++++++++++++++++++++++++++++++++++++++++++++++++
+ EMAIL_ADDR  = ' '
+ COMMAND     = '-79'
+ OBJ_DATA    = 'YES'
+ MAKE_EPHEM  = 'YES'
+ TABLE_TYPE  = 'OBS'
+ CENTER      = 'Geocentric'
+ REF_PLANE   = 'ECLIPTIC'
+ START_TIME  = '2013-JUN-1 12:00'
+ STOP_TIME   = '2015-NOV-2 10:00' 
+ STEP_SIZE   = '1 day'
+ TLIST       = 200*' '
+ QUANTITIES  = '1,20,21'
+ REF_SYSTEM  = 'J2000'
+ OUT_UNITS   = 'KM-S'
+ VEC_TABLE   = '3'
+ CAL_FORMAT  = 'CAL'
+ ANG_FORMAT  = 'HMS'
+ APPARENT    = 'AIRLESS'
+ TIME_ZONE   = '+00:00'
+ TIME_DIGITS = 'MIN'
+ RANGE_UNITS = 'AU'
+ SUPPRESS_RANGE_RATE= 'NO'
+ ELEV_CUT    = '-90'
+ SKIP_DAYLT  = 'NO'
+ SOLAR_ELONG = '0,180'
+ AIRMASS     = '38.0'
+ LHA_CUTOFF  = '0.0'
+ EXTRA_PREC  = 'NO'
+ CSV_FORMAT  = 'NO'
+ VEC_LABELS  = 'NO'
+ VEC_DELTA_T = 'NO'
+ ELM_LABELS  = 'YES'
+ TP_TYPE     = 'ABSOLUTE'
+ R_T_S_ONLY  = 'NO'
+!$$EOF~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
