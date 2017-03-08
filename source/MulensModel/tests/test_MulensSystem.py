@@ -1,9 +1,9 @@
 import numpy as np
 from astropy import units as u
 
-from MulensModel.mulenssystem import MulensSystem
-from MulensModel.lens import Lens
-from MulensModel.source import Source
+from MulensModel.mulensobjects.mulenssystem import MulensSystem
+from MulensModel.mulensobjects.lens import Lens
+from MulensModel.mulensobjects.source import Source
 
 kappa = 8.14 * u.mas / u.solMass
 lens = {'mass': 0.3 * u.solMass, 'dist': 4 * 10**3 * u.pc}
