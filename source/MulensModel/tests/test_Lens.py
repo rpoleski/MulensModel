@@ -1,4 +1,4 @@
-from MulensModel.lens import Lens
+from MulensModel.mulensobjects.lens import Lens
 import unittest
 from astropy import units as u
 
