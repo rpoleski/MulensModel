@@ -202,6 +202,27 @@ class Event(object):
                 dataset.coords = self._coords
         except:
             pass
+
+    def plot_model(self, 
+        times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
+        n_epochs=None, data_ref=None, f_source=None, f_blend=None, **kwargs):
+        """
+        Plot the model lightcurve in magnitudes scaled to data_ref
+        (either an index or a MulensData object). If data_ref is not
+        specified or data_ref is None, it will use the first dataset
+        (see Model.get_ref_fluxes).
+        """
+        self.model.plot_lc( 
+            times=times, t_range=t_range, t_start=t_start, t_stop=t_stop, 
+            dt=dt, n_epochs=n_epochs, data_ref=data_ref, f_source=f_source, 
+            f_blend=f_blend,**kwargs)
+
+    def plot_data(self, data_ref=None, errors=True, **kwargs):
+        """
+        Plot the data scaled to the same flux system specified by
+        data_ref. Uses the model to calculate the magnifications.
+        """
+        self.model.plot_data(data_ref=data_ref, errors=errors, **kwargs)
     
 
 if __name__ == "__main__":

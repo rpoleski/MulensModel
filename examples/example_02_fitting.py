@@ -15,6 +15,13 @@ from MulensModel.event import Event
 from MulensModel.model import Model
 from MulensModel.utils import Utils
 
+def lnlike(theta, event, parameters_to_fit):
+    """
+    The likelihood function for minimizing the chi2.
+    """
+    for key, val in enumerate(parameters_to_fit):
+        setattr(event.model, val, theta[key])
+    return event.get_chi2()
 
 #Read in the data file
 MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
@@ -30,14 +37,8 @@ model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
 
 #Link the data and the model
 ev = Event(datasets=data, model=model)
+print('Initial Trial\n{0}'.format(ev.model.parameters))
 
-#Define the likelihood function
-def lnlike(theta, event, parameters_to_fit):
-    for key, val in enumerate(parameters_to_fit):
-        setattr(event.model, val, theta[key])
-    print('{0} {1}'.format(event.model,event.get_chi2()))
-    return event.get_chi2()
-        
 #Find the best-fit parameters
 result = op.minimize(lnlike, x0=[t_0, u_0, t_E], 
         args=(ev, parameters_to_fit), method='Nelder-Mead')
@@ -61,14 +62,15 @@ print(result)
 init_model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
 final_model = Model(t_0=fit_t_0, u_0=fit_u_0, t_E=fit_t_E)
 pl.figure()
-init_model.plot_lc(data_ref=data)
-final_model.plot_lc(data_ref=data)
+init_model.plot_lc(data_ref=data,label='Initial Trial')
+final_model.plot_lc(data_ref=data, label='Final Model')
+pl.title('Difference b/w Input and Fitted Model')
+pl.legend(loc='best')
 
-#with the data
-"""
+#Plot the fitted model with the data
 pl.figure()
 ev.plot_model()
 ev.plot_data()
-"""
+pl.title('Data and Fitted Model')
 
 pl.show()

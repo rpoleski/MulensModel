@@ -257,9 +257,6 @@ class Model(object):
     @property
     def data_magnification(self):
         """a list of magnifications calculated for every dataset time vector"""
-        if self._data_magnification is not None:
-            return self._data_magnification
-
         self._data_magnification = []
 
         for dataset in self._datasets:
@@ -391,7 +388,8 @@ class Model(object):
         self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
         n_epochs=None, data_ref=None, f_source=None, f_blend=None, **kwargs):
         """
-        plot the model light curve in magnitudes.
+        plot the model light curve in magnitudes. See get_ref_fluxes
+        for details of data_ref.
         """
         if times is None:
             times = self.set_times(
@@ -438,15 +436,45 @@ class Model(object):
 
         return f_source, f_blend
 
-    def plot_data(self, data_ref=None):
+    def plot_data(self, data_ref=None,errors=True, **kwargs):
         """
         Plot the data scaled to the model. If data_ref is not
         specified, uses the first dataset as the flux
         reference. 
         """
+        #Reference flux scale
+        f_source_0, f_blend_0 = self.get_ref_fluxes(data_ref=data_ref)
 
-        all_data_fit = Fit(
-            data=self._datasets, magnification=self.data_magnification())
+        #Get fluxes for all datasets
+        fit = Fit(
+            data=self._datasets, magnification=self.data_magnification)
+        fit.fit_fluxes()
+
+        #plot each dataset
+        for data in self._datasets:
+            f_source = fit._flux_sources[data]
+            f_blend = fit._flux_blending[data]
+
+            flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
+
+            if errors:
+                err_flux = f_source_0 * data.err_flux / f_source
+                mag, err = Utils.get_mag_and_err_from_flux(flux, err_flux)
+                pl.errorbar(data.time, mag, yerr=err,
+                           fmt='o', markersize=3, **kwargs) 
+#might cause weird collisions if markersize or fmt are specified in
+#kwargs. likewise for scatter (below)
+            else:
+                pl.scatter(data.time, Utils.get_mag_from_flux(flux),
+                           marker='o', s=3, **kwargs)
+
+        #Plot properties
+        pl.ylabel('Magnitude')
+        pl.xlabel('Time')
+        
+        ymin, ymax = pl.gca().get_ylim()
+        if ymax > ymin:
+            pl.gca().invert_yaxis()
 
     def set_times(
         self, parameters=None, t_range=None, t_start=None, t_stop=None, 
