@@ -8,3 +8,5 @@ from MulensModel.mulenstime import *
 from MulensModel.binarylens import BinaryLens
 
 from MulensModel.mulensobjects import *
+
+__all__ = ['mulensobjects']
