@@ -1,0 +1,35 @@
+\STAR_ID                              = "MOA 2008-BLG-310L"
+\DATA_CATEGORY                        = "Photometric light curve"
+\RA                                   = "17h54m14.53s"
+\RA_UNITS                             = "sexagesimal"
+\DEC                                  = "-34d46m40.99s"
+\DEC_UNITS                            = "sexagesimal"
+\EQUINOX                              = "J2000.0"
+\NUMBER_OF_POINTS                     = "12"
+\TIME_REFERENCE_FRAME                 = "Heliocentric JD"
+\MINIMUM_DATE                         = "2454656.2065560"
+\MAXIMUM_DATE                         = "2454665.1368120"
+\DATE_UNITS                           = "days"
+\REFERENCES                           = "Janczak et al. 2010"
+\BIBCODES                             = "2010ApJ...711..731J"
+\TELESCOPE                            = "Canopus Telescope (1.0 m)"
+\INSTRUMENT                           = "unknown"
+\TIME_SERIES_DATA_FILTER              = "I"
+\OBSERVATORY_SITE                     = "Mt. Canopus Observatory, Tasmania, Hobart, Australia"
+\COLUMN_JD                            = "Heliocentric Julian Day"
+\COMMENT                              = ""
+|              JD| RELATIVE_MAGNITUDE| MAGNITUDE_UNCERTAINTY| RELATIVE_FLUX| FLUX_UNCERTAINTY|
+|            real|               real|                  real|          real|             real|
+|            days|                mag|                   mag|              |                 |
+  2454656.2065560             14.590                 0.023
+  2454657.8836230             16.551                 0.214
+  2454657.9305780             16.667                 0.185
+  2454657.9962470             16.719                 0.291
+  2454658.9296190             16.922                 0.247
+  2454659.0146160             16.819                 0.261
+  2454659.0705860             16.773                 0.200
+  2454659.1403520             16.928                 0.277
+  2454661.1420870             19.740                 4.810
+  2454665.0995790             18.612                 1.334
+  2454665.1195090             18.659                 1.294
+  2454665.1368120             19.415                 2.730
