@@ -9,27 +9,57 @@ from MulensModel.horizons import Horizons
 
 #data_list and ephemrides_file must have the same time standard.
 #To implement: mjd2hjd = T/F
+#usecols
 class MulensData(object):
     def __init__(self, data_list=None, file_name=None,
-                 mag_fmt="mag", coords=None, ra=None, dec=None, 
+                 phot_fmt="mag", coords=None, ra=None, dec=None, 
                  satellite=None, ephemrides_file=None, add_2450000=False,
                  add_2460000=False, **kwargs):
         """
-        if file_name is provided, uses np.loadtxt to load file, and
-        therefore this function accpets loadtxt keywords.q
+        Create a MulensData object from a set of photometric measurements.
+
+        Keywords:
+           data_list - a list or array with columns: Date, Magnitude/Flux, Err
+           file_name - The path to a file with columns: Date,
+               Magnitude/Flux, Err
+           *Either data_list or file_name is required.*
+
+           phot_fmt - accepts either 'mag' or 'flux'. Default =
+              'mag'. Specifies whether the photometry is in Magnitudes
+              or Flux units.
+
+           coords - [optional] sky coordinates of the event
+           ra, dec - [optional] sky coordinates of the event
+           satellite - [optional] if applicable, specify which
+               satellite this dataset comes from.
+           ephemrides_file - [optional] specify the ephemrides of the
+               satellite when the data were taken. Necessary for
+               modeling the satellite parallax effect.
+
+           add_2450000 - Adds 2450000. to the input dates. Useful if
+               the dates are supplied as HJD-2450000.
+           add_2460000 - Adds 2460000. to the input dates.
+
+           **kwargs - if file_name is provided, uses np.loadtxt to
+               load file, and therefore this function accpets loadtxt
+               keywords.
         """
+        #Initialize some variables
         self._n_epochs = None  
         self._horizons = None
         self._satellite_skycoord = None
         self._init_keys = {'add245':add_2450000, 'add246':add_2460000}
 
+        #Set the coords (if applicable)...
         coords_msg = 'Must specify both or neither of ra and dec'
         self._coords = None
+        #...using coords keyword
         if coords is not None:
             if isinstance(coords, SkyCoord):
                 self._coords = coords
             else:
                 self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
+        #...using ra, dec keywords
         if ra is not None:
             if dec is not None:
                 self._coords = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
@@ -39,21 +69,25 @@ class MulensData(object):
             if ra is not None:
                 raise AttributeError(coords_msg)
 
+        #Import the photometry...
         if data_list is not None and file_name is not None:
             m = 'MulensData cannot be initialized with data_list and file_name'
             raise ValueError(m)
         elif data_list is not None:
+            #...from an array
             vector_1, vector_2, vector_3 = list(data_list) 
-            self._initialize(mag_fmt, time=vector_1, 
+            self._initialize(phot_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
         elif file_name is not None:
+            #...from a file
             vector_1, vector_2, vector_3 = np.loadtxt(
                 fname=file_name, unpack=True, usecols=(0,1,2), **kwargs)
-            self._initialize(mag_fmt, time=vector_1, 
+            self._initialize(phot_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
         
+        #Set up satellite properties (if applicable)
         if satellite is None:
             if ephemrides_file is not None:
                 raise ValueError(
@@ -68,38 +102,55 @@ class MulensData(object):
             self.ephemrides_file = ephemrides_file
             self.is_satellite = True
 
-    def _initialize(self, mag_fmt, time=None, brightness=None, 
+    def _initialize(self, phot_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):
-        """internal function to initialized data using a few numpy arrays"""
+        """
+        internal function to package photometric data using a few numpy arrays
+
+        Keywords:
+            phot_fmt - Specifies type of photometry. Either 'flux' or 'mag'. 
+            time - Date vector of the data
+            brightness - vector of the photometric measurements
+            err_brightness - vector of the errors in the phot measurements.
+            coords - Sky coordinates of the event
+        """
+        #Check to see if either add_2450000 or add_2460000 is set 
+        #JCY - why is this here? It will create problems once mjd2hjd is
+        #implemented, i.e. you might want to do both add_2450000 and mjd2hjd.
         n_additions = 0
         for (key, value) in self._init_keys.items():
             n_additions += value
         if n_additions > 1:
-            msg = 'More than one delta time found in MulensData._initialize()'
+            msg = 'MulensData._initialize(): more than one'
             raise ValueError(msg)
 
+        #Adjust the time vector as necessary.
         if self._init_keys['add245']:
             time += 2450000.
         elif self._init_keys['add246']:
             time += 2460000.
 
+        #Store the time vector
         self._time = time
         self._n_epochs = len(time)
 
+        #Check that the number of epochs equals the number of observations
         if ((len(brightness) != self._n_epochs) 
             or (len(err_brightness) != self._n_epochs)):
             raise ValueError('input data in MulesData have different lengths')
 
+        #Store the photometry
         self._brightness_input = brightness
         self._brightness_input_err = err_brightness        
-        self.input_fmt = mag_fmt
+        self.input_fmt = phot_fmt
 
-        if mag_fmt == "mag":
+        #Create the complementary photometry (mag --> flux, flux --> mag)
+        if phot_fmt == "mag":
             self.mag = self._brightness_input
             self.err_mag = self._brightness_input_err
             (self.flux, self.err_flux) = Utils.get_flux_and_err_from_mag(
                                           mag=self.mag, err_mag=self.err_mag)
-        elif mag_fmt == "flux":
+        elif phot_fmt == "flux":
             self.flux = self._brightness_input
             self.err_flux = self._brightness_input_err
             (self.mag, self.err_mag) = Utils.get_mag_and_err_from_flux(
@@ -108,6 +159,7 @@ class MulensData(object):
             msg = 'unknown format of brightness in ' + file_name + ' file'
             raise ValueError(msg)
 
+        #Create an array to flag bad epochs
         self.bad = self.n_epochs * [False]
 
     @property
