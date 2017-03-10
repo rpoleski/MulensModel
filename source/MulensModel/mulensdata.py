@@ -13,7 +13,11 @@ class MulensData(object):
     def __init__(self, data_list=None, file_name=None,
                  mag_fmt="mag", coords=None, ra=None, dec=None, 
                  satellite=None, ephemrides_file=None, add_2450000=False,
-                 add_2460000=False):
+                 add_2460000=False, **kwargs):
+        """
+        if file_name is provided, uses np.loadtxt to load file, and
+        therefore this function accpets loadtxt keywords.q
+        """
         self._n_epochs = None  
         self._horizons = None
         self._satellite_skycoord = None
@@ -45,7 +49,7 @@ class MulensData(object):
                              coords=self._coords)
         elif file_name is not None:
             vector_1, vector_2, vector_3 = np.loadtxt(
-                fname=file_name, unpack=True, usecols=(0,1,2))
+                fname=file_name, unpack=True, usecols=(0,1,2), **kwargs)
             self._initialize(mag_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
