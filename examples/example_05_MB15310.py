@@ -47,13 +47,15 @@ pl.title('Data and Fitted Model (Default)')
 
 #Plot the data and model (customized)
 pl.figure()
-ev.plot_model(color='black',t_start=t_0-1., t_stop=t_0+1.)
+t_start= t_0 - 3.
+t_stop = t_0 + 1.
+ev.plot_model(color='black',t_start=t_start, t_stop=t_stop)
 ev.plot_data(
     label=labels, fmt='o', 
     color=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
-pl.ylim(16,12.)
-pl.xlim(t_0-1., t_0+1.)
-pl.legend()
+pl.ylim(17,12.5)
+pl.xlim(t_start, t_stop)
+pl.legend(loc='upper left')
 pl.title('Data and Fitted Model (Custom)')
 
 pl.show()
