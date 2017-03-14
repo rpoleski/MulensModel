@@ -1,3 +1,3 @@
-from lens import *
-from source import *
-from mulenssystem import *
+from MulensModel.mulensobjects.lens import *
+from MulensModel.mulensobjects.source import *
+from MulensModel.mulensobjects.mulenssystem import *
