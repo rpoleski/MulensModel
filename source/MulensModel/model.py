@@ -441,9 +441,64 @@ class Model(object):
         Plot the data scaled to the model. If data_ref is not
         specified, uses the first dataset as the flux
         reference. 
+
+        If errors is True (default), plots with matplotlib.errorbar().
+        If errors is False, plots with matplotib.scatter().
+        Hence, **kwargs should be appropriate to the type of plotting.
+
+        Special **kwargs options:
+        The following properties may be passed as a list (one
+        element/dataset) or a single value:
+            label
+            pl.errorbar: fmt, markersize, color
+            pl.scatter: marker, s, color
         """
         #Reference flux scale
         f_source_0, f_blend_0 = self.get_ref_fluxes(data_ref=data_ref)
+
+        #unpack **kwargs
+        kwargs_is_set = {'fmt':False, 'markersize':False, 'color':False,
+                       'marker':False, 's':False,
+                         'label':False}
+        for key, value in kwargs.iteritems():
+             if key == 'fmt':
+                 kwargs_is_set[key] = True
+                 if len(value) > 1:
+                     fmt_list = value
+                 else:
+                     fmt_list = [value for x in range(len(self._datasets))]
+             elif key == 'markersize':
+                 kwargs_is_set[key] = True
+                 if len(value) > 1:
+                     markersize_list = value
+                 else:
+                     markersize_list = [value for x in range(len(self._datasets))]
+             elif key == 'color':
+                 kwargs_is_set[key] = True
+                 if len(value) > 1:
+                     color_list = value
+                 else:
+                     color_list = [value for x in range(len(self._datasets))]
+             elif key == 'marker':
+                 kwargs_is_set[key] = True
+                 if len(value) > 1:
+                     marker_list = value
+                 else:
+                     marker_list = [value for x in range(len(self._datasets))]
+             elif key == 's':
+                 kwargs_is_set[key] = True
+                 if len(value) > 1:
+                     s_list = value
+                 else:
+                     s_list = [value for x in range(len(self._datasets))]
+             elif key == 'label':
+                 kwargs_is_set[key] = True
+                 if len(value) > 1:
+                     label_list = value
+                 else:
+                     raise TypeError(
+                         'label must be a list with length equal to the number of datasets')
+
 
         #Get fluxes for all datasets
         fit = Fit(
@@ -451,22 +506,48 @@ class Model(object):
         fit.fit_fluxes()
 
         #plot each dataset
-        for data in self._datasets:
+        for i,data in enumerate(self._datasets):
             f_source = fit._flux_sources[data]
             f_blend = fit._flux_blending[data]
 
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
+            if kwargs_is_set['color']:
+                kwargs['color'] = color_list[i]
+
+            if kwargs_is_set['label']:
+                kwargs['label'] = label_list[i]
+
             if errors:
                 err_flux = f_source_0 * data.err_flux / f_source
                 mag, err = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                pl.errorbar(data.time, mag, yerr=err,
-                           fmt='o', markersize=3, **kwargs) 
+
+                if kwargs_is_set['fmt']:
+                    kwargs['fmt'] = fmt_list[i]
+                else:
+                    kwargs['fmt'] = 'o'
+
+                if kwargs_is_set['markersize']:
+                    kwargs['markersize'] = markersize_list[i]
+                else:
+                    kwargs['markersize'] = 3
+
+                pl.errorbar(data.time, mag, yerr=err, **kwargs) 
 #might cause weird collisions if markersize or fmt are specified in
 #kwargs. likewise for scatter (below)
             else:
+                if kwargs_is_set['marker']:
+                    kwargs['marker'] = marker_list[i]
+                else:
+                    kwargs['marker'] = 'o'
+
+                if kwargs_is_set['s']:
+                    kwargs['s'] = s_list[i]
+                else:
+                    kwargs['s'] = 3
+
                 pl.scatter(data.time, Utils.get_mag_from_flux(flux),
-                           marker='o', s=3, **kwargs)
+                           **kwargs)
 
         #Plot properties
         pl.ylabel('Magnitude')

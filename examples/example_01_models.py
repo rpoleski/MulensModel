@@ -4,7 +4,6 @@ import numpy as np
 import MulensModel
 from MulensModel.model import Model
 
-
 # Create a PSPL model
 t_0 = 3583.
 u_0 = 0.3
