@@ -10,7 +10,7 @@ MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
 
 SAMPLE_FILE_02 = MODULE_PATH + "/data/phot_ob151100_OGLE_v1.dat" #HJD'
 SAMPLE_FILE_03 = MODULE_PATH + "/data/phot_ob151100_Spitzer_2_v2.dat" #HJD'
-SAMPLE_FILE_03_EPH = MODULE_PATH + "/data/Spitzer_ephemrides_01.dat" #UTC
+SAMPLE_FILE_03_EPH = MODULE_PATH + "/data/Spitzer_ephemeris_01.dat" #UTC
 SAMPLE_FILE_02_REF = MODULE_PATH + "/data/ob151100_OGLE_ref_v1.dat" #HJD'
 SAMPLE_FILE_03_REF = MODULE_PATH + "/data/ob151100_Spitzer_ref_v1.dat" #HJD'
 
