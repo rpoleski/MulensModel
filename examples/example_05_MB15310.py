@@ -53,6 +53,7 @@ ev.plot_data(
     color=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
 pl.ylim(16,12.)
 pl.xlim(t_0-1., t_0+1.)
+pl.legend()
 pl.title('Data and Fitted Model (Custom)')
 
 pl.show()
