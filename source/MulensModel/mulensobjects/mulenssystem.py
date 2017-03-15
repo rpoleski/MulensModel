@@ -1,11 +1,14 @@
 import numpy as np
-from astropy import units as u
 import matplotlib.pyplot as pl
+
+from astropy import units as u
+from astropy.constants import au, c, G
 
 from MulensModel.mulensobjects.lens import Lens
 from MulensModel.mulensobjects.source import Source
 from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters
+
 
 class MulensSystem(object):
     """
@@ -93,7 +96,9 @@ class MulensSystem(object):
         """
         The angular Einstein Radius in milliarcseconds.
         """
-        kappa = 8.14 * u.mas / u.solMass
+        kappa = (4. * G / (c**2 * au)).to(u.mas/u.Msun, 
+                        equivalencies=u.dimensionless_angles())
+
         return np.sqrt(
             kappa * self.lens.total_mass.to(u.solMass) 
             * self.pi_rel.to(u.mas))
