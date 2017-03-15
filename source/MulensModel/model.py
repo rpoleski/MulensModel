@@ -456,43 +456,41 @@ class Model(object):
         #Reference flux scale
         f_source_0, f_blend_0 = self.get_ref_fluxes(data_ref=data_ref)
 
+        # default keywords:
+        new_kwargs = dict()
+        new_kwargs['fmt'] = 'o'
+        new_kwargs['markersize'] = 3
+        new_kwargs['marker'] = 'o'
+        #new_kwargs['s'] = 3        
+
         #unpack **kwargs
-        kwargs_is_set = {'fmt':False, 'markersize':False, 'color':False,
-                       'marker':False, 's':False,
-                         'label':False}
         for key, value in kwargs.items():
              if key == 'fmt':
-                 kwargs_is_set[key] = True
                  if isinstance(value, (list, np.ndarray)):
                      fmt_list = value
                  else:
                      fmt_list = [value for x in range(len(self._datasets))]
              elif key == 'markersize':
-                 kwargs_is_set[key] = True
                  if isinstance(value, (list, np.ndarray)):
                      markersize_list = value
                  else:
                      markersize_list = [value for x in range(len(self._datasets))]
              elif key == 'color':
-                 kwargs_is_set[key] = True
                  if isinstance(value, (list, np.ndarray)):
                      color_list = value
                  else:
                      color_list = [value for x in range(len(self._datasets))]
              elif key == 'marker':
-                 kwargs_is_set[key] = True
                  if isinstance(value, (list, np.ndarray)):
                      marker_list = value
                  else:
                      marker_list = [value for x in range(len(self._datasets))]
              elif key == 's':
-                 kwargs_is_set[key] = True
                  if isinstance(value, (list, np.ndarray)):
                      s_list = value
                  else:
                      s_list = [value for x in range(len(self._datasets))]
              elif key == 'label':
-                 kwargs_is_set[key] = True
                  if isinstance(value, (list, np.ndarray)):
                      label_list = value
                  else:
@@ -511,40 +509,34 @@ class Model(object):
 
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
-            if kwargs_is_set['color']:
-                kwargs['color'] = color_list[i]
+            if 'color' in kwargs:
+                new_kwargs['color'] = color_list[i]
 
-            if kwargs_is_set['label']:
-                kwargs['label'] = label_list[i]
+            if 'label' in kwargs:
+                new_kwargs['label'] = label_list[i]
 
             if errors:
                 err_flux = f_source_0 * data.err_flux / f_source
                 mag, err = Utils.get_mag_and_err_from_flux(flux, err_flux)
 
-                if kwargs_is_set['fmt']:
-                    kwargs['fmt'] = fmt_list[i]
-                else:
-                    kwargs['fmt'] = 'o'
+                if 'fmt' in kwargs:
+                    new_kwargs['fmt'] = fmt_list[i]
 
-                if kwargs_is_set['markersize']:
-                    kwargs['markersize'] = markersize_list[i]
-                else:
-                    kwargs['markersize'] = 3
+                if 'markersize' in kwargs:
+                    new_kwargs['markersize'] = markersize_list[i]
 
-                pl.errorbar(data.time, mag, yerr=err, **kwargs) 
+                pl.errorbar(data.time, mag, yerr=err, **new_kwargs) 
             else:
-                if kwargs_is_set['marker']:
-                    kwargs['marker'] = marker_list[i]
-                else:
-                    kwargs['marker'] = 'o'
+                if 'marker' in kwargs:
+                    new_kwargs['marker'] = marker_list[i]
 
-                if kwargs_is_set['s']:
-                    kwargs['s'] = s_list[i]
+                if 's' in kwargs:
+                    new_kwargs['s'] = s_list[i]
                 else:
-                    kwargs['s'] = 3
+                    new_kwargs['s'] = 3
 
                 pl.scatter(data.time, Utils.get_mag_from_flux(flux),
-                           **kwargs)
+                           **new_kwargs)
 
         #Plot properties
         pl.ylabel('Magnitude')
