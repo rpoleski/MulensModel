@@ -7,7 +7,11 @@ from MulensModel.utils import Utils
 
 
 class BinaryLens(object):
-    """binary lens equation - its solutions, images, parities etc."""
+    """
+    binary lens equation - its solutions, images, parities, magnifications, etc.
+    
+    The binary lens equation is a 5th order complex polynomial.
+    """
     def __init__(self, mass_1=None, mass_2=None, separation=None):
         """mass_1, mass_2, and separation are relative to 
         some mass (and corresponding Einstein radius)"""
@@ -21,7 +25,7 @@ class BinaryLens(object):
         self._last_polynomial_input = None
 
     def _calculate_variables(self, source_x, source_y):
-        """calculates values of variables needed for polynomial coefficients"""
+        """calculates values of constants needed for polynomial coefficients"""
         self._total_mass = 0.5 * (self.mass_1 + self.mass_2)
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
         self._position_z1_WM95 = -0.5 * self.separation + 0.j
@@ -30,20 +34,26 @@ class BinaryLens(object):
 
     def _get_polynomial_WM95(self, source_x, source_y):
         """calculate coefficients of the polynomial"""
+        #Calculate constants
         self._calculate_variables(source_x=source_x, source_y=source_y)
         total_m = self._total_mass
         total_m_pow2 = total_m * total_m
+
         m_diff = self._mass_difference
         m_diff_pow2 = m_diff * m_diff
+
         pos_z1 = self._position_z1_WM95
         pos_z2 = self._position_z2_WM95
+
         z1_pow2 = pos_z1 * pos_z1
         z1_pow3 = z1_pow2 * pos_z1
         z1_pow4 = z1_pow2 * z1_pow2
+
         zeta = self._zeta_WM95
         zeta_conj = np.conjugate(zeta)
         zeta_conj_pow2 = zeta_conj * zeta_conj
 
+        #Calculate the coefficients of the 5th order complex polynomial
         coef_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
         coef_4 = Utils.complex_fsum([-2. * total_m * zeta_conj, 
                        zeta * zeta_conj_pow2, -2. * m_diff * pos_z1, 
@@ -69,6 +79,8 @@ class BinaryLens(object):
                       zeta * zeta_conj_pow2 * z1_pow2, 
                       -2. * m_diff * z1_pow3 - zeta * z1_pow4])
         coef_0 *= z1_pow2
+
+        #Return the coefficients of the polynomial
         coefs_list = [coef_0, coef_1, coef_2, coef_3, coef_4, coef_5]
         return np.array(coefs_list).reshape(6)
         
@@ -77,12 +89,14 @@ class BinaryLens(object):
         """roots of the polynomial"""
         polynomial_input = [self.mass_1, self.mass_2, self.separation, 
                             source_x, source_y]
+
         if polynomial_input != self._last_polynomial_input:
             polynomial = self._get_polynomial_WM95(source_x=source_x, 
                                                    source_y=source_y)
             self._polynomial_roots_WM95 = (
                     np.polynomial.polynomial.polyroots(polynomial))
             self._last_polynomial_input = polynomial_input
+
         return self._polynomial_roots_WM95
 
     def _polynomial_roots_ok_WM95(self, source_x, source_y, return_distances=False):
@@ -106,6 +120,8 @@ class BinaryLens(object):
                 distances.append(distances_from_root[min_distance_arg])
         # The values in distances[] are a diagnostic on how good the numerical accuracy is.
 
+        #If the lens equation is solved correctly, there should be
+        #either 3 or 5 solutions (corresponding to 3 or 5 images)
         if len(out) not in [3, 5]:
             msg = 'CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: {:} {:} {:} {:} {:}'
             txt = msg.format(repr(self.mass_1), repr(self.mass_2), 
@@ -146,9 +162,11 @@ class BinaryLens(object):
                 source_x=source_x, source_y=source_y)
 
     def point_source_magnification(self, source_x, source_y):
-        """calculates point source magnification for given position
+        """
+        calculates point source magnification for given position
         in a coordinate system where higher mass is at the origin
-        and lower mass is at (separation, 0)"""
+        and lower mass is at (separation, 0)
+        """
         return self._point_source_Witt_Mao_95(
                 source_x=source_x + self.separation / 2., 
                 source_y=source_y)

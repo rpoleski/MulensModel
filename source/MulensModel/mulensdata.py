@@ -11,6 +11,10 @@ from MulensModel.horizons import Horizons
 #To implement: mjd2hjd = T/F
 #usecols
 class MulensData(object):
+    """
+    A set of photometric measurements for a microlensing event.
+    """
+
     def __init__(self, data_list=None, file_name=None,
                  phot_fmt="mag", coords=None, ra=None, dec=None, 
                  satellite=None, ephemrides_file=None, add_2450000=False,
