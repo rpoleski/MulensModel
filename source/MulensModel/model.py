@@ -460,7 +460,7 @@ class Model(object):
         kwargs_is_set = {'fmt':False, 'markersize':False, 'color':False,
                        'marker':False, 's':False,
                          'label':False}
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
              if key == 'fmt':
                  kwargs_is_set[key] = True
                  if isinstance(value, (list, np.ndarray)):
