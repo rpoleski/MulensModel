@@ -5,7 +5,7 @@ from MulensModel.mulensobjects.mulenssystem import MulensSystem
 from MulensModel.mulensobjects.lens import Lens
 from MulensModel.mulensobjects.source import Source
 
-kappa = 8.14 * u.mas / u.solMass
+kappa = 8.14611833456212 * u.mas / u.solMass
 lens = {'mass': 0.3 * u.solMass, 'dist': 4 * 10**3 * u.pc}
 source = {'dist' : 8 * 10**3 * u.pc}
 mu_rel = 3. * u.mas / u.yr
@@ -29,6 +29,6 @@ def test_mulenssytem():
     source = Source(distance=8.0)
     system = MulensSystem(lens=lens, source=source)
 
-    np.testing.assert_almost_equal(system.theta_E.value, 0.81, decimal=2)
-    np.testing.assert_almost_equal(system.r_E.value, 3.24, decimal=1)
-    np.testing.assert_almost_equal(system.r_E_tilde.value, 6.48, decimal=1)
+    np.testing.assert_almost_equal(system.theta_E.value, 0.80727, decimal=5)
+    np.testing.assert_almost_equal(system.r_E.value, 3.22909, decimal=5)
+    np.testing.assert_almost_equal(system.r_E_tilde.value, 6.45818, decimal=5)
