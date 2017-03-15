@@ -463,37 +463,37 @@ class Model(object):
         for key, value in kwargs.iteritems():
              if key == 'fmt':
                  kwargs_is_set[key] = True
-                 if len(value) > 1:
+                 if isinstance(value, (list, np.ndarray)):
                      fmt_list = value
                  else:
                      fmt_list = [value for x in range(len(self._datasets))]
              elif key == 'markersize':
                  kwargs_is_set[key] = True
-                 if len(value) > 1:
+                 if isinstance(value, (list, np.ndarray)):
                      markersize_list = value
                  else:
                      markersize_list = [value for x in range(len(self._datasets))]
              elif key == 'color':
                  kwargs_is_set[key] = True
-                 if len(value) > 1:
+                 if isinstance(value, (list, np.ndarray)):
                      color_list = value
                  else:
                      color_list = [value for x in range(len(self._datasets))]
              elif key == 'marker':
                  kwargs_is_set[key] = True
-                 if len(value) > 1:
+                 if isinstance(value, (list, np.ndarray)):
                      marker_list = value
                  else:
                      marker_list = [value for x in range(len(self._datasets))]
              elif key == 's':
                  kwargs_is_set[key] = True
-                 if len(value) > 1:
+                 if isinstance(value, (list, np.ndarray)):
                      s_list = value
                  else:
                      s_list = [value for x in range(len(self._datasets))]
              elif key == 'label':
                  kwargs_is_set[key] = True
-                 if len(value) > 1:
+                 if isinstance(value, (list, np.ndarray)):
                      label_list = value
                  else:
                      raise TypeError(
