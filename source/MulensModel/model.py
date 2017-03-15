@@ -454,10 +454,9 @@ class Model(object):
             pl.scatter: marker, s, color
         """
         #Reference flux scale
-        f_source_0, f_blend_0 = self.get_ref_fluxes(data_ref=data_ref)
+        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
 
         # default keywords:
-        new_kwargs = dict()
         default_kwargs = dict()
         default_kwargs['fmt'] = 'o'
         default_kwargs['markersize'] = 3
@@ -481,33 +480,18 @@ class Model(object):
 
             if errors:
                 err_flux = f_source_0 * data.err_flux / f_source
-                mag, err = Utils.get_mag_and_err_from_flux(flux, err_flux)
-
-                for key in set_kwargs_for_errors:
-                    if key in kwargs.keys():
-                        value = kwargs[key]
-                        if isinstance(value, (list, np.ndarray)):
-                            new_kwargs[key] = value[i]
-                        else:
-                            new_kwargs[key] = value
-                    elif key in default_kwargs.keys():
-                        new_kwargs[key] = default_kwargs[key]
+                (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+                
+                new_kwargs = Utils.combine_dicts(set_kwargs_for_errors, kwargs, default_kwargs, i)
 
                 pl.errorbar(data.time, mag, yerr=err, **new_kwargs) 
                 
             else:
-                for key in set_kwargs_for_no_errors:
-                    if key in kwargs.keys():
-                        value = kwargs[key]
-                        if isinstance(value, (list, np.ndarray)):
-                            new_kwargs[key] = value[i]
-                        else:
-                            new_kwargs[key] = value
-                    elif key in default_kwargs.keys():
-                        new_kwargs[key] = default_kwargs[key]
-                        
-                pl.scatter(data.time, Utils.get_mag_from_flux(flux),
-                           **new_kwargs)
+                mag = Utils.get_mag_from_flux(flux)
+                
+                new_kwargs = Utils.combine_dicts(set_kwargs_for_no_errors, kwargs, default_kwargs, i)
+                
+                pl.scatter(data.time, mag, **new_kwargs)
 
         #Plot properties
         pl.ylabel('Magnitude')

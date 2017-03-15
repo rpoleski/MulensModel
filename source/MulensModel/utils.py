@@ -96,3 +96,23 @@ class Utils(object):
         return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
     dot = staticmethod(dot)
     
+    def combine_dicts(kwargs_to_set, user_dict, default_dict, index=None):
+        """construct a new dictionary that that searche user_dict and default_dict
+        for keywords from kwargs_to_set list and takes corresponding values,
+        if keyword is found
+        
+        If user_dict[key] is a list or a numpy array and index is provided,
+        then user_dict[key][value] is used.
+        """
+        new_dict = dict()
+        for key in kwargs_to_set:
+            if key in user_dict.keys():
+                value = user_dict[key]
+                if isinstance(value, (list, np.ndarray)) and index is not None:
+                    new_dict[key] = value[index]
+                else:
+                    new_dict[key] = value
+            elif key in default_dict.keys():
+                new_dict[key] = default_dict[key]
+        return new_dict
+    combine_dicts = staticmethod(combine_dicts)
