@@ -59,7 +59,11 @@ pl.xlim(t_start, t_stop)
 pl.legend(loc='upper left')
 pl.title('Data and Fitted Model (Custom)')
 
-pl.show()
-
 #Plot the residuals (not implemented)
+pl.figure()
+ev.plot_residuals()
+pl.xlim(t_start, t_stop)
+pl.title('Residuals to the Model')
+
+pl.show()
 

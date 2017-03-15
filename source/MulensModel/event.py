@@ -223,6 +223,9 @@ class Event(object):
         data_ref. Uses the model to calculate the magnifications.
         """
         self.model.plot_data(data_ref=data_ref, errors=errors, **kwargs)
+
+    def plot_residuals(self, errors=True, **kwargs):
+        self.model.plot_residuals(errors=errors, **kwargs)
     
 
 if __name__ == "__main__":

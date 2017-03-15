@@ -499,7 +499,6 @@ class Model(object):
                      raise TypeError(
                          'label must be a list with length equal to the number of datasets')
 
-
         #Get fluxes for all datasets
         fit = Fit(
             data=self._datasets, magnification=self.data_magnification)
@@ -533,8 +532,6 @@ class Model(object):
                     kwargs['markersize'] = 3
 
                 pl.errorbar(data.time, mag, yerr=err, **kwargs) 
-#might cause weird collisions if markersize or fmt are specified in
-#kwargs. likewise for scatter (below)
             else:
                 if kwargs_is_set['marker']:
                     kwargs['marker'] = marker_list[i]
@@ -556,6 +553,48 @@ class Model(object):
         ymin, ymax = pl.gca().get_ylim()
         if ymax > ymin:
             pl.gca().invert_yaxis()
+
+    def plot_residuals(self, errors=True, **kwargs):
+        """
+        plot the residuals (in magnitudes) to the model. Uses the best f_source,
+        f_blend for each dataset (not scaled to a particular
+        photometric system).
+        """
+        #Get fluxes for all datasets
+        fit = Fit(
+            data=self._datasets, magnification=self.data_magnification)
+        fit.fit_fluxes()
+
+        delta_mag = 0.
+
+        for i,data in enumerate(self._datasets):
+            f_source = fit._flux_sources[data]
+            f_blend = fit._flux_blending[data]
+
+            model_flux = f_source * self.magnification(data.time) + f_blend
+            model_mag = Utils.get_mag_from_flux(model_flux)
+
+            mag, err = Utils.get_mag_and_err_from_flux(data.flux, 
+                                                       data.err_flux)
+            residuals = model_mag - mag
+            if np.max(np.abs(residuals)) > delta_mag:
+                delta_mag = np.max(np.abs(residuals))
+
+            if errors:
+                pl.errorbar(data.time, residuals, yerr=err, fmt='o', 
+                            **kwargs) 
+            else:
+                pl.scatter(data.time, residuals, lw=0., **kwargs)
+
+        if delta_mag > 1.:
+            delta_mag = 0.5
+
+        pl.plot([0.,3000000.],[0.,0.],color='black')
+        #Plot properties
+        pl.ylim(-delta_mag, delta_mag)
+        pl.ylabel('Residuals')
+        pl.xlabel('Time')
+
 
     def set_times(
         self, parameters=None, t_range=None, t_start=None, t_stop=None, 

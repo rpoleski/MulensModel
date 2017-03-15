@@ -361,11 +361,11 @@ class Lens(object):
         A function to plot the x,y coordinates (scaled to the
         Einstein ring) of the caustics.
         """
-        pass
+        raise NotImplementedError('please write Lens.plot_caustics')
 
     def _calculate_caustics(self):
         """
         Private function: calculate the x,y coordinates (scaled to the
         Einstein ring) of the caustics.
         """
-        pass
+        raise NotImplementedError('please write Lens._calculate_caustics')

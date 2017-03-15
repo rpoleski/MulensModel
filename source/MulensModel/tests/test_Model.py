@@ -91,4 +91,4 @@ def test_BLPS_01():
     m = model.data_magnification[0][0]
     np.testing.assert_almost_equal(m, 4.691830781584699) # This value comes from early version of this code.
     # np.testing.assert_almost_equal(m, 4.710563917) # This value comes from Andy's getbinp().
-   
+
