@@ -25,9 +25,9 @@ files = glob.glob(MODULE_PATH+"/data/MB08310"+"/*.tbl")
 datasets = []
 labels = []
 for file_ in files:
-	data = MulensData(file_name=file_, comments=["\\","|"])	
-	datasets.append(data)
-        labels.append(os.path.basename(file_))
+    data = MulensData(file_name=file_, comments=["\\","|"])	
+    datasets.append(data)
+    labels.append(os.path.basename(file_))
 
 #Define basic point lens model
 t_0 = 2454656.39975
