@@ -33,8 +33,9 @@ for file_ in files:
 t_0 = 2454656.39975
 u_0 = 0.00300
 t_E = 11.14
-#rho = t_star/t_E (t_star = 0.05487) #Not sure rho is implemented
-plens_model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+t_star = 0.05487
+rho = t_star/t_E
+plens_model = Model(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho)
 
 #Combine the data and model into an event
 ev = Event(datasets=datasets, model=plens_model)
@@ -53,7 +54,7 @@ ev.plot_model(color='black',t_start=t_start, t_stop=t_stop)
 ev.plot_data(
     label=labels, fmt='o', 
     color=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
-pl.ylim(17,12.5)
+pl.ylim(19,15.2)
 pl.xlim(t_start, t_stop)
 pl.legend(loc='upper left')
 pl.title('Data and Fitted Model (Custom)')
