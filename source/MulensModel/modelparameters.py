@@ -74,6 +74,7 @@ class ModelParameters(object):
                 raise AttributeError('pi_E has 2 components')
 
     def __repr__(self):
+        """A nice way to represent a ModelParameters object as a string"""        
         variables = '{0:>11} {1:>9} {2:>10}'.format(
             "t_0 (HJD')", 'u_0', 
             't_E ({0})'.format(self._t_E.unit))
