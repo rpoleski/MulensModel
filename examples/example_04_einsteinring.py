@@ -14,16 +14,16 @@ Output:
 """
 
 #Define the source and lens parameters
-lens_dist = np.arange(1,8,1) 
-lens_mass = [10.0,1.0, 0.3, 0.1, 0.01, 0.001]
-source = mm.Source(distance=8)
+lens_dist = np.arange(1., 8., 1.) 
+lens_mass = [10., 1., 0.3, 0.1, 0.01, 0.001]
+source = mm.Source(distance=8.)
 mu_rel = 4.
 
 #Open the output files and print headers
-file_thetaE = open('thetaE.tab','w')
-file_rE = open('rE.tab','w')
-file_tE = open('tE.tab','w')
-file_rEtilde = open('rEtilde.tab','w')
+file_thetaE = open('thetaE.tab', 'w')
+file_rE = open('rE.tab', 'w')
+file_tE = open('tE.tab', 'w')
+file_rEtilde = open('rEtilde.tab', 'w')
 file_thetaE.write('# Angular Einstein ring radius in milliarcseconds.\n')
 file_rE.write('# Physical Einstein ring radius in AU (Lens plane).\n')
 file_rEtilde.write('# Projection of Einstein ring radius in AU (Observer plane).\n')
