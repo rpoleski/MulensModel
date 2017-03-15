@@ -458,44 +458,11 @@ class Model(object):
 
         # default keywords:
         new_kwargs = dict()
-        new_kwargs['fmt'] = 'o'
-        new_kwargs['markersize'] = 3
-        new_kwargs['marker'] = 'o'
-        #new_kwargs['s'] = 3        
-
-        #unpack **kwargs
-        for key, value in kwargs.items():
-             if key == 'fmt':
-                 if isinstance(value, (list, np.ndarray)):
-                     fmt_list = value
-                 else:
-                     fmt_list = [value for x in range(len(self._datasets))]
-             elif key == 'markersize':
-                 if isinstance(value, (list, np.ndarray)):
-                     markersize_list = value
-                 else:
-                     markersize_list = [value for x in range(len(self._datasets))]
-             elif key == 'color':
-                 if isinstance(value, (list, np.ndarray)):
-                     color_list = value
-                 else:
-                     color_list = [value for x in range(len(self._datasets))]
-             elif key == 'marker':
-                 if isinstance(value, (list, np.ndarray)):
-                     marker_list = value
-                 else:
-                     marker_list = [value for x in range(len(self._datasets))]
-             elif key == 's':
-                 if isinstance(value, (list, np.ndarray)):
-                     s_list = value
-                 else:
-                     s_list = [value for x in range(len(self._datasets))]
-             elif key == 'label':
-                 if isinstance(value, (list, np.ndarray)):
-                     label_list = value
-                 else:
-                     raise TypeError(
-                         'label must be a list with length equal to the number of datasets')
+        default_kwargs = dict()
+        default_kwargs['fmt'] = 'o'
+        default_kwargs['markersize'] = 3
+        default_kwargs['marker'] = 'o'
+        default_kwargs['s'] = 3        
 
         #Get fluxes for all datasets
         fit = Fit(
@@ -512,12 +479,6 @@ class Model(object):
 
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
-            #if 'color' in kwargs:
-                #new_kwargs['color'] = color_list[i]
-
-            #if 'label' in kwargs:
-                #new_kwargs['label'] = label_list[i]
-
             if errors:
                 err_flux = f_source_0 * data.err_flux / f_source
                 mag, err = Utils.get_mag_and_err_from_flux(flux, err_flux)
@@ -529,22 +490,22 @@ class Model(object):
                             new_kwargs[key] = value[i]
                         else:
                             new_kwargs[key] = value
-                #if 'fmt' in kwargs:
-                    #new_kwargs['fmt'] = fmt_list[i]
-
-                #if 'markersize' in kwargs:
-                    #new_kwargs['markersize'] = markersize_list[i]
+                    elif key in default_kwargs.keys():
+                        new_kwargs[key] = default_kwargs[key]
 
                 pl.errorbar(data.time, mag, yerr=err, **new_kwargs) 
+                
             else:
-                #if 'marker' in kwargs:
-                    #new_kwargs['marker'] = marker_list[i]
-
-                #if 's' in kwargs:
-                    #new_kwargs['s'] = s_list[i]
-                #else:
-                    #new_kwargs['s'] = 3
-
+                for key in set_kwargs_for_no_errors:
+                    if key in kwargs.keys():
+                        value = kwargs[key]
+                        if isinstance(value, (list, np.ndarray)):
+                            new_kwargs[key] = value[i]
+                        else:
+                            new_kwargs[key] = value
+                    elif key in default_kwargs.keys():
+                        new_kwargs[key] = default_kwargs[key]
+                        
                 pl.scatter(data.time, Utils.get_mag_from_flux(flux),
                            **new_kwargs)
 
