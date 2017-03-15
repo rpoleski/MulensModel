@@ -502,38 +502,48 @@ class Model(object):
             data=self._datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
 
+        set_kwargs_for_errors = ['color', 'label', 'fmt', 'markersize']
+        set_kwargs_for_no_errors = ['color', 'label', 'marker', 's']
+
         #plot each dataset
-        for i,data in enumerate(self._datasets):
+        for (i, data) in enumerate(self._datasets):
             f_source = fit._flux_sources[data]
             f_blend = fit._flux_blending[data]
 
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
-            if 'color' in kwargs:
-                new_kwargs['color'] = color_list[i]
+            #if 'color' in kwargs:
+                #new_kwargs['color'] = color_list[i]
 
-            if 'label' in kwargs:
-                new_kwargs['label'] = label_list[i]
+            #if 'label' in kwargs:
+                #new_kwargs['label'] = label_list[i]
 
             if errors:
                 err_flux = f_source_0 * data.err_flux / f_source
                 mag, err = Utils.get_mag_and_err_from_flux(flux, err_flux)
 
-                if 'fmt' in kwargs:
-                    new_kwargs['fmt'] = fmt_list[i]
+                for key in set_kwargs_for_errors:
+                    if key in kwargs.keys():
+                        value = kwargs[key]
+                        if isinstance(value, (list, np.ndarray)):
+                            new_kwargs[key] = value[i]
+                        else:
+                            new_kwargs[key] = value
+                #if 'fmt' in kwargs:
+                    #new_kwargs['fmt'] = fmt_list[i]
 
-                if 'markersize' in kwargs:
-                    new_kwargs['markersize'] = markersize_list[i]
+                #if 'markersize' in kwargs:
+                    #new_kwargs['markersize'] = markersize_list[i]
 
                 pl.errorbar(data.time, mag, yerr=err, **new_kwargs) 
             else:
-                if 'marker' in kwargs:
-                    new_kwargs['marker'] = marker_list[i]
+                #if 'marker' in kwargs:
+                    #new_kwargs['marker'] = marker_list[i]
 
-                if 's' in kwargs:
-                    new_kwargs['s'] = s_list[i]
-                else:
-                    new_kwargs['s'] = 3
+                #if 's' in kwargs:
+                    #new_kwargs['s'] = s_list[i]
+                #else:
+                    #new_kwargs['s'] = 3
 
                 pl.scatter(data.time, Utils.get_mag_from_flux(flux),
                            **new_kwargs)
