@@ -2,12 +2,11 @@
 Plots data and model for MB15310 with residuals (no fitting). 
 
 From Janczak et al. 2010, ApJ 711, 731
-
-NOTE: residuals have not been implemented in model.py
 """
 import glob
 import os
 import matplotlib.pyplot as pl
+from matplotlib import gridspec
 
 import MulensModel
 from MulensModel.mulensdata import MulensData
@@ -40,30 +39,36 @@ plens_model = Model(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho)
 #Combine the data and model into an event
 ev = Event(datasets=datasets, model=plens_model)
 
+gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
+
 #Plot the data and model
 pl.figure()
+pl.subplot(gs[0])
 ev.plot_model()
 ev.plot_data()
 pl.title('Data and Fitted Model (Default)')
+#Plot the residuals 
+pl.subplot(gs[1])
+ev.plot_residuals()
 
 #Plot the data and model (customized)
 pl.figure()
+pl.subplot(gs[0])
 t_start= t_0 - 3.
 t_stop = t_0 + 1.
 ev.plot_model(color='black',t_start=t_start, t_stop=t_stop)
 ev.plot_data(
-    label=labels, fmt='o', 
-    color=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
+    labels=labels, fmt='o', markersize=5,
+    color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
 pl.ylim(19,15.2)
 pl.xlim(t_start, t_stop)
 pl.legend(loc='upper left')
 pl.title('Data and Fitted Model (Custom)')
 
-#Plot the residuals (not implemented)
-pl.figure()
+#Plot the residuals 
+pl.subplot(gs[1])
 ev.plot_residuals()
 pl.xlim(t_start, t_stop)
-pl.title('Residuals to the Model')
 
 pl.show()
 
