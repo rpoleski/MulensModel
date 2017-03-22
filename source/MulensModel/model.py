@@ -441,11 +441,9 @@ class Model(object):
         f_source = fit._flux_sources[data]
         f_blend = fit._flux_blending[data]
 
-        return f_source, f_blend
+        return (f_source, f_blend)
 
-
-    def plot_data(
-        self, data_ref=None, errors=True, **kwargs):
+    def plot_data(self, data_ref=None, errors=True, **kwargs):
         #self, data_ref=None, errors=True, labels=None, marker_list=None, 
         #color_list=None, size_list=None, **kwargs):
         """
@@ -495,20 +493,20 @@ class Model(object):
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
                 #new_kwargs = self._set_kwargs_errorbar(i, **kwargs)
-                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, kwargs, self._default_kwargs, i)
+                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, 
+                                            kwargs, self._default_kwargs, i)
                 pl.errorbar(data.time, mag, yerr=err, **new_kwargs) 
                 
             else:
                 mag = Utils.get_mag_from_flux(flux)
                 #new_kwargs = self._set_kwargs_scatter(i, **kwargs)
-                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_no_errors, kwargs, self._default_kwargs, i)
+                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_no_errors, 
+                                            kwargs, self._default_kwargs, i)
                 pl.scatter(data.time, mag, **new_kwargs)
 
             #Set plot limits
-            if np.min(data.time) < t_min:
-                t_min = np.min(data.time)
-            if np.max(data.time) > t_max:
-                t_max = np.max(data.time)
+            t_min = min(t_min, np.min(data.time))
+            t_max = max(t_max, np.max(data.time))
 
         # remember settings:
         for key in kwargs.keys():
@@ -564,28 +562,27 @@ class Model(object):
             model_mag = Utils.get_mag_from_flux(model_flux)
 
             #Calculate Residuals
-            mag, err = Utils.get_mag_and_err_from_flux(data.flux, 
+            (mag, err) = Utils.get_mag_and_err_from_flux(data.flux, 
                                                        data.err_flux)
             residuals = model_mag - mag
-            if np.max(np.abs(residuals)) > delta_mag:
-                delta_mag = np.max(np.abs(residuals))
+            delta_mag = max(delta_mag, np.max(np.abs(residuals)))
 
             #Plot
             if errors:
                 #kwargs = self._set_kwargs_errorbar(i, **kwargs)
-                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, kwargs, self._default_kwargs, i)
+                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, 
+                                            kwargs, self._default_kwargs, i)
                 pl.errorbar(data.time, residuals, yerr=err, 
                             **new_kwargs) 
             else:
                 #kwargs = self._set_kwargs_scatter(i, **kwargs)
-                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_no_errors, kwargs, self._default_kwargs, i)
+                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_no_errors, 
+                                            kwargs, self._default_kwargs, i)
                 pl.scatter(data.time, residuals, lw=0., **new_kwargs)
 
             #Set plot limits
-            if np.min(data.time) < t_min:
-                t_min = np.min(data.time)
-            if np.max(data.time) > t_max:
-                t_max = np.max(data.time)
+            t_min = min(t_min, np.min(data.time))
+            t_max = max(t_max, np.max(data.time))
 
         # remember settings:
         for key in kwargs.keys():
@@ -594,7 +591,7 @@ class Model(object):
         if delta_mag > 1.:
             delta_mag = 0.5
 
-        pl.plot([0.,3000000.],[0.,0.],color='black')
+        pl.plot([0., 3000000.], [0., 0.], color='black')
         #Plot properties
         pl.ylim(-delta_mag, delta_mag)
         pl.xlim(t_min, t_max)
