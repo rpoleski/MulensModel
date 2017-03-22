@@ -96,15 +96,25 @@ class Utils(object):
         return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
     dot = staticmethod(dot)
     
-    def combine_dicts(kwargs_to_set, user_dict, default_dict, index=None):
-        """construct a new dictionary that that searche user_dict and default_dict
+    def combine_dicts(kwargs_to_set, user_dict, default_dict, index=None, check_user_dict=True):
+        """construct a new dictionary that combines user_dict and default_dict
         for keywords from kwargs_to_set list and takes corresponding values,
         if keyword is found
         
         If user_dict[key] is a list or a numpy array and index is provided,
-        then user_dict[key][value] is used.
+        then user_dict[key][value] is used. Same applies for default_dict.
+
+        If check_user_dict is True than it is checked if user_dict 
+        contains keywords that are not in kwargs_to_set.
         """
+        if check_user_dict:
+            keys = set(user_dict.keys()) - set(kwargs_to_set)
+            if len(keys) > 0:
+                msg = 'combine_dicts() tries to set keywords not on the input list: {:}'
+                raise ValueError(msg.format(keys))
+        
         new_dict = dict()
+        
         for key in kwargs_to_set:
             value = None
 
