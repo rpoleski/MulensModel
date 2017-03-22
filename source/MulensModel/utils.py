@@ -106,13 +106,18 @@ class Utils(object):
         """
         new_dict = dict()
         for key in kwargs_to_set:
+            value = None
+
             if key in user_dict.keys():
                 value = user_dict[key]
+            elif key in default_dict.keys():
+                value = default_dict[key]
+            
+            if value is not None:
                 if isinstance(value, (list, np.ndarray)) and index is not None:
                     new_dict[key] = value[index]
                 else:
                     new_dict[key] = value
-            elif key in default_dict.keys():
-                new_dict[key] = default_dict[key]
         return new_dict
     combine_dicts = staticmethod(combine_dicts)
+
