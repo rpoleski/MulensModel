@@ -58,8 +58,10 @@ t_start= t_0 - 3.
 t_stop = t_0 + 1.
 ev.plot_model(color='black',t_start=t_start, t_stop=t_stop)
 ev.plot_data(
-    labels=labels, fmt='o', markersize=5,
-    color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
+#    labels=labels, fmt='o', markersize=5,
+#    color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
+    label=labels, fmt='o', markersize=5,  
+    color=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
 pl.ylim(19,15.2)
 pl.xlim(t_start, t_stop)
 pl.legend(loc='upper left')

@@ -121,6 +121,11 @@ class Model(object):
 
         self.plot_properties = {}
 
+        # Set default values for plotting:
+        self._set_kwargs_for_errors = ['color', 'label', 'fmt', 'markersize']
+        self._set_kwargs_for_no_errors = ['color', 'label', 'marker', 's']
+        self._default_kwargs = {'fmt':'o', 'markersize':3, 'marker':'o', 's':3}
+
     def __repr__(self):
         return '{0}'.format(self._parameters)
 
@@ -440,8 +445,9 @@ class Model(object):
 
 
     def plot_data(
-        self, data_ref=None, errors=True, labels=None, marker_list=None, 
-        color_list=None, size_list=None, **kwargs):
+        self, data_ref=None, errors=True, **kwargs):
+        #self, data_ref=None, errors=True, labels=None, marker_list=None, 
+        #color_list=None, size_list=None, **kwargs):
         """
         Plot the data scaled to the model. If data_ref is not
         specified, uses the first dataset as the flux
@@ -461,9 +467,9 @@ class Model(object):
           size_list = list of marker sizes for each dataset
         """
         #Store plotting properties (if set)
-        self._set_plot_properties(
-            errors=errors, labels=labels, marker_list=marker_list, 
-            color_list=color_list, size_list=size_list)
+        #self._set_plot_properties(
+        #    errors=errors, labels=labels, marker_list=marker_list, 
+        #    color_list=color_list, size_list=size_list)
 
         #Reference flux scale
         (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
@@ -488,13 +494,15 @@ class Model(object):
             if errors:
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                kwargs = self._set_kwargs_errorbar(i, **kwargs)
-                pl.errorbar(data.time, mag, yerr=err, **kwargs) 
+                #new_kwargs = self._set_kwargs_errorbar(i, **kwargs)
+                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, kwargs, self._default_kwargs, i)
+                pl.errorbar(data.time, mag, yerr=err, **new_kwargs) 
                 
             else:
                 mag = Utils.get_mag_from_flux(flux)
-                kwargs = self._set_kwargs_scatter(i, **kwargs)
-                pl.scatter(data.time, mag, **kwargs)
+                #new_kwargs = self._set_kwargs_scatter(i, **kwargs)
+                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_no_errors, kwargs, self._default_kwargs, i)
+                pl.scatter(data.time, mag, **new_kwargs)
 
             #Set plot limits
             if np.min(data.time) < t_min:
@@ -502,6 +510,9 @@ class Model(object):
             if np.max(data.time) > t_max:
                 t_max = np.max(data.time)
 
+        # remember settings:
+        for key in kwargs.keys():
+            self._default_kwargs[key] = kwargs[key]
 
         #Plot properties
         pl.ylabel('Magnitude')
@@ -512,8 +523,9 @@ class Model(object):
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
-    def plot_residuals(self, errors=True, labels=None, marker_list=None, 
-        color_list=None, size_list=None,  **kwargs):
+    def plot_residuals(self, errors=True, **kwargs):
+    #def plot_residuals(self, errors=True, labels=None, marker_list=None, 
+    #    color_list=None, size_list=None,  **kwargs):
         """
         plot the residuals (in magnitudes) to the model. Uses the best f_source,
         f_blend for each dataset (not scaled to a particular
@@ -529,9 +541,9 @@ class Model(object):
           size_list = list of marker sizes for each dataset
         """
         #Store plotting properties (if set)
-        self._set_plot_properties(
-            errors=errors, labels=labels, marker_list=marker_list, 
-            color_list=color_list, size_list=size_list)
+        #self._set_plot_properties(
+        #    errors=errors, labels=labels, marker_list=marker_list, 
+        #    color_list=color_list, size_list=size_list)
 
         #Get fluxes for all datasets
         fit = Fit(
@@ -560,18 +572,24 @@ class Model(object):
 
             #Plot
             if errors:
-                kwargs = self._set_kwargs_errorbar(i, **kwargs)
+                #kwargs = self._set_kwargs_errorbar(i, **kwargs)
+                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, kwargs, self._default_kwargs, i)
                 pl.errorbar(data.time, residuals, yerr=err, 
-                            **kwargs) 
+                            **new_kwargs) 
             else:
-                kwargs = self._set_kwargs_scatter(i, **kwargs)
-                pl.scatter(data.time, residuals, lw=0., **kwargs)
+                #kwargs = self._set_kwargs_scatter(i, **kwargs)
+                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_no_errors, kwargs, self._default_kwargs, i)
+                pl.scatter(data.time, residuals, lw=0., **new_kwargs)
 
             #Set plot limits
             if np.min(data.time) < t_min:
                 t_min = np.min(data.time)
             if np.max(data.time) > t_max:
                 t_max = np.max(data.time)
+
+        # remember settings:
+        for key in kwargs.keys():
+            self._default_kwargs[key] = kwargs[key]
 
         if delta_mag > 1.:
             delta_mag = 0.5
