@@ -43,11 +43,11 @@
 
 ### Non-functional elements of use cases:
 * 01: model does not support ~~time~~, caustics, trajectory
-~~* 03: Model does not support source and blend fluxes or magnitudes. Consequently, it also does not support plotting time vs. magnitude.~~
+* ~~03: Model does not support source and blend fluxes or magnitudes. Consequently, it also does not support plotting time vs. magnitude.~~
 * 03: Model does not support any plotting. Needs ~~plot_lightcurve~~, plot_caustics, plot_trajectory. plot_caustics is actually meant to be a function in Lens.
 * 04: definition of ra and dec not supported. see also point above and use case 13.
 * 04: Event does not support append (as in append a new dataset)
-* 05: MulensData does not support satellite
+* 05: Need to download (and implement) default ephemrides for K2
 * 06: WFIRST data not implemented, MulensData also does not support bandpass
 * 07: This version of defining a Lens is not implemented.
 * 08: see above

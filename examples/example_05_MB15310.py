@@ -1,5 +1,5 @@
 """
-Plots data and model for MB15310 with residuals (no fitting). 
+Plots data and model for MB08310 with residuals (no fitting). 
 
 From Janczak et al. 2010, ApJ 711, 731
 """

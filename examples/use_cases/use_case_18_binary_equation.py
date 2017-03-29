@@ -29,6 +29,10 @@ model.set_magnification_equation(
      'Hexadecapole':[(2455746.6, 2455746.7),(2455747.0,2455747.15)], 
      'VBBL':(2455746.7,2455747.0)})
 
+#NOT IMPLEMENTED: Set times of caustic crossings. Use different
+#magnification calculation based on number of source radii from the
+#crossing.
+
 accurate_magnification_2 = model.magnification(times)
 
 #Plot the differences
