@@ -1,3 +1,6 @@
+"""
+Use Case 01: Define and plot a microlensing model
+"""
 import matplotlib.pyplot as pl
 from astropy import units as u
 
@@ -12,12 +15,15 @@ model.parameters(
     q=0.3)
 print(model.parameters())
 
+pl.figure()
 pl.subplot(2, 1, 1)
-pl.plot(model.time, model.magnification)
+pl.title('Magnification Curve')
+model.plot_magnification()
 
 pl.subplot(2, 1, 2)
-pl.plot(model.caustic.x, model.caustic.y)
-pl.plot(model.trajectory.x, model.trajectory.y)
+pl.title('Caustic Structure & Trajectory')
+model.plot_caustics()
+model.plot_trajectory()
 
 pl.show()
 

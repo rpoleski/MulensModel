@@ -1,3 +1,6 @@
+"""
+Use Case 02: Define a Microlensing Model based on a physical system
+"""
 from astropy import units as u
 
 import MulensModel
