@@ -443,13 +443,6 @@ class Model(object):
 
         return (f_source, f_blend)
 
-    def _set_default_kwargs_color(self):
-        """cycle through default pyplot colors to get enough for number of datasets"""
-        if self._default_kwargs['color'] is None:
-            default_colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
-            (n, k) = divmod(len(self._datasets), len(default_colors))
-            self._default_kwargs['color'] = default_colors * n + default_colors[:k]
-
     def plot_data(self, data_ref=None, errors=True, **kwargs):
         #self, data_ref=None, errors=True, labels=None, marker_list=None, 
         #color_list=None, size_list=None, **kwargs):
@@ -488,7 +481,9 @@ class Model(object):
         t_min = 3000000.
         t_max = 0.
 
-        self._set_default_kwargs_color()
+        # Reset default pyplot colors
+        pl.gca().set_color_cycle(None)
+        
         #plot each dataset
         for (i, data) in enumerate(self._datasets):
             #Calculate scaled flux
@@ -561,8 +556,10 @@ class Model(object):
         t_min = 3000000.
         t_max = 0.
 
+        # Reset default pyplot colors
+        pl.gca().set_color_cycle(None)
+
         #Plot residuals
-        self._set_default_kwargs_color()
         for i,data in enumerate(self._datasets):
             #Calculate model magnitude
             f_source = fit._flux_sources[data]
