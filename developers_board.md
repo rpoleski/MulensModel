@@ -1,17 +1,15 @@
-## Feb 2017 goals:
-1. Hexadecapole calculations (output of root distances, hexadecapole tests)
-2. Time issues resolved (mjd2hjd, jd12 time format, get\_body\_barycenter time format, time in horizons.py)
-3. Manual for PSPL fitting.
-4. Plotting in Model class.
+## March 2017 goals:
+1. PSPL fitting manual,
+2. Limb darkening coefficients -- first we need use case,
+3. Import [VBB package](http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm) (or [Martin Dominik's package](http://star-www.st-and.ac.uk/~md35/Software/README.adaptivecontouring)) and write use case for using it,
+4. Resolve parallax issue.
 
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals)
 
-* __Hexadecapole__
 * __PSPL manual__
-* __binary calculations - define if s is relative to total mass etc.__
-* BinaryLensEquation() - accurate summation instead of sum() or just normal "a+b"
+* binary calculations - define if s is relative to total mass etc.
 * __should BinaryLens() accept source\_x/y as lists or arrays?__
 * __correct vector\_tau = (...) in Model.\_trajectory__
 * example usage of JPL Horizons
