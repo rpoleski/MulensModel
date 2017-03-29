@@ -24,10 +24,6 @@ times = np.arange(t_0 - 1., t_0 + 1., 0.001)
 #Calculate the magnification using different magnification calculations
 default_magnification = model.magnification(times)
 
-pl.figure()
-pl.plot(times, default_magnification)
-pl.show()
-
 model.set_magnification_equation(
     {'Quadrupole':[(2455747., 2455747.6),(2455747.15,2455748.)],
      'Hexadecapole':[(2455746.6, 2455746.7),(2455747.0,2455747.15)], 
