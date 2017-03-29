@@ -67,7 +67,7 @@ respectively:
 * 'Obsrv range & rng rate'
 * 'One-Way Light-Time'
 
-These are the quantities required by MulensModel. If you need more quantieties 
+These are the quantities required by MulensModel. If you need more quantities 
 for whatever reason, then add the additional ones at the end of the list. 
 There are currently 39 other quantities you may ask for. If you wish, there 
 are even more options available if you change `TABLE_TYPE` keyword to 
