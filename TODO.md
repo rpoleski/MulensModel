@@ -1,8 +1,8 @@
-#Goals for the MulensModel Package
+# Goals for the MulensModel Package
 
-##MulensModel Requirements
+## MulensModel Requirements
 
-###Lensing Effects
+### Lensing Effects
 
 |Effect|Implemented?|
 | source trajectories including||
@@ -21,15 +21,15 @@
     can be used.||
 
 
-###Coding Style
+### Coding Style
 - The code is written in object oriented fashion
 - Unit tests are presented and passed for the main high-level
    functions except the plotting ones.
 - The code defines (and follows) conventions for microlensing parameters
 
-##MulensModel Desired Properties
+## MulensModel Desired Properties
 
-###Lensing Effects
+### Lensing Effects
 
 |Effect|Implemented?|
 | xallarap||
@@ -41,7 +41,7 @@
   package installer.||
 | Tested on multiple operating systems (Windows, Mac, Linux)||
 
-###Coding Style
+### Coding Style
 - Further development is possible that will include triple lens microlensing.
 
 
