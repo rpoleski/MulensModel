@@ -16,10 +16,9 @@
 | * VBBL| |
 | * Dominik Adpative Contouring| |
 | binary lenses caustics can be calculated and plotted together with source trajectory.| |
-|event properties (tE, thetaE, rE) can be calculated from physical properties of the source and lens systems (e.g. M, pi_s, pi_l, and mu)| |
+|event properties (tE, thetaE, rE) can be calculated from physical properties of the source and lens systems (e.g. M, pi_s, pi_l, and mu)| Yes |
 | The code contains
-| * examples and tutorial that show how the main high-level functions
-    can be used.| |
+| * examples and tutorial that show how the main high-level functions can be used.| |
 
 
 ### Coding Style
@@ -35,12 +34,9 @@
 |Effect|Implemented?|
 |------|------|
 | xallarap| |
-| automatic determination of appropriate binary lens magnification
-  calculation (i.e. whether or not a given approximation gives
-  sufficient precision)| |
+| automatic determination of appropriate binary lens magnification  calculation (i.e. whether or not a given approximation gives  sufficient precision)| |
 | average magnification over exposure time during caustic crossing| |
-| Can be downloaded through pip install or other standard python
-  package installer.| |
+| Can be downloaded through pip install or other standard python  package installer.| |
 | Tested on multiple operating systems (Windows, Mac, Linux)| |
 
 ### Coding Style
