@@ -42,13 +42,9 @@
 
 
 ### Non-functional elements of use cases:
-* 01: model does not support time, caustics, trajectory
-* 02: Entire use case not implemented
-  * 02: Model does not support defining the model by the lens and source (see also use case 03).
-  * 02: Model does not support plot_lightcurve()
-  * 02: Model does not support theta_E (see also use case 03)
-* 03: Model does not support source and blend fluxes or magnitudes. Consequently, it also does not support plotting time vs. magnitude.
-* 03: Model does not support any plotting. Needs plot_lightcurve, plot_caustics, plot_trajectory. plot_caustics is actually meant to be a function in Lens.
+* 01: model does not support ~~time~~, caustics, trajectory
+~~* 03: Model does not support source and blend fluxes or magnitudes. Consequently, it also does not support plotting time vs. magnitude.~~
+* 03: Model does not support any plotting. Needs ~~plot_lightcurve~~, plot_caustics, plot_trajectory. plot_caustics is actually meant to be a function in Lens.
 * 04: definition of ra and dec not supported. see also point above and use case 13.
 * 04: Event does not support append (as in append a new dataset)
 * 05: MulensData does not support satellite
