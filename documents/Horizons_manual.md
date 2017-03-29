@@ -50,7 +50,11 @@ ways:
 2. by providing a list of epochs via `TLIST` keyword. 
 
 The first one should be obvious. If you want to use the second one, then see 
-the manual linked below. 
+the manual linked below. These epochs don't have to be exactly the same 
+as the epochs in which you have observations. If they don't match, 
+then they'll be interpolated. However, keep in mind that the time step 
+used for interpolation cannot be too short -- if you're using data from 
+satellite on a low Earth orbit, then the step size cannot be 1 day!
 
 ---
 
@@ -63,9 +67,12 @@ respectively:
 * 'Obsrv range & rng rate'
 * 'One-Way Light-Time'
 
+These are the quantities required by MulensModel. If you need more quantieties 
+for whatever reason, then add the additional ones at the end of the list. 
 There are currently 39 other quantities you may ask for. If you wish, there 
 are even more options available if you change `TABLE_TYPE` keyword to 
-something other than `'OBS'`, but we're not discussing it here.
+something other than `'OBS'`, but we're not discussing it here as MulensModel 
+will not read those. 
 
 ---
 
@@ -80,8 +87,9 @@ or
 Once you are done with all the settings, you're ready to send an e-mail. 
 Just open your e-mail program and: 
 
- * type `horizons@ssd.jpl.nasa.gov` in To field,
+ * type `horizons@ssd.jpl.nasa.gov` in To field of the e-mail, 
  * type `JOB` in Subject field,
+ * copy-paste the settings prepared above into the main body of the e-mail,
  * make sure that your e-mail is in __plain text mode__ (if you send html message, then the Horizons won't be able to process it!),
  * send an e-mail,
  * wait for reply and save it once it arrives,
@@ -94,4 +102,6 @@ If you send default or only slightly modified settings, then you can compare the
 `data/Spitzer_ephemeris_01.dat`
 
 ---
+
+(C) R. Poleski, March 2017
 
