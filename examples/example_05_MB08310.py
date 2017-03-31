@@ -15,7 +15,7 @@ from MulensModel.event import Event
 from MulensModel.model import Model
 from MulensModel.utils import Utils
 
-#Read in MB15310 data files (see data/MB15310) as MulensData objects
+#Read in MB08310 data files (see data/MB08310) as MulensData objects
 MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
 print('MODULE_PATH: {0}'.format(MODULE_PATH))
 
