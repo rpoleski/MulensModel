@@ -1,8 +1,10 @@
 import numpy as np
+from scipy.special import ellipeinc # This is incomplete elliptic integral of the second kind.
 
 from MulensModel.trajectory import Trajectory
 from MulensModel.binarylens import BinaryLens
 from MulensModel.modelparameters import ModelParameters
+
 
 class MagnificationCurve(object):
     """
@@ -66,6 +68,37 @@ class MagnificationCurve(object):
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
         return (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
     
+    def _get_point_lens_finite_source_magnification(self, rho, mask):
+        """calculate magnification for point lens and finite source. 
+        Variable mask defines which epochs to use
+        
+        The approximation was propsed by:
+
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
+        
+        and later the integral calculation was simplified by:
+        
+        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
+        Effects from a Point-Mass Lens"
+        http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
+        """
+
+        u2 = (self.trajectory.x[mask]**2 + self.trajectory.y[mask]**2)
+        pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+        z = np.sqrt(u2) / rho
+        
+        k = np.ones_like(z)
+        for (i, value) in enumerate(z):
+            if value > 1.:
+                k[i] = 1. / value
+                
+        B_0 = 4. * z * ellipeinc(k, z) / np.pi # I'm not sure if the order of arguments is correct. This can be easily checked.
+        
+        magnification = pspl_magnification * B_0
+        # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
+        return magnification
+
     def get_binary_lens_magnification(self):
         """Calculate the Binary magnification. """
         #Set up the Binary lens system
