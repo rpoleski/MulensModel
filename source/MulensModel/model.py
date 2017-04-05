@@ -446,21 +446,20 @@ class Model(object):
     def plot_data(self, data_ref=None, show_errorbars=True, **kwargs):
         """
         Plot the data scaled to the model. If data_ref is not
-        specified, uses the first dataset as the flux
-        reference. 
+        specified, uses the first dataset as the reference for flux scale. 
 
-        If show_errorbars is True (default), plots with matplotlib.errorbar().
-        If show_errorbars is False, plots with matplotib.scatter().
-        Hence, **kwargs should be appropriate to the type of plotting.
-
-        Plotting options (will also be used for subsequent plots):
-          labels = list of labels for each dataset
-          marker_list = list of marker types for each dataset. Allows
-            the user to specify different markers for different
-            datasets (unlike fmt or marker, which would set the same
-            custom marker for all datasets)
-          color_list = list of colors for each dataset
-          size_list = list of marker sizes for each dataset
+        If show_errorbars is True (default), plots with matplotlib.errorbar(). 
+        If show_errorbars is False, plots with matplotib.scatter(). 
+        Hence, **kwargs should be appropriate to the type of plotting. 
+        Currently, following keys are accepted in kwargs:
+         - if show_errorbars is True: 'color', 'label', 'fmt', 'markersize';
+         - if show_errorbars is False: 'color', 'label', 'marker', 's'.
+        Each of the **kwargs can be set to either a single value and then 
+        is applied to all datasets or either list or numpy array and then 
+        each value is applied to a different dataset. 
+        
+        The **kwargs are remembered and used in subsequent calls to both 
+        plot_data() and plot_residuals(). 
         """
 
         #Reference flux scale
@@ -518,18 +517,11 @@ class Model(object):
 
     def plot_residuals(self, show_errorbars=True, **kwargs):
         """
-        plot the residuals (in magnitudes) to the model. Uses the best f_source,
-        f_blend for each dataset (not scaled to a particular
+        Plot the residuals (in magnitudes) of the model. Uses the best f_source,
+        f_blend for each dataset (not scaled to a particular 
         photometric system).
 
-        Plotting options (will also be used for subsequent plots):
-          labels = list of labels for each dataset
-          marker_list = list of marker types for each dataset. Allows
-            the user to specify different markers for different
-            datasets (unlike fmt or marker, which would set the same
-            custom marker for all datasets)
-          color_list = list of colors for each dataset
-          size_list = list of marker sizes for each dataset
+        For explanation of **kwargs, see doctrings in plot_model(). 
         """
 
         #Get fluxes for all datasets
