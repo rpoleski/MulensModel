@@ -217,15 +217,17 @@ class Event(object):
             dt=dt, n_epochs=n_epochs, data_ref=data_ref, f_source=f_source, 
             f_blend=f_blend,**kwargs)
 
-    def plot_data(self, data_ref=None, errors=True, **kwargs):
+    def plot_data(self, data_ref=None, show_errorbars=True, **kwargs):
         """
         Plot the data scaled to the same flux system specified by
         data_ref. Uses the model to calculate the magnifications.
         """
-        self.model.plot_data(data_ref=data_ref, errors=errors, **kwargs)
+        self.model.plot_data(data_ref=data_ref, 
+                                show_errorbars=show_errorbars, **kwargs)
 
-    def plot_residuals(self, errors=True, **kwargs):
-        self.model.plot_residuals(errors=errors, **kwargs)
+    def plot_residuals(self, show_errorbars=True, **kwargs):
+        """plot residuals of the event model"""
+        self.model.plot_residuals(show_errorbars=show_errorbars, **kwargs)
     
 
 if __name__ == "__main__":

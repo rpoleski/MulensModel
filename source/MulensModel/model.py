@@ -443,14 +443,14 @@ class Model(object):
 
         return (f_source, f_blend)
 
-    def plot_data(self, data_ref=None, errors=True, **kwargs):
+    def plot_data(self, data_ref=None, show_errorbars=True, **kwargs):
         """
         Plot the data scaled to the model. If data_ref is not
         specified, uses the first dataset as the flux
         reference. 
 
-        If errors is True (default), plots with matplotlib.errorbar().
-        If errors is False, plots with matplotib.scatter().
+        If show_errorbars is True (default), plots with matplotlib.errorbar().
+        If show_errorbars is False, plots with matplotib.scatter().
         Hence, **kwargs should be appropriate to the type of plotting.
 
         Plotting options (will also be used for subsequent plots):
@@ -486,7 +486,7 @@ class Model(object):
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
             #Plot
-            if errors:
+            if show_errorbars:
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
                 new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, 
@@ -516,7 +516,7 @@ class Model(object):
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
-    def plot_residuals(self, errors=True, **kwargs):
+    def plot_residuals(self, show_errorbars=True, **kwargs):
         """
         plot the residuals (in magnitudes) to the model. Uses the best f_source,
         f_blend for each dataset (not scaled to a particular
@@ -560,7 +560,7 @@ class Model(object):
             delta_mag = max(delta_mag, np.max(np.abs(residuals)))
 
             #Plot
-            if errors:
+            if show_errorbars:
                 new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, 
                                             kwargs, self._default_kwargs, i)
                 pl.errorbar(data.time, residuals, yerr=err, 
@@ -614,4 +614,3 @@ class Model(object):
             dt = (t_stop - t_start) / float(n_epochs)
 
         return np.arange(t_start, t_stop+dt, dt)
-
