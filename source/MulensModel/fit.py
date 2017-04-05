@@ -89,6 +89,13 @@ class Fit(object):
                 self._flux_blending[dataset] = 0.
                 self._flux_sources[dataset] = results
 
+    def blending_flux(self, dataset):
+        """return blending flux for given dataset"""
+        return self._flux_blending[dataset]
+        
+    def flux_of_sources(self, dataset):
+        """return fluxes for all sources in a numpy array"""
+        return self._flux_sources[dataset]
 
     def get_input_format(self, data=None):
         """

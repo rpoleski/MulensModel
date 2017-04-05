@@ -438,8 +438,8 @@ class Model(object):
 
         fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
         fit.fit_fluxes()
-        f_source = fit._flux_sources[data]
-        f_blend = fit._flux_blending[data]
+        f_source = fit.flux_of_sources(data)
+        f_blend = fit.blending_flux(data)
 
         return (f_source, f_blend)
 
@@ -480,8 +480,8 @@ class Model(object):
         #plot each dataset
         for (i, data) in enumerate(self._datasets):
             #Calculate scaled flux
-            f_source = fit._flux_sources[data]
-            f_blend = fit._flux_blending[data]
+            f_source = fit.flux_of_sources(data)
+            f_blend = fit.blending_flux(data)
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
             #Plot
@@ -540,8 +540,8 @@ class Model(object):
         #Plot residuals
         for (i, data) in enumerate(self._datasets):
             #Calculate model magnitude
-            f_source = fit._flux_sources[data]
-            f_blend = fit._flux_blending[data]
+            f_source = fit.flux_of_sources(data)
+            f_blend = fit.blending_flux(data)
             model_flux = f_source * self.magnification(data.time) + f_blend
             model_mag = Utils.get_mag_from_flux(model_flux)
 
