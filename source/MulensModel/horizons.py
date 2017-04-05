@@ -40,7 +40,7 @@ class Horizons(object):
         """
         in_file = open(self.file_properties['file_name'], 'r')
         self.file_properties['line_count'] = 0
-        for i, line in enumerate(in_file):
+        for (i, line) in enumerate(in_file):
             #Check for "start data" string
             if line[0:5] == '$$SOE':
                 self.file_properties['start_ind'] = i
@@ -69,7 +69,7 @@ class Horizons(object):
                          -self.file_properties['stop_ind']))
 
         #Fix time format
-        for i, date in enumerate(data['date']):
+        for (i, date) in enumerate(data['date']):
             data['date'][i] = Utils.date_change(date)
 
         self.data_lists = data

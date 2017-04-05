@@ -538,7 +538,7 @@ class Model(object):
         pl.gca().set_color_cycle(None)
 
         #Plot residuals
-        for i,data in enumerate(self._datasets):
+        for (i, data) in enumerate(self._datasets):
             #Calculate model magnitude
             f_source = fit._flux_sources[data]
             f_blend = fit._flux_blending[data]
