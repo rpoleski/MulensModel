@@ -33,7 +33,7 @@ t_0 = 2454656.39975
 u_0 = 0.00300
 t_E = 11.14
 t_star = 0.05487
-rho = t_star/t_E
+rho = t_star / t_E
 plens_model = Model(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho)
 
 #Combine the data and model into an event
@@ -56,13 +56,11 @@ pl.figure()
 pl.subplot(gs[0])
 t_start= t_0 - 3.
 t_stop = t_0 + 1.
-ev.plot_model(color='black',t_start=t_start, t_stop=t_stop)
+ev.plot_model(color='black', t_start=t_start, t_stop=t_stop)
 ev.plot_data(
-#    labels=labels, fmt='o', markersize=5,
-#    color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
     label=labels, fmt='o', markersize=5,  
     color=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
-pl.ylim(19,15.2)
+pl.ylim(19, 15.2)
 pl.xlim(t_start, t_stop)
 pl.legend(loc='upper left')
 pl.title('Data and Fitted Model (Custom)')
@@ -73,4 +71,3 @@ ev.plot_residuals()
 pl.xlim(t_start, t_stop)
 
 pl.show()
-

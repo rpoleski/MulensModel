@@ -91,7 +91,8 @@ class ModelParameters(object):
         except AttributeError:
             values = '{0} {1:>10}'.format(values,None)
         try:
-            variables = '{0} {1:>7}'.format(variables, 'rho')
+# I think the first line below should be moved to "else:" section just after "except" section.
+            variables = '{0} {1:>7}'.format(variables, 'rho') 
             values = '{0} {1:>7.5f}'.format(values, self._rho)
         except AttributeError:
             pass

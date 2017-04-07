@@ -4,6 +4,7 @@ import numpy as np
 import MulensModel
 from MulensModel.model import Model
 
+
 # Create a PSPL model
 t_0 = 3583.
 u_0 = 0.3
@@ -36,16 +37,14 @@ pl.figure()
 pspl.plot_magnification(
     color='blue', linestyle=':', zorder=1, label='Point Lens')
 planet.plot_magnification(
-    color='red',linestyle='-', zorder=2, label='Planet')
-t_p = t_0+0.768*t_E
+    color='red', linestyle='-', zorder=2, label='Planet')
 pl.title('Planet vs. Point Lens Models')
 pl.legend(loc='best')
 
 #Plot detail of the planet perturbation
 pl.figure()
-planet.plot_magnification(
-    t_range=[3592, 3593], 
-    color='red',linestyle='-', zorder=2, label='Planet')
+planet.plot_magnification(t_range=[3592, 3593], 
+    color='red', linestyle='-', zorder=2, label='Planet')
 pl.title('Planetary Perturbation Detail')
 
 pl.show()

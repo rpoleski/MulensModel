@@ -5,6 +5,7 @@ from MulensModel.mulensobjects.lens import Lens
 from MulensModel.mulensobjects.source import Source
 from MulensModel.mulensobjects.mulenssystem import MulensSystem
 
+
 # Define a Lens star
 my_lens = Lens(mass=0.5*u.solMass, distance=6.e3*u.pc)
 
