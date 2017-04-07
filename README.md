@@ -16,7 +16,9 @@ There is no tutorial yet, but we have a few useful resources:
 
 More will be added soon.
 
+If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
+
 ---
 
-file revised Mar 2017
+file revised Apr 2017
 
