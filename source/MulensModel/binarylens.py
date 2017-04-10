@@ -26,7 +26,7 @@ class BinaryLens(object):
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
-        self._total_mass = 0.5 * (self.mass_1 + self.mass_2)
+        self._total_mass = 0.5 * (self.mass_1 + self.mass_2) # This is total_mass in WM95 paper.
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
         self._position_z1_WM95 = -0.5 * self.separation + 0.j
         self._position_z2_WM95 = 0.5 * self.separation + 0.j
@@ -164,11 +164,18 @@ class BinaryLens(object):
     def point_source_magnification(self, source_x, source_y):
         """
         calculates point source magnification for given position
-        in a coordinate system where higher mass is at the origin
-        and lower mass is at (separation, 0)
+        in a coordinate system where the center of mass is at origin 
+        and both masses are on X axis with higher mass at negative X;
+        this means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
+        the lower mass is at (s/(1+q), 0)
         """
+        x_shift = self.separation * (0.5 + 
+                                    self.mass_2 / (self.mass_1 + self.mass_2))
+        # We need to add this because WM95 use geometric center as an origin 
+        # of their coordinate system.
         return self._point_source_Witt_Mao_95(
-                source_x=source_x + self.separation / 2., 
+                #source_x=source_x + self.separation / 2. + self.separation * self.mass_2 / (self.mass_1 + self.mass_2), 
+                source_x=source_x+x_shift, 
                 source_y=source_y)
 
     def _get_magnification_w_plus(self, source_x, source_y, radius, 
@@ -207,7 +214,9 @@ class BinaryLens(object):
     def hexadecapole_magnification(self, source_x, source_y, rho, gamma, 
                                   quadrupole=False, all_approximations=False):
         """hexadecpole approximation of binary-lens/finite-source 
-        calculations - based on Gould 2008 ApJ 681, 1593"""
+        calculations - based on Gould 2008 ApJ 681, 1593
+        
+        for coordinate system convention see point_source_magnification()"""
         # In this function, variables named a_* depict magnification.
         if quadrupole and all_approximations:
             msg = 'Inconsisient parameters of {:}'
@@ -247,24 +256,3 @@ class BinaryLens(object):
         else:
             return a_hexadecapole
         
-
-if __name__ == '__main__':
-    s = 1.35
-    q = 0.00578
-    m1 = 1. / (1. + q)
-    m2 = q / (1. + q)
-    x = 1.38920106 - s/2.
-    y = 0.00189679
-    rho = 0.001
-    gamma = 0.5
-    
-    bl = BinaryLens(m1, m2, s)
-    a = bl.point_source_magnification(x, y)
-    print(a)
-    aa = bl.hexadecapole_magnification(x, y, rho, gamma)
-    print(aa)
-    aaa = bl.hexadecapole_magnification(x, y, rho, gamma, quadrupole=True)
-    print(aaa)
-    aaaa = bl.hexadecapole_magnification(x, y, rho, gamma, all_approximations=True)
-    print(aaaa)
-    

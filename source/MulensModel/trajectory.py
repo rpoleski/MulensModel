@@ -14,6 +14,8 @@ class Trajectory(object):
     The (dimensionless) X, Y trajectory of the source in the
     source plane. t_0_par is the reference time for the parallax
     vector. If not set, defaults to t_0.
+    For binary lens, the origin of the coordinate system is at 
+    the center of mass with higher mass at negative X and Y=0.
     """
     def __init__(
         self, times, parameters=None, parallax=None, t_0_par=None,
@@ -82,7 +84,8 @@ class Trajectory(object):
         elif self.parameters.n_lenses == 2:
             sin_alpha = np.sin(self.parameters.alpha)
             cos_alpha = np.cos(self.parameters.alpha)
-            vector_x = vector_u * sin_alpha - vector_tau * cos_alpha
+            shift_x = - self.parameters.s * self.parameters.q / (1. + self.parameters.q)
+            vector_x = vector_u * sin_alpha - vector_tau * cos_alpha + shift_x
             vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
         else:
             raise Exception(
