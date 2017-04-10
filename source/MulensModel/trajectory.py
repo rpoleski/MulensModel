@@ -135,8 +135,8 @@ class Trajectory(object):
         based on astropy 1.3
         https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
         """
-        jd1, jd2 = get_jd12(Time(time_ref,format='jd',scale='tdb'), 'tdb')
-        earth_pv_helio, earth_pv_bary = erfa.epv00(jd1, jd2)
+        (jd1, jd2) = get_jd12(Time(time_ref,format='jd',scale='tdb'), 'tdb')
+        (earth_pv_helio, earth_pv_bary) = erfa.epv00(jd1, jd2)
         velocity = earth_pv_bary[..., 1, :] * u.au / u.day
         
         position = get_body_barycentric(

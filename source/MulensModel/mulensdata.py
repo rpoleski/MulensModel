@@ -79,13 +79,13 @@ class MulensData(object):
             raise ValueError(m)
         elif data_list is not None:
             #...from an array
-            vector_1, vector_2, vector_3 = list(data_list) 
+            (vector_1, vector_2, vector_3) = list(data_list) 
             self._initialize(phot_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
         elif file_name is not None:
             #...from a file
-            vector_1, vector_2, vector_3 = np.loadtxt(
+            (vector_1, vector_2, vector_3) = np.loadtxt(
                 fname=file_name, unpack=True, usecols=(0,1,2), **kwargs)
             self._initialize(phot_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,

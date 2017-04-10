@@ -405,7 +405,7 @@ class Model(object):
                 n_epochs=n_epochs)
 
         if (f_source is None) and (f_blend is None):
-            f_source, f_blend = self.get_ref_fluxes(data_ref=data_ref)
+            (f_source, f_blend) = self.get_ref_fluxes(data_ref=data_ref)
         elif (f_source is None) or (f_blend is None):
             raise AttributeError(
                 'If f_source is set, f_blend must also be set and vice versa.')
@@ -416,7 +416,7 @@ class Model(object):
         pl.ylabel('Magnitude')
         pl.xlabel('Time')
         
-        ymin, ymax = pl.gca().get_ylim()
+        (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
@@ -511,7 +511,7 @@ class Model(object):
         pl.xlabel('Time')
         pl.xlim(t_min, t_max)
 
-        ymin, ymax = pl.gca().get_ylim()
+        (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
