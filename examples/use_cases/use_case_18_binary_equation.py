@@ -24,22 +24,21 @@ times = np.arange(t_0 - 1., t_0 + 1., 0.001)
 #Calculate the magnification using different magnification calculations
 default_magnification = model.magnification(times)
 
-# Chronological order is: _e, _f, _a, _c, _b, _d.
-change_a = 2455747.
-change_b = 2455747.6
-change_c = 2455747.15
-change_d = 2455748.
-change_e = 2455746.6
-change_f = 2455746.7
+time_1 = 2455746.
+time_2 = 2455746.6
+time_3 = 2455746.7
+time_4 = 2455747.
+time_5 = 2455747.15
+time_6 = 2455748.
 
-model.set_magnification_metod(
-    {'Quadrupole':[(change_a, change_b), (change_c, change_d)],
-     'Hexadecapole':[(change_e, change_f), (change_a, change_c)], 
-     'VBBL':(change_f, change_a)})
-# Which method should be used for t=2455747.1 i.e. between _a and _c?
-# We would also like to specify a single method that is used for every epoch without 
-# specifying begin and end. This would be useful when we have e.g. many datasets and 
-# don't want to check min and max for every one. 
+model.set_magnification_method(
+    {'Quadrupole':[(time_1, time_2), (time_5, time_6)],
+     'Hexadecapole':[(time_2, time_3), (time_4, time_5)], 
+     'VBBL':(time_3, time_4)})
+# We would also like to specify a single method that is used for every
+# epoch without specifying begin and end. This would be useful when we
+# have e.g. many datasets and don't want to check min and max for
+# every one. --> Write a use case.
 
 
 #NOT IMPLEMENTED: Set times of caustic crossings. Use different
