@@ -81,7 +81,8 @@ class Horizons(object):
         """
         if self._time is None:
             # Currently we assume HORIZONS works in UTC.
-            times = Time(self.data_lists['date'], format='iso', scale='utc')
+            date_list = [text.decode('UTF-8') for text in self.data_lists['date']]
+            times = Time(date_list, format='iso', scale='utc')
             self._time = times.tdb.jd 
         return self._time
 
@@ -91,7 +92,8 @@ class Horizons(object):
         return X,Y,Z positions based on RA, DEC and distance
         """
         if self._xyz is None:
-            self._xyz = SkyCoord(self.data_lists['ra_dec'], 
+            ra_dec = [text.decode('UTF-8') for text in self.data_lists['ra_dec']]
+            self._xyz = SkyCoord(ra_dec,
                                 distance=self.data_lists['distance'], 
                                 unit=(u.hourangle, u.deg, u.au)).cartesian
         return self._xyz
