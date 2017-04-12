@@ -24,17 +24,10 @@ times = np.arange(t_0 - 1., t_0 + 1., 0.001)
 #Calculate the magnification using different magnification calculations
 default_magnification = model.magnification(times)
 
-time_1 = 2455746.
-time_2 = 2455746.6
-time_3 = 2455746.7
-time_4 = 2455747.
-time_5 = 2455747.15
-time_6 = 2455748.
+times = np.array([46., 46.6, 46.7, 47., 47.15, 48.]) + 2455700. # There are 6 of them.
+methods = ['Quadrupole', 'Hexadecapole', 'VBBL', 'Hexadecapole', 'Quadrupole'] # There are 5 of them.
 
-model.set_magnification_method(
-    {'Quadrupole':[(time_1, time_2), (time_5, time_6)],
-     'Hexadecapole':[(time_2, time_3), (time_4, time_5)], 
-     'VBBL':(time_3, time_4)})
+model.set_magnification_methods(dividing_epochs=times, methods=methods)
 
 #NOT IMPLEMENTED: Set times of caustic crossings. Use different
 #magnification calculation based on number of source radii from the
