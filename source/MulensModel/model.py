@@ -512,7 +512,6 @@ class Model(object):
                     else:
                         new_kwargs[key] = value
                         
-        print(new_kwargs)
         return new_kwargs
 
 
@@ -614,6 +613,9 @@ class Model(object):
         t_min = 3000000.
         t_max = 0.
 
+        #Plot zeropoint line
+        pl.plot([0., 3000000.], [0., 0.], color='black')
+        
         #Plot residuals
         for (i, data) in enumerate(self._datasets):
             #Calculate model magnitude
@@ -643,7 +645,6 @@ class Model(object):
         if delta_mag > 1.:
             delta_mag = 0.5
 
-        pl.plot([0., 3000000.], [0., 0.], color='black')
         #Plot properties
         pl.ylim(-delta_mag, delta_mag)
         pl.xlim(t_min, t_max)
