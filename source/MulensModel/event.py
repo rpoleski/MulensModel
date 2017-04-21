@@ -183,6 +183,18 @@ class Event(object):
                 self._coords = SkyCoord(
                     self._coords.ra, new_value, unit=(u.hourangle, u.deg))
         """
+        
+    @property
+    def data_ref(self):
+        """
+        Reference data set for scaling the model fluxes to (for plotting). May
+        be a Mulensdata object or an index.
+        """
+        return self.model.data_ref
+        
+    @data_ref.setter
+    def data_ref(self, new_value):
+        self.model.data_ref = new_value
 
 
     def _update_coords(self, coords=None):
