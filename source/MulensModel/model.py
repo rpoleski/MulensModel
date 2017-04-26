@@ -384,7 +384,7 @@ class Model(object):
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
-        pl.plot(times, self.magnification(times),**kwargs)
+        pl.plot(times, self.magnification(times), **kwargs)
         pl.ylabel('Magnification')
         pl.xlabel('Time')
 
@@ -422,14 +422,14 @@ class Model(object):
         """
         Determine the reference flux system from the
         datasets. data_ref may either be a dataset or the index of a
-        dataset (if model.set_datasets() was previously called). If
+        dataset (if Model.set_datasets() was previously called). If
         data_ref is not set, it will use the first dataset. If you
         call this without calling set_datasets() first, there will be
         an exception and that's on you.
         """
         if data_ref is None:
             if isinstance(self.data_ref, MulensData):
-                data = self._data_ref
+                data = self.data_ref
             else:
                 data = self._datasets[self.data_ref]
         elif isinstance(data_ref, MulensData):
