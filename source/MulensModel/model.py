@@ -285,7 +285,7 @@ class Model(object):
         """set _datasets property"""
         self._datasets = datasets
         self._data_magnification = None
-        self.data_ref=data_ref
+        self.data_ref = data_ref
 
     @property
     def coords(self):
@@ -410,7 +410,7 @@ class Model(object):
             
         flux = f_source * self.magnification(times) + f_blend
 
-        pl.plot(times, Utils.get_mag_from_flux(flux),**kwargs)
+        pl.plot(times, Utils.get_mag_from_flux(flux), **kwargs)
         pl.ylabel('Magnitude')
         pl.xlabel('Time')
         
@@ -428,7 +428,7 @@ class Model(object):
         an exception and that's on you.
         """
         if data_ref is None:
-            if isinstance(self.data_ref,MulensData):
+            if isinstance(self.data_ref, MulensData):
                 data = self._data_ref
             else:
                 data = self._datasets[self.data_ref]
@@ -445,6 +445,7 @@ class Model(object):
         return (f_source, f_blend)
         
     def reset_plot_properties(self):
+        """resets internal settings for plotting"""
         self.plot_properties = {}
 
     def _store_plot_properties(
@@ -464,7 +465,7 @@ class Model(object):
         if len(kwargs) > 0:
             self.plot_properties['other_kwargs'] = kwargs
     
-    def _set_plot_kwargs(self,i,show_errorbars=True):
+    def _set_plot_kwargs(self, i, show_errorbars=True):
         """
         Set kwargs arguments for plotting. If set, use previous values. But 
         new values take precedence. 
@@ -495,16 +496,16 @@ class Model(object):
                 new_kwargs['color'] = self.plot_properties['color_list'][i]
 
             if 'marker_list' in self.plot_properties.keys():
-               new_kwargs[marker_key] = self.plot_properties['marker_list'][i]
+                new_kwargs[marker_key] = self.plot_properties['marker_list'][i]
 
             if 'size_list' in self.plot_properties.keys():
-               new_kwargs[size_key] = self.plot_properties['size_list'][i]
+                new_kwargs[size_key] = self.plot_properties['size_list'][i]
 
             if 'label_list' in self.plot_properties.keys():
                 new_kwargs['label'] = self.plot_properties['label_list'][i]
                 
             if 'other_kwargs' in self.plot_properties.keys():
-                for key, value in self.plot_properties['other_kwargs'].iteritems():
+                for (key, value) in self.plot_properties['other_kwargs'].items():
                     if key == 'markersize' or key == 's':
                         new_kwargs[size_key] = value
                     elif key == 'marker' or key == 'fmt':
@@ -513,7 +514,6 @@ class Model(object):
                         new_kwargs[key] = value
                         
         return new_kwargs
-
 
     def plot_data(
         self, data_ref=None, show_errorbars=True, color_list=None,
@@ -677,3 +677,4 @@ class Model(object):
             dt = (t_stop - t_start) / float(n_epochs)
 
         return np.arange(t_start, t_stop+dt, dt)
+
