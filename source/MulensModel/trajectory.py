@@ -100,7 +100,7 @@ class Trajectory(object):
         Project N and E parallax offset vector onto the tau, beta plane.
         """
         delta_tau =  (  delta['N'] * self.parameters.pi_E_N 
-                      + delta['E'] * self.parameters. pi_E_E)
+                      + delta['E'] * self.parameters.pi_E_E)
         delta_beta = ( -delta['N'] * self.parameters.pi_E_E 
                       + delta['E'] * self.parameters.pi_E_N)
         return [delta_tau, delta_beta]
