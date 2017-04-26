@@ -233,15 +233,8 @@ class Model(object):
         self._parameters.alpha = value
 
     @property
-    def parameters(
-        self, t_0=0., u_0=None, t_E=1., rho=None, s=None, q=None, alpha=None, 
-        pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
-        if u_0 is None:
-            return "{0}".format(self._parameters)
-        else:
-            self._parameters = ModelParameters(
-                t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
-                pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
+    def parameters(self):
+        return "{0}".format(self._parameters)
 
     def magnification(self, time, satellite_skycoord=None):
         """
@@ -402,6 +395,9 @@ class Model(object):
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
+        if data_ref is not None:
+            self.data_ref = data_ref
+
         if (f_source is None) and (f_blend is None):
             (f_source, f_blend) = self.get_ref_fluxes(data_ref=data_ref)
         elif (f_source is None) or (f_blend is None):
@@ -434,8 +430,10 @@ class Model(object):
                 data = self._datasets[self.data_ref]
         elif isinstance(data_ref, MulensData):
             data = data_ref
+            self.data_ref = data_ref
         else:
             data = self._datasets[data_ref]
+            self.data_ref = data_ref
 
         fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
         fit.fit_fluxes()
@@ -537,7 +535,9 @@ class Model(object):
         **kwargs (and point type lists) are remembered and used in subsequent 
         calls to both plot_data() and plot_residuals(). 
         """
-        
+        if data_ref is not None:
+            self.data_ref = data_ref
+
         self._store_plot_properties(
             color_list=color_list, marker_list=marker_list, 
             size_list=size_list, label_list=label_list,
@@ -588,7 +588,7 @@ class Model(object):
 
     def plot_residuals(
         self, show_errorbars=True, color_list=None, marker_list=None, 
-        size_list=None, label_list=None, **kwargs):
+        size_list=None, label_list=None, data_ref=None, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model. Uses the best f_source,
         f_blend for each dataset (not scaled to a particular 
@@ -597,6 +597,8 @@ class Model(object):
         For explanation of **kwargs, and also [var]_list see doctrings in 
         plot_data(). 
         """
+        if data_ref is not None:
+            self.data_ref = data_ref
 
         self._store_plot_properties(
             color_list=color_list, marker_list=marker_list, 
