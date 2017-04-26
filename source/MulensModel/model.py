@@ -249,7 +249,7 @@ class Model(object):
 
     def set_magnification_methods(self):
         """set methods used for calculation of magnifications"""
-        @pass
+        pass
 
     def magnification(self, time, satellite_skycoord=None):
         """
