@@ -465,7 +465,7 @@ class Model(object):
         if len(kwargs) > 0:
             self.plot_properties['other_kwargs'] = kwargs
     
-    def _set_plot_kwargs(self, i, show_errorbars=True):
+    def _set_plot_kwargs(self, index, show_errorbars=True):
         """
         Set kwargs arguments for plotting. If set, use previous values. But 
         new values take precedence. 
@@ -485,7 +485,7 @@ class Model(object):
         new_kwargs = {}  
         
         #Set defaults
-        if i == 0:
+        if index == 0:
             pl.gca().set_color_cycle(None)
         new_kwargs[marker_key] = 'o'
         new_kwargs[size_key] = 3
@@ -493,16 +493,16 @@ class Model(object):
         #Set custom
         if len(self.plot_properties) > 0:
             if 'color_list' in self.plot_properties.keys():
-                new_kwargs['color'] = self.plot_properties['color_list'][i]
+                new_kwargs['color'] = self.plot_properties['color_list'][index]
 
             if 'marker_list' in self.plot_properties.keys():
-                new_kwargs[marker_key] = self.plot_properties['marker_list'][i]
+                new_kwargs[marker_key] = self.plot_properties['marker_list'][index]
 
             if 'size_list' in self.plot_properties.keys():
-                new_kwargs[size_key] = self.plot_properties['size_list'][i]
+                new_kwargs[size_key] = self.plot_properties['size_list'][index]
 
             if 'label_list' in self.plot_properties.keys():
-                new_kwargs['label'] = self.plot_properties['label_list'][i]
+                new_kwargs['label'] = self.plot_properties['label_list'][index]
                 
             if 'other_kwargs' in self.plot_properties.keys():
                 for (key, value) in self.plot_properties['other_kwargs'].items():
