@@ -30,7 +30,9 @@ default_magnification = model.magnification(times)
 # Specify list that give time ranges and methods:
 methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 2455746.7, 'VBBL', 
            2455747., 'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]
-model.set_magnification_methods(methods)
+vbbl_paramters = {'accuracy': 0.0005} # This is twice better than default of 0.001.
+methods_parameters = {'VBBL': vbbl_paramters}
+model.set_magnification_methods(methods, parameters=methods_parameters)
 
 #NOT IMPLEMENTED: Set times of caustic crossings. Use different
 #magnification calculation based on number of source radii from the
