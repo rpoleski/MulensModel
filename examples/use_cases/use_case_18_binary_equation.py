@@ -32,9 +32,9 @@ methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 2455746.7, 'VBBL',
            2455747., 'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]
 model.set_magnification_methods(methods)
 
-# And specify additional paramters needed by some of the methods:
-vbbl_paramters = {'accuracy': 0.0005} # This is twice better than default of 0.001.
-methods_parameters = {'VBBL': vbbl_paramters}
+# And specify additional parameters needed by some of the methods:
+vbbl_parameters = {'accuracy': 0.0005} # This is twice better than default of 0.001.
+methods_parameters = {'VBBL': vbbl_parameters}
 model.set_magnification_methods_parameters(methods_parameters)
 
 #NOT IMPLEMENTED: Set times of caustic crossings. Use different
