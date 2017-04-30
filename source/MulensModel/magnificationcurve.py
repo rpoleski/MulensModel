@@ -103,9 +103,9 @@ class MagnificationCurve(object):
         """Calculate the Binary magnification. """
         #Set up the Binary lens system
         q = self.parameters.q
-        m1 = 1. / (1. + q)
-        m2 = q / (1. + q)
-        binary_lens = BinaryLens(mass_1=m1, mass_2=m2, 
+        m_1 = 1. / (1. + q)
+        m_2 = q / (1. + q)
+        binary_lens = BinaryLens(mass_1=m_1, mass_2=m_2, 
                                     separation=self.parameters.s)
         
         #Calculate the magnification

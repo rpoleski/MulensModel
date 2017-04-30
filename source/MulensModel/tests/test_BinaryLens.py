@@ -37,3 +37,14 @@ def test_binary_lens_hexadecapole():
     np.testing.assert_almost_equal(result_05, reference_05)
     np.testing.assert_almost_equal(result_10, reference_10)
 
+def test_vbbl_1():
+    s = 0.8
+    q = 0.1
+    
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+    bl = MulensModel.BinaryLens(m_1, m_2, s)
+    
+    result = bl.vbbl_magnification(0.01, 0.01, 0.01)
+    np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
+    
