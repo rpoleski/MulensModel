@@ -45,11 +45,33 @@ class MagnificationCurve(object):
 
         #Initialize the magnification vector
         self._magnification = None
-            
+
+        #Set methods' variables:
+        self._methods_epochs = None
+        self._methods_names = None
+        self._default_magnification_method = None
+
+    def set_default_magnification_method(self, method):
+        """stores information on method to be used, when no metod is
+        directly specified"""
+        self._default_magnification_method = method
+
+    def set_magnification_methods(self, epochs, methods):
+        """sets methods used for magnification calculation;
+        epochs is a numpy array of n epochs that specify when (n-1) 
+        methods will be used"""
+        msg = "Wrong input in MagnificationCurve.set_magnification_methods()"
+        assert len(epochs) = len(methods) + 1, msg
+        assert isinstance(epochs, np.ndarray), 'Parameter epochs has to be numpy array'
+
+        self._methods_epochs = epochs
+        self._methods_names = methods
+
     @property
     def magnification(self):
         """provide vector of magnifications"""
         return self.get_magnification()
+        # THIS HAS TO BE REWRITTEN - USE LAZY LOADING!
 
     def get_magnification(self):
         """calculate magnification"""
