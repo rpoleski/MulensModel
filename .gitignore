@@ -12,3 +12,7 @@ __pycache__/
 # unit tests
 .cache/
 
+# VBBL library
+VBBinaryLensingLibrary.py
+_VBBinaryLensingLibrary.so
+
