@@ -61,7 +61,7 @@ class MagnificationCurve(object):
         epochs is a numpy array of n epochs that specify when (n-1) 
         methods will be used"""
         msg = "Wrong input in MagnificationCurve.set_magnification_methods()"
-        assert len(epochs) = len(methods) + 1, msg
+        assert len(epochs) == len(methods) + 1, msg
         assert isinstance(epochs, np.ndarray), 'Parameter epochs has to be numpy array'
 
         self._methods_epochs = epochs
