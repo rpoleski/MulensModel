@@ -71,7 +71,7 @@ class MagnificationCurve(object):
     def magnification(self):
         """provide vector of magnifications"""
         return self.get_magnification()
-        # THIS HAS TO BE REWRITTEN - USE LAZY LOADING!
+        # THIS HAS TO BE REWRITTEN - USE LAZY LOADING! (here or in model.py)
 
     def get_magnification(self):
         """calculate magnification"""
@@ -129,37 +129,50 @@ class MagnificationCurve(object):
         m_2 = q / (1. + q)
         binary_lens = BinaryLens(mass_1=m_1, mass_2=m_2, 
                                     separation=self.parameters.s)
+        methods = self._methods_for_epochs()
         
         #Calculate the magnification
-        magnification = []
-        for i in range(len(self.trajectory.x)):
-            x = self.trajectory.x[i]
-            y = self.trajectory.y[i]
-            m = binary_lens.point_source_magnification(source_x=x, source_y=y)
+        magnification = []        
+        for index in range(len(self.times)):
+            x = self.trajectory.x[index]
+            y = self.trajectory.y[index]
+            method = methods[index]
+            
+            if method == 'point_source' or method is None:
+                m = binary_lens.point_source_magnification(x, y)
+            elif method == 'Quadrupole':
+                m = binary_lens.hexadecapole_magnification(x, y, 
+                        rho=self.parameters.rho, quadrupole=True,
+                        gamma=0.0) # XXX THIS HAS TO BE UPDATED
+            elif method == 'Hexadecapole':
+                m = binary_lens.hexadecapole_magnification(x, y, 
+                        rho=self.parameters.rho, 
+                        gamma=0.0) # XXX THIS HAS TO BE UPDATED
+            elif method == 'VBBL':
+                m = binary_lens.vbbl_magnification(x, y, 
+                        rho=self.parameters.rho)
+                        # XXX THIS HAS TO BE UPDATED - add gamma and accuracy parameters
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
+            
             magnification.append(m)
             
         return np.array(magnification)
-        
-    def _method_for_epoch(self, epoch):
-        """for given epoch, decide which method should be used to calculate magnification,
-        but don't calculate it"""
-        if self._methods_epochs is None:
-            return self._default_magnification_method
 
-        bracket = np.searchsorted(self._methods_epochs, epoch)
-        if bracket == 0 or bracket == len(self._methods_epochs):
-            return self._default_magnification_method
-        return self._methods_names[bracket-1]
-
-    def _methods_for_epochs(self, epochs):
+    def _methods_for_epochs(self):
         """for given epochs, decide which methods should be used to calculate magnification,
         but don't run the calculations"""
-        out = [self._default_magnification_method] * len(epochs)
+        out = [self._default_magnification_method] * len(self.times)
         if self._methods_epochs is None:
             return out
 
-        brackets = np.searchsorted(self._methods_epochs, epochs)
+        brackets = np.searchsorted(self._methods_epochs, self.times)
         n_max = len(self._methods_epochs)
-        out = [self._methods_names[val-1] if (val>0 and val<n_max) else self._default_magnification_method for val in brackets]
+        
+        out = [self._methods_names[value-1] 
+                    if (value>0 and value<n_max) 
+                    else self._default_magnification_method 
+                    for value in brackets]
+        
         return out
-

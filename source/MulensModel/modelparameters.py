@@ -75,6 +75,7 @@ class ModelParameters(object):
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""        
+# This function works bad if rho is not set, but s & q are!        
         variables = '{0:>11} {1:>9} {2:>10}'.format(
             "t_0 (HJD')", 'u_0', 
             't_E ({0})'.format(self._t_E.unit))
@@ -158,6 +159,17 @@ class ModelParameters(object):
             self._t_E = new_t_E
         else:
             self._t_E = new_t_E * u.day
+    
+    @property
+    def rho(self):
+        """source size as a fraction of the Einstein radius"""
+        return self._rho
+    
+    @rho.setter
+    def rho(self, new_rho):
+        if new_rho < 0.:
+            raise ValueError('source size (rho) cannot be negative')
+        self._rho = new_rho
     
     @property
     def alpha(self):
