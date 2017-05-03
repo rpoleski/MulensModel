@@ -85,11 +85,9 @@ def test_event_get_chi2():
     event = Event(datasets=data, model=model)
     
     orig_chi2 = event.get_chi2()
-    print(orig_chi2)
     
     #Change the model
     event.model.t_0 = 5000.
-    print(orig_chi2, event.get_chi2())
 
     assert event.get_chi2() != orig_chi2
 
