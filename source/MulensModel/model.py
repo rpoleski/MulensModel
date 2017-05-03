@@ -250,10 +250,6 @@ class Model(object):
                 t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
                 pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
 
-    def set_magnification_methods(self):
-        """set methods used for calculation of magnifications"""
-        pass
-
     def magnification(self, time, satellite_skycoord=None):
         """
         calculate the model magnification for the given time(s).
@@ -266,6 +262,8 @@ class Model(object):
             parallax=self._parallax, t_0_par=self.t_0_par,
             coords=self._coords, 
             satellite_skycoord=satellite_skycoord)
+        magnification_curve.set_magnification_methods(self._methods_epochs, 
+                                                        self._methods_names)
         return magnification_curve.magnification
 
     @property
