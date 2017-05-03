@@ -283,9 +283,19 @@ class BinaryLens(object):
         y = float(source_y)
         rho = float(rho)
         if gamma != 0.:
-            raise ValueError("The case of gamma != 0 is not yet coded - check VBBL gamma/u convention first.")
+            raise ValueError("The case of gamma != 0 is not yet coded.")
+            # Note that VBBL uses u coefficient, not Gamma.
         gamma = float(gamma)
-        accuracy = float(accuracy)
+        accuracy = float(accuracy) # Note that this accuracy is not guaranteed.
         assert accuracy > 0., "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was provided".format(accuracy)
         
         return self._vbbllib.BinaryMagDark(s, q, x, y, rho, gamma, accuracy)
+        # To get the image positions from VBBL, following C++ code has to be run:
+        #  _sols *Images;
+        #  Mag=VBBL.BinaryMag(s, q, y1, y2, rho, accuracy, &Images);
+        #  for(_curve *c=Images->first; c; c=c->next) {
+        #      for(_point *p=c->first; p; p=p->next) {
+        #          // Here p->x1 and p->x2 give next point 
+        #      }
+        #  }
+        #  delete Images;
