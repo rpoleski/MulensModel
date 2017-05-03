@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
 
+import sys
 import numpy as np
 from math import fsum, sqrt
 
 from MulensModel.utils import Utils
+# for VBBL imports see self._vbbl_imported below
 
 
 class BinaryLens(object):
@@ -23,6 +25,7 @@ class BinaryLens(object):
         self._position_z1_WM95 = None
         self._position_z2_WM95 = None
         self._last_polynomial_input = None
+        self._vbbl_imported = False
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
@@ -255,4 +258,34 @@ class BinaryLens(object):
             return (a_hexadecapole, a_quadrupole, a_center)
         else:
             return a_hexadecapole
+            
+    def vbbl_magnification(self, source_x, source_y, rho, gamma=0., accuracy=0.001):
+        """calculate magnification using VBBL code that implements advanced 
+        contour integration algorithm presented by
+        Bozza 2010 MNRAS, 408, 2188
+        http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B
+        http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm
+        """
+        if not self._vbbl_imported:
+            try:
+                from VBBL import VBBinaryLensingLibrary
+            except ImportError:
+                print("VBBL library could not be imported")
+                print("You must compile VBBL library and add it to PYTHONPATH")
+                print("Exit...")
+                sys.exit(1)
+            self._vbbl_imported = True
+            self._vbbllib = VBBinaryLensingLibrary.VBBinaryLensing()
         
+        s = float(self.separation)
+        q = float(self.mass_2 / self.mass_1)
+        x = float(source_x)
+        y = float(source_y)
+        rho = float(rho)
+        if gamma != 0.:
+            raise ValueError("The case of gamma != 0 is not yet coded - check VBBL gamma/u convention first.")
+        gamma = float(gamma)
+        accuracy = float(accuracy)
+        assert accuracy > 0., "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was provided".format(accuracy)
+        
+        return self._vbbllib.BinaryMagDark(s, q, x, y, rho, gamma, accuracy)

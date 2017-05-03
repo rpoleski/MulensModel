@@ -118,6 +118,9 @@ class Model(object):
         self._satellite_skycoord = None
         #self._delta_annual = {}
         #self._delta_satellite = {}
+        self._default_magnification_method = None
+        self._methods_epochs = None
+        self._methods_names = None
 
         self.plot_properties = {}
 
@@ -610,3 +613,42 @@ class Model(object):
             dt = (t_stop - t_start) / float(n_epochs)
 
         return np.arange(t_start, t_stop+dt, dt)
+
+    def set_default_magnification_method(self, method):
+        """stores information on method to be used, when no metod is
+        directly specified"""
+        self._default_magnification_method = method
+
+    def set_magnification_methods(self, methods):
+        """sets methods used for magnification calculation
+        
+        Parameter method is a list that contains epochs and names of methods
+        to be used:
+        methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 
+                   2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15, 
+                   'Quadrupole', 2455748.]
+        """
+        if not isinstance(methods, list):
+            msg = 'Model.set_magnification_methods() requires list as a parameter'
+            raise TypeError(msg)
+        epochs = methods[0::2]
+        names = methods[1::2]
+        
+        for epoch in epochs:
+            if not isinstance(epoch, float):
+                raise TypeError('Wrong epoch: {:}'.format(epoch))
+        for method in names:
+            if not isinstance(method, str):
+                raise TypeError('Wrong method: {:}'.format(method))
+        for (e_beg, e_end) in zip(epochs[::2], epochs[1::2]):
+            if e_beg >= e_end:
+                msg = 'Incorrect epochs provided: {:} and {:} (first should be earlier)'
+                raise ValueError(msg.format(e_beg, e_end))
+        
+        self._methods_epochs = np.array(epochs)
+        # n = np.searchsorted(self._methods_epochs, hjd) 
+        # n == 0 -> before 
+        # n == len(self._methods_epochs) -> after
+        # otherwise hjd is between self._methods_epochs[n-1] and self._methods_epochs[n], hence we call self._methods_names[n-1] !
+        self._methods_names = names
+

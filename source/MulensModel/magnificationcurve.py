@@ -45,11 +45,33 @@ class MagnificationCurve(object):
 
         #Initialize the magnification vector
         self._magnification = None
-            
+
+        #Set methods' variables:
+        self._methods_epochs = None
+        self._methods_names = None
+        self._default_magnification_method = None
+
+    def set_default_magnification_method(self, method):
+        """stores information on method to be used, when no metod is
+        directly specified"""
+        self._default_magnification_method = method
+
+    def set_magnification_methods(self, epochs, methods):
+        """sets methods used for magnification calculation;
+        epochs is a numpy array of n epochs that specify when (n-1) 
+        methods will be used"""
+        msg = "Wrong input in MagnificationCurve.set_magnification_methods()"
+        assert len(epochs) == len(methods) + 1, msg
+        assert isinstance(epochs, np.ndarray), 'Parameter epochs has to be numpy array'
+
+        self._methods_epochs = epochs
+        self._methods_names = methods
+
     @property
     def magnification(self):
         """provide vector of magnifications"""
         return self.get_magnification()
+        # THIS HAS TO BE REWRITTEN - USE LAZY LOADING!
 
     def get_magnification(self):
         """calculate magnification"""
@@ -103,9 +125,9 @@ class MagnificationCurve(object):
         """Calculate the Binary magnification. """
         #Set up the Binary lens system
         q = self.parameters.q
-        m1 = 1. / (1. + q)
-        m2 = q / (1. + q)
-        binary_lens = BinaryLens(mass_1=m1, mass_2=m2, 
+        m_1 = 1. / (1. + q)
+        m_2 = q / (1. + q)
+        binary_lens = BinaryLens(mass_1=m_1, mass_2=m_2, 
                                     separation=self.parameters.s)
         
         #Calculate the magnification
@@ -118,3 +140,26 @@ class MagnificationCurve(object):
             
         return np.array(magnification)
         
+    def _method_for_epoch(self, epoch):
+        """for given epoch, decide which method should be used to calculate magnification,
+        but don't calculate it"""
+        if self._methods_epochs is None:
+            return self._default_magnification_method
+
+        bracket = np.searchsorted(self._methods_epochs, epoch)
+        if bracket == 0 or bracket == len(self._methods_epochs):
+            return self._default_magnification_method
+        return self._methods_names[bracket-1]
+
+    def _methods_for_epochs(self, epochs):
+        """for given epochs, decide which methods should be used to calculate magnification,
+        but don't run the calculations"""
+        out = [self._default_magnification_method] * len(epochs)
+        if self._methods_epochs is None:
+            return out
+
+        brackets = np.searchsorted(self._methods_epochs, epochs)
+        n_max = len(self._methods_epochs)
+        out = [self._methods_names[val-1] if (val>0 and val<n_max) else self._default_magnification_method for val in brackets]
+        return out
+

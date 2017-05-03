@@ -11,14 +11,14 @@ class Caustics(object):
         self._x = None
         self._y = None
 
-    def calculate(self, npoints=5000):
+    def calculate(self, n_points=5000):
         """
         coefficients from Eq. 6 Cassan 2008. Larger mass at the origin.
         # Change so default origin is center of mass
         """
         self._x = []
         self._y = []
-        for phi in np.arange(0., 2.*np.pi, 2*np.pi/npoints):
+        for phi in np.arange(0., 2.*np.pi, 2*np.pi/n_points):
             x = np.cos(phi)
             y = np.sin(phi)
             eiphi = np.complex(x, y)
@@ -37,15 +37,16 @@ class Caustics(object):
                 self._x.append(source_plane_position.real)
                 self._y.append(source_plane_position.imag)
 
-    def plot(self, npoints=5000, **kwargs):
+    def plot(self, n_points=5000, **kwargs):
         if self._x is None:
-            self.calculate(npoints=npoints)
+            self.calculate(n_points=n_points)
         pl.scatter(self._x, self._y, **kwargs)
 
     def solve_lens_equation(self, complex_value):
         complex_conjugate = np.conjugate(complex_value)
         return complex_value - (1. / (1. + self.q)) * (
             (1./complex_conjugate) + (self.q / (complex_conjugate + self.s)) )
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as pl
@@ -72,3 +73,4 @@ if __name__ == '__main__':
 
     pl.legend(loc='best')
     pl.show()
+
