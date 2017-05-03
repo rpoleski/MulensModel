@@ -129,6 +129,12 @@ class MulensSystem(object):
             return t_E.to(u.day)
         except:
             return None
+    @t_E.setter
+    def t_E(self, t_E):
+        if isinstance(t_E, u.Quantity):
+            self.mu_rel = self.theta_E / t_E.to(u.year)
+        else:
+            self.mu_rel = self.theta_E / t_E * u.year
 
     def plot_magnification(self, u_0, alpha=None,**kwargs):
         """
