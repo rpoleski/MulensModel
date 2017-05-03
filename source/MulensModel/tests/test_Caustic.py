@@ -16,10 +16,13 @@ def test_caustic():
     q = 0.0053
 
     caustics = Caustics(q=q, s=s)
-    caustics.calculate()
-
-    shift_x = s / 2.
     
-    np.testing.assert_almost_equal(caustics._x[100], test_caustics['X'][100]+shift_x, decimal=3)
-    np.testing.assert_almost_equal(caustics._y[100], test_caustics['Y'][100], decimal=3)
+    x, y = caustics.get_caustics(n_points=1000)
+    for i in range(0, len(x), 100):
+        index = np.argmin(
+            np.sqrt((test_caustics['X']-x[i])**2+(test_caustics['Y']-y[i])**2))
+        np.testing.assert_almost_equal(
+            x[i], test_caustics['X'][index], decimal=5)
+        np.testing.assert_almost_equal(
+            y[i], test_caustics['Y'][index], decimal=5)
 
