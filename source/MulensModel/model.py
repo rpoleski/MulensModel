@@ -644,9 +644,4 @@ class Model(object):
                 raise ValueError(msg.format(e_beg, e_end))
         
         self._methods_epochs = np.array(epochs)
-        # n = np.searchsorted(self._methods_epochs, hjd) 
-        # n == 0 -> before 
-        # n == len(self._methods_epochs) -> after
-        # otherwise hjd is between self._methods_epochs[n-1] and self._methods_epochs[n], hence we call self._methods_names[n-1] !
         self._methods_names = names
-
