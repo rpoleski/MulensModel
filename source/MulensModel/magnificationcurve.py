@@ -51,22 +51,36 @@ class MagnificationCurve(object):
         self._methods_names = None
         self._default_magnification_method = None
 
-    def set_default_magnification_method(self, method):
-        """stores information on method to be used, when no metod is
-        directly specified"""
-        self._default_magnification_method = method
-
-    def set_magnification_methods(self, epochs, methods):
+    def set_magnification_methods(self, methods, default_method):
         """sets methods used for magnification calculation;
         epochs is a numpy array of n epochs that specify when (n-1) 
         methods will be used"""
-        if epochs is not None or methods is not None:
-            msg = "Wrong input in MagnificationCurve.set_magnification_methods()"
-            assert len(epochs) == len(methods) + 1, msg
-            assert isinstance(epochs, np.ndarray), 'Parameter epochs has to be numpy array'
-
-        self._methods_epochs = epochs
-        self._methods_names = methods
+        self._default_method = default_method
+        if methods is None:
+            self._methods_epochs = None
+            self._methods_names = None
+            return
+        
+        if not isinstance(methods, list):
+            msg = 'MagnificationCurve.set_magnification_methods() requires list as a parameter'
+            raise TypeError(msg)
+        epochs = methods[0::2]
+        names = methods[1::2]
+        
+        for epoch in epochs:
+            if not isinstance(epoch, float):
+                raise TypeError('Wrong epoch: {:}'.format(epoch))
+        for method in names:
+            if not isinstance(method, str):
+                raise TypeError('Wrong method: {:}'.format(method))
+        for (e_beg, e_end) in zip(epochs[::2], epochs[1::2]):
+            if e_beg >= e_end:
+                msg = 'Incorrect epochs provided: {:} and {:} (first should be earlier)'
+                raise ValueError(msg.format(e_beg, e_end))
+        
+        self._methods_epochs = np.array(epochs)
+        self._methods_names = names        
+        self._default_method = default_method
 
     @property
     def magnification(self):

@@ -119,8 +119,7 @@ class Model(object):
         #self._delta_annual = {}
         #self._delta_satellite = {}
         self._default_magnification_method = None
-        self._methods_epochs = None
-        self._methods_names = None
+        self._methods = None
 
         self.plot_properties = {}
 
@@ -262,8 +261,8 @@ class Model(object):
             parallax=self._parallax, t_0_par=self.t_0_par,
             coords=self._coords, 
             satellite_skycoord=satellite_skycoord)
-        magnification_curve.set_magnification_methods(self._methods_epochs, 
-                                                        self._methods_names)
+        magnification_curve.set_magnification_methods(self._methods, 
+                                        self._default_magnification_method)
         return magnification_curve.magnification
 
     @property
@@ -626,22 +625,4 @@ class Model(object):
                    2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15, 
                    'Quadrupole', 2455748.]
         """
-        if not isinstance(methods, list):
-            msg = 'Model.set_magnification_methods() requires list as a parameter'
-            raise TypeError(msg)
-        epochs = methods[0::2]
-        names = methods[1::2]
-        
-        for epoch in epochs:
-            if not isinstance(epoch, float):
-                raise TypeError('Wrong epoch: {:}'.format(epoch))
-        for method in names:
-            if not isinstance(method, str):
-                raise TypeError('Wrong method: {:}'.format(method))
-        for (e_beg, e_end) in zip(epochs[::2], epochs[1::2]):
-            if e_beg >= e_end:
-                msg = 'Incorrect epochs provided: {:} and {:} (first should be earlier)'
-                raise ValueError(msg.format(e_beg, e_end))
-        
-        self._methods_epochs = np.array(epochs)
-        self._methods_names = names
+        self._methods = methods
