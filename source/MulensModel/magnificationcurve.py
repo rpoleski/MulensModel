@@ -178,7 +178,7 @@ class MagnificationCurve(object):
     def _methods_for_epochs(self):
         """for given epochs, decide which methods should be used to calculate magnification,
         but don't run the calculations"""
-        out = [self._default_magnification_method] * len(self.times)
+        out = [self._default_method] * len(self.times)
         if self._methods_epochs is None:
             return out
 
@@ -187,7 +187,7 @@ class MagnificationCurve(object):
         
         out = [self._methods_names[value-1] 
                     if (value>0 and value<n_max) 
-                    else self._default_magnification_method 
+                    else self._default_method 
                     for value in brackets]
         
         return out

@@ -118,7 +118,7 @@ class Model(object):
         self._satellite_skycoord = None
         #self._delta_annual = {}
         #self._delta_satellite = {}
-        self._default_magnification_method = None
+        self._default_magnification_method = 'point_source'
         self._methods = None
 
         self.plot_properties = {}
