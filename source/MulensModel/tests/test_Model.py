@@ -92,3 +92,20 @@ def test_BLPS_01():
     np.testing.assert_almost_equal(m, 4.691830781584699) # This value comes from early version of this code.
     # np.testing.assert_almost_equal(m, 4.710563917) # This value comes from Andy's getbinp().
 
+def test_BLPS_02():
+    """simple binary lens with point source"""
+    params = ModelParameters(t_0=2456141.593, u_0=0.5425, t_E=62.63*u.day, alpha=49.58*u.deg, s=1.3500, q=0.00578, rho=0.01)
+    model = Model(parameters=params)
+    
+    t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 2450000.
+    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 'VBBL', 2456117.5]
+    model.set_magnification_methods(methods)
+    
+    data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
+    model.set_datasets([data])
+    #print(model.data_magnification)
+    #m = model.data_magnification[0][0]
+    #np.testing.assert_almost_equal(m, 4.691830781584699) # This value comes from early version of this code.
+    expected = np.array([ 4.69183078,  2.87659723,  1.83733975,  1.63865704,  1.61038135, 1.63603122,  1.69045492,  1.77012807])
+    result = model.data_magnification[0]
+    np.testing.assert_almost_equal(result, expected)
