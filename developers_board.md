@@ -1,7 +1,6 @@
-## March 2017 goals:
+## May 2017 goals:
 1. PSPL fitting manual,
 2. Limb darkening coefficients -- first we need use case,
-3. Import [VBB package](http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm) (or [Martin Dominik's package](http://star-www.st-and.ac.uk/~md35/Software/README.adaptivecontouring)) and write use case for using it,
 4. Resolve parallax issue.
 
 
