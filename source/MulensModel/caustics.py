@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as pl
 
-from MulensModel import Utils
+from MulensModel.utils import Utils
 
 
 class Caustics(object):
