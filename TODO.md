@@ -45,7 +45,8 @@
 
 ## Use Cases
 
-|#|Description|Implemented?|
+|Num|Description|Implemented?|
+|------|------|
 |01| simple plot |
 |03| model based on physical parameters |
 |04| basic event properties |
