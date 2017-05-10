@@ -18,7 +18,7 @@ class MulensData(object):
     def __init__(self, data_list=None, file_name=None,
                  phot_fmt="mag", coords=None, ra=None, dec=None, 
                  satellite=None, ephemrides_file=None, add_2450000=False,
-                 add_2460000=False, **kwargs):
+                 add_2460000=False, bandpass=None, **kwargs):
         """
         Create a MulensData object from a set of photometric measurements.
 
@@ -53,6 +53,7 @@ class MulensData(object):
         self._horizons = None
         self._satellite_skycoord = None
         self._init_keys = {'add245':add_2450000, 'add246':add_2460000}
+        self.bandpass = bandpass
 
         #Set the coords (if applicable)...
         coords_msg = 'Must specify both or neither of ra and dec'
