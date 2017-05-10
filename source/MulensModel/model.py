@@ -1,5 +1,4 @@
 import numpy as np
-from math import fsum
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 from astropy.coordinates import GeocentricTrueEcliptic
@@ -9,6 +8,7 @@ from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.trajectory import Trajectory
 from MulensModel.caustics import Caustics
+from MulensModel.mulensparallaxvector import MulensParallaxVector
 from MulensModel.utils import Utils
 from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
@@ -132,12 +132,8 @@ class Model(object):
         self._methods = None
         self.caustics = None
 
-        self.plot_properties = {}
-
-        # Set default values for plotting:
-        self._set_kwargs_for_errors = ['color', 'label', 'fmt', 'markersize']
-        self._set_kwargs_for_no_errors = ['color', 'label', 'marker', 's']
-        self._default_kwargs = {'fmt':'o', 'markersize':3, 'marker':'o', 's':3, 'color':None}
+        #Set dictionary to store plotting properties
+        self.reset_plot_properties()
 
     def __repr__(self):
         return '{0}'.format(self._parameters)
@@ -307,10 +303,11 @@ class Model(object):
             dataset.time, satellite_skycoord=dataset_satellite_skycoord)
         return magnification
         
-    def set_datasets(self, datasets):
+    def set_datasets(self, datasets, data_ref=0):
         """set _datasets property"""
         self._datasets = datasets
         self._data_magnification = None
+        self.data_ref = data_ref
 
     @property
     def coords(self):
@@ -409,13 +406,14 @@ class Model(object):
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
-        pl.plot(times, self.magnification(times),**kwargs)
+        pl.plot(times, self.magnification(times), **kwargs)
         pl.ylabel('Magnification')
         pl.xlabel('Time')
 
     def plot_lc(
         self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None, data_ref=None, f_source=None, f_blend=None, **kwargs):
+        n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
+        **kwargs):
         """
         plot the model light curve in magnitudes. See get_ref_fluxes
         for details of data_ref.
@@ -426,6 +424,9 @@ class Model(object):
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
+        if data_ref is not None:
+            self.data_ref = data_ref
+
         if (f_source is None) and (f_blend is None):
             (f_source, f_blend) = self.get_ref_fluxes(data_ref=data_ref)
         elif (f_source is None) or (f_blend is None):
@@ -434,7 +435,7 @@ class Model(object):
             
         flux = f_source * self.magnification(times) + f_blend
 
-        pl.plot(times, Utils.get_mag_from_flux(flux),**kwargs)
+        pl.plot(times, Utils.get_mag_from_flux(flux), **kwargs)
         pl.ylabel('Magnitude')
         pl.xlabel('Time')
         
@@ -446,17 +447,22 @@ class Model(object):
         """
         Determine the reference flux system from the
         datasets. data_ref may either be a dataset or the index of a
-        dataset (if model.set_datasets() was previously called). If
+        dataset (if Model.set_datasets() was previously called). If
         data_ref is not set, it will use the first dataset. If you
         call this without calling set_datasets() first, there will be
         an exception and that's on you.
         """
         if data_ref is None:
-            data = self._datasets[0]
+            if isinstance(self.data_ref, MulensData):
+                data = self.data_ref
+            else:
+                data = self._datasets[self.data_ref]
         elif isinstance(data_ref, MulensData):
             data = data_ref
+            self.data_ref = data_ref
         else:
             data = self._datasets[data_ref]
+            self.data_ref = data_ref
 
         fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
         fit.fit_fluxes()
@@ -464,25 +470,107 @@ class Model(object):
         f_blend = fit.blending_flux(data)
 
         return (f_source, f_blend)
+        
+    def reset_plot_properties(self):
+        """resets internal settings for plotting"""
+        self.plot_properties = {}
 
-    def plot_data(self, data_ref=None, show_errorbars=True, **kwargs):
+    def _store_plot_properties(
+        self, color_list=None, marker_list=None, size_list=None, 
+        label_list=None, **kwargs):
+        """
+        Store plot properties for each data set.
+        """
+        if color_list is not None:
+            self.plot_properties['color_list'] = color_list
+        if marker_list is not None:
+            self.plot_properties['marker_list'] = marker_list
+        if size_list is not None:
+            self.plot_properties['size_list'] = size_list
+        if label_list is not None:
+            self.plot_properties['label_list'] = label_list
+        if len(kwargs) > 0:
+            self.plot_properties['other_kwargs'] = kwargs
+    
+    def _set_plot_kwargs(self, index, show_errorbars=True):
+        """
+        Set kwargs arguments for plotting. If set, use previous values. But 
+        new values take precedence. 
+        
+        Automatically handles (some) differences in keywords for pl.errorbar 
+        vs. pl.scatter: fmt/marker, markersize/s
+        """                
+        #Set different keywords for pl.errorbar vs. pl.scatter
+        if show_errorbars:
+            marker_key = 'fmt'
+            size_key = 'markersize'
+        else:
+            marker_key = 'marker'
+            size_key = 's'
+    
+        #Create new kwargs dictionary
+        new_kwargs = {}  
+        
+        #Set defaults
+        if index == 0:
+            pl.gca().set_color_cycle(None)
+        new_kwargs[marker_key] = 'o'
+        new_kwargs[size_key] = 3
+        
+        #Set custom
+        if len(self.plot_properties) > 0:
+            if 'color_list' in self.plot_properties.keys():
+                new_kwargs['color'] = self.plot_properties['color_list'][index]
+
+            if 'marker_list' in self.plot_properties.keys():
+                new_kwargs[marker_key] = self.plot_properties['marker_list'][index]
+
+            if 'size_list' in self.plot_properties.keys():
+                new_kwargs[size_key] = self.plot_properties['size_list'][index]
+
+            if 'label_list' in self.plot_properties.keys():
+                new_kwargs['label'] = self.plot_properties['label_list'][index]
+                
+            if 'other_kwargs' in self.plot_properties.keys():
+                for (key, value) in self.plot_properties['other_kwargs'].items():
+                    if key == 'markersize' or key == 's':
+                        new_kwargs[size_key] = value
+                    elif key == 'marker' or key == 'fmt':
+                        new_kwargs[marker_key] = value
+                    else:
+                        new_kwargs[key] = value
+                        
+        return new_kwargs
+
+    def plot_data(
+        self, data_ref=None, show_errorbars=True, color_list=None,
+        marker_list=None, size_list=None, label_list=None, **kwargs):
         """
         Plot the data scaled to the model. If data_ref is not
         specified, uses the first dataset as the reference for flux scale. 
 
         If show_errorbars is True (default), plots with matplotlib.errorbar(). 
         If show_errorbars is False, plots with matplotib.scatter(). 
-        Hence, **kwargs should be appropriate to the type of plotting. 
-        Currently, following keys are accepted in kwargs:
-         - if show_errorbars is True: 'color', 'label', 'fmt', 'markersize';
-         - if show_errorbars is False: 'color', 'label', 'marker', 's'.
-        Each of the **kwargs can be set to either a single value and then 
-        is applied to all datasets or either list or numpy array and then 
-        each value is applied to a different dataset. 
         
-        The **kwargs are remembered and used in subsequent calls to both 
-        plot_data() and plot_residuals(). 
+        Allows for different point types for each dataset. These may be set
+        using color_list, marker_list, and size_list. May also use **kwargs
+        or some combination of the lists and **kwargs. e.g. set color_list to 
+        specify which color each data set should be plotted in, but use 
+        fmt='s' to make all data points plotted as squares.
+        
+        Automatically handles some keyword variations in errorbar() vs. 
+        scatter(): e.g. fmt/marker, markersize/s (see _set_plot_kwargs),
+        
+        **kwargs (and point type lists) are remembered and used in subsequent 
+        calls to both plot_data() and plot_residuals(). 
         """
+        if data_ref is not None:
+            self.data_ref = data_ref
+
+        self._store_plot_properties(
+            color_list=color_list, marker_list=marker_list, 
+            size_list=size_list, label_list=label_list,
+            **kwargs)
 
         #Reference flux scale
         (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
@@ -495,9 +583,6 @@ class Model(object):
         #plot defaults
         t_min = 3000000.
         t_max = 0.
-
-        # Reset default pyplot colors
-        pl.gca().set_color_cycle(None)
         
         #plot each dataset
         for (i, data) in enumerate(self._datasets):
@@ -506,27 +591,20 @@ class Model(object):
             f_blend = fit.blending_flux(data)
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
+            new_kwargs = self._set_plot_kwargs(i, show_errorbars=show_errorbars)
             #Plot
             if show_errorbars:
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, 
-                                            kwargs, self._default_kwargs, i)
                 pl.errorbar(data.time, mag, yerr=err, **new_kwargs) 
                 
             else:
                 mag = Utils.get_mag_from_flux(flux)
-                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_no_errors, 
-                                            kwargs, self._default_kwargs, i)
-                pl.scatter(data.time, mag, **new_kwargs)
+                pl.scatter(data.time, mag, lw=0., **new_kwargs)
 
             #Set plot limits
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
-
-        # remember settings:
-        for key in kwargs.keys():
-            self._default_kwargs[key] = kwargs[key]
 
         #Plot properties
         pl.ylabel('Magnitude')
@@ -537,15 +615,25 @@ class Model(object):
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
-    def plot_residuals(self, show_errorbars=True, **kwargs):
+    def plot_residuals(
+        self, show_errorbars=True, color_list=None, marker_list=None, 
+        size_list=None, label_list=None, data_ref=None, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model. Uses the best f_source,
         f_blend for each dataset (not scaled to a particular 
         photometric system).
 
-        For explanation of **kwargs, see doctrings in plot_model(). 
+        For explanation of **kwargs, and also [var]_list see doctrings in 
+        plot_data(). 
         """
+        if data_ref is not None:
+            self.data_ref = data_ref
 
+        self._store_plot_properties(
+            color_list=color_list, marker_list=marker_list, 
+            size_list=size_list, label_list=label_list,
+            **kwargs)
+            
         #Get fluxes for all datasets
         fit = Fit(
             data=self._datasets, magnification=self.data_magnification)
@@ -556,9 +644,9 @@ class Model(object):
         t_min = 3000000.
         t_max = 0.
 
-        # Reset default pyplot colors
-        pl.gca().set_color_cycle(None)
-
+        #Plot zeropoint line
+        pl.plot([0., 3000000.], [0., 0.], color='black')
+        
         #Plot residuals
         for (i, data) in enumerate(self._datasets):
             #Calculate model magnitude
@@ -574,28 +662,20 @@ class Model(object):
             delta_mag = max(delta_mag, np.max(np.abs(residuals)))
 
             #Plot
+            new_kwargs = self._set_plot_kwargs(i, show_errorbars=show_errorbars)
             if show_errorbars:
-                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_errors, 
-                                            kwargs, self._default_kwargs, i)
                 pl.errorbar(data.time, residuals, yerr=err, 
                             **new_kwargs) 
             else:
-                new_kwargs = Utils.combine_dicts(self._set_kwargs_for_no_errors, 
-                                            kwargs, self._default_kwargs, i)
-                pl.scatter(data.time, residuals, lw=0., **new_kwargs)
+                pl.scatter(data.time, residuals, lw=0, **new_kwargs)
 
             #Set plot limits
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
-
-        # remember settings:
-        for key in kwargs.keys():
-            self._default_kwargs[key] = kwargs[key]
-
+       
         if delta_mag > 1.:
             delta_mag = 0.5
 
-        pl.plot([0., 3000000.], [0., 0.], color='black')
         #Plot properties
         pl.ylim(-delta_mag, delta_mag)
         pl.xlim(t_min, t_max)
