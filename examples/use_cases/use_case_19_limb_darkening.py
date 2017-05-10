@@ -20,8 +20,9 @@ model.set_datasets(datasets)
 model.set_limb_coef_gamma('I', 0.4555)
 model.set_limb_coef_u('V', 0.5555)
 
-# Print bandpasses and LD coefs:
-print("Dataset   bandpass   u   gamma")
-for (i, data) in enumerate(datasets):
-    print("{:} {:.4f} {:.4f}".format(i, data.bandpass, data.limb_coef_u, data.limb_coef_gamma))
+# Print LD coefficients:
+print("bandpass   u   gamma:")
+print("---------------------")
+for band in model.bandpasses:
+    print("{:} {:.4f} {:.4f}".format(band, model.limb_coef_u(band), model.limb_coef_gamma(band)))
 
