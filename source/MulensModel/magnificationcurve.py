@@ -151,19 +151,19 @@ class MagnificationCurve(object):
         for index in range(len(self.times)):
             x = self.trajectory.x[index]
             y = self.trajectory.y[index]
-            method = methods[index]
+            method = methods[index].lower()
             
-            if method == 'point_source' or method is None:
+            if method == 'point_source':
                 m = binary_lens.point_source_magnification(x, y)
-            elif method == 'Quadrupole':
+            elif method == 'quadrupole':
                 m = binary_lens.hexadecapole_magnification(x, y, 
                         rho=self.parameters.rho, quadrupole=True,
                         gamma=0.0) # XXX THIS HAS TO BE UPDATED
-            elif method == 'Hexadecapole':
+            elif method == 'hexadecapole':
                 m = binary_lens.hexadecapole_magnification(x, y, 
                         rho=self.parameters.rho, 
                         gamma=0.0) # XXX THIS HAS TO BE UPDATED
-            elif method == 'VBBL':
+            elif method == 'vbbl':
                 m = binary_lens.vbbl_magnification(x, y, 
                         rho=self.parameters.rho)
                         # XXX THIS HAS TO BE UPDATED - add gamma and accuracy parameters
