@@ -43,3 +43,23 @@
 - Further development is possible that will include triple lens microlensing.
 
 
+## Use Cases
+
+|#|Description|Implemented?|
+|01| simple plot |
+|03| model based on physical parameters |
+|04| basic event properties |
+|05| satellite parallax |
+|06| WFIRST data |
+|07| triple lenses |
+|08| plotting |
+|09| finite source |
+|10| get chi2 |
+|11| bad data |
+|12| simple fit PSPL |
+|13| parallax |
+|14| coordinate system |
+|15| emcee simple PSPL |
+|16| raddec |
+|17| magnitudes |
+|18| binary equation |
