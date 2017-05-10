@@ -240,17 +240,24 @@ class Model(object):
     @alpha.setter
     def alpha(self, value):
         self._parameters.alpha = value
-
+    
     @property
-    def parameters(
+    def parameters(self):
+        """
+        The parameters of the model. A Model Parameters object.
+        """
+        return self._parameters
+
+    def set_parameters(
         self, t_0=0., u_0=None, t_E=1., rho=None, s=None, q=None, alpha=None, 
         pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
-        if u_0 is None:
-            return "{0}".format(self._parameters)
-        else:
-            self._parameters = ModelParameters(
-                t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
-                pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
+        """
+        Set the parameters of the model. Any parameter not explicitly
+        specified will be set to None.
+        """
+        self._parameters = ModelParameters(
+            t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
+            pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
 
     def magnification(self, time, satellite_skycoord=None):
         """
