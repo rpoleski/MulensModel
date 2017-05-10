@@ -30,17 +30,20 @@ class Source(object):
         given, the value is assumed to be kpc if it is <50 and in pc
         otherwise.
         """
-        if not isinstance(new_distance, u.Quantity):
-            if new_distance < 50:
-                self._distance = new_distance * 1000. * u.pc
-            else:
-                self._distance = new_distance * u.pc
+        if new_distance is None:
+            self._distance = new_distance
         else:
-            if (new_distance.unit == "pc") or (new_distance.unit == "kpc"):
-                self._distance = new_distance
+            if not isinstance(new_distance, u.Quantity):
+                if new_distance < 50:
+                    self._distance = new_distance * 1000. * u.pc
+                else:
+                    self._distance = new_distance * u.pc
             else:
-                raise u.UnitsError(
-                    'Allowed units for Source distance are "pc" or "kpc"') 
+                if (new_distance.unit == "pc") or (new_distance.unit == "kpc"):
+                    self._distance = new_distance
+                else:
+                    raise u.UnitsError(
+                        'Allowed units for Source distance are "pc" or "kpc"') 
 
     @property
     def pi_S(self):

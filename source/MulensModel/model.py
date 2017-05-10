@@ -69,8 +69,16 @@ class Model(object):
             self.rho = rho
         if s is not None:
             self.s = s
+
         if q is not None:
+            if isinstance(q, (list, np.ndarray)):
+                if len(q) > 1:
+                    raise NotImplementedError(
+                        'Too many q. Does not support more than 2 bodies.')
+                else:
+                    q = q[0]
             self.q = q
+
         if alpha is not None:
             self.alpha = alpha
         self.t_0_par = t_0_par

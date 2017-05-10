@@ -21,6 +21,12 @@ class Caustics(object):
         Create a Caustics object. Both s and q should be set.
         """
         #Set s, q
+        if isinstance(q, (list, np.ndarray)):
+            if len(q) > 1:
+                raise NotImplementedError(
+                    'Too many q. Does not support more than 2 bodies.')
+            else:
+                q = q[0]
         self.q = q
         self.s = s
 

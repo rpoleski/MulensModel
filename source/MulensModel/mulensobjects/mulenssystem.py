@@ -129,6 +129,7 @@ class MulensSystem(object):
             return t_E.to(u.day)
         except:
             return None
+
     @t_E.setter
     def t_E(self, t_E):
         if isinstance(t_E, u.Quantity):
@@ -136,31 +137,43 @@ class MulensSystem(object):
         else:
             self.mu_rel = self.theta_E / t_E * u.year
 
-    def plot_magnification(self, u_0, alpha=None,**kwargs):
+    def plot_magnification(self, u_0=None, alpha=None,**kwargs):
         """
         Plot the magnification curve for the lens. u_0 must always be
         specified. If the lens has more than one body, alpha must also
         be specified.
         """
-        parameters = ModelParameters(t_0=0., u_0=u_0)
-        if self.t_E is not None:
-            parameters.t_E = self.t_E
-            xtitle = 'Time (days)'
+        if u_0 is None:
+            raise AttributeError('u_0 is required')
         else:
-            parameters.t_E = 1.
-            xtitle = 'Time (tE)'
+            parameters = ModelParameters(t_0=0., u_0=u_0)
+            if self.t_E is not None:
+                parameters.t_E = self.t_E
+                xtitle = 'Time (days)'
+            else:
+                parameters.t_E = 1.
+                xtitle = 'Time (tE)'
 
-        if self.source.angular_size is not None:
-            parameters.rho = (self.source.angular_size.to(u.mas) 
-                              / self.theta_E.to(u.mas))
-        else:
-            parameters.rho = None
+            if self.source.angular_size is not None:
+                parameters.rho = (self.source.angular_size.to(u.mas) 
+                                  / self.theta_E.to(u.mas))
 
-        if self.lens.n_masses > 1:
-            parameters.q = self.lens.q
-            parameters.s = self.lens.s
-            parameters.alpha = alpha
+            if self.lens.n_masses > 1:
+                parameters.q = self.lens.q
+                parameters.s = self.lens.s
+                if alpha is None:
+                    raise AttributeError('alpha is required for 2-body lenses.')
+                else:
+                    parameters.alpha = alpha
 
-        model = Model(parameters=parameters)
-        model.plot_magnification(**kwargs)
-        pl.xlabel(xtitle)
+            model = Model(parameters=parameters)
+            model.plot_magnification(**kwargs)
+            pl.xlabel(xtitle)
+
+    def plot_caustics(self, n_points=5000, **kwargs):
+        """
+        Plot the caustic structure. n_points specifies the number of
+        points to generate in the caustic.
+        """
+        self.lens.plot_caustics(n_points=n_points, **kwargs)
+

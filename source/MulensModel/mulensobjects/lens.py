@@ -2,6 +2,8 @@ import numpy as np
 from math import fsum
 from astropy import units as u
 
+from MulensModel.caustics import Caustics
+
 class Lens(object):
     """
     A mass or system of masses.
@@ -42,7 +44,8 @@ class Lens(object):
         is <50, it is assumed the value is given in kpc. Otherwise, pc
         are assumed.
         """
-        self._caustic=None
+        self._caustics = None
+
         #Set up system from s and q if defined
         if q is not None:
             self.q = q
@@ -81,11 +84,17 @@ class Lens(object):
 
     def __repr__(self):
         """Make a nice string representation of the mass. NEEDS WORK."""
-        dist_str = 'Lens Distance: {0}\n'.format(self._distance)
+        #Lens Distance
+        try:
+            dist_str = 'Lens Distance: {0}\n'.format(self._distance)
+        except AttributeError:
+            dist_str = ' '
+
+        #Lens mass or q
         try:
             return('{1}Lens Total Mass: {0}'.format(self._total_mass, dist_str))
-        except NameError:
-            return('{1}Lens components: {0}'.format(self._q, dist_str))
+        except AttributeError:
+            return('{1}Lens mass ratio: {0}'.format(self.q, dist_str))
         else:
             return('Lens.py __repr__ error')
 
@@ -279,6 +288,8 @@ class Lens(object):
         #Case 1: nothing is initialized (new_q directly sets epsilon)
             pass
 
+    '''
+    # self._s not implemented
     @property
     def s(self):
         """
@@ -291,6 +302,7 @@ class Lens(object):
     @s.setter
     def s(self, new_s):
         self._s = new_s
+    '''
 
     @property
     def a_proj(self):
@@ -347,25 +359,22 @@ class Lens(object):
 
 
     @property
-    def caustic(self):
+    def caustics(self):
         """
-        The x,y coordinates (scaled to the Einstein ring) of the
-        caustic structure.
+        Returns a Caustics object.
         """
-        if self._caustic is None:
-            self._caustic = self._calculate_caustics()
-        return self._caustic
+        if self._caustics is None:
+            if self.n_masses > 2:
+                raise NotImplementedError(
+                    'Caustics do not support more than 2 bodies')
+            else:
+                self._caustics = Caustics(q=self.q, s=self.s)
+        return self._caustics
 
-    def plot_caustics(self):
+    def plot_caustics(self,n_points=5000,**kwargs):
         """
         A function to plot the x,y coordinates (scaled to the
         Einstein ring) of the caustics.
         """
-        raise NotImplementedError('please write Lens.plot_caustics')
+        self.caustics.plot(n_points=n_points, **kwargs)
 
-    def _calculate_caustics(self):
-        """
-        Private function: calculate the x,y coordinates (scaled to the
-        Einstein ring) of the caustics.
-        """
-        raise NotImplementedError('please write Lens._calculate_caustics')

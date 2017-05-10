@@ -15,7 +15,7 @@
 | * finite source with limb darkening| |
 | * VBBL| |
 | * Dominik Adpative Contouring| |
-| binary lenses caustics can be calculated and plotted together with source trajectory.| |
+| binary lenses caustics can be calculated and plotted together with source trajectory.| Yes |
 |event properties (tE, thetaE, rE) can be calculated from physical properties of the source and lens systems (e.g. M, pi_s, pi_l, and mu)| Yes |
 | The code contains
 | * examples and tutorial that show how the main high-level functions can be used.| |
@@ -47,8 +47,9 @@
 
 |Num|Description|Implemented?|
 |------|------|------|
-|01| simple plot | |
-|03| model based on physical parameters | |
+|01| simple plot | Yes |
+|02| xxx | xxx|
+|03| model based on physical parameters | Yes|
 |04| basic event properties | |
 |05| satellite parallax | |
 |06| WFIRST data | |
