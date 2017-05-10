@@ -47,4 +47,9 @@ planet.plot_magnification(t_range=[3592, 3593],
     color='red', linestyle='-', zorder=2, label='Planet')
 pl.title('Planetary Perturbation Detail')
 
+#Plot source trajectory and caustic
+pl.figure()
+planet.plot_trajectory(caustics=True)
+pl.title('Source Trajectory')
+
 pl.show()

@@ -7,6 +7,8 @@ import matplotlib.pyplot as pl
 
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
+from MulensModel.trajectory import Trajectory
+from MulensModel.caustics import Caustics
 from MulensModel.utils import Utils
 from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
@@ -120,6 +122,7 @@ class Model(object):
         #self._delta_satellite = {}
         self._default_magnification_method = 'point_source'
         self._methods = None
+        self.caustics = None
 
         self.plot_properties = {}
 
@@ -584,6 +587,71 @@ class Model(object):
         pl.ylabel('Residuals')
         pl.xlabel('Time')
 
+    def plot_trajectory(
+        self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
+        n_epochs=None, caustics=False, show_data=False, arrow=True,
+        satellite_skycoord=None,**kwargs):
+        """
+        Plot the source trajectory.
+
+        Optional keyword arguments:
+
+          times, t_range, t_start, t_stop, dt, n_epochs may all be
+          used to specify exactly when to plot the source
+          trajectory. times=specific dates, t_range=range of times,
+          (t_start, t_stop)=range of times with optional dt OR
+          n_epochs.
+
+          caustics = plot the caustic structure in addition to the
+          source trajectory. default=False (off). For finer control of
+          plotting features, e.g. color, use self.plot_caustics()
+          instead.
+
+          show_data = mark epochs of data (Not Implemented, marker
+          types should match data plotting.)
+
+          arrow = show the direction of the motion. default=True (on)
+
+          satellite_skycoord should allow user to specify the trajectory
+          is calculated for a satellite. (Not checked)
+
+          **kwargs controls plotting features of the trajectory.
+        """
+        if times is None:
+            times = self.set_times(
+                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_stop=t_stop, dt=dt, 
+                n_epochs=n_epochs)
+
+        if satellite_skycoord is None:
+            satellite_skycoord = self._satellite_skycoord
+
+        trajectory = Trajectory(
+            times, parameters=self._parameters, parallax=self._parallax, 
+            t_0_par=self.t_0_par, coords=self._coords, 
+            satellite_skycoord=satellite_skycoord)
+
+        pl.plot(trajectory.x, trajectory.y, **kwargs)
+        
+        if arrow:
+            index = len(times)/2
+            pl.scatter(
+                trajectory.x[index], trajectory.y[index], 
+                marker=(3, 0, self.alpha), s=50)
+
+        if caustics:
+            self.plot_caustics(marker='.', color='red')
+
+    def plot_caustics(self, n_points=5000, **kwargs):
+        """
+        Plot the caustic structure. n_points specifies the number of
+        points to generate in the caustic.
+        """
+        if self.caustics is None:
+            self.caustics = Caustics(q=self.q, s=self.s)
+
+        self.caustics.plot(n_points=n_points,**kwargs)
+        
     def set_times(
         self, parameters=None, t_range=None, t_start=None, t_stop=None, 
         dt=None, n_epochs=None):
