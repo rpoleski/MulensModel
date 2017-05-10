@@ -75,28 +75,41 @@ class ModelParameters(object):
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""        
-# This function works bad if rho is not set, but s & q are!        
-        variables = '{0:>11} {1:>9} {2:>10}'.format(
-            "t_0 (HJD')", 'u_0', 
-            't_E ({0})'.format(self._t_E.unit))
+        #Initialize Header line
+        variables = '{0:>11} {1:>9} '.format(
+            "t_0 (HJD')", 'u_0')
+        try:
+            variables = '{0} {1:>9}'.format(
+                variables, 't_E ({0})'.format(self._t_E.unit))
+        except AttributeError:
+            variables = '{0} {1:>9}'.format(variables, 't_E')
+
+        #t_0 value
         try:
             values = '{0:>11.5f}'.format(self.t_0)
         except AttributeError:
             values = '{0:>11}'.format(None)
+        #u_0 value
         try:
             values = '{0} {1:>9.6f}'.format(values, self._u_0)
         except AttributeError:
             values = '{0} {1:>9}'.format(values, None)
+
+        #t_E value
         try:
             values = '{0} {1:>10.4f}'.format(values,self.t_E)
         except AttributeError:
             values = '{0} {1:>10}'.format(values,None)
+
+        #rho value and header column
         try:
-# I think the first line below should be moved to "else:" section just after "except" section.
-            variables = '{0} {1:>7}'.format(variables, 'rho') 
             values = '{0} {1:>7.5f}'.format(values, self._rho)
         except AttributeError:
             pass
+        else:
+            variables = '{0} {1:>7}'.format(variables, 'rho') 
+
+        #s, q values and header columns
         try:
             variables = '{0} {1:>9} {2:>12} {3:>11}'.format(
                 variables, 's', 'q', 'alpha ({0})'.format(self._alpha.unit))
@@ -104,6 +117,7 @@ class ModelParameters(object):
                 values, self._s, self._q, self._alpha.value)
         except AttributeError:
             pass
+
         return 'ModelParameters:\n{0}\n{1}\n'.format(variables, values)
 
     @property
