@@ -60,6 +60,7 @@ class MulensData(object):
         self._horizons = None
         self._satellite_skycoord = None
         self._init_keys = {'add245':add_2450000, 'add246':add_2460000}
+        self._limb_darkening_weights = None
         self.bandpass = bandpass
 
         #Set the coords (if applicable)...
@@ -255,3 +256,31 @@ class MulensData(object):
             self._satellite_skycoord.representation = 'spherical'
         return self._satellite_skycoord
 
+    @property
+    def bandpass(self):
+        """bandpass of given dataset (primary usage is limb darkening)"""
+        return self._bandpass
+        
+    @bandpass.setter
+    def bandpass(self, value):
+        if self._limb_darkening_weights is not None:
+            raise ValueError("Limb darkening weights were already set - you" +
+                                "cannot bandpass now.")
+        self._bandpass = value
+
+    def set_limb_darkening_weights(self, weights):
+        """save a dictionary weights that will be used to evaluate l
+        imb darkening coefficient
+        
+        e.g. weights = {'I': 1.5, 'V': 1.} if I-band gamma limb-darkening 
+        coefficient is 1.5-times larger than V-band"""
+        if self.bandpass is not None:
+            raise ValueError("Don't try to run " + 
+                                "MulensData.set_limb_darkening_weights() " + 
+                                "after bandpass was provided")
+        if isinstance(weights, dict):
+            raise TypeError("MulensData.set_limb_darkening_weights() " + 
+                    "parameter has to be dict, not {:}".format(type(weights)))
+        
+        self._limb_darkening_weights = weights
+        
