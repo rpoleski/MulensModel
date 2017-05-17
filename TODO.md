@@ -53,7 +53,7 @@
 |05| satellite parallax setup| Yes |
 |06| WFIRST data | |
 |07| triple lenses | |
-|08| plotting | |
+|08| plotting | Yes |
 |09| finite source | |
 |10| get chi2 | |
 |11| bad data | |
