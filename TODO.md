@@ -50,8 +50,7 @@
 |01| simple plot | Yes |
 |02| xxx | xxx|
 |03| model based on physical parameters | Yes|
-|04| basic event properties | |
-|05| satellite parallax | |
+|05| satellite parallax setup| Yes |
 |06| WFIRST data | |
 |07| triple lenses | |
 |08| plotting | |

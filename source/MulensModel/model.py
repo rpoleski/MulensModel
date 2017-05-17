@@ -48,6 +48,9 @@ class Model(object):
         When defining event coordinates, may specify coords as an
         astropy.coordinates.SkyCoord object, otherwise assumes RA is
         in hour angle and DEC is in degrees.
+
+        Default values for parallax are all False. Use
+        model.parallax() to turn different parallax effects ON/OFF.
         """
         # Initialize the parameters of the model
         if isinstance(parameters, ModelParameters):
@@ -385,14 +388,25 @@ class Model(object):
         return self._coords.transform_to(GeocentricTrueEcliptic).lat
 
     def parallax(
-        self, earth_orbital=False, satellite=False, topocentric=False):
+        self, earth_orbital=None, satellite=None, topocentric=None):
         """
-        specifies which types of the parallax will be included in calculations
+        specifies which types of the parallax will be included in
+        calculations. Three kinds of effects are allowed:
+        earth_orbital - the motion of the Earth about the Sun
+        satellite - difference due to the separation between the Earth
+            and a satellite (changes as a function of time)
+        topocentric - difference due to the separation between two
+            observatories on the Earth.
         """
-        self._parallax['earth_orbital'] = earth_orbital
-        self._parallax['satellite'] = satellite
-        self._parallax['topocentric'] = topocentric
-
+        if earth_orbital is None and satellite is None and topocentric is None:
+            return self._parallax
+        else:
+            if earth_orbital is not None:
+                self._parallax['earth_orbital'] = earth_orbital
+            if satellite is not None:
+                self._parallax['satellite'] = satellite
+            if topocentric is not None:
+                self._parallax['topocentric'] = topocentric
 
     def plot_magnification(
         self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
