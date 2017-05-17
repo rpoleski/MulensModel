@@ -4,7 +4,7 @@ import MulensModel
 
 # Prepare a list of 3 MulensData objects. Two of them have bandpass specified:
 data_1 = MulensModel.MulensData(file_name="ogle_data_phot.dat", bandpass='I')
-data_2 = MulensModel.MulensData(file_name="kmt_V_phot.dat", banpass='V')
+data_2 = MulensModel.MulensData(file_name="kmt_V_phot.dat", bandpass='V')
 
 # and one has only relative weights of limb darkening coefficients:
 data_3 = MulensModel.MulensData(file_name="moa_phot.dat")
