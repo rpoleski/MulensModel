@@ -1,5 +1,7 @@
 import MulensModel
 
+#Delete? Redundant with UC18/19?
+
 m = MulensModel.Model()
 m.finite_source = True
 
