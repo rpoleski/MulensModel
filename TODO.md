@@ -50,6 +50,7 @@
 |01| simple plot | Yes |
 |02| xxx | xxx|
 |03| model based on physical parameters | Yes|
+|04| xxx | xxx|
 |05| satellite parallax setup| Yes |
 |06| WFIRST data | |
 |07| triple lenses | |
@@ -64,3 +65,4 @@
 |16| raddec | |
 |17| magnitudes | |
 |18| binary equation | |
+|19| limb_darkening | |
