@@ -131,3 +131,16 @@ class Utils(object):
         return new_dict
     combine_dicts = staticmethod(combine_dicts)
 
+    # The two functions below implement convention introduced by:
+    # An et al. 2002 (ApJ 572, 521)
+    # http://adsabs.harvard.edu/abs/2002ApJ...572..521A
+    def gamma_to_u(gamma):
+        """transform gamma limb darkening coefficient to u"""
+        return 3. * gamma / (2. + gamma)
+    gamma_to_u = staticmethod(gamma_to_u)
+
+    def u_to_gamma(u):
+        """transform u limb darkening coefficient to gamma"""
+        return (2. * u) / (3. - u)
+    u_to_gamma = staticmethod(u_to_gamma)
+    
