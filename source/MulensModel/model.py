@@ -12,6 +12,7 @@ from MulensModel.mulensparallaxvector import MulensParallaxVector
 from MulensModel.utils import Utils
 from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
+from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 
 #JCY: some probable problems with annual parallax due to interface
 #with astropy functions get_body_barycentric and get_jd12. These must
@@ -134,6 +135,8 @@ class Model(object):
 
         #Set dictionary to store plotting properties
         self.reset_plot_properties()
+        
+        self._limb_darkening_coeffs = LimbDarkeningCoeffs()
 
     def __repr__(self):
         return '{0}'.format(self._parameters)
@@ -789,3 +792,24 @@ class Model(object):
                    'Quadrupole', 2455748.]
         """
         self._methods = methods
+
+    def set_limb_coef_gamma(self, bandpass, coef):
+        """ """
+        pass
+
+    def set_limb_coef_u(self, bandpass, coef):
+        """ """
+        pass
+
+    def limb_coef_gamma(self, bandpass, coef):
+        """ """
+        pass
+
+    def limb_coef_u(self, bandpass, coef):
+        """ """
+        pass
+
+    @property
+    def bandpasses(self):
+        """ """
+        pass
