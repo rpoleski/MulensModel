@@ -22,6 +22,13 @@ class MulensData(object):
         """
         Create a MulensData object from a set of photometric measurements.
 
+        Major properties:
+           self.time - the dates of the observations
+           self.mag - the brightness in magnitudes
+           self.err_mag - the errors on the magnitudes
+           self.flux - the brightness in flux
+           self.err_flux - the errors on the fluxes
+
         Keywords:
            data_list - a list or array with columns: Date, Magnitude/Flux, Err
            file_name - The path to a file with columns: Date,

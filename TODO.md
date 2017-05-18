@@ -50,11 +50,11 @@
 |01| simple plot | Yes |
 |02| xxx | xxx|
 |03| model based on physical parameters | Yes|
-|04| basic event properties | |
-|05| satellite parallax | |
+|04| xxx | xxx|
+|05| satellite parallax setup| Yes |
 |06| WFIRST data | |
 |07| triple lenses | |
-|08| plotting | |
+|08| plotting | Yes |
 |09| finite source | |
 |10| get chi2 | |
 |11| bad data | |
@@ -65,3 +65,4 @@
 |16| raddec | |
 |17| magnitudes | |
 |18| binary equation | |
+|19| limb_darkening | |

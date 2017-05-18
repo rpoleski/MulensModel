@@ -26,3 +26,5 @@ print("---------------------")
 for band in model.bandpasses:    
     print("{:} {:.4f} {:.4f}".format(band, model.limb_coef_u(band), 
                                         model.limb_coef_gamma(band)))
+
+#Add implementation for setting method to calculate FS effects for point lens
