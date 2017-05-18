@@ -271,7 +271,7 @@ class MulensData(object):
             raise ValueError("Don't try to run " + 
                                 "MulensData.set_limb_darkening_weights() " + 
                                 "after bandpass was provided")
-        if isinstance(weights, dict):
+        if not isinstance(weights, dict):
             raise TypeError("MulensData.set_limb_darkening_weights() " + 
                     "parameter has to be dict, not {:}".format(type(weights)))
         
