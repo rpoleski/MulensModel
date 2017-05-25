@@ -12,7 +12,7 @@ class MagnificationCurve(object):
     """
     def __init__(
         self, times, parameters=None, parallax=None, t_0_par=None,
-        coords=None, satellite_skycoord=None):
+        coords=None, satellite_skycoord=None, gamma=0.):
         """
         Required arguments: 
            times - the times at which to generate the magnification curve, e.g. a vector.
@@ -25,6 +25,7 @@ class MagnificationCurve(object):
            satellite_skycoord - sky coordinates of the satellite
                specified by the ephemrides file. see
                MulensData.satellite_skycoord.
+           gamma - limb darkening coefficient in gamma convention
         """
         #Set times
         if isinstance(times, (list, tuple, np.ndarray)):
@@ -50,6 +51,8 @@ class MagnificationCurve(object):
         self._methods_epochs = None
         self._methods_names = None
         self._default_magnification_method = None
+
+        self._gamma = gamma
 
     def set_magnification_methods(self, methods, default_method):
         """sets methods used for magnification calculation;
@@ -165,7 +168,8 @@ class MagnificationCurve(object):
                         gamma=0.0) # XXX THIS HAS TO BE UPDATED
             elif method == 'vbbl':
                 m = binary_lens.vbbl_magnification(x, y, 
-                        rho=self.parameters.rho)
+                        rho=self.parameters.rho, 
+                        gamma=self._gamma)
                         # XXX THIS HAS TO BE UPDATED - add gamma and accuracy parameters
             else:
                 msg = 'Unknown method specified for binary lens: {:}'

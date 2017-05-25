@@ -269,7 +269,7 @@ class Model(object):
             t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
             pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
 
-    def magnification(self, time, satellite_skycoord=None):
+    def magnification(self, time, satellite_skycoord=None, gamma=0.):
         """
         calculate the model magnification for the given time(s).
         """
@@ -280,7 +280,8 @@ class Model(object):
             time, parameters=self._parameters, 
             parallax=self._parallax, t_0_par=self.t_0_par,
             coords=self._coords, 
-            satellite_skycoord=satellite_skycoord)
+            satellite_skycoord=satellite_skycoord,
+            gamma=gamma)
         magnification_curve.set_magnification_methods(self._methods, 
                                         self._default_magnification_method)
         return magnification_curve.magnification
@@ -305,8 +306,13 @@ class Model(object):
         else:
             dataset_satellite_skycoord = None
             
+        if dataset.bandpass is None:
+            gamma = 0.
+        else:
+            gamma = self._limb_darkening_coeffs.limb_coef_gamma(dataset.bandpass)
+            
         magnification = self.magnification(
-            dataset.time, satellite_skycoord=dataset_satellite_skycoord)
+            dataset.time, satellite_skycoord=dataset_satellite_skycoord, gamma=gamma)
         return magnification
         
     def set_datasets(self, datasets, data_ref=0):
@@ -808,20 +814,20 @@ class Model(object):
         self._methods = methods
 
     def set_limb_coef_gamma(self, bandpass, coef):
-        """ """
-        pass
+        """store gamma LD coef for given band"""
+        self._limb_darkening_coeffs.set_limb_coef_gamma(bandpass, coef)
 
     def set_limb_coef_u(self, bandpass, coef):
-        """ """
-        pass
+        """store u LD coef for given band"""
+        self._limb_darkening_coeffs.set_limb_coef_u(bandpass, coef)
 
-    def limb_coef_gamma(self, bandpass, coef):
-        """ """
-        pass
+    def limb_coef_gamma(self, bandpass):
+        """get gamma LD coef for given band"""
+        self._limb_darkening_coeffs.limb_coef_gamma(bandpass)
 
-    def limb_coef_u(self, bandpass, coef):
-        """ """
-        pass
+    def limb_coef_u(self, bandpass):
+        """get u LD coef for given band"""
+        self._limb_darkening_coeffs.limb_coef_u(bandpass)
 
     @property
     def bandpasses(self):
