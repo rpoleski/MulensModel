@@ -30,6 +30,7 @@ not been tested and may have sign errors.
         u0_prime = u0 + delta_u0
         return t0_prime, u0_prime
 
+#Define model parameters in CoMAGN system
 t0_center_of_mag = 7000.
 u0_center_of_mag = 0.1
 alpha_center_of_mag = 30.*u.deg
@@ -41,13 +42,15 @@ print('Center of magnification: {0}, {1}'.format(t0_center_of_mag,
 s = 1.1
 q = 0.001
 
+#Get parameters in CoMASS system
 t0_center_of_mass, u0_center_of_mass = convert_cof_mag2mass(
         t0_center_of_mag, te, u0_center_of_mag, alpha_center_of_mag, s, q)
 
 print('Center of mass: {0}, {1}'.format(t0_center_of_mass,u0_center_of_mass)
 
-#Alternatively,
+#How does this get passed to a minimizer?
 
+#Alternatively, 
 model = MulensModel.Model()
 model.parameters(t_0=7000.,u_0=0.1,t_E=30., rho=0.001, alpha=30*u.deg, 
                  s=1.1, q=0.001, frame_origin='magnification')
