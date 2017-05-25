@@ -1,4 +1,3 @@
-from astropy import units as u
 from MulensModel.utils import Utils
 
 

@@ -46,7 +46,6 @@ class BinaryLens(object):
         m_diff_pow2 = m_diff * m_diff
 
         pos_z1 = self._position_z1_WM95
-        pos_z2 = self._position_z2_WM95
 
         z1_pow2 = pos_z1 * pos_z1
         z1_pow3 = z1_pow2 * pos_z1
