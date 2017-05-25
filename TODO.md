@@ -57,8 +57,8 @@
 |08| plotting | Yes |
 |09| finite source | |
 |10| get chi2 | |
-|11| bad data | |
-|12| simple fit PSPL | |
+|11| clean bad data | |
+|12| simple fit PSPL | Yes |
 |13| parallax | |
 |14| coordinate system | |
 |15| emcee simple PSPL | |
