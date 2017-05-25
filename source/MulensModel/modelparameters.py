@@ -166,7 +166,7 @@ class ModelParameters(object):
     @t_E.setter
     def t_E(self, new_t_E):
         if new_t_E < 0.:
-            raise ValueError('Einstein timescale cannot be negaitve')
+            raise ValueError('Einstein timescale cannot be negative:', new_t_E)
         if isinstance(new_t_E, u.Quantity): 
             # Add a check if the unit is time unit?
             self._t_E = new_t_E
