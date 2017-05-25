@@ -4,6 +4,7 @@ import sys
 import numpy as np
 from math import fsum, sqrt
 
+import MulensModel
 from MulensModel.utils import Utils
 # for VBBL imports see self._vbbl_imported below
 
@@ -258,7 +259,9 @@ class BinaryLens(object):
         else:
             return a_hexadecapole
             
-    def vbbl_magnification(self, source_x, source_y, rho, gamma=0., accuracy=0.001):
+    def vbbl_magnification(self, source_x, source_y, rho, 
+                           gamma=None, u_limb_darkening=None, 
+                           accuracy=0.001):
         """calculate magnification using VBBL code that implements advanced 
         contour integration algorithm presented by
         Bozza 2010 MNRAS, 408, 2188
@@ -269,26 +272,33 @@ class BinaryLens(object):
             try:
                 from VBBL import VBBinaryLensingLibrary
             except ImportError:
-                print("VBBL library could not be imported")
-                print("You must compile VBBL library and add it to PYTHONPATH")
-                print("Exit...")
-                sys.exit(1)
+                MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
+                raise ImportError(("VBBL library could not be imported.\n" +
+                    "You must compile VBBL library and add it to PYTHONPATH." + 
+                    "\nTry compiling the code in {:}\n\nExit...").format(
+                    MODULE_PATH+"/source/VBBL"))
             self._vbbl_imported = True
             self._vbbllib = VBBinaryLensingLibrary.VBBinaryLensing()
         
+        if gamma is not None and u_limb_darkening is not None:
+            raise ValueError('Only one limb darkening parameters can be set ' + 
+                             'in BinaryLens.vbbl_magnification()')
+        elif gamma is not None:
+            u_limb_darkening = float(Utils.gamma_to_u(gamma))
+        elif u_limb_darkening is not None:
+            u_limb_darkening = float(u_limb_darkening)
+        else: 
+            u_limb_darkening = float(0.0)
+            
         s = float(self.separation)
         q = float(self.mass_2 / self.mass_1)
         x = float(source_x)
         y = float(source_y)
         rho = float(rho)
-        if gamma != 0.:
-            raise ValueError("The case of gamma != 0 is not yet coded.")
-            # Note that VBBL uses u coefficient, not Gamma.
-        gamma = float(gamma)
         accuracy = float(accuracy) # Note that this accuracy is not guaranteed.
         assert accuracy > 0., "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was provided".format(accuracy)
         
-        return self._vbbllib.BinaryMagDark(s, q, x, y, rho, gamma, accuracy)
+        return self._vbbllib.BinaryMagDark(s, q, x, y, rho, u_limb_darkening, accuracy)
         # To get the image positions from VBBL, following C++ code has to be run:
         #  _sols *Images;
         #  Mag=VBBL.BinaryMag(s, q, y1, y2, rho, accuracy, &Images);
