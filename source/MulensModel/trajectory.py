@@ -1,6 +1,7 @@
 import numpy as np
 from astropy import units as u
-from astropy.coordinates import SkyCoord, get_body_barycentric, EarthLocation
+from astropy.coordinates import get_body_barycentric
+#from astropy.coordinates import SkyCoord, EarthLocation
 from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy import _erfa as erfa
 from astropy.time import Time
@@ -184,4 +185,3 @@ class Trajectory(object):
         delta_satellite['D'] = -dot(satellite.cartesian, direction)
 
         return delta_satellite
-

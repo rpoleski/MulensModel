@@ -1,7 +1,6 @@
-import sys
 import numpy as np
 
-from astropy.coordinates import SkyCoord, EarthLocation
+from astropy.coordinates import SkyCoord#, EarthLocation
 from astropy import units as u
 
 from MulensModel.utils import Utils
@@ -169,7 +168,7 @@ class MulensData(object):
             (self.mag, self.err_mag) = Utils.get_mag_and_err_from_flux(
                                         flux=self.flux, err_flux=self.err_flux)
         else:
-            msg = 'unknown format of brightness in ' + file_name + ' file'
+            msg = 'unknown brightness format in MulensData'
             raise ValueError(msg)
 
         #Create an array to flag bad epochs
