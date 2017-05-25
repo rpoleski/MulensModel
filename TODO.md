@@ -59,7 +59,7 @@
 |10| get chi2 | |
 |11| clean bad data | |
 |12| simple fit PSPL | Yes |
-|13| parallax | |
+|13| adding parallax to a model| Yes|
 |14| coordinate system | |
 |15| emcee simple PSPL | |
 |16| raddec | |

@@ -100,6 +100,7 @@ class Event(object):
             self._model.set_datasets(self._datasets)
 
 
+
     def get_chi2(self, fit_blending_all=None):
         """calculates chi^2 of current model by fitting for fs and fb"""
         #Define a Fit given the model and perform linear fit for fs and fb
