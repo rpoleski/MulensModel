@@ -16,10 +16,9 @@ from MulensModel.model import Model
 from MulensModel.utils import Utils
 
 
-def lnlike(theta, event, parameters_to_fit):
-    """
-    The likelihood function for minimizing the chi2.
-    """
+def chi2_fun(theta, event, parameters_to_fit):
+    """for given event set attributes from parameters_to_fit (list of str) 
+    to values from theta list"""
     for (key, val) in enumerate(parameters_to_fit):
         setattr(event.model, val, theta[key])
     return event.get_chi2()
@@ -42,21 +41,20 @@ ev = Event(datasets=data, model=model)
 print('Initial Trial\n{0}'.format(ev.model.parameters))
 
 #Find the best-fit parameters
-result = op.minimize(lnlike, x0=[t_0, u_0, t_E], 
+initial_guess = [t_0, u_0, t_E]
+result = op.minimize(chi2_fun, x0=initial_guess, 
         args=(ev, parameters_to_fit), method='Nelder-Mead')
 print(result.x)
 (fit_t_0, fit_u_0, fit_t_E) = result.x
 
 #Save the best-fit parameters
-for (key, val) in enumerate(parameters_to_fit):
-    setattr(ev.model, val, result.x[key])
-chi2 = ev.get_chi2()
+chi2 = chi2_fun(result.x, ev, parameters_to_fit)
 
 #Output the fit parameters
 msg = 'Best Fit: t_0 = {0:12.5f}, u_0 = {1:6.4f}, t_E = {2:8.3f}'
 print(msg.format(fit_t_0, fit_u_0, fit_t_E))
 print('Chi2 = {0:12.2f}'.format(chi2))
-print('op.minimize result:')
+print('scipy.optimize.minimize result:')
 print(result)
 
 #Plot and compare the two models
@@ -75,3 +73,4 @@ ev.plot_data()
 pl.title('Data and Fitted Model')
 
 pl.show()
+
