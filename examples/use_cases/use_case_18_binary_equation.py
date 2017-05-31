@@ -41,7 +41,7 @@ model.set_magnification_methods_parameters(methods_parameters)
 #magnification calculation based on number of source radii from the
 #crossing.
 
-accurate_magnification_2 = model.magnification(times)
+accurate_magnification = model.magnification(times)
 
 #Plot the differences
 pl.figure()
