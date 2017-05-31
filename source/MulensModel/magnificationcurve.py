@@ -106,9 +106,29 @@ class MagnificationCurve(object):
     def get_point_lens_magnification(self):
         """Calculate the Point Lens magnification. """
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
-        return (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+        pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+        if self._methods_epochs is None:
+            return pspl_magnification
+            
+        magnification = pspl_magnification
+        u_all = np.sqrt(u2)
+        methods = np.array(self._methods_for_epochs())
+
+        for method in set(methods):
+            if method.lower() == 'point_source':
+                pass # This cases are already taken care of. 
+            elif method.lower() == 'finite_source_Gould94'.lower():
+                selection = (methods == method)
+                magnification[selection] = self._get_point_lens_finite_source_magnification(
+                    rho=self.parameters.rho, u=u_all[selection], 
+                    pspl_magnification=pspl_magnification[selection])
+            else:
+                msg = 'Unknown method specified for single lens: {:}'
+                raise ValueError(msg.format(method))        
+        
+        return magnification       
     
-    def _get_point_lens_finite_source_magnification(self, rho, mask):
+    def _get_point_lens_finite_source_magnification(self, rho, u, pspl_magnification):
         """calculate magnification for point lens and finite source. 
         Variable mask defines which epochs to use
         
@@ -124,9 +144,7 @@ class MagnificationCurve(object):
         http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
         """
 
-        u2 = (self.trajectory.x[mask]**2 + self.trajectory.y[mask]**2)
-        pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
-        z = np.sqrt(u2) / rho
+        z = u / rho
         
         k = np.ones_like(z)
         for (i, value) in enumerate(z):
