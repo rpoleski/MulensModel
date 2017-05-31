@@ -16,11 +16,15 @@ def lnlike(theta, event, parameters_to_fit):
         setattr(event.model, val, theta[key])
     return -0.5 * (event.get_chi2() - chi2_0)
 
-def lnprior(theta):
+def lnprior(theta, parameters_to_fit):
+    """priors"""
+    if theta[parameters_to_fit.index("t_E")] < 0.:
+        return -np.inf
     return 0.0
 
 def lnprob(theta, event, parameters_to_fit):
-    lp = lnprior(theta)
+    """ conbines likelihood and priors"""
+    lp = lnprior(theta, parameters_to_fit)
     if not np.isfinite(lp):
         return -np.inf
     return lp + lnlike(theta, event, parameters_to_fit)
