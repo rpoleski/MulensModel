@@ -102,10 +102,6 @@ class MulensData(object):
         
         #Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
-        if ephemerides_file is not None:
-            self.is_satellite = True
-        else:
-            self.is_satellite = False
 
     def _initialize(self, phot_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):

@@ -313,7 +313,7 @@ class Model(object):
         """
         Get the model magnification for a given dataset.
         """
-        if dataset.is_satellite:
+        if dataset.ephemerides_file is not None:
             dataset_satellite_skycoord = dataset.satellite_skycoord
         else:
             dataset_satellite_skycoord = None
