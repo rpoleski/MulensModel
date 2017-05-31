@@ -161,16 +161,15 @@ class MagnificationCurve(object):
             elif method == 'quadrupole':
                 m = binary_lens.hexadecapole_magnification(x, y, 
                         rho=self.parameters.rho, quadrupole=True,
-                        gamma=0.0) # XXX THIS HAS TO BE UPDATED
+                        gamma=self._gamma) 
             elif method == 'hexadecapole':
                 m = binary_lens.hexadecapole_magnification(x, y, 
                         rho=self.parameters.rho, 
-                        gamma=0.0) # XXX THIS HAS TO BE UPDATED
+                        gamma=self._gamma) 
             elif method == 'vbbl':
                 m = binary_lens.vbbl_magnification(x, y, 
                         rho=self.parameters.rho, 
                         gamma=self._gamma)
-                        # XXX THIS HAS TO BE UPDATED - add gamma and accuracy parameters
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
