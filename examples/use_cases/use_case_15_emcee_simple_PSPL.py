@@ -70,6 +70,5 @@ results = map(
 
 #Output fit
 for r in results:
-#    print(*r)
     print(r)
 

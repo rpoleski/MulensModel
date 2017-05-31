@@ -61,7 +61,7 @@
 |12| simple fit PSPL | Yes |
 |13| adding parallax to a model| Yes|
 |14| coordinate system | |
-|15| emcee simple PSPL | |
+|15| emcee simple PSPL | Yes |
 |16| raddec | |
 |17| magnitudes | |
 |18| binary equation | |
