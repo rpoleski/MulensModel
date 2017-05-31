@@ -98,7 +98,9 @@ def test_satellite_and_annual_parallax_calculation():
     model_with_par.t_0_par = 2457181.9
 
     data_OGLE = MulensData(file_name=SAMPLE_FILE_02,add_2450000=True)
-    data_Spitzer = MulensData(file_name=SAMPLE_FILE_03,satellite="Spitzer", ephemrides_file=SAMPLE_FILE_03_EPH,add_2450000=True)
+    data_Spitzer = MulensData(
+        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH,
+        add_2450000=True)
     model_with_par.set_datasets([data_OGLE, data_Spitzer])
 
     ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True, usecols=[5])

@@ -9,6 +9,7 @@ from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.trajectory import Trajectory
 from MulensModel.caustics import Caustics
 from MulensModel.mulensparallaxvector import MulensParallaxVector
+from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.utils import Utils
 from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
@@ -35,12 +36,10 @@ class Model(object):
     is not implemented for the model alone.
     """
 
-    def __init__(self, parameters=None,
-                 t_0=None, u_0=None, t_E=None, rho=None, 
-                 s=None, q=None, alpha=None,
-                 pi_E=None, pi_E_N=None, pi_E_E=None,
-                 pi_E_ref=None, t_0_par=None, 
-                 coords=None, ra=None, dec=None):
+    def __init__(
+        self, parameters=None, t_0=None, u_0=None, t_E=None, rho=None, s=None, 
+        q=None, alpha=None, pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None, 
+        t_0_par=None, coords=None, ra=None, dec=None, ephemerides_file=None):
         """
         Two ways to define the model:
         1. parameters = a ModelParameters() object
@@ -125,11 +124,13 @@ class Model(object):
             if ra is not None:
                 raise AttributeError(coords_msg)
 
+        self.ephemerides_file = ephemerides_file
+        self._satellite_skycoord = None
+        
         # Set some defaults
         self._parallax = {'earth_orbital':False, 
                           'satellite':False, 
                           'topocentric':False}
-        self._satellite_skycoord = None
         #self._delta_annual = {}
         #self._delta_satellite = {}
         self._default_magnification_method = 'point_source'
@@ -268,13 +269,24 @@ class Model(object):
         self._parameters = ModelParameters(
             t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
             pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
+            
+    def get_satellite_skycoord(self,times):
+        """
+        get satellite SkyCoords for the given times
+        """
+        if self.ephemerides_file is None:
+            return None
+        else:
+            satellite_skycoords = SatelliteSkyCoord(
+                 ephemerides_file=self.ephemerides_file)
+            return satellite_skycoords.get_satellite_skycoord(times)
 
     def magnification(self, time, satellite_skycoord=None, gamma=0.):
         """
         calculate the model magnification for the given time(s).
         """
         if satellite_skycoord is None:
-            satellite_skycoord = self._satellite_skycoord
+            satellite_skycoord = self.get_satellite_skycoord(time)
 
         magnification_curve = MagnificationCurve(
             time, parameters=self._parameters, 
@@ -742,7 +754,7 @@ class Model(object):
                 n_epochs=n_epochs)
 
         if satellite_skycoord is None:
-            satellite_skycoord = self._satellite_skycoord
+            satellite_skycoord = self.get_satellite_skycoord(times)
 
         trajectory = Trajectory(
             times, parameters=self._parameters, parallax=self._parallax, 

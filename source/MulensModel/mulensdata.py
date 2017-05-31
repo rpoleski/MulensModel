@@ -1,12 +1,12 @@
 import numpy as np
 
-from astropy.coordinates import SkyCoord#, EarthLocation
+from astropy.coordinates import SkyCoord
 from astropy import units as u
 
 from MulensModel.utils import Utils
-from MulensModel.horizons import Horizons
+from MulensModel.satelliteskycoord import SatelliteSkyCoord
 
-#data_list and ephemrides_file must have the same time standard.
+#data_list and ephemerides_file must have the same time standard.
 #To implement: mjd2hjd = T/F
 #usecols
 class MulensData(object):
@@ -16,7 +16,7 @@ class MulensData(object):
 
     def __init__(self, data_list=None, file_name=None,
                  phot_fmt="mag", coords=None, ra=None, dec=None, 
-                 satellite=None, ephemrides_file=None, add_2450000=False,
+                 ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, **kwargs):
         """
         Create a MulensData object from a set of photometric measurements.
@@ -40,11 +40,11 @@ class MulensData(object):
 
            coords - [optional] sky coordinates of the event
            ra, dec - [optional] sky coordinates of the event
-           satellite - [optional] if applicable, specify which
-               satellite this dataset comes from.
-           ephemrides_file - [optional] specify the ephemrides of the
-               satellite when the data were taken. Necessary for
-               modeling the satellite parallax effect.
+          
+           ephemerides_file - [optional] specify the ephemerides of the
+               satellite over the period when the data were taken. Will be
+               interpolated as necessary to model the satellite parallax 
+               effect.
 
            add_2450000 - Adds 2450000. to the input dates. Useful if
                the dates are supplied as HJD-2450000.
@@ -58,6 +58,7 @@ class MulensData(object):
         self._n_epochs = None  
         self._horizons = None
         self._satellite_skycoord = None
+
         self._init_keys = {'add245':add_2450000, 'add246':add_2460000}
         self._limb_darkening_weights = None
         self.bandpass = bandpass
@@ -100,19 +101,11 @@ class MulensData(object):
                              coords=self._coords)
         
         #Set up satellite properties (if applicable)
-        if satellite is None:
-            if ephemrides_file is not None:
-                raise ValueError(
-                    "For datasets with satellite ephemerides file you have"
-                    +" to provide satellite name")
-            self.is_satellite = False 
-        else:
-            if ephemrides_file is None:
-                raise ValueError(
-                    "Currently ephemerides_file has to be specified for each"
-                    +" satellite dataset")
-            self.ephemrides_file = ephemrides_file
+        self.ephemerides_file = ephemerides_file
+        if ephemerides_file is not None:
             self.is_satellite = True
+        else:
+            self.is_satellite = False
 
     def _initialize(self, phot_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):
@@ -238,21 +231,17 @@ class MulensData(object):
 
     @property
     def satellite_skycoord(self):
-        """return Astropy SkyCoord of satellite for epochs covered by the dataset"""
-        if self.is_satellite is not True:
-            #Why not make this return None?
-            raise ValueError("You're trying to get satellite information for dataset that has no satellite information")
+        """return Astropy SkyCoord of satellite for epochs covered by
+        the dataset"""
+        if self.ephemerides_file is None:
+            raise ValueError('ephemerides_file is not defined.')
+
         if self._satellite_skycoord is None:
-            if self._horizons is None:
-                self._horizons = Horizons(self.ephemrides_file)
-            x = np.interp(
-                self._time, self._horizons.time, self._horizons.xyz.x)
-            y = np.interp(
-                self._time, self._horizons.time, self._horizons.xyz.y)
-            z = np.interp(
-                self._time, self._horizons.time, self._horizons.xyz.z)
-            self._satellite_skycoord = SkyCoord(x=x, y=y, z=z, representation='cartesian')
-            self._satellite_skycoord.representation = 'spherical'
+            satellite_skycoord = SatelliteSkyCoord(
+                ephemerides_file=self.ephemerides_file)
+            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(
+                self._time)
+
         return self._satellite_skycoord
 
     @property
