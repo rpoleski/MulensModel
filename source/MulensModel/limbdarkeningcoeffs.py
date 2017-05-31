@@ -27,11 +27,25 @@ class LimbDarkeningCoeffs(object):
     
     def limb_coef_gamma(self, bandpass):
         """gives gamma coefficient for given band"""
-        return self._gammas_for_band[bandpass]
+        try:
+            gamma = self._gammas_for_band[bandpass]
+        except KeyError:
+            msg = ('No limb darkening coefficient for bandpass {:}. Most ' + 
+                   'probably you have set the filter for a dataset but have' +
+                   ' not set LD coef for this filter')
+            raise KeyError(msg.format(bandpass))
+        return gamma
     
     def limb_coef_u(self, bandpass):
         """gives u coefficient for given band"""
-        return Utils.gamma_to_u(self._gammas_for_band[bandpass])
+        try:
+            gamma = self._gammas_for_band[bandpass]
+        except KeyError:
+            msg = ('No limb darkening coefficient for bandpass {:}. Most ' + 
+                   'probably you have set the filter for a dataset but have' +
+                   ' not set LD coef for this filter')
+            raise KeyError(msg.format(bandpass))
+        return Utils.gamma_to_u(gamma)
         
     def weighted_limb_coef_gamma(self, weights):
         """get weighted limb darkening coefficient
