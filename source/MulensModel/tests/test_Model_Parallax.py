@@ -108,3 +108,27 @@ def test_satellite_and_annual_parallax_calculation():
 
     np.testing.assert_almost_equal(model_with_par.data_magnification[0], ref_OGLE, decimal=2)
     np.testing.assert_almost_equal(model_with_par.data_magnification[1]/ref_Spitzer, np.array([1]*len(ref_Spitzer)), decimal=3)
+
+def test_satellite_parallax_magnification():
+    """
+    On a given date, the magnification should be different from the
+    ground and from Spitzer. Use OB140939 as a test case and t0 as the
+    test time.
+    """
+    t_0 = 2456836.22
+    u_0 = 0.922
+    t_E = 22.87
+    pi_E_N = -0.248
+    pi_E_E = 0.234
+
+    ground_model = Model(t_0=t_0, u_0=u_0, t_E=t_E, pi_E=[pi_E_N, pi_E_E],
+                         coords='17:47:12.25 -21:22:58.2')
+    space_model =  Model(t_0=t_0, u_0=u_0, t_E=t_E, pi_E=[pi_E_N, pi_E_E], 
+                         ra='17:47:12.25', dec='-21:22:58.2', 
+                         ephemerides_file=SAMPLE_FILE_03_EPH)
+
+    delta = ground_model.magnification(t_0) - space_model.magnification(t_0)
+    print(ground_model.magnification(t_0))
+    print(space_model.magnification(t_0))
+    print(delta)
+    assert np.abs(delta) > 0.01

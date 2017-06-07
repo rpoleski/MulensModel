@@ -197,6 +197,8 @@ class Event(object):
     def data_ref(self, new_value):
         self.model.data_ref = new_value
 
+    def get_ref_fluxes(self, data_ref=None):
+        return self.model.get_ref_fluxes(data_ref=data_ref)
 
     def _update_coords(self, coords=None):
         """Set the coordinates as a SkyCoord object"""

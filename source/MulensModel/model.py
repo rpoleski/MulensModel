@@ -279,7 +279,7 @@ class Model(object):
             t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
             pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
             
-    def get_satellite_skycoord(self,times):
+    def get_satellite_coords(self,times):
         """
         get satellite SkyCoords for the given times
         """
@@ -288,14 +288,14 @@ class Model(object):
         else:
             satellite_skycoords = SatelliteSkyCoord(
                  ephemerides_file=self.ephemerides_file)
-            return satellite_skycoords.get_satellite_skycoord(times)
+            return satellite_skycoords.get_satellite_coords(times)
 
     def magnification(self, time, satellite_skycoord=None, gamma=0.):
         """
         calculate the model magnification for the given time(s).
         """
         if satellite_skycoord is None:
-            satellite_skycoord = self.get_satellite_skycoord(time)
+            satellite_skycoord = self.get_satellite_coords(time)
 
         magnification_curve = MagnificationCurve(
             time, parameters=self._parameters, 
@@ -763,7 +763,7 @@ class Model(object):
                 n_epochs=n_epochs)
 
         if satellite_skycoord is None:
-            satellite_skycoord = self.get_satellite_skycoord(times)
+            satellite_skycoord = self.get_satellite_coords(times)
 
         trajectory = Trajectory(
             times, parameters=self._parameters, parallax=self._parallax, 
