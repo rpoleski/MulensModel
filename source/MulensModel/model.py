@@ -179,7 +179,16 @@ class Model(object):
     @t_E.setter
     def t_E(self, value):
         self._parameters.t_E = value
-        
+       
+    @property
+    def rho(self):
+        """source size relative to Einstein ring radius"""
+        return self._parameters.rho
+
+    @rho.setter
+    def rho(self, value):
+        self._parameters.rho = value
+
     @property
     def pi_E(self):
         """
