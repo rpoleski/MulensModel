@@ -63,7 +63,7 @@ class ModelParameters(object):
             msg = 'Microlensing parallax specified in 2 ways at the same time'
             raise ValueError(msg)
         if pi_E is not None:
-            self._pi_E = MulensParallaxVector(pi_E, ref=pi_E_ref)
+            self._pi_E = MulensParallaxVector(pi_E=pi_E, ref=pi_E_ref)
         if pi_E_N is not None:
             if pi_E_E is not None:
                 self._pi_E = MulensParallaxVector(pi_E_1=pi_E_N, 
