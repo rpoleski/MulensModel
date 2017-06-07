@@ -59,6 +59,7 @@ class ModelParameters(object):
         collisions (e.g. if the user specifies both pi_E and (pi_E_N,
         pi_E_E).
         """
+        self._pi_E = None
         if pi_E is not None and (pi_E_N is not None or pi_E_E is not None):
             msg = 'Microlensing parallax specified in 2 ways at the same time'
             raise ValueError(msg)

@@ -127,8 +127,6 @@ def test_satellite_parallax_magnification():
                          ra='17:47:12.25', dec='-21:22:58.2', 
                          ephemerides_file=SAMPLE_FILE_03_EPH)
 
-    delta = ground_model.magnification(t_0) - space_model.magnification(t_0)
-    print(ground_model.magnification(t_0))
-    print(space_model.magnification(t_0))
-    print(delta)
+    delta = (ground_model.magnification(t_0)
+             - space_model.magnification(t_0))
     assert np.abs(delta) > 0.01

@@ -6,7 +6,7 @@ import MulensModel
 """
 Use cases for passing RA, DEC to MulensDAta, Model, and Event.
 
-Based on OGLE-2015-BLG-0448 from Poleski et al. 2016 ApJ 823, 63
+Based on OGLE-2014-BLG-0939 from Yee et al. 2015 ApJ 802, 76
 """
 
 data_dir = '../../data'
@@ -48,7 +48,7 @@ print('ecliptic lon {0}'.format(ground_model.ecliptic_lon))
 pl.figure()
 ground_model.plot_magnification(label='ground')
 space_model.plot_magnification(label='space')
-pl.title('Models with Parallax')
+pl.title('OB140939 Models with Parallax')
 pl.legend()
 
 #Sepcifying coordinates for an event
@@ -65,11 +65,16 @@ event = MulensModel.Event(datasets=[ground_data, space_data],
                           coords='17:47:12.25 -21:22:58.2')
 
 pl.figure()
+
 event.plot_model()
 event.plot_data(label_list=['OGLE', 'Spitzer'])
+
 (fs_ogle, fb_ogle) = event.get_ref_fluxes(data_ref=event.datasets[0])
 space_model.plot_lc(f_source=fs_ogle, f_blend=fb_ogle)
-pl.title('Model with Data')
+
+pl.title('OB140939 Models with Data')
 pl.legend(loc='best')
+pl.xlim(2456780., 2456880.)
+pl.ylim(15.4, 14.6)
 
 pl.show()
