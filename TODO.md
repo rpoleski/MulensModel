@@ -62,7 +62,7 @@
 |13| adding parallax to a model| Yes|
 |14| coordinate system | |
 |15| emcee simple PSPL | Yes |
-|16| raddec | |
+|16| raddec | Yes |
 |17| magnitudes | |
 |18| binary equation | |
 |19| limb_darkening | |
