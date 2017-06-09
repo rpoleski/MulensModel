@@ -49,8 +49,8 @@ class Model(object):
         astropy.coordinates.SkyCoord object, otherwise assumes RA is
         in hour angle and DEC is in degrees.
 
-        Default values for parallax are all False. Use
-        model.parallax() to turn different parallax effects ON/OFF.
+        Default values for parallax are all True. Use model.parallax() to turn
+        different parallax effects ON/OFF.
         """
         # Initialize the parameters of the model
         if isinstance(parameters, ModelParameters):
@@ -128,11 +128,9 @@ class Model(object):
         self._satellite_skycoord = None
         
         # Set some defaults
-        self._parallax = {'earth_orbital':False, 
-                          'satellite':False, 
-                          'topocentric':False}
-        #self._delta_annual = {}
-        #self._delta_satellite = {}
+        self._parallax = {'earth_orbital':True, 
+                          'satellite':True, 
+                          'topocentric':True}
         self._default_magnification_method = 'point_source'
         self._methods = None
         self.caustics = None
@@ -294,6 +292,15 @@ class Model(object):
         """
         calculate the model magnification for the given time(s).
         """
+        #Check for type
+        if not isinstance(time, np.ndarray):
+            if isinstance(time, (np.float, float)):
+                time = np.array([time])
+            elif isinstance(time, list):
+                time = np.array(time)
+            else:
+                raise TypeError('time must be a float, list, or np.ndarray')
+
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)
 

@@ -66,17 +66,20 @@ class Trajectory(object):
             / float(self.parameters.t_E))
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
         
-        #Apply Earth Orbital parallax effect
-        if self.parallax['earth_orbital']:
-            [delta_tau, delta_u] = self._annual_parallax_trajectory()
-            vector_tau += delta_tau
-            vector_u += delta_u
+        #If parallax is non-zero, apply parallax effects:
+        if self.parameters.pi_E is not None:
+            #Apply Earth Orbital parallax effect
+            if self.parallax['earth_orbital']:
+                [delta_tau, delta_u] = self._annual_parallax_trajectory()
+                vector_tau += delta_tau
+                vector_u += delta_u
 
-        #Apply satellite parallax effect
-        if self.parallax['satellite'] and self.satellite_skycoord is not None: 
-            [delta_tau, delta_u] = self._satellite_parallax_trajectory()
-            vector_tau += delta_tau
-            vector_u += delta_u
+            #Apply satellite parallax effect
+            if (self.parallax['satellite'] 
+                and self.satellite_skycoord is not None): 
+                [delta_tau, delta_u] = self._satellite_parallax_trajectory()
+                vector_tau += delta_tau
+                vector_u += delta_u
 
         #If 2 lenses, rotate trajectory relative to binary axis
         if self.parameters.n_lenses == 1:
@@ -118,7 +121,7 @@ class Trajectory(object):
         """
         calculates projected Earth positions required by annual parallax
         """
-        print('WARNING: Does not take into account coordinates!!!!')
+        print('WARNING: Annual Parallax Does not take into account coordinates!!!!')
 
         if self.t_0_par is not None:
             time_ref = self.t_0_par
