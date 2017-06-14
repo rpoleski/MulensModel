@@ -1,5 +1,6 @@
 import numpy as np
-from scipy.special import ellipeinc # This is incomplete elliptic integral of the second kind.
+from scipy.special import ellipe, ellipeinc # This is incomplete elliptic integral of the second kind.
+from scipy import integrate
 
 from MulensModel.trajectory import Trajectory
 from MulensModel.binarylens import BinaryLens
@@ -147,16 +148,13 @@ class MagnificationCurve(object):
 
         z = u / rho
         
-        #What is this?
-        k = np.ones_like(z)
+        B_0 = 4. * z / np.pi
         for (i, value) in enumerate(z):
-            if value**(-1) < 1.:
-                k[i] = value**(-1)
-                
-        B_0 = 4. * z * ellipeinc(k, z) / np.pi 
-        # I'm not sure if the order of arguments is correct. This can
-        # be easily checked.
-        
+            if value < 1.:
+                B_0[i] *= ellipe(value*value)
+            else:
+                B_0[i] *= integrate.quad(lambda x: (1.-value**2*np.sin(x)**2)**.5, 0., np.arcsin(1./value))[0]
+
         magnification = pspl_magnification * B_0
         # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
         return magnification

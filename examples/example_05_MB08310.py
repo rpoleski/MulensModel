@@ -33,6 +33,7 @@ t_E = 11.14
 t_star = 0.05487
 rho = t_star / t_E
 plens_model = Model(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho)
+plens_model.set_magnification_methods([t_0-.05, 'finite_source_Gould94', t_0+.05])
 
 #Combine the data and model into an event
 ev = Event(datasets=datasets, model=plens_model)
