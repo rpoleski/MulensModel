@@ -3,7 +3,8 @@ from astropy import units as u
 
 import MulensModel
 
-data=MulensModel.MulensData(file_name='../../data/phot_ob160023.dat')
+
+data = MulensModel.MulensData(file_name='../../data/phot_ob160023.dat')
 
 model = MulensModel.Model()
 model.set_parameters(t_0=2457518.902, u_0=0.590, t_E=133.34*u.day)
@@ -34,16 +35,18 @@ import numpy as np
 model_times = np.arange(2457200, 2457800, 100.)
 
 print(
-    model_times, event.model.magnification(model_times), 
-    event.model.flux(model_times), event.model.magnitude(model_times))
+    model_times, 
+    event.model.magnification(model_times), 
+    event.model.flux(model_times), 
+    event.model.magnitude(model_times))
 
-for i, dataset in enumerate(event.datasets_:
+for (i, dataset) in enumerate(event.datasets):
     (f_source, f_blend) = event.model.get_ref_fluxes(data_ref=dataset)
 
     pl.scatter(dataset.time, dataset.mag, label='DataSet {0}'.format(i))
     pl.scatter(
-        dataset.time, event.model.magnitude(
-            dataset.time, f_source=f_source, f_blend=f_blend),
+        dataset.time, 
+        event.model.magnitude(dataset.time, f_source=f_source, f_blend=f_blend),
         label='Model for {0}'.format(i))
 
 pl.legend()
@@ -62,7 +65,7 @@ print(event.model.bandpass, event.model.source_flux, event.model.blend_flux)
 #source_flux -> 1.0; for blend_flux -> 0.0 if no data
 
 #Were these datasets meant to be scaled to the same flux system?
-for dataset in event.datasets:
+for (i, dataset) in enumerate(event.datasets):
     pl.scatter(dataset.time, dataset.mag, label='DataSet {0}'.format(i))
     pl.scatter(
         dataset.time, event.model.magnitude(dataset), 
@@ -70,3 +73,4 @@ for dataset in event.datasets:
 
 pl.legend()
 pl.show()
+
