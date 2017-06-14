@@ -468,6 +468,9 @@ class Model(object):
         """
         plot the model light curve in magnitudes. See get_ref_fluxes
         for details of data_ref.
+
+        f_source and f_blend are the source and blend fluxes in a system
+        where flux = 1 corresponds to utils.MAG_ZEROPOINT (= 22 mag).
         """
         if times is None:
             times = self.set_times(

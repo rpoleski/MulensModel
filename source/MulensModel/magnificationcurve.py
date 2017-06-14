@@ -129,7 +129,8 @@ class MagnificationCurve(object):
         
         return magnification       
     
-    def _get_point_lens_finite_source_magnification(self, rho, u, pspl_magnification):
+    def _get_point_lens_finite_source_magnification(
+        self, rho, u, pspl_magnification):
         """calculate magnification for point lens and finite source. 
         Variable mask defines which epochs to use
         

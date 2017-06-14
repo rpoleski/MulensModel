@@ -7,22 +7,28 @@ import matplotlib.pyplot as pl
 
 import MulensModel
 
+#Define a Model
 t_0 = 6791.
 u_0 = 0.2
 t_E = 12.4
+model_1 = MulensModel.Model(t_0=t_0, u_0=u_0, t_E=t_E)
 
-model_1 = MulensModel.Model(t_0=t_0, u_0=u_0, t_E=t_E, f_s=0.2, f_b=0.4)
-pl.plot(model_1.time, model_1.magnitude)
+#Plot the Model 3 ways.
+pl.figure()
+pl.title('Model Lightcurve defined using fluxes')
+model_1.plot_lc(f_source=0.2, f_blend=0.4)
 
-model_2 = MulensModel.Model(t_0=t_0, u_0=u_0, t_E=t_E)
-model_2.source.I_mag = 21.2
-model_2.blend.I_mag = 18.2
-pl.plot(model_2.time, model_2.magnitude)
+pl.figure()
+pl.title('Model Lightcurve defined using magnitudes')
+model_1.plot_lc(f_source=MulensModel.Utils.get_flux_from_mag(21.2),
+                f_blend=MulensModel.Utils.get_flux_from_mag(18.2))
 
-model_3 = MulensModel.Model(t_0=t_0, u_0=u_0, t_E=t_E)
-model_3.source.magnitude(21.2, bandpass='I')
-model_3.blend.magnitude(18.2, bandpass='I')
-model_3.source.magnitude(20.3, bandpass='V')
-model_3.blend.magnitude(17.4, bandpass='V')
-pl.plot(model_3.time, model_3.magnitude) #defaults to I?
-pl.plot(model_3.time, model_3.V_mag)
+pl.figure()
+pl.title('Model Lightcurve in 2 bands')
+model_1.plot_lc(f_source=MulensModel.Utils.get_flux_from_mag(21.2),
+                f_blend=MulensModel.Utils.get_flux_from_mag(18.2),label='I')
+model_1.plot_lc(f_source=MulensModel.Utils.get_flux_from_mag(20.3),
+                f_blend=MulensModel.Utils.get_flux_from_mag(17.4),label='V')
+pl.legend(loc='best')
+
+pl.show()
