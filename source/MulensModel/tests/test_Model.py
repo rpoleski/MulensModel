@@ -6,6 +6,7 @@ from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 
+
 def test_model_PSPL_1():
     """tests basic evaluation of Paczynski model"""
     t_0 = 5379.57091

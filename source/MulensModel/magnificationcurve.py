@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.special import ellipe, ellipeinc # This is incomplete elliptic integral of the second kind.
+from scipy.special import ellipe # This is incomplete elliptic integral of the second kind.
 from scipy import integrate
 
 from MulensModel.trajectory import Trajectory
