@@ -3,6 +3,7 @@ from astropy.coordinates import SkyCoord
 
 from MulensModel.horizons import Horizons
 
+
 class SatelliteSkyCoord(object):
     """
     An object that gives the Astropy SkyCoord of satellite for a given
@@ -30,6 +31,8 @@ class SatelliteSkyCoord(object):
         """
         if self._horizons is None:
             self._horizons = Horizons(self.ephemerides_file)
+        # We should add some check if all values in times as within range
+        # covered by self._horizons.time.
 
         x = np.interp(
                  times, self._horizons.time, self._horizons.xyz.x)
@@ -43,3 +46,4 @@ class SatelliteSkyCoord(object):
         self._satellite_skycoord.representation = 'spherical'
 
         return self._satellite_skycoord
+
