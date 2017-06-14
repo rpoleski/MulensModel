@@ -128,7 +128,8 @@ class MagnificationCurve(object):
         
         return magnification       
     
-    def _get_point_lens_finite_source_magnification(self, rho, u, pspl_magnification):
+    def _get_point_lens_finite_source_magnification(
+        self, rho, u, pspl_magnification):
         """calculate magnification for point lens and finite source. 
         Variable mask defines which epochs to use
         
@@ -146,12 +147,15 @@ class MagnificationCurve(object):
 
         z = u / rho
         
+        #What is this?
         k = np.ones_like(z)
         for (i, value) in enumerate(z):
-            if value > 1.:
-                k[i] = 1. / value
+            if value**(-1) < 1.:
+                k[i] = value**(-1)
                 
-        B_0 = 4. * z * ellipeinc(k, z) / np.pi # I'm not sure if the order of arguments is correct. This can be easily checked.
+        B_0 = 4. * z * ellipeinc(k, z) / np.pi 
+        # I'm not sure if the order of arguments is correct. This can
+        # be easily checked.
         
         magnification = pspl_magnification * B_0
         # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
