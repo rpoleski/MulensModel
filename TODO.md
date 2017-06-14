@@ -63,6 +63,6 @@
 |14| coordinate system | |
 |15| emcee simple PSPL | Yes |
 |16| raddec | Yes |
-|17| magnitudes | |
+|17| magnitudes | Yes |
 |18| binary equation | |
 |19| limb_darkening | |
