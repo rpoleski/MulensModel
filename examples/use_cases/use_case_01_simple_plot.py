@@ -11,7 +11,7 @@ model = MulensModel.Model()
 print(model.parameters)
 
 model.set_parameters(
-    t_0=7603.1, u_0=0.23, t_E=45*u.day, rho=0.001, alpha=130.23*u.deg, s=1.3, 
+    t_0=2457603.1, u_0=0.23, t_E=45*u.day, rho=0.001, alpha=130.23*u.deg, s=1.3, 
     q=0.3)
 print(model.parameters)
 

@@ -17,7 +17,7 @@ model.dec = -28.5 * u.deg
 model.parallax(earth_orbital=True)
 model.pi_E = MulensParallaxVector(0.2, 0.4, ref="NorthEast") 
     #NorthEast is default, the other choice is "par_perp"
-model.t_0_par = 7000.
+model.t_0_par = 2457000.
 
 print(model.pi_E)
 

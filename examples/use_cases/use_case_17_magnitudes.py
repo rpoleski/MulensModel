@@ -8,7 +8,7 @@ import matplotlib.pyplot as pl
 import MulensModel
 
 #Define a Model
-t_0 = 6791.
+t_0 = 2456791.
 u_0 = 0.2
 t_E = 12.4
 model_1 = MulensModel.Model(t_0=t_0, u_0=u_0, t_E=t_E)

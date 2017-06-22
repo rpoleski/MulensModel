@@ -52,7 +52,7 @@ print('Center of mass: {0}, {1}'.format(t0_center_of_mass,u0_center_of_mass)
 
 #Alternatively, 
 model = MulensModel.Model()
-model.parameters(t_0=7000.,u_0=0.1,t_E=30., rho=0.001, alpha=30*u.deg, 
+model.parameters(t_0=2457000.,u_0=0.1,t_E=30., rho=0.001, alpha=30*u.deg, 
                  s=1.1, q=0.001, frame_origin='magnification')
 
 print(model.parameters.t0, model.parameters.u0)

@@ -18,7 +18,7 @@ pl.title('Magnification Curve')
 my_system.plot_magnification(u_0=0.3)
 
 my_system.mu_rel = 3. * u.mas / u.yr
-my_model = MulensModel.Model(t_0=7620., u_0=0.3, t_E=my_system.t_E)
+my_model = MulensModel.Model(t_0=2457620., u_0=0.3, t_E=my_system.t_E)
 
 #Define a 2-body model Version 1: Implementation via MulensSystem
 two_body_lens = MulensModel.Lens()
@@ -40,7 +40,7 @@ pl.title('2-body caustic structure')
 two_body_lens_v2.plot_caustics()
 
 two_body_model = MulensModel.Model(
-    t_0=5400., u_0=0.001, t_E=14.*u.day, rho=0.001, q=two_body_lens_v2.q, 
+    t_0=2455400., u_0=0.001, t_E=14.*u.day, rho=0.001, q=two_body_lens_v2.q, 
     s=two_body_lens_v2.s, alpha=261.*u.deg)
 print(two_body_model)
 

@@ -15,7 +15,7 @@ pl.gca().invert_yaxis()
 
 #Generate a model
 model = MulensModel.Model()
-model.set_parameters(t_0=7181.9, u_0=0.088, t_E=20.291*u.day)
+model.set_parameters(t_0=2457181.9, u_0=0.088, t_E=20.291*u.day)
 
 pl.figure()
 model.plot_lc(f_source=1.0, f_blend=0.0)
