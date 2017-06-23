@@ -16,7 +16,7 @@ def test_fspl_noLD():
     params = ModelParameters(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho)
 
     mag_curve = MagnificationCurve(times=t_vec, parameters=params)
-    methods = [t_0-t_E, 'finite_source_Gould94', t_0+t_E]
+    methods = [t_0-t_E, 'finite_source_uniform_Gould94', t_0+t_E]
     mag_curve.set_magnification_methods(methods, 'point_source')
     results = mag_curve.get_point_lens_magnification()
     

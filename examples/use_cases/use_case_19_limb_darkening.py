@@ -16,7 +16,7 @@ model = MulensModel.Model(n_components=1)
 model.set_datasets([data_1, data_2, data_3])
 
 # Set finite source method (no limb darkening).
-methods = [2455746., 'finite_source_Gould94', 2455746.6]
+methods = [2455746., 'finite_source_uniform_Gould94', 2455746.6]
 model.set_magnification_methods(methods)
 
 # Set coefficients - you can use either u (most common outside microlensing)
