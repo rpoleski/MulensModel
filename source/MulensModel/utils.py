@@ -144,3 +144,9 @@ class Utils(object):
         return (2. * u) / (3. - u)
     u_to_gamma = staticmethod(u_to_gamma)
     
+    def vector_product_normalized(vector_1, vector_2):
+        """get vector that is perpendicular to the 2 above and is normalized"""
+        vector_product = np.cross(vector_1, vector_2)
+        return vector_product / np.linalg.norm(vector_product)
+    vector_product_normalized = staticmethod(vector_product_normalized)
+
