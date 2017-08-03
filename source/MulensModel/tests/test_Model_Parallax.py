@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from astropy import units as u
 from astropy.coordinates import SkyCoord
@@ -6,19 +7,23 @@ import MulensModel
 from MulensModel.model import Model
 from MulensModel.mulensdata import MulensData
 
-MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
 
-SAMPLE_FILE_02 = MODULE_PATH + "/data/phot_ob151100_OGLE_v1.dat" #HJD'
-SAMPLE_FILE_03 = MODULE_PATH + "/data/phot_ob151100_Spitzer_2_v2.dat" #HJD'
-SAMPLE_FILE_03_EPH = MODULE_PATH + "/data/Spitzer_ephemeris_01.dat" #UTC
-SAMPLE_FILE_02_REF = MODULE_PATH + "/data/ob151100_OGLE_ref_v1.dat" #HJD'
-SAMPLE_FILE_03_REF = MODULE_PATH + "/data/ob151100_Spitzer_ref_v1.dat" #HJD'
+MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1]) # This won't work if there are multiple "source" in path. This is also OS-dependent.
 
-SAMPLE_ANNUAL_PARALLAX_FILE_01 = MODULE_PATH + "/data/parallax_test_1.dat"#HJD'
-SAMPLE_ANNUAL_PARALLAX_FILE_02 = MODULE_PATH + "/data/parallax_test_2.dat"#HJD'
-SAMPLE_ANNUAL_PARALLAX_FILE_03 = MODULE_PATH + "/data/parallax_test_3.dat"#HJD'
-SAMPLE_ANNUAL_PARALLAX_FILE_04 = MODULE_PATH + "/data/parallax_test_4.dat"#HJD'
-SAMPLE_ANNUAL_PARALLAX_FILE_05 = MODULE_PATH + "/data/parallax_test_5.dat"#HJD'
+DATA_PATH = os.path.join(MODULE_PATH, 'data')
+
+SAMPLE_FILE_02 = os.path.join(DATA_PATH, 'phot_ob151100_OGLE_v1.dat') #HJD'
+SAMPLE_FILE_02_REF = os.path.join(DATA_PATH, 'ob151100_OGLE_ref_v1.dat') #HJD'
+SAMPLE_FILE_03 = os.path.join(DATA_PATH, 'phot_ob151100_Spitzer_2_v2.dat') #HJD'
+SAMPLE_FILE_03_EPH = os.path.join(DATA_PATH, 'Spitzer_ephemeris_01.dat') #UTC
+SAMPLE_FILE_03_REF = os.path.join(DATA_PATH, 'ob151100_Spitzer_ref_v1.dat') #HJD'
+
+SAMPLE_ANNUAL_PARALLAX_FILE_01 = os.path.join(DATA_PATH, 'parallax_test_1.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_02 = os.path.join(DATA_PATH, 'parallax_test_2.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_03 = os.path.join(DATA_PATH, 'parallax_test_3.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_04 = os.path.join(DATA_PATH, 'parallax_test_4.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_05 = os.path.join(DATA_PATH, 'parallax_test_5.dat') #HJD'
+
 
 def test_annual_parallax_calculation():
     """

@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import numpy as np
 
 from astropy.coordinates import SkyCoord
@@ -11,7 +11,7 @@ from MulensModel.fit import Fit
 
 MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])        
         
-SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
+SAMPLE_FILE_01 = os.path.join(MODULE_PATH, os.path.join("data", "phot_ob08092_O4.dat"))
 
 def test_fit_get_input_format():
     '''read sample file and get brightness in its original format'''
