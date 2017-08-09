@@ -39,16 +39,10 @@ plens_model.set_magnification_methods([t_0-.05, 'finite_source_uniform_Gould94',
 ev = Event(datasets=datasets, model=plens_model)
 ev.data_ref = 6
 
-fig = pl.figure()
 gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
-ax1 = fig.add_subplot(gs[0])
-ax2 = fig.add_subplot(gs[1], sharex=ax1)
-pl.setp(ax2.get_xticklabels(), visible=False)
-#print(type(gs[0]))
-#(figure, figure_axes) = pl.subplots(2, 1, sharex=True, gridspec_kw={'height_ratios': [3, 1]})
 
 #Plot the data and model
-#pl.figure()
+pl.figure()
 pl.subplot(gs[0])
 ev.plot_model(subtract_2450000=True)
 ev.plot_data(subtract_2450000=True)
