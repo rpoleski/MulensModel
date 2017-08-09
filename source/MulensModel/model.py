@@ -447,7 +447,8 @@ class Model(object):
 
     def plot_magnification(
         self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None, **kwargs):
+        n_epochs=None, subtract_2450000=False, subtract_2460000=False, 
+        **kwargs):
         """
         plot the model magnification curve.
         """
@@ -456,15 +457,20 @@ class Model(object):
                 parameters=self._parameters, t_range=t_range, t_start=t_start, 
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
+        subtract = 0.
+        if subtract_2450000:
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
 
-        pl.plot(times, self.magnification(times), **kwargs)
+        pl.plot(times-subtract, self.magnification(times), **kwargs)
         pl.ylabel('Magnification')
         pl.xlabel('Time')
 
     def plot_lc(
         self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
         n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
-        **kwargs):
+        subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         plot the model light curve in magnitudes. See get_ref_fluxes
         for details of data_ref.
@@ -489,7 +495,13 @@ class Model(object):
             
         flux = f_source * self.magnification(times) + f_blend
 
-        pl.plot(times, Utils.get_mag_from_flux(flux), **kwargs)
+        subtract = 0.
+        if subtract_2450000:
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
+
+        pl.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)
         pl.ylabel('Magnitude')
         pl.xlabel('Time')
         
@@ -598,7 +610,8 @@ class Model(object):
 
     def plot_data(
         self, data_ref=None, show_errorbars=True, color_list=None,
-        marker_list=None, size_list=None, label_list=None, **kwargs):
+        marker_list=None, size_list=None, label_list=None, 
+        subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the model. If data_ref is not
         specified, uses the first dataset as the reference for flux scale. 
@@ -634,10 +647,15 @@ class Model(object):
             data=self._datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
         
-        #plot defaults
+        # Set plot defaults.
         t_min = 3000000.
         t_max = 0.
-        
+        subtract = 0.
+        if subtract_2450000:
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
+
         #plot each dataset
         for (i, data) in enumerate(self._datasets):
             #Calculate scaled flux
@@ -650,11 +668,11 @@ class Model(object):
             if show_errorbars:
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                pl.errorbar(data.time, mag, yerr=err, **new_kwargs) 
+                pl.errorbar(data.time-subtract, mag, yerr=err, **new_kwargs) 
                 
             else:
                 mag = Utils.get_mag_from_flux(flux)
-                pl.scatter(data.time, mag, lw=0., **new_kwargs)
+                pl.scatter(data.time-subtract, mag, lw=0., **new_kwargs)
 
             #Set plot limits
             t_min = min(t_min, np.min(data.time))
@@ -663,7 +681,7 @@ class Model(object):
         #Plot properties
         pl.ylabel('Magnitude')
         pl.xlabel('Time')
-        pl.xlim(t_min, t_max)
+        pl.xlim(t_min-subtract, t_max-subtract)
 
         (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
@@ -671,7 +689,8 @@ class Model(object):
 
     def plot_residuals(
         self, show_errorbars=True, color_list=None, marker_list=None, 
-        size_list=None, label_list=None, data_ref=None, **kwargs):
+        size_list=None, label_list=None, data_ref=None, 
+        subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model. Uses the best f_source,
         f_blend for each dataset (not scaled to a particular 
@@ -697,6 +716,11 @@ class Model(object):
         delta_mag = 0.
         t_min = 3000000.
         t_max = 0.
+        subtract = 0.
+        if subtract_2450000:
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
 
         #Plot zeropoint line
         pl.plot([0., 3000000.], [0., 0.], color='black')
@@ -718,10 +742,10 @@ class Model(object):
             #Plot
             new_kwargs = self._set_plot_kwargs(i, show_errorbars=show_errorbars)
             if show_errorbars:
-                pl.errorbar(data.time, residuals, yerr=err, 
+                pl.errorbar(data.time-subtract, residuals, yerr=err, 
                             **new_kwargs) 
             else:
-                pl.scatter(data.time, residuals, lw=0, **new_kwargs)
+                pl.scatter(data.time-subtract, residuals, lw=0, **new_kwargs)
 
             #Set plot limits
             t_min = min(t_min, np.min(data.time))
@@ -732,7 +756,7 @@ class Model(object):
 
         #Plot properties
         pl.ylim(-delta_mag, delta_mag)
-        pl.xlim(t_min, t_max)
+        pl.xlim(t_min-subtract, t_max-subtract)
         pl.ylabel('Residuals')
         pl.xlabel('Time')
 

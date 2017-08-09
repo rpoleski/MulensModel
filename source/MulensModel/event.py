@@ -220,7 +220,8 @@ class Event(object):
 
     def plot_model(self, 
         times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None, data_ref=None, f_source=None, f_blend=None, **kwargs):
+        n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
+        subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the model lightcurve in magnitudes scaled to data_ref
         (either an index or a MulensData object). If data_ref is not
@@ -230,19 +231,28 @@ class Event(object):
         self.model.plot_lc( 
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop, 
             dt=dt, n_epochs=n_epochs, data_ref=data_ref, f_source=f_source, 
-            f_blend=f_blend,**kwargs)
+            f_blend=f_blend, subtract_2450000=subtract_2450000, 
+            subtract_2460000=subtract_2460000, **kwargs)
 
-    def plot_data(self, data_ref=None, show_errorbars=True, **kwargs):
+    def plot_data(self, data_ref=None, show_errorbars=True, 
+        subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the same flux system specified by
         data_ref. Uses the model to calculate the magnifications.
         """
         self.model.plot_data(data_ref=data_ref, 
-                                show_errorbars=show_errorbars, **kwargs)
+                                show_errorbars=show_errorbars, 
+                                subtract_2450000=subtract_2450000, 
+                                subtract_2460000=subtract_2460000, 
+                                **kwargs)
 
-    def plot_residuals(self, show_errorbars=True, **kwargs):
+    def plot_residuals(self, show_errorbars=True, subtract_2450000=False, 
+        subtract_2460000=False, **kwargs):
         """plot residuals of the event model"""
-        self.model.plot_residuals(show_errorbars=show_errorbars, **kwargs)
+        self.model.plot_residuals(show_errorbars=show_errorbars, 
+                                subtract_2450000=subtract_2450000, 
+                                subtract_2460000=subtract_2460000, 
+                                **kwargs)
     
 
 if __name__ == "__main__":
