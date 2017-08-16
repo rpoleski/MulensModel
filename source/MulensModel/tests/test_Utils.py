@@ -1,10 +1,12 @@
 import numpy as np
+import os
 
 import MulensModel
 import MulensModel.utils
 
+
 MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])        
-SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
+SAMPLE_FILE_01 = os.path.join(MODULE_PATH, os.path.join("data", "phot_ob08092_O4.dat"))
 
 def test_complex_fsum_1():
     z = [(0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1-1e+99j), (0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1+1e+99j), (0.1+0.1j)]

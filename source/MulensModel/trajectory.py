@@ -121,8 +121,6 @@ class Trajectory(object):
         """
         calculates projected Earth positions required by annual parallax
         """
-        print('WARNING: Annual Parallax Does not take into account coordinates!!!!')
-
         if self.t_0_par is not None:
             time_ref = self.t_0_par
         else:
@@ -141,19 +139,23 @@ class Trajectory(object):
         """
         (jd1, jd2) = get_jd12(Time(time_ref,format='jd',scale='tdb'), 'tdb')
         (earth_pv_helio, earth_pv_bary) = erfa.epv00(jd1, jd2)
-        velocity = earth_pv_bary[..., 1, :] * u.au / u.day
+        velocity = earth_pv_bary[..., 1, :] # This is in (u.au/u.day) 
+        # but we don't multiply by unit here, because np.outer() (used later)
+        # destroys information of argument units.
         
         position = get_body_barycentric(
             body='earth', time=Time(self.times,format='jd', scale='tdb'))
-        delta_time = self.times - time_ref
-        product = (np.outer(delta_time, velocity.value) * u.d * velocity.unit)
-        # We calculated product in this strange way because np.outer()
-        # destroys information about units of its arguments.
+        product = np.outer(self.times - time_ref, velocity) * u.au
         delta_s = position.xyz.T - product - position_ref.xyz.T
 
-        #Return annual parallax offsets
-        return {'N': delta_s[:,2], 'E': -delta_s[:,0]}
-
+        north = np.array([0., 0., 1.])
+        direction = np.array(self.coords.cartesian.xyz.value)
+        east_projected = utils.Utils.vector_product_normalized(north, direction)
+        north_projected = utils.Utils.vector_product_normalized(direction, east_projected)
+        out_n = -np.dot(delta_s.value, north_projected)
+        out_e = -np.dot(delta_s.value, east_projected)
+        
+        return {'N': out_n, 'E': out_e}
 
     def _satellite_parallax_trajectory(self):
         """calcualate satellite parallax component of trajectory"""

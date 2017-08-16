@@ -18,7 +18,6 @@
 * add unit tests for Horizons and MulensData.satellite\_skycoord
 * check if Horizons e-mail is for correct satellite
 * guessing parameters of PSPL model
-* __start manual preparations__
 * anything from use cases at the end of this page
 * fluxes fixed in chi^2 calculation
 * annual parallax calculation - verify with VBB
@@ -28,7 +27,6 @@
 * does every function have a description? 
 * better import of the module so that all main classes are accesiable
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
-* use case 16 - code all coords features
 * Reconsider implementation of plotting in use case 08 (perhaps more like use case 02 or based on use case 10)
 * make sure Event.\_\_init\_\_ is correct
 * Add __repr__ functions to Lens and Source

@@ -220,7 +220,8 @@ class Event(object):
 
     def plot_model(self, 
         times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None, data_ref=None, f_source=None, f_blend=None, **kwargs):
+        n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
+        subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the model lightcurve in magnitudes scaled to data_ref
         (either an index or a MulensData object). If data_ref is not
@@ -230,52 +231,26 @@ class Event(object):
         self.model.plot_lc( 
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop, 
             dt=dt, n_epochs=n_epochs, data_ref=data_ref, f_source=f_source, 
-            f_blend=f_blend,**kwargs)
+            f_blend=f_blend, subtract_2450000=subtract_2450000, 
+            subtract_2460000=subtract_2460000, **kwargs)
 
-    def plot_data(self, data_ref=None, show_errorbars=True, **kwargs):
+    def plot_data(self, data_ref=None, show_errorbars=True, 
+        subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the same flux system specified by
         data_ref. Uses the model to calculate the magnifications.
         """
         self.model.plot_data(data_ref=data_ref, 
-                                show_errorbars=show_errorbars, **kwargs)
+                                show_errorbars=show_errorbars, 
+                                subtract_2450000=subtract_2450000, 
+                                subtract_2460000=subtract_2460000, 
+                                **kwargs)
 
-    def plot_residuals(self, show_errorbars=True, **kwargs):
+    def plot_residuals(self, show_errorbars=True, subtract_2450000=False, 
+        subtract_2460000=False, **kwargs):
         """plot residuals of the event model"""
-        self.model.plot_residuals(show_errorbars=show_errorbars, **kwargs)
-    
+        self.model.plot_residuals(show_errorbars=show_errorbars, 
+                                subtract_2450000=subtract_2450000, 
+                                subtract_2460000=subtract_2460000, 
+                                **kwargs)
 
-if __name__ == "__main__":
-    #Generate a model
-    t_0 = 5380.
-    u_0 = 0.5
-    t_E = 18.
-    model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
-    
-    #Generate fake data offset from that model
-    times = np.arange(5320,5420.)
-
-    f_source = 0.1
-    f_blend = 0.5
-    mod_fluxes = f_source * model.magnification(times) + f_blend
-
-    I_mag = Utils.get_mag_from_flux(mod_fluxes)
-
-    random_numbers = np.random.randn(times.size)
-    errors = 0.01 * np.ones(times.shape)
-    
-    mags = I_mag + random_numbers * errors
-
-    data = MulensData(data_list=[times, mags, errors])
-
-    #Generate event and fit
-    event = Event(datasets=data, model=model)
-
-    print(event.get_chi2(), np.sum(np.abs(random_numbers)**2))
-    
-    import matplotlib.pyplot as pl
-    pl.errorbar(times, mags, yerr=errors)
-    model.plot_lc(times=times, data_ref=data)
-    event.model.plot_lc(times=times, data_ref=data, linestyle='--')
-
-    pl.show()

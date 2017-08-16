@@ -44,30 +44,31 @@ gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 #Plot the data and model
 pl.figure()
 pl.subplot(gs[0])
-ev.plot_model()
-ev.plot_data()
+ev.plot_model(subtract_2450000=True)
+ev.plot_data(subtract_2450000=True)
 pl.title('Data and Fitted Model (Default)')
 #Plot the residuals 
 pl.subplot(gs[1])
-ev.plot_residuals()
+ev.plot_residuals(subtract_2450000=True)
 
 #Plot the data and model (customized)
 pl.figure()
 pl.subplot(gs[0])
 t_start= t_0 - 3.
 t_stop = t_0 + 1.
-ev.plot_model(color='black', t_start=t_start, t_stop=t_stop)
+ev.plot_model(color='black', t_start=t_start, t_stop=t_stop, subtract_2450000=True)
 ev.plot_data(
     label_list=labels, marker='o', markersize=5,  
-    color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'])
+    color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'],
+    subtract_2450000=True)
 pl.ylim(17.5, 12.5)
-pl.xlim(t_start, t_stop)
+pl.xlim(t_start-2450000., t_stop-2450000.)
 pl.legend(loc='upper left')
 pl.title('Data and Fitted Model (Custom)')
 
 #Plot the residuals 
 pl.subplot(gs[1])
-ev.plot_residuals()
-pl.xlim(t_start, t_stop)
+ev.plot_residuals(subtract_2450000=True)
+pl.xlim(t_start-2450000., t_stop-2450000.)
 
 pl.show()
