@@ -265,16 +265,3 @@ class ModelParameters(object):
             self._pi_E = MulensParallaxVector(pi_E_1=0., pi_E_2=new_value, 
                                                ref="NorthEast")
 
-if __name__ == "__main__":
-    print('test __repr__ for ModelParameters()')
-
-    params_1 = ModelParameters(t_0=7620., u_0=0.001, t_E=23.*u.day)
-    print(params_1)
-
-    params_2 = ModelParameters(t_0=7600., u_0=0.3, t_E=423.*u.day,
-                               rho=0.001, s=1.4, q=0.002, alpha=0.4*u.rad)
-    print(params_2)
-    params_3 = ModelParameters(t_0=6100., u_0=0.24, t_E=0.6,
-                               rho=0.0006, s=0.1, q=0.4, alpha=12.)
-    print(params_3)
-

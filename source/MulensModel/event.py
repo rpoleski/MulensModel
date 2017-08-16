@@ -253,39 +253,4 @@ class Event(object):
                                 subtract_2450000=subtract_2450000, 
                                 subtract_2460000=subtract_2460000, 
                                 **kwargs)
-    
 
-if __name__ == "__main__":
-    #Generate a model
-    t_0 = 5380.
-    u_0 = 0.5
-    t_E = 18.
-    model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
-    
-    #Generate fake data offset from that model
-    times = np.arange(5320,5420.)
-
-    f_source = 0.1
-    f_blend = 0.5
-    mod_fluxes = f_source * model.magnification(times) + f_blend
-
-    I_mag = Utils.get_mag_from_flux(mod_fluxes)
-
-    random_numbers = np.random.randn(times.size)
-    errors = 0.01 * np.ones(times.shape)
-    
-    mags = I_mag + random_numbers * errors
-
-    data = MulensData(data_list=[times, mags, errors])
-
-    #Generate event and fit
-    event = Event(datasets=data, model=model)
-
-    print(event.get_chi2(), np.sum(np.abs(random_numbers)**2))
-    
-    import matplotlib.pyplot as pl
-    pl.errorbar(times, mags, yerr=errors)
-    model.plot_lc(times=times, data_ref=data)
-    event.model.plot_lc(times=times, data_ref=data, linestyle='--')
-
-    pl.show()
