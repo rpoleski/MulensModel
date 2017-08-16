@@ -39,6 +39,7 @@
 * on-line access to JPL Horizons 
 * Can model generate magnifications without data?
 
+* Check code with spyder
 
 ### Non-functional elements of use cases:
 * 01: model does not support ~~time~~, caustics, trajectory
