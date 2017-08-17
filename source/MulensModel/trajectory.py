@@ -185,8 +185,8 @@ class Trajectory(object):
         #Project the satellite parallax effect
         delta_satellite = {}
         dot = utils.Utils.dot
-        delta_satellite['N'] = -dot(satellite.cartesian, north_projected)
-        delta_satellite['E'] = -dot(satellite.cartesian, east_projected)
-        delta_satellite['D'] = -dot(satellite.cartesian, direction)
+        delta_satellite['N'] = -dot(satellite.cartesian, north_projected).value
+        delta_satellite['E'] = -dot(satellite.cartesian, east_projected).value
+        delta_satellite['D'] = -dot(satellite.cartesian, direction).value
 
         return delta_satellite
