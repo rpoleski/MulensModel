@@ -8,9 +8,7 @@ from MulensModel.model import Model
 from MulensModel.mulensdata import MulensData
 
 
-MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1]) # This won't work if there are multiple "source" in path. This is also OS-dependent.
-
-DATA_PATH = os.path.join(MODULE_PATH, 'data')
+DATA_PATH = os.path.join(MulensModel.MODULE_PATH, 'data')
 
 SAMPLE_FILE_02 = os.path.join(DATA_PATH, 'phot_ob151100_OGLE_v1.dat') #HJD'
 SAMPLE_FILE_02_REF = os.path.join(DATA_PATH, 'ob151100_OGLE_ref_v1.dat') #HJD'

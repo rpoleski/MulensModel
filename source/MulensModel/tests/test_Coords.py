@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import numpy as np
 from astropy.coordinates import SkyCoord
 import astropy.units as u
@@ -9,8 +9,9 @@ from MulensModel.mulensdata import MulensData
 from MulensModel.event import Event
 
 
-MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])        
-SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
+SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
+                                os.path.join("data", "phot_ob08092_O4.dat"))
+
 
 def test_model_coords():
     coords = SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
