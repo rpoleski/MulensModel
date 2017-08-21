@@ -177,7 +177,6 @@ class BinaryLens(object):
         # We need to add this because WM95 use geometric center as an origin 
         # of their coordinate system.
         return self._point_source_Witt_Mao_95(
-                #source_x=source_x + self.separation / 2. + self.separation * self.mass_2 / (self.mass_1 + self.mass_2), 
                 source_x=source_x+x_shift, 
                 source_y=source_y)
 
