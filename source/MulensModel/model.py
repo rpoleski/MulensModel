@@ -139,6 +139,7 @@ class Model(object):
         self.reset_plot_properties()
         
         self._limb_darkening_coeffs = LimbDarkeningCoeffs()
+        self._bandpasses = []
 
     def __repr__(self):
         return '{0}'.format(self._parameters)
@@ -337,6 +338,11 @@ class Model(object):
         if dataset.bandpass is None:
             gamma = 0.
         else:
+            if dataset.bandpass not in self.bandpasses:
+                raise ValueError(("Limb darkening coefficient requested for " +
+                    "bandpass {:}, but not set before. Use " +
+                    "set_limb_coef_gamma() or set_limb_coef_u()"
+                    ).format(dataset.bandpass))
             gamma = self._limb_darkening_coeffs.limb_coef_gamma(dataset.bandpass)
             
         magnification = self.magnification(
@@ -870,10 +876,14 @@ class Model(object):
 
     def set_limb_coef_gamma(self, bandpass, coef):
         """store gamma LD coef for given band"""
+        if bandpass not in self._bandpasses:
+            self._bandpasses.append(bandpass)
         self._limb_darkening_coeffs.set_limb_coef_gamma(bandpass, coef)
 
     def set_limb_coef_u(self, bandpass, coef):
         """store u LD coef for given band"""
+        if bandpass not in self._bandpasses:
+            self._bandpasses.append(bandpass)
         self._limb_darkening_coeffs.set_limb_coef_u(bandpass, coef)
 
     def limb_coef_gamma(self, bandpass):
@@ -886,5 +896,6 @@ class Model(object):
 
     @property
     def bandpasses(self):
-        """ """
-        pass
+        """list of all bandpasses for wich limb darkening coefficients are set"""
+        return self._bandpasses
+
