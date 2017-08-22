@@ -67,12 +67,9 @@ class Event(object):
     @model.setter
     def model(self, new_value):
         #Needs a check for MulensModel class
-        self._model = (new_value)
-        try:
-            if self._datasets is not None:
-                self._model.set_datasets(self._datasets)
-        except:
-            pass
+        self._model = new_value
+        if self._datasets is not None:
+            self._model.set_datasets(self._datasets)
 
         if new_value.coords is not None:
             self._update_coords(coords=new_value.coords)
