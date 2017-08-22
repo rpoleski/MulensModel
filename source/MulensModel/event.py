@@ -123,11 +123,11 @@ class Event(object):
 
     def clean_data(self):
         """masks outlying datapoints"""
-        pass
+        raise NotImplementedError("This feature has not been implemented yet")
 
     def estimate_model_params(self):
         """estiamtes model parameters without fitting them"""
-        pass
+        raise NotImplementedError("This feature has not been implemented yet")
 
     @property
     def coords(self):
