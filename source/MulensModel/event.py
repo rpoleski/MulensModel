@@ -204,16 +204,10 @@ class Event(object):
         else:
             self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
 
-        try:
-            self._model.coords = self._coords
-        except:
-            pass
+        self._model.coords = self._coords
 
-        try:
-            for dataset in self._datasets:
-                dataset.coords = self._coords
-        except:
-            pass
+        for dataset in self._datasets:
+            dataset.coords = self._coords
 
     def plot_model(self, 
         times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
