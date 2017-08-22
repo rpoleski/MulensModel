@@ -96,8 +96,6 @@ class Event(object):
         if isinstance(self._model, Model):
             self._model.set_datasets(self._datasets)
 
-
-
     def get_chi2(self, fit_blending_all=None):
         """calculates chi^2 of current model by fitting for fs and fb"""
         #Define a Fit given the model and perform linear fit for fs and fb
@@ -204,10 +202,16 @@ class Event(object):
         else:
             self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
 
-        self._model.coords = self._coords
+        if self._model is not None:
+            self._model.coords = self._coords
 
-        for dataset in self._datasets:
-            dataset.coords = self._coords
+        # We run the command below with try, because _update_coords() is called
+        # by _set_datasets before self._datasets is set. 
+        try:
+            for dataset in self._datasets:
+                dataset.coords = self._coords
+        except:
+            pass
 
     def plot_model(self, 
         times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
