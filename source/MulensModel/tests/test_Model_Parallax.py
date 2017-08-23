@@ -5,8 +5,9 @@ from astropy.coordinates import SkyCoord
 
 import MulensModel
 from MulensModel.model import Model
+from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
-
+from MulensModel.trajectory import Trajectory
 
 DATA_PATH = os.path.join(MulensModel.MODULE_PATH, 'data')
 
@@ -22,6 +23,70 @@ SAMPLE_ANNUAL_PARALLAX_FILE_03 = os.path.join(DATA_PATH, 'parallax_test_3.dat') 
 SAMPLE_ANNUAL_PARALLAX_FILE_04 = os.path.join(DATA_PATH, 'parallax_test_4.dat') #HJD'
 SAMPLE_ANNUAL_PARALLAX_FILE_05 = os.path.join(DATA_PATH, 'parallax_test_5.dat') #HJD'
 
+class _ParallaxFile(object):
+    '''
+    Private class to allow easy access to the contents of the parallax
+    test files.
+    '''
+    def __init__(self, filename):
+        '''
+        Open the file and store parameters.
+        '''
+        self.filename = filename
+        self.data = np.genfromtxt(
+            filename, dtype=None, names=['Time', 'Magnification', 'PLflux', 
+                                         'u','qn', 'qe'])
+
+        (self.ulens_params, self.event_params) = self.get_file_params()
+
+    def get_file_params(self):
+        '''Read in the model parameters used to create the file'''
+        file = open(self.filename)
+        lines = file.readlines()
+        file.close()
+
+        ulens_params = lines[3].split()
+        event_params = lines[4].split()
+        return (ulens_params, event_params)
+
+    @property
+    def parameters(self):
+        '''Model parameters'''
+        model_parameters = ModelParameters(
+            t_0=float(self.ulens_params[1])+2450000., 
+            u_0=float(self.ulens_params[3]), 
+            t_E=float(self.ulens_params[4]), 
+            pi_E_N=float(self.ulens_params[5]), 
+            pi_E_E=float(self.ulens_params[6]))
+        return model_parameters
+
+    @property
+    def coords(self):
+        '''Coordinates of event'''
+        coords=SkyCoord(
+            self.event_params[1]+' '+self.event_params[2], 
+            unit=(u.deg, u.deg))
+        return coords
+
+    @property
+    def t_0_par(self):
+        '''Parallax reference time'''
+        return float(self.ulens_params[2])+2450000.
+
+    def setup_model(self):
+        '''Return a model using the parameters of this file'''
+        model = Model(parameters=self.parameters, 
+                      coords=self.coords)
+        model.t_0_par = self.t_0_par
+        return model
+
+    def setup_trajectory(self):
+        '''Return a trajectory using hte parameters of this file'''
+        trajectory = Trajectory(
+            self.data['Time']+2450000., parameters=self.parameters,
+            parallax={'earth_orbital':True},
+            t_0_par=self.t_0_par, coords=self.coords)
+        return trajectory
 
 def test_annual_parallax_calculation():
     """
@@ -52,6 +117,32 @@ def test_annual_parallax_calculation():
         model_no_par.data_magnification, true_no_par)
     np.testing.assert_almost_equal(
         model_with_par.data_magnification, true_with_par, decimal=4)
+
+def do_get_delta_annual_test(filename):
+    parallax_file = _ParallaxFile(filename)
+    trajectory = parallax_file.setup_trajectory()
+
+    result = trajectory._get_delta_annual()
+
+    np.testing.assert_almost_equal(result['N'], parallax_file.data['qn'],
+                                   decimal=4)
+    np.testing.assert_almost_equal(result['E'], parallax_file.data['qe'],
+                                   decimal=4)
+
+def test_get_delta_annual_1():
+    do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)
+
+def test_get_delta_annual_2():
+    do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_02)
+
+def test_get_delta_annual_3():
+    do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
+
+def test_get_delta_annual_4():
+    do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_04)
+
+def test_get_delta_annual_5():
+    do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_05)
 
 def do_annual_parallax_test(filename):
     """testing funcations called by a few unit tests"""

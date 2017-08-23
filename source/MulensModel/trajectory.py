@@ -27,7 +27,7 @@ class Trajectory(object):
            parameters - a ModelParameters object specifying the microlensing parameters
 
         Optional parallax keywords:
-           parallax - boolean dictionary specifying what parallax effects should be used.
+           parallax - boolean dictionary specifying what parallax effects should be used. Default is False. (differs from Modely.py which defaults to True)
            t_0_par - reference time for the parallax
            coords - sky coordinates of the event
            satellite_skycoord - sky coordinates of the satellite
@@ -47,7 +47,13 @@ class Trajectory(object):
             raise ValueError('parameters is a required and must be a ModelParameters object')
 
         #Set parallax values
-        self.parallax = parallax
+        self.parallax = {'earth_orbital':False, 
+                         'satellite':False, 
+                         'topocentric':False}
+        if parallax is not None:
+            for key, value in parallax.iteritems():
+                self.parallax[key] = value
+
         self.t_0_par = t_0_par
         self.coords = coords
         self.satellite_skycoord = satellite_skycoord
