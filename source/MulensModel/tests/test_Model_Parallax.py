@@ -72,7 +72,7 @@ def do_annual_parallax_test(filename):
     model.t_0_par = float(ulens_params[2])+2450000.
     
     time = data[:,0]
-    dataset = MulensData([time, 20.+time*0., 0.1+time*0,], add_2450000=True)
+    dataset = MulensData([time, 20.+time*0., 0.1+time*0.,], add_2450000=True)
     model.set_datasets([dataset])
     model.parallax(satellite=False, earth_orbital=True, topocentric=False)
     return np.testing.assert_almost_equal(
