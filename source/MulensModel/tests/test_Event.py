@@ -1,5 +1,4 @@
-
-import sys
+import sys, os
 import unittest
 import numpy as np
 
@@ -11,10 +10,8 @@ from MulensModel.model import Model
 from MulensModel.utils import Utils
 
 
-MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
-        
-SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
-
+SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
+                                os.path.join("data", "phot_ob08092_O4.dat"))
 
 def test_event_get_chi2():
     '''basic unit test on ob08092 OGLE-IV data'''
@@ -99,3 +96,4 @@ class TestEvent(unittest.TestCase):
     def test_event_init_2(self):
         with self.assertRaises(TypeError):
             ev = Event(datasets='some_string')
+

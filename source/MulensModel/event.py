@@ -67,12 +67,9 @@ class Event(object):
     @model.setter
     def model(self, new_value):
         #Needs a check for MulensModel class
-        self._model = (new_value)
-        try:
-            if self._datasets is not None:
-                self._model.set_datasets(self._datasets)
-        except:
-            pass
+        self._model = new_value
+        if self._datasets is not None:
+            self._model.set_datasets(self._datasets)
 
         if new_value.coords is not None:
             self._update_coords(coords=new_value.coords)
@@ -99,8 +96,6 @@ class Event(object):
         if isinstance(self._model, Model):
             self._model.set_datasets(self._datasets)
 
-
-
     def get_chi2(self, fit_blending_all=None):
         """calculates chi^2 of current model by fitting for fs and fb"""
         #Define a Fit given the model and perform linear fit for fs and fb
@@ -126,11 +121,11 @@ class Event(object):
 
     def clean_data(self):
         """masks outlying datapoints"""
-        pass
+        raise NotImplementedError("This feature has not been implemented yet")
 
     def estimate_model_params(self):
         """estiamtes model parameters without fitting them"""
-        pass
+        raise NotImplementedError("This feature has not been implemented yet")
 
     @property
     def coords(self):
@@ -207,11 +202,11 @@ class Event(object):
         else:
             self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
 
-        try:
+        if self._model is not None:
             self._model.coords = self._coords
-        except:
-            pass
 
+        # We run the command below with try, because _update_coords() is called
+        # by _set_datasets before self._datasets is set. 
         try:
             for dataset in self._datasets:
                 dataset.coords = self._coords

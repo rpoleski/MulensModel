@@ -14,11 +14,11 @@ from MulensModel.event import Event
 from MulensModel.model import Model
 
 #Read in MB08310 data files (see data/MB08310) as MulensData objects
-MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
-print('MODULE_PATH: {0}'.format(MODULE_PATH))
+print('MODULE_PATH: {0}'.format(MulensModel.MODULE_PATH))
 
 #Grabbing all data files in the MB08310 folder
-files = glob.glob(MODULE_PATH+"/data/MB08310"+"/*.tbl")
+files = glob.glob(os.path.join(MulensModel.MODULE_PATH, 
+                        os.path.join("data", os.path.join("MB08310", "*.tbl"))))
 datasets = []
 labels = []
 for file_ in sorted(files):

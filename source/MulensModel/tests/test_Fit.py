@@ -9,9 +9,8 @@ from MulensModel.mulensdata import MulensData
 from MulensModel.fit import Fit
 
 
-MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])        
-        
-SAMPLE_FILE_01 = os.path.join(MODULE_PATH, os.path.join("data", "phot_ob08092_O4.dat"))
+SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
+                                os.path.join("data", "phot_ob08092_O4.dat"))
 
 def test_fit_get_input_format():
     '''read sample file and get brightness in its original format'''

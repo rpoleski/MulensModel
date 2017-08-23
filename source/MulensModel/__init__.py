@@ -1,3 +1,4 @@
+from os import path
 from MulensModel.event import *
 from MulensModel.fit import *
 from MulensModel.model import *
@@ -9,4 +10,10 @@ from MulensModel.binarylens import BinaryLens
 
 from MulensModel.mulensobjects import *
 
-__all__ = ['mulensobjects']
+
+__all__ = ['mulensobjects', 'MODULE_PATH']
+
+MODULE_PATH = path.abspath(__file__)
+for i in range(3):
+    MODULE_PATH = path.dirname(MODULE_PATH)
+

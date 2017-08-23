@@ -3,7 +3,7 @@
 Example usage of MulensModel to fit a point lens light curve to the
 data file phot_ob08092_O4.dat.
 """
-import sys
+import sys, os
 import numpy as np
 import scipy.optimize as op
 import matplotlib.pyplot as pl
@@ -25,8 +25,8 @@ def chi2_fun(theta, event, parameters_to_fit):
 
 
 #Read in the data file
-MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
-SAMPLE_FILE_01 = MODULE_PATH + "/data/phot_ob08092_O4.dat"
+SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, os.path.join("data", 
+                                                        "phot_ob08092_O4.dat"))
 data = MulensData(file_name=SAMPLE_FILE_01)
 
 #Initialize the fit
