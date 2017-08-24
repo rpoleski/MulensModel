@@ -9,6 +9,7 @@ from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 from MulensModel.trajectory import Trajectory
 
+
 DATA_PATH = os.path.join(MulensModel.MODULE_PATH, 'data')
 
 SAMPLE_FILE_02 = os.path.join(DATA_PATH, 'phot_ob151100_OGLE_v1.dat') #HJD'
@@ -33,18 +34,15 @@ class _ParallaxFile(object):
         Open the file and store parameters.
         '''
         self.filename = filename
-        self.data = np.genfromtxt(
-            filename, dtype=None, names=['Time', 'Magnification', 'PLflux', 
-                                         'u','qn', 'qe'])
+        self.data = np.genfromtxt(self.filename, dtype=None, 
+                names=['Time', 'Magnification', 'PLflux', 'u', 'qn', 'qe']) 
 
         (self.ulens_params, self.event_params) = self.get_file_params()
 
     def get_file_params(self):
         '''Read in the model parameters used to create the file'''
-        file = open(self.filename)
-        lines = file.readlines()
-        file.close()
-
+        with open(self.filename) as data_file:
+            lines = data_file.readlines()
         ulens_params = lines[3].split()
         event_params = lines[4].split()
         return (ulens_params, event_params)
@@ -63,7 +61,7 @@ class _ParallaxFile(object):
     @property
     def coords(self):
         '''Coordinates of event'''
-        coords=SkyCoord(
+        coords = SkyCoord(
             self.event_params[1]+' '+self.event_params[2], 
             unit=(u.deg, u.deg))
         return coords
@@ -119,6 +117,7 @@ def test_annual_parallax_calculation():
         model_with_par.data_magnification, true_with_par, decimal=4)
 
 def do_get_delta_annual_test(filename):
+    """run a test on private method Trajectory._get_delta_annual()"""
     parallax_file = _ParallaxFile(filename)
     trajectory = parallax_file.setup_trajectory()
 
@@ -130,25 +129,29 @@ def do_get_delta_annual_test(filename):
                                    decimal=4)
 
 def test_get_delta_annual_1():
+    """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)
 
 def test_get_delta_annual_2():
+    """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_02)
 
 def test_get_delta_annual_3():
+    """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
 
 def test_get_delta_annual_4():
+    """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_04)
 
 def test_get_delta_annual_5():
+    """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_05)
 
 def do_annual_parallax_test(filename):
-    """testing funcations called by a few unit tests"""
-    file = open(filename)
-    lines = file.readlines()
-    file.close()
+    """testing functions called by a few unit tests"""
+    with open(filename) as data_file:
+        lines = data_file.readlines()
     ulens_params = lines[3].split()
     event_params = lines[4].split()
     data = np.loadtxt(filename, dtype=None)
@@ -224,3 +227,4 @@ def test_satellite_parallax_magnification():
     delta = (ground_model.magnification(t_0)
              - space_model.magnification(t_0))
     assert np.abs(delta) > 0.01
+
