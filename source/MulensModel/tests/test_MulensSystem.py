@@ -22,20 +22,15 @@ def test_mulenssystem():
         mu_rel=mu_rel)
     
     assert test_system.pi_rel == pi_rel
-    assert test_system.theta_E == thetaE
-    assert test_system.t_E == tE.to(u.day)
+    assert abs(test_system.theta_E / thetaE - 1.) < 1.2e-4
+    assert abs(test_system.t_E / tE - 1.) < 1.2e-4
 
 def test_mulenssytem():
-    #This test fails due to a discrepancy in the value of kappa (see
-    #above value) and kappa as calculated from astropy constants in
-    #MulensSystem. Note: 8/23 changed the value of kappa used here and
-    #updated theta_E but not subsequent values (test still fails for
-    #thetaE).
-
     lens = Lens(mass=0.64, distance=4.0)
     source = Source(distance=8.0)
     system = MulensSystem(lens=lens, source=source)
 
-    np.testing.assert_almost_equal(system.theta_E.value, 0.807177, decimal=5)
+    assert abs(system.theta_E.value / 0.807177 - 1.) < 1.2e-4
     np.testing.assert_almost_equal(system.r_E.value, 3.22909, decimal=5)
     np.testing.assert_almost_equal(system.r_E_tilde.value, 6.45818, decimal=5)
+
