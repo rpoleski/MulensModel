@@ -51,7 +51,7 @@ class Trajectory(object):
                          'satellite':False, 
                          'topocentric':False}
         if parallax is not None:
-            for key, value in parallax.iteritems():
+            for (key, value) in parallax.items():
                 self.parallax[key] = value
 
         self.t_0_par = t_0_par
