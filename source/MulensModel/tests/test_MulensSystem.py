@@ -31,6 +31,6 @@ def test_mulenssytem():
     system = MulensSystem(lens=lens, source=source)
 
     assert abs(system.theta_E.value / 0.807177 - 1.) < 1.2e-4
-    np.testing.assert_almost_equal(system.r_E.value, 3.228708, decimal=4)
-    np.testing.assert_almost_equal(system.r_E_tilde.value, 6.457416, decimal=4)
+    assert abs(system.r_E.value / 3.228708 - 1.) < 1.2e-4
+    assert abs(system.r_E_tilde.value / 6.457416 - 1.) < 1.2e-4
 
