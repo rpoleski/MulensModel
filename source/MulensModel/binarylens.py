@@ -1,12 +1,12 @@
 #! /usr/bin/env python3
 
-import sys
+import sys, os, ctypes
 import numpy as np
 from math import fsum, sqrt
 
 import MulensModel
 from MulensModel.utils import Utils
-# for VBBL imports see self._vbbl_imported below
+# for VBBL import/wrapping see self._vbbl_wrapped below
 
 
 class BinaryLens(object):
@@ -26,7 +26,7 @@ class BinaryLens(object):
         self._position_z1_WM95 = None
         self._position_z2_WM95 = None
         self._last_polynomial_input = None
-        self._vbbl_imported = False
+        self._vbbl_wrapped = False
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
@@ -267,17 +267,16 @@ class BinaryLens(object):
         http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B
         http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm
         """
-        if not self._vbbl_imported:
+        if not self._vbbl_wrapped:
+            PATH = os.path.join(os.path.join(MulensModel.MODULE_PATH, os.path.join('source', 'VBBL')), "VBBinaryLensingLibrary_wrapper.so")
             try:
-                from VBBL import VBBinaryLensingLibrary
-            except ImportError:
-                MODULE_PATH = "/".join(MulensModel.__file__.split("/source")[:-1])
-                raise ImportError(("VBBL library could not be imported.\n" +
-                    "You must compile VBBL library and add it to PYTHONPATH." + 
-                    "\nTry compiling the code in {:}\n\nExit...").format(
-                    MODULE_PATH+"/source/VBBL"))
-            self._vbbl_imported = True
-            self._vbbllib = VBBinaryLensingLibrary.VBBinaryLensing()
+                vbbl = ctypes.cdll.LoadLibrary(PATH)
+            except OSError:
+                raise OSError("Something went wrong with VBBL wrapping ({:})".format(PATH))
+            self._vbbl_wrapped = True
+            vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
+            vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
+            self._vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
         
         if gamma is not None and u_limb_darkening is not None:
             raise ValueError('Only one limb darkening parameters can be set ' + 
@@ -289,15 +288,14 @@ class BinaryLens(object):
         else: 
             u_limb_darkening = float(0.0)
             
-        s = float(self.separation)
-        q = float(self.mass_2 / self.mass_1)
-        x = float(source_x)
-        y = float(source_y)
-        rho = float(rho)
-        accuracy = float(accuracy) # Note that this accuracy is not guaranteed.
-        assert accuracy > 0., "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was provided".format(accuracy)
+        s = self.separation
+        q = self.mass_2 / self.mass_1
+        x = source_x
+        y = source_y
+        assert accuracy > 0., ("VBBL requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was " +
+            "provided".format(accuracy)) # Note that this accuracy is not guaranteed.
         
-        return self._vbbllib.BinaryMagDark(s, q, x, y, rho, u_limb_darkening, accuracy)
+        return self._vbbl_binary_mag_dark(s, q, x, y, rho, u_limb_darkening, accuracy)
         # To get the image positions from VBBL, following C++ code has to be run:
         #  _sols *Images;
         #  Mag=VBBL.BinaryMag(s, q, y1, y2, rho, accuracy, &Images);
@@ -307,3 +305,4 @@ class BinaryLens(object):
         #      }
         #  }
         #  delete Images;
+
