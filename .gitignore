@@ -13,6 +13,6 @@ __pycache__/
 .cache/
 
 # VBBL library
-VBBinaryLensingLibrary.py
-_VBBinaryLensingLibrary.so
+VBBinaryLensingLibrary.o
+VBBinaryLensingLibrary_wrapper.so
 
