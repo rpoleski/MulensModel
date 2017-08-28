@@ -36,8 +36,12 @@
 * Classes Model and Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 * on-line access to JPL Horizons 
 * Can model generate magnifications without data?
-
 * Check code with spyder
+
+### reStructuredText:
+[tutorial](http://www.sphinx-doc.org/en/stable/rest.html)
+
+[example](https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html)
 
 ### Non-functional elements of use cases:
 * 01: model does not support ~~time~~, caustics, trajectory
