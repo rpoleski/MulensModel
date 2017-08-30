@@ -6,6 +6,21 @@ from astropy import __version__ as astropy__version__
 
 MAG_ZEROPOINT = 22. # Defines magnitude at which flux = 1.
 
+month_3letter_to_2digit = {
+        'Jan' : '01',
+        'Feb' : '02',
+        'Mar' : '03',
+        'Apr' : '04',
+        'May' : '05',
+        'Jun' : '06',
+        'Jul' : '07',
+        'Aug' : '08',
+        'Sep' : '09',
+        'Oct' : '10',
+        'Nov' : '11',
+        'Dec' : '12'
+}
+
 #JCY: I think this class needs to be a subpackage with related
 #functions separated into their own files. e.g. all the flux/mag
 #functions together and separated from the math functions.
@@ -69,6 +84,19 @@ class Utils(object):
         """transform u limb darkening coefficient to gamma"""
         return (2. * u) / (3. - u)
     u_to_gamma = staticmethod(u_to_gamma)
+
+    def date_change(text):
+        """
+        changes format: '2015-Oct-30 12:00' -> '2015-10-30 12:00' 
+        """
+        text = text.decode('UTF-8')
+        str_components = text.split('-')
+        if len(str_components) == 1:
+            raise ValueError("Can't run date_change() for {:}".format(text))
+        return '-'.join((
+            str_components[0], month_3letter_to_2digit[str_components[1]],
+            str_components[2]))
+    date_change = staticmethod(date_change)
 
     def astropy_version_check(minimum):
         '''check if astropy is installed at given or later version (input as a string)'''
