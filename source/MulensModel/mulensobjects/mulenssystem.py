@@ -13,6 +13,15 @@ from MulensModel.modelparameters import ModelParameters
 class MulensSystem(object):
     """
     A microlensing system consisting of a lens and a source.
+
+    Attributes :
+        lens : :py:class:`MulensModel.mulensobjects.lens.Lens`
+            The lensing system.
+        source : :py:class:`MulensModel.mulensobjects.source.Source`
+            The source star.
+        mu_rel : [float, astropy.Quantity], optional
+            The source-lens relative proper motion. If units are not given, 
+            assumed to be mas/yr.
     """
     def __init__(self, lens=None, source=None, mu_rel=None):
         if lens is not None :
@@ -42,8 +51,9 @@ class MulensSystem(object):
     @property
     def lens(self):
         """
-        Physical properties of the lens. A Lens object. Note: lens
-        mass must be in solMasses.
+        Physical properties of the lens. A
+        :py:class:`MulensModel.mulensobjects.lens.Lens` object. Note:
+        lens mass must be in solMasses.
         """
         return self._lens
 
@@ -57,7 +67,8 @@ class MulensSystem(object):
     @property
     def source(self):
         """
-        Physical properties of the source. A Source object.
+        Physical properties of the source. A
+        :py:class:`MulensModel.mulensobjects.source.Source` object.
         """
         return self._source
 
@@ -66,13 +77,13 @@ class MulensSystem(object):
         if isinstance(value, Source):
             self._source = value
         else:
-            raise TypeError("source must be a Source object")
+            raise TypeError("source must be a MulensModel.mulensobjects.source.Source object")
 
     @property
     def mu_rel(self):
         """
         Relative proper motion between the source and lens
-        stars. (magnitude only)
+        stars.
         """
         return self._mu_rel
 

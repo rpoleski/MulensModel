@@ -9,17 +9,34 @@ class Lens(object):
     A mass or system of masses.
     
     Attributes:
-        total_mass: Total mass of the lens system
-        epsilon: mass fraction for each component relative to the total mass
-        q: mass ratio for companions relative to the primary
-        s: separation between the companions and the primary as a
+        total_mass : float
+            Total mass of the lens system
+        epsilon : float, list, numpy.array
+            mass fraction for each component relative to the total mass
+        q : float, list, numpy.array
+            mass ratio for companions relative to the primary
+        s : float, list, numpy.array
+            separation between the companions and the primary as a
             fraction of the Einstein radius.
-        mass: mass of the lens for a point mass
-        mass_1: mass of the primary
-        mass_2: mass of the secondary
-        n_masses: total number of masses in the system
-        distance: distance to the lens in pc.
-        pi_L: parallax of the lens in mas.
+        mass : float
+            mass of the lens for a point mass
+        mass_1 : float
+            mass of the primary
+        mass_2 : float
+            mass of the secondary
+        n_masses : int
+            total number of masses in the system
+        distance : float
+            distance to the lens in pc or kpc.
+        pi_L : float
+            parallax of the lens in mas.
+
+        If units are not specified for mass, it is assumed the value
+        given is in Solar Masses. 
+
+        If units are not specified for distance, and the value given
+        is <50, it is assumed the value is given in kpc. Otherwise, pc
+        are assumed.
 
     TO DO:
         - problem with tracking number of masses, esp when
