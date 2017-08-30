@@ -117,7 +117,6 @@ class Trajectory(object):
 
     def _annual_parallax_trajectory(self):
         """calcualate annual parallax component of trajectory"""
-        print('WARNING - Some probable problems with annual parallax due to interface with astropy functions get_body_barycentric and get_jd12. These must depend on both reference frame and time standard. But it is only possible to set time standard and jd vs. mjd. - JCY')
 
         #Calculate the parallax offsets
         delta_annual = self._get_delta_annual()

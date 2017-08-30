@@ -15,13 +15,6 @@ from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 
-#JCY: some probable problems with annual parallax due to interface
-#with astropy functions get_body_barycentric and get_jd12. These must
-#depend on both reference frame and time standard. But it is only
-#possible to set time standard and jd vs. mjd.
-
-
-
 class Model(object):
     """
     Caveats:
