@@ -5,6 +5,16 @@ from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 class Source(object):
     """
     Physical properties of a source (background) star.
+
+    Attributes :
+        distance : [float, astropy.Quantity]
+            The distance to the source.
+        angular_size : [float, astropy.Quantity], optional
+            Angular size of the source (in mas). Not used by anything.
+
+        limb_darkening : :py:class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+            Limb darkening coefficients of the source.
+
     """
     def __init__(self, distance=None, angular_size=None,
                  limb_darkening=None):

@@ -55,18 +55,34 @@
 <p>A mass or system of masses.</p>
 <dl class="docutils">
 <dt>Attributes:</dt>
-<dd><p class="first">total_mass: Total mass of the lens system
-epsilon: mass fraction for each component relative to the total mass
-q: mass ratio for companions relative to the primary
-s: separation between the companions and the primary as a</p>
-<blockquote>
-<div>fraction of the Einstein radius.</div></blockquote>
-<p class="last">mass: mass of the lens for a point mass
-mass_1: mass of the primary
-mass_2: mass of the secondary
-n_masses: total number of masses in the system
-distance: distance to the lens in pc.
-pi_L: parallax of the lens in mas.</p>
+<dd><dl class="first docutils">
+<dt>total_mass <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Total mass of the lens system</dd>
+<dt>epsilon <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span></dt>
+<dd>mass fraction for each component relative to the total mass</dd>
+<dt>q <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span></dt>
+<dd>mass ratio for companions relative to the primary</dd>
+<dt>s <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span></dt>
+<dd>separation between the companions and the primary as a
+fraction of the Einstein radius.</dd>
+<dt>mass <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>mass of the lens for a point mass</dd>
+<dt>mass_1 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>mass of the primary</dd>
+<dt>mass_2 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>mass of the secondary</dd>
+<dt>n_masses <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>total number of masses in the system</dd>
+<dt>distance <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>distance to the lens in pc or kpc.</dd>
+<dt>pi_L <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>parallax of the lens in mas.</dd>
+</dl>
+<p>If units are not specified for mass, it is assumed the value
+given is in Solar Masses.</p>
+<p class="last">If units are not specified for distance, and the value given
+is &lt;50, it is assumed the value is given in kpc. Otherwise, pc
+are assumed.</p>
 </dd>
 <dt>TO DO:</dt>
 <dd><ul class="first last simple">
@@ -173,18 +189,32 @@ astropy.Quantity with mass units.</p>
 <em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.mulenssystem.</code><code class="descname">MulensSystem</code><span class="sig-paren">(</span><em>lens=None</em>, <em>source=None</em>, <em>mu_rel=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A microlensing system consisting of a lens and a source.</p>
+<dl class="docutils">
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>lens <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens" title="MulensModel.mulensobjects.lens.Lens"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.mulensobjects.lens.Lens</span></code></a></span></dt>
+<dd>The lensing system.</dd>
+<dt>source <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#MulensModel.mulensobjects.source.Source" title="MulensModel.mulensobjects.source.Source"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.mulensobjects.source.Source</span></code></a></span></dt>
+<dd>The source star.</dd>
+<dt>mu_rel <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity], optional</span></dt>
+<dd>The source-lens relative proper motion. If units are not given, 
+assumed to be mas/yr.</dd>
+</dl>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.lens">
 <code class="descname">lens</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.lens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Physical properties of the lens. A Lens object. Note: lens
-mass must be in solMasses.</p>
+<dd><p>Physical properties of the lens. A
+<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens" title="MulensModel.mulensobjects.lens.Lens"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.mulensobjects.lens.Lens</span></code></a> object. Note:
+lens mass must be in solMasses.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.mu_rel">
 <code class="descname">mu_rel</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.mu_rel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Relative proper motion between the source and lens
-stars. (magnitude only)</p>
+stars.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -224,7 +254,8 @@ Observer plane (in AU).</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.source">
 <code class="descname">source</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.source" title="Permalink to this definition">¶</a></dt>
-<dd><p>Physical properties of the source. A Source object.</p>
+<dd><p>Physical properties of the source. A
+<a class="reference internal" href="#MulensModel.mulensobjects.source.Source" title="MulensModel.mulensobjects.source.Source"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.mulensobjects.source.Source</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -249,6 +280,18 @@ Observer plane (in AU).</p>
 <em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.source.</code><code class="descname">Source</code><span class="sig-paren">(</span><em>distance=None</em>, <em>angular_size=None</em>, <em>limb_darkening=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.source.Source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Physical properties of a source (background) star.</p>
+<dl class="docutils">
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>distance <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity]</span></dt>
+<dd>The distance to the source.</dd>
+<dt>angular_size <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity], optional</span></dt>
+<dd>Not implemented.</dd>
+<dt>limb_darkening <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="MulensModel.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs</span></code></a></span></dt>
+<dd>Limb darkening coefficients of the source.</dd>
+</dl>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.source.Source.distance">
 <code class="descname">distance</code><a class="headerlink" href="#MulensModel.mulensobjects.source.Source.distance" title="Permalink to this definition">¶</a></dt>
