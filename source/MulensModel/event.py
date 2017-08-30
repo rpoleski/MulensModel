@@ -145,8 +145,6 @@ class Event(object):
 
     @ra.setter
     def ra(self, new_value):
-        pass
-        """
         try:
             self._coords.ra = new_value
         except AttributeError:
@@ -156,7 +154,7 @@ class Event(object):
             else:
                 self._coords = SkyCoord(
                     new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
-        """
+        self._update_coords(coords=self._coords)
 
     @property
     def dec(self):
@@ -167,8 +165,6 @@ class Event(object):
 
     @dec.setter
     def dec(self, new_value):
-        pass
-        """
         try:
             self._coords.dec = new_value
         except AttributeError:
@@ -178,8 +174,8 @@ class Event(object):
             else:
                 self._coords = SkyCoord(
                     self._coords.ra, new_value, unit=(u.hourangle, u.deg))
-        """
-        
+        self._update_coords(coords=self._coords)
+
     @property
     def data_ref(self):
         """
