@@ -115,16 +115,9 @@ class MulensData(object):
             err_brightness - vector of the errors in the phot measurements.
             coords - Sky coordinates of the event
         """
-        #Check to see if either add_2450000 or add_2460000 is set 
-        #JCY - why is this here? It will create problems once mjd2hjd is
-        #implemented, i.e. you might want to do both add_2450000 and mjd2hjd.
-        n_additions = 0
-        for (key, value) in self._init_keys.items():
-            n_additions += value
-        if n_additions > 1:
-            msg = 'MulensData._initialize(): more than one'
-            raise ValueError(msg)
-
+        if self._init_keys['add245'] and self._init_keys['add246']:
+            raise ValueError('You cannot initilize MulensData with both ' + 
+                            'add_2450000 and add_2460000 being True')
         #Adjust the time vector as necessary.
         if self._init_keys['add245']:
             time += 2450000.
