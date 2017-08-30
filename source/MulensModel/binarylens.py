@@ -10,10 +10,22 @@ from MulensModel.utils import Utils
 
 
 class BinaryLens(object):
-    """
-    binary lens equation - its solutions, images, parities, magnifications, etc.
+    """The binary lens equation - its solutions, images, parities, 
+    magnifications, etc.
     
     The binary lens equation is a 5th order complex polynomial.
+
+    Attributes :
+        mass_1 : float
+            mass of the primary (left-hand object) as a fraction of the total 
+            mass.
+        mass_2 : float
+            mass of the secondary (right-hand object) as a fraction of the 
+            total mass.
+        separation : float
+            separation between the two bodies as a fraction of the Einstein 
+            ring.
+
     """
     def __init__(self, mass_1=None, mass_2=None, separation=None):
         """mass_1, mass_2, and separation are relative to 
@@ -30,7 +42,9 @@ class BinaryLens(object):
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
-        self._total_mass = 0.5 * (self.mass_1 + self.mass_2) # This is total_mass in WM95 paper.
+        self._total_mass = 0.5 * (self.mass_1 + self.mass_2) 
+        # This is total_mass in WM95 paper.
+
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
         self._position_z1_WM95 = -0.5 * self.separation + 0.j
         self._position_z2_WM95 = 0.5 * self.separation + 0.j
@@ -106,22 +120,29 @@ class BinaryLens(object):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots_WM95(source_x=source_x, 
                                                    source_y=source_y)
-        component2 = self.mass_1 / np.conjugate(#Can we use Utils.complex_fsum()-like function here?
-                                    roots -self._position_z1_WM95)
-        component3 = self.mass_2 / np.conjugate(#Can we use Utils.complex_fsum()-like function here?
-                                    roots -self._position_z2_WM95)
-        solutions = self._zeta_WM95 + component2 + component3 #Can we use Utils.complex_fsum()-like function here?
+
+        #Can we use Utils.complex_fsum()-like function here (instead
+        #of np.conjugate)?
+        component2 = self.mass_1 / np.conjugate(
+                                    roots - self._position_z1_WM95)
+        component3 = self.mass_2 / np.conjugate(
+                                    roots - self._position_z2_WM95)
+        solutions = self._zeta_WM95 + component2 + component3 
+        #Can we use Utils.complex_fsum()-like function here?
         # This backs-up the lens equation.
         
         out = []
         distances = []
         for (i, root) in enumerate(roots):
             distances_from_root = abs((solutions-root)**2)
-            min_distance_arg = np.argmin(distances_from_root) #Can we use Utils.complex_fsum()-like function here?
+            min_distance_arg = np.argmin(distances_from_root) 
+            #Can we use Utils.complex_fsum()-like function here?
+
             if i == min_distance_arg:
                 out.append(root)
                 distances.append(distances_from_root[min_distance_arg])
-        # The values in distances[] are a diagnostic on how good the numerical accuracy is.
+            # The values in distances[] are a diagnostic on how good the 
+            # numerical accuracy is.
 
         #If the lens equation is solved correctly, there should be
         #either 3 or 5 solutions (corresponding to 3 or 5 images)
@@ -129,7 +150,8 @@ class BinaryLens(object):
             msg = 'CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: {:} {:} {:} {:} {:}'
             txt = msg.format(repr(self.mass_1), repr(self.mass_2), 
                     repr(self.separation), repr(source_x), repr(source_y))
-            # The repr() function gives absolute accuracy of float values allowing reproducing the results. 
+            # The repr() function gives absolute accuracy of float values 
+            # allowing reproducing the results. 
             raise ValueError(txt)
         
         if return_distances:
@@ -218,7 +240,27 @@ class BinaryLens(object):
         """hexadecpole approximation of binary-lens/finite-source 
         calculations - based on Gould 2008 ApJ 681, 1593
         
-        for coordinate system convention see point_source_magnification()"""
+        for coordinate system convention see
+        :py:func:`point_source_magnification`
+
+        Parameters :
+            source_x: type
+                description here.
+            source_y: type
+                description here.
+            rho: type
+                description here.
+            gamma: type
+                description here.
+            quadrupole : boolean, optional
+                description here.
+            all_approximations: boolean, optional
+                description here.
+
+        Returns :
+            type
+                description
+        """
         # In this function, variables named a_* depict magnification.
         if quadrupole and all_approximations:
             msg = 'Inconsisient parameters of {:}'

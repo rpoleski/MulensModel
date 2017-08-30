@@ -67,14 +67,55 @@
 <dt id="MulensModel.binarylens.BinaryLens">
 <em class="property">class </em><code class="descclassname">MulensModel.binarylens.</code><code class="descname">BinaryLens</code><span class="sig-paren">(</span><em>mass_1=None</em>, <em>mass_2=None</em>, <em>separation=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>binary lens equation - its solutions, images, parities, magnifications, etc.</p>
+<p>The binary lens equation - its solutions, images, parities, 
+magnifications, etc.</p>
 <p>The binary lens equation is a 5th order complex polynomial.</p>
+<dl class="docutils">
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>mass_1 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>mass of the primary (left-hand object) as a fraction of the total 
+mass.</dd>
+<dt>mass_2 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>mass of the secondary (right-hand object) as a fraction of the 
+total mass.</dd>
+<dt>separation <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>separation between the two bodies as a fraction of the Einstein 
+ring.</dd>
+</dl>
+</dd>
+</dl>
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.hexadecapole_magnification">
 <code class="descname">hexadecapole_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma</em>, <em>quadrupole=False</em>, <em>all_approximations=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>hexadecpole approximation of binary-lens/finite-source 
 calculations - based on Gould 2008 ApJ 681, 1593</p>
-<p>for coordinate system convention see point_source_magnification()</p>
+<p>for coordinate system convention see
+<a class="reference internal" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="MulensModel.binarylens.BinaryLens.point_source_magnification"><code class="xref py py-func docutils literal"><span class="pre">point_source_magnification()</span></code></a></p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>source_x: type</dt>
+<dd>description here.</dd>
+<dt>source_y: type</dt>
+<dd>description here.</dd>
+<dt>rho: type</dt>
+<dd>description here.</dd>
+<dt>gamma: type</dt>
+<dd>description here.</dd>
+<dt>quadrupole <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dd>description here.</dd>
+<dt>all_approximations: boolean, optional</dt>
+<dd>description here.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>type</dt>
+<dd>description</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
