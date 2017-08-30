@@ -89,4 +89,40 @@ def test_event_coords():
     #I don't think this worked previously, and I don't think it should
     #be allowed. - JCY
 
+def check_event_coords(event, ra, dec):
+    """For given Event instance event, check if .ra, .model.ra, 
+    .datasets[0].ra etc. are equal to ra and dec"""
+    np.testing.assert_almost_equal(event.ra.value, ra)
+    np.testing.assert_almost_equal(event.model.ra.value, ra)
+    np.testing.assert_almost_equal(event.datasets[0].ra.value, ra)
+    np.testing.assert_almost_equal(event.dec.value, dec)
+    np.testing.assert_almost_equal(event.model.dec.value, dec)
+    np.testing.assert_almost_equal(event.datasets[0].dec.value, dec)
+
+
+def test_event_coords_ra_dec():
+    coords_str_1 = '03:00:00 +44:15:00'
+    ra_1 = 45.
+    dec_1 = 44.25
+
+    ra_2_str = "35d"
+    ra_2 = 35.
+    dec_2_str = "+32:00:00"
+    dec_2 = 32.
+
+    data = MulensData(file_name=SAMPLE_FILE_01)
+    model = Model()
+    event = Event(datasets=data, model=model, coords=coords_str_1)
+
+    # Assertations start here.
+    check_event_coords(event, ra_1, dec_1)
+    
+    event.ra = ra_2_str
+    check_event_coords(event, ra_2, dec_1)
+
+    event.dec = dec_2_str
+    check_event_coords(event, ra_2, dec_2)
+
+    np.testing.assert_almost_equal(data.ra.value, ra_2)
+    np.testing.assert_almost_equal(data.dec.value, dec_2)
 
