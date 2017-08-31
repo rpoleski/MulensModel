@@ -1,10 +1,12 @@
 import matplotlib.pyplot as pl
 from astropy import units as u 
+import os
 
 import MulensModel
 
 
-data = MulensModel.MulensData(file_name='../../data/phot_ob160023.dat')
+data = MulensModel.MulensData(file_name=os.path.join(MulensModel.MODULE_PATH, 
+                                                'data', 'phot_ob160023.dat'))
 
 model = MulensModel.Model()
 model.set_parameters(t_0=2457518.902, u_0=0.590, t_E=133.34*u.day)

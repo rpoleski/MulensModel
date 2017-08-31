@@ -8,7 +8,6 @@
 
 * __PSPL manual__
 * correct documentation for existing code - start with Model, MulensData, and Event 
-* os.path - MODULE\_PATH in examples and use cases
 * anything from use cases that does not work yet -- see TODO.md file
 * copy documentation to some website
 * xallarap - use case, unit test, and code itself

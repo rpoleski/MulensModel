@@ -1,6 +1,7 @@
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 import matplotlib.pyplot as pl
+import os
 
 import MulensModel 
 """
@@ -9,20 +10,20 @@ Use cases for passing RA, DEC to MulensDAta, Model, and Event.
 Based on OGLE-2014-BLG-0939 from Yee et al. 2015 ApJ 802, 76
 """
 
-data_dir = '../../data'
+data_dir = os.path.join(MulensModel.MODULE_PATH, 'data')
 
 #Specifying coordinates to calculate HJD from JD
 data_1 = MulensModel.MulensData(
-    file_name='{0}/ob140939_OGLE.dat'.format(data_dir), 
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), 
     coords='17:47:12.25 -21:22:58.2')
 
 data_2 = MulensModel.MulensData(
-    file_name='{0}/ob140939_OGLE.dat'.format(data_dir), ra='17:47:12.25', 
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat', ra='17:47:12.25', 
     dec='-21:22:58.2')
 
 coords = SkyCoord('17:47:12.25 -21:22:58.2', unit=(u.hourangle, u.deg))
 data_3 = MulensModel.MulensData(
-    file_name='{0}/ob140939_OGLE.dat'.format(data_dir), coords=coords)
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat', coords=coords)
 
 #Specifiying coordinates to calculate a model with parallax
 t_0 = 2456836.22
@@ -37,7 +38,7 @@ ground_model.coords = '17:47:12.25 -21:22:58.2'
 space_model = MulensModel.Model(
     t_0=t_0, u_0=u_0, t_E=t_E, pi_E=[pi_E_N, pi_E_E], 
     ra='17:47:12.25', dec='-21:22:58.2', 
-    ephemerides_file='{0}/Spitzer_ephemeris_01.dat'.format(data_dir))
+    ephemerides_file=os.path.join(data_dir, 'Spitzer_ephemeris_01.dat')
 
 #Access Galactic and ecliptic coordinates:
 print('l {0}'.format(ground_model.galactic_l))
@@ -53,10 +54,10 @@ pl.legend()
 
 #Sepcifying coordinates for an event
 ground_data = MulensModel.MulensData(
-    file_name='{0}/ob140939_OGLE.dat'.format(data_dir))
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat')
 space_data = MulensModel.MulensData(
-    file_name='{0}/ob140939_Spitzer.dat'.format(data_dir), 
-    ephemerides_file='{0}/Spitzer_ephemeris_01.dat'.format(data_dir))
+    file_name=os.path.join(data_dir, 'ob140939_Spitzer.dat'), 
+    ephemerides_file=os.path.join(data_dir, 'Spitzer_ephemeris_01.dat'))
 
 model_params = MulensModel.ModelParameters(
     t_0=t_0, u_0=u_0, t_E=t_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E)

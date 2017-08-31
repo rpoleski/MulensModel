@@ -25,8 +25,8 @@ def chi2_fun(theta, event, parameters_to_fit):
 
 
 #Read in the data file
-SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, os.path.join("data", 
-                                                        "phot_ob08092_O4.dat"))
+SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, "data", 
+                                                        "phot_ob08092_O4.dat")
 data = MulensData(file_name=SAMPLE_FILE_01)
 
 #Initialize the fit

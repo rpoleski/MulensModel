@@ -17,8 +17,8 @@ from MulensModel.model import Model
 print('MODULE_PATH: {0}'.format(MulensModel.MODULE_PATH))
 
 #Grabbing all data files in the MB08310 folder
-files = glob.glob(os.path.join(MulensModel.MODULE_PATH, 
-                        os.path.join("data", os.path.join("MB08310", "*.tbl"))))
+files = glob.glob(os.path.join(MulensModel.MODULE_PATH, "data", "MB08310", "*.tbl")) 
+
 datasets = []
 labels = []
 for file_ in sorted(files):

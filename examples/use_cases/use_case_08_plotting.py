@@ -1,12 +1,14 @@
+import os
 import matplotlib.pyplot as pl
 from astropy import units as u
 
 import MulensModel
 
+
 #Read in some data
 data = []
-data.append(MulensModel.MulensData(
-        file_name='../../data/ob151100_OGLE_ref_v1.dat'))
+data.append(MulensModel.MulensData(file_name=os.path.join(
+                MulensModel.MODULE_PATH, 'data', 'ob151100_OGLE_ref_v1.dat'))
 
 pl.figure()
 pl.errorbar(data[0].time, data[0].mag, yerr=data[0].err_mag, fmt='o')
@@ -35,3 +37,4 @@ pl.subplot(2, 1, 2)
 event.plot_residuals()
 
 pl.show()
+

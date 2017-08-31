@@ -1,13 +1,17 @@
 import numpy as np
+import os
 
 import MulensModel
 
 #Spitzer Example
 
+
 #Import Data
+file_dir = os.path.join(MulensModel.MODULE_PATH, "data")
 spitzer_data = MulensModel.MulensData(
-    file_name="../../data/ob151100_Spitzer_ref_v1.dat", satellite="Spitzer", 
-    ephemrides_file="../../data/Spitzer_ephemrides_01.dat")
+    file_name=os.path.join(file_dir, "ob151100_Spitzer_ref_v1.dat"), 
+    satellite="Spitzer", 
+    ephemrides_file=os.path.join(file_dir, "Spitzer_ephemrides_01.dat"))
 
 #Create Model
 model = MulensModel.Model()
@@ -22,6 +26,4 @@ spitzer_event = MulensModel.Event(
     datasets=spitzer_data, model=model, coords="17:50:00 -29:00:05")
 print('Event Parallax Settings:')
 print(spitzer_event.model.parallax())
-
-
 
