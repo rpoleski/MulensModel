@@ -7,9 +7,10 @@
 (__boldfaced__ correspond to this month goals; try to put important stuff at the top)
 
 * __PSPL manual__
+* correct documentation for existing code - start with Model, MulensData, and Event 
 * os.path - MODULE\_PATH in examples and use cases
 * anything from use cases that does not work yet -- see TODO.md file
-* correct documentation for existing code
+* copy documentation to some website
 * xallarap - use case, unit test, and code itself
 * binary lens orbital motion - use case, unit test, and code itself
 * binary calculations - define if s is relative to total mass etc.
@@ -30,7 +31,7 @@
 * fluxes fixed in chi^2 calculation
 * annual parallax calculation - verify with VBBL
 * when checking units use Unit.physical\_type
-* better import of the module so that all main classes are accesiable
+* better import of the module so that all main classes are accesible
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * Add \_\_repr\_\_ functions to Lens and Source
 * In Lens, add checks for new\_mass as an astropy.units.Quantity and
@@ -54,7 +55,7 @@
 * Anything from "high level decisions" above.
 * Specify that the source has 2 components.
 * Scaling of observed data to a scale of other dataset. We normally do it to transform follow-up data to survey magnitude scale so that they can be presented on a single plot. 
-* Class Model should not allow accesing attributes that shouldn't be there, eg., q for single lens case.
+* Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
 * Transform t\_E and other parameters between geocentric and heliocentric frames.
 * Errorbar scaling, in particular the two parameter.
 * Source limb darkening profile: use of gamma and u conventions, obtaining the value from outside sources (Claret papers). 
