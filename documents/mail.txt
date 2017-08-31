@@ -111,28 +111,27 @@ tries test 7. However, if you are more interested in doing different
 test than the one suggested, just let the group know.
 
 1. Run one or two of the 5 examples and try to change its parameters
-and output. Rachel and Yossi
+and output. Rachel, Yossi
 
 2. Plot caustics for a few (s,q) pairs and degenerate (s-1/s,q) pairs
-(see source/MulensModel/caustics.py). Rachel and Yossi
+(see source/MulensModel/caustics.py). Rachel, Yossi
 
 3. Plot satellite light curve for some real event (see
-examples/use_cases/use_case_05_satellite_parallax.py). Etienne and
-Valerio
+examples/use_cases/use_case_05_satellite_parallax.py). Etienne
 
 4. Make plot of model and data (see
-examples/use_cases/use_case_08_plotting.py). Etienne and Valerio
+examples/use_cases/use_case_08_plotting.py). Etienne, Valerio
 
 5. Plot model light curve for high magnification event with and
 without finite source effect (see use case 8 test_fspl_noLD in
-source/MulensModel/tests/test_MagnificationCurve.py). Geoff
+source/MulensModel/tests/test_MagnificationCurve.py). Geoff, Calen
 
 6. Fit PSPL model to some real event using e.g. emcee (see
 examples/use_cases/use_case_15_emcee_simple_PSPL.py) or
-scipy.optimize.minimize (see examples/example_02_fitting.py). Geoff
+scipy.optimize.minimize (see examples/example_02_fitting.py). Geoff, Calen
 
 7. Plot binary lens models calculated using different methods (see
-examples/use_cases/use_case_18_binary_equation.py). Calen
+examples/use_cases/use_case_18_binary_equation.py). Valerio
 
 After doing the above tasks please:
 
