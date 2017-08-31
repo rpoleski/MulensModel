@@ -10,7 +10,7 @@ from MulensModel.event import Event
 
 
 SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
-                                os.path.join("data", "phot_ob08092_O4.dat"))
+                                    "data", "phot_ob08092_O4.dat")
 
 
 def test_model_coords():

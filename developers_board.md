@@ -7,7 +7,7 @@
 (__boldfaced__ correspond to this month goals; try to put important stuff at the top)
 
 * __PSPL manual__
-* os.path - source/MulensModel/binarylens.py with VBB and MODULE\_PATH in examples and use cases
+* os.path - MODULE\_PATH in examples and use cases
 * anything from use cases that does not work yet -- see TODO.md file
 * correct documentation for existing code
 * xallarap - use case, unit test, and code itself
@@ -28,7 +28,7 @@
 * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
 * guessing parameters of PSPL model
 * fluxes fixed in chi^2 calculation
-* annual parallax calculation - verify with VBB
+* annual parallax calculation - verify with VBBL
 * when checking units use Unit.physical\_type
 * better import of the module so that all main classes are accesiable
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)

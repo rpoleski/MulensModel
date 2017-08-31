@@ -11,7 +11,7 @@ from MulensModel.utils import Utils
 
 
 SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
-                                os.path.join("data", "phot_ob08092_O4.dat"))
+                                    "data", "phot_ob08092_O4.dat")
 
 def test_event_get_chi2():
     '''basic unit test on ob08092 OGLE-IV data'''

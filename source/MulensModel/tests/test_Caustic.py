@@ -6,7 +6,7 @@ from MulensModel.caustics import Caustics
 
 
 SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
-                                os.path.join("data", "MB11293_caustics.dat"))
+                                "data", "MB11293_caustics.dat")
 
 test_caustics = np.genfromtxt(SAMPLE_FILE_01, names=['X', 'Y'], dtype=None)
 

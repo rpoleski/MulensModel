@@ -310,7 +310,8 @@ class BinaryLens(object):
         http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm
         """
         if not self._vbbl_wrapped:
-            PATH = os.path.join(os.path.join(MulensModel.MODULE_PATH, os.path.join('source', 'VBBL')), "VBBinaryLensingLibrary_wrapper.so")
+            PATH = os.path.join(MulensModel.MODULE_PATH, 'source', 'VBBL', 
+                                        "VBBinaryLensingLibrary_wrapper.so")
             try:
                 vbbl = ctypes.cdll.LoadLibrary(PATH)
             except OSError:
