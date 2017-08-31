@@ -23,8 +23,7 @@ def test_model_coords():
 
     ra_2 = '17:00:00'
     dec_2 = '40:03:01'
-    coords_2 = SkyCoord(
-        '{0} {1}'.format(ra_2, dec_2), unit=(u.hourangle, u.deg))
+    coords_2 = SkyCoord(ra_2 + " " + dec_2, unit=(u.hourangle, u.deg))
     model_2 = Model()
     model_2.ra = ra_2
     model_2.dec = dec_2
@@ -48,8 +47,7 @@ def test_data_coords():
 
     ra_2 = '17:00:00'
     dec_2 = '40:03:01'
-    coords_2 = SkyCoord(
-        '{0} {1}'.format(ra_2, dec_2), unit=(u.hourangle, u.deg))
+    coords_2 = SkyCoord(ra_2 + " " + dec_2, unit=(u.hourangle, u.deg))
     data_2 = MulensData(file_name=SAMPLE_FILE_01)
     data_2.ra = ra_2
     data_2.dec = dec_2
