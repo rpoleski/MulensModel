@@ -44,20 +44,23 @@ Let's start with some introduction. The code is written in object-oriented mode.
 
 We haven't yet written manual to this package but we have 5 examples (see directory examples/) that show how the code can be used and have comments that should help understanding what is going on. Additionally, we have use cases (see examples/use_cases/) that show how we intended the code to work. The source codes for the tests that you already run are in source/MulensModel/tests/ and also may be useful.
 
-Please try to do 1-2 tasks from the list below:
-1. Run one or two of the 5 examples and try to change its parameters and output.
-2. Plot caustics for a few (s,q) pairs and degenerate (s-1/s,q) pairs (see source/MulensModel/caustics.py).
-3. Plot satellite light curve for some real event (see examples/use_cases/use_case_05_satellite_parallax.py).
-4. Make plot of model and data (see examples/use_cases/use_case_08_plotting.py).
-5. Plot model light curve for high magnification event with and without finite source effect (see use case 8 test_fspl_noLD in source/MulensModel/tests/test_MagnificationCurve.py).
-6. Fit PSPL model to some real event using e.g. emcee (see examples/use_cases/use_case_15_emcee_simple_PSPL.py) or scipy.optimize.minimize (see examples/example_02_fitting.py).
-7. Plot binary lens models calculated using different methods (see examples/use_cases/use_case_18_binary_equation.py).
+Below, we have given suggestions for who might work on each test. This is just to try to ensure that everyone doesn't try test 1 and no one tries test 7. However, if you are more interested in doing different test than the one suggested, just let the group know.  
+1. Run one or two of the 5 examples and try to change its parameters and output. Rachel and Yossi
+2. Plot caustics for a few (s,q) pairs and degenerate (s-1/s,q) pairs (see source/MulensModel/caustics.py). Rachel and Yossi
+3. Plot satellite light curve for some real event (see examples/use_cases/use_case_05_satellite_parallax.py). Etienne and Valerio
+4. Make plot of model and data (see examples/use_cases/use_case_08_plotting.py). Etienne and Valerio
+5. Plot model light curve for high magnification event with and without finite source effect (see use case 8 test_fspl_noLD in source/MulensModel/tests/test_MagnificationCurve.py). Geoff
+6. Fit PSPL model to some real event using e.g. emcee (see examples/use_cases/use_case_15_emcee_simple_PSPL.py) or scipy.optimize.minimize (see examples/example_02_fitting.py). Geoff
+7. Plot binary lens models calculated using different methods (see examples/use_cases/use_case_18_binary_equation.py). Calen
 
 After doing the above tasks please:
 * read the source codes for classes that you used - write down unclear parts, things that will easily break in your opinion, etc.,
 * send e-mail to Radek and Jen stating what you did and all the problems that you approached; all comments are welcome.
 
 Each of the above tasks should take 10 min. plus 10 min. for reading the code and sending an e-mail. If you tried one task from the list above, you should finish everything in less than 30 min.
+
+Finally, if you want review more code than you're more than welcome to do so!
+
 
 Looking forward,
 
