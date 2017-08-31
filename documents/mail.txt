@@ -1,68 +1,150 @@
 Dear all,
 
-Quite a few months have passed since we've started working on MulensModel code. As a reminder - we're trying to write a versatile code that would be easy to use for microlensing research. We think that it's a good point to have a break and consider what our next steps should be and what requires improvement. Hence, we ask you to help us by reviewing the code. The goals of the review:
+Quite a few months have passed since we've started working on
+MulensModel code. As a reminder - we're trying to write a versatile
+code that would be easy to use for microlensing research. We think
+that it's a good point to have a break and consider what our next
+steps should be and what requires improvement. Hence, we ask you to
+help us by reviewing the code. The goals of the review are:
 
-I. To test that the code runs on different operating systems. 
-II. Get feedback on the usability of the code and how intuitive (or not) it is to use.
-III. Get feedback on the actual code: how easy/hard is it to read and understand what each module/function does? Are the comments and names of functions and variables clear? Are there any obvious bugs in the code?
+I. To test that the code runs on different operating systems.
 
-To facilitate these goals, we have made a list of basic tasks and tests for you to run (including anticipated time to run them). In addition to these specific tasks, we welcome any other feedback about the code. We ask everybody to do first part listed below and we hope you will also do the second part as well.
+II. Get feedback on the usability of the code and how intuitive (or
+not) it is to use.
 
-FIRST
+III. Get feedback on the actual code: how easy/hard is it to read and
+understand what each module/function does? Are the comments and names
+of functions and variables clear? Are there any obvious bugs in the
+code?
 
-Installation and basic run. You need python installed on your machine which normally comes with basic packages and py.test command. Please make sure you have astropy installed (http://www.astropy.org/).
+To facilitate these goals, we have made a list of basic tasks and
+tests for you to run (including anticipated time to run them). In
+addition to these specific tasks, we welcome any other feedback about
+the code. We ask everybody to do first part listed below and we hope
+you will also do the second part as well.
 
-1. Go to https://github.com/rpoleski/MulensModel and download the archive using the right-hand side green button.
-2. Unpack the archive.
-3. Go to the package folder and run checks.py:
+FIRST 
 
-python checks.py
-
-This will produce a few lines of text that shows which version of Python and its packages you have installed. Copy-paste this text to an e-mail that you will send soon!
-
-4. Add the path to the unpack directories to the PYTHONPATH, e.g., in tcsh:
-
-setenv PYTHONPATH /home/USER_NAME/MulensModel/source\:$PYTHONPATH
-
-in bash:
-
-export PYTHONPATH=/home/USER_NAME/MulensModel/source:$PYTHONPATH
-
-5. Go to MulensModel/source/VBBL directory and run make command. Even if it fails for whatever reason, you can proceed and most of the tests will pass.
-6. Go to MulensModel/source directory and run py.test software (it's part of most of standard python distributions). It executes a number of tests and verifies if the results are as expected.
-7. Check the results - you should get green information that all 51 tests passed.
-8. Report the results - e-mail Radek and Jen letting them now if all the tests passed. If not, then copy-paste information about errors.
+Installation and basic run. 
 
 This part should take you 5-15 minutes.
 
+You need python installed on your machine which normally comes with
+basic packages and py.test command. Please make sure you have astropy
+installed (http://www.astropy.org/). You can check if astropy is
+installed by starting python using the command line (i.e. type
+"python") and then typing ("import astropy"). If astropy is not
+installed correctly, it will give an error message.
+
+1. Go to https://github.com/rpoleski/MulensModel and download the
+archive using the right-hand side green button.
+
+2. Unpack the archive.
+
+3. Go to the package folder and run checks.py:
+
+>>> python checks.py
+
+This will produce a few lines of text that shows which version of
+Python and its packages you have installed. Copy-paste this text to an
+e-mail that you will send soon!
+
+4. Add the path to the unpack directories to the PYTHONPATH, e.g., in
+tcsh:
+
+>>> setenv PYTHONPATH /home/USER_NAME/MulensModel/source\:$PYTHONPATH
+
+in bash:
+
+>>> export PYTHONPATH=/home/USER_NAME/MulensModel/source:$PYTHONPATH
+
+5. Go to MulensModel/source/VBBL directory and run make command. Even
+if it fails for whatever reason, you can proceed and most of the tests
+will pass.
+
+6. Go to MulensModel/source directory and run py.test software (it's
+part of most of standard python distributions). It executes a number
+of tests and verifies if the results are as expected.
+
+7. Check the results - you should get green information that all 51
+tests passed.
+
+8. Report the results - e-mail Radek and Jen letting them now if all
+the tests passed. If not, then copy-paste information about errors.
+
 SECOND
 
-Let's start with some introduction. The code is written in object-oriented mode. The main classes that users interact with are:
-* Model - microlensing model; contains all the model parameters and allows calculating magnification,
+Run some examples.
+
+Each of the tasks should take 10 min. plus 10 min. for reading the
+code and sending us an e-mail with notes. If you try one task from
+the list below, you should finish everything in less than 30 min.
+
+Let's start with some introduction to MulensModel. The code is written
+in object-oriented mode. The main classes that users interact with
+are:
+
+* Model - microlensing model; contains all the model parameters and
+  allows calculating magnification,
+
 * MulensData - keeps single photometric dataset,
-* Event - all information about given event; references Model and MulensData, hence allows chi2 calculation.
 
-We haven't yet written manual to this package but we have 5 examples (see directory examples/) that show how the code can be used and have comments that should help understanding what is going on. Additionally, we have use cases (see examples/use_cases/) that show how we intended the code to work. The source codes for the tests that you already run are in source/MulensModel/tests/ and also may be useful.
+* Event - all information about given event; references Model and
+  MulensData, hence allows chi2 calculation.
 
-Below, we have given suggestions for who might work on each test. This is just to try to ensure that everyone doesn't try test 1 and no one tries test 7. However, if you are more interested in doing different test than the one suggested, just let the group know.  
-1. Run one or two of the 5 examples and try to change its parameters and output. Rachel and Yossi
-2. Plot caustics for a few (s,q) pairs and degenerate (s-1/s,q) pairs (see source/MulensModel/caustics.py). Rachel and Yossi
-3. Plot satellite light curve for some real event (see examples/use_cases/use_case_05_satellite_parallax.py). Etienne and Valerio
-4. Make plot of model and data (see examples/use_cases/use_case_08_plotting.py). Etienne and Valerio
-5. Plot model light curve for high magnification event with and without finite source effect (see use case 8 test_fspl_noLD in source/MulensModel/tests/test_MagnificationCurve.py). Geoff
-6. Fit PSPL model to some real event using e.g. emcee (see examples/use_cases/use_case_15_emcee_simple_PSPL.py) or scipy.optimize.minimize (see examples/example_02_fitting.py). Geoff
-7. Plot binary lens models calculated using different methods (see examples/use_cases/use_case_18_binary_equation.py). Calen
+We haven't yet written a manual to this package but we have 5 examples
+(see directory examples/) that show how the code can be used and have
+comments that should help understanding what is going
+on. Additionally, we have use cases (see examples/use_cases/) that
+show how we intended the code to work, but not all of them have been
+implemented. If you look at TODO.md on the github page, you will see
+which of the use cases are supposed to work.  The source codes for the
+tests that you already run are in source/MulensModel/tests/ and also
+may be useful.
+
+Things to Try
+-------------
+
+Below, we have given suggestions for who might work on each test. This
+is just to try to ensure that everyone doesn't try test 1 and no one
+tries test 7. However, if you are more interested in doing different
+test than the one suggested, just let the group know.
+
+1. Run one or two of the 5 examples and try to change its parameters
+and output. Rachel and Yossi
+
+2. Plot caustics for a few (s,q) pairs and degenerate (s-1/s,q) pairs
+(see source/MulensModel/caustics.py). Rachel and Yossi
+
+3. Plot satellite light curve for some real event (see
+examples/use_cases/use_case_05_satellite_parallax.py). Etienne and
+Valerio
+
+4. Make plot of model and data (see
+examples/use_cases/use_case_08_plotting.py). Etienne and Valerio
+
+5. Plot model light curve for high magnification event with and
+without finite source effect (see use case 8 test_fspl_noLD in
+source/MulensModel/tests/test_MagnificationCurve.py). Geoff
+
+6. Fit PSPL model to some real event using e.g. emcee (see
+examples/use_cases/use_case_15_emcee_simple_PSPL.py) or
+scipy.optimize.minimize (see examples/example_02_fitting.py). Geoff
+
+7. Plot binary lens models calculated using different methods (see
+examples/use_cases/use_case_18_binary_equation.py). Calen
 
 After doing the above tasks please:
-* read the source codes for classes that you used - write down unclear parts, things that will easily break in your opinion, etc.,
-* send e-mail to Radek and Jen stating what you did and all the problems that you approached; all comments are welcome.
 
-Each of the above tasks should take 10 min. plus 10 min. for reading the code and sending an e-mail. If you tried one task from the list above, you should finish everything in less than 30 min.
+* read the source codes for classes that you used - write down unclear
+  parts, things that will easily break in your opinion, etc.,
+
+* send e-mail to Radek and Jen stating what you did and all the
+  problems that you approached; all comments are welcome.
 
 Finally, if you want review more code than you're more than welcome to do so!
 
-
 Looking forward,
 
-Radek & Jen
+Radek & Jennifer
 
