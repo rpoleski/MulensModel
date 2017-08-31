@@ -128,7 +128,7 @@ def test_event_coords_ra_dec_1():
 
 def test_event_coords_ra_dec_2():
     ra_1_str = '01:00:00'
-    dec_1_stri = '+44:15:00'
+    dec_1_str = '+44:15:00'
     ra_1 = 15.
     dec_1 = 44.25
 
