@@ -1,66 +1,47 @@
-## May 2017 goals:
-1. PSPL fitting manual,
-2. Limb darkening coefficients -- first we need use case,
-4. Resolve parallax issue.
-
+## current goals:
+1. ???
+2. ???
+3. ???
 
 ## Specific tasks to be performed
-(__boldfaced__ correspond to this month goals)
+(__boldfaced__ correspond to this month goals; try to put important stuff at the top)
 
 * __PSPL manual__
+* os.path - source/MulensModel/binarylens.py with VBB and MODULE\_PATH in examples and use cases
+* anything from use cases that does not work yet -- see TODO.md file
+* correct documentation for existing code
+* xallarap - use case, unit test, and code itself
+* binary lens orbital motion - use case, unit test, and code itself
 * binary calculations - define if s is relative to total mass etc.
-* __should BinaryLens() accept source\_x/y as lists or arrays?__
-* __correct vector\_tau = (...) in Model.\_trajectory__
+* should BinaryLens() accept source\_x/y as lists or arrays?
+* correct JPL Horizons => CSV file format
+* Martin's FSBL code
+* for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter()
+* subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
+* BJD\_TDB in satellite ephemeris
+* faster FSPL with LD
 * example usage of JPL Horizons
 * single Event can have many instances of Model associated with it
-* __horizons.py - change "Time(...).jd - 2450000" to something normal__
-* __MulensData - change "self.jd - 2450000." to something normal__
 * add unit tests for Horizons and MulensData.satellite\_skycoord
+* Caustics.\_calculate - optimize using vectors instead of a loop
 * check if Horizons e-mail is for correct satellite
+* use lazy loading in MagnificationCurve.magnification and/or Model.magnification
 * guessing parameters of PSPL model
-* anything from use cases at the end of this page
 * fluxes fixed in chi^2 calculation
 * annual parallax calculation - verify with VBB
 * when checking units use Unit.physical\_type
-* one test file per class
-* pass datasets from Event to Model or vice versa
-* does every function have a description? 
 * better import of the module so that all main classes are accesiable
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
-* Reconsider implementation of plotting in use case 08 (perhaps more like use case 02 or based on use case 10)
-* make sure Event.\_\_init\_\_ is correct
-* Add __repr__ functions to Lens and Source
+* Add \_\_repr\_\_ functions to Lens and Source
 * In Lens, add checks for new\_mass as an astropy.units.Quantity and
   use solMass as default if not set.
-* improve accuracy of test\_annual\_parallax\_calculation() in tests/test\_Model.py
-* Classes Model and Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
-* on-line access to JPL Horizons 
-* Can model generate magnifications without data?
-* Check code with spyder
+* FSPL ray shooting (ala getmag\_rs\_single.f)
+* Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 
 ### reStructuredText:
 [tutorial](http://www.sphinx-doc.org/en/stable/rest.html)
 
 [example](https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html)
-
-### Non-functional elements of use cases:
-* 01: model does not support ~~time~~, caustics, trajectory
-* ~~03: Model does not support source and blend fluxes or magnitudes. Consequently, it also does not support plotting time vs. magnitude.~~
-* 03: Model does not support any plotting. Needs ~~plot_lightcurve~~, plot_caustics, plot_trajectory. plot_caustics is actually meant to be a function in Lens.
-* 04: definition of ra and dec not supported. see also point above and use case 13.
-* 04: Event does not support append (as in append a new dataset)
-* 05: Need to download (and implement) default ephemrides for K2
-* 06: WFIRST data not implemented, MulensData also does not support bandpass
-* 07: This version of defining a Lens is not implemented.
-* 08: see above
-* 09: Finite source effects not implemented.
-* 10: source_flux and blend_flux not supported by Model. I'm not sure
-  the plotting would work either.
-* 11: Entire use case not implemented
-* 12: Event does not support chi2_0
-* 13: ModelParameters does not support frame_origin 
-* 16: MulensData does not support ra, dec. Event does not support coords (or ra, dec).
-* 17: Exposure time, integration over exposure time, time defined as center of integration
 
 ## Decisions we should make:
 
@@ -74,7 +55,7 @@
 * Specify that the source has 2 components.
 * Scaling of observed data to a scale of other dataset. We normally do it to transform follow-up data to survey magnitude scale so that they can be presented on a single plot. 
 * Class Model should not allow accesing attributes that shouldn't be there, eg., q for single lens case.
-* Transform t_E and other parameters between geocentric and heliocentric frames.
+* Transform t\_E and other parameters between geocentric and heliocentric frames.
 * Errorbar scaling, in particular the two parameter.
 * Source limb darkening profile: use of gamma and u conventions, obtaining the value from outside sources (Claret papers). 
 
