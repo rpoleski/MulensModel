@@ -40,7 +40,9 @@
 * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 
 ### reStructuredText:
-[tutorial](http://www.sphinx-doc.org/en/stable/rest.html)
+[1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
+
+[2nd tutorial](http://www.sphinx-doc.org/en/stable/rest.html)
 
 [example](https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html)
 
