@@ -15,6 +15,7 @@ from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 
+
 class Model(object):
     """
     Caveats:
@@ -339,7 +340,8 @@ class Model(object):
             gamma = self._limb_darkening_coeffs.limb_coef_gamma(dataset.bandpass)
             
         magnification = self.magnification(
-            dataset.time, satellite_skycoord=dataset_satellite_skycoord, gamma=gamma)
+                dataset.time, satellite_skycoord=dataset_satellite_skycoord, 
+                gamma=gamma)
         return magnification
         
     def set_datasets(self, datasets, data_ref=0):
@@ -568,7 +570,7 @@ class Model(object):
         #Set different keywords for pl.errorbar vs. pl.scatter
         if show_errorbars:
             marker_key = 'fmt'
-            size_key = 'markersize'
+            size_key = 'markersize' # In pl.errorbar(), 'ms' is equivalent.
         else:
             marker_key = 'marker'
             size_key = 's'
@@ -598,9 +600,9 @@ class Model(object):
                 
             if 'other_kwargs' in self.plot_properties.keys():
                 for (key, value) in self.plot_properties['other_kwargs'].items():
-                    if key == 'markersize' or key == 's':
+                    if key in ['markersize', 'ms', 's']:
                         new_kwargs[size_key] = value
-                    elif key == 'marker' or key == 'fmt':
+                    elif key in ['marker', 'fmt']:
                         new_kwargs[marker_key] = value
                     else:
                         new_kwargs[key] = value
@@ -822,7 +824,7 @@ class Model(object):
         if self.caustics is None:
             self.caustics = Caustics(q=self.q, s=self.s)
 
-        self.caustics.plot(n_points=n_points,**kwargs)
+        self.caustics.plot(n_points=n_points, **kwargs)
         
     def set_times(
         self, parameters=None, t_range=None, t_start=None, t_stop=None, 
