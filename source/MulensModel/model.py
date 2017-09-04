@@ -883,11 +883,11 @@ class Model(object):
 
     def limb_coef_gamma(self, bandpass):
         """get gamma LD coef for given band"""
-        self._limb_darkening_coeffs.limb_coef_gamma(bandpass)
+        return self._limb_darkening_coeffs.limb_coef_gamma(bandpass)
 
     def limb_coef_u(self, bandpass):
         """get u LD coef for given band"""
-        self._limb_darkening_coeffs.limb_coef_u(bandpass)
+        return self._limb_darkening_coeffs.limb_coef_u(bandpass)
 
     @property
     def bandpasses(self):
