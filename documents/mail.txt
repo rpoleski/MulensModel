@@ -10,7 +10,7 @@ help us by reviewing the code. The goals of the review are:
 I. To test that the code runs on different operating systems.
 
 II. Get feedback on the usability of the code and how intuitive (or
-not) it is to use.
+not) it is.
 
 III. Get feedback on the actual code: how easy/hard is it to read and
 understand what each module/function does? Are the comments and names
@@ -23,9 +23,7 @@ addition to these specific tasks, we welcome any other feedback about
 the code. We ask everybody to do first part listed below and we hope
 you will also do the second part as well.
 
-FIRST 
-
-Installation and basic run. 
+FIRST - installation and basic run. 
 
 This part should take you 5-15 minutes.
 
@@ -43,38 +41,36 @@ archive using the right-hand side green button.
 
 3. Go to the package folder and run checks.py:
 
->>> python checks.py
+> python checks.py
 
 This will produce a few lines of text that shows which version of
 Python and its packages you have installed. Copy-paste this text to an
 e-mail that you will send soon!
 
-4. Add the path to the unpack directories to the PYTHONPATH, e.g., in
+4. Add the path to the unpack directory to the PYTHONPATH, e.g., in
 tcsh:
 
->>> setenv PYTHONPATH /home/USER_NAME/MulensModel/source\:$PYTHONPATH
+> setenv PYTHONPATH /home/USER_NAME/MulensModel/source\:$PYTHONPATH
 
 in bash:
 
->>> export PYTHONPATH=/home/USER_NAME/MulensModel/source:$PYTHONPATH
+> export PYTHONPATH=/home/USER_NAME/MulensModel/source:$PYTHONPATH
 
 5. Go to MulensModel/source/VBBL directory and run make command. Even
 if it fails for whatever reason, you can proceed and most of the tests
-will pass.
+will pass. At this point the MM package is fully installed.
 
 6. Go to MulensModel/source directory and run py.test software (it's
 part of most of standard python distributions). It executes a number
 of tests and verifies if the results are as expected.
 
-7. Check the results - you should get green information that all 51
-tests passed.
+7. Check the results - you should get green information that all 
+tests (more than 50!) passed.
 
 8. Report the results - e-mail Radek and Jen letting them now if all
 the tests passed. If not, then copy-paste information about errors.
 
-SECOND
-
-Run some examples.
+SECOND - run some examples.
 
 Each of the tasks should take 10 min. plus 10 min. for reading the
 code and sending us an e-mail with notes. If you try one task from
@@ -100,7 +96,8 @@ show how we intended the code to work, but not all of them have been
 implemented. If you look at TODO.md on the github page, you will see
 which of the use cases are supposed to work.  The source codes for the
 tests that you already run are in source/MulensModel/tests/ and also
-may be useful.
+may be useful. We have comments to main classes and functions - you can read 
+those if needed.
 
 Things to Try
 -------------
@@ -133,13 +130,8 @@ scipy.optimize.minimize (see examples/example_02_fitting.py). Geoff, Calen
 7. Plot binary lens models calculated using different methods (see
 examples/use_cases/use_case_18_binary_equation.py). Valerio
 
-After doing the above tasks please:
-
-* read the source codes for classes that you used - write down unclear
-  parts, things that will easily break in your opinion, etc.,
-
-* send e-mail to Radek and Jen stating what you did and all the
-  problems that you approached; all comments are welcome.
+After doing the above tasks please send e-mail to Radek and Jen stating what 
+you did and all the problems that you approached; all comments are welcome.
 
 Finally, if you want review more code than you're more than welcome to do so!
 
