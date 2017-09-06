@@ -6,6 +6,7 @@
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals; try to put important stuff at the top)
 
+* __save release 0.1.0 for code review - see [github releases](https://help.github.com/articles/creating-releases/)__
 * __PSPL manual__
 * correct documentation for existing code - start with Model, MulensData, and Event 
 * anything from use cases that does not work yet -- see TODO.md file
@@ -16,11 +17,13 @@
 * should BinaryLens() accept source\_x/y as lists or arrays?
 * correct JPL Horizons => CSV file format
 * Martin's FSBL code
+* convertions to BJD from HJD, JD etc. ([astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections))
 * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter()
 * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
-* BJD\_TDB in satellite ephemeris
+* BJD\_TDB in satellite ephemeris [astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections)
 * faster FSPL with LD
 * example usage of JPL Horizons
+* function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
 * single Event can have many instances of Model associated with it
 * add unit tests for Horizons and MulensData.satellite\_skycoord
 * Caustics.\_calculate - optimize using vectors instead of a loop
