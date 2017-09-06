@@ -48,7 +48,8 @@ class Event(object):
         #Set event coordinates
         if coords is not None:
             self._update_coords(coords=coords)
-
+        else:
+            self._coords = None
 
     @property
     def datasets(self):

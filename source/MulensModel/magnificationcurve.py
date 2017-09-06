@@ -99,7 +99,7 @@ class MagnificationCurve(object):
         elif self.parameters.n_lenses == 2:
             magnification = self.get_binary_lens_magnification()
         else:
-            raise Exception(
+            raise NotImplementedError(
                 "magnification for more than 2 lenses not handled yet")
         self._magnification = magnification
         return self._magnification

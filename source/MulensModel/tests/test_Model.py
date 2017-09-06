@@ -82,6 +82,17 @@ def test_init_parameters():
     np.testing.assert_almost_equal(model.u_0, u_0)
     np.testing.assert_almost_equal(model.t_E, t_E.value)
 
+def test_limb_darkening():
+    """check if limb_darkening coefs are properly passed and converted"""
+    gamma = 0.4555
+    u = 3. * gamma / (2. + gamma)
+
+    model = Model()
+    model.set_limb_coef_gamma('I', gamma)
+
+    np.testing.assert_almost_equal(model.limb_coef_gamma('I'), gamma)
+    np.testing.assert_almost_equal(model.limb_coef_u('I'), u)
+
 def test_BLPS_01():
     """simple binary lens with point source"""
     params = ModelParameters(t_0=6141.593, u_0=0.5425, t_E=62.63*u.day, alpha=49.58*u.deg, s=1.3500, q=0.00578)
