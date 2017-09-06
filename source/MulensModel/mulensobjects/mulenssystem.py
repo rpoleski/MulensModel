@@ -15,9 +15,9 @@ class MulensSystem(object):
     A microlensing system consisting of a lens and a source.
 
     Attributes :
-        lens : :py:class:`MulensModel.mulensobjects.lens.Lens`
+        lens : :py:class:`~MulensModel.mulensobjects.lens.Lens`
             The lensing system.
-        source : :py:class:`MulensModel.mulensobjects.source.Source`
+        source : :py:class:`~MulensModel.mulensobjects.source.Source`
             The source star.
         mu_rel : [float, astropy.Quantity], optional
             The source-lens relative proper motion. If units are not given, 
@@ -52,7 +52,7 @@ class MulensSystem(object):
     def lens(self):
         """
         Physical properties of the lens. A
-        :py:class:`MulensModel.mulensobjects.lens.Lens` object. Note:
+        :py:class:`~MulensModel.mulensobjects.lens.Lens` object. Note:
         lens mass must be in solMasses.
         """
         return self._lens
@@ -68,7 +68,7 @@ class MulensSystem(object):
     def source(self):
         """
         Physical properties of the source. A
-        :py:class:`MulensModel.mulensobjects.source.Source` object.
+        :py:class:`~MulensModel.mulensobjects.source.Source` object.
         """
         return self._source
 
