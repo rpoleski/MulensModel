@@ -7,11 +7,20 @@ from MulensModel.utils import Utils
 class Caustics(object):
     """
     Class for the caustic structure corresponding to a given (q, s),
-    i.e. mass ratio and separation.
+    i.e. mass ratio and separation. Implemented for 2-body lenses only.
+
+    Attributes:
+        q : float
+            mass ratio between the 2 bodies
+        s : float
+            separation between the 2 bodies (as a fraction of the
+            Einstein ring)
 
     Methods:
-        get_caustics() - returns x, y vectors for the caustic locations
-        plot() - plots the caustic structure using matplotlib.scatter
+        get_caustics() :
+            returns x, y vectors for the caustic locations
+        plot() :
+            plots the caustic structure using matplotlib.scatter
 
     Also contains the critical_curve (an internal class).
     """
@@ -38,7 +47,14 @@ class Caustics(object):
     class CriticalCurve(object):
         """
         Internal class of Caustics. Defines the critical curve (in the
-        lens plane).
+        lens plane). Origin is center of mass with larger mass on the
+        left (q < 1).
+
+        Attributes:
+            x, y : list
+                Two lists of length *n_points* giving the x, y
+                coordinates of the caustic points. 
+        
         """
 
         def __init__(self):
@@ -90,7 +106,18 @@ class Caustics(object):
 
     def get_caustics(self, n_points=5000):
         """
-        Returns x and y vectors corresponding to the outlines of the caustics.
+        Returns x and y vectors corresponding to the outlines of the
+        caustics.  Origin is center of mass and larger mass is on the
+        left (for q < 1).
+
+        Attributes:
+            n_points : int, optional
+                The number of points to calculate along the caustic.
+
+        Returns:
+            x, y : list
+                Two lists of length *n_points* giving the x, y
+                coordinates of the caustic points. 
         """
         if self._x is None or self._y is None:
             self._calculate(n_points=n_points)
@@ -99,6 +126,12 @@ class Caustics(object):
     def plot(self, n_points=5000, **kwargs):
         """
         Plots the caustics (using matplotlib.scatter()). 
+
+        Attributes:
+            n_points : int, optional
+                The number of points to calculate along the caustic.
+            **kwargs :
+                keywords accepted by matplotlib.pyplot.scatter()
         """
         if self._x is None:
             self._calculate(n_points=n_points)
@@ -114,6 +147,14 @@ class Caustics(object):
 
     @property
     def critical_curve(self):
+        """
+        Returns a :class:`.CriticalCurve` object
+        with attributes x, y, where
+
+            x, y : list
+                Two lists of length *n_points* giving the x, y
+                coordinates of the caustic points. 
+        """
         if self._critical_curve is None:
             self._calculate()
         return self._critical_curve

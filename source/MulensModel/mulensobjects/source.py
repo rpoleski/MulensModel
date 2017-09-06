@@ -12,7 +12,7 @@ class Source(object):
         angular_size : [float, astropy.Quantity], optional
             Angular size of the source (in mas). Not used by anything.
 
-        limb_darkening : :py:class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+        limb_darkening : :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
             Limb darkening coefficients of the source.
 
     """
