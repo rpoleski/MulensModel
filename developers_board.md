@@ -40,6 +40,7 @@
   use solMass as default if not set.
 * FSPL ray shooting (ala getmag\_rs\_single.f)
 * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
+* Research decorators (e.g. @property) - Can we have both print(model.s) and print(model.s(time))?
 
 ### reStructuredText:
 [1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
