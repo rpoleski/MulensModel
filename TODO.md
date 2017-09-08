@@ -16,7 +16,7 @@
 | * VBBL| |
 | * Dominik Adpative Contouring| |
 | binary lenses caustics can be calculated and plotted together with source trajectory.| Yes |
-|event properties (tE, thetaE, rE) can be calculated from physical properties of the source and lens systems (e.g. M, pi_s, pi_l, and mu)| Yes |
+|event properties (tE, thetaE, rE) can be calculated from physical properties of the source and lens systems (e.g. M, pi\_s, pi\_l, and mu)| Yes |
 | The code contains
 | * examples and tutorial that show how the main high-level functions can be used.| |
 
@@ -65,4 +65,4 @@
 |16| raddec | Yes |
 |17| magnitudes | Yes |
 |18| binary equation | |
-|19| limb_darkening | |
+|19| limb_darkening | Yes |
