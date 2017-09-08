@@ -7,7 +7,8 @@
 (__boldfaced__ correspond to this month goals; try to put important stuff at the top)
 
 * __save release 0.1.0 for code review - see [github releases](https://help.github.com/articles/creating-releases/)__
-* __PSPL manual__
+* __add \_\_version\_\_ and keep it consistent with github release version __
+* __PSPL manual __
 * correct documentation for existing code - start with Model, MulensData, and Event 
 * anything from use cases that does not work yet -- see TODO.md file
 * copy documentation to some website
