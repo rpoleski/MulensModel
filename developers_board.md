@@ -35,7 +35,7 @@
 * fluxes fixed in chi^2 calculation
 * annual parallax calculation - verify with VBBL
 * when checking units use Unit.physical\_type
-* better import of the module so that all main classes are accesible
+* better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * Add \_\_repr\_\_ functions to Lens and Source
 * Model.set_parameters() should remember previously set values (of course unless they're overwritten)
@@ -44,6 +44,7 @@
 * FSPL ray shooting (ala getmag\_rs\_single.f)
 * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 * Research decorators (e.g. @property) - Can we have both print(model.s) and print(model.s(time))?
+* are we fully ok with astropy license?
 
 ### reStructuredText:
 [1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
