@@ -25,14 +25,14 @@ SAMPLE_ANNUAL_PARALLAX_FILE_04 = os.path.join(DATA_PATH, 'parallax_test_4.dat') 
 SAMPLE_ANNUAL_PARALLAX_FILE_05 = os.path.join(DATA_PATH, 'parallax_test_5.dat') #HJD'
 
 class _ParallaxFile(object):
-    '''
+    """
     Private class to allow easy access to the contents of the parallax
     test files.
-    '''
+    """
     def __init__(self, filename):
-        '''
+        """
         Open the file and store parameters.
-        '''
+        """
         self.filename = filename
         self.data = np.genfromtxt(self.filename, dtype=None, 
                 names=['Time', 'Magnification', 'PLflux', 'u', 'qn', 'qe']) 
@@ -40,7 +40,7 @@ class _ParallaxFile(object):
         (self.ulens_params, self.event_params) = self.get_file_params()
 
     def get_file_params(self):
-        '''Read in the model parameters used to create the file'''
+        """Read in the model parameters used to create the file"""
         with open(self.filename) as data_file:
             lines = data_file.readlines()
         ulens_params = lines[3].split()
@@ -49,7 +49,7 @@ class _ParallaxFile(object):
 
     @property
     def parameters(self):
-        '''Model parameters'''
+        """Model parameters"""
         model_parameters = ModelParameters(
             t_0=float(self.ulens_params[1])+2450000., 
             u_0=float(self.ulens_params[3]), 
@@ -60,7 +60,7 @@ class _ParallaxFile(object):
 
     @property
     def coords(self):
-        '''Coordinates of event'''
+        """Coordinates of event"""
         coords = SkyCoord(
             self.event_params[1]+' '+self.event_params[2], 
             unit=(u.deg, u.deg))
@@ -68,18 +68,18 @@ class _ParallaxFile(object):
 
     @property
     def t_0_par(self):
-        '''Parallax reference time'''
+        """Parallax reference time"""
         return float(self.ulens_params[2])+2450000.
 
     def setup_model(self):
-        '''Return a model using the parameters of this file'''
+        """Return a model using the parameters of this file"""
         model = Model(parameters=self.parameters, 
                       coords=self.coords)
         model.t_0_par = self.t_0_par
         return model
 
     def setup_trajectory(self):
-        '''Return a trajectory using hte parameters of this file'''
+        """Return a trajectory using hte parameters of this file"""
         trajectory = Trajectory(
             self.data['Time']+2450000., parameters=self.parameters,
             parallax={'earth_orbital':True},

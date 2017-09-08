@@ -14,7 +14,7 @@ SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH,
                                     "data", "phot_ob08092_O4.dat")
 
 def test_event_get_chi2():
-    '''basic unit test on ob08092 OGLE-IV data'''
+    """basic unit test on ob08092 OGLE-IV data"""
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
@@ -39,9 +39,9 @@ def test_event_get_chi2():
 
 
 def test_event_get_chi2_double_source_simple():
-    '''basic test on ob08092 OGLE-IV data with added second source
+    """basic test on ob08092 OGLE-IV data with added second source
     Note that currently this test hacks into internal functions of 
-    MulensData and MulensModel classes!'''
+    MulensData and MulensModel classes!"""
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
