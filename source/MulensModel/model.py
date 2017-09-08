@@ -455,7 +455,7 @@ class Model(object):
         """
         if times is None:
             times = self.set_times(
-                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_range=t_range, t_start=t_start, 
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
         subtract = 0.
@@ -481,7 +481,7 @@ class Model(object):
         """
         if times is None:
             times = self.set_times(
-                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_range=t_range, t_start=t_start, 
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
@@ -793,7 +793,7 @@ class Model(object):
         """
         if times is None:
             times = self.set_times(
-                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_range=t_range, t_start=t_start, 
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
@@ -827,7 +827,7 @@ class Model(object):
         self.caustics.plot(n_points=n_points, **kwargs)
         
     def set_times(
-        self, parameters=None, t_range=None, t_start=None, t_stop=None, 
+        self, t_range=None, t_start=None, t_stop=None, 
         dt=None, n_epochs=None):
         """
         If given, set up a time vector based on t_start, t_stop,
