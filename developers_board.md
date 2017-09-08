@@ -36,6 +36,7 @@
 * better import of the module so that all main classes are accesible
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * Add \_\_repr\_\_ functions to Lens and Source
+* Model.set_parameters() should remember previously set values (of course unless they're overwritten)
 * In Lens, add checks for new\_mass as an astropy.units.Quantity and
   use solMass as default if not set.
 * FSPL ray shooting (ala getmag\_rs\_single.f)

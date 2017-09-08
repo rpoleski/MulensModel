@@ -266,7 +266,8 @@ class Model(object):
         pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
         """
         Set the parameters of the model. Any parameter not explicitly
-        specified will be set to None.
+        specified will be set to None. All the previously set parameters 
+        will be forgotten. 
         """
         self._parameters = ModelParameters(
             t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
