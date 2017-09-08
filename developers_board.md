@@ -11,7 +11,7 @@
 * correct documentation for existing code - start with Model, MulensData, and Event 
 * anything from use cases that does not work yet -- see TODO.md file
 * copy documentation to some website
-* xallarap - use case, unit test, and code itself
+* xallarap - use case, unit test, and code itself (see below for references)
 * binary lens orbital motion - use case, unit test, and code itself
 * binary calculations - define if s is relative to total mass etc.
 * should BinaryLens() accept source\_x/y as lists or arrays?
@@ -48,6 +48,22 @@
 [2nd tutorial](http://www.sphinx-doc.org/en/stable/rest.html)
 
 [example](https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html)
+
+### Xallarap references:
+
+ob07368 - [Sumi et al. 2010](http://adsabs.harvard.edu/abs/2010ApJ...710.1641S) and [Suzuki et al. 2016](http://adsabs.harvard.edu/abs/2016ApJ...833..145S)
+
+ob150845 = mb15277 - Calen leads
+
+mb10328 - [Furusawa et al. 2013](http://adsabs.harvard.edu/abs/2013ApJ...779...91F)
+
+[Poindexter et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...633..914P) - 23% of events are affected by xallarap
+
+ob9919 - [Smith et al. 2002](http://adsabs.harvard.edu/abs/2002MNRAS.336..670S)
+
+[Han & Gould 1997](http://adsabs.harvard.edu/abs/1997ApJ...480..196H)
+
+[Griest & Hu 1992](http://adsabs.harvard.edu/abs/1992ApJ...397..362G)
 
 ## Decisions we should make:
 
