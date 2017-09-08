@@ -207,7 +207,7 @@ class Event(object):
         try:
             for dataset in self._datasets:
                 dataset.coords = self._coords
-        except:
+        except Exception:
             pass
 
     def plot_model(self, 
