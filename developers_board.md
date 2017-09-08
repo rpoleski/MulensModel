@@ -28,6 +28,7 @@
 * add unit tests for Horizons and MulensData.satellite\_skycoord
 * Caustics.\_calculate - optimize using vectors instead of a loop
 * check if Horizons e-mail is for correct satellite
+* Are we consistent with PEP8? [check here](http://pep8online.com/)
 * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
 * guessing parameters of PSPL model
 * fluxes fixed in chi^2 calculation
