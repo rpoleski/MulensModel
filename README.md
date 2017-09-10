@@ -18,6 +18,8 @@ There is no tutorial yet, but we have a few useful resources:
 
 More will be added soon.
 
+[Documentation](https://rpoleski.github.io/MulensModel/)
+
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
 
 Currently, MulensModel supports:
