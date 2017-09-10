@@ -14,11 +14,15 @@ class MulensData(object):
     A set of photometric measurements for a microlensing event.
 
     Attributes (all vectors):
-        self.time - the dates of the observations
-        self.mag - the brightness in magnitudes
-        self.err_mag - the errors on the magnitudes
-        self.flux - the brightness in flux
-        self.err_flux - the errors on the fluxes
+        time - the dates of the observations
+
+        mag - the brightness in magnitudes
+
+        err_mag - the errors on the magnitudes
+
+        flux - the brightness in flux
+
+        err_flux - the errors on the fluxes
 
     """
 
