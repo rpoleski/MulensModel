@@ -110,7 +110,7 @@ class Caustics(object):
         caustics.  Origin is center of mass and larger mass is on the
         left (for q < 1).
 
-        Attributes:
+        Parameters:
             n_points : int, optional
                 The number of points to calculate along the caustic.
 
@@ -127,7 +127,7 @@ class Caustics(object):
         """
         Plots the caustics (using matplotlib.scatter()). 
 
-        Attributes:
+        Parameters:
             n_points : int, optional
                 The number of points to calculate along the caustic.
             **kwargs :
