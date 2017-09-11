@@ -12,21 +12,25 @@ from MulensModel.satelliteskycoord import SatelliteSkyCoord
 class MulensData(object):
     """
     A set of photometric measurements for a microlensing event.
+
+    Attributes :
+
+        time - the dates of the observations
+        mag - the brightness in magnitudes
+        err_mag - the errors on the magnitudes
+        flux - the brightness in flux
+        err_flux - the errors on the fluxes
+        bad - a logical array/list of the same length as time where
+            TRUE means the datapoint should be excluded.
+
     """
 
     def __init__(self, data_list=None, file_name=None,
                  phot_fmt="mag", coords=None, ra=None, dec=None, 
                  ephemerides_file=None, add_2450000=False,
-                 add_2460000=False, bandpass=None, **kwargs):
+                 add_2460000=False, bandpass=None, bad=None, **kwargs):
         """
         Create a MulensData object from a set of photometric measurements.
-
-        Major properties:
-           self.time - the dates of the observations
-           self.mag - the brightness in magnitudes
-           self.err_mag - the errors on the magnitudes
-           self.flux - the brightness in flux
-           self.err_flux - the errors on the fluxes
 
         Keywords:
            data_list - a list or array with columns: Date, Magnitude/Flux, Err
@@ -99,6 +103,9 @@ class MulensData(object):
             self._initialize(phot_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
+
+        if bad is not None:
+            self.bad = bad
         
         #Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
