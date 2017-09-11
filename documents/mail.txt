@@ -20,8 +20,8 @@ code?
 To facilitate these goals, we have made a list of basic tasks and
 tests for you to run (including anticipated time to run them). In
 addition to these specific tasks, we welcome any other feedback about
-the code. We ask everybody to do first part listed below and we hope
-you will also do the second part as well.
+the code. We ask everybody to do the first part listed below and 
+we hope you will also do the second part as well.
 
 FIRST - installation and basic run. 
 
@@ -31,11 +31,11 @@ You need python installed on your machine which normally comes with
 basic packages and py.test command. Please make sure you have astropy
 installed (http://www.astropy.org/). You can check if astropy is
 installed by starting python using the command line (i.e. type
-"python") and then typing ("import astropy"). If astropy is not
+"python") and then type "import astropy". If astropy is not
 installed correctly, it will give an error message.
 
-1. Go to https://github.com/rpoleski/MulensModel and download the
-archive using the right-hand side green button.
+1. Go to https://github.com/rpoleski/MulensModel, scroll down, and click 
+"Latest release: 0.1.0". Then download the archive with the source code.
 
 2. Unpack the archive.
 
@@ -43,24 +43,24 @@ archive using the right-hand side green button.
 
 > python checks.py
 
-This will produce a few lines of text that shows which version of
+This will produce a few lines of text that show which version of
 Python and its packages you have installed. Copy-paste this text to an
 e-mail that you will send soon!
 
 4. Add the path to the unpack directory to the PYTHONPATH, e.g., in
 tcsh:
 
-> setenv PYTHONPATH /home/USER_NAME/MulensModel/source\:$PYTHONPATH
+> setenv PYTHONPATH /home/USER_NAME/MulensModel-0.1.0/source\:$PYTHONPATH
 
 in bash:
 
-> export PYTHONPATH=/home/USER_NAME/MulensModel/source:$PYTHONPATH
+> export PYTHONPATH=/home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH
 
-5. Go to MulensModel/source/VBBL directory and run make command. Even
+5. Go to MulensModel-0.1.0/source/VBBL directory and run make command. Even
 if it fails for whatever reason, you can proceed and most of the tests
 will pass. At this point the MM package is fully installed.
 
-6. Go to MulensModel/source directory and run py.test software (it's
+6. Go to MulensModel-0.1.0/source directory and run py.test software (it's
 part of most of standard python distributions). It executes a number
 of tests and verifies if the results are as expected.
 
@@ -73,8 +73,8 @@ the tests passed. If not, then copy-paste information about errors.
 SECOND - run some examples.
 
 Each of the tasks should take 10 min. plus 10 min. for reading the
-code and sending us an e-mail with notes. If you try one task from
-the list below, you should finish everything in less than 30 min.
+documentation and sending us an e-mail with notes. If you try one task 
+from the list below, you should finish everything in less than 30 min.
 
 Let's start with some introduction to MulensModel. The code is written
 in object-oriented mode. The main classes that users interact with
@@ -90,14 +90,16 @@ are:
 
 We haven't yet written a manual to this package but we have 5 examples
 (see directory examples/) that show how the code can be used and have
-comments that should help understanding what is going
-on. Additionally, we have use cases (see examples/use_cases/) that
+comments that should help understanding what is going on. 
+Additionally, we have use cases (see examples/use_cases/) that
 show how we intended the code to work, but not all of them have been
 implemented. If you look at TODO.md on the github page, you will see
-which of the use cases are supposed to work.  The source codes for the
+which of the use cases are supposed to work. The source codes for the
 tests that you already run are in source/MulensModel/tests/ and also
-may be useful. We have comments to main classes and functions - you can read 
-those if needed.
+may be useful. We have comments to main classes and functions - you can 
+read those if needed. The same content is on 
+https://rpoleski.github.io/MulensModel/MulensModel.html. In either 
+case search for the name of the function you're interested.
 
 Things to Try
 -------------
