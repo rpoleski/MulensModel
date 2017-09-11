@@ -12,6 +12,18 @@ from MulensModel.satelliteskycoord import SatelliteSkyCoord
 class MulensData(object):
     """
     A set of photometric measurements for a microlensing event.
+
+    Attributes (all vectors):
+        time - the dates of the observations
+
+        mag - the brightness in magnitudes
+
+        err_mag - the errors on the magnitudes
+
+        flux - the brightness in flux
+
+        err_flux - the errors on the fluxes
+
     """
 
     def __init__(self, data_list=None, file_name=None,
@@ -21,38 +33,43 @@ class MulensData(object):
         """
         Create a MulensData object from a set of photometric measurements.
 
-        Major properties:
-           self.time - the dates of the observations
-           self.mag - the brightness in magnitudes
-           self.err_mag - the errors on the magnitudes
-           self.flux - the brightness in flux
-           self.err_flux - the errors on the fluxes
-
         Keywords:
-           data_list - a list or array with columns: Date, Magnitude/Flux, Err
-           file_name - The path to a file with columns: Date,
-               Magnitude/Flux, Err
+           data_list : [list of lists, np.array], optional
+               columns: Date, Magnitude/Flux, Err
+           file_name : string, optional
+               The path to a file with columns: Date, Magnitude/Flux,
+               Err. Loaded using np.loadtxt. See **kwargs.
            *Either data_list or file_name is required.*
 
-           phot_fmt - accepts either 'mag' or 'flux'. Default =
-              'mag'. Specifies whether the photometry is in Magnitudes
-              or Flux units.
+           phot_fmt : string 
+               Specifies whether the photometry is in Magnitudes or
+               Flux units. accepts either 'mag' or 'flux'. Default =
+               'mag'.
 
-           coords - [optional] sky coordinates of the event
-           ra, dec - [optional] sky coordinates of the event
+           coords : astropy.SkyCoords, optional 
+               sky coordinates of the event
+           ra, dec : string, optional 
+               sky coordinates of the event
           
-           ephemerides_file - [optional] specify the ephemerides of the
-               satellite over the period when the data were taken. Will be
-               interpolated as necessary to model the satellite parallax 
-               effect.
+           ephemerides_file : string, optional 
+               Specify the ephemerides of a satellite over the period
+               when the data were taken. Will be interpolated as
+               necessary to model the satellite parallax effect. See
+               "Instructions on getting satellite positions" in
+               MulensModel.README.md
 
-           add_2450000 - Adds 2450000. to the input dates. Useful if
-               the dates are supplied as HJD-2450000.
-           add_2460000 - Adds 2460000. to the input dates.
 
-           **kwargs - if file_name is provided, uses np.loadtxt to
-               load file, and therefore this function accpets loadtxt
-               keywords.
+           add_2450000 : boolean, optional 
+               Adds 2450000. to the input dates. Useful if the dates
+               are supplied as HJD-2450000.
+           add_2460000 : boolean, optional 
+               Adds 2460000. to the input dates.
+
+           *Parallax calculations assume that the dates supplied are
+            BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`*
+
+           **kwargs - np.loadtxt keywords. Used if file_name is provided.
+
         """
         #Initialize some variables
         self._n_epochs = None  
@@ -106,18 +123,20 @@ class MulensData(object):
     def _initialize(self, phot_fmt, time=None, brightness=None, 
                     err_brightness=None, coords=None):
         """
-        internal function to package photometric data using a few numpy arrays
+        Internal function to import photometric data into the correct
+        form using a few numpy arrays.
 
         Keywords:
             phot_fmt - Specifies type of photometry. Either 'flux' or 'mag'. 
             time - Date vector of the data
             brightness - vector of the photometric measurements
             err_brightness - vector of the errors in the phot measurements.
-            coords - Sky coordinates of the event
+            coords - Sky coordinates of the event, optional
         """
         if self._init_keys['add245'] and self._init_keys['add246']:
             raise ValueError('You cannot initilize MulensData with both ' + 
                             'add_2450000 and add_2460000 being True')
+
         #Adjust the time vector as necessary.
         if self._init_keys['add245']:
             time += 2450000.
@@ -246,8 +265,11 @@ class MulensData(object):
         self._bandpass = value
 
     def set_limb_darkening_weights(self, weights):
-        """save a dictionary weights that will be used to evaluate l
-        imb darkening coefficient
+        """
+
+        save a dictionary ofweights that will be used to evaluate the
+        limb darkening coefficient. See also
+        :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
         
         e.g. weights = {'I': 1.5, 'V': 1.} if I-band gamma limb-darkening 
         coefficient is 1.5-times larger than V-band"""
