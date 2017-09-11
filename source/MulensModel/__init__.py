@@ -1,4 +1,6 @@
 from os import path
+
+from .version import __version__
 from MulensModel.event import *
 from MulensModel.fit import *
 from MulensModel.model import *
