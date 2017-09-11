@@ -12,7 +12,7 @@ moa_LD_weights = {'I': 2., 'V': 1.}
 data_3.set_limb_darkening_weights(moa_LD_weights) 
 
 # Initialize instance of Model.
-model = MulensModel.Model(n_components=1)
+model = MulensModel.Model(t_0=2457600., u_0=.01, t_E=3.14)
 model.set_datasets([data_1, data_2, data_3])
 
 # Set finite source method (no limb darkening).

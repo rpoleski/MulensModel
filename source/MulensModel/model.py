@@ -266,7 +266,8 @@ class Model(object):
         pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
         """
         Set the parameters of the model. Any parameter not explicitly
-        specified will be set to None.
+        specified will be set to None. All the previously set parameters 
+        will be forgotten. 
         """
         self._parameters = ModelParameters(
             t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
@@ -455,7 +456,7 @@ class Model(object):
         """
         if times is None:
             times = self.set_times(
-                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_range=t_range, t_start=t_start, 
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
         subtract = 0.
@@ -481,7 +482,7 @@ class Model(object):
         """
         if times is None:
             times = self.set_times(
-                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_range=t_range, t_start=t_start, 
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
@@ -793,7 +794,7 @@ class Model(object):
         """
         if times is None:
             times = self.set_times(
-                parameters=self._parameters, t_range=t_range, t_start=t_start, 
+                t_range=t_range, t_start=t_start, 
                 t_stop=t_stop, dt=dt, 
                 n_epochs=n_epochs)
 
@@ -827,7 +828,7 @@ class Model(object):
         self.caustics.plot(n_points=n_points, **kwargs)
         
     def set_times(
-        self, parameters=None, t_range=None, t_start=None, t_stop=None, 
+        self, t_range=None, t_start=None, t_stop=None, 
         dt=None, n_epochs=None):
         """
         If given, set up a time vector based on t_start, t_stop,

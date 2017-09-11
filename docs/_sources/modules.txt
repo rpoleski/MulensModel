@@ -1,5 +1,5 @@
-source
-======
+MulensModel
+===========
 
 .. toctree::
    :maxdepth: 4

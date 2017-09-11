@@ -27,7 +27,7 @@ class ModelParameters(object):
 
             parallax vector may be defined 
             EITHER as:
-               pi_E: list, tuple, or np.array of 2 values
+               pi_E: list, tuple, or numpy.ndarray of 2 values
                pi_E_ref: defines reference system for pi_E (see
                    MulensParallaxVector)
             OR:

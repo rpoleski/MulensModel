@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>MulensModel.mulensobjects package &mdash; MulensModel 1.0 documentation</title>
+    <title>MulensModel.mulensobjects package &#8212; MulensModel 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -26,6 +26,7 @@
     <link rel="top" title="MulensModel 1.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -48,7 +49,7 @@
 <dl class="class">
 <dt id="MulensModel.mulensobjects.lens.Lens">
 <em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.lens.</code><code class="descname">Lens</code><span class="sig-paren">(</span><em>total_mass=None</em>, <em>mass=None</em>, <em>mass_1=None</em>, <em>mass_2=None</em>, <em>a_proj=None</em>, <em>distance=None</em>, <em>q=None</em>, <em>s=None</em>, <em>epsilon=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A mass or system of masses.</p>
 <dl class="docutils">
 <dt>Attributes:</dt>
@@ -56,11 +57,11 @@
 <dt>total_mass</dt>
  <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>Total mass of the lens system</dd>
 <dt>epsilon</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span><dd>mass fraction for each component relative to the total mass</dd>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.ndarray</span><dd>mass fraction for each component relative to the total mass</dd>
 <dt>q</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span><dd>mass ratio for companions relative to the primary</dd>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.ndarray</span><dd>mass ratio for companions relative to the primary</dd>
 <dt>s</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span><dd>separation between the companions and the primary as a
+ <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.ndarray</span><dd>separation between the companions and the primary as a
 fraction of the Einstein radius.</dd>
 <dt>mass</dt>
  <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>mass of the lens for a point mass</dd>
@@ -184,7 +185,7 @@ astropy.Quantity with mass units.</p>
 <dl class="class">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem">
 <em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.mulenssystem.</code><code class="descname">MulensSystem</code><span class="sig-paren">(</span><em>lens=None</em>, <em>source=None</em>, <em>mu_rel=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A microlensing system consisting of a lens and a source.</p>
 <dl class="docutils">
 <dt>Attributes :</dt>
@@ -275,7 +276,7 @@ Observer plane (in AU).</p>
 <dl class="class">
 <dt id="MulensModel.mulensobjects.source.Source">
 <em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.source.</code><code class="descname">Source</code><span class="sig-paren">(</span><em>distance=None</em>, <em>angular_size=None</em>, <em>limb_darkening=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.source.Source" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Physical properties of a source (background) star.</p>
 <dl class="docutils">
 <dt>Attributes :</dt>
@@ -343,8 +344,8 @@ Observer plane (in AU).</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -358,8 +359,8 @@ Observer plane (in AU).</p>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
       <a href="_sources/MulensModel.mulensobjects.txt"

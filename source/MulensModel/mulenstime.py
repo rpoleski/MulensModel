@@ -104,7 +104,7 @@ class MulensTime(object):
 
     @property
     def _time_correction(self):
-        '''time correction: HJD = JD + corr'''
+        """time correction: HJD = JD + corr"""
         if self._time_corr is None:
             if self._target is None:
                 msg1 = 'Event coordinates in MulensTime not set.\n'

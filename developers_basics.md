@@ -29,7 +29,7 @@ We present a python package for modelling of microlensing events. The package ai
 
 Definitions of microlensing parameters:
 
-* t_eff - Gould 2013 [http://arxiv.org/abs/1312.6692](http://arxiv.org/abs/1312.6692)
+* t\_eff - Gould 2013 [http://arxiv.org/abs/1312.6692](http://arxiv.org/abs/1312.6692)
 * caustic crossing parameters - Cassan 2008 [http://adsabs.harvard.edu/abs/2008A%26A...491..587C](http://adsabs.harvard.edu/abs/2008A%26A...491..587C)
 * single caustic crossing parameters - Albrow et al. 1999c [http://adsabs.harvard.edu/abs/1999ApJ...522.1022A](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A)
 * caustic size _w_ [http://adsabs.harvard.edu/abs/2009ApJ...698.1826D](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [http://adsabs.harvard.edu/abs/2005ApJ...630..535C](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
@@ -50,13 +50,14 @@ How to work on new code?
 
 We try to follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) conventions.  
 
+Version numbers are according to MAJOR.MINOR.PATCH scheme - see [Semantic Versioning](http://semver.org/)
 
 #### Naming conventions
-* variables: underscore_separated
-* constants: UPPERCASE_AND_UNDERSCORE
-* functions: underscore_separated
-  * function parameters: underscore_separated
+* variables: underscore\_separated
+* constants: UPPERCASE\_AND\_UNDERSCORE
+* functions: underscore\_separated
+  * function parameters: underscore\_separated
 * class names: CamelCaseFirstLetterCapitalized
-  * properties: underscore_separated
-  * private properties: _leadingUnderscoreAndCamelCase
-  * methods: underscore_separated
+  * properties: underscore\_separated
+  * private properties: \_leadingUnderscoreAndCamelCase
+  * methods: underscore\_separated

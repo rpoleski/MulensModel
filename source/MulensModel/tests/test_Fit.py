@@ -10,7 +10,7 @@ from MulensModel.fit import Fit
 
 
 def test_fit_get_input_format():
-    '''read sample file and get brightness in its original format'''
+    """read sample file and get brightness in its original format"""
     n = 100
     mag = 15.
     time = np.ones(n) * 2456789.

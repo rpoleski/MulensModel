@@ -138,7 +138,7 @@ class MulensSystem(object):
         try:
             t_E = self.theta_E/self.mu_rel
             return t_E.to(u.day)
-        except:
+        except Exception:
             return None
 
     @t_E.setter
