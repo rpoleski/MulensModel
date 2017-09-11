@@ -11,11 +11,11 @@ class Lens(object):
     Attributes:
         total_mass : float
             Total mass of the lens system
-        epsilon : float, list, numpy.array
+        epsilon : float, list, numpy.ndarray
             mass fraction for each component relative to the total mass
-        q : float, list, numpy.array
+        q : float, list, numpy.ndarray
             mass ratio for companions relative to the primary
-        s : float, list, numpy.array
+        s : float, list, numpy.ndarray
             separation between the companions and the primary as a
             fraction of the Einstein radius.
         mass : float

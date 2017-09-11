@@ -34,7 +34,7 @@ class MulensData(object):
         Create a MulensData object from a set of photometric measurements.
 
         Keywords:
-           data_list : [list of lists, np.array], optional
+           data_list : [list of lists, numpy.ndarray], optional
                columns: Date, Magnitude/Flux, Err
            file_name : string, optional
                The path to a file with columns: Date, Magnitude/Flux,
