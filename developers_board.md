@@ -1,17 +1,19 @@
 ## current goals:
-1. ???
-2. ???
-3. ???
+1. code review, 
+2. instantonous orbital motion of binary lens - use case and unit test,
+3. docstrings for Spinx in all public methods of Event, Model, and MulensData classes,
+4. reasonable website with documentation
+
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals; try to put important stuff at the top)
 
-* __save release 0.1.0 for code review - see [github releases](https://help.github.com/articles/creating-releases/)__
-* __add \_\_version\_\_ and keep it consistent with github release version __
-* __PSPL manual __
-* correct documentation for existing code - start with Model, MulensData, and Event 
+* __save release 0.1.0 for code review - see [github releases](https://help.github.com/articles/creating-releases/)__ 
+* __add \_\_version\_\_ and keep it consistent with github release version__ 
+* PSPL manual
+* __correct documentation for existing code - start with Model, MulensData, and Event__
 * anything from use cases that does not work yet -- see TODO.md file
-* copy documentation to some website
+* __nice github.io website__
 * xallarap - use case, unit test, and code itself (see below for references)
 * binary lens orbital motion - use case, unit test, and code itself
 * binary calculations - define if s is relative to total mass etc.
@@ -38,7 +40,7 @@
 * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * Add \_\_repr\_\_ functions to Lens and Source
-* Model.set_parameters() should remember previously set values (of course unless they're overwritten)
+* Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
 * In Lens, add checks for new\_mass as an astropy.units.Quantity and
   use solMass as default if not set.
 * FSPL ray shooting (ala getmag\_rs\_single.f)
