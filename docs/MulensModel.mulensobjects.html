@@ -1,28 +1,29 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>MulensModel.mulensobjects package &#8212; MulensModel 1.0 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="MulensModel 1.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -30,7 +31,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
+  <body role="document">
   
 
     <div class="document">
@@ -53,27 +54,27 @@
 <dl class="docutils">
 <dt>Attributes:</dt>
 <dd><dl class="first docutils">
-<dt>total_mass <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Total mass of the lens system</dd>
-<dt>epsilon <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span></dt>
-<dd>mass fraction for each component relative to the total mass</dd>
-<dt>q <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span></dt>
-<dd>mass ratio for companions relative to the primary</dd>
-<dt>s <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.array</span></dt>
-<dd>separation between the companions and the primary as a
+<dt>total_mass</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>Total mass of the lens system</dd>
+<dt>epsilon</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.ndarray</span><dd>mass fraction for each component relative to the total mass</dd>
+<dt>q</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.ndarray</span><dd>mass ratio for companions relative to the primary</dd>
+<dt>s</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float, list, numpy.ndarray</span><dd>separation between the companions and the primary as a
 fraction of the Einstein radius.</dd>
-<dt>mass <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>mass of the lens for a point mass</dd>
-<dt>mass_1 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>mass of the primary</dd>
-<dt>mass_2 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>mass of the secondary</dd>
-<dt>n_masses <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>total number of masses in the system</dd>
-<dt>distance <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>distance to the lens in pc or kpc.</dd>
-<dt>pi_L <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>parallax of the lens in mas.</dd>
+<dt>mass</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>mass of the lens for a point mass</dd>
+<dt>mass_1</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>mass of the primary</dd>
+<dt>mass_2</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>mass of the secondary</dd>
+<dt>n_masses</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">int</span><dd>total number of masses in the system</dd>
+<dt>distance</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>distance to the lens in pc or kpc.</dd>
+<dt>pi_L</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>parallax of the lens in mas.</dd>
 </dl>
 <p>If units are not specified for mass, it is assumed the value
 given is in Solar Masses.</p>
@@ -118,7 +119,7 @@ m_i/total_mass. A numpy array.</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass">
 <code class="descname">mass</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass" title="Permalink to this definition">¶</a></dt>
-<dd><p>The mass of a point lens –&gt; total mass. An astropy.Quantity
+<dd><p>The mass of a point lens &#8211;&gt; total mass. An astropy.Quantity
 with mass units.</p>
 </dd></dl>
 
@@ -189,12 +190,12 @@ astropy.Quantity with mass units.</p>
 <dl class="docutils">
 <dt>Attributes :</dt>
 <dd><dl class="first last docutils">
-<dt>lens <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens" title="MulensModel.mulensobjects.lens.Lens"><code class="xref py py-class docutils literal"><span class="pre">Lens</span></code></a></span></dt>
-<dd>The lensing system.</dd>
-<dt>source <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#MulensModel.mulensobjects.source.Source" title="MulensModel.mulensobjects.source.Source"><code class="xref py py-class docutils literal"><span class="pre">Source</span></code></a></span></dt>
-<dd>The source star.</dd>
-<dt>mu_rel <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity], optional</span></dt>
-<dd>The source-lens relative proper motion. If units are not given, 
+<dt>lens</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens" title="MulensModel.mulensobjects.lens.Lens"><code class="xref py py-class docutils literal"><span class="pre">Lens</span></code></a></span><dd>The lensing system.</dd>
+<dt>source</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#MulensModel.mulensobjects.source.Source" title="MulensModel.mulensobjects.source.Source"><code class="xref py py-class docutils literal"><span class="pre">Source</span></code></a></span><dd>The source star.</dd>
+<dt>mu_rel</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity], optional</span><dd>The source-lens relative proper motion. If units are not given, 
 assumed to be mas/yr.</dd>
 </dl>
 </dd>
@@ -280,12 +281,12 @@ Observer plane (in AU).</p>
 <dl class="docutils">
 <dt>Attributes :</dt>
 <dd><dl class="first last docutils">
-<dt>distance <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity]</span></dt>
-<dd>The distance to the source.</dd>
-<dt>angular_size <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity], optional</span></dt>
-<dd>Angular size of the source (in mas). Not used by anything.</dd>
-<dt>limb_darkening <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="MulensModel.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal"><span class="pre">LimbDarkeningCoeffs</span></code></a></span></dt>
-<dd>Limb darkening coefficients of the source.</dd>
+<dt>distance</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity]</span><dd>The distance to the source.</dd>
+<dt>angular_size</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">[float, astropy.Quantity], optional</span><dd>Angular size of the source (in mas). Not used by anything.</dd>
+<dt>limb_darkening</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="MulensModel.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal"><span class="pre">LimbDarkeningCoeffs</span></code></a></span><dd>Limb darkening coefficients of the source.</dd>
 </dl>
 </dd>
 </dl>
@@ -336,7 +337,7 @@ Observer plane (in AU).</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.mulensobjects.rst.txt"
+      <li><a href="_sources/MulensModel.mulensobjects.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -358,11 +359,11 @@ Observer plane (in AU).</p>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/MulensModel.mulensobjects.rst.txt"
+      <a href="_sources/MulensModel.mulensobjects.txt"
           rel="nofollow">Page source</a>
     </div>
 

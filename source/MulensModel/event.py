@@ -98,7 +98,19 @@ class Event(object):
             self._model.set_datasets(self._datasets)
 
     def get_chi2(self, fit_blending_all=None):
-        """calculates chi^2 of current model by fitting for fs and fb"""
+        """Calculates chi^2 of current model by fitting for source and 
+        blending fluxes.
+
+        Parameters :
+            fit_blending_all: boolean, optional
+                Are we fitting all blending flux? If not then it is set to 0.
+                Default is the same as :py:func:`Fit.fit_fluxes`.
+
+        Returns :
+            chi2: float
+                Chi^2 value
+
+        """
         #Define a Fit given the model and perform linear fit for fs and fb
         self.fit = Fit(data=self.datasets, 
                        magnification=self.model.data_magnification) 
@@ -190,6 +202,21 @@ class Event(object):
         self.model.data_ref = new_value
 
     def get_ref_fluxes(self, data_ref=None):
+        """Get reference source and blending fluxes.
+
+        Parameters :
+            data_ref: MulensData or int
+                Reference dataset. If the int type than gives the index of 
+                the dataset in self.datasets. If None, than the first dataset 
+                will be used.
+
+        Returns :
+            f_source: float
+                source flux
+            f_blend: float
+                blending flux
+
+        """
         return self.model.get_ref_fluxes(data_ref=data_ref)
 
     def _update_coords(self, coords=None):
