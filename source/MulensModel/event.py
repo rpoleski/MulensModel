@@ -13,7 +13,7 @@ class Event(object):
     """
     Connects datasets to a model.
 
-    Attributes:
+    Attributes :
         datasets: the input data (MulensModel.MulensData)
         model: the microlensing model (MulensModel.Model)
 
@@ -102,16 +102,42 @@ class Event(object):
         blending fluxes.
 
         Parameters :
-            fit_blending_all: boolean, optional
+            fit_blending_all : boolean, optional
                 Are we fitting all blending flux? If not then it is set to 0.
                 Default is the same as :py:func:`Fit.fit_fluxes`.
 
         Returns :
-            chi2: float
+            chi2 : float
                 Chi^2 value
 
         """
-        #Define a Fit given the model and perform linear fit for fs and fb
+        chi2_per_point = self.get_chi2_per_point(
+            fit_blending_all=fit_blending_all)
+        #Calculate chi^2 given the fit
+        chi2 = []
+        for i, dataset in enumerate(self.datasets):
+            #Calculate chi2 for the dataset excluding bad data 
+            select = np.logical_not(dataset.bad)
+            chi2.append(fsum(chi2_per_point[i][select]))
+
+        self.chi2 = fsum(chi2)
+        return self.chi2
+
+    def get_chi2_per_point(self, fit_blending_all=None):
+        """Calculates chi^2 of current model by fitting for source and 
+        blending fluxes.
+
+        Parameters :
+            fit_blending_all : boolean, optional
+                Are we fitting all blending flux? If not then it is set to 0.
+                Default is the same as :py:func:`Fit.fit_fluxes`.
+
+        Returns :
+            chi2 : np.array  
+                Chi^2 contribution from each data point
+
+        """
+       #Define a Fit given the model and perform linear fit for fs and fb
         self.fit = Fit(data=self.datasets, 
                        magnification=self.model.data_magnification) 
         if fit_blending_all is not None:
@@ -120,17 +146,15 @@ class Event(object):
             self.fit.fit_fluxes()
 
         #Calculate chi^2 given the fit
-        chi2 = []
-        for dataset in self.datasets:
+        chi2_per_point = []
+        for i, dataset in enumerate(self.datasets):
             diff = dataset._brightness_input \
                  - self.fit.get_input_format(data=dataset)
-            select = np.logical_not(dataset.bad)
-            chi2.append(fsum((diff[select] 
-                        / dataset._brightness_input_err[select])**2))
+            chi2_per_point.append(
+                (diff / dataset._brightness_input_err)**2)
 
-        self.chi2 = fsum(chi2)
-        return self.chi2
-
+        chi2_per_point = np.array(chi2_per_point)
+        return chi2_per_point
 
     def clean_data(self):
         """masks outlying datapoints"""

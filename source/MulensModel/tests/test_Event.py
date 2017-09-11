@@ -37,6 +37,31 @@ def test_event_get_chi2():
     np.testing.assert_almost_equal(float(chi2_no_blend), 460.72308, decimal=4, 
                                    err_msg='problem in resulting chi2 for fixed no blending')
 
+def test_event_get_chi2():
+    """basic unit test on ob08092 OGLE-IV data. Same as above but with
+    the data input twice (to test behavior for multiple datasets)"""
+    t_0 = 5379.57091
+    u_0 = 0.52298
+    t_E = 17.94002
+    
+    data = MulensData(file_name=SAMPLE_FILE_01)
+    
+    ev = Event()
+    mod = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+    mod.set_datasets([data,data])
+    ev.model = mod
+    ev.datasets = [data,data]
+
+    chi2 = ev.get_chi2()
+    assert isinstance(chi2, float), 'wrong type of chi2'
+    np.testing.assert_almost_equal(float(chi2), 2.*428.58655, decimal=4, 
+                                   err_msg='problem in resulting chi2')
+    
+    chi2_no_blend = ev.get_chi2(fit_blending_all=False)
+    assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
+    np.testing.assert_almost_equal(float(chi2_no_blend), 2.*460.72308, decimal=4, 
+                                   err_msg='problem in resulting chi2 for fixed no blending')
+
 
 def test_event_get_chi2_double_source_simple():
     """basic test on ob08092 OGLE-IV data with added second source
