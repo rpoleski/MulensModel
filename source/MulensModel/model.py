@@ -3,7 +3,7 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 from astropy.coordinates import GeocentricTrueEcliptic
 import matplotlib.pyplot as pl
-import matplotlib.rcParams
+from matplotlib import rcParams
 
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -581,12 +581,9 @@ class Model(object):
         new_kwargs = {}  
         
         #Set defaults
-        #if index == 0:
-        #    pl.gca().set_color_cycle(None)
         if 'color_list' not in self.plot_properties.keys():
-            self.plot_properties['color_list'] =  pl.rcParams[
+            self.plot_properties['color_list'] =  rcParams[
                 'axes.prop_cycle'].by_key()['color']
-            
         new_kwargs[marker_key] = 'o'
         new_kwargs[size_key] = 3
         
