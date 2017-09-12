@@ -60,19 +60,23 @@ class Fit(object):
         # For each dataset, perform a least-squares linear fit for the flux 
         # parameters
         for (i_dataset, dataset) in enumerate(self._datasets):
+            # suppress bad data
+            select = np.logical_not(dataset.bad)
+            n_epochs = dataset.n_epochs - np.sum(dataset.bad)
+
             # Set up the x vector for the linear fit
-            x = np.empty(shape=(n_fluxes, dataset.n_epochs))
+            x = np.empty(shape=(n_fluxes, n_epochs))
             if fit_blending_all:
-                x[0:(n_fluxes-1),] = self._magnification[i_dataset]
+                x[0:(n_fluxes-1),] = self._magnification[i_dataset][select]
                 x[n_fluxes-1] = 1.
             else:
-                x = self._magnification[i_dataset]
+                x = self._magnification[i_dataset][select]
 
             # Take the transpose of x and define y
             xT = np.copy(x).T
-            xT.shape = (dataset.n_epochs, n_fluxes)
-            y = np.copy(self._datasets[i_dataset].flux)
-            sigma_inverse = 1. / self._datasets[i_dataset].err_flux
+            xT.shape = (n_epochs, n_fluxes)
+            y = np.copy(self._datasets[i_dataset].flux[select])
+            sigma_inverse = 1. / self._datasets[i_dataset].err_flux[select]
             y *= sigma_inverse
             for (i, sig_inv) in enumerate(sigma_inverse):
                 xT[i] *= sig_inv
