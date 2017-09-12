@@ -561,13 +561,17 @@ class Model(object):
         if len(kwargs) > 0:
             self.plot_properties['other_kwargs'] = kwargs
     
-    def _set_plot_kwargs(self, index, show_errorbars=True):
+    def _set_plot_kwargs(self, index, show_errorbars=True, bad_data=False):
         """
         Set kwargs arguments for plotting. If set, use previous values. But 
         new values take precedence. 
         
         Automatically handles (some) differences in keywords for pl.errorbar 
         vs. pl.scatter: fmt/marker, markersize/s
+
+        bad_data : boolean, optional
+            Default is False --> set kwargs for plotting good data, i.e. marker='o', size=3
+            If True, then marker = 'x', size=10
         """                
         #Set different keywords for pl.errorbar vs. pl.scatter
         if show_errorbars:
@@ -584,8 +588,12 @@ class Model(object):
         if 'color_list' not in self.plot_properties.keys():
             self.plot_properties['color_list'] =  rcParams[
                 'axes.prop_cycle'].by_key()['color']
-        new_kwargs[marker_key] = 'o'
-        new_kwargs[size_key] = 3
+        if not bad_data:
+            new_kwargs[marker_key] = 'o'
+            new_kwargs[size_key] = 3
+        else:
+            new_kwargs[marker_key] = 'x'
+            new_kwargs[size_key] = 10
         
         #Set custom
         if len(self.plot_properties) > 0:
@@ -613,8 +621,8 @@ class Model(object):
         return new_kwargs
 
     def plot_data(
-        self, data_ref=None, show_errorbars=True, color_list=None,
-        marker_list=None, size_list=None, label_list=None, 
+        self, data_ref=None, show_errorbars=True, show_bad=False,
+        color_list=None, marker_list=None, size_list=None, label_list=None, 
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the model. If data_ref is not
@@ -622,6 +630,11 @@ class Model(object):
 
         If show_errorbars is True (default), plots with matplotlib.errorbar(). 
         If show_errorbars is False, plots with matplotib.scatter(). 
+
+        show_bad : boolean, optional
+            if False, bad data are suppressed (default). 
+            if True, shows points marked as bad
+            (:py:func:`mulensdata.MulensData.bad`) as 'x'
         
         Allows for different point types for each dataset. These may be set
         using color_list, marker_list, and size_list. May also use **kwargs
@@ -631,7 +644,7 @@ class Model(object):
         
         Automatically handles some keyword variations in errorbar() vs. 
         scatter(): e.g. fmt/marker, markersize/s (see _set_plot_kwargs),
-        
+
         **kwargs (and point type lists) are remembered and used in subsequent 
         calls to both plot_data() and plot_residuals(). 
         """
@@ -667,16 +680,34 @@ class Model(object):
             f_blend = fit.blending_flux(data)
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
-            new_kwargs = self._set_plot_kwargs(i, show_errorbars=show_errorbars)
+            new_kwargs = self._set_plot_kwargs(
+                i, show_errorbars=show_errorbars)
+            if show_bad:
+                bad_kwargs = self._set_plot_kwargs(
+                    i, show_errorbars=show_errorbars, bad_data=True)
+
             #Plot
             if show_errorbars:
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                pl.errorbar(data.time-subtract, mag, yerr=err, **new_kwargs) 
-                
+                pl.errorbar(
+                    data.time[np.invert(data.bad)] - subtract, 
+                    mag[np.invert(data.bad)], yerr=err[np.invert(data.bad)], 
+                    **new_kwargs) 
+                if show_bad:
+                    pl.errorbar(
+                        data.time[data.bad] - subtract, mag[data.bad], 
+                        yerr=err[data.bad], **bad_kwargs) 
             else:
                 mag = Utils.get_mag_from_flux(flux)
-                pl.scatter(data.time-subtract, mag, lw=0., **new_kwargs)
+                pl.scatter(
+                    data.time[np.invert(data.bad)] - subtract, 
+                    mag[np.invert(data.bad)], lw=0., **new_kwargs)
+                if show_bad:
+                    pl.scatter(
+                        data.time[data.bad] - subtract, mag[data.bad],
+                        **bad_kwargs)
+                               
 
             #Set plot limits
             t_min = min(t_min, np.min(data.time))
