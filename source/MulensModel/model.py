@@ -685,6 +685,7 @@ class Model(object):
             if show_bad:
                 bad_kwargs = self._set_plot_kwargs(
                     i, show_errorbars=show_errorbars, bad_data=True)
+                bad_kwargs['label'] = None
 
             #Plot
             if show_errorbars:
