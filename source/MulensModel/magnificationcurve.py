@@ -220,8 +220,8 @@ class MagnificationCurve(object):
         return magnification
         
     def get_binary_lens_magnification(self):
-        """Calculate the Binary magnification. """
-        #Set up the Binary lens system
+        """Calculate the binary lens magnification. """
+        #Set up the binary lens system
         q = self.parameters.q
         m_1 = 1. / (1. + q)
         m_2 = q / (1. + q)

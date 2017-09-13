@@ -23,7 +23,8 @@ class ModelParameters(object):
             rho: source size as a fraction of the Einstein radius
             s: separation between primary and companion(s) (in Einstein radii)
             q: mass ratio between primary and companion(s)
-            alpha: angle of source trajectory relative to binary axis (CCW???)
+            alpha: angle of source trajectory relative to binary lens axis 
+            (CCW???)
 
             parallax vector may be defined 
             EITHER as:
@@ -188,7 +189,7 @@ class ModelParameters(object):
     @property
     def alpha(self):
         """
-        The angle of the source trajectory relative to the binary axis
+        The angle of the source trajectory relative to the binary lens axis
         (or primary-secondary axis). Measured CW/CCW (TBD). An
         astropy.Quantity. "deg" is the default unit.
         TBD - make sure CW/CCW convention is according to Skowron+11 appendix A
@@ -224,7 +225,7 @@ class ModelParameters(object):
     def pi_E(self):
         """
         The microlens parallax vector. May be specified either
-        relative to the sky ("NorthEast") or relative to the binary
+        relative to the sky ("NorthEast") or relative to the binary lens 
         axis ("ParPerp"). "NorthEast" is default.
         """
         return self._pi_E

@@ -188,7 +188,7 @@ class Model(object):
         """
         The microlens parallax vector. May be specified either
         relative to the sky ("NorthEast") or relative to the binary
-        axis ("ParPerp"). "NorthEast" is default. A
+        lens axis ("ParPerp"). "NorthEast" is default. A
         MulensParallaxVector object.
         """
         return self._parameters.pi_E
