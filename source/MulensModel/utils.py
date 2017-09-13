@@ -62,7 +62,7 @@ class Utils(object):
     complex_fsum = staticmethod(complex_fsum)
 
     def dot(cartesian, vector):
-        """dot product of Astropy CartersianRepresentation and np.array"""
+        """dot product of Astropy CartersianRepresentation and np.ndarray"""
         return cartesian.x * vector[0] + cartesian.y * vector[1] + cartesian.z * vector[2]
     dot = staticmethod(dot)
      

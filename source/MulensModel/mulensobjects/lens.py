@@ -23,7 +23,7 @@ class Lens(object):
 
         (:py:obj:`mass_1`, :py:obj:`mass_2`, :py:obj:`a_proj`, :py:obj:`distance`) - Not Implemented
     
-    Note that s, q, and epsilon may be single values, lists, or numpy arrays.
+    Note that s, q, and epsilon may be single values, lists, or numpy ndarrays.
 
     If units are not specified for a given mass, it is assumed the value
     given is in Solar Masses. 
@@ -110,7 +110,7 @@ class Lens(object):
         [*float, list, numpy.ndarray*]
 
         An array of mass fractions for each lens components:
-        m_i/total_mass. Stored as a *numpy.array*.
+        m_i/total_mass. Stored as a *numpy.ndarray*.
         """
         return self._epsilon
 
@@ -126,7 +126,7 @@ class Lens(object):
         mass ratio for companions relative to the primary
 
         Array of mass ratios defined relative to the primary (m_i/m_1). Size is
-        number of components -1. Set as a list, numpy.array, or single value.
+        number of components -1. Set as a list, np.ndarray, or single value.
 
         Note: if :py:obj:`total_mass` is defined before q, it is
         assumed this is the mass of the primary. If you want this to
@@ -162,7 +162,7 @@ class Lens(object):
         [*float, list, numpy.ndarray*]
 
         Separation between the components of the lens as a fraction of
-        the Einstein ring. A numpy.array or single value.
+        the Einstein ring. A np.ndarray or single value.
 
         Definitions for more than 2 lens bodies TBD
         """

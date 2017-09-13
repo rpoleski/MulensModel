@@ -24,7 +24,7 @@ class Fit(object):
         Args:
             data: a list of MulensModel.MulensData objects
             magnification: the model magnification for each data epoch: a list
-                of numpy arrays, each list element is (n_epochs) x (n_sources)
+            of numpy ndarrays, each list element is (n_epochs) x (n_sources)
             n_sources (optional): the number of microlens sources
         """
         # Initialize self._datasets, self._magnification, and self._n_sources
@@ -43,7 +43,7 @@ class Fit(object):
                     + ' or number of sources directly specified')
         self._n_sources = n_sources
         
-        #Set up numpy arrays for flux parameters
+        #Set up numpy ndarrays for flux parameters
         self._flux_blending = dict()
         self._flux_sources = dict()
 
@@ -98,7 +98,7 @@ class Fit(object):
         return self._flux_blending[dataset]
         
     def flux_of_sources(self, dataset):
-        """return fluxes for all sources in a numpy array"""
+        """return fluxes for all sources in a numpy ndarray"""
         return self._flux_sources[dataset]
 
     def get_input_format(self, data=None):

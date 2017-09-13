@@ -126,7 +126,7 @@ class MulensData(object):
                     err_brightness=None, coords=None):
         """
         Internal function to import photometric data into the correct
-        form using a few numpy arrays.
+        form using a few numpy ndarrays.
 
         Keywords:
             phot_fmt - Specifies type of photometry. Either 'flux' or 'mag'. 

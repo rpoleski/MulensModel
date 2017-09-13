@@ -57,7 +57,7 @@ class MagnificationCurve(object):
 
     def set_magnification_methods(self, methods, default_method):
         """sets methods used for magnification calculation;
-        epochs is a numpy array of n epochs that specify when (n-1) 
+        epochs is a numpy ndarray of n epochs that specify when (n-1) 
         methods will be used"""
         self._default_method = default_method
         if methods is None:

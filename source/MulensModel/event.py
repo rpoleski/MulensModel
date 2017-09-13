@@ -124,12 +124,12 @@ class Event(object):
         blending fluxes.
 
         Parameters :
-            fit_blending : boolean, optional
+            fit_blending : *boolean*, optional
                 Are we fitting all blending flux? If not then it is set to 0.
                 Default is the same as :py:func:`Fit.fit_fluxes`.
 
         Returns :
-            chi2 : np.array  
+            chi2 : *np.ndarray*  
                 Chi^2 contribution from each data point
 
         """
