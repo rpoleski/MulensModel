@@ -29,7 +29,8 @@ class Source(object):
     @property
     def distance(self):
         """
-        : astropy.Quantity
+        *astropy.Quantity*
+
         The distance to the source. May be set as a float.
         The distance should either be given in pc, or if no unit is
         given, the value is assumed to be kpc if it is <50 and in pc
@@ -57,7 +58,8 @@ class Source(object):
     @property
     def pi_S(self):
         """
-        : astropy.Quantity
+        *astropy.Quantity*
+
         The parallax to the source in millarcseconds.
         """
         return self._distance.to(u.mas, equivalencies=u.parallax())
@@ -71,7 +73,8 @@ class Source(object):
     @property
     def angular_radius(self):
         """
-        : astropy.Quantity
+        *astropy.Quantity*
+
         Angular radius of the source. If units are not specified,
         assumed to be microarcseconds.
         """

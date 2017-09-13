@@ -42,7 +42,7 @@ class MulensSystem(object):
     @property
     def lens(self):
         """
-        : A :py:class:`~MulensModel.mulensobjects.lens.Lens` object. 
+        A :py:class:`~MulensModel.mulensobjects.lens.Lens` object. 
         Physical properties of the lens. Note: lens mass must be in
         solMasses.
         """
@@ -58,7 +58,7 @@ class MulensSystem(object):
     @property
     def source(self):
         """
-        : :py:class:`~MulensModel.mulensobjects.source.Source` object.
+        :py:class:`~MulensModel.mulensobjects.source.Source` object.
         Physical properties of the source. 
         """
         return self._source
@@ -74,7 +74,8 @@ class MulensSystem(object):
     @property
     def mu_rel(self):
         """
-        : astropy.Quantity
+        *astropy.Quantity*
+
         Relative proper motion between the source and lens
         stars. If set as a float, units are assumed to be mas/yr.
         """
@@ -91,7 +92,8 @@ class MulensSystem(object):
     @property
     def pi_rel(self):
         """
-        : astropy.Quantity
+        *astropy.Quantity*
+
         The source-lens relative parallax in milliarcseconds.
         """
         return self.lens.pi_L.to(u.mas) - self.source.pi_S.to(u.mas)
@@ -99,7 +101,8 @@ class MulensSystem(object):
     @property
     def theta_E(self):
         """
-        : astropy.Quantity
+        *astropy.Quantity*
+
         The angular Einstein Radius in milliarcseconds.
         """
         kappa = (4. * G / (c**2 * au)).to(u.mas/u.Msun, 
@@ -112,7 +115,8 @@ class MulensSystem(object):
     @property
     def r_E(self):
         """
-        : astropy.Quantity
+        *astropy.Quantity*
+
         The physical size of the Einstein Radius in the Lens plane (in AU).
         """
         return (self.lens.distance * self.theta_E.to(
@@ -121,7 +125,8 @@ class MulensSystem(object):
     @property
     def r_E_tilde(self):
         """
-        : astropy.Quantity
+        *astropy.Quantity*
+
         The physical size of the Einstein Radius projected onto the
         Observer plane (in AU).
         """

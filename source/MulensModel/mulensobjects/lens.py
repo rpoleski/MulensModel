@@ -95,7 +95,8 @@ class Lens(object):
     @property
     def total_mass(self):
         """
-        : float
+        *float*
+
         The total mass of the lens (sum of all components). An
         astropy.Quantity with mass units.
         """
@@ -111,7 +112,8 @@ class Lens(object):
     @property
     def epsilon(self):
         """
-        : float, list, numpy.ndarray
+        [*float, list, numpy.ndarray*]
+
         An array of mass fractions for each lens components:
         m_i/total_mass. Stored as a numpy.array.
         """
@@ -124,7 +126,8 @@ class Lens(object):
     @property
     def n_masses(self):
         """
-        : int
+        *int*
+
         number of masses in the system.
         """
         try:
@@ -250,7 +253,7 @@ class Lens(object):
     @property
     def q(self):
         """
-        : float, list, numpy.ndarray
+        [*float, list, numpy.ndarray*]
         mass ratio for companions relative to the primary
 
         Array of mass ratios defined relative to the primary (m_i/m_1). Size is
@@ -287,7 +290,8 @@ class Lens(object):
     @property
     def s(self):
         """
-        : float, list, numpy.ndarray
+        [*float, list, numpy.ndarray*]
+
         Separation between the components of the lens as a fraction of
         the Einstein ring. A numpy.array or single value.
 
