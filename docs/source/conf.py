@@ -79,6 +79,8 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# Order members by type.
+autodoc_member_order = 'bysource'
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -154,8 +156,6 @@ texinfo_documents = [
      author, 'MulensModel', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
 
 
 # Example configuration for intersphinx: refer to the Python standard library.

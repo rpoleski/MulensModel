@@ -83,6 +83,16 @@ ring.</dd>
 </dd>
 </dl>
 <dl class="method">
+<dt id="MulensModel.binarylens.BinaryLens.point_source_magnification">
+<code class="descname">point_source_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates point source magnification for given position
+in a coordinate system where the center of mass is at origin 
+and both masses are on X axis with higher mass at negative X;
+this means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
+the lower mass is at (s/(1+q), 0)</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.hexadecapole_magnification">
 <code class="descname">hexadecapole_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma</em>, <em>quadrupole=False</em>, <em>all_approximations=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>hexadecpole approximation of binary-lens/finite-source 
@@ -113,16 +123,6 @@ calculations - based on Gould 2008 ApJ 681, 1593</p>
 </dl>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.binarylens.BinaryLens.point_source_magnification">
-<code class="descname">point_source_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculates point source magnification for given position
-in a coordinate system where the center of mass is at origin 
-and both masses are on X axis with higher mass at negative X;
-this means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-the lower mass is at (s/(1+q), 0)</p>
 </dd></dl>
 
 <dl class="method">
@@ -184,20 +184,6 @@ coordinates of the caustic points.</dd>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="MulensModel.caustics.Caustics.critical_curve">
-<code class="descname">critical_curve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#MulensModel.caustics.Caustics.CriticalCurve" title="MulensModel.caustics.Caustics.CriticalCurve"><code class="xref py py-class docutils literal"><span class="pre">CriticalCurve</span></code></a> object
-with attributes x, y, where</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>x, y <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>Two lists of length <em>n_points</em> giving the x, y
-coordinates of the caustic points.</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
 <dl class="method">
 <dt id="MulensModel.caustics.Caustics.get_caustics">
 <code class="descname">get_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.get_caustics" title="Permalink to this definition">¶</a></dt>
@@ -237,6 +223,20 @@ coordinates of the caustic points.</dd>
 </dl>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="MulensModel.caustics.Caustics.critical_curve">
+<code class="descname">critical_curve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#MulensModel.caustics.Caustics.CriticalCurve" title="MulensModel.caustics.Caustics.CriticalCurve"><code class="xref py py-class docutils literal"><span class="pre">CriticalCurve</span></code></a> object
+with attributes x, y, where</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>x, y <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>Two lists of length <em>n_points</em> giving the x, y
+coordinates of the caustic points.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -256,25 +256,6 @@ ra: Right Ascension
 dec: Declination</p>
 </dd>
 </dl>
-<dl class="method">
-<dt id="MulensModel.event.Event.clean_data">
-<code class="descname">clean_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.clean_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>masks outlying datapoints</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.event.Event.coords">
-<code class="descname">coords</code><a class="headerlink" href="#MulensModel.event.Event.coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the event Sky Coordinates (RA, Dec)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.event.Event.data_ref">
-<code class="descname">data_ref</code><a class="headerlink" href="#MulensModel.event.Event.data_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reference data set for scaling the model fluxes to (for plotting). May
-be a Mulensdata object or an index.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="MulensModel.event.Event.datasets">
 <code class="descname">datasets</code><a class="headerlink" href="#MulensModel.event.Event.datasets" title="Permalink to this definition">¶</a></dt>
@@ -282,15 +263,9 @@ be a Mulensdata object or an index.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.event.Event.dec">
-<code class="descname">dec</code><a class="headerlink" href="#MulensModel.event.Event.dec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Declination</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.event.Event.estimate_model_params">
-<code class="descname">estimate_model_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.estimate_model_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>estiamtes model parameters without fitting them</p>
+<dt id="MulensModel.event.Event.model">
+<code class="descname">model</code><a class="headerlink" href="#MulensModel.event.Event.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>an instance of Model</p>
 </dd></dl>
 
 <dl class="method">
@@ -338,6 +313,43 @@ Default is the same as <code class="xref py py-func docutils literal"><span clas
 </dd></dl>
 
 <dl class="method">
+<dt id="MulensModel.event.Event.clean_data">
+<code class="descname">clean_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.clean_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>masks outlying datapoints</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.estimate_model_params">
+<code class="descname">estimate_model_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.estimate_model_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>estiamtes model parameters without fitting them</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.coords">
+<code class="descname">coords</code><a class="headerlink" href="#MulensModel.event.Event.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the event Sky Coordinates (RA, Dec)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.ra">
+<code class="descname">ra</code><a class="headerlink" href="#MulensModel.event.Event.ra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Right Ascension</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.dec">
+<code class="descname">dec</code><a class="headerlink" href="#MulensModel.event.Event.dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declination</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.data_ref">
+<code class="descname">data_ref</code><a class="headerlink" href="#MulensModel.event.Event.data_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference data set for scaling the model fluxes to (for plotting). May
+be a Mulensdata object or an index.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.event.Event.get_ref_fluxes">
 <code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get reference source and blending fluxes.</p>
@@ -361,19 +373,6 @@ will be used.</dd>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="MulensModel.event.Event.model">
-<code class="descname">model</code><a class="headerlink" href="#MulensModel.event.Event.model" title="Permalink to this definition">¶</a></dt>
-<dd><p>an instance of Model</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.event.Event.plot_data">
-<code class="descname">plot_data</code><span class="sig-paren">(</span><em>data_ref=None</em>, <em>show_errorbars=True</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the data scaled to the same flux system specified by
-data_ref. Uses the model to calculate the magnifications.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="MulensModel.event.Event.plot_model">
 <code class="descname">plot_model</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_model" title="Permalink to this definition">¶</a></dt>
@@ -384,15 +383,16 @@ specified or data_ref is None, it will use the first dataset
 </dd></dl>
 
 <dl class="method">
+<dt id="MulensModel.event.Event.plot_data">
+<code class="descname">plot_data</code><span class="sig-paren">(</span><em>data_ref=None</em>, <em>show_errorbars=True</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the data scaled to the same flux system specified by
+data_ref. Uses the model to calculate the magnifications.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.event.Event.plot_residuals">
 <code class="descname">plot_residuals</code><span class="sig-paren">(</span><em>show_errorbars=True</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_residuals" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot residuals of the event model</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.event.Event.ra">
-<code class="descname">ra</code><a class="headerlink" href="#MulensModel.event.Event.ra" title="Permalink to this definition">¶</a></dt>
-<dd><p>Right Ascension</p>
 </dd></dl>
 
 </dd></dl>
@@ -416,15 +416,15 @@ for f_source and f_blend:</p>
 <dd>same flux system as data.</dd>
 </dl>
 <dl class="method">
-<dt id="MulensModel.fit.Fit.blending_flux">
-<code class="descname">blending_flux</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.blending_flux" title="Permalink to this definition">¶</a></dt>
-<dd><p>return blending flux for given dataset</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="MulensModel.fit.Fit.fit_fluxes">
 <code class="descname">fit_fluxes</code><span class="sig-paren">(</span><em>fit_blending_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.fit_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>fit source(s) and blending fluxes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.fit.Fit.blending_flux">
+<code class="descname">blending_flux</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.blending_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>return blending flux for given dataset</p>
 </dd></dl>
 
 <dl class="method">
@@ -487,18 +487,6 @@ It has fixed flux at the center. An et al. 2002 (ApJ 572, 521,
 <p>u = 3 * gamma / (2 + gamma)</p>
 <p>Note that gamma convention has fixed total flux.</p>
 <dl class="method">
-<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_gamma">
-<code class="descname">limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>gives gamma coefficient for given band</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_u">
-<code class="descname">limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_u" title="Permalink to this definition">¶</a></dt>
-<dd><p>gives u coefficient for given band</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_gamma">
 <code class="descname">set_limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em>, <em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>set gamma coefficient for given band</p>
@@ -508,6 +496,18 @@ It has fixed flux at the center. An et al. 2002 (ApJ 572, 521,
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_u">
 <code class="descname">set_limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_u" title="Permalink to this definition">¶</a></dt>
 <dd><p>set u coefficient for given band</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_gamma">
+<code class="descname">limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>gives gamma coefficient for given band</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_u">
+<code class="descname">limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>gives u coefficient for given band</p>
 </dd></dl>
 
 <dl class="method">
@@ -528,9 +528,17 @@ weights is a distionary e.g. weights = {‘I’: 1.5, ‘V’: 1.}</p>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The magnification curve calculated from the model light curve.</p>
 <dl class="method">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification">
-<code class="descname">get_binary_lens_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Binary magnification.</p>
+<dt id="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods">
+<code class="descname">set_magnification_methods</code><span class="sig-paren">(</span><em>methods</em>, <em>default_method</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets methods used for magnification calculation;
+epochs is a numpy array of n epochs that specify when (n-1) 
+methods will be used</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.magnificationcurve.MagnificationCurve.magnification">
+<code class="descname">magnification</code><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>provide vector of magnifications</p>
 </dd></dl>
 
 <dl class="method">
@@ -545,18 +553,10 @@ weights is a distionary e.g. weights = {‘I’: 1.5, ‘V’: 1.}</p>
 <dd><p>Calculate the Point Lens magnification.</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.magnification">
-<code class="descname">magnification</code><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>provide vector of magnifications</p>
-</dd></dl>
-
 <dl class="method">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods">
-<code class="descname">set_magnification_methods</code><span class="sig-paren">(</span><em>methods</em>, <em>default_method</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="Permalink to this definition">¶</a></dt>
-<dd><p>sets methods used for magnification calculation;
-epochs is a numpy array of n epochs that specify when (n-1) 
-methods will be used</p>
+<dt id="MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification">
+<code class="descname">get_binary_lens_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Binary magnification.</p>
 </dd></dl>
 
 </dd></dl>
@@ -578,74 +578,88 @@ model. i.e. The satellite parallax will be calculated correctly
 for the model evaluated at the data points, but satellite parallax
 is not implemented for the model alone.</p>
 <dl class="attribute">
+<dt id="MulensModel.model.Model.t_0">
+<code class="descname">t_0</code><a class="headerlink" href="#MulensModel.model.Model.t_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The time of minimum projected separation between the source
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.u_0">
+<code class="descname">u_0</code><a class="headerlink" href="#MulensModel.model.Model.u_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The time of minimum projected separation between the source
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.t_E">
+<code class="descname">t_E</code><a class="headerlink" href="#MulensModel.model.Model.t_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Einstein timescale. An astropy.Quantity. “day” is the default unit.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.rho">
+<code class="descname">rho</code><a class="headerlink" href="#MulensModel.model.Model.rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>source size relative to Einstein ring radius</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.pi_E">
+<code class="descname">pi_E</code><a class="headerlink" href="#MulensModel.model.Model.pi_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>The microlens parallax vector. May be specified either
+relative to the sky (“NorthEast”) or relative to the binary
+axis (“ParPerp”). “NorthEast” is default. A
+MulensParallaxVector object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.pi_E_N">
+<code class="descname">pi_E_N</code><a class="headerlink" href="#MulensModel.model.Model.pi_E_N" title="Permalink to this definition">¶</a></dt>
+<dd><p>The North component of the microlens parallax vector.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.pi_E_E">
+<code class="descname">pi_E_E</code><a class="headerlink" href="#MulensModel.model.Model.pi_E_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>The East component of the microlens parallax vector.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.t_0_par">
+<code class="descname">t_0_par</code><a class="headerlink" href="#MulensModel.model.Model.t_0_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>reference time for parameters, in particular microlensing parallax</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.s">
+<code class="descname">s</code><a class="headerlink" href="#MulensModel.model.Model.s" title="Permalink to this definition">¶</a></dt>
+<dd><p>lens components separation in units of theta_E</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.q">
+<code class="descname">q</code><a class="headerlink" href="#MulensModel.model.Model.q" title="Permalink to this definition">¶</a></dt>
+<dd><p>mass ratio of lens components</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="MulensModel.model.Model.alpha">
 <code class="descname">alpha</code><a class="headerlink" href="#MulensModel.model.Model.alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p>angle between lens axis and source trajectory</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.model.Model.bandpasses">
-<code class="descname">bandpasses</code><a class="headerlink" href="#MulensModel.model.Model.bandpasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of all bandpasses for wich limb darkening coefficients are set</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.coords">
-<code class="descname">coords</code><a class="headerlink" href="#MulensModel.model.Model.coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sky coordinates (RA,Dec)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.data_magnification">
-<code class="descname">data_magnification</code><a class="headerlink" href="#MulensModel.model.Model.data_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>a list of magnifications calculated for every dataset time vector</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.dec">
-<code class="descname">dec</code><a class="headerlink" href="#MulensModel.model.Model.dec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Declination</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.ecliptic_lat">
-<code class="descname">ecliptic_lat</code><a class="headerlink" href="#MulensModel.model.Model.ecliptic_lat" title="Permalink to this definition">¶</a></dt>
-<dd><p>ecliptic latitude</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.ecliptic_lon">
-<code class="descname">ecliptic_lon</code><a class="headerlink" href="#MulensModel.model.Model.ecliptic_lon" title="Permalink to this definition">¶</a></dt>
-<dd><p>ecliptic longitude</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.galactic_b">
-<code class="descname">galactic_b</code><a class="headerlink" href="#MulensModel.model.Model.galactic_b" title="Permalink to this definition">¶</a></dt>
-<dd><p>Galactic latitude</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.galactic_l">
-<code class="descname">galactic_l</code><a class="headerlink" href="#MulensModel.model.Model.galactic_l" title="Permalink to this definition">¶</a></dt>
-<dd><p>Galactic longitude</p>
+<dt id="MulensModel.model.Model.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#MulensModel.model.Model.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parameters of the model. A Model Parameters object.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.model.Model.get_data_magnification">
-<code class="descname">get_data_magnification</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_data_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the model magnification for a given dataset.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.model.Model.get_ref_fluxes">
-<code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine the reference flux system from the
-datasets. data_ref may either be a dataset or the index of a
-dataset (if Model.set_datasets() was previously called). If
-data_ref is not set, it will use the first dataset. If you
-call this without calling set_datasets() first, there will be
-an exception and that’s on you.</p>
+<dt id="MulensModel.model.Model.set_parameters">
+<code class="descname">set_parameters</code><span class="sig-paren">(</span><em>t_0=0.0</em>, <em>u_0=None</em>, <em>t_E=1.0</em>, <em>rho=None</em>, <em>s=None</em>, <em>q=None</em>, <em>alpha=None</em>, <em>pi_E=None</em>, <em>pi_E_N=None</em>, <em>pi_E_E=None</em>, <em>pi_E_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of the model. Any parameter not explicitly
+specified will be set to None. All the previously set parameters 
+will be forgotten.</p>
 </dd></dl>
 
 <dl class="method">
@@ -655,21 +669,69 @@ an exception and that’s on you.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.model.Model.limb_coef_gamma">
-<code class="descname">limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>get gamma LD coef for given band</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.model.Model.limb_coef_u">
-<code class="descname">limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.limb_coef_u" title="Permalink to this definition">¶</a></dt>
-<dd><p>get u LD coef for given band</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="MulensModel.model.Model.magnification">
 <code class="descname">magnification</code><span class="sig-paren">(</span><em>time</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculate the model magnification for the given time(s).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.data_magnification">
+<code class="descname">data_magnification</code><a class="headerlink" href="#MulensModel.model.Model.data_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of magnifications calculated for every dataset time vector</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.get_data_magnification">
+<code class="descname">get_data_magnification</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_data_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the model magnification for a given dataset.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_datasets">
+<code class="descname">set_datasets</code><span class="sig-paren">(</span><em>datasets</em>, <em>data_ref=0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>set _datasets property</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.coords">
+<code class="descname">coords</code><a class="headerlink" href="#MulensModel.model.Model.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sky coordinates (RA,Dec)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.ra">
+<code class="descname">ra</code><a class="headerlink" href="#MulensModel.model.Model.ra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Right Ascension</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.dec">
+<code class="descname">dec</code><a class="headerlink" href="#MulensModel.model.Model.dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declination</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.galactic_l">
+<code class="descname">galactic_l</code><a class="headerlink" href="#MulensModel.model.Model.galactic_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Galactic longitude</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.galactic_b">
+<code class="descname">galactic_b</code><a class="headerlink" href="#MulensModel.model.Model.galactic_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Galactic latitude</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.ecliptic_lon">
+<code class="descname">ecliptic_lon</code><a class="headerlink" href="#MulensModel.model.Model.ecliptic_lon" title="Permalink to this definition">¶</a></dt>
+<dd><p>ecliptic longitude</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.ecliptic_lat">
+<code class="descname">ecliptic_lat</code><a class="headerlink" href="#MulensModel.model.Model.ecliptic_lat" title="Permalink to this definition">¶</a></dt>
+<dd><p>ecliptic latitude</p>
 </dd></dl>
 
 <dl class="method">
@@ -687,38 +749,36 @@ satellite - difference due to the separation between the Earth</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="MulensModel.model.Model.parameters">
-<code class="descname">parameters</code><a class="headerlink" href="#MulensModel.model.Model.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>The parameters of the model. A Model Parameters object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.pi_E">
-<code class="descname">pi_E</code><a class="headerlink" href="#MulensModel.model.Model.pi_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The microlens parallax vector. May be specified either
-relative to the sky (“NorthEast”) or relative to the binary
-axis (“ParPerp”). “NorthEast” is default. A
-MulensParallaxVector object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.pi_E_E">
-<code class="descname">pi_E_E</code><a class="headerlink" href="#MulensModel.model.Model.pi_E_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The East component of the microlens parallax vector.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.pi_E_N">
-<code class="descname">pi_E_N</code><a class="headerlink" href="#MulensModel.model.Model.pi_E_N" title="Permalink to this definition">¶</a></dt>
-<dd><p>The North component of the microlens parallax vector.</p>
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_magnification">
+<code class="descname">plot_magnification</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot the model magnification curve.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.model.Model.plot_caustics">
-<code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_caustics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the caustic structure. n_points specifies the number of
-points to generate in the caustic.</p>
+<dt id="MulensModel.model.Model.plot_lc">
+<code class="descname">plot_lc</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot the model light curve in magnitudes. See get_ref_fluxes
+for details of data_ref.</p>
+<p>f_source and f_blend are the source and blend fluxes in a system
+where flux = 1 corresponds to utils.MAG_ZEROPOINT (= 22 mag).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.get_ref_fluxes">
+<code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the reference flux system from the
+datasets. data_ref may either be a dataset or the index of a
+dataset (if Model.set_datasets() was previously called). If
+data_ref is not set, it will use the first dataset. If you
+call this without calling set_datasets() first, there will be
+an exception and that’s on you.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.reset_plot_properties">
+<code class="descname">reset_plot_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.reset_plot_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>resets internal settings for plotting</p>
 </dd></dl>
 
 <dl class="method">
@@ -743,21 +803,6 @@ fmt=’s‘ to make all data points plotted as squares.</p>
 scatter(): e.g. fmt/marker, markersize/s (see _set_plot_kwargs),</p>
 <p><a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs (and point type lists) are remembered and used in subsequent 
 calls to both plot_data() and plot_residuals().</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.model.Model.plot_lc">
-<code class="descname">plot_lc</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
-<dd><p>plot the model light curve in magnitudes. See get_ref_fluxes
-for details of data_ref.</p>
-<p>f_source and f_blend are the source and blend fluxes in a system
-where flux = 1 corresponds to utils.MAG_ZEROPOINT (= 22 mag).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.model.Model.plot_magnification">
-<code class="descname">plot_magnification</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>plot the model magnification curve.</p>
 </dd></dl>
 
 <dl class="method">
@@ -794,40 +839,19 @@ is calculated for a satellite. (Not checked)</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="MulensModel.model.Model.q">
-<code class="descname">q</code><a class="headerlink" href="#MulensModel.model.Model.q" title="Permalink to this definition">¶</a></dt>
-<dd><p>mass ratio of lens components</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.ra">
-<code class="descname">ra</code><a class="headerlink" href="#MulensModel.model.Model.ra" title="Permalink to this definition">¶</a></dt>
-<dd><p>Right Ascension</p>
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_caustics">
+<code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the caustic structure. n_points specifies the number of
+points to generate in the caustic.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.model.Model.reset_plot_properties">
-<code class="descname">reset_plot_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.reset_plot_properties" title="Permalink to this definition">¶</a></dt>
-<dd><p>resets internal settings for plotting</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.rho">
-<code class="descname">rho</code><a class="headerlink" href="#MulensModel.model.Model.rho" title="Permalink to this definition">¶</a></dt>
-<dd><p>source size relative to Einstein ring radius</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.s">
-<code class="descname">s</code><a class="headerlink" href="#MulensModel.model.Model.s" title="Permalink to this definition">¶</a></dt>
-<dd><p>lens components separation in units of theta_E</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.model.Model.set_datasets">
-<code class="descname">set_datasets</code><span class="sig-paren">(</span><em>datasets</em>, <em>data_ref=0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_datasets" title="Permalink to this definition">¶</a></dt>
-<dd><p>set _datasets property</p>
+<dt id="MulensModel.model.Model.set_times">
+<code class="descname">set_times</code><span class="sig-paren">(</span><em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_times" title="Permalink to this definition">¶</a></dt>
+<dd><p>If given, set up a time vector based on t_start, t_stop,
+and (dt or n_epochs). If not given, intialize the time
+vector based on the model parameters.</p>
 </dd></dl>
 
 <dl class="method">
@@ -835,18 +859,6 @@ is calculated for a satellite. (Not checked)</p>
 <code class="descname">set_default_magnification_method</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_default_magnification_method" title="Permalink to this definition">¶</a></dt>
 <dd><p>stores information on method to be used, when no metod is
 directly specified</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.model.Model.set_limb_coef_gamma">
-<code class="descname">set_limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em>, <em>coef</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>store gamma LD coef for given band</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.model.Model.set_limb_coef_u">
-<code class="descname">set_limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em>, <em>coef</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_limb_coef_u" title="Permalink to this definition">¶</a></dt>
-<dd><p>store u LD coef for given band</p>
 </dd></dl>
 
 <dl class="method">
@@ -862,45 +874,33 @@ methods = [2455746., ‘Quadrupole’, 2455746.6, ‘Hexadecapole’,</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.model.Model.set_parameters">
-<code class="descname">set_parameters</code><span class="sig-paren">(</span><em>t_0=0.0</em>, <em>u_0=None</em>, <em>t_E=1.0</em>, <em>rho=None</em>, <em>s=None</em>, <em>q=None</em>, <em>alpha=None</em>, <em>pi_E=None</em>, <em>pi_E_N=None</em>, <em>pi_E_E=None</em>, <em>pi_E_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of the model. Any parameter not explicitly
-specified will be set to None. All the previously set parameters 
-will be forgotten.</p>
+<dt id="MulensModel.model.Model.set_limb_coef_gamma">
+<code class="descname">set_limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em>, <em>coef</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>store gamma LD coef for given band</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.model.Model.set_times">
-<code class="descname">set_times</code><span class="sig-paren">(</span><em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_times" title="Permalink to this definition">¶</a></dt>
-<dd><p>If given, set up a time vector based on t_start, t_stop,
-and (dt or n_epochs). If not given, intialize the time
-vector based on the model parameters.</p>
+<dt id="MulensModel.model.Model.set_limb_coef_u">
+<code class="descname">set_limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em>, <em>coef</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_limb_coef_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>store u LD coef for given band</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.limb_coef_gamma">
+<code class="descname">limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>get gamma LD coef for given band</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.limb_coef_u">
+<code class="descname">limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.limb_coef_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>get u LD coef for given band</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.model.Model.t_0">
-<code class="descname">t_0</code><a class="headerlink" href="#MulensModel.model.Model.t_0" title="Permalink to this definition">¶</a></dt>
-<dd><p>The time of minimum projected separation between the source
-and the lens center of mass.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.t_0_par">
-<code class="descname">t_0_par</code><a class="headerlink" href="#MulensModel.model.Model.t_0_par" title="Permalink to this definition">¶</a></dt>
-<dd><p>reference time for parameters, in particular microlensing parallax</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.t_E">
-<code class="descname">t_E</code><a class="headerlink" href="#MulensModel.model.Model.t_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Einstein timescale. An astropy.Quantity. “day” is the default unit.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.u_0">
-<code class="descname">u_0</code><a class="headerlink" href="#MulensModel.model.Model.u_0" title="Permalink to this definition">¶</a></dt>
-<dd><p>The time of minimum projected separation between the source
-and the lens center of mass.</p>
+<dt id="MulensModel.model.Model.bandpasses">
+<code class="descname">bandpasses</code><a class="headerlink" href="#MulensModel.model.Model.bandpasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of all bandpasses for wich limb darkening coefficients are set</p>
 </dd></dl>
 
 </dd></dl>
@@ -917,6 +917,38 @@ t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
 lens. pi_E assumes NE coordinates (Parallel, Perpendicular
 coordinates are not supported).</p>
 <dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.n_lenses">
+<code class="descname">n_lenses</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_lenses" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of objects in the lens system</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.t_0">
+<code class="descname">t_0</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The time of minimum projected separation between the source
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.u_0">
+<code class="descname">u_0</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The minimum projected separation between the source
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.t_E">
+<code class="descname">t_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Einstein timescale. An astropy.Quantity. “day” is the default unit.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.rho">
+<code class="descname">rho</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>source size as a fraction of the Einstein radius</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.alpha">
 <code class="descname">alpha</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p>The angle of the source trajectory relative to the binary axis
@@ -926,9 +958,15 @@ TBD - make sure CW/CCW convention is according to Skowron+11 appendix A</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.n_lenses">
-<code class="descname">n_lenses</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_lenses" title="Permalink to this definition">¶</a></dt>
-<dd><p>number of objects in the lens system</p>
+<dt id="MulensModel.modelparameters.ModelParameters.q">
+<code class="descname">q</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.q" title="Permalink to this definition">¶</a></dt>
+<dd><p>mass ratio of two lens components</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.s">
+<code class="descname">s</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.s" title="Permalink to this definition">¶</a></dt>
+<dd><p>separation of two lens components relative to Einstein ring size</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -940,53 +978,15 @@ axis (“ParPerp”). “NorthEast” is default.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.pi_E_E">
-<code class="descname">pi_E_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The East component of the microlens parallax vector.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.pi_E_N">
 <code class="descname">pi_E_N</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_N" title="Permalink to this definition">¶</a></dt>
 <dd><p>The North component of the microlens parallax vector.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.q">
-<code class="descname">q</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.q" title="Permalink to this definition">¶</a></dt>
-<dd><p>mass ratio of two lens components</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.rho">
-<code class="descname">rho</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho" title="Permalink to this definition">¶</a></dt>
-<dd><p>source size as a fraction of the Einstein radius</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.s">
-<code class="descname">s</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.s" title="Permalink to this definition">¶</a></dt>
-<dd><p>separation of two lens components relative to Einstein ring size</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.t_0">
-<code class="descname">t_0</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0" title="Permalink to this definition">¶</a></dt>
-<dd><p>The time of minimum projected separation between the source
-and the lens center of mass.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.t_E">
-<code class="descname">t_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Einstein timescale. An astropy.Quantity. “day” is the default unit.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.u_0">
-<code class="descname">u_0</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0" title="Permalink to this definition">¶</a></dt>
-<dd><p>The minimum projected separation between the source
-and the lens center of mass.</p>
+<dt id="MulensModel.modelparameters.ModelParameters.pi_E_E">
+<code class="descname">pi_E_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>The East component of the microlens parallax vector.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1009,9 +1009,15 @@ and the lens center of mass.</p>
 </dd>
 </dl>
 <dl class="attribute">
-<dt id="MulensModel.mulensdata.MulensData.bandpass">
-<code class="descname">bandpass</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.bandpass" title="Permalink to this definition">¶</a></dt>
-<dd><p>bandpass of given dataset (primary usage is limb darkening)</p>
+<dt id="MulensModel.mulensdata.MulensData.n_epochs">
+<code class="descname">n_epochs</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.n_epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>give number of epochs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensdata.MulensData.time">
+<code class="descname">time</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.time" title="Permalink to this definition">¶</a></dt>
+<dd><p>short version of time vector</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1021,21 +1027,15 @@ and the lens center of mass.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.mulensdata.MulensData.dec">
-<code class="descname">dec</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.dec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Declination</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.mulensdata.MulensData.n_epochs">
-<code class="descname">n_epochs</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.n_epochs" title="Permalink to this definition">¶</a></dt>
-<dd><p>give number of epochs</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.ra">
 <code class="descname">ra</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.ra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Right Ascension</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensdata.MulensData.dec">
+<code class="descname">dec</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declination</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1043,6 +1043,12 @@ and the lens center of mass.</p>
 <code class="descname">satellite_skycoord</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.satellite_skycoord" title="Permalink to this definition">¶</a></dt>
 <dd><p>return Astropy SkyCoord of satellite for epochs covered by
 the dataset</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensdata.MulensData.bandpass">
+<code class="descname">bandpass</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.bandpass" title="Permalink to this definition">¶</a></dt>
+<dd><p>bandpass of given dataset (primary usage is limb darkening)</p>
 </dd></dl>
 
 <dl class="method">
@@ -1053,12 +1059,6 @@ limb darkening coefficient. See also
 <a class="reference internal" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal"><span class="pre">LimbDarkeningCoeffs</span></code></a></p>
 <p>e.g. weights = {‘I’: 1.5, ‘V’: 1.} if I-band gamma limb-darkening 
 coefficient is 1.5-times larger than V-band</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.mulensdata.MulensData.time">
-<code class="descname">time</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.time" title="Permalink to this definition">¶</a></dt>
-<dd><p>short version of time vector</p>
 </dd></dl>
 
 </dd></dl>
@@ -1089,9 +1089,9 @@ the binary axis (“ParPerp”). “NorthEast” is default.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.mulenstime.MulensTime.hjd">
-<code class="descname">hjd</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.hjd" title="Permalink to this definition">¶</a></dt>
-<dd><p>return full Heliocentric Julian Date</p>
+<dt id="MulensModel.mulenstime.MulensTime.zeropoint">
+<code class="descname">zeropoint</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.zeropoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the zeropoint of time</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1101,15 +1101,15 @@ the binary axis (“ParPerp”). “NorthEast” is default.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="MulensModel.mulenstime.MulensTime.hjd">
+<code class="descname">hjd</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.hjd" title="Permalink to this definition">¶</a></dt>
+<dd><p>return full Heliocentric Julian Date</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="MulensModel.mulenstime.MulensTime.time">
 <code class="descname">time</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.time" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.mulenstime.MulensTime.zeropoint">
-<code class="descname">zeropoint</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.zeropoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>return the zeropoint of time</p>
-</dd></dl>
 
 </dd></dl>
 
@@ -1160,34 +1160,10 @@ calculate the xy position of the source.</p>
 <em class="property">class </em><code class="descclassname">MulensModel.utils.</code><code class="descname">Utils</code><a class="headerlink" href="#MulensModel.utils.Utils" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>a number of small functions used in different places</p>
-<dl class="method">
-<dt id="MulensModel.utils.Utils.astropy_version_check">
-<code class="descname">astropy_version_check</code><span class="sig-paren">(</span><em>minimum</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.astropy_version_check" title="Permalink to this definition">¶</a></dt>
-<dd><p>check if astropy is installed at given or later version (input as a string)</p>
-</dd></dl>
-
 <dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.complex_fsum">
-<em class="property">static </em><code class="descname">complex_fsum</code><span class="sig-paren">(</span><em>arguments</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.complex_fsum" title="Permalink to this definition">¶</a></dt>
-<dd><p>accurate floating points sum of complex numbers in iterable arguments</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.date_change">
-<em class="property">static </em><code class="descname">date_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
-<dd><p>changes format: ‘2015-Oct-30 12:00’ -&gt; ‘2015-10-30 12:00’</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.dot">
-<em class="property">static </em><code class="descname">dot</code><span class="sig-paren">(</span><em>cartesian</em>, <em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.dot" title="Permalink to this definition">¶</a></dt>
-<dd><p>dot product of Astropy CartersianRepresentation and np.array</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.gamma_to_u">
-<em class="property">static </em><code class="descname">gamma_to_u</code><span class="sig-paren">(</span><em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.gamma_to_u" title="Permalink to this definition">¶</a></dt>
-<dd><p>transform gamma limb darkening coefficient to u</p>
+<dt id="MulensModel.utils.Utils.get_flux_from_mag">
+<em class="property">static </em><code class="descname">get_flux_from_mag</code><span class="sig-paren">(</span><em>mag</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_from_mag" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform magnitudes into fluxes</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -1197,9 +1173,9 @@ calculate the xy position of the source.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.get_flux_from_mag">
-<em class="property">static </em><code class="descname">get_flux_from_mag</code><span class="sig-paren">(</span><em>mag</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_from_mag" title="Permalink to this definition">¶</a></dt>
-<dd><p>transform magnitudes into fluxes</p>
+<dt id="MulensModel.utils.Utils.get_mag_from_flux">
+<em class="property">static </em><code class="descname">get_mag_from_flux</code><span class="sig-paren">(</span><em>flux</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_from_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform fluxes into magnitudes</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -1209,9 +1185,27 @@ calculate the xy position of the source.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.get_mag_from_flux">
-<em class="property">static </em><code class="descname">get_mag_from_flux</code><span class="sig-paren">(</span><em>flux</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_from_flux" title="Permalink to this definition">¶</a></dt>
-<dd><p>transform fluxes into magnitudes</p>
+<dt id="MulensModel.utils.Utils.complex_fsum">
+<em class="property">static </em><code class="descname">complex_fsum</code><span class="sig-paren">(</span><em>arguments</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.complex_fsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>accurate floating points sum of complex numbers in iterable arguments</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.dot">
+<em class="property">static </em><code class="descname">dot</code><span class="sig-paren">(</span><em>cartesian</em>, <em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>dot product of Astropy CartersianRepresentation and np.array</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.vector_product_normalized">
+<em class="property">static </em><code class="descname">vector_product_normalized</code><span class="sig-paren">(</span><em>vector_1</em>, <em>vector_2</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.vector_product_normalized" title="Permalink to this definition">¶</a></dt>
+<dd><p>get vector that is perpendicular to the 2 above and is normalized</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.gamma_to_u">
+<em class="property">static </em><code class="descname">gamma_to_u</code><span class="sig-paren">(</span><em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.gamma_to_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform gamma limb darkening coefficient to u</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -1221,9 +1215,15 @@ calculate the xy position of the source.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.vector_product_normalized">
-<em class="property">static </em><code class="descname">vector_product_normalized</code><span class="sig-paren">(</span><em>vector_1</em>, <em>vector_2</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.vector_product_normalized" title="Permalink to this definition">¶</a></dt>
-<dd><p>get vector that is perpendicular to the 2 above and is normalized</p>
+<dt id="MulensModel.utils.Utils.date_change">
+<em class="property">static </em><code class="descname">date_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>changes format: ‘2015-Oct-30 12:00’ -&gt; ‘2015-10-30 12:00’</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.utils.Utils.astropy_version_check">
+<code class="descname">astropy_version_check</code><span class="sig-paren">(</span><em>minimum</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.astropy_version_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if astropy is installed at given or later version (input as a string)</p>
 </dd></dl>
 
 </dd></dl>
