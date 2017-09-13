@@ -48,13 +48,13 @@ class Fit(object):
         self._flux_sources = dict()
 
            
-    def fit_fluxes(self, fit_blending_all=True):
+    def fit_fluxes(self, fit_blending=True):
         """fit source(s) and blending fluxes"""
         n_sources = self.get_n_sources()
 
         # Add parameters for blended light (if appropriate)
         n_fluxes = n_sources
-        if fit_blending_all:
+        if fit_blending:
             n_fluxes += 1
 
         # For each dataset, perform a least-squares linear fit for the flux 
@@ -66,7 +66,7 @@ class Fit(object):
 
             # Set up the x vector for the linear fit
             x = np.empty(shape=(n_fluxes, n_epochs))
-            if fit_blending_all:
+            if fit_blending:
                 x[0:(n_fluxes-1),] = self._magnification[i_dataset][select]
                 x[n_fluxes-1] = 1.
             else:
@@ -86,7 +86,7 @@ class Fit(object):
             results = np.linalg.lstsq(xT, y)[0] 
 
             # Record the results
-            if fit_blending_all:
+            if fit_blending:
                 self._flux_blending[dataset] = results[-1]
                 self._flux_sources[dataset] = results[:-1]
             else:
