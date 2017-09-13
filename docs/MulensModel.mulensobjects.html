@@ -53,14 +53,16 @@
 <p>Standard parameter combinations for defining a Lens object:</p>
 <dl class="docutils">
 <dt>Point Lens:</dt>
-<dd>(mass, distance)</dd>
-<dt>2+ body lens:</dt>
-<dd>(s, q)
-(epsilon, s)
-(total_mass, epsilon, distance) - Missing s/Not Implemented?
-(mass_1, mass_2, a_proj, distance) - Not Implemented</dd>
+<dd>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass" title="MulensModel.mulensobjects.lens.Lens.mass"><code class="xref py py-obj docutils literal"><span class="pre">mass</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>)</dd>
 </dl>
-<p>Note that s, q, and epsilon may be lists or numpy arrays.</p>
+<p>2+ body lens:</p>
+<blockquote>
+<div><p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.s" title="MulensModel.mulensobjects.lens.Lens.s"><code class="xref py py-obj docutils literal"><span class="pre">s</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.q" title="MulensModel.mulensobjects.lens.Lens.q"><code class="xref py py-obj docutils literal"><span class="pre">q</span></code></a>)</p>
+<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.s" title="MulensModel.mulensobjects.lens.Lens.s"><code class="xref py py-obj docutils literal"><span class="pre">s</span></code></a>)</p>
+<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal"><span class="pre">total_mass</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>) - Missing s/Not Implemented?</p>
+<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_1" title="MulensModel.mulensobjects.lens.Lens.mass_1"><code class="xref py py-obj docutils literal"><span class="pre">mass_1</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_2" title="MulensModel.mulensobjects.lens.Lens.mass_2"><code class="xref py py-obj docutils literal"><span class="pre">mass_2</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.a_proj" title="MulensModel.mulensobjects.lens.Lens.a_proj"><code class="xref py py-obj docutils literal"><span class="pre">a_proj</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>) - Not Implemented</p>
+</div></blockquote>
+<p>Note that s, q, and epsilon may be single values, lists, or numpy arrays.</p>
 <p>If units are not specified for a given mass, it is assumed the value
 given is in Solar Masses.</p>
 <p>If units are not specified for distance, and the value given is
@@ -69,6 +71,7 @@ assumed.</p>
 <dl class="docutils">
 <dt>TO DO:</dt>
 <dd><ul class="first last simple">
+<li>__repr__ function needs work</li>
 <li>a_proj, couples with source distance in mulensmodel to determine s.</li>
 <li>2-body example 3 is missing s. Why? Does that work?</li>
 <li>problem with tracking number of masses, esp when
@@ -82,19 +85,19 @@ successively defining masses (see test_Lens.py)</li>
 <code class="descname">epsilon</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="Permalink to this definition">¶</a></dt>
 <dd><p>[<em>float, list, numpy.ndarray</em>]</p>
 <p>An array of mass fractions for each lens components:
-m_i/total_mass. Stored as a numpy.array.</p>
+m_i/total_mass. Stored as a <em>numpy.array</em>.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.q">
 <code class="descname">q</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.q" title="Permalink to this definition">¶</a></dt>
-<dd><p>[<em>float, list, numpy.ndarray</em>]
-mass ratio for companions relative to the primary</p>
+<dd><p>[<em>float, list, numpy.ndarray</em>]</p>
+<p>mass ratio for companions relative to the primary</p>
 <p>Array of mass ratios defined relative to the primary (m_i/m_1). Size is
-number of components -1. A numpy.array or single value.</p>
-<p>Note: if total_mass is defined before q, it is assumed this is the
-mass of the primary. If you want this to actually be the total mass,
-define it after defining q.</p>
+number of components -1. Set as a list, numpy.array, or single value.</p>
+<p>Note: if <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal"><span class="pre">total_mass</span></code></a> is defined before q, it is
+assumed this is the mass of the primary. If you want this to
+actually be the total mass, define it after defining q.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -107,24 +110,19 @@ the Einstein ring. A numpy.array or single value.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.mulensobjects.lens.Lens.n_masses">
-<code class="descname">n_masses</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.n_masses" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em></p>
-<p>number of masses in the system.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.total_mass">
 <code class="descname">total_mass</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>float</em></p>
+<dd><p><em>astropy.Quantity</em></p>
 <p>The total mass of the lens (sum of all components). An
-astropy.Quantity with mass units.</p>
+astropy.Quantity with mass units. If set as a <em>float</em>, units
+are assumed to be solMass.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass">
 <code class="descname">mass</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass" title="Permalink to this definition">¶</a></dt>
-<dd><p>The mass of a point lens –&gt; total mass. An astropy.Quantity
+<dd><p><em>astropy.Quantity</em></p>
+<p>The mass of a point lens –&gt; total mass. An astropy.Quantity
 with mass units. May be set as a float (in which case solMass
 is assumed).</p>
 </dd></dl>
@@ -132,15 +130,19 @@ is assumed).</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass_1">
 <code class="descname">mass_1</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_1" title="Permalink to this definition">¶</a></dt>
-<dd><p>The mass of the primary. Defined as total_mass *
-epsilon[0]. An astropy.Quantity with mass units.</p>
+<dd><p><em>astropy.Quantity</em></p>
+<p>The mass of the primary. Defined as total_mass *
+epsilon[0]. An astropy.Quantity with mass units. If set as a
+<em>float</em>, units are assumed to be solMass.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass_2">
 <code class="descname">mass_2</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_2" title="Permalink to this definition">¶</a></dt>
-<dd><p>The mass of the secondary. Defined as total_mass *
-epsilon[1]. An astropy.Quantity with mass units.</p>
+<dd><p><em>astropy.Quantity</em></p>
+<p>The mass of the secondary. Defined as total_mass *
+epsilon[1]. An astropy.Quantity with mass units. If set as a
+<em>float</em>, units are assumed to be solMass.</p>
 <p>Note that if total_mass is defined before mass_2, and there is
 no epsilon corresponding to mass_2, mass_2 is added to the
 total_mass.</p>
@@ -149,17 +151,27 @@ total_mass.</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass_3">
 <code class="descname">mass_3</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_3" title="Permalink to this definition">¶</a></dt>
-<dd><p>The mass of the tertiary. Defined as total_mass * epsilon[2]. 
-An astropy.Quantity with mass units.</p>
+<dd><p><em>astropy.Quantity</em></p>
+<p>The mass of the tertiary. Defined as total_mass * epsilon[2]. 
+An astropy.Quantity with mass units. If set as a
+<em>float</em>, units are assumed to be solMass.</p>
 <p>Note that if total_mass is defined before mass_3, and there is
 no epsilon corresponding to mass_3, mass_3 is added to the total_mass.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="MulensModel.mulensobjects.lens.Lens.n_masses">
+<code class="descname">n_masses</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.n_masses" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em>, read-only</p>
+<p>number of masses in the system.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.distance">
 <code class="descname">distance</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.distance" title="Permalink to this definition">¶</a></dt>
-<dd><p>The distance to the lens. An astropy Quantity.</p>
-<p>The distance should either be given in pc, or if no unit is
+<dd><p><em>astropy.Quantity</em></p>
+<p>The distance to the lens.</p>
+<p>May be set as a <em>float</em>. If no unit is
 given, the value is assumed to be kpc if it is &lt;50 and in pc
 otherwise.</p>
 </dd></dl>
@@ -167,13 +179,17 @@ otherwise.</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.pi_L">
 <code class="descname">pi_L</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.pi_L" title="Permalink to this definition">¶</a></dt>
-<dd><p>The parallax to the lens in millarcseconds.</p>
+<dd><p><em>astropy.Quantity</em></p>
+<p>The parallax to the lens in milliarcseconds. May be set as a
+<em>float</em>, in which case units are assumed to be
+milliarcseconds.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.a_proj">
 <code class="descname">a_proj</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.a_proj" title="Permalink to this definition">¶</a></dt>
-<dd><p>Projected separation between the components of the lens in
+<dd><p><em>astropy.Quantity</em></p>
+<p>Projected separation between the components of the lens in
 AU. An astropy.Quantity with distance units. If set as float
 (without units), AU is assumed.</p>
 </dd></dl>
@@ -181,7 +197,7 @@ AU. An astropy.Quantity with distance units. If set as float
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.caustics">
 <code class="descname">caustics</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.caustics" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <a class="reference internal" href="MulensModel.html#MulensModel.caustics.Caustics" title="MulensModel.caustics.Caustics"><code class="xref py py-class docutils literal"><span class="pre">Caustics</span></code></a> object.</p>
+<dd><p>A <a class="reference internal" href="MulensModel.html#MulensModel.caustics.Caustics" title="MulensModel.caustics.Caustics"><code class="xref py py-class docutils literal"><span class="pre">Caustics</span></code></a> object, read-only</p>
 </dd></dl>
 
 <dl class="method">
@@ -225,38 +241,40 @@ stars. If set as a float, units are assumed to be mas/yr.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.t_E">
+<code class="descname">t_E</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.t_E" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em></p>
+<p>The Einstein crossing time (in days). If set as a <em>float</em>,
+assumes units are in days.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.pi_rel">
 <code class="descname">pi_rel</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.pi_rel" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
+<dd><p><em>astropy.Quantity</em>, read-only</p>
 <p>The source-lens relative parallax in milliarcseconds.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.theta_E">
 <code class="descname">theta_E</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.theta_E" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
+<dd><p><em>astropy.Quantity</em>, read-only</p>
 <p>The angular Einstein Radius in milliarcseconds.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.r_E">
 <code class="descname">r_E</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.r_E" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
+<dd><p><em>astropy.Quantity</em>, read-only</p>
 <p>The physical size of the Einstein Radius in the Lens plane (in AU).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.r_E_tilde">
 <code class="descname">r_E_tilde</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.r_E_tilde" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
+<dd><p><em>astropy.Quantity</em>, read-only</p>
 <p>The physical size of the Einstein Radius projected onto the
 Observer plane (in AU).</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.t_E">
-<code class="descname">t_E</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.t_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Einstein crossing time (in days).</p>
 </dd></dl>
 
 <dl class="method">
@@ -272,9 +290,9 @@ be specified.</p>
 <dd>Impact parameter between the source and the lens (as a
 fraction of the Einstein ring)</dd>
 <dt>alpha :</dt>
-<dd>see <code class="xref py py-func docutils literal"><span class="pre">Model.model.alpha()</span></code></dd>
+<dd>see <a class="reference internal" href="MulensModel.html#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-obj docutils literal"><span class="pre">MulensModel.modelparameters.ModelParameters.alpha</span></code></a></dd>
 <dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs :</dt>
-<dd>see <code class="xref py py-func docutils literal"><span class="pre">Model.model.plot_magnification()</span></code></dd>
+<dd>see <a class="reference internal" href="MulensModel.html#MulensModel.model.Model.plot_magnification" title="MulensModel.model.Model.plot_magnification"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_magnification()</span></code></a></dd>
 </dl>
 </dd>
 </dl>
@@ -283,8 +301,9 @@ fraction of the Einstein ring)</dd>
 <dl class="method">
 <dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.plot_caustics">
 <code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.plot_caustics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the caustic structure. n_points specifies the number of
-points to generate in the caustic.</p>
+<dd><p>Plot the caustic structure. <em>n_points</em> specifies the number of
+points to generate in the caustic. See
+<a class="reference internal" href="MulensModel.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -294,7 +313,7 @@ points to generate in the caustic.</p>
 <span id="mulensmodel-mulensobjects-source-module"></span><h2>MulensModel.mulensobjects.source module<a class="headerlink" href="#module-MulensModel.mulensobjects.source" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="MulensModel.mulensobjects.source.Source">
-<em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.source.</code><code class="descname">Source</code><span class="sig-paren">(</span><em>distance=None</em>, <em>angular_radius=None</em>, <em>limb_darkening=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.source.Source" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.source.</code><code class="descname">Source</code><span class="sig-paren">(</span><em>distance=None</em>, <em>pi_S=None</em>, <em>angular_radius=None</em>, <em>limb_darkening=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.source.Source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Physical properties of a source (background) star.</p>
 <dl class="docutils">
@@ -309,7 +328,7 @@ points to generate in the caustic.</p>
 <dt id="MulensModel.mulensobjects.source.Source.distance">
 <code class="descname">distance</code><a class="headerlink" href="#MulensModel.mulensobjects.source.Source.distance" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>The distance to the source. May be set as a float.
+<p>The distance to the source. May be set as a <em>float</em>.
 The distance should either be given in pc, or if no unit is
 given, the value is assumed to be kpc if it is &lt;50 and in pc
 otherwise.</p>
@@ -319,15 +338,16 @@ otherwise.</p>
 <dt id="MulensModel.mulensobjects.source.Source.pi_S">
 <code class="descname">pi_S</code><a class="headerlink" href="#MulensModel.mulensobjects.source.Source.pi_S" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>The parallax to the source in millarcseconds.</p>
+<p>The parallax to the source in millarcseconds. May be set as a
+<em>float</em>. If no units are specified, assumes milliarcseconds.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.source.Source.angular_radius">
 <code class="descname">angular_radius</code><a class="headerlink" href="#MulensModel.mulensobjects.source.Source.angular_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>Angular radius of the source. If units are not specified,
-assumed to be microarcseconds.</p>
+<p>Angular radius of the source. May be set as a <em>float</em>. If
+units are not specified, assumed to be microarcseconds.</p>
 </dd></dl>
 
 </dd></dl>

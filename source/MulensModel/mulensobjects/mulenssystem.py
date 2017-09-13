@@ -88,54 +88,13 @@ class MulensSystem(object):
         else:
             self._mu_rel = value * u.mas / u.yr
 
-
-    @property
-    def pi_rel(self):
-        """
-        *astropy.Quantity*
-
-        The source-lens relative parallax in milliarcseconds.
-        """
-        return self.lens.pi_L.to(u.mas) - self.source.pi_S.to(u.mas)
-
-    @property
-    def theta_E(self):
-        """
-        *astropy.Quantity*
-
-        The angular Einstein Radius in milliarcseconds.
-        """
-        kappa = (4. * G / (c**2 * au)).to(u.mas/u.Msun, 
-                        equivalencies=u.dimensionless_angles())
-
-        return np.sqrt(
-            kappa * self.lens.total_mass.to(u.solMass) 
-            * self.pi_rel.to(u.mas))
-
-    @property
-    def r_E(self):
-        """
-        *astropy.Quantity*
-
-        The physical size of the Einstein Radius in the Lens plane (in AU).
-        """
-        return (self.lens.distance * self.theta_E.to(
-                '',equivalencies=u.dimensionless_angles())).to(u.au)
-
-    @property
-    def r_E_tilde(self):
-        """
-        *astropy.Quantity*
-
-        The physical size of the Einstein Radius projected onto the
-        Observer plane (in AU).
-        """
-        return self.r_E * self.source.distance / (self.source.distance - self.lens.distance)
-
     @property
     def t_E(self):
         """
-        The Einstein crossing time (in days).
+        *astropy.Quantity*
+
+        The Einstein crossing time (in days). If set as a *float*,
+        assumes units are in days.
         """
         try:
             t_E = self.theta_E/self.mu_rel
@@ -150,6 +109,49 @@ class MulensSystem(object):
         else:
             self.mu_rel = self.theta_E / t_E * u.year
 
+    @property
+    def pi_rel(self):
+        """
+        *astropy.Quantity*, read-only
+
+        The source-lens relative parallax in milliarcseconds.
+        """
+        return self.lens.pi_L.to(u.mas) - self.source.pi_S.to(u.mas)
+
+    @property
+    def theta_E(self):
+        """
+        *astropy.Quantity*, read-only
+
+        The angular Einstein Radius in milliarcseconds.
+        """
+        kappa = (4. * G / (c**2 * au)).to(u.mas/u.Msun, 
+                        equivalencies=u.dimensionless_angles())
+
+        return np.sqrt(
+            kappa * self.lens.total_mass.to(u.solMass) 
+            * self.pi_rel.to(u.mas))
+
+    @property
+    def r_E(self):
+        """
+        *astropy.Quantity*, read-only
+
+        The physical size of the Einstein Radius in the Lens plane (in AU).
+        """
+        return (self.lens.distance * self.theta_E.to(
+                '',equivalencies=u.dimensionless_angles())).to(u.au)
+
+    @property
+    def r_E_tilde(self):
+        """
+        *astropy.Quantity*, read-only
+
+        The physical size of the Einstein Radius projected onto the
+        Observer plane (in AU).
+        """
+        return self.r_E * self.source.distance / (self.source.distance - self.lens.distance)
+
     def plot_magnification(self, u_0=None, alpha=None,**kwargs):
         """
         Plot the magnification curve for the lens. u_0 must always be
@@ -162,10 +164,10 @@ class MulensSystem(object):
                 fraction of the Einstein ring)
 
             alpha :
-                see :py:func:`Model.model.alpha`
+                see :py:obj:`MulensModel.modelparameters.ModelParameters.alpha`
 
             **kwargs :
-                see :py:func:`Model.model.plot_magnification`
+                see :py:func:`MulensModel.model.Model.plot_magnification`
         """
         if u_0 is None:
             raise AttributeError('u_0 is required')
@@ -196,8 +198,9 @@ class MulensSystem(object):
 
     def plot_caustics(self, n_points=5000, **kwargs):
         """
-        Plot the caustic structure. n_points specifies the number of
-        points to generate in the caustic.
+        Plot the caustic structure. *n_points* specifies the number of
+        points to generate in the caustic. See
+        :py:func:`MulensModel.caustics.Caustics.plot`
         """
         self.lens.plot_caustics(n_points=n_points, **kwargs)
 
