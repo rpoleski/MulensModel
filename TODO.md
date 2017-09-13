@@ -7,18 +7,19 @@
 |Effect|Implemented?|
 |------|------|
 | source trajectories including| |
-| * annual parallax| |
-| * satellite parallax effects| |
+| * annual parallax| Yes |
+| * satellite parallax effects| Yes |
 | point-source/point-lens magnification curves including| |
+| * finite source with limb darkening| Yes, but very slow |
+| binary lens magnification curves including| |
 | * finite source with limb darkening| |
-| point-source/binary lens magnification curves including| |
-| * finite source with limb darkening| |
-| * VBBL| |
-| * Dominik Adpative Contouring| |
+| * VBBL| Yes |
+| * Dominik's Adapative Contouring| No |
 | binary lenses caustics can be calculated and plotted together with source trajectory.| Yes |
 |event properties (tE, thetaE, rE) can be calculated from physical properties of the source and lens systems (e.g. M, pi\_s, pi\_l, and mu)| Yes |
 | The code contains
-| * examples and tutorial that show how the main high-level functions can be used.| |
+| * examples that show how the main high-level functions can be used| Yes |
+| * tutorial | No |
 
 
 ### Coding Style
@@ -33,10 +34,10 @@
 
 |Effect|Implemented?|
 |------|------|
-| xallarap| |
-| automatic determination of appropriate binary lens magnification  calculation (i.e. whether or not a given approximation gives  sufficient precision)| |
-| average magnification over exposure time during caustic crossing| |
-| Can be downloaded through pip install or other standard python  package installer.| |
+| xallarap| No |
+| automatic determination of appropriate binary lens magnification  calculation (i.e. whether or not a given approximation gives  sufficient precision)| No |
+| average magnification over exposure time during caustic crossing| No |
+| Can be downloaded through pip install or other standard python  package installer.| No |
 | Tested on multiple operating systems (Windows, Mac, Linux)| |
 
 ### Coding Style
@@ -52,17 +53,18 @@
 |03| model based on physical parameters | Yes|
 |04| xxx | xxx|
 |05| satellite parallax setup| Yes |
-|06| WFIRST data | |
-|07| triple lenses | |
+|06| WFIRST data | No |
+|07| triple lenses | No |
 |08| plotting | Yes |
 |09| finite source | |
 |10| get chi2 | |
-|11| clean bad data | |
+|11| clean bad data | No |
 |12| simple fit PSPL | Yes |
 |13| adding parallax to a model| Yes|
 |14| coordinate system | |
 |15| emcee simple PSPL | Yes |
 |16| raddec | Yes |
 |17| magnitudes | Yes |
-|18| binary equation | |
-|19| limb_darkening | Yes |
+|18| binary equation | UC not finished! |
+|19| limb\_darkening | Yes |
+|20| binary lens instantaneous orbital motion | No |
