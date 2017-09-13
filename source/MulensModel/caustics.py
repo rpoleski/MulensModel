@@ -15,14 +15,6 @@ class Caustics(object):
         s : float
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
-
-    Methods:
-        get_caustics() :
-            returns x, y vectors for the caustic locations
-        plot() :
-            plots the caustic structure using matplotlib.scatter
-
-    Also contains the critical_curve (an internal class).
     """
 
     def __init__(self, q=None, s=None):
@@ -60,6 +52,48 @@ class Caustics(object):
         def __init__(self):
             self.x = []
             self.y = []
+
+    def plot(self, n_points=5000, **kwargs):
+        """
+        Plots the caustics (using matplotlib.pyplot.scatter()). 
+
+        Parameters:
+            n_points : int, optional
+                The number of points to calculate along the caustic.
+            **kwargs :
+                keywords accepted by matplotlib.pyplot.scatter()
+        """
+        if self._x is None:
+            self._calculate(n_points=n_points)
+        pl.scatter(self._x, self._y, **kwargs)
+
+    def get_caustics(self, n_points=5000):
+        """
+        Returns x and y vectors corresponding to the outlines of the
+        caustics.  Origin is center of mass and larger mass is on the
+        left (for q < 1).
+
+        Parameters:
+            n_points : int, optional
+                The number of points to calculate along the caustic.
+
+        Returns:
+            x, y : list
+                Two lists of length *n_points* giving the x, y
+                coordinates of the caustic points. 
+        """
+        if self._x is None or self._y is None:
+            self._calculate(n_points=n_points)
+        return self._x, self._y
+
+    @property
+    def critical_curve(self):
+        """
+        A :py:class:`CriticalCurve` object, read-only
+        """
+        if self._critical_curve is None:
+            self._calculate()
+        return self._critical_curve
 
     def _calculate(self, n_points=5000):
         """
@@ -104,39 +138,6 @@ class Caustics(object):
                 self._x.append(source_plane_position.real - xcm_offset)
                 self._y.append(source_plane_position.imag)
 
-    def get_caustics(self, n_points=5000):
-        """
-        Returns x and y vectors corresponding to the outlines of the
-        caustics.  Origin is center of mass and larger mass is on the
-        left (for q < 1).
-
-        Parameters:
-            n_points : int, optional
-                The number of points to calculate along the caustic.
-
-        Returns:
-            x, y : list
-                Two lists of length *n_points* giving the x, y
-                coordinates of the caustic points. 
-        """
-        if self._x is None or self._y is None:
-            self._calculate(n_points=n_points)
-        return self._x, self._y
-
-    def plot(self, n_points=5000, **kwargs):
-        """
-        Plots the caustics (using matplotlib.scatter()). 
-
-        Parameters:
-            n_points : int, optional
-                The number of points to calculate along the caustic.
-            **kwargs :
-                keywords accepted by matplotlib.pyplot.scatter()
-        """
-        if self._x is None:
-            self._calculate(n_points=n_points)
-        pl.scatter(self._x, self._y, **kwargs)
-
     def _solve_lens_equation(self, complex_value):
         """
         Solve the lens equation for the given point (in complex coordinates).
@@ -145,17 +146,4 @@ class Caustics(object):
         return complex_value - (1. / (1. + self.q)) * (
             (1./complex_conjugate) + (self.q / (complex_conjugate - self.s)) )
 
-    @property
-    def critical_curve(self):
-        """
-        Returns a :class:`.CriticalCurve` object
-        with attributes x, y, where
-
-            x, y : list
-                Two lists of length *n_points* giving the x, y
-                coordinates of the caustic points. 
-        """
-        if self._critical_curve is None:
-            self._calculate()
-        return self._critical_curve
 

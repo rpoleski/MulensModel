@@ -156,16 +156,7 @@ i.e. mass ratio and separation. Implemented for 2-body lenses only.</p>
 Einstein ring)</dd>
 </dl>
 </dd>
-<dt>Methods:</dt>
-<dd><dl class="first last docutils">
-<dt>get_caustics() :</dt>
-<dd>returns x, y vectors for the caustic locations</dd>
-<dt>plot() :</dt>
-<dd>plots the caustic structure using matplotlib.scatter</dd>
 </dl>
-</dd>
-</dl>
-<p>Also contains the critical_curve (an internal class).</p>
 <dl class="class">
 <dt id="MulensModel.caustics.Caustics.CriticalCurve">
 <em class="property">class </em><code class="descname">CriticalCurve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.CriticalCurve" title="Permalink to this definition">¶</a></dt>
@@ -179,6 +170,22 @@ left (q &lt; 1).</p>
 <dt>x, y <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd>Two lists of length <em>n_points</em> giving the x, y
 coordinates of the caustic points.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.caustics.Caustics.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the caustics (using matplotlib.pyplot.scatter()).</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd><dl class="first last docutils">
+<dt>n_points <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>The number of points to calculate along the caustic.</dd>
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs :</dt>
+<dd>keywords accepted by matplotlib.pyplot.scatter()</dd>
 </dl>
 </dd>
 </dl>
@@ -207,34 +214,10 @@ coordinates of the caustic points.</dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="MulensModel.caustics.Caustics.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots the caustics (using matplotlib.scatter()).</p>
-<dl class="docutils">
-<dt>Parameters:</dt>
-<dd><dl class="first last docutils">
-<dt>n_points <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd>The number of points to calculate along the caustic.</dd>
-<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs :</dt>
-<dd>keywords accepted by matplotlib.pyplot.scatter()</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="MulensModel.caustics.Caustics.critical_curve">
 <code class="descname">critical_curve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#MulensModel.caustics.Caustics.CriticalCurve" title="MulensModel.caustics.Caustics.CriticalCurve"><code class="xref py py-class docutils literal"><span class="pre">CriticalCurve</span></code></a> object
-with attributes x, y, where</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>x, y <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>Two lists of length <em>n_points</em> giving the x, y
-coordinates of the caustic points.</dd>
-</dl>
-</div></blockquote>
+<dd><p>A <a class="reference internal" href="#MulensModel.caustics.Caustics.CriticalCurve" title="MulensModel.caustics.Caustics.CriticalCurve"><code class="xref py py-class docutils literal"><span class="pre">CriticalCurve</span></code></a> object, read-only</p>
 </dd></dl>
 
 </dd></dl>
