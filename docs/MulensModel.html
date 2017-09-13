@@ -230,38 +230,31 @@ coordinates of the caustic points.</dd>
 <em class="property">class </em><code class="descclassname">MulensModel.event.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>datasets=None</em>, <em>model=None</em>, <em>coords=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Connects datasets to a model.</p>
-<dl class="docutils">
-<dt>Attributes :</dt>
-<dd><p class="first">datasets: the input data (MulensModel.MulensData)
-model: the microlensing model (MulensModel.Model)</p>
-<p class="last">coords: the sky coordinates
-ra: Right Ascension
-dec: Declination</p>
-</dd>
-</dl>
 <dl class="attribute">
 <dt id="MulensModel.event.Event.datasets">
 <code class="descname">datasets</code><a class="headerlink" href="#MulensModel.event.Event.datasets" title="Permalink to this definition">¶</a></dt>
-<dd><p>a list of MulensData instances that represent all event datasets</p>
+<dd><p>a <em>list</em> of <a class="reference internal" href="#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a>
+instances.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.event.Event.model">
 <code class="descname">model</code><a class="headerlink" href="#MulensModel.event.Event.model" title="Permalink to this definition">¶</a></dt>
-<dd><p>an instance of Model</p>
+<dd><p>an instance of <a class="reference internal" href="#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.event.Event.get_chi2">
-<code class="descname">get_chi2</code><span class="sig-paren">(</span><em>fit_blending_all=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_chi2</code><span class="sig-paren">(</span><em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates chi^2 of current model by fitting for source and 
 blending fluxes.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>fit_blending_all <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
-<dd>Are we fitting all blending flux? If not then it is set to 0.
-Default is the same as <code class="xref py py-func docutils literal"><span class="pre">Fit.fit_fluxes()</span></code>.</dd>
+<dt>fit_blending <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dd>If True, then the blend flux is a free parameter. If
+False, the blend flux is fixed at zero.  Default is
+the same as <a class="reference internal" href="#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">fit_fluxes()</span></code></a>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
@@ -275,13 +268,13 @@ Default is the same as <code class="xref py py-func docutils literal"><span clas
 
 <dl class="method">
 <dt id="MulensModel.event.Event.get_chi2_per_point">
-<code class="descname">get_chi2_per_point</code><span class="sig-paren">(</span><em>fit_blending_all=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2_per_point" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_chi2_per_point</code><span class="sig-paren">(</span><em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2_per_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates chi^2 of current model by fitting for source and 
 blending fluxes.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>fit_blending_all <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt>fit_blending <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
 <dd>Are we fitting all blending flux? If not then it is set to 0.
 Default is the same as <code class="xref py py-func docutils literal"><span class="pre">Fit.fit_fluxes()</span></code>.</dd>
 </dl>
@@ -400,7 +393,7 @@ for f_source and f_blend:</p>
 </dl>
 <dl class="method">
 <dt id="MulensModel.fit.Fit.fit_fluxes">
-<code class="descname">fit_fluxes</code><span class="sig-paren">(</span><em>fit_blending_all=True</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.fit_fluxes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_fluxes</code><span class="sig-paren">(</span><em>fit_blending=True</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.fit_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>fit source(s) and blending fluxes</p>
 </dd></dl>
 

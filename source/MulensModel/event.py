@@ -46,8 +46,8 @@ class Event(object):
     @property
     def datasets(self):
         """
-        a *list* of :py:class:`~MulensModel.mulensdata.MulensData
-        `instances that represent all event datasets
+        a *list* of :py:class:`~MulensModel.mulensdata.MulensData`
+        instances.
         """
         return self._datasets
 
@@ -98,8 +98,9 @@ class Event(object):
 
         Parameters :
             fit_blending : boolean, optional
-                Are we fitting all blending flux? If not then it is set to 0.
-                Default is the same as :py:func:`Fit.fit_fluxes`.
+                If True, then the blend flux is a free parameter. If
+                False, the blend flux is fixed at zero.  Default is
+                the same as :py:func:`~MulensModel.fit.Fit.fit_fluxes`.
 
         Returns :
             chi2 : float
