@@ -34,17 +34,22 @@ model_static.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, q=q,
 
 dt = 36.525 # This is in days.
 
-# Get the values of parameters:
+################################################################
+# Get the values of parameters in both models:
 # print(model.s) - this would raise an exception.
-print(model.s_0) 
+print(model_static.s)
+
+print(model.s_0)
+# print(model_static.s_0) - this would raise an exception. (Maybe this should also be allowed? RP: I'm not sure and it's not very important at this point)
+
 print(model.s_for_epoch(t_0)) # Prints the same as previous one.
 print(model.s_for_epoch(t_0+dt)) # should return 1.55
-print(model.alpha_for_epoch(epoch=t_0-dt)) # should return 7.345 u.deg
-# for static model all three commands give the same value:
-print(model_static.s)
 print(model_static.s_for_epoch(t_0)) # Yes, s_for_epoch() works for both static and orbiting models.
-print(model_static.s_for_epoch(t_0+dt))
-# print(model_static.s_0) - this would raise an exception.
+print(model_static.s_for_epoch(t_0+dt)) # This are previous return model_static.s. 
+
+print(model.alpha_for_epoch(epoch=t_0-dt)) # should return 7.345 u.deg
+# In analogy to s, similar methods for alpha will work.
+################################################################
 
 # Print projected orbital velocity
 print(model.gamma_parallel) # should return 0.3333333 1/u.year
@@ -52,7 +57,7 @@ print(model.gamma_perp) # should return -50 1/u.year or -0.87266 u.rad/u.year
 # (the minus sign comes from the definition in Skowron et al. 2011)
 print(model.gamma) # should return 0.9346 1/u.year
 
-# Make a nice plot
+# Make a nice plot:
 plt.figure()
 model.plot_caustics(epoch=t_0)
 model.plot_caustics(epoch=t_0+dt, c='g') # second caustics are green
