@@ -1,6 +1,6 @@
 # MulensModel
 
-MulensModel is package for modelling microlensing (or $\mu$-lensing) events. 
+MulensModel is package for modeling microlensing (or $\mu$-lensing) events. 
 
 It is still under development. [Latest release: 0.1.0](https://github.com/rpoleski/MulensModel/releases/tag/0.1.0)
 
@@ -33,6 +33,22 @@ Under Development:
 Future Development:
 * Source Stars: Binary source, xallarap
 * Effects: parallax (topographic)
+
+### How to install?
+
+1. Make sure you have python with [astropy package](http://www.astropy.org/) installed.
+2. Download source code - either [recent release](https://github.com/rpoleski/MulensModel/releases) or current repository using green button above. 
+3. Unpack the archive.
+4. Add the path to the unpack directory to the PYTHONPATH, e.g., in tcsh:
+```
+setenv PYTHONPATH /home/USER_NAME/MulensModel-0.1.0/source\:$PYTHONPATH
+```
+in bash:
+```
+export PYTHONPATH=/home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH
+```
+5. Go to subdirecotry ```source/VBBL/``` and run ```make``` command.
+6. Congratulations! You have MulensModel installed fully. 
 
 ---
 
