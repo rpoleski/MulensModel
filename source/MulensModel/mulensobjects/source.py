@@ -69,9 +69,12 @@ class Source(object):
 
     @pi_S.setter
     def pi_S(self, new_value):
-        if not isinstance(new_value, u.Quantity):
-            new_value = new_value * u.mas
-        self._distance = new_value.to(u.pc, equivalencies=u.parallax())
+        if new_value is None:
+            pass
+        else:
+            if not isinstance(new_value, u.Quantity):
+                new_value = new_value * u.mas
+            self._distance = new_value.to(u.pc, equivalencies=u.parallax())
 
     @property
     def angular_radius(self):

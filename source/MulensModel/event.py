@@ -12,14 +12,6 @@ from MulensModel.model import Model
 class Event(object):
     """
     Connects datasets to a model.
-
-    Attributes :
-        datasets: the input data (MulensModel.MulensData)
-        model: the microlensing model (MulensModel.Model)
-
-        coords: the sky coordinates
-        ra: Right Ascension
-        dec: Declination
     """
     def __init__(self, datasets=None, model=None, coords=None):
         """
@@ -53,28 +45,15 @@ class Event(object):
 
     @property
     def datasets(self):
-        """a list of MulensData instances that represent all event datasets"""
+        """
+        a *list* of :py:class:`~MulensModel.mulensdata.MulensData
+        `instances that represent all event datasets
+        """
         return self._datasets
 
     @datasets.setter
     def datasets(self, new_value):
         self._set_datasets(new_value)
-
-    @property
-    def model(self):
-        """an instance of Model"""
-        return self._model
-
-    @model.setter
-    def model(self, new_value):
-        #Needs a check for MulensModel class
-        self._model = new_value
-        if self._datasets is not None:
-            self._model.set_datasets(self._datasets)
-
-        if new_value.coords is not None:
-            self._update_coords(coords=new_value.coords)
-
 
     def _set_datasets(self, new_value):
         """
@@ -97,12 +76,28 @@ class Event(object):
         if isinstance(self._model, Model):
             self._model.set_datasets(self._datasets)
 
-    def get_chi2(self, fit_blending_all=None):
-        """Calculates chi^2 of current model by fitting for source and 
+    @property
+    def model(self):
+        """an instance of :py:class:`~MulensModel.model.Model`"""
+        return self._model
+
+    @model.setter
+    def model(self, new_value):
+        #Needs a check for MulensModel class
+        self._model = new_value
+        if self._datasets is not None:
+            self._model.set_datasets(self._datasets)
+
+        if new_value.coords is not None:
+            self._update_coords(coords=new_value.coords)
+
+    def get_chi2(self, fit_blending=None):
+        """
+        Calculates chi^2 of current model by fitting for source and 
         blending fluxes.
 
         Parameters :
-            fit_blending_all : boolean, optional
+            fit_blending : boolean, optional
                 Are we fitting all blending flux? If not then it is set to 0.
                 Default is the same as :py:func:`Fit.fit_fluxes`.
 
@@ -112,7 +107,7 @@ class Event(object):
 
         """
         chi2_per_point = self.get_chi2_per_point(
-            fit_blending_all=fit_blending_all)
+            fit_blending=fit_blending)
         #Calculate chi^2 given the fit
         chi2 = []
         for i, dataset in enumerate(self.datasets):
@@ -123,12 +118,12 @@ class Event(object):
         self.chi2 = fsum(chi2)
         return self.chi2
 
-    def get_chi2_per_point(self, fit_blending_all=None):
+    def get_chi2_per_point(self, fit_blending=None):
         """Calculates chi^2 of current model by fitting for source and 
         blending fluxes.
 
         Parameters :
-            fit_blending_all : boolean, optional
+            fit_blending : boolean, optional
                 Are we fitting all blending flux? If not then it is set to 0.
                 Default is the same as :py:func:`Fit.fit_fluxes`.
 
@@ -140,8 +135,8 @@ class Event(object):
        #Define a Fit given the model and perform linear fit for fs and fb
         self.fit = Fit(data=self.datasets, 
                        magnification=self.model.data_magnification) 
-        if fit_blending_all is not None:
-            self.fit.fit_fluxes(fit_blending_all=fit_blending_all)
+        if fit_blending is not None:
+            self.fit.fit_fluxes(fit_blending=fit_blending)
         else:
             self.fit.fit_fluxes()
 
