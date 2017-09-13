@@ -13,15 +13,6 @@ from MulensModel.modelparameters import ModelParameters
 class MulensSystem(object):
     """
     A microlensing system consisting of a lens and a source.
-
-    Attributes :
-        lens : :py:class:`~MulensModel.mulensobjects.lens.Lens`
-            The lensing system.
-        source : :py:class:`~MulensModel.mulensobjects.source.Source`
-            The source star.
-        mu_rel : [float, astropy.Quantity], optional
-            The source-lens relative proper motion. If units are not given, 
-            assumed to be mas/yr.
     """
     def __init__(self, lens=None, source=None, mu_rel=None):
         if lens is not None :
@@ -51,9 +42,9 @@ class MulensSystem(object):
     @property
     def lens(self):
         """
-        Physical properties of the lens. A
-        :py:class:`~MulensModel.mulensobjects.lens.Lens` object. Note:
-        lens mass must be in solMasses.
+        : A :py:class:`~MulensModel.mulensobjects.lens.Lens` object. 
+        Physical properties of the lens. Note: lens mass must be in
+        solMasses.
         """
         return self._lens
 
@@ -67,8 +58,8 @@ class MulensSystem(object):
     @property
     def source(self):
         """
-        Physical properties of the source. A
-        :py:class:`~MulensModel.mulensobjects.source.Source` object.
+        : :py:class:`~MulensModel.mulensobjects.source.Source` object.
+        Physical properties of the source. 
         """
         return self._source
 
@@ -77,13 +68,15 @@ class MulensSystem(object):
         if isinstance(value, Source):
             self._source = value
         else:
-            raise TypeError("source must be a MulensModel.mulensobjects.source.Source object")
+            raise TypeError(
+                "source must be a MulensModel.mulensobjects.source.Source object")
 
     @property
     def mu_rel(self):
         """
+        : astropy.Quantity
         Relative proper motion between the source and lens
-        stars.
+        stars. If set as a float, units are assumed to be mas/yr.
         """
         return self._mu_rel
 
@@ -98,6 +91,7 @@ class MulensSystem(object):
     @property
     def pi_rel(self):
         """
+        : astropy.Quantity
         The source-lens relative parallax in milliarcseconds.
         """
         return self.lens.pi_L.to(u.mas) - self.source.pi_S.to(u.mas)
@@ -105,6 +99,7 @@ class MulensSystem(object):
     @property
     def theta_E(self):
         """
+        : astropy.Quantity
         The angular Einstein Radius in milliarcseconds.
         """
         kappa = (4. * G / (c**2 * au)).to(u.mas/u.Msun, 
@@ -117,6 +112,7 @@ class MulensSystem(object):
     @property
     def r_E(self):
         """
+        : astropy.Quantity
         The physical size of the Einstein Radius in the Lens plane (in AU).
         """
         return (self.lens.distance * self.theta_E.to(
@@ -125,6 +121,7 @@ class MulensSystem(object):
     @property
     def r_E_tilde(self):
         """
+        : astropy.Quantity
         The physical size of the Einstein Radius projected onto the
         Observer plane (in AU).
         """
@@ -153,6 +150,17 @@ class MulensSystem(object):
         Plot the magnification curve for the lens. u_0 must always be
         specified. If the lens has more than one body, alpha must also
         be specified.
+
+        Parameters : 
+            u_0 : float
+                Impact parameter between the source and the lens (as a
+                fraction of the Einstein ring)
+
+            alpha :
+                see :py:func:`Model.model.alpha`
+
+            **kwargs :
+                see :py:func:`Model.model.plot_magnification`
         """
         if u_0 is None:
             raise AttributeError('u_0 is required')

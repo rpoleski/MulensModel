@@ -8,35 +8,12 @@ class Lens(object):
     """
     A mass or system of masses.
     
-    Attributes:
-        total_mass : float
-            Total mass of the lens system
-        epsilon : float, list, numpy.ndarray
-            mass fraction for each component relative to the total mass
-        q : float, list, numpy.ndarray
-            mass ratio for companions relative to the primary
-        s : float, list, numpy.ndarray
-            separation between the companions and the primary as a
-            fraction of the Einstein radius.
-        mass : float
-            mass of the lens for a point mass
-        mass_1 : float
-            mass of the primary
-        mass_2 : float
-            mass of the secondary
-        n_masses : int
-            total number of masses in the system
-        distance : float
-            distance to the lens in pc or kpc.
-        pi_L : float
-            parallax of the lens in mas.
+    If units are not specified for a given mass, it is assumed the value
+    given is in Solar Masses. 
 
-        If units are not specified for mass, it is assumed the value
-        given is in Solar Masses. 
-
-        If units are not specified for distance, and the value given
-        is <50, it is assumed the value is given in kpc. Otherwise, pc
-        are assumed.
+    If units are not specified for distance, and the value given is
+    <50, it is assumed the value is given in kpc. Otherwise, pc are
+    assumed.
 
     TO DO:
         - problem with tracking number of masses, esp when
@@ -118,6 +95,7 @@ class Lens(object):
     @property
     def total_mass(self):
         """
+        : float
         The total mass of the lens (sum of all components). An
         astropy.Quantity with mass units.
         """
@@ -133,8 +111,9 @@ class Lens(object):
     @property
     def epsilon(self):
         """
-        An array of mass ratios for each lens components:
-        m_i/total_mass. A numpy array.
+        : float, list, numpy.ndarray
+        An array of mass fractions for each lens components:
+        m_i/total_mass. Stored as a numpy.array.
         """
         return self._epsilon
 
@@ -145,6 +124,7 @@ class Lens(object):
     @property
     def n_masses(self):
         """
+        : int
         number of masses in the system.
         """
         try:
@@ -158,7 +138,8 @@ class Lens(object):
     def mass(self): 
         """
         The mass of a point lens --> total mass. An astropy.Quantity
-        with mass units.
+        with mass units. May be set as a float (in which case solMass
+        is assumed).
         """
         if self._epsilon.size > 1:
             raise TypeError(
@@ -196,16 +177,15 @@ class Lens(object):
         """
         The mass of the secondary. Defined as total_mass *
         epsilon[1]. An astropy.Quantity with mass units.
+
+        Note that if total_mass is defined before mass_2, and there is
+        no epsilon corresponding to mass_2, mass_2 is added to the
+        total_mass.
         """
         return self.total_mass * self._epsilon[1]
 
     @mass_2.setter
     def mass_2(self, new_mass, add=False):
-        """
-        Note that if total_mass is defined before mass_2, and there is
-        no epsilon corresponding to mass_2, this function will proceed
-        to add mass_2 to the total_mass.
-        """
         if self._epsilon.size > 1:
             self._change_mass(new_mass, 1)
         else:
@@ -214,18 +194,16 @@ class Lens(object):
     @property
     def mass_3(self):
         """
-        The mass of the tertiary. Defined as total_mass *
-        epsilon[2]. An astropy.Quantity with mass units.
+        The mass of the tertiary. Defined as total_mass * epsilon[2]. 
+        An astropy.Quantity with mass units.
+
+        Note that if total_mass is defined before mass_3, and there is
+        no epsilon corresponding to mass_3, mass_3 is added to the total_mass.
         """
         return self.total_mass * self._epsilon[2]
 
     @mass_3.setter
     def mass_3(self, new_mass, add=False):
-        """
-        Note that if total_mass is defined before mass_3, and there is
-        no epsilon corresponding to mass_3, this function will proceed
-        to add mass_3 to the total_mass.
-        """
         if self._epsilon.size > 2:
             self._change_mass(new_mass, 2)
         else:
@@ -235,16 +213,15 @@ class Lens(object):
     def distance(self):
         """
         The distance to the lens. An astropy Quantity.
+
+        The distance should either be given in pc, or if no unit is
+        given, the value is assumed to be kpc if it is <50 and in pc
+        otherwise.
         """
         return self._distance
 
     @distance.setter
     def distance(self, new_distance):
-        """
-        The distance should either be given in pc, or if no unit is
-        given, the value is assumed to be kpc if it is <50 and in pc
-        otherwise.
-        """
         if not isinstance(new_distance, u.Quantity):
             if new_distance < 50:
                 self._distance = new_distance * 1000. * u.pc
@@ -273,8 +250,15 @@ class Lens(object):
     @property
     def q(self):
         """
+        : float, list, numpy.ndarray
+        mass ratio for companions relative to the primary
+
         Array of mass ratios defined relative to the primary (m_i/m_1). Size is
         number of components -1. A numpy.array or single value.
+
+        Note: if total_mass is defined before q, it is assumed this is the
+        mass of the primary. If you want this to actually be the total mass,
+        define it after defining q.
         """
         if self._epsilon.size > 1:
             return self._epsilon[1:] / self._epsilon[0]
@@ -283,11 +267,6 @@ class Lens(object):
 
     @q.setter
     def q(self, new_q):
-        """
-        Note: if total_mass is defined before q, it is assumed this is the
-        mass of the primary. If you want this to actually be the total mass,
-        define it after defining q.
-        """
         #Update epsilon
         new_q = np.insert(new_q, 0, 1.)
         self._epsilon = new_q / fsum(new_q)
@@ -305,21 +284,22 @@ class Lens(object):
         #Case 1: nothing is initialized (new_q directly sets epsilon)
             pass
 
-    '''
-    # self._s not implemented
     @property
     def s(self):
         """
+        : float, list, numpy.ndarray
         Separation between the components of the lens as a fraction of
         the Einstein ring. A numpy.array or single value.
+
+        NOT IMPLEMENTED
         """
         #Definitions for more than 2 lens bodies TBD
+        raise NotImplementedError()
         return self._s
 
     @s.setter
     def s(self, new_s):
         self._s = new_s
-    '''
 
     @property
     def a_proj(self):

@@ -7,21 +7,21 @@ class Source(object):
     Physical properties of a source (background) star.
 
     Attributes :
-        distance : [float, astropy.Quantity]
-            The distance to the source.
-        angular_size : [float, astropy.Quantity], optional
-            Angular size of the source (in mas). Not used by anything.
-
         limb_darkening : :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
             Limb darkening coefficients of the source.
 
     """
-    def __init__(self, distance=None, angular_size=None,
+    def __init__(self, distance=None, angular_radius=None,
                  limb_darkening=None):
         self.distance=distance
-        self.angular_size=angular_size
+
+        if angular_radius is not None:
+            self.angular_radius=angular_radius
+
         if limb_darkening is None:
             self.limb_darkening = LimbDarkeningCoeffs()
+        else:
+            self.limb_darkening = limb_darkening
 
     def __repr__(self):
         return('Source Distance: {0}'.format(self.distance))
@@ -29,17 +29,16 @@ class Source(object):
     @property
     def distance(self):
         """
-        The distance to the lens. An astropy Quantity.
+        : astropy.Quantity
+        The distance to the source. May be set as a float.
+        The distance should either be given in pc, or if no unit is
+        given, the value is assumed to be kpc if it is <50 and in pc
+        otherwise.
         """
         return self._distance
 
     @distance.setter
     def distance(self, new_distance):
-        """
-        The distance should either be given in pc, or if no unit is
-        given, the value is assumed to be kpc if it is <50 and in pc
-        otherwise.
-        """
         if new_distance is None:
             self._distance = new_distance
         else:
@@ -58,7 +57,8 @@ class Source(object):
     @property
     def pi_S(self):
         """
-        The parallax to the lens in millarcseconds.
+        : astropy.Quantity
+        The parallax to the source in millarcseconds.
         """
         return self._distance.to(u.mas, equivalencies=u.parallax())
 
@@ -67,5 +67,20 @@ class Source(object):
         if not isinstance(new_value, u.Quantity):
             new_value = new_value * u.mas
         self._distance = new_value.to(u.pc, equivalencies=u.parallax())
+
+    @property
+    def angular_radius(self):
+        """
+        : astropy.Quantity
+        Angular radius of the source. If units are not specified,
+        assumed to be microarcseconds.
+        """
+        return self._angular_radius
+
+    @angular_radius.setter
+    def angular_radius(self, new_value):
+        if not isinstance(new_value, u.Quantity):
+            new_value = new_value * u.uas
+        self._angular_radius = new_value
             
         
