@@ -11,12 +11,14 @@ class Source(object):
             Limb darkening coefficients of the source.
 
     """
-    def __init__(self, distance=None, angular_radius=None,
+    def __init__(self, distance=None, pi_S=None, angular_radius=None,
                  limb_darkening=None):
-        self.distance=distance
+        
+        self.distance = distance
+        self.pi_S = pi_S
 
         if angular_radius is not None:
-            self.angular_radius=angular_radius
+            self.angular_radius = angular_radius
 
         if limb_darkening is None:
             self.limb_darkening = LimbDarkeningCoeffs()
@@ -31,7 +33,7 @@ class Source(object):
         """
         *astropy.Quantity*
 
-        The distance to the source. May be set as a float.
+        The distance to the source. May be set as a *float*.
         The distance should either be given in pc, or if no unit is
         given, the value is assumed to be kpc if it is <50 and in pc
         otherwise.
@@ -60,7 +62,8 @@ class Source(object):
         """
         *astropy.Quantity*
 
-        The parallax to the source in millarcseconds.
+        The parallax to the source in millarcseconds. May be set as a
+        *float*. If no units are specified, assumes milliarcseconds.
         """
         return self._distance.to(u.mas, equivalencies=u.parallax())
 
@@ -75,8 +78,8 @@ class Source(object):
         """
         *astropy.Quantity*
 
-        Angular radius of the source. If units are not specified,
-        assumed to be microarcseconds.
+        Angular radius of the source. May be set as a *float*. If
+        units are not specified, assumed to be microarcseconds.
         """
         return self._angular_radius
 
@@ -85,5 +88,7 @@ class Source(object):
         if not isinstance(new_value, u.Quantity):
             new_value = new_value * u.uas
         self._angular_radius = new_value
+
+
             
         
