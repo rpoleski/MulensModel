@@ -4,7 +4,7 @@ class MulensParallaxVector(object):
     """
     A class for the microlens parallax, which is a vector. May be
     specified either relative to the sky ("NorthEast") or relative to
-    the binary axis ("ParPerp"). "NorthEast" is default.
+    the binary lens axis ("ParPerp"). "NorthEast" is default.
     """
     def __init__(self, pi_E_1=None, pi_E_2=None, pi_E=None, ref=None):
         """
@@ -14,7 +14,7 @@ class MulensParallaxVector(object):
         with 2 elements.
 
         May be specified either relative to the sky (ref="NorthEast")
-        or relative to the binary axis (ref="ParPerp"). "NorthEast" is
+        or relative to the binary lens axis (ref="ParPerp"). "NorthEast" is
         default.
         """
         #Set reference frame

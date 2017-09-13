@@ -87,7 +87,7 @@ class Trajectory(object):
                 vector_tau += delta_tau
                 vector_u += delta_u
 
-        #If 2 lenses, rotate trajectory relative to binary axis
+        #If 2 lenses, rotate trajectory relative to binary lens axis
         if self.parameters.n_lenses == 1:
             vector_x = vector_tau
             vector_y = vector_u
