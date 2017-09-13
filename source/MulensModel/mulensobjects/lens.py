@@ -8,6 +8,19 @@ class Lens(object):
     """
     A mass or system of masses.
     
+    Standard parameter combinations for defining a Lens object:
+
+    Point Lens:
+        (mass, distance)
+
+    2+ body lens:
+        (s, q)
+        (epsilon, s)
+        (total_mass, epsilon, distance) - Missing s/Not Implemented?
+        (mass_1, mass_2, a_proj, distance) - Not Implemented
+    
+    Note that s, q, and epsilon may be lists or numpy arrays.
+
     If units are not specified for a given mass, it is assumed the value
     given is in Solar Masses. 
 
@@ -16,6 +29,8 @@ class Lens(object):
     assumed.
 
     TO DO:
+        - a_proj, couples with source distance in mulensmodel to determine s.
+        - 2-body example 3 is missing s. Why? Does that work?
         - problem with tracking number of masses, esp when
           successively defining masses (see test_Lens.py)
         - implement triple+ systems
@@ -23,14 +38,6 @@ class Lens(object):
     def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
                  a_proj=None, distance=None, q=None, s=None, epsilon=None):
         """
-        Define a Lens object. Standard parameter combinations:
-        (s, q)
-        (mass, distance)
-        (mass_1, mass_2, a_proj, distance)
-        (total_mass, epsilon, distance)
-        (epsilon, s)
-        Note that s, q, and epsilon may be lists or numpy arrays.
-
         If units are not specified for mass, it is assumed the value
         given is in Solar Masses. 
 
@@ -93,6 +100,87 @@ class Lens(object):
             return('Lens.py __repr__ error')
 
     @property
+    def epsilon(self):
+        """
+        [*float, list, numpy.ndarray*]
+
+        An array of mass fractions for each lens components:
+        m_i/total_mass. Stored as a numpy.array.
+        """
+        return self._epsilon
+
+    @epsilon.setter
+    def epsilon(self, new_epsilon):
+        self._epsilon = np.array(new_epsilon)
+
+    @property
+    def q(self):
+        """
+        [*float, list, numpy.ndarray*]
+        mass ratio for companions relative to the primary
+
+        Array of mass ratios defined relative to the primary (m_i/m_1). Size is
+        number of components -1. A numpy.array or single value.
+
+        Note: if total_mass is defined before q, it is assumed this is the
+        mass of the primary. If you want this to actually be the total mass,
+        define it after defining q.
+        """
+        if self._epsilon.size > 1:
+            return self._epsilon[1:] / self._epsilon[0]
+        else:
+            raise AttributeError('Lens has only one body')
+
+    @q.setter
+    def q(self, new_q):
+        #Update epsilon
+        new_q = np.insert(new_q, 0, 1.)
+        self._epsilon = new_q / fsum(new_q)
+
+        #Update total_mass: DOES NOT LOOK LIKE IT WORKS RIGHT. Maybe
+        #goes before update epsilon?
+        try:
+            if np.array(new_q).size == self._epsilon.size - 1:
+        #Case 3: the entire lens is defined (new_q changes the values of q)
+                pass
+            else:
+        #Case 2: the primary is defined (new_q adds masses)
+                self._total_mass = self._total_mass * fsum(new_q)
+        except AttributeError:
+        #Case 1: nothing is initialized (new_q directly sets epsilon)
+            pass
+
+    @property
+    def s(self):
+        """
+        [*float, list, numpy.ndarray*]
+
+        Separation between the components of the lens as a fraction of
+        the Einstein ring. A numpy.array or single value.
+
+        Definitions for more than 2 lens bodies TBD
+        """
+        return self._s
+
+    @s.setter
+    def s(self, new_s):
+        self._s = new_s
+
+    @property
+    def n_masses(self):
+        """
+        *int*
+
+        number of masses in the system.
+        """
+        try:
+            return len(self._epsilon)
+        except NameError:
+            return 1
+        else:
+            return "lens.py: exception in Lens.n_masses"
+
+    @property
     def total_mass(self):
         """
         *float*
@@ -108,34 +196,6 @@ class Lens(object):
             new_mass = new_mass * u.solMass
 
         self._total_mass = new_mass
-
-    @property
-    def epsilon(self):
-        """
-        [*float, list, numpy.ndarray*]
-
-        An array of mass fractions for each lens components:
-        m_i/total_mass. Stored as a numpy.array.
-        """
-        return self._epsilon
-
-    @epsilon.setter
-    def epsilon(self, new_epsilon):
-        self._epsilon = np.array(new_epsilon)
-
-    @property
-    def n_masses(self):
-        """
-        *int*
-
-        number of masses in the system.
-        """
-        try:
-            return len(self._epsilon)
-        except NameError:
-            return 1
-        else:
-            return "lens.py: exception in Lens.n_masses"
 
     @property
     def mass(self): 
@@ -212,111 +272,6 @@ class Lens(object):
         else:
             self._add_mass(new_mass, 2)
 
-    @property
-    def distance(self):
-        """
-        The distance to the lens. An astropy Quantity.
-
-        The distance should either be given in pc, or if no unit is
-        given, the value is assumed to be kpc if it is <50 and in pc
-        otherwise.
-        """
-        return self._distance
-
-    @distance.setter
-    def distance(self, new_distance):
-        if not isinstance(new_distance, u.Quantity):
-            if new_distance < 50:
-                self._distance = new_distance * 1000. * u.pc
-            else:
-                self._distance = new_distance * u.pc
-        else:
-            if (new_distance.unit == "pc") or (new_distance.unit == "kpc"):
-                self._distance = new_distance
-            else:
-                raise u.UnitsError(
-                    'Allowed units for Lens distance are "pc" or "kpc"') 
-
-    @property
-    def pi_L(self):
-        """
-        The parallax to the lens in millarcseconds.
-        """
-        return self._distance.to(u.mas, equivalencies=u.parallax())
-
-    @pi_L.setter
-    def pi_L(self, new_value):
-        if not isinstance(new_value, u.Quantity):
-            new_value = new_value * u.mas
-        self._distance = new_value.to(u.pc, equivalencies=u.parallax())
-
-    @property
-    def q(self):
-        """
-        [*float, list, numpy.ndarray*]
-        mass ratio for companions relative to the primary
-
-        Array of mass ratios defined relative to the primary (m_i/m_1). Size is
-        number of components -1. A numpy.array or single value.
-
-        Note: if total_mass is defined before q, it is assumed this is the
-        mass of the primary. If you want this to actually be the total mass,
-        define it after defining q.
-        """
-        if self._epsilon.size > 1:
-            return self._epsilon[1:] / self._epsilon[0]
-        else:
-            raise AttributeError('Lens has only one body')
-
-    @q.setter
-    def q(self, new_q):
-        #Update epsilon
-        new_q = np.insert(new_q, 0, 1.)
-        self._epsilon = new_q / fsum(new_q)
-
-        #Update total_mass: DOES NOT LOOK LIKE IT WORKS RIGHT. Maybe
-        #goes before update epsilon?
-        try:
-            if np.array(new_q).size == self._epsilon.size - 1:
-        #Case 3: the entire lens is defined (new_q changes the values of q)
-                pass
-            else:
-        #Case 2: the primary is defined (new_q adds masses)
-                self._total_mass = self._total_mass * fsum(new_q)
-        except AttributeError:
-        #Case 1: nothing is initialized (new_q directly sets epsilon)
-            pass
-
-    @property
-    def s(self):
-        """
-        [*float, list, numpy.ndarray*]
-
-        Separation between the components of the lens as a fraction of
-        the Einstein ring. A numpy.array or single value.
-
-        NOT IMPLEMENTED
-        """
-        #Definitions for more than 2 lens bodies TBD
-        raise NotImplementedError()
-        return self._s
-
-    @s.setter
-    def s(self, new_s):
-        self._s = new_s
-
-    @property
-    def a_proj(self):
-        """
-        Projected separation between the components of the lens in
-        AU. An astropy.Quantity with distance units.
-        """
-        return self._a_proj
-
-    @a_proj.setter
-    def a_proj(self, new_a_proj):
-        self._a_proj = new_a_proj
-
     def _change_mass(self, new_mass, index):
         """
         Private function: updates total_mass and epsilon array if the
@@ -360,9 +315,68 @@ class Lens(object):
 
 
     @property
+    def distance(self):
+        """
+        The distance to the lens. An astropy Quantity.
+
+        The distance should either be given in pc, or if no unit is
+        given, the value is assumed to be kpc if it is <50 and in pc
+        otherwise.
+        """
+        return self._distance
+
+    @distance.setter
+    def distance(self, new_distance):
+        if not isinstance(new_distance, u.Quantity):
+            if new_distance < 50:
+                self._distance = new_distance * 1000. * u.pc
+            else:
+                self._distance = new_distance * u.pc
+        else:
+            if (new_distance.unit == "pc") or (new_distance.unit == "kpc"):
+                self._distance = new_distance
+            else:
+                raise u.UnitsError(
+                    'Allowed units for Lens distance are "pc" or "kpc"') 
+
+    @property
+    def a_proj(self):
+        """
+        Projected separation between the components of the lens in
+        AU. An astropy.Quantity with distance units. If set as float
+        (without units), AU is assumed.
+        """
+        raise NotImplementedError('a_proj is not used, e.g. to set s')
+        return self._a_proj
+    
+    @a_proj.setter
+    def a_proj(self, new_a_proj):
+        raise NotImplementedError('a_proj is not used, e.g. to set s')
+        if not isinstance(new_distance, u.Quantity):
+            new_a_proj = new_a_proj * u.au
+        self._a_proj = new_a_proj
+
+    @property
+    def pi_L(self):
+        """
+        The parallax to the lens in millarcseconds.
+        """
+        return self._distance.to(u.mas, equivalencies=u.parallax())
+
+    @pi_L.setter
+    def pi_L(self, new_value):
+        if not isinstance(new_value, u.Quantity):
+            new_value = new_value * u.mas
+        self._distance = new_value.to(u.pc, equivalencies=u.parallax())
+
+    @a_proj.setter
+    def a_proj(self, new_a_proj):
+        self._a_proj = new_a_proj
+
+    @property
     def caustics(self):
         """
-        Returns a Caustics object.
+        A :py:class:`~MulensModel.caustics.Caustics` object.
         """
         if self._caustics is None:
             if self.n_masses > 2:
