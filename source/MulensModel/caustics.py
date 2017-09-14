@@ -112,7 +112,6 @@ class Caustics(object):
         xcm_offset = self.q * self.s / (1. + self.q)
 
         #Solve for the critical curve (and caustic) in complex coordinates.
-        #TO DO: Optimize using vectors instead of a loop
         for phi in np.arange(0., 2.*np.pi, 2*np.pi/n_points):
             #Change the angle to a complex number
             x = np.cos(phi)

@@ -187,14 +187,16 @@ def test_annual_parallax_calculation_5():
 def test_annual_parallax_calculation_6():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_05)
 
-#This unit test needs to be reworked so all data sets and ephemerides files are on the same 245XXXX time system.
 def test_satellite_and_annual_parallax_calculation():
     """test parallax calculation with Spitzer data"""
-    model_with_par = Model(t_0=2457181.93930, u_0=0.08858, t_E=20.23090, pi_E_N=-0.05413, pi_E_E=-0.16434, coords="18:17:54.74 -22:59:33.4")
-    model_with_par.parallax(satellite=True, earth_orbital=True, topocentric=False)
+    model_with_par = Model(t_0=2457181.93930, u_0=0.08858, t_E=20.23090, 
+                            pi_E_N=-0.05413, pi_E_E=-0.16434, 
+                            coords="18:17:54.74 -22:59:33.4")
+    model_with_par.parallax(satellite=True, earth_orbital=True, 
+                            topocentric=False)
     model_with_par.t_0_par = 2457181.9
 
-    data_OGLE = MulensData(file_name=SAMPLE_FILE_02,add_2450000=True)
+    data_OGLE = MulensData(file_name=SAMPLE_FILE_02, add_2450000=True)
     data_Spitzer = MulensData(
         file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH,
         add_2450000=True)
@@ -203,8 +205,10 @@ def test_satellite_and_annual_parallax_calculation():
     ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True, usecols=[5])
     ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True, usecols=[5])
 
-    np.testing.assert_almost_equal(model_with_par.data_magnification[0], ref_OGLE, decimal=2)
-    np.testing.assert_almost_equal(model_with_par.data_magnification[1]/ref_Spitzer, np.array([1]*len(ref_Spitzer)), decimal=3)
+    np.testing.assert_almost_equal(model_with_par.data_magnification[0], 
+                                    ref_OGLE, decimal=2)
+    ratio = model_with_par.data_magnification[1] / ref_Spitzer
+    np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=3)
 
 def test_satellite_parallax_magnification():
     """

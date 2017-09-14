@@ -83,7 +83,9 @@ class Event(object):
 
     @model.setter
     def model(self, new_value):
-        #Needs a check for MulensModel class
+        if not isinstance(new_value, Model):
+            raise TypeError(('wrong type of Event.model: {:} instead of ' +
+                'MulensModel').format(type(new_value)))
         self._model = new_value
         if self._datasets is not None:
             self._model.set_datasets(self._datasets)

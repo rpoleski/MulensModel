@@ -32,7 +32,7 @@ class Lens(object):
     <50, it is assumed the value is given in kpc. Otherwise, pc are
     assumed.
 
-    TO DO:
+    To be done:
         - __repr__ function needs work
         - a_proj, couples with source distance in mulensmodel to determine s.
         - 2-body example 3 is missing s. Why? Does that work?
@@ -89,7 +89,7 @@ class Lens(object):
             self._a_proj = a_proj
 
     def __repr__(self):
-        """Make a nice string representation of the object. NEEDS WORK."""
+        """Make a nice string representation of the object."""
         #Lens Distance
         try:
             dist_str = 'Lens Distance: {0}\n'.format(self._distance)
