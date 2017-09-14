@@ -10,9 +10,9 @@ class Caustics(object):
     i.e. mass ratio and separation. Implemented for 2-body lenses only.
 
     Attributes:
-        q : float
+        q : *float*
             mass ratio between the 2 bodies
-        s : float
+        s : *float*
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
     """
@@ -43,7 +43,7 @@ class Caustics(object):
         left (q < 1).
 
         Attributes:
-            x, y : list
+            x, y : *list*
                 Two lists of length *n_points* giving the x, y
                 coordinates of the caustic points. 
         
@@ -58,7 +58,7 @@ class Caustics(object):
         Plots the caustics (using matplotlib.pyplot.scatter()). 
 
         Parameters:
-            n_points : int, optional
+            n_points : *int*, optional
                 The number of points to calculate along the caustic.
             **kwargs :
                 keywords accepted by matplotlib.pyplot.scatter()
@@ -74,11 +74,11 @@ class Caustics(object):
         left (for q < 1).
 
         Parameters:
-            n_points : int, optional
+            n_points : *int*, optional
                 The number of points to calculate along the caustic.
 
         Returns:
-            x, y : list
+            x, y : *list*
                 Two lists of length *n_points* giving the x, y
                 coordinates of the caustic points. 
         """

@@ -77,7 +77,7 @@ class MulensSystem(object):
         *astropy.Quantity*
 
         Relative proper motion between the source and lens
-        stars. If set as a float, units are assumed to be mas/yr.
+        stars. If set as a *float*, units are assumed to be mas/yr.
         """
         return self._mu_rel
 
@@ -159,7 +159,7 @@ class MulensSystem(object):
         be specified.
 
         Parameters : 
-            u_0 : float
+            u_0 : *float*
                 Impact parameter between the source and the lens (as a
                 fraction of the Einstein ring)
 

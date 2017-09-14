@@ -221,7 +221,7 @@ class Lens(object):
         *astropy.Quantity*
 
         The mass of the primary. Defined as total_mass *
-        epsilon[0]. An astropy.Quantity with mass units. If set as a
+        epsilon[0]. An *astropy.Quantity* with mass units. If set as a
         *float*, units are assumed to be solMass.
         """
         return self.total_mass * self._epsilon[0]
@@ -239,7 +239,7 @@ class Lens(object):
         *astropy.Quantity*
 
         The mass of the secondary. Defined as total_mass *
-        epsilon[1]. An astropy.Quantity with mass units. If set as a
+        epsilon[1]. An *astropy.Quantity* with mass units. If set as a
         *float*, units are assumed to be solMass.
 
         Note that if total_mass is defined before mass_2, and there is
@@ -261,7 +261,7 @@ class Lens(object):
         *astropy.Quantity*
 
         The mass of the tertiary. Defined as total_mass * epsilon[2]. 
-        An astropy.Quantity with mass units. If set as a
+        An *astropy.Quantity* with mass units. If set as a
         *float*, units are assumed to be solMass.
 
         Note that if total_mass is defined before mass_3, and there is
@@ -382,7 +382,7 @@ class Lens(object):
         *astropy.Quantity*
 
         Projected separation between the components of the lens in
-        AU. An astropy.Quantity with distance units. If set as float
+        AU. An *astropy.Quantity* with distance units. If set as *float*
         (without units), AU is assumed.
         """
         raise NotImplementedError('a_proj is not used, e.g. to set s')
