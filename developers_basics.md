@@ -50,14 +50,6 @@ How to work on new code?
 
 We try to follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) conventions.  
 
-Version numbers are according to MAJOR.MINOR.PATCH scheme - see [Semantic Versioning](http://semver.org/). In short:
-
-* Patch version must be incremented if only backwards compatible bug fixes are introduced. A bug fix is defined as an internal change that fixes incorrect behavior.
-* Minor version be incremented if new, backwards compatible functionality is introduced to the public API. It must be incremented if any public API functionality is marked as deprecated. It may be incremented if substantial new functionality or improvements are introduced within the private code. It may patch level changes.
-* Major version must be incremented if any backwards incompatible changes are introduced to the public API. It may include minor and patch level changes. 
-* Reset patch and minor version when major version is incremented. Reset patch w
-hen minor version is incremented.
-
 #### Naming conventions
 * variables: underscore\_separated
 * constants: UPPERCASE\_AND\_UNDERSCORE
@@ -67,3 +59,14 @@ hen minor version is incremented.
   * properties: underscore\_separated
   * private properties: \_leadingUnderscoreAndCamelCase
   * methods: underscore\_separated
+
+### Version numbers
+
+Version numbers are according to MAJOR.MINOR.PATCH scheme - see [Semantic Versioning](http://semver.org/). In short:
+
+* Patch version must be incremented if only backwards compatible bug fixes are introduced. A bug fix is defined as an internal change that fixes incorrect behavior.
+* Minor version be incremented if new, backwards compatible functionality is introduced to the public API. It must be incremented if any public API functionality is marked as deprecated. It may be incremented if substantial new functionality or improvements are introduced within the private code. It may patch level changes.
+* Major version must be incremented if any backwards incompatible changes are introduced to the public API. It may include minor and patch level changes.
+* Reset patch and minor version when major version is incremented. Reset patch w
+hen minor version is incremented.
+
