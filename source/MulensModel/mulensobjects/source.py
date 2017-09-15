@@ -16,10 +16,8 @@ class Source(object):
         
         self.distance = distance
         self.pi_S = pi_S
-
-        if angular_radius is not None:
-            self.angular_radius = angular_radius
-
+        self.angular_radius = angular_radius
+        
         if limb_darkening is None:
             self.limb_darkening = LimbDarkeningCoeffs()
         else:
@@ -88,10 +86,7 @@ class Source(object):
 
     @angular_radius.setter
     def angular_radius(self, new_value):
-        if not isinstance(new_value, u.Quantity):
+        if not isinstance(new_value, u.Quantity) and new_value is not None:
             new_value = new_value * u.uas
         self._angular_radius = new_value
 
-
-            
-        

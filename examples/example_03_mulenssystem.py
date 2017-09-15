@@ -14,7 +14,7 @@ my_source = Source(distance=8.e3*u.pc)
 
 # Combine them into a lens system
 point_lens = MulensSystem(lens=my_lens, source=my_source)
-print('The Lens-Source system WITHOUT proper motion:')
+print('The Lens-Source system WITHOUT proper motion specified:')
 print(point_lens)
 
 pl.figure()
@@ -23,7 +23,7 @@ pl.title('Magnification Curve')
 
 # Give the objects a relative proper motion
 point_lens.mu_rel = 4. * u.mas / u.yr
-print('------\nThe Lens-Source system WITH proper motion:')
+print('------\nThe Lens-Source system WITH proper motion specified:')
 print(point_lens)
 
 pl.figure()

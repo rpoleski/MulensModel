@@ -180,8 +180,8 @@ class MulensSystem(object):
                 parameters.t_E = 1.
                 xtitle = 'Time (tE)'
 
-            if self.source.angular_size is not None:
-                parameters.rho = (self.source.angular_size.to(u.mas) 
+            if self.source.angular_radius is not None:
+                parameters.rho = (self.source.angular_radius.to(u.mas) 
                                   / self.theta_E.to(u.mas))
 
             if self.lens.n_masses > 1:
