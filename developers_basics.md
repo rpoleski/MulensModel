@@ -1,7 +1,7 @@
 # MulensModel
-Microlensing Modelling package
+Microlensing Modeling package
 
-We present a python package for modelling of microlensing events. The package aims to support a number of higher order effects: microlensing parallax, finite source, binary lens (with lens rotation), and triple lenses in future.
+We present a python package for modeling of microlensing events. The package aims to support a number of higher order effects: microlensing parallax, finite source, binary lens (with lens rotation), and triple lenses in future.
 
 ### Second order effects
 
@@ -60,13 +60,19 @@ We try to follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) conventions.
   * private properties: \_leadingUnderscoreAndCamelCase
   * methods: underscore\_separated
 
+### Documentation
+
+We're using sphinx to produce documentation. To update documentation, go to `docs/` and run:
+```
+sphinx-build -b html source .
+```
+
 ### Version numbers
 
 Version numbers are according to MAJOR.MINOR.PATCH scheme - see [Semantic Versioning](http://semver.org/). In short:
 
 * Patch version must be incremented if only backwards compatible bug fixes are introduced. A bug fix is defined as an internal change that fixes incorrect behavior.
-* Minor version be incremented if new, backwards compatible functionality is introduced to the public API. It must be incremented if any public API functionality is marked as deprecated. It may be incremented if substantial new functionality or improvements are introduced within the private code. It may patch level changes.
+* Minor version must be incremented if new, backwards compatible functionality is introduced to the public API. It must be incremented if any public API functionality is marked as deprecated. It may be incremented if substantial new functionality or improvements are introduced within the private code. It may patch level changes.
 * Major version must be incremented if any backwards incompatible changes are introduced to the public API. It may include minor and patch level changes.
-* Reset patch and minor version when major version is incremented. Reset patch w
-hen minor version is incremented.
+* Reset patch and minor version when major version is incremented. Reset patch when minor version is incremented.
 
