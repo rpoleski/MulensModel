@@ -1,6 +1,9 @@
-from MulensModel.mulensobjects.lens import Lens
+import numpy as np
 import unittest
 from astropy import units as u
+
+from MulensModel.mulensobjects.lens import Lens
+
 
 ### Test mass setters and getters
 def test_2_masses_success():
@@ -22,6 +25,20 @@ def test_distance_success():
     lens = Lens()
     lens.distance = 5.*1000.*u.pc
     assert lens.distance == 5000.*u.pc
+
+def test_total_mass_q():
+    lens = Lens()
+    lens.total_mass = 0.8*u.solMass
+    lens.q = 0.25
+    np.testing.assert_almost_equal(lens.mass_1.value, 0.64)
+    np.testing.assert_almost_equal(lens.mass_2.value, 0.16)
+
+def test_q_total_mass():
+    lens = Lens()
+    lens.q = 0.25
+    lens.total_mass = 0.8*u.solMass
+    np.testing.assert_almost_equal(lens.mass_1.value, 0.64)
+    np.testing.assert_almost_equal(lens.mass_2.value, 0.16)
 
 class TestQRoutines(unittest.TestCase):
     def test_q_success(self):
