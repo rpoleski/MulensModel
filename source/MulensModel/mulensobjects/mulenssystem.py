@@ -158,15 +158,15 @@ class MulensSystem(object):
         specified. If the lens has more than one body, alpha must also
         be specified.
 
-        Parameters : 
-            u_0 : *float*
+        Parameters :
+            u_0: *float*
                 Impact parameter between the source and the lens (as a
                 fraction of the Einstein ring)
 
-            alpha :
+            alpha:
                 see :py:obj:`MulensModel.modelparameters.ModelParameters.alpha`
 
-            **kwargs :
+            **kwargs:
                 see :py:func:`MulensModel.model.Model.plot_magnification`
         """
         if u_0 is None:

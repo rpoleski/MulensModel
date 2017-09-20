@@ -42,7 +42,8 @@ orb_parameters.ds_dt = 0.
 model_orb_2 = MulensModel.Model(Parameters=orb_parameters)
 #JCY - Also can we set ModelParameters using a dictionary? From the
 #standpoint of reading from a file, this is highly desirable. 
-
+# RP: Yes, we can. It would be similar to usage of parameters_to_fit in 
+# example_02_fitting.py
 dt = 36.525 # This is in days.
 
 ################################################################

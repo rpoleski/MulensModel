@@ -32,6 +32,11 @@ model_static = MulensModel.Model()
 model_static.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, q=q,
                     alpha=alpha_0, s=s_0)
 
+# We can get model exactly the same as model_orb this way:
+orb_parameters = model_static.parameters.copy_with_orbital_motion(
+                                            dalpha_dt=dalpha_dt, ds_dt=ds_dt)
+model_orb_2 = MulensModel.Model(Parameters=orb_parameters)
+
 dt = 36.525 # This is in days.
 
 ################################################################
