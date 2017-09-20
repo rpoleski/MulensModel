@@ -60,7 +60,7 @@ class Caustics(object):
         Parameters:
             n_points : *int*, optional
                 The number of points to calculate along the caustic.
-            **kwargs :
+            ``**kwargs``
                 keywords accepted by matplotlib.pyplot.scatter()
         """
         if self._x is None:

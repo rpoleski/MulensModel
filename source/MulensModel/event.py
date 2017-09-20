@@ -11,17 +11,35 @@ from MulensModel.model import Model
             
 class Event(object):
     """
-    Connects datasets to a model.
+    Allows a model to be fit to datasets.
+
+    Arguments :
+
+        :py:func:`datasets` (required): The data; a
+            :py:class:`~MulensModel.mulensdata.MulensData` object or
+            list of MulensData objects
+
+        :py:func:`model` (required): a
+            :py:class:`~MulensModel.model.Model` object
+
+        :py:func:`coords` (optional): the coordinates of the event
+            (RA, Dec)
+
     """
     def __init__(self, datasets=None, model=None, coords=None):
         """
-        Create an Event object.
+        Create an Event object, which allows a model to be fit to datasets.
 
-        Args:
-            datasets (required): The data; a MulensData object or list of 
-                MulensData objects
-            model (required): a MulensModel.Model object
-            coords (optional): the coordinates of the event        
+        Arguments :
+            :py:func:`datasets` (required): The data; a
+                :py:class:`~MulensModel.mulensdata.MulensData` object
+                or list of MulensData objects
+
+            :py:func:`model` (required): a
+            :py:class:`~MulensModel.model.Model` object
+
+            :py:func:`coords` (optional): the coordinates of the event
+            (RA, Dec)
         """
         #Initialize self._model (and check that model is defined)
         if isinstance(model, Model):
@@ -54,6 +72,20 @@ class Event(object):
     @datasets.setter
     def datasets(self, new_value):
         self._set_datasets(new_value)
+
+    @property
+    def data_ref(self):
+        """
+        Reference data set for scaling the model fluxes to (for
+        plotting). May be a
+        :py:class:`~MulensModel.mulensdata.MulensData` object or an
+        index (*int*). Default is the first data set.
+        """
+        return self.model.data_ref
+        
+    @data_ref.setter
+    def data_ref(self, new_value):
+        self.model.data_ref = new_value
 
     def _set_datasets(self, new_value):
         """
@@ -93,6 +125,87 @@ class Event(object):
         if new_value.coords is not None:
             self._update_coords(coords=new_value.coords)
 
+    @property
+    def coords(self):
+        """
+        *astropy.coordinates.SkyCoord* object
+
+        The event sky coordinates (RA, Dec). May be set as a *string*
+        or *SkyCoord* object, e.g.
+
+        '18:00:00 -30:00:00'
+
+        '18h00m00s -30d00m00s'
+
+        SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
+        
+        where u is defined in "import astropy.units as u"
+        """
+        return self._coords
+    
+    @coords.setter
+    def coords(self, new_value):
+        self._update_coords(coords=new_value)
+
+    @property
+    def ra(self):
+        """
+        Right Ascension. May be set as a *string*, e.g. '15:30:00' or
+        '15h30m00s'.
+        """
+        return self._coords.ra
+
+    @ra.setter
+    def ra(self, new_value):
+        try:
+            self._coords.ra = new_value
+        except AttributeError:
+            if self._coords is None:
+                self._coords = SkyCoord(
+                    new_value, 0.0, unit=(u.hourangle, u.deg))
+            else:
+                self._coords = SkyCoord(
+                    new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
+        self._update_coords(coords=self._coords)
+
+    @property
+    def dec(self):
+        """
+        Declination. May be set as a *string*, e.g '15:30:00' or '15d30m00s'
+        """
+        return self._coords.dec
+
+    @dec.setter
+    def dec(self, new_value):
+        try:
+            self._coords.dec = new_value
+        except AttributeError:
+            if self._coords is None:
+                self._coords = SkyCoord(
+                    0.0, new_value, unit=(u.hourangle, u.deg))
+            else:
+                self._coords = SkyCoord(
+                    self._coords.ra, new_value, unit=(u.hourangle, u.deg))
+        self._update_coords(coords=self._coords)
+
+    def _update_coords(self, coords=None):
+        """Set the coordinates as a SkyCoord object"""
+        if isinstance(coords, SkyCoord):
+            self._coords = coords
+        else:
+            self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
+
+        if self._model is not None:
+            self._model.coords = self._coords
+
+        # We run the command below with try, because _update_coords() is called
+        # by _set_datasets before self._datasets is set. 
+        try:
+            for dataset in self._datasets:
+                dataset.coords = self._coords
+        except Exception:
+            pass
+
     def get_chi2(self, fit_blending=None):
         """
         Calculates chi^2 of current model by fitting for source and 
@@ -102,7 +215,7 @@ class Event(object):
             fit_blending : boolean, optional
                 If True, then the blend flux is a free parameter. If
                 False, the blend flux is fixed at zero.  Default is
-                the same as :py:func:`~MulensModel.fit.Fit.fit_fluxes`.
+                the same as :py:func:`MulensModel.fit.Fit.fit_fluxes`.
 
         Returns :
             chi2 : float
@@ -122,18 +235,20 @@ class Event(object):
         return self.chi2
 
     def get_chi2_per_point(self, fit_blending=None):
-        """Calculates chi^2 of current model by fitting for source and 
-        blending fluxes.
+        """Calculates chi^2 for each data point of the current model by
+        fitting for source and blending fluxes.
 
         Parameters :
             fit_blending : *boolean*, optional
-                Are we fitting all blending flux? If not then it is set to 0.
-                Default is the same as :py:func:`Fit.fit_fluxes`.
+                Are we fitting for blending flux? If not then it is
+                fixed to 0.  Default is the same as
+                :py:func:`MulensModel.fit.Fit.fit_fluxes`.
 
         Returns :
             chi2 : *np.ndarray*  
-                Chi^2 contribution from each data point
-
+                Chi^2 contribution from each data point,
+                e.g. chi2[obs_num][k] returns the chi2 contribution
+                from the *k* th point of observatory *obs_num* .
         """
        #Define a Fit given the model and perform linear fit for fs and fb
         self.fit = Fit(data=self.datasets, 
@@ -154,144 +269,35 @@ class Event(object):
         chi2_per_point = np.array(chi2_per_point)
         return chi2_per_point
 
-    def clean_data(self):
-        """masks outlying datapoints"""
-        raise NotImplementedError("This feature has not been implemented yet")
-
-    def estimate_model_params(self):
-        """estiamtes model parameters without fitting them"""
-        raise NotImplementedError("This feature has not been implemented yet")
-
-    @property
-    def coords(self):
-        "Return the event Sky Coordinates (RA, Dec)"
-        return self._coords
-    
-    @coords.setter
-    def coords(self, new_value):
-        self._update_coords(coords=new_value)
-
-    @property
-    def ra(self):
-        """
-        Right Ascension
-        """
-        return self._coords.ra
-
-    @ra.setter
-    def ra(self, new_value):
-        try:
-            self._coords.ra = new_value
-        except AttributeError:
-            if self._coords is None:
-                self._coords = SkyCoord(
-                    new_value, 0.0, unit=(u.hourangle, u.deg))
-            else:
-                self._coords = SkyCoord(
-                    new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
-        self._update_coords(coords=self._coords)
-
-    @property
-    def dec(self):
-        """
-        Declination
-        """
-        return self._coords.dec
-
-    @dec.setter
-    def dec(self, new_value):
-        try:
-            self._coords.dec = new_value
-        except AttributeError:
-            if self._coords is None:
-                self._coords = SkyCoord(
-                    0.0, new_value, unit=(u.hourangle, u.deg))
-            else:
-                self._coords = SkyCoord(
-                    self._coords.ra, new_value, unit=(u.hourangle, u.deg))
-        self._update_coords(coords=self._coords)
-
-    @property
-    def data_ref(self):
-        """
-        Reference data set for scaling the model fluxes to (for plotting). May
-        be a Mulensdata object or an index.
-        """
-        return self.model.data_ref
-        
-    @data_ref.setter
-    def data_ref(self, new_value):
-        self.model.data_ref = new_value
 
     def get_ref_fluxes(self, data_ref=None):
-        """Get reference source and blending fluxes.
-
-        Parameters :
-            data_ref: MulensData or int
-                Reference dataset. If the int type than gives the index of 
-                the dataset in self.datasets. If None, than the first dataset 
-                will be used.
-
-        Returns :
-            f_source: float
-                source flux
-            f_blend: float
-                blending flux
-
+        """
+        see :py:func:`MulensModel.model.Model.get_ref_fluxes`
         """
         return self.model.get_ref_fluxes(data_ref=data_ref)
 
-    def _update_coords(self, coords=None):
-        """Set the coordinates as a SkyCoord object"""
-        if isinstance(coords, SkyCoord):
-            self._coords = coords
-        else:
-            self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
-
-        if self._model is not None:
-            self._model.coords = self._coords
-
-        # We run the command below with try, because _update_coords() is called
-        # by _set_datasets before self._datasets is set. 
-        try:
-            for dataset in self._datasets:
-                dataset.coords = self._coords
-        except Exception:
-            pass
-
-    def plot_model(self, 
-        times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
-        subtract_2450000=False, subtract_2460000=False, **kwargs):
+    def plot_model(self, **kwargs):
         """
-        Plot the model lightcurve in magnitudes scaled to data_ref
-        (either an index or a MulensData object). If data_ref is not
-        specified or data_ref is None, it will use the first dataset
-        (see Model.get_ref_fluxes).
+        see :py:func:`MulensModel.model.Model.plot_lc`
         """
-        self.model.plot_lc( 
-            times=times, t_range=t_range, t_start=t_start, t_stop=t_stop, 
-            dt=dt, n_epochs=n_epochs, data_ref=data_ref, f_source=f_source, 
-            f_blend=f_blend, subtract_2450000=subtract_2450000, 
-            subtract_2460000=subtract_2460000, **kwargs)
+        self.model.plot_lc(**kwargs)
 
-    def plot_data(self, data_ref=None, show_errorbars=True, 
-        subtract_2450000=False, subtract_2460000=False, **kwargs):
+    def plot_data(self, **kwargs):
         """
-        Plot the data scaled to the same flux system specified by
-        data_ref. Uses the model to calculate the magnifications.
+        see :py:func:`MulensModel.model.Model.plot_data`
         """
-        self.model.plot_data(data_ref=data_ref, 
-                                show_errorbars=show_errorbars, 
-                                subtract_2450000=subtract_2450000, 
-                                subtract_2460000=subtract_2460000, 
-                                **kwargs)
+        self.model.plot_data(**kwargs)
 
-    def plot_residuals(self, show_errorbars=True, subtract_2450000=False, 
-        subtract_2460000=False, **kwargs):
-        """plot residuals of the event model"""
-        self.model.plot_residuals(show_errorbars=show_errorbars, 
-                                subtract_2450000=subtract_2450000, 
-                                subtract_2460000=subtract_2460000, 
-                                **kwargs)
+    def plot_residuals(self,**kwargs):
+        """
+        see :py:func:`MulensModel.model.Model.plot_residuals`
+        """
+        self.model.plot_residuals(**kwargs)
 
+    def clean_data(self):
+        """masks outlying datapoints. Not Implemented."""
+        raise NotImplementedError("This feature has not been implemented yet")
+
+    def estimate_model_params(self):
+        """estiamtes model parameters without fitting them. Not Implemented"""
+        raise NotImplementedError("This feature has not been implemented yet")

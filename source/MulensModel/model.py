@@ -431,12 +431,12 @@ class Model(object):
         self, earth_orbital=None, satellite=None, topocentric=None):
         """
         specifies which types of the parallax will be included in
-        calculations. Three kinds of effects are allowed:
+        calculations. Three kinds of effects are allowed
         earth_orbital - the motion of the Earth about the Sun
         satellite - difference due to the separation between the Earth
-            and a satellite (changes as a function of time)
+        and a satellite (changes as a function of time)
         topocentric - difference due to the separation between two
-            observatories on the Earth.
+        observatories on the Earth.
         """
         if earth_orbital is None and satellite is None and topocentric is None:
             return self._parallax
@@ -514,6 +514,21 @@ class Model(object):
 
     def get_ref_fluxes(self, data_ref=None):
         """
+        Get source and blending fluxes for the .
+
+        Parameters :
+            data_ref: *:py:class:`~MulensModel.mulensdata.MulensData`* or *int*
+                Reference dataset. If *int*, corresponds to the index of 
+                the dataset in self.datasets. If None, than the first dataset 
+                will be used.
+
+        Returns :
+            f_source: float
+                source flux
+            f_blend: float
+                blending flux
+
+
         Determine the reference flux system from the
         datasets. data_ref may either be a dataset or the index of a
         dataset (if Model.set_datasets() was previously called). If
@@ -636,17 +651,18 @@ class Model(object):
             if True, shows points marked as bad
             (:py:func:`mulensdata.MulensData.bad`) as 'x'
         
-        Allows for different point types for each dataset. These may be set
-        using color_list, marker_list, and size_list. May also use **kwargs
-        or some combination of the lists and **kwargs. e.g. set color_list to 
-        specify which color each data set should be plotted in, but use 
-        fmt='s' to make all data points plotted as squares.
+        Allows for different point types for each dataset. These may
+        be set using color_list, marker_list, and size_list. May also
+        use ``**kwargs`` or some combination of the lists and
+        ``**kwargs``. e.g. set color_list to specify which color each
+        data set should be plotted in, but use fmt='s' to make all
+        data points plotted as squares.
         
         Automatically handles some keyword variations in errorbar() vs. 
         scatter(): e.g. fmt/marker, markersize/s (see _set_plot_kwargs),
 
-        **kwargs (and point type lists) are remembered and used in subsequent 
-        calls to both plot_data() and plot_residuals(). 
+        ``**kwargs`` (and point type lists) are remembered and used in
+        subsequent calls to both plot_data() and plot_residuals().
         """
         if data_ref is not None:
             self.data_ref = data_ref
@@ -732,7 +748,7 @@ class Model(object):
         f_blend for each dataset (not scaled to a particular 
         photometric system).
 
-        For explanation of **kwargs, and also [var]_list see doctrings in 
+        For explanation of ``**kwargs``, and also [var]_list see doctrings in 
         plot_data(). 
         """
         if data_ref is not None:
@@ -824,7 +840,7 @@ class Model(object):
           satellite_skycoord should allow user to specify the trajectory
           is calculated for a satellite. (Not checked)
 
-          **kwargs controls plotting features of the trajectory.
+          ``**kwargs`` controls plotting features of the trajectory.
         """
         if times is None:
             times = self.set_times(
@@ -897,10 +913,10 @@ class Model(object):
         """sets methods used for magnification calculation
         
         Parameter method is a list that contains epochs and names of methods
-        to be used:
+        to be used
         methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 
-                   2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15, 
-                   'Quadrupole', 2455748.]
+        2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15, 
+        'Quadrupole', 2455748.]
         """
         self._methods = methods
 
