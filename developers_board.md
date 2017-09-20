@@ -35,19 +35,16 @@
 * _guessing parameters of PSPL model_
 * fluxes fixed in chi^2 calculation
 * annual parallax calculation - verify with VBBL
-* when checking units use Unit.physical\_type
+* when checking units use Unit.physical\_type - search for physical_type in mulensobjects/lens.py as an example
 * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * Add \_\_repr\_\_ functions to Lens and Source
 * _Model.set\_parameters() should remember previously set values (of course unless they're overwritten)_
-* In Lens, add checks for new\_mass as an astropy.units.Quantity and
-  use solMass as default if not set.
 * FSPL ray shooting (ala getmag\_rs\_single.f)
 * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692)
 * Transform t\_E and other parameters between geocentric and heliocentric frames.
 * Errorbar scaling, in particular the two parameter.
 * see "To be done:" in mulensobjects/lens.py::Lens docstring
-* mulensobjects/lens.py q.setter - see comments there
 * get gamma/u LD coefs from Claret papers etc.
 * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.

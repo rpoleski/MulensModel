@@ -186,7 +186,12 @@ class Lens(object):
     @total_mass.setter
     def total_mass(self, new_mass):
         if not isinstance(new_mass, u.Quantity):
-            new_mass = new_mass * u.solMass
+            new_mass *= u.solMass
+        elif new_mass.unit.physical_type == 'dimensionless':
+            new_mass *= u.solMass
+        elif new_mass.unit.physical_type != 'mass':
+            msg = 'wrong physical_type of new total_mass: {:}'
+            raise ValueError(msg.format(new_mass.unit.physical_type))
 
         self._total_mass = new_mass
         self._last_mass_set = 'total_mass'
@@ -296,12 +301,17 @@ class Lens(object):
 
     def _change_mass(self, new_mass, index):
         """
-        Private function: updates total_mass and epsilon array if the
+        Updates total_mass and epsilon array if the
         mass of one of the components is changed. e.g. mass_2 is
         changed from 1 MJup to 2 MJup.
         """
         if not isinstance(new_mass, u.Quantity):
-            new_mass = new_mass * u.solMass
+            new_mass *= u.solMass
+        elif new_mass.unit.physical_type == 'dimensionless':
+            new_mass *= u.solMass
+        elif new_mass.unit.physical_type != 'mass':
+            msg = 'wrong physical_type of new total_mass: {:}'
+            raise ValueError(msg.format(new_mass.unit.physical_type))
 
         new_total_mass = self._total_mass(1. - self._epsilon[index]) + new_mass
         self._epsilon = self._total_mass * self._epsilon / new_total_mass
@@ -309,10 +319,15 @@ class Lens(object):
 
     def _set_single_mass(self, new_mass):
         """
-        Private function: Initializes total_mass and epsilon if only
+        Initializes total_mass and epsilon if only
         one mass componenet is defined (i.e. a point lens).
         """
         if isinstance(new_mass, u.Quantity):
+            if new_mass.unit.physical_type == 'dimensionless':
+                new_mass *= u.solMass
+            elif new_mass.unit.physical_type != 'mass':
+                msg = 'wrong physical_type of new total_mass: {:}'
+                raise ValueError(msg.format(new_mass.unit.physical_type))
             self._total_mass = new_mass
         else:
             self._total_mass = new_mass * u.solMass
@@ -327,7 +342,12 @@ class Lens(object):
         mass_2.
         """
         if not isinstance(new_mass, u.Quantity):
-            new_mass = new_mass * u.solMass
+            new_mass *= u.solMass
+        elif new_mass.unit.physical_type == 'dimensionless':
+            new_mass *= u.solMass
+        elif new_mass.unit.physical_type != 'mass':
+            msg = 'wrong physical_type of new total_mass: {:}'
+            raise ValueError(msg.format(new_mass.unit.physical_type))
 
         new_total_mass = self._total_mass + new_mass
         self._epsilon = self._total_mass * self._epsilon / new_total_mass
