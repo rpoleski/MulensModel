@@ -143,15 +143,15 @@ class Lens(object):
         new_q = np.insert(new_q, 0, 1.)
         self._epsilon = new_q / fsum(new_q)
 
-        #Update total_mass: DOES NOT LOOK LIKE IT WORKS RIGHT. Maybe
-        #goes before update epsilon?
         try:
             if np.array(new_q).size == self._epsilon.size - 1:
         #Case 3: the entire lens is defined (new_q changes the values of q)
                 pass
             else:
         #Case 2: the primary is defined (new_q adds masses)
-                self._total_mass = self._total_mass * fsum(new_q)
+                if (self._total_mass is not None 
+                        and self._last_mass_set != 'total_mass'):
+                    self._total_mass = self._total_mass * fsum(new_q)
         except AttributeError:
         #Case 1: nothing is initialized (new_q directly sets epsilon)
             pass
@@ -189,6 +189,7 @@ class Lens(object):
             new_mass = new_mass * u.solMass
 
         self._total_mass = new_mass
+        self._last_mass_set = 'total_mass'
 
     @property
     def mass(self): 
@@ -232,6 +233,7 @@ class Lens(object):
             self._change_mass(new_mass, 0)
         except AttributeError:
             self._set_single_mass(new_mass)
+        self._last_mass_set = 'mass_1'
 
     @property
     def mass_2(self):
@@ -254,6 +256,7 @@ class Lens(object):
             self._change_mass(new_mass, 1)
         else:
             self._add_mass(new_mass, 1)
+        self._last_mass_set = 'mass_1'
 
     @property
     def mass_3(self):
@@ -275,6 +278,7 @@ class Lens(object):
             self._change_mass(new_mass, 2)
         else:
             self._add_mass(new_mass, 2)
+        self._last_mass_set = 'mass_3'
 
     @property
     def n_masses(self):
@@ -414,3 +418,4 @@ class Lens(object):
         Einstein ring) of the caustics.
         """
         self.caustics.plot(n_points=n_points, **kwargs)
+
