@@ -21,7 +21,7 @@
 * _Martin's FSBL code_
 * _Cassan 2008 binary lens parameters_
 * conversions to BJD from HJD, JD etc. ([astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections))
-* for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter()
+* for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
 * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
 * BJD\_TDB in satellite ephemeris [astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections)
 * _faster FSPL with LD_
@@ -36,6 +36,7 @@
 * fluxes fixed in chi^2 calculation
 * annual parallax calculation - verify with VBBL
 * when checking units use Unit.physical\_type - search for physical_type in mulensobjects/lens.py as an example
+* when coordinates in event (or associated model or mulensdata) are changed then all associated coords are changed - this seems logical but maybe there should be some warning  that the user changes the previously set coordinates for a dataset
 * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
 * Add \_\_repr\_\_ functions to Lens and Source
