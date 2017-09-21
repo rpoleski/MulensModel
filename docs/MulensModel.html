@@ -5,9 +5,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>MulensModel package &#8212; MulensModel 1.0 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -233,12 +236,12 @@ coordinates of the caustic points.</dd>
 <p>Arguments :</p>
 <blockquote>
 <div><dl class="docutils">
-<dt><a class="reference internal" href="#MulensModel.event.Event.datasets" title="MulensModel.event.Event.datasets"><code class="xref py py-func docutils literal"><span class="pre">datasets()</span></code></a> (required): The data; a</dt>
+<dt><a class="reference internal" href="#MulensModel.event.Event.datasets" title="MulensModel.event.Event.datasets"><code class="xref py py-obj docutils literal"><span class="pre">datasets</span></code></a> (required): The data; a</dt>
 <dd><a class="reference internal" href="#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> object or
 list of MulensData objects</dd>
-<dt><a class="reference internal" href="#MulensModel.event.Event.model" title="MulensModel.event.Event.model"><code class="xref py py-func docutils literal"><span class="pre">model()</span></code></a> (required): a</dt>
+<dt><a class="reference internal" href="#MulensModel.event.Event.model" title="MulensModel.event.Event.model"><code class="xref py py-obj docutils literal"><span class="pre">model</span></code></a> (required): a</dt>
 <dd><a class="reference internal" href="#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> object</dd>
-<dt><a class="reference internal" href="#MulensModel.event.Event.coords" title="MulensModel.event.Event.coords"><code class="xref py py-func docutils literal"><span class="pre">coords()</span></code></a> (optional): the coordinates of the event</dt>
+<dt><a class="reference internal" href="#MulensModel.event.Event.coords" title="MulensModel.event.Event.coords"><code class="xref py py-obj docutils literal"><span class="pre">coords</span></code></a> (optional): the coordinates of the event</dt>
 <dd>(RA, Dec)</dd>
 </dl>
 </div></blockquote>
@@ -546,12 +549,36 @@ methods will be used</p>
 <dt id="MulensModel.model.Model">
 <em class="property">class </em><code class="descclassname">MulensModel.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>parameters=None</em>, <em>t_0=None</em>, <em>u_0=None</em>, <em>t_E=None</em>, <em>rho=None</em>, <em>s=None</em>, <em>q=None</em>, <em>alpha=None</em>, <em>pi_E=None</em>, <em>pi_E_N=None</em>, <em>pi_E_E=None</em>, <em>pi_E_ref=None</em>, <em>t_0_par=None</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>Caveats:
-1. Does not currently have self-consistency checks: e.g. it is
-possible to define s, a_proj, and a source distance that are not
-self-consistent. Under these circumstances, the behavior may be
-unpredictable.</p>
-<p>2. satellite parallax works for datasets, but not for
+<p>A Model for a microlensing event with the specified parameters.</p>
+<dl class="docutils">
+<dt>Two ways to define the model:</dt>
+<dd><ol class="first last arabic">
+<li><p class="first"><a class="reference internal" href="#MulensModel.model.Model.parameters" title="MulensModel.model.Model.parameters"><code class="xref py py-obj docutils literal"><span class="pre">parameters</span></code></a> = a
+<a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>
+object</p>
+</li>
+<li><dl class="first docutils">
+<dt>specify <a class="reference internal" href="#MulensModel.model.Model.t_0" title="MulensModel.model.Model.t_0"><code class="xref py py-obj docutils literal"><span class="pre">t_0</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.u_0" title="MulensModel.model.Model.u_0"><code class="xref py py-obj docutils literal"><span class="pre">u_0</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.t_E" title="MulensModel.model.Model.t_E"><code class="xref py py-obj docutils literal"><span class="pre">t_E</span></code></a></dt>
+<dd><p class="first">(optionally: <a class="reference internal" href="#MulensModel.model.Model.rho" title="MulensModel.model.Model.rho"><code class="xref py py-obj docutils literal"><span class="pre">rho</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.s" title="MulensModel.model.Model.s"><code class="xref py py-obj docutils literal"><span class="pre">s</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.q" title="MulensModel.model.Model.q"><code class="xref py py-obj docutils literal"><span class="pre">q</span></code></a>,
+<a class="reference internal" href="#MulensModel.model.Model.alpha" title="MulensModel.model.Model.alpha"><code class="xref py py-obj docutils literal"><span class="pre">alpha</span></code></a>)</p>
+<p class="last">Parallax may be specified either as <a class="reference internal" href="#MulensModel.model.Model.pi_E" title="MulensModel.model.Model.pi_E"><code class="xref py py-obj docutils literal"><span class="pre">pi_E</span></code></a> OR
+<a class="reference internal" href="#MulensModel.model.Model.pi_E_N" title="MulensModel.model.Model.pi_E_N"><code class="xref py py-obj docutils literal"><span class="pre">pi_E_N</span></code></a> and <a class="reference internal" href="#MulensModel.model.Model.pi_E_E" title="MulensModel.model.Model.pi_E_E"><code class="xref py py-obj docutils literal"><span class="pre">pi_E_E</span></code></a>. <a class="reference internal" href="#MulensModel.model.Model.t_0_par" title="MulensModel.model.Model.t_0_par"><code class="xref py py-obj docutils literal"><span class="pre">t_0_par</span></code></a>
+is optional. For default behavior see
+<a class="reference internal" href="#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.trajectory.Trajectory</span></code></a></p>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<p>Also optional: may specify <a class="reference internal" href="#MulensModel.model.Model.coords" title="MulensModel.model.Model.coords"><code class="xref py py-obj docutils literal"><span class="pre">coords</span></code></a> OR <a class="reference internal" href="#MulensModel.model.Model.ra" title="MulensModel.model.Model.ra"><code class="xref py py-obj docutils literal"><span class="pre">ra</span></code></a> and
+<a class="reference internal" href="#MulensModel.model.Model.dec" title="MulensModel.model.Model.dec"><code class="xref py py-obj docutils literal"><span class="pre">dec</span></code></a>.</p>
+<p>Default values for parallax are all True. Use model.parallax() to
+turn different parallax effects ON/OFF. If using satellite
+parallax, you may also specify an <cite>ephemerides_file</cite> (see
+<a class="reference internal" href="#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.mulensdata.MulensData</span></code></a>).</p>
+<p>Caveat:
+satellite parallax works for datasets, but not for
 model. i.e. The satellite parallax will be calculated correctly
 for the model evaluated at the data points, but satellite parallax
 is not implemented for the model alone.</p>
@@ -786,7 +813,7 @@ If show_errorbars is False, plots with matplotib.scatter().</p>
 <dt>show_bad <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
 <dd>if False, bad data are suppressed (default). 
 if True, shows points marked as bad
-(<code class="xref py py-func docutils literal"><span class="pre">mulensdata.MulensData.bad()</span></code>) as ‘x’</dd>
+(<code class="xref py py-obj docutils literal"><span class="pre">mulensdata.MulensData.bad</span></code>) as ‘x’</dd>
 </dl>
 <p>Allows for different point types for each dataset. These may
 be set using color_list, marker_list, and size_list. May also
@@ -990,9 +1017,10 @@ axis (“ParPerp”). “NorthEast” is default.</p>
 <span id="mulensmodel-mulensdata-module"></span><h2>MulensModel.mulensdata module<a class="headerlink" href="#module-MulensModel.mulensdata" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="MulensModel.mulensdata.MulensData">
-<em class="property">class </em><code class="descclassname">MulensModel.mulensdata.</code><code class="descname">MulensData</code><span class="sig-paren">(</span><em>data_list=None</em>, <em>file_name=None</em>, <em>phot_fmt='mag'</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em>, <em>add_2450000=False</em>, <em>add_2460000=False</em>, <em>bandpass=None</em>, <em>bad=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">MulensModel.mulensdata.</code><code class="descname">MulensData</code><span class="sig-paren">(</span><em>data_list=None</em>, <em>file_name=None</em>, <em>phot_fmt=’mag’</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em>, <em>add_2450000=False</em>, <em>add_2460000=False</em>, <em>bandpass=None</em>, <em>bad=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A set of photometric measurements for a microlensing event.</p>
+<p>To define a MulensData object: …</p>
 <dl class="docutils">
 <dt>Attributes (all vectors):</dt>
 <dd><p class="first">time - the dates of the observations</p>
@@ -1000,6 +1028,42 @@ axis (“ParPerp”). “NorthEast” is default.</p>
 <p>err_mag - the errors on the magnitudes</p>
 <p>flux - the brightness in flux</p>
 <p class="last">err_flux - the errors on the fluxes</p>
+</dd>
+<dt>Keywords:</dt>
+<dd><blockquote class="first">
+<div><dl class="docutils">
+<dt>data_list <span class="classifier-delimiter">:</span> <span class="classifier">[list of lists, numpy.ndarray], optional</span></dt>
+<dd>columns: Date, Magnitude/Flux, Err</dd>
+<dt>file_name <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
+<dd>The path to a file with columns: Date, Magnitude/Flux,
+Err. Loaded using np.loadtxt. See <code class="docutils literal"><span class="pre">**kwargs.</span></code>
+<em>Either data_list or file_name is required.</em></dd>
+<dt>phot_fmt <span class="classifier-delimiter">:</span> <span class="classifier">string </span></dt>
+<dd>Specifies whether the photometry is in Magnitudes or
+Flux units. accepts either ‘mag’ or ‘flux’. Default =
+‘mag’.</dd>
+<dt>coords <span class="classifier-delimiter">:</span> <span class="classifier">astropy.SkyCoords, optional </span></dt>
+<dd>sky coordinates of the event</dd>
+<dt>ra, dec <span class="classifier-delimiter">:</span> <span class="classifier">string, optional </span></dt>
+<dd>sky coordinates of the event</dd>
+<dt>ephemerides_file <span class="classifier-delimiter">:</span> <span class="classifier">string, optional </span></dt>
+<dd>Specify the ephemerides of a satellite over the period when
+the data were taken. Will be interpolated as necessary to
+model the satellite parallax effect. See “Instructions on
+getting satellite positions” in MulensModel.README.md</dd>
+<dt>add_2450000 <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional </span></dt>
+<dd>Adds 2450000. to the input dates. Useful if the dates
+are supplied as HJD-2450000.</dd>
+<dt>add_2460000 <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional </span></dt>
+<dd>Adds 2460000. to the input dates.</dd>
+</dl>
+</div></blockquote>
+<dl class="last docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>Parallax calculations assume that the dates supplied are</dt>
+<dd><p class="first">BJD_TDB. See :py:class:<a href="#id3"><span class="problematic" id="id4">`</span></a>~MulensModel.trajectory.Trajectory`*</p>
+<p class="last"><code class="docutils literal"><span class="pre">**kwargs</span></code> - np.loadtxt keywords. Used if file_name is provided.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 <dl class="attribute">
@@ -1133,9 +1197,10 @@ self.ephemerides_file</p>
 <em class="property">class </em><code class="descclassname">MulensModel.trajectory.</code><code class="descname">Trajectory</code><span class="sig-paren">(</span><em>times</em>, <em>parameters=None</em>, <em>parallax=None</em>, <em>t_0_par=None</em>, <em>coords=None</em>, <em>satellite_skycoord=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The (dimensionless) X, Y trajectory of the source in the
-source plane. t_0_par is the reference time for the parallax
-vector. If not set, defaults to t_0.
-For binary lens, the origin of the coordinate system is at 
+source plane.</p>
+<p><cite>t_0_par</cite> is the reference time for the parallax
+vector. If not set, defaults to <cite>t_0</cite>.</p>
+<p>For binary lens, the origin of the coordinate system is at 
 the center of mass with higher mass at negative X and Y=0.</p>
 <dl class="method">
 <dt id="MulensModel.trajectory.Trajectory.get_xy">
@@ -1294,7 +1359,7 @@ calculate the xy position of the source.</p>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
