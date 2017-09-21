@@ -19,13 +19,32 @@ from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 
 class Model(object):
     """
-    Caveats:
-    1. Does not currently have self-consistency checks: e.g. it is
-    possible to define s, a_proj, and a source distance that are not
-    self-consistent. Under these circumstances, the behavior may be
-    unpredictable.
+    A Model for a microlensing event with the specified parameters.
 
-    2. satellite parallax works for datasets, but not for
+    Two ways to define the model:
+        1. :py:obj:`parameters` = a
+           :py:class:`~MulensModel.modelparameters.ModelParameters`
+           object
+
+        2. specify :py:obj:`t_0`, :py:obj:`u_0`, :py:obj:`t_E`
+            (optionally: :py:obj:`rho`, :py:obj:`s`, :py:obj:`q`,
+            :py:obj:`alpha`)
+
+            Parallax may be specified either as :py:obj:`pi_E` OR
+            :py:obj:`pi_E_N` and :py:obj:`pi_E_E`. :py:obj:`t_0_par`
+            is optional. For default behavior see
+            :py:class:`MulensModel.trajectory.Trajectory`
+
+    Also optional: may specify :py:obj:`coords` OR :py:obj:`ra` and
+    :py:obj:`dec`.
+
+    Default values for parallax are all True. Use model.parallax() to
+    turn different parallax effects ON/OFF. If using satellite
+    parallax, you may also specify an `ephemerides_file` (see
+    :py:class:`MulensModel.mulensdata.MulensData`).
+
+    Caveat:
+    satellite parallax works for datasets, but not for
     model. i.e. The satellite parallax will be calculated correctly
     for the model evaluated at the data points, but satellite parallax
     is not implemented for the model alone.
@@ -649,7 +668,7 @@ class Model(object):
         show_bad : boolean, optional
             if False, bad data are suppressed (default). 
             if True, shows points marked as bad
-            (:py:func:`mulensdata.MulensData.bad`) as 'x'
+            (:py:obj:`mulensdata.MulensData.bad`) as 'x'
         
         Allows for different point types for each dataset. These may
         be set using color_list, marker_list, and size_list. May also

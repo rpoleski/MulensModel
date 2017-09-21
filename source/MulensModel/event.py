@@ -15,14 +15,14 @@ class Event(object):
 
     Arguments :
 
-        :py:func:`datasets` (required): The data; a
+        :py:obj:`datasets` (required): The data; a
             :py:class:`~MulensModel.mulensdata.MulensData` object or
             list of MulensData objects
 
-        :py:func:`model` (required): a
+        :py:obj:`model` (required): a
             :py:class:`~MulensModel.model.Model` object
 
-        :py:func:`coords` (optional): the coordinates of the event
+        :py:obj:`coords` (optional): the coordinates of the event
             (RA, Dec)
 
     """
@@ -31,14 +31,14 @@ class Event(object):
         Create an Event object, which allows a model to be fit to datasets.
 
         Arguments :
-            :py:func:`datasets` (required): The data; a
+            :py:obj:`datasets` (required): The data; a
                 :py:class:`~MulensModel.mulensdata.MulensData` object
                 or list of MulensData objects
 
-            :py:func:`model` (required): a
+            :py:obj:`model` (required): a
             :py:class:`~MulensModel.model.Model` object
 
-            :py:func:`coords` (optional): the coordinates of the event
+            :py:obj:`coords` (optional): the coordinates of the event
             (RA, Dec)
         """
         #Initialize self._model (and check that model is defined)

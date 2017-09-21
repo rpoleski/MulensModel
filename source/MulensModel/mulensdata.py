@@ -13,6 +13,8 @@ class MulensData(object):
     """
     A set of photometric measurements for a microlensing event.
 
+    To define a MulensData object: ...
+
     Attributes (all vectors):
         time - the dates of the observations
 
@@ -23,53 +25,51 @@ class MulensData(object):
         flux - the brightness in flux
 
         err_flux - the errors on the fluxes
+
+    Keywords:
+        data_list : [list of lists, numpy.ndarray], optional
+            columns: Date, Magnitude/Flux, Err
+
+        file_name : string, optional
+            The path to a file with columns: Date, Magnitude/Flux,
+            Err. Loaded using np.loadtxt. See ``**kwargs.``
+            *Either data_list or file_name is required.*
+
+        phot_fmt : string 
+           Specifies whether the photometry is in Magnitudes or
+           Flux units. accepts either 'mag' or 'flux'. Default =
+           'mag'.
+
+        coords : astropy.SkyCoords, optional 
+           sky coordinates of the event
+        ra, dec : string, optional 
+           sky coordinates of the event
+          
+        ephemerides_file : string, optional 
+           Specify the ephemerides of a satellite over the period when
+           the data were taken. Will be interpolated as necessary to
+           model the satellite parallax effect. See "Instructions on
+           getting satellite positions" in MulensModel.README.md
+
+
+        add_2450000 : boolean, optional 
+            Adds 2450000. to the input dates. Useful if the dates
+            are supplied as HJD-2450000.
+
+        add_2460000 : boolean, optional 
+            Adds 2460000. to the input dates.
+
+       *Parallax calculations assume that the dates supplied are
+        BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`*
+
+        ``**kwargs`` - np.loadtxt keywords. Used if file_name is provided.
     """
 
     def __init__(self, data_list=None, file_name=None,
                  phot_fmt="mag", coords=None, ra=None, dec=None, 
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, **kwargs):
-        """
-        Create a MulensData object from a set of photometric measurements.
 
-        Keywords:
-           data_list : [list of lists, numpy.ndarray], optional
-               columns: Date, Magnitude/Flux, Err
-           file_name : string, optional
-               The path to a file with columns: Date, Magnitude/Flux,
-               Err. Loaded using np.loadtxt. See **kwargs.
-           *Either data_list or file_name is required.*
-
-           phot_fmt : string 
-               Specifies whether the photometry is in Magnitudes or
-               Flux units. accepts either 'mag' or 'flux'. Default =
-               'mag'.
-
-           coords : astropy.SkyCoords, optional 
-               sky coordinates of the event
-           ra, dec : string, optional 
-               sky coordinates of the event
-          
-           ephemerides_file : string, optional 
-               Specify the ephemerides of a satellite over the period
-               when the data were taken. Will be interpolated as
-               necessary to model the satellite parallax effect. See
-               "Instructions on getting satellite positions" in
-               MulensModel.README.md
-
-
-           add_2450000 : boolean, optional 
-               Adds 2450000. to the input dates. Useful if the dates
-               are supplied as HJD-2450000.
-           add_2460000 : boolean, optional 
-               Adds 2460000. to the input dates.
-
-           *Parallax calculations assume that the dates supplied are
-            BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`*
-
-           **kwargs - np.loadtxt keywords. Used if file_name is provided.
-
-        """
         #Initialize some variables
         self._n_epochs = None  
         self._horizons = None

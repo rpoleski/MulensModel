@@ -13,8 +13,11 @@ from MulensModel.modelparameters import ModelParameters
 class Trajectory(object):
     """
     The (dimensionless) X, Y trajectory of the source in the
-    source plane. t_0_par is the reference time for the parallax
-    vector. If not set, defaults to t_0.
+    source plane. 
+
+    `t_0_par` is the reference time for the parallax
+    vector. If not set, defaults to `t_0`.
+
     For binary lens, the origin of the coordinate system is at 
     the center of mass with higher mass at negative X and Y=0.
     """
@@ -29,6 +32,7 @@ class Trajectory(object):
         Optional parallax keywords:
            parallax - boolean dictionary specifying what parallax effects should be used. Default is False. (differs from Modely.py which defaults to True)
            t_0_par - reference time for the parallax
+
            coords - sky coordinates of the event
            satellite_skycoord - sky coordinates of the satellite
                specified by the ephemrides file. see
