@@ -7,7 +7,7 @@ class Source(object):
     Physical properties of a source (background) star.
 
     Attributes :
-        limb_darkening : :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+        limb_darkening: :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
             Limb darkening coefficients of the source.
 
     """
@@ -33,8 +33,8 @@ class Source(object):
 
         The distance to the source. May be set as a *float*.
         The distance should either be given in pc, or if no unit is
-        given, the value is assumed to be kpc if it is <50 and in pc
-        otherwise.
+        given, the value is assumed to be kpc (*u.kpc*) if it is <50 and in 
+        pc (*u.pc*) otherwise.
         """
         return self._distance
 
@@ -61,7 +61,7 @@ class Source(object):
         *astropy.Quantity*
 
         The parallax to the source in millarcseconds. May be set as a
-        *float*. If no units are specified, assumes milliarcseconds.
+        *float*. If no units are specified, assumes milliarcseconds (*u.mas*).
         """
         return self._distance.to(u.mas, equivalencies=u.parallax())
 
@@ -80,7 +80,7 @@ class Source(object):
         *astropy.Quantity*
 
         Angular radius of the source. May be set as a *float*. If
-        units are not specified, assumed to be microarcseconds.
+        units are not specified, assumed to be microarcseconds (*u.mas*).
         """
         return self._angular_radius
 

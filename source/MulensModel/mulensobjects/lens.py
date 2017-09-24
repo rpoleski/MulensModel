@@ -432,10 +432,22 @@ class Lens(object):
                 self._caustics = Caustics(q=self.q, s=self.s)
         return self._caustics
 
-    def plot_caustics(self,n_points=5000,**kwargs):
+    def plot_caustics(self, n_points=5000, **kwargs):
         """
         A function to plot the x,y coordinates (scaled to the
-        Einstein ring) of the caustics.
+        Einstein ring) of the caustics. `Pyplot scatter`_ is used for 
+        plotting. See :py:func:`MulensModel.caustics.Caustics.plot`.
+    
+        Parameters :
+            n_points: *int* 
+                Number of points be plotted. 
+
+            ``**kwargs``:
+                Keyword arguments passed to `Pyplot scatter`
+
+        .. _Pyplot scatter:
+           https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.scatter
+
         """
         self.caustics.plot(n_points=n_points, **kwargs)
 

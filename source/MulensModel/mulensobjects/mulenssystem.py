@@ -163,11 +163,12 @@ class MulensSystem(object):
                 Impact parameter between the source and the lens (as a
                 fraction of the Einstein ring)
 
-            alpha:
-                see :py:obj:`MulensModel.modelparameters.ModelParameters.alpha`
+            alpha: *astropy.Quantity*, *float*
+                If float then degrees are assumed as a unit.
+                See :py:obj:`MulensModel.modelparameters.ModelParameters.alpha`
 
-            **kwargs:
-                see :py:func:`MulensModel.model.Model.plot_magnification`
+            ``**kwargs``:
+                See :py:func:`MulensModel.model.Model.plot_magnification`
         """
         if u_0 is None:
             raise AttributeError('u_0 is required')
@@ -198,9 +199,19 @@ class MulensSystem(object):
 
     def plot_caustics(self, n_points=5000, **kwargs):
         """
-        Plot the caustic structure. *n_points* specifies the number of
-        points to generate in the caustic. See
+        Plot the caustics structure using `Pyplot scatter`_. See
         :py:func:`MulensModel.caustics.Caustics.plot`
+
+        Parameters :
+            n_points: *int*
+                Number of points be plotted. 
+
+            ``**kwargs``:
+                Keyword arguments passed to `Pyplot scatter`
+
+        .. _Pyplot scatter:
+           https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.scatter
+
         """
         self.lens.plot_caustics(n_points=n_points, **kwargs)
 
