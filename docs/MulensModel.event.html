@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MulensModel.event module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.event">
+<span id="mulensmodel-event-module"></span><h1>MulensModel.event module<a class="headerlink" href="#module-MulensModel.event" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.event.Event">
+<em class="property">class </em><code class="descclassname">MulensModel.event.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>datasets=None</em>, <em>model=None</em>, <em>coords=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Allows a model to be fit to datasets.</p>
+<p>Arguments :</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><a class="reference internal" href="#MulensModel.event.Event.datasets" title="MulensModel.event.Event.datasets"><code class="xref py py-obj docutils literal"><span class="pre">datasets</span></code></a> (required): The data; a</dt>
+<dd><a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> object or
+list of MulensData objects</dd>
+<dt><a class="reference internal" href="#MulensModel.event.Event.model" title="MulensModel.event.Event.model"><code class="xref py py-obj docutils literal"><span class="pre">model</span></code></a> (required): a</dt>
+<dd><a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> object</dd>
+<dt><a class="reference internal" href="#MulensModel.event.Event.coords" title="MulensModel.event.Event.coords"><code class="xref py py-obj docutils literal"><span class="pre">coords</span></code></a> (optional): the coordinates of the event</dt>
+<dd>(RA, Dec)</dd>
+</dl>
+</div></blockquote>
+<dl class="attribute">
+<dt id="MulensModel.event.Event.datasets">
+<code class="descname">datasets</code><a class="headerlink" href="#MulensModel.event.Event.datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>a <em>list</em> of <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a>
+instances.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.data_ref">
+<code class="descname">data_ref</code><a class="headerlink" href="#MulensModel.event.Event.data_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference data set for scaling the model fluxes to (for
+plotting). May be a
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> object or an
+index (<em>int</em>). Default is the first data set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.model">
+<code class="descname">model</code><a class="headerlink" href="#MulensModel.event.Event.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>an instance of <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.coords">
+<code class="descname">coords</code><a class="headerlink" href="#MulensModel.event.Event.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.coordinates.SkyCoord</em> object</p>
+<p>The event sky coordinates (RA, Dec). May be set as a <em>string</em>
+or <em>SkyCoord</em> object, e.g.</p>
+<p>&#8216;18:00:00 -30:00:00&#8217;</p>
+<p>&#8216;18h00m00s -30d00m00s&#8217;</p>
+<p>SkyCoord(&#8216;18:00:00 -30:00:00&#8217;, unit=(u.hourangle, u.deg))</p>
+<p>where u is defined in &#8220;import astropy.units as u&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.ra">
+<code class="descname">ra</code><a class="headerlink" href="#MulensModel.event.Event.ra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Right Ascension. May be set as a <em>string</em>, e.g. &#8216;15:30:00&#8217; or
+&#8216;15h30m00s&#8217;.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.event.Event.dec">
+<code class="descname">dec</code><a class="headerlink" href="#MulensModel.event.Event.dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declination. May be set as a <em>string</em>, e.g &#8216;15:30:00&#8217; or &#8216;15d30m00s&#8217;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.get_chi2">
+<code class="descname">get_chi2</code><span class="sig-paren">(</span><em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates chi^2 of current model by fitting for source and 
+blending fluxes.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>fit_blending</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span><dd>If True, then the blend flux is a free parameter. If
+False, the blend flux is fixed at zero.  Default is
+the same as <a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>chi2</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>Chi^2 value</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.get_chi2_per_point">
+<code class="descname">get_chi2_per_point</code><span class="sig-paren">(</span><em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2_per_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates chi^2 for each data point of the current model by
+fitting for source and blending fluxes.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>fit_blending</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><em>boolean</em>, optional</span><dd>Are we fitting for blending flux? If not then it is
+fixed to 0.  Default is the same as
+<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>chi2</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><em>np.ndarray</em>  </span><dd>Chi^2 contribution from each data point,
+e.g. chi2[obs_num][k] returns the chi2 contribution
+from the <em>k</em> th point of observatory <em>obs_num</em> .</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.get_ref_fluxes">
+<code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>see <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.get_ref_fluxes" title="MulensModel.model.Model.get_ref_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.get_ref_fluxes()</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.plot_model">
+<code class="descname">plot_model</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>see <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_lc()</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.plot_data">
+<code class="descname">plot_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>see <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_data()</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.plot_residuals">
+<code class="descname">plot_residuals</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>see <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_residuals" title="MulensModel.model.Model.plot_residuals"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_residuals()</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.clean_data">
+<code class="descname">clean_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.clean_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>masks outlying datapoints. Not Implemented.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.estimate_model_params">
+<code class="descname">estimate_model_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.estimate_model_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>estiamtes model parameters without fitting them. Not Implemented</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.event.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MulensModel.event.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

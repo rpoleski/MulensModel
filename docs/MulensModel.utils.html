@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MulensModel.utils module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.utils">
+<span id="mulensmodel-utils-module"></span><h1>MulensModel.utils module<a class="headerlink" href="#module-MulensModel.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.utils.Utils">
+<em class="property">class </em><code class="descclassname">MulensModel.utils.</code><code class="descname">Utils</code><a class="headerlink" href="#MulensModel.utils.Utils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>a number of small functions used in different places</p>
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_flux_from_mag">
+<em class="property">static </em><code class="descname">get_flux_from_mag</code><span class="sig-paren">(</span><em>mag</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_from_mag" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform magnitudes into fluxes</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_flux_and_err_from_mag">
+<em class="property">static </em><code class="descname">get_flux_and_err_from_mag</code><span class="sig-paren">(</span><em>mag</em>, <em>err_mag</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_and_err_from_mag" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform magnitudes into fluxes including errorbars</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_mag_from_flux">
+<em class="property">static </em><code class="descname">get_mag_from_flux</code><span class="sig-paren">(</span><em>flux</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_from_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform fluxes into magnitudes</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_mag_and_err_from_flux">
+<em class="property">static </em><code class="descname">get_mag_and_err_from_flux</code><span class="sig-paren">(</span><em>flux</em>, <em>err_flux</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_and_err_from_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform fluxes into magnitudes including errorbars</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.complex_fsum">
+<em class="property">static </em><code class="descname">complex_fsum</code><span class="sig-paren">(</span><em>arguments</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.complex_fsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>accurate floating points sum of complex numbers in iterable arguments</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.dot">
+<em class="property">static </em><code class="descname">dot</code><span class="sig-paren">(</span><em>cartesian</em>, <em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>dot product of Astropy CartersianRepresentation and np.ndarray</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.vector_product_normalized">
+<em class="property">static </em><code class="descname">vector_product_normalized</code><span class="sig-paren">(</span><em>vector_1</em>, <em>vector_2</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.vector_product_normalized" title="Permalink to this definition">¶</a></dt>
+<dd><p>get vector that is perpendicular to the 2 above and is normalized</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.gamma_to_u">
+<em class="property">static </em><code class="descname">gamma_to_u</code><span class="sig-paren">(</span><em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.gamma_to_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform gamma limb darkening coefficient to u</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.u_to_gamma">
+<em class="property">static </em><code class="descname">u_to_gamma</code><span class="sig-paren">(</span><em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.u_to_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>transform u limb darkening coefficient to gamma</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.date_change">
+<em class="property">static </em><code class="descname">date_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>changes format: &#8216;2015-Oct-30 12:00&#8217; -&gt; &#8216;2015-10-30 12:00&#8217;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.utils.Utils.astropy_version_check">
+<code class="descname">astropy_version_check</code><span class="sig-paren">(</span><em>minimum</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.astropy_version_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if astropy is installed at given or later version (input as a string)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.utils.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MulensModel.utils.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

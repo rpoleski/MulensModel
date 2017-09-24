@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MulensModel.mulensobjects.mulenssystem module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.mulensobjects.mulenssystem">
+<span id="mulensmodel-mulensobjects-mulenssystem-module"></span><h1>MulensModel.mulensobjects.mulenssystem module<a class="headerlink" href="#module-MulensModel.mulensobjects.mulenssystem" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem">
+<em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.mulenssystem.</code><code class="descname">MulensSystem</code><span class="sig-paren">(</span><em>lens=None</em>, <em>source=None</em>, <em>mu_rel=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A microlensing system consisting of a lens and a source.</p>
+<dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.lens">
+<code class="descname">lens</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.lens" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="MulensModel.mulensobjects.lens.html#MulensModel.mulensobjects.lens.Lens" title="MulensModel.mulensobjects.lens.Lens"><code class="xref py py-class docutils literal"><span class="pre">Lens</span></code></a> object. 
+Physical properties of the lens. Note: lens mass must be in
+solMasses.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.source">
+<code class="descname">source</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.source" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="MulensModel.mulensobjects.source.html#MulensModel.mulensobjects.source.Source" title="MulensModel.mulensobjects.source.Source"><code class="xref py py-class docutils literal"><span class="pre">Source</span></code></a> object.
+Physical properties of the source.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.mu_rel">
+<code class="descname">mu_rel</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.mu_rel" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em></p>
+<p>Relative proper motion between the source and lens
+stars. If set as a <em>float</em>, units are assumed to be mas/yr.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.t_E">
+<code class="descname">t_E</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.t_E" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em></p>
+<p>The Einstein crossing time (in days). If set as a <em>float</em>,
+assumes units are in days.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.pi_rel">
+<code class="descname">pi_rel</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.pi_rel" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em>, read-only</p>
+<p>The source-lens relative parallax in milliarcseconds.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.theta_E">
+<code class="descname">theta_E</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.theta_E" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em>, read-only</p>
+<p>The angular Einstein Radius in milliarcseconds.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.r_E">
+<code class="descname">r_E</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.r_E" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em>, read-only</p>
+<p>The physical size of the Einstein Radius in the Lens plane (in AU).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.r_E_tilde">
+<code class="descname">r_E_tilde</code><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.r_E_tilde" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em>, read-only</p>
+<p>The physical size of the Einstein Radius projected onto the
+Observer plane (in AU).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.plot_magnification">
+<code class="descname">plot_magnification</code><span class="sig-paren">(</span><em>u_0=None</em>, <em>alpha=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.plot_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the magnification curve for the lens. u_0 must always be
+specified. If the lens has more than one body, alpha must also
+be specified.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>u_0: <em>float</em></dt>
+<dd>Impact parameter between the source and the lens (as a
+fraction of the Einstein ring)</dd>
+<dt>alpha: <em>astropy.Quantity</em>, <em>float</em></dt>
+<dd>If float then degrees are assumed as a unit.
+See <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-obj docutils literal"><span class="pre">MulensModel.modelparameters.ModelParameters.alpha</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">**kwargs</span></code>:</dt>
+<dd>See <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_magnification" title="MulensModel.model.Model.plot_magnification"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_magnification()</span></code></a></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.mulensobjects.mulenssystem.MulensSystem.plot_caustics">
+<code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.mulenssystem.MulensSystem.plot_caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the caustics structure using <a class="reference external" href="https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.scatter">Pyplot scatter</a>. See
+<a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a></p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>n_points: <em>int</em></dt>
+<dd>Number of points be plotted.</dd>
+<dt><code class="docutils literal"><span class="pre">**kwargs</span></code>:</dt>
+<dd>Keyword arguments passed to <cite>Pyplot scatter</cite></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.mulensobjects.mulenssystem.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MulensModel.mulensobjects.mulenssystem.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

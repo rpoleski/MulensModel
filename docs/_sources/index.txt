@@ -6,6 +6,9 @@
 Welcome to MulensModel's documentation!
 =======================================
 
+This is MulensModel. Will content added to index.rst survive the
+sphinx process?
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
