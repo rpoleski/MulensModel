@@ -1,4 +1,5 @@
 import numpy as np
+from math import cos, sin
 import matplotlib.pyplot as pl
 
 from MulensModel.utils import Utils
@@ -103,32 +104,34 @@ class Caustics(object):
         Based on Eq. 6 Cassan 2008 modified so origin is center of
         mass and larger mass is on the left. Uses complex coordinates.
         """
-        #Initialize variables
+        # Find number of angles so that 4*n_angles is the multiple of 4 that 
+        # is closest to n_points.
+        n_angles = int(n_points/4.+.5)
+        
+        # Initialize variables
         self._x = []
         self._y = []
         self._critical_curve = self.CriticalCurve()
 
-        #Distance between primary mass and center of mass
+        # Distance between primary mass and center of mass
         xcm_offset = self.q * self.s / (1. + self.q)
 
-        #Solve for the critical curve (and caustic) in complex coordinates.
-        for phi in np.arange(0., 2.*np.pi, 2*np.pi/n_points):
-            #Change the angle to a complex number
-            x = np.cos(phi)
-            y = np.sin(phi)
-            eiphi = np.complex(x, y)
+        # Solve for the critical curve (and caustic) in complex coordinates.
+        for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
+            # Change the angle to a complex number
+            eiphi = np.complex(cos(phi), sin(phi))
 
-            #Coefficients of Eq. 6
+            # Coefficients of Eq. 6
             coeff_4 = 1.
             coeff_3 = -2. * self.s
             coeff_2 = Utils.complex_fsum([self.s**2, -eiphi])
             coeff_1 = 2. * self.s * eiphi / (1. + self.q)
             coeff_0 = -self.s**2 * eiphi / (1. + self.q)
 
-            #Find roots
+            # Find roots
             coeff_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4]
             roots = np.polynomial.polynomial.polyroots(coeff_list)
-            #Store results
+            # Store results
             for root in roots:
                 self._critical_curve.x.append(root.real - xcm_offset)
                 self._critical_curve.y.append(root.imag)
