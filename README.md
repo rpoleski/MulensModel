@@ -1,6 +1,7 @@
 # MulensModel
 
-MulensModel is package for modeling microlensing (or $\mu$-lensing) events. 
+MulensModel is package for modeling microlensing (or <dl>&mu;</dl>-lensing) 
+events. 
 
 It is still under development. [Latest release: 0.2.1](https://github.com/rpoleski/MulensModel/releases/tag/0.2.1)
 
@@ -47,7 +48,11 @@ in bash:
 ```
 export PYTHONPATH=/home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH
 ```
-5. Go to subdirecotry ```source/VBBL/``` and run ```make``` command.
+5. Go to subdirecotry ```source/VBBL/``` and run ```make``` command. If it's not working and you're using Windows, then please run:
+```
+gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp
+gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o
+```
 6. Congratulations! You have MulensModel installed fully. 
 
 ---
