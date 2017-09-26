@@ -1,7 +1,7 @@
 # MulensModel
 
-MulensModel is package for modeling microlensing (or <dl>&mu;</dl>-lensing) 
-events. 
+<dl>MulensModel is package for modeling microlensing (or &mu;-lensing) 
+events. </dl>
 
 It is still under development. [Latest release: 0.2.1](https://github.com/rpoleski/MulensModel/releases/tag/0.2.1)
 
