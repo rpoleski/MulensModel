@@ -98,6 +98,11 @@ class Model(object):
 
         if alpha is not None:
             self.alpha = alpha
+
+        if s is not None or q is not None or alpha is not None:
+            if s is None or q is None or alpha is None:
+                raise AttributeError('If one of (s, q, alpha) is specified, all three must be specified.')
+
         self.t_0_par = t_0_par
         
         # Set the parallax
@@ -878,7 +883,7 @@ class Model(object):
         pl.plot(trajectory.x, trajectory.y, **kwargs)
         
         if arrow:
-            index = len(times)/2
+            index = int(len(times)/2)
             pl.scatter(
                 trajectory.x[index], trajectory.y[index], 
                 marker=(3, 0, self.alpha), s=50)
