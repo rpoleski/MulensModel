@@ -168,7 +168,7 @@ class MulensSystem(object):
                 See :py:obj:`MulensModel.modelparameters.ModelParameters.alpha`
 
             ``**kwargs``:
-                See :py:func:`MulensModel.model.Model.plot_magnification`
+                See :py:func:`MulensModel.model.Model.plot_magnification()`
         """
         if u_0 is None:
             raise AttributeError('u_0 is required')
@@ -200,7 +200,7 @@ class MulensSystem(object):
     def plot_caustics(self, n_points=5000, **kwargs):
         """
         Plot the caustics structure using `Pyplot scatter`_. See
-        :py:func:`MulensModel.caustics.Caustics.plot`
+        :py:func:`MulensModel.caustics.Caustics.plot()`
 
         Parameters :
             n_points: *int*

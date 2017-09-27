@@ -215,7 +215,7 @@ class Event(object):
             fit_blending : boolean, optional
                 If True, then the blend flux is a free parameter. If
                 False, the blend flux is fixed at zero.  Default is
-                the same as :py:func:`MulensModel.fit.Fit.fit_fluxes`.
+                the same as :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
             chi2 : float
@@ -242,7 +242,7 @@ class Event(object):
             fit_blending : *boolean*, optional
                 Are we fitting for blending flux? If not then it is
                 fixed to 0.  Default is the same as
-                :py:func:`MulensModel.fit.Fit.fit_fluxes`.
+                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
             chi2 : *np.ndarray*  
@@ -272,25 +272,25 @@ class Event(object):
 
     def get_ref_fluxes(self, data_ref=None):
         """
-        see :py:func:`MulensModel.model.Model.get_ref_fluxes`
+        see :py:func:`MulensModel.model.Model.get_ref_fluxes()`
         """
         return self.model.get_ref_fluxes(data_ref=data_ref)
 
     def plot_model(self, **kwargs):
         """
-        see :py:func:`MulensModel.model.Model.plot_lc`
+        see :py:func:`MulensModel.model.Model.plot_lc()`
         """
         self.model.plot_lc(**kwargs)
 
     def plot_data(self, **kwargs):
         """
-        see :py:func:`MulensModel.model.Model.plot_data`
+        see :py:func:`MulensModel.model.Model.plot_data()`
         """
         self.model.plot_data(**kwargs)
 
     def plot_residuals(self,**kwargs):
         """
-        see :py:func:`MulensModel.model.Model.plot_residuals`
+        see :py:func:`MulensModel.model.Model.plot_residuals()`
         """
         self.model.plot_residuals(**kwargs)
 

@@ -436,7 +436,7 @@ class Lens(object):
         """
         A function to plot the x,y coordinates (scaled to the
         Einstein ring) of the caustics. `Pyplot scatter`_ is used for 
-        plotting. See :py:func:`MulensModel.caustics.Caustics.plot`.
+        plotting. See :py:func:`MulensModel.caustics.Caustics.plot()`.
     
         Parameters :
             n_points: *int* 
