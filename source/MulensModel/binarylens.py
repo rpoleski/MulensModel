@@ -16,20 +16,24 @@ class BinaryLens(object):
     The binary lens equation is a 5th order complex polynomial.
 
     Attributes :
-        mass_1 : float
+        mass_1: *float*
             mass of the primary (left-hand object) as a fraction of the total 
             mass.
-        mass_2 : float
+        mass_2: *float*
             mass of the secondary (right-hand object) as a fraction of the 
             total mass.
-        separation : float
+        separation: *float*
             separation between the two bodies as a fraction of the Einstein 
             ring.
 
+    Note: mass_1 and mass_2 may be defined relative to some other mass 
+    but this is not recommended.
+
     """
     def __init__(self, mass_1=None, mass_2=None, separation=None):
-        """mass_1, mass_2, and separation are relative to 
-        some mass (and corresponding Einstein radius)"""
+        """The mass_1, mass_2, and separation are relative to 
+        some mass (and corresponding Einstein radius). This should normally be
+        the total mass of the system."""
         self.mass_1 = mass_1
         self.mass_2 = mass_2
         self.separation = separation
@@ -101,7 +105,6 @@ class BinaryLens(object):
         coefs_list = [coef_0, coef_1, coef_2, coef_3, coef_4, coef_5]
         return np.array(coefs_list).reshape(6)
         
-
     def _get_polynomial_roots_WM95(self, source_x, source_y):
         """roots of the polynomial"""
         polynomial_input = [self.mass_1, self.mass_2, self.separation, 
@@ -188,11 +191,22 @@ class BinaryLens(object):
 
     def point_source_magnification(self, source_x, source_y):
         """
-        calculates point source magnification for given position
-        in a coordinate system where the center of mass is at origin 
+        Calculate point source magnification for given position. 
+        The origin of the coordinate system is at the center of mass 
         and both masses are on X axis with higher mass at negative X;
         this means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-        the lower mass is at (s/(1+q), 0)
+        the lower mass is at (s/(1+q), 0).
+
+        Parameters :
+            source_x: *float*
+                X-axis coordinate of the source.
+
+            source_y: *float*
+                Y-axis coordinate of the source.
+
+        Returns :
+            magnification: *float*
+                Point source magnification.
         """
         x_shift = self.separation * (0.5 + 
                                     self.mass_2 / (self.mass_1 + self.mass_2))
@@ -237,29 +251,38 @@ class BinaryLens(object):
 
     def hexadecapole_magnification(self, source_x, source_y, rho, gamma, 
                                   quadrupole=False, all_approximations=False):
-        """hexadecpole approximation of binary-lens/finite-source 
-        calculations - based on Gould 2008 ApJ 681, 1593
+        """Magnification in hexadecpole approximation of 
+        the binary-lens/finite-source event - based on 
+        `Gould 2008 ApJ 681, 1593 
+        <http://adsabs.harvard.edu/abs/2008ApJ...681.1593G>`_.
         
-        for coordinate system convention see
-        :py:func:`point_source_magnification`
+        For coordinate system convention see 
+        :py:func:`point_source_magnification()`
 
         Parameters :
-            source_x: type
-                description here.
-            source_y: type
-                description here.
-            rho: type
-                description here.
-            gamma: type
-                description here.
-            quadrupole : boolean, optional
-                description here.
-            all_approximations: boolean, optional
-                description here.
+            source_x: *float*
+                X-axis coordinate of the source.
+            source_y: *float*
+                Y-axis coordinate of the source.
+            rho: *float*
+                Source size relative to Einstein ring radius.
+            gamma: *float*
+                Linear limb-darkening cooefficient in gamma convention 
+                (i.e., 0 for no limb-darkening).
+            quadrupole: *boolean*, optional
+                Return quadrupole approximation instead of hexadecapole?
+                Default is *False*.
+            all_approximations: *boolean*, optional
+                Return hexadecapole, quadrupole, and point source 
+                approximations? Default is *False*.
 
         Returns :
-            type
-                description
+            magnification: *float* or seqence of three *floats*
+                Hexadecapole approximation (*float*) by default. 
+                Quadrupole approximation (*float*) if 
+                :py:attr:`quadrupole` is *True*. Hexadecapole, quadrupole, 
+                and point source approximations (seqence of three *floats*) 
+                if :py:attr:`all_approximations` is *True*.
         """
         # In this function, variables named a_* depict magnification.
         if quadrupole and all_approximations:
