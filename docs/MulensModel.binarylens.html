@@ -51,56 +51,82 @@ magnifications, etc.</p>
 <dl class="docutils">
 <dt>Attributes :</dt>
 <dd><dl class="first last docutils">
-<dt>mass_1</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>mass of the primary (left-hand object) as a fraction of the total 
+<dt>mass_1: <em>float</em></dt>
+<dd>mass of the primary (left-hand object) as a fraction of the total 
 mass.</dd>
-<dt>mass_2</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>mass of the secondary (right-hand object) as a fraction of the 
+<dt>mass_2: <em>float</em></dt>
+<dd>mass of the secondary (right-hand object) as a fraction of the 
 total mass.</dd>
-<dt>separation</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>separation between the two bodies as a fraction of the Einstein 
+<dt>separation: <em>float</em></dt>
+<dd>separation between the two bodies as a fraction of the Einstein 
 ring.</dd>
 </dl>
 </dd>
 </dl>
+<p>Note: mass_1 and mass_2 may be defined relative to some other mass 
+but this is not recommended.</p>
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.point_source_magnification">
 <code class="descname">point_source_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculates point source magnification for given position
-in a coordinate system where the center of mass is at origin 
+<dd><p>Calculate point source magnification for given position. 
+The origin of the coordinate system is at the center of mass 
 and both masses are on X axis with higher mass at negative X;
 this means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-the lower mass is at (s/(1+q), 0)</p>
+the lower mass is at (s/(1+q), 0).</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>source_x: <em>float</em></dt>
+<dd>X-axis coordinate of the source.</dd>
+<dt>source_y: <em>float</em></dt>
+<dd>Y-axis coordinate of the source.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>magnification: <em>float</em></dt>
+<dd>Point source magnification.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.hexadecapole_magnification">
 <code class="descname">hexadecapole_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma</em>, <em>quadrupole=False</em>, <em>all_approximations=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>hexadecpole approximation of binary-lens/finite-source 
-calculations - based on Gould 2008 ApJ 681, 1593</p>
-<p>for coordinate system convention see
+<dd><p>Magnification in hexadecpole approximation of 
+the binary-lens/finite-source event - based on 
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2008ApJ...681.1593G">Gould 2008 ApJ 681, 1593</a>.</p>
+<p>For coordinate system convention see 
 <a class="reference internal" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="MulensModel.binarylens.BinaryLens.point_source_magnification"><code class="xref py py-func docutils literal"><span class="pre">point_source_magnification()</span></code></a></p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>source_x: type</dt>
-<dd>description here.</dd>
-<dt>source_y: type</dt>
-<dd>description here.</dd>
-<dt>rho: type</dt>
-<dd>description here.</dd>
-<dt>gamma: type</dt>
-<dd>description here.</dd>
-<dt>quadrupole</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span><dd>description here.</dd>
-<dt>all_approximations: boolean, optional</dt>
-<dd>description here.</dd>
+<dt>source_x: <em>float</em></dt>
+<dd>X-axis coordinate of the source.</dd>
+<dt>source_y: <em>float</em></dt>
+<dd>Y-axis coordinate of the source.</dd>
+<dt>rho: <em>float</em></dt>
+<dd>Source size relative to Einstein ring radius.</dd>
+<dt>gamma: <em>float</em></dt>
+<dd>Linear limb-darkening cooefficient in gamma convention 
+(i.e., 0 for no limb-darkening).</dd>
+<dt>quadrupole: <em>boolean</em>, optional</dt>
+<dd>Return quadrupole approximation instead of hexadecapole?
+Default is <em>False</em>.</dd>
+<dt>all_approximations: <em>boolean</em>, optional</dt>
+<dd>Return hexadecapole, quadrupole, and point source 
+approximations? Default is <em>False</em>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
-<dt>type</dt>
-<dd>description</dd>
+<dt>magnification: <em>float</em> or seqence of three <em>floats</em></dt>
+<dd>Hexadecapole approximation (<em>float</em>) by default. 
+Quadrupole approximation (<em>float</em>) if 
+<code class="xref py py-attr docutils literal"><span class="pre">quadrupole</span></code> is <em>True</em>. Hexadecapole, quadrupole, 
+and point source approximations (seqence of three <em>floats</em>) 
+if <code class="xref py py-attr docutils literal"><span class="pre">all_approximations</span></code> is <em>True</em>.</dd>
 </dl>
 </dd>
 </dl>

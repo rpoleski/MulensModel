@@ -51,24 +51,25 @@ find the best fit parameters.</p>
 </div>
 <div class="section" id="how-to-install">
 <h1>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this headline">¶</a></h1>
-<ol class="arabic simple">
-<li>Make sure you have python with <a class="reference external" href="http://www.astropy.org/">astropy package</a> installed.</li>
+<ol class="arabic">
+<li><p class="first">Make sure you have python with <a class="reference external" href="http://www.astropy.org/">astropy package</a> installed.</p>
+</li>
+<li><p class="first">Download source code - either <a class="reference external" href="https://github.com/rpoleski/MulensModel/releases">recent release</a> or the current repository from <a class="reference external" href="https://github.com/rpoleski/MulensModel">MulensModel github page</a> (green button on right).</p>
+</li>
+<li><p class="first">Unpack the archive.</p>
+</li>
+<li><p class="first">Add the path to the unpack directory to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>, e.g., in tcsh:</p>
+<p>setenv PYTHONPATH /home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH</p>
+</li>
 </ol>
-<p>2. Download source code - either <a class="reference external" href="https://github.com/rpoleski/MulensModel/releases">recent release</a> or the current repository
-from <a class="reference external" href="https://github.com/rpoleski/MulensModel">MulensModel github page</a> (green button on right).
-3. Unpack the archive.
-4. Add the path to the unpack directory to the <em>PYTHONPATH</em>, e.g., in tcsh:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>setenv PYTHONPATH /home/USER_NAME/MulensModel-0.1.0/source\:$PYTHONPATH
-</pre></div>
-</div>
 <p>in bash:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>export PYTHONPATH=/home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH
 </pre></div>
 </div>
 <ol class="arabic" start="5">
-<li><p class="first">Go to subdirecotry <em>source/VBBL/</em> and run <em>make</em> command. If it&#8217;s not working and you&#8217;re using Windows, then please run:</p>
-<p>gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp
-gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o</p>
+<li><p class="first">Go to subdirecotry <code class="docutils literal"><span class="pre">source/VBBL/</span></code> and run <code class="docutils literal"><span class="pre">make</span></code> command. If it&#8217;s not working and you&#8217;re using Windows, then please run:</p>
+<p>gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp</p>
+<p>gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o</p>
 </li>
 <li><p class="first">Congratulations! You have MulensModel installed fully.</p>
 </li>
