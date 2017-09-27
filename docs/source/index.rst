@@ -33,6 +33,7 @@ in bash::
 5. Go to subdirecotry *source/VBBL/* and run *make* command. If it's not working and you're using Windows, then please run::
 
    gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp
+
    gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o
 
 6. Congratulations! You have MulensModel installed fully.
@@ -56,3 +57,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
