@@ -1,29 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Welcome to MulensModel’s documentation! &#8212; MulensModel 0.2.1 documentation</title>
-    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="MulensModel 0.2.1 documentation" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="How to install?" href="install.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -31,7 +31,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -40,41 +40,23 @@
           <div class="body" role="main">
             
   <div class="section" id="welcome-to-mulensmodel-s-documentation">
-<h1>Welcome to MulensModel&#8217;s documentation!<a class="headerlink" href="#welcome-to-mulensmodel-s-documentation" title="Permalink to this headline">¶</a></h1>
+<h1>Welcome to MulensModel’s documentation!<a class="headerlink" href="#welcome-to-mulensmodel-s-documentation" title="Permalink to this headline">¶</a></h1>
 <p>MulensModel is package for modeling microlensing (or -lensing)
 events. MulensModel can generate a microlensing light curve for a given set of
 microlensing parameters, fit that light curve to some data, and return a chi2
 value. That chi2 can then be input into an arbitrary likelihood function to
 find the best fit parameters.</p>
-<p>Main MulensModel features are in classes <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>, <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.event.html">Event</a>, and
-<a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html">MulensData</a>.</p>
-</div>
-<div class="section" id="how-to-install">
-<h1>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this headline">¶</a></h1>
-<ol class="arabic">
-<li><p class="first">Make sure you have python with <a class="reference external" href="http://www.astropy.org/">astropy package</a> installed.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#defining-a-model">Defining a Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#introducing-data">Introducing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#combining-data-with-a-model">Combining Data with a Model</a></li>
+</ul>
 </li>
-<li><p class="first">Download source code - either <a class="reference external" href="https://github.com/rpoleski/MulensModel/releases">recent release</a> or the current repository from <a class="reference external" href="https://github.com/rpoleski/MulensModel">MulensModel github page</a> (green button on right).</p>
-</li>
-<li><p class="first">Unpack the archive.</p>
-</li>
-<li><p class="first">Add the path to the unpack directory to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>, e.g., in tcsh:</p>
-<p>setenv PYTHONPATH /home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH</p>
-</li>
-</ol>
-<p>in bash:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>export PYTHONPATH=/home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH
-</pre></div>
-</div>
-<ol class="arabic" start="5">
-<li><p class="first">Go to subdirecotry <code class="docutils literal"><span class="pre">source/VBBL/</span></code> and run <code class="docutils literal"><span class="pre">make</span></code> command. If it&#8217;s not working and you&#8217;re using Windows, then please run:</p>
-<p>gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp</p>
-<p>gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o</p>
-</li>
-<li><p class="first">Congratulations! You have MulensModel installed fully.</p>
-</li>
-</ol>
-<div class="toctree-wrapper compound" id="contents">
+</ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -94,21 +76,21 @@ find the best fit parameters.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Welcome to MulensModel&#8217;s documentation!</a></li>
-<li><a class="reference internal" href="#how-to-install">How to install?</a></li>
+<li><a class="reference internal" href="#">Welcome to MulensModel’s documentation!</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="install.html" title="next chapter">How to install?</a></li>
   </ul></li>
 </ul>
 </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/index.txt"
+      <li><a href="_sources/index.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -130,11 +112,11 @@ find the best fit parameters.</p>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/index.txt"
+      <a href="_sources/index.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
