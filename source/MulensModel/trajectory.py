@@ -48,7 +48,8 @@ class Trajectory(object):
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
-            raise ValueError('parameters is a required and must be a ModelParameters object')
+            m = 'parameters is a required and must be a ModelParameters object'
+            raise TypeError(m)
 
         #Set parallax values
         self.parallax = {'earth_orbital':False, 
@@ -98,11 +99,12 @@ class Trajectory(object):
         elif self.parameters.n_lenses == 2:
             sin_alpha = np.sin(self.parameters.alpha)
             cos_alpha = np.cos(self.parameters.alpha)
-            shift_x = - self.parameters.s * self.parameters.q / (1. + self.parameters.q)
+            shift_x = - self.parameters.s * self.parameters.q / (1. +
+                                                            self.parameters.q)
             vector_x = vector_u * sin_alpha - vector_tau * cos_alpha + shift_x
             vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
         else:
-            raise Exception(
+            raise NotImplementedError(
                 "trajectory for more than 2 lenses not handled yet")
 
         #Store trajectory
@@ -146,7 +148,7 @@ class Trajectory(object):
         based on astropy 1.3
         https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
         """
-        (jd1, jd2) = get_jd12(Time(time_ref,format='jd',scale='tdb'), 'tdb')
+        (jd1, jd2) = get_jd12(Time(time_ref, format='jd', scale='tdb'), 'tdb')
         (earth_pv_helio, earth_pv_bary) = erfa.epv00(jd1, jd2)
         velocity = earth_pv_bary[..., 1, :] # This is in (u.au/u.day) 
         # but we don't multiply by unit here, because np.outer() (used later)
@@ -159,8 +161,9 @@ class Trajectory(object):
 
         north = np.array([0., 0., 1.])
         direction = np.array(self.coords.cartesian.xyz.value)
-        east_projected = utils.Utils.vector_product_normalized(north, direction)
-        north_projected = utils.Utils.vector_product_normalized(direction, east_projected)
+        vector_product_normalized = utils.Utils.vector_product_normalized
+        east_projected = vector_product_normalized(north, direction)
+        north_projected = vector_product_normalized(direction, east_projected)
         out_n = -np.dot(delta_s.value, north_projected)
         out_e = -np.dot(delta_s.value, east_projected)
         
@@ -172,8 +175,7 @@ class Trajectory(object):
         #Calculate the parallax offset due to the satellite
         delta_satellite = self._get_delta_satellite()
         return self._project_delta(delta_satellite)
-
-        
+ 
     def _get_delta_satellite(self):
         """
         calculates differences of Earth and satellite positions
@@ -199,3 +201,4 @@ class Trajectory(object):
         delta_satellite['D'] = -dot(satellite.cartesian, direction).value
 
         return delta_satellite
+

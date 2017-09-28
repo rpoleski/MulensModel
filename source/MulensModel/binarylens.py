@@ -150,7 +150,8 @@ class BinaryLens(object):
         #If the lens equation is solved correctly, there should be
         #either 3 or 5 solutions (corresponding to 3 or 5 images)
         if len(out) not in [3, 5]:
-            msg = 'CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: {:} {:} {:} {:} {:}'
+            msg = ('CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: ' +  
+                    '{:} {:} {:} {:} {:}')
             txt = msg.format(repr(self.mass_1), repr(self.mass_2), 
                     repr(self.separation), repr(source_x), repr(source_y))
             # The repr() function gives absolute accuracy of float values 
@@ -267,8 +268,7 @@ class BinaryLens(object):
             rho: *float*
                 Source size relative to Einstein ring radius.
             gamma: *float*
-                Linear limb-darkening cooefficient in gamma convention 
-                (i.e., 0 for no limb-darkening).
+                Linear limb-darkening coefficient in gamma convention. 
             quadrupole: *boolean*, optional
                 Return quadrupole approximation instead of hexadecapole?
                 Default is *False*.
@@ -280,9 +280,9 @@ class BinaryLens(object):
             magnification: *float* or seqence of three *floats*
                 Hexadecapole approximation (*float*) by default. 
                 Quadrupole approximation (*float*) if 
-                :py:attr:`quadrupole` is *True*. Hexadecapole, quadrupole, 
+                *quadrupole* parameter is *True*. Hexadecapole, quadrupole, 
                 and point source approximations (seqence of three *floats*) 
-                if :py:attr:`all_approximations` is *True*.
+                if *all_approximations* parameter is *True*.
         """
         # In this function, variables named a_* depict magnification.
         if quadrupole and all_approximations:
@@ -326,11 +326,36 @@ class BinaryLens(object):
     def vbbl_magnification(self, source_x, source_y, rho, 
                            gamma=None, u_limb_darkening=None, 
                            accuracy=0.001):
-        """calculate magnification using VBBL code that implements advanced 
-        contour integration algorithm presented by
-        Bozza 2010 MNRAS, 408, 2188
-        http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B
-        http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm
+        """ Binary lens finite source magnification calculated using VBBL 
+        library that implements advanced contour integration algorithm 
+        presented by `Bozza 2010 MNRAS, 408, 2188 
+        <http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B>`_. See also 
+        `VBBL website by Valerio Bozza 
+        <http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm>`_.
+        
+        For coordinate system convention see 
+        :py:func:`point_source_magnification()`
+
+        Parameters :
+            source_x: *float*
+                X-axis coordinate of the source.
+            source_y: *float*
+                Y-axis coordinate of the source.
+            rho: *float*
+                Source size relative to Einstein ring radius.
+            gamma: *float*, optional
+                Linear limb-darkening coefficient in gamma convention. 
+            u_limb_darkening: *float*
+                Linear limb-darkening coefficient in u convention. 
+                Note that either *gamma* or *u_limb_darkening* can be set. 
+                If neither of them is provided then limb darkening is ignored. 
+            accuracy: *float*, optional
+                Requested accuracy of the result. 
+            
+        Returns :
+            magnification: *float*
+                Magnification.
+        
         """
         if not self._vbbl_wrapped:
             PATH = os.path.join(MulensModel.MODULE_PATH, 'source', 'VBBL', 
@@ -338,15 +363,16 @@ class BinaryLens(object):
             try:
                 vbbl = ctypes.cdll.LoadLibrary(PATH)
             except OSError:
-                raise OSError("Something went wrong with VBBL wrapping ({:})".format(PATH))
+                msg = "Something went wrong with VBBL wrapping ({:})"
+                raise OSError(msg.format(PATH))
             self._vbbl_wrapped = True
             vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
             vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
             self._vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
         
         if gamma is not None and u_limb_darkening is not None:
-            raise ValueError('Only one limb darkening parameters can be set ' + 
-                             'in BinaryLens.vbbl_magnification()')
+            raise ValueError('Only one limb darkening parameters can be set' + 
+                             ' in BinaryLens.vbbl_magnification()')
         elif gamma is not None:
             u_limb_darkening = float(Utils.gamma_to_u(gamma))
         elif u_limb_darkening is not None:
@@ -358,10 +384,13 @@ class BinaryLens(object):
         q = self.mass_2 / self.mass_1
         x = source_x
         y = source_y
-        assert accuracy > 0., ("VBBL requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was " +
-            "provided".format(accuracy)) # Note that this accuracy is not guaranteed.
+        assert accuracy > 0., ("VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" + 
+            "\n{:} was  provided".format(accuracy)) 
+            # Note that this accuracy is not guaranteed.
         
-        return self._vbbl_binary_mag_dark(s, q, x, y, rho, u_limb_darkening, accuracy)
+        magnification = self._vbbl_binary_mag_dark(s, q, x, y, rho, 
+                                                    u_limb_darkening, accuracy)
+        return magnification
         # To get the image positions from VBBL, following C++ code has to be run:
         #  _sols *Images;
         #  Mag=VBBL.BinaryMag(s, q, y1, y2, rho, accuracy, &Images);
@@ -371,4 +400,3 @@ class BinaryLens(object):
         #      }
         #  }
         #  delete Images;
-

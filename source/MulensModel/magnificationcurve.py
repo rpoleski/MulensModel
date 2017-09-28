@@ -11,9 +11,8 @@ class MagnificationCurve(object):
     """
     The magnification curve calculated from the model light curve.
     """
-    def __init__(
-        self, times, parameters=None, parallax=None, t_0_par=None,
-        coords=None, satellite_skycoord=None, gamma=0.):
+    def __init__(self, times, parameters=None, parallax=None, t_0_par=None, 
+                    coords=None, satellite_skycoord=None, gamma=0.):
         """
         Required arguments: 
            times - the times at which to generate the magnification curve, e.g. a vector.
