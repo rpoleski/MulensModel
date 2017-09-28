@@ -48,7 +48,7 @@ class Trajectory(object):
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
-        	m = 'parameters is a required and must be a ModelParameters object'
+            m = 'parameters is a required and must be a ModelParameters object'
             raise TypeError(m)
 
         #Set parallax values

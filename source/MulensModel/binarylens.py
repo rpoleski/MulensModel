@@ -150,8 +150,8 @@ class BinaryLens(object):
         #If the lens equation is solved correctly, there should be
         #either 3 or 5 solutions (corresponding to 3 or 5 images)
         if len(out) not in [3, 5]:
-            msg = 'CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: ' + 
-            		'{:} {:} {:} {:} {:}'
+            msg = ('CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: ' +  
+                    '{:} {:} {:} {:} {:}')
             txt = msg.format(repr(self.mass_1), repr(self.mass_2), 
                     repr(self.separation), repr(source_x), repr(source_y))
             # The repr() function gives absolute accuracy of float values 
@@ -337,24 +337,24 @@ class BinaryLens(object):
         :py:func:`point_source_magnification()`
 
         Parameters :
-        	source_x: *float*
-        		X-axis coordinate of the source.
-        	source_y: *float*
-        		Y-axis coordinate of the source.
+            source_x: *float*
+                X-axis coordinate of the source.
+            source_y: *float*
+                Y-axis coordinate of the source.
             rho: *float*
                 Source size relative to Einstein ring radius.
             gamma: *float*, optional
                 Linear limb-darkening coefficient in gamma convention. 
-        	u_limb_darkening: *float*
-        		Linear limb-darkening coefficient in u convention. 
-        		Note that either *gamma* or *u_limb_darkening* can be set. 
-        		If neither of them is provided then limb darkening is ignored. 
-        	accuracy: *float*, optional
-        		Requested accuracy of the result. 
-        		
+            u_limb_darkening: *float*
+                Linear limb-darkening coefficient in u convention. 
+                Note that either *gamma* or *u_limb_darkening* can be set. 
+                If neither of them is provided then limb darkening is ignored. 
+            accuracy: *float*, optional
+                Requested accuracy of the result. 
+            
         Returns :
-        	magnification: *float*
-        		Magnification.
+            magnification: *float*
+                Magnification.
         
         """
         if not self._vbbl_wrapped:
@@ -363,7 +363,7 @@ class BinaryLens(object):
             try:
                 vbbl = ctypes.cdll.LoadLibrary(PATH)
             except OSError:
-            	msg = "Something went wrong with VBBL wrapping ({:})"
+                msg = "Something went wrong with VBBL wrapping ({:})"
                 raise OSError(msg.format(PATH))
             self._vbbl_wrapped = True
             vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
