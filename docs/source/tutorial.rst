@@ -9,7 +9,7 @@ This is a very simple tutorial showing how you might use those classes. It is al
 .. _Model: https://rpoleski.github.io/MulensModel/MulensModel.model.html
 .. _Event: https://rpoleski.github.io/MulensModel/MulensModel.event.html
 .. _MulensData: https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html
-.._notebook: https://www.github.com/rpoleski/MulensModel/examples/MulensModelTutorial.ipynb
+.. _notebook: https://github.com/rpoleski/MulensModel/blob/master/examples/MulensModelTutorial.ipynb   
 
 Defining a Model
 ----------------
