@@ -1,37 +1,48 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <title>MulensModel.model module &mdash; MulensModel 0.2.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -43,7 +54,7 @@
 <dl class="class">
 <dt id="MulensModel.model.Model">
 <em class="property">class </em><code class="descclassname">MulensModel.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>parameters=None</em>, <em>t_0=None</em>, <em>u_0=None</em>, <em>t_E=None</em>, <em>rho=None</em>, <em>s=None</em>, <em>q=None</em>, <em>alpha=None</em>, <em>pi_E=None</em>, <em>pi_E_N=None</em>, <em>pi_E_E=None</em>, <em>pi_E_ref=None</em>, <em>t_0_par=None</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A Model for a microlensing event with the specified parameters.</p>
 <dl class="docutils">
 <dt>Two ways to define the model:</dt>
@@ -94,7 +105,7 @@ and the lens center of mass.</p>
 <dl class="attribute">
 <dt id="MulensModel.model.Model.t_E">
 <code class="descname">t_E</code><a class="headerlink" href="#MulensModel.model.Model.t_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Einstein timescale. An astropy.Quantity. “day” is the default unit.</p>
+<dd><p>The Einstein timescale. An astropy.Quantity. &#8220;day&#8221; is the default unit.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -107,8 +118,8 @@ and the lens center of mass.</p>
 <dt id="MulensModel.model.Model.pi_E">
 <code class="descname">pi_E</code><a class="headerlink" href="#MulensModel.model.Model.pi_E" title="Permalink to this definition">¶</a></dt>
 <dd><p>The microlens parallax vector. May be specified either
-relative to the sky (“NorthEast”) or relative to the binary
-lens axis (“ParPerp”). “NorthEast” is default. A
+relative to the sky (&#8220;NorthEast&#8221;) or relative to the binary
+lens axis (&#8220;ParPerp&#8221;). &#8220;NorthEast&#8221; is default. A
 MulensParallaxVector object.</p>
 </dd></dl>
 
@@ -127,7 +138,8 @@ MulensParallaxVector object.</p>
 <dl class="attribute">
 <dt id="MulensModel.model.Model.t_0_par">
 <code class="descname">t_0_par</code><a class="headerlink" href="#MulensModel.model.Model.t_0_par" title="Permalink to this definition">¶</a></dt>
-<dd><p>reference time for parameters, in particular microlensing parallax</p>
+<dd><p>reference time for parameters, in particular microlensing 
+parallax</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -288,7 +300,7 @@ datasets. data_ref may either be a dataset or the index of a
 dataset (if Model.set_datasets() was previously called). If
 data_ref is not set, it will use the first dataset. If you
 call this without calling set_datasets() first, there will be
-an exception and that’s on you.</p>
+an exception and that&#8217;s on you.</p>
 </dd></dl>
 
 <dl class="method">
@@ -308,13 +320,13 @@ If show_errorbars is False, plots with matplotib.scatter().</p>
 <dt>show_bad <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
 <dd>if False, bad data are suppressed (default). 
 if True, shows points marked as bad
-(<code class="xref py py-obj docutils literal"><span class="pre">mulensdata.MulensData.bad</span></code>) as ‘x’</dd>
+(<code class="xref py py-obj docutils literal"><span class="pre">mulensdata.MulensData.bad</span></code>) as &#8216;x&#8217;</dd>
 </dl>
 <p>Allows for different point types for each dataset. These may
 be set using color_list, marker_list, and size_list. May also
 use <code class="docutils literal"><span class="pre">**kwargs</span></code> or some combination of the lists and
 <code class="docutils literal"><span class="pre">**kwargs</span></code>. e.g. set color_list to specify which color each
-data set should be plotted in, but use fmt=’s‘ to make all
+data set should be plotted in, but use fmt=&#8217;s&#8216; to make all
 data points plotted as squares.</p>
 <p>Automatically handles some keyword variations in errorbar() vs. 
 scatter(): e.g. fmt/marker, markersize/s (see _set_plot_kwargs),</p>
@@ -325,9 +337,9 @@ subsequent calls to both plot_data() and plot_residuals().</p>
 <dl class="method">
 <dt id="MulensModel.model.Model.plot_residuals">
 <code class="descname">plot_residuals</code><span class="sig-paren">(</span><em>show_errorbars=True</em>, <em>color_list=None</em>, <em>marker_list=None</em>, <em>size_list=None</em>, <em>label_list=None</em>, <em>data_ref=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_residuals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the residuals (in magnitudes) of the model. Uses the best f_source,
-f_blend for each dataset (not scaled to a particular 
-photometric system).</p>
+<dd><p>Plot the residuals (in magnitudes) of the model. 
+Uses the best f_source, f_blend for each dataset 
+(not scaled to a particular photometric system).</p>
 <p>For explanation of <code class="docutils literal"><span class="pre">**kwargs</span></code>, and also [var]_list see doctrings in 
 plot_data().</p>
 </dd></dl>
@@ -384,9 +396,9 @@ directly specified</p>
 <dd><p>sets methods used for magnification calculation</p>
 <p>Parameter method is a list that contains epochs and names of methods
 to be used
-methods = [2455746., ‘Quadrupole’, 2455746.6, ‘Hexadecapole’, 
-2455746.7, ‘VBBL’, 2455747., ‘Hexadecapole’, 2455747.15, 
-‘Quadrupole’, 2455748.]</p>
+methods = [2455746., &#8216;Quadrupole&#8217;, 2455746.6, &#8216;Hexadecapole&#8217;, 
+2455746.7, &#8216;VBBL&#8217;, 2455747., &#8216;Hexadecapole&#8217;, 2455747.15, 
+&#8216;Quadrupole&#8217;, 2455748.]</p>
 </dd></dl>
 
 <dl class="method">
@@ -428,28 +440,25 @@ methods = [2455746., ‘Quadrupole’, 2455746.6, ‘Hexadecapole’,
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.model.rst.txt"
+      <li><a href="_sources/MulensModel.model.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -460,12 +469,12 @@ methods = [2455746., ‘Quadrupole’, 2455746.6, ‘Hexadecapole’,
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
       
       |
-      <a href="_sources/MulensModel.model.rst.txt"
-          rel="nofollow">Page source</a>
+      <a href="_sources/MulensModel.model.txt"
+          rel="nofollow">Page source</a></li>
     </div>
 
     
