@@ -288,7 +288,7 @@ class Event(object):
         """
         self.model.plot_data(**kwargs)
 
-    def plot_residuals(self,**kwargs):
+    def plot_residuals(self, **kwargs):
         """
         see :py:func:`MulensModel.model.Model.plot_residuals()`
         """

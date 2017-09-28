@@ -101,7 +101,8 @@ class Model(object):
 
         if s is not None or q is not None or alpha is not None:
             if s is None or q is None or alpha is None:
-                raise AttributeError('If one of (s, q, alpha) is specified, all three must be specified.')
+                raise AttributeError('If one of (s, q, alpha) is specified, ' +
+                                    'all three must be specified.')
 
         self.t_0_par = t_0_par
         
@@ -111,7 +112,8 @@ class Model(object):
             if pi_E_ref is None:
                 self.pi_E = pi_E
             else:
-                self._parameters.pi_E = MulensParallaxVector(pi_E, ref=pi_E_ref)
+                self._parameters.pi_E = MulensParallaxVector(pi_E, 
+                                                                ref=pi_E_ref)
         if pi_E_N is not None:
             if pi_E_E is not None:
                 if pi_E_ref is None:
@@ -245,7 +247,8 @@ class Model(object):
 
     @property
     def t_0_par(self):
-        """reference time for parameters, in particular microlensing parallax"""
+        """reference time for parameters, in particular microlensing 
+        parallax"""
         return self._t_0_par
 
     @t_0_par.setter
@@ -363,7 +366,8 @@ class Model(object):
                     "bandpass {:}, but not set before. Use " +
                     "set_limb_coef_gamma() or set_limb_coef_u()"
                     ).format(dataset.bandpass))
-            gamma = self._limb_darkening_coeffs.limb_coef_gamma(dataset.bandpass)
+            gamma = self._limb_darkening_coeffs.limb_coef_gamma(
+                                                            dataset.bandpass)
             
         magnification = self.magnification(
                 dataset.time, satellite_skycoord=dataset_satellite_skycoord, 
@@ -609,8 +613,8 @@ class Model(object):
         vs. pl.scatter: fmt/marker, markersize/s
 
         bad_data : boolean, optional
-            Default is False --> set kwargs for plotting good data, i.e. marker='o', size=3
-            If True, then marker = 'x', size=10
+            Default is False --> set kwargs for plotting good data, i.e., 
+            marker='o', size=3. If True, then marker = 'x', size=10
         """                
         #Set different keywords for pl.errorbar vs. pl.scatter
         if show_errorbars:
@@ -733,7 +737,8 @@ class Model(object):
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
                 pl.errorbar(
                     data.time[np.logical_not(data.bad)] - subtract, 
-                    mag[np.logical_not(data.bad)], yerr=err[np.logical_not(data.bad)], 
+                    mag[np.logical_not(data.bad)], 
+                    yerr=err[np.logical_not(data.bad)], 
                     **new_kwargs) 
                 if show_bad:
                     pl.errorbar(
@@ -768,9 +773,9 @@ class Model(object):
         size_list=None, label_list=None, data_ref=None, 
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
-        Plot the residuals (in magnitudes) of the model. Uses the best f_source,
-        f_blend for each dataset (not scaled to a particular 
-        photometric system).
+        Plot the residuals (in magnitudes) of the model. 
+        Uses the best f_source, f_blend for each dataset 
+        (not scaled to a particular photometric system).
 
         For explanation of ``**kwargs``, and also [var]_list see doctrings in 
         plot_data(). 
@@ -816,7 +821,8 @@ class Model(object):
             delta_mag = max(delta_mag, np.max(np.abs(residuals)))
 
             #Plot
-            new_kwargs = self._set_plot_kwargs(i, show_errorbars=show_errorbars)
+            new_kwargs = self._set_plot_kwargs(i, 
+                                                show_errorbars=show_errorbars)
             if show_errorbars:
                 pl.errorbar(data.time-subtract, residuals, yerr=err, 
                             **new_kwargs) 
