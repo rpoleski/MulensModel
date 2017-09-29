@@ -1,5 +1,6 @@
 import numpy as np
 from math import fsum
+import warnings
 
 from astropy import __version__ as astropy__version__
 
@@ -43,12 +44,18 @@ class Utils(object):
 
     def get_mag_from_flux(flux):
         """transform fluxes into magnitudes"""
+        if np.any(flux <= 0.):
+            warnings.warn("Flux to magnitude convertion approached negative" +
+                            " flux", UserWarning)
         mag = MAG_ZEROPOINT - 2.5 * np.log10(flux)
         return mag
     get_mag_from_flux = staticmethod(get_mag_from_flux)
 
     def get_mag_and_err_from_flux(flux, err_flux):
         """transform fluxes into magnitudes including errorbars"""
+        if np.any(flux <= 0.):
+            warnings.warn("Flux to magnitude convertion approached negative" +
+                            " flux", UserWarning)
         mag = MAG_ZEROPOINT - 2.5 * np.log10(flux)
         err_mag = (err_flux / flux) * 2.5 / np.log(10.)
         return (mag, err_mag)
