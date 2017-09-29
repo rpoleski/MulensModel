@@ -161,15 +161,15 @@ class MulensData(object):
 
         #Create the complementary photometry (mag --> flux, flux --> mag)
         if phot_fmt == "mag":
-            self.mag = self._brightness_input
-            self.err_mag = self._brightness_input_err
+            self._mag = self._brightness_input
+            self._err_mag = self._brightness_input_err
             (self.flux, self.err_flux) = Utils.get_flux_and_err_from_mag(
                                           mag=self.mag, err_mag=self.err_mag)
         elif phot_fmt == "flux":
             self.flux = self._brightness_input
             self.err_flux = self._brightness_input_err
-            (self.mag, self.err_mag) = Utils.get_mag_and_err_from_flux(
-                                        flux=self.flux, err_flux=self.err_flux)
+            self._mag = None
+            self._err_mag = None
         else:
             msg = 'unknown brightness format in MulensData'
             raise ValueError(msg)
@@ -186,6 +186,21 @@ class MulensData(object):
     def time(self):
         """short version of time vector"""
         return self._time
+
+    @property
+    def mag(self):
+        """magnitude vector"""
+        if self._mag is None:
+            (self._mag, self._err_mag) = Utils.get_mag_and_err_from_flux(
+                                        flux=self.flux, err_flux=self.err_flux)
+        return self._mag
+
+    @property
+    def err_mag(self):
+        """vector of magnitude errors"""
+        if self._err_mag is None:
+            self.mag
+        return self._err_mag
 
     @property
     def coords(self):
