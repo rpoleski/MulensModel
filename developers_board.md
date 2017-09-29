@@ -15,11 +15,14 @@
 * xallarap - use case, unit test, and code itself (see below for references)
 * binary lens orbital motion - use case, unit test, and code itself
 * binary calculations - define if s is relative to total mass etc.
+* files not yet well documented: caustics.py fit.py horizons.py limbdarkeningcoeffs.py magnificationcurve.py modelparameters.py mulensparallaxvector.py mulenstime.py satelliteskycoord.py trajectory.py utils.py
 * should BinaryLens() accept source\_x/y as lists or arrays?
 * correct JPL Horizons => CSV file format; also example usage
 * _t\_* instead of rho_
+* _dA/dparam for point lens models_
 * _Martin's FSBL code_
 * _Cassan 2008 binary lens parameters_
+* Sagan workshop hands-on activity in MM
 * conversions to BJD from HJD, JD etc. ([astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections))
 * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
 * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
