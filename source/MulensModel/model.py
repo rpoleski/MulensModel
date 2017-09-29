@@ -574,6 +574,9 @@ class Model(object):
         an exception and that's on you.
         """
         if data_ref is None:
+            if self._datasets is None:
+                raise ValueError('You cannot get reference flux for Model if' +
+                                ' you have not linked data first.')
             if isinstance(self.data_ref, MulensData):
                 data = self.data_ref
             else:
