@@ -161,6 +161,8 @@ class Model(object):
         
         self._limb_darkening_coeffs = LimbDarkeningCoeffs()
         self._bandpasses = []
+        
+        self._datasets = None
 
     def __repr__(self):
         return '{0}'.format(self._parameters)
@@ -343,7 +345,7 @@ class Model(object):
         """a list of magnifications calculated for every dataset time vector"""
         self._data_magnification = []
 
-        for dataset in self._datasets:
+        for dataset in self.datasets:
             magnification = self.get_data_magnification(dataset)
             self._data_magnification.append(magnification)
 
@@ -373,6 +375,13 @@ class Model(object):
                 dataset.time, satellite_skycoord=dataset_satellite_skycoord, 
                 gamma=gamma)
         return magnification
+    
+    @property
+    def datasets(self):
+        """a list of datasets linked to given model"""
+        if self._datasets is None:
+            raise ValueError('No datasets were linked to the model')
+        return self._datasets
         
     def set_datasets(self, datasets, data_ref=0):
         """set _datasets property"""
@@ -568,12 +577,12 @@ class Model(object):
             if isinstance(self.data_ref, MulensData):
                 data = self.data_ref
             else:
-                data = self._datasets[self.data_ref]
+                data = self.datasets[self.data_ref]
         elif isinstance(data_ref, MulensData):
             data = data_ref
             self.data_ref = data_ref
         else:
-            data = self._datasets[data_ref]
+            data = self.datasets[data_ref]
             self.data_ref = data_ref
 
         fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
@@ -704,8 +713,7 @@ class Model(object):
         (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
 
         #Get fluxes for all datasets
-        fit = Fit(
-            data=self._datasets, magnification=self.data_magnification)
+        fit = Fit(data=self.datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
         
         # Set plot defaults.
@@ -718,7 +726,7 @@ class Model(object):
             subtract = 2460000.
 
         #plot each dataset
-        for (i, data) in enumerate(self._datasets):
+        for (i, data) in enumerate(self.datasets):
             #Calculate scaled flux
             f_source = fit.flux_of_sources(data)
             f_blend = fit.blending_flux(data)
@@ -789,8 +797,7 @@ class Model(object):
             **kwargs)
             
         #Get fluxes for all datasets
-        fit = Fit(
-            data=self._datasets, magnification=self.data_magnification)
+        fit = Fit(data=self.datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
 
         #Plot limit parameters
@@ -807,7 +814,7 @@ class Model(object):
         pl.plot([0., 3000000.], [0., 0.], color='black')
         
         #Plot residuals
-        for (i, data) in enumerate(self._datasets):
+        for (i, data) in enumerate(self.datasets):
             #Calculate model magnitude
             f_source = fit.flux_of_sources(data)
             f_blend = fit.blending_flux(data)
@@ -974,4 +981,3 @@ class Model(object):
     def bandpasses(self):
         """list of all bandpasses for wich limb darkening coefficients are set"""
         return self._bandpasses
-
