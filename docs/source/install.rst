@@ -1,7 +1,7 @@
 How to install?
 ===============
 
-1. Make sure you have python with `astropy package`_ installed.
+1. Make sure you have python with `astropy package`_ installed. Note that newest astropy release requires python 3.X, so if you only have python 2.X, than install older version of astropy, e.g., 1.3.3. 
 2. Download source code - either `recent release`_ or the current repository from `MulensModel github page`_ (green button on right).
 3. Unpack the archive.
 4. Add the path to the unpack directory to the ``PYTHONPATH``, e.g., in tcsh::
