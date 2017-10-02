@@ -1,7 +1,6 @@
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-from astropy.coordinates import GeocentricTrueEcliptic
 import matplotlib.pyplot as pl
 from matplotlib import rcParams
 
@@ -457,11 +456,13 @@ class Model(object):
     @property
     def ecliptic_lon(self):
         """ecliptic longitude"""
+        from astropy.coordinates import GeocentricTrueEcliptic
         return self._coords.transform_to(GeocentricTrueEcliptic).lon
 
     @property
     def ecliptic_lat(self):
         """ecliptic latitude"""
+        from astropy.coordinates import GeocentricTrueEcliptic
         return self._coords.transform_to(GeocentricTrueEcliptic).lat
 
     def parallax(
