@@ -106,6 +106,8 @@ class MagnificationCurve(object):
     def get_point_lens_magnification(self):
         """Calculate the Point Lens magnification. """
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
+        # This is Paczynski equation, i.e., point-source/point-lens (PSPL) 
+        # magnification:
         pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
         if self._methods_epochs is None:
             return pspl_magnification
