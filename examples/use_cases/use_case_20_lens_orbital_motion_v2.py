@@ -37,9 +37,10 @@ model_static.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, q=q,
 #Example for which JCY is better:
 static_parameters = model_static.parameters
 orb_parameters = static_parameters
-orb_parameters.dalpha_dt = 0.
-orb_parameters.ds_dt = 0.
-model_orb_2 = MulensModel.Model(Parameters=orb_parameters)
+orb_parameters.dalpha_dt = 0. # This and next line change both orb_parameters 
+orb_parameters.ds_dt = 0. # and static_parameters! In other words, this won'd 
+# work.
+model_orb_2 = MulensModel.Model(parameters=orb_parameters)
 #JCY - Also can we set ModelParameters using a dictionary? From the
 #standpoint of reading from a file, this is highly desirable. 
 # RP: Yes, we can. It would be similar to usage of parameters_to_fit in 
