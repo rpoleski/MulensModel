@@ -1,33 +1,23 @@
 ## current goals:
-1. code review, 
-2. instantaneous orbital motion of binary lens - use case and unit test,
-3. docstrings for Spinx in all public methods of Event, Model, and MulensData classes,
-4. reasonable website with documentation
-
-## Oct goals:
 1. instantaneous orbital motion of binary lens,
-2. docstrings for Spinx in at least 5 of remaining 11 files,
-3. t\_star instead of rho
-3. dA/dparam for point lens models
-3. Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)
-3. Cassan 2008 binary lens parameters
-4. PSPL fitting tutorial
+2. Sphinx docstrings for all classes and init functions
+3. coords class with docstrings
+4. t\_star instead of rho
+5. PSPL fitting tutorial
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals; _italics_ mark task useful for data challenge; try to put important stuff at the top)
 
-* PSPL manual
-* __correct documentation for existing code - start with Model, MulensData, and Event__
+* __PSPL manual__
 * anything from use cases that does not work yet -- see TODO.md file
-* __nice github.io website__
 * xallarap - use case, unit test, and code itself (see below for references)
 * remove intermediate Sphinx files from repo
-* binary lens orbital motion - use case, unit test, and code itself
+* __binary lens orbital motion - use case, unit test, and code itself__
 * binary calculations - define if s is relative to total mass etc.
 * files not yet well documented (starting from the shortest): trajectory.py mulensparallaxvector.py satelliteskycoord.py caustics.py horizons.py limbdarkeningcoeffs.py mulenstime.py fit.py magnificationcurve.py utils.py modelparameters.py
 * should BinaryLens() accept source\_x/y as lists or arrays?
 * correct JPL Horizons => CSV file format; also example usage
-* _t\_* instead of rho_
+* __t\_* instead of rho__
 * _dA/dparam for point lens models_
 * _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
 * _Cassan 2008 binary lens parameters_
