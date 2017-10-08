@@ -148,9 +148,9 @@ class Model(object):
         self._satellite_skycoord = None
         
         # Set some defaults
-        self._parallax = {'earth_orbital':True, 
-                          'satellite':True, 
-                          'topocentric':True}
+        self._parallax = {'earth_orbital': True, 
+                          'satellite': True, 
+                          'topocentric': True}
         self._default_magnification_method = 'point_source'
         self._methods = None
         self.caustics = None
@@ -169,7 +169,7 @@ class Model(object):
     @property
     def t_0(self):
         """
-        The time of minimum projected separation between the source
+        The time of the minimum projected separation between the source
         and the lens center of mass.
         """
         return self._parameters.t_0
@@ -193,7 +193,8 @@ class Model(object):
     @property
     def t_E(self):
         """
-        The Einstein timescale. An astropy.Quantity. "day" is the default unit.
+        The Einstein timescale. An *astropy.Quantity* object. Default unit 
+        is "day".
         """
         return self._parameters.t_E
 
@@ -203,7 +204,7 @@ class Model(object):
        
     @property
     def rho(self):
-        """source size relative to Einstein ring radius"""
+        """source size relative to the Einstein ring radius"""
         return self._parameters.rho
 
     @rho.setter
@@ -215,8 +216,8 @@ class Model(object):
         """
         The microlens parallax vector. May be specified either
         relative to the sky ("NorthEast") or relative to the binary
-        lens axis ("ParPerp"). "NorthEast" is default. A
-        MulensParallaxVector object.
+        lens axis ("ParPerp", i.e., parallel and perpendicular). "NorthEast" 
+        is default. A :class:`MulensParallaxVector` object.
         """
         return self._parameters.pi_E
 
@@ -267,7 +268,7 @@ class Model(object):
 
     @property
     def q(self):
-        """mass ratio of lens components"""
+        """mass ratio of the lens components"""
         return self._parameters.q
 
     @q.setter
@@ -290,9 +291,9 @@ class Model(object):
         """
         return self._parameters
 
-    def set_parameters(
-        self, t_0=0., u_0=None, t_E=1., rho=None, s=None, q=None, alpha=None, 
-        pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
+    def set_parameters(self, t_0=0., u_0=None, t_E=1., rho=None, s=None, 
+                        q=None, alpha=None, pi_E=None, pi_E_N=None, 
+                        pi_E_E=None, pi_E_ref=None):
         """
         Set the parameters of the model. Any parameter not explicitly
         specified will be set to None. All the previously set parameters 
@@ -302,9 +303,20 @@ class Model(object):
             t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
             pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
             
-    def get_satellite_coords(self,times):
+    def get_satellite_coords(self, times):
         """
-        get satellite SkyCoords for the given times
+        Get *astropy.SkyCoord* object that gives satellite positions for 
+        given times.
+        
+        Parameters :
+            times: *np.ndarray* or *list*
+                Epochs for which satellite position is requested.
+        
+        Returns :
+            satellite_skycoord: *astropy.SkyCoord*
+                *SkyCoord* giving satellite positions. The parameter 
+                *representation* is set to 'spherical'.
+        
         """
         if self.ephemerides_file is None:
             return None
@@ -352,7 +364,18 @@ class Model(object):
         
     def get_data_magnification(self, dataset):
         """
-        Get the model magnification for a given dataset.
+        Get the model magnification for a dataset.
+
+        Parameters :
+            dataset: :class:`~MulensModel.mulensdata.MulensData`
+                Dataset with epochs for which magnification will be given.
+                Satellite and limb darkening information is taken into 
+                account.
+
+        Returns :
+            magnification_vector: *np.ndarray*
+                Values on magnification.
+
         """
         if dataset.ephemerides_file is not None:
             dataset_satellite_skycoord = dataset.satellite_skycoord
@@ -383,7 +406,7 @@ class Model(object):
         return self._datasets
         
     def set_datasets(self, datasets, data_ref=0):
-        """set _datasets property"""
+        """set *datasets* property"""
         self._datasets = datasets
         self._data_magnification = None
         self.data_ref = data_ref
@@ -391,7 +414,7 @@ class Model(object):
     @property
     def coords(self):
         """
-        Sky coordinates (RA,Dec)
+        Sky coordinates (RA, Dec) as an *astropy.SkyCoord* object
         """
         return self._coords
 
@@ -442,7 +465,8 @@ class Model(object):
 
     @property
     def galactic_l(self):
-        """Galactic longitude"""
+        """Galactic longitude. Note that for connivance, the values l > 180 
+        degrees are represented as 360-l."""
         l = self._coords.galactic.l
         if l > 180. * u.deg:
             l = l - 360. * u.deg
@@ -465,16 +489,27 @@ class Model(object):
         from astropy.coordinates import GeocentricTrueEcliptic
         return self._coords.transform_to(GeocentricTrueEcliptic).lat
 
-    def parallax(
-        self, earth_orbital=None, satellite=None, topocentric=None):
+    def parallax(self, 
+                earth_orbital=None, satellite=None, topocentric=None):
         """
-        specifies which types of the parallax will be included in
-        calculations. Three kinds of effects are allowed
-        earth_orbital - the motion of the Earth about the Sun
-        satellite - difference due to the separation between the Earth
-        and a satellite (changes as a function of time)
-        topocentric - difference due to the separation between two
-        observatories on the Earth.
+        Specifies the types of the microlensing parallax that will be 
+        included in calculations.
+
+        Parameters :
+            earth_orbital: *boolean*, optional
+                Do you want to include the effect of Earth motion about 
+                the Sun? Default is *False*.
+            satellite: *boolean*, optional
+                Do you want to include the effect of difference due to 
+                separation between the Earth and satellite? Note that this 
+                separation changes over time. Default is *False*.
+            topocentric: *boolean*, optional
+                Do you want to include the effect of different positions 
+                of observatories on the Earth? Default is *False*. 
+                Note that this is significant only for very high magnification 
+                events and if high quality datasets are analyzed. 
+                Hence, this effect is rarely needed.
+
         """
         if earth_orbital is None and satellite is None and topocentric is None:
             return self._parallax
@@ -513,7 +548,7 @@ class Model(object):
         n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
-        plot the model light curve in magnitudes. See get_ref_fluxes
+        Plot the model light curve in magnitudes. See get_ref_fluxes
         for details of data_ref.
 
         f_source and f_blend are the source and blend fluxes in a system
@@ -552,7 +587,7 @@ class Model(object):
 
     def get_ref_fluxes(self, data_ref=None):
         """
-        Get source and blending fluxes for the .
+        Get source and blending fluxes for the reference dataset.
 
         Parameters :
             data_ref: *:py:class:`~MulensModel.mulensdata.MulensData`* or *int*
@@ -561,17 +596,16 @@ class Model(object):
                 will be used.
 
         Returns :
-            f_source: float
+            f_source: *float*
                 source flux
-            f_blend: float
+            f_blend: *float*
                 blending flux
 
-
         Determine the reference flux system from the
-        datasets. data_ref may either be a dataset or the index of a
-        dataset (if Model.set_datasets() was previously called). If
-        data_ref is not set, it will use the first dataset. If you
-        call this without calling set_datasets() first, there will be
+        datasets. The *data_ref* may either be a dataset or the index of a
+        dataset (if :func:`Model.set_datasets()` was previously called). If
+        *data_ref* is not set, it will use the first dataset. If you
+        call this without calling :func:`set_datasets()` first, there will be
         an exception and that's on you.
         """
         if data_ref is None:
@@ -619,16 +653,24 @@ class Model(object):
     
     def _set_plot_kwargs(self, index, show_errorbars=True, bad_data=False):
         """
-        Set kwargs arguments for plotting. If set, use previous values. But 
-        new values take precedence. 
+        Set ``**kwargs`` arguments for plotting. If set, use previous values. 
+        But new values take precedence. 
         
         Automatically handles (some) differences in keywords for pl.errorbar 
         vs. pl.scatter: fmt/marker, markersize/s
 
-        bad_data : boolean, optional
-            Default is False --> set kwargs for plotting good data, i.e., 
-            marker='o', size=3. If True, then marker = 'x', size=10
-        """                
+        Parameters :
+            index: *int*
+                index of the dataset for which ``**kwargs`` will be set
+            
+            show_errorbars: *boolean*, optional
+                Do you want to see errorbars on the plot? Defaults to *True*.
+
+            bad_data: *boolean*, optional
+                Default is *False* --> set ``**kwargs`` for plotting good data,
+                i.e., *marker*='o', *size*=3. If *True*, then *marker*='x' and 
+                *size*=10.
+       """                
         #Set different keywords for pl.errorbar vs. pl.scatter
         if show_errorbars:
             marker_key = 'fmt'
@@ -676,34 +718,55 @@ class Model(object):
                         
         return new_kwargs
 
-    def plot_data(
-        self, data_ref=None, show_errorbars=True, show_bad=False,
-        color_list=None, marker_list=None, size_list=None, label_list=None, 
-        subtract_2450000=False, subtract_2460000=False, **kwargs):
+    def plot_data(self, data_ref=None, show_errorbars=True, show_bad=False, 
+            color_list=None, marker_list=None, size_list=None,  
+            label_list=None, subtract_2450000=False, subtract_2460000=False, 
+            **kwargs):
         """
         Plot the data scaled to the model. If data_ref is not
         specified, uses the first dataset as the reference for flux scale. 
 
         If show_errorbars is True (default), plots with matplotlib.errorbar(). 
-        If show_errorbars is False, plots with matplotib.scatter(). 
+        If show_errorbars is False, plots with matplotib.scatter().
 
-        show_bad : boolean, optional
-            if False, bad data are suppressed (default). 
-            if True, shows points marked as bad
-            (:py:obj:`mulensdata.MulensData.bad`) as 'x'
+        Parameters :
+            data_ref
+
+            show_errorbars
+
+            show_bad: *boolean*, optional
+                If *False*, bad data are suppressed (default). 
+                If *True*, shows points marked as bad
+                (:py:obj:`mulensdata.MulensData.bad`) as 'x'.
+        
+            color_list
+        
+            marker_list
+        
+            size_list
+        
+            label_list
+        
+            subtract_2450000
+        
+            subtract_2460000
+        
+            ``**kwargs``
         
         Allows for different point types for each dataset. These may
-        be set using color_list, marker_list, and size_list. May also
+        be set using *color_list*, *marker_list*, and *size_list*. May also
         use ``**kwargs`` or some combination of the lists and
-        ``**kwargs``. e.g. set color_list to specify which color each
-        data set should be plotted in, but use fmt='s' to make all
+        ``**kwargs``. e.g. set *color_list* to specify which color each
+        data set should be plotted in, but use *fmt*='s' to make all
         data points plotted as squares.
         
         Automatically handles some keyword variations in errorbar() vs. 
-        scatter(): e.g. fmt/marker, markersize/s (see _set_plot_kwargs),
+        scatter(): e.g. fmt/marker, markersize/s 
+        (see :func:`Model._set_plot_kwargs()`),
 
         ``**kwargs`` (and point type lists) are remembered and used in
-        subsequent calls to both plot_data() and plot_residuals().
+        subsequent calls to both :func:`Model.plot_data()` and 
+        :func:`Model.plot_residuals()`.
         """
         if data_ref is not None:
             self.data_ref = data_ref
@@ -766,7 +829,6 @@ class Model(object):
                         data.time[data.bad] - subtract, mag[data.bad],
                         **bad_kwargs)
                                
-
             #Set plot limits
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
@@ -853,10 +915,10 @@ class Model(object):
         pl.ylabel('Residuals')
         pl.xlabel('Time')
 
-    def plot_trajectory(
-        self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None, caustics=False, show_data=False, arrow=True,
-        satellite_skycoord=None,**kwargs):
+    def plot_trajectory(self, times=None, t_range=None, t_start=None, 
+                        t_stop=None, dt=None, n_epochs=None, caustics=False, 
+                        show_data=False, arrow=True, satellite_skycoord=None, 
+                        **kwargs):
         """
         Plot the source trajectory.
 
@@ -910,21 +972,46 @@ class Model(object):
 
     def plot_caustics(self, n_points=5000, **kwargs):
         """
-        Plot the caustic structure. n_points specifies the number of
-        points to generate in the caustic.
+        Plot the caustic structure. 
+        
+        Parameters :
+            n_points: *int*, optional 
+                specifies the number of points on the caustic
+            
+            ``**kwargs``
+                kwargs passes to :func:`plt.plot()`
         """
         if self.caustics is None:
             self.caustics = Caustics(q=self.q, s=self.s)
 
         self.caustics.plot(n_points=n_points, **kwargs)
         
-    def set_times(
-        self, t_range=None, t_start=None, t_stop=None, 
-        dt=None, n_epochs=None):
+    def set_times(self, t_range=None, t_start=None, t_stop=None, 
+                    dt=None, n_epochs=None):
         """
         If given, set up a time vector based on t_start, t_stop,
-        and (dt or n_epochs). If not given, intialize the time
+        and (dt or n_epochs). If not given, intialise the time
         vector based on the model parameters.
+        
+        Parameters :
+            t_range: *list* or any other kind of sequence of *floats*, optional
+                Two values that specify the first and the last value
+            
+            t_start: *float*, optional
+                First value to be returned.
+        
+            t_stop: *float*, optional
+                Last value to be returned.
+        
+            dt: *float*, optional
+                Difference between consecutive times.
+        
+            n_epochs: *int*, optional
+                Number of epochs to be returned.
+        
+        Returns :
+            time_vector: *np.ndarray*
+                Vector of requested times.
         """
             
         #initialize t_start, t_stop, dt if not set
@@ -946,42 +1033,93 @@ class Model(object):
         return np.arange(t_start, t_stop+dt, dt)
 
     def set_default_magnification_method(self, method):
-        """stores information on method to be used, when no metod is
-        directly specified"""
+        """Stores information on method to be used, when no method is
+        directly specified.
+        
+        Parameters:
+            method: *str*
+                Name of the method to be used.
+        """
         self._default_magnification_method = method
 
     def set_magnification_methods(self, methods):
-        """sets methods used for magnification calculation
-        
-        Parameter method is a list that contains epochs and names of methods
-        to be used
-        methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 
-        2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15, 
-        'Quadrupole', 2455748.]
+        """Sets methods used for magnification calculation.
+       
+        Parameters :
+            methods: *list*
+                List that specifies which methods (*str*) should be used when 
+                (*float* values for julian dates). Given method will be used 
+                for times between the times between which it is on the list, 
+                e.g., 
+                
+                methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 
+                2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15, 
+                'Quadrupole', 2455748.]
         """
         self._methods = methods
 
     def set_limb_coef_gamma(self, bandpass, coef):
-        """store gamma LD coef for given band"""
+        """Store gamma limb darkening coefficient for given band.
+                
+        Parameters :
+            bandpass: *str*
+                Bandpass for which coefficient you provide.
+            
+            coef: *float*
+                Value of the coefficient.
+        
+        """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
         self._limb_darkening_coeffs.set_limb_coef_gamma(bandpass, coef)
 
     def set_limb_coef_u(self, bandpass, coef):
-        """store u LD coef for given band"""
+        """Store u limb darkening coefficient for given band.
+        
+        Parameters :
+            bandpass: *str*
+                Bandpass for which coefficient you provide.
+            
+            coef: *float*
+                Value of the coefficient.
+        
+        """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
         self._limb_darkening_coeffs.set_limb_coef_u(bandpass, coef)
 
     def limb_coef_gamma(self, bandpass):
-        """get gamma LD coef for given band"""
+        """Get gamma limb darkening coefficient for given band.
+                
+        Parameters :
+            bandpass: *str*
+                Bandpass for which coefficient will be provided.
+        
+        Returns :
+            gamma: *float*
+                limb darkening coefficient
+            
+        """
         return self._limb_darkening_coeffs.limb_coef_gamma(bandpass)
 
     def limb_coef_u(self, bandpass):
-        """get u LD coef for given band"""
+        """Get u limb darkening coefficient for given band.
+        
+        Parameters :
+            bandpass: *str*
+                Bandpass for which coefficient will be provided.
+        
+        Returns :
+            u: *float*
+                limb darkening coefficient
+        
+        """
         return self._limb_darkening_coeffs.limb_coef_u(bandpass)
 
     @property
     def bandpasses(self):
-        """list of all bandpasses for wich limb darkening coefficients are set"""
+        """
+        list of all bandpasses for wich limb darkening coefficients are set
+        """
         return self._bandpasses
+
