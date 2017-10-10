@@ -1,8 +1,8 @@
-"""
-Plots data and model for MB08310 with residuals (no fitting). 
-
-From Janczak et al. 2010, ApJ 711, 731
-"""
+#
+# Plots data and model for MB08310 with residuals (no fitting). 
+#
+# From Janczak et al. 2010, ApJ 711, 731
+#
 import glob
 import os
 import matplotlib.pyplot as pl
@@ -17,7 +17,8 @@ from MulensModel.model import Model
 print('MODULE_PATH: {0}'.format(MulensModel.MODULE_PATH))
 
 #Grabbing all data files in the MB08310 folder
-files = glob.glob(os.path.join(MulensModel.MODULE_PATH, "data", "MB08310", "*.tbl")) 
+files = glob.glob(os.path.join(MulensModel.MODULE_PATH, "data", "MB08310", 
+                                                                    "*.tbl"))
 
 datasets = []
 labels = []
@@ -33,7 +34,8 @@ t_E = 11.14
 t_star = 0.05487
 rho = t_star / t_E
 plens_model = Model(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho)
-plens_model.set_magnification_methods([t_0-.05, 'finite_source_uniform_Gould94', t_0+.05])
+method = 'finite_source_uniform_Gould94'
+plens_model.set_magnification_methods([t_0-.05, method, t_0+.05])
 
 #Combine the data and model into an event
 ev = Event(datasets=datasets, model=plens_model)
@@ -56,7 +58,8 @@ pl.figure()
 pl.subplot(gs[0])
 t_start= t_0 - 3.
 t_stop = t_0 + 1.
-ev.plot_model(color='black', t_start=t_start, t_stop=t_stop, subtract_2450000=True)
+ev.plot_model(color='black', t_start=t_start, t_stop=t_stop, 
+                                                        subtract_2450000=True)
 ev.plot_data(
     label_list=labels, marker='o', markersize=5,  
     color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'],
@@ -72,3 +75,4 @@ ev.plot_residuals(subtract_2450000=True)
 pl.xlim(t_start-2450000., t_stop-2450000.)
 
 pl.show()
+

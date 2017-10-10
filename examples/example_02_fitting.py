@@ -1,8 +1,8 @@
 #! /usr/bin/env python
-"""
-Example usage of MulensModel to fit a point lens light curve to the
-data file phot_ob08092_O4.dat.
-"""
+# 
+# Example usage of MulensModel to fit a point lens light curve to the
+# data file phot_ob08092_O4.dat.
+#
 import sys, os
 import numpy as np
 import scipy.optimize as op
