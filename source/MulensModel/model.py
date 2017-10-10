@@ -1005,7 +1005,7 @@ class Model(object):
                     dt=None, n_epochs=None):
         """
         If given, set up a time vector based on t_start, t_stop,
-        and (dt or n_epochs). If not given, intialise the time
+        and (dt or n_epochs). If not given, initialise the time
         vector based on the model parameters.
         
         Parameters :
@@ -1134,7 +1134,7 @@ class Model(object):
     @property
     def bandpasses(self):
         """
-        list of all bandpasses for wich limb darkening coefficients are set
+        list of all bandpasses for which limb darkening coefficients are set
         """
         return self._bandpasses
 
