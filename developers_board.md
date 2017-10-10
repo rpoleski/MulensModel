@@ -39,7 +39,7 @@
 * fluxes fixed in chi^2 calculation
 * modelparameters.py t\_E -> see comments there; BTW - should we set t\_E as a Astropy.quantity and then expect to get float ?
 * annual parallax calculation - verify with VBBL
-* when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | awk -F":" '{print $2, $1}' | sort -n
+* when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
 * when coordinates in event (or associated model or mulensdata) are changed then all associated coords are changed - this seems logical but maybe there should be some warning  that the user changes the previously set coordinates for a dataset
 * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
