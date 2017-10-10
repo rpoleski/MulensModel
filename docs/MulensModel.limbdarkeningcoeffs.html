@@ -56,32 +56,98 @@ It has fixed flux at the center. An et al. 2002 (ApJ 572, 521,
 <dl class="method">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_gamma">
 <code class="descname">set_limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em>, <em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>set gamma coefficient for given band</p>
+<dd><p>Remembers limb darkening gamma coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Name of the filter.</dd>
+<dt>gamma: <em>float</em></dt>
+<dd>The value of gamma coefficient.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_u">
 <code class="descname">set_limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_u" title="Permalink to this definition">¶</a></dt>
-<dd><p>set u coefficient for given band</p>
+<dd><p>Remembers limb darkening u coefficient for given band</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Name of the filter.</dd>
+<dt>u: <em>float</em></dt>
+<dd>The value of u coefficient.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_gamma">
 <code class="descname">limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>gives gamma coefficient for given band</p>
+<dd><p>Gives limb darkening gamma coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Name of the filter.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>gamma: <em>float</em></dt>
+<dd>The value of gamma coefficient.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_u">
 <code class="descname">limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_u" title="Permalink to this definition">¶</a></dt>
-<dd><p>gives u coefficient for given band</p>
+<dd><p>Gives limb darkening u coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Name of the filter.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>u: <em>float</em></dt>
+<dd>The value of u coefficient.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.weighted_limb_coef_gamma">
 <code class="descname">weighted_limb_coef_gamma</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.weighted_limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>get weighted limb darkening coefficient
-weights is a distionary e.g. weights = {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.}</p>
+<dd><p>Get weighted limb darkening coefficient in gamma space.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>weights: <em>dict</em></dt>
+<dd>A dictionary that for every band (keys; <em>str</em> type) gives its 
+relative weight (value; <em>float</em> type), e.g., 
+weights = {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.}
+will return gamma coefficient in the case when I band 
+contributes 1.5 more than V band. Note that for each band used 
+you have to first set to coefficient.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>gamma: <em>float</em></dt>
+<dd>The value of weighted gamma.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

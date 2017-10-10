@@ -57,40 +57,37 @@
 <p class="last">err_flux - the errors on the fluxes</p>
 </dd>
 <dt>Keywords:</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>data_list</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">[list of lists, numpy.ndarray], optional</span><dd>columns: Date, Magnitude/Flux, Err</dd>
-<dt>file_name</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span><dd>The path to a file with columns: Date, Magnitude/Flux,
+<dd><dl class="first docutils">
+<dt>data_list: [<em>list</em> of <em>lists</em>, <em>numpy.ndarray</em>], optional</dt>
+<dd>columns: Date, Magnitude/Flux, Err</dd>
+<dt>file_name: <em>str</em>, optional</dt>
+<dd>The path to a file with columns: Date, Magnitude/Flux,
 Err. Loaded using np.loadtxt. See <code class="docutils literal"><span class="pre">**kwargs.</span></code>
 <em>Either data_list or file_name is required.</em></dd>
-<dt>phot_fmt</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">string </span><dd>Specifies whether the photometry is in Magnitudes or
+<dt>phot_fmt: <em>str</em> </dt>
+<dd>Specifies whether the photometry is in Magnitudes or
 Flux units. accepts either &#8216;mag&#8217; or &#8216;flux&#8217;. Default =
 &#8216;mag&#8217;.</dd>
-<dt>coords</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">astropy.SkyCoords, optional </span><dd>sky coordinates of the event</dd>
-<dt>ra, dec</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">string, optional </span><dd>sky coordinates of the event</dd>
-<dt>ephemerides_file</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">string, optional </span><dd>Specify the ephemerides of a satellite over the period when
+<dt>coords: <em>astropy.SkyCoord</em>, optional </dt>
+<dd>sky coordinates of the event</dd>
+<dt>ra, dec: <em>str</em>, optional </dt>
+<dd>sky coordinates of the event</dd>
+<dt>ephemerides_file: <em>str</em>, optional </dt>
+<dd>Specify the ephemerides of a satellite over the period when
 the data were taken. Will be interpolated as necessary to
 model the satellite parallax effect. See &#8220;Instructions on
 getting satellite positions&#8221; in MulensModel.README.md</dd>
-<dt>add_2450000</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional </span><dd>Adds 2450000. to the input dates. Useful if the dates
+<dt>add_2450000: <em>boolean</em>, optional </dt>
+<dd>Adds 2450000 to the input dates. Useful if the dates
 are supplied as HJD-2450000.</dd>
-<dt>add_2460000</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional </span><dd>Adds 2460000. to the input dates.</dd>
+<dt>add_2460000: <em>boolean</em>, optional </dt>
+<dd>Adds 2460000 to the input dates. Useful if the dates
+are supplied as HJD-2460000.</dd>
 </dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>Parallax calculations assume that the dates supplied are</dt>
-<dd><p class="first">BJD_TDB. See :py:class:<a href="#id3"><span class="problematic" id="id4">`</span></a>~MulensModel.trajectory.Trajectory`*</p>
-<p class="last"><code class="docutils literal"><span class="pre">**kwargs</span></code> - np.loadtxt keywords. Used if file_name is provided.</p>
-</dd>
-</dl>
+<p><strong>Parallax calculations assume that the dates supplied are
+BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`</strong></p>
+<p class="last"><code class="docutils literal"><span class="pre">**kwargs</span></code> - <code class="xref py py-func docutils literal"><span class="pre">np.loadtxt()</span></code> keywords. Used if file_name 
+is provided.</p>
 </dd>
 </dl>
 <dl class="attribute">
@@ -138,7 +135,8 @@ are supplied as HJD-2450000.</dd>
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.satellite_skycoord">
 <code class="descname">satellite_skycoord</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.satellite_skycoord" title="Permalink to this definition">¶</a></dt>
-<dd><p>return Astropy SkyCoord of satellite for epochs covered by
+<dd><p>return <em>astropy.coordinates.SkyCoord</em> object for satellite 
+positions at epochs covered by
 the dataset</p>
 </dd></dl>
 
@@ -151,11 +149,20 @@ the dataset</p>
 <dl class="method">
 <dt id="MulensModel.mulensdata.MulensData.set_limb_darkening_weights">
 <code class="descname">set_limb_darkening_weights</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.set_limb_darkening_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>save a dictionary ofweights that will be used to evaluate the
+<dd><p>Save a dictionary of weights that will be used to evaluate the
 limb darkening coefficient. See also
 <a class="reference internal" href="MulensModel.limbdarkeningcoeffs.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal"><span class="pre">LimbDarkeningCoeffs</span></code></a></p>
-<p>e.g. weights = {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.} if I-band gamma limb-darkening 
-coefficient is 1.5-times larger than V-band</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>weights: <em>dict</em></dt>
+<dd>A dictionary that specifies weight for each bandpass. Keys are 
+<em>str</em> and values are <em>float</em>, e.g., {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.} if 
+the I-band gamma limb-darkening coefficient is 1.5-times 
+larger than the V-band</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
