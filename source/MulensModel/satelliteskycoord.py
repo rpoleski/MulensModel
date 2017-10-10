@@ -26,8 +26,16 @@ class SatelliteSkyCoord(object):
 
     def get_satellite_coords(self, times):
         """
-        Return the sky coordinates for the given times by interpolating
-        self.ephemerides_file
+        Calculate the coordinates of the satellite for given times using 
+        interpolation.
+
+        Parameters :
+            times: *np.ndarray* or *list of floats*
+                Epochs for which satellite coordinates will be calculated.
+
+        Returns :
+            satellite_skycoord: *Astropy.coordinates.SkyCord*
+                *SkyCord* for satellite at epochs *times*.
         """
         if self._horizons is None:
             self._horizons = Horizons(self.ephemerides_file)
