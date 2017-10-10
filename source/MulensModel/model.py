@@ -327,7 +327,24 @@ class Model(object):
 
     def magnification(self, time, satellite_skycoord=None, gamma=0.):
         """
-        calculate the model magnification for the given time(s).
+        Calculate the model magnification for the given time(s).
+
+        Parameters :
+            time: *np.ndarray*, *list of floats*, or *float*
+                Times for which magnification values are requested.
+
+            satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
+                *SkyCoord* object that gives satellite positions. Must be 
+                the same length as time parameter. Use only for satellite 
+                parallax calculations.
+
+            gamma: *float*, optional
+                The limb darkening coefficient in gamma convention. Default is 
+                0 which means no limb darkening effect.
+
+        Returns :
+            magnification: *np.ndarray*
+                A vector of calculated magnification values.
         """
         #Check for type
         if not isinstance(time, np.ndarray):
@@ -543,10 +560,9 @@ class Model(object):
         pl.ylabel('Magnification')
         pl.xlabel('Time')
 
-    def plot_lc(
-        self, times=None, t_range=None, t_start=None, t_stop=None, dt=None, 
-        n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
-        subtract_2450000=False, subtract_2460000=False, **kwargs):
+    def plot_lc(self, times=None, t_range=None, t_start=None, t_stop=None, 
+            dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
+            subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the model light curve in magnitudes. See get_ref_fluxes
         for details of data_ref.
@@ -842,10 +858,9 @@ class Model(object):
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
-    def plot_residuals(
-        self, show_errorbars=True, color_list=None, marker_list=None, 
-        size_list=None, label_list=None, data_ref=None, 
-        subtract_2450000=False, subtract_2460000=False, **kwargs):
+    def plot_residuals(self, show_errorbars=True, color_list=None, 
+            marker_list=None, size_list=None, label_list=None, data_ref=None, 
+            subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model. 
         Uses the best f_source, f_blend for each dataset 
