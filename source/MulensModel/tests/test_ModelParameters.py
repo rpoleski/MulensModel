@@ -23,3 +23,26 @@ def test_init_parameters():
     np.testing.assert_almost_equal(params.u_0, u_0)
     np.testing.assert_almost_equal(params.t_E, t_E.value)
 
+def test_rho_t_e_t_star():
+    """check if conversions between rho, t_E, and t_star work ok"""
+    t_E = 20. * u.day
+    rho = 0.001
+    t_star = t_E * rho
+
+    params_1 = ModelParameters(t_E=t_E, rho=rho)
+    np.testing.assert_almost_equal(params_1.t_star.value, t_star.value)
+
+    params_2 = ModelParameters(t_star=t_star, rho=rho)
+    np.testing.assert_almost_equal(params_2.t_E.value, t_E.value)
+
+    params_3 = ModelParameters(t_star=t_star, t_E=t_E)
+    np.testing.assert_almost_equal(params_3.rho.value, rho)
+
+class test(unittest.TestCase):
+    def test_too_much_rho_t_e_t_star(self):
+        with self.assertRaises(ValueError):
+            t_E = 20. * u.day
+            rho = 0.001
+            t_star = t_E * rho
+            ModelParameters(t_E=t_E, rho=rho, t_star=t_star)
+
