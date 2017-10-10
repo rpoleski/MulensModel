@@ -30,14 +30,16 @@
 * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
 * single Event can have many instances of Model associated with it
 * add unit tests for Horizons and MulensData.satellite\_skycoord
+* Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_corrds etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
 * Caustics.\_calculate - optimize using vectors instead of a loop
 * check if Horizons e-mail is for correct satellite
 * Are we consistent with PEP8? [check here](http://pep8online.com/)
 * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
 * _guessing parameters of PSPL model_
 * fluxes fixed in chi^2 calculation
+* modelparameters.py t\_E -> see comments there; BTW - should we set t\_E as a Astropy.quantity and then expect to get float ?
 * annual parallax calculation - verify with VBBL
-* when checking units use Unit.physical\_type - search for physical_type in mulensobjects/lens.py as an example
+* when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | awk -F":" '{print $2, $1}' | sort -n
 * when coordinates in event (or associated model or mulensdata) are changed then all associated coords are changed - this seems logical but maybe there should be some warning  that the user changes the previously set coordinates for a dataset
 * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
@@ -51,6 +53,7 @@
 * get gamma/u LD coefs from Claret papers etc.
 * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
+* add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
 * Research decorators (e.g. @property) - Can we have both print(model.s) and print(model.s(time))?
 * are we fully ok with astropy license?
 
