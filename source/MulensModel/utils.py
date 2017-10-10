@@ -27,7 +27,7 @@ month_3letter_to_2digit = {
 #functions together and separated from the math functions.
 
 class Utils(object):
-    """a number of small functions used in different places"""
+    """A number of small functions used in different places"""
 
     def get_flux_from_mag(mag):
         """transform magnitudes into fluxes"""

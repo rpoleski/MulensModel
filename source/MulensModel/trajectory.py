@@ -75,9 +75,8 @@ class Trajectory(object):
         calculate the xy position of the source.
         """
         # Calculate the position of the source
-        vector_tau = (
-            (self.times - self.parameters.t_0)
-            / float(self.parameters.t_E))
+        vector_tau = ((self.times - self.parameters.t_0)
+                                                / float(self.parameters.t_E))
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
         
         # If parallax is non-zero, apply parallax effects:
@@ -90,7 +89,7 @@ class Trajectory(object):
 
             # Apply satellite parallax effect
             if (self.parallax['satellite'] 
-                and self.satellite_skycoord is not None): 
+                                    and self.satellite_skycoord is not None): 
                 [delta_tau, delta_u] = self._satellite_parallax_trajectory()
                 vector_tau += delta_tau
                 vector_u += delta_u
