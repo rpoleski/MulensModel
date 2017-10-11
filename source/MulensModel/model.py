@@ -22,8 +22,8 @@ class Model(object):
 
     Two ways to define the model:
         1. :py:obj:`parameters` = a
-           :py:class:`~MulensModel.modelparameters.ModelParameters`
-           object
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+            object
 
         2. specify :py:obj:`t_0`, :py:obj:`u_0`, :py:obj:`t_E`
             (optionally: :py:obj:`rho`, :py:obj:`s`, :py:obj:`q`,
@@ -37,8 +37,8 @@ class Model(object):
     Also optional: may specify :py:obj:`coords` OR :py:obj:`ra` and
     :py:obj:`dec`.
 
-    Default values for parallax are all True. Use model.parallax() to
-    turn different parallax effects ON/OFF. If using satellite
+    Default values for parallax are all True. Use :func:`parallax()`
+    to turn different parallax effects ON/OFF. If using satellite
     parallax, you may also specify an `ephemerides_file` (see
     :py:class:`MulensModel.mulensdata.MulensData`).
 
@@ -47,6 +47,7 @@ class Model(object):
     model. i.e. The satellite parallax will be calculated correctly
     for the model evaluated at the data points, but satellite parallax
     is not implemented for the model alone.
+
     """
 
     def __init__(
@@ -55,7 +56,7 @@ class Model(object):
         t_0_par=None, coords=None, ra=None, dec=None, ephemerides_file=None):
         """
         Two ways to define the model:
-        1. parameters = a ModelParameters() object
+        1. parameters = a :class:`~MulensModel.modelparameters.ModelParameters` object
         2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par)
 
         When defining event coordinates, may specify coords as an
@@ -286,7 +287,8 @@ class Model(object):
     @property
     def parameters(self):
         """
-        The parameters of the model. A Model Parameters object.
+        The parameters of the model. A
+        :class:`~MulensModel.modelparameters.ModelParameters` object.
         """
         return self._parameters
 
@@ -295,8 +297,9 @@ class Model(object):
         pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None):
         """
         Set the parameters of the model. Any parameter not explicitly
-        specified will be set to None. All the previously set parameters 
-        will be forgotten. 
+        specified will be set to None. Creates a new
+        :class:`~MulensModel.modelparameters.ModelParameters` object,
+        so all the previously set parameters will be forgotten.
         """
         self._parameters = ModelParameters(
             t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
@@ -304,7 +307,8 @@ class Model(object):
             
     def get_satellite_coords(self,times):
         """
-        get satellite SkyCoords for the given times
+        Get satellite SkyCoords for the given times from the
+        ephemerides_file.
         """
         if self.ephemerides_file is None:
             return None
@@ -315,7 +319,10 @@ class Model(object):
 
     def magnification(self, time, satellite_skycoord=None, gamma=0.):
         """
-        calculate the model magnification for the given time(s).
+        Return the calculated model magnification for the given `time(s)`.
+
+        Arguments:
+            time : [float, list, numpy.ndarray]
         """
         #Check for type
         if not isinstance(time, np.ndarray):
@@ -341,7 +348,9 @@ class Model(object):
 
     @property
     def data_magnification(self):
-        """a list of magnifications calculated for every dataset time vector"""
+        """
+        a list of magnifications calculated for every dataset time vector
+        """
         self._data_magnification = []
 
         for dataset in self.datasets:
@@ -352,7 +361,7 @@ class Model(object):
         
     def get_data_magnification(self, dataset):
         """
-        Get the model magnification for a given dataset.
+        Calculate (and return) the model magnification for a given dataset.
         """
         if dataset.ephemerides_file is not None:
             dataset_satellite_skycoord = dataset.satellite_skycoord
@@ -377,7 +386,9 @@ class Model(object):
     
     @property
     def datasets(self):
-        """a list of datasets linked to given model"""
+        """
+        a list of datasets linked to given model
+        """
         if self._datasets is None:
             raise ValueError('No datasets were linked to the model')
         return self._datasets
@@ -391,7 +402,8 @@ class Model(object):
     @property
     def coords(self):
         """
-        Sky coordinates (RA,Dec)
+        Sky coordinates (RA, Dec). See also
+        :obj:`MulensModel.event.Event.coords`
         """
         return self._coords
 
@@ -405,7 +417,8 @@ class Model(object):
     @property
     def ra(self):
         """
-        Right Ascension
+        Right Ascension.
+        See also :obj:`MulensModel.event.Event.ra`
         """
         return self._coords.ra
 
@@ -424,7 +437,8 @@ class Model(object):
     @property
     def dec(self):
         """
-        Declination
+        Declination.
+        See also :obj:`MulensModel.event.Event.dec`
         """
         return self._coords.dec
 
@@ -442,7 +456,7 @@ class Model(object):
 
     @property
     def galactic_l(self):
-        """Galactic longitude"""
+        """Galactic longitude calculated from (RA, Dec)"""
         l = self._coords.galactic.l
         if l > 180. * u.deg:
             l = l - 360. * u.deg
@@ -450,31 +464,41 @@ class Model(object):
 
     @property
     def galactic_b(self):
-        """Galactic latitude"""
+        """Galactic latitude calculated from (RA, Dec)"""
         return self._coords.galactic.b
 
     @property
     def ecliptic_lon(self):
-        """ecliptic longitude"""
+        """ecliptic longitude calculated from (RA, Dec)"""
         from astropy.coordinates import GeocentricTrueEcliptic
         return self._coords.transform_to(GeocentricTrueEcliptic).lon
 
     @property
     def ecliptic_lat(self):
-        """ecliptic latitude"""
+        """ecliptic latitude calculated from (RA, Dec) """
         from astropy.coordinates import GeocentricTrueEcliptic
         return self._coords.transform_to(GeocentricTrueEcliptic).lat
 
     def parallax(
         self, earth_orbital=None, satellite=None, topocentric=None):
         """
-        specifies which types of the parallax will be included in
-        calculations. Three kinds of effects are allowed
-        earth_orbital - the motion of the Earth about the Sun
-        satellite - difference due to the separation between the Earth
-        and a satellite (changes as a function of time)
-        topocentric - difference due to the separation between two
-        observatories on the Earth.
+        Specifies which types of the parallax will be included in
+        calculations.
+
+        Keywords:
+
+            earth_orbital : boolean, optional
+                the motion of the Earth about the Sun
+
+            satellite : boolean, optional
+                difference due to the separation between the Earth and
+                a satellite (changes as a function of time). If
+                specified, an ephemerides_file should have been defined when
+                the Model was defined.
+
+            topocentric : boolean, optional
+                difference due to the separation between two
+                observatories on the Earth.
         """
         if earth_orbital is None and satellite is None and topocentric is None:
             return self._parallax
@@ -491,7 +515,20 @@ class Model(object):
         n_epochs=None, subtract_2450000=False, subtract_2460000=False, 
         **kwargs):
         """
-        plot the model magnification curve.
+        Plot the model magnification curve.
+
+        Keywords:
+            times : [float, list, numpy.ndarray]
+                a list of times at which to plot the magnifications
+
+            t_range, t_start, t_stop, dt, n_epochs : see :func:`set_times`
+
+            subtract_2450000, subtract_2460000 : boolean, optional
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers.
+
+        ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
+
         """
         if times is None:
             times = self.set_times(
@@ -513,11 +550,35 @@ class Model(object):
         n_epochs=None, data_ref=None, f_source=None, f_blend=None, 
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
-        plot the model light curve in magnitudes. See get_ref_fluxes
-        for details of data_ref.
+        plot the model light curve in magnitudes. 
 
-        f_source and f_blend are the source and blend fluxes in a system
-        where flux = 1 corresponds to utils.MAG_ZEROPOINT (= 22 mag).
+        Keywords:
+            times : [float, list, numpy.ndarray]
+                a list of times at which to plot the magnifications
+
+            t_range, t_start, t_stop, dt, n_epochs : see :func:`set_times`
+
+            subtract_2450000, subtract_2460000 : boolean, optional
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers. If using, make
+                sure to also set the same settings for all other
+                plotting calls (e.g. :func:`plot_data()`)
+
+            data_ref : int or a dataset
+                Reference dataset to scale the model to. See
+                :func:`get_ref_fluxes()`
+
+            f_source, f_blend : float
+                Explicitly specify the source and blend fluxes in a system
+                where flux = 1 corresponds to utils.MAG_ZEROPOINT (= 22 mag). 
+
+        ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
+
+        Either data_set or (f_source, f_blend) must be set, but there
+        is no explicit check for this. Default behavior is probably to
+        throw an exception that no data have been specified (see
+        :func:`get_ref_fluxes()`).
+
         """
         if times is None:
             times = self.set_times(
@@ -552,27 +613,29 @@ class Model(object):
 
     def get_ref_fluxes(self, data_ref=None):
         """
-        Get source and blending fluxes for the .
+        Get source and blending fluxes for the model by findig the
+        best-fit values compared to data_ref.
 
-        Parameters :
+        Parameters:
             data_ref: *:py:class:`~MulensModel.mulensdata.MulensData`* or *int*
                 Reference dataset. If *int*, corresponds to the index of 
                 the dataset in self.datasets. If None, than the first dataset 
                 will be used.
 
-        Returns :
+        Returns:
             f_source: float
                 source flux
+
             f_blend: float
                 blending flux
-
 
         Determine the reference flux system from the
         datasets. data_ref may either be a dataset or the index of a
         dataset (if Model.set_datasets() was previously called). If
         data_ref is not set, it will use the first dataset. If you
-        call this without calling set_datasets() first, there will be
-        an exception and that's on you.
+        call this without calling set_datasets() first, it will throw
+        an exception.
+.
         """
         if data_ref is None:
             if self._datasets is None:
@@ -681,29 +744,48 @@ class Model(object):
         color_list=None, marker_list=None, size_list=None, label_list=None, 
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
-        Plot the data scaled to the model. If data_ref is not
-        specified, uses the first dataset as the reference for flux scale. 
+        Plot the data scaled to the model. 
 
-        If show_errorbars is True (default), plots with matplotlib.errorbar(). 
-        If show_errorbars is False, plots with matplotib.scatter(). 
+        Keywords:
+            data_ref : see :func:`get_ref_fluxes()`
+                If data_ref is not specified, uses the first dataset
+                as the reference for flux scale.
 
-        show_bad : boolean, optional
-            if False, bad data are suppressed (default). 
-            if True, shows points marked as bad
-            (:py:obj:`mulensdata.MulensData.bad`) as 'x'
+            show_errorbars : boolean
+                If show_errorbars is True (default), plots with
+                matplotlib.errorbar(). If False, plots with
+                matplotib.scatter().
+
+            show_bad : boolean, optional
+                if False, bad data are suppressed (default). 
+                if True, shows points marked as bad
+                (:py:obj:`mulensdata.MulensData.bad`) as 'x'
         
-        Allows for different point types for each dataset. These may
-        be set using color_list, marker_list, and size_list. May also
-        use ``**kwargs`` or some combination of the lists and
+            color_list, marker_list, size_list : list, optional
+                Controls point types for each dataset (length must be
+                equal to the number of datasets). May specify none,
+                some, or all of these lists. Automatically handles
+                keyword variations in errorbar() vs. scatter():
+                e.g. fmt/marker, markersize/s.
+
+            label_list : list
+                Attacheds a label to each data set, which can be used
+                to create a legend by calling pl.legend().
+
+            subtract_2450000, subtract_2460000 : boolean, optional
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers. If using, make
+                sure to also set the same settings for all other
+                plotting calls (e.g. :func:`plot_lc()`).
+
+        May also use ``**kwargs`` or some combination of the lists and
         ``**kwargs``. e.g. set color_list to specify which color each
         data set should be plotted in, but use fmt='s' to make all
         data points plotted as squares.
-        
-        Automatically handles some keyword variations in errorbar() vs. 
-        scatter(): e.g. fmt/marker, markersize/s (see _set_plot_kwargs),
 
         ``**kwargs`` (and point type lists) are remembered and used in
         subsequent calls to both plot_data() and plot_residuals().
+
         """
         if data_ref is not None:
             self.data_ref = data_ref
@@ -789,8 +871,9 @@ class Model(object):
         Uses the best f_source, f_blend for each dataset 
         (not scaled to a particular photometric system).
 
-        For explanation of ``**kwargs``, and also [var]_list see doctrings in 
-        plot_data(). 
+        For explanation of ``**kwargs`` and other keywords, see doctrings in 
+        :func:`plot_data()`. 
+
         """
         if data_ref is not None:
             self.data_ref = data_ref
@@ -919,15 +1002,22 @@ class Model(object):
         self.caustics.plot(n_points=n_points, **kwargs)
         
     def set_times(
-        self, t_range=None, t_start=None, t_stop=None, 
-        dt=None, n_epochs=None):
+        self, t_range=None, t_start=None, 
+        t_stop=None, dt=None, n_epochs=1000):
         """
-        If given, set up a time vector based on t_start, t_stop,
-        and (dt or n_epochs). If not given, intialize the time
-        vector based on the model parameters.
+        Retrun a list of times. If no keywords are specified, default
+        is 1000 epochs from [t_0 - 1.5*t_E, t_0 + 1.5*t_E].
+
+        Keywords (all optional) :
+            t_range : [list, tuple]
+                form [t_start, t_stop]
+            t_start, t_stop : float
+                a start or stop time.
+            dt : float
+                the interval spacing between successive points
+            n_epochs : int
+                the number of epochs (evenly spaced)
         """
-            
-        #initialize t_start, t_stop, dt if not set
         if t_range is not None:
             t_start = t_range[0]
             t_stop = t_range[1]
@@ -937,10 +1027,8 @@ class Model(object):
             t_start = self.t_0 - (n_tE * self.t_E)
         if t_stop is None:
             t_stop = self.t_0 + (n_tE * self.t_E)
-                
+
         if dt is None:
-            if n_epochs is None:
-                n_epochs = 1000
             dt = (t_stop - t_start) / float(n_epochs)
 
         return np.arange(t_start, t_stop+dt, dt)
