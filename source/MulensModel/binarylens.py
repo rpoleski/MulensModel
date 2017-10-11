@@ -26,8 +26,9 @@ class BinaryLens(object):
             separation between the two bodies as a fraction of the Einstein 
             ring.
 
-    Note: mass_1 and mass_2 may be defined relative to some other mass 
-    but this is not recommended.
+    Note: mass_1 and mass_2 may be defined as a fraction of some other mass 
+    than the total mass. This is possible but not recommended - make sure you 
+    know what you're doing before you start using this possibility.
 
     """
     def __init__(self, mass_1=None, mass_2=None, separation=None):
@@ -278,11 +279,11 @@ class BinaryLens(object):
                 approximations? Default is *False*.
 
         Returns :
-            magnification: *float* or sequence of three *floats*
+            magnification: *float* or *sequence* of three *floats*
                 Hexadecapole approximation (*float*) by default. 
                 Quadrupole approximation (*float*) if 
                 *quadrupole* parameter is *True*. Hexadecapole, quadrupole, 
-                and point source approximations (sequence of three *floats*) 
+                and point source approximations (*sequence* of three *floats*) 
                 if *all_approximations* parameter is *True*.
         """
         # In this function, variables named a_* depict magnification.
