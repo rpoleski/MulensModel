@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Very Basic Tutorial &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <link rel="prev" title="How to install?" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="very-basic-tutorial">
+<h1>Very Basic Tutorial<a class="headerlink" href="#very-basic-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>The main MulensModel features are in classes <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>, <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html">MulensData</a>,
+and <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.event.html">Event</a>.</p>
+<p>This is a very simple tutorial showing how you might use those classes. It is also available (somewhat expanded) as a Jupyter <a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/MulensModelTutorial.ipynb">notebook</a>.</p>
+<div class="section" id="defining-a-model">
+<h2>Defining a Model<a class="headerlink" href="#defining-a-model" title="Permalink to this headline">¶</a></h2>
+<p>The most basic thing to do is to define a microlensing model. For example, you could define a point lens model as follows:</p>
+<p><code class="docutils literal"><span class="pre">my_pspl_model</span> <span class="pre">=</span> <span class="pre">MulensModel.Model(t_0=2452848.06,</span> <span class="pre">u_0=0.133,</span> <span class="pre">t_E=61.5)</span></code></p>
+<p>Or a model with 2-bodies:</p>
+<p><code class="docutils literal"><span class="pre">my_1S2L_model</span> <span class="pre">=</span> <span class="pre">MulensModel.Model(t_0=2452848.06,</span> <span class="pre">u_0=0.133,</span> <span class="pre">t_E=61.5,</span> <span class="pre">rho=0.00096,</span> <span class="pre">q=0.0039,</span> <span class="pre">s=1.120,</span> <span class="pre">alpha=43.8)</span></code></p>
+<p>(by default alpha is in degrees, but you could explicitly specify radians)</p>
+<p>Then, you might plot those models:</p>
+<p><code class="docutils literal"><span class="pre">import</span> <span class="pre">matplotlib.pyplot</span> <span class="pre">as</span> <span class="pre">pl</span></code></p>
+<p><code class="docutils literal"><span class="pre">pl.figure()</span></code></p>
+<p><code class="docutils literal"><span class="pre">my_pspl_model.plot_magnification(t_range=[2452810,2452890],</span> <span class="pre">subtract_2450000=True,</span> <span class="pre">color='red',</span> <span class="pre">linestyle=':')</span></code></p>
+<p><code class="docutils literal"><span class="pre">my_1S2L_model.plot_magnification(t_range=[2452810,2452890],</span> <span class="pre">subtract_2450000=True,</span> <span class="pre">color='black')</span></code></p>
+<p><code class="docutils literal"><span class="pre">pl.show()</span></code></p>
+</div>
+<div class="section" id="introducing-data">
+<h2>Introducing Data<a class="headerlink" href="#introducing-data" title="Permalink to this headline">¶</a></h2>
+<p>Suppose you also had some data you want to import:</p>
+<p><code class="docutils literal"><span class="pre">OGLE_data</span> <span class="pre">=</span> <span class="pre">MulensModel.MulensData('../data/OB03235/OB03235_OGLE.tbl.txt',</span> <span class="pre">commenst=['\\','|'])</span></code></p>
+<p><code class="docutils literal"><span class="pre">MOA_data</span> <span class="pre">=</span> <span class="pre">MulensModel.MulensData('../data/OB03235/OB03235_MOA.tbl.txt',</span> <span class="pre">phot_fmt='flux',</span> <span class="pre">comments=['\\','|')</span></code></p>
+</div>
+<div class="section" id="combining-data-with-a-model">
+<h2>Combining Data with a Model<a class="headerlink" href="#combining-data-with-a-model" title="Permalink to this headline">¶</a></h2>
+<p>Now suppose you wanted to combine the two together:</p>
+<p><code class="docutils literal"><span class="pre">my_event</span> <span class="pre">=</span> <span class="pre">MulensModel.Event(datasets=[OGLE_data,</span> <span class="pre">MOA_data],</span> <span class="pre">model=my_1S2L_model)</span></code></p>
+<p>And you wanted to plot the result:</p>
+<p><code class="docutils literal"><span class="pre">my_event.plot_model(t_range=[2452810,</span> <span class="pre">2452890],</span> <span class="pre">subtract_2450000=True,</span> <span class="pre">color='black')</span></code></p>
+<p><code class="docutils literal"><span class="pre">my_event.plot_data(subtract_2450000=True)</span></code></p>
+<p><code class="docutils literal"><span class="pre">pl.show()</span></code></p>
+<p>This fits for the fluxes so that the model and data are all on the
+flux scale set by the first dataset. It does NOT fit for the best
+microlensing parameters. If you wanted to know how good the fit is, you can get the chi2:</p>
+<p><code class="docutils literal"><span class="pre">print(my_event.get_chi2())</span></code></p>
+<p>If you want to optimize that chi2, we leave it up to you to determine the best method for doing this.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Very Basic Tutorial</a><ul>
+<li><a class="reference internal" href="#defining-a-model">Defining a Model</a></li>
+<li><a class="reference internal" href="#introducing-data">Introducing Data</a></li>
+<li><a class="reference internal" href="#combining-data-with-a-model">Combining Data with a Model</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">How to install?</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/tutorial.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
