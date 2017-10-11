@@ -11,6 +11,7 @@
 * __PSPL manual__
 * anything from use cases that does not work yet -- see TODO.md file
 * xallarap - use case, unit test, and code itself (see below for references)
+* makefile for Windows
 * remove intermediate Sphinx files from repo
 * __binary lens orbital motion - use case, unit test, and code itself__
 * binary calculations - define if s is relative to total mass etc.
