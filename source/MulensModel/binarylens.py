@@ -278,11 +278,11 @@ class BinaryLens(object):
                 approximations? Default is *False*.
 
         Returns :
-            magnification: *float* or seqence of three *floats*
+            magnification: *float* or sequence of three *floats*
                 Hexadecapole approximation (*float*) by default. 
                 Quadrupole approximation (*float*) if 
                 *quadrupole* parameter is *True*. Hexadecapole, quadrupole, 
-                and point source approximations (seqence of three *floats*) 
+                and point source approximations (sequence of three *floats*) 
                 if *all_approximations* parameter is *True*.
         """
         # In this function, variables named a_* depict magnification.
