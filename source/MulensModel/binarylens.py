@@ -119,7 +119,8 @@ class BinaryLens(object):
 
         return self._polynomial_roots_WM95
 
-    def _polynomial_roots_ok_WM95(self, source_x, source_y, return_distances=False):
+    def _polynomial_roots_ok_WM95(self, source_x, source_y, 
+                                    return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots_WM95(source_x=source_x, 
                                                    source_y=source_y)
@@ -286,8 +287,8 @@ class BinaryLens(object):
         """
         # In this function, variables named a_* depict magnification.
         if quadrupole and all_approximations:
-            msg = 'Inconsisient parameters of {:}'
-            raise ValueError(msg.format('BinaryLens.hexadecapole_magnification()'))
+            raise ValueError('Inconsisient parameters of ' + 
+                                    'BinaryLens.hexadecapole_magnification()')
         
         a_center = self.point_source_magnification(
                                     source_x=source_x, source_y=source_y)
