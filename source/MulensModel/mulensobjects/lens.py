@@ -377,6 +377,8 @@ class Lens(object):
             else:
                 self._distance = new_distance * u.pc
         else:
+            if new_distance.unit.physical_type != 'distance':
+                TypeError('Wrong type of new_distance!')
             if (new_distance.unit == "pc") or (new_distance.unit == "kpc"):
                 self._distance = new_distance
             else:

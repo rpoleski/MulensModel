@@ -18,15 +18,43 @@ class LimbDarkeningCoeffs(object):
         self._gammas_for_band = dict()
         
     def set_limb_coef_gamma(self, bandpass, gamma):
-        """set gamma coefficient for given band"""
+        """Remembers limb darkening gamma coefficient for given band.
+        
+        Parameters :
+            bandpass: *str*
+                Name of the filter.
+
+            gamma: *float*
+                The value of gamma coefficient.
+        
+        """
         self._gammas_for_band[bandpass] = gamma
         
     def set_limb_coef_u(self, bandpass, u):
-        """set u coefficient for given band"""
+        """Remembers limb darkening u coefficient for given band
+        
+        Parameters :
+            bandpass: *str*
+                Name of the filter.
+
+            u: *float*
+                The value of u coefficient.
+        
+        """
         self._gammas_for_band[bandpass] = Utils.u_to_gamma(u)
     
     def limb_coef_gamma(self, bandpass):
-        """gives gamma coefficient for given band"""
+        """Gives limb darkening gamma coefficient for given band.
+        
+        Parameters :
+            bandpass: *str*
+                Name of the filter.
+
+        Returns :
+            gamma: *float*
+                The value of gamma coefficient.
+
+        """
         try:
             gamma = self._gammas_for_band[bandpass]
         except KeyError:
@@ -37,13 +65,37 @@ class LimbDarkeningCoeffs(object):
         return gamma
     
     def limb_coef_u(self, bandpass):
-        """gives u coefficient for given band"""
+        """Gives limb darkening u coefficient for given band.
+        
+        Parameters :
+            bandpass: *str*
+                Name of the filter.
+
+        Returns :
+            u: *float*
+                The value of u coefficient.
+
+        """ 
         gamma = self.limb_coef_gamma(bandpass=bandpass)
         return Utils.gamma_to_u(gamma)
         
     def weighted_limb_coef_gamma(self, weights):
-        """get weighted limb darkening coefficient
-        weights is a distionary e.g. weights = {'I': 1.5, 'V': 1.} """
+        """Get weighted limb darkening coefficient in gamma space.
+        
+        Parameters :
+            weights: *dict*
+                A dictionary that for every band (keys; *str* type) gives its 
+                relative weight (value; *float* type), e.g., 
+                weights = {'I': 1.5, 'V': 1.}
+                will return gamma coefficient in the case when I band 
+                contributes 1.5 more than V band. Note that for each band used 
+                you have to first set to coefficient.
+        
+        Returns :
+            gamma: *float*
+                The value of weighted gamma.
+        """
+
         if not isinstance(weights, dict):
             raise TypeError("LimbDarkeningCoeffs.weighted_limb_coef_gamma() " +
                     "parameter has to be dict, not {:}".format(type(weights)))

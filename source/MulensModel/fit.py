@@ -49,7 +49,15 @@ class Fit(object):
 
            
     def fit_fluxes(self, fit_blending=True):
-        """fit source(s) and blending fluxes"""
+        """
+        Fit source(s) and blending fluxes
+        
+        Parameters :
+            fit_blending: *boolean*, optional
+                Do you want the blending to be fitted (*True*) or to be 
+                fixed at 0 (*False*)? Default is *True*
+
+        """
         n_sources = self.get_n_sources()
 
         # Add parameters for blended light (if appropriate)
@@ -94,18 +102,49 @@ class Fit(object):
                 self._flux_sources[dataset] = results
 
     def blending_flux(self, dataset):
-        """return blending flux for given dataset"""
+        """Blending flux for given dataset.
+        
+        Parameters :
+            dataset: :class:`~MulensModel.mulensdata.MulensData`
+                A dataset for which blending flux will be given.
+
+        Returns :
+            blending_flux: *np.float64*
+                Blending flux in units where 1 corresponds to 22 mag.
+            
+        """
         return self._flux_blending[dataset]
         
     def flux_of_sources(self, dataset):
-        """return fluxes for all sources in a numpy ndarray"""
+        """Fluxes of source(s).
+
+        Parameters :
+            dataset: :class:`~MulensModel.mulensdata.MulensData`
+                A dataset for which source fluxes will be given.
+
+        Returns :
+            source_fluxes: *np.ndarray*
+                Fluxes of sources in units where 1 corresponds to 22 mag. 
+                The number of array elements is the same as number of sources.
+
+        """ 
         return self._flux_sources[dataset]
 
     def get_input_format(self, data=None):
         """
-        return model in the same format as data, i.e. use data as the
-        reference dataset for the flux system. data must be in the
-        list of datasets.
+        Microlensing model in the same format as given dataset. The output is 
+        either in flux units or magnitudes, depending on format of the input 
+        data.
+
+        Parameters :
+            data: :class:`~MulensModel.mulensdata.MulensData`
+                A dataset for which model will be returned.
+
+        Returns :
+            magnification: *np.ndarray*
+                Magnifications in flux units or magnitudes (depending on 
+                the format of input data). 
+
         """
         #Check for potential problems
         if data is None:
@@ -141,10 +180,15 @@ class Fit(object):
             msg = 'Fit.get_input_format() unrecognized data input format'
             raise ValueError(msg)
         return result
-
     
     def get_n_sources(self):
-        """count n_sources (number of sources)"""
+        """Count sources.
+
+        Returns :
+            n_sources: *int*
+                Number of sources in input data.
+        """
+        
         #if not set, determine from the shape of _magnification
         if self._n_sources is not None:
             n_sources = self._n_sources
@@ -154,3 +198,4 @@ class Fit(object):
             else:
                 n_sources = self._magnification[0].shape[0]
         return n_sources
+

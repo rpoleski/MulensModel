@@ -10,10 +10,10 @@ class Caustics(object):
     Class for the caustic structure corresponding to a given (q, s),
     i.e. mass ratio and separation. Implemented for 2-body lenses only.
 
-    Attributes:
-        q : *float*
+    Attributes :
+        q: *float*
             mass ratio between the 2 bodies
-        s : *float*
+        s: *float*
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
     """
@@ -90,7 +90,7 @@ class Caustics(object):
     @property
     def critical_curve(self):
         """
-        A :py:class:`CriticalCurve` object, read-only
+        Critical curve stored as :py:class:`CriticalCurve` object, read-only
         """
         if self._critical_curve is None:
             self._calculate()

@@ -6,7 +6,7 @@
 Welcome to MulensModel's documentation!
 =======================================
 
-MulensModel is package for modeling microlensing (or :math:`\mu`-lensing) 
+MulensModel is package for modeling microlensing (or :math:`\\mu`-lensing) 
 events. MulensModel can generate a microlensing light curve for a given set of 
 microlensing parameters, fit that light curve to some data, and return a chi2 
 value. That chi2 can then be input into an arbitrary likelihood function to 

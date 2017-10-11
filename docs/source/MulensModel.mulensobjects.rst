@@ -1,14 +1,33 @@
-MulensModel.mulensobjects package
-=================================
+MulensModel\.mulensobjects package
+==================================
 
 Submodules
 ----------
 
-.. toctree::
+MulensModel\.mulensobjects\.lens module
+---------------------------------------
 
-   MulensModel.mulensobjects.lens
-   MulensModel.mulensobjects.mulenssystem
-   MulensModel.mulensobjects.source
+.. automodule:: MulensModel.mulensobjects.lens
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+MulensModel\.mulensobjects\.mulenssystem module
+-----------------------------------------------
+
+.. automodule:: MulensModel.mulensobjects.mulenssystem
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+MulensModel\.mulensobjects\.source module
+-----------------------------------------
+
+.. automodule:: MulensModel.mulensobjects.source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

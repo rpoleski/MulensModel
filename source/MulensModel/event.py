@@ -41,7 +41,7 @@ class Event(object):
             :py:obj:`coords` (optional): the coordinates of the event
             (RA, Dec)
         """
-        #Initialize self._model (and check that model is defined)
+        #Initialise self._model (and check that model is defined).
         if isinstance(model, Model):
             self._model = model
         elif model is None:
@@ -49,7 +49,7 @@ class Event(object):
         else:
             raise TypeError('incorrect argument model of class Event()')
 
-        #Initialize self._datasets (and check that datasets is defined)
+        #Initialise self._datasets (and check that datasets is defined).
         if isinstance(datasets, (list, tuple, MulensData)) or datasets is None:
             self._set_datasets(datasets)
         else:
@@ -77,7 +77,7 @@ class Event(object):
     def data_ref(self):
         """
         Reference data set for scaling the model fluxes to (for
-        plotting). May be a
+        plotting). May be set as a
         :py:class:`~MulensModel.mulensdata.MulensData` object or an
         index (*int*). Default is the first data set.
         """
@@ -130,7 +130,7 @@ class Event(object):
         """
         *astropy.coordinates.SkyCoord* object
 
-        The event sky coordinates (RA, Dec). May be set as a *string*
+        The event sky coordinates (RA, Dec). May be set as a *str*
         or *SkyCoord* object, e.g.
 
         '18:00:00 -30:00:00'
@@ -139,7 +139,7 @@ class Event(object):
 
         SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
         
-        where u is defined in "import astropy.units as u"
+        where u is defined by "import astropy.units as u".
         """
         return self._coords
     
@@ -212,13 +212,13 @@ class Event(object):
         blending fluxes.
 
         Parameters :
-            fit_blending : boolean, optional
+            fit_blending: *boolean*, optional
                 If True, then the blend flux is a free parameter. If
                 False, the blend flux is fixed at zero.  Default is
                 the same as :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
-            chi2 : float
+            chi2: *float*
                 Chi^2 value
 
         """
@@ -239,18 +239,18 @@ class Event(object):
         fitting for source and blending fluxes.
 
         Parameters :
-            fit_blending : *boolean*, optional
-                Are we fitting for blending flux? If not then it is
+            fit_blending: *boolean*, optional
+                Are we fitting for blending flux? If not then blending flux is 
                 fixed to 0.  Default is the same as
                 :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
-            chi2 : *np.ndarray*  
+            chi2: *np.ndarray*  
                 Chi^2 contribution from each data point,
                 e.g. chi2[obs_num][k] returns the chi2 contribution
-                from the *k* th point of observatory *obs_num* .
+                from the *k*-th point of observatory *obs_num*.
         """
-       #Define a Fit given the model and perform linear fit for fs and fb
+        #Define a Fit given the model and perform linear fit for fs and fb
         self.fit = Fit(data=self.datasets, 
                        magnification=self.model.data_magnification) 
         if fit_blending is not None:
@@ -272,25 +272,29 @@ class Event(object):
 
     def get_ref_fluxes(self, data_ref=None):
         """
-        see :py:func:`MulensModel.model.Model.get_ref_fluxes()`
+        Get source and blending fluxes for the reference dataset. See 
+        :py:func:`MulensModel.model.Model.get_ref_fluxes()` for details.
         """
         return self.model.get_ref_fluxes(data_ref=data_ref)
 
     def plot_model(self, **kwargs):
         """
-        see :py:func:`MulensModel.model.Model.plot_lc()`
+        Plot the model light curve in magnitudes. See
+        :py:func:`MulensModel.model.Model.plot_lc()` for details.
         """
         self.model.plot_lc(**kwargs)
 
     def plot_data(self, **kwargs):
         """
-        see :py:func:`MulensModel.model.Model.plot_data()`
+        Plot the data scaled to the model. See 
+        :py:func:`MulensModel.model.Model.plot_data()` for details.
         """
         self.model.plot_data(**kwargs)
 
     def plot_residuals(self, **kwargs):
         """
-        see :py:func:`MulensModel.model.Model.plot_residuals()`
+        Plot the residuals (in magnitudes) of the model. 
+        See :py:func:`MulensModel.model.Model.plot_residuals()` for details.
         """
         self.model.plot_residuals(**kwargs)
 
@@ -301,3 +305,4 @@ class Event(object):
     def estimate_model_params(self):
         """estiamtes model parameters without fitting them. Not Implemented"""
         raise NotImplementedError("This feature has not been implemented yet")
+

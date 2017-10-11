@@ -51,8 +51,22 @@ epoch based on an ephemerides file.</p>
 <dl class="method">
 <dt id="MulensModel.satelliteskycoord.SatelliteSkyCoord.get_satellite_coords">
 <code class="descname">get_satellite_coords</code><span class="sig-paren">(</span><em>times</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.satelliteskycoord.SatelliteSkyCoord.get_satellite_coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the sky coordinates for the given times by interpolating
-self.ephemerides_file</p>
+<dd><p>Calculate the coordinates of the satellite for given times using 
+interpolation.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>times: <em>np.ndarray</em> or <em>list of floats</em></dt>
+<dd>Epochs for which satellite coordinates will be calculated.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>satellite_skycoord: <em>Astropy.coordinates.SkyCord</em></dt>
+<dd><em>SkyCord</em> for satellite at epochs <em>times</em>.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

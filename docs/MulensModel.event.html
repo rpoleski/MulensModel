@@ -70,7 +70,7 @@ instances.</p>
 <dt id="MulensModel.event.Event.data_ref">
 <code class="descname">data_ref</code><a class="headerlink" href="#MulensModel.event.Event.data_ref" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reference data set for scaling the model fluxes to (for
-plotting). May be a
+plotting). May be set as a
 <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> object or an
 index (<em>int</em>). Default is the first data set.</p>
 </dd></dl>
@@ -85,12 +85,12 @@ index (<em>int</em>). Default is the first data set.</p>
 <dt id="MulensModel.event.Event.coords">
 <code class="descname">coords</code><a class="headerlink" href="#MulensModel.event.Event.coords" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.coordinates.SkyCoord</em> object</p>
-<p>The event sky coordinates (RA, Dec). May be set as a <em>string</em>
+<p>The event sky coordinates (RA, Dec). May be set as a <em>str</em>
 or <em>SkyCoord</em> object, e.g.</p>
 <p>&#8216;18:00:00 -30:00:00&#8217;</p>
 <p>&#8216;18h00m00s -30d00m00s&#8217;</p>
 <p>SkyCoord(&#8216;18:00:00 -30:00:00&#8217;, unit=(u.hourangle, u.deg))</p>
-<p>where u is defined in &#8220;import astropy.units as u&#8221;</p>
+<p>where u is defined by &#8220;import astropy.units as u&#8221;.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -114,16 +114,16 @@ blending fluxes.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>fit_blending</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span><dd>If True, then the blend flux is a free parameter. If
+<dt>fit_blending: <em>boolean</em>, optional</dt>
+<dd>If True, then the blend flux is a free parameter. If
 False, the blend flux is fixed at zero.  Default is
 the same as <a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
-<dt>chi2</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>Chi^2 value</dd>
+<dt>chi2: <em>float</em></dt>
+<dd>Chi^2 value</dd>
 </dl>
 </dd>
 </dl>
@@ -137,18 +137,18 @@ fitting for source and blending fluxes.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>fit_blending</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier"><em>boolean</em>, optional</span><dd>Are we fitting for blending flux? If not then it is
+<dt>fit_blending: <em>boolean</em>, optional</dt>
+<dd>Are we fitting for blending flux? If not then blending flux is 
 fixed to 0.  Default is the same as
 <a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
-<dt>chi2</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier"><em>np.ndarray</em>  </span><dd>Chi^2 contribution from each data point,
+<dt>chi2: <em>np.ndarray</em>  </dt>
+<dd>Chi^2 contribution from each data point,
 e.g. chi2[obs_num][k] returns the chi2 contribution
-from the <em>k</em> th point of observatory <em>obs_num</em> .</dd>
+from the <em>k</em>-th point of observatory <em>obs_num</em>.</dd>
 </dl>
 </dd>
 </dl>
@@ -157,25 +157,29 @@ from the <em>k</em> th point of observatory <em>obs_num</em> .</dd>
 <dl class="method">
 <dt id="MulensModel.event.Event.get_ref_fluxes">
 <code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
-<dd><p>see <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.get_ref_fluxes" title="MulensModel.model.Model.get_ref_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.get_ref_fluxes()</span></code></a></p>
+<dd><p>Get source and blending fluxes for the reference dataset. See 
+<a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.get_ref_fluxes" title="MulensModel.model.Model.get_ref_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.get_ref_fluxes()</span></code></a> for details.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.event.Event.plot_model">
 <code class="descname">plot_model</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>see <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_lc()</span></code></a></p>
+<dd><p>Plot the model light curve in magnitudes. See
+<a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_lc()</span></code></a> for details.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.event.Event.plot_data">
 <code class="descname">plot_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>see <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_data()</span></code></a></p>
+<dd><p>Plot the data scaled to the model. See 
+<a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_data()</span></code></a> for details.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.event.Event.plot_residuals">
 <code class="descname">plot_residuals</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_residuals" title="Permalink to this definition">¶</a></dt>
-<dd><p>see <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_residuals" title="MulensModel.model.Model.plot_residuals"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_residuals()</span></code></a></p>
+<dd><p>Plot the residuals (in magnitudes) of the model. 
+See <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_residuals" title="MulensModel.model.Model.plot_residuals"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.model.Model.plot_residuals()</span></code></a> for details.</p>
 </dd></dl>
 
 <dl class="method">
