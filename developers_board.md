@@ -1,25 +1,28 @@
 ## current goals:
-1. code review, 
-2. instantaneous orbital motion of binary lens - use case and unit test,
-3. docstrings for Spinx in all public methods of Event, Model, and MulensData classes,
-4. reasonable website with documentation
-
+1. instantaneous orbital motion of binary lens,
+2. Sphinx docstrings for all classes and init functions
+3. coords class with docstrings
+4. t\_star instead of rho
+5. PSPL fitting tutorial
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals; _italics_ mark task useful for data challenge; try to put important stuff at the top)
 
-* PSPL manual
-* __correct documentation for existing code - start with Model, MulensData, and Event__
+* __PSPL manual__
 * anything from use cases that does not work yet -- see TODO.md file
-* __nice github.io website__
 * xallarap - use case, unit test, and code itself (see below for references)
-* binary lens orbital motion - use case, unit test, and code itself
+* makefile for Windows
+* remove intermediate Sphinx files from repo
+* __binary lens orbital motion - use case, unit test, and code itself__
 * binary calculations - define if s is relative to total mass etc.
+* files not yet well documented (starting from the shortest): trajectory.py mulensparallaxvector.py satelliteskycoord.py caustics.py horizons.py limbdarkeningcoeffs.py mulenstime.py fit.py magnificationcurve.py utils.py modelparameters.py
 * should BinaryLens() accept source\_x/y as lists or arrays?
 * correct JPL Horizons => CSV file format; also example usage
-* _t\_* instead of rho_
-* _Martin's FSBL code_
+* __t\_* instead of rho__
+* _dA/dparam for point lens models_
+* _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
 * _Cassan 2008 binary lens parameters_
+* Sagan workshop hands-on activity in MM
 * conversions to BJD from HJD, JD etc. ([astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections))
 * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
 * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
@@ -28,14 +31,16 @@
 * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
 * single Event can have many instances of Model associated with it
 * add unit tests for Horizons and MulensData.satellite\_skycoord
+* Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_corrds etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
 * Caustics.\_calculate - optimize using vectors instead of a loop
 * check if Horizons e-mail is for correct satellite
 * Are we consistent with PEP8? [check here](http://pep8online.com/)
 * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
 * _guessing parameters of PSPL model_
 * fluxes fixed in chi^2 calculation
+* modelparameters.py t\_E -> see comments there; BTW - should we set t\_E as a Astropy.quantity and then expect to get float ?
 * annual parallax calculation - verify with VBBL
-* when checking units use Unit.physical\_type - search for physical_type in mulensobjects/lens.py as an example
+* when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
 * when coordinates in event (or associated model or mulensdata) are changed then all associated coords are changed - this seems logical but maybe there should be some warning  that the user changes the previously set coordinates for a dataset
 * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
 * Fit() should use marginalized distributions of fluxes (if those are from linear fits)
@@ -49,6 +54,7 @@
 * get gamma/u LD coefs from Claret papers etc.
 * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
 * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
+* add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
 * Research decorators (e.g. @property) - Can we have both print(model.s) and print(model.s(time))?
 * are we fully ok with astropy license?
 

@@ -1,0 +1,665 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MulensModel.model module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.model">
+<span id="mulensmodel-model-module"></span><h1>MulensModel.model module<a class="headerlink" href="#module-MulensModel.model" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.model.Model">
+<em class="property">class </em><code class="descclassname">MulensModel.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>parameters=None</em>, <em>t_0=None</em>, <em>u_0=None</em>, <em>t_E=None</em>, <em>rho=None</em>, <em>s=None</em>, <em>q=None</em>, <em>alpha=None</em>, <em>pi_E=None</em>, <em>pi_E_N=None</em>, <em>pi_E_E=None</em>, <em>pi_E_ref=None</em>, <em>t_0_par=None</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A Model for a microlensing event with the specified parameters.</p>
+<dl class="docutils">
+<dt>Two ways to define the model:</dt>
+<dd><ol class="first last arabic">
+<li><p class="first"><a class="reference internal" href="#MulensModel.model.Model.parameters" title="MulensModel.model.Model.parameters"><code class="xref py py-obj docutils literal"><span class="pre">parameters</span></code></a> = a
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>
+object</p>
+</li>
+<li><dl class="first docutils">
+<dt>specify <a class="reference internal" href="#MulensModel.model.Model.t_0" title="MulensModel.model.Model.t_0"><code class="xref py py-obj docutils literal"><span class="pre">t_0</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.u_0" title="MulensModel.model.Model.u_0"><code class="xref py py-obj docutils literal"><span class="pre">u_0</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.t_E" title="MulensModel.model.Model.t_E"><code class="xref py py-obj docutils literal"><span class="pre">t_E</span></code></a></dt>
+<dd><p class="first">(optionally: <a class="reference internal" href="#MulensModel.model.Model.rho" title="MulensModel.model.Model.rho"><code class="xref py py-obj docutils literal"><span class="pre">rho</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.s" title="MulensModel.model.Model.s"><code class="xref py py-obj docutils literal"><span class="pre">s</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.q" title="MulensModel.model.Model.q"><code class="xref py py-obj docutils literal"><span class="pre">q</span></code></a>,
+<a class="reference internal" href="#MulensModel.model.Model.alpha" title="MulensModel.model.Model.alpha"><code class="xref py py-obj docutils literal"><span class="pre">alpha</span></code></a>)</p>
+<p class="last">Parallax may be specified either as <a class="reference internal" href="#MulensModel.model.Model.pi_E" title="MulensModel.model.Model.pi_E"><code class="xref py py-obj docutils literal"><span class="pre">pi_E</span></code></a> OR
+<a class="reference internal" href="#MulensModel.model.Model.pi_E_N" title="MulensModel.model.Model.pi_E_N"><code class="xref py py-obj docutils literal"><span class="pre">pi_E_N</span></code></a> and <a class="reference internal" href="#MulensModel.model.Model.pi_E_E" title="MulensModel.model.Model.pi_E_E"><code class="xref py py-obj docutils literal"><span class="pre">pi_E_E</span></code></a>. <a class="reference internal" href="#MulensModel.model.Model.t_0_par" title="MulensModel.model.Model.t_0_par"><code class="xref py py-obj docutils literal"><span class="pre">t_0_par</span></code></a>
+is optional. For default behavior see
+<a class="reference internal" href="MulensModel.trajectory.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.trajectory.Trajectory</span></code></a></p>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<p>Also optional: may specify <a class="reference internal" href="#MulensModel.model.Model.coords" title="MulensModel.model.Model.coords"><code class="xref py py-obj docutils literal"><span class="pre">coords</span></code></a> OR <a class="reference internal" href="#MulensModel.model.Model.ra" title="MulensModel.model.Model.ra"><code class="xref py py-obj docutils literal"><span class="pre">ra</span></code></a> and
+<a class="reference internal" href="#MulensModel.model.Model.dec" title="MulensModel.model.Model.dec"><code class="xref py py-obj docutils literal"><span class="pre">dec</span></code></a>.</p>
+<p>Default values for parallax are all True. Use model.parallax() to
+turn different parallax effects ON/OFF. If using satellite
+parallax, you may also specify an <cite>ephemerides_file</cite> (see
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.mulensdata.MulensData</span></code></a>).</p>
+<p>Caveat:
+satellite parallax works for datasets, but not for
+model. i.e. The satellite parallax will be calculated correctly
+for the model evaluated at the data points, but satellite parallax
+is not implemented for the model alone.</p>
+<dl class="attribute">
+<dt id="MulensModel.model.Model.t_0">
+<code class="descname">t_0</code><a class="headerlink" href="#MulensModel.model.Model.t_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The time of the minimum projected separation between the source
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.u_0">
+<code class="descname">u_0</code><a class="headerlink" href="#MulensModel.model.Model.u_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The time of minimum projected separation between the source
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.t_E">
+<code class="descname">t_E</code><a class="headerlink" href="#MulensModel.model.Model.t_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Einstein timescale. An <em>astropy.Quantity</em> object. Default unit 
+is &#8220;day&#8221;.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.rho">
+<code class="descname">rho</code><a class="headerlink" href="#MulensModel.model.Model.rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>source size relative to the Einstein ring radius</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.pi_E">
+<code class="descname">pi_E</code><a class="headerlink" href="#MulensModel.model.Model.pi_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>The microlens parallax vector. May be specified either
+relative to the sky (&#8220;NorthEast&#8221;) or relative to the binary
+lens axis (&#8220;ParPerp&#8221;, i.e., parallel and perpendicular). &#8220;NorthEast&#8221; 
+is default. A <code class="xref py py-class docutils literal"><span class="pre">MulensParallaxVector</span></code> object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.pi_E_N">
+<code class="descname">pi_E_N</code><a class="headerlink" href="#MulensModel.model.Model.pi_E_N" title="Permalink to this definition">¶</a></dt>
+<dd><p>The North component of the microlens parallax vector.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.pi_E_E">
+<code class="descname">pi_E_E</code><a class="headerlink" href="#MulensModel.model.Model.pi_E_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>The East component of the microlens parallax vector.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.t_0_par">
+<code class="descname">t_0_par</code><a class="headerlink" href="#MulensModel.model.Model.t_0_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>reference time for parameters, in particular microlensing 
+parallax</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.s">
+<code class="descname">s</code><a class="headerlink" href="#MulensModel.model.Model.s" title="Permalink to this definition">¶</a></dt>
+<dd><p>lens components separation in units of theta_E</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.q">
+<code class="descname">q</code><a class="headerlink" href="#MulensModel.model.Model.q" title="Permalink to this definition">¶</a></dt>
+<dd><p>mass ratio of the lens components</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#MulensModel.model.Model.alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>angle between lens axis and source trajectory</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#MulensModel.model.Model.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parameters of the model. A Model Parameters object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_parameters">
+<code class="descname">set_parameters</code><span class="sig-paren">(</span><em>t_0=0.0</em>, <em>u_0=None</em>, <em>t_E=1.0</em>, <em>rho=None</em>, <em>s=None</em>, <em>q=None</em>, <em>alpha=None</em>, <em>pi_E=None</em>, <em>pi_E_N=None</em>, <em>pi_E_E=None</em>, <em>pi_E_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of the model. Any parameter not explicitly
+specified will be set to None. All the previously set parameters 
+will be forgotten.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.get_satellite_coords">
+<code class="descname">get_satellite_coords</code><span class="sig-paren">(</span><em>times</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_satellite_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get <em>astropy.SkyCoord</em> object that gives satellite positions for 
+given times.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>times: <em>np.ndarray</em> or <em>list</em></dt>
+<dd>Epochs for which satellite position is requested.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>satellite_skycoord: <em>astropy.SkyCoord</em></dt>
+<dd><em>SkyCoord</em> giving satellite positions. The parameter 
+<em>representation</em> is set to &#8216;spherical&#8217;.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.magnification">
+<code class="descname">magnification</code><span class="sig-paren">(</span><em>time</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the model magnification for the given time(s).</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>time: <em>np.ndarray</em>, <em>list of floats</em>, or <em>float</em></dt>
+<dd>Times for which magnification values are requested.</dd>
+<dt>satellite_skycoord: <em>astropy.coordinates.SkyCoord</em>, optional</dt>
+<dd><em>SkyCoord</em> object that gives satellite positions. Must be 
+the same length as time parameter. Use only for satellite 
+parallax calculations.</dd>
+<dt>gamma: <em>float</em>, optional</dt>
+<dd>The limb darkening coefficient in gamma convention. Default is 
+0 which means no limb darkening effect.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>magnification: <em>np.ndarray</em></dt>
+<dd>A vector of calculated magnification values.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.data_magnification">
+<code class="descname">data_magnification</code><a class="headerlink" href="#MulensModel.model.Model.data_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of magnifications calculated for every dataset time vector</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.get_data_magnification">
+<code class="descname">get_data_magnification</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_data_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the model magnification for a dataset.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
+<dd>Dataset with epochs for which magnification will be given.
+Satellite and limb darkening information is taken into 
+account.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>magnification_vector: <em>np.ndarray</em></dt>
+<dd>Values on magnification.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.datasets">
+<code class="descname">datasets</code><a class="headerlink" href="#MulensModel.model.Model.datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of datasets linked to given model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_datasets">
+<code class="descname">set_datasets</code><span class="sig-paren">(</span><em>datasets</em>, <em>data_ref=0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>set <em>datasets</em> property</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.coords">
+<code class="descname">coords</code><a class="headerlink" href="#MulensModel.model.Model.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sky coordinates (RA, Dec) as an <em>astropy.SkyCoord</em> object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.ra">
+<code class="descname">ra</code><a class="headerlink" href="#MulensModel.model.Model.ra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Right Ascension</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.dec">
+<code class="descname">dec</code><a class="headerlink" href="#MulensModel.model.Model.dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declination</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.galactic_l">
+<code class="descname">galactic_l</code><a class="headerlink" href="#MulensModel.model.Model.galactic_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Galactic longitude. Note that for connivance, the values l &gt; 180 
+degrees are represented as 360-l.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.galactic_b">
+<code class="descname">galactic_b</code><a class="headerlink" href="#MulensModel.model.Model.galactic_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Galactic latitude</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.ecliptic_lon">
+<code class="descname">ecliptic_lon</code><a class="headerlink" href="#MulensModel.model.Model.ecliptic_lon" title="Permalink to this definition">¶</a></dt>
+<dd><p>ecliptic longitude</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.ecliptic_lat">
+<code class="descname">ecliptic_lat</code><a class="headerlink" href="#MulensModel.model.Model.ecliptic_lat" title="Permalink to this definition">¶</a></dt>
+<dd><p>ecliptic latitude</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.parallax">
+<code class="descname">parallax</code><span class="sig-paren">(</span><em>earth_orbital=None</em>, <em>satellite=None</em>, <em>topocentric=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.parallax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies the types of the microlensing parallax that will be 
+included in calculations.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>earth_orbital: <em>boolean</em>, optional</dt>
+<dd>Do you want to include the effect of Earth motion about 
+the Sun? Default is <em>False</em>.</dd>
+<dt>satellite: <em>boolean</em>, optional</dt>
+<dd>Do you want to include the effect of difference due to 
+separation between the Earth and satellite? Note that this 
+separation changes over time. Default is <em>False</em>.</dd>
+<dt>topocentric: <em>boolean</em>, optional</dt>
+<dd>Do you want to include the effect of different positions 
+of observatories on the Earth? Default is <em>False</em>. 
+Note that this is significant only for very high magnification 
+events and if high quality datasets are analyzed. 
+Hence, this effect is rarely needed.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_magnification">
+<code class="descname">plot_magnification</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot the model magnification curve.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_lc">
+<code class="descname">plot_lc</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the model light curve in magnitudes. See get_ref_fluxes
+for details of data_ref.</p>
+<p>f_source and f_blend are the source and blend fluxes in a system
+where flux = 1 corresponds to utils.MAG_ZEROPOINT (= 22 mag).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.get_ref_fluxes">
+<code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get source and blending fluxes for the reference dataset.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>data_ref: <em>:py:class:`~MulensModel.mulensdata.MulensData`</em> or <em>int</em></dt>
+<dd>Reference dataset. If <em>int</em>, corresponds to the index of 
+the dataset in self.datasets. If None, than the first dataset 
+will be used.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>f_source: <em>float</em></dt>
+<dd>source flux</dd>
+<dt>f_blend: <em>float</em></dt>
+<dd>blending flux</dd>
+</dl>
+</dd>
+</dl>
+<p>Determine the reference flux system from the
+datasets. The <em>data_ref</em> may either be a dataset or the index of a
+dataset (if <a class="reference internal" href="#MulensModel.model.Model.set_datasets" title="MulensModel.model.Model.set_datasets"><code class="xref py py-func docutils literal"><span class="pre">Model.set_datasets()</span></code></a> was previously called). If
+<em>data_ref</em> is not set, it will use the first dataset. If you
+call this without calling <a class="reference internal" href="#MulensModel.model.Model.set_datasets" title="MulensModel.model.Model.set_datasets"><code class="xref py py-func docutils literal"><span class="pre">set_datasets()</span></code></a> first, there will be
+an exception and that&#8217;s on you.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.reset_plot_properties">
+<code class="descname">reset_plot_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.reset_plot_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>resets internal settings for plotting</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_data">
+<code class="descname">plot_data</code><span class="sig-paren">(</span><em>data_ref=None</em>, <em>show_errorbars=True</em>, <em>show_bad=False</em>, <em>color_list=None</em>, <em>marker_list=None</em>, <em>size_list=None</em>, <em>label_list=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the data scaled to the model. If data_ref is not
+specified, uses the first dataset as the reference for flux scale.</p>
+<p>If show_errorbars is True (default), plots with matplotlib.errorbar(). 
+If show_errorbars is False, plots with matplotib.scatter().</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><p class="first">data_ref</p>
+<p>show_errorbars</p>
+<dl class="docutils">
+<dt>show_bad: <em>boolean</em>, optional</dt>
+<dd>If <em>False</em>, bad data are suppressed (default). 
+If <em>True</em>, shows points marked as bad
+(<code class="xref py py-obj docutils literal"><span class="pre">mulensdata.MulensData.bad</span></code>) as &#8216;x&#8217;.</dd>
+</dl>
+<p>color_list</p>
+<p>marker_list</p>
+<p>size_list</p>
+<p>label_list</p>
+<p>subtract_2450000</p>
+<p>subtract_2460000</p>
+<p class="last"><code class="docutils literal"><span class="pre">**kwargs</span></code></p>
+</dd>
+</dl>
+<p>Allows for different point types for each dataset. These may
+be set using <em>color_list</em>, <em>marker_list</em>, and <em>size_list</em>. May also
+use <code class="docutils literal"><span class="pre">**kwargs</span></code> or some combination of the lists and
+<code class="docutils literal"><span class="pre">**kwargs</span></code>. e.g. set <em>color_list</em> to specify which color each
+data set should be plotted in, but use <a href="#id1"><span class="problematic" id="id2">*</span></a>fmt*=&#8217;s&#8216; to make all
+data points plotted as squares.</p>
+<p>Automatically handles some keyword variations in errorbar() vs. 
+scatter(): e.g. fmt/marker, markersize/s 
+(see <code class="xref py py-func docutils literal"><span class="pre">Model._set_plot_kwargs()</span></code>),</p>
+<p><code class="docutils literal"><span class="pre">**kwargs</span></code> (and point type lists) are remembered and used in
+subsequent calls to both <a class="reference internal" href="#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal"><span class="pre">Model.plot_data()</span></code></a> and 
+<a class="reference internal" href="#MulensModel.model.Model.plot_residuals" title="MulensModel.model.Model.plot_residuals"><code class="xref py py-func docutils literal"><span class="pre">Model.plot_residuals()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_residuals">
+<code class="descname">plot_residuals</code><span class="sig-paren">(</span><em>show_errorbars=True</em>, <em>color_list=None</em>, <em>marker_list=None</em>, <em>size_list=None</em>, <em>label_list=None</em>, <em>data_ref=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the residuals (in magnitudes) of the model. 
+Uses the best f_source, f_blend for each dataset 
+(not scaled to a particular photometric system).</p>
+<p>For explanation of <code class="docutils literal"><span class="pre">**kwargs</span></code>, and also [var]_list see doctrings in 
+plot_data().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_trajectory">
+<code class="descname">plot_trajectory</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>caustics=False</em>, <em>show_data=False</em>, <em>arrow=True</em>, <em>satellite_skycoord=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the source trajectory.</p>
+<p>Optional keyword arguments:</p>
+<blockquote>
+<div><p>times, t_range, t_start, t_stop, dt, n_epochs may all be
+used to specify exactly when to plot the source
+trajectory. times=specific dates, t_range=range of times,
+(t_start, t_stop)=range of times with optional dt OR
+n_epochs.</p>
+<p>caustics = plot the caustic structure in addition to the
+source trajectory. default=False (off). For finer control of
+plotting features, e.g. color, use self.plot_caustics()
+instead.</p>
+<p>show_data = mark epochs of data (Not Implemented, marker
+types should match data plotting.)</p>
+<p>arrow = show the direction of the motion. default=True (on)</p>
+<p>satellite_skycoord should allow user to specify the trajectory
+is calculated for a satellite. (Not checked)</p>
+<p><code class="docutils literal"><span class="pre">**kwargs</span></code> controls plotting features of the trajectory.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_caustics">
+<code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the caustic structure.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>n_points: <em>int</em>, optional </dt>
+<dd>specifies the number of points on the caustic</dd>
+<dt><code class="docutils literal"><span class="pre">**kwargs</span></code></dt>
+<dd>kwargs passes to <code class="xref py py-func docutils literal"><span class="pre">plt.plot()</span></code></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_times">
+<code class="descname">set_times</code><span class="sig-paren">(</span><em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_times" title="Permalink to this definition">¶</a></dt>
+<dd><p>If given, set up a time vector based on t_start, t_stop,
+and (dt or n_epochs). If not given, intialise the time
+vector based on the model parameters.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>t_range: <em>list</em> or any other kind of sequence of <em>floats</em>, optional</dt>
+<dd>Two values that specify the first and the last value</dd>
+<dt>t_start: <em>float</em>, optional</dt>
+<dd>First value to be returned.</dd>
+<dt>t_stop: <em>float</em>, optional</dt>
+<dd>Last value to be returned.</dd>
+<dt>dt: <em>float</em>, optional</dt>
+<dd>Difference between consecutive times.</dd>
+<dt>n_epochs: <em>int</em>, optional</dt>
+<dd>Number of epochs to be returned.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>time_vector: <em>np.ndarray</em></dt>
+<dd>Vector of requested times.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_default_magnification_method">
+<code class="descname">set_default_magnification_method</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_default_magnification_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores information on method to be used, when no method is
+directly specified.</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd><dl class="first last docutils">
+<dt>method: <em>str</em></dt>
+<dd>Name of the method to be used.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_magnification_methods">
+<code class="descname">set_magnification_methods</code><span class="sig-paren">(</span><em>methods</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_magnification_methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets methods used for magnification calculation.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>methods: <em>list</em></dt>
+<dd><p class="first">List that specifies which methods (<em>str</em>) should be used when 
+(<em>float</em> values for julian dates). Given method will be used 
+for times between the times between which it is on the list, 
+e.g.,</p>
+<p class="last">methods = [2455746., &#8216;Quadrupole&#8217;, 2455746.6, &#8216;Hexadecapole&#8217;, 
+2455746.7, &#8216;VBBL&#8217;, 2455747., &#8216;Hexadecapole&#8217;, 2455747.15, 
+&#8216;Quadrupole&#8217;, 2455748.]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_limb_coef_gamma">
+<code class="descname">set_limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em>, <em>coef</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store gamma limb darkening coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Bandpass for which coefficient you provide.</dd>
+<dt>coef: <em>float</em></dt>
+<dd>Value of the coefficient.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_limb_coef_u">
+<code class="descname">set_limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em>, <em>coef</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_limb_coef_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store u limb darkening coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Bandpass for which coefficient you provide.</dd>
+<dt>coef: <em>float</em></dt>
+<dd>Value of the coefficient.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.limb_coef_gamma">
+<code class="descname">limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get gamma limb darkening coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Bandpass for which coefficient will be provided.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>gamma: <em>float</em></dt>
+<dd>limb darkening coefficient</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.limb_coef_u">
+<code class="descname">limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.limb_coef_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get u limb darkening coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Bandpass for which coefficient will be provided.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>u: <em>float</em></dt>
+<dd>limb darkening coefficient</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.bandpasses">
+<code class="descname">bandpasses</code><a class="headerlink" href="#MulensModel.model.Model.bandpasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of all bandpasses for wich limb darkening coefficients are set</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.model.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MulensModel.model.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

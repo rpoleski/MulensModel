@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MulensModel.limbdarkeningcoeffs module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.limbdarkeningcoeffs">
+<span id="mulensmodel-limbdarkeningcoeffs-module"></span><h1>MulensModel.limbdarkeningcoeffs module<a class="headerlink" href="#module-MulensModel.limbdarkeningcoeffs" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs">
+<em class="property">class </em><code class="descclassname">MulensModel.limbdarkeningcoeffs.</code><code class="descname">LimbDarkeningCoeffs</code><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Linear limb-darkening parameters. Both gamma and u conventions can be used. 
+The u convention is more frequently used in studies other in microlensing. 
+It has fixed flux at the center. An et al. 2002 (ApJ 572, 521,
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...572..521A">http://adsabs.harvard.edu/abs/2002ApJ...572..521A</a>) introduced gamma convention:</p>
+<p>gamma = (2 * u) / (3 - u)</p>
+<p>u = 3 * gamma / (2 + gamma)</p>
+<p>Note that gamma convention has fixed total flux.</p>
+<dl class="method">
+<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_gamma">
+<code class="descname">set_limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em>, <em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remembers limb darkening gamma coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Name of the filter.</dd>
+<dt>gamma: <em>float</em></dt>
+<dd>The value of gamma coefficient.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_u">
+<code class="descname">set_limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coef_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remembers limb darkening u coefficient for given band</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Name of the filter.</dd>
+<dt>u: <em>float</em></dt>
+<dd>The value of u coefficient.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_gamma">
+<code class="descname">limb_coef_gamma</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives limb darkening gamma coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Name of the filter.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>gamma: <em>float</em></dt>
+<dd>The value of gamma coefficient.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_u">
+<code class="descname">limb_coef_u</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.limb_coef_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives limb darkening u coefficient for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>bandpass: <em>str</em></dt>
+<dd>Name of the filter.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>u: <em>float</em></dt>
+<dd>The value of u coefficient.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.weighted_limb_coef_gamma">
+<code class="descname">weighted_limb_coef_gamma</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.weighted_limb_coef_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get weighted limb darkening coefficient in gamma space.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>weights: <em>dict</em></dt>
+<dd>A dictionary that for every band (keys; <em>str</em> type) gives its 
+relative weight (value; <em>float</em> type), e.g., 
+weights = {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.}
+will return gamma coefficient in the case when I band 
+contributes 1.5 more than V band. Note that for each band used 
+you have to first set to coefficient.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>gamma: <em>float</em></dt>
+<dd>The value of weighted gamma.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.limbdarkeningcoeffs.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MulensModel.limbdarkeningcoeffs.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

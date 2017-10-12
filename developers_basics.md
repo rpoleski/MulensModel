@@ -69,7 +69,7 @@ sphinx-build -b html source .
 
 If the documentation is not updating, try running sphinx-apidoc again (in `docs/)`:
 ```
-sphinx-apidoc -f -o source/ ../source/MulensModel/
+sphinx-apidoc -e -f -o source/ ../source/MulensModel/
 ```
 
 To change the content of index.html, modify the file `source/index.rst`

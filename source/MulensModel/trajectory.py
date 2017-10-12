@@ -21,9 +21,8 @@ class Trajectory(object):
     For binary lens, the origin of the coordinate system is at 
     the center of mass with higher mass at negative X and Y=0.
     """
-    def __init__(
-        self, times, parameters=None, parallax=None, t_0_par=None,
-        coords=None, satellite_skycoord=None):
+    def __init__(self, times, parameters=None, parallax=None, t_0_par=None,
+                coords=None, satellite_skycoord=None, earth_coords=None):
         """
         Required arguments: 
            times - the times at which to generate the source trajectory, e.g. a vector.
@@ -48,12 +47,13 @@ class Trajectory(object):
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
-            raise ValueError('parameters is a required and must be a ModelParameters object')
+            m = 'parameters is a required and must be a ModelParameters object'
+            raise TypeError(m)
 
         #Set parallax values
-        self.parallax = {'earth_orbital':False, 
-                         'satellite':False, 
-                         'topocentric':False}
+        self.parallax = {'earth_orbital': False, 
+                         'satellite': False, 
+                         'topocentric': False}
         if parallax is not None:
             for (key, value) in parallax.items():
                 self.parallax[key] = value
@@ -61,8 +61,12 @@ class Trajectory(object):
         self.t_0_par = t_0_par
         self.coords = coords
         self.satellite_skycoord = satellite_skycoord
+        if earth_coords is not None:
+            raise NotImplementedError("The earth_coords needed for " +
+                    "topocentric parallax is not implemented yet")
+        self.earth_coords = None
 
-        #Calculate trajectory
+        # Calculate trajectory
         self.get_xy()
 
     def get_xy(self):
@@ -70,39 +74,48 @@ class Trajectory(object):
         For a given set of parameters (a ModelParameters object),
         calculate the xy position of the source.
         """
-        #Calculate the position of the source
-        vector_tau = (
-            (self.times - self.parameters.t_0)
-            / float(self.parameters.t_E))
+        # Calculate the position of the source
+        vector_tau = ((self.times - self.parameters.t_0)
+                                                / float(self.parameters.t_E))
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
         
-        #If parallax is non-zero, apply parallax effects:
+        # If parallax is non-zero, apply parallax effects:
         if self.parameters.pi_E is not None:
-            #Apply Earth Orbital parallax effect
+            # Apply Earth Orbital parallax effect
             if self.parallax['earth_orbital']:
                 [delta_tau, delta_u] = self._annual_parallax_trajectory()
                 vector_tau += delta_tau
                 vector_u += delta_u
 
-            #Apply satellite parallax effect
+            # Apply satellite parallax effect
             if (self.parallax['satellite'] 
-                and self.satellite_skycoord is not None): 
+                                    and self.satellite_skycoord is not None): 
                 [delta_tau, delta_u] = self._satellite_parallax_trajectory()
                 vector_tau += delta_tau
                 vector_u += delta_u
 
-        #If 2 lenses, rotate trajectory relative to binary lens axis
+            # Apply topocentric parallax effect
+            if self.parallax['topocentric'] and self.earth_coords is not None:
+                # When you implemenet it, make sure the behaviour depends on 
+                # the access to the observatory location information as 
+                # the satellite parallax depends on the acces to 
+                # satellite_skycoord.
+                raise NotImplementedError("The topocentric parallax effect " +
+                                          "not implemented yet")
+
+        # If 2 lenses, rotate trajectory relative to binary lens axis
         if self.parameters.n_lenses == 1:
             vector_x = vector_tau
             vector_y = vector_u
         elif self.parameters.n_lenses == 2:
             sin_alpha = np.sin(self.parameters.alpha)
             cos_alpha = np.cos(self.parameters.alpha)
-            shift_x = - self.parameters.s * self.parameters.q / (1. + self.parameters.q)
+            shift_x = - self.parameters.s * self.parameters.q / (1. +
+                                                            self.parameters.q)
             vector_x = vector_u * sin_alpha - vector_tau * cos_alpha + shift_x
             vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
         else:
-            raise Exception(
+            raise NotImplementedError(
                 "trajectory for more than 2 lenses not handled yet")
 
         #Store trajectory
@@ -146,7 +159,7 @@ class Trajectory(object):
         based on astropy 1.3
         https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
         """
-        (jd1, jd2) = get_jd12(Time(time_ref,format='jd',scale='tdb'), 'tdb')
+        (jd1, jd2) = get_jd12(Time(time_ref, format='jd', scale='tdb'), 'tdb')
         (earth_pv_helio, earth_pv_bary) = erfa.epv00(jd1, jd2)
         velocity = earth_pv_bary[..., 1, :] # This is in (u.au/u.day) 
         # but we don't multiply by unit here, because np.outer() (used later)
@@ -159,8 +172,9 @@ class Trajectory(object):
 
         north = np.array([0., 0., 1.])
         direction = np.array(self.coords.cartesian.xyz.value)
-        east_projected = utils.Utils.vector_product_normalized(north, direction)
-        north_projected = utils.Utils.vector_product_normalized(direction, east_projected)
+        vector_product_normalized = utils.Utils.vector_product_normalized
+        east_projected = vector_product_normalized(north, direction)
+        north_projected = vector_product_normalized(direction, east_projected)
         out_n = -np.dot(delta_s.value, north_projected)
         out_e = -np.dot(delta_s.value, east_projected)
         
@@ -172,8 +186,7 @@ class Trajectory(object):
         #Calculate the parallax offset due to the satellite
         delta_satellite = self._get_delta_satellite()
         return self._project_delta(delta_satellite)
-
-        
+ 
     def _get_delta_satellite(self):
         """
         calculates differences of Earth and satellite positions
@@ -199,3 +212,4 @@ class Trajectory(object):
         delta_satellite['D'] = -dot(satellite.cartesian, direction).value
 
         return delta_satellite
+

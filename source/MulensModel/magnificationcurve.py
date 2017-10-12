@@ -11,9 +11,8 @@ class MagnificationCurve(object):
     """
     The magnification curve calculated from the model light curve.
     """
-    def __init__(
-        self, times, parameters=None, parallax=None, t_0_par=None,
-        coords=None, satellite_skycoord=None, gamma=0.):
+    def __init__(self, times, parameters=None, parallax=None, t_0_par=None, 
+                    coords=None, satellite_skycoord=None, gamma=0.):
         """
         Required arguments: 
            times - the times at which to generate the magnification curve, e.g. a vector.
@@ -93,7 +92,12 @@ class MagnificationCurve(object):
         # THIS HAS TO BE REWRITTEN - USE LAZY LOADING! (here or in model.py)
 
     def get_magnification(self):
-        """calculate magnification"""
+        """Calculate magnification.
+        
+        Returns :
+            magnification: *np.ndarray*
+                Vector of magnifications. 
+        """
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -105,8 +109,15 @@ class MagnificationCurve(object):
         return self._magnification
 
     def get_point_lens_magnification(self):
-        """Calculate the Point Lens magnification. """
+        """Calculate the Point Lens magnification. 
+        
+        Returns :
+            magnification: *np.ndarray*
+                Vector of magnifications.
+        """
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
+        # This is Paczynski equation, i.e., point-source/point-lens (PSPL) 
+        # magnification:
         pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
         if self._methods_epochs is None:
             return pspl_magnification
@@ -220,7 +231,12 @@ class MagnificationCurve(object):
         return magnification
         
     def get_binary_lens_magnification(self):
-        """Calculate the binary lens magnification. """
+        """Calculate the binary lens magnification. 
+        
+        Returns :
+            magnification: *np.ndarray*
+                Vector of magnifications.
+        """
         #Set up the binary lens system
         q = self.parameters.q
         m_1 = 1. / (1. + q)

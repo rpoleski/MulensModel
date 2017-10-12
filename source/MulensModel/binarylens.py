@@ -16,20 +16,25 @@ class BinaryLens(object):
     The binary lens equation is a 5th order complex polynomial.
 
     Attributes :
-        mass_1 : float
+        mass_1: *float*
             mass of the primary (left-hand object) as a fraction of the total 
             mass.
-        mass_2 : float
+        mass_2: *float*
             mass of the secondary (right-hand object) as a fraction of the 
             total mass.
-        separation : float
+        separation: *float*
             separation between the two bodies as a fraction of the Einstein 
             ring.
 
+    Note: mass_1 and mass_2 may be defined as a fraction of some other mass 
+    than the total mass. This is possible but not recommended - make sure you 
+    know what you're doing before you start using this possibility.
+
     """
     def __init__(self, mass_1=None, mass_2=None, separation=None):
-        """mass_1, mass_2, and separation are relative to 
-        some mass (and corresponding Einstein radius)"""
+        """The mass_1, mass_2, and separation are relative to 
+        some mass (and corresponding Einstein radius). This should normally be
+        the total mass of the system."""
         self.mass_1 = mass_1
         self.mass_2 = mass_2
         self.separation = separation
@@ -101,7 +106,6 @@ class BinaryLens(object):
         coefs_list = [coef_0, coef_1, coef_2, coef_3, coef_4, coef_5]
         return np.array(coefs_list).reshape(6)
         
-
     def _get_polynomial_roots_WM95(self, source_x, source_y):
         """roots of the polynomial"""
         polynomial_input = [self.mass_1, self.mass_2, self.separation, 
@@ -116,7 +120,8 @@ class BinaryLens(object):
 
         return self._polynomial_roots_WM95
 
-    def _polynomial_roots_ok_WM95(self, source_x, source_y, return_distances=False):
+    def _polynomial_roots_ok_WM95(self, source_x, source_y, 
+                                    return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots_WM95(source_x=source_x, 
                                                    source_y=source_y)
@@ -147,7 +152,8 @@ class BinaryLens(object):
         #If the lens equation is solved correctly, there should be
         #either 3 or 5 solutions (corresponding to 3 or 5 images)
         if len(out) not in [3, 5]:
-            msg = 'CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: {:} {:} {:} {:} {:}'
+            msg = ('CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: ' +  
+                    '{:} {:} {:} {:} {:}')
             txt = msg.format(repr(self.mass_1), repr(self.mass_2), 
                     repr(self.separation), repr(source_x), repr(source_y))
             # The repr() function gives absolute accuracy of float values 
@@ -188,11 +194,22 @@ class BinaryLens(object):
 
     def point_source_magnification(self, source_x, source_y):
         """
-        calculates point source magnification for given position
-        in a coordinate system where the center of mass is at origin 
+        Calculate point source magnification for given position. 
+        The origin of the coordinate system is at the center of mass 
         and both masses are on X axis with higher mass at negative X;
         this means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-        the lower mass is at (s/(1+q), 0)
+        the lower mass is at (s/(1+q), 0).
+
+        Parameters :
+            source_x: *float*
+                X-axis coordinate of the source.
+
+            source_y: *float*
+                Y-axis coordinate of the source.
+
+        Returns :
+            magnification: *float*
+                Point source magnification.
         """
         x_shift = self.separation * (0.5 + 
                                     self.mass_2 / (self.mass_1 + self.mass_2))
@@ -237,34 +254,42 @@ class BinaryLens(object):
 
     def hexadecapole_magnification(self, source_x, source_y, rho, gamma, 
                                   quadrupole=False, all_approximations=False):
-        """hexadecpole approximation of binary-lens/finite-source 
-        calculations - based on Gould 2008 ApJ 681, 1593
+        """Magnification in hexadecpole approximation of 
+        the binary-lens/finite-source event - based on 
+        `Gould 2008 ApJ 681, 1593 
+        <http://adsabs.harvard.edu/abs/2008ApJ...681.1593G>`_.
         
-        for coordinate system convention see
-        :py:func:`point_source_magnification`
+        For coordinate system convention see 
+        :py:func:`point_source_magnification()`
 
         Parameters :
-            source_x: type
-                description here.
-            source_y: type
-                description here.
-            rho: type
-                description here.
-            gamma: type
-                description here.
-            quadrupole : boolean, optional
-                description here.
-            all_approximations: boolean, optional
-                description here.
+            source_x: *float*
+                X-axis coordinate of the source.
+            source_y: *float*
+                Y-axis coordinate of the source.
+            rho: *float*
+                Source size relative to Einstein ring radius.
+            gamma: *float*
+                Linear limb-darkening coefficient in gamma convention. 
+            quadrupole: *boolean*, optional
+                Return quadrupole approximation instead of hexadecapole?
+                Default is *False*.
+            all_approximations: *boolean*, optional
+                Return hexadecapole, quadrupole, and point source 
+                approximations? Default is *False*.
 
         Returns :
-            type
-                description
+            magnification: *float* or *sequence* of three *floats*
+                Hexadecapole approximation (*float*) by default. 
+                Quadrupole approximation (*float*) if 
+                *quadrupole* parameter is *True*. Hexadecapole, quadrupole, 
+                and point source approximations (*sequence* of three *floats*) 
+                if *all_approximations* parameter is *True*.
         """
         # In this function, variables named a_* depict magnification.
         if quadrupole and all_approximations:
-            msg = 'Inconsisient parameters of {:}'
-            raise ValueError(msg.format('BinaryLens.hexadecapole_magnification()'))
+            raise ValueError('Inconsisient parameters of ' + 
+                                    'BinaryLens.hexadecapole_magnification()')
         
         a_center = self.point_source_magnification(
                                     source_x=source_x, source_y=source_y)
@@ -303,11 +328,36 @@ class BinaryLens(object):
     def vbbl_magnification(self, source_x, source_y, rho, 
                            gamma=None, u_limb_darkening=None, 
                            accuracy=0.001):
-        """calculate magnification using VBBL code that implements advanced 
-        contour integration algorithm presented by
-        Bozza 2010 MNRAS, 408, 2188
-        http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B
-        http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm
+        """ Binary lens finite source magnification calculated using VBBL 
+        library that implements advanced contour integration algorithm 
+        presented by `Bozza 2010 MNRAS, 408, 2188 
+        <http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B>`_. See also 
+        `VBBL website by Valerio Bozza 
+        <http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm>`_.
+        
+        For coordinate system convention see 
+        :py:func:`point_source_magnification()`
+
+        Parameters :
+            source_x: *float*
+                X-axis coordinate of the source.
+            source_y: *float*
+                Y-axis coordinate of the source.
+            rho: *float*
+                Source size relative to Einstein ring radius.
+            gamma: *float*, optional
+                Linear limb-darkening coefficient in gamma convention. 
+            u_limb_darkening: *float*
+                Linear limb-darkening coefficient in u convention. 
+                Note that either *gamma* or *u_limb_darkening* can be set. 
+                If neither of them is provided then limb darkening is ignored. 
+            accuracy: *float*, optional
+                Requested accuracy of the result. 
+            
+        Returns :
+            magnification: *float*
+                Magnification.
+        
         """
         if not self._vbbl_wrapped:
             PATH = os.path.join(MulensModel.MODULE_PATH, 'source', 'VBBL', 
@@ -315,15 +365,16 @@ class BinaryLens(object):
             try:
                 vbbl = ctypes.cdll.LoadLibrary(PATH)
             except OSError:
-                raise OSError("Something went wrong with VBBL wrapping ({:})".format(PATH))
+                msg = "Something went wrong with VBBL wrapping ({:})"
+                raise OSError(msg.format(PATH))
             self._vbbl_wrapped = True
             vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
             vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
             self._vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
         
         if gamma is not None and u_limb_darkening is not None:
-            raise ValueError('Only one limb darkening parameters can be set ' + 
-                             'in BinaryLens.vbbl_magnification()')
+            raise ValueError('Only one limb darkening parameters can be set' + 
+                             ' in BinaryLens.vbbl_magnification()')
         elif gamma is not None:
             u_limb_darkening = float(Utils.gamma_to_u(gamma))
         elif u_limb_darkening is not None:
@@ -335,10 +386,13 @@ class BinaryLens(object):
         q = self.mass_2 / self.mass_1
         x = source_x
         y = source_y
-        assert accuracy > 0., ("VBBL requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was " +
-            "provided".format(accuracy)) # Note that this accuracy is not guaranteed.
+        assert accuracy > 0., ("VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" + 
+            "\n{:} was  provided".format(accuracy)) 
+            # Note that this accuracy is not guaranteed.
         
-        return self._vbbl_binary_mag_dark(s, q, x, y, rho, u_limb_darkening, accuracy)
+        magnification = self._vbbl_binary_mag_dark(s, q, x, y, rho, 
+                                                    u_limb_darkening, accuracy)
+        return magnification
         # To get the image positions from VBBL, following C++ code has to be run:
         #  _sols *Images;
         #  Mag=VBBL.BinaryMag(s, q, y1, y2, rho, accuracy, &Images);
@@ -348,4 +402,3 @@ class BinaryLens(object):
         #      }
         #  }
         #  delete Images;
-

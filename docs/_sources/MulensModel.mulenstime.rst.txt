@@ -1,0 +1,7 @@
+MulensModel.mulenstime module
+=============================
+
+.. automodule:: MulensModel.mulenstime
+    :members:
+    :undoc-members:
+    :show-inheritance:

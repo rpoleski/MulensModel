@@ -1,17 +1,17 @@
+#
+# Calculate the Einstein ring for a lens at a variety of distances with
+# a variety of masses and output the results to a file.
+#
+# Output:
+#  thetaE.tab - Angular Einstein ring radius in milliarcseconds
+#  rE.tab - Physical Einstein ring radius in AU (Lens plane)
+#  rEtilde.tab - Projection of Einstein ring radius in AU (Observer plane)
+#  tE.tab - Einstein timescale in days for a given mu_rel
+#
 import numpy as np
 import astropy.units as u
 import MulensModel as mm
 
-"""
-Calculate the Einstein ring for a lens at a variety of distances with
-a variety of masses and output the results to a file.
-
-Output:
- thetaE.tab - Angular Einstein ring radius in milliarcseconds
- rE.tab - Physical Einstein ring radius in AU (Lens plane)
- rEtilde.tab - Projection of Einstein ring radius in AU (Observer plane)
- tE.tab - Einstein timescale in days for a given mu_rel
-"""
 
 #Define the source and lens parameters
 lens_dist = np.arange(1., 8., 1.) 
@@ -70,3 +70,4 @@ for file_ in file_list:
 print("Congratulations!")
 msg = "Have a look at following files: {:}, {:}, {:}, and {:}"
 print(msg.format(*names))
+

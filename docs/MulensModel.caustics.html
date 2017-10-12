@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MulensModel.caustics module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.caustics">
+<span id="mulensmodel-caustics-module"></span><h1>MulensModel.caustics module<a class="headerlink" href="#module-MulensModel.caustics" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.caustics.Caustics">
+<em class="property">class </em><code class="descclassname">MulensModel.caustics.</code><code class="descname">Caustics</code><span class="sig-paren">(</span><em>q=None</em>, <em>s=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Class for the caustic structure corresponding to a given (q, s),
+i.e. mass ratio and separation. Implemented for 2-body lenses only.</p>
+<dl class="docutils">
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>q: <em>float</em></dt>
+<dd>mass ratio between the 2 bodies</dd>
+<dt>s: <em>float</em></dt>
+<dd>separation between the 2 bodies (as a fraction of the
+Einstein ring)</dd>
+</dl>
+</dd>
+</dl>
+<dl class="class">
+<dt id="MulensModel.caustics.Caustics.CriticalCurve">
+<em class="property">class </em><code class="descname">CriticalCurve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.CriticalCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Internal class of Caustics. Defines the critical curve (in the
+lens plane). Origin is center of mass with larger mass on the
+left (q &lt; 1).</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><dl class="first last docutils">
+<dt>x, y</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><em>list</em></span><dd>Two lists of length <em>n_points</em> giving the x, y
+coordinates of the caustic points.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.caustics.Caustics.plot">
+<code class="descclassname">Caustics.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the caustics (using matplotlib.pyplot.scatter()).</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd><dl class="first last docutils">
+<dt>n_points</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><em>int</em>, optional</span><dd>The number of points to calculate along the caustic.</dd>
+<dt><code class="docutils literal"><span class="pre">**kwargs</span></code></dt>
+<dd>keywords accepted by matplotlib.pyplot.scatter()</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.caustics.Caustics.get_caustics">
+<code class="descclassname">Caustics.</code><code class="descname">get_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.get_caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns x and y vectors corresponding to the outlines of the
+caustics.  Origin is center of mass and larger mass is on the
+left (for q &lt; 1).</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd><dl class="first last docutils">
+<dt>n_points</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><em>int</em>, optional</span><dd>The number of points to calculate along the caustic.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>x, y</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier"><em>list</em></span><dd>Two lists of length <em>n_points</em> giving the x, y
+coordinates of the caustic points.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.caustics.Caustics.critical_curve">
+<code class="descclassname">Caustics.</code><code class="descname">critical_curve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Critical curve stored as <a class="reference internal" href="#MulensModel.caustics.Caustics.CriticalCurve" title="MulensModel.caustics.Caustics.CriticalCurve"><code class="xref py py-class docutils literal"><span class="pre">CriticalCurve</span></code></a> object, read-only</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.caustics.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MulensModel.caustics.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
