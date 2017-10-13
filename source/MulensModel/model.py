@@ -130,6 +130,7 @@ class Model(object):
 
         # Set the coordinates of the event
         coords_msg = 'Must specify both or neither of ra and dec'
+        self._coords = None
         if coords is not None:
             self._coords = Coordinates(coords)
 
