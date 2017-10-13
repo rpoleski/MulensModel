@@ -19,17 +19,16 @@ def test_model_coords():
     assert isinstance(model_1.coords, SkyCoord)
     assert model_1.coords.ra == coords.ra
     assert model_1.coords.dec == coords.dec
-    assert  model_1.dec.deg == -30.00
+    assert  model_1.coords.dec.deg == -30.00
 
     ra_2 = '17:00:00'
     dec_2 = '40:03:01'
     coords_2 = SkyCoord(ra_2 + " " + dec_2, unit=(u.hourangle, u.deg))
     model_2 = Model()
-    model_2.ra = ra_2
-    model_2.dec = dec_2
-    assert model_2.coords.ra == coords_2.ra
-    assert model_2.coords.dec == coords_2.dec
-    assert model_2.coords.to_string('hmsdms') == '17h00m00s +40d03m01s'
+    #model_2.coords = (ra_2, dec_2)
+    #assert model_2.coords.ra == coords_2.ra
+    #assert model_2.coords.dec == coords_2.dec
+    #assert model_2.coords.to_string('hmsdms') == '17h00m00s +40d03m01s'
 
     model_3 = Model()
     model_3.coords = '17:00:00 -27:32:14'
@@ -43,17 +42,16 @@ def test_data_coords():
     assert isinstance(data_1.coords, SkyCoord)
     assert data_1.coords.ra == coords.ra
     assert data_1.coords.dec == coords.dec
-    assert data_1.dec.deg == -30.00
+    assert data_1.coords.dec.deg == -30.00
 
     ra_2 = '17:00:00'
     dec_2 = '40:03:01'
     coords_2 = SkyCoord(ra_2 + " " + dec_2, unit=(u.hourangle, u.deg))
     data_2 = MulensData(file_name=SAMPLE_FILE_01)
-    data_2.ra = ra_2
-    data_2.dec = dec_2
-    assert data_2.coords.ra == coords_2.ra
-    assert data_2.coords.dec == coords_2.dec
-    assert data_2.coords.to_string('hmsdms') == '17h00m00s +40d03m01s'
+    #data_2.coords = (ra_2, dec_2)
+    #assert data_2.coords.ra == coords_2.ra
+    #assert data_2.coords.dec == coords_2.dec
+    #assert data_2.coords.to_string('hmsdms') == '17h00m00s +40d03m01s'
 
     data_3 = MulensData(file_name=SAMPLE_FILE_01)
     data_3.coords = '17:00:00 -27:32:14'
@@ -86,12 +84,12 @@ def test_event_coords():
 def check_event_coords(event, ra, dec):
     """For given Event instance event, check if .ra, .model.ra, 
     .datasets[0].ra etc. are equal to ra and dec"""
-    np.testing.assert_almost_equal(event.ra.value, ra)
-    np.testing.assert_almost_equal(event.model.ra.value, ra)
-    np.testing.assert_almost_equal(event.datasets[0].ra.value, ra)
-    np.testing.assert_almost_equal(event.dec.value, dec)
-    np.testing.assert_almost_equal(event.model.dec.value, dec)
-    np.testing.assert_almost_equal(event.datasets[0].dec.value, dec)
+    np.testing.assert_almost_equal(event.coords.ra.value, ra)
+    np.testing.assert_almost_equal(event.model.coords.ra.value, ra)
+    np.testing.assert_almost_equal(event.datasets[0].coords.ra.value, ra)
+    np.testing.assert_almost_equal(event.coords.dec.value, dec)
+    np.testing.assert_almost_equal(event.model.coords.dec.value, dec)
+    np.testing.assert_almost_equal(event.datasets[0].coords.dec.value, dec)
 
 
 def test_event_coords_ra_dec_1():
@@ -110,15 +108,11 @@ def test_event_coords_ra_dec_1():
 
     # Assertations start here.
     check_event_coords(event, ra_1, dec_1)
+
+    event.coords = '{0} {1}'.format(ra_2_str, dec_2_str)
     
-    event.ra = ra_2_str
-    check_event_coords(event, ra_2, dec_1)
-
-    event.dec = dec_2_str
-    check_event_coords(event, ra_2, dec_2)
-
-    np.testing.assert_almost_equal(data.ra.value, ra_2)
-    np.testing.assert_almost_equal(data.dec.value, dec_2)
+    np.testing.assert_almost_equal(data.coords.ra.value, ra_2)
+    np.testing.assert_almost_equal(data.coords.dec.value, dec_2)
 
 def test_event_coords_ra_dec_2():
     ra_1_str = '01:00:00'
@@ -129,8 +123,6 @@ def test_event_coords_ra_dec_2():
     data = MulensData(file_name=SAMPLE_FILE_01)
     model = Model()
     event = Event(datasets=data, model=model)
-    event.ra = ra_1_str
-    event.dec = dec_1_str
-
+    event.coords = '{0} {1}'.format(ra_1_str, dec_1_str)
     check_event_coords(event, ra_1, dec_1)
 

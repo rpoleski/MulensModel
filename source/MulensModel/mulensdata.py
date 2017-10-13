@@ -5,6 +5,7 @@ from astropy import units as u
 
 from MulensModel.utils import Utils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
+from MulensModel.coordinates import Coordinates
 
 #data_list and ephemerides_file must have the same time standard.
 #To implement: mjd2hjd = T/F
@@ -85,14 +86,11 @@ class MulensData(object):
         self._coords = None
         #...using coords keyword
         if coords is not None:
-            if isinstance(coords, SkyCoord):
-                self._coords = coords
-            else:
-                self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
+            self._coords = Coordinates(coords)
         #...using ra, dec keywords
         if ra is not None:
             if dec is not None:
-                self._coords = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
+                self._coords = Coordinates(ra, dec)
             else:
                 raise AttributeError(coords_msg)
         else:
@@ -212,48 +210,7 @@ class MulensData(object):
 
     @coords.setter
     def coords(self, new_value):
-        if isinstance(new_value, SkyCoord):
-            self._coords = new_value
-        else:
-            self._coords = SkyCoord(new_value, unit=(u.hourangle, u.deg))
-
-    @property
-    def ra(self):
-        """
-        Right Ascension
-        """
-        return self._coords.ra
-
-    @ra.setter
-    def ra(self, new_value):
-        try:
-            self._coords.ra = new_value
-        except AttributeError:
-            if self._coords is None:
-                self._coords = SkyCoord(
-                    new_value, 0.0, unit=(u.hourangle, u.deg))
-            else:
-                self._coords = SkyCoord(
-                    new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
-
-    @property
-    def dec(self):
-        """
-        Declination
-        """
-        return self._coords.dec
-
-    @dec.setter
-    def dec(self, new_value):
-        try:
-            self._coords.dec = new_value
-        except AttributeError:
-            if self._coords is None:
-                self._coords = SkyCoord(
-                    0.0, new_value, unit=(u.hourangle, u.deg))
-            else:
-                self._coords = SkyCoord(
-                    self._coords.ra, new_value, unit=(u.hourangle, u.deg))
+        self._coords = Coordinates(new_value)
 
     @property
     def satellite_skycoord(self):
