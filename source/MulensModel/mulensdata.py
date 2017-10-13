@@ -204,7 +204,7 @@ class MulensData(object):
     @property
     def coords(self):
         """
-        Sky coordinates (RA,Dec)
+        see :class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
 

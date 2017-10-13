@@ -435,7 +435,7 @@ class Model(object):
     @property
     def coords(self):
         """
-        Sky coordinates (RA, Dec) as an *astropy.SkyCoord* object
+        see :class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
 

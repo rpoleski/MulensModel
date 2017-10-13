@@ -128,18 +128,7 @@ class Event(object):
     @property
     def coords(self):
         """
-        *astropy.coordinates.SkyCoord* object
-
-        The event sky coordinates (RA, Dec). May be set as a *str*
-        or *SkyCoord* object, e.g.
-
-        '18:00:00 -30:00:00'
-
-        '18h00m00s -30d00m00s'
-
-        SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
-        
-        where u is defined by "import astropy.units as u".
+        see :class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
     

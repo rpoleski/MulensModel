@@ -3,7 +3,20 @@ from astropy import units as u
 
 class Coordinates(SkyCoord):
     """
-    A class for Sky Coordinates.
+    A class for the coordinates (RA, Dec) of an event. Inherits from
+    astropy.SkyCoord_.
+
+    May be set as a *str*, pair of *str*, or *SkyCoord* object, e.g.
+
+    Coordinates('18:00:00 -30:00:00')
+    Coordinates('18h00m00s', '-30d00m00s')
+    Coordinates(SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg)))
+        
+    If the unit keyward is not specified, defaults to unit=(u.hourangle, u.deg)
+
+    where u is defined by "import astropy.units as u".
+
+    .. _astropy.SkyCoord: http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
     """
 
     def __init__(self,  *args, **kwargs):
@@ -36,17 +49,3 @@ class Coordinates(SkyCoord):
         """ecliptic latitude calculated from (RA, Dec) """
         from astropy.coordinates import GeocentricTrueEcliptic
         return self.transform_to(GeocentricTrueEcliptic).lat
-
-if __name__ == "__main__":
-    coords = Coordinates("18:00:00 -30:00:00", unit=(u.hourangle, u.deg))
-    print(coords)
-
-    coords_1 = SkyCoord("18:00:00 -30:00:00", unit=(u.hourangle, u.deg))
-    coords_2 = Coordinates(coords_1)
-    print(coords_2)
-
-    coords_3 = Coordinates("17:00:00 -28:00:00")
-    print(coords_3)
-
-    coords_4 = Coordinates("17:00:00", "-27:00:00")
-    print(coords_4)
