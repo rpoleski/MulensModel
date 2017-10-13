@@ -1,30 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>MulensModel.mulensdata module &#8212; MulensModel 0.2.1 documentation</title>
-    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -32,7 +31,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -47,7 +46,7 @@
 <em class="property">class </em><code class="descclassname">MulensModel.mulensdata.</code><code class="descname">MulensData</code><span class="sig-paren">(</span><em>data_list=None</em>, <em>file_name=None</em>, <em>phot_fmt='mag'</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em>, <em>add_2450000=False</em>, <em>add_2460000=False</em>, <em>bandpass=None</em>, <em>bad=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A set of photometric measurements for a microlensing event.</p>
-<p>To define a MulensData object: ...</p>
+<p>To define a MulensData object: …</p>
 <dl class="docutils">
 <dt>Attributes (all vectors):</dt>
 <dd><p class="first">time - the dates of the observations</p>
@@ -66,8 +65,8 @@ Err. Loaded using np.loadtxt. See <code class="docutils literal"><span class="pr
 <em>Either data_list or file_name is required.</em></dd>
 <dt>phot_fmt: <em>str</em> </dt>
 <dd>Specifies whether the photometry is in Magnitudes or
-Flux units. accepts either &#8216;mag&#8217; or &#8216;flux&#8217;. Default =
-&#8216;mag&#8217;.</dd>
+Flux units. accepts either ‘mag’ or ‘flux’. Default =
+‘mag’.</dd>
 <dt>coords: <em>astropy.SkyCoord</em>, optional </dt>
 <dd>sky coordinates of the event</dd>
 <dt>ra, dec: <em>str</em>, optional </dt>
@@ -75,8 +74,8 @@ Flux units. accepts either &#8216;mag&#8217; or &#8216;flux&#8217;. Default =
 <dt>ephemerides_file: <em>str</em>, optional </dt>
 <dd>Specify the ephemerides of a satellite over the period when
 the data were taken. Will be interpolated as necessary to
-model the satellite parallax effect. See &#8220;Instructions on
-getting satellite positions&#8221; in MulensModel.README.md</dd>
+model the satellite parallax effect. See “Instructions on
+getting satellite positions” in MulensModel.README.md</dd>
 <dt>add_2450000: <em>boolean</em>, optional </dt>
 <dd>Adds 2450000 to the input dates. Useful if the dates
 are supplied as HJD-2450000.</dd>
@@ -117,19 +116,7 @@ is provided.</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.coords">
 <code class="descname">coords</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sky coordinates (RA,Dec)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.mulensdata.MulensData.ra">
-<code class="descname">ra</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.ra" title="Permalink to this definition">¶</a></dt>
-<dd><p>Right Ascension</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.mulensdata.MulensData.dec">
-<code class="descname">dec</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.dec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Declination</p>
+<dd><p>see <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">Coordinates</span></code></a></p>
 </dd></dl>
 
 <dl class="attribute">
@@ -157,7 +144,7 @@ limb darkening coefficient. See also
 <dd><dl class="first last docutils">
 <dt>weights: <em>dict</em></dt>
 <dd>A dictionary that specifies weight for each bandpass. Keys are 
-<em>str</em> and values are <em>float</em>, e.g., {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.} if 
+<em>str</em> and values are <em>float</em>, e.g., {‘I’: 1.5, ‘V’: 1.} if 
 the I-band gamma limb-darkening coefficient is 1.5-times 
 larger than the V-band</dd>
 </dl>
@@ -184,7 +171,7 @@ larger than the V-band</dd>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.mulensdata.txt"
+      <li><a href="_sources/MulensModel.mulensdata.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -206,11 +193,11 @@ larger than the V-band</dd>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/MulensModel.mulensdata.txt"
+      <a href="_sources/MulensModel.mulensdata.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
