@@ -49,6 +49,7 @@ in bash:
 export PYTHONPATH=/home/USER_NAME/MulensModel-0.2.1/source:$PYTHONPATH
 ```
 In order to have this command invoked every time you open the terminal, please add this command to ``~/.cshrc`` or ``~/.bashrc`` file.
+
 5. Go to subdirecotry ```source/VBBL/``` and run ```make``` command. If it's not working and you're using Windows, then please run:
 ```
 gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp
