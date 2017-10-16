@@ -16,3 +16,6 @@ __pycache__/
 VBBinaryLensingLibrary.o
 VBBinaryLensingLibrary_wrapper.so
 
+# Sphinx files
+*.doctree
+
