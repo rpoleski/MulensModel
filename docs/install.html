@@ -50,21 +50,23 @@
 </li>
 <li><p class="first">Unpack the archive.</p>
 </li>
-<li><p class="first">Add the path to the unpack directory to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>, e.g., in tcsh:</p>
-<p>setenv PYTHONPATH /home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH</p>
+<li><p class="first">Add the path to the unpack directory to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>, e.g., if you’ve extracted the archive in your home directory (<code class="docutils literal"><span class="pre">/home/USER_NAME/</span></code>) in tcsh:</p>
+<p>setenv PYTHONPATH /home/USER_NAME/MulensModel-0.2.1/source:$PYTHONPATH</p>
 </li>
 </ol>
 <p>in bash:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>export PYTHONPATH=/home/USER_NAME/MulensModel-0.1.0/source:$PYTHONPATH
+<div class="highlight-default"><div class="highlight"><pre><span></span>export PYTHONPATH=/home/USER_NAME/MulensModel-0.2.1/source:$PYTHONPATH
 </pre></div>
 </div>
-<ol class="arabic" start="5">
-<li><p class="first">Go to subdirecotry <code class="docutils literal"><span class="pre">source/VBBL/</span></code> and run <code class="docutils literal"><span class="pre">make</span></code> command. If it’s not working and you’re using Windows, then please run:</p>
-<p>gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp</p>
-<p>gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o</p>
-</li>
-<li><p class="first">Congratulations! You have MulensModel installed fully.</p>
-</li>
+<p>In order to have this command invoked every time you open the terminal, please add this command to <code class="docutils literal"><span class="pre">~/.cshrc</span></code> or <code class="docutils literal"><span class="pre">~/.bashrc</span></code> file.
+5. Go to subdirecotry <code class="docutils literal"><span class="pre">source/VBBL/</span></code> and run <code class="docutils literal"><span class="pre">make</span></code> command. If it’s not working and you’re using Windows, then please run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">gcc</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">lstdc</span><span class="o">++</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">c</span> <span class="n">VBBinaryLensingLibrary</span><span class="o">.</span><span class="n">cpp</span>
+
+<span class="n">gcc</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">soname</span><span class="p">,</span><span class="n">rapper</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">o</span> <span class="n">VBBinaryLensingLibrary_wrapper</span><span class="o">.</span><span class="n">so</span> <span class="n">VBBinaryLensingLibrary_wrapper</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">lstdc</span><span class="o">++</span> <span class="o">-</span><span class="n">fPIC</span> <span class="n">VBBinaryLensingLibrary</span><span class="o">.</span><span class="n">o</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li>Congratulations! You have MulensModel installed fully.</li>
 </ol>
 </div>
 

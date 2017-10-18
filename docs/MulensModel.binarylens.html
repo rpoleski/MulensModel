@@ -63,8 +63,9 @@ ring.</dd>
 </dl>
 </dd>
 </dl>
-<p>Note: mass_1 and mass_2 may be defined relative to some other mass 
-but this is not recommended.</p>
+<p>Note: mass_1 and mass_2 may be defined as a fraction of some other mass 
+than the total mass. This is possible but not recommended - make sure you 
+know what you’re doing before you start using this possibility.</p>
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.point_source_magnification">
 <code class="descname">point_source_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
@@ -120,11 +121,11 @@ approximations? Default is <em>False</em>.</dd>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
-<dt>magnification: <em>float</em> or sequence of three <em>floats</em></dt>
+<dt>magnification: <em>float</em> or <em>sequence</em> of three <em>floats</em></dt>
 <dd>Hexadecapole approximation (<em>float</em>) by default. 
 Quadrupole approximation (<em>float</em>) if 
 <em>quadrupole</em> parameter is <em>True</em>. Hexadecapole, quadrupole, 
-and point source approximations (sequence of three <em>floats</em>) 
+and point source approximations (<em>sequence</em> of three <em>floats</em>) 
 if <em>all_approximations</em> parameter is <em>True</em>.</dd>
 </dl>
 </dd>
