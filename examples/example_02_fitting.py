@@ -9,11 +9,7 @@ import scipy.optimize as op
 import matplotlib.pyplot as pl
 
 import MulensModel
-from MulensModel.mulensdata import MulensData
-from MulensModel.fit import Fit
-from MulensModel.event import Event
-from MulensModel.model import Model
-from MulensModel.utils import Utils
+from MulensModel import Event, Fit, Model, MulensData, Utils
 
 
 def chi2_fun(theta, event, parameters_to_fit):

@@ -9,9 +9,8 @@ import matplotlib.pyplot as pl
 from matplotlib import gridspec
 
 import MulensModel
-from MulensModel.mulensdata import MulensData
-from MulensModel.event import Event
-from MulensModel.model import Model
+from MulensModel import Event, Model, MulensData
+
 
 #Read in MB08310 data files (see data/MB08310) as MulensData objects
 print('MODULE_PATH: {0}'.format(MulensModel.MODULE_PATH))
