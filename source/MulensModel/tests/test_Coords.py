@@ -21,15 +21,6 @@ def test_model_coords():
     assert model_1.coords.dec == coords.dec
     assert  model_1.coords.dec.deg == -30.00
 
-    ra_2 = '17:00:00'
-    dec_2 = '40:03:01'
-    coords_2 = SkyCoord(ra_2 + " " + dec_2, unit=(u.hourangle, u.deg))
-    model_2 = Model()
-    #model_2.coords = (ra_2, dec_2)
-    #assert model_2.coords.ra == coords_2.ra
-    #assert model_2.coords.dec == coords_2.dec
-    #assert model_2.coords.to_string('hmsdms') == '17h00m00s +40d03m01s'
-
     model_3 = Model()
     model_3.coords = '17:00:00 -27:32:14'
     assert model_3.coords.to_string('hmsdms') == '17h00m00s -27d32m14s'
@@ -43,15 +34,6 @@ def test_data_coords():
     assert data_1.coords.ra == coords.ra
     assert data_1.coords.dec == coords.dec
     assert data_1.coords.dec.deg == -30.00
-
-    ra_2 = '17:00:00'
-    dec_2 = '40:03:01'
-    coords_2 = SkyCoord(ra_2 + " " + dec_2, unit=(u.hourangle, u.deg))
-    data_2 = MulensData(file_name=SAMPLE_FILE_01)
-    #data_2.coords = (ra_2, dec_2)
-    #assert data_2.coords.ra == coords_2.ra
-    #assert data_2.coords.dec == coords_2.dec
-    #assert data_2.coords.to_string('hmsdms') == '17h00m00s +40d03m01s'
 
     data_3 = MulensData(file_name=SAMPLE_FILE_01)
     data_3.coords = '17:00:00 -27:32:14'
