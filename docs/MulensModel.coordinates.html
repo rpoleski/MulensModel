@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.mulenstime module &#8212; MulensModel 0.2.1 documentation</title>
+    <title>MulensModel.coordinates module &#8212; MulensModel 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -39,40 +39,46 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.mulenstime">
-<span id="mulensmodel-mulenstime-module"></span><h1>MulensModel.mulenstime module<a class="headerlink" href="#module-MulensModel.mulenstime" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="MulensModel.mulenstime.MulensTime">
-<em class="property">class </em><code class="descclassname">MulensModel.mulenstime.</code><code class="descname">MulensTime</code><span class="sig-paren">(</span><em>time=0.0</em>, <em>date_fmt=None</em>, <em>coords=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulenstime.MulensTime" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+  <div class="section" id="mulensmodel-coordinates-module">
+<h1>MulensModel.coordinates module<a class="headerlink" href="#mulensmodel-coordinates-module" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-MulensModel.coordinates"></span><dl class="class">
+<dt id="MulensModel.coordinates.Coordinates">
+<em class="property">class </em><code class="descclassname">MulensModel.coordinates.</code><code class="descname">Coordinates</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.coordinates.Coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">astropy.coordinates.sky_coordinate.SkyCoord</span></code></p>
+<p>A class for the coordinates (RA, Dec) of an event. Inherits from
+<a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html">astropy.SkyCoord</a>.</p>
+<p>May be set as a <em>str</em>, pair of <em>str</em>, or <em>SkyCoord</em> object, e.g.</p>
+<blockquote>
+<div><p>Coordinates(‘18:00:00 -30:00:00’)</p>
+<p>Coordinates(‘18h00m00s’, ‘-30d00m00s’)</p>
+<p>Coordinates(SkyCoord(‘18:00:00 -30:00:00’, unit=(u.hourangle, u.deg)))</p>
+</div></blockquote>
+<p>If the unit keyward is not specified, defaults to unit=(u.hourangle, u.deg)</p>
+<p>where u is defined by “import astropy.units as u”.</p>
 <dl class="attribute">
-<dt id="MulensModel.mulenstime.MulensTime.astropy_time">
-<code class="descname">astropy_time</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.astropy_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>return astropy.Time object</p>
+<dt id="MulensModel.coordinates.Coordinates.galactic_l">
+<code class="descname">galactic_l</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.galactic_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Galactic longitude. Note that for connivance, the values l &gt; 180 
+degrees are represented as 360-l.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.mulenstime.MulensTime.zeropoint">
-<code class="descname">zeropoint</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.zeropoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>return the zeropoint of time</p>
+<dt id="MulensModel.coordinates.Coordinates.galactic_b">
+<code class="descname">galactic_b</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.galactic_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Galactic latitude calculated from (RA, Dec)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.mulenstime.MulensTime.jd">
-<code class="descname">jd</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.jd" title="Permalink to this definition">¶</a></dt>
-<dd><p>return full Julian Date</p>
+<dt id="MulensModel.coordinates.Coordinates.ecliptic_lon">
+<code class="descname">ecliptic_lon</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.ecliptic_lon" title="Permalink to this definition">¶</a></dt>
+<dd><p>ecliptic longitude calculated from (RA, Dec)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.mulenstime.MulensTime.hjd">
-<code class="descname">hjd</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.hjd" title="Permalink to this definition">¶</a></dt>
-<dd><p>return full Heliocentric Julian Date</p>
+<dt id="MulensModel.coordinates.Coordinates.ecliptic_lat">
+<code class="descname">ecliptic_lat</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.ecliptic_lat" title="Permalink to this definition">¶</a></dt>
+<dd><p>ecliptic latitude calculated from (RA, Dec)</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.mulenstime.MulensTime.time">
-<code class="descname">time</code><a class="headerlink" href="#MulensModel.mulenstime.MulensTime.time" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -93,7 +99,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.mulenstime.rst.txt"
+      <li><a href="_sources/MulensModel.coordinates.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -119,7 +125,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/MulensModel.mulenstime.rst.txt"
+      <a href="_sources/MulensModel.coordinates.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

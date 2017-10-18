@@ -64,11 +64,11 @@ def test_coords_transformation():
     coords = "17:54:32.1 -30:12:34.0"
     model = Model(coords=coords)
 
-    np.testing.assert_almost_equal(model.galactic_l.value, 359.90100049-360., decimal=4)
-    np.testing.assert_almost_equal(model.galactic_b.value, -2.31694073, decimal=3)
+    np.testing.assert_almost_equal(model.coords.galactic_l.value, 359.90100049-360., decimal=4)
+    np.testing.assert_almost_equal(model.coords.galactic_b.value, -2.31694073, decimal=3)
 
-    np.testing.assert_almost_equal(model.ecliptic_lon.value, 268.81102051, decimal=1)
-    np.testing.assert_almost_equal(model.ecliptic_lat.value, -6.77579203, decimal=2)
+    np.testing.assert_almost_equal(model.coords.ecliptic_lon.value, 268.81102051, decimal=1)
+    np.testing.assert_almost_equal(model.coords.ecliptic_lat.value, -6.77579203, decimal=2)
 
 
 def test_init_parameters():

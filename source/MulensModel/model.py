@@ -1,6 +1,6 @@
 import numpy as np
-from astropy.coordinates import SkyCoord
-from astropy import units as u
+#from astropy.coordinates import SkyCoord
+#from astropy import units as u
 import matplotlib.pyplot as pl
 from matplotlib import rcParams
 
@@ -14,7 +14,7 @@ from MulensModel.utils import Utils
 from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
-
+from MulensModel.coordinates import Coordinates
 
 class Model(object):
     """
@@ -132,13 +132,11 @@ class Model(object):
         coords_msg = 'Must specify both or neither of ra and dec'
         self._coords = None
         if coords is not None:
-            if isinstance(coords, SkyCoord):
-                self._coords = coords
-            else:
-                self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
+            self._coords = Coordinates(coords)
+
         if ra is not None:
             if dec is not None:
-                self._coords = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
+                self._coords = Coordinates(ra, dec)
             else:
                 raise AttributeError(coords_msg)
         else:
@@ -437,82 +435,13 @@ class Model(object):
     @property
     def coords(self):
         """
-        Sky coordinates (RA, Dec) as an *astropy.SkyCoord* object
+        see :class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
 
     @coords.setter
     def coords(self, new_value):
-        if isinstance(new_value, SkyCoord):
-            self._coords = new_value
-        else:
-            self._coords = SkyCoord(new_value, unit=(u.hourangle, u.deg))
-
-    @property
-    def ra(self):
-        """
-        Right Ascension.
-        See also :obj:`MulensModel.event.Event.ra`
-        """
-        return self._coords.ra
-
-    @ra.setter
-    def ra(self, new_value):
-        try:
-            self._coords.ra = new_value
-        except AttributeError:
-            if self._coords is None:
-                self._coords = SkyCoord(
-                    new_value, 0.0, unit=(u.hourangle, u.deg))
-            else:
-                self._coords = SkyCoord(
-                    new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
-
-    @property
-    def dec(self):
-        """
-        Declination.
-        See also :obj:`MulensModel.event.Event.dec`
-        """
-        return self._coords.dec
-
-    @dec.setter
-    def dec(self, new_value):
-        try:
-            self._coords.dec = new_value
-        except AttributeError:
-            if self._coords is None:
-                self._coords = SkyCoord(
-                    0.0, new_value, unit=(u.hourangle, u.deg))
-            else:
-                self._coords = SkyCoord(
-                    self._coords.ra, new_value, unit=(u.hourangle, u.deg))
-
-    @property
-    def galactic_l(self):
-        """Galactic longitude. Note that for connivance, the values l > 180 
-        degrees are represented as 360-l."""
-        l = self._coords.galactic.l
-        if l > 180. * u.deg:
-            l = l - 360. * u.deg
-        return l
-
-    @property
-    def galactic_b(self):
-        """Galactic latitude calculated from (RA, Dec)"""
-        return self._coords.galactic.b
-
-    @property
-    def ecliptic_lon(self):
-        """ecliptic longitude calculated from (RA, Dec)"""
-        from astropy.coordinates import GeocentricTrueEcliptic
-        return self._coords.transform_to(GeocentricTrueEcliptic).lon
-
-    @property
-    def ecliptic_lat(self):
-        """ecliptic latitude calculated from (RA, Dec) """
-        from astropy.coordinates import GeocentricTrueEcliptic
-        return self._coords.transform_to(GeocentricTrueEcliptic).lat
+        self._coords = Coordinates(new_value)
 
     def parallax(self, 
                 earth_orbital=None, satellite=None, topocentric=None):

@@ -7,7 +7,7 @@ from MulensModel.utils import Utils
 from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
-
+from MulensModel.coordinates import Coordinates
             
 class Event(object):
     """
@@ -128,18 +128,7 @@ class Event(object):
     @property
     def coords(self):
         """
-        *astropy.coordinates.SkyCoord* object
-
-        The event sky coordinates (RA, Dec). May be set as a *str*
-        or *SkyCoord* object, e.g.
-
-        '18:00:00 -30:00:00'
-
-        '18h00m00s -30d00m00s'
-
-        SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
-        
-        where u is defined by "import astropy.units as u".
+        see :class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
     
@@ -147,53 +136,9 @@ class Event(object):
     def coords(self, new_value):
         self._update_coords(coords=new_value)
 
-    @property
-    def ra(self):
-        """
-        Right Ascension. May be set as a *string*, e.g. '15:30:00' or
-        '15h30m00s'.
-        """
-        return self._coords.ra
-
-    @ra.setter
-    def ra(self, new_value):
-        try:
-            self._coords.ra = new_value
-        except AttributeError:
-            if self._coords is None:
-                self._coords = SkyCoord(
-                    new_value, 0.0, unit=(u.hourangle, u.deg))
-            else:
-                self._coords = SkyCoord(
-                    new_value, self._coords.dec, unit=(u.hourangle, u.deg)) 
-        self._update_coords(coords=self._coords)
-
-    @property
-    def dec(self):
-        """
-        Declination. May be set as a *string*, e.g '15:30:00' or '15d30m00s'
-        """
-        return self._coords.dec
-
-    @dec.setter
-    def dec(self, new_value):
-        try:
-            self._coords.dec = new_value
-        except AttributeError:
-            if self._coords is None:
-                self._coords = SkyCoord(
-                    0.0, new_value, unit=(u.hourangle, u.deg))
-            else:
-                self._coords = SkyCoord(
-                    self._coords.ra, new_value, unit=(u.hourangle, u.deg))
-        self._update_coords(coords=self._coords)
-
     def _update_coords(self, coords=None):
         """Set the coordinates as a SkyCoord object"""
-        if isinstance(coords, SkyCoord):
-            self._coords = coords
-        else:
-            self._coords = SkyCoord(coords, unit=(u.hourangle, u.deg))
+        self._coords = Coordinates(coords)
 
         if self._model is not None:
             self._model.coords = self._coords
