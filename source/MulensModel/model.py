@@ -258,7 +258,7 @@ class Model(object):
 
     @property
     def s(self):
-        """lens components separation in units of theta_E"""
+        """lens components separation in units of the Einstein ring"""
         return self._parameters.s
 
     @s.setter
@@ -371,7 +371,7 @@ class Model(object):
     @property
     def data_magnification(self):
         """
-        a list of magnifications calculated for every dataset time vector
+        a *list* of magnifications calculated for every dataset time vector
         """
         self._data_magnification = []
 
@@ -420,14 +420,14 @@ class Model(object):
     @property
     def datasets(self):
         """
-        a list of datasets linked to given model
+        a *list* of datasets linked to given model
         """
         if self._datasets is None:
             raise ValueError('No datasets were linked to the model')
         return self._datasets
         
     def set_datasets(self, datasets, data_ref=0):
-        """set *datasets* property"""
+        """set :obj:`datasets` property"""
         self._datasets = datasets
         self._data_magnification = None
         self.data_ref = data_ref
@@ -482,15 +482,8 @@ class Model(object):
         """
         Plot the model magnification curve.
 
-        Keywords:
-            times : [float, list, numpy.ndarray]
-                a list of times at which to plot the magnifications
-
-            t_range, t_start, t_stop, dt, n_epochs : see :func:`set_times`
-
-            subtract_2450000, subtract_2460000 : boolean, optional
-                If True, subtracts 2450000 or 2460000 from the time
-                axis to get more human-scale numbers.
+        Keywords :
+            see :func:`plot_magnification()`
 
         ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
@@ -517,28 +510,29 @@ class Model(object):
         plot the model light curve in magnitudes. 
 
         Keywords:
-            times : [float, list, numpy.ndarray]
+            times: [*float*, *list*, *numpy.ndarray*]
                 a list of times at which to plot the magnifications
 
-            t_range, t_start, t_stop, dt, n_epochs : see :func:`set_times`
+            t_range, t_start, t_stop, dt, n_epochs: see :func:`set_times`
 
-            subtract_2450000, subtract_2460000 : boolean, optional
+            subtract_2450000, subtract_2460000: *boolean*, optional
                 If True, subtracts 2450000 or 2460000 from the time
                 axis to get more human-scale numbers. If using, make
                 sure to also set the same settings for all other
                 plotting calls (e.g. :func:`plot_data()`)
 
-            data_ref : int or a dataset
+            data_ref: *int* or a :class:`~MulensModel.mulensdata.MulensData` object
                 Reference dataset to scale the model to. See
                 :func:`get_ref_fluxes()`
 
-            f_source, f_blend : float
+            f_source, f_blend: *float*
                 Explicitly specify the source and blend fluxes in a system
-                where flux = 1 corresponds to utils.MAG_ZEROPOINT (= 22 mag). 
+                where flux = 1 corresponds to :obj:`MulensModel.utils.MAG_ZEROPOINT` 
+                (= 22 mag). 
 
         ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
-        Either data_set or (f_source, f_blend) must be set, but there
+        Either `data_ref` or (`f_source`, `f_blend`) must be set, but there
         is no explicit check for this. Default behavior is probably to
         throw an exception that no data have been specified (see
         :func:`get_ref_fluxes()`).
@@ -716,33 +710,33 @@ class Model(object):
         """
         Plot the data scaled to the model. 
 
-        Keywords:
-            data_ref : see :func:`get_ref_fluxes()`
+        Keywords (all optional):
+            data_ref: see :func:`get_ref_fluxes()`
                 If data_ref is not specified, uses the first dataset
                 as the reference for flux scale.
 
-            show_errorbars : boolean
+            show_errorbars: *boolean*
                 If show_errorbars is True (default), plots with
                 matplotlib.errorbar(). If False, plots with
                 matplotib.scatter().
 
-            show_bad : boolean, optional
+            show_bad: *boolean*
                 if False, bad data are suppressed (default). 
                 if True, shows points marked as bad
                 (:py:obj:`mulensdata.MulensData.bad`) as 'x'
         
-            color_list, marker_list, size_list : list, optional
+            color_list, marker_list, size_list: *list*
                 Controls point types for each dataset (length must be
                 equal to the number of datasets). May specify none,
                 some, or all of these lists. Automatically handles
                 keyword variations in errorbar() vs. scatter():
                 e.g. fmt/marker, markersize/s.
 
-            label_list : list
-                Attacheds a label to each data set, which can be used
+            label_list: *list*
+                Attaches a label to each data set, which can be used
                 to create a legend by calling pl.legend().
 
-            subtract_2450000, subtract_2460000 : boolean, optional
+            subtract_2450000, subtract_2460000: *boolean*
                 If True, subtracts 2450000 or 2460000 from the time
                 axis to get more human-scale numbers. If using, make
                 sure to also set the same settings for all other
@@ -911,28 +905,31 @@ class Model(object):
         """
         Plot the source trajectory.
 
-        Optional keyword arguments:
+        Keywords (all optional) :
 
-          times, t_range, t_start, t_stop, dt, n_epochs may all be
-          used to specify exactly when to plot the source
-          trajectory. times=specific dates, t_range=range of times,
-          (t_start, t_stop)=range of times with optional dt OR
-          n_epochs.
+          times, t_range, t_start, t_stop, dt, n_epochs: 
+              May all be used to specify exactly when to plot the
+              source trajectory. See also :func:`plot_lc()`, :func:`set_times()`
 
-          caustics = plot the caustic structure in addition to the
-          source trajectory. default=False (off). For finer control of
-          plotting features, e.g. color, use self.plot_caustics()
-          instead.
+          caustics: *boolean*
+              plot the caustic structure in addition to the source
+              trajectory. default=False (off). For finer control of
+              plotting features, e.g. color, use self.plot_caustics()
+              instead.
 
-          show_data = mark epochs of data (Not Implemented, marker
-          types should match data plotting.)
+          show_data: *boolean*
+              mark epochs of data (Not Implemented, marker types
+              should match data plotting.)
 
-          arrow = show the direction of the motion. default=True (on)
+          arrow: *boolean*
+              show the direction of the source motion. default=True (on)
 
-          satellite_skycoord should allow user to specify the trajectory
-          is calculated for a satellite. (Not checked)
+          satellite_skycoord: *astropy.SkyCoord*
+              should allow user to specify the trajectory
+              is calculated for a satellite. (Not checked)
 
           ``**kwargs`` controls plotting features of the trajectory.
+
         """
         if times is None:
             times = self.set_times(
@@ -961,14 +958,15 @@ class Model(object):
 
     def plot_caustics(self, n_points=5000, **kwargs):
         """
-        Plot the caustic structure. 
+        Plot the caustic structure. See also
+        :func:`~MulensModel.caustics.Caustics.plot()`
         
         Parameters :
             n_points: *int*, optional 
                 specifies the number of points on the caustic
             
             ``**kwargs``
-                kwargs passes to :func:`plt.plot()`
+                kwargs passes to :func:`pl.plot()`
         """
         if self.caustics is None:
             self.caustics = Caustics(q=self.q, s=self.s)
@@ -980,17 +978,21 @@ class Model(object):
         t_stop=None, dt=None, n_epochs=1000):
         """
         Retrun a list of times. If no keywords are specified, default
-        is 1000 epochs from [t_0 - 1.5*t_E, t_0 + 1.5*t_E].
+        is 1000 epochs from [`t_0` - 1.5*`t_E`, `t_0` + 1.5*`t_E`].
 
         Keywords (all optional) :
-            t_range : [list, tuple]
-                form [t_start, t_stop]
-            t_start, t_stop : float
+            t_range: [*list*, *tuple*]
+                A range of times of the form [t_start, t_stop]
+
+            t_start, t_stop: *float*
                 a start or stop time.
-            dt : float
+
+            dt: *float*
                 the interval spacing between successive points
-            n_epochs : int
+
+            n_epochs: *int*
                 the number of epochs (evenly spaced)
+
         """
         if t_range is not None:
             t_start = t_range[0]
