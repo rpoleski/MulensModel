@@ -36,25 +36,14 @@ class ModelParameters(object):
                pi_E_E: East component of the parallax
                
         """
-        #Initialize standard parameters if they are set.
-        self._s = None
-        self._q = None
-        self._alpha = None
-        if t_0 is not None:
-            self.t_0 = t_0
-        if u_0 is not None:
-            self._u_0 = u_0
-        if t_E is not None:
-            self.t_E = t_E
-        #if rho is not None:
-        #    self._rho = rho
-        self._rho = rho
-        if s is not None:
-            self._s = s
-        if q is not None:
-            self._q = q
-        if alpha is not None:
-            self.alpha = alpha
+        #Initialize standard parameters.
+        self.t_0 = t_0
+        self.u_0 = u_0
+        self.t_E = t_E
+        self.rho = rho
+        self.s = s
+        self.q = q
+        self.alpha = alpha
 
         """
         Define the parallax if appropriate. Does not check for
@@ -168,6 +157,9 @@ class ModelParameters(object):
     
     @t_E.setter
     def t_E(self, new_t_E):
+        if new_t_E is None:
+            self._t_E = None
+            return
         if new_t_E < 0.:
             raise ValueError('Einstein timescale cannot be negative:', new_t_E)
         if isinstance(new_t_E, u.Quantity): 
@@ -183,6 +175,9 @@ class ModelParameters(object):
     
     @rho.setter
     def rho(self, new_rho):
+        if new_rho is None:
+            self._rho = None
+            return
         if new_rho < 0.:
             raise ValueError('source size (rho) cannot be negative')
         self._rho = new_rho
@@ -199,6 +194,9 @@ class ModelParameters(object):
 
     @alpha.setter
     def alpha(self, new_alpha):
+        if new_alpha is None:
+            self._alpha = None
+            return
         if isinstance(new_alpha, u.Quantity):
             self._alpha = new_alpha
         else:
