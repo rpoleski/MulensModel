@@ -17,7 +17,7 @@ class LimbDarkeningCoeffs(object):
     def __init__(self): #, gamma_I=0.44, gamma_V=0.72, gamma_H=0.26):
         self._gammas_for_band = dict()
         
-    def set_limb_coef_gamma(self, bandpass, gamma):
+    def set_limb_coeff_gamma(self, bandpass, gamma):
         """Remembers limb darkening gamma coefficient for given band.
         
         Parameters :
@@ -30,7 +30,7 @@ class LimbDarkeningCoeffs(object):
         """
         self._gammas_for_band[bandpass] = gamma
         
-    def set_limb_coef_u(self, bandpass, u):
+    def set_limb_coeff_u(self, bandpass, u):
         """Remembers limb darkening u coefficient for given band
         
         Parameters :
@@ -43,7 +43,7 @@ class LimbDarkeningCoeffs(object):
         """
         self._gammas_for_band[bandpass] = Utils.u_to_gamma(u)
     
-    def limb_coef_gamma(self, bandpass):
+    def get_limb_coeff_gamma(self, bandpass):
         """Gives limb darkening gamma coefficient for given band.
         
         Parameters :
@@ -60,11 +60,11 @@ class LimbDarkeningCoeffs(object):
         except KeyError:
             msg = ('No limb darkening coefficient for bandpass {:}. Most ' + 
                    'probably you have set the filter for a dataset but have' +
-                   ' not set LD coef for this filter')
+                   ' not set LD coeff for this filter')
             raise KeyError(msg.format(bandpass))
         return gamma
     
-    def limb_coef_u(self, bandpass):
+    def get_limb_coeff_u(self, bandpass):
         """Gives limb darkening u coefficient for given band.
         
         Parameters :
@@ -76,10 +76,10 @@ class LimbDarkeningCoeffs(object):
                 The value of u coefficient.
 
         """ 
-        gamma = self.limb_coef_gamma(bandpass=bandpass)
+        gamma = self.get_limb_coeff_gamma(bandpass=bandpass)
         return Utils.gamma_to_u(gamma)
         
-    def weighted_limb_coef_gamma(self, weights):
+    def get_weighted_limb_coeff_gamma(self, weights):
         """Get weighted limb darkening coefficient in gamma space.
         
         Parameters :
@@ -97,13 +97,13 @@ class LimbDarkeningCoeffs(object):
         """
 
         if not isinstance(weights, dict):
-            raise TypeError("LimbDarkeningCoeffs.weighted_limb_coef_gamma() " +
+            raise TypeError("LimbDarkeningCoeffs.get_weighted_limb_coeff_gamma() " +
                     "parameter has to be dict, not {:}".format(type(weights)))
         gamma_sum = 0.
         weight_sum = 0.
         for (band, weight) in weights.items():
             try:
-                gamma_sum += self.limb_coef_gamma(band)
+                gamma_sum += self.get_limb_coeff_gamma(band)
             except KeyError:
                 msg = "The bandpass {:} was not set for limb darkening"
                 raise KeyError(msg.format(band))

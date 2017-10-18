@@ -407,9 +407,9 @@ class Model(object):
             if dataset.bandpass not in self.bandpasses:
                 raise ValueError(("Limb darkening coefficient requested for " +
                     "bandpass {:}, but not set before. Use " +
-                    "set_limb_coef_gamma() or set_limb_coef_u()"
+                    "set_limb_coeff_gamma() or set_limb_coeff_u()"
                     ).format(dataset.bandpass))
-            gamma = self._limb_darkening_coeffs.limb_coef_gamma(
+            gamma = self._limb_darkening_coeffs.get_limb_coeff_gamma(
                                                             dataset.bandpass)
             
         magnification = self.magnification(
@@ -483,7 +483,7 @@ class Model(object):
         Plot the model magnification curve.
 
         Keywords :
-            see :func:`plot_magnification()`
+            see :func:`plot_lc()`
 
         ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
@@ -958,15 +958,8 @@ class Model(object):
 
     def plot_caustics(self, n_points=5000, **kwargs):
         """
-        Plot the caustic structure. See also
-        :func:`~MulensModel.caustics.Caustics.plot()`
-        
-        Parameters :
-            n_points: *int*, optional 
-                specifies the number of points on the caustic
-            
-            ``**kwargs``
-                kwargs passes to :func:`pl.plot()`
+        Plot the caustic structure. See :func:`MulensModel.caustics.Caustics.plot()`
+
         """
         if self.caustics is None:
             self.caustics = Caustics(q=self.q, s=self.s)
@@ -977,8 +970,8 @@ class Model(object):
         self, t_range=None, t_start=None, 
         t_stop=None, dt=None, n_epochs=1000):
         """
-        Retrun a list of times. If no keywords are specified, default
-        is 1000 epochs from [`t_0` - 1.5*`t_E`, `t_0` + 1.5*`t_E`].
+        Return a list of times. If no keywords are specified, default
+        is 1000 epochs from [`t_0` - 1.5* `t_E`, `t_0` + 1.5* `t_E`].
 
         Keywords (all optional) :
             t_range: [*list*, *tuple*]
@@ -1012,17 +1005,24 @@ class Model(object):
         return np.arange(t_start, t_stop+dt, dt)
 
     def set_default_magnification_method(self, method):
-        """Stores information on method to be used, when no method is
-        directly specified.
+        """
+        Stores information on method to be used, when no method is
+        directly specified. See
+        :class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        for a list of implemented methods.
         
         Parameters:
             method: *str*
                 Name of the method to be used.
+
         """
         self._default_magnification_method = method
 
     def set_magnification_methods(self, methods):
-        """Sets methods used for magnification calculation.
+        """
+        Sets methods used for magnification calculation. See
+        :class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        for a list of implemented methods.
        
         Parameters :
             methods: *list*
@@ -1037,38 +1037,44 @@ class Model(object):
         """
         self._methods = methods
 
-    def set_limb_coef_gamma(self, bandpass, coef):
-        """Store gamma limb darkening coefficient for given band.
+    def set_limb_coeff_gamma(self, bandpass, coeff):
+        """
+        Store gamma limb darkening coefficient for given band. See
+        also
+        :class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
                 
         Parameters :
             bandpass: *str*
-                Bandpass for which coefficient you provide.
+                Bandpass for the coefficient you provide.
             
-            coef: *float*
+            coeff: *float*
                 Value of the coefficient.
         
         """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
-        self._limb_darkening_coeffs.set_limb_coef_gamma(bandpass, coef)
+        self._limb_darkening_coeffs.set_limb_coeff_gamma(bandpass, coeff)
 
-    def set_limb_coef_u(self, bandpass, coef):
-        """Store u limb darkening coefficient for given band.
-        
+    def set_limb_coeff_u(self, bandpass, coeff):
+        """
+        Store u limb darkening coefficient for given band.  See also
+        :class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
         Parameters :
             bandpass: *str*
                 Bandpass for which coefficient you provide.
             
-            coef: *float*
+            coeff: *float*
                 Value of the coefficient.
         
         """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
-        self._limb_darkening_coeffs.set_limb_coef_u(bandpass, coef)
+        self._limb_darkening_coeffs.set_limb_coeff_u(bandpass, coeff)
 
-    def limb_coef_gamma(self, bandpass):
-        """Get gamma limb darkening coefficient for given band.
+    def get_limb_coeff_gamma(self, bandpass):
+        """
+        Get gamma limb darkening coefficient for given band.
                 
         Parameters :
             bandpass: *str*
@@ -1079,10 +1085,11 @@ class Model(object):
                 limb darkening coefficient
             
         """
-        return self._limb_darkening_coeffs.limb_coef_gamma(bandpass)
+        return self._limb_darkening_coeffs.get_limb_coeff_gamma(bandpass)
 
-    def limb_coef_u(self, bandpass):
-        """Get u limb darkening coefficient for given band.
+    def get_limb_coeff_u(self, bandpass):
+        """
+        Get u limb darkening coefficient for given band.
         
         Parameters :
             bandpass: *str*
@@ -1093,7 +1100,7 @@ class Model(object):
                 limb darkening coefficient
         
         """
-        return self._limb_darkening_coeffs.limb_coef_u(bandpass)
+        return self._limb_darkening_coeffs.get_limb_coeff_u(bandpass)
 
     @property
     def bandpasses(self):
