@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 from scipy.special import ellipe # This is incomplete elliptic integral of the second kind.
 from scipy import integrate
 
@@ -115,6 +116,13 @@ class MagnificationCurve(object):
             magnification: *np.ndarray*
                 Vector of magnifications.
         """
+
+        if self.parameters.rho is not None:
+            if self._methods_epochs is None:
+                warnings.warn('Rho set but no finite-source method is set')
+            elif set(self._methods_for_epochs()) != set(['point_source']):
+                warnings.warn('Rho set but no finite-source method is set')
+
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
         # This is Paczynski equation, i.e., point-source/point-lens (PSPL) 
         # magnification:
@@ -245,6 +253,12 @@ class MagnificationCurve(object):
                                     separation=self.parameters.s)
         methods = self._methods_for_epochs()
         
+        if self.parameters.rho is not None:
+            if self._methods_epochs is None:
+                warnings.warn('Rho set but no finite-source method is set')
+            elif set(methods) != set(['point_source']):
+                warnings.warn('Rho set but no finite-source method is set')
+       
         #Calculate the magnification
         magnification = []        
         for index in range(len(self.times)):
@@ -290,3 +304,4 @@ class MagnificationCurve(object):
                     for value in brackets]
         
         return out
+

@@ -46,8 +46,9 @@ class ModelParameters(object):
             self._u_0 = u_0
         if t_E is not None:
             self.t_E = t_E
-        if rho is not None:
-            self._rho = rho
+        #if rho is not None:
+        #    self._rho = rho
+        self._rho = rho
         if s is not None:
             self._s = s
         if q is not None:
