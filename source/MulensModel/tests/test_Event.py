@@ -13,8 +13,9 @@ from MulensModel.utils import Utils
 SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
                                     "data", "phot_ob08092_O4.dat")
 
-def test_event_get_chi2():
+def test_event_get_chi2_1():
     """basic unit test on ob08092 OGLE-IV data"""
+    print('A1')
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
@@ -32,14 +33,15 @@ def test_event_get_chi2():
     np.testing.assert_almost_equal(float(chi2), 428.58655, decimal=4, 
                                    err_msg='problem in resulting chi2')
     
-    chi2_no_blend = ev.get_chi2(fit_blending_all=False)
+    chi2_no_blend = ev.get_chi2(fit_blending=False)
     assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
     np.testing.assert_almost_equal(float(chi2_no_blend), 460.72308, decimal=4, 
                                    err_msg='problem in resulting chi2 for fixed no blending')
 
-def test_event_get_chi2():
+def test_event_get_chi2_2():
     """basic unit test on ob08092 OGLE-IV data. Same as above but with
     the data input twice (to test behavior for multiple datasets)"""
+    print('A2')
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
@@ -57,7 +59,7 @@ def test_event_get_chi2():
     np.testing.assert_almost_equal(float(chi2), 2.*428.58655, decimal=4, 
                                    err_msg='problem in resulting chi2')
     
-    chi2_no_blend = ev.get_chi2(fit_blending_all=False)
+    chi2_no_blend = ev.get_chi2(fit_blending=False)
     assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
     np.testing.assert_almost_equal(float(chi2_no_blend), 2.*460.72308, decimal=4, 
                                    err_msg='problem in resulting chi2 for fixed no blending')
@@ -67,6 +69,7 @@ def test_event_get_chi2_double_source_simple():
     """basic test on ob08092 OGLE-IV data with added second source
     Note that currently this test hacks into internal functions of 
     MulensData and MulensModel classes!"""
+    print('A3')
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
@@ -112,13 +115,16 @@ def test_event_get_chi2():
     event.model.t_0 = 5000.
 
     assert event.get_chi2() != orig_chi2
+    print('A4')
 
 class TestEvent(unittest.TestCase):
     def test_event_init_1(self):
+        print('A5')
         with self.assertRaises(TypeError):
             ev = Event(model=3.14)
 
     def test_event_init_2(self):
+        print('A6')
         with self.assertRaises(TypeError):
             ev = Event(datasets='some_string')
 
