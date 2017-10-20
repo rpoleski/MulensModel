@@ -15,7 +15,6 @@ SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH,
 
 def test_event_get_chi2_1():
     """basic unit test on ob08092 OGLE-IV data"""
-    print('A1')
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
@@ -41,7 +40,6 @@ def test_event_get_chi2_1():
 def test_event_get_chi2_2():
     """basic unit test on ob08092 OGLE-IV data. Same as above but with
     the data input twice (to test behavior for multiple datasets)"""
-    print('A2')
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
@@ -69,7 +67,6 @@ def test_event_get_chi2_double_source_simple():
     """basic test on ob08092 OGLE-IV data with added second source
     Note that currently this test hacks into internal functions of 
     MulensData and MulensModel classes!"""
-    print('A3')
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
@@ -115,16 +112,12 @@ def test_event_get_chi2():
     event.model.t_0 = 5000.
 
     assert event.get_chi2() != orig_chi2
-    print('A4')
 
 class TestEvent(unittest.TestCase):
     def test_event_init_1(self):
-        print('A5')
         with self.assertRaises(TypeError):
             ev = Event(model=3.14)
 
     def test_event_init_2(self):
-        print('A6')
         with self.assertRaises(TypeError):
             ev = Event(datasets='some_string')
-
