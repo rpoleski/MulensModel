@@ -22,6 +22,7 @@
 * _dA/dparam for point lens models_
 * _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
 * _Cassan 2008 binary lens parameters_
+* FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
 * Sagan workshop hands-on activity in MM
 * conversions to BJD from HJD, JD etc. ([astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections))
 * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
@@ -36,7 +37,7 @@
 * check if Horizons e-mail is for correct satellite
 * Are we consistent with PEP8? [check here](http://pep8online.com/)
 * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
-* _guessing parameters of PSPL model_
+* guessing parameters of PSPL model (Kim+17 as an example)
 * fluxes fixed in chi^2 calculation
 * modelparameters.py t\_E -> see comments there; BTW - should we set t\_E as a Astropy.quantity and then expect to get float ?
 * annual parallax calculation - verify with VBBL
