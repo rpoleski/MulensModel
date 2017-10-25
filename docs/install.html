@@ -1,56 +1,40 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>How to install? &mdash; MulensModel 0.2.1 documentation</title>
-    
+    <title>How to install? &#8212; MulensModel 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Very Basic Tutorial" href="tutorial.html" />
     <link rel="prev" title="Welcome to MulensModel’s documentation!" href="index.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="tutorial.html" title="Very Basic Tutorial"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Welcome to MulensModel’s documentation!"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -66,19 +50,19 @@
 </li>
 <li><p class="first">Unpack the archive.</p>
 </li>
-<li><p class="first">Add the path to the unpack directory to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>, e.g., if you&#8217;ve extracted the archive in your home directory (<code class="docutils literal"><span class="pre">/home/USER_NAME/</span></code>) in tcsh:</p>
+<li><p class="first">Add the path to the unpack directory to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>, e.g., if you’ve extracted the archive in your home directory (<code class="docutils literal"><span class="pre">/home/USER_NAME/</span></code>) in tcsh:</p>
 <p>setenv PYTHONPATH /home/USER_NAME/MulensModel-0.2.1/source:$PYTHONPATH</p>
 </li>
 </ol>
 <p>in bash:</p>
-<div class="highlight-python"><div class="highlight"><pre>export PYTHONPATH=/home/USER_NAME/MulensModel-0.2.1/source:$PYTHONPATH
+<div class="highlight-default"><div class="highlight"><pre><span></span>export PYTHONPATH=/home/USER_NAME/MulensModel-0.2.1/source:$PYTHONPATH
 </pre></div>
 </div>
 <p>In order to have this command invoked every time you open the terminal, please add this command to <code class="docutils literal"><span class="pre">~/.cshrc</span></code> or <code class="docutils literal"><span class="pre">~/.bashrc</span></code> file.
-5. Go to subdirecotry <code class="docutils literal"><span class="pre">source/VBBL/</span></code> and run <code class="docutils literal"><span class="pre">make</span></code> command. If it&#8217;s not working and you&#8217;re using Windows, then please run:</p>
-<div class="highlight-python"><div class="highlight"><pre>gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp
+5. Go to subdirecotry <code class="docutils literal"><span class="pre">source/VBBL/</span></code> and run <code class="docutils literal"><span class="pre">make</span></code> command. If it’s not working and you’re using Windows, then please run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">gcc</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">lstdc</span><span class="o">++</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">c</span> <span class="n">VBBinaryLensingLibrary</span><span class="o">.</span><span class="n">cpp</span>
 
-gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o
+<span class="n">gcc</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">soname</span><span class="p">,</span><span class="n">rapper</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">o</span> <span class="n">VBBinaryLensingLibrary_wrapper</span><span class="o">.</span><span class="n">so</span> <span class="n">VBBinaryLensingLibrary_wrapper</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">lstdc</span><span class="o">++</span> <span class="o">-</span><span class="n">fPIC</span> <span class="n">VBBinaryLensingLibrary</span><span class="o">.</span><span class="n">o</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
@@ -91,31 +75,30 @@ gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLens
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to MulensModel&#8217;s documentation!</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="tutorial.html"
-                        title="next chapter">Very Basic Tutorial</a></p>
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to MulensModel’s documentation!</a></li>
+      <li>Next: <a href="tutorial.html" title="next chapter">Very Basic Tutorial</a></li>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/install.txt"
+      <li><a href="_sources/install.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -126,12 +109,12 @@ gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLens
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/install.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="_sources/install.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     
