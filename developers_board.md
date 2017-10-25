@@ -27,15 +27,15 @@
   * [What?] binary calculations - define if s is relative to total mass etc.
   * Add \_\_repr\_\_ functions to Lens and Source
   * [2] files not yet well documented (starting from the shortest): 
-    * trajectory.py 
+    * [2] trajectory.py 
     * mulensparallaxvector.py 
     * satelliteskycoord.py 
-    * [1] caustics.py 
+    * [2] caustics.py 
     * horizons.py 
     * limbdarkeningcoeffs.py 
     * mulenstime.py 
-    * fit.py 
-    * [1] magnificationcurve.py 
+    * [1] fit.py 
+    * [2] magnificationcurve.py 
     * utils.py 
     * [1] modelparameters.py
     * [1] mulendsdata.py
