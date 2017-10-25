@@ -1,38 +1,48 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <title>MulensModel.model module &mdash; MulensModel 0.2.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -44,14 +54,14 @@
 <dl class="class">
 <dt id="MulensModel.model.Model">
 <em class="property">class </em><code class="descclassname">MulensModel.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>parameters=None</em>, <em>t_0=None</em>, <em>u_0=None</em>, <em>t_E=None</em>, <em>rho=None</em>, <em>s=None</em>, <em>q=None</em>, <em>alpha=None</em>, <em>pi_E=None</em>, <em>pi_E_N=None</em>, <em>pi_E_E=None</em>, <em>pi_E_ref=None</em>, <em>t_0_par=None</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A Model for a microlensing event with the specified parameters.</p>
 <dl class="docutils">
 <dt>Two ways to define the model:</dt>
 <dd><ol class="first last arabic">
 <li><dl class="first docutils">
 <dt><a class="reference internal" href="#MulensModel.model.Model.parameters" title="MulensModel.model.Model.parameters"><code class="xref py py-obj docutils literal"><span class="pre">parameters</span></code></a> = a</dt>
-<dd><p class="first last"><a class="reference internal" href="MulensModel.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>
+<dd><p class="first last"><a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>
 object</p>
 </dd>
 </dl>
@@ -63,7 +73,7 @@ object</p>
 <p class="last">Parallax may be specified either as <a class="reference internal" href="#MulensModel.model.Model.pi_E" title="MulensModel.model.Model.pi_E"><code class="xref py py-obj docutils literal"><span class="pre">pi_E</span></code></a> OR
 <a class="reference internal" href="#MulensModel.model.Model.pi_E_N" title="MulensModel.model.Model.pi_E_N"><code class="xref py py-obj docutils literal"><span class="pre">pi_E_N</span></code></a> and <a class="reference internal" href="#MulensModel.model.Model.pi_E_E" title="MulensModel.model.Model.pi_E_E"><code class="xref py py-obj docutils literal"><span class="pre">pi_E_E</span></code></a>. <a class="reference internal" href="#MulensModel.model.Model.t_0_par" title="MulensModel.model.Model.t_0_par"><code class="xref py py-obj docutils literal"><span class="pre">t_0_par</span></code></a>
 is optional. For default behavior see
-<a class="reference internal" href="MulensModel.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.trajectory.Trajectory</span></code></a></p>
+<a class="reference internal" href="MulensModel.trajectory.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.trajectory.Trajectory</span></code></a></p>
 </dd>
 </dl>
 </li>
@@ -75,7 +85,7 @@ is optional. For default behavior see
 <p>Default values for parallax are all True. Use <a class="reference internal" href="#MulensModel.model.Model.parallax" title="MulensModel.model.Model.parallax"><code class="xref py py-func docutils literal"><span class="pre">parallax()</span></code></a>
 to turn different parallax effects ON/OFF. If using satellite
 parallax, you may also specify an <cite>ephemerides_file</cite> (see
-<a class="reference internal" href="MulensModel.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.mulensdata.MulensData</span></code></a>).</p>
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.mulensdata.MulensData</span></code></a>).</p>
 <p>Caveat:
 satellite parallax works for datasets, but not for
 model. i.e. The satellite parallax will be calculated correctly
@@ -99,7 +109,7 @@ and the lens center of mass.</p>
 <dt id="MulensModel.model.Model.t_E">
 <code class="descname">t_E</code><a class="headerlink" href="#MulensModel.model.Model.t_E" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Einstein timescale. An <em>astropy.Quantity</em> object. Default unit 
-is “day”.</p>
+is &#8220;day&#8221;.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -112,8 +122,8 @@ is “day”.</p>
 <dt id="MulensModel.model.Model.pi_E">
 <code class="descname">pi_E</code><a class="headerlink" href="#MulensModel.model.Model.pi_E" title="Permalink to this definition">¶</a></dt>
 <dd><p>The microlens parallax vector. May be specified either
-relative to the sky (“NorthEast”) or relative to the binary
-lens axis (“ParPerp”, i.e., parallel and perpendicular). “NorthEast” 
+relative to the sky (&#8220;NorthEast&#8221;) or relative to the binary
+lens axis (&#8220;ParPerp&#8221;, i.e., parallel and perpendicular). &#8220;NorthEast&#8221; 
 is default. A <code class="xref py py-class docutils literal"><span class="pre">MulensParallaxVector</span></code> object.</p>
 </dd></dl>
 
@@ -158,7 +168,7 @@ parallax</p>
 <dt id="MulensModel.model.Model.parameters">
 <code class="descname">parameters</code><a class="headerlink" href="#MulensModel.model.Model.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>The parameters of the model. A
-<a class="reference internal" href="MulensModel.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a> object.</p>
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="method">
@@ -166,7 +176,7 @@ parallax</p>
 <code class="descname">set_parameters</code><span class="sig-paren">(</span><em>t_0=0.0</em>, <em>u_0=None</em>, <em>t_E=1.0</em>, <em>rho=None</em>, <em>s=None</em>, <em>q=None</em>, <em>alpha=None</em>, <em>pi_E=None</em>, <em>pi_E_N=None</em>, <em>pi_E_E=None</em>, <em>pi_E_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of the model. Any parameter not explicitly
 specified will be set to None. Creates a new
-<a class="reference internal" href="MulensModel.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a> object,
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a> object,
 so all the previously set parameters will be forgotten.</p>
 </dd></dl>
 
@@ -186,7 +196,7 @@ given times.</p>
 <dd><dl class="first last docutils">
 <dt>satellite_skycoord: <em>astropy.SkyCoord</em></dt>
 <dd><em>SkyCoord</em> giving satellite positions. The parameter 
-<em>representation</em> is set to ‘spherical’.</dd>
+<em>representation</em> is set to &#8216;spherical&#8217;.</dd>
 </dl>
 </dd>
 </dl>
@@ -232,7 +242,7 @@ parallax calculations.</dd>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>dataset: <a class="reference internal" href="MulensModel.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
+<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
 <dd>Dataset with epochs for which magnification will be given.
 Satellite and limb darkening information is taken into 
 account.</dd>
@@ -319,7 +329,7 @@ Hence, this effect is rarely needed.</dd>
 axis to get more human-scale numbers. If using, make
 sure to also set the same settings for all other
 plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal"><span class="pre">plot_data()</span></code></a>)</dd>
-<dt>data_ref: <em>int</em> or a <a class="reference internal" href="MulensModel.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> object</dt>
+<dt>data_ref: <em>int</em> or a <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> object</dt>
 <dd>Reference dataset to scale the model to. See
 <a class="reference internal" href="#MulensModel.model.Model.get_ref_fluxes" title="MulensModel.model.Model.get_ref_fluxes"><code class="xref py py-func docutils literal"><span class="pre">get_ref_fluxes()</span></code></a></dd>
 <dt>f_source, f_blend: <em>float</em></dt>
@@ -364,7 +374,7 @@ datasets. The <em>data_ref</em> may either be a dataset or the index of a
 dataset (if <a class="reference internal" href="#MulensModel.model.Model.set_datasets" title="MulensModel.model.Model.set_datasets"><code class="xref py py-func docutils literal"><span class="pre">Model.set_datasets()</span></code></a> was previously called). If
 <em>data_ref</em> is not set, it will use the first dataset. If you
 call this without calling <a class="reference internal" href="#MulensModel.model.Model.set_datasets" title="MulensModel.model.Model.set_datasets"><code class="xref py py-func docutils literal"><span class="pre">set_datasets()</span></code></a> first, there will be
-an exception and that’s on you.</p>
+an exception and that&#8217;s on you.</p>
 </dd></dl>
 
 <dl class="method">
@@ -390,7 +400,7 @@ matplotib.scatter().</dd>
 <dt>show_bad: <em>boolean</em></dt>
 <dd>if False, bad data are suppressed (default). 
 if True, shows points marked as bad
-(<code class="xref py py-obj docutils literal"><span class="pre">mulensdata.MulensData.bad</span></code>) as ‘x’</dd>
+(<code class="xref py py-obj docutils literal"><span class="pre">mulensdata.MulensData.bad</span></code>) as &#8216;x&#8217;</dd>
 <dt>color_list, marker_list, size_list: <em>list</em></dt>
 <dd>Controls point types for each dataset (length must be
 equal to the number of datasets). May specify none,
@@ -410,7 +420,7 @@ plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Mode
 </dl>
 <p>May also use <code class="docutils literal"><span class="pre">**kwargs</span></code> or some combination of the lists and
 <code class="docutils literal"><span class="pre">**kwargs</span></code>. e.g. set color_list to specify which color each
-data set should be plotted in, but use fmt=’s‘ to make all
+data set should be plotted in, but use fmt=&#8217;s&#8216; to make all
 data points plotted as squares.</p>
 <p><code class="docutils literal"><span class="pre">**kwargs</span></code> (and point type lists) are remembered and used in
 subsequent calls to both plot_data() and plot_residuals().</p>
@@ -457,7 +467,7 @@ is calculated for a satellite. (Not checked)</dd>
 <dl class="method">
 <dt id="MulensModel.model.Model.plot_caustics">
 <code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_caustics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the caustic structure. See <a class="reference internal" href="MulensModel.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a></p>
+<dd><p>Plot the caustic structure. See <a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a></p>
 </dd></dl>
 
 <dl class="method">
@@ -512,9 +522,9 @@ for a list of implemented methods.</p>
 (<em>float</em> values for julian dates). Given method will be used 
 for times between the times between which it is on the list, 
 e.g.,</p>
-<p class="last">methods = [2455746., ‘Quadrupole’, 2455746.6, ‘Hexadecapole’, 
-2455746.7, ‘VBBL’, 2455747., ‘Hexadecapole’, 2455747.15, 
-‘Quadrupole’, 2455748.]</p>
+<p class="last">methods = [2455746., &#8216;Quadrupole&#8217;, 2455746.6, &#8216;Hexadecapole&#8217;, 
+2455746.7, &#8216;VBBL&#8217;, 2455747., &#8216;Hexadecapole&#8217;, 2455747.15, 
+&#8216;Quadrupole&#8217;, 2455748.]</p>
 </dd>
 </dl>
 </dd>
@@ -611,28 +621,25 @@ also
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.model.rst.txt"
+      <li><a href="_sources/MulensModel.model.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -643,12 +650,12 @@ also
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
       
       |
-      <a href="_sources/MulensModel.model.rst.txt"
-          rel="nofollow">Page source</a>
+      <a href="_sources/MulensModel.model.txt"
+          rel="nofollow">Page source</a></li>
     </div>
 
     
