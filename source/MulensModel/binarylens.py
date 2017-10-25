@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
-import sys, os, ctypes
+import sys
+import os
+import ctypes
 import numpy as np
 from math import fsum, sqrt
 
