@@ -95,7 +95,7 @@ class ModelParameters(object):
         #rho value and header column
         try:
             values = '{0} {1:>7.5f}'.format(values, self._rho)
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, ValueError):
             pass
         else:
             variables = '{0} {1:>7}'.format(variables, 'rho') 
