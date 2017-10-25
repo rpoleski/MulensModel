@@ -14,27 +14,25 @@ class MulensData(object):
     """
     A set of photometric measurements for a microlensing event.
 
-    To define a MulensData object: ...
+    Examples of how to define a MulensData object:
+        data = MulensData(file_name=SAMPLE_FILE_01)
 
-    Attributes (all vectors):
-        time - the dates of the observations
+        data = MulensData(data_list=[[Dates], [Magnitudes], [Errors]])
+    
+    **Parallax calculations assume that the dates supplied are
+    BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`.** If
+    you aren't using parallax, the time system shouldn't matter as
+    long as it is consistent across all MulensData and Model objects.
 
-        mag - the brightness in magnitudes
-
-        err_mag - the errors on the magnitudes
-
-        flux - the brightness in flux
-
-        err_flux - the errors on the fluxes
-
-    Keywords:
+    Keywords :
         data_list: [*list* of *lists*, *numpy.ndarray*], optional
             columns: Date, Magnitude/Flux, Err
 
         file_name: *str*, optional
             The path to a file with columns: Date, Magnitude/Flux,
-            Err. Loaded using np.loadtxt. See ``**kwargs.``
-            *Either data_list or file_name is required.*
+            Err. Loaded using np.loadtxt. See ``**kwargs``.
+
+        **Either data_list or file_name is required.**
 
         phot_fmt: *str* 
            Specifies whether the photometry is in Magnitudes or
@@ -59,12 +57,24 @@ class MulensData(object):
         add_2460000: *boolean*, optional 
             Adds 2460000 to the input dates. Useful if the dates
             are supplied as HJD-2460000.
+    
+        bandpass: see :obj:`bandpass`
 
-        **Parallax calculations assume that the dates supplied are
-        BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`**
+        bad: *boolean* array, optional
+            Flags for bad data (data to exclude from fitting and
+            plotting). Should be the same length as the number of data
+            points.
 
         ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if file_name 
         is provided.
+
+    Attributes (all vectors):
+
+        flux - the brightness in flux
+
+        err_flux - the errors on the fluxes
+
+
     """
 
     def __init__(self, data_list=None, file_name=None,
@@ -179,13 +189,8 @@ class MulensData(object):
         self.bad = self.n_epochs * [False]
 
     @property
-    def n_epochs(self):
-        """give number of epochs"""
-        return self._n_epochs
-
-    @property
     def time(self):
-        """short version of time vector"""
+        """vector of dates"""
         return self._time
 
     @property
@@ -215,10 +220,15 @@ class MulensData(object):
         self._coords = Coordinates(new_value)
 
     @property
+    def n_epochs(self):
+        """give total number of epochs (including bad data)"""
+        return self._n_epochs
+
+    @property
     def satellite_skycoord(self):
-        """return *astropy.coordinates.SkyCoord* object for satellite 
-        positions at epochs covered by
-        the dataset
+        """
+        return *astropy.coordinates.SkyCoord* object for satellite
+        positions at epochs covered by the dataset.
         """
         if self.ephemerides_file is None:
             raise ValueError('ephemerides_file is not defined.')
@@ -233,7 +243,12 @@ class MulensData(object):
 
     @property
     def bandpass(self):
-        """bandpass of given dataset (primary usage is limb darkening)"""
+        """ 
+        *string* 
+
+        bandpass of given dataset (primary usage is limb darkening), e.g. 'I'
+        or 'V'
+        """
         return self._bandpass
         
     @bandpass.setter

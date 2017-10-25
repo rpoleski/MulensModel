@@ -1,48 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>MulensModel.limbdarkeningcoeffs module &mdash; MulensModel 0.2.1 documentation</title>
-    
+    <title>MulensModel.limbdarkeningcoeffs module &#8212; MulensModel 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -54,11 +44,11 @@
 <dl class="class">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs">
 <em class="property">class </em><code class="descclassname">MulensModel.limbdarkeningcoeffs.</code><code class="descname">LimbDarkeningCoeffs</code><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Linear limb-darkening parameters. Both gamma and u conventions can be used. 
 The u convention is more frequently used in studies other in microlensing. 
 It has fixed flux at the center. An et al. 2002 (ApJ 572, 521,
-<a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...572..521A">http://adsabs.harvard.edu/abs/2002ApJ...572..521A</a>) introduced gamma convention:</p>
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...572..521A">http://adsabs.harvard.edu/abs/2002ApJ…572..521A</a>) introduced gamma convention:</p>
 <p>gamma = (2 * u) / (3 - u)</p>
 <p>u = 3 * gamma / (2 + gamma)</p>
 <p>Note that gamma convention has fixed total flux.</p>
@@ -144,7 +134,7 @@ It has fixed flux at the center. An et al. 2002 (ApJ 572, 521,
 <dt>weights: <em>dict</em></dt>
 <dd>A dictionary that for every band (keys; <em>str</em> type) gives its 
 relative weight (value; <em>float</em> type), e.g., 
-weights = {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.}
+weights = {‘I’: 1.5, ‘V’: 1.}
 will return gamma coefficient in the case when I band 
 contributes 1.5 more than V band. Note that for each band used 
 you have to first set to coefficient.</dd>
@@ -168,25 +158,28 @@ you have to first set to coefficient.</dd>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.limbdarkeningcoeffs.txt"
+      <li><a href="_sources/MulensModel.limbdarkeningcoeffs.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -197,12 +190,12 @@ you have to first set to coefficient.</dd>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/MulensModel.limbdarkeningcoeffs.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="_sources/MulensModel.limbdarkeningcoeffs.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

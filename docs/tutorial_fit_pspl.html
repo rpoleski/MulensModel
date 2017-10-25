@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.mulensparallaxvector module &#8212; MulensModel 0.2.1 documentation</title>
+    <title>Basic Fitting Tutorial &#8212; MulensModel 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -39,17 +39,22 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.mulensparallaxvector">
-<span id="mulensmodel-mulensparallaxvector-module"></span><h1>MulensModel.mulensparallaxvector module<a class="headerlink" href="#module-MulensModel.mulensparallaxvector" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="MulensModel.mulensparallaxvector.MulensParallaxVector">
-<em class="property">class </em><code class="descclassname">MulensModel.mulensparallaxvector.</code><code class="descname">MulensParallaxVector</code><span class="sig-paren">(</span><em>pi_E_1=None</em>, <em>pi_E_2=None</em>, <em>pi_E=None</em>, <em>ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensparallaxvector.MulensParallaxVector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>A class for the microlens parallax, which is a vector. May be
-specified either relative to the sky (“NorthEast”) or relative to
-the binary lens axis (“ParPerp”). “NorthEast” is default.</p>
-</dd></dl>
-
+  <div class="section" id="basic-fitting-tutorial">
+<h1>Basic Fitting Tutorial<a class="headerlink" href="#basic-fitting-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial shows how to fit basic point-source/point-lens model to
+the data. Similar material can be found in
+<a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/example_02_fitting.py">example 2</a>.</p>
+<div class="section" id="importing-data">
+<h2>Importing data<a class="headerlink" href="#importing-data" title="Permalink to this headline">¶</a></h2>
+<p>First, need to import some modules:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">MulensModel</span>
+<span class="kn">from</span> <span class="nn">MulensModel</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Fit</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">MulensData</span><span class="p">,</span> <span class="n">Utils</span>
+</pre></div>
+</div>
+<p>You may want to learn more on plotting in MulensModel from
+<a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/example_05_MB08310.py">example 5</a>.</p>
+</div>
 </div>
 
 
@@ -57,7 +62,15 @@ the binary lens axis (“ParPerp”). “NorthEast” is default.</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Basic Fitting Tutorial</a><ul>
+<li><a class="reference internal" href="#importing-data">Importing data</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
@@ -67,7 +80,7 @@ the binary lens axis (“ParPerp”). “NorthEast” is default.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.mulensparallaxvector.rst.txt"
+      <li><a href="_sources/tutorial_fit_pspl.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -93,7 +106,7 @@ the binary lens axis (“ParPerp”). “NorthEast” is default.</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/MulensModel.mulensparallaxvector.rst.txt"
+      <a href="_sources/tutorial_fit_pspl.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

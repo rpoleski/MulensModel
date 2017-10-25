@@ -1,48 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>MulensModel.mulensdata module &mdash; MulensModel 0.2.1 documentation</title>
-    
+    <title>MulensModel.mulensdata module &#8212; MulensModel 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -54,29 +44,33 @@
 <dl class="class">
 <dt id="MulensModel.mulensdata.MulensData">
 <em class="property">class </em><code class="descclassname">MulensModel.mulensdata.</code><code class="descname">MulensData</code><span class="sig-paren">(</span><em>data_list=None</em>, <em>file_name=None</em>, <em>phot_fmt='mag'</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em>, <em>add_2450000=False</em>, <em>add_2460000=False</em>, <em>bandpass=None</em>, <em>bad=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A set of photometric measurements for a microlensing event.</p>
-<p>To define a MulensData object: ...</p>
 <dl class="docutils">
-<dt>Attributes (all vectors):</dt>
-<dd><p class="first">time - the dates of the observations</p>
-<p>mag - the brightness in magnitudes</p>
-<p>err_mag - the errors on the magnitudes</p>
-<p>flux - the brightness in flux</p>
-<p class="last">err_flux - the errors on the fluxes</p>
+<dt>Examples of how to define a MulensData object:</dt>
+<dd><p class="first">data = MulensData(file_name=SAMPLE_FILE_01)</p>
+<p class="last">data = MulensData(data_list=[[Dates], [Magnitudes], [Errors]])</p>
 </dd>
-<dt>Keywords:</dt>
+</dl>
+<p><strong>Parallax calculations assume that the dates supplied are
+BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`.</strong> If
+you aren’t using parallax, the time system shouldn’t matter as
+long as it is consistent across all MulensData and Model objects.</p>
+<dl class="docutils">
+<dt>Keywords :</dt>
 <dd><dl class="first docutils">
 <dt>data_list: [<em>list</em> of <em>lists</em>, <em>numpy.ndarray</em>], optional</dt>
 <dd>columns: Date, Magnitude/Flux, Err</dd>
 <dt>file_name: <em>str</em>, optional</dt>
 <dd>The path to a file with columns: Date, Magnitude/Flux,
-Err. Loaded using np.loadtxt. See <code class="docutils literal"><span class="pre">**kwargs.</span></code>
-<em>Either data_list or file_name is required.</em></dd>
+Err. Loaded using np.loadtxt. See <code class="docutils literal"><span class="pre">**kwargs</span></code>.</dd>
+</dl>
+<p><strong>Either data_list or file_name is required.</strong></p>
+<dl class="docutils">
 <dt>phot_fmt: <em>str</em> </dt>
 <dd>Specifies whether the photometry is in Magnitudes or
-Flux units. accepts either &#8216;mag&#8217; or &#8216;flux&#8217;. Default =
-&#8216;mag&#8217;.</dd>
+Flux units. accepts either ‘mag’ or ‘flux’. Default =
+‘mag’.</dd>
 <dt>coords: <em>astropy.SkyCoord</em>, optional </dt>
 <dd>sky coordinates of the event</dd>
 <dt>ra, dec: <em>str</em>, optional </dt>
@@ -84,8 +78,8 @@ Flux units. accepts either &#8216;mag&#8217; or &#8216;flux&#8217;. Default =
 <dt>ephemerides_file: <em>str</em>, optional </dt>
 <dd>Specify the ephemerides of a satellite over the period when
 the data were taken. Will be interpolated as necessary to
-model the satellite parallax effect. See &#8220;Instructions on
-getting satellite positions&#8221; in MulensModel.README.md</dd>
+model the satellite parallax effect. See “Instructions on
+getting satellite positions” in MulensModel.README.md</dd>
 <dt>add_2450000: <em>boolean</em>, optional </dt>
 <dd>Adds 2450000 to the input dates. Useful if the dates
 are supplied as HJD-2450000.</dd>
@@ -93,22 +87,26 @@ are supplied as HJD-2450000.</dd>
 <dd>Adds 2460000 to the input dates. Useful if the dates
 are supplied as HJD-2460000.</dd>
 </dl>
-<p><strong>Parallax calculations assume that the dates supplied are
-BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`</strong></p>
+<p>bandpass: see <a class="reference internal" href="#MulensModel.mulensdata.MulensData.bandpass" title="MulensModel.mulensdata.MulensData.bandpass"><code class="xref py py-obj docutils literal"><span class="pre">bandpass</span></code></a></p>
+<dl class="docutils">
+<dt>bad: <em>boolean</em> array, optional</dt>
+<dd>Flags for bad data (data to exclude from fitting and
+plotting). Should be the same length as the number of data
+points.</dd>
+</dl>
 <p class="last"><code class="docutils literal"><span class="pre">**kwargs</span></code> - <code class="xref py py-func docutils literal"><span class="pre">np.loadtxt()</span></code> keywords. Used if file_name 
 is provided.</p>
 </dd>
 </dl>
-<dl class="attribute">
-<dt id="MulensModel.mulensdata.MulensData.n_epochs">
-<code class="descname">n_epochs</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.n_epochs" title="Permalink to this definition">¶</a></dt>
-<dd><p>give number of epochs</p>
-</dd></dl>
-
+<p>Attributes (all vectors):</p>
+<blockquote>
+<div><p>flux - the brightness in flux</p>
+<p>err_flux - the errors on the fluxes</p>
+</div></blockquote>
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.time">
 <code class="descname">time</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.time" title="Permalink to this definition">¶</a></dt>
-<dd><p>short version of time vector</p>
+<dd><p>vector of dates</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -130,17 +128,24 @@ is provided.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="MulensModel.mulensdata.MulensData.n_epochs">
+<code class="descname">n_epochs</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.n_epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>give total number of epochs (including bad data)</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.satellite_skycoord">
 <code class="descname">satellite_skycoord</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.satellite_skycoord" title="Permalink to this definition">¶</a></dt>
-<dd><p>return <em>astropy.coordinates.SkyCoord</em> object for satellite 
-positions at epochs covered by
-the dataset</p>
+<dd><p>return <em>astropy.coordinates.SkyCoord</em> object for satellite
+positions at epochs covered by the dataset.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.bandpass">
 <code class="descname">bandpass</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.bandpass" title="Permalink to this definition">¶</a></dt>
-<dd><p>bandpass of given dataset (primary usage is limb darkening)</p>
+<dd><p><em>string</em></p>
+<p>bandpass of given dataset (primary usage is limb darkening), e.g. ‘I’
+or ‘V’</p>
 </dd></dl>
 
 <dl class="method">
@@ -148,13 +153,13 @@ the dataset</p>
 <code class="descname">set_limb_darkening_weights</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.set_limb_darkening_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a dictionary of weights that will be used to evaluate the
 limb darkening coefficient. See also
-<a class="reference internal" href="MulensModel.limbdarkeningcoeffs.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal"><span class="pre">LimbDarkeningCoeffs</span></code></a></p>
+<a class="reference internal" href="MulensModel.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal"><span class="pre">LimbDarkeningCoeffs</span></code></a></p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
 <dt>weights: <em>dict</em></dt>
 <dd>A dictionary that specifies weight for each bandpass. Keys are 
-<em>str</em> and values are <em>float</em>, e.g., {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.} if 
+<em>str</em> and values are <em>float</em>, e.g., {‘I’: 1.5, ‘V’: 1.} if 
 the I-band gamma limb-darkening coefficient is 1.5-times 
 larger than the V-band</dd>
 </dl>
@@ -171,25 +176,28 @@ larger than the V-band</dd>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.mulensdata.txt"
+      <li><a href="_sources/MulensModel.mulensdata.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -200,12 +208,12 @@ larger than the V-band</dd>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/MulensModel.mulensdata.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="_sources/MulensModel.mulensdata.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     
