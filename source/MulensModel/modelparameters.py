@@ -88,14 +88,14 @@ class ModelParameters(object):
 
         #t_E value
         try:
-            values = '{0} {1:>10.4f}'.format(values,self.t_E)
+            values = '{0} {1:>10.4f}'.format(values, self.t_E)
         except AttributeError:
             values = '{0} {1:>10}'.format(values,None)
 
         #rho value and header column
         try:
             values = '{0} {1:>7.5f}'.format(values, self._rho)
-        except AttributeError:
+        except (AttributeError, TypeError):
             pass
         else:
             variables = '{0} {1:>7}'.format(variables, 'rho') 
@@ -109,7 +109,7 @@ class ModelParameters(object):
         except AttributeError:
             pass
 
-        return 'ModelParameters:\n{0}\n{1}\n'.format(variables, values)
+        return 'Model Parameters:\n{0}\n{1}\n'.format(variables, values)
 
     @property
     def n_lenses(self):
@@ -118,7 +118,6 @@ class ModelParameters(object):
             return 1
         else:
             return 2
-
 
     @property
     def t_0(self):
@@ -264,4 +263,3 @@ class ModelParameters(object):
         except AttributeError:
             self._pi_E = MulensParallaxVector(pi_E_1=0., pi_E_2=new_value, 
                                                ref="NorthEast")
-
