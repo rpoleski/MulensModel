@@ -9,58 +9,62 @@
 (__boldfaced__ correspond to this month goals; _italics_ mark task useful for data challenge; try to put important stuff at the top)
 
 [Done?] = JCY thinks this might be done (and if confirmed, should be removed)
+
 [What?] = JCY could not interpret this item
+
 [Why?] = JCY thinks this needs a use case
-1 = Necessary for data challenge
-2 = Nice for data challenge
+
+[1] = Necessary for data challenge
+
+[2] = Nice for data challenge
 
 * Install
-  1. [Done?] makefile for Windows
+  * [1] [Done?] makefile for Windows
 * Documentation
   * [Done?] remove intermediate Sphinx files from repo
-  1. __PSPL manual__
+  * [1] __PSPL manual__
   * Sagan workshop hands-on activity in MM
   * [What?] binary calculations - define if s is relative to total mass etc.
   * Add \_\_repr\_\_ functions to Lens and Source
-  2. files not yet well documented (starting from the shortest): 
+  * [2] files not yet well documented (starting from the shortest): 
     * trajectory.py 
     * mulensparallaxvector.py 
     * satelliteskycoord.py 
-    1. caustics.py 
+    * [1] caustics.py 
     * horizons.py 
     * limbdarkeningcoeffs.py 
     * mulenstime.py 
     * fit.py 
-    1. magnificationcurve.py 
+    * [1] magnificationcurve.py 
     * utils.py 
-    1. modelparameters.py
-    1. mulendsdata.py
+    * [1] modelparameters.py
+    * [1] mulendsdata.py
 * Effects
   * Finite Source
     * _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
-    2. _faster FSPL with LD_
+    * [2] _faster FSPL with LD_
     * FSPL ray shooting (ala getmag\_rs\_single.f)
-    2. get gamma/u LD coefs from Claret papers etc.
+    * [2] get gamma/u LD coefs from Claret papers etc.
   * Higher Order Effects
     * xallarap (see below for references)
       - use case, 
       - unit test, 
       - and code itself 
-    1. __binary lens orbital motion 
+    * [1] __binary lens orbital motion 
       - [Done?] use case, 
       - unit test, 
       - and code itself__
-      1. Research decorators (e.g. @property) - Can we have both print(model.s) and print(model.s(time))?
+      * [1] Research decorators (e.g. @property) - Can we have both print(model.s) and print(model.s(time))?
 * Parameterization
   * __t\_* instead of rho__
   * _Cassan 2008 binary lens parameters_
-  1. _dA/dparam for point lens models_
+  * [1] _dA/dparam for point lens models_
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692)
 * Function Improvements/Expansion
   * Binary Lens:
     * should BinaryLens() accept source\_x/y as lists or arrays?
-    1. function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
+    * [1] function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
   * Caustics.\_calculate - optimize using vectors instead of a loop
   * Event class:
     * [Why?] single Event can have many instances of Model associated with it
@@ -87,7 +91,7 @@
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
   * Plotting
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
-   2. subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
+   * [2] subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
   * Miscellaneous:
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
@@ -101,7 +105,7 @@
 * Style:
   * Are we consistent with PEP8? [check here](http://pep8online.com/)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
-  1. are we fully ok with astropy license?
+  * [1] are we fully ok with astropy license?
 
 ### reStructuredText:
 [1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
