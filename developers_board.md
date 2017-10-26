@@ -96,6 +96,7 @@
     * Errorbar scaling, in particular the two parameter.
     * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
     * anything from use cases that does not work yet -- see TODO.md file
+    * [2] plotting data in MulensData (also update PSPL tutorial)
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
