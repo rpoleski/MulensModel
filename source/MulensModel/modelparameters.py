@@ -109,7 +109,7 @@ class ModelParameters(object):
         except AttributeError:
             pass
 
-        return 'Model Parameters:\n{0}\n{1}\n'.format(variables, values)
+        return '{0}\n{1}\n'.format(variables, values)
 
     @property
     def n_lenses(self):
