@@ -88,10 +88,10 @@ def test_limb_darkening():
     u = 3. * gamma / (2. + gamma)
 
     model = Model()
-    model.set_limb_coef_gamma('I', gamma)
+    model.set_limb_coeff_gamma('I', gamma)
 
-    np.testing.assert_almost_equal(model.limb_coef_gamma('I'), gamma)
-    np.testing.assert_almost_equal(model.limb_coef_u('I'), u)
+    np.testing.assert_almost_equal(model.get_limb_coeff_gamma('I'), gamma)
+    np.testing.assert_almost_equal(model.get_limb_coeff_u('I'), u)
 
 def test_BLPS_01():
     """simple binary lens with point source"""
@@ -122,7 +122,7 @@ def test_BLPS_02():
 
     # Below we test passing the limb coef to VBBL function.
     data.bandpass = 'I'
-    model.set_limb_coef_u('I', 10.) # This is an absurd value but I needed something quick.
+    model.set_limb_coeff_u('I', 10.) # This is an absurd value but I needed something quick.
     result = model.data_magnification[0]
     np.testing.assert_almost_equal(result[5], 1.6366862)
     
