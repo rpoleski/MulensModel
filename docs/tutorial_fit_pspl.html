@@ -5,9 +5,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>Basic Fitting Tutorial &#8212; MulensModel 0.2.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -21,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -46,14 +49,89 @@ the data. Similar material can be found in
 <a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/example_02_fitting.py">example 2</a>.</p>
 <div class="section" id="importing-data">
 <h2>Importing data<a class="headerlink" href="#importing-data" title="Permalink to this headline">¶</a></h2>
-<p>First, need to import some modules:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<p>First things first - we need to import some modules:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">MulensModel</span>
 <span class="kn">from</span> <span class="nn">MulensModel</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Fit</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">MulensData</span><span class="p">,</span> <span class="n">Utils</span>
 </pre></div>
 </div>
+<p>Then we import the data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+                                                     <span class="s2">&quot;phot_ob08092_O4.dat&quot;</span><span class="p">)</span>
+<span class="n">my_data</span> <span class="o">=</span> <span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;{:} file was imported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="plot-the-data">
+<h2>Plot the data<a class="headerlink" href="#plot-the-data" title="Permalink to this headline">¶</a></h2>
+<p>Next step would be plotting these data using matplotlib package:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">my_data</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">my_data</span><span class="o">.</span><span class="n">mag</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">my_data</span><span class="o">.</span><span class="n">err_mag</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span> <span class="c1"># We need this to invert magnitude axis.</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>From the plot we see that the peak was around JD’ of 5380.0,
+the peak magnitude was about 0.8 mag brighter than baseline,
+and the event lasted dozens of days.
+We can turn these pieces of information into very rough estimates of
+the event parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">t_0</span> <span class="o">=</span> <span class="mf">5380.0</span>
+<span class="n">u_0</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">t_E</span> <span class="o">=</span> <span class="mf">20.0</span> <span class="c1"># This is in days.</span>
+</pre></div>
+</div>
+<p>We guessed <code class="docutils literal"><span class="pre">u_0</span> <span class="pre">=</span> <span class="pre">0.5</span></code> based on the peak amplitude.</p>
+</div>
+<div class="section" id="prepare-for-fitting">
+<h2>Prepare for fitting<a class="headerlink" href="#prepare-for-fitting" title="Permalink to this headline">¶</a></h2>
+<p>The rough estimates of the event parameters allow us to define a model and plot it
+together with data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pspl_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">t_0</span><span class="o">=</span><span class="n">t_0</span><span class="p">,</span> <span class="n">u_0</span><span class="o">=</span><span class="n">u_0</span><span class="p">,</span> <span class="n">t_E</span><span class="o">=</span><span class="n">t_E</span><span class="p">)</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">set_datasets</span><span class="p">([</span><span class="n">my_data</span><span class="p">])</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_data</span><span class="p">()</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To associate a dataset with model we called Model.set_datasets() function.
+Its argument is a list of dataset. In the present case this list contains only
+a single dataset. If you have more datasets, then just include all of them
+in the list passed to set_datasets().</p>
+<p>The plot looks seems fine, i.e., the peak is more or less where it should be.
+Hence, we can use our rough estimates as a starting point for fitting
+procedure.</p>
 <p>You may want to learn more on plotting in MulensModel from
 <a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/example_05_MB08310.py">example 5</a>.</p>
+<p>To fit the model parameters we will need to calculate chi^2. The chi^2
+calculation requires an instance of Event class that combines the Model and
+the MulensData:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">my_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">my_data</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">pspl_model</span><span class="p">)</span>
+<span class="n">chi2_initial</span> <span class="o">=</span> <span class="n">my_event</span><span class="o">.</span><span class="n">get_chi2</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;give chi^2 of {:.2f}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chi2_initial</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>We have the ability to get the goodness of fit and it turn it into a function:</p>
+<p>The chi2_for_model() function as a first argument has a sequence of
+float-type values. The second argument is an instance of the Event class.
+The third argument is a list that specifies the attributes of Event.model that
+will be changed. Note that the order of theta values and parameters_to_fit are
+the same.</p>
+</div>
+<div class="section" id="fit-the-model-parameters">
+<h2>Fit the model parameters<a class="headerlink" href="#fit-the-model-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Ok, finally we can fit the parameters. Here we will use
+the minimize() functions from SciPy subpackage optimize. We encourage you to
+try other fitting routines.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="kn">as</span> <span class="nn">op</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chi2_for_model</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">initial_guess</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">my_event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Nelder-Mead&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To be continued… (print results, plot results, give exercise)</p>
 </div>
 </div>
 
@@ -67,6 +145,9 @@ the data. Similar material can be found in
   <ul>
 <li><a class="reference internal" href="#">Basic Fitting Tutorial</a><ul>
 <li><a class="reference internal" href="#importing-data">Importing data</a></li>
+<li><a class="reference internal" href="#plot-the-data">Plot the data</a></li>
+<li><a class="reference internal" href="#prepare-for-fitting">Prepare for fitting</a></li>
+<li><a class="reference internal" href="#fit-the-model-parameters">Fit the model parameters</a></li>
 </ul>
 </li>
 </ul>
@@ -102,7 +183,7 @@ the data. Similar material can be found in
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

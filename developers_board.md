@@ -8,10 +8,6 @@
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals; _italics_ mark task useful for data challenge; try to put important stuff at the top)
 
-[Done?] = JCY thinks this might be done (and if confirmed, should be removed)
-
-[What?] = JCY could not interpret this item
-
 [Why?] = JCY thinks this needs a use case
 
 [1] = Necessary for data challenge
@@ -19,12 +15,16 @@
 [2] = Nice for data challenge
 
 * Install
-  * [1] [Done?] makefile for Windows
+  * [2] makefile for Windows (basic instructions exist already)
 * Documentation
-  * [Done?] remove intermediate Sphinx files from repo
+  * remove intermediate Sphinx files from repo
   * [1] __PSPL manual__
   * Sagan workshop hands-on activity in MM
-  * [What?] binary calculations - define if s is relative to total mass etc.
+  * binary calculations
+    1. Confirm s is relative to Einstein radius of total mass of the binary lens.
+    2. Update documentation to reflect this.
+    3. Make code changes as necessary.
+
   * Add \_\_repr\_\_ functions to Lens and Source
   * [2] files not yet well documented (starting from the shortest): 
     * [2] trajectory.py 
@@ -38,10 +38,9 @@
     * [2] magnificationcurve.py 
     * utils.py 
     * [1] modelparameters.py
-    * [1] [Done?] mulendsdata.py
 * Effects
   * Finite Source
-    * _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
+    * [2] _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
     * [2] _faster FSPL with LD_
     * FSPL ray shooting (ala getmag\_rs\_single.f)
@@ -51,27 +50,26 @@
       - use case, 
       - unit test, 
       - and code itself 
-    * [1] __binary lens orbital motion 
-      - [Done?] use case, 
+    * [1] __binary lens orbital motion__
+      - use case, 
       - unit test, 
-      - and code itself__
+      - and code itself
       * [1] Research decorators (e.g. @property) - Can we have both print(model.s) and print(model.s(time))?
 * Parameterization
   * __t\_* instead of rho__
   * _Cassan 2008 binary lens parameters_
   * [1] _dA/dparam for point lens models_
+    * [1] **use case - JCY action item**
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692)
 * Function Improvements/Expansion
   * Binary Lens:
     * should BinaryLens() accept source\_x/y as lists or arrays?
-    * [1] function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
+    * [2] function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
   * Caustics.\_calculate - optimize using vectors instead of a loop
   * Event class:
-    * [Why?] single Event can have many instances of Model associated with it
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_corrds etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
-    * [Done?] when coordinates in event (or associated model or mulensdata) are changed then all associated coords are changed - this seems logical but maybe there should be some warning  that the user changes the previously set coordinates for a dataset
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
-    * [What?] fluxes fixed in chi^2 calculation
+    * Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter)
   * [Why?] Fit() should use marginalized distributions of fluxes (if those are from linear fits)
   * Horizons:
     * JPL Horizons
@@ -86,7 +84,6 @@
     * _Model.set\_parameters() should remember previously set values (of course unless they're overwritten)_
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
   * ModelParameters:
-    * [Done?] modelparameters.py t\_E -> see comments there;
     * should we set t\_E as a Astropy.quantity and then expect to get float?
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
   * Plotting
@@ -102,10 +99,12 @@
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
-* Style:
+* Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
   * [1] are we fully ok with astropy license?
+  * [1] **Should there be separate Model and ModelParameters subclasses for different types of models (e.g. PSPL, binary lens, binary source)? Need use cases.**
+* [2] submit to PASP
 
 ### reStructuredText:
 [1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)

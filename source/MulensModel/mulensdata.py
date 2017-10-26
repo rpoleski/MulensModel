@@ -20,7 +20,7 @@ class MulensData(object):
         data = MulensData(data_list=[[Dates], [Magnitudes], [Errors]])
     
     **Parallax calculations assume that the dates supplied are
-    BJD_TDB. See :py:class:`~MulensModel.trajectory.Trajectory`.** If
+    BJD_TDB. See** :class:`~MulensModel.trajectory.Trajectory`. If
     you aren't using parallax, the time system shouldn't matter as
     long as it is consistent across all MulensData and Model objects.
 
