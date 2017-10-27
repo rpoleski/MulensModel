@@ -29,7 +29,7 @@ def test_repr_parameters():
     t_E = 62.63*u.day
     params = ModelParameters(t_0=t_0, u_0=u_0, t_E=t_E)
     
-    out_1 = " t_0 (HJD')       u_0    t_E (d)\n"
+    out_1 = "  t_0 (HJD)       u_0    t_E (d)\n"
     out_2 = " 6141.59300  0.542500    62.6300\n"
     
     assert (out_1 + out_2) == str(params)
