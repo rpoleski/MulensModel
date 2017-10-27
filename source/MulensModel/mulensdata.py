@@ -130,8 +130,6 @@ class MulensData(object):
         
         if bad is not None:
             self.bad = bad
-        else:
-            self.bad = np.zeros(len(self.time), dtype=bool)
         
         #Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
