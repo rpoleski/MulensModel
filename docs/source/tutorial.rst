@@ -41,9 +41,9 @@ Introducing Data
 
 Suppose you also had some data you want to import:
 
-``OGLE_data = MulensModel.MulensData('../data/OB03235/OB03235_OGLE.tbl.txt', commenst=['\\','|'])``
+``OGLE_data = MulensModel.MulensData(file_name='../data/OB03235/OB03235_OGLE.tbl.txt', comments=['\\', '|'])``
 
-``MOA_data = MulensModel.MulensData('../data/OB03235/OB03235_MOA.tbl.txt', phot_fmt='flux', comments=['\\','|')``
+``MOA_data = MulensModel.MulensData(file_name='../data/OB03235/OB03235_MOA.tbl.txt', phot_fmt='flux', comments=['\\', '|'])``
 
 Combining Data with a Model
 ---------------------------
