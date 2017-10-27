@@ -68,7 +68,7 @@ class ModelParameters(object):
         """A nice way to represent a ModelParameters object as a string"""        
         #Initialize Header line
         variables = '{0:>11} {1:>9} '.format(
-            "t_0 (HJD)", 'u_0')
+            "t_0 (HJD_Calen)", 'u_0')
         try:
             variables = '{0} {1:>9}'.format(
                 variables, 't_E ({0})'.format(self._t_E.unit))
