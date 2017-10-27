@@ -124,7 +124,10 @@ class MulensData(object):
             self._initialize(phot_fmt, time=vector_1, 
                              brightness=vector_2, err_brightness=vector_3,
                              coords=self._coords)
-
+        else:
+            raise ValueError('MulensData cannot be initialized with ' + 
+                'data_list or file_name')
+        
         if bad is not None:
             self.bad = bad
         else:
