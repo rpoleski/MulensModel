@@ -45,6 +45,7 @@
     * [2] _faster FSPL with LD_
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * [2] get gamma/u LD coefs from Claret papers etc.
+    * [1] once more review Model, MulensData, and Event
   * Higher Order Effects
     * xallarap (see below for references)
       - use case, 
