@@ -17,7 +17,8 @@ First things first - we need to import some modules:
    import MulensModel
    from MulensModel import Event, Fit, Model, MulensData, Utils
 
-Then we import the data:
+Then we import the data (downloaded together with the code) to 
+the `MulensData class <https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html>`_:
 
 .. code-block:: python
 
@@ -41,7 +42,7 @@ Next step would be plotting these data using matplotlib package:
 From the plot we see that the peak was around JD' of 5380.0, 
 the peak magnitude was about 0.8 mag brighter than baseline, 
 and the event lasted dozens of days. 
-We can turn these pieces of information into very rough estimates of 
+We can turn these pieces of information into a very rough estimates of 
 the event parameters:
 
 .. code-block:: python
@@ -50,12 +51,17 @@ the event parameters:
    u_0 = 0.5
    t_E = 20.0 # This is in days.
 
-We guessed ``u_0 = 0.5`` based on the peak amplitude. 
+We guessed ``u_0 = 0.5`` based on the peak amplitude. The magnitude difference 
+of 0.8 mag corresponds to flux ratio of slightly above 2. The magnification 
+*A* and the impact parameter *u_0* are very approximately related via *A=1/u_0* 
+so *u_0 = 0.5* should be a good choice. 
 
 Prepare for fitting
 -------------------
 
-The rough estimates of the event parameters allow us to define a model and plot it 
+The rough estimates of the event parameters allow us to define 
+a `Model <https://rpoleski.github.io/MulensModel/MulensModel.model.html>`_
+and plot it 
 together with data:
 
 .. code-block:: python
@@ -67,9 +73,10 @@ together with data:
    plt.show()
 
 To associate a dataset with model we called Model.set_datasets() function. 
-Its argument is a list of dataset. In the present case this list contains only 
+Its argument is a list of datasets. In the present case this list contains only 
 a single dataset. If you have more datasets, then just include all of them
-in the list passed to set_datasets().
+in the list passed to set_datasets(), e.g., 
+``pspl_model.set_datasets([my_data, my_friends_data])``. 
 
 The plot looks seems fine, i.e., the peak is more or less where it should be. 
 Hence, we can use our rough estimates as a starting point for fitting 
@@ -79,7 +86,9 @@ You may want to learn more on plotting in MulensModel from
 `example 5 <https://github.com/rpoleski/MulensModel/blob/master/examples/example_05_MB08310.py>`_.
 
 To fit the model parameters we will need to calculate chi^2. The chi^2 
-calculation requires an instance of Event class that combines the Model and 
+calculation requires an instance of the 
+`Event Class <https://rpoleski.github.io/MulensModel/MulensModel.event.htl>`_
+that combines the Model and 
 the MulensData:
 
 .. code-block:: python
@@ -92,6 +101,7 @@ the MulensData:
 We have the ability to get the goodness of fit and it turn it into a function:
 
 .. code-block:: python
+
    parameters_to_fit = ["t_0", "u_0", "t_E"]
    initial_guess = [t_0, u_0, t_E]
 
@@ -112,7 +122,8 @@ Fit the model parameters
 ------------------------
 
 Ok, finally we can fit the parameters. Here we will use 
-the minimize() functions from SciPy subpackage optimize. We encourage you to 
+`the minimize() function <https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html>`_ 
+from SciPy subpackage optimize. We encourage you to 
 try other fitting routines.
 
 .. code-block:: python
