@@ -18,6 +18,7 @@ find the best fit parameters.
 
    Installation <install>
    Tutorial <tutorial>
+   Fitting tutorial <tutorial_fit_pspl>
 
 
 Indices and tables
