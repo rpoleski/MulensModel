@@ -18,7 +18,7 @@
   * [2] makefile for Windows (basic instructions exist already)
 * Documentation
   * remove intermediate Sphinx files from repo
-  * [1] __PSPL manual__
+  * [2] PSPL manual - add annual parallax
   * Sagan workshop hands-on activity in MM
   * binary calculations
     1. Confirm s is relative to Einstein radius of total mass of the binary lens.
