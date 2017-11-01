@@ -87,6 +87,7 @@
   * ModelParameters:
     * should we set t\_E as a Astropy.quantity and then expect to get float?
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
+    * [2] \_\_repr\_\_ must print parallax as well
   * Plotting
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
    * [2] subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
