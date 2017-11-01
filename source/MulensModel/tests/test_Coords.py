@@ -15,13 +15,13 @@ SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH,
 
 def test_model_coords():
     coords = SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
-    model_1 = Model(coords='18:00:00 -30:00:00')
+    model_1 = Model({'t_0':2450000, 'u_0':0.1, 't_E':100}, coords='18:00:00 -30:00:00')
     assert isinstance(model_1.coords, SkyCoord)
     assert model_1.coords.ra == coords.ra
     assert model_1.coords.dec == coords.dec
     assert  model_1.coords.dec.deg == -30.00
 
-    model_3 = Model()
+    model_3 = Model({'t_0':2450000, 'u_0':0.1, 't_E':100})
     model_3.coords = '17:00:00 -27:32:14'
     assert model_3.coords.to_string('hmsdms') == '17h00m00s -27d32m14s'
 
@@ -44,7 +44,7 @@ def test_event_coords():
     data = MulensData(
         file_name=SAMPLE_FILE_01,
         coords='00:00:15 -75:30:15')
-    model = Model()
+    model = Model({'t_0':2450000, 'u_0':0.1, 't_E':100})
 
     event = Event(datasets=data, model=model, coords='15:30:00 45:00:00')
     assert event.coords.to_string('hmsdms') == coord_str_event
@@ -85,7 +85,7 @@ def test_event_coords_ra_dec_1():
     dec_2 = 32.
 
     data = MulensData(file_name=SAMPLE_FILE_01)
-    model = Model()
+    model = Model({'t_0':2450000, 'u_0':0.1, 't_E':100})
     event = Event(datasets=data, model=model, coords=coords_str_1)
 
     # Assertations start here.
@@ -103,7 +103,7 @@ def test_event_coords_ra_dec_2():
     dec_1 = 44.25
 
     data = MulensData(file_name=SAMPLE_FILE_01)
-    model = Model()
+    model = Model({'t_0':2450000, 'u_0':0.1, 't_E':100})
     event = Event(datasets=data, model=model)
     event.coords = '{0} {1}'.format(ra_1_str, dec_1_str)
     check_event_coords(event, ra_1, dec_1)

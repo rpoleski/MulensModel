@@ -22,7 +22,7 @@ def test_event_get_chi2_1():
     data = MulensData(file_name=SAMPLE_FILE_01)
     
     ev = Event()
-    mod = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+    mod = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
     mod.set_datasets([data])
     ev.model = mod
     ev.datasets = [data]
@@ -47,7 +47,7 @@ def test_event_get_chi2_2():
     data = MulensData(file_name=SAMPLE_FILE_01)
     
     ev = Event()
-    mod = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+    mod = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
     mod.set_datasets([data,data])
     ev.model = mod
     ev.datasets = [data,data]
@@ -74,7 +74,7 @@ def test_event_get_chi2_double_source_simple():
     data = MulensData(file_name=SAMPLE_FILE_01)
 
     ev = Event()
-    mod = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+    mod = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
     mod.set_datasets([data, data])
 
     ev.model = mod
@@ -92,7 +92,7 @@ def test_event_get_chi2():
     t_0 = 5380.
     u_0 = 0.5
     t_E = 18.
-    model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+    model = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
     
     #Generate fake data    
     times = np.arange(5320,5420.)
