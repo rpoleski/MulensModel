@@ -1,7 +1,7 @@
 from astropy import units as u
 
-from MulensModel.mulensparallaxvector import MulensParallaxVector
-
+def which_parameters(*args):
+    return NotImplementedError('See use case 23 for desired behavior. Probably needs to be built around a dictionary.')
 
 class ModelParameters(object):
     """
@@ -10,9 +10,7 @@ class ModelParameters(object):
     lens. pi_E assumes NE coordinates (Parallel, Perpendicular
     coordinates are not supported).
     """
-    def __init__(self, t_0=None, u_0=None, t_E=None, rho=None, s=None,
-                 q=None, alpha=None, pi_E=None, pi_E_N=None, pi_E_E=None,
-                 pi_E_ref=None):
+    def __init__(self, parameters):
         """
         Set up parameters for a MulensModel.Model object.
         
@@ -36,33 +34,9 @@ class ModelParameters(object):
                pi_E_E: East component of the parallax
                
         """
-        #Initialize standard parameters.
-        self.t_0 = t_0
-        self.u_0 = u_0
-        self.t_E = t_E
-        self.rho = rho
-        self.s = s
-        self.q = q
-        self.alpha = alpha
 
-        """
-        Define the parallax if appropriate. Does not check for
-        collisions (e.g. if the user specifies both pi_E and (pi_E_N,
-        pi_E_E).
-        """
-        self._pi_E = None
-        if pi_E is not None and (pi_E_N is not None or pi_E_E is not None):
-            msg = 'Microlensing parallax specified in 2 ways at the same time'
-            raise ValueError(msg)
-        if pi_E is not None:
-            self._pi_E = MulensParallaxVector(pi_E=pi_E, ref=pi_E_ref)
-        if pi_E_N is not None:
-            if pi_E_E is not None:
-                self._pi_E = MulensParallaxVector(pi_E_1=pi_E_N, 
-                                                   pi_E_2=pi_E_E, 
-                                                   ref="NorthEast")
-            else:
-                raise AttributeError('pi_E has 2 components')
+        self._check_valid_combination(parameters.keys())
+        self.parameters = parameters
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""        
@@ -111,6 +85,9 @@ class ModelParameters(object):
 
         return '{0}\n{1}\n'.format(variables, values)
 
+    def _check_valid_combination(self, keys):
+        pass
+
     @property
     def n_lenses(self):
         """number of objects in the lens system"""
@@ -125,11 +102,11 @@ class ModelParameters(object):
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
-        return self._t_0
+        return self.parameters['t_0']
 
     @t_0.setter
     def t_0(self, new_t_0):
-        self._t_0 = new_t_0
+        self.parameters['t_0'] = new_t_0
 
     @property
     def u_0(self):
@@ -137,14 +114,65 @@ class ModelParameters(object):
         The minimum projected separation between the source
         and the lens center of mass.
         """
-        if self._u_0 is not None:
-            return self._u_0
+        if 'u_0' in self.parameters.keys():
+            return self.parameters['u_0']
         else:
-            raise AttributeError('u_0 is not defined.')
+            try:
+                return self.parameters['t_eff'] / self.parameters['t_E']
+            except KeyError:
+                raise AttributeError(
+                    'u_0 is not defined for these parameters: {0}'.format(
+                        self.parameters.keys()))
 
     @u_0.setter
     def u_0(self, new_u_0):
-        self._u_0 = new_u_0
+        self.parameters['u_0'] = new_u_0
+
+    @property
+    def t_star(self):
+        """
+        t_star = rho * tE
+        returns value in days.
+        """
+        if 't_star' in self.parameters.keys():
+            return self.parameters['t_star'].to(u.day).value 
+        else:
+            try:
+                return self.parameters['t_E'].to(u.day).value * self.parameters['rho']
+            except KeyError:
+                raise AttributeError(
+                    't_star is not defined for these parameters: {0}'.format(
+                        self.parameters.keys()))
+
+    @t_star.setter
+    def t_star(self, new_t_star):
+        if 't_star' in self.parameters.keys():
+            self._set_time_quantity('t_star', new_t_star)
+        else:
+            raise KeyError('t_star is not a parameter of this model.')
+
+    @property
+    def t_eff(self):
+        """
+        t_eff = u_0 * t_E
+        returns value in days.
+        """
+        if 't_eff' in self.parameters.keys():
+            return self.parameters['t_eff'].to(u.day).value 
+        else:
+            try:
+                return self.parameters['t_E'].to(u.day).value  * self.parameters['u_0']
+            except KeyError:
+                raise AttributeError(
+                    't_eff is not defined for these parameters: {0}'.format(
+                        self.parameters.keys()))
+
+    @t_eff.setter
+    def t_eff(self, new_t_eff):
+        if 't_eff' in self.parameters.keys():
+            self._set_time_quantity('t_eff', new_t_eff)
+        else:
+            raise KeyError('t_eff is not a parameter of this model.')
 
     @property
     def t_E(self):
@@ -153,33 +181,40 @@ class ModelParameters(object):
         default unit. Regardless of input value, returns value with
         units of u.day.
         """
-        return self._t_E.to(u.day).value 
+        if 't_E' in self.parameters.keys():
+            return self.parameters['t_E'].to(u.day).value 
     
     @t_E.setter
     def t_E(self, new_t_E):
         if new_t_E is None:
-            self._t_E = None
-            return
+            raise ValueError('Must provide a value')
+
         if new_t_E < 0.:
             raise ValueError('Einstein timescale cannot be negative:', new_t_E)
-        if isinstance(new_t_E, u.Quantity): 
-            self._t_E = new_t_E
+
+        self._set_time_quantity('t_E', new_t_E)
+
+    def _set_time_quantity(self, key, new_time):
+        """
+        Save a variable with units of time (e.g. t_E, t_star,
+        t_eff). If units are not given, assume days.
+        """
+        if isinstance(new_time, u.Quantity):
+            self.parameters[key] = new_time
         else:
-            self._t_E = new_t_E * u.day
-    
+            self.parameters[key] = new_time * u.day
+
+
     @property
     def rho(self):
         """source size as a fraction of the Einstein radius"""
-        return self._rho
+        return self.parameters['rho']
     
     @rho.setter
     def rho(self, new_rho):
-        if new_rho is None:
-            self._rho = None
-            return
         if new_rho < 0.:
             raise ValueError('source size (rho) cannot be negative')
-        self._rho = new_rho
+        self.parameters['rho'] = new_rho
     
     @property
     def alpha(self):
@@ -189,77 +224,116 @@ class ModelParameters(object):
         astropy.Quantity. "deg" is the default unit.
         TBD - make sure CW/CCW convention is according to Skowron+11 appendix A
         """
-        return self._alpha
+        return self.parameters['alpha']
 
     @alpha.setter
     def alpha(self, new_alpha):
-        if new_alpha is None:
-            self._alpha = None
-            return
         if isinstance(new_alpha, u.Quantity):
-            self._alpha = new_alpha
+            self.parameters['alpha'] = new_alpha
         else:
-            self._alpha = new_alpha * u.deg
+            self.parameters['alpha'] = new_alpha * u.deg
 
     @property
     def q(self):
         """mass ratio of two lens components"""
-        return self._q
+        return self.parameters['q']
         
     @q.setter
     def q(self, new_q):
-        self._q = new_q
+        self.parameters['q'] = new_q
     
     @property
     def s(self):
         """separation of two lens components relative to Einstein ring size"""
-        return self._s
+        return self.parameters['s']
 
     @s.setter
     def s(self, new_s):
-        self._s = new_s
+        self.parameters['s'] = new_s
 
     @property
     def pi_E(self):
         """
-        The microlens parallax vector. May be specified either
-        relative to the sky ("NorthEast") or relative to the binary lens 
-        axis ("ParPerp"). "NorthEast" is default.
+        The microlens parallax vector. Must be set
+        as a vector/list (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use pi_E_mag
         """
-        return self._pi_E
+        if 'pi_E' in self.parameters.keys():
+            return self.parameters['pi_E']
+        elif 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
+            return [self.parameters['pi_E_N'], self.parameters['pi_E_E']]
+        else:
+            raise KeyError('pi_E not defined for this model')
 
     @pi_E.setter
     def pi_E(self, new_pi_E):
-        if isinstance(new_pi_E, MulensParallaxVector):
-            self._pi_E = new_pi_E
+        if isinstance(new_pi_E, np.ndarray):
+            new_pi_E = new_pi_E.flatten()
+
+        if 'pi_E' in self.parameters.keys():
+            if len(new_pi_E) == 2:
+                self.parameters['pi_E'] = new_pi_E                    
+            else:
+                raise TypeError('pi_E is a 2D vector. It must have length 2.')
+
+        elif 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
+            self.parameters['pi_E_N'] = new_pi_E[0]
+            self.parameters['pi_E_E'] = new_pi_E[1]
         else:
-            self._pi_E = MulensParallaxVector(pi_E=new_pi_E, ref=None)
+            raise KeyError('pi_E is not a parameter of this model.')
+
+    @property
+    def pi_E_mag(self):
+        """
+        The magnitude of the microlensing parallax vector.
+        """
+        if 'pi_E' in self.parameters.keys():
+            pi_E_N = self.parameters['pi_E'][0]
+            pi_E_E = self.parameters['pi_E'][1]
+        elif 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
+            pi_E_N = self.parameters['pi_E_N']
+            pi_E_E = self.parameters['pi_E_E']
+        else:
+            raise KeyError('pi_E not defined for this model')
+        return np.sqrt( pi_E_N**2 + pi_E_E**2)
 
     @property
     def pi_E_N(self):
         """
         The North component of the microlens parallax vector.
         """
-        return self._pi_E.vector[0]
+        if 'pi_E_N' in self.parameters.keys():
+            return self.parameters['pi_E_N']
+        elif 'pi_E' in self.parameters.keys():
+            return self.parameters['pi_E'][0]
+        else:
+            raise KeyError('pi_E_N not defined for this model')
 
     @pi_E_N.setter
     def pi_E_N(self, new_value):
-        try:
-            self._pi_E.vector[0] = new_value
-        except AttributeError:
-            self._pi_E = MulensParallaxVector(pi_E_1=new_value, pi_E_2=0., 
-                                               ref="NorthEast")
+        if 'pi_E_N' in self.parameters.keys():
+            self.parameters['pi_E_N'] = new_value
+        elif 'pi_E' in self.paramters.keys():
+            self.parameters['pi_E'][0] = new_value
+        else:
+            raise KeyError('pi_E_N is not a parameter of this model.')
+
     @property
     def pi_E_E(self):
         """
         The East component of the microlens parallax vector.
         """
-        return self._pi_E.vector[1]
+        if 'pi_E_E' in self.parameters.keys():
+            return self.parameters['pi_E_E']
+        elif 'pi_E' in self.parameters.keys():
+            return self.parameters['pi_E'][1]
+        else:
+            raise KeyError('pi_E_N not defined for this model')
 
     @pi_E_E.setter
-    def pi_E_E(self, new_value):
-        try:
-            self._pi_E.vector[1] = new_value
-        except AttributeError:
-            self._pi_E = MulensParallaxVector(pi_E_1=0., pi_E_2=new_value, 
-                                               ref="NorthEast")
+    def pi_E_N(self, new_value):
+        if 'pi_E_E' in self.parameters.keys():
+            self.parameters['pi_E_E'] = new_value
+        elif 'pi_E' in self.paramters.keys():
+            self.parameters['pi_E'][1] = new_value
+        else:
+            raise KeyError('pi_E_E is not a parameter of this model.')
