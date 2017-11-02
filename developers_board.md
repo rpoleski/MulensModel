@@ -35,7 +35,7 @@
     * limbdarkeningcoeffs.py 
     * mulenstime.py 
     * [1] fit.py 
-    * [2] magnificationcurve.py 
+    * [2] magnificationcurve.py (needs a list of allowed magnification methods) 
     * utils.py 
     * [1] modelparameters.py
 * Effects
