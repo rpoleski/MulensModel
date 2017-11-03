@@ -7,8 +7,10 @@ It is still under development. [Latest release: 0.2.1](https://github.com/rpoles
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
-There is no tutorial yet, but we have a few useful resources:
+A few useful resources:
 
+* [Basic usage tutorial](https://rpoleski.github.io/MulensModel/tutorial.html),
+* [Fitting tutorial](https://rpoleski.github.io/MulensModel/tutorial_fit_pspl.html),
 * [Examples on how to use the code](examples/):
   * [Example 01](examples/example_01_models.py) -- plot simple point-source/point-lens (PSPL) model and model with planetary lens,
   * [Example 02](examples/example_02_fitting.py) -- fit PSPL model to the data using scipy.optimize.minimize(),
@@ -58,6 +60,7 @@ gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLens
 6. Congratulations! You have MulensModel installed fully. 
 
 ---
+[![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Oct 2017
+file revised Nov 2017
 
