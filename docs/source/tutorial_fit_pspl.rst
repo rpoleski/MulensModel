@@ -13,6 +13,7 @@ First things first - we need to import some modules:
 .. code-block:: python
 
    import os
+   import numpy as np
    import matplotlib.pyplot as plt
    import MulensModel
    from MulensModel import Event, Fit, Model, MulensData, Utils
@@ -142,11 +143,13 @@ a few:
    if not result.success:
        print(result.message)
    print("Function evaluations: {:}".format(result.nfev))
-   print("The smallest function value: {:}".format(result.fun))
+   print("The smallest function value: {:.3f}".format(np.array(result.fun)[0]))
    print("for parameters: {:.5f} {:.4f} {:.3f}".format(*result.x.tolist()))
 
 The best-fitting function parameters are stored in ``result.x``, which is 
 of numpy.ndarray type. To have a nice output, we converted them to a list. 
+The smallest function value is returned in ``result.fun``, which can be of 
+a float or a numpy.ndarray type. 
 Let's plot two different models:
 
 .. code-block:: python
