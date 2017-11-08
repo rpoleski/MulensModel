@@ -194,8 +194,7 @@ class Model(object):
 
         magnification_curve = MagnificationCurve(
             time, parameters=self.parameters, 
-            parallax=self._parallax, t_0_par=self.parameters.t_0_par,
-            coords=self._coords, 
+            parallax=self._parallax, coords=self._coords, 
             satellite_skycoord=satellite_skycoord,
             gamma=gamma)
         magnification_curve.set_magnification_methods(self._methods, 
@@ -776,7 +775,7 @@ class Model(object):
 
         trajectory = Trajectory(
             times, parameters=self.parameters, parallax=self._parallax, 
-            t_0_par=self.parameters.t_0_par, coords=self._coords, 
+            coords=self._coords, 
             satellite_skycoord=satellite_skycoord)
 
         pl.plot(trajectory.x, trajectory.y, **kwargs)

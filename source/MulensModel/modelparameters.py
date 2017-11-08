@@ -93,7 +93,9 @@ class ModelParameters(object):
     @property
     def n_lenses(self):
         """number of objects in the lens system"""
-        if self._s is None and self._q is None and self._alpha is None:
+        if ( (not 's' in self.parameters.keys()) 
+             and (not 'q' in self.parameters.keys())
+             and (not 'alpha' in self.parameters.keys()) ):
             return 1
         else:
             return 2
@@ -280,7 +282,8 @@ class ModelParameters(object):
         elif 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
             return [self.parameters['pi_E_N'], self.parameters['pi_E_E']]
         else:
-            raise KeyError('pi_E not defined for this model')
+            #raise KeyError('pi_E not defined for this model')
+            return None
 
     @pi_E.setter
     def pi_E(self, new_pi_E):
@@ -360,9 +363,13 @@ class ModelParameters(object):
     @property
     def t_0_par(self):
         """
-        The reference time for the calculation of parallax.
+        The reference time for the calculation of parallax. If not set
+        explicitly, set t_0_par = t_0.
         """
+        if not 't_0_par' in self.parameters.keys():
+            self.parameters['t_0_par'] = self.parameters['t_0']
         return self.parameters['t_0_par']
+    
 
     @t_0.setter
     def t_0_par(self, new_t_0_par):
