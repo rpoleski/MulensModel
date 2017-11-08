@@ -46,51 +46,7 @@ class ModelParameters(object):
         self._set_parameters(parameters)
 
     def __repr__(self):
-        """A nice way to represent a ModelParameters object as a string"""        
-        #Initialize Header line
-        variables = '{0:>11} {1:>9} '.format(
-            "t_0 (HJD)", 'u_0')
-        try:
-            variables = '{0} {1:>9}'.format(
-                variables, 't_E ({0})'.format(self._t_E.unit))
-        except AttributeError:
-            variables = '{0} {1:>9}'.format(variables, 't_E')
-
-        #t_0 value
-        try:
-            values = '{0:>11.5f}'.format(self.t_0)
-        except AttributeError:
-            values = '{0:>11}'.format(None)
-        #u_0 value
-        try:
-            values = '{0} {1:>9.6f}'.format(values, self._u_0)
-        except AttributeError:
-            values = '{0} {1:>9}'.format(values, None)
-
-        #t_E value
-        try:
-            values = '{0} {1:>10.4f}'.format(values, self.t_E)
-        except AttributeError:
-            values = '{0} {1:>10}'.format(values,None)
-
-        #rho value and header column
-        try:
-            values = '{0} {1:>7.5f}'.format(values, self._rho)
-        except (AttributeError, TypeError, ValueError):
-            pass
-        else:
-            variables = '{0} {1:>7}'.format(variables, 'rho') 
-
-        #s, q values and header columns
-        try:
-            variables = '{0} {1:>9} {2:>12} {3:>11}'.format(
-                variables, 's', 'q', 'alpha ({0})'.format(self._alpha.unit))
-            values = '{0} {1:>9.5f} {2:>12.8f} {3:>11.5f}'.format(
-                values, self._s, self._q, self._alpha.value)
-        except AttributeError:
-            pass
-
-        return '{0}\n{1}\n'.format(variables, values)
+        return '{0}'.format(self.parameters)
 
     def _check_valid_combination(self, keys):
         return NotImplementedError('Should check that the combination of parameters is reasonable, i.e. sufficient to describe a proper model AND prevents specifying 3 variables for 2 observables (e.g. u0, teff, and tE).')
@@ -392,7 +348,7 @@ class ModelParameters(object):
             raise KeyError('pi_E_N not defined for this model')
 
     @pi_E_E.setter
-    def pi_E_N(self, new_value):
+    def pi_E_E(self, new_value):
         if 'pi_E_E' in self.parameters.keys():
             self.parameters['pi_E_E'] = new_value
         elif 'pi_E' in self.paramters.keys():
