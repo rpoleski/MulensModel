@@ -1,4 +1,5 @@
 from astropy import units as u
+import numpy as np
 
 def which_parameters(*args):
     return NotImplementedError('See use case 23 for desired behavior. Probably needs to be built around a dictionary.')
@@ -42,7 +43,7 @@ class ModelParameters(object):
         """
 
         self._check_valid_combination(parameters.keys())
-        self.parameters = parameters
+        self._set_parameters(parameters)
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""        
@@ -93,6 +94,32 @@ class ModelParameters(object):
 
     def _check_valid_combination(self, keys):
         return NotImplementedError('Should check that the combination of parameters is reasonable, i.e. sufficient to describe a proper model AND prevents specifying 3 variables for 2 observables (e.g. u0, teff, and tE).')
+
+    def _check_valid_parameter_values(self, parameters):
+        """
+        Prevent user from setting negative (unphysical) values for t_E, t_star, rho.
+        """
+        if 't_E' in parameters.keys():
+            if parameters['t_E'] < 0.:
+                raise ValueError(
+                    'Einstein timescale cannot be negative:', parameters['t_E'])
+
+        if 't_star' in parameters.keys():
+            if parameters['t_star'] < 0.:
+                raise ValueError(
+                    'Source crossing time cannot be negative:', 
+                    parameters['t_star'])
+
+        if 'rho' in parameters.keys():
+            if parameters['rho'] < 0.:
+                raise ValueError(
+                    'Souce size cannot be negative:', parameters['rho'])
+
+
+    def _set_parameters(self, parameters):
+        self._check_valid_parameter_values(parameters)
+        self.parameters = parameters
+        
 
     @property
     def n_lenses(self):
