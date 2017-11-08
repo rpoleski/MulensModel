@@ -55,21 +55,31 @@
 <dt id="MulensModel.fit.Fit">
 <em class="property">class </em><code class="descclassname">MulensModel.fit.</code><code class="descname">Fit</code><span class="sig-paren">(</span><em>data=None</em>, <em>magnification=None</em>, <em>n_sources=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Fits source and blending fluxes for given data and model magnification.</p>
 <dl class="docutils">
-<dt>fit_fluxes(): Performs a least squares linear fit</dt>
-<dd><p class="first">(np.linalg.lstsq) to the data for the flux
-parameters. i.e. given the data y and magnifcation A, solves
-for f_source and f_blend:</p>
-<p>y = f_source * A + f_blend</p>
-<p class="last">Allows for zero blending.</p>
+<dt>Keywords :</dt>
+<dd><p class="first">data: <code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code> or list of <code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code> 
+instances</p>
+<blockquote>
+<div>Photometric data to be fitted.</div></blockquote>
+<dl class="last docutils">
+<dt>magnification: <em>np.ndarray</em> or <em>list of np.ndarrays</em></dt>
+<dd>Model magnification.</dd>
+<dt>n_sources: <em>int</em></dt>
+<dd>The number of microlensing sources. <em>It&#8217;s suggested not to use 
+this option now.</em></dd>
+</dl>
 </dd>
-<dt>get_input_format(data): Returns the model magnifications in the</dt>
-<dd>same flux system as data.</dd>
 </dl>
 <dl class="method">
 <dt id="MulensModel.fit.Fit.fit_fluxes">
 <code class="descname">fit_fluxes</code><span class="sig-paren">(</span><em>fit_blending=True</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.fit_fluxes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit source(s) and blending fluxes</p>
+<dd><p>Fit source(s) and blending fluxes. Performs a least squares linear fit
+(<em>np.linalg.lstsq()</em>) to the data for the flux parameters. 
+I.e., given the data <span class="math">\(y\)</span> and magnifcation <span class="math">\(A\)</span>, solves for 
+<span class="math">\(f_source\)</span> and <span class="math">\(f_blend\)</span>:</p>
+<div class="math">
+\[y = f_source * A + f_blend\]</div>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
