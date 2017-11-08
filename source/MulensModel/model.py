@@ -966,7 +966,7 @@ class Model(object):
     def plot_caustics(self, n_points=5000, **kwargs):
         """
         Plot the caustic structure. 
-        See :func:`~MulensModel.caustics.Caustics.plot()`
+        See :func:`MulensModel.caustics.Caustics.plot()`
 
         """
         if self.caustics is None:
