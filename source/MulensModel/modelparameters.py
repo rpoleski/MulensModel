@@ -189,6 +189,10 @@ class ModelParameters(object):
         else:
             raise KeyError('t_star is not a parameter of this model.')
 
+        if new_t_star < 0.:
+            raise ValueError('Source crossing time cannot be negative:', new_t_star)
+
+
     @property
     def t_eff(self):
         """
