@@ -160,7 +160,7 @@ class Event(object):
             fit_blending: *boolean*, optional
                 If True, then the blend flux is a free parameter. If
                 False, the blend flux is fixed at zero.  Default is
-                the same as :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+                the same as :py:func:`~MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
             chi2: *float*
@@ -244,10 +244,11 @@ class Event(object):
         self.model.plot_residuals(**kwargs)
 
     def clean_data(self):
-        """masks outlying datapoints. Not Implemented."""
+        """masks outlying datapoints. **Not Implemented.**"""
         raise NotImplementedError("This feature has not been implemented yet")
 
     def estimate_model_params(self):
-        """estiamtes model parameters without fitting them. Not Implemented"""
+        """estiamtes model parameters without fitting them. 
+        **Not Implemented.**"""
         raise NotImplementedError("This feature has not been implemented yet")
 
