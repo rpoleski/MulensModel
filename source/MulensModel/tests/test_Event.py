@@ -109,7 +109,7 @@ def test_event_get_chi2():
     orig_chi2 = event.get_chi2()
     
     #Change the model
-    event.model.t_0 = 5000.
+    event.model.parameters.t_0 = 5000.
 
     assert event.get_chi2() != orig_chi2
 
