@@ -49,7 +49,25 @@ class ModelParameters(object):
         return '{0}'.format(self.parameters)
 
     def _check_valid_combination(self, keys):
-        return NotImplementedError('Should check that the combination of parameters is reasonable, i.e. sufficient to describe a proper model AND prevents specifying 3 variables for 2 observables (e.g. u0, teff, and tE).')
+        # Check minimal parameters for a model are defined (Not Implemented)
+
+        # If s, q, and alpha must all be defined if one is defined
+        if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
+            if (not 's' in keys) or (not 'q' in keys) or (not 'alpha' in keys):
+                raise ValueError(
+                    'A binary model requires all three of (s, q, alpha).')
+
+        # Cannot define all 3 parameters for 2 observables
+        if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
+            raise ValueError('Only 2 of (t_E, rho, t_star) may be defined.')
+
+        if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
+            raise ValueError('Only 2 of (u_0, t_E, t_eff) may be defined.')
+
+        # Parallax is either pi_E or (pi_E_N, pi_E_E)
+        if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
+            raise ValueError(
+                'Parallax may be defined EITHER by pi_E OR by (pi_E_N and pi_E_E).')
 
     def _check_valid_parameter_values(self, parameters):
         """
