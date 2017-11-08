@@ -42,7 +42,39 @@ class ModelParameters(object):
         self._set_parameters(parameters)
 
     def __repr__(self):
-        return '{0}'.format(self.parameters)
+        """A nice way to represent a ModelParameters object as a string"""
+        variables, values = '', ''
+        if 't_0' in self.parameters.keys():
+            variables += '{0:>11} '.format('t_0 (HJD)')
+            values += '{0:>11.5f} '.format(self.t_0)
+        
+        if 'u_0' in self.parameters.keys():
+            variables += '{0:>9} '.format('u_0')
+            values += '{0:>9.6f} '.format(self.u_0)
+
+        if 't_eff' in self.parameters.keys():
+            variables += '{0:>10} '.format('t_eff (d)')
+            values += '{0:>10.6f} '.format(self.t_eff)
+
+        if 't_E' in self.parameters.keys():
+            variables += '{0:>10} '.format('t_E (d)')
+            values += '{0:>10.4f} '.format(self.t_E)
+
+        if 'rho' in self.parameters.keys():
+            variables += '{0:>7} '.format('rho')
+            values += '{0:>7.5f} '.format(self.t_eff)
+
+        if 't_star' in self.parameters.keys():
+            variables += '{0:>10} '.format('t_star (d)')
+            values += '{0:>10.6f} '.format(self.t_star)
+
+        if 's' in self.parameters.keys():
+            variables += '{0:>9} {1:>12} {2:>11} '.format(
+                's', 'q', 'alpha ({0})'.format(self._alpha.unit))
+            values += '{0:>9.5f} {1:>12.8f} {2:>11.5f} '.format(
+                values, self._s, self._q, self._alpha.value)
+
+        return '{0}\n{1}\n'.format(variables, values)
 
     def _check_valid_combination(self, keys):
         # Check minimal parameters for a model are defined (Not Implemented)
