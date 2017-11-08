@@ -26,11 +26,12 @@
     3. Make code changes as necessary.
 
   * Add \_\_repr\_\_ functions to Lens and Source
-  * [2] files not yet well documented (starting from the shortest): 
+  * [2] files not yet well documented: 
     * [2] trajectory.py 
     * mulensparallaxvector.py 
     * satelliteskycoord.py 
     * [2] caustics.py 
+    * RA & Dec in coordinates.py (maybe also code it better)
     * horizons.py 
     * limbdarkeningcoeffs.py 
     * mulenstime.py 
@@ -45,7 +46,6 @@
     * [2] _faster FSPL with LD_
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * [2] get gamma/u LD coefs from Claret papers etc.
-    * [1] once more review Model, MulensData, and Event
   * Higher Order Effects
     * xallarap (see below for references)
       - use case, 
