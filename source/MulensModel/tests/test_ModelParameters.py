@@ -54,6 +54,8 @@ def test_rho_t_e_t_star():
 class test(unittest.TestCase):
     def test_too_much_rho_t_e_t_star(self):
         with self.assertRaises(ValueError):
+            t_0 = 2450000.
+            u_0 = 0.1
             t_E = 20. * u.day
             rho = 0.001
             t_star = t_E * rho

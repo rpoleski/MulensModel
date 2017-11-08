@@ -50,10 +50,13 @@ def test_model_parallax_definition():
     # defined, the user can change it. If the user wants to add a
     # parameter, they need to create a new model.)
     model_2 = Model({'t_0':2450000., 'u_0':0.1, 't_E':100., 'pi_E_N':0.1, 'pi_E_E':0.2})
+    print(model_2.parameters)
+    print(model_2.parameters.pi_E_N)
+
     model_2.parameters.pi_E_N = 0.3
     model_2.parameters.pi_E_E = 0.4
-    assert model_2.pi_E_N == 0.3
-    assert model_2.pi_E_E == 0.4
+    assert model_2.parameters.pi_E_N == 0.3
+    assert model_2.parameters.pi_E_E == 0.4
 
     model_3 = Model({'t_0':2450000., 'u_0':0.1, 't_E':100., 'pi_E':(0.5, 0.6)})
     assert model_3.parameters.pi_E_N == 0.5
