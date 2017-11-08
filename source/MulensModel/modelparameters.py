@@ -5,6 +5,10 @@ def which_parameters(*args):
 
 # JCY: Needs a check so that if parallax is set and t_0_par is not,
 # t_0_par is set to t_0.
+#
+# JCY: When binary orbital motion is introduced, t_binary should be
+# part of the ModelParameters set. Maybe.
+#
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
@@ -226,15 +230,21 @@ class ModelParameters(object):
     @property
     def rho(self):
         """source size as a fraction of the Einstein radius"""
-        return self.parameters['rho']
-    # Needs code for if t_star is set instead of rho
+        if 'rho' in self.parameters.keys():
+            return self.parameters['rho']
+        elif 't_star' in self.parameters.keys() and 't_E' in self.parameters.keys():
+            return self.t_star/self.t_E
+        else:
+            return None
     
     @rho.setter
     def rho(self, new_rho):
-        if new_rho < 0.:
-            raise ValueError('source size (rho) cannot be negative')
-        self.parameters['rho'] = new_rho
-    # Needs check for 'rho' in parameters.keys(), cf t_eff.setter
+        if 'rho' in self.parameters.keys():
+            if new_rho < 0.:
+                raise ValueError('source size (rho) cannot be negative')
+            self.parameters['rho'] = new_rho
+        else:
+            raise KeyError('rho is not a parameter of this model.')
     
     @property
     def alpha(self):
