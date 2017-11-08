@@ -62,6 +62,7 @@ the data. Similar material can be found in
 <h2>Importing data<a class="headerlink" href="#importing-data" title="Permalink to this headline">¶</a></h2>
 <p>First things first - we need to import some modules:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">MulensModel</span>
 <span class="kn">from</span> <span class="nn">MulensModel</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Fit</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">MulensData</span><span class="p">,</span> <span class="n">Utils</span>
@@ -170,12 +171,14 @@ a few:</p>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Function evaluations: {:}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">nfev</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="s">&quot;The smallest function value: {:}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;The smallest function value: {:.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
 <span class="k">print</span><span class="p">(</span><span class="s">&quot;for parameters: {:.5f} {:.4f} {:.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
 </pre></div>
 </div>
 <p>The best-fitting function parameters are stored in <code class="docutils literal"><span class="pre">result.x</span></code>, which is
 of numpy.ndarray type. To have a nice output, we converted them to a list.
+The smallest function value is returned in <code class="docutils literal"><span class="pre">result.fun</span></code>, which can be of
+a float or a numpy.ndarray type.
 Let&#8217;s plot two different models:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initial model:</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">t_0</span> <span class="o">=</span> <span class="n">t_0</span>
