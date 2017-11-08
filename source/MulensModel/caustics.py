@@ -19,9 +19,6 @@ class Caustics(object):
     """
 
     def __init__(self, q=None, s=None):
-        """
-        Create a Caustics object. Both s and q should be set.
-        """
         #Set s, q
         if isinstance(q, (list, np.ndarray)):
             if len(q) > 1:

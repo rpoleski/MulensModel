@@ -51,22 +51,11 @@ class Model(object):
 
     """
 
-    def __init__(
-        self, parameters=None, t_0=None, u_0=None, t_E=None, rho=None, s=None, 
-        q=None, alpha=None, pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None, 
-        t_0_par=None, coords=None, ra=None, dec=None, ephemerides_file=None):
-        """
-        Two ways to define the model:
-        1. parameters = a :class:`~MulensModel.modelparameters.ModelParameters` object
-        2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par)
-
-        When defining event coordinates, may specify coords as an
-        astropy.coordinates.SkyCoord object, otherwise assumes RA is
-        in hour angle and DEC is in degrees.
-
-        Default values for parallax are all True. Use model.parallax() to turn
-        different parallax effects ON/OFF.
-        """
+    def __init__(self, parameters=None, t_0=None, u_0=None, t_E=None, 
+                rho=None, s=None, q=None, alpha=None, 
+                pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None, 
+                t_0_par=None, coords=None, ra=None, dec=None, 
+                ephemerides_file=None):
         # Initialize the parameters of the model
         if isinstance(parameters, ModelParameters):
             self._parameters = parameters

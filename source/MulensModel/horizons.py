@@ -19,10 +19,6 @@ class Horizons(object):
     """
 
     def __init__(self, file_name=None):
-        """
-        set up a Horizons object using file_name. Reads in, converts,
-        and stores the file.
-        """
         #initialize components
         self._time = None
         self._xyz = None
