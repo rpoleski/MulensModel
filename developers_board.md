@@ -18,7 +18,7 @@
   * [2] makefile for Windows (basic instructions exist already)
 * Documentation
   * remove intermediate Sphinx files from repo
-  * [1] __PSPL manual__
+  * [2] PSPL manual - add annual parallax
   * Sagan workshop hands-on activity in MM
   * binary calculations
     1. Confirm s is relative to Einstein radius of total mass of the binary lens.
@@ -35,7 +35,7 @@
     * limbdarkeningcoeffs.py 
     * mulenstime.py 
     * [1] fit.py 
-    * [2] magnificationcurve.py 
+    * [2] magnificationcurve.py (needs a list of allowed magnification methods) 
     * utils.py 
     * [1] modelparameters.py
 * Effects
@@ -105,7 +105,6 @@
 * Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
-  * [1] are we fully ok with astropy license?
   * [1] **Should there be separate Model and ModelParameters subclasses for different types of models (e.g. PSPL, binary lens, binary source)? Need use cases.**
 * [2] submit to PASP
 

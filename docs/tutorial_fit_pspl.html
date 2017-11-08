@@ -25,6 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <link rel="prev" title="Very Basic Tutorial" href="tutorial.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -40,6 +41,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Very Basic Tutorial"
+             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -72,8 +76,8 @@ the <a class="reference external" href="https://rpoleski.github.io/MulensModel/M
 </pre></div>
 </div>
 </div>
-<div class="section" id="plot-the-data">
-<h2>Plot the data<a class="headerlink" href="#plot-the-data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="plotting-data">
+<h2>Plotting data<a class="headerlink" href="#plotting-data" title="Permalink to this headline">¶</a></h2>
 <p>Next step would be plotting these data using matplotlib package:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">my_data</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">my_data</span><span class="o">.</span><span class="n">mag</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">my_data</span><span class="o">.</span><span class="n">err_mag</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
@@ -96,8 +100,8 @@ of 0.8 mag corresponds to flux ratio of slightly above 2. The magnification
 <em>A</em> and the impact parameter <em>u_0</em> are very approximately related via <em>A=1/u_0</em>
 so <em>u_0 = 0.5</em> should be a good choice.</p>
 </div>
-<div class="section" id="prepare-for-fitting">
-<h2>Prepare for fitting<a class="headerlink" href="#prepare-for-fitting" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="preparing-for-fitting">
+<h2>Preparing for fitting<a class="headerlink" href="#preparing-for-fitting" title="Permalink to this headline">¶</a></h2>
 <p>The rough estimates of the event parameters allow us to define
 a <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>
 and plot it
@@ -148,8 +152,8 @@ The third argument is a list that specifies the attributes of Event.model that
 will be changed. Note that the order of theta values and parameters_to_fit are
 the same.</p>
 </div>
-<div class="section" id="fit-the-model-parameters">
-<h2>Fit the model parameters<a class="headerlink" href="#fit-the-model-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fitting-model-parameters">
+<h2>Fitting model parameters<a class="headerlink" href="#fitting-model-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Ok, finally we can fit the parameters. Here we will use
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html">the minimize() function</a>
 from SciPy subpackage optimize. We encourage you to
@@ -159,7 +163,48 @@ try other fitting routines.</p>
         <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">my_event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;Nelder-Mead&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>To be continued... (print results, plot results, give exercise)</p>
+<p>Fitting is done, so we can inspect the results. The function minimize()
+gives different output depending on method parameter. We will use just
+a few:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="s">&quot;Fitting was successful? {:}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">))</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;Function evaluations: {:}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">nfev</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;The smallest function value: {:}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;for parameters: {:.5f} {:.4f} {:.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+</pre></div>
+</div>
+<p>The best-fitting function parameters are stored in <code class="docutils literal"><span class="pre">result.x</span></code>, which is
+of numpy.ndarray type. To have a nice output, we converted them to a list.
+Let&#8217;s plot two different models:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Initial model:</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">t_0</span> <span class="o">=</span> <span class="n">t_0</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">u_0</span> <span class="o">=</span> <span class="n">u_0</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">t_E</span> <span class="o">=</span> <span class="n">t_E</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s">&#39;initial&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s">&#39;red&#39;</span><span class="p">)</span>
+<span class="c"># Best fitting model:</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">t_0</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">u_0</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">t_E</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s">&#39;fitted&#39;</span><span class="p">)</span>
+<span class="c"># Finally: data, legend, and show the plot:</span>
+<span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_data</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&#39;best&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you zoom-in on the peak, you will easily see that the fitted model is
+much better.</p>
+<p>Congratulations! You have fitted the model to the data.</p>
+</div>
+<div class="section" id="excercise">
+<h2>Excercise<a class="headerlink" href="#excercise" title="Permalink to this headline">¶</a></h2>
+<p>Try using different optimization routine, starting point,
+or apply constraints on the fit. If
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.html">the minimize() function</a>
+is now your favourite fitting routine, then still you can call it differently.
+Try changing <code class="docutils literal"><span class="pre">method</span></code> parameter to one of:
+&#8216;Powell&#8217;, &#8216;CG&#8217;, &#8216;BFGS&#8217;, &#8216;TNC&#8217;, &#8216;COBYLA&#8217;.</p>
 </div>
 </div>
 
@@ -173,13 +218,17 @@ try other fitting routines.</p>
   <ul>
 <li><a class="reference internal" href="#">Basic Fitting Tutorial</a><ul>
 <li><a class="reference internal" href="#importing-data">Importing data</a></li>
-<li><a class="reference internal" href="#plot-the-data">Plot the data</a></li>
-<li><a class="reference internal" href="#prepare-for-fitting">Prepare for fitting</a></li>
-<li><a class="reference internal" href="#fit-the-model-parameters">Fit the model parameters</a></li>
+<li><a class="reference internal" href="#plotting-data">Plotting data</a></li>
+<li><a class="reference internal" href="#preparing-for-fitting">Preparing for fitting</a></li>
+<li><a class="reference internal" href="#fitting-model-parameters">Fitting model parameters</a></li>
+<li><a class="reference internal" href="#excercise">Excercise</a></li>
 </ul>
 </li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Very Basic Tutorial</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">

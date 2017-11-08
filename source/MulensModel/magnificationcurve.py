@@ -11,8 +11,6 @@ from MulensModel.modelparameters import ModelParameters
 class MagnificationCurve(object):
     """
     The magnification curve calculated from the model light curve.
-
-    JCY - Needs a list of allowed magnification methods.
     """
     def __init__(self, times, parameters=None, parallax=None, t_0_par=None, 
                     coords=None, satellite_skycoord=None, gamma=0.):
