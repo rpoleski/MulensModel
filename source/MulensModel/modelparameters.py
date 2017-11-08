@@ -4,12 +4,8 @@ import numpy as np
 def which_parameters(*args):
     return NotImplementedError('See use case 23 for desired behavior. Probably needs to be built around a dictionary.')
 
-# JCY: Needs a check so that if parallax is set and t_0_par is not,
-# t_0_par is set to t_0.
-#
 # JCY: When binary orbital motion is introduced, t_binary should be
-# part of the ModelParameters set. Maybe.
-#
+# part of the ModelParameters set. See t_0_par
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
@@ -383,8 +379,7 @@ class ModelParameters(object):
         """
         if not 't_0_par' in self.parameters.keys():
             self.parameters['t_0_par'] = self.parameters['t_0']
-        return self.parameters['t_0_par']
-    
+        return self.parameters['t_0_par']    
 
     @t_0.setter
     def t_0_par(self, new_t_0_par):

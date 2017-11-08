@@ -55,7 +55,8 @@ class _ParallaxFile(object):
             'u_0':float(self.ulens_params[3]), 
             't_E':float(self.ulens_params[4]), 
             'pi_E_N':float(self.ulens_params[5]), 
-            'pi_E_E':float(self.ulens_params[6])})
+            'pi_E_E':float(self.ulens_params[6]),
+            't_0_par':self.t_0_par})
         return model_parameters
 
     @property
@@ -75,15 +76,13 @@ class _ParallaxFile(object):
         """Return a model using the parameters of this file"""
         model = Model(parameters=self.parameters, 
                       coords=self.coords)
-        model.parameters.t_0_par = self.t_0_par
         return model
 
     def setup_trajectory(self):
         """Return a trajectory using hte parameters of this file"""
         trajectory = Trajectory(
             self.data['Time']+2450000., parameters=self.parameters,
-            parallax={'earth_orbital':True},
-            t_0_par=self.t_0_par, coords=self.coords)
+            parallax={'earth_orbital':True}, coords=self.coords)
         return trajectory
 
 def test_annual_parallax_calculation():
