@@ -50,13 +50,12 @@ class Model(object):
     """
 
     def __init__(
-        self, parameters=None, t_0=None, u_0=None, t_E=None, rho=None, s=None, 
-        q=None, alpha=None, pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None, 
-        t_0_par=None, coords=None, ra=None, dec=None, ephemerides_file=None):
+        self, parameters=None, coords=None, ra=None, dec=None, 
+        ephemerides_file=None):
         """
         Two ways to define the model:
         1. parameters = a :class:`~MulensModel.modelparameters.ModelParameters` object
-        2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par)
+        2. specify a dictionary with t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par). See :class:`~MulensModel.modelparameters.ModelParameters`
 
         When defining event coordinates, may specify coords as an
         astropy.coordinates.SkyCoord object, otherwise assumes RA is
@@ -67,9 +66,9 @@ class Model(object):
         """
         # Initialize the parameters of the model
         if isinstance(parameters, ModelParameters):
-            self._parameters = parameters
+            self.parameters = parameters
         else:
-            self._parameters = ModelParameters(parameters)
+            self.parameters = ModelParameters(parameters)
 
         # Set the coordinates of the event
         coords_msg = 'Must specify both or neither of ra and dec'
@@ -106,26 +105,26 @@ class Model(object):
         self._datasets = None
 
     def __repr__(self):
-        return '{0}'.format(self._parameters)
+        return '{0}'.format(self.parameters)
 
 
     @property
     def t_0_par(self):
         """reference time for parameters, in particular microlensing 
         parallax"""
-        return self._t_0_par
+        return self.parameters.t_0_par
 
     @t_0_par.setter
     def t_0_par(self, value):
-        self._t_0_par = value
+        self.parameters.t_0_par = value
 
-    @property
-    def parameters(self):
-        """
-        The parameters of the model. A
-        :class:`~MulensModel.modelparameters.ModelParameters` object.
-        """
-        return self._parameters
+    #@property
+    #def parameters(self):
+    #    """
+    #    The parameters of the model. A
+    #    :class:`~MulensModel.modelparameters.ModelParameters` object.
+    #    """
+    #    return self.parameters
 
     def set_parameters(self, parameters):
         """
@@ -134,7 +133,10 @@ class Model(object):
         :class:`~MulensModel.modelparameters.ModelParameters` object,
         so all the previously set parameters will be forgotten.
         """
-        self._parameters = ModelParameters(parameters)
+        if isinstance(parameters, ModelParameters):
+            self.parameters = parameters
+        else:
+            self.parameters = ModelParameters(parameters)
             
     def get_satellite_coords(self, times):
         """
@@ -191,8 +193,8 @@ class Model(object):
             satellite_skycoord = self.get_satellite_coords(time)
 
         magnification_curve = MagnificationCurve(
-            time, parameters=self._parameters, 
-            parallax=self._parallax, t_0_par=self.t_0_par,
+            time, parameters=self.parameters, 
+            parallax=self._parallax, t_0_par=self.parameters.t_0_par,
             coords=self._coords, 
             satellite_skycoord=satellite_skycoord,
             gamma=gamma)
@@ -773,8 +775,8 @@ class Model(object):
             satellite_skycoord = self.get_satellite_coords(times)
 
         trajectory = Trajectory(
-            times, parameters=self._parameters, parallax=self._parallax, 
-            t_0_par=self.t_0_par, coords=self._coords, 
+            times, parameters=self.parameters, parallax=self._parallax, 
+            t_0_par=self.parameters.t_0_par, coords=self._coords, 
             satellite_skycoord=satellite_skycoord)
 
         pl.plot(trajectory.x, trajectory.y, **kwargs)

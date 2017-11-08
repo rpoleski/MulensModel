@@ -3,6 +3,8 @@ from astropy import units as u
 def which_parameters(*args):
     return NotImplementedError('See use case 23 for desired behavior. Probably needs to be built around a dictionary.')
 
+# JCY: Needs a check so that if parallax is set and t_0_par is not,
+# t_0_par is set to t_0.
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
@@ -86,7 +88,7 @@ class ModelParameters(object):
         return '{0}\n{1}\n'.format(variables, values)
 
     def _check_valid_combination(self, keys):
-        pass
+        return NotImplementedError('Should check that the combination of parameters is reasonable, i.e. sufficient to describe a proper model AND prevents specifying 3 variables for 2 observables (e.g. u0, teff, and tE).')
 
     @property
     def n_lenses(self):
@@ -123,10 +125,12 @@ class ModelParameters(object):
                 raise AttributeError(
                     'u_0 is not defined for these parameters: {0}'.format(
                         self.parameters.keys()))
+        # Needs option to return u_0 if t_eff is set.
 
     @u_0.setter
     def u_0(self, new_u_0):
         self.parameters['u_0'] = new_u_0
+    # Needs check for 'rho' in parameters.keys(), cf t_eff.setter
 
     @property
     def t_star(self):
@@ -135,6 +139,7 @@ class ModelParameters(object):
         returns value in days.
         """
         if 't_star' in self.parameters.keys():
+            self._check_time_quantity('t_star')
             return self.parameters['t_star'].to(u.day).value 
         else:
             try:
@@ -158,6 +163,7 @@ class ModelParameters(object):
         returns value in days.
         """
         if 't_eff' in self.parameters.keys():
+            self._check_time_quantity('t_eff')
             return self.parameters['t_eff'].to(u.day).value 
         else:
             try:
@@ -182,7 +188,12 @@ class ModelParameters(object):
         units of u.day.
         """
         if 't_E' in self.parameters.keys():
+            self._check_time_quantity('t_E')
             return self.parameters['t_E'].to(u.day).value 
+        elif 't_star' in self.parameters.keys() and 'rho' in self.parameters.keys():
+            return self.t_star/self.rho
+        elif 't_eff' in self.parameters.keys() and 'u_0' in self.parameters.keys():
+            return self.t_eff/self.u_0
     
     @t_E.setter
     def t_E(self, new_t_E):
@@ -193,6 +204,7 @@ class ModelParameters(object):
             raise ValueError('Einstein timescale cannot be negative:', new_t_E)
 
         self._set_time_quantity('t_E', new_t_E)
+    # Needs check for 't_E' in parameters.keys(), cf t_eff.setter
 
     def _set_time_quantity(self, key, new_time):
         """
@@ -204,17 +216,23 @@ class ModelParameters(object):
         else:
             self.parameters[key] = new_time * u.day
 
+    def _check_time_quantity(self, key):
+        if not isinstance(self.parameters[key], u.Quantity):
+            self._set_time_quantity(key, self.parameters[key])
+
 
     @property
     def rho(self):
         """source size as a fraction of the Einstein radius"""
         return self.parameters['rho']
+    # Needs code for if t_star is set instead of rho
     
     @rho.setter
     def rho(self, new_rho):
         if new_rho < 0.:
             raise ValueError('source size (rho) cannot be negative')
         self.parameters['rho'] = new_rho
+    # Needs check for 'rho' in parameters.keys(), cf t_eff.setter
     
     @property
     def alpha(self):
@@ -337,3 +355,15 @@ class ModelParameters(object):
             self.parameters['pi_E'][1] = new_value
         else:
             raise KeyError('pi_E_E is not a parameter of this model.')
+
+    
+    @property
+    def t_0_par(self):
+        """
+        The reference time for the calculation of parallax.
+        """
+        return self.parameters['t_0_par']
+
+    @t_0.setter
+    def t_0_par(self, new_t_0_par):
+        self.parameters['t_0_par'] = new_t_0_par
