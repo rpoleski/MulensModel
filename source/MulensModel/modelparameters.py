@@ -410,9 +410,10 @@ class ModelParameters(object):
         explicitly, set t_0_par = t_0.
         """
         if not 't_0_par' in self.parameters.keys():
-            self.parameters['t_0_par'] = self.parameters['t_0']
-        return self.parameters['t_0_par']    
+            return self.parameters['t_0']
+        else:
+            return self.parameters['t_0_par']    
 
-    @t_0.setter
+    @t_0_par.setter
     def t_0_par(self, new_t_0_par):
         self.parameters['t_0_par'] = new_t_0_par

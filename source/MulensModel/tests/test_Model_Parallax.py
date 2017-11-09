@@ -102,8 +102,8 @@ def test_annual_parallax_calculation():
     data = MulensData(data_list=[times, ones, ones])
     model_with_par.set_datasets([data])
     
-    model_with_par.t_0_par = 2457479.
-    
+    model_with_par.parameters.t_0_par = 2457479.
+
     model_no_par = Model({'t_0':t_0, 'u_0':0.1, 't_E':10., 'pi_E':(0.3, 0.5)},
                   coords='17:57:05 -30:22:59')
     model_no_par.set_datasets([data])

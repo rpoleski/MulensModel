@@ -107,25 +107,6 @@ class Model(object):
     def __repr__(self):
         return '{0}'.format(self.parameters)
 
-
-    @property
-    def t_0_par(self):
-        """reference time for parameters, in particular microlensing 
-        parallax"""
-        return self.parameters.t_0_par
-
-    @t_0_par.setter
-    def t_0_par(self, value):
-        self.parameters.t_0_par = value
-
-    #@property
-    #def parameters(self):
-    #    """
-    #    The parameters of the model. A
-    #    :class:`~MulensModel.modelparameters.ModelParameters` object.
-    #    """
-    #    return self.parameters
-
     def set_parameters(self, parameters):
         """
         Set the parameters of the model. Any parameter not explicitly
@@ -826,9 +807,9 @@ class Model(object):
 
         n_tE = 1.5
         if t_start is None:
-            t_start = self.t_0 - (n_tE * self.t_E)
+            t_start = self.parameters.t_0 - (n_tE * self.parameters.t_E)
         if t_stop is None:
-            t_stop = self.t_0 + (n_tE * self.t_E)
+            t_stop = self.parameters.t_0 + (n_tE * self.parameters.t_E)
         
         if dt is None:
             if n_epochs is None:
