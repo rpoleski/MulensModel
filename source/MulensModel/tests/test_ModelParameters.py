@@ -45,13 +45,13 @@ def test_rho_t_e_t_star():
     t_star = t_E * rho
 
     params_1 = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E, 'rho':rho})
-    np.testing.assert_almost_equal(params_1.t_star.value, t_star.value)
+    np.testing.assert_almost_equal(params_1.t_star, t_star.value)
 
     params_2 = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_star':t_star, 'rho':rho})
-    np.testing.assert_almost_equal(params_2.t_E.value, t_E.value)
+    np.testing.assert_almost_equal(params_2.t_E, t_E.value)
 
     params_3 = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_star':t_star, 't_E':t_E})
-    np.testing.assert_almost_equal(params_3.rho.value, rho)
+    np.testing.assert_almost_equal(params_3.rho, rho)
 
 class test(unittest.TestCase):
     def test_too_much_rho_t_e_t_star(self):
