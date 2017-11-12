@@ -18,6 +18,6 @@ VBBinaryLensingLibrary_wrapper.so
 
 # Sphinx files
 *.doctree
-#docs/_sources/
+docs/_sources/
 #docs/_static/
 
