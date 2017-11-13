@@ -93,11 +93,12 @@
   * Miscellaneous:
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
-    * guessing parameters of PSPL model (Kim+17 as an example)
+    * guessing parameters of PSPL model ([Kim+17](https://arxiv.org/abs/1703.06883) as an example)
     * Errorbar scaling, in particular the two parameter.
     * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
     * anything from use cases that does not work yet -- see TODO.md file
     * [2] plotting data in MulensData (also update PSPL tutorial)
+    * interaction with fitting routines - see list of them e.g. https://arxiv.org/abs/1711.03329
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
