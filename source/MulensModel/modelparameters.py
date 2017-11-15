@@ -1,8 +1,7 @@
 from astropy import units as u
 import numpy as np
 
-
-# options for parameters. Anything that may be given as 'basic' or
+# Different parameter sets. Anything that may be given as 'basic' or
 # 'optional' should be a list of length 2. The second item will only
 # be printed if the effect is included in the 'optional' list (see
 # _get_effect_strings() ).
