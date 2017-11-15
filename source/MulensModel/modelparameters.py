@@ -37,6 +37,10 @@ class ModelParameters(object):
                pi_E_E: East component of the parallax
                
         """
+        if not isinstance(parameters, dict):
+            raise TypeError('ModelParameters must be initialized with dict ' +
+                'as a parameter\ne.g., ' +
+                "ModelParameters({'t_0': 2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
         self._check_valid_combination(parameters.keys())
         self._set_parameters(parameters)
