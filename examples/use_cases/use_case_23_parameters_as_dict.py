@@ -21,7 +21,7 @@ MulensModel.modelparameters.which_parameters()
 #    Some common model types:
 #        PSPL: 't_0', 'u_0', 't_E'
 #        FSPL: 't_0', 'u_0', 't_E', 'rho'
-#        PSPL w/ parallax: 't_0', 'u_0', 't_E'
+#        PSPL w/ parallax: 't_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E' (OPTIONAL: 't_0_par')
 #        FSBL: 't_0', 'u_0', 't_E', 'rho', 's', 'q', 'alpha'
 #        BSPL: 't_0_1', 'u_0_1', 't_0_2', 'u_0_2', 't_E'
 #    By Effect:
@@ -34,9 +34,9 @@ MulensModel.modelparameters.which_parameters()
 #        FSBL: 't_1', 'u_0', 't_2', 'rho', 's', 'q', 'alpha' (Cassan)
 
 PSPL_params = MulensModel.ModelParameters(
-    {'t_0':2458060., 'u_0':0.2, 't_E':30.5})
+    {'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5})
 
-my_PSPL_model = MulensModel.Model({'t_0':2458060., 'u_0':0.2, 't_E':30.5})
+my_PSPL_model = MulensModel.Model({'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5})
 print(my_PSPL_model.parameters)
 print(my_PSPL_model.parameters.t_eff)
 print(my_PSPL_model.parameters.rho) 
@@ -50,7 +50,6 @@ FSPL_params['rho'] = 0.001
 my_FSPL_model = MulensModel.Model(FSPL_params)
 
 my_PSPL_model = MulensModel.Model(
-    parameters={
-        't_0':2458060., 'u_0':0.2, 't_E':30.5, 't_0_1': 2458062.})
+    parameters={'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5, 't_0_1': 2458062.})
 # Returns: AttributeError('Not a valid combination of parameters. See
 #    which_parameters()')

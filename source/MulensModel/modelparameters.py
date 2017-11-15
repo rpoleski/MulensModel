@@ -62,7 +62,7 @@ class ModelParameters(object):
 
         if 'rho' in self.parameters.keys():
             variables += '{0:>7} '.format('rho')
-            values += '{0:>7.5f} '.format(self.t_eff)
+            values += '{0:>7.5f} '.format(self.rho)
 
         if 't_star' in self.parameters.keys():
             variables += '{0:>10} '.format('t_star (d)')
@@ -258,7 +258,6 @@ class ModelParameters(object):
     def _check_time_quantity(self, key):
         if not isinstance(self.parameters[key], u.Quantity):
             self._set_time_quantity(key, self.parameters[key])
-
 
     @property
     def rho(self):
