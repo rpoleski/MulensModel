@@ -159,6 +159,9 @@ class MulensData(object):
             time += 2460000.
 
         #Store the time vector
+        if time.dtype != np.float64:
+            raise TypeError(('time vector in MulensData() must be of ' + 
+                'numpy.float64 type, not {:}').format(time.dtype))
         self._time = time
         self._n_epochs = len(time)
 

@@ -36,4 +36,11 @@ class test(unittest.TestCase):
             m = np.array([21.0, 21.1])
             e_long = np.array([0.001, 1.000, 0.1])
             data = MulensData(data_list=[t, m, e_long])
+            
+    def test_wrong_type(self):
+        with self.assertRaises(TypeError):
+            t = np.array([2457500., 2457501.], dtype=np.float32)
+            m = np.array([21.0, 21.1])
+            e = np.array([0.001, 1.000])
+            data = MulensData(data_list=[t, m, e])            
 
