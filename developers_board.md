@@ -1,9 +1,8 @@
-## current goals:
+## Nov goals:
 1. instantaneous orbital motion of binary lens,
-2. Sphinx docstrings for all classes and init functions
-3. coords class with docstrings
-4. t\_star instead of rho
-5. PSPL fitting tutorial
+2. Jacobian for PSPL
+3. finish new implementation of ModelParameters
+4. Sphinx docstrings for all classes and init functions
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals; _italics_ mark task useful for data challenge; try to put important stuff at the top)
