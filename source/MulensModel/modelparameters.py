@@ -1,8 +1,126 @@
 from astropy import units as u
 import numpy as np
 
+
+# options for parameters. Anything that may be given as 'basic' or
+# 'optional' should be a list of length 2. The second item will only
+# be printed if the effect is included in the 'optional' list (see
+# _get_effect_strings() ).
+_valid_parameters = {
+    'point lens': ['t_0, u_0, t_E'],
+    'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
+    'binary lens': ['s, q, alpha'],
+    'finite source': ['rho', '(for finite source effects)'],
+    'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
+    'parallax': ['pi_E OR pi_E_N, pi_E_E', '(for parallax)'],
+    'parallax opt': [
+        't_0_par', 
+        'may also be specified for parallax models. Defaults to t_0.']}
+
+def _get_effect_strings(*args):
+    """
+    Given *args[0], figure out which parameters should be printed.
+    """
+    basic = None
+    additional = []
+    alternate = []
+    optional = []
+
+    # number of lenses
+    if args[0].lower() == 'point lens' or args[0][2:4].lower() == 'pl':
+        basic = 'point lens'
+        alternate.append('point lens alt')
+
+    if args[0].lower() == 'binary lens':
+        basic = 'binary lens'
+
+    if args[0][2:4].lower() == 'bl':
+        basic = 'point lens'
+        additional.append('binary lens')
+        alternate.append('point lens alt')
+
+    # Effects
+    if args[0].lower() == 'finite source':
+        basic = 'finite source'
+        alternate.append('finite source alt')
+
+    if args[0][0:2].lower() == 'fs':
+        additional.append('finite source')
+        alternate.append('finite source alt')
+
+    if args[0].lower() == 'parallax':
+        basic = 'parallax'
+        optional.append('parallax opt')
+
+    if len(args[0]) == 4:
+        optional.append('parallax')
+        optional.append('parallax opt')        
+
+    return {
+        'basic':basic, 'additional':additional, 'alternate':alternate, 
+        'optional':optional}
+
+def _print_parameters(header, components):
+    """
+    Prints the given parameter information under the requested header.
+    
+    Arguments:
+        header: *str*
+
+        components: *dictionary*
+            This should be created using _get_effect_strings()
+    """
+    print(header)
+    if components['basic'] is not None:
+        parameters_list = 'basic: {0}'.format(
+            _valid_parameters[components['basic']][0])
+        if len(components['additional']) > 0:
+            for item in components['additional']:
+                parameters_list += ', {0}'.format(_valid_parameters[item][0])
+        print('{0}'.format(parameters_list))
+        
+    if len(components['alternate']) > 0:
+        for item in components['alternate']:
+            print('{0}'.format(_valid_parameters[item]))
+
+    if len(components['optional']) > 0:
+        for item in components['optional']:
+            print('optional: {0} {1}'.format(
+                    _valid_parameters[item][0], _valid_parameters[item][1]))
+
+def _print_all():
+    """
+    Give the user general information about common models and effects.
+    """
+    print('------------------------')
+    print('Some common model types:')
+    print('------------------------')
+    _print_parameters('PSPL: ', _get_effect_strings('PSPL'))
+    _print_parameters('----\nFSBL: ', _get_effect_strings('FSBL'))
+    print('-----------------')
+    print('Optional Effects:')
+    print('-----------------')
+    _print_parameters('finite source: ', _get_effect_strings('finite source'))
+    _print_parameters('---------\nparallax: ', _get_effect_strings('parallax'))
+
 def which_parameters(*args):
-    return NotImplementedError('See use case 23 for desired behavior. Probably needs to be built around a dictionary.')
+    """
+    Prints information on valid parameter combinations that can be
+    used to define a model or a particular effect. May be called with
+    no arguments (returns information on many types of models) or with
+    one argument referring to a specific model (e.g. PSPL) or effect
+    (e.g. parallax).
+
+    Valid arguments:
+        Model types: 'PSPL', 'FSPL', 'PSBL', 'FSBL'
+        Effects: 'point lens', 'binary lens', 'finite source', 'parallax'
+    """
+    if len(args) == 0:
+        _print_all()
+    else:
+        components = _get_effect_strings(*args)
+        header = '---------\n{0} parameters:'.format(args[0])
+        _print_parameters(header, components)
 
 # JCY: When binary orbital motion is introduced, t_binary should be
 # part of the ModelParameters set. See t_0_par
@@ -417,3 +535,14 @@ class ModelParameters(object):
     @t_0_par.setter
     def t_0_par(self, new_t_0_par):
         self.parameters['t_0_par'] = new_t_0_par
+
+if __name__ == '__main__':
+    which_parameters()
+    which_parameters('point lens')
+    which_parameters('binary lens')
+    which_parameters('finite source')
+    which_parameters('parallax')
+    which_parameters('PSPL')
+    which_parameters('FSPL')
+    which_parameters('PSBL')
+    which_parameters('FSBL')
