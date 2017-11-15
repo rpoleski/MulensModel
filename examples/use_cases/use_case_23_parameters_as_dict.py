@@ -21,16 +21,17 @@ MulensModel.modelparameters.which_parameters()
 #    Some common model types:
 #        PSPL: 't_0', 'u_0', 't_E'
 #        FSPL: 't_0', 'u_0', 't_E', 'rho'
-#        PSPL w/ parallax: 't_0', 'u_0', 't_E'
+#        PSPL w/ parallax: 't_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E'
 #        FSBL: 't_0', 'u_0', 't_E', 'rho', 's', 'q', 'alpha'
 #        BSPL: 't_0_1', 'u_0_1', 't_0_2', 'u_0_2', 't_E'
 #    By Effect:
-#        parallax: 'pi_E_N', 'pi_E_E' (OPTIONAL: 't_0_par')
+#        parallax: 'pi_E_N', 'pi_E_E' OR 'pi_E' (OPTIONAL: 't_0_par')
 #        xallarap: 'xi_E_N', 'xi_E_E', 'period'
-#        finite source: 'rho' or 'rho_1', 'rho_2' (if 2 sources)
+#        finite source: 'rho' (1 source) OR 'rho_1', 'rho_2' (if 2 sources)
 #        lens orbital motion: 'dsdt', 'dalphadt' (OPTIONAL: 'z', 'dzdt')
 #    Alternative parameterizations:
-#        FSPL: 't_0', 't_eff', 't_E', 't_star'
+#        any two of 'u_0', 't_E', 't_eff' (t_eff = u_0 * t_E)
+#        any two of 't_E', 'rho', 't_star' (t_star = rho * t_E)
 #        FSBL: 't_1', 'u_0', 't_2', 'rho', 's', 'q', 'alpha' (Cassan)
 
 PSPL_params = MulensModel.ModelParameters(
@@ -52,5 +53,5 @@ my_FSPL_model = MulensModel.Model(FSPL_params)
 my_PSPL_model = MulensModel.Model(
     parameters={
         't_0':2458060., 'u_0':0.2, 't_E':30.5, 't_0_1': 2458062.})
-# Returns: AttributeError('Not a valid combination of parameters. See
+# Returns: ValueError('Not a valid combination of parameters. See
 #    which_parameters()')
