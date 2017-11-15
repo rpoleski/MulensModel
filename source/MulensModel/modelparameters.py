@@ -154,6 +154,10 @@ class ModelParameters(object):
                pi_E_E: East component of the parallax
                
         """
+        if not isinstance(parameters, dict):
+            raise TypeError('ModelParameters must be initialized with dict ' +
+                'as a parameter\ne.g., ' +
+                "ModelParameters({'t_0': 2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
         self._check_valid_combination(parameters.keys())
         self._set_parameters(parameters)
@@ -179,7 +183,7 @@ class ModelParameters(object):
 
         if 'rho' in self.parameters.keys():
             variables += '{0:>7} '.format('rho')
-            values += '{0:>7.5f} '.format(self.t_eff)
+            values += '{0:>7.5f} '.format(self.rho)
 
         if 't_star' in self.parameters.keys():
             variables += '{0:>10} '.format('t_star (d)')
@@ -218,27 +222,19 @@ class ModelParameters(object):
         """
         Prevent user from setting negative (unphysical) values for t_E, t_star, rho.
         """
-        if 't_E' in parameters.keys():
-            if parameters['t_E'] < 0.:
-                raise ValueError(
-                    'Einstein timescale cannot be negative:', parameters['t_E'])
-
-        if 't_star' in parameters.keys():
-            if parameters['t_star'] < 0.:
-                raise ValueError(
-                    'Source crossing time cannot be negative:', 
-                    parameters['t_star'])
-
-        if 'rho' in parameters.keys():
-            if parameters['rho'] < 0.:
-                raise ValueError(
-                    'Souce size cannot be negative:', parameters['rho'])
-
+        names = ['t_E', 't_star', 'rho']
+        full_names = {'t_E': 'Einstein timescale', 
+            't_star': 'Source crossing time', 'rho': 'Source size'}
+            
+        for name in names:
+            if name in parameters.keys():
+                if parameters[name] < 0.:
+                    raise ValueError("{:} cannot be negative: {:}".format(
+                            full_names[name], parameters[name]))
 
     def _set_parameters(self, parameters):
         self._check_valid_parameter_values(parameters)
         self.parameters = parameters
-        
 
     @property
     def n_lenses(self):
@@ -375,7 +371,6 @@ class ModelParameters(object):
     def _check_time_quantity(self, key):
         if not isinstance(self.parameters[key], u.Quantity):
             self._set_time_quantity(key, self.parameters[key])
-
 
     @property
     def rho(self):
