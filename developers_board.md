@@ -1,9 +1,8 @@
-## current goals:
+## Nov goals:
 1. instantaneous orbital motion of binary lens,
-2. Sphinx docstrings for all classes and init functions
-3. coords class with docstrings
-4. t\_star instead of rho
-5. PSPL fitting tutorial
+2. Jacobian for PSPL
+3. finish new implementation of ModelParameters
+4. Sphinx docstrings for all classes and init functions
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals; _italics_ mark task useful for data challenge; try to put important stuff at the top)
@@ -26,15 +25,15 @@
     3. Make code changes as necessary.
 
   * Add \_\_repr\_\_ functions to Lens and Source
-  * [2] files not yet well documented (starting from the shortest): 
+  * [2] files not yet well documented: 
     * [2] trajectory.py 
     * mulensparallaxvector.py 
     * satelliteskycoord.py 
     * [2] caustics.py 
+    * RA & Dec in coordinates.py (maybe also code it better)
     * horizons.py 
     * limbdarkeningcoeffs.py 
     * mulenstime.py 
-    * [1] fit.py 
     * [2] magnificationcurve.py (needs a list of allowed magnification methods) 
     * utils.py 
     * [1] modelparameters.py
@@ -45,7 +44,6 @@
     * [2] _faster FSPL with LD_
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * [2] get gamma/u LD coefs from Claret papers etc.
-    * [1] once more review Model, MulensData, and Event
   * Higher Order Effects
     * xallarap (see below for references)
       - use case, 
@@ -94,11 +92,12 @@
   * Miscellaneous:
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
-    * guessing parameters of PSPL model (Kim+17 as an example)
+    * guessing parameters of PSPL model ([Kim+17](https://arxiv.org/abs/1703.06883) as an example)
     * Errorbar scaling, in particular the two parameter.
     * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
     * anything from use cases that does not work yet -- see TODO.md file
     * [2] plotting data in MulensData (also update PSPL tutorial)
+    * interaction with fitting routines - see list of them e.g. https://arxiv.org/abs/1711.03329
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL

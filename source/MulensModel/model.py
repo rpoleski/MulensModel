@@ -16,6 +16,7 @@ from MulensModel.mulensdata import MulensData
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.coordinates import Coordinates
 
+
 class Model(object):
     """
     A Model for a microlensing event with the specified parameters.
@@ -27,7 +28,7 @@ class Model(object):
 
         2. specify :py:obj:`t_0`, :py:obj:`u_0`, :py:obj:`t_E`
             (optionally: :py:obj:`rho`, :py:obj:`s`, :py:obj:`q`,
-            :py:obj:`alpha`)
+            :py:obj:`alpha`, or other)
 
             Parallax may be specified either as :py:obj:`pi_E` OR
             :py:obj:`pi_E_N` and :py:obj:`pi_E_E`. :py:obj:`t_0_par`
@@ -40,7 +41,7 @@ class Model(object):
     Default values for parallax are all True. Use :func:`parallax()`
     to turn different parallax effects ON/OFF. If using satellite
     parallax, you may also specify an `ephemerides_file` (see
-    :py:class:`MulensModel.mulensdata.MulensData`).
+    :py:class:`~MulensModel.mulensdata.MulensData`).
 
     Caveat:
     satellite parallax works for datasets, but not for
@@ -50,22 +51,11 @@ class Model(object):
 
     """
 
-    def __init__(
-        self, parameters=None, t_0=None, u_0=None, t_E=None, rho=None, s=None, 
-        q=None, alpha=None, pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None, 
-        t_0_par=None, coords=None, ra=None, dec=None, ephemerides_file=None):
-        """
-        Two ways to define the model:
-        1. parameters = a :class:`~MulensModel.modelparameters.ModelParameters` object
-        2. specify t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par)
-
-        When defining event coordinates, may specify coords as an
-        astropy.coordinates.SkyCoord object, otherwise assumes RA is
-        in hour angle and DEC is in degrees.
-
-        Default values for parallax are all True. Use model.parallax() to turn
-        different parallax effects ON/OFF.
-        """
+    def __init__(self, parameters=None, t_0=None, u_0=None, t_E=None, 
+                rho=None, s=None, q=None, alpha=None, 
+                pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None, 
+                t_0_par=None, coords=None, ra=None, dec=None, 
+                ephemerides_file=None):
         # Initialize the parameters of the model
         if isinstance(parameters, ModelParameters):
             self._parameters = parameters
@@ -291,7 +281,7 @@ class Model(object):
         """
         return self._parameters
 
-    def set_parameters(self, t_0=0., u_0=None, t_E=1., rho=None, s=None, 
+    def set_parameters(self, t_0=None, u_0=None, t_E=None, rho=None, s=None, 
                         q=None, alpha=None, pi_E=None, pi_E_N=None, 
                         pi_E_E=None, pi_E_ref=None):
         """
@@ -530,7 +520,7 @@ class Model(object):
                 where flux = 1 corresponds to :obj:`MulensModel.utils.MAG_ZEROPOINT` 
                 (= 22 mag). 
 
-        ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
+            ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
         Either `data_ref` or (`f_source`, `f_blend`) must be set, but there
         is no explicit check for this. Default behavior is probably to
@@ -742,6 +732,8 @@ class Model(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :func:`plot_lc()`).
 
+            ``**kwargs``: passed to matplotlib plotting functions.
+
         May also use ``**kwargs`` or some combination of the lists and
         ``**kwargs``. e.g. set color_list to specify which color each
         data set should be plotted in, but use fmt='s' to make all
@@ -833,7 +825,7 @@ class Model(object):
         Uses the best f_source, f_blend for each dataset 
         (not scaled to a particular photometric system).
 
-        For explanation of ``**kwargs`` and other keywords, see doctrings in 
+        For explanation of keywords, see doctrings in 
         :func:`plot_data()`. 
 
         """
@@ -914,11 +906,11 @@ class Model(object):
           caustics: *boolean*
               plot the caustic structure in addition to the source
               trajectory. default=False (off). For finer control of
-              plotting features, e.g. color, use self.plot_caustics()
+              plotting features, e.g. color, use :func:`plot_caustics()`
               instead.
 
           show_data: *boolean*
-              mark epochs of data (Not Implemented, marker types
+              mark epochs of data (**Not implemented**, marker types
               should match data plotting.)
 
           arrow: *boolean*
@@ -931,6 +923,10 @@ class Model(object):
           ``**kwargs`` controls plotting features of the trajectory.
 
         """
+        if show_data:
+            raise NotImplementedError(
+                                "show_data option is not yet implemented")
+
         if times is None:
             times = self.set_times(
                 t_range=t_range, t_start=t_start, 
@@ -958,7 +954,8 @@ class Model(object):
 
     def plot_caustics(self, n_points=5000, **kwargs):
         """
-        Plot the caustic structure. See :func:`MulensModel.caustics.Caustics.plot()`
+        Plot the caustic structure. 
+        See :func:`MulensModel.caustics.Caustics.plot()`
 
         """
         if self.caustics is None:
@@ -1027,13 +1024,13 @@ class Model(object):
         Parameters :
             methods: *list*
                 List that specifies which methods (*str*) should be used when 
-                (*float* values for julian dates). Given method will be used 
+                (*float* values for Julian dates). Given method will be used 
                 for times between the times between which it is on the list, 
                 e.g., 
                 
-                methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 
+                ``methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 
                 2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15, 
-                'Quadrupole', 2455748.]
+                'Quadrupole', 2455748.]``
         """
         self._methods = methods
 
@@ -1041,7 +1038,7 @@ class Model(object):
         """
         Store gamma limb darkening coefficient for given band. See
         also
-        :class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+        :class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
                 
         Parameters :
             bandpass: *str*
@@ -1105,7 +1102,7 @@ class Model(object):
     @property
     def bandpasses(self):
         """
-        list of all bandpasses for which limb darkening coefficients are set
+        List of all bandpasses for which limb darkening coefficients are set.
         """
         return self._bandpasses
 

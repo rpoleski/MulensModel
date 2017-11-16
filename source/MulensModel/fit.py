@@ -6,27 +6,23 @@ from MulensModel.utils import Utils
 
 class Fit(object):
     """
-    fit_fluxes(): Performs a least squares linear fit
-        (np.linalg.lstsq) to the data for the flux
-        parameters. i.e. given the data y and magnifcation A, solves
-        for f_source and f_blend:
+    Fits source and blending fluxes for given data and model magnification.
     
-        y = f_source * A + f_blend
+    Keywords :
+        data: :py:class:`MulensData` or list of :py:class:`MulensData` 
+        instances
+            Photometric data to be fitted.
 
-        Allows for zero blending.
+        magnification: *np.ndarray* or *list of np.ndarrays*
+            Model magnification.
 
-    get_input_format(data): Returns the model magnifications in the
-        same flux system as data.
+        n_sources: *int*
+            The number of microlensing sources. *It's suggested not to use 
+            this option now.*
+
     """
 
     def __init__(self, data=None, magnification=None, n_sources=None):
-        """
-        Args:
-            data: a list of MulensModel.MulensData objects
-            magnification: the model magnification for each data epoch: a list
-            of numpy ndarrays, each list element is (n_epochs) x (n_sources)
-            n_sources (optional): the number of microlens sources
-        """
         # Initialize self._datasets, self._magnification, and self._n_sources
         if isinstance(data, list):
             self._datasets = data 
@@ -50,7 +46,14 @@ class Fit(object):
            
     def fit_fluxes(self, fit_blending=True):
         """
-        Fit source(s) and blending fluxes
+        Fit source(s) and blending fluxes. Performs a least squares linear fit
+        (*np.linalg.lstsq()*) to the data for the flux parameters. 
+        I.e., given the data :math:`y` and magnifcation :math:`A`, solves for 
+        :math:`f_source` and :math:`f_blend`:
+
+        .. math::
+
+           y = f_source * A + f_blend
         
         Parameters :
             fit_blending: *boolean*, optional

@@ -34,9 +34,6 @@ class BinaryLens(object):
 
     """
     def __init__(self, mass_1=None, mass_2=None, separation=None):
-        """The mass_1, mass_2, and separation are relative to 
-        some mass (and corresponding Einstein radius). This should normally be
-        the total mass of the system."""
         self.mass_1 = mass_1
         self.mass_2 = mass_2
         self.separation = separation

@@ -7,6 +7,7 @@ from MulensModel.utils import Utils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.coordinates import Coordinates
 
+
 #data_list and ephemerides_file must have the same time standard.
 #To implement: mjd2hjd = T/F
 #usecols
@@ -158,6 +159,9 @@ class MulensData(object):
             time += 2460000.
 
         #Store the time vector
+        if time.dtype != np.float64:
+            raise TypeError(('time vector in MulensData() must be of ' + 
+                'numpy.float64 type, not {:}').format(time.dtype))
         self._time = time
         self._n_epochs = len(time)
 

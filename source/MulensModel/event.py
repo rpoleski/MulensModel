@@ -27,20 +27,6 @@ class Event(object):
 
     """
     def __init__(self, datasets=None, model=None, coords=None):
-        """
-        Create an Event object, which allows a model to be fit to datasets.
-
-        Arguments :
-            :py:obj:`datasets` (required): The data; a
-                :py:class:`~MulensModel.mulensdata.MulensData` object
-                or list of MulensData objects
-
-            :py:obj:`model` (required): a
-            :py:class:`~MulensModel.model.Model` object
-
-            :py:obj:`coords` (optional): the coordinates of the event
-            (RA, Dec)
-        """
         #Initialise self._model (and check that model is defined).
         if isinstance(model, Model):
             self._model = model
@@ -244,10 +230,11 @@ class Event(object):
         self.model.plot_residuals(**kwargs)
 
     def clean_data(self):
-        """masks outlying datapoints. Not Implemented."""
+        """masks outlying datapoints. **Not Implemented.**"""
         raise NotImplementedError("This feature has not been implemented yet")
 
     def estimate_model_params(self):
-        """estiamtes model parameters without fitting them. Not Implemented"""
+        """estiamtes model parameters without fitting them. 
+        **Not Implemented.**"""
         raise NotImplementedError("This feature has not been implemented yet")
 
