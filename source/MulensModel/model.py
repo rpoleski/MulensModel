@@ -765,7 +765,7 @@ class Model(object):
             index = int(len(times)/2)
             pl.scatter(
                 trajectory.x[index], trajectory.y[index], 
-                marker=(3, 0, self.alpha), s=50)
+                marker=(3, 0, self.parameters.alpha), s=50)
 
         if caustics:
             self.plot_caustics(marker='.', color='red')
@@ -776,7 +776,7 @@ class Model(object):
 
         """
         if self.caustics is None:
-            self.caustics = Caustics(q=self.q, s=self.s)
+            self.caustics = Caustics(q=self.parameters.q, s=self.parameters.s)
 
         self.caustics.plot(n_points=n_points, **kwargs)
         

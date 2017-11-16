@@ -1,7 +1,7 @@
 #
 # This file shows how to define and plot single or binary lens and point 
 # source models. The binary lens model has a planetary mass ratio and one can 
-# clearly see that the planetary anomaly is a short perturbation ontop of 
+# clearly see that the planetary anomaly is a short perturbation on top of 
 # smooth single point lens light curve. Also the lens source geometry (i.e., 
 # the source trajectory and the caustic position are plotted.
 # 
@@ -17,14 +17,15 @@ t_0 = 3583.
 u_0 = 0.3
 t_E = 12.
 
-pspl = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+pspl = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 #Create a planet model with same PSPL parameters
 s = 1.5
 q = 0.001
 alpha = np.rad2deg(np.pi - 0.37)
 
-planet = Model(t_0=t_0, u_0=u_0, t_E=t_E, s=s, q=q, alpha=alpha)
+planet = Model(
+    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha})
 
 #Plot PSPL model
 pl.figure()
