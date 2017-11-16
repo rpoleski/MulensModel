@@ -107,8 +107,8 @@ class Trajectory(object):
             vector_x = vector_tau
             vector_y = vector_u
         elif self.parameters.n_lenses == 2:
-            sin_alpha = np.sin(self.parameters.alpha)
-            cos_alpha = np.cos(self.parameters.alpha)
+            sin_alpha = np.sin(np.deg2rad(self.parameters.alpha))
+            cos_alpha = np.cos(np.deg2rad(self.parameters.alpha))
             shift_x = - self.parameters.s * self.parameters.q / (1. +
                                                             self.parameters.q)
             vector_x = vector_u * sin_alpha - vector_tau * cos_alpha + shift_x

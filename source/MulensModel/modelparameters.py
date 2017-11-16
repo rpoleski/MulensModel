@@ -399,7 +399,10 @@ class ModelParameters(object):
         astropy.Quantity. "deg" is the default unit.
         TBD - make sure CW/CCW convention is according to Skowron+11 appendix A
         """
-        return self.parameters['alpha']
+        if not isinstance(self.parameters['alpha'], u.Quantity):
+            self.parameters['alpha'] = self.parameters['alpha'] * u.deg
+
+        return self.parameters['alpha'].to(u.deg)
 
     @alpha.setter
     def alpha(self, new_alpha):
