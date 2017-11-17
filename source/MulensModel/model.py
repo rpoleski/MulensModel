@@ -180,6 +180,7 @@ class Model(object):
             gamma=gamma)
         magnification_curve.set_magnification_methods(self._methods, 
                                         self._default_magnification_method)
+
         return magnification_curve.magnification
 
     @property
