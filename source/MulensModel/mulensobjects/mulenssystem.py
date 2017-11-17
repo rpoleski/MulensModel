@@ -7,7 +7,6 @@ from astropy.constants import au, c, G
 from MulensModel.mulensobjects.lens import Lens
 from MulensModel.mulensobjects.source import Source
 from MulensModel.model import Model
-from MulensModel.modelparameters import ModelParameters
 
 
 class MulensSystem(object):
@@ -173,25 +172,26 @@ class MulensSystem(object):
         if u_0 is None:
             raise AttributeError('u_0 is required')
         else:
-            parameters = ModelParameters(t_0=0., u_0=u_0)
+            parameters = {'t_0': 0., 'u_0': u_0}
             if self.t_E is not None:
-                parameters.t_E = self.t_E
+                parameters['t_E'] = self.t_E
                 xtitle = 'Time (days)'
             else:
-                parameters.t_E = 1.
+                parameters['t_E'] = 1.
                 xtitle = 'Time (tE)'
 
             if self.source.angular_radius is not None:
-                parameters.rho = (self.source.angular_radius.to(u.mas) 
+                parameters['rho'] = (self.source.angular_radius.to(u.mas) 
                                   / self.theta_E.to(u.mas))
 
             if self.lens.n_masses > 1:
-                parameters.q = self.lens.q
-                parameters.s = self.lens.s
+                parameters['q'] = self.lens.q
+                parameters['s'] = self.lens.s
                 if alpha is None:
                     raise AttributeError('alpha is required for 2-body lenses.')
                 else:
-                    parameters.alpha = alpha
+                    parameters['alpha'] = alpha
+
 
             model = Model(parameters=parameters)
             model.plot_magnification(**kwargs)
