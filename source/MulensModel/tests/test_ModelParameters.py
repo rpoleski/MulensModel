@@ -26,13 +26,13 @@ def test_init_parameters():
     np.testing.assert_almost_equal(params.t_E, t_E.value)
 
 def test_repr_parameters():
-    t_0 = 6141.593
+    t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
     params = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
     
-    out_1 = "  t_0 (HJD)       u_0    t_E (d) \n"
-    out_2 = " 6141.59300  0.542500    62.6300 \n"
+    out_1 = "    t_0 (HJD)       u_0    t_E (d) \n"
+    out_2 = "2456141.59300  0.542500    62.6300 \n"
     
     assert (out_1 + out_2) == str(params)
 
