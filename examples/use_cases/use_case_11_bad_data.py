@@ -1,9 +1,12 @@
 import MulensModel
 import matplotlib.pyplot as pl
 
+#Needs commentary
+
+raise NotImplementedError('Most of this use case is not implemented. Need to reconsider estimate_model_params() given that Model cannot be defined this way.')
 
 data = MulensModel.MulensData(file_name="my_data.dat")
-model = MulensModel.Model(n_components=1)
+model = MulensModel.Model(n_components=1) #This is not allowed
 
 data.bad[np.isnan(data.err)] = True
 
