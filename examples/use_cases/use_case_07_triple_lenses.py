@@ -2,6 +2,7 @@ from astropy import units as u
 
 import MulensModel
 
+raise NotImplementedError('Triple Lenses are Not Supported')
 
 # first way
 lens = MulensModel.Lens(n_components=3)
