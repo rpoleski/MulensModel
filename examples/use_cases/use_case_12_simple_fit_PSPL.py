@@ -12,8 +12,7 @@ t_0 = 2457520.
 u_0 = 0.6
 t_E = 130.
 
-model = MulensModel.Model()
-model.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E)
+model = MulensModel.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 #Import data
 file_name = os.path.join(MulensModel.MODULE_PATH, 'data', 'phot_ob160023.dat')
@@ -28,7 +27,7 @@ def chi2(theta, event, parameters_to_fit):
     """for given event set attributes from parameters_to_fit (list of str) 
     to values from theta list"""
     for key, val in enumerate(parameters_to_fit):
-        setattr(event.model, val, theta[key])
+        setattr(event.model.parameters, val, theta[key])
     return event.get_chi2()
 
 #Fit model to data using scipy
@@ -41,4 +40,3 @@ result = op.minimize(chi2, initial_guess, args=(event, parameters_to_fit))
 chi2(result.x, event, parameters_to_fit)
 print('Fitted Model')
 print(event.model.parameters)
-
