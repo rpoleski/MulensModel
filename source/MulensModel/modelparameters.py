@@ -166,8 +166,8 @@ class ModelParameters(object):
         """A nice way to represent a ModelParameters object as a string"""
         variables, values = '', ''
         if 't_0' in self.parameters.keys():
-            variables += '{0:>11} '.format('t_0 (HJD)')
-            values += '{0:>11.5f} '.format(self.t_0)
+            variables += '{0:>13} '.format('t_0 (HJD)')
+            values += '{0:>13.5f} '.format(self.t_0)
         
         if 'u_0' in self.parameters.keys():
             variables += '{0:>9} '.format('u_0')
@@ -191,9 +191,9 @@ class ModelParameters(object):
 
         if 's' in self.parameters.keys():
             variables += '{0:>9} {1:>12} {2:>11} '.format(
-                's', 'q', 'alpha ({0})'.format(self._alpha.unit))
+                's', 'q', 'alpha ({0})'.format(self.alpha.unit))
             values += '{0:>9.5f} {1:>12.8f} {2:>11.5f} '.format(
-                values, self._s, self._q, self._alpha.value)
+                self.s, self.q, self.alpha.value)
 
         return '{0}\n{1}\n'.format(variables, values)
 
