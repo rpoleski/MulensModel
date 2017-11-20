@@ -413,7 +413,9 @@ class ModelParameters(object):
 
     @property
     def q(self):
-        """mass ratio of two lens components"""
+        """mass ratio of two lens components. Only 2 bodies allowed."""
+        if isinstance(self.parameters['q'], (list, np.ndarray)):
+            self.parameters['q'] = self.parameters['q'][0]
         return self.parameters['q']
         
     @q.setter
@@ -423,6 +425,8 @@ class ModelParameters(object):
     @property
     def s(self):
         """separation of two lens components relative to Einstein ring size"""
+        if isinstance(self.parameters['s'], (list, np.ndarray)):
+            self.parameters['s'] = self.parameters['s'][0]
         return self.parameters['s']
 
     @s.setter
