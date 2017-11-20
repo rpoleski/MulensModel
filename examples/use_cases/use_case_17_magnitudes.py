@@ -2,6 +2,8 @@
 Note that this use case is not consistent with any other use_cases. It
 is meant to work out how this should be done. This definition should
 be retroactively applied to other use cases.
+
+JCY - It seems I wrote the above note, but I have no idea what it means.
 """
 import matplotlib.pyplot as pl
 
@@ -11,7 +13,7 @@ import MulensModel
 t_0 = 2456791.
 u_0 = 0.2
 t_E = 12.4
-model_1 = MulensModel.Model(t_0=t_0, u_0=u_0, t_E=t_E)
+model_1 = MulensModel.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 #Plot the Model 3 ways.
 pl.figure()

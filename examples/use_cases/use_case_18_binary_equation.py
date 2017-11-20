@@ -15,8 +15,8 @@ from MulensModel import Model
 t_0 = 2455747.049357
 t_E = 21.6796
 model = Model(
-    t_0=t_0, u_0=0.00352, t_E=t_E, rho=0.001647, alpha=41.35*u.deg, s=0.5486, 
-    q=0.00532)
+    {'t_0': t_0, 'u_0': 0.00352, 't_E': t_E, 'rho': 0.001647, 
+     'alpha': 41.35*u.deg, 's': 0.5486, 'q': 0.00532})
 
 #times to calculate the magnification
 times = np.arange(t_0 - 1., t_0 + 1., 0.001)
@@ -32,6 +32,7 @@ methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 2455746.7, 'VBBL',
            2455747., 'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]
 model.set_magnification_methods(methods)
 
+raise NotImplementedError('Model.set_magnification_methods_parameters() not implemented')
 # And specify additional parameters needed by some of the methods:
 vbbl_parameters = {'accuracy': 0.0005} # This is twice better than default of 0.001.
 methods_parameters = {'VBBL': vbbl_parameters}

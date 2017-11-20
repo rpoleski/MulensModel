@@ -18,12 +18,12 @@ data_1 = MulensModel.MulensData(
     coords='17:47:12.25 -21:22:58.2')
 
 data_2 = MulensModel.MulensData(
-    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat', ra='17:47:12.25', 
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), ra='17:47:12.25', 
     dec='-21:22:58.2')
 
 coords = SkyCoord('17:47:12.25 -21:22:58.2', unit=(u.hourangle, u.deg))
 data_3 = MulensModel.MulensData(
-    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat', coords=coords)
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), coords=coords)
 
 #Specifiying coordinates to calculate a model with parallax
 t_0 = 2456836.22
@@ -32,19 +32,19 @@ t_E = 22.87
 pi_E_N = -0.248
 pi_E_E = 0.234
 
-ground_model = MulensModel.Model()
-ground_model.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E, pi_E=[pi_E_N, pi_E_E])
+ground_model = MulensModel.Model(
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]})
 ground_model.coords = '17:47:12.25 -21:22:58.2'
 space_model = MulensModel.Model(
-    t_0=t_0, u_0=u_0, t_E=t_E, pi_E=[pi_E_N, pi_E_E], 
-    ra='17:47:12.25', dec='-21:22:58.2', 
-    ephemerides_file=os.path.join(data_dir, 'Spitzer_ephemeris_01.dat')
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
+        ra='17:47:12.25', dec='-21:22:58.2', 
+        ephemerides_file=os.path.join(data_dir, 'Spitzer_ephemeris_01.dat'))
 
 #Access Galactic and ecliptic coordinates:
-print('l {0}'.format(ground_model.galactic_l))
-print('b {0}'.format(ground_model.galactic_b))
-print('ecliptic lat {0}'.format(ground_model.ecliptic_lat))
-print('ecliptic lon {0}'.format(ground_model.ecliptic_lon))
+print('l {0}'.format(ground_model.coords.galactic_l))
+print('b {0}'.format(ground_model.coords.galactic_b))
+print('ecliptic lat {0}'.format(ground_model.coords.ecliptic_lat))
+print('ecliptic lon {0}'.format(ground_model.coords.ecliptic_lon))
 
 pl.figure()
 ground_model.plot_magnification(label='ground')
@@ -54,13 +54,14 @@ pl.legend()
 
 #Sepcifying coordinates for an event
 ground_data = MulensModel.MulensData(
-    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat')
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'))
 space_data = MulensModel.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_Spitzer.dat'), 
     ephemerides_file=os.path.join(data_dir, 'Spitzer_ephemeris_01.dat'))
 
 model_params = MulensModel.ModelParameters(
-    t_0=t_0, u_0=u_0, t_E=t_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E)
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E_N': pi_E_N, 
+         'pi_E_E': pi_E_E})
 event = MulensModel.Event(datasets=[ground_data, space_data], 
                           model=MulensModel.Model(parameters=model_params), 
                           coords='17:47:12.25 -21:22:58.2')
