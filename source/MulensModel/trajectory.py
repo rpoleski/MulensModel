@@ -15,28 +15,30 @@ class Trajectory(object):
     The (dimensionless) X, Y trajectory of the source in the
     source plane. 
 
-    `t_0_par` is the reference time for the parallax
-    vector. If not set, defaults to `t_0`.
-
     For binary lens, the origin of the coordinate system is at 
     the center of mass with higher mass at negative X and Y=0.
+
+    Arguments : 
+        times: [*float*, *list*, *np.ndarray*], required 
+            the times at which to generate the source trajectory, e.g. a vector.
+
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`, required
+            a ModelParameters object specifying the microlensing parameters
+
+        parallax: *boolean dictionary*, optional
+            specifies what parallax effects should be used. Default is
+            False. (differs from Modely.py which defaults to True)
+
+        coords: :py:class:`MulensModel.coordinates.Coordinates`, optional
+            sky coordinates of the event
+
+        satellite_skycoord: optional 
+            sky coordinates of the satellite specified by the
+            ephemrides file. see
+            :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
     """
     def __init__(self, times, parameters=None, parallax=None,
                 coords=None, satellite_skycoord=None, earth_coords=None):
-        """
-        Required arguments: 
-           times - the times at which to generate the source trajectory, e.g. a vector.
-           parameters - a ModelParameters object specifying the microlensing parameters
-
-        Optional parallax keywords:
-           parallax - boolean dictionary specifying what parallax effects should be used. Default is False. (differs from Modely.py which defaults to True)
-           t_0_par - reference time for the parallax
-
-           coords - sky coordinates of the event
-           satellite_skycoord - sky coordinates of the satellite
-               specified by the ephemrides file. see
-               MulensData.satellite_skycoord.
-        """
         #Set times
         if isinstance(times, (list, tuple, np.ndarray)):
             self.times = times
@@ -70,8 +72,9 @@ class Trajectory(object):
 
     def get_xy(self):
         """
-        For a given set of parameters (a ModelParameters object),
-        calculate the xy position of the source.
+        For a given set of parameters (a
+        :py:class:`~MulensModel.modelparameters.ModelParameters`
+        object), calculate the xy position of the source.
         """
         # Calculate the position of the source
         vector_tau = ((self.times - self.parameters.t_0)

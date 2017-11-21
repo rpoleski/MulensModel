@@ -47,15 +47,33 @@
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The (dimensionless) X, Y trajectory of the source in the
 source plane.</p>
-<p><cite>t_0_par</cite> is the reference time for the parallax
-vector. If not set, defaults to <cite>t_0</cite>.</p>
 <p>For binary lens, the origin of the coordinate system is at 
 the center of mass with higher mass at negative X and Y=0.</p>
+<dl class="docutils">
+<dt>Arguments <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
+<dd><dl class="first last docutils">
+<dt>times: [<em>float</em>, <em>list</em>, <em>np.ndarray</em>], required </dt>
+<dd>the times at which to generate the source trajectory, e.g. a vector.</dd>
+<dt>parameters: <a class="reference internal" href="MulensModel.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>, required</dt>
+<dd>a ModelParameters object specifying the microlensing parameters</dd>
+<dt>parallax: <em>boolean dictionary</em>, optional</dt>
+<dd>specifies what parallax effects should be used. Default is
+False. (differs from Modely.py which defaults to True)</dd>
+<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.coordinates.Coordinates</span></code></a>, optional</dt>
+<dd>sky coordinates of the event</dd>
+<dt>satellite_skycoord: optional </dt>
+<dd>sky coordinates of the satellite specified by the
+ephemrides file. see
+<code class="xref py py-obj docutils literal"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
+</dl>
+</dd>
+</dl>
 <dl class="method">
 <dt id="MulensModel.trajectory.Trajectory.get_xy">
 <code class="descname">get_xy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.trajectory.Trajectory.get_xy" title="Permalink to this definition">¶</a></dt>
-<dd><p>For a given set of parameters (a ModelParameters object),
-calculate the xy position of the source.</p>
+<dd><p>For a given set of parameters (a
+<a class="reference internal" href="MulensModel.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>
+object), calculate the xy position of the source.</p>
 </dd></dl>
 
 </dd></dl>
