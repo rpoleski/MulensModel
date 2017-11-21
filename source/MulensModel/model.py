@@ -19,22 +19,17 @@ class Model(object):
     """
     A Model for a microlensing event with the specified parameters.
 
-    Two ways to define the model:
-        1. :py:obj:`parameters` = a
-            :py:class:`~MulensModel.modelparameters.ModelParameters`
-            object
+    Arguments :
+        parameters: *dictionary*, 
+        :py:class:`~MulensModel.modelparameters.ModelParameters`
+            see :py:class:`MulensModel.modelparameters.ModelParameters`
 
-        2. specify :py:obj:`t_0`, :py:obj:`u_0`, :py:obj:`t_E`
-            (optionally: :py:obj:`rho`, :py:obj:`s`, :py:obj:`q`,
-            :py:obj:`alpha`)
+        :py:obj:`coords`: [*list*, *str*, *astropy.SkyCoords*], optional
+            Sky Coordinates of the event.
 
-            Parallax may be specified either as :py:obj:`pi_E` OR
-            :py:obj:`pi_E_N` and :py:obj:`pi_E_E`. :py:obj:`t_0_par`
-            is optional. For default behavior see
-            :py:class:`MulensModel.trajectory.Trajectory`
-
-    Also optional: may specify :py:obj:`coords` OR :py:obj:`ra` and
-    :py:obj:`dec`.
+        ra, dec: *str*, optional
+            Sky Coordinates of the event.
+         
 
     Default values for parallax are all True. Use :func:`parallax()`
     to turn different parallax effects ON/OFF. If using satellite
@@ -106,18 +101,6 @@ class Model(object):
 
     def __repr__(self):
         return '{0}'.format(self.parameters)
-
-    def set_parameters(self, parameters):
-        """
-        Set the parameters of the model. Any parameter not explicitly
-        specified will be set to None. Creates a new
-        :class:`~MulensModel.modelparameters.ModelParameters` object,
-        so all the previously set parameters will be forgotten.
-        """
-        if isinstance(parameters, ModelParameters):
-            self.parameters = parameters
-        else:
-            self.parameters = ModelParameters(parameters)
             
     def get_satellite_coords(self, times):
         """
