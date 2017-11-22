@@ -92,7 +92,7 @@ so <em>u_0 = 0.5</em> should be a good choice.</p>
 a <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>
 and plot it
 together with data:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pspl_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">t_0</span><span class="o">=</span><span class="n">t_0</span><span class="p">,</span> <span class="n">u_0</span><span class="o">=</span><span class="n">u_0</span><span class="p">,</span> <span class="n">t_E</span><span class="o">=</span><span class="n">t_E</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pspl_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="n">t_0</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="n">u_0</span><span class="p">,</span> <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="n">t_E</span><span class="p">})</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">set_datasets</span><span class="p">([</span><span class="n">my_data</span><span class="p">])</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_data</span><span class="p">()</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">()</span>
