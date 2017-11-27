@@ -85,6 +85,8 @@ class Lens(object):
         #Set distance and projected separation
         if distance is not None:
             self.distance = distance
+        else:
+            self._distance = None
         if a_proj is not None:
             self._a_proj = a_proj
 
