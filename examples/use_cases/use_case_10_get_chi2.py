@@ -8,8 +8,8 @@ import MulensModel
 data = MulensModel.MulensData(file_name=os.path.join(MulensModel.MODULE_PATH, 
                                                 'data', 'phot_ob160023.dat'))
 
-model = MulensModel.Model()
-model.set_parameters(t_0=2457518.902, u_0=0.590, t_E=133.34*u.day)
+model = MulensModel.Model(
+    {'t_0': 2457518.902, 'u_0': 0.590, 't_E': 133.34*u.day})
 
 event = MulensModel.Event(datasets=data, model=model) 
 # note that data is an instance of Mulens.Data but event.datasets is a list
@@ -18,6 +18,8 @@ event.get_chi2()
 print(event.chi2)
 
 #############
+raise NotImplementedError('Should the rest of this use case be removed?')
+
 #Original Use Case
 print(event.model.time, event.model.magnification, event.model.flux, 
       event.model.magnitude)

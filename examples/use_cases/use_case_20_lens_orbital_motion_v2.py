@@ -10,6 +10,8 @@ with static binary model is provided.
 JCY version - less is more.
 """
 
+raise NotImplementedError('We never agreed on how to proceed. At least some of the suggested implementation is illegal. Perhaps should be re-written given new ModelParameters dictionary format.')
+
 # point lens parameters:
 t_0 = 2457123.456
 u_0 = 0.0345
@@ -24,21 +26,20 @@ s_0 = 1.5
 ds_dt = 0.5 / u.year
 
 #Generate a model.
-model_orb = MulensModel.Model()
-model_orb.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, q=q, 
-                    alpha=alpha_0, dalpha_dt=dalpha_dt, 
-                    s=s_0, ds_dt=ds_dt) 
-                    # t_0_kep is not provided hence defaults to t_0
+model_orb = MulensModel.Model(
+    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q, 
+     'alpha': alpha_0, 'dalpha_dt': dalpha_dt, 's': s_0, 'ds_dt': ds_dt}) 
+# t_0_kep is not provided hence defaults to t_0
 
-model_static = MulensModel.Model()
-model_static.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, q=q,
-                    alpha=alpha_0, s=s_0)
+model_static = MulensModel.Model(
+    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q, 'alpha':alpha_0, 
+     's': s_0})
 
 #Example for which JCY is better:
 static_parameters = model_static.parameters
 orb_parameters = static_parameters
 orb_parameters.dalpha_dt = 0. # This and next line change both orb_parameters 
-orb_parameters.ds_dt = 0. # and static_parameters! In other words, this won'd 
+orb_parameters.ds_dt = 0. # and static_parameters! In other words, this won't 
 # work.
 model_orb_2 = MulensModel.Model(parameters=orb_parameters)
 #JCY - Also can we set ModelParameters using a dictionary? From the

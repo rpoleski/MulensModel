@@ -14,7 +14,7 @@ Use Case 15: Fit a point lens event with emcee.
 def lnlike(theta, event, parameters_to_fit):
     """ likelihood function """
     for key, val in enumerate(parameters_to_fit):
-        setattr(event.model, val, theta[key])
+        setattr(event.model.parameters, val, theta[key])
     return -0.5 * (event.get_chi2() - chi2_0)
 
 def lnprior(theta, parameters_to_fit):
@@ -34,9 +34,9 @@ def lnprob(theta, event, parameters_to_fit):
 parameters_to_fit = ["t_0", "u_0", "t_E"]
 parameters_values = [2457500., 0.5, 100.]
 
-model = MulensModel.Model()
-for key, val in enumerate(parameters_to_fit):
-    setattr(model, val, parameters_values[key])
+model = MulensModel.Model(
+    {'t_0': parameters_values['t_0'], 'u_0': parameters_values['u_0'], 
+     't_E': parameters_values['t_E']})
 print("Initial", model.parameters)
 
 #Read in the data

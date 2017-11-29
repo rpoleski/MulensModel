@@ -10,16 +10,18 @@ convert from their MCMC coordinate system to the center of mass
 coordinate system needed for the magnification calculation.
 
 """
-import MulensModel as mm
+import MulensModel
 import astropy.units as u
 import numpy as np
 
-def convert_cof_mag2mass(t0,te,u0,alpha,s,q):
-"""
-function to convert from center of magnification to center of mass
-coordinates. Note that this function is for illustration only. It has
-not been tested and may have sign errors.
-"""
+raise NotImplementedError('frame_origin not implemented for Model')
+
+def convert_cof_mag2mass(t0, te, u0, alpha, s, q):
+    """
+    function to convert from center of magnification to center of mass
+    coordinates. Note that this function is for illustration only. It has
+    not been tested and may have sign errors.
+    """
     if s <= 1.0:
         return t0, u0
     else:
@@ -36,8 +38,8 @@ u0_center_of_mag = 0.1
 alpha_center_of_mag = 30.*u.deg
 te = 30.
 
-print('Center of magnification: {0}, {1}'.format(t0_center_of_mag,
-                                                 u0_center_of_mag)
+print('Center of magnification: {0}, {1}'.format(
+        t0_center_of_mag, u0_center_of_mag))
 
 s = 1.1
 q = 0.001
@@ -46,13 +48,14 @@ q = 0.001
 t0_center_of_mass, u0_center_of_mass = convert_cof_mag2mass(
         t0_center_of_mag, te, u0_center_of_mag, alpha_center_of_mag, s, q)
 
-print('Center of mass: {0}, {1}'.format(t0_center_of_mass,u0_center_of_mass)
+print('Center of mass: {0}, {1}'.format(t0_center_of_mass, u0_center_of_mass))
 
 #How does this get passed to a minimizer?
 
 #Alternatively, 
-model = MulensModel.Model()
-model.parameters(t_0=2457000.,u_0=0.1,t_E=30., rho=0.001, alpha=30*u.deg, 
-                 s=1.1, q=0.001, frame_origin='magnification')
+model = MulensModel.Model(
+            {'t_0': 2457000., 'u_0': 0.1, 't_E': 30., 'rho': 0.001, 
+             'alpha': 30*u.deg, 's': 1.1, 'q': 0.001}, 
+            frame_origin='magnification')
 
 print(model.parameters.t0, model.parameters.u0)

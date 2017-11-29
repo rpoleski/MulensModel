@@ -17,13 +17,13 @@ def chi2_fun(theta, event, parameters_to_fit):
     """for given event set attributes from parameters_to_fit (list of str) 
     to values from theta list"""
     for (key, val) in enumerate(parameters_to_fit):
-        setattr(event.model, val, theta[key])
+        setattr(event.model.parameters, val, theta[key])
     return event.get_chi2()
 
 
 #Read in the data file
-SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, "data", 
-                                                        "phot_ob08092_O4.dat")
+SAMPLE_FILE_01 = os.path.join(
+    MulensModel.MODULE_PATH, "data", "phot_ob08092_O4.dat")
 data = MulensData(file_name=SAMPLE_FILE_01)
 
 #Initialize the fit
@@ -31,7 +31,7 @@ parameters_to_fit = ["t_0", "u_0", "t_E"]
 t_0 = 5380.
 u_0 = 0.5
 t_E = 18.
-model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 #Link the data and the model
 ev = Event(datasets=data, model=model)
@@ -55,8 +55,8 @@ print('scipy.optimize.minimize result:')
 print(result)
 
 #Plot and compare the two models
-init_model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
-final_model = Model(t_0=fit_t_0, u_0=fit_u_0, t_E=fit_t_E)
+init_model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+final_model = Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
 pl.figure()
 init_model.plot_lc(data_ref=data, label='Initial Trial')
 final_model.plot_lc(data_ref=data, label='Final Model')

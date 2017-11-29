@@ -1,25 +1,19 @@
 from astropy import units as u
 
 from MulensModel.model import Model
-from MulensModel.mulensparallaxvector import MulensParallaxVector
 
 """
 Use Case 13: Set the parallax parameters of a model.
+
+Redundant with UC 5?
 """
 
-model = Model()
-
-#Event Coordinates
-model.ra = 270. * u.deg
-model.dec = -28.5 * u.deg
-
-#Parallax parameters
+model = Model(
+    {'t_0': 2457005., 'u_0': 0.1, 't_E': 30., 'pi_E': [0.2, 0.4], 
+     't_0_par': 2457000.}, ra=270.*u.deg, dec = -28.5*u.deg)
 model.parallax(earth_orbital=True)
-model.pi_E = MulensParallaxVector(0.2, 0.4, ref="NorthEast") 
-    #NorthEast is default, the other choice is "par_perp"
-model.t_0_par = 2457000.
 
-print(model.pi_E)
+print(model.parameters.pi_E)
 
 
 

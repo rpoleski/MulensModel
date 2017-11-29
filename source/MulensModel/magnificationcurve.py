@@ -118,9 +118,9 @@ class MagnificationCurve(object):
 
         if self.parameters.rho is not None:
             if self._methods_epochs is None:
-                warnings.warn('Rho set but no finite-source method is set')
-            elif set(self._methods_for_epochs()) != set(['point_source']):
-                warnings.warn('Rho set but no finite-source method is set')
+                warnings.warn('1 rho set but no finite-source method is set')
+            elif set(self._methods_for_epochs()) == set(['point_source']):
+                warnings.warn('2 rho set but no finite-source method is set')
 
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
         # This is Paczynski equation, i.e., point-source/point-lens (PSPL) 
@@ -254,9 +254,9 @@ class MagnificationCurve(object):
         
         if self.parameters.rho is not None:
             if self._methods_epochs is None:
-                warnings.warn('Rho set but no finite-source method is set')
+                warnings.warn('rho set but no finite-source method is set')
             elif set(methods) != set(['point_source']):
-                warnings.warn('Rho set but no finite-source method is set')
+                warnings.warn('rho set but no finite-source method is set')
        
         #Calculate the magnification
         magnification = []        
@@ -288,8 +288,8 @@ class MagnificationCurve(object):
         return np.array(magnification)
 
     def _methods_for_epochs(self):
-        """for given epochs, decide which methods should be used to calculate magnification,
-        but don't run the calculations"""
+        """for given epochs, decide which methods should be used to calculate
+        magnification, but don't run the calculations"""
         out = [self._default_method] * len(self.times)
         if self._methods_epochs is None:
             return out

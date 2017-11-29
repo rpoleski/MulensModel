@@ -51,12 +51,6 @@ FSPL_params['rho'] = 0.001
 my_FSPL_model = MulensModel.Model(FSPL_params)
 
 my_PSPL_model = MulensModel.Model(
-<<<<<<< HEAD
-    parameters={
-        't_0':2458060., 'u_0':0.2, 't_E':30.5, 't_0_1': 2458062.})
-# Returns: ValueError('Not a valid combination of parameters. See
-=======
     parameters={'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5, 't_0_1': 2458062.})
 # Returns: AttributeError('Not a valid combination of parameters. See
->>>>>>> 10349df4488351e189f7f98b80a7aa17191e5a9d
 #    which_parameters()')

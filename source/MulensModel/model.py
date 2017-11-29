@@ -20,22 +20,17 @@ class Model(object):
     """
     A Model for a microlensing event with the specified parameters.
 
-    Two ways to define the model:
-        1. :py:obj:`parameters` = a
-            :py:class:`~MulensModel.modelparameters.ModelParameters`
-            object
+    Arguments :
+        parameters: *dictionary*, 
+        :py:class:`~MulensModel.modelparameters.ModelParameters`
+            see :py:class:`MulensModel.modelparameters.ModelParameters`
 
-        2. specify :py:obj:`t_0`, :py:obj:`u_0`, :py:obj:`t_E`
-            (optionally: :py:obj:`rho`, :py:obj:`s`, :py:obj:`q`,
-            :py:obj:`alpha`, or other)
+        :py:obj:`coords`: [*list*, *str*, *astropy.SkyCoords*], optional
+            Sky Coordinates of the event.
 
-            Parallax may be specified either as :py:obj:`pi_E` OR
-            :py:obj:`pi_E_N` and :py:obj:`pi_E_E`. :py:obj:`t_0_par`
-            is optional. For default behavior see
-            :py:class:`MulensModel.trajectory.Trajectory`
-
-    Also optional: may specify :py:obj:`coords` OR :py:obj:`ra` and
-    :py:obj:`dec`.
+        ra, dec: *str*, optional
+            Sky Coordinates of the event.
+         
 
     Default values for parallax are all True. Use :func:`parallax()`
     to turn different parallax effects ON/OFF. If using satellite
@@ -107,18 +102,6 @@ class Model(object):
 
     def __repr__(self):
         return '{0}'.format(self.parameters)
-
-    def set_parameters(self, parameters):
-        """
-        Set the parameters of the model. Any parameter not explicitly
-        specified will be set to None. Creates a new
-        :class:`~MulensModel.modelparameters.ModelParameters` object,
-        so all the previously set parameters will be forgotten.
-        """
-        if isinstance(parameters, ModelParameters):
-            self.parameters = parameters
-        else:
-            self.parameters = ModelParameters(parameters)
             
     def get_satellite_coords(self, times):
         """
@@ -181,6 +164,7 @@ class Model(object):
             gamma=gamma)
         magnification_curve.set_magnification_methods(self._methods, 
                                         self._default_magnification_method)
+
         return magnification_curve.magnification
 
     @property
@@ -772,7 +756,7 @@ class Model(object):
             index = int(len(times)/2)
             pl.scatter(
                 trajectory.x[index], trajectory.y[index], 
-                marker=(3, 0, self.alpha), s=50)
+                marker=(3, 0, self.parameters.alpha), s=50)
 
         if caustics:
             self.plot_caustics(marker='.', color='red')
@@ -784,7 +768,7 @@ class Model(object):
 
         """
         if self.caustics is None:
-            self.caustics = Caustics(q=self.q, s=self.s)
+            self.caustics = Caustics(q=self.parameters.q, s=self.parameters.s)
 
         self.caustics.plot(n_points=n_points, **kwargs)
         
