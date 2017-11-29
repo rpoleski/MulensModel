@@ -36,7 +36,7 @@
     * mulenstime.py 
     * [2] magnificationcurve.py (needs a list of allowed magnification methods) 
     * utils.py 
-    * [1] modelparameters.py
+    * ~~ [1] modelparameters.py ~~
 * Effects
   * Finite Source
     * [2] _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
@@ -58,7 +58,7 @@
   * __t\_* instead of rho__
   * _Cassan 2008 binary lens parameters_
   * [1] _dA/dparam for point lens models_
-    * [1] **use case - JCY action item**
+    * ~~[1] use case ~~ --> UC24
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692)
 * Function Improvements/Expansion
   * Binary Lens:
@@ -104,7 +104,7 @@
 * Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
-  * [1] **Should there be separate Model and ModelParameters subclasses for different types of models (e.g. PSPL, binary lens, binary source)? Need use cases.**
+  * ~~[1] Should there be separate Model and ModelParameters subclasses for different types of models (e.g. PSPL, binary lens, binary source)? Need use cases. ~~ **NO**
 * [2] submit to PASP
 
 ### reStructuredText:
