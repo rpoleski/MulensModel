@@ -8,7 +8,6 @@ from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.trajectory import Trajectory
 from MulensModel.caustics import Caustics
-from MulensModel.mulensparallaxvector import MulensParallaxVector
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.utils import Utils
 from MulensModel.fit import Fit
@@ -51,72 +50,26 @@ class Model(object):
 
     """
 
-    def __init__(self, parameters=None, t_0=None, u_0=None, t_E=None, 
-                rho=None, s=None, q=None, alpha=None, 
-                pi_E=None, pi_E_N=None, pi_E_E=None, pi_E_ref=None, 
-                t_0_par=None, coords=None, ra=None, dec=None, 
-                ephemerides_file=None):
+    def __init__(
+        self, parameters=None, coords=None, ra=None, dec=None, 
+        ephemerides_file=None):
+        """
+        Two ways to define the model:
+        1. parameters = a :class:`~MulensModel.modelparameters.ModelParameters` object
+        2. specify a dictionary with t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par). See :class:`~MulensModel.modelparameters.ModelParameters`
+
+        When defining event coordinates, may specify coords as an
+        astropy.coordinates.SkyCoord object, otherwise assumes RA is
+        in hour angle and DEC is in degrees.
+
+        Default values for parallax are all True. Use model.parallax() to turn
+        different parallax effects ON/OFF.
+        """
         # Initialize the parameters of the model
         if isinstance(parameters, ModelParameters):
-            self._parameters = parameters
-        elif parameters is None:
-            self._parameters = ModelParameters()
+            self.parameters = parameters
         else:
-            raise TypeError(
-                "If specified, parameters must be a ModelParameters object.")
-
-        # Set each model parameter
-        if t_0 is not None:
-            self.t_0 = t_0
-        if u_0 is not None:
-            self.u_0 = u_0
-        if t_E is not None:
-            self.t_E = t_E
-        if rho is not None:
-            self.rho = rho
-        if s is not None:
-            self.s = s
-
-        if q is not None:
-            if isinstance(q, (list, np.ndarray)):
-                if len(q) > 1:
-                    raise NotImplementedError(
-                        'Too many q. Does not support more than 2 bodies.')
-                else:
-                    q = q[0]
-            self.q = q
-
-        if alpha is not None:
-            self.alpha = alpha
-
-        if s is not None or q is not None or alpha is not None:
-            if s is None or q is None or alpha is None:
-                raise AttributeError('If one of (s, q, alpha) is specified, ' +
-                                    'all three must be specified.')
-
-        self.t_0_par = t_0_par
-        
-        # Set the parallax
-        par_msg = 'Must specify both or neither of pi_E_N and pi_E_E'
-        if pi_E is not None:
-            if pi_E_ref is None:
-                self.pi_E = pi_E
-            else:
-                self._parameters.pi_E = MulensParallaxVector(pi_E, 
-                                                                ref=pi_E_ref)
-        if pi_E_N is not None:
-            if pi_E_E is not None:
-                if pi_E_ref is None:
-                    self.pi_E_N = pi_E_N
-                    self.pi_E_E = pi_E_E
-                else:
-                    self._parameters.pi_E = MulensParallaxVector(
-                        pi_E_1=pi_E_N, pi_E_2=pi_E_E, ref=pi_E_ref)
-            else:
-                raise AttributeError(par_msg)
-        else:
-            if pi_E_E is not None:
-                raise AttributeError(par_msg)
+            self.parameters = ModelParameters(parameters)
 
         # Set the coordinates of the event
         coords_msg = 'Must specify both or neither of ra and dec'
@@ -153,146 +106,19 @@ class Model(object):
         self._datasets = None
 
     def __repr__(self):
-        return '{0}'.format(self._parameters)
+        return '{0}'.format(self.parameters)
 
-    @property
-    def t_0(self):
-        """
-        The time of the minimum projected separation between the source
-        and the lens center of mass.
-        """
-        return self._parameters.t_0
-
-    @t_0.setter
-    def t_0(self, value):
-        self._parameters.t_0 = value
-
-    @property
-    def u_0(self):
-        """
-        The time of minimum projected separation between the source
-        and the lens center of mass.
-        """
-        return self._parameters._u_0
-    
-    @u_0.setter
-    def u_0(self, value):
-        self._parameters._u_0 = value
-
-    @property
-    def t_E(self):
-        """
-        The Einstein timescale. An *astropy.Quantity* object. Default unit 
-        is "day".
-        """
-        return self._parameters.t_E
-
-    @t_E.setter
-    def t_E(self, value):
-        self._parameters.t_E = value
-       
-    @property
-    def rho(self):
-        """source size relative to the Einstein ring radius"""
-        return self._parameters.rho
-
-    @rho.setter
-    def rho(self, value):
-        self._parameters.rho = value
-
-    @property
-    def pi_E(self):
-        """
-        The microlens parallax vector. May be specified either
-        relative to the sky ("NorthEast") or relative to the binary
-        lens axis ("ParPerp", i.e., parallel and perpendicular). "NorthEast" 
-        is default. A :class:`MulensParallaxVector` object.
-        """
-        return self._parameters.pi_E
-
-    @pi_E.setter
-    def pi_E(self, value):
-        self._parameters.pi_E = value
-
-    @property
-    def pi_E_N(self):
-        """
-        The North component of the microlens parallax vector.
-        """
-        return self._parameters.pi_E_N
-
-    @pi_E_N.setter
-    def pi_E_N(self, value):
-        self._parameters.pi_E_N = value
-
-    @property
-    def pi_E_E(self):
-        """
-        The East component of the microlens parallax vector.
-        """
-        return self._parameters.pi_E_E
-
-    @pi_E_E.setter
-    def pi_E_E(self, value):
-        self._parameters.pi_E_E = value
-
-    @property
-    def t_0_par(self):
-        """reference time for parameters, in particular microlensing 
-        parallax"""
-        return self._t_0_par
-
-    @t_0_par.setter
-    def t_0_par(self, value):
-        self._t_0_par = value
-
-    @property
-    def s(self):
-        """lens components separation in units of the Einstein ring"""
-        return self._parameters.s
-
-    @s.setter
-    def s(self, value):
-        self._parameters.s = value
-
-    @property
-    def q(self):
-        """mass ratio of the lens components"""
-        return self._parameters.q
-
-    @q.setter
-    def q(self, value):
-        self._parameters.q = value
-
-    @property
-    def alpha(self):
-        """angle between lens axis and source trajectory"""
-        return self._parameters.alpha
-
-    @alpha.setter
-    def alpha(self, value):
-        self._parameters.alpha = value
-    
-    @property
-    def parameters(self):
-        """
-        The parameters of the model. A
-        :class:`~MulensModel.modelparameters.ModelParameters` object.
-        """
-        return self._parameters
-
-    def set_parameters(self, t_0=None, u_0=None, t_E=None, rho=None, s=None, 
-                        q=None, alpha=None, pi_E=None, pi_E_N=None, 
-                        pi_E_E=None, pi_E_ref=None):
+    def set_parameters(self, parameters):
         """
         Set the parameters of the model. Any parameter not explicitly
         specified will be set to None. Creates a new
         :class:`~MulensModel.modelparameters.ModelParameters` object,
         so all the previously set parameters will be forgotten.
         """
-        self._parameters = ModelParameters(
-            t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, s=s, q=q, alpha=alpha, 
-            pi_E=pi_E, pi_E_N=pi_E_N, pi_E_E=pi_E_E, pi_E_ref=pi_E_ref)
+        if isinstance(parameters, ModelParameters):
+            self.parameters = parameters
+        else:
+            self.parameters = ModelParameters(parameters)
             
     def get_satellite_coords(self, times):
         """
@@ -349,9 +175,8 @@ class Model(object):
             satellite_skycoord = self.get_satellite_coords(time)
 
         magnification_curve = MagnificationCurve(
-            time, parameters=self._parameters, 
-            parallax=self._parallax, t_0_par=self.t_0_par,
-            coords=self._coords, 
+            time, parameters=self.parameters, 
+            parallax=self._parallax, coords=self._coords, 
             satellite_skycoord=satellite_skycoord,
             gamma=gamma)
         magnification_curve.set_magnification_methods(self._methods, 
@@ -937,8 +762,8 @@ class Model(object):
             satellite_skycoord = self.get_satellite_coords(times)
 
         trajectory = Trajectory(
-            times, parameters=self._parameters, parallax=self._parallax, 
-            t_0_par=self.t_0_par, coords=self._coords, 
+            times, parameters=self.parameters, parallax=self._parallax, 
+            coords=self._coords, 
             satellite_skycoord=satellite_skycoord)
 
         pl.plot(trajectory.x, trajectory.y, **kwargs)
@@ -990,9 +815,9 @@ class Model(object):
 
         n_tE = 1.5
         if t_start is None:
-            t_start = self.t_0 - (n_tE * self.t_E)
+            t_start = self.parameters.t_0 - (n_tE * self.parameters.t_E)
         if t_stop is None:
-            t_stop = self.t_0 + (n_tE * self.t_E)
+            t_stop = self.parameters.t_0 + (n_tE * self.parameters.t_E)
         
         if dt is None:
             if n_epochs is None:

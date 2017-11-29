@@ -21,7 +21,7 @@ class Trajectory(object):
     For binary lens, the origin of the coordinate system is at 
     the center of mass with higher mass at negative X and Y=0.
     """
-    def __init__(self, times, parameters=None, parallax=None, t_0_par=None,
+    def __init__(self, times, parameters=None, parallax=None,
                 coords=None, satellite_skycoord=None, earth_coords=None):
         """
         Required arguments: 
@@ -58,7 +58,6 @@ class Trajectory(object):
             for (key, value) in parallax.items():
                 self.parallax[key] = value
 
-        self.t_0_par = t_0_par
         self.coords = coords
         self.satellite_skycoord = satellite_skycoord
         if earth_coords is not None:
@@ -143,10 +142,7 @@ class Trajectory(object):
         """
         calculates projected Earth positions required by annual parallax
         """
-        if self.t_0_par is not None:
-            time_ref = self.t_0_par
-        else:
-            time_ref = self.parameters.t_0
+        time_ref = self.parameters.t_0_par
 
         position_ref = get_body_barycentric(
             body='earth', time=Time(time_ref,format='jd',scale='tdb')) 

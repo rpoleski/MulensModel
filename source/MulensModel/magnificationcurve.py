@@ -12,7 +12,7 @@ class MagnificationCurve(object):
     """
     The magnification curve calculated from the model light curve.
     """
-    def __init__(self, times, parameters=None, parallax=None, t_0_par=None, 
+    def __init__(self, times, parameters=None, parallax=None,  
                     coords=None, satellite_skycoord=None, gamma=0.):
         """
         Required arguments: 
@@ -21,7 +21,6 @@ class MagnificationCurve(object):
 
         Optional parallax keywords:
            parallax - boolean dictionary specifying what parallax effects should be used.
-           t_0_par - reference time for the parallax
            coords - sky coordinates of the event
            satellite_skycoord - sky coordinates of the satellite
                specified by the ephemrides file. see
@@ -43,7 +42,7 @@ class MagnificationCurve(object):
         #Calculate the source trajectory (i.e. u(t))
         self.trajectory = Trajectory(
             self.times, parameters=parameters, parallax=parallax, 
-            t_0_par=t_0_par, coords=coords, satellite_skycoord=satellite_skycoord)
+            coords=coords, satellite_skycoord=satellite_skycoord)
 
         #Initialize the magnification vector
         self._magnification = None

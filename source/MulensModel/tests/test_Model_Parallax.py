@@ -50,12 +50,13 @@ class _ParallaxFile(object):
     @property
     def parameters(self):
         """Model parameters"""
-        model_parameters = ModelParameters(
-            t_0=float(self.ulens_params[1])+2450000., 
-            u_0=float(self.ulens_params[3]), 
-            t_E=float(self.ulens_params[4]), 
-            pi_E_N=float(self.ulens_params[5]), 
-            pi_E_E=float(self.ulens_params[6]))
+        model_parameters = ModelParameters({
+            't_0':float(self.ulens_params[1])+2450000., 
+            'u_0':float(self.ulens_params[3]), 
+            't_E':float(self.ulens_params[4]), 
+            'pi_E_N':float(self.ulens_params[5]), 
+            'pi_E_E':float(self.ulens_params[6]),
+            't_0_par':self.t_0_par})
         return model_parameters
 
     @property
@@ -75,15 +76,13 @@ class _ParallaxFile(object):
         """Return a model using the parameters of this file"""
         model = Model(parameters=self.parameters, 
                       coords=self.coords)
-        model.t_0_par = self.t_0_par
         return model
 
     def setup_trajectory(self):
         """Return a trajectory using hte parameters of this file"""
         trajectory = Trajectory(
             self.data['Time']+2450000., parameters=self.parameters,
-            parallax={'earth_orbital':True},
-            t_0_par=self.t_0_par, coords=self.coords)
+            parallax={'earth_orbital':True}, coords=self.coords)
         return trajectory
 
 def test_annual_parallax_calculation():
@@ -95,7 +94,7 @@ def test_annual_parallax_calculation():
     true_no_par = [np.array([7.12399067,10.0374609, 7.12399067, 7.12399067])]
     true_with_par = [np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])]
 
-    model_with_par = Model(t_0=t_0, u_0=0.1, t_E=10., pi_E=(0.3, 0.5),
+    model_with_par = Model({'t_0':t_0, 'u_0':0.1, 't_E':10., 'pi_E':(0.3, 0.5)},
                   coords='17:57:05 -30:22:59')
     model_with_par.parallax(satellite=False, earth_orbital=True,
                             topocentric=False)
@@ -103,9 +102,9 @@ def test_annual_parallax_calculation():
     data = MulensData(data_list=[times, ones, ones])
     model_with_par.set_datasets([data])
     
-    model_with_par.t_0_par = 2457479.
-    
-    model_no_par = Model(t_0=t_0, u_0=0.1, t_E=10., pi_E=(0.3, 0.5),
+    model_with_par.parameters.t_0_par = 2457479.
+
+    model_no_par = Model({'t_0':t_0, 'u_0':0.1, 't_E':10., 'pi_E':(0.3, 0.5)},
                   coords='17:57:05 -30:22:59')
     model_no_par.set_datasets([data])
     model_no_par.parallax(
@@ -155,15 +154,15 @@ def do_annual_parallax_test(filename):
     ulens_params = lines[3].split()
     event_params = lines[4].split()
     data = np.loadtxt(filename, dtype=None)
-    model = Model(
-        t_0=float(ulens_params[1])+2450000., 
-        u_0=float(ulens_params[3]), 
-        t_E=float(ulens_params[4]), 
-        pi_E_N=float(ulens_params[5]), 
-        pi_E_E=float(ulens_params[6]), 
+    model = Model({
+        't_0':float(ulens_params[1])+2450000., 
+        'u_0':float(ulens_params[3]), 
+        't_E':float(ulens_params[4]), 
+        'pi_E_N':float(ulens_params[5]), 
+        'pi_E_E':float(ulens_params[6]) }, 
         coords=SkyCoord(
             event_params[1]+' '+event_params[2], unit=(u.deg, u.deg)))
-    model.t_0_par = float(ulens_params[2])+2450000.
+    model.parameters.t_0_par = float(ulens_params[2])+2450000.
     
     time = data[:,0]
     dataset = MulensData([time, 20.+time*0., 0.1+time*0.,], add_2450000=True)
@@ -189,12 +188,12 @@ def test_annual_parallax_calculation_6():
 
 def test_satellite_and_annual_parallax_calculation():
     """test parallax calculation with Spitzer data"""
-    model_with_par = Model(t_0=2457181.93930, u_0=0.08858, t_E=20.23090, 
-                            pi_E_N=-0.05413, pi_E_E=-0.16434, 
+    model_with_par = Model({'t_0':2457181.93930, 'u_0':0.08858, 't_E':20.23090, 
+                            'pi_E_N':-0.05413, 'pi_E_E':-0.16434}, 
                             coords="18:17:54.74 -22:59:33.4")
     model_with_par.parallax(satellite=True, earth_orbital=True, 
                             topocentric=False)
-    model_with_par.t_0_par = 2457181.9
+    model_with_par.parameters.t_0_par = 2457181.9
 
     data_OGLE = MulensData(file_name=SAMPLE_FILE_02, add_2450000=True)
     data_Spitzer = MulensData(
@@ -222,9 +221,9 @@ def test_satellite_parallax_magnification():
     pi_E_N = -0.248
     pi_E_E = 0.234
 
-    ground_model = Model(t_0=t_0, u_0=u_0, t_E=t_E, pi_E=[pi_E_N, pi_E_E],
+    ground_model = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E, 'pi_E':[pi_E_N, pi_E_E]},
                          coords='17:47:12.25 -21:22:58.2')
-    space_model =  Model(t_0=t_0, u_0=u_0, t_E=t_E, pi_E=[pi_E_N, pi_E_E], 
+    space_model =  Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E, 'pi_E':[pi_E_N, pi_E_E]}, 
                          ra='17:47:12.25', dec='-21:22:58.2', 
                          ephemerides_file=SAMPLE_FILE_03_EPH)
 
