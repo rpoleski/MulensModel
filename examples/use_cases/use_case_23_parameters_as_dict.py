@@ -46,7 +46,7 @@ print(my_PSPL_model.parameters.rho)
 import copy
 
 FSPL_params = copy.deepcopy(my_PSPL_model.parameters)
-FSPL_params['rho'] = 0.001
+FSPL_params.add({'rho': 0.001})
 
 my_FSPL_model = MulensModel.Model(FSPL_params)
 

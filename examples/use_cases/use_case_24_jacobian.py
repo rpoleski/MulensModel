@@ -16,6 +16,7 @@ import matplotlib.pyplot as pl
 import MulensModel
 from MulensModel import Event, Fit, Model, MulensData, Utils
 
+raise NotImplementedError('jacobian not implemented for Event')
 
 class Minimizer():
     """
@@ -52,7 +53,7 @@ parameters_to_fit = ["t_0", "u_0", "t_E"]
 t_0 = 5380.
 u_0 = 0.5
 t_E = 18.
-model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
+model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 #Link the data and the model
 ev = Event(datasets=data, model=model)

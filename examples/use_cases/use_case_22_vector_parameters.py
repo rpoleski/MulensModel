@@ -16,7 +16,7 @@ pi_E_E = 0.2
 
 parameters = MulensModel.ModelParameters(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 
-     'pi_E_N': pi_E_N, 'pi_E_E': pi_E_E)
+     'pi_E_N': pi_E_N, 'pi_E_E': pi_E_E})
 print(parameters.vector)
 # returns np.array([t_0, u_0, t_E, pi_E_N, pi_E_E])
 
