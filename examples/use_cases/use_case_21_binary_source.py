@@ -16,7 +16,7 @@ raise NotImplementedError('Binary sources are not supported')
 # Create a binary source model. 
 two_source_model = Model(
     {'t_0_1': 2457501.374, 'u_0_1': 0.015, 't_0_2': 2457507.804, 
-    'u_0_2': 0.365, 't_E': 14.428, source_flux_ratio={'I': 1.853}})
+    'u_0_2': 0.365, 't_E': 14.428, 'source_flux_ratio': {'I': 1.853}})
 
 pl.figure()
 two_source_model.plot_magnification()
@@ -51,7 +51,7 @@ pl.title('Xallarap trajectory')
 two_source_motion = Model(
     {'t_0': 2457800, 'u_0': 0.3, 't_E': 32, 's_source': 0.2, 'q_source': 0.5, 
      'alpha_source': 0.1, 'ds_dt_source': 1.0, 'dalpha_dt_source':0.7, 
-     'flux_ratio'={'I':0.1, 'V':0.15}})
+     'source_flux_ratio': {'I':0.1, 'V':0.15}})
 
 pl.figure()
 two_source_model.plot_magnification()
