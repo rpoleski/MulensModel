@@ -4,7 +4,7 @@ import os
 import MulensModel
 
 #Spitzer Example
-
+raise NotImplementedError('satellite keyword for MulensData not supported')
 
 #Import Data
 file_dir = os.path.join(MulensModel.MODULE_PATH, "data")
