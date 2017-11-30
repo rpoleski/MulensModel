@@ -1,5 +1,6 @@
 from astropy import units as u
 import matplotlib.pyplot as plt
+import copy
 
 import MulensModel
 
@@ -7,6 +8,8 @@ import MulensModel
 Use case presenting binary lens orbital motion models. Also comparison
 with static binary model is provided.
 """
+
+raise NotImplementedError('Orbital Motion Not Implemented')
 
 # point lens parameters:
 t_0 = 2457123.456
@@ -22,7 +25,6 @@ s_0 = 1.5
 ds_dt = 0.5 / u.year
 
 #Generate a model.
-#Generate a model.
 model_orb = MulensModel.Model(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q, 
      'alpha': alpha_0, 'dalpha_dt': dalpha_dt, 's': s_0, 'ds_dt': ds_dt}) 
@@ -33,8 +35,8 @@ model_static = MulensModel.Model(
      's': s_0})
 
 # We can get model exactly the same as model_orb this way:
-orb_parameters = model_static.parameters.copy_with_orbital_motion(
-                                            dalpha_dt=dalpha_dt, ds_dt=ds_dt)
+orb_parameters = copy.deepcopy(model_static.parameters)
+orb_parameters.add({'dalpha_dt': dalpha_dt, 'ds_dt': ds_dt})
 model_orb_2 = MulensModel.Model(Parameters=orb_parameters)
 
 dt = 36.525 # This is in days.
