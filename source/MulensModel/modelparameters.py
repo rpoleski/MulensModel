@@ -570,6 +570,14 @@ class ModelParameters(object):
         else:
             return 2
 
+    def add(self, dict):
+        """
+        *dictionary*
+
+        Use dictionary.update() to update/add parameters to the ModelParameters set.
+        """
+        self.parameters.update(dict)
+
 if __name__ == '__main__':
     which_parameters()
     which_parameters('point lens')
