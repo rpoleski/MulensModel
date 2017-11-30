@@ -9,8 +9,6 @@ Use case presenting binary lens orbital motion models. Also comparison
 with static binary model is provided.
 """
 
-raise NotImplementedError('Orbital Motion Not Implemented')
-
 # point lens parameters:
 t_0 = 2457123.456
 u_0 = 0.0345
@@ -20,7 +18,7 @@ rho = 0.00345
 # binary lens parameters:
 q = 0.123
 alpha_0 = 12.345 * u.deg
-dalpha_dt = 50. u.deg / u.year
+dalpha_dt = 50. * u.deg / u.year
 s_0 = 1.5
 ds_dt = 0.5 / u.year
 
@@ -29,40 +27,47 @@ model_orb = MulensModel.Model(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q, 
      'alpha': alpha_0, 'dalpha_dt': dalpha_dt, 's': s_0, 'ds_dt': ds_dt}) 
 # t_0_kep is not provided hence defaults to t_0
+print(model_orb.parameters)
 
 model_static = MulensModel.Model(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q, 'alpha':alpha_0, 
      's': s_0})
+print(model_static.parameters)
 
 # We can get model exactly the same as model_orb this way:
 orb_parameters = copy.deepcopy(model_static.parameters)
 orb_parameters.add({'dalpha_dt': dalpha_dt, 'ds_dt': ds_dt})
-model_orb_2 = MulensModel.Model(Parameters=orb_parameters)
+model_orb_2 = MulensModel.Model(parameters=orb_parameters)
+print(model_orb_2.parameters)
+
+raise NotImplementedError('Orbital Motion from here on Not Implemented')
 
 dt = 36.525 # This is in days.
 
 ################################################################
 # Get the values of parameters in both models:
 # print(model_orb.s) - this would raise an exception.
-print(model_static.s)
+print(model_static.parameters.s)
 
-print(model_orb.s_0)
+print(model_orb.parameters.s_0)
 # print(model_static.s_0) - this would raise an exception. (Maybe this should also be allowed? RP: I'm not sure and it's not very important at this point)
 
-print(model_orb.s_for_epoch(t_0)) # Prints the same as previous one.
-print(model_orb.s_for_epoch(t_0+dt)) # should return 1.55
-print(model_static.s_for_epoch(t_0)) # Yes, s_for_epoch() works for both static and orbiting models.
-print(model_static.s_for_epoch(t_0+dt)) # This are previous return model_static.s. 
+print(model_orb.parameters.s_for_epoch(t_0)) # Prints the same as previous one.
+print(model_orb.parameters.s_for_epoch(t_0+dt)) # should return 1.55
+print(model_static.parameters.s_for_epoch(t_0)) # Yes, s_for_epoch() works for both static and orbiting models.
+print(model_static.parameters.s_for_epoch(t_0+dt)) # This are previous return model_static.s. 
 
-print(model_orb.alpha_for_epoch(epoch=t_0-dt)) # should return 7.345 u.deg
+print(model_orb.parameters.alpha_for_epoch(epoch=t_0-dt)) # should return 7.345 u.deg
 # In analogy to s, similar methods for alpha will work.
 ################################################################
 
+###JCY - what is the difference between ds_dt and gamma_parallel? why do we allow both?
+
 # Print projected orbital velocity
-print(model_orb.gamma_parallel) # should return 0.3333333 1/u.year
-print(model_orb.gamma_perp) # should return -50 1/u.year or -0.87266 u.rad/u.year 
+print(model_orb.parameters.gamma_parallel) # should return 0.3333333 1/u.year
+print(model_orb.parameters.gamma_perp) # should return -50 1/u.year or -0.87266 u.rad/u.year 
 # (the minus sign comes from the definition in Skowron et al. 2011)
-print(model_orb.gamma) # should return 0.9346 1/u.year
+print(model_orb.parameters.gamma) # should return 0.9346 1/u.year
 
 # Make a nice plot:
 plt.figure()

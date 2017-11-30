@@ -15,7 +15,11 @@ _valid_parameters = {
     'parallax': ['pi_E OR pi_E_N, pi_E_E', '(for parallax)'],
     'parallax opt': [
         't_0_par', 
-        'may also be specified for parallax models. Defaults to t_0.']}
+        'may also be specified for parallax models. Defaults to t_0.'],
+    'lens orbital motion': ['dalpha_dt, ds_dt', '(for orbital motion)'],
+    'lens orbital motion opt': [
+        't_binary', 
+        'may also be specified for orbital motion models. Defaults to t_0.']}
 
 def _get_effect_strings(*args):
     """
@@ -66,6 +70,15 @@ def _get_effect_strings(*args):
         optional.append('parallax')
         optional.append('parallax opt')        
 
+    if args[0].lower() == 'lens orbital motion':
+        basic = 'lens orbital motion'
+        optional.append('lens orbital motion opt')
+
+    if len(args[0]) == 4 and args[0][2:4].lower() == 'bl':
+        optional.append('lens orbital motion')
+        optional.append('lens orbital motion opt')        
+
+
     return {
         'basic':basic, 'additional':additional, 'alternate':alternate, 
         'optional':optional}
@@ -112,6 +125,9 @@ def _print_all():
     print('-----------------')
     _print_parameters('finite source: ', _get_effect_strings('finite source'))
     _print_parameters('---------\nparallax: ', _get_effect_strings('parallax'))
+    _print_parameters(
+        '---------\nlens orbital motion: ', 
+        _get_effect_strings('lens orbital motion'))
 
 def which_parameters(*args):
     """
@@ -124,7 +140,8 @@ def which_parameters(*args):
     Valid arguments: *str*
         Model types: 'PSPL', 'FSPL', 'PSBL', 'FSBL'
 
-        Effects: 'point lens', 'binary lens', 'finite source', 'parallax'
+        Effects: 'point lens', 'binary lens', 'finite source',
+        'parallax', 'lens orbital motion'
     """
     if len(args) == 0:
         _print_all()
@@ -133,8 +150,6 @@ def which_parameters(*args):
         header = '---------\n{0} parameters:'.format(args[0])
         _print_parameters(header, components)
 
-# JCY: When binary orbital motion is introduced, t_binary should be
-# part of the ModelParameters set. See t_0_par.
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
@@ -194,6 +209,9 @@ class ModelParameters(object):
                 's', 'q', 'alpha ({0})'.format(self.alpha.unit))
             values += '{0:>9.5f} {1:>12.8f} {2:>11.5f} '.format(
                 self.s, self.q, self.alpha.value)
+            if 'ds_dt' in self.parameters.keys():
+                variables += '{0:>11} {1:>18} '.format('ds/dt (/yr)', 'dalpha/dt (deg/yr)')
+                values += '{0:11.5f} {1:>18.5f} '.format(self.ds_dt, self.dalpha_dt)
 
         return '{0}\n{1}\n'.format(variables, values)
 
@@ -556,6 +574,40 @@ class ModelParameters(object):
         else:
             raise KeyError('pi_E not defined for this model')
         return np.sqrt( pi_E_N**2 + pi_E_E**2)
+
+    @property
+    def ds_dt(self):
+        """ change in s per year."""
+        return self.parameters['ds_dt'].to(1 / u.yr).value
+
+    @ds_dt.setter
+    def ds_dt(self, new_ds_dt):
+        self.parameters['ds_dt'] = new_ds_dt
+
+    @property
+    def dalpha_dt(self):
+        """ change in alpha vs. time in deg/yr"""
+        return self.parameters['dalpha_dt'].to(u.deg / u.yr).value
+
+    @dalpha_dt.setter
+    def dalpha_dt(self, new_dalpha_dt):
+        self.parameters['dalpha_dt'] = new_dalpha_dt
+
+
+    @property
+    def t_binary(self):
+        """
+        The reference time for the calculation of parallax. If not set
+        explicitly, set t_binary = t_0.
+        """
+        if not 't_binary' in self.parameters.keys():
+            return self.parameters['t_0']
+        else:
+            return self.parameters['t_binary']    
+
+    @t_binary.setter
+    def t_binary(self, new_t_binary):
+        self.parameters['t_binary'] = new_t_binary
 
     @property
     def n_lenses(self):
