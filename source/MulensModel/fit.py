@@ -201,4 +201,3 @@ class Fit(object):
             else:
                 n_sources = self._magnification[0].shape[0]
         return n_sources
-

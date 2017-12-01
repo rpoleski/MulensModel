@@ -24,19 +24,23 @@ def lnprior(theta, parameters_to_fit):
     return 0.0
 
 def lnprob(theta, event, parameters_to_fit):
-    """ conbines likelihood and priors"""
+    """ combines likelihood and priors"""
     lp = lnprior(theta, parameters_to_fit)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + lnlike(theta, event, parameters_to_fit)
+    ln_like = lnlike(theta, event, parameters_to_fit)
+    if np.isnan(ln_like): # In the cases that source fluxes are negative we
+        return -np.inf    # want to return these as if they were not in priors.
+    return lp + ln_like
 
 #Initialize the model
 parameters_to_fit = ["t_0", "u_0", "t_E"]
 parameters_values = [2457500., 0.5, 100.]
+parameters_steps = [1., 0.01, 1.]
 
 model = MulensModel.Model(
-    {'t_0': parameters_values['t_0'], 'u_0': parameters_values['u_0'], 
-     't_E': parameters_values['t_E']})
+    {'t_0': parameters_values[0], 'u_0': parameters_values[1], 
+     't_E': parameters_values[2]})
 print("Initial", model.parameters)
 
 #Read in the data
@@ -55,8 +59,8 @@ nwalkers = 100
 nsteps = 500
 burn = 50
 
-start = [parameters_values * (1. + 1e-4 * np.random.randn(ndim)) 
-         for i in range(nwalkers)]
+start = [parameters_values + np.random.randn(ndim) *  parameters_steps
+        for i in range(nwalkers)]
 
 sampler = emcee.EnsembleSampler(
     nwalkers, ndim, lnprob, args=(event, parameters_to_fit))
