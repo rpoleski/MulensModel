@@ -197,9 +197,7 @@ class Event(object):
             chi2_per_point.append(
                 (diff / dataset._brightness_input_err)**2)
 
-        chi2_per_point = np.array(chi2_per_point)
         return chi2_per_point
-
 
     def get_ref_fluxes(self, data_ref=None):
         """

@@ -34,7 +34,6 @@ t_star = 0.05487
 plens_model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 't_star': t_star})
 method = 'finite_source_uniform_Gould94'
 plens_model.set_magnification_methods([t_0-.05, method, t_0+.05])
-print(plens_model._methods)
 
 #Combine the data and model into an event
 ev = Event(datasets=datasets, model=plens_model)
