@@ -189,7 +189,9 @@ class ModelParameters(object):
             variables += '{0:>10} '.format('t_star (d)')
             values += '{0:>10.6f} '.format(self.t_star)
 
-        if 's' in self.parameters.keys():
+        if ('s' in self.parameters.keys() 
+                or 'q' in self.parameters.keys()
+                or 'alpha' in self.parameters.keys()):
             variables += '{0:>9} {1:>12} {2:>11} '.format(
                 's', 'q', 'alpha ({0})'.format(self.alpha.unit))
             values += '{0:>9.5f} {1:>12.8f} {2:>11.5f} '.format(
@@ -354,6 +356,8 @@ class ModelParameters(object):
             return self.t_star/self.rho
         elif 't_eff' in self.parameters.keys() and 'u_0' in self.parameters.keys():
             return self.t_eff/self.u_0
+        else:
+            raise KeyError("You're trying to access t_E that was not set")
     
     @t_E.setter
     def t_E(self, new_t_E):
@@ -564,8 +568,8 @@ class ModelParameters(object):
         number of objects in the lens system
         """
         if ( (not 's' in self.parameters.keys()) 
-             and (not 'q' in self.parameters.keys())
-             and (not 'alpha' in self.parameters.keys()) ):
+                and (not 'q' in self.parameters.keys())
+                and (not 'alpha' in self.parameters.keys()) ):
             return 1
         else:
             return 2
