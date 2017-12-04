@@ -54,7 +54,6 @@
 |06| WFIRST data | No |
 |07| triple lenses | No |
 |08| plotting | Yes |
-|09| finite source | |
 |10| get chi2 | |
 |11| clean bad data | No |
 |12| simple fit PSPL | Yes |
