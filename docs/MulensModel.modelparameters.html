@@ -1,38 +1,48 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.modelparameters module &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <title>MulensModel.modelparameters module &mdash; MulensModel 0.2.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -51,8 +61,8 @@ one argument referring to a specific model (e.g. PSPL) or effect
 (e.g. parallax).</p>
 <dl class="docutils">
 <dt>Valid arguments: <em>str</em></dt>
-<dd><p class="first">Model types: ‘PSPL’, ‘FSPL’, ‘PSBL’, ‘FSBL’</p>
-<p class="last">Effects: ‘point lens’, ‘binary lens’, ‘finite source’, ‘parallax’</p>
+<dd><p class="first">Model types: &#8216;PSPL&#8217;, &#8216;FSPL&#8217;, &#8216;PSBL&#8217;, &#8216;FSBL&#8217;</p>
+<p class="last">Effects: &#8216;point lens&#8217;, &#8216;binary lens&#8217;, &#8216;finite source&#8217;, &#8216;parallax&#8217;</p>
 </dd>
 </dl>
 </dd></dl>
@@ -60,7 +70,7 @@ one argument referring to a specific model (e.g. PSPL) or effect
 <dl class="class">
 <dt id="MulensModel.modelparameters.ModelParameters">
 <em class="property">class </em><code class="descclassname">MulensModel.modelparameters.</code><code class="descname">ModelParameters</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A class for the basic microlensing model parameters (t_0, u_0,
 t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
 lens. pi_E assumes NE coordinates (Parallel, Perpendicular
@@ -97,8 +107,8 @@ and the lens center of mass.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.t_star">
 <code class="descname">t_star</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star" title="Permalink to this definition">¶</a></dt>
 <dd><p>t_star = rho * tE</p>
-<p>“day” is the default unit. Regardless of input value, returns
-value with units of u.day. May be set as a <em>float</em> –&gt; assumes
+<p>&#8220;day&#8221; is the default unit. Regardless of input value, returns
+value with units of u.day. May be set as a <em>float</em> &#8211;&gt; assumes
 units of degrees.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
@@ -110,8 +120,8 @@ units of degrees.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.t_eff">
 <code class="descname">t_eff</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_eff" title="Permalink to this definition">¶</a></dt>
 <dd><p>t_eff = u_0 * t_E</p>
-<p>“day” is the default unit. Regardless of input value, returns
-value with units of u.day. May be set as a <em>float</em> –&gt; assumes
+<p>&#8220;day&#8221; is the default unit. Regardless of input value, returns
+value with units of u.day. May be set as a <em>float</em> &#8211;&gt; assumes
 units of degrees.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
@@ -123,9 +133,9 @@ units of degrees.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.t_E">
 <code class="descname">t_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_E" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>The Einstein timescale. “day” is the default unit. Regardless
+<p>The Einstein timescale. &#8220;day&#8221; is the default unit. Regardless
 of input value, returns value with units of u.day. May be set
-as a <em>float</em> –&gt; assumes units of degrees.</p>
+as a <em>float</em> &#8211;&gt; assumes units of degrees.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -141,7 +151,7 @@ as a <em>float</em> –&gt; assumes units of degrees.</p>
 <dd><p><em>astroph.Quantity</em></p>
 <p>The angle of the source trajectory relative to the binary lens
 axis (or primary-secondary axis). Measured CW/CCW (TBD). May
-be set as a <em>float</em> –&gt; assumes “deg” is the default unit. Regardless of
+be set as a <em>float</em> &#8211;&gt; assumes &#8220;deg&#8221; is the default unit. Regardless of
 input value, returns value in degrees.</p>
 <p>TBD - make sure CW/CCW convention is according to Skowron+11
 appendix A</p>
@@ -199,6 +209,13 @@ explicitly, set t_0_par = t_0.</p>
 number of objects in the lens system</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="MulensModel.modelparameters.ModelParameters.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>dict</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.add" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dictionary</em></p>
+<p>Use dictionary.update() to update/add parameters to the ModelParameters set.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -208,28 +225,25 @@ number of objects in the lens system</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.modelparameters.rst.txt"
+      <li><a href="_sources/MulensModel.modelparameters.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -240,12 +254,12 @@ number of objects in the lens system</p>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
       
       |
-      <a href="_sources/MulensModel.modelparameters.rst.txt"
-          rel="nofollow">Page source</a>
+      <a href="_sources/MulensModel.modelparameters.txt"
+          rel="nofollow">Page source</a></li>
     </div>
 
     

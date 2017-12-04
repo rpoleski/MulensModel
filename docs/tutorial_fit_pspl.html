@@ -1,34 +1,34 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Basic Fitting Tutorial &#8212; MulensModel 0.2.1 documentation</title>
+    
+    <title>Basic Fitting Tutorial &mdash; MulensModel 0.2.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <link rel="prev" title="Very Basic Tutorial" href="tutorial.html" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
   <body role="document">
@@ -70,30 +70,30 @@ the data. Similar material can be found in
 </div>
 <p>Then we import the data (downloaded together with the code) to
 the <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html">MulensData class</a>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
-                                                     <span class="s2">&quot;phot_ob08092_O4.dat&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span><span class="p">,</span> <span class="s">&quot;data&quot;</span><span class="p">,</span>
+    <span class="s">&quot;phot_ob08092_O4.dat&quot;</span><span class="p">)</span>
 <span class="n">my_data</span> <span class="o">=</span> <span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;{:} file was imported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;{:} file was imported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="plotting-data">
 <h2>Plotting data<a class="headerlink" href="#plotting-data" title="Permalink to this headline">¶</a></h2>
 <p>Next step would be plotting these data using matplotlib package:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">my_data</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">my_data</span><span class="o">.</span><span class="n">mag</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">my_data</span><span class="o">.</span><span class="n">err_mag</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span> <span class="c1"># We need this to invert magnitude axis.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">my_data</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">my_data</span><span class="o">.</span><span class="n">mag</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">my_data</span><span class="o">.</span><span class="n">err_mag</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span> <span class="c"># We need this to invert magnitude axis.</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>From the plot we see that the peak was around JD’ of 5380.0,
+<p>From the plot we see that the peak was around JD&#8217; of 5380.0,
 the peak magnitude was about 0.8 mag brighter than baseline,
 and the event lasted dozens of days.
 We can turn these pieces of information into a very rough estimates of
 the event parameters:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">t_0</span> <span class="o">=</span> <span class="mf">5380.0</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">t_0</span> <span class="o">=</span> <span class="mf">5380.0</span>
 <span class="n">u_0</span> <span class="o">=</span> <span class="mf">0.5</span>
-<span class="n">t_E</span> <span class="o">=</span> <span class="mf">20.0</span> <span class="c1"># This is in days.</span>
+<span class="n">t_E</span> <span class="o">=</span> <span class="mf">20.0</span> <span class="c"># This is in days.</span>
 </pre></div>
 </div>
 <p>We guessed <code class="docutils literal"><span class="pre">u_0</span> <span class="pre">=</span> <span class="pre">0.5</span></code> based on the peak amplitude. The magnitude difference
@@ -107,7 +107,7 @@ so <em>u_0 = 0.5</em> should be a good choice.</p>
 a <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>
 and plot it
 together with data:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pspl_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="n">t_0</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="n">u_0</span><span class="p">,</span> <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="n">t_E</span><span class="p">})</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pspl_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">({</span><span class="s">&#39;t_0&#39;</span><span class="p">:</span> <span class="n">t_0</span><span class="p">,</span> <span class="s">&#39;u_0&#39;</span><span class="p">:</span> <span class="n">u_0</span><span class="p">,</span> <span class="s">&#39;t_E&#39;</span><span class="p">:</span> <span class="n">t_E</span><span class="p">})</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">set_datasets</span><span class="p">([</span><span class="n">my_data</span><span class="p">])</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_data</span><span class="p">()</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">()</span>
@@ -129,19 +129,19 @@ calculation requires an instance of the
 <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.event.htl">Event Class</a>
 that combines the Model and
 the MulensData:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">my_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">my_data</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">pspl_model</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">my_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">my_data</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">pspl_model</span><span class="p">)</span>
 <span class="n">chi2_initial</span> <span class="o">=</span> <span class="n">my_event</span><span class="o">.</span><span class="n">get_chi2</span><span class="p">()</span>
 <span class="k">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;give chi^2 of {:.2f}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chi2_initial</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;give chi^2 of {:.2f}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chi2_initial</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>We have the ability to get the goodness of fit and it turn it into a function:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">parameters_to_fit</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;t_0&quot;</span><span class="p">,</span> <span class="s2">&quot;u_0&quot;</span><span class="p">,</span> <span class="s2">&quot;t_E&quot;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">parameters_to_fit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;t_0&quot;</span><span class="p">,</span> <span class="s">&quot;u_0&quot;</span><span class="p">,</span> <span class="s">&quot;t_E&quot;</span><span class="p">]</span>
 <span class="n">initial_guess</span> <span class="o">=</span> <span class="p">[</span><span class="n">t_0</span><span class="p">,</span> <span class="n">u_0</span><span class="p">,</span> <span class="n">t_E</span><span class="p">]</span>
 
 <span class="k">def</span> <span class="nf">chi2_for_model</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;for given event set attributes from parameters_to_fit (list of str)</span>
-<span class="sd">    to values from the theta list&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;for given event set attributes from parameters_to_fit</span>
+<span class="sd">    (list of str) to values from the theta list&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parameters_to_fit</span><span class="p">):</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">theta</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">event</span><span class="o">.</span><span class="n">get_chi2</span><span class="p">()</span>
@@ -159,9 +159,9 @@ the same.</p>
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html">the minimize() function</a>
 from SciPy subpackage optimize. We encourage you to
 try other fitting routines.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="kn">as</span> <span class="nn">op</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="kn">as</span> <span class="nn">op</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chi2_for_model</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">initial_guess</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">my_event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Nelder-Mead&#39;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">my_event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;Nelder-Mead&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Fitting is done, so we can inspect the results. The function minimize()
@@ -171,7 +171,8 @@ a few:</p>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Function evaluations: {:}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">nfev</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="s">&quot;The smallest function value: {:.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;The smallest function value: {:.3f}&quot;</span>
+<span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
 <span class="k">print</span><span class="p">(</span><span class="s">&quot;for parameters: {:.5f} {:.4f} {:.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
 </pre></div>
 </div>
@@ -235,18 +236,21 @@ Try changing <code class="docutils literal"><span class="pre">method</span></cod
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/tutorial_fit_pspl.rst.txt"
+      <li><a href="_sources/tutorial_fit_pspl.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -257,12 +261,12 @@ Try changing <code class="docutils literal"><span class="pre">method</span></cod
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
       
       |
-      <a href="_sources/tutorial_fit_pspl.rst.txt"
-          rel="nofollow">Page source</a>
+      <a href="_sources/tutorial_fit_pspl.txt"
+          rel="nofollow">Page source</a></li>
     </div>
 
     
