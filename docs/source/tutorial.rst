@@ -18,15 +18,16 @@ The most basic thing to do is to define a microlensing model. For example, you c
 
 .. code-block:: python
 
-   my_pspl_model = MulensModel.Model({'t_0': 2452848.06, 'u_0': 0.133, 't_E': 61.5})
+   my_pspl_model = MulensModel.Model({'t_0': 2452848.06, 
+       'u_0': 0.133, 't_E': 61.5})
 
 Or a model with 2-bodies:
 
 .. code-block:: python
    
-   my_1S2L_model = MulensModel.Model(
-       {'t_0': 2452848.06, 'u_0': 0.133, 't_E': 61.5, 'rho': 0.00096, 'q': 0.0039, 
-        's': 1.120, 'alpha': 43.8)
+   my_1S2L_model = MulensModel.Model({'t_0': 2452848.06, 'u_0': 0.133, 
+        't_E': 61.5, 'rho': 0.00096, 'q': 0.0039, 's': 1.120, 
+        'alpha': 43.8})
 
 (by default alpha is in degrees, but you could explicitly specify radians)
 
@@ -43,8 +44,10 @@ Then, you might plot those models:
    
    import matplotlib.pyplot as pl
    pl.figure()
-   my_pspl_model.plot_magnification(t_range=[2452810, 2452890], subtract_2450000=True, color='red', linestyle=':')
-   my_1S2L_model.plot_magnification(t_range=[2452810, 2452890], subtract_2450000=True, color='black')
+   my_pspl_model.plot_magnification(t_range=[2452810, 2452890], 
+       subtract_2450000=True, color='red', linestyle=':')
+   my_1S2L_model.plot_magnification(t_range=[2452810, 2452890], 
+       subtract_2450000=True, color='black')
    pl.show()
 
 Introducing Data
@@ -55,8 +58,10 @@ Suppose you also had some data you want to import:
 .. code-block:: python
 
    path = MulensModel.MODULE_PATH + '/data/OB03235/'
-   OGLE_data = MulensModel.MulensData(file_name=path + 'OB03235_OGLE.tbl.txt', comments=['\\', '|'])
-   MOA_data = MulensModel.MulensData(file_name=path + 'OB03235_MOA.tbl.txt', phot_fmt='flux', comments=['\\', '|'])
+   OGLE_data = MulensModel.MulensData(file_name=path + 
+       'OB03235_OGLE.tbl.txt', comments=['\\', '|'])
+   MOA_data = MulensModel.MulensData(file_name=path + 
+       'OB03235_MOA.tbl.txt', phot_fmt='flux', comments=['\\', '|'])
 
 Combining Data with a Model
 ---------------------------
@@ -65,13 +70,15 @@ Now suppose you wanted to combine the two together:
 
 .. code-block:: python
 
-   my_event = MulensModel.Event(datasets=[OGLE_data, MOA_data], model=my_1S2L_model)
+   my_event = MulensModel.Event(datasets=[OGLE_data, MOA_data], 
+       model=my_1S2L_model)
 
 And you wanted to plot the result:
 
 .. code-block:: python
    
-   my_event.plot_model(t_range=[2452810, 2452890], subtract_2450000=True, color='black')
+   my_event.plot_model(t_range=[2452810, 2452890], subtract_2450000=True, 
+       color='black')
    my_event.plot_data(subtract_2450000=True)
    pl.show()
 
