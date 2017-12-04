@@ -1,4 +1,8 @@
+"""
+Model parameters accessed as a vector
+"""
 import MulensModel
+
 
 raise NotImplementedError('ModelParameters.vector not implemented')
 

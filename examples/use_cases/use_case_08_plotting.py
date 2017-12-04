@@ -1,15 +1,18 @@
+"""
+Plot model, data, and model together with data and residuals
+"""
 import os
 import matplotlib.pyplot as pl
 from astropy import units as u
 
 import MulensModel
 
+
 #Read in some data
 data = []
-data.append(MulensModel.MulensData(
-        file_name=os.path.join(
-            MulensModel.MODULE_PATH, 'data', 'ob151100_OGLE_ref_v1.dat'),
-        add_2450000=True))
+file_name = os.path.join(MulensModel.MODULE_PATH, 'data', 
+    'ob151100_OGLE_ref_v1.dat')
+data.append(MulensModel.MulensData(file_name=file_name, add_2450000=True))
 
 pl.figure()
 pl.errorbar(data[0].time, data[0].mag, yerr=data[0].err_mag, fmt='o')

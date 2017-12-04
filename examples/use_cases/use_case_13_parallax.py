@@ -1,12 +1,10 @@
+"""
+Use Case 13: Set the parallax parameters of a model.
+"""
 from astropy import units as u
 
 from MulensModel.model import Model
 
-"""
-Use Case 13: Set the parallax parameters of a model.
-
-Redundant with UC 5?
-"""
 
 model = Model(
     {'t_0': 2457005., 'u_0': 0.1, 't_E': 30., 'pi_E': [0.2, 0.4], 

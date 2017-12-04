@@ -1,14 +1,11 @@
-#! /usr/bin/env python
-
+"""
+Use Case 15: Fit a point lens event with emcee. 
+"""
 import numpy as np
 import emcee
 import os
 
 import MulensModel
-
-"""
-Use Case 15: Fit a point lens event with emcee. 
-"""
 
 
 def lnlike(theta, event, parameters_to_fit):
@@ -77,4 +74,3 @@ results = map(
 #Output fit
 for r in results:
     print(*r)
-

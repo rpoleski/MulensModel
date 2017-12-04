@@ -1,9 +1,10 @@
 import numpy as np
 import os
+#Spitzer Example
 
 import MulensModel
 
-#Spitzer Example
+
 raise NotImplementedError('satellite keyword for MulensData not supported')
 
 #Import Data
@@ -14,8 +15,7 @@ spitzer_data = MulensModel.MulensData(
     ephemrides_file=os.path.join(file_dir, "Spitzer_ephemrides_01.dat"))
 
 #Create Model
-model = MulensModel.Model(
-    {'t_0': 0., 'u_0': 0.1, 't_E': 1.})
+model = MulensModel.Model({'t_0': 0., 'u_0': 0.1, 't_E': 1.})
 print('Default Parallax Settings:')
 print(model.parallax())
 model.parallax(satellite=True, earth_orbital=False, topocentric=False)

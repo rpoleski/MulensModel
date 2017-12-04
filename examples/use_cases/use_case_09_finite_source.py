@@ -1,6 +1,9 @@
+"""
+Setting time range of method usage.
+Delete? Redundant with UC18/19?
+"""
 import MulensModel
 
-#Delete? Redundant with UC18/19?
 
 raise NotImplementedError('Model does not have a property finite_source')
 

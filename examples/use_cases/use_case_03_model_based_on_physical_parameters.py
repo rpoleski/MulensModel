@@ -7,6 +7,7 @@ import matplotlib.pyplot as pl
 
 import MulensModel
 
+
 #Define a Point Lens Model via MulensSystem
 my_lens = MulensModel.Lens(mass=0.5*u.solMass, distance=6.e3*u.pc)
 my_source = MulensModel.Source(distance=8.e3*u.pc)

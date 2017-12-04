@@ -11,6 +11,7 @@ import matplotlib.pyplot as pl
 
 from MulensModel import Model
 
+
 #Initialize the model 
 t_0 = 2455747.049357
 t_E = 21.6796
@@ -47,8 +48,10 @@ accurate_magnification = model.magnification(times)
 #Plot the differences
 pl.figure()
 pl.title('Magnification Curves')
-pl.plot(times, default_magnification, color='black', label='Default Magnification')
-pl.plot(times, accurate_magnification, color='green', label='User Specified Equations')
+label_1 = 'Default Magnification'
+label_2 = 'User Specified Equations'
+pl.plot(times, default_magnification, color='black', label=label_1)
+pl.plot(times, accurate_magnification, color='green', label=label_2)
 pl.xlabel('Times')
 pl.ylabel('Magnification')
 pl.legend(loc='best')

@@ -1,6 +1,3 @@
-import matplotlib.pyplot as pl
-from MulensModel.model import Model
-
 """
 Use case for binary source modeling. Three types:
 1. 2 sources w/rectilinear motion
@@ -8,8 +5,11 @@ Use case for binary source modeling. Three types:
 3. 2 sources w/xallarap
 
 #1 uses Jung et al. 2017 # AJ 153, 129 (OB160733) for the fiducial values
-
 """
+import matplotlib.pyplot as pl
+
+from MulensModel.model import Model
+
 
 raise NotImplementedError('Binary sources are not supported')
 

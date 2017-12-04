@@ -1,6 +1,10 @@
+"""
+Triple lens definition.
+"""
 from astropy import units as u
 
 import MulensModel
+
 
 raise NotImplementedError('Triple Lenses are Not Supported')
 

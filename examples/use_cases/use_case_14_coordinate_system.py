@@ -10,9 +10,11 @@ convert from their MCMC coordinate system to the center of mass
 coordinate system needed for the magnification calculation.
 
 """
-import MulensModel
 import astropy.units as u
 import numpy as np
+
+import MulensModel
+
 
 raise NotImplementedError('frame_origin not implemented for Model')
 
@@ -45,7 +47,7 @@ s = 1.1
 q = 0.001
 
 #Get parameters in CoMASS system
-t0_center_of_mass, u0_center_of_mass = convert_cof_mag2mass(
+(t0_center_of_mass, u0_center_of_mass) = convert_cof_mag2mass(
         t0_center_of_mag, te, u0_center_of_mag, alpha_center_of_mag, s, q)
 
 print('Center of mass: {0}, {1}'.format(t0_center_of_mass, u0_center_of_mass))
@@ -58,4 +60,4 @@ model = MulensModel.Model(
              'alpha': 30*u.deg, 's': 1.1, 'q': 0.001}, 
             frame_origin='magnification')
 
-print(model.parameters.t0, model.parameters.u0)
+print(model.parameters.t_0, model.parameters.u_0)

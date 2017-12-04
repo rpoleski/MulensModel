@@ -49,10 +49,8 @@
 |Num|Description|Implemented?|
 |------|------|------|
 |01| simple plot | Yes |
-|02| xxx | xxx|
 |03| model based on physical parameters | Yes|
-|04| xxx | xxx|
-|05| satellite parallax setup| Yes |
+|05| satellite parallax setup| No |
 |06| WFIRST data | No |
 |07| triple lenses | No |
 |08| plotting | Yes |
@@ -60,11 +58,16 @@
 |10| get chi2 | |
 |11| clean bad data | No |
 |12| simple fit PSPL | Yes |
-|13| adding parallax to a model| Yes|
-|14| coordinate system | |
+|13| adding parallax to a model| Yes |
+|14| coordinate system | No |
 |15| emcee simple PSPL | Yes |
 |16| raddec | Yes |
 |17| magnitudes | Yes |
 |18| binary equation | UC not finished! |
-|19| limb\_darkening | Yes |
+|19| limb\_darkening | Yes, but lacks data|
 |20| binary lens instantaneous orbital motion | No |
+|21| binary source modeling | No |
+|22| parameters accessed as a vector | No |
+|23| ModelParameters dictionary | No |
+|24| Jacobian | No |
+

@@ -1,11 +1,11 @@
+"""
+Use Case 12: Fit a point lens to some data.
+"""
 import os
 import scipy.optimize as op
 
 import MulensModel
 
-"""
-Use Case 12: Fit a point lens to some data.
-"""
 
 #Initial Model
 t_0 = 2457520.
@@ -16,7 +16,7 @@ model = MulensModel.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 #Import data
 file_name = os.path.join(MulensModel.MODULE_PATH, 'data', 'phot_ob160023.dat')
-data=MulensModel.MulensData(file_name=file_name)
+data = MulensModel.MulensData(file_name=file_name)
 
 #Create Event
 event = MulensModel.Event(datasets=data, model=model)

@@ -3,7 +3,7 @@ Some scipy.optimize.minimize methods require a Jacobian to run. Here
 is an example of how one would implement such a minimization method
 using MulensModel.
 
-Same as example_02_fitting.py except using the 'Newton-CG" method to
+Similar to example_02_fitting.py except using the 'Newton-CG" method to
 minimize the function (and now has a "Minimizer" class).
 
 """
@@ -15,6 +15,7 @@ import matplotlib.pyplot as pl
 
 import MulensModel
 from MulensModel import Event, Fit, Model, MulensData, Utils
+
 
 raise NotImplementedError('jacobian not implemented for Event')
 
