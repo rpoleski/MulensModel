@@ -51,6 +51,7 @@ class MagnificationCurve(object):
         self._methods_epochs = None
         self._methods_names = None
         self._default_magnification_method = None
+        self._methods_parameters = None
 
         self._gamma = gamma
 
@@ -85,6 +86,19 @@ class MagnificationCurve(object):
         self._methods_names = names        
         self._default_method = default_method
 
+    def set_magnification_methods_parameters(self, methods_parameters):
+        """
+        Set additional parameters for magnification calculation methods.
+        
+        Parameters :
+            methods_parameters: *dict*
+                Dictionary that for method names (keys) returns dictionary
+                in the form of **kwargs that are passed to given method,
+                e.g., *{'VBBL': {'accuracy': 0.005}}*.
+        
+        """
+        self._methods_parameters = methods_parameters
+
     @property
     def magnification(self):
         """provide vector of magnifications"""
@@ -118,9 +132,9 @@ class MagnificationCurve(object):
 
         if self.parameters.rho is not None:
             if self._methods_epochs is None:
-                warnings.warn('1 rho set but no finite-source method is set')
+                warnings.warn('rho set but no finite-source method is set')
             elif set(self._methods_for_epochs()) == set(['point_source']):
-                warnings.warn('2 rho set but no finite-source method is set')
+                warnings.warn('Rho set but no finite-source method is set')
 
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
         # This is Paczynski equation, i.e., point-source/point-lens (PSPL) 
@@ -134,6 +148,15 @@ class MagnificationCurve(object):
         methods = np.array(self._methods_for_epochs())
 
         for method in set(methods):
+            
+            kwargs = {}
+            if self._methods_parameters is not None:
+                if method in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method]
+                if kwargs != {}:
+                    raise ValueError('Methods parameters passed, but currently '
+                        + 'no point lens method accepts the parameters')
+                    
             if method.lower() == 'point_source':
                 pass # This cases are already taken care of. 
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
@@ -265,6 +288,14 @@ class MagnificationCurve(object):
             y = self.trajectory.y[index]
             method = methods[index].lower()
             
+            kwargs = {}
+            if self._methods_parameters is not None:
+                if method in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method]
+                if kwargs != {} and method != 'vbbl':
+                    raise ValueError('Methods parameters passed for method {:}'
+                        + ' which does not accept any parameters')
+
             if method == 'point_source':
                 m = binary_lens.point_source_magnification(x, y)
             elif method == 'quadrupole':
@@ -278,7 +309,7 @@ class MagnificationCurve(object):
             elif method == 'vbbl':
                 m = binary_lens.vbbl_magnification(x, y, 
                         rho=self.parameters.rho, 
-                        gamma=self._gamma)
+                        gamma=self._gamma, **kwargs)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))

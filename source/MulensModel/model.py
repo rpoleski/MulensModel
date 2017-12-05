@@ -90,6 +90,7 @@ class Model(object):
                           'topocentric': True}
         self._default_magnification_method = 'point_source'
         self._methods = None
+        self._methods_parameters = {}
         self.caustics = None
 
         #Set dictionary to store plotting properties
@@ -164,6 +165,8 @@ class Model(object):
             gamma=gamma)
         magnification_curve.set_magnification_methods(self._methods, 
                                         self._default_magnification_method)
+        magnification_curve.set_magnification_methods_parameters(
+                                        self._methods_parameters)
 
         return magnification_curve.magnification
 
@@ -842,6 +845,31 @@ class Model(object):
                 'Quadrupole', 2455748.]``
         """
         self._methods = methods
+
+    def set_magnification_methods_parameters(self, methods_parameters):
+        """
+        Set additional parameters for magnification calculation methods.
+        
+        Parameters :
+            methods_parameters: *dict*
+                Dictionary that for method names (keys) returns dictionary
+                in the form of **kwargs that are passed to given method,
+                e.g., *{'VBBL': {'accuracy': 0.005}}*.
+        
+        """
+        parameters = {key.lower(): value for (key, value) in 
+                methods_parameters.items()}
+        methods_point_lens = ['point_source', 
+                'finite_source_uniform_Gould94'.lower(),
+                'finite_source_LD_Gould94'.lower()]
+        methods_binary_lens = ['point_source', 'quadrupole', 'hexadecapole', 
+                'vbbl']
+        methods = (set(parameters.keys()) - set(methods_point_lens) 
+                - set(methods_binary_lens))
+        if len(methods):
+            raise KeyError('Unknown methods provided: {:}'.format(methods))
+            
+        self._methods_parameters = parameters
 
     def set_limb_coeff_gamma(self, bandpass, coeff):
         """
