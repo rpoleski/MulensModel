@@ -62,7 +62,7 @@
 |15| emcee simple PSPL | Yes |
 |16| raddec | Yes |
 |17| magnitudes | Yes |
-|18| binary equation | UC not finished! |
+|18| binary equation | Yes, but UC not finished |
 |19| limb\_darkening | Yes, but lacks data|
 |20| binary lens instantaneous orbital motion | No |
 |21| binary source modeling | No |

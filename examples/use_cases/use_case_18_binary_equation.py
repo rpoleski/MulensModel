@@ -3,7 +3,7 @@ Use Case 18: Binary Magnification Equation
 
 Change how the binary magnification is calculated based on 
 - the time stamp of the model
-- the magnificaiton of the model
+- the magnificaiton of the model (???)
 """
 from astropy import units as u
 import numpy as np
@@ -33,7 +33,6 @@ methods = [2455746., 'Quadrupole', 2455746.6, 'Hexadecapole', 2455746.7, 'VBBL',
            2455747., 'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]
 model.set_magnification_methods(methods)
 
-raise NotImplementedError('Model.set_magnification_methods_parameters() not implemented')
 # And specify additional parameters needed by some of the methods:
 vbbl_parameters = {'accuracy': 0.0005} # This is twice better than default of 0.001.
 methods_parameters = {'VBBL': vbbl_parameters}
@@ -56,11 +55,13 @@ pl.xlabel('Times')
 pl.ylabel('Magnification')
 pl.legend(loc='best')
 
+pl.show()
+pl.close()
+
 pl.figure()
 pl.title('Difference in Magnification Curves')
 pl.plot(times, default_magnification - accurate_magnification, color='green')
 pl.xlabel('Times')
 pl.ylabel('Magnification Difference')
-pl.legend(loc='best')
 
 pl.show()
