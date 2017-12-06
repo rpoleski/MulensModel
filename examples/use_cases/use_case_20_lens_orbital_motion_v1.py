@@ -1,6 +1,5 @@
 from astropy import units as u
 import matplotlib.pyplot as plt
-import copy
 
 import MulensModel
 
@@ -35,8 +34,8 @@ model_static = MulensModel.Model(
      's': s_0})
 
 # We can get model exactly the same as model_orb this way:
-orb_parameters = copy.deepcopy(model_static.parameters)
-orb_parameters.add({'dalpha_dt': dalpha_dt, 'ds_dt': ds_dt})
+orb_parameters = {**model_static.parameters, 'dalpha_dt': dalpha_dt, 
+                    'ds_dt': ds_dt}
 model_orb_2 = MulensModel.Model(Parameters=orb_parameters)
 
 dt = 36.525 # This is in days.

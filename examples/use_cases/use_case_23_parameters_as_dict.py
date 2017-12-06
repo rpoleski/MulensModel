@@ -1,8 +1,6 @@
 """
 Shows how a dictionary implementation of ModelParameters would work.
 """
-import copy 
-
 import MulensModel
 
 
@@ -48,8 +46,7 @@ print(my_PSPL_model.parameters.t_eff)
 print(my_PSPL_model.parameters.rho) 
 # Returns: AttributeError('rho is not defined for this model.')
 
-FSPL_params = copy.deepcopy(my_PSPL_model.parameters)
-FSPL_params.add({'rho': 0.001})
+FSPL_params = {**my_PSPL_model.parameters, 'rho': 0.001}
 
 my_FSPL_model = MulensModel.Model(FSPL_params)
 
