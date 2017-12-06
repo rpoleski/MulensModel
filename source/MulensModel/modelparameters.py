@@ -586,12 +586,22 @@ class ModelParameters(object):
         self.parameters.update(dict)
 
 if __name__ == '__main__':
+    line = "===================================================================================="
+    print(line)
     which_parameters()
+    print(line)
     which_parameters('point lens')
+    print(line)
     which_parameters('binary lens')
+    print(line)
     which_parameters('finite source')
+    print(line)
     which_parameters('parallax')
+    print(line)
     which_parameters('PSPL')
+    print(line)
     which_parameters('FSPL')
+    print(line)
     which_parameters('PSBL')
+    print(line)
     which_parameters('FSBL')

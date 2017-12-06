@@ -16,7 +16,7 @@ class Coordinates(SkyCoord):
         
     If the unit keyward is not specified, defaults to unit=(u.hourangle, u.deg)
 
-    where u is defined by "import astropy.units as u".
+    where u is defined by "import astropy.units as u". 
 
     .. _astropy.SkyCoord: http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
     """

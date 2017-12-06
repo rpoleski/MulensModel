@@ -32,7 +32,7 @@ class Trajectory(object):
         coords: :py:class:`MulensModel.coordinates.Coordinates`, optional
             sky coordinates of the event
 
-        satellite_skycoord: optional 
+        satellite_skycoord: *Astropy.coordinates.SkyCord*, optional 
             sky coordinates of the satellite specified by the
             ephemrides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
