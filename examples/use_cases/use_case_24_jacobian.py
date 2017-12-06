@@ -5,7 +5,6 @@ using MulensModel.
 
 Similar to example_02_fitting.py except using the 'Newton-CG" method to
 minimize the function (and now has a "Minimizer" class).
-
 """
 import sys
 import os
@@ -42,7 +41,7 @@ class Minimizer():
     def jacobian(self, theta):
         """for a given set of parameters (theta), return the jacobian"""
         self.set_parameters(theta) #might be redundant, but probably safer
-        return self.event.jacobian()
+        return self.event.jacobian(self.parameters_to_fit)
 
 #Read in the data file
 SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, "data", 
