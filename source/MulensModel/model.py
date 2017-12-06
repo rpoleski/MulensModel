@@ -21,8 +21,7 @@ class Model(object):
     A Model for a microlensing event with the specified parameters.
 
     Arguments :
-        parameters: *dictionary*, 
-        :py:class:`~MulensModel.modelparameters.ModelParameters`
+        parameters: *dictionary*, :py:class:`~MulensModel.modelparameters.ModelParameters`
             see :py:class:`MulensModel.modelparameters.ModelParameters`
 
         :py:obj:`coords`: [*list*, *str*, *astropy.SkyCoords*], optional
@@ -92,6 +91,7 @@ class Model(object):
         self._methods = None
         self._methods_parameters = {}
         self.caustics = None
+        self.data_ref = None
 
         #Set dictionary to store plotting properties
         self.reset_plot_properties()
@@ -264,7 +264,7 @@ class Model(object):
                 of observatories on the Earth? Default is *False*. 
                 Note that this is significant only for very high magnification 
                 events and if high quality datasets are analyzed. 
-                Hence, this effect is rarely needed.
+                Hence, this effect is rarely needed. **Not Implemented yet.**
 
         """
         if earth_orbital is None and satellite is None and topocentric is None:
@@ -334,10 +334,9 @@ class Model(object):
 
             ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
-        Either `data_ref` or (`f_source`, `f_blend`) must be set, but there
-        is no explicit check for this. Default behavior is probably to
-        throw an exception that no data have been specified (see
-        :func:`get_ref_fluxes()`).
+        Provide `data_ref` or (`f_source`, `f_blend`) if you want to 
+        plot in flux units different than last value of `data_ref` 
+        (defaults to the first dataset). 
 
         """
         if times is None:
@@ -350,7 +349,9 @@ class Model(object):
             self.data_ref = data_ref
 
         if (f_source is None) and (f_blend is None):
-            (f_source, f_blend) = self.get_ref_fluxes(data_ref=data_ref)
+            if self.data_ref is None:
+                raise ValueError('No reference dataset of fluxes provided')
+            (f_source, f_blend) = self.get_ref_fluxes(data_ref=self.data_ref)
         elif (f_source is None) or (f_blend is None):
             raise AttributeError(
                 'If f_source is set, f_blend must also be set and vice versa.')
@@ -377,7 +378,7 @@ class Model(object):
         best-fit values compared to data_ref.
 
         Parameters:
-            data_ref: *:py:class:`~MulensModel.mulensdata.MulensData`* or *int*
+            data_ref: :py:class:`~MulensModel.mulensdata.MulensData` or *int*
                 Reference dataset. If *int*, corresponds to the index of 
                 the dataset in self.datasets. If None, than the first dataset 
                 will be used.
@@ -853,7 +854,7 @@ class Model(object):
         Parameters :
             methods_parameters: *dict*
                 Dictionary that for method names (keys) returns dictionary
-                in the form of **kwargs that are passed to given method,
+                in the form of ``**kwargs`` that are passed to given method,
                 e.g., *{'VBBL': {'accuracy': 0.005}}*.
         
         """
