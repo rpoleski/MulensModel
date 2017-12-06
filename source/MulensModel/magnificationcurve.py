@@ -11,22 +11,31 @@ from MulensModel.modelparameters import ModelParameters
 class MagnificationCurve(object):
     """
     The magnification curve calculated from the model light curve.
-    """
-    def __init__(self, times, parameters=None, parallax=None,  
-                    coords=None, satellite_skycoord=None, gamma=0.):
-        """
-        Required arguments: 
-           times - the times at which to generate the magnification curve, e.g. a vector.
-           parameters - a ModelParameters object specifying the microlensing parameters
+    
+    Arguments :
+        times: iterable of *floats*
+            the times at which to generate the magnification curve
+        
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
+            specifies the microlensing parameters
+        
+        parallax: *dict*
+            dictionary specifying what parallax effects should be used, e.g.,
+            ``{'earth_orbital': True, 'satellite': False, 'topocentric': False}``
+        
+        coords: :py:class:`MulensModel.coordinates.Coordinates`
+            sky coordinates of the event
 
-        Optional parallax keywords:
-           parallax - boolean dictionary specifying what parallax effects should be used.
-           coords - sky coordinates of the event
-           satellite_skycoord - sky coordinates of the satellite
-               specified by the ephemrides file. see
-               MulensData.satellite_skycoord.
-           gamma - limb darkening coefficient in gamma convention
-        """
+        satellite_skycoord: *Astropy.coordinates.SkyCord*
+            sky coordinates of the satellite specified by the
+            ephemrides file. see
+            :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
+
+        gamma: *float*
+            limb darkening coefficient in gamma convention; defaults to 0
+    """
+    def __init__(self, times, parameters, parallax=None,  
+                    coords=None, satellite_skycoord=None, gamma=0.):
         #Set times
         if isinstance(times, (list, tuple, np.ndarray)):
             self.times = times
@@ -37,7 +46,8 @@ class MagnificationCurve(object):
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
-            raise ValueError('parameters is a required and must be a ModelParameters object')
+            raise ValueError('parameters is a required and must be a ' +
+                'ModelParameters object')
 
         #Calculate the source trajectory (i.e. u(t))
         self.trajectory = Trajectory(
@@ -93,8 +103,8 @@ class MagnificationCurve(object):
         Parameters :
             methods_parameters: *dict*
                 Dictionary that for method names (keys) returns dictionary
-                in the form of **kwargs that are passed to given method,
-                e.g., *{'VBBL': {'accuracy': 0.005}}*.
+                in the form of ``**kwargs`` that are passed to given method,
+                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
         
         """
         self._methods_parameters = methods_parameters
@@ -334,4 +344,3 @@ class MagnificationCurve(object):
                     for value in brackets]
         
         return out
-
