@@ -12,7 +12,7 @@ class Caustics(object):
 
     Attributes :
         q: *float*
-            mass ratio between the 2 bodies
+            mass ratio between the 2 bodies; always <= 1
         s: *float*
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
@@ -33,23 +33,6 @@ class Caustics(object):
         self._x = None
         self._y = None
         self._critical_curve = None
-
-    class CriticalCurve(object):
-        """
-        Internal class of Caustics. Defines the critical curve (in the
-        lens plane). Origin is center of mass with larger mass on the
-        left (q < 1).
-
-        Attributes:
-            x, y : *list*
-                Two lists of length *n_points* giving the x, y
-                coordinates of the caustic points. 
-        
-        """
-
-        def __init__(self):
-            self.x = []
-            self.y = []
 
     def plot(self, n_points=5000, **kwargs):
         """
@@ -146,3 +129,19 @@ class Caustics(object):
             (1./complex_conjugate) + (self.q / (complex_conjugate - self.s)) )
 
 
+    class CriticalCurve(object):
+        """
+        Internal class of Caustics. Defines the critical curve (in the
+        lens plane). Origin is center of mass with larger mass on the
+        left (q < 1).
+
+        Attributes:
+            x, y : *list*
+                Two lists of length *n_points* giving the x, y
+                coordinates of the caustic points. 
+        
+        """
+
+        def __init__(self):
+            self.x = []
+            self.y = []
