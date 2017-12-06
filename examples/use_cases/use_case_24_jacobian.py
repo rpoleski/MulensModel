@@ -18,7 +18,7 @@ from MulensModel import Event, Fit, Model, MulensData, Utils
 
 raise NotImplementedError('jacobian not implemented for Event')
 
-class Minimizer():
+class Minimizer(object):
     """
     An object to link an Event to the functions necessary to minimize chi2.
     """

@@ -22,15 +22,14 @@ s_0 = 1.5
 ds_dt = 0.5 / u.year
 
 #Generate a model.
-model_orb = MulensModel.Model()
-model_orb.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, q=q, 
-                    alpha_0=alpha_0, dalpha_dt=dalpha_dt, 
-                    s_0=s_0, ds_dt=ds_dt) 
-                    # t_0_kep is not provided hence defaults to t_0
+model_orb = MulensModel.Model(
+    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q, 
+     'alpha_0': alpha_0, 'dalpha_dt': dalpha_dt, 's_0': s_0, 'ds_dt': ds_dt}) 
+# t_0_kep is not provided hence defaults to t_0
 
-model_static = MulensModel.Model()
-model_static.set_parameters(t_0=t_0, u_0=u_0, t_E=t_E, rho=rho, q=q,
-                    alpha=alpha_0, s=s_0)
+model_static = MulensModel.Model(
+    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q, 'alpha':alpha_0, 
+     's': s_0})
 
 # We can get model exactly the same as model_orb this way:
 orb_parameters = model_static.parameters.copy_with_orbital_motion(
