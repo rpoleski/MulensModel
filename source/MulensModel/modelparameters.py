@@ -507,7 +507,7 @@ class ModelParameters(object):
     def pi_E_N(self, new_value):
         if 'pi_E_N' in self.parameters.keys():
             self.parameters['pi_E_N'] = new_value
-        elif 'pi_E' in self.paramters.keys():
+        elif 'pi_E' in self.parameters.keys():
             self.parameters['pi_E'][0] = new_value
         else:
             raise KeyError('pi_E_N is not a parameter of this model.')
@@ -528,7 +528,7 @@ class ModelParameters(object):
     def pi_E_E(self, new_value):
         if 'pi_E_E' in self.parameters.keys():
             self.parameters['pi_E_E'] = new_value
-        elif 'pi_E' in self.paramters.keys():
+        elif 'pi_E' in self.parameters.keys():
             self.parameters['pi_E'][1] = new_value
         else:
             raise KeyError('pi_E_E is not a parameter of this model.')
