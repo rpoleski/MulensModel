@@ -61,34 +61,16 @@ i.e. mass ratio and separation. Implemented for 2-body lenses only.</p>
 <dt>Attributes :</dt>
 <dd><dl class="first last docutils">
 <dt>q: <em>float</em></dt>
-<dd>mass ratio between the 2 bodies</dd>
+<dd>mass ratio between the 2 bodies; always &lt;= 1</dd>
 <dt>s: <em>float</em></dt>
 <dd>separation between the 2 bodies (as a fraction of the
 Einstein ring)</dd>
 </dl>
 </dd>
 </dl>
-<dl class="class">
-<dt id="MulensModel.caustics.Caustics.CriticalCurve">
-<em class="property">class </em><code class="descname">CriticalCurve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.CriticalCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>Internal class of Caustics. Defines the critical curve (in the
-lens plane). Origin is center of mass with larger mass on the
-left (q &lt; 1).</p>
-<dl class="docutils">
-<dt>Attributes:</dt>
-<dd><dl class="first last docutils">
-<dt>x, y <span class="classifier-delimiter">:</span> <span class="classifier"><em>list</em></span></dt>
-<dd>Two lists of length <em>n_points</em> giving the x, y
-coordinates of the caustic points.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="MulensModel.caustics.Caustics.plot">
-<code class="descclassname">Caustics.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the caustics (using matplotlib.pyplot.scatter()).</p>
 <dl class="docutils">
 <dt>Parameters:</dt>
@@ -104,7 +86,7 @@ coordinates of the caustic points.</dd>
 
 <dl class="method">
 <dt id="MulensModel.caustics.Caustics.get_caustics">
-<code class="descclassname">Caustics.</code><code class="descname">get_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.get_caustics" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.get_caustics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns x and y vectors corresponding to the outlines of the
 caustics.  Origin is center of mass and larger mass is on the
 left (for q &lt; 1).</p>
@@ -127,8 +109,26 @@ coordinates of the caustic points.</dd>
 
 <dl class="attribute">
 <dt id="MulensModel.caustics.Caustics.critical_curve">
-<code class="descclassname">Caustics.</code><code class="descname">critical_curve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">critical_curve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Critical curve stored as <a class="reference internal" href="#MulensModel.caustics.Caustics.CriticalCurve" title="MulensModel.caustics.Caustics.CriticalCurve"><code class="xref py py-class docutils literal"><span class="pre">CriticalCurve</span></code></a> object, read-only</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="MulensModel.caustics.Caustics.CriticalCurve">
+<em class="property">class </em><code class="descname">CriticalCurve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.CriticalCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Internal class of Caustics. Defines the critical curve (in the
+lens plane). Origin is center of mass with larger mass on the
+left (q &lt; 1).</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><dl class="first last docutils">
+<dt>x, y <span class="classifier-delimiter">:</span> <span class="classifier"><em>list</em></span></dt>
+<dd>Two lists of length <em>n_points</em> giving the x, y
+coordinates of the caustic points.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

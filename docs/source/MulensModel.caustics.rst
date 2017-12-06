@@ -1,5 +1,5 @@
-MulensModel\.caustics module
-============================
+MulensModel.caustics module
+===========================
 
 .. automodule:: MulensModel.caustics
     :members:

@@ -53,15 +53,52 @@
 <span id="mulensmodel-magnificationcurve-module"></span><h1>MulensModel.magnificationcurve module<a class="headerlink" href="#module-MulensModel.magnificationcurve" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="MulensModel.magnificationcurve.MagnificationCurve">
-<em class="property">class </em><code class="descclassname">MulensModel.magnificationcurve.</code><code class="descname">MagnificationCurve</code><span class="sig-paren">(</span><em>times</em>, <em>parameters=None</em>, <em>parallax=None</em>, <em>coords=None</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">MulensModel.magnificationcurve.</code><code class="descname">MagnificationCurve</code><span class="sig-paren">(</span><em>times</em>, <em>parameters</em>, <em>parallax=None</em>, <em>coords=None</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The magnification curve calculated from the model light curve.</p>
+<dl class="docutils">
+<dt>Arguments :</dt>
+<dd><dl class="first last docutils">
+<dt>times: iterable of <em>floats</em></dt>
+<dd>the times at which to generate the magnification curve</dd>
+<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></dt>
+<dd>specifies the microlensing parameters</dd>
+<dt>parallax: <em>dict</em></dt>
+<dd>dictionary specifying what parallax effects should be used, e.g.,
+<code class="docutils literal"><span class="pre">{'earth_orbital':</span> <span class="pre">True,</span> <span class="pre">'satellite':</span> <span class="pre">False,</span> <span class="pre">'topocentric':</span> <span class="pre">False}</span></code></dd>
+<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.coordinates.Coordinates</span></code></a></dt>
+<dd>sky coordinates of the event</dd>
+<dt>satellite_skycoord: <em>Astropy.coordinates.SkyCord</em></dt>
+<dd>sky coordinates of the satellite specified by the
+ephemrides file. see
+<code class="xref py py-obj docutils literal"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
+<dt>gamma: <em>float</em></dt>
+<dd>limb darkening coefficient in gamma convention; defaults to 0</dd>
+</dl>
+</dd>
+</dl>
 <dl class="method">
 <dt id="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods">
 <code class="descname">set_magnification_methods</code><span class="sig-paren">(</span><em>methods</em>, <em>default_method</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="Permalink to this definition">¶</a></dt>
 <dd><p>sets methods used for magnification calculation;
 epochs is a numpy ndarray of n epochs that specify when (n-1) 
 methods will be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods_parameters">
+<code class="descname">set_magnification_methods_parameters</code><span class="sig-paren">(</span><em>methods_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set additional parameters for magnification calculation methods.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>methods_parameters: <em>dict</em></dt>
+<dd>Dictionary that for method names (keys) returns dictionary
+in the form of <code class="docutils literal"><span class="pre">**kwargs</span></code> that are passed to given method,
+e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span class="pre">{'accuracy':</span> <span class="pre">0.005}}</span></code>.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">

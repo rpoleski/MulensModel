@@ -1,5 +1,5 @@
-MulensModel\.magnificationcurve module
-======================================
+MulensModel.magnificationcurve module
+=====================================
 
 .. automodule:: MulensModel.magnificationcurve
     :members:
