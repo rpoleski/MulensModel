@@ -165,6 +165,41 @@ class Event(object):
         self.chi2 = fsum(chi2)
         return self.chi2
 
+# get_data_magnification(self, dataset)
+    def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
+        """Calculates chi^2 for a single dataset
+        
+        Parameters :
+            index_dataset: *int*
+                index that specifies for which dataset the chi^2 is requested
+                
+            fit_blending: *boolean*, optional
+                Are we fitting for blending flux? If not then blending flux is 
+                fixed to 0.  Default is the same as
+                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+
+        Returns :
+            chi2: *np.ndarray*  
+                Chi^2 contribution from each data point,
+                e.g. chi2[obs_num][k] returns the chi2 contribution
+                from the *k*-th point of observatory *obs_num*.
+        
+        """
+        dataset = self.datasets[index_dataset]
+        magnification = self.model.get_data_magnification(dataset)
+        self.fit = Fit(data=dataset, magnification=[magnification]) 
+        
+        if fit_blending is not None:
+            self.fit.fit_fluxes(fit_blending=fit_blending)
+        else:
+            self.fit.fit_fluxes()
+
+        diff = dataset._brightness_input \
+                 - self.fit.get_input_format(data=dataset)
+        select = np.logical_not(dataset.bad)
+        return fsum(((diff / dataset._brightness_input_err)**2)[select])
+        
+
     def get_chi2_per_point(self, fit_blending=None):
         """Calculates chi^2 for each data point of the current model by
         fitting for source and blending fluxes.
