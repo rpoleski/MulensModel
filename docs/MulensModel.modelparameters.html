@@ -85,28 +85,33 @@ coordinates are not supported).</p>
 <dt>Example: </dt>
 <dd><dl class="first last docutils">
 <dt>Define a point lens model:</dt>
-<dd><code class="docutils literal"><span class="pre">ModelParameters({'t_0':</span> <span class="pre">2450000.,</span> <span class="pre">'u_0':</span> <span class="pre">0.3,</span> <span class="pre">'t_E':</span> <span class="pre">35.})</span></code></dd>
+<dd><code class="docutils literal"><span class="pre">params</span> <span class="pre">=</span> <span class="pre">ModelParameters({'t_0':</span> <span class="pre">2450000.,</span> <span class="pre">'u_0':</span> <span class="pre">0.3,</span> <span class="pre">'t_E':</span> <span class="pre">35.})</span></code></dd>
+<dt>Then you can print the parameters:</dt>
+<dd><code class="docutils literal"><span class="pre">print(params)</span></code></dd>
 </dl>
 </dd>
 </dl>
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.t_0">
 <code class="descname">t_0</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0" title="Permalink to this definition">¶</a></dt>
-<dd><p>The time of minimum projected separation between the source
+<dd><p><em>float</em></p>
+<p>The time of minimum projected separation between the source
 and the lens center of mass.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.u_0">
 <code class="descname">u_0</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0" title="Permalink to this definition">¶</a></dt>
-<dd><p>The minimum projected separation between the source
+<dd><p><em>float</em></p>
+<p>The minimum projected separation between the source
 and the lens center of mass.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.t_star">
 <code class="descname">t_star</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star" title="Permalink to this definition">¶</a></dt>
-<dd><p>t_star = rho * tE</p>
+<dd><p><em>float</em></p>
+<p>t_star = rho * tE</p>
 <p>&#8220;day&#8221; is the default unit. Regardless of input value, returns
 value with units of u.day. May be set as a <em>float</em> &#8211;&gt; assumes
 units of degrees.</p>
@@ -119,7 +124,8 @@ units of degrees.</p>
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.t_eff">
 <code class="descname">t_eff</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_eff" title="Permalink to this definition">¶</a></dt>
-<dd><p>t_eff = u_0 * t_E</p>
+<dd><p><em>float</em></p>
+<p>t_eff = u_0 * t_E</p>
 <p>&#8220;day&#8221; is the default unit. Regardless of input value, returns
 value with units of u.day. May be set as a <em>float</em> &#8211;&gt; assumes
 units of degrees.</p>
@@ -160,19 +166,22 @@ appendix A</p>
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.q">
 <code class="descname">q</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.q" title="Permalink to this definition">¶</a></dt>
-<dd><p>mass ratio of the two lens components. Only 2 bodies allowed.</p>
+<dd><p><em>float</em></p>
+<p>mass ratio of the two lens components. Only 2 bodies allowed.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.s">
 <code class="descname">s</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.s" title="Permalink to this definition">¶</a></dt>
-<dd><p>separation of the two lens components relative to Einstein ring size</p>
+<dd><p><em>float</em></p>
+<p>separation of the two lens components relative to Einstein ring size</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.pi_E">
 <code class="descname">pi_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The microlens parallax vector. Must be set as a vector/list
+<dd><p><em>list of floats</em></p>
+<p>The microlens parallax vector. Must be set as a vector/list
 (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
 pi_E_mag</p>
 </dd></dl>
@@ -180,39 +189,43 @@ pi_E_mag</p>
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.pi_E_N">
 <code class="descname">pi_E_N</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_N" title="Permalink to this definition">¶</a></dt>
-<dd><p>The North component of the microlens parallax vector.</p>
+<dd><p><em>float</em></p>
+<p>The North component of the microlens parallax vector.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.pi_E_E">
 <code class="descname">pi_E_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_E" title="Permalink to this definition">¶</a></dt>
-<dd><p>The East component of the microlens parallax vector.</p>
+<dd><p><em>float</em></p>
+<p>The East component of the microlens parallax vector.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.t_0_par">
 <code class="descname">t_0_par</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_par" title="Permalink to this definition">¶</a></dt>
-<dd><p>The reference time for the calculation of parallax. If not set
+<dd><p><em>float</em></p>
+<p>The reference time for the calculation of parallax. If not set
 explicitly, set t_0_par = t_0.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.pi_E_mag">
 <code class="descname">pi_E_mag</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_mag" title="Permalink to this definition">¶</a></dt>
-<dd><p>The magnitude of the microlensing parallax vector.</p>
+<dd><p><em>float</em></p>
+<p>The magnitude of the microlensing parallax vector.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.n_lenses">
 <code class="descname">n_lenses</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_lenses" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em>
-number of objects in the lens system</p>
+<dd><p><em>int</em></p>
+<p>number of objects in the lens system</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.modelparameters.ModelParameters.add">
 <code class="descname">add</code><span class="sig-paren">(</span><em>dict</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.add" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>dictionary</em></p>
+<dd><p><em>dict</em></p>
 <p>Use dictionary.update() to update/add parameters to the ModelParameters set.</p>
 </dd></dl>
 
