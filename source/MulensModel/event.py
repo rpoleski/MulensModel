@@ -165,7 +165,6 @@ class Event(object):
         self.chi2 = fsum(chi2)
         return self.chi2
 
-# get_data_magnification(self, dataset)
     def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
         """Calculates chi^2 for a single dataset
         

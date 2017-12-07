@@ -153,8 +153,11 @@ class ModelParameters(object):
 
     Example: 
         Define a point lens model:
-            ``ModelParameters({'t_0': 2450000., 'u_0': 0.3, 't_E': 35.})``
-
+            ``params = ModelParameters({'t_0': 2450000., 'u_0': 0.3, 't_E': 35.})``
+            
+        Then you can print the parameters:
+            ``print(params)``
+            
     """
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
@@ -207,7 +210,7 @@ class ModelParameters(object):
         Check that the user hasn't over-defined the ModelParameters.
 
         """
-        ### Check minimal parameters for a model are defined (Not Implemented) ###
+### Check minimal parameters for a model are defined (Not Implemented) ###
 
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
@@ -248,6 +251,8 @@ class ModelParameters(object):
     @property
     def t_0(self):
         """
+        *float*
+        
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
@@ -260,6 +265,8 @@ class ModelParameters(object):
     @property
     def u_0(self):
         """
+        *float*
+        
         The minimum projected separation between the source
         and the lens center of mass.
         """
@@ -282,6 +289,8 @@ class ModelParameters(object):
     @property
     def t_star(self):
         """
+        *float*
+        
         t_star = rho * tE
 
         "day" is the default unit. Regardless of input value, returns
@@ -316,6 +325,8 @@ class ModelParameters(object):
     @property
     def t_eff(self):
         """
+        *float*
+        
         t_eff = u_0 * t_E
 
         "day" is the default unit. Regardless of input value, returns
@@ -439,7 +450,11 @@ class ModelParameters(object):
 
     @property
     def q(self):
-        """mass ratio of the two lens components. Only 2 bodies allowed."""
+        """
+        *float*
+        
+        mass ratio of the two lens components. Only 2 bodies allowed.
+        """
         if isinstance(self.parameters['q'], (list, np.ndarray)):
             self.parameters['q'] = self.parameters['q'][0]
         return self.parameters['q']
@@ -450,7 +465,11 @@ class ModelParameters(object):
     
     @property
     def s(self):
-        """separation of the two lens components relative to Einstein ring size"""
+        """
+        *float*
+        
+        separation of the two lens components relative to Einstein ring size
+        """
         if isinstance(self.parameters['s'], (list, np.ndarray)):
             self.parameters['s'] = self.parameters['s'][0]
         return self.parameters['s']
@@ -462,6 +481,8 @@ class ModelParameters(object):
     @property
     def pi_E(self):
         """
+        *list of floats*
+        
         The microlens parallax vector. Must be set as a vector/list
         (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
         pi_E_mag
@@ -494,6 +515,8 @@ class ModelParameters(object):
     @property
     def pi_E_N(self):
         """
+        *float*
+        
         The North component of the microlens parallax vector.
         """
         if 'pi_E_N' in self.parameters.keys():
@@ -515,6 +538,8 @@ class ModelParameters(object):
     @property
     def pi_E_E(self):
         """
+        *float*
+        
         The East component of the microlens parallax vector.
         """
         if 'pi_E_E' in self.parameters.keys():
@@ -537,6 +562,8 @@ class ModelParameters(object):
     @property
     def t_0_par(self):
         """
+        *float*
+        
         The reference time for the calculation of parallax. If not set
         explicitly, set t_0_par = t_0.
         """
@@ -552,6 +579,8 @@ class ModelParameters(object):
     @property
     def pi_E_mag(self):
         """
+        *float*
+        
         The magnitude of the microlensing parallax vector.
         """
         if 'pi_E' in self.parameters.keys():
@@ -568,6 +597,7 @@ class ModelParameters(object):
     def n_lenses(self):
         """ 
         *int*
+        
         number of objects in the lens system
         """
         if ( (not 's' in self.parameters.keys()) 
@@ -579,7 +609,7 @@ class ModelParameters(object):
 
     def add(self, dict):
         """
-        *dictionary*
+        *dict*
 
         Use dictionary.update() to update/add parameters to the ModelParameters set.
         """

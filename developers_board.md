@@ -26,17 +26,17 @@
 
   * Add \_\_repr\_\_ functions to Lens and Source
   * [2] files not yet well documented: 
-    * [2] trajectory.py 
-    * mulensparallaxvector.py 
-    * satelliteskycoord.py 
-    * [2] caustics.py 
+    * [2] *trajectory.py*
+    * *mulensparallaxvector.py* 
+    * *satelliteskycoord.py* 
+    * [2] *caustics.py* 
     * RA & Dec in coordinates.py (maybe also code it better)
     * horizons.py 
-    * limbdarkeningcoeffs.py 
+    * *limbdarkeningcoeffs.py* 
     * mulenstime.py 
-    * [2] magnificationcurve.py (needs a list of allowed magnification methods) 
+    * [2] *magnificationcurve.py* (needs a list of allowed magnification methods) 
     * utils.py 
-    * ~~ [1] modelparameters.py ~~
+    * [1] *modelparameters.py*
 * Effects
   * Finite Source
     * [2] _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_

@@ -4,15 +4,16 @@ from MulensModel.utils import Utils
 class LimbDarkeningCoeffs(object):
     """
     Linear limb-darkening parameters. Both gamma and u conventions can be used. 
-    The u convention is more frequently used in studies other in microlensing. 
-    It has fixed flux at the center. An et al. 2002 (ApJ 572, 521,
-    http://adsabs.harvard.edu/abs/2002ApJ...572..521A) introduced gamma convention:
+    The *u* convention is more frequently used in studies other than microlensing. 
+    It has fixed flux at the center. 
+    `An et al. 2002 (ApJ 572, 521) <http://adsabs.harvard.edu/abs/2002ApJ...572..521A>`_ 
+    introduced the *gamma* convention:
     
     gamma = (2 * u) / (3 - u)
     
     u = 3 * gamma / (2 + gamma)
     
-    Note that gamma convention has fixed total flux.
+    Note that the gamma convention has fixed total flux.
     """
     def __init__(self): #, gamma_I=0.44, gamma_V=0.72, gamma_H=0.26):
         self._gammas_for_band = dict()
@@ -108,5 +109,4 @@ class LimbDarkeningCoeffs(object):
                 msg = "The bandpass {:} was not set for limb darkening"
                 raise KeyError(msg.format(band))
             weight_sum += weight
-        return gamma_sum / weight_sum
-        
+        return gamma_sum / weight_sum      

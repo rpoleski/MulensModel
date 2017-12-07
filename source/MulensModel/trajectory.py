@@ -13,7 +13,8 @@ from MulensModel.modelparameters import ModelParameters
 class Trajectory(object):
     """
     The (dimensionless) X, Y trajectory of the source in the
-    source plane. 
+    source plane. This class includes internal functions that calculate 
+    how microlensing parallax affects the trajectory.
 
     For binary lens, the origin of the coordinate system is at 
     the center of mass with higher mass at negative X and Y=0.
@@ -29,7 +30,7 @@ class Trajectory(object):
             specifies what parallax effects should be used. Default is
             False. (differs from Modely.py which defaults to True)
 
-        coords: :py:class:`MulensModel.coordinates.Coordinates`, optional
+        coords: :py:class:`~MulensModel.coordinates.Coordinates`, optional
             sky coordinates of the event
 
         satellite_skycoord: *Astropy.coordinates.SkyCord*, optional 
