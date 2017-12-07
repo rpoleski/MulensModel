@@ -31,7 +31,7 @@
     * *satelliteskycoord.py* 
     * [2] *caustics.py* 
     * RA & Dec in coordinates.py (maybe also code it better)
-    * horizons.py 
+    * *horizons.py* 
     * *limbdarkeningcoeffs.py* 
     * mulenstime.py 
     * [2] *magnificationcurve.py* (needs a list of allowed magnification methods) 

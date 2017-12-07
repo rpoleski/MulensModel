@@ -16,6 +16,10 @@ class Horizons(object):
     """
     An Object to read and hold the standard JPL Horizons output,
     i.e. satellite ephemerides.
+    
+    Arguments :
+        file_name: *str*
+            output from JPL Horizons file name
     """
 
     def __init__(self, file_name=None):
@@ -73,6 +77,8 @@ class Horizons(object):
     @ property
     def time(self):
         """
+        *np.ndarray*
+        
         return times in TDB (reference frame depends on Horizons input)
         """
         if self._time is None:
@@ -85,6 +91,8 @@ class Horizons(object):
     @ property 
     def xyz(self):
         """
+        *Astropy.CartesianRepresentation*
+        
         return X,Y,Z positions based on RA, DEC and distance
         """
         if self._xyz is None:
