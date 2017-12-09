@@ -29,34 +29,34 @@ month_3letter_to_2digit = {
 class Utils(object):
     """A number of small functions used in different places"""
 
-    def get_flux_from_mag(mag):
+    def get_flux_from_mag(mag, zeropoint=MAG_ZEROPOINT):
         """transform magnitudes into fluxes"""
-        flux = 10. ** (0.4 * (MAG_ZEROPOINT - mag))
+        flux = 10. ** (0.4 * (zeropoint - mag))
         return flux
     get_flux_from_mag = staticmethod(get_flux_from_mag)
 
-    def get_flux_and_err_from_mag(mag, err_mag):
+    def get_flux_and_err_from_mag(mag, err_mag, zeropoint=MAG_ZEROPOINT):
         """transform magnitudes into fluxes including errorbars"""
-        flux = 10. ** (0.4 * (MAG_ZEROPOINT - mag))
+        flux = 10. ** (0.4 * (zeropoint - mag))
         err_flux = err_mag * flux * np.log(10.) * 0.4
         return (flux, err_flux)
     get_flux_and_err_from_mag = staticmethod(get_flux_and_err_from_mag)
 
-    def get_mag_from_flux(flux):
+    def get_mag_from_flux(flux, zeropoint=MAG_ZEROPOINT):
         """transform fluxes into magnitudes"""
         if np.any(flux <= 0.):
             warnings.warn("Flux to magnitude convertion approached negative" +
                             " flux", UserWarning)
-        mag = MAG_ZEROPOINT - 2.5 * np.log10(flux)
+        mag = zeropoint - 2.5 * np.log10(flux)
         return mag
     get_mag_from_flux = staticmethod(get_mag_from_flux)
 
-    def get_mag_and_err_from_flux(flux, err_flux):
+    def get_mag_and_err_from_flux(flux, err_flux, zeropoint=MAG_ZEROPOINT):
         """transform fluxes into magnitudes including errorbars"""
         if np.any(flux <= 0.):
             warnings.warn("Flux to magnitude convertion approached negative" +
                             " flux", UserWarning)
-        mag = MAG_ZEROPOINT - 2.5 * np.log10(flux)
+        mag = zeropoint - 2.5 * np.log10(flux)
         err_mag = (err_flux / flux) * 2.5 / np.log(10.)
         return (mag, err_mag)
     get_mag_and_err_from_flux = staticmethod(get_mag_and_err_from_flux)
