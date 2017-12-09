@@ -55,7 +55,7 @@
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs">
 <em class="property">class </em><code class="descclassname">MulensModel.limbdarkeningcoeffs.</code><code class="descname">LimbDarkeningCoeffs</code><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>Linear limb-darkening parameters. Both gamma and u conventions can be used. 
+<p>Linear limb-darkening parameters. Both <em>gamma</em> and <em>u</em> conventions can be used. 
 The <em>u</em> convention is more frequently used in studies other than microlensing. 
 It has fixed flux at the center. 
 <a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...572..521A">An et al. 2002 (ApJ 572, 521)</a> 
@@ -82,14 +82,14 @@ introduced the <em>gamma</em> convention:</p>
 <dl class="method">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coeff_u">
 <code class="descname">set_limb_coeff_u</code><span class="sig-paren">(</span><em>bandpass</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.set_limb_coeff_u" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remembers limb darkening u coefficient for given band</p>
+<dd><p>Remembers limb darkening <em>u</em> coefficient for given band</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
 <dt>bandpass: <em>str</em></dt>
 <dd>Name of the filter.</dd>
 <dt>u: <em>float</em></dt>
-<dd>The value of u coefficient.</dd>
+<dd>The value of <em>u</em> coefficient.</dd>
 </dl>
 </dd>
 </dl>
@@ -118,7 +118,7 @@ introduced the <em>gamma</em> convention:</p>
 <dl class="method">
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.get_limb_coeff_u">
 <code class="descname">get_limb_coeff_u</code><span class="sig-paren">(</span><em>bandpass</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.get_limb_coeff_u" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gives limb darkening u coefficient for given band.</p>
+<dd><p>Gives limb darkening <em>u</em> coefficient for given band.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
@@ -129,7 +129,7 @@ introduced the <em>gamma</em> convention:</p>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
 <dt>u: <em>float</em></dt>
-<dd>The value of u coefficient.</dd>
+<dd>The value of <em>u</em> coefficient.</dd>
 </dl>
 </dd>
 </dl>
@@ -145,9 +145,9 @@ introduced the <em>gamma</em> convention:</p>
 <dt>weights: <em>dict</em></dt>
 <dd>A dictionary that for every band (keys; <em>str</em> type) gives its 
 relative weight (value; <em>float</em> type), e.g., 
-weights = {&#8216;I&#8217;: 1.5, &#8216;V&#8217;: 1.}
-will return gamma coefficient in the case when I band 
-contributes 1.5 more than V band. Note that for each band used 
+<code class="docutils literal"><span class="pre">weights</span> <span class="pre">=</span> <span class="pre">{'I':</span> <span class="pre">1.5,</span> <span class="pre">'V':</span> <span class="pre">1.}</span></code>
+will return gamma coefficient in the case when <em>I</em> band 
+contributes 1.5 more than <em>V</em> band. Note that for each band used 
 you have to first set to coefficient.</dd>
 </dl>
 </dd>

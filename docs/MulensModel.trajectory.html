@@ -53,7 +53,7 @@
 <span id="mulensmodel-trajectory-module"></span><h1>MulensModel.trajectory module<a class="headerlink" href="#module-MulensModel.trajectory" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="MulensModel.trajectory.Trajectory">
-<em class="property">class </em><code class="descclassname">MulensModel.trajectory.</code><code class="descname">Trajectory</code><span class="sig-paren">(</span><em>times</em>, <em>parameters=None</em>, <em>parallax=None</em>, <em>coords=None</em>, <em>satellite_skycoord=None</em>, <em>earth_coords=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">MulensModel.trajectory.</code><code class="descname">Trajectory</code><span class="sig-paren">(</span><em>times</em>, <em>parameters</em>, <em>parallax=None</em>, <em>coords=None</em>, <em>satellite_skycoord=None</em>, <em>earth_coords=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The (dimensionless) X, Y trajectory of the source in the
 source plane. This class includes internal functions that calculate 
@@ -69,9 +69,11 @@ the center of mass with higher mass at negative X and Y=0.</p>
 <dd>a ModelParameters object specifying the microlensing parameters</dd>
 <dt>parallax: <em>boolean dictionary</em>, optional</dt>
 <dd>specifies what parallax effects should be used. Default is
-False. (differs from Modely.py which defaults to True)</dd>
+<em>False</em> for each of <em>&#8216;earth_orbital&#8217;</em>, <em>&#8216;satellite&#8217;</em>, and 
+<em>&#8216;topocentric&#8217;</em>. (differs from 
+<a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> which defaults to <em>True</em>)</dd>
 <dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">Coordinates</span></code></a>, optional</dt>
-<dd>sky coordinates of the event</dd>
+<dd>sky coordinates of the event; required for parallax calculations</dd>
 <dt>satellite_skycoord: <em>Astropy.coordinates.SkyCord</em>, optional </dt>
 <dd>sky coordinates of the satellite specified by the
 ephemrides file. see
