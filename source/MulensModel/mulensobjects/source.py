@@ -33,8 +33,7 @@ class Source(object):
 
         The distance to the source. May be set as a *float*.
         The distance should either be given in pc, or if no unit is
-        given, the value is assumed to be kpc (*u.kpc*) if it is <50 and in 
-        pc (*u.pc*) otherwise.
+        given, the value is assumed to be kpc (*u.kpc*).
         """
         return self._distance
 
@@ -44,10 +43,7 @@ class Source(object):
             self._distance = new_distance
         else:
             if not isinstance(new_distance, u.Quantity):
-                if new_distance < 50:
-                    self._distance = new_distance * 1000. * u.pc
-                else:
-                    self._distance = new_distance * u.pc
+                self._distance = new_distance * 1000. * u.pc
             else:
                 if (new_distance.unit == "pc") or (new_distance.unit == "kpc"):
                     self._distance = new_distance
