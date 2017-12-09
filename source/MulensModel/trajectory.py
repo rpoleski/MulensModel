@@ -151,7 +151,7 @@ class Trajectory(object):
         time_ref = self.parameters.t_0_par
 
         position_ref = get_body_barycentric(
-            body='earth', time=Time(time_ref,format='jd',scale='tdb')) 
+            body='earth', time=Time(time_ref, format='jd',scale='tdb')) 
         #seems that get_body_barycentric depends on time system, but there is
         #no way to set BJD_TDB in astropy.Time()
         #Likewise, get_jd12 depends on time system. 
@@ -167,8 +167,13 @@ class Trajectory(object):
         # but we don't multiply by unit here, because np.outer() (used later)
         # destroys information of argument units.
         
+        if not np.all(np.isfinite(self.times)):
+            msg = "Some times have incorrect values: {:}".format(
+                    self.times[~np.isfinite(self.times)])
+            raise ValueError(msg)
+
         position = get_body_barycentric(
-            body='earth', time=Time(self.times,format='jd', scale='tdb'))
+            body='earth', time=Time(self.times, format='jd', scale='tdb'))
         product = np.outer(self.times - time_ref, velocity) * u.au
         delta_s = position.xyz.T - product - position_ref.xyz.T
 
