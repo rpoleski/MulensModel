@@ -142,7 +142,7 @@ class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
     t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
-    lens. pi_E assumes NE coordinates (Parallel, Perpendicular
+    lens. The pi_E assumes NE coordinates (Parallel, Perpendicular
     coordinates are not supported).
 
     Arguments :

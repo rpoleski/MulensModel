@@ -22,13 +22,13 @@ class Horizons(object):
             output from JPL Horizons file name
     """
 
-    def __init__(self, file_name=None):
+    def __init__(self, file_name):
         #initialize components
         self._time = None
         self._xyz = None
 
         #Read in the Horizons file
-        self.file_properties = {"file_name":file_name}
+        self.file_properties = {"file_name": file_name}
         self._read_horizons_file()
         
     def _get_start_end(self):

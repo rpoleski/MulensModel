@@ -28,17 +28,19 @@ class Trajectory(object):
 
         parallax: *boolean dictionary*, optional
             specifies what parallax effects should be used. Default is
-            False. (differs from Modely.py which defaults to True)
+            *False* for each of *'earth_orbital'*, *'satellite'*, and 
+            *'topocentric'*. (differs from 
+            :py:class:`~MulensModel.model.Model` which defaults to *True*)
 
         coords: :py:class:`~MulensModel.coordinates.Coordinates`, optional
-            sky coordinates of the event
+            sky coordinates of the event; required for parallax calculations 
 
         satellite_skycoord: *Astropy.coordinates.SkyCord*, optional 
             sky coordinates of the satellite specified by the
             ephemrides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
     """
-    def __init__(self, times, parameters=None, parallax=None,
+    def __init__(self, times, parameters, parallax=None,
                 coords=None, satellite_skycoord=None, earth_coords=None):
         #Set times
         if isinstance(times, (list, tuple, np.ndarray)):

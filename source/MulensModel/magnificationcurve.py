@@ -111,7 +111,11 @@ class MagnificationCurve(object):
 
     @property
     def magnification(self):
-        """provide vector of magnifications"""
+        """
+        *np.ndarray*
+
+        provide vector of magnifications
+        """
         return self.get_magnification()
         # THIS HAS TO BE REWRITTEN - USE LAZY LOADING! (here or in model.py)
 

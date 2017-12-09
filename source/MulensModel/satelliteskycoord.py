@@ -6,7 +6,7 @@ from MulensModel.horizons import Horizons
 
 class SatelliteSkyCoord(object):
     """
-    An object that gives the Astropy SkyCoord of satellite for a given
+    An object that gives the *Astropy.SkyCoord* of satellite for a given
     epoch based on an ephemerides file.
     
     Keywords :
@@ -23,17 +23,15 @@ class SatelliteSkyCoord(object):
             name of the satellite
     """
 
-    def __init__(self, ephemerides_file=None, satellite=None):
+    def __init__(self, ephemerides_file, satellite=None):
         """
         ephemerides_file = file with ephemerides for the satellite (Required)
         satellite = Name of the satellite (Optional)
         """
-        if ephemerides_file is None:
-            raise ValueError('ephemerides_file must be defined')
-        else:
-            self.ephemerides_file = ephemerides_file
+        self.ephemerides_file = ephemerides_file
 
         self.satellite = satellite
+
         self._satellite_skycoord = None
         self._horizons = None
 
