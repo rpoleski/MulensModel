@@ -34,9 +34,9 @@
     * *horizons.py* 
     * *limbdarkeningcoeffs.py* 
     * mulenstime.py 
-    * [2] *magnificationcurve.py* (needs a list of allowed magnification methods) 
+    * [2] *magnificationcurve.py* - **needs a list of allowed magnification methods**
     * utils.py 
-    * [1] *modelparameters.py*
+    * [1] *modelparameters.py* - **needs more work**
 * Effects
   * Finite Source
     * [2] _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
