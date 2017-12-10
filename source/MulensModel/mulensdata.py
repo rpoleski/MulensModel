@@ -195,12 +195,18 @@ class MulensData(object):
 
     @property
     def time(self):
-        """vector of dates"""
+        """
+        *np.ndarray*
+
+        vector of dates"""
         return self._time
 
     @property
     def mag(self):
-        """magnitude vector"""
+        """
+        *np.ndarray*
+
+        magnitude vector"""
         if self._mag is None:
             (self._mag, self._err_mag) = Utils.get_mag_and_err_from_flux(
                                         flux=self.flux, err_flux=self.err_flux)
@@ -208,7 +214,10 @@ class MulensData(object):
 
     @property
     def err_mag(self):
-        """vector of magnitude errors"""
+        """
+        *np.ndarray*
+
+        vector of magnitude errors"""
         if self._err_mag is None:
             self.mag
         return self._err_mag
@@ -226,14 +235,21 @@ class MulensData(object):
 
     @property
     def n_epochs(self):
-        """give total number of epochs (including bad data)"""
+        """
+        *int*
+
+        give total number of epochs (including bad data)"""
         return self._n_epochs
 
     @property
     def satellite_skycoord(self):
         """
-        return *astropy.coordinates.SkyCoord* object for satellite
-        positions at epochs covered by the dataset.
+        *Astropy.SkyCoord* object for satellite
+        positions at epochs covered by the dataset
+
+        Returns :
+            skycoord: *astropy.coordinates.SkyCoord*
+                satellite positions at epochs covered by the dataset
         """
         if self.ephemerides_file is None:
             raise ValueError('ephemerides_file is not defined.')
