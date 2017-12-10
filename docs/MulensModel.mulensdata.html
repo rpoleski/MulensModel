@@ -116,19 +116,22 @@ is provided.</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.time">
 <code class="descname">time</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.time" title="Permalink to this definition">¶</a></dt>
-<dd><p>vector of dates</p>
+<dd><p><em>np.ndarray</em></p>
+<p>vector of dates</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.mag">
 <code class="descname">mag</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.mag" title="Permalink to this definition">¶</a></dt>
-<dd><p>magnitude vector</p>
+<dd><p><em>np.ndarray</em></p>
+<p>magnitude vector</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.err_mag">
 <code class="descname">err_mag</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.err_mag" title="Permalink to this definition">¶</a></dt>
-<dd><p>vector of magnitude errors</p>
+<dd><p><em>np.ndarray</em></p>
+<p>vector of magnitude errors</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -140,14 +143,23 @@ is provided.</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.n_epochs">
 <code class="descname">n_epochs</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.n_epochs" title="Permalink to this definition">¶</a></dt>
-<dd><p>give total number of epochs (including bad data)</p>
+<dd><p><em>int</em></p>
+<p>give total number of epochs (including bad data)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.mulensdata.MulensData.satellite_skycoord">
 <code class="descname">satellite_skycoord</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.satellite_skycoord" title="Permalink to this definition">¶</a></dt>
-<dd><p>return <em>astropy.coordinates.SkyCoord</em> object for satellite
-positions at epochs covered by the dataset.</p>
+<dd><p><em>Astropy.SkyCoord</em> object for satellite
+positions at epochs covered by the dataset</p>
+<dl class="docutils">
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>skycoord: <em>astropy.coordinates.SkyCoord</em></dt>
+<dd>satellite positions at epochs covered by the dataset</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
