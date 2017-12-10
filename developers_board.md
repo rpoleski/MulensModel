@@ -26,17 +26,11 @@
 
   * Add \_\_repr\_\_ functions to Lens and Source
   * [2] files not yet well documented: 
-    * [2] *trajectory.py*
-    * *mulensparallaxvector.py* 
-    * *satelliteskycoord.py* 
-    * [2] *caustics.py* 
     * RA & Dec in coordinates.py (maybe also code it better)
-    * *horizons.py* 
-    * *limbdarkeningcoeffs.py* 
     * mulenstime.py 
-    * [2] *magnificationcurve.py* - **needs a list of allowed magnification methods**
+    * [2] magnificationcurve.py - **needs a list of allowed magnification methods**
     * utils.py 
-    * [1] *modelparameters.py* - **needs more work**
+    * [1] modelparameters.py - **needs more work**
 * Effects
   * Finite Source
     * [2] _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
@@ -104,8 +98,7 @@
 * Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
-  * ~~[1] Should there be separate Model and ModelParameters subclasses for different types of models (e.g. PSPL, binary lens, binary source)? Need use cases. ~~ **NO**
-* [2] submit to PASP
+* [2] submit to Astronomy&Computing
 
 ### reStructuredText:
 [1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
