@@ -193,11 +193,20 @@ class Event(object):
         else:
             self.fit.fit_fluxes()
 
-        diff = dataset._brightness_input \
-                 - self.fit.get_input_format(data=dataset)
+        if dataset.input_fmt == "mag":
+            data = dataset.mag
+            err_data = dataset.err_mag
+        elif dataset.input_fmt == "flux":
+            data = dataset.flux
+            err_data = dataset.err_flux
+        else:
+            raise ValueError('Unrecognized data format: {:}'.format(
+                    dataset.input_fmt))
+
+        diff = data - self.fit.get_input_format(data=dataset)
         select = np.logical_not(dataset.bad)
-        return fsum(((diff / dataset._brightness_input_err)**2)[select])
-        
+        chi2 = (diff / err_data)**2
+        return fsum(chi2[select])
 
     def get_chi2_per_point(self, fit_blending=None):
         """Calculates chi^2 for each data point of the current model by
@@ -225,11 +234,18 @@ class Event(object):
 
         #Calculate chi^2 given the fit
         chi2_per_point = []
-        for i, dataset in enumerate(self.datasets):
-            diff = dataset._brightness_input \
-                 - self.fit.get_input_format(data=dataset)
-            chi2_per_point.append(
-                (diff / dataset._brightness_input_err)**2)
+        for (i, dataset) in enumerate(self.datasets):
+            if dataset.input_fmt == "mag":
+                data = dataset.mag
+                err_data = dataset.err_mag
+            elif dataset.input_fmt == "flux":
+                data = dataset.flux
+                err_data = dataset.err_flux
+            else:
+                raise ValueError('Unrecognized data format: {:}'.format(
+                        dataset.input_fmt))
+            diff = data - self.fit.get_input_format(data=dataset)
+            chi2_per_point.append( (diff/err_data)**2 )
 
         return chi2_per_point
 
