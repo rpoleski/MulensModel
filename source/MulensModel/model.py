@@ -672,7 +672,7 @@ class Model(object):
             #Calculate model magnitude
             f_source = fit.flux_of_sources(data)
             f_blend = fit.blending_flux(data)
-            model_flux = f_source * self.magnification(data.time) + f_blend
+            model_flux = f_source * self.get_data_magnification(data) + f_blend
             model_mag = Utils.get_mag_from_flux(model_flux)
 
             #Calculate Residuals
