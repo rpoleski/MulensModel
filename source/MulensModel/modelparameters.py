@@ -429,12 +429,11 @@ class ModelParameters(object):
         *astroph.Quantity*
 
         The angle of the source trajectory relative to the binary lens
-        axis (or primary-secondary axis). Measured CW/CCW (TBD). May
-        be set as a *float* --> assumes "deg" is the default unit. Regardless of
-        input value, returns value in degrees.
-
-        TBD - make sure CW/CCW convention is according to Skowron+11
-        appendix A
+        axis (or primary-secondary axis). Measured counterclockwise, i.e., 
+        according to convention advocated by
+        `Skowron et al. 2011 (ApJ, 738, 87) <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_. 
+        May be set as a *float* --> assumes "deg" is the default unit. 
+        Regardless of input value, returns value in degrees.
         """
         if not isinstance(self.parameters['alpha'], u.Quantity):
             self.parameters['alpha'] = self.parameters['alpha'] * u.deg

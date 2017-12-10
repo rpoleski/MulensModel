@@ -119,6 +119,8 @@ class Trajectory(object):
                                                             self.parameters.q)
             vector_x = vector_u * sin_alpha - vector_tau * cos_alpha + shift_x
             vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
+            # The above equations use alpha in counterclockwise convention, 
+            # i.e., the same as proposed by Skowron et al. (2011)
         else:
             raise NotImplementedError(
                 "trajectory for more than 2 lenses not handled yet")
