@@ -42,6 +42,7 @@ class MulensData(object):
 
         coords: *astropy.SkyCoord*, optional 
            sky coordinates of the event
+
         ra, dec: *str*, optional 
            sky coordinates of the event
           
