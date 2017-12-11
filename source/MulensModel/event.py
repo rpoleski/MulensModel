@@ -181,7 +181,7 @@ class Event(object):
         self.chi2 = fsum(chi2)
         if self.best_chi2 is None or self.best_chi2 > self.chi2:
             self.best_chi2 = self.chi2
-            self.best_chi2_parameters = {**self.model.parameters.parameters}
+            self.best_chi2_parameters = dict(self.model.parameters.parameters)
         return self.chi2
 
     def get_chi2_for_dataset(self, index_dataset, fit_blending=None):

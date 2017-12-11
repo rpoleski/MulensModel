@@ -247,7 +247,7 @@ class ModelParameters(object):
 
     def _set_parameters(self, parameters):
         self._check_valid_parameter_values(parameters)
-        self.parameters = {**parameters}
+        self.parameters = dict(parameters)
 
     @property
     def t_0(self):
