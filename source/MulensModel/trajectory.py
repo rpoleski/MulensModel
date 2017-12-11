@@ -40,6 +40,10 @@ class Trajectory(object):
             ephemrides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
     """
+
+    _get_delta_annual_results = dict()
+    _get_delta_satellite_results = dict()
+
     def __init__(self, times, parameters, parallax=None,
                 coords=None, satellite_skycoord=None, earth_coords=None):
         #Set times
@@ -150,6 +154,9 @@ class Trajectory(object):
         """
         calculates projected Earth positions required by annual parallax
         """
+        index = (self.parameters.t_0_par, hash(self.coords), tuple(self.times.tolist()))
+        if index in self._get_delta_annual_results:
+            return self._get_delta_annual_results[index]
         time_ref = self.parameters.t_0_par
 
         position_ref = get_body_barycentric(
@@ -186,8 +193,10 @@ class Trajectory(object):
         north_projected = vector_product_normalized(direction, east_projected)
         out_n = -np.dot(delta_s.value, north_projected)
         out_e = -np.dot(delta_s.value, east_projected)
-        
-        return {'N': out_n, 'E': out_e}
+
+        out = {'N': out_n, 'E': out_e}
+        self._get_delta_annual_results[index] = out
+        return out
 
     def _satellite_parallax_trajectory(self):
         """calcualate satellite parallax component of trajectory"""
@@ -201,7 +210,10 @@ class Trajectory(object):
         calculates differences of Earth and satellite positions
         projected on the plane of the sky at event position
         """
-        
+        index = (hash(self.coords), hash(self.satellite_skycoord))
+        if index in self._get_delta_satellite_results.keys():
+            return self._get_delta_satellite_results[index]
+
         #Set the N,E coordinate frame based on the direction of the event
         direction = np.array(self.coords.cartesian.xyz.value)
         north = np.array([0., 0., 1.])
@@ -220,5 +232,6 @@ class Trajectory(object):
         delta_satellite['E'] = -dot(satellite.cartesian, east_projected).value
         delta_satellite['D'] = -dot(satellite.cartesian, direction).value
 
+        self._get_delta_satellite_results[index] = delta_satellite
         return delta_satellite
 
