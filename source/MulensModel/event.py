@@ -8,7 +8,8 @@ from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
-            
+
+
 class Event(object):
     """
     Allows a model to be fit to datasets.

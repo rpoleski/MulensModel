@@ -126,6 +126,9 @@ class MagnificationCurve(object):
             magnification: *np.ndarray*
                 Vector of magnifications. 
         """
+        if self.parameters.rho is not None:
+            self._check_for_finite_source_method()
+
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -136,6 +139,17 @@ class MagnificationCurve(object):
         self._magnification = magnification
         return self._magnification
 
+    def _check_for_finite_source_method(self):
+        """check if there is method defined that uses finite source 
+        calculations and warn if not"""
+        if self._methods_epochs is None:
+            warnings.warn('No finite-source method is set')
+            return
+        methods = self._methods_names + [self._default_magnification_method]
+        if set(methods) == set(['point_source']):
+            warnings.warn('no finite-source method is set')
+            return
+
     def get_point_lens_magnification(self):
         """Calculate the Point Lens magnification. 
         
@@ -143,12 +157,6 @@ class MagnificationCurve(object):
             magnification: *np.ndarray*
                 Vector of magnifications.
         """
-
-        if self.parameters.rho is not None:
-            if self._methods_epochs is None:
-                warnings.warn('rho set but no finite-source method is set')
-            elif set(self._methods_for_epochs()) == set(['point_source']):
-                warnings.warn('Rho set but no finite-source method is set')
 
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
         # This is Paczynski equation, i.e., point-source/point-lens (PSPL) 
@@ -289,12 +297,6 @@ class MagnificationCurve(object):
                                     separation=self.parameters.s)
         methods = self._methods_for_epochs()
         
-        if self.parameters.rho is not None:
-            if self._methods_epochs is None:
-                warnings.warn('rho set but no finite-source method is set')
-            elif set(methods) != set(['point_source']):
-                warnings.warn('rho set but no finite-source method is set')
-       
         #Calculate the magnification
         magnification = []        
         for index in range(len(self.times)):
