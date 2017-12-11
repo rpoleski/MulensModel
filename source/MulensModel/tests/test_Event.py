@@ -1,6 +1,7 @@
 import sys, os
 import unittest
 import numpy as np
+from astropy import units as u
 
 import MulensModel
 from MulensModel.mulensdata import MulensData
@@ -22,7 +23,7 @@ def test_event_get_chi2_1():
     data = MulensData(file_name=SAMPLE_FILE_01)
     
     ev = Event()
-    mod = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
+    mod = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     mod.set_datasets([data])
     ev.model = mod
     ev.datasets = [data]
@@ -94,7 +95,7 @@ def test_event_get_chi2_double_source_simple():
     message = 'problem in resulting chi2 for 2 exactly the same datasets'
     np.testing.assert_almost_equal(chi2, 857.17310, decimal=4, err_msg=message)
 
-def test_event_get_chi2():
+def test_event_get_chi2_3():
     """Test: If I change the model parameters, the chi2 should change."""
     #Generate a model
     t_0 = 5380.
@@ -120,6 +121,32 @@ def test_event_get_chi2():
     event.model.parameters.t_0 = 5000.
 
     assert event.get_chi2() != orig_chi2
+
+def test_event_get_chi2_4():
+    """test if best chi2 is remembered correctly"""
+    t_0 = 5379.57091
+    u_0 = 0.52298
+    t_E = 17.94002
+    
+    data = MulensData(file_name=SAMPLE_FILE_01)
+    
+    ev = Event()
+    params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E*u.day}
+    mod = Model(params)
+    mod.set_datasets([data])
+    ev.model = mod
+    ev.datasets = [data]
+
+    chi2_1 = ev.get_chi2() # This is the best model.
+    
+    ev.model.parameters.parameters['t_0'] += 1.
+    ev.model.parameters.parameters['u_0'] += 0.1
+    ev.model.parameters.parameters['t_E'] += 1. * u.day
+    chi2_2 = ev.get_chi2()
+
+    assert chi2_2 > chi2_1
+    assert ev.best_chi2 == chi2_1
+    assert ev.best_chi2_parameters == params
 
 class TestEvent(unittest.TestCase):
     def test_event_init_1(self):

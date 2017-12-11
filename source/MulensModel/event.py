@@ -26,6 +26,13 @@ class Event(object):
         :py:obj:`coords` (optional): the coordinates of the event
             (RA, Dec)
 
+    Attributes :
+        best_chi2: *float*
+            Smallest value returned by :py:func:`get_chi2()`.
+
+        best_chi2_parameters: *dict*
+            Parameters that gave smallest chi2. 
+
     """
     def __init__(self, datasets=None, model=None, coords=None):
         #Initialise self._model (and check that model is defined).
@@ -47,6 +54,8 @@ class Event(object):
             self._update_coords(coords=coords)
         else:
             self._coords = None
+
+        self.reset_best_chi2()
 
     @property
     def datasets(self):
@@ -138,6 +147,12 @@ class Event(object):
         except Exception:
             pass
 
+    def reset_best_chi2(self):
+        """Reset *best_chi2* attribute and its parameters 
+        (*best_chi2_parameters*)"""
+        self.best_chi2 = None
+        self.best_chi2_parameters = {}
+        
     def get_chi2(self, fit_blending=None):
         """
         Calculates chi^2 of current model by fitting for source and 
@@ -164,6 +179,9 @@ class Event(object):
             chi2.append(fsum(chi2_per_point[i][select]))
 
         self.chi2 = fsum(chi2)
+        if self.best_chi2 is None or self.best_chi2 > self.chi2:
+            self.best_chi2 = self.chi2
+            self.best_chi2_parameters = {**self.model.parameters.parameters}
         return self.chi2
 
     def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
