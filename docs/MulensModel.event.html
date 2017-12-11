@@ -68,6 +68,16 @@ list of MulensData objects</dd>
 <dd>(RA, Dec)</dd>
 </dl>
 </div></blockquote>
+<dl class="docutils">
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>best_chi2: <em>float</em></dt>
+<dd>Smallest value returned by <a class="reference internal" href="#MulensModel.event.Event.get_chi2" title="MulensModel.event.Event.get_chi2"><code class="xref py py-func docutils literal"><span class="pre">get_chi2()</span></code></a>.</dd>
+<dt>best_chi2_parameters: <em>dict</em></dt>
+<dd>Parameters that gave smallest chi2.</dd>
+</dl>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="MulensModel.event.Event.datasets">
 <code class="descname">datasets</code><a class="headerlink" href="#MulensModel.event.Event.datasets" title="Permalink to this definition">¶</a></dt>
@@ -94,6 +104,13 @@ index (<em>int</em>). Default is the first data set.</p>
 <dt id="MulensModel.event.Event.coords">
 <code class="descname">coords</code><a class="headerlink" href="#MulensModel.event.Event.coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>see <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">Coordinates</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.reset_best_chi2">
+<code class="descname">reset_best_chi2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.reset_best_chi2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset <em>best_chi2</em> attribute and its parameters 
+(<em>best_chi2_parameters</em>)</p>
 </dd></dl>
 
 <dl class="method">

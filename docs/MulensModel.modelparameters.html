@@ -156,11 +156,11 @@ as a <em>float</em> &#8211;&gt; assumes units of degrees.</p>
 <code class="descname">alpha</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astroph.Quantity</em></p>
 <p>The angle of the source trajectory relative to the binary lens
-axis (or primary-secondary axis). Measured CW/CCW (TBD). May
-be set as a <em>float</em> &#8211;&gt; assumes &#8220;deg&#8221; is the default unit. Regardless of
-input value, returns value in degrees.</p>
-<p>TBD - make sure CW/CCW convention is according to Skowron+11
-appendix A</p>
+axis (or primary-secondary axis). Measured counterclockwise, i.e., 
+according to convention advocated by
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2011ApJ...738...87S">Skowron et al. 2011 (ApJ, 738, 87)</a>. 
+May be set as a <em>float</em> &#8211;&gt; assumes &#8220;deg&#8221; is the default unit. 
+Regardless of input value, returns value in degrees.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -226,7 +226,8 @@ explicitly, set t_0_par = t_0.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.add">
 <code class="descname">add</code><span class="sig-paren">(</span><em>dict</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.add" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em></p>
-<p>Use dictionary.update() to update/add parameters to the ModelParameters set.</p>
+<p>Use dictionary.update() to update/add parameters 
+to the ModelParameters set.</p>
 </dd></dl>
 
 </dd></dl>
