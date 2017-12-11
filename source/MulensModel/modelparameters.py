@@ -149,7 +149,7 @@ class ModelParameters(object):
         parameters: *dictionary*
 
             A dictionary of parameters and their values. See
-            :func:`which_parameters()` for valid parameter combinations.
+            :py:func:`which_parameters()` for valid parameter combinations.
 
     Example: 
         Define a point lens model:
@@ -162,8 +162,8 @@ class ModelParameters(object):
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
             raise TypeError('ModelParameters must be initialized with dict ' +
-                'as a parameter\ne.g., ' +
-                "ModelParameters({'t_0': 2456789.0, 'u_0': 0.123, 't_E': 23.45})")
+                "as a parameter\ne.g., ModelParameters({'t_0': " +
+                "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
         self._check_valid_combination(parameters.keys())
         self._set_parameters(parameters)
@@ -227,12 +227,13 @@ class ModelParameters(object):
 
         # Parallax is either pi_E or (pi_E_N, pi_E_E)
         if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
-            raise ValueError(
-                'Parallax may be defined EITHER by pi_E OR by (pi_E_N and pi_E_E).')
+            raise ValueError('Parallax may be defined EITHER by pi_E OR by ' + 
+                            '(pi_E_N and pi_E_E).')
 
     def _check_valid_parameter_values(self, parameters):
         """
-        Prevent user from setting negative (unphysical) values for t_E, t_star, rho.
+        Prevent user from setting negative (unphysical) values for 
+        t_E, t_star, rho.
         """
         names = ['t_E', 't_star', 'rho']
         full_names = {'t_E': 'Einstein timescale', 
@@ -305,7 +306,8 @@ class ModelParameters(object):
             return self.parameters['t_star'].to(u.day).value 
         else:
             try:
-                return self.parameters['t_E'].to(u.day).value * self.parameters['rho']
+                return (self.parameters['t_E'].to(u.day).value 
+                        * self.parameters['rho'])
             except KeyError:
                 raise AttributeError(
                     't_star is not defined for these parameters: {0}'.format(
@@ -319,8 +321,8 @@ class ModelParameters(object):
             raise KeyError('t_star is not a parameter of this model.')
 
         if new_t_star < 0.:
-            raise ValueError('Source crossing time cannot be negative:', new_t_star)
-
+            raise ValueError('Source crossing time cannot be negative:', 
+                            new_t_star)
 
     @property
     def t_eff(self):
@@ -341,7 +343,8 @@ class ModelParameters(object):
             return self.parameters['t_eff'].to(u.day).value 
         else:
             try:
-                return self.parameters['t_E'].to(u.day).value  * self.parameters['u_0']
+                return (self.parameters['t_E'].to(u.day).value
+                        * self.parameters['u_0'])
             except KeyError:
                 raise AttributeError(
                     't_eff is not defined for these parameters: {0}'.format(
@@ -366,9 +369,11 @@ class ModelParameters(object):
         if 't_E' in self.parameters.keys():
             self._check_time_quantity('t_E')
             return self.parameters['t_E'].to(u.day).value 
-        elif 't_star' in self.parameters.keys() and 'rho' in self.parameters.keys():
+        elif ('t_star' in self.parameters.keys() 
+                and 'rho' in self.parameters.keys()):
             return self.t_star/self.rho
-        elif 't_eff' in self.parameters.keys() and 'u_0' in self.parameters.keys():
+        elif ('t_eff' in self.parameters.keys() 
+                and 'u_0' in self.parameters.keys()):
             return self.t_eff/self.u_0
         else:
             raise KeyError("You're trying to access t_E that was not set")
@@ -409,7 +414,8 @@ class ModelParameters(object):
         """
         if 'rho' in self.parameters.keys():
             return self.parameters['rho']
-        elif 't_star' in self.parameters.keys() and 't_E' in self.parameters.keys():
+        elif ('t_star' in self.parameters.keys() 
+                and 't_E' in self.parameters.keys()):
             return self.t_star/self.t_E
         else:
             return None
@@ -488,7 +494,8 @@ class ModelParameters(object):
         """
         if 'pi_E' in self.parameters.keys():
             return self.parameters['pi_E']
-        elif 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
+        elif ('pi_E_N' in self.parameters.keys() 
+                and 'pi_E_E' in self.parameters.keys()):
             return [self.parameters['pi_E_N'], self.parameters['pi_E_E']]
         else:
             #raise KeyError('pi_E not defined for this model')
@@ -505,7 +512,8 @@ class ModelParameters(object):
             else:
                 raise TypeError('pi_E is a 2D vector. It must have length 2.')
 
-        elif 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
+        elif ('pi_E_N' in self.parameters.keys() 
+                and 'pi_E_E' in self.parameters.keys()):
             self.parameters['pi_E_N'] = new_pi_E[0]
             self.parameters['pi_E_E'] = new_pi_E[1]
         else:
@@ -585,7 +593,8 @@ class ModelParameters(object):
         if 'pi_E' in self.parameters.keys():
             pi_E_N = self.parameters['pi_E'][0]
             pi_E_E = self.parameters['pi_E'][1]
-        elif 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
+        elif ('pi_E_N' in self.parameters.keys() 
+                and 'pi_E_E' in self.parameters.keys()):
             pi_E_N = self.parameters['pi_E_N']
             pi_E_E = self.parameters['pi_E_E']
         else:
@@ -610,9 +619,11 @@ class ModelParameters(object):
         """
         *dict*
 
-        Use dictionary.update() to update/add parameters to the ModelParameters set.
+        Use dictionary.update() to update/add parameters 
+        to the ModelParameters set.
         """
         self.parameters.update(dict)
+
 
 if __name__ == '__main__':
     line = "===================================================================================="
@@ -634,3 +645,4 @@ if __name__ == '__main__':
     which_parameters('PSBL')
     print(line)
     which_parameters('FSBL')
+

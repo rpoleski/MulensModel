@@ -107,7 +107,7 @@ class Fit(object):
         """Blending flux for given dataset.
         
         Parameters :
-            dataset: :class:`~MulensModel.mulensdata.MulensData`
+            dataset: :py:class:`~MulensModel.mulensdata.MulensData`
                 A dataset for which blending flux will be given.
 
         Returns :
@@ -121,7 +121,7 @@ class Fit(object):
         """Fluxes of source(s).
 
         Parameters :
-            dataset: :class:`~MulensModel.mulensdata.MulensData`
+            dataset: :py:class:`~MulensModel.mulensdata.MulensData`
                 A dataset for which source fluxes will be given.
 
         Returns :
@@ -139,7 +139,7 @@ class Fit(object):
         data.
 
         Parameters :
-            data: :class:`~MulensModel.mulensdata.MulensData`
+            data: :py:class:`~MulensModel.mulensdata.MulensData`
                 A dataset for which model will be returned.
 
         Returns :

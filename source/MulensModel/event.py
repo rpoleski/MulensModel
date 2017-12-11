@@ -124,7 +124,7 @@ class Event(object):
     @property
     def coords(self):
         """
-        see :class:`~MulensModel.coordinates.Coordinates`
+        see :py:class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
     
