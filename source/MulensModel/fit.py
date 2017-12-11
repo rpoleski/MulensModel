@@ -48,7 +48,7 @@ class Fit(object):
         Fit source(s) and blending fluxes. Performs a least squares linear fit
         (*np.linalg.lstsq()*) to the data for the flux parameters. 
         I.e., given the data :math:`y` and magnifcation :math:`A`, solves for 
-        :math:`f_source` and :math:`f_blend`:
+        :math:`f_{source}` and :math:`f_b_l_e_n_d`:
 
         .. math::
 
