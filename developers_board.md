@@ -1,3 +1,9 @@
+## Dec goals:
+1. manual for annaul parallax fitting
+2. Martin's FSBL code
+3. faster parallax calculations
+4. prepare paper
+
 ## Nov goals:
 1. instantaneous orbital motion of binary lens,
 2. Jacobian for PSPL
