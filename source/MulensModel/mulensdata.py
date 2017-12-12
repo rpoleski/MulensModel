@@ -289,7 +289,7 @@ class MulensData(object):
         Parameters :
             weights: *dict*
                 A dictionary that specifies weight for each bandpass. Keys are 
-                *str* and values are *float*, e.g., {'I': 1.5, 'V': 1.} if 
+                *str* and values are *float*, e.g., ``{'I': 1.5, 'V': 1.}`` if 
                 the I-band gamma limb-darkening coefficient is 1.5-times 
                 larger than the V-band"""
          
