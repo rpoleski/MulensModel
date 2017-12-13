@@ -210,6 +210,11 @@ class ModelParameters(object):
             variables += '{0:>10} '.format('t_star (d)')
             values += '{0:>10.6f} '.format(self.t_star)
 
+        if ('pi_E' in self.parameters.keys() or 
+                'pi_E_N' in self.parameters.keys()):
+            variables += '{0:>9} {1:>9} '.format('pi_E_N', 'pi_E_E')
+            values += '{0:>9.5f} {1:>9.5f} '.format(self.pi_E_N, self.pi_E_E)
+
         if ('s' in self.parameters.keys() 
                 or 'q' in self.parameters.keys()
                 or 'alpha' in self.parameters.keys()):
