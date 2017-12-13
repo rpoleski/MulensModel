@@ -8,7 +8,8 @@ from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
-            
+
+
 class Event(object):
     """
     Allows a model to be fit to datasets.
@@ -24,6 +25,13 @@ class Event(object):
 
         :py:obj:`coords` (optional): the coordinates of the event
             (RA, Dec)
+
+    Attributes :
+        best_chi2: *float*
+            Smallest value returned by :py:func:`get_chi2()`.
+
+        best_chi2_parameters: *dict*
+            Parameters that gave smallest chi2. 
 
     """
     def __init__(self, datasets=None, model=None, coords=None):
@@ -46,6 +54,8 @@ class Event(object):
             self._update_coords(coords=coords)
         else:
             self._coords = None
+
+        self.reset_best_chi2()
 
     @property
     def datasets(self):
@@ -114,7 +124,7 @@ class Event(object):
     @property
     def coords(self):
         """
-        see :class:`~MulensModel.coordinates.Coordinates`
+        see :py:class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
     
@@ -137,6 +147,12 @@ class Event(object):
         except Exception:
             pass
 
+    def reset_best_chi2(self):
+        """Reset *best_chi2* attribute and its parameters 
+        (*best_chi2_parameters*)"""
+        self.best_chi2 = None
+        self.best_chi2_parameters = {}
+        
     def get_chi2(self, fit_blending=None):
         """
         Calculates chi^2 of current model by fitting for source and 
@@ -163,7 +179,53 @@ class Event(object):
             chi2.append(fsum(chi2_per_point[i][select]))
 
         self.chi2 = fsum(chi2)
+        if self.best_chi2 is None or self.best_chi2 > self.chi2:
+            self.best_chi2 = self.chi2
+            self.best_chi2_parameters = dict(self.model.parameters.parameters)
         return self.chi2
+
+    def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
+        """Calculates chi^2 for a single dataset
+        
+        Parameters :
+            index_dataset: *int*
+                index that specifies for which dataset the chi^2 is requested
+                
+            fit_blending: *boolean*, optional
+                Are we fitting for blending flux? If not then blending flux is 
+                fixed to 0.  Default is the same as
+                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+
+        Returns :
+            chi2: *np.ndarray*  
+                Chi^2 contribution from each data point,
+                e.g. chi2[obs_num][k] returns the chi2 contribution
+                from the *k*-th point of observatory *obs_num*.
+        
+        """
+        dataset = self.datasets[index_dataset]
+        magnification = self.model.get_data_magnification(dataset)
+        self.fit = Fit(data=dataset, magnification=[magnification]) 
+        
+        if fit_blending is not None:
+            self.fit.fit_fluxes(fit_blending=fit_blending)
+        else:
+            self.fit.fit_fluxes()
+
+        if dataset.input_fmt == "mag":
+            data = dataset.mag
+            err_data = dataset.err_mag
+        elif dataset.input_fmt == "flux":
+            data = dataset.flux
+            err_data = dataset.err_flux
+        else:
+            raise ValueError('Unrecognized data format: {:}'.format(
+                    dataset.input_fmt))
+
+        diff = data - self.fit.get_input_format(data=dataset)
+        select = np.logical_not(dataset.bad)
+        chi2 = (diff / err_data)**2
+        return fsum(chi2[select])
 
     def get_chi2_per_point(self, fit_blending=None):
         """Calculates chi^2 for each data point of the current model by
@@ -191,15 +253,20 @@ class Event(object):
 
         #Calculate chi^2 given the fit
         chi2_per_point = []
-        for i, dataset in enumerate(self.datasets):
-            diff = dataset._brightness_input \
-                 - self.fit.get_input_format(data=dataset)
-            chi2_per_point.append(
-                (diff / dataset._brightness_input_err)**2)
+        for (i, dataset) in enumerate(self.datasets):
+            if dataset.input_fmt == "mag":
+                data = dataset.mag
+                err_data = dataset.err_mag
+            elif dataset.input_fmt == "flux":
+                data = dataset.flux
+                err_data = dataset.err_flux
+            else:
+                raise ValueError('Unrecognized data format: {:}'.format(
+                        dataset.input_fmt))
+            diff = data - self.fit.get_input_format(data=dataset)
+            chi2_per_point.append( (diff/err_data)**2 )
 
-        chi2_per_point = np.array(chi2_per_point)
         return chi2_per_point
-
 
     def get_ref_fluxes(self, data_ref=None):
         """

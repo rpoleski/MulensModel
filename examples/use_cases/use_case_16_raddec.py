@@ -1,27 +1,32 @@
+"""
+Use cases for passing RA, DEC to MulensDAta, Model, and Event.
+
+Based on OGLE-2014-BLG-0939 from Yee et al. 2015 ApJ 802, 76
+(satellite parallax measurement)
+"""
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 import matplotlib.pyplot as pl
 import os
 
 import MulensModel 
-"""
-Use cases for passing RA, DEC to MulensDAta, Model, and Event.
 
-Based on OGLE-2014-BLG-0939 from Yee et al. 2015 ApJ 802, 76
-"""
 
 data_dir = os.path.join(MulensModel.MODULE_PATH, 'data')
+ra = '17:47:12.25'
+dec = '-21:22:58.2'
+ra_dec = ra + " " + dec
 
 #Specifying coordinates to calculate HJD from JD
 data_1 = MulensModel.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), 
-    coords='17:47:12.25 -21:22:58.2')
+    coords=ra_dec)
 
 data_2 = MulensModel.MulensData(
-    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), ra='17:47:12.25', 
-    dec='-21:22:58.2')
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), 
+    ra=ra, dec=dec)
 
-coords = SkyCoord('17:47:12.25 -21:22:58.2', unit=(u.hourangle, u.deg))
+coords = SkyCoord(ra_dec, unit=(u.hourangle, u.deg))
 data_3 = MulensModel.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), coords=coords)
 
@@ -37,7 +42,7 @@ ground_model = MulensModel.Model(
 ground_model.coords = '17:47:12.25 -21:22:58.2'
 space_model = MulensModel.Model(
         {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
-        ra='17:47:12.25', dec='-21:22:58.2', 
+        ra=ra, dec=dec, 
         ephemerides_file=os.path.join(data_dir, 'Spitzer_ephemeris_01.dat'))
 
 #Access Galactic and ecliptic coordinates:
@@ -63,8 +68,7 @@ model_params = MulensModel.ModelParameters(
         {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E_N': pi_E_N, 
          'pi_E_E': pi_E_E})
 event = MulensModel.Event(datasets=[ground_data, space_data], 
-                          model=MulensModel.Model(parameters=model_params), 
-                          coords='17:47:12.25 -21:22:58.2')
+            model=MulensModel.Model(parameters=model_params), coords=ra_dec)
 
 pl.figure()
 

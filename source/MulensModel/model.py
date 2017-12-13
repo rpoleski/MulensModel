@@ -21,8 +21,7 @@ class Model(object):
     A Model for a microlensing event with the specified parameters.
 
     Arguments :
-        parameters: *dictionary*, 
-        :py:class:`~MulensModel.modelparameters.ModelParameters`
+        parameters: *dictionary*, :py:class:`~MulensModel.modelparameters.ModelParameters`
             see :py:class:`MulensModel.modelparameters.ModelParameters`
 
         :py:obj:`coords`: [*list*, *str*, *astropy.SkyCoords*], optional
@@ -32,7 +31,7 @@ class Model(object):
             Sky Coordinates of the event.
          
 
-    Default values for parallax are all True. Use :func:`parallax()`
+    Default values for parallax are all True. Use :py:func:`parallax()`
     to turn different parallax effects ON/OFF. If using satellite
     parallax, you may also specify an `ephemerides_file` (see
     :py:class:`~MulensModel.mulensdata.MulensData`).
@@ -50,8 +49,8 @@ class Model(object):
         ephemerides_file=None):
         """
         Two ways to define the model:
-        1. parameters = a :class:`~MulensModel.modelparameters.ModelParameters` object
-        2. specify a dictionary with t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par). See :class:`~MulensModel.modelparameters.ModelParameters`
+        1. parameters = a :py:class:`~MulensModel.modelparameters.ModelParameters` object
+        2. specify a dictionary with t_0, u_0, t_E (optionally: rho, s, q, alpha, pi_E, t_0_par). See :py:class:`~MulensModel.modelparameters.ModelParameters`
 
         When defining event coordinates, may specify coords as an
         astropy.coordinates.SkyCoord object, otherwise assumes RA is
@@ -90,7 +89,9 @@ class Model(object):
                           'topocentric': True}
         self._default_magnification_method = 'point_source'
         self._methods = None
+        self._methods_parameters = {}
         self.caustics = None
+        self.data_ref = None
 
         #Set dictionary to store plotting properties
         self.reset_plot_properties()
@@ -164,6 +165,8 @@ class Model(object):
             gamma=gamma)
         magnification_curve.set_magnification_methods(self._methods, 
                                         self._default_magnification_method)
+        magnification_curve.set_magnification_methods_parameters(
+                                        self._methods_parameters)
 
         return magnification_curve.magnification
 
@@ -185,7 +188,7 @@ class Model(object):
         Get the model magnification for a dataset.
 
         Parameters :
-            dataset: :class:`~MulensModel.mulensdata.MulensData`
+            dataset: :py:class:`~MulensModel.mulensdata.MulensData`
                 Dataset with epochs for which magnification will be given.
                 Satellite and limb darkening information is taken into 
                 account.
@@ -234,7 +237,7 @@ class Model(object):
     @property
     def coords(self):
         """
-        see :class:`~MulensModel.coordinates.Coordinates`
+        see :py:class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
 
@@ -261,7 +264,7 @@ class Model(object):
                 of observatories on the Earth? Default is *False*. 
                 Note that this is significant only for very high magnification 
                 events and if high quality datasets are analyzed. 
-                Hence, this effect is rarely needed.
+                Hence, this effect is rarely needed. **Not Implemented yet.**
 
         """
         if earth_orbital is None and satellite is None and topocentric is None:
@@ -282,7 +285,7 @@ class Model(object):
         Plot the model magnification curve.
 
         Keywords :
-            see :func:`plot_lc()`
+            see :py:func:`plot_lc()`
 
         ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
@@ -312,17 +315,17 @@ class Model(object):
             times: [*float*, *list*, *numpy.ndarray*]
                 a list of times at which to plot the magnifications
 
-            t_range, t_start, t_stop, dt, n_epochs: see :func:`set_times`
+            t_range, t_start, t_stop, dt, n_epochs: see :py:func:`set_times`
 
             subtract_2450000, subtract_2460000: *boolean*, optional
                 If True, subtracts 2450000 or 2460000 from the time
                 axis to get more human-scale numbers. If using, make
                 sure to also set the same settings for all other
-                plotting calls (e.g. :func:`plot_data()`)
+                plotting calls (e.g. :py:func:`plot_data()`)
 
-            data_ref: *int* or a :class:`~MulensModel.mulensdata.MulensData` object
+            data_ref: *int* or a :py:class:`~MulensModel.mulensdata.MulensData` object
                 Reference dataset to scale the model to. See
-                :func:`get_ref_fluxes()`
+                :py:func:`get_ref_fluxes()`
 
             f_source, f_blend: *float*
                 Explicitly specify the source and blend fluxes in a system
@@ -331,10 +334,9 @@ class Model(object):
 
             ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
-        Either `data_ref` or (`f_source`, `f_blend`) must be set, but there
-        is no explicit check for this. Default behavior is probably to
-        throw an exception that no data have been specified (see
-        :func:`get_ref_fluxes()`).
+        Provide `data_ref` or (`f_source`, `f_blend`) if you want to 
+        plot in flux units different than last value of `data_ref` 
+        (defaults to the first dataset). 
 
         """
         if times is None:
@@ -347,7 +349,9 @@ class Model(object):
             self.data_ref = data_ref
 
         if (f_source is None) and (f_blend is None):
-            (f_source, f_blend) = self.get_ref_fluxes(data_ref=data_ref)
+            if self.data_ref is None:
+                raise ValueError('No reference dataset of fluxes provided')
+            (f_source, f_blend) = self.get_ref_fluxes(data_ref=self.data_ref)
         elif (f_source is None) or (f_blend is None):
             raise AttributeError(
                 'If f_source is set, f_blend must also be set and vice versa.')
@@ -374,7 +378,7 @@ class Model(object):
         best-fit values compared to data_ref.
 
         Parameters:
-            data_ref: *:py:class:`~MulensModel.mulensdata.MulensData`* or *int*
+            data_ref: :py:class:`~MulensModel.mulensdata.MulensData` or *int*
                 Reference dataset. If *int*, corresponds to the index of 
                 the dataset in self.datasets. If None, than the first dataset 
                 will be used.
@@ -387,9 +391,9 @@ class Model(object):
 
         Determine the reference flux system from the
         datasets. The *data_ref* may either be a dataset or the index of a
-        dataset (if :func:`Model.set_datasets()` was previously called). If
+        dataset (if :py:func:`Model.set_datasets()` was previously called). If
         *data_ref* is not set, it will use the first dataset. If you
-        call this without calling :func:`set_datasets()` first, there will be
+        call this without calling :py:func:`set_datasets()` first, there will be
         an exception and that's on you.
         """
         if data_ref is None:
@@ -510,7 +514,7 @@ class Model(object):
         Plot the data scaled to the model. 
 
         Keywords (all optional):
-            data_ref: see :func:`get_ref_fluxes()`
+            data_ref: see :py:func:`get_ref_fluxes()`
                 If data_ref is not specified, uses the first dataset
                 as the reference for flux scale.
 
@@ -539,7 +543,7 @@ class Model(object):
                 If True, subtracts 2450000 or 2460000 from the time
                 axis to get more human-scale numbers. If using, make
                 sure to also set the same settings for all other
-                plotting calls (e.g. :func:`plot_lc()`).
+                plotting calls (e.g. :py:func:`plot_lc()`).
 
             ``**kwargs``: passed to matplotlib plotting functions.
 
@@ -635,7 +639,7 @@ class Model(object):
         (not scaled to a particular photometric system).
 
         For explanation of keywords, see doctrings in 
-        :func:`plot_data()`. 
+        :py:func:`plot_data()`. 
 
         """
         if data_ref is not None:
@@ -668,7 +672,7 @@ class Model(object):
             #Calculate model magnitude
             f_source = fit.flux_of_sources(data)
             f_blend = fit.blending_flux(data)
-            model_flux = f_source * self.magnification(data.time) + f_blend
+            model_flux = f_source * self.get_data_magnification(data) + f_blend
             model_mag = Utils.get_mag_from_flux(model_flux)
 
             #Calculate Residuals
@@ -710,12 +714,13 @@ class Model(object):
 
           times, t_range, t_start, t_stop, dt, n_epochs: 
               May all be used to specify exactly when to plot the
-              source trajectory. See also :func:`plot_lc()`, :func:`set_times()`
+              source trajectory. See also :py:func:`plot_lc()` and 
+              :py:func:`set_times()`.
 
           caustics: *boolean*
               plot the caustic structure in addition to the source
               trajectory. default=False (off). For finer control of
-              plotting features, e.g. color, use :func:`plot_caustics()`
+              plotting features, e.g. color, use :py:func:`plot_caustics()`
               instead.
 
           show_data: *boolean*
@@ -764,7 +769,7 @@ class Model(object):
     def plot_caustics(self, n_points=5000, **kwargs):
         """
         Plot the caustic structure. 
-        See :func:`MulensModel.caustics.Caustics.plot()`
+        See :py:func:`MulensModel.caustics.Caustics.plot()`
 
         """
         if self.caustics is None:
@@ -814,7 +819,7 @@ class Model(object):
         """
         Stores information on method to be used, when no method is
         directly specified. See
-        :class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
         for a list of implemented methods.
         
         Parameters:
@@ -827,7 +832,7 @@ class Model(object):
     def set_magnification_methods(self, methods):
         """
         Sets methods used for magnification calculation. See
-        :class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
         for a list of implemented methods.
        
         Parameters :
@@ -843,11 +848,36 @@ class Model(object):
         """
         self._methods = methods
 
+    def set_magnification_methods_parameters(self, methods_parameters):
+        """
+        Set additional parameters for magnification calculation methods.
+        
+        Parameters :
+            methods_parameters: *dict*
+                Dictionary that for method names (keys) returns dictionary
+                in the form of ``**kwargs`` that are passed to given method,
+                e.g., *{'VBBL': {'accuracy': 0.005}}*.
+        
+        """
+        parameters = {key.lower(): value for (key, value) in 
+                methods_parameters.items()}
+        methods_point_lens = ['point_source', 
+                'finite_source_uniform_Gould94'.lower(),
+                'finite_source_LD_Gould94'.lower()]
+        methods_binary_lens = ['point_source', 'quadrupole', 'hexadecapole', 
+                'vbbl']
+        methods = (set(parameters.keys()) - set(methods_point_lens) 
+                - set(methods_binary_lens))
+        if len(methods):
+            raise KeyError('Unknown methods provided: {:}'.format(methods))
+            
+        self._methods_parameters = parameters
+
     def set_limb_coeff_gamma(self, bandpass, coeff):
         """
         Store gamma limb darkening coefficient for given band. See
         also
-        :class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+        :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
                 
         Parameters :
             bandpass: *str*
@@ -864,7 +894,7 @@ class Model(object):
     def set_limb_coeff_u(self, bandpass, coeff):
         """
         Store u limb darkening coefficient for given band.  See also
-        :class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+        :py:class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
 
         Parameters :
             bandpass: *str*

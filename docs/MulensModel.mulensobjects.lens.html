@@ -10,6 +10,7 @@
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -22,9 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -71,9 +71,7 @@
 <p>Note that s, q, and epsilon may be single values, lists, or numpy ndarrays.</p>
 <p>If units are not specified for a given mass, it is assumed the value
 given is in Solar Masses.</p>
-<p>If units are not specified for distance, and the value given is
-&lt;50, it is assumed the value is given in kpc. Otherwise, pc are
-assumed.</p>
+<p>If units are not specified for distance it is assumed the value is given in kpc.</p>
 <dl class="docutils">
 <dt>To be done:</dt>
 <dd><ul class="first last simple">
@@ -178,8 +176,7 @@ no epsilon corresponding to mass_3, mass_3 is added to the total_mass.</p>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The distance to the lens.</p>
 <p>May be set as a <em>float</em>. If no unit is
-given, the value is assumed to be kpc if it is &lt;50 and in pc
-otherwise.</p>
+given, the value is assumed to be kpc.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -262,8 +259,8 @@ plotting. See <a class="reference internal" href="MulensModel.caustics.html#Mule
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
       
       |
       <a href="_sources/MulensModel.mulensobjects.lens.txt"

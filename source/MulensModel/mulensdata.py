@@ -21,7 +21,7 @@ class MulensData(object):
         data = MulensData(data_list=[[Dates], [Magnitudes], [Errors]])
     
     **Parallax calculations assume that the dates supplied are
-    BJD_TDB. See** :class:`~MulensModel.trajectory.Trajectory`. If
+    BJD_TDB. See** :py:class:`~MulensModel.trajectory.Trajectory`. If
     you aren't using parallax, the time system shouldn't matter as
     long as it is consistent across all MulensData and Model objects.
 
@@ -42,6 +42,7 @@ class MulensData(object):
 
         coords: *astropy.SkyCoord*, optional 
            sky coordinates of the event
+
         ra, dec: *str*, optional 
            sky coordinates of the event
           
@@ -195,12 +196,18 @@ class MulensData(object):
 
     @property
     def time(self):
-        """vector of dates"""
+        """
+        *np.ndarray*
+
+        vector of dates"""
         return self._time
 
     @property
     def mag(self):
-        """magnitude vector"""
+        """
+        *np.ndarray*
+
+        magnitude vector"""
         if self._mag is None:
             (self._mag, self._err_mag) = Utils.get_mag_and_err_from_flux(
                                         flux=self.flux, err_flux=self.err_flux)
@@ -208,7 +215,10 @@ class MulensData(object):
 
     @property
     def err_mag(self):
-        """vector of magnitude errors"""
+        """
+        *np.ndarray*
+
+        vector of magnitude errors"""
         if self._err_mag is None:
             self.mag
         return self._err_mag
@@ -216,7 +226,7 @@ class MulensData(object):
     @property
     def coords(self):
         """
-        see :class:`~MulensModel.coordinates.Coordinates`
+        see :py:class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
 
@@ -226,14 +236,21 @@ class MulensData(object):
 
     @property
     def n_epochs(self):
-        """give total number of epochs (including bad data)"""
+        """
+        *int*
+
+        give total number of epochs (including bad data)"""
         return self._n_epochs
 
     @property
     def satellite_skycoord(self):
         """
-        return *astropy.coordinates.SkyCoord* object for satellite
-        positions at epochs covered by the dataset.
+        *Astropy.SkyCoord* object for satellite
+        positions at epochs covered by the dataset
+
+        Returns :
+            skycoord: *astropy.coordinates.SkyCoord*
+                satellite positions at epochs covered by the dataset
         """
         if self.ephemerides_file is None:
             raise ValueError('ephemerides_file is not defined.')
@@ -272,7 +289,7 @@ class MulensData(object):
         Parameters :
             weights: *dict*
                 A dictionary that specifies weight for each bandpass. Keys are 
-                *str* and values are *float*, e.g., {'I': 1.5, 'V': 1.} if 
+                *str* and values are *float*, e.g., ``{'I': 1.5, 'V': 1.}`` if 
                 the I-band gamma limb-darkening coefficient is 1.5-times 
                 larger than the V-band"""
          

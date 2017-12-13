@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 MulensModel.coordinates module
 ==============================
-=======
-MulensModel\.coordinates module
-===============================
->>>>>>> parameters_dict
 
 .. automodule:: MulensModel.coordinates
     :members:

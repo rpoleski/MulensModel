@@ -1,6 +1,7 @@
 import sys, os
 import unittest
 import numpy as np
+from astropy import units as u
 
 import MulensModel
 from MulensModel.mulensdata import MulensData
@@ -22,7 +23,7 @@ def test_event_get_chi2_1():
     data = MulensData(file_name=SAMPLE_FILE_01)
     
     ev = Event()
-    mod = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
+    mod = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     mod.set_datasets([data])
     ev.model = mod
     ev.datasets = [data]
@@ -39,22 +40,25 @@ def test_event_get_chi2_1():
 
 def test_event_get_chi2_2():
     """basic unit test on ob08092 OGLE-IV data. Same as above but with
-    the data input twice (to test behavior for multiple datasets)"""
+    the data input twice (to test behavior for multiple datasets);
+    also test if Event.get_chi2_for_dataset() gives correct answers
+    """
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
+    answer = 428.5865729245029
     
     data = MulensData(file_name=SAMPLE_FILE_01)
     
     ev = Event()
     mod = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
-    mod.set_datasets([data,data])
+    mod.set_datasets([data, data])
     ev.model = mod
-    ev.datasets = [data,data]
+    ev.datasets = [data, data]
 
     chi2 = ev.get_chi2()
     assert isinstance(chi2, float), 'wrong type of chi2'
-    np.testing.assert_almost_equal(float(chi2), 2.*428.58655, decimal=4, 
+    np.testing.assert_almost_equal(float(chi2), 2.*answer, decimal=4, 
                                    err_msg='problem in resulting chi2')
     
     chi2_no_blend = ev.get_chi2(fit_blending=False)
@@ -62,6 +66,11 @@ def test_event_get_chi2_2():
     np.testing.assert_almost_equal(float(chi2_no_blend), 2.*460.72308, decimal=4, 
                                    err_msg='problem in resulting chi2 for fixed no blending')
 
+    chi2_2 = ev.get_chi2_for_dataset(0)
+    assert chi2_2 == answer
+    
+    chi2_3 = ev.get_chi2_for_dataset(1)
+    assert chi2_3 == answer
 
 def test_event_get_chi2_double_source_simple():
     """basic test on ob08092 OGLE-IV data with added second source
@@ -86,16 +95,16 @@ def test_event_get_chi2_double_source_simple():
     message = 'problem in resulting chi2 for 2 exactly the same datasets'
     np.testing.assert_almost_equal(chi2, 857.17310, decimal=4, err_msg=message)
 
-def test_event_get_chi2():
+def test_event_get_chi2_3():
     """Test: If I change the model parameters, the chi2 should change."""
     #Generate a model
     t_0 = 5380.
     u_0 = 0.5
     t_E = 18.
-    model = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
+    model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     
     #Generate fake data    
-    times = np.arange(5320,5420.)
+    times = np.arange(5320, 5420.)
     f_source = 0.1
     f_blend = 0.5
     mod_fluxes = f_source * model.magnification(times) + f_blend
@@ -112,6 +121,32 @@ def test_event_get_chi2():
     event.model.parameters.t_0 = 5000.
 
     assert event.get_chi2() != orig_chi2
+
+def test_event_get_chi2_4():
+    """test if best chi2 is remembered correctly"""
+    t_0 = 5379.57091
+    u_0 = 0.52298
+    t_E = 17.94002
+    
+    data = MulensData(file_name=SAMPLE_FILE_01)
+    
+    ev = Event()
+    params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E*u.day}
+    mod = Model(params)
+    mod.set_datasets([data])
+    ev.model = mod
+    ev.datasets = [data]
+
+    chi2_1 = ev.get_chi2() # This is the best model.
+    
+    ev.model.parameters.parameters['t_0'] += 1.
+    ev.model.parameters.parameters['u_0'] += 0.1
+    ev.model.parameters.parameters['t_E'] += 1. * u.day
+    chi2_2 = ev.get_chi2()
+
+    assert chi2_2 > chi2_1
+    assert ev.best_chi2 == chi2_1
+    assert ev.best_chi2_parameters == params
 
 class TestEvent(unittest.TestCase):
     def test_event_init_1(self):

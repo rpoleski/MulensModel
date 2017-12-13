@@ -24,7 +24,7 @@ the `MulensData class <https://rpoleski.github.io/MulensModel/MulensModel.mulens
 .. code-block:: python
 
    file_name = os.path.join(MulensModel.MODULE_PATH, "data", 
-                                                        "phot_ob08092_O4.dat")
+       "phot_ob08092_O4.dat")
    my_data = MulensData(file_name=file_name)
    print("{:} file was imported".format(file_name))
 
@@ -107,8 +107,8 @@ We have the ability to get the goodness of fit and it turn it into a function:
    initial_guess = [t_0, u_0, t_E]
 
    def chi2_for_model(theta, event, parameters_to_fit):
-       """for given event set attributes from parameters_to_fit (list of str) 
-       to values from the theta list"""
+       """for given event set attributes from parameters_to_fit 
+       (list of str) to values from the theta list"""
        for (key, parameter) in enumerate(parameters_to_fit):
            setattr(event.model, parameter, theta[key])
        return event.get_chi2()
@@ -143,7 +143,8 @@ a few:
    if not result.success:
        print(result.message)
    print("Function evaluations: {:}".format(result.nfev))
-   print("The smallest function value: {:.3f}".format(np.array(result.fun)[0]))
+   msg = "The smallest function value: {:.3f}"
+   print(msg.format(np.array(result.fun)[0]))
    print("for parameters: {:.5f} {:.4f} {:.3f}".format(*result.x.tolist()))
 
 The best-fitting function parameters are stored in ``result.x``, which is 

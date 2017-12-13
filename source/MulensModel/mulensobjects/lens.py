@@ -28,9 +28,7 @@ class Lens(object):
     If units are not specified for a given mass, it is assumed the value
     given is in Solar Masses. 
 
-    If units are not specified for distance, and the value given is
-    <50, it is assumed the value is given in kpc. Otherwise, pc are
-    assumed.
+    If units are not specified for distance it is assumed the value is given in kpc. 
 
     To be done:
         - __repr__ function needs work
@@ -42,14 +40,6 @@ class Lens(object):
     """
     def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
                  a_proj=None, distance=None, q=None, s=None, epsilon=None):
-        """
-        If units are not specified for mass, it is assumed the value
-        given is in Solar Masses. 
-
-        If units are not specified for distance, and the value given
-        is <50, it is assumed the value is given in kpc. Otherwise, pc
-        are assumed.
-        """
         self._caustics = None
 
         #Set up system from s and q if defined
@@ -366,18 +356,14 @@ class Lens(object):
         The distance to the lens. 
 
         May be set as a *float*. If no unit is
-        given, the value is assumed to be kpc if it is <50 and in pc
-        otherwise.
+        given, the value is assumed to be kpc. 
         """
         return self._distance
 
     @distance.setter
     def distance(self, new_distance):
         if not isinstance(new_distance, u.Quantity):
-            if new_distance < 50:
-                self._distance = new_distance * 1000. * u.pc
-            else:
-                self._distance = new_distance * u.pc
+            self._distance = new_distance * 1000. * u.pc
         else:
             if new_distance.unit.physical_type != 'distance':
                 TypeError('Wrong type of new_distance!')

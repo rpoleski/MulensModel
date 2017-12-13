@@ -1,5 +1,6 @@
 import MulensModel
 
+
 raise NotImplementedError('input data for this use case do not exist.')
 
 # Prepare a list of 3 MulensData objects. Two of them have bandpass specified:
@@ -21,14 +22,14 @@ model.set_magnification_methods(methods)
 
 # Set coefficients - you can use either u (most common outside microlensing)
 # or gamma (fixed total flux) coefficients. 
-model.set_limb_coef_gamma('I', 0.4555)
-model.set_limb_coef_u('V', 0.5555)
+model.set_limb_coeff_gamma('I', 0.4555)
+model.set_limb_coeff_u('V', 0.5555)
 
 # Print LD coefficients:
 print("bandpass   u   gamma:")
 print("---------------------")
 for band in model.bandpasses:    
-    print("{:} {:.4f} {:.4f}".format(band, model.limb_coef_u(band), 
-                                        model.limb_coef_gamma(band)))
+    print("{:} {:.4f} {:.4f}".format(band, model.get_limb_coeff_u(band), 
+                                        model.get_limb_coeff_gamma(band)))
 
 #Add implementation for setting method to calculate FS effects for point lens

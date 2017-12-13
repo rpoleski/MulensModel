@@ -11,22 +11,31 @@ from MulensModel.modelparameters import ModelParameters
 class MagnificationCurve(object):
     """
     The magnification curve calculated from the model light curve.
-    """
-    def __init__(self, times, parameters=None, parallax=None,  
-                    coords=None, satellite_skycoord=None, gamma=0.):
-        """
-        Required arguments: 
-           times - the times at which to generate the magnification curve, e.g. a vector.
-           parameters - a ModelParameters object specifying the microlensing parameters
+    
+    Arguments :
+        times: iterable of *floats*
+            the times at which to generate the magnification curve
+        
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
+            specifies the microlensing parameters
+        
+        parallax: *dict*
+            dictionary specifying what parallax effects should be used, e.g.,
+            ``{'earth_orbital': True, 'satellite': False, 'topocentric': False}``
+        
+        coords: :py:class:`MulensModel.coordinates.Coordinates`
+            sky coordinates of the event
 
-        Optional parallax keywords:
-           parallax - boolean dictionary specifying what parallax effects should be used.
-           coords - sky coordinates of the event
-           satellite_skycoord - sky coordinates of the satellite
-               specified by the ephemrides file. see
-               MulensData.satellite_skycoord.
-           gamma - limb darkening coefficient in gamma convention
-        """
+        satellite_skycoord: *Astropy.coordinates.SkyCord*
+            sky coordinates of the satellite specified by the
+            ephemrides file. see
+            :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
+
+        gamma: *float*
+            limb darkening coefficient in gamma convention; defaults to 0
+    """
+    def __init__(self, times, parameters, parallax=None,  
+                    coords=None, satellite_skycoord=None, gamma=0.):
         #Set times
         if isinstance(times, (list, tuple, np.ndarray)):
             self.times = times
@@ -37,7 +46,8 @@ class MagnificationCurve(object):
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
-            raise ValueError('parameters is a required and must be a ModelParameters object')
+            raise ValueError('parameters is a required and must be a ' +
+                'ModelParameters object')
 
         #Calculate the source trajectory (i.e. u(t))
         self.trajectory = Trajectory(
@@ -51,6 +61,7 @@ class MagnificationCurve(object):
         self._methods_epochs = None
         self._methods_names = None
         self._default_magnification_method = None
+        self._methods_parameters = None
 
         self._gamma = gamma
 
@@ -85,9 +96,26 @@ class MagnificationCurve(object):
         self._methods_names = names        
         self._default_method = default_method
 
+    def set_magnification_methods_parameters(self, methods_parameters):
+        """
+        Set additional parameters for magnification calculation methods.
+        
+        Parameters :
+            methods_parameters: *dict*
+                Dictionary that for method names (keys) returns dictionary
+                in the form of ``**kwargs`` that are passed to given method,
+                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
+        
+        """
+        self._methods_parameters = methods_parameters
+
     @property
     def magnification(self):
-        """provide vector of magnifications"""
+        """
+        *np.ndarray*
+
+        provide vector of magnifications
+        """
         return self.get_magnification()
         # THIS HAS TO BE REWRITTEN - USE LAZY LOADING! (here or in model.py)
 
@@ -98,6 +126,9 @@ class MagnificationCurve(object):
             magnification: *np.ndarray*
                 Vector of magnifications. 
         """
+        if self.parameters.rho is not None:
+            self._check_for_finite_source_method()
+
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -108,6 +139,17 @@ class MagnificationCurve(object):
         self._magnification = magnification
         return self._magnification
 
+    def _check_for_finite_source_method(self):
+        """check if there is method defined that uses finite source 
+        calculations and warn if not"""
+        if self._methods_epochs is None:
+            warnings.warn('No finite-source method is set')
+            return
+        methods = self._methods_names + [self._default_magnification_method]
+        if set(methods) == set(['point_source']):
+            warnings.warn('no finite-source method is set')
+            return
+
     def get_point_lens_magnification(self):
         """Calculate the Point Lens magnification. 
         
@@ -115,12 +157,6 @@ class MagnificationCurve(object):
             magnification: *np.ndarray*
                 Vector of magnifications.
         """
-
-        if self.parameters.rho is not None:
-            if self._methods_epochs is None:
-                warnings.warn('1 rho set but no finite-source method is set')
-            elif set(self._methods_for_epochs()) == set(['point_source']):
-                warnings.warn('2 rho set but no finite-source method is set')
 
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
         # This is Paczynski equation, i.e., point-source/point-lens (PSPL) 
@@ -134,6 +170,15 @@ class MagnificationCurve(object):
         methods = np.array(self._methods_for_epochs())
 
         for method in set(methods):
+            
+            kwargs = {}
+            if self._methods_parameters is not None:
+                if method in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method]
+                if kwargs != {}:
+                    raise ValueError('Methods parameters passed, but currently '
+                        + 'no point lens method accepts the parameters')
+                    
             if method.lower() == 'point_source':
                 pass # This cases are already taken care of. 
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
@@ -252,12 +297,6 @@ class MagnificationCurve(object):
                                     separation=self.parameters.s)
         methods = self._methods_for_epochs()
         
-        if self.parameters.rho is not None:
-            if self._methods_epochs is None:
-                warnings.warn('rho set but no finite-source method is set')
-            elif set(methods) != set(['point_source']):
-                warnings.warn('rho set but no finite-source method is set')
-       
         #Calculate the magnification
         magnification = []        
         for index in range(len(self.times)):
@@ -265,6 +304,14 @@ class MagnificationCurve(object):
             y = self.trajectory.y[index]
             method = methods[index].lower()
             
+            kwargs = {}
+            if self._methods_parameters is not None:
+                if method in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method]
+                if kwargs != {} and method != 'vbbl':
+                    raise ValueError('Methods parameters passed for method {:}'
+                        + ' which does not accept any parameters')
+
             if method == 'point_source':
                 m = binary_lens.point_source_magnification(x, y)
             elif method == 'quadrupole':
@@ -278,7 +325,7 @@ class MagnificationCurve(object):
             elif method == 'vbbl':
                 m = binary_lens.vbbl_magnification(x, y, 
                         rho=self.parameters.rho, 
-                        gamma=self._gamma)
+                        gamma=self._gamma, **kwargs)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
@@ -303,4 +350,3 @@ class MagnificationCurve(object):
                     for value in brackets]
         
         return out
-

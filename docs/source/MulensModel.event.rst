@@ -1,5 +1,5 @@
-MulensModel\.event module
-=========================
+MulensModel.event module
+========================
 
 .. automodule:: MulensModel.event
     :members:

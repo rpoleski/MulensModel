@@ -3,16 +3,17 @@ from MulensModel.utils import Utils
 
 class LimbDarkeningCoeffs(object):
     """
-    Linear limb-darkening parameters. Both gamma and u conventions can be used. 
-    The u convention is more frequently used in studies other in microlensing. 
-    It has fixed flux at the center. An et al. 2002 (ApJ 572, 521,
-    http://adsabs.harvard.edu/abs/2002ApJ...572..521A) introduced gamma convention:
+    Linear limb-darkening parameters. Both *gamma* and *u* conventions can be used. 
+    The *u* convention is more frequently used in studies other than microlensing. 
+    It has fixed flux at the center. 
+    `An et al. 2002 (ApJ 572, 521) <http://adsabs.harvard.edu/abs/2002ApJ...572..521A>`_ 
+    introduced the *gamma* convention:
     
     gamma = (2 * u) / (3 - u)
     
     u = 3 * gamma / (2 + gamma)
     
-    Note that gamma convention has fixed total flux.
+    Note that the gamma convention has fixed total flux.
     """
     def __init__(self): #, gamma_I=0.44, gamma_V=0.72, gamma_H=0.26):
         self._gammas_for_band = dict()
@@ -31,14 +32,14 @@ class LimbDarkeningCoeffs(object):
         self._gammas_for_band[bandpass] = gamma
         
     def set_limb_coeff_u(self, bandpass, u):
-        """Remembers limb darkening u coefficient for given band
+        """Remembers limb darkening *u* coefficient for given band
         
         Parameters :
             bandpass: *str*
                 Name of the filter.
 
             u: *float*
-                The value of u coefficient.
+                The value of *u* coefficient.
         
         """
         self._gammas_for_band[bandpass] = Utils.u_to_gamma(u)
@@ -65,7 +66,7 @@ class LimbDarkeningCoeffs(object):
         return gamma
     
     def get_limb_coeff_u(self, bandpass):
-        """Gives limb darkening u coefficient for given band.
+        """Gives limb darkening *u* coefficient for given band.
         
         Parameters :
             bandpass: *str*
@@ -73,7 +74,7 @@ class LimbDarkeningCoeffs(object):
 
         Returns :
             u: *float*
-                The value of u coefficient.
+                The value of *u* coefficient.
 
         """ 
         gamma = self.get_limb_coeff_gamma(bandpass=bandpass)
@@ -86,9 +87,9 @@ class LimbDarkeningCoeffs(object):
             weights: *dict*
                 A dictionary that for every band (keys; *str* type) gives its 
                 relative weight (value; *float* type), e.g., 
-                weights = {'I': 1.5, 'V': 1.}
-                will return gamma coefficient in the case when I band 
-                contributes 1.5 more than V band. Note that for each band used 
+                ``weights = {'I': 1.5, 'V': 1.}``
+                will return gamma coefficient in the case when *I* band 
+                contributes 1.5 more than *V* band. Note that for each band used 
                 you have to first set to coefficient.
         
         Returns :
@@ -108,5 +109,4 @@ class LimbDarkeningCoeffs(object):
                 msg = "The bandpass {:} was not set for limb darkening"
                 raise KeyError(msg.format(band))
             weight_sum += weight
-        return gamma_sum / weight_sum
-        
+        return gamma_sum / weight_sum      

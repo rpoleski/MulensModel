@@ -1,5 +1,5 @@
-MulensModel\.model module
-=========================
+MulensModel.model module
+========================
 
 .. automodule:: MulensModel.model
     :members:

@@ -10,6 +10,7 @@
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -22,9 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -54,15 +54,13 @@
 <dl class="class">
 <dt id="MulensModel.model.Model">
 <em class="property">class </em><code class="descclassname">MulensModel.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>parameters=None</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A Model for a microlensing event with the specified parameters.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
-<dd><p class="first">parameters: <em>dictionary</em>, 
-<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></p>
-<blockquote>
-<div>see <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.modelparameters.ModelParameters</span></code></a></div></blockquote>
-<dl class="last docutils">
+<dd><dl class="first last docutils">
+<dt>parameters: <em>dictionary</em>, <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></dt>
+<dd>see <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.modelparameters.ModelParameters</span></code></a></dd>
 <dt><a class="reference internal" href="#MulensModel.model.Model.coords" title="MulensModel.model.Model.coords"><code class="xref py py-obj docutils literal"><span class="pre">coords</span></code></a>: [<em>list</em>, <em>str</em>, <em>astropy.SkyCoords</em>], optional</dt>
 <dd>Sky Coordinates of the event.</dd>
 <dt>ra, dec: <em>str</em>, optional</dt>
@@ -194,7 +192,7 @@ separation changes over time. Default is <em>False</em>.</dd>
 of observatories on the Earth? Default is <em>False</em>. 
 Note that this is significant only for very high magnification 
 events and if high quality datasets are analyzed. 
-Hence, this effect is rarely needed.</dd>
+Hence, this effect is rarely needed. <strong>Not Implemented yet.</strong></dd>
 </dl>
 </dd>
 </dl>
@@ -239,10 +237,9 @@ where flux = 1 corresponds to <code class="xref py py-obj docutils literal"><spa
 <p class="last"><code class="docutils literal"><span class="pre">**kwargs</span></code> any arguments accepted by matplotlib.pyplot.plot().</p>
 </dd>
 </dl>
-<p>Either <cite>data_ref</cite> or (<cite>f_source</cite>, <cite>f_blend</cite>) must be set, but there
-is no explicit check for this. Default behavior is probably to
-throw an exception that no data have been specified (see
-<a class="reference internal" href="#MulensModel.model.Model.get_ref_fluxes" title="MulensModel.model.Model.get_ref_fluxes"><code class="xref py py-func docutils literal"><span class="pre">get_ref_fluxes()</span></code></a>).</p>
+<p>Provide <cite>data_ref</cite> or (<cite>f_source</cite>, <cite>f_blend</cite>) if you want to 
+plot in flux units different than last value of <cite>data_ref</cite> 
+(defaults to the first dataset).</p>
 </dd></dl>
 
 <dl class="method">
@@ -253,7 +250,7 @@ best-fit values compared to data_ref.</p>
 <dl class="docutils">
 <dt>Parameters:</dt>
 <dd><dl class="first last docutils">
-<dt>data_ref: <em>:py:class:`~MulensModel.mulensdata.MulensData`</em> or <em>int</em></dt>
+<dt>data_ref: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> or <em>int</em></dt>
 <dd>Reference dataset. If <em>int</em>, corresponds to the index of 
 the dataset in self.datasets. If None, than the first dataset 
 will be used.</dd>
@@ -345,7 +342,8 @@ Uses the best f_source, f_blend for each dataset
 <div><dl class="docutils">
 <dt>times, t_range, t_start, t_stop, dt, n_epochs: </dt>
 <dd>May all be used to specify exactly when to plot the
-source trajectory. See also <a class="reference internal" href="#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal"><span class="pre">plot_lc()</span></code></a>, <a class="reference internal" href="#MulensModel.model.Model.set_times" title="MulensModel.model.Model.set_times"><code class="xref py py-func docutils literal"><span class="pre">set_times()</span></code></a></dd>
+source trajectory. See also <a class="reference internal" href="#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal"><span class="pre">plot_lc()</span></code></a> and 
+<a class="reference internal" href="#MulensModel.model.Model.set_times" title="MulensModel.model.Model.set_times"><code class="xref py py-func docutils literal"><span class="pre">set_times()</span></code></a>.</dd>
 <dt>caustics: <em>boolean</em></dt>
 <dd>plot the caustic structure in addition to the source
 trajectory. default=False (off). For finer control of
@@ -427,6 +425,22 @@ e.g.,</p>
 <span class="pre">2455746.7,</span> <span class="pre">'VBBL',</span> <span class="pre">2455747.,</span> <span class="pre">'Hexadecapole',</span> <span class="pre">2455747.15,</span> 
 <span class="pre">'Quadrupole',</span> <span class="pre">2455748.]</span></code></p>
 </dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_magnification_methods_parameters">
+<code class="descname">set_magnification_methods_parameters</code><span class="sig-paren">(</span><em>methods_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_magnification_methods_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set additional parameters for magnification calculation methods.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>methods_parameters: <em>dict</em></dt>
+<dd>Dictionary that for method names (keys) returns dictionary
+in the form of <code class="docutils literal"><span class="pre">**kwargs</span></code> that are passed to given method,
+e.g., <em>{&#8216;VBBL&#8217;: {&#8216;accuracy&#8217;: 0.005}}</em>.</dd>
 </dl>
 </dd>
 </dl>
@@ -551,8 +565,8 @@ also
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
       
       |
       <a href="_sources/MulensModel.model.txt"

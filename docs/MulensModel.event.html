@@ -10,6 +10,7 @@
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -22,9 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -68,6 +68,16 @@ list of MulensData objects</dd>
 <dd>(RA, Dec)</dd>
 </dl>
 </div></blockquote>
+<dl class="docutils">
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>best_chi2: <em>float</em></dt>
+<dd>Smallest value returned by <a class="reference internal" href="#MulensModel.event.Event.get_chi2" title="MulensModel.event.Event.get_chi2"><code class="xref py py-func docutils literal"><span class="pre">get_chi2()</span></code></a>.</dd>
+<dt>best_chi2_parameters: <em>dict</em></dt>
+<dd>Parameters that gave smallest chi2.</dd>
+</dl>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="MulensModel.event.Event.datasets">
 <code class="descname">datasets</code><a class="headerlink" href="#MulensModel.event.Event.datasets" title="Permalink to this definition">¶</a></dt>
@@ -97,6 +107,13 @@ index (<em>int</em>). Default is the first data set.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="MulensModel.event.Event.reset_best_chi2">
+<code class="descname">reset_best_chi2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.reset_best_chi2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset <em>best_chi2</em> attribute and its parameters 
+(<em>best_chi2_parameters</em>)</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.event.Event.get_chi2">
 <code class="descname">get_chi2</code><span class="sig-paren">(</span><em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates chi^2 of current model by fitting for source and 
@@ -114,6 +131,32 @@ the same as <a class="reference internal" href="MulensModel.fit.html#MulensModel
 <dd><dl class="first last docutils">
 <dt>chi2: <em>float</em></dt>
 <dd>Chi^2 value</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.get_chi2_for_dataset">
+<code class="descname">get_chi2_for_dataset</code><span class="sig-paren">(</span><em>index_dataset</em>, <em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2_for_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates chi^2 for a single dataset</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>index_dataset: <em>int</em></dt>
+<dd>index that specifies for which dataset the chi^2 is requested</dd>
+<dt>fit_blending: <em>boolean</em>, optional</dt>
+<dd>Are we fitting for blending flux? If not then blending flux is 
+fixed to 0.  Default is the same as
+<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>chi2: <em>np.ndarray</em>  </dt>
+<dd>Chi^2 contribution from each data point,
+e.g. chi2[obs_num][k] returns the chi2 contribution
+from the <em>k</em>-th point of observatory <em>obs_num</em>.</dd>
 </dl>
 </dd>
 </dl>

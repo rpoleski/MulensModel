@@ -1,7 +1,10 @@
+"""
+Shows how a dictionary implementation of ModelParameters would work.
+"""
 import MulensModel
-"""
-Show how a dictionary implementation of ModelParameters would work.
-"""
+
+
+raise NotImplementedError('last 2 Returns below not implemented in ModelParameters')
 
 MulensModel.modelparameters.which_parameters('PSPL')
 # Returns: 't_0', 'u_0', 't_E'
@@ -43,10 +46,7 @@ print(my_PSPL_model.parameters.t_eff)
 print(my_PSPL_model.parameters.rho) 
 # Returns: AttributeError('rho is not defined for this model.')
 
-import copy
-
-FSPL_params = copy.deepcopy(my_PSPL_model.parameters)
-FSPL_params.add({'rho': 0.001})
+FSPL_params = {**my_PSPL_model.parameters, 'rho': 0.001}
 
 my_FSPL_model = MulensModel.Model(FSPL_params)
 

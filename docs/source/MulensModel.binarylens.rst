@@ -1,5 +1,5 @@
-MulensModel\.binarylens module
-==============================
+MulensModel.binarylens module
+=============================
 
 .. automodule:: MulensModel.binarylens
     :members:

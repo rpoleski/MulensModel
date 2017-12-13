@@ -10,6 +10,7 @@
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -22,9 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -53,20 +53,30 @@
 <span id="mulensmodel-horizons-module"></span><h1>MulensModel.horizons module<a class="headerlink" href="#module-MulensModel.horizons" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="MulensModel.horizons.Horizons">
-<em class="property">class </em><code class="descclassname">MulensModel.horizons.</code><code class="descname">Horizons</code><span class="sig-paren">(</span><em>file_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.horizons.Horizons" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">MulensModel.horizons.</code><code class="descname">Horizons</code><span class="sig-paren">(</span><em>file_name</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.horizons.Horizons" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>An Object to read and hold the standard JPL Horizons output,
 i.e. satellite ephemerides.</p>
+<dl class="docutils">
+<dt>Arguments :</dt>
+<dd><dl class="first last docutils">
+<dt>file_name: <em>str</em></dt>
+<dd>output from JPL Horizons file name</dd>
+</dl>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="MulensModel.horizons.Horizons.time">
 <code class="descname">time</code><a class="headerlink" href="#MulensModel.horizons.Horizons.time" title="Permalink to this definition">¶</a></dt>
-<dd><p>return times in TDB (reference frame depends on Horizons input)</p>
+<dd><p><em>np.ndarray</em></p>
+<p>return times in TDB (reference frame depends on Horizons input)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.horizons.Horizons.xyz">
 <code class="descname">xyz</code><a class="headerlink" href="#MulensModel.horizons.Horizons.xyz" title="Permalink to this definition">¶</a></dt>
-<dd><p>return X,Y,Z positions based on RA, DEC and distance</p>
+<dd><p><em>Astropy.CartesianRepresentation</em></p>
+<p>return X,Y,Z positions based on RA, DEC and distance</p>
 </dd></dl>
 
 </dd></dl>

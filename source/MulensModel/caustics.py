@@ -7,18 +7,18 @@ from MulensModel.utils import Utils
 
 class Caustics(object):
     """
-    Class for the caustic structure corresponding to a given (q, s),
+    Class for the caustic structure corresponding to a given (*q*, *s*),
     i.e. mass ratio and separation. Implemented for 2-body lenses only.
 
     Attributes :
         q: *float*
-            mass ratio between the 2 bodies
+            mass ratio between the 2 bodies; always <= 1
         s: *float*
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
     """
 
-    def __init__(self, q=None, s=None):
+    def __init__(self, q, s):
         #Set s, q
         if isinstance(q, (list, np.ndarray)):
             if len(q) > 1:
@@ -34,23 +34,6 @@ class Caustics(object):
         self._y = None
         self._critical_curve = None
 
-    class CriticalCurve(object):
-        """
-        Internal class of Caustics. Defines the critical curve (in the
-        lens plane). Origin is center of mass with larger mass on the
-        left (q < 1).
-
-        Attributes:
-            x, y : *list*
-                Two lists of length *n_points* giving the x, y
-                coordinates of the caustic points. 
-        
-        """
-
-        def __init__(self):
-            self.x = []
-            self.y = []
-
     def plot(self, n_points=5000, **kwargs):
         """
         Plots the caustics (using matplotlib.pyplot.scatter()). 
@@ -59,7 +42,7 @@ class Caustics(object):
             n_points : *int*, optional
                 The number of points to calculate along the caustic.
             ``**kwargs``
-                keywords accepted by matplotlib.pyplot.scatter()
+                keywords accepted by *matplotlib.pyplot.scatter()*
         """
         if self._x is None:
             self._calculate(n_points=n_points)
@@ -69,7 +52,7 @@ class Caustics(object):
         """
         Returns x and y vectors corresponding to the outlines of the
         caustics.  Origin is center of mass and larger mass is on the
-        left (for q < 1).
+        left (for *q* < 1).
 
         Parameters:
             n_points : *int*, optional
@@ -77,7 +60,7 @@ class Caustics(object):
 
         Returns:
             x, y : *list*
-                Two lists of length *n_points* giving the x, y
+                Two lists of length *n_points* giving the *x*, *y*
                 coordinates of the caustic points. 
         """
         if self._x is None or self._y is None:
@@ -145,4 +128,21 @@ class Caustics(object):
         return complex_value - (1. / (1. + self.q)) * (
             (1./complex_conjugate) + (self.q / (complex_conjugate - self.s)) )
 
+
+    class CriticalCurve(object):
+        """
+        Internal class of :py:class:`Caustics`. Defines the critical curve 
+        (in the lens plane). Origin is center of mass with larger mass on 
+        the left (*q* < 1).
+
+        Attributes:
+            x, y : *list*
+                Two lists of length *n_points* giving the x, y
+                coordinates of the caustic points. 
+        
+        """
+
+        def __init__(self):
+            self.x = []
+            self.y = []
 

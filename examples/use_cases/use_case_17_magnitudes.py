@@ -1,9 +1,5 @@
 """
-Note that this use case is not consistent with any other use_cases. It
-is meant to work out how this should be done. This definition should
-be retroactively applied to other use cases.
-
-JCY - It seems I wrote the above note, but I have no idea what it means.
+Setting source and blend fluxes for model plotting.
 """
 import matplotlib.pyplot as pl
 
@@ -28,9 +24,9 @@ model_1.plot_lc(f_source=MulensModel.Utils.get_flux_from_mag(21.2),
 pl.figure()
 pl.title('Model Lightcurve in 2 bands')
 model_1.plot_lc(f_source=MulensModel.Utils.get_flux_from_mag(21.2),
-                f_blend=MulensModel.Utils.get_flux_from_mag(18.2),label='I')
+                f_blend=MulensModel.Utils.get_flux_from_mag(18.2), label='I')
 model_1.plot_lc(f_source=MulensModel.Utils.get_flux_from_mag(20.3),
-                f_blend=MulensModel.Utils.get_flux_from_mag(17.4),label='V')
+                f_blend=MulensModel.Utils.get_flux_from_mag(17.4), label='V')
 pl.legend(loc='best')
 
 pl.show()

@@ -13,7 +13,8 @@ from MulensModel.modelparameters import ModelParameters
 class Trajectory(object):
     """
     The (dimensionless) X, Y trajectory of the source in the
-    source plane. 
+    source plane. This class includes internal functions that calculate 
+    how microlensing parallax affects the trajectory.
 
     For binary lens, the origin of the coordinate system is at 
     the center of mass with higher mass at negative X and Y=0.
@@ -27,17 +28,23 @@ class Trajectory(object):
 
         parallax: *boolean dictionary*, optional
             specifies what parallax effects should be used. Default is
-            False. (differs from Modely.py which defaults to True)
+            *False* for each of *'earth_orbital'*, *'satellite'*, and 
+            *'topocentric'*. (differs from 
+            :py:class:`~MulensModel.model.Model` which defaults to *True*)
 
-        coords: :py:class:`MulensModel.coordinates.Coordinates`, optional
-            sky coordinates of the event
+        coords: :py:class:`~MulensModel.coordinates.Coordinates`, optional
+            sky coordinates of the event; required for parallax calculations 
 
-        satellite_skycoord: optional 
+        satellite_skycoord: *Astropy.coordinates.SkyCord*, optional 
             sky coordinates of the satellite specified by the
             ephemrides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
     """
-    def __init__(self, times, parameters=None, parallax=None,
+
+    _get_delta_annual_results = dict()
+    _get_delta_satellite_results = dict()
+
+    def __init__(self, times, parameters, parallax=None,
                 coords=None, satellite_skycoord=None, earth_coords=None):
         #Set times
         if isinstance(times, (list, tuple, np.ndarray)):
@@ -116,6 +123,8 @@ class Trajectory(object):
                                                             self.parameters.q)
             vector_x = vector_u * sin_alpha - vector_tau * cos_alpha + shift_x
             vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
+            # The above equations use alpha in counterclockwise convention, 
+            # i.e., the same as proposed by Skowron et al. (2011)
         else:
             raise NotImplementedError(
                 "trajectory for more than 2 lenses not handled yet")
@@ -145,10 +154,13 @@ class Trajectory(object):
         """
         calculates projected Earth positions required by annual parallax
         """
+        index = (self.parameters.t_0_par, hash(self.coords), tuple(self.times.tolist()))
+        if index in self._get_delta_annual_results:
+            return self._get_delta_annual_results[index]
         time_ref = self.parameters.t_0_par
 
         position_ref = get_body_barycentric(
-            body='earth', time=Time(time_ref,format='jd',scale='tdb')) 
+            body='earth', time=Time(time_ref, format='jd',scale='tdb')) 
         #seems that get_body_barycentric depends on time system, but there is
         #no way to set BJD_TDB in astropy.Time()
         #Likewise, get_jd12 depends on time system. 
@@ -164,8 +176,13 @@ class Trajectory(object):
         # but we don't multiply by unit here, because np.outer() (used later)
         # destroys information of argument units.
         
+        if not np.all(np.isfinite(self.times)):
+            msg = "Some times have incorrect values: {:}".format(
+                    self.times[~np.isfinite(self.times)])
+            raise ValueError(msg)
+
         position = get_body_barycentric(
-            body='earth', time=Time(self.times,format='jd', scale='tdb'))
+            body='earth', time=Time(self.times, format='jd', scale='tdb'))
         product = np.outer(self.times - time_ref, velocity) * u.au
         delta_s = position.xyz.T - product - position_ref.xyz.T
 
@@ -176,8 +193,10 @@ class Trajectory(object):
         north_projected = vector_product_normalized(direction, east_projected)
         out_n = -np.dot(delta_s.value, north_projected)
         out_e = -np.dot(delta_s.value, east_projected)
-        
-        return {'N': out_n, 'E': out_e}
+
+        out = {'N': out_n, 'E': out_e}
+        self._get_delta_annual_results[index] = out
+        return out
 
     def _satellite_parallax_trajectory(self):
         """calcualate satellite parallax component of trajectory"""
@@ -191,7 +210,10 @@ class Trajectory(object):
         calculates differences of Earth and satellite positions
         projected on the plane of the sky at event position
         """
-        
+        index = (hash(self.coords), hash(self.satellite_skycoord))
+        if index in self._get_delta_satellite_results.keys():
+            return self._get_delta_satellite_results[index]
+
         #Set the N,E coordinate frame based on the direction of the event
         direction = np.array(self.coords.cartesian.xyz.value)
         north = np.array([0., 0., 1.])
@@ -210,5 +232,6 @@ class Trajectory(object):
         delta_satellite['E'] = -dot(satellite.cartesian, east_projected).value
         delta_satellite['D'] = -dot(satellite.cartesian, direction).value
 
+        self._get_delta_satellite_results[index] = delta_satellite
         return delta_satellite
 

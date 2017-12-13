@@ -9,8 +9,7 @@ class Fit(object):
     Fits source and blending fluxes for given data and model magnification.
     
     Keywords :
-        data: :py:class:`MulensData` or list of :py:class:`MulensData` 
-        instances
+        data: :py:class:`MulensData` or list of :py:class:`MulensData` instances
             Photometric data to be fitted.
 
         magnification: *np.ndarray* or *list of np.ndarrays*
@@ -49,11 +48,11 @@ class Fit(object):
         Fit source(s) and blending fluxes. Performs a least squares linear fit
         (*np.linalg.lstsq()*) to the data for the flux parameters. 
         I.e., given the data :math:`y` and magnifcation :math:`A`, solves for 
-        :math:`f_source` and :math:`f_blend`:
+        :math:`f_{source}` and :math:`f_{blend}`:
 
         .. math::
 
-           y = f_source * A + f_blend
+           y = f_{source} * A + f_{blend}
         
         Parameters :
             fit_blending: *boolean*, optional
@@ -108,7 +107,7 @@ class Fit(object):
         """Blending flux for given dataset.
         
         Parameters :
-            dataset: :class:`~MulensModel.mulensdata.MulensData`
+            dataset: :py:class:`~MulensModel.mulensdata.MulensData`
                 A dataset for which blending flux will be given.
 
         Returns :
@@ -122,7 +121,7 @@ class Fit(object):
         """Fluxes of source(s).
 
         Parameters :
-            dataset: :class:`~MulensModel.mulensdata.MulensData`
+            dataset: :py:class:`~MulensModel.mulensdata.MulensData`
                 A dataset for which source fluxes will be given.
 
         Returns :
@@ -140,7 +139,7 @@ class Fit(object):
         data.
 
         Parameters :
-            data: :class:`~MulensModel.mulensdata.MulensData`
+            data: :py:class:`~MulensModel.mulensdata.MulensData`
                 A dataset for which model will be returned.
 
         Returns :
@@ -201,4 +200,3 @@ class Fit(object):
             else:
                 n_sources = self._magnification[0].shape[0]
         return n_sources
-

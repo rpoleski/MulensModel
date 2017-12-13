@@ -1,5 +1,6 @@
 import MulensModel
 
+
 raise NotImplementedError('satellite keyword for MulensData not supported')
 
 wfirst_data = MulensModel.MulensData(

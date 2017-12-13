@@ -1,3 +1,9 @@
+## Dec goals:
+1. manual for annaul parallax fitting
+2. Martin's FSBL code
+3. faster parallax calculations
+4. prepare paper
+
 ## Nov goals:
 1. instantaneous orbital motion of binary lens,
 2. Jacobian for PSPL
@@ -26,17 +32,11 @@
 
   * Add \_\_repr\_\_ functions to Lens and Source
   * [2] files not yet well documented: 
-    * [2] trajectory.py 
-    * mulensparallaxvector.py 
-    * satelliteskycoord.py 
-    * [2] caustics.py 
     * RA & Dec in coordinates.py (maybe also code it better)
-    * horizons.py 
-    * limbdarkeningcoeffs.py 
     * mulenstime.py 
-    * [2] magnificationcurve.py (needs a list of allowed magnification methods) 
+    * [2] magnificationcurve.py - **needs a list of allowed magnification methods**
     * utils.py 
-    * ~~ [1] modelparameters.py ~~
+    * [1] modelparameters.py - **needs more work**
 * Effects
   * Finite Source
     * [2] _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
@@ -98,14 +98,15 @@
     * anything from use cases that does not work yet -- see TODO.md file
     * [2] plotting data in MulensData (also update PSPL tutorial)
     * interaction with fitting routines - see list of them e.g. https://arxiv.org/abs/1711.03329
+    * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, there there is no point in remembering huge indexes (whole self.times)
+    * profile the code (python -m cProfile script.py) - most probably start with Fit.fit\_fluxes()
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
 * Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
-  * ~~[1] Should there be separate Model and ModelParameters subclasses for different types of models (e.g. PSPL, binary lens, binary source)? Need use cases. ~~ **NO**
-* [2] submit to PASP
+* [2] submit to Astronomy&Computing
 
 ### reStructuredText:
 [1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)

@@ -50,8 +50,6 @@ def test_model_parallax_definition():
     # defined, the user can change it. If the user wants to add a
     # parameter, they need to create a new model.)
     model_2 = Model({'t_0':2450000., 'u_0':0.1, 't_E':100., 'pi_E_N':0.1, 'pi_E_E':0.2})
-    print(model_2.parameters)
-    print(model_2.parameters.pi_E_N)
 
     model_2.parameters.pi_E_N = 0.3
     model_2.parameters.pi_E_E = 0.4
@@ -120,15 +118,18 @@ def test_BLPS_02():
             's':1.3500, 'q':0.00578, 'rho':0.01})
     model = Model(parameters=params)
     
-    t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 2450000.
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 'VBBL', 2456117.5]
+    t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
+        2450000.)
+    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
+        'VBBL', 2456117.5]
     model.set_magnification_methods(methods)
     
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     result = model.data_magnification[0]
 
-    expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704, 1.61038135, 1.63603122, 1.69045492, 1.77012807])
+    expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704, 
+        1.61038135, 1.63603122, 1.69045492, 1.77012807])
     np.testing.assert_almost_equal(result, expected)
 
     # Below we test passing the limb coef to VBBL function.
@@ -136,4 +137,34 @@ def test_BLPS_02():
     model.set_limb_coeff_u('I', 10.) # This is an absurd value but I needed something quick.
     result = model.data_magnification[0]
     np.testing.assert_almost_equal(result[5], 1.6366862)
+    
+def test_methods_parameters():
+    """make sure additional parameters are properly passed to very inner functions"""
+    params = ModelParameters({
+            't_0':2456141.593, 'u_0':0.5425, 't_E':62.63*u.day, 'alpha':49.58*u.deg, 
+            's':1.3500, 'q':0.00578, 'rho':0.01})
+    model = Model(parameters=params)
+    
+    t = np.array([2456117.])
+    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
+        'VBBL', 2456117.5]
+    model.set_magnification_methods(methods)
+    
+    data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
+    model.set_datasets([data])
+    result_1 = model.data_magnification[0]
+    
+    vbbl_options = {'accuracy': 0.1}
+    methods_parameters = {'VBBL': vbbl_options}
+    model.set_magnification_methods_parameters(methods_parameters)
+    result_2 = model.data_magnification[0]
+
+    vbbl_options = {'accuracy': 1.e-5}
+    methods_parameters = {'VBBL': vbbl_options}
+    model.set_magnification_methods_parameters(methods_parameters)
+    result_3 = model.data_magnification[0]
+
+    assert result_1[0] != result_2[0]
+    assert result_1[0] != result_3[0]
+    assert result_2[0] != result_3[0]
     
