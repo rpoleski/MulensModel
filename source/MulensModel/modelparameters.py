@@ -310,7 +310,7 @@ class ModelParameters(object):
         """
         *float*
         
-        t_star = rho * tE
+        t_star = rho * tE = source crossing time
 
         "day" is the default unit. Regardless of input value, returns
         value with units of u.day. May be set as a *float* --> assumes
@@ -347,7 +347,7 @@ class ModelParameters(object):
         """
         *float*
         
-        t_eff = u_0 * t_E
+        t_eff = u_0 * t_E = effective timescale
 
         "day" is the default unit. Regardless of input value, returns
         value with units of u.day. May be set as a *float* --> assumes
