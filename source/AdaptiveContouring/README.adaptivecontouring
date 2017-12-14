@@ -1,0 +1,120 @@
+                     ===============================
+                       ADAPTIVE CONTOURING PACKAGE
+                              Release 2.01
+                     ===============================
+
+                                   by 
+
+                              Martin Dominik
+                  Royal Society University Research Fellow
+
+        SUPA, University of St Andrews, School of Physics & Astronomy
+              North Haugh, St Andrews, KY16 9SS, United Kingdom
+                       e-mail: md35@st-andrews.ac.uk
+
+			       10-Nov-2007
+
+---------------------------------------------------------------------------
+
+
+A Installation
+==============
+
+1) download 
+     http://star-www.st-and.ac.uk/~md35/Software/AdaptiveContouring.tar.gz
+
+2) tar -xvf AdaptiveContouring.tar.gz
+
+3) create example programme
+     make mag_binextadap
+
+
+
+B How to use
+============ 
+
+The magnification of extended sources caused by binary lenses can be 
+obtained by calling either
+
+FLOAT mag_binext(FLOAT y1, FLOAT y2, FLOAT rho, FLOAT d, FLOAT q,
+        FLOAT (*ld_func)(int,FLOAT*,FLOAT), int n, FLOAT gam[],
+        FLOAT acc, FLOAT ld_acc);
+
+or
+
+FLOAT magt_binext(FLOAT t, FLOAT t0, FLOAT tE, FLOAT alpha, FLOAT u0,
+        FLOAT rho, FLOAT d, FLOAT q,
+        FLOAT (*ld_func)(int,FLOAT*,FLOAT), int n, FLOAT gam[],
+        FLOAT acc, FLOAT ld_acc);
+
+where FLOAT has been defined as double.
+The respective prototype needs to be declared within the source code
+where these functions are invoked, and all of the following object code
+files need to be linked along:
+
+adaptive_contour.o
+binary_pt.o
+binext_adap.o
+complex.o
+dyn_array.o
+erdlcaust.o
+integrate.o
+
+The file "mag_binextadap.c" provides an example and results in a code
+that outputs a table of magnification values for a given configuration.
+
+A function describing limb darkening can be passed that takes the number
+of limb-darkening coefficients, an array of limb-darkening coefficients,
+and the fractional radius as parameters. The number of limb-darkening
+coefficients and the array with their values also needs to be passed to
+"mag_binext" and "magt_binext". For uniformly bright sources, please
+use *ldfunc = NULL, n = -1, *gam = NULL.
+
+The parameter acc determines the desired accuracy and is given by the sum
+of the area of the squares that determine the contour line and the estimated 
+total enclosed area (see paper). In fact, this vastly overestimates the
+fractional error, and a suitable value should be chosen by testing how its
+variation affects the final results -- I recommend starting at acc = 0.1.
+
+ld_acc denotes the fractional uncertainty for the (adaptive Simpson)
+integration of the limb-darkening profile-related function during application 
+of Green's theorem.
+
+The further parameters, related to the source and lens geometry are
+defined in the next section.
+
+
+
+C Definition of parameters
+==========================
+
+Consider a source star at distance D_S being affected by the gravitational
+field of an intervening foreground binary lens system with total mass
+M at distance D_L, so that the angular Einstein radius reads
+
+theta_E = sqrt{[(4GM)/c^2] (D_L^{-1}-D_S^{-1})}
+
+Let us consider angular coordinates with respect to a rest frame of the
+lens binary, so that its origin coincides with the centre of mass and
+the two components with mass fractions m_1 = 1/(1+q) and m_2 = 1-m_1
+= q/(1+q) are located at (0,d q/(1+q)) theta_E or (0,-d/(1+q)) theta_E, 
+respectively. Moreover, let the position of the source star in units of
+theta_E be
+
+(y1(t), y1(t)) = u_0 (-sin alpha, cos alpha) 
+			+ [(t-t0)/tE] (cos alpha, sin alpha)
+
+The angular size of the source star is given by theta_* = rho theta_E.
+
+
+
+D Bugs - please report
+======================
+
+Should "mag_binext" or "magt_binext" crash or return an error message,
+please try to find out the parameters with which it was invoked and inform
+the author. A detailed bug report will help to increase the stability of 
+further releases.
+
+ 
+
