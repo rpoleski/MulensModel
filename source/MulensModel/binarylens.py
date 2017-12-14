@@ -415,7 +415,7 @@ class BinaryLens(object):
         <http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B>`_. See
         also `VBBL website by Valerio Bozza
         <http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm>`_.
-        
+
         For coordinate system convention see
         :py:func:`point_source_magnification()`
 
