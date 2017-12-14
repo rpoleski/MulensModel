@@ -1,21 +1,32 @@
 .PHONY: all clean
 
+GCC = gcc
+CFLAGS += -lm -fPIC
+CFLAGS += -O2
+# CFLAGS += -Wall
+
 wrapper = AdaptiveContouring_wrapper.so
 wrapper_source = AdaptiveContouring_wrapper.c
+o_files = binext_adap.o adaptive_contour.o complex.o binary_pt.o integrate.o dyn_array.o erdlcaust.o
+
+OS := $(shell uname)
+ifeq ($(OS), Darwin)
+  OPTIONS = -Wl,-install_name,$(wrapper)
+else
+  OPTIONS = -Wl,-soname,$(basename $wrapper)
+endif
+OPTIONS += -shared
+
 
 all: $(wrapper)
 
-$(wrapper): $(file_o) $(wrapper_source)
-	gcc -lm -lstdc++ -fPIC -c binext_adap.c -Wall
-	gcc -lm -lstdc++ -fPIC -c adaptive_contour.c -Wall
-	gcc -lm -lstdc++ -fPIC -c complex.c -Wall
-	gcc -lm -lstdc++ -fPIC -c binary_pt.c -Wall
-	gcc -lm -lstdc++ -fPIC -c -Wall integrate.c
-	gcc -lm -lstdc++ -fPIC -c -Wall dyn_array.c
-	gcc -lm -lstdc++ -fPIC -c -Wall erdlcaust.c
-	gcc -Wl,-soname,rapper -shared -o AdaptiveContouring_wrapper.so AdaptiveContouring_wrapper.c -lm -lstdc++ -fPIC binext_adap.o adaptive_contour.o -Wall complex.o binary_pt.o integrate.o dyn_array.o erdlcaust.o
+%.o:	%.c
+	$(GCC) $(CFLAGS) -c $^
+
+$(wrapper): $(o_files) $(wrapper_source)
+	$(GCC) $(OPTIONS) -o $(wrapper) $(wrapper_source) $(CFLAGS) $(o_files)
 
 .PHONY: clean
 clean:
-	$(RM) *.so *.o
+	$(RM) $(wrapper) $(o_files)
 
