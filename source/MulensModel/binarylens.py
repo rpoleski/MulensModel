@@ -366,10 +366,10 @@ class BinaryLens(object):
                 "AdaptiveContouring_wrapper.so")
             try:
                 adaptive_contouring = ctypes.cdll.LoadLibrary(PATH)
-            except OSError as X:  # XXX (JCY What is this comment?)
+            except OSError as error:
                 msg = (
                     "Something went wrong with AdaptiveContouring " +
-                    "wrapping ({:})" + "\n\n" + repr(X))
+                    "wrapping ({:})\n\n" + repr(error))
                 raise OSError(msg.format(PATH))
             self._adaptive_contouring_wrapped = True
             adaptive_contouring.Adaptive_Contouring_Linear.argtypes = (
@@ -388,11 +388,13 @@ class BinaryLens(object):
         elif u_limb_darkening is not None:
             gamma = float(Utils.u_to_gamma(u_limb_darkening))
         else: 
-            gamma = float(0.0) # XXX
+            gamma = float(0.0)
             
         s = float(self.separation)
         q = float(self.mass_2 / self.mass_1)
-        x = float(-source_x) # XXX
+        # AdaptiveContouring uses different coordinates conventions, 
+        # so we have to transform the coordinates below.
+        x = float(-source_x)
         y = float(-source_y)
         # XXX
         # assert accuracy > 0., ("VBBL requires accuracy > 0
@@ -452,8 +454,9 @@ class BinaryLens(object):
                 "VBBinaryLensingLibrary_wrapper.so")
             try:
                 vbbl = ctypes.cdll.LoadLibrary(PATH)
-            except OSError:
-                msg = "Something went wrong with VBBL wrapping ({:})"
+            except OSError as error:
+                msg = ("Something went wrong with VBBL wrapping ({:})\n\n" 
+                        + repr(error))
                 raise OSError(msg.format(PATH))
             self._vbbl_wrapped = True
             vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
