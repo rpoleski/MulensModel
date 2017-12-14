@@ -14,22 +14,25 @@ _valid_parameters = {
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
     'parallax': ['pi_E OR pi_E_N, pi_E_E', '(for parallax)'],
     'parallax opt': [
-        't_0_par', 
+        't_0_par',
         'may also be specified for parallax models. Defaults to t_0.'],
     'lens orbital motion': ['dalpha_dt, ds_dt', '(for orbital motion)'],
     'lens orbital motion opt': [
-        't_binary', 
+        't_binary',
         'may also be specified for orbital motion models. Defaults to t_0.']}
+
 
 def _get_effect_strings(*args):
     """
     Given *args[0], figure out which parameters should be printed.
 
     'basic' = fundamental parameters of the model or effect described
-    by args[0]
-    'additional' = any additional fundamental parameters (an extension of 'basic')
+        by args[0]
+    'additional' = any additional fundamental parameters (an extension
+        of 'basic')
     'alternate' = possible substitutions for the fundamental parameters
-    'optional' = parameters that may also be specified for the given model type.
+    'optional' = parameters that may also be specified for the given
+        model type.
 
     e.g. 'FSPL' returns basic = [t_0, u_0, tE], additional = [rho, s,
     q, alpha], alternate = [teff, tstar], and optional = [pi_E or
@@ -42,7 +45,7 @@ def _get_effect_strings(*args):
 
     short = lambda string: string.replace(" ", "")
     args_0 = short(args[0].lower())
-    
+
     # number of lenses
     if args_0 == short('point lens') or args_0[2:4] == 'pl':
         basic = 'point lens'
@@ -71,7 +74,7 @@ def _get_effect_strings(*args):
 
     if len(args[0]) == 4:
         optional.append('parallax')
-        optional.append('parallax opt')        
+        optional.append('parallax opt')
 
     if args[0].lower() == 'lens orbital motion':
         basic = 'lens orbital motion'
@@ -79,17 +82,17 @@ def _get_effect_strings(*args):
 
     if len(args[0]) == 4 and args[0][2:4].lower() == 'bl':
         optional.append('lens orbital motion')
-        optional.append('lens orbital motion opt')        
-
+        optional.append('lens orbital motion opt')
 
     return {
-        'basic':basic, 'additional':additional, 'alternate':alternate, 
-        'optional':optional}
+        'basic': basic, 'additional': additional, 'alternate': alternate,
+        'optional': optional}
+
 
 def _print_parameters(header, components):
     """
     Prints the given parameter information under the requested header.
-    
+
     Arguments:
         header: *str*
 
@@ -104,7 +107,7 @@ def _print_parameters(header, components):
             for item in components['additional']:
                 parameters_list += ', {0}'.format(_valid_parameters[item][0])
         print('{0}'.format(parameters_list))
-        
+
     if len(components['alternate']) > 0:
         for item in components['alternate']:
             print('{0}'.format(_valid_parameters[item]))
@@ -113,6 +116,7 @@ def _print_parameters(header, components):
         for item in components['optional']:
             print('optional: {0} {1}'.format(
                     _valid_parameters[item][0], _valid_parameters[item][1]))
+
 
 def _print_all():
     """
@@ -129,8 +133,9 @@ def _print_all():
     _print_parameters('finite source: ', _get_effect_strings('finite source'))
     _print_parameters('---------\nparallax: ', _get_effect_strings('parallax'))
     _print_parameters(
-        '---------\nlens orbital motion: ', 
+        '---------\nlens orbital motion: ',
         _get_effect_strings('lens orbital motion'))
+
 
 def which_parameters(*args):
     """
@@ -153,6 +158,7 @@ def which_parameters(*args):
         header = '---------\n{0} parameters:'.format(args[0])
         _print_parameters(header, components)
 
+
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
@@ -166,17 +172,19 @@ class ModelParameters(object):
             A dictionary of parameters and their values. See
             :py:func:`which_parameters()` for valid parameter combinations.
 
-    Example: 
+    Example:
         Define a point lens model:
-            ``params = ModelParameters({'t_0': 2450000., 'u_0': 0.3, 't_E': 35.})``
-            
+            ``params = ModelParameters({'t_0': 2450000., 'u_0': 0.3,
+            't_E': 35.})``
+
         Then you can print the parameters:
             ``print(params)``
-            
+
     """
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
-            raise TypeError('ModelParameters must be initialized with dict ' +
+            raise TypeError(
+                'ModelParameters must be initialized with dict ' +
                 "as a parameter\ne.g., ModelParameters({'t_0': " +
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
@@ -189,7 +197,7 @@ class ModelParameters(object):
         if 't_0' in self.parameters.keys():
             variables += '{0:>13} '.format('t_0 (HJD)')
             values += '{0:>13.5f} '.format(self.t_0)
-        
+
         if 'u_0' in self.parameters.keys():
             variables += '{0:>9} '.format('u_0')
             values += '{0:>9.6f} '.format(self.u_0)
@@ -210,21 +218,23 @@ class ModelParameters(object):
             variables += '{0:>10} '.format('t_star (d)')
             values += '{0:>10.6f} '.format(self.t_star)
 
-        if ('pi_E' in self.parameters.keys() or 
+        if ('pi_E' in self.parameters.keys() or
                 'pi_E_N' in self.parameters.keys()):
             variables += '{0:>9} {1:>9} '.format('pi_E_N', 'pi_E_E')
             values += '{0:>9.5f} {1:>9.5f} '.format(self.pi_E_N, self.pi_E_E)
 
-        if ('s' in self.parameters.keys() 
-                or 'q' in self.parameters.keys()
-                or 'alpha' in self.parameters.keys()):
+        if ('s' in self.parameters.keys() or
+                'q' in self.parameters.keys() or
+                'alpha' in self.parameters.keys()):
             variables += '{0:>9} {1:>12} {2:>11} '.format(
                 's', 'q', 'alpha ({0})'.format(self.alpha.unit))
             values += '{0:>9.5f} {1:>12.8f} {2:>11.5f} '.format(
                 self.s, self.q, self.alpha.value)
             if 'ds_dt' in self.parameters.keys():
-                variables += '{0:>11} {1:>18} '.format('ds/dt (/yr)', 'dalpha/dt (deg/yr)')
-                values += '{0:11.5f} {1:>18.5f} '.format(self.ds_dt, self.dalpha_dt)
+                variables += '{0:>11} {1:>18} '.format(
+                    'ds/dt (/yr)', 'dalpha/dt (deg/yr)')
+                values += '{0:11.5f} {1:>18.5f} '.format(
+                    self.ds_dt, self.dalpha_dt)
 
         return '{0}\n{1}\n'.format(variables, values)
 
@@ -233,11 +243,12 @@ class ModelParameters(object):
         Check that the user hasn't over-defined the ModelParameters.
 
         """
-### Check minimal parameters for a model are defined (Not Implemented) ###
+        # ***Check minimal parameters for a model are defined (Not
+        # Implemented)***
 
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
-            if (not 's' in keys) or (not 'q' in keys) or (not 'alpha' in keys):
+            if ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys):
                 raise ValueError(
                     'A binary model requires all three of (s, q, alpha).')
 
@@ -250,18 +261,20 @@ class ModelParameters(object):
 
         # Parallax is either pi_E or (pi_E_N, pi_E_E)
         if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
-            raise ValueError('Parallax may be defined EITHER by pi_E OR by ' + 
-                            '(pi_E_N and pi_E_E).')
+            raise ValueError(
+                'Parallax may be defined EITHER by pi_E OR by ' +
+                '(pi_E_N and pi_E_E).')
 
     def _check_valid_parameter_values(self, parameters):
         """
-        Prevent user from setting negative (unphysical) values for 
+        Prevent user from setting negative (unphysical) values for
         t_E, t_star, rho.
         """
         names = ['t_E', 't_star', 'rho']
-        full_names = {'t_E': 'Einstein timescale', 
+        full_names = {
+            't_E': 'Einstein timescale',
             't_star': 'Source crossing time', 'rho': 'Source size'}
-            
+
         for name in names:
             if name in parameters.keys():
                 if parameters[name] < 0.:
@@ -276,7 +289,7 @@ class ModelParameters(object):
     def t_0(self):
         """
         *float*
-        
+
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
@@ -290,7 +303,7 @@ class ModelParameters(object):
     def u_0(self):
         """
         *float*
-        
+
         The minimum projected separation between the source
         and the lens center of mass.
         """
@@ -314,7 +327,7 @@ class ModelParameters(object):
     def t_star(self):
         """
         *float*
-        
+
         t_star = rho * tE = source crossing time
 
         "day" is the default unit. Regardless of input value, returns
@@ -326,11 +339,11 @@ class ModelParameters(object):
         """
         if 't_star' in self.parameters.keys():
             self._check_time_quantity('t_star')
-            return self.parameters['t_star'].to(u.day).value 
+            return self.parameters['t_star'].to(u.day).value
         else:
             try:
-                return (self.parameters['t_E'].to(u.day).value 
-                        * self.parameters['rho'])
+                return (self.parameters['t_E'].to(u.day).value *
+                        self.parameters['rho'])
             except KeyError:
                 raise AttributeError(
                     't_star is not defined for these parameters: {0}'.format(
@@ -344,14 +357,14 @@ class ModelParameters(object):
             raise KeyError('t_star is not a parameter of this model.')
 
         if new_t_star < 0.:
-            raise ValueError('Source crossing time cannot be negative:', 
-                            new_t_star)
+            raise ValueError(
+                'Source crossing time cannot be negative:', new_t_star)
 
     @property
     def t_eff(self):
         """
         *float*
-        
+
         t_eff = u_0 * t_E = effective timescale
 
         "day" is the default unit. Regardless of input value, returns
@@ -363,11 +376,11 @@ class ModelParameters(object):
         """
         if 't_eff' in self.parameters.keys():
             self._check_time_quantity('t_eff')
-            return self.parameters['t_eff'].to(u.day).value 
+            return self.parameters['t_eff'].to(u.day).value
         else:
             try:
-                return (self.parameters['t_E'].to(u.day).value
-                        * self.parameters['u_0'])
+                return (self.parameters['t_E'].to(u.day).value *
+                        self.parameters['u_0'])
             except KeyError:
                 raise AttributeError(
                     't_eff is not defined for these parameters: {0}'.format(
@@ -391,16 +404,16 @@ class ModelParameters(object):
         """
         if 't_E' in self.parameters.keys():
             self._check_time_quantity('t_E')
-            return self.parameters['t_E'].to(u.day).value 
-        elif ('t_star' in self.parameters.keys() 
-                and 'rho' in self.parameters.keys()):
+            return self.parameters['t_E'].to(u.day).value
+        elif ('t_star' in self.parameters.keys() and
+              'rho' in self.parameters.keys()):
             return self.t_star/self.rho
-        elif ('t_eff' in self.parameters.keys() 
-                and 'u_0' in self.parameters.keys()):
+        elif ('t_eff' in self.parameters.keys() and
+              'u_0' in self.parameters.keys()):
             return self.t_eff/self.u_0
         else:
             raise KeyError("You're trying to access t_E that was not set")
-    
+
     @t_E.setter
     def t_E(self, new_t_E):
         if new_t_E is None:
@@ -437,12 +450,12 @@ class ModelParameters(object):
         """
         if 'rho' in self.parameters.keys():
             return self.parameters['rho']
-        elif ('t_star' in self.parameters.keys() 
-                and 't_E' in self.parameters.keys()):
+        elif ('t_star' in self.parameters.keys() and
+              't_E' in self.parameters.keys()):
             return self.t_star/self.t_E
         else:
             return None
-    
+
     @rho.setter
     def rho(self, new_rho):
         if 'rho' in self.parameters.keys():
@@ -451,17 +464,18 @@ class ModelParameters(object):
             self.parameters['rho'] = new_rho
         else:
             raise KeyError('rho is not a parameter of this model.')
-    
+
     @property
     def alpha(self):
         """
         *astroph.Quantity*
 
         The angle of the source trajectory relative to the binary lens
-        axis (or primary-secondary axis). Measured counterclockwise, i.e., 
-        according to convention advocated by
-        `Skowron et al. 2011 (ApJ, 738, 87) <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_. 
-        May be set as a *float* --> assumes "deg" is the default unit. 
+        axis (or primary-secondary axis). Measured counterclockwise,
+        i.e., according to convention advocated by `Skowron et
+        al. 2011 (ApJ, 738, 87)
+        <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_.  May be
+        set as a *float* --> assumes "deg" is the default unit.
         Regardless of input value, returns value in degrees.
         """
         if not isinstance(self.parameters['alpha'], u.Quantity):
@@ -480,22 +494,22 @@ class ModelParameters(object):
     def q(self):
         """
         *float*
-        
+
         mass ratio of the two lens components. Only 2 bodies allowed.
         """
         if isinstance(self.parameters['q'], (list, np.ndarray)):
             self.parameters['q'] = self.parameters['q'][0]
         return self.parameters['q']
-        
+
     @q.setter
     def q(self, new_q):
         self.parameters['q'] = new_q
-    
+
     @property
     def s(self):
         """
         *float*
-        
+
         separation of the two lens components relative to Einstein ring size
         """
         if isinstance(self.parameters['s'], (list, np.ndarray)):
@@ -510,18 +524,17 @@ class ModelParameters(object):
     def pi_E(self):
         """
         *list of floats*
-        
+
         The microlens parallax vector. Must be set as a vector/list
         (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
         pi_E_mag
         """
         if 'pi_E' in self.parameters.keys():
             return self.parameters['pi_E']
-        elif ('pi_E_N' in self.parameters.keys() 
-                and 'pi_E_E' in self.parameters.keys()):
+        elif ('pi_E_N' in self.parameters.keys() and
+              'pi_E_E' in self.parameters.keys()):
             return [self.parameters['pi_E_N'], self.parameters['pi_E_E']]
         else:
-            #raise KeyError('pi_E not defined for this model')
             return None
 
     @pi_E.setter
@@ -531,12 +544,12 @@ class ModelParameters(object):
 
         if 'pi_E' in self.parameters.keys():
             if len(new_pi_E) == 2:
-                self.parameters['pi_E'] = new_pi_E                    
+                self.parameters['pi_E'] = new_pi_E
             else:
                 raise TypeError('pi_E is a 2D vector. It must have length 2.')
 
-        elif ('pi_E_N' in self.parameters.keys() 
-                and 'pi_E_E' in self.parameters.keys()):
+        elif ('pi_E_N' in self.parameters.keys() and
+              'pi_E_E' in self.parameters.keys()):
             self.parameters['pi_E_N'] = new_pi_E[0]
             self.parameters['pi_E_E'] = new_pi_E[1]
         else:
@@ -546,7 +559,7 @@ class ModelParameters(object):
     def pi_E_N(self):
         """
         *float*
-        
+
         The North component of the microlens parallax vector.
         """
         if 'pi_E_N' in self.parameters.keys():
@@ -569,7 +582,7 @@ class ModelParameters(object):
     def pi_E_E(self):
         """
         *float*
-        
+
         The East component of the microlens parallax vector.
         """
         if 'pi_E_E' in self.parameters.keys():
@@ -588,19 +601,18 @@ class ModelParameters(object):
         else:
             raise KeyError('pi_E_E is not a parameter of this model.')
 
-    
     @property
     def t_0_par(self):
         """
         *float*
-        
+
         The reference time for the calculation of parallax. If not set
         explicitly, set t_0_par = t_0.
         """
-        if not 't_0_par' in self.parameters.keys():
+        if 't_0_par' not in self.parameters.keys():
             return self.parameters['t_0']
         else:
-            return self.parameters['t_0_par']    
+            return self.parameters['t_0_par']
 
     @t_0_par.setter
     def t_0_par(self, new_t_0_par):
@@ -610,19 +622,19 @@ class ModelParameters(object):
     def pi_E_mag(self):
         """
         *float*
-        
+
         The magnitude of the microlensing parallax vector.
         """
         if 'pi_E' in self.parameters.keys():
             pi_E_N = self.parameters['pi_E'][0]
             pi_E_E = self.parameters['pi_E'][1]
-        elif ('pi_E_N' in self.parameters.keys() 
-                and 'pi_E_E' in self.parameters.keys()):
+        elif ('pi_E_N' in self.parameters.keys() and
+              'pi_E_E' in self.parameters.keys()):
             pi_E_N = self.parameters['pi_E_N']
             pi_E_E = self.parameters['pi_E_E']
         else:
             raise KeyError('pi_E not defined for this model')
-        return np.sqrt( pi_E_N**2 + pi_E_E**2)
+        return np.sqrt(pi_E_N**2 + pi_E_E**2)
 
     @property
     def ds_dt(self):
@@ -642,17 +654,16 @@ class ModelParameters(object):
     def dalpha_dt(self, new_dalpha_dt):
         self.parameters['dalpha_dt'] = new_dalpha_dt
 
-
     @property
     def t_binary(self):
         """
         The reference time for the calculation of parallax. If not set
         explicitly, set t_binary = t_0.
         """
-        if not 't_binary' in self.parameters.keys():
+        if 't_binary' not in self.parameters.keys():
             return self.parameters['t_0']
         else:
-            return self.parameters['t_binary']    
+            return self.parameters['t_binary']
 
     @t_binary.setter
     def t_binary(self, new_t_binary):
@@ -660,14 +671,14 @@ class ModelParameters(object):
 
     @property
     def n_lenses(self):
-        """ 
+        """
         *int*
-        
+
         number of objects in the lens system
         """
-        if ( (not 's' in self.parameters.keys()) 
-                and (not 'q' in self.parameters.keys())
-                and (not 'alpha' in self.parameters.keys()) ):
+        if (('s' not in self.parameters.keys()) and
+                ('q' not in self.parameters.keys()) and
+                ('alpha' not in self.parameters.keys())):
             return 1
         else:
             return 2
@@ -676,30 +687,7 @@ class ModelParameters(object):
         """
         *dict*
 
-        Use dictionary.update() to update/add parameters 
-        to the ModelParameters set.
+        Use dictionary.update() to update/add parameters to the
+        ModelParameters set.
         """
         self.parameters.update(dict)
-
-
-if __name__ == '__main__':
-    line = "===================================================================================="
-    print(line)
-    which_parameters()
-    print(line)
-    which_parameters('point lens')
-    print(line)
-    which_parameters('binary lens')
-    print(line)
-    which_parameters('finite source')
-    print(line)
-    which_parameters('parallax')
-    print(line)
-    which_parameters('PSPL')
-    print(line)
-    which_parameters('FSPL')
-    print(line)
-    which_parameters('PSBL')
-    print(line)
-    which_parameters('FSBL')
-
