@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #ifndef FLOAT
 #define FLOAT double
 #endif
@@ -9,12 +11,15 @@ FLOAT mag_binext(FLOAT y1, FLOAT y2, FLOAT rho, FLOAT d, FLOAT q,
 	FLOAT acc, FLOAT ld_acc);
 
 
-double Adaptive_Contouring_Linear(double d, double q, double y1, double y2, double rho, double gamma, double acc, double ld_acc) {
+double Adaptive_Contouring_Linear(double d, double q, double y1, double y2, 
+		double rho, double gamma, double acc, double ld_acc) {
+// Wrapper around Martin Dominik's Adaptive Contouring code.
+  FLOAT gam[1];
+  gam[0] = gamma;
 
-FLOAT gam[1];
-gam[0] = gamma;
-
-return(mag_binext(y1,y2,rho,d,q,ld_linear,1,gam,acc,ld_acc));
-
+  if (gamma == 0.0) 
+    return(mag_binext(y1,y2,rho,d,q,NULL,-1,NULL,acc,ld_acc));
+  else 
+    return(mag_binext(y1,y2,rho,d,q,ld_linear,1,gam,acc,ld_acc));  
 }
 
