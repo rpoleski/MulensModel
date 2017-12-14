@@ -308,7 +308,7 @@ class MagnificationCurve(object):
             if self._methods_parameters is not None:
                 if method in self._methods_parameters.keys():
                     kwargs = self._methods_parameters[method]
-                if kwargs != {} and method != 'vbbl':
+                if kwargs != {} and method != 'vbbl': # XXX NOTE AC parameters
                     raise ValueError('Methods parameters passed for method {:}'
                         + ' which does not accept any parameters')
 
@@ -325,6 +325,10 @@ class MagnificationCurve(object):
             elif method == 'vbbl':
                 m = binary_lens.vbbl_magnification(x, y, 
                         rho=self.parameters.rho, 
+                        gamma=self._gamma, **kwargs)
+            elif method == 'adaptivecontouring':
+                m = binary_lens.adaptive_contouring_magnification(x, y, 
+                        rho=self.parameters.rho,
                         gamma=self._gamma, **kwargs)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
