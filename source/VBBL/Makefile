@@ -1,5 +1,6 @@
 GCC = gcc
 CFLAGS += -lm -lstdc++ -fPIC
+CFLAGS += -O2
 
 wrapper = VBBinaryLensingLibrary_wrapper.so
 wrapper_source = VBBinaryLensingLibrary_wrapper.cpp
