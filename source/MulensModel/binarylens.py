@@ -329,7 +329,7 @@ class BinaryLens(object):
             return a_hexadecapole
            
     def adaptive_contouring_magnification(self, source_x, source_y, rho,
-            gamma=None, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.01):
+            gamma=None, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001):
         """
         TO BE DONE
 
@@ -367,10 +367,10 @@ class BinaryLens(object):
         else: 
             gamma = float(0.0) # XXX
             
-        s = self.separation
-        q = self.mass_2 / self.mass_1
-        x = -source_x # XXX
-        y = -source_y
+        s = float(self.separation)
+        q = float(self.mass_2 / self.mass_1)
+        x = float(-source_x) # XXX
+        y = float(-source_y)
         # XXX
         #assert accuracy > 0., ("VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" + 
         #    "\n{:} was  provided".format(accuracy)) 
@@ -437,10 +437,10 @@ class BinaryLens(object):
         else: 
             u_limb_darkening = float(0.0)
             
-        s = self.separation
-        q = self.mass_2 / self.mass_1
-        x = source_x
-        y = source_y
+        s = float(self.separation)
+        q = float(self.mass_2 / self.mass_1)
+        x = float(source_x)
+        y = float(source_y)
         assert accuracy > 0., ("VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" + 
             "\n{:} was  provided".format(accuracy)) 
             # Note that this accuracy is not guaranteed.
