@@ -149,23 +149,28 @@ def test_BLPS_02_AC():
     
     t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
         2450000.)
+    ac_name = 'AdaptiveContouring'
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
-        'AdaptiveContouring', 2456117.5]
+        ac_name, 2456117.5]
+    accuracy_1 = {'accuracy': 0.04}
+    accuracy_2 = {'accuracy': 0.01, 'ld_accuracy': 0.0001}
     model.set_magnification_methods(methods)
-    
+    model.set_magnification_methods_parameters({ac_name: accuracy_1})
+
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     result = model.data_magnification[0]
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704, 
         1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    np.testing.assert_almost_equal(result, expected, decimal=1) # XXX
+    np.testing.assert_almost_equal(result, expected, decimal=3) 
 
     # Below we test passing the limb coef to VBBL function.
     data.bandpass = 'I'
     model.set_limb_coeff_u('I', 10.) # This is an absurd value but I needed something quick.
+    model.set_magnification_methods_parameters({ac_name: accuracy_2})
     result = model.data_magnification[0]
-    np.testing.assert_almost_equal(result[5], 1.6366862, decimal=1) # XXX 
+    np.testing.assert_almost_equal(result[5], 1.6366862, decimal=3) 
 
 def test_methods_parameters():
     """make sure additional parameters are properly passed to very inner functions"""
