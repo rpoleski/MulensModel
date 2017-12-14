@@ -8,7 +8,10 @@ from math import fsum, sqrt
 
 import MulensModel
 from MulensModel.utils import Utils
-# for VBBL import/wrapping see self._vbbl_wrapped below
+# For VBBL and AdaptiveContouring import and wrapping see 
+# self._vbbl_wrapped and
+# self._adaptive_contouring_wrapped
+# below.
 
 
 class BinaryLens(object):
@@ -43,6 +46,7 @@ class BinaryLens(object):
         self._position_z2_WM95 = None
         self._last_polynomial_input = None
         self._vbbl_wrapped = False
+        self._adaptive_contouring_wrapped = False
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
@@ -323,7 +327,59 @@ class BinaryLens(object):
             return (a_hexadecapole, a_quadrupole, a_center)
         else:
             return a_hexadecapole
+           
+    def adaptive_contouring_magnification(self, source_x, source_y, rho,
+            gamma=None, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.01):
+        """
+        TO BE DONE
+
+        `Dominik 2007 MNRAS, 377, 1679
+        <http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D>`_
+
+        See also 
+        `AdaptiveContouring website by Martin Dominik 
+        <http://star-www.st-and.ac.uk/~md35/Software.html>`_
+        """
+
+        if not self._adaptive_contouring_wrapped:
+            PATH = os.path.join(MulensModel.MODULE_PATH, 'source', 
+                    'AdaptiveContouring', 
+                    "AdaptiveContouring_wrapper.so")
+            try:
+                adaptive_contouring = ctypes.cdll.LoadLibrary(PATH)
+            except OSError as X: # XXX
+                msg = ("Something went wrong with AdaptiveContouring " 
+                        + "wrapping ({:})" + "\n\n" + repr(X))
+                raise OSError(msg.format(PATH))
+            self._adaptive_contouring_wrapped = True
+            adaptive_contouring.Adaptive_Contouring_Linear.argtypes = 8 * [ctypes.c_double]
+            adaptive_contouring.Adaptive_Contouring_Linear.restype = ctypes.c_double
+            self._adaptive_contouring_linear = adaptive_contouring.Adaptive_Contouring_Linear
+        
+        if gamma is not None and u_limb_darkening is not None:
+            raise ValueError('Only one limb darkening parameters can be set' + 
+                             ' in BinaryLens.adaptive_contouring_' +
+                             'magnification()')
+        elif gamma is not None:
+            gamma = float(gamma)
+        elif u_limb_darkening is not None:
+            gamma = float(Utils.u_to_gamma(u_limb_darkening))
+        else: 
+            gamma = float(0.0) # XXX
             
+        s = self.separation
+        q = self.mass_2 / self.mass_1
+        x = -source_x # XXX
+        y = -source_y
+        # XXX
+        #assert accuracy > 0., ("VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" + 
+        #    "\n{:} was  provided".format(accuracy)) 
+            # Note that this accuracy is not guaranteed.
+        
+        magnification = self._adaptive_contouring_linear(s, q, x, y, rho, 
+                                                    gamma, accuracy, ld_accuracy)
+        return magnification
+
     def vbbl_magnification(self, source_x, source_y, rho, 
                            gamma=None, u_limb_darkening=None, 
                            accuracy=0.001):
