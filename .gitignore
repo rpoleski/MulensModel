@@ -16,6 +16,10 @@ __pycache__/
 VBBinaryLensingLibrary.o
 VBBinaryLensingLibrary_wrapper.so
 
+# AdaptiveContouring library
+source/AdaptiveContouring/*.o
+source/AdaptiveContouring/*.so
+
 # Sphinx files
 *.doctree
 docs/_sources/
