@@ -12,25 +12,26 @@ scales (e.g. HJD_UTC vs. BJD_TDB) for astropy.Time and JPL Horizons
 are copied at the end of this file.
 """
 
+
 class Horizons(object):
     """
     An Object to read and hold the standard JPL Horizons output,
     i.e. satellite ephemerides.
-    
+
     Arguments :
         file_name: *str*
             output from JPL Horizons file name
     """
 
     def __init__(self, file_name):
-        #initialize components
+        # initialize components
         self._time = None
         self._xyz = None
 
-        #Read in the Horizons file
+        # Read in the Horizons file
         self.file_properties = {"file_name": file_name}
         self._read_horizons_file()
-        
+
     def _get_start_end(self):
         """
         Find the start (self.start_ind) and end (self.stop_ind) points
@@ -41,15 +42,15 @@ class Horizons(object):
         in_file = open(self.file_properties['file_name'], 'r')
         self.file_properties['line_count'] = 0
         for (i, line) in enumerate(in_file):
-            #Check for "start data" string
+            # Check for "start data" string
             if line[0:5] == '$$SOE':
                 self.file_properties['start_ind'] = i
 
-            #Check for "end data" string
+            # Check for "end data" string
             if line[0:5] == '$$EOE':
                 self.file_properties['stop_ind'] = i
 
-            #Count total number of lines
+            # Count total number of lines
             self.file_properties['line_count'] += 1
         in_file.close()
 
@@ -57,52 +58,52 @@ class Horizons(object):
         """
         reads standard output from JPL Horizons into self.data_lists
         """
-        #Read in the file
+        # Read in the file
         self._get_start_end()
         data = np.genfromtxt(
             self.file_properties['file_name'],
-            dtype=[('date', 'S17'), ('ra_dec', 'S23'), ('distance', 'f8'), 
+            dtype=[('date', 'S17'), ('ra_dec', 'S23'), ('distance', 'f8'),
                    ('foo', 'S23')],
-            delimiter=[18,29,18,24],autostrip=True,
-            skip_header=self.file_properties['start_ind'] + 1, 
-            skip_footer=(self.file_properties['line_count']
-                         -self.file_properties['stop_ind']))
+            delimiter=[18, 29, 18, 24], autostrip=True,
+            skip_header=self.file_properties['start_ind'] + 1,
+            skip_footer=(self.file_properties['line_count'] -
+                         self.file_properties['stop_ind']))
 
-        #Fix time format
+        # Fix time format
         for (i, date) in enumerate(data['date']):
             data['date'][i] = Utils.date_change(date)
 
         self.data_lists = data
 
-    @ property
+    @property
     def time(self):
         """
         *np.ndarray*
-        
+
         return times in TDB (reference frame depends on Horizons input)
         """
         if self._time is None:
-            # Currently we assume HORIZONS works in UTC.
-            date_list = [text.decode('UTF-8') for text in self.data_lists['date']]
+            #  Currently we assume HORIZONS works in UTC.
+            date_list = [
+                text.decode('UTF-8') for text in self.data_lists['date']]
             times = Time(date_list, format='iso', scale='utc')
-            self._time = times.tdb.jd 
+            self._time = times.tdb.jd
         return self._time
 
-    @ property 
+    @property
     def xyz(self):
         """
         *Astropy.CartesianRepresentation*
-        
+
         return X,Y,Z positions based on RA, DEC and distance
         """
         if self._xyz is None:
-            ra_dec = [text.decode('UTF-8') for text in self.data_lists['ra_dec']]
-            self._xyz = SkyCoord(ra_dec,
-                                distance=self.data_lists['distance'], 
-                                unit=(u.hourangle, u.deg, u.au)).cartesian
+            ra_dec = [
+                text.decode('UTF-8') for text in self.data_lists['ra_dec']]
+            self._xyz = SkyCoord(
+                ra_dec, distance=self.data_lists['distance'],
+                unit=(u.hourangle, u.deg, u.au)).cartesian
         return self._xyz
-
-
 
 """
 HORIZONS OUTPUT FILE:
@@ -140,33 +141,35 @@ than 1 minute (as shown in Fig. \ref{fig:tdbvutc}).
 
 """
 http://ssd.jpl.nasa.gov/?horizons_doc#time
- The program's time-span prompts indicate the earliest & latest dates 
- that may be used for the selected target/center combination, as well 
+
+ The program's time-span prompts indicate the earliest & latest dates
+ that may be used for the selected target/center combination, as well
  as the type of time assumed being input (UT, TDB, or TT).
 
-For cartesian coordinates or osculating elements tables, only TDB may 
-be used. For "observer tables", output may be either UT or TT. TO 
-CHANGE THE UT DEFAULT for observer tables, append a "TT" when 
-entering START time. To switch back, append a "UT" to the start time.
+For cartesian coordinates or osculating elements tables, only TDB may
+be used. For "observer tables", output may be either UT or TT. TO
+CHANGE THE UT DEFAULT for observer tables, append a "TT" when entering
+START time. To switch back, append a "UT" to the start time.
 
 The three time systems are described as follows:
 
 TDB
-    ("Barycentric Dynamical Time"); typically for cartesian, 
-    osculating element, and close-approach tables. The uniform time 
-    scale and independent variable of the planetary ephemeris 
+    ("Barycentric Dynamical Time"); typically for cartesian,
+    osculating element, and close-approach tables. The uniform time
+    scale and independent variable of the planetary ephemeris
     dynamical equations of motion.
 
 TT
-    ("Terrestrial (Dynamic) Time"), called TDT prior to 1991, used for 
-    observer quantity tables. This is proper time as measured by 
-    an Earth-bound observer and is directly related to atomic time, TAI. 
+    ("Terrestrial (Dynamic) Time"), called TDT prior to 1991, used for
+    observer quantity tables. This is proper time as measured by an
+    Earth-bound observer and is directly related to atomic time, TAI.
     TT periodically differs from TDB by, at most, 0.002 seconds.
 
 UT
-    is Universal Time This can mean one of two non-uniform time-scales 
-    based on the rotation of the Earth. For this program, prior to 1962, 
-    UT means UT1. After 1962, UT means UTC or "Coordinated Universal Time". 
-    Future UTC leap-seconds are not known yet, so the closest known 
-    leap-second correction is used over future time-spans. 
+    is Universal Time This can mean one of two non-uniform time-scales
+    based on the rotation of the Earth. For this program, prior to
+    1962, UT means UT1. After 1962, UT means UTC or "Coordinated
+    Universal Time".  Future UTC leap-seconds are not known yet, so
+    the closest known leap-second correction is used over future
+    time-spans.
 """
