@@ -1,48 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>MulensModel.binarylens module &mdash; MulensModel 0.2.1 documentation</title>
-    
+    <title>MulensModel.binarylens module &#8212; MulensModel 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -54,35 +44,36 @@
 <dl class="class">
 <dt id="MulensModel.binarylens.BinaryLens">
 <em class="property">class </em><code class="descclassname">MulensModel.binarylens.</code><code class="descname">BinaryLens</code><span class="sig-paren">(</span><em>mass_1=None</em>, <em>mass_2=None</em>, <em>separation=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>The binary lens equation - its solutions, images, parities, 
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The binary lens equation - its solutions, images, parities,
 magnifications, etc.</p>
 <p>The binary lens equation is a 5th order complex polynomial.</p>
 <dl class="docutils">
 <dt>Attributes :</dt>
 <dd><dl class="first last docutils">
 <dt>mass_1: <em>float</em></dt>
-<dd>mass of the primary (left-hand object) as a fraction of the total 
-mass.</dd>
+<dd>mass of the primary (left-hand object) as a fraction of
+the total mass.</dd>
 <dt>mass_2: <em>float</em></dt>
-<dd>mass of the secondary (right-hand object) as a fraction of the 
+<dd>mass of the secondary (right-hand object) as a fraction of the
 total mass.</dd>
 <dt>separation: <em>float</em></dt>
-<dd>separation between the two bodies as a fraction of the Einstein 
+<dd>separation between the two bodies as a fraction of the Einstein
 ring.</dd>
 </dl>
 </dd>
 </dl>
-<p>Note: mass_1 and mass_2 may be defined as a fraction of some other mass 
-than the total mass. This is possible but not recommended - make sure you 
-know what you&#8217;re doing before you start using this possibility.</p>
+<p>Note: mass_1 and mass_2 may be defined as a fraction of some other
+mass than the total mass. This is possible but not recommended -
+make sure you know what you’re doing before you start using this
+possibility.</p>
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.point_source_magnification">
 <code class="descname">point_source_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate point source magnification for given position. 
-The origin of the coordinate system is at the center of mass 
-and both masses are on X axis with higher mass at negative X;
-this means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
+<dd><p>Calculate point source magnification for given position. The
+origin of the coordinate system is at the center of mass and
+both masses are on X axis with higher mass at negative X; this
+means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
 the lower mass is at (s/(1+q), 0).</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
@@ -105,10 +96,10 @@ the lower mass is at (s/(1+q), 0).</p>
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.hexadecapole_magnification">
 <code class="descname">hexadecapole_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma</em>, <em>quadrupole=False</em>, <em>all_approximations=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Magnification in hexadecpole approximation of 
-the binary-lens/finite-source event - based on 
-<a class="reference external" href="http://adsabs.harvard.edu/abs/2008ApJ...681.1593G">Gould 2008 ApJ 681, 1593</a>.</p>
-<p>For coordinate system convention see 
+<dd><p>Magnification in hexadecpole approximation of the
+binary-lens/finite-source event - based on <a class="reference external" href="http://adsabs.harvard.edu/abs/2008ApJ...681.1593G">Gould 2008 ApJ
+681, 1593</a>.</p>
+<p>For coordinate system convention see
 <a class="reference internal" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="MulensModel.binarylens.BinaryLens.point_source_magnification"><code class="xref py py-func docutils literal"><span class="pre">point_source_magnification()</span></code></a></p>
 <dl class="docutils">
 <dt>Parameters :</dt>
@@ -125,18 +116,18 @@ the binary-lens/finite-source event - based on
 <dd>Return quadrupole approximation instead of hexadecapole?
 Default is <em>False</em>.</dd>
 <dt>all_approximations: <em>boolean</em>, optional</dt>
-<dd>Return hexadecapole, quadrupole, and point source 
+<dd>Return hexadecapole, quadrupole, and point source
 approximations? Default is <em>False</em>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
 <dt>magnification: <em>float</em> or <em>sequence</em> of three <em>floats</em></dt>
-<dd>Hexadecapole approximation (<em>float</em>) by default. 
-Quadrupole approximation (<em>float</em>) if 
-<em>quadrupole</em> parameter is <em>True</em>. Hexadecapole, quadrupole, 
-and point source approximations (<em>sequence</em> of three <em>floats</em>) 
-if <em>all_approximations</em> parameter is <em>True</em>.</dd>
+<dd>Hexadecapole approximation (<em>float</em>) by default.
+Quadrupole approximation (<em>float</em>) if <em>quadrupole</em>
+parameter is <em>True</em>. Hexadecapole, quadrupole, and
+point source approximations (<em>sequence</em> of three
+<em>floats</em>) if <em>all_approximations</em> parameter is <em>True</em>.</dd>
 </dl>
 </dd>
 </dl>
@@ -144,21 +135,21 @@ if <em>all_approximations</em> parameter is <em>True</em>.</dd>
 
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification">
-<code class="descname">adaptive_contouring_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma=None</em>, <em>u_limb_darkening=None</em>, <em>accuracy=0.1</em>, <em>ld_accuracy=0.01</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="Permalink to this definition">¶</a></dt>
+<code class="descname">adaptive_contouring_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma=None</em>, <em>u_limb_darkening=None</em>, <em>accuracy=0.1</em>, <em>ld_accuracy=0.001</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>TO BE DONE</p>
 <p><a class="reference external" href="http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D">Dominik 2007 MNRAS, 377, 1679</a></p>
-<p>See also 
+<p>See also
 <a class="reference external" href="http://star-www.st-and.ac.uk/~md35/Software.html">AdaptiveContouring website by Martin Dominik</a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.vbbl_magnification">
 <code class="descname">vbbl_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma=None</em>, <em>u_limb_darkening=None</em>, <em>accuracy=0.001</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Binary lens finite source magnification calculated using VBBL 
-library that implements advanced contour integration algorithm 
-presented by <a class="reference external" href="http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B">Bozza 2010 MNRAS, 408, 2188</a>. See also 
-<a class="reference external" href="http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm">VBBL website by Valerio Bozza</a>.</p>
-<p>For coordinate system convention see 
+<dd><p>Binary lens finite source magnification calculated using VBBL
+library that implements advanced contour integration algorithm
+presented by <a class="reference external" href="http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B">Bozza 2010 MNRAS, 408, 2188</a>. See
+also <a class="reference external" href="http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm">VBBL website by Valerio Bozza</a>.</p>
+<p>For coordinate system convention see
 <a class="reference internal" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="MulensModel.binarylens.BinaryLens.point_source_magnification"><code class="xref py py-func docutils literal"><span class="pre">point_source_magnification()</span></code></a></p>
 <dl class="docutils">
 <dt>Parameters :</dt>
@@ -172,9 +163,10 @@ presented by <a class="reference external" href="http://adsabs.harvard.edu/abs/2
 <dt>gamma: <em>float</em>, optional</dt>
 <dd>Linear limb-darkening coefficient in gamma convention.</dd>
 <dt>u_limb_darkening: <em>float</em></dt>
-<dd>Linear limb-darkening coefficient in u convention. 
-Note that either <em>gamma</em> or <em>u_limb_darkening</em> can be set. 
-If neither of them is provided then limb darkening is ignored.</dd>
+<dd>Linear limb-darkening coefficient in u convention.
+Note that either <em>gamma</em> or <em>u_limb_darkening</em> can be
+set.  If neither of them is provided then limb
+darkening is ignored.</dd>
 <dt>accuracy: <em>float</em>, optional</dt>
 <dd>Requested accuracy of the result.</dd>
 </dl>
@@ -197,25 +189,28 @@ If neither of them is provided then limb darkening is ignored.</dd>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.binarylens.txt"
+      <li><a href="_sources/MulensModel.binarylens.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -226,12 +221,12 @@ If neither of them is provided then limb darkening is ignored.</dd>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/MulensModel.binarylens.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="_sources/MulensModel.binarylens.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

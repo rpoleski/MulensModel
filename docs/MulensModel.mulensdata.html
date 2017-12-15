@@ -1,48 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>MulensModel.mulensdata module &mdash; MulensModel 0.2.1 documentation</title>
-    
+    <title>MulensModel.mulensdata module &#8212; MulensModel 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -54,7 +44,7 @@
 <dl class="class">
 <dt id="MulensModel.mulensdata.MulensData">
 <em class="property">class </em><code class="descclassname">MulensModel.mulensdata.</code><code class="descname">MulensData</code><span class="sig-paren">(</span><em>data_list=None</em>, <em>file_name=None</em>, <em>phot_fmt='mag'</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em>, <em>add_2450000=False</em>, <em>add_2460000=False</em>, <em>bandpass=None</em>, <em>bad=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A set of photometric measurements for a microlensing event.</p>
 <dl class="docutils">
 <dt>Examples of how to define a MulensData object:</dt>
@@ -64,7 +54,7 @@
 </dl>
 <p><strong>Parallax calculations assume that the dates supplied are
 BJD_TDB. See</strong> <a class="reference internal" href="MulensModel.trajectory.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal"><span class="pre">Trajectory</span></code></a>. If
-you aren&#8217;t using parallax, the time system shouldn&#8217;t matter as
+you aren’t using parallax, the time system shouldn’t matter as
 long as it is consistent across all MulensData and Model objects.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
@@ -79,8 +69,8 @@ Err. Loaded using np.loadtxt. See <code class="docutils literal"><span class="pr
 <dl class="docutils">
 <dt>phot_fmt: <em>str</em> </dt>
 <dd>Specifies whether the photometry is in Magnitudes or
-Flux units. accepts either &#8216;mag&#8217; or &#8216;flux&#8217;. Default =
-&#8216;mag&#8217;.</dd>
+Flux units. accepts either ‘mag’ or ‘flux’. Default =
+‘mag’.</dd>
 <dt>coords: <em>astropy.SkyCoord</em>, optional </dt>
 <dd>sky coordinates of the event</dd>
 <dt>ra, dec: <em>str</em>, optional </dt>
@@ -88,8 +78,8 @@ Flux units. accepts either &#8216;mag&#8217; or &#8216;flux&#8217;. Default =
 <dt>ephemerides_file: <em>str</em>, optional </dt>
 <dd>Specify the ephemerides of a satellite over the period when
 the data were taken. Will be interpolated as necessary to
-model the satellite parallax effect. See &#8220;Instructions on
-getting satellite positions&#8221; in MulensModel.README.md</dd>
+model the satellite parallax effect. See “Instructions on
+getting satellite positions” in MulensModel.README.md</dd>
 <dt>add_2450000: <em>boolean</em>, optional </dt>
 <dd>Adds 2450000 to the input dates. Useful if the dates
 are supplied as HJD-2450000.</dd>
@@ -166,8 +156,8 @@ positions at epochs covered by the dataset</p>
 <dt id="MulensModel.mulensdata.MulensData.bandpass">
 <code class="descname">bandpass</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.bandpass" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>string</em></p>
-<p>bandpass of given dataset (primary usage is limb darkening), e.g. &#8216;I&#8217;
-or &#8216;V&#8217;</p>
+<p>bandpass of given dataset (primary usage is limb darkening), e.g. ‘I’
+or ‘V’</p>
 </dd></dl>
 
 <dl class="method">
@@ -198,25 +188,28 @@ larger than the V-band</dd>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.mulensdata.txt"
+      <li><a href="_sources/MulensModel.mulensdata.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -227,12 +220,12 @@ larger than the V-band</dd>
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/MulensModel.mulensdata.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="_sources/MulensModel.mulensdata.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

@@ -1,5 +1,5 @@
-MulensModel\.horizons module
-============================
+MulensModel.horizons module
+===========================
 
 .. automodule:: MulensModel.horizons
     :members:
