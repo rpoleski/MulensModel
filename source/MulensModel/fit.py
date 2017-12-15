@@ -7,16 +7,17 @@ from MulensModel.utils import Utils
 class Fit(object):
     """
     Fits source and blending fluxes for given data and model magnification.
-    
+
     Keywords :
-        data: :py:class:`MulensData` or list of :py:class:`MulensData` instances
+        data: :py:class:`MulensData` or list of :py:class:`MulensData`
+        instances
             Photometric data to be fitted.
 
         magnification: *np.ndarray* or *list of np.ndarrays*
             Model magnification.
 
         n_sources: *int*
-            The number of microlensing sources. *It's suggested not to use 
+            The number of microlensing sources. *It's suggested not to use
             this option now.*
 
     """
@@ -24,7 +25,7 @@ class Fit(object):
     def __init__(self, data=None, magnification=None, n_sources=None):
         # Initialize self._datasets, self._magnification, and self._n_sources
         if isinstance(data, list):
-            self._datasets = data 
+            self._datasets = data
         else:
             self._datasets = [data]
 
@@ -34,30 +35,31 @@ class Fit(object):
             self._magnificaiton = [magnification]
 
         if magnification is None and n_sources is None:
-            raise ValueError('Fit class requires magnifications vectors' 
-                    + ' or number of sources directly specified')
+            raise ValueError(
+                'Fit class requires magnifications vectors' +
+                ' or number of sources directly specified')
         self._n_sources = n_sources
-        
-        #Set up numpy ndarrays for flux parameters
+
+        # Set up numpy ndarrays for flux parameters
         self._flux_blending = dict()
         self._flux_sources = dict()
 
-           
     def fit_fluxes(self, fit_blending=True):
         """
-        Fit source(s) and blending fluxes. Performs a least squares linear fit
-        (*np.linalg.lstsq()*) to the data for the flux parameters. 
-        I.e., given the data :math:`y` and magnifcation :math:`A`, solves for 
-        :math:`f_{source}` and :math:`f_{blend}`:
+        Fit source(s) and blending fluxes. Performs a least squares
+        linear fit (*np.linalg.lstsq()*) to the data for the flux
+        parameters. I.e., given the data :math:`y` and magnifcation
+        :math:`A`, solves for :math:`f_{source}` and
+        :math:`f_{blend}`:
 
         .. math::
 
            y = f_{source} * A + f_{blend}
-        
+
         Parameters :
             fit_blending: *boolean*, optional
-                Do you want the blending to be fitted (*True*) or to be 
-                fixed at 0 (*False*)? Default is *True*
+                Do you want the blending to be fitted (*True*) or to
+                be fixed at 0 (*False*)? Default is *True*
 
         """
         n_sources = self.get_n_sources()
@@ -67,7 +69,7 @@ class Fit(object):
         if fit_blending:
             n_fluxes += 1
 
-        # For each dataset, perform a least-squares linear fit for the flux 
+        # For each dataset, perform a least-squares linear fit for the flux
         # parameters
         for (i_dataset, dataset) in enumerate(self._datasets):
             # suppress bad data
@@ -77,7 +79,7 @@ class Fit(object):
             # Set up the x vector for the linear fit
             x = np.empty(shape=(n_fluxes, n_epochs))
             if fit_blending:
-                x[0:(n_fluxes-1),] = self._magnification[i_dataset][select]
+                x[0:(n_fluxes-1), ] = self._magnification[i_dataset][select]
                 x[n_fluxes-1] = 1.
             else:
                 x = self._magnification[i_dataset][select]
@@ -93,7 +95,7 @@ class Fit(object):
 
             # Solve for the coefficients in y = fs * x + fb (point source)
             # These values are: F_s1, F_s2,..., F_b.
-            results = np.linalg.lstsq(xT, y)[0] 
+            results = np.linalg.lstsq(xT, y)[0]
 
             # Record the results
             if fit_blending:
@@ -104,8 +106,9 @@ class Fit(object):
                 self._flux_sources[dataset] = results
 
     def blending_flux(self, dataset):
-        """Blending flux for given dataset.
-        
+        """
+        Blending flux for given dataset.
+
         Parameters :
             dataset: :py:class:`~MulensModel.mulensdata.MulensData`
                 A dataset for which blending flux will be given.
@@ -113,12 +116,13 @@ class Fit(object):
         Returns :
             blending_flux: *np.float64*
                 Blending flux in units where 1 corresponds to 22 mag.
-            
+
         """
         return self._flux_blending[dataset]
-        
+
     def flux_of_sources(self, dataset):
-        """Fluxes of source(s).
+        """
+        Fluxes of source(s).
 
         Parameters :
             dataset: :py:class:`~MulensModel.mulensdata.MulensData`
@@ -126,17 +130,17 @@ class Fit(object):
 
         Returns :
             source_fluxes: *np.ndarray*
-                Fluxes of sources in units where 1 corresponds to 22 mag. 
+                Fluxes of sources in units where 1 corresponds to 22 mag.
                 The number of array elements is the same as number of sources.
 
-        """ 
+        """
         return self._flux_sources[dataset]
 
     def get_input_format(self, data=None):
         """
-        Microlensing model in the same format as given dataset. The output is 
-        either in flux units or magnitudes, depending on format of the input 
-        data.
+        Microlensing model in the same format as given dataset. The
+        output is either in flux units or magnitudes, depending on
+        format of the input data.
 
         Parameters :
             data: :py:class:`~MulensModel.mulensdata.MulensData`
@@ -144,36 +148,37 @@ class Fit(object):
 
         Returns :
             magnification: *np.ndarray*
-                Magnifications in flux units or magnitudes (depending on 
-                the format of input data). 
+                Magnifications in flux units or magnitudes (depending on
+                the format of input data).
 
         """
-        #Check for potential problems
+        # Check for potential problems
         if data is None:
             raise ValueError('Fit.get_input_format() dataset not provided')
         if data not in self._flux_blending:
-            self._flux_blending[data] = 0. 
-            warnings.warn("Blending flux not set. This is strange...", 
-                            SyntaxWarning)
+            self._flux_blending[data] = 0.
+            warnings.warn(
+                "Blending flux not set. This is strange...", SyntaxWarning)
 
-        #Initialize parameters
+        # Initialize parameters
         n_sources = self.get_n_sources()
         index = self._datasets.index(data)
 
-        #Calculate the model flux
+        # Calculate the model flux
         flux = np.ones(data.n_epochs) * self._flux_blending[data]
         if n_sources == 1:
             if data not in self._flux_sources:
-                self._flux_sources[data] = 1. 
-                warnings.warn("Source flux not set. This is strange...", 
-                                SyntaxWarning)
+                self._flux_sources[data] = 1.
+                warnings.warn(
+                    "Source flux not set. This is strange...", SyntaxWarning)
             flux += self._flux_sources[data] * self._magnification[index]
         else:
             for i in range(n_sources):
                 flux += self._flux_sources[data][i] \
                       * self._magnification[index][i]
-        
-        #Return the model flux in either flux or magnitudes (depending on data)
+
+        # Return the model flux in either flux or magnitudes
+        # (depending on data)
         if data.input_fmt == "mag":
             result = Utils.get_mag_from_flux(flux)
         elif data.input_fmt == "flux":
@@ -182,7 +187,7 @@ class Fit(object):
             msg = 'Fit.get_input_format() unrecognized data input format'
             raise ValueError(msg)
         return result
-    
+
     def get_n_sources(self):
         """Count sources.
 
@@ -190,8 +195,8 @@ class Fit(object):
             n_sources: *int*
                 Number of sources in input data.
         """
-        
-        #if not set, determine from the shape of _magnification
+
+        # if not set, determine from the shape of _magnification
         if self._n_sources is not None:
             n_sources = self._n_sources
         else:
