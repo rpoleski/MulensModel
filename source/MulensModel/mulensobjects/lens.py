@@ -4,10 +4,11 @@ from astropy import units as u
 
 from MulensModel.caustics import Caustics
 
+
 class Lens(object):
     """
     A mass or system of masses.
-    
+
     Standard parameter combinations for defining a Lens object:
 
     Point Lens:
@@ -19,16 +20,19 @@ class Lens(object):
 
         (:py:obj:`epsilon`, :py:obj:`s`)
 
-        (:py:obj:`total_mass`, :py:obj:`epsilon`, :py:obj:`distance`) - Missing s/Not Implemented?
+        (:py:obj:`total_mass`, :py:obj:`epsilon`, :py:obj:`distance`)
+        - Missing s/Not Implemented?
 
-        (:py:obj:`mass_1`, :py:obj:`mass_2`, :py:obj:`a_proj`, :py:obj:`distance`) - Not Implemented
-    
+        (:py:obj:`mass_1`, :py:obj:`mass_2`, :py:obj:`a_proj`,
+        :py:obj:`distance`) - Not Implemented
+
     Note that s, q, and epsilon may be single values, lists, or numpy ndarrays.
 
-    If units are not specified for a given mass, it is assumed the value
-    given is in Solar Masses. 
+    If units are not specified for a given mass, it is assumed the
+    value given is in Solar Masses.
 
-    If units are not specified for distance it is assumed the value is given in kpc. 
+    If units are not specified for distance it is assumed the value is
+    given in kpc.
 
     To be done:
         - __repr__ function needs work
@@ -37,12 +41,13 @@ class Lens(object):
         - problem with tracking number of masses, esp when
           successively defining masses (see test_Lens.py)
         - implement triple+ systems
+
     """
     def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
                  a_proj=None, distance=None, q=None, s=None, epsilon=None):
         self._caustics = None
 
-        #Set up system from s and q if defined
+        # Set up system from s and q if defined
         if q is not None:
             self.q = q
             if s is not None:
@@ -51,28 +56,28 @@ class Lens(object):
                 msg = 'if q is defined, s must also be defined.'
                 raise AttributeError(msg)
 
-            #include system mass if appropriate
+            # include system mass if appropriate
             if mass_1 is not None:
                 self.total_mass = mass_1 * (1. + q)
 
-        #Set total_mass and epsilon if defined
+        # Set total_mass and epsilon if defined
         if total_mass is not None:
             self.total_mass = total_mass
         if epsilon is not None:
             self._epsilon = np.array(epsilon)
 
-        #Set total_mass, epsilon from mass_1 and mass_2
+        # Set total_mass, epsilon from mass_1 and mass_2
         if mass_2 is not None:
             self.total_mass = mass_1 + mass_2
             self._epsilon = np.array(
-                            [mass_1/self.total_mass, mass_2/self.total_mass])
+                [mass_1 / self.total_mass, mass_2 / self.total_mass])
         else:
             if mass_1 is not None and q is None:
                 self._set_single_mass(mass_1)
             if mass is not None:
                 self._set_single_mass(mass)
 
-        #Set distance and projected separation
+        # Set distance and projected separation
         if distance is not None:
             self.distance = distance
         else:
@@ -81,16 +86,17 @@ class Lens(object):
             self._a_proj = a_proj
 
     def __repr__(self):
-        """Make a nice string representation of the object."""
-        #Lens Distance
+        """ Make a nice string representation of the object. """
+        # Lens Distance
         try:
             dist_str = 'Lens Distance: {0}\n'.format(self._distance)
         except AttributeError:
             dist_str = ' '
 
-        #Lens mass or q
+        # Lens mass or q
         try:
-            return('{1}Lens Total Mass: {0}'.format(self._total_mass, dist_str))
+            return(
+                '{1}Lens Total Mass: {0}'.format(self._total_mass, dist_str))
         except AttributeError:
             return('{1}Lens mass ratio: {0}'.format(self.q, dist_str))
         else:
@@ -103,6 +109,7 @@ class Lens(object):
 
         An array of mass fractions for each lens components:
         m_i/total_mass. Stored as a *numpy.ndarray*.
+
         """
         return self._epsilon
 
@@ -117,12 +124,14 @@ class Lens(object):
 
         mass ratio for companions relative to the primary
 
-        Array of mass ratios defined relative to the primary (m_i/m_1). Size is
-        number of components -1. Set as a list, np.ndarray, or single value.
+        Array of mass ratios defined relative to the primary
+        (m_i/m_1). Size is number of components -1. Set as a list,
+        np.ndarray, or single value.
 
         Note: if :py:obj:`total_mass` is defined before q, it is
         assumed this is the mass of the primary. If you want this to
         actually be the total mass, define it after defining q.
+
         """
         if self._epsilon.size > 1:
             return self._epsilon[1:] / self._epsilon[0]
@@ -131,21 +140,22 @@ class Lens(object):
 
     @q.setter
     def q(self, new_q):
-        #Update epsilon
+        # Update epsilon
         new_q = np.insert(new_q, 0, 1.)
         self._epsilon = new_q / fsum(new_q)
 
         try:
             if np.array(new_q).size == self._epsilon.size - 1:
-        #Case 3: the entire lens is defined (new_q changes the values of q)
+                # Case 3: the entire lens is defined (new_q changes
+                # the values of q)
                 pass
             else:
-        #Case 2: the primary is defined (new_q adds masses)
-                if (self._total_mass is not None 
-                        and self._last_mass_set != 'total_mass'):
+                # Case 2: the primary is defined (new_q adds masses)
+                if ((self._total_mass is not None) and
+                        (self._last_mass_set != 'total_mass')):
                     self._total_mass = self._total_mass * fsum(new_q)
         except AttributeError:
-        #Case 1: nothing is initialized (new_q directly sets epsilon)
+            # Case 1: nothing is initialized (new_q directly sets epsilon)
             pass
 
     @property
@@ -172,6 +182,7 @@ class Lens(object):
         The total mass of the lens (sum of all components). An
         astropy.Quantity with mass units. If set as a *float*, units
         are assumed to be solMass.
+
         """
         return self._total_mass
 
@@ -189,7 +200,7 @@ class Lens(object):
         self._last_mass_set = 'total_mass'
 
     @property
-    def mass(self): 
+    def mass(self):
         """
         *astropy.Quantity*
 
@@ -199,7 +210,8 @@ class Lens(object):
         """
         if self._epsilon.size > 1:
             raise TypeError(
-                'mass can only be defined for a point lens. use total_mass for multiple bodies')
+                'mass can only be defined for a point lens. use total_mass' +
+                'for multiple bodies')
         else:
             return self.total_mass
 
@@ -221,6 +233,7 @@ class Lens(object):
         The mass of the primary. Defined as total_mass *
         epsilon[0]. An *astropy.Quantity* with mass units. If set as a
         *float*, units are assumed to be solMass.
+
         """
         return self.total_mass * self._epsilon[0]
 
@@ -244,6 +257,7 @@ class Lens(object):
         Note that if total_mass is defined before mass_2, and there is
         no epsilon corresponding to mass_2, mass_2 is added to the
         total_mass.
+
         """
         return self.total_mass * self._epsilon[1]
 
@@ -260,12 +274,13 @@ class Lens(object):
         """
         *astropy.Quantity*
 
-        The mass of the tertiary. Defined as total_mass * epsilon[2]. 
-        An *astropy.Quantity* with mass units. If set as a
-        *float*, units are assumed to be solMass.
+        The mass of the tertiary. Defined as total_mass * epsilon[2].
+        An *astropy.Quantity* with mass units. If set as a *float*,
+        units are assumed to be solMass.
 
         Note that if total_mass is defined before mass_3, and there is
         no epsilon corresponding to mass_3, mass_3 is added to the total_mass.
+
         """
         return self.total_mass * self._epsilon[2]
 
@@ -283,6 +298,7 @@ class Lens(object):
         *int*, read-only
 
         number of masses in the system.
+
         """
         try:
             return len(self._epsilon)
@@ -293,9 +309,10 @@ class Lens(object):
 
     def _change_mass(self, new_mass, index):
         """
-        Updates total_mass and epsilon array if the
-        mass of one of the components is changed. e.g. mass_2 is
-        changed from 1 MJup to 2 MJup.
+        Updates total_mass and epsilon array if the mass of one of the
+        components is changed. e.g. mass_2 is changed from 1 MJup to 2
+        MJup.
+
         """
         if not isinstance(new_mass, u.Quantity):
             new_mass *= u.solMass
@@ -311,8 +328,8 @@ class Lens(object):
 
     def _set_single_mass(self, new_mass):
         """
-        Initializes total_mass and epsilon if only
-        one mass componenet is defined (i.e. a point lens).
+        Initializes total_mass and epsilon if only one mass componenet
+        is defined (i.e. a point lens).
         """
         if isinstance(new_mass, u.Quantity):
             if new_mass.unit.physical_type == 'dimensionless':
@@ -343,20 +360,19 @@ class Lens(object):
 
         new_total_mass = self._total_mass + new_mass
         self._epsilon = self._total_mass * self._epsilon / new_total_mass
-        self._epsilon = np.insert(self._epsilon, index, 
-                                  new_mass / new_total_mass)
+        self._epsilon = np.insert(
+            self._epsilon, index, new_mass / new_total_mass)
         self._total_mass = new_total_mass
-
 
     @property
     def distance(self):
         """
         *astropy.Quantity*
 
-        The distance to the lens. 
+        The distance to the lens.
 
-        May be set as a *float*. If no unit is
-        given, the value is assumed to be kpc. 
+        May be set as a *float*. If no unit is given, the value is
+        assumed to be kpc.
         """
         return self._distance
 
@@ -371,7 +387,7 @@ class Lens(object):
                 self._distance = new_distance
             else:
                 raise u.UnitsError(
-                    'Allowed units for Lens distance are "pc" or "kpc"') 
+                    'Allowed units for Lens distance are "pc" or "kpc"')
 
     @property
     def pi_L(self):
@@ -381,6 +397,7 @@ class Lens(object):
         The parallax to the lens in milliarcseconds. May be set as a
         *float*, in which case units are assumed to be
         milliarcseconds.
+
         """
         return self._distance.to(u.mas, equivalencies=u.parallax())
 
@@ -398,10 +415,11 @@ class Lens(object):
         Projected separation between the components of the lens in
         AU. An *astropy.Quantity* with distance units. If set as *float*
         (without units), AU is assumed.
+
         """
         raise NotImplementedError('a_proj is not used, e.g. to set s')
         return self._a_proj
-    
+
     @a_proj.setter
     def a_proj(self, new_a_proj):
         raise NotImplementedError('a_proj is not used, e.g. to set s')
@@ -425,12 +443,12 @@ class Lens(object):
     def plot_caustics(self, n_points=5000, **kwargs):
         """
         A function to plot the x,y coordinates (scaled to the
-        Einstein ring) of the caustics. `Pyplot scatter`_ is used for 
+        Einstein ring) of the caustics. `Pyplot scatter`_ is used for
         plotting. See :py:func:`MulensModel.caustics.Caustics.plot()`.
-    
+
         Parameters :
-            n_points: *int* 
-                Number of points be plotted. 
+            n_points: *int*
+                Number of points be plotted.
 
             ``**kwargs``:
                 Keyword arguments passed to `Pyplot scatter`
@@ -440,4 +458,3 @@ class Lens(object):
 
         """
         self.caustics.plot(n_points=n_points, **kwargs)
-
