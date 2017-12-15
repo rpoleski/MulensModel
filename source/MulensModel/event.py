@@ -31,11 +31,11 @@ class Event(object):
             Smallest value returned by :py:func:`get_chi2()`.
 
         best_chi2_parameters: *dict*
-            Parameters that gave smallest chi2. 
+            Parameters that gave smallest chi2.
 
     """
     def __init__(self, datasets=None, model=None, coords=None):
-        #Initialise self._model (and check that model is defined).
+        # Initialise self._model (and check that model is defined).
         if isinstance(model, Model):
             self._model = model
         elif model is None:
@@ -43,13 +43,13 @@ class Event(object):
         else:
             raise TypeError('incorrect argument model of class Event()')
 
-        #Initialise self._datasets (and check that datasets is defined).
+        # Initialise self._datasets (and check that datasets is defined).
         if isinstance(datasets, (list, tuple, MulensData)) or datasets is None:
             self._set_datasets(datasets)
         else:
             raise TypeError('incorrect argument datasets of class Event()')
 
-        #Set event coordinates
+        # Set event coordinates
         if coords is not None:
             self._update_coords(coords=coords)
         else:
@@ -78,7 +78,7 @@ class Event(object):
         index (*int*). Default is the first data set.
         """
         return self.model.data_ref
-        
+
     @data_ref.setter
     def data_ref(self, new_value):
         self.model.data_ref = new_value
@@ -112,8 +112,9 @@ class Event(object):
     @model.setter
     def model(self, new_value):
         if not isinstance(new_value, Model):
-            raise TypeError(('wrong type of Event.model: {:} instead of ' +
-                'MulensModel').format(type(new_value)))
+            raise TypeError((
+                    'wrong type of Event.model: {:} instead of ' +
+                    'MulensModel').format(type(new_value)))
         self._model = new_value
         if self._datasets is not None:
             self._model.set_datasets(self._datasets)
@@ -127,7 +128,7 @@ class Event(object):
         see :py:class:`~MulensModel.coordinates.Coordinates`
         """
         return self._coords
-    
+
     @coords.setter
     def coords(self, new_value):
         self._update_coords(coords=new_value)
@@ -140,7 +141,7 @@ class Event(object):
             self._model.coords = self._coords
 
         # We run the command below with try, because _update_coords() is called
-        # by _set_datasets before self._datasets is set. 
+        # by _set_datasets before self._datasets is set.
         try:
             for dataset in self._datasets:
                 dataset.coords = self._coords
@@ -148,14 +149,16 @@ class Event(object):
             pass
 
     def reset_best_chi2(self):
-        """Reset *best_chi2* attribute and its parameters 
-        (*best_chi2_parameters*)"""
+        """
+        Reset *best_chi2* attribute and its parameters
+        (*best_chi2_parameters*)
+        """
         self.best_chi2 = None
         self.best_chi2_parameters = {}
-        
+
     def get_chi2(self, fit_blending=None):
         """
-        Calculates chi^2 of current model by fitting for source and 
+        Calculates chi^2 of current model by fitting for source and
         blending fluxes.
 
         Parameters :
@@ -171,10 +174,10 @@ class Event(object):
         """
         chi2_per_point = self.get_chi2_per_point(
             fit_blending=fit_blending)
-        #Calculate chi^2 given the fit
+        # Calculate chi^2 given the fit
         chi2 = []
         for i, dataset in enumerate(self.datasets):
-            #Calculate chi2 for the dataset excluding bad data 
+            # Calculate chi2 for the dataset excluding bad data
             select = np.logical_not(dataset.bad)
             chi2.append(fsum(chi2_per_point[i][select]))
 
@@ -185,28 +188,29 @@ class Event(object):
         return self.chi2
 
     def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
-        """Calculates chi^2 for a single dataset
-        
+        """
+        Calculates chi^2 for a single dataset
+
         Parameters :
             index_dataset: *int*
                 index that specifies for which dataset the chi^2 is requested
-                
+
             fit_blending: *boolean*, optional
-                Are we fitting for blending flux? If not then blending flux is 
+                Are we fitting for blending flux? If not then blending flux is
                 fixed to 0.  Default is the same as
                 :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
-            chi2: *np.ndarray*  
+            chi2: *np.ndarray*
                 Chi^2 contribution from each data point,
                 e.g. chi2[obs_num][k] returns the chi2 contribution
                 from the *k*-th point of observatory *obs_num*.
-        
+
         """
         dataset = self.datasets[index_dataset]
         magnification = self.model.get_data_magnification(dataset)
-        self.fit = Fit(data=dataset, magnification=[magnification]) 
-        
+        self.fit = Fit(data=dataset, magnification=[magnification])
+
         if fit_blending is not None:
             self.fit.fit_fluxes(fit_blending=fit_blending)
         else:
@@ -233,25 +237,26 @@ class Event(object):
 
         Parameters :
             fit_blending: *boolean*, optional
-                Are we fitting for blending flux? If not then blending flux is 
+                Are we fitting for blending flux? If not then blending flux is
                 fixed to 0.  Default is the same as
                 :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
-            chi2: *np.ndarray*  
+            chi2: *np.ndarray*
                 Chi^2 contribution from each data point,
                 e.g. chi2[obs_num][k] returns the chi2 contribution
                 from the *k*-th point of observatory *obs_num*.
+
         """
-        #Define a Fit given the model and perform linear fit for fs and fb
-        self.fit = Fit(data=self.datasets, 
-                       magnification=self.model.data_magnification) 
+        # Define a Fit given the model and perform linear fit for fs and fb
+        self.fit = Fit(
+            data=self.datasets, magnification=self.model.data_magnification)
         if fit_blending is not None:
             self.fit.fit_fluxes(fit_blending=fit_blending)
         else:
             self.fit.fit_fluxes()
 
-        #Calculate chi^2 given the fit
+        # Calculate chi^2 given the fit
         chi2_per_point = []
         for (i, dataset) in enumerate(self.datasets):
             if dataset.input_fmt == "mag":
@@ -264,13 +269,13 @@ class Event(object):
                 raise ValueError('Unrecognized data format: {:}'.format(
                         dataset.input_fmt))
             diff = data - self.fit.get_input_format(data=dataset)
-            chi2_per_point.append( (diff/err_data)**2 )
+            chi2_per_point.append((diff/err_data)**2)
 
         return chi2_per_point
 
     def get_ref_fluxes(self, data_ref=None):
         """
-        Get source and blending fluxes for the reference dataset. See 
+        Get source and blending fluxes for the reference dataset. See
         :py:func:`MulensModel.model.Model.get_ref_fluxes()` for details.
         """
         return self.model.get_ref_fluxes(data_ref=data_ref)
@@ -284,14 +289,14 @@ class Event(object):
 
     def plot_data(self, **kwargs):
         """
-        Plot the data scaled to the model. See 
+        Plot the data scaled to the model. See
         :py:func:`MulensModel.model.Model.plot_data()` for details.
         """
         self.model.plot_data(**kwargs)
 
     def plot_residuals(self, **kwargs):
         """
-        Plot the residuals (in magnitudes) of the model. 
+        Plot the residuals (in magnitudes) of the model.
         See :py:func:`MulensModel.model.Model.plot_residuals()` for details.
         """
         self.model.plot_residuals(**kwargs)
@@ -301,7 +306,6 @@ class Event(object):
         raise NotImplementedError("This feature has not been implemented yet")
 
     def estimate_model_params(self):
-        """estiamtes model parameters without fitting them. 
+        """estiamtes model parameters without fitting them.
         **Not Implemented.**"""
         raise NotImplementedError("This feature has not been implemented yet")
-

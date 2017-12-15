@@ -1,5 +1,5 @@
-MulensModel\.trajectory module
-==============================
+MulensModel.trajectory module
+=============================
 
 .. automodule:: MulensModel.trajectory
     :members:

@@ -1,5 +1,5 @@
-MulensModel\.mulenstime module
-==============================
+MulensModel.mulenstime module
+=============================
 
 .. automodule:: MulensModel.mulenstime
     :members:
