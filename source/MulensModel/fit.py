@@ -88,8 +88,10 @@ class Fit(object):
             y = np.copy(self._datasets[i_dataset].flux[select])
             sigma_inverse = 1. / self._datasets[i_dataset].err_flux[select]
             y *= sigma_inverse
-            for (i, sig_inv) in enumerate(sigma_inverse):
-                xT[i] *= sig_inv
+            if fit_blending:
+                xT *= np.array([sigma_inverse, sigma_inverse]).T
+            else:
+                xT *= np.array([sigma_inverse]).T
 
             # Solve for the coefficients in y = fs * x + fb (point source)
             # These values are: F_s1, F_s2,..., F_b.
