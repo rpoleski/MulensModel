@@ -20,8 +20,10 @@ class Model(object):
 
     Arguments :
         parameters: *dictionary*,
-        :py:class:`~MulensModel.modelparameters.ModelParameters` see
-        :py:class:`MulensModel.modelparameters.ModelParameters`
+        :py:class:`~MulensModel.modelparameters.ModelParameters` 
+
+            see
+            :py:class:`MulensModel.modelparameters.ModelParameters`
 
         :py:obj:`coords`: [*list*, *str*, *astropy.SkyCoords*], optional
             Sky Coordinates of the event.
@@ -315,7 +317,7 @@ class Model(object):
                 plotting calls (e.g. :py:func:`plot_data()`)
 
             data_ref: *int* or a
-                :py:class:`~MulensModel.mulensdata.MulensData` object
+            :py:class:`~MulensModel.mulensdata.MulensData` object
 
                 Reference dataset to scale the model to. See
                 :py:func:`get_ref_fluxes()`

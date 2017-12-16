@@ -8,19 +8,19 @@ class Coordinates(SkyCoord):
     astropy.SkyCoord_.
 
     May be set as a *str*, pair of *str*, or *SkyCoord* object, e.g.
+    
+    .. code-block:: python
 
-        Coordinates('18:00:00 -30:00:00')
+      Coordinates('18:00:00 -30:00:00')
+      Coordinates('18h00m00s', '-30d00m00s')
+      Coordinates(SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg)))
 
-        Coordinates('18h00m00s', '-30d00m00s')
-
-        Coordinates(SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg)))
-
-    If the unit keyward is not specified, defaults to unit=(u.hourangle, u.deg)
-
-    where u is defined by "import astropy.units as u".
-
+    If the unit keyward is not specified, defaults to
+    unit=(u.hourangle, u.deg) where u is defined by "import
+    astropy.units as u".
+    
     .. _astropy.SkyCoord:
-    http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
+      http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
 
     """
 
