@@ -16,7 +16,7 @@ class MulensSystem(object):
     def __init__(self, lens=None, source=None, mu_rel=None):
         self._lens = None
         self._source = None
-        if lens is not None :
+        if lens is not None:
             if source is None:
                 raise AttributeError(
                     'If lens is specified, source must also be specified.')
@@ -43,7 +43,7 @@ class MulensSystem(object):
     @property
     def lens(self):
         """
-        A :py:class:`~MulensModel.mulensobjects.lens.Lens` object. 
+        A :py:class:`~MulensModel.mulensobjects.lens.Lens` object.
         Physical properties of the lens. Note: lens mass must be in
         solMasses.
         """
@@ -55,18 +55,18 @@ class MulensSystem(object):
             self._lens = value
         else:
             raise TypeError("lens must be a Lens object")
-        if (self.source is not None and self.source.distance is not None 
-                and self.lens.distance is not None 
-                and self.source.distance.value < self.lens.distance.value):
+        if (self.source is not None and self.source.distance is not None and
+                self.lens.distance is not None and
+                self.source.distance.value < self.lens.distance.value):
             msg = 'Source cannot be closer than lens: {:} {:}'
-            raise ValueError(msg.format(self.source.distance, 
-                self.lens.distance))
+            raise ValueError(
+                msg.format(self.source.distance, self.lens.distance))
 
     @property
     def source(self):
         """
         :py:class:`~MulensModel.mulensobjects.source.Source` object.
-        Physical properties of the source. 
+        Physical properties of the source.
         """
         return self._source
 
@@ -76,13 +76,14 @@ class MulensSystem(object):
             self._source = value
         else:
             raise TypeError(
-                "source must be a MulensModel.mulensobjects.source.Source object")
-        if (self.lens is not None and self.source.distance is not None 
-                and self.lens.distance is not None 
-                and self.source.distance.value < self.lens.distance.value):
+                "source must be a MulensModel.mulensobjects.source.Source" +
+                "object")
+        if (self.lens is not None and self.source.distance is not None and
+                self.lens.distance is not None and
+                self.source.distance.value < self.lens.distance.value):
             msg = 'Source cannot be closer than lens: {:} {:}'
-            raise ValueError(msg.format(self.source.distance, 
-                self.lens.distance))
+            raise ValueError(msg.format(
+                    self.source.distance, self.lens.distance))
 
     @property
     def mu_rel(self):
@@ -138,12 +139,12 @@ class MulensSystem(object):
 
         The angular Einstein Radius in milliarcseconds.
         """
-        kappa = (4. * G / (c**2 * au)).to(u.mas/u.Msun, 
-                        equivalencies=u.dimensionless_angles())
+        kappa = (4. * G / (c**2 * au)).to(
+            u.mas/u.Msun, equivalencies=u.dimensionless_angles())
 
         return np.sqrt(
-            kappa * self.lens.total_mass.to(u.solMass) 
-            * self.pi_rel.to(u.mas))
+            kappa * self.lens.total_mass.to(u.solMass) *
+            self.pi_rel.to(u.mas))
 
     @property
     def r_E(self):
@@ -153,7 +154,7 @@ class MulensSystem(object):
         The physical size of the Einstein Radius in the Lens plane (in AU).
         """
         return (self.lens.distance * self.theta_E.to(
-                '',equivalencies=u.dimensionless_angles())).to(u.au)
+                '', equivalencies=u.dimensionless_angles())).to(u.au)
 
     @property
     def r_E_tilde(self):
@@ -163,9 +164,10 @@ class MulensSystem(object):
         The physical size of the Einstein Radius projected onto the
         Observer plane (in AU).
         """
-        return self.r_E * self.source.distance / (self.source.distance - self.lens.distance)
+        return self.r_E * self.source.distance / (
+            self.source.distance - self.lens.distance)
 
-    def plot_magnification(self, u_0=None, alpha=None,**kwargs):
+    def plot_magnification(self, u_0=None, alpha=None, **kwargs):
         """
         Plot the magnification curve for the lens. u_0 must always be
         specified. If the lens has more than one body, alpha must also
@@ -195,17 +197,17 @@ class MulensSystem(object):
                 xtitle = 'Time (tE)'
 
             if self.source.angular_radius is not None:
-                parameters['rho'] = (self.source.angular_radius.to(u.mas) 
-                                  / self.theta_E.to(u.mas))
+                parameters['rho'] = (self.source.angular_radius.to(u.mas) /
+                                     self.theta_E.to(u.mas))
 
             if self.lens.n_masses > 1:
                 parameters['q'] = self.lens.q
                 parameters['s'] = self.lens.s
                 if alpha is None:
-                    raise AttributeError('alpha is required for 2-body lenses.')
+                    raise AttributeError(
+                        'alpha is required for 2-body lenses.')
                 else:
                     parameters['alpha'] = alpha
-
 
             model = Model(parameters=parameters)
             model.plot_magnification(**kwargs)
@@ -218,7 +220,7 @@ class MulensSystem(object):
 
         Parameters :
             n_points: *int*
-                Number of points be plotted. 
+                Number of points be plotted.
 
             ``**kwargs``:
                 Keyword arguments passed to `Pyplot scatter`
@@ -228,4 +230,3 @@ class MulensSystem(object):
 
         """
         self.lens.plot_caustics(n_points=n_points, **kwargs)
-
