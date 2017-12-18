@@ -48,3 +48,15 @@ def test_vbbl_1():
     result = bl.vbbl_magnification(0.01, 0.01, 0.01)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
     
+def test_ac_1():
+    s = 0.8
+    q = 0.1
+    
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+    bl = MulensModel.BinaryLens(m_1, m_2, s)
+    
+    result = bl.adaptive_contouring_magnification(0.01, 0.01, 0.01, 
+            accuracy=0.035, ld_accuracy=1e-4)
+    np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
+ 
