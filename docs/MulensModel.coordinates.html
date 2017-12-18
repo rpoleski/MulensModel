@@ -48,18 +48,19 @@
 <p>A class for the coordinates (RA, Dec) of an event. Inherits from
 <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html">astropy.SkyCoord</a>.</p>
 <p>May be set as a <em>str</em>, pair of <em>str</em>, or <em>SkyCoord</em> object, e.g.</p>
-<blockquote>
-<div><p>Coordinates(‘18:00:00 -30:00:00’)</p>
-<p>Coordinates(‘18h00m00s’, ‘-30d00m00s’)</p>
-<p>Coordinates(SkyCoord(‘18:00:00 -30:00:00’, unit=(u.hourangle, u.deg)))</p>
-</div></blockquote>
-<p>If the unit keyward is not specified, defaults to unit=(u.hourangle, u.deg)</p>
-<p>where u is defined by “import astropy.units as u”.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">)</span>
+<span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18h00m00s&#39;</span><span class="p">,</span> <span class="s1">&#39;-30d00m00s&#39;</span><span class="p">)</span>
+<span class="n">Coordinates</span><span class="p">(</span><span class="n">SkyCoord</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">hourangle</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>If the unit keyward is not specified, defaults to
+unit=(u.hourangle, u.deg) where u is defined by “import
+astropy.units as u”.</p>
 <dl class="attribute">
 <dt id="MulensModel.coordinates.Coordinates.galactic_l">
 <code class="descname">galactic_l</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.galactic_l" title="Permalink to this definition">¶</a></dt>
-<dd><p>Galactic longitude. Note that for connivance, the values l &gt; 180 
-degrees are represented as 360-l.</p>
+<dd><p>Galactic longitude. Note that for connivance, the values l &gt;
+180 degrees are represented as 360-l.</p>
 </dd></dl>
 
 <dl class="attribute">

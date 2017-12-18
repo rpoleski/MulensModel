@@ -45,11 +45,11 @@
 <dt id="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs">
 <em class="property">class </em><code class="descclassname">MulensModel.limbdarkeningcoeffs.</code><code class="descname">LimbDarkeningCoeffs</code><a class="headerlink" href="#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
-<p>Linear limb-darkening parameters. Both <em>gamma</em> and <em>u</em> conventions can be used. 
-The <em>u</em> convention is more frequently used in studies other than microlensing. 
-It has fixed flux at the center. 
-<a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...572..521A">An et al. 2002 (ApJ 572, 521)</a> 
-introduced the <em>gamma</em> convention:</p>
+<p>Linear limb-darkening parameters. Both <em>gamma</em> and <em>u</em> conventions
+can be used.  The <em>u</em> convention is more frequently used in
+studies other than microlensing.  It has fixed flux at the center.
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...572..521A">An et al. 2002 (ApJ 572, 521)</a> introduced
+the <em>gamma</em> convention:</p>
 <p>gamma = (2 * u) / (3 - u)</p>
 <p>u = 3 * gamma / (2 + gamma)</p>
 <p>Note that the gamma convention has fixed total flux.</p>
@@ -133,12 +133,12 @@ introduced the <em>gamma</em> convention:</p>
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
 <dt>weights: <em>dict</em></dt>
-<dd>A dictionary that for every band (keys; <em>str</em> type) gives its 
-relative weight (value; <em>float</em> type), e.g., 
-<code class="docutils literal"><span class="pre">weights</span> <span class="pre">=</span> <span class="pre">{'I':</span> <span class="pre">1.5,</span> <span class="pre">'V':</span> <span class="pre">1.}</span></code>
-will return gamma coefficient in the case when <em>I</em> band 
-contributes 1.5 more than <em>V</em> band. Note that for each band used 
-you have to first set to coefficient.</dd>
+<dd>A dictionary that for every band (keys; <em>str</em> type)
+gives its relative weight (value; <em>float</em> type), e.g.,
+<code class="docutils literal"><span class="pre">weights</span> <span class="pre">=</span> <span class="pre">{'I':</span> <span class="pre">1.5,</span> <span class="pre">'V':</span> <span class="pre">1.}</span></code> will return gamma
+coefficient in the case when <em>I</em> band contributes 1.5
+more than <em>V</em> band. Note that for each band used you
+have to first set to coefficient.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>

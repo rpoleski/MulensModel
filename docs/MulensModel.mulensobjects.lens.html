@@ -55,25 +55,16 @@
 <blockquote>
 <div><p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.s" title="MulensModel.mulensobjects.lens.Lens.s"><code class="xref py py-obj docutils literal"><span class="pre">s</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.q" title="MulensModel.mulensobjects.lens.Lens.q"><code class="xref py py-obj docutils literal"><span class="pre">q</span></code></a>)</p>
 <p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.s" title="MulensModel.mulensobjects.lens.Lens.s"><code class="xref py py-obj docutils literal"><span class="pre">s</span></code></a>)</p>
-<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal"><span class="pre">total_mass</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>) - Missing s/Not Implemented?</p>
-<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_1" title="MulensModel.mulensobjects.lens.Lens.mass_1"><code class="xref py py-obj docutils literal"><span class="pre">mass_1</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_2" title="MulensModel.mulensobjects.lens.Lens.mass_2"><code class="xref py py-obj docutils literal"><span class="pre">mass_2</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.a_proj" title="MulensModel.mulensobjects.lens.Lens.a_proj"><code class="xref py py-obj docutils literal"><span class="pre">a_proj</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>) - Not Implemented</p>
+<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal"><span class="pre">total_mass</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>)
+- Missing s/Not Implemented?</p>
+<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_1" title="MulensModel.mulensobjects.lens.Lens.mass_1"><code class="xref py py-obj docutils literal"><span class="pre">mass_1</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_2" title="MulensModel.mulensobjects.lens.Lens.mass_2"><code class="xref py py-obj docutils literal"><span class="pre">mass_2</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.a_proj" title="MulensModel.mulensobjects.lens.Lens.a_proj"><code class="xref py py-obj docutils literal"><span class="pre">a_proj</span></code></a>,
+<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>) - Not Implemented</p>
 </div></blockquote>
 <p>Note that s, q, and epsilon may be single values, lists, or numpy ndarrays.</p>
-<p>If units are not specified for a given mass, it is assumed the value
-given is in Solar Masses.</p>
-<p>If units are not specified for distance it is assumed the value is given in kpc.</p>
-<dl class="docutils">
-<dt>To be done:</dt>
-<dd><ul class="first last simple">
-<li>__repr__ function needs work</li>
-<li>a_proj, couples with source distance in mulensmodel to determine s.</li>
-<li>2-body example 3 is missing s. Why? Does that work?</li>
-<li>problem with tracking number of masses, esp when
-successively defining masses (see test_Lens.py)</li>
-<li>implement triple+ systems</li>
-</ul>
-</dd>
-</dl>
+<p>If units are not specified for a given mass, it is assumed the
+value given is in Solar Masses.</p>
+<p>If units are not specified for distance it is assumed the value is
+given in kpc.</p>
 <dl class="attribute">
 <dt id="MulensModel.mulensobjects.lens.Lens.epsilon">
 <code class="descname">epsilon</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="Permalink to this definition">¶</a></dt>
@@ -87,8 +78,9 @@ m_i/total_mass. Stored as a <em>numpy.ndarray</em>.</p>
 <code class="descname">q</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.q" title="Permalink to this definition">¶</a></dt>
 <dd><p>[<em>float, list, numpy.ndarray</em>]</p>
 <p>mass ratio for companions relative to the primary</p>
-<p>Array of mass ratios defined relative to the primary (m_i/m_1). Size is
-number of components -1. Set as a list, np.ndarray, or single value.</p>
+<p>Array of mass ratios defined relative to the primary
+(m_i/m_1). Size is number of components -1. Set as a list,
+np.ndarray, or single value.</p>
 <p>Note: if <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal"><span class="pre">total_mass</span></code></a> is defined before q, it is
 assumed this is the mass of the primary. If you want this to
 actually be the total mass, define it after defining q.</p>
@@ -146,9 +138,9 @@ total_mass.</p>
 <dt id="MulensModel.mulensobjects.lens.Lens.mass_3">
 <code class="descname">mass_3</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_3" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>The mass of the tertiary. Defined as total_mass * epsilon[2]. 
-An <em>astropy.Quantity</em> with mass units. If set as a
-<em>float</em>, units are assumed to be solMass.</p>
+<p>The mass of the tertiary. Defined as total_mass * epsilon[2].
+An <em>astropy.Quantity</em> with mass units. If set as a <em>float</em>,
+units are assumed to be solMass.</p>
 <p>Note that if total_mass is defined before mass_3, and there is
 no epsilon corresponding to mass_3, mass_3 is added to the total_mass.</p>
 </dd></dl>
@@ -165,8 +157,8 @@ no epsilon corresponding to mass_3, mass_3 is added to the total_mass.</p>
 <code class="descname">distance</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.distance" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The distance to the lens.</p>
-<p>May be set as a <em>float</em>. If no unit is
-given, the value is assumed to be kpc.</p>
+<p>May be set as a <em>float</em>. If no unit is given, the value is
+assumed to be kpc.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -197,12 +189,12 @@ AU. An <em>astropy.Quantity</em> with distance units. If set as <em>float</em>
 <dt id="MulensModel.mulensobjects.lens.Lens.plot_caustics">
 <code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.plot_caustics" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function to plot the x,y coordinates (scaled to the
-Einstein ring) of the caustics. <a class="reference external" href="https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.scatter">Pyplot scatter</a> is used for 
+Einstein ring) of the caustics. <a class="reference external" href="https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.scatter">Pyplot scatter</a> is used for
 plotting. See <a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a>.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>n_points: <em>int</em> </dt>
+<dt>n_points: <em>int</em></dt>
 <dd>Number of points be plotted.</dd>
 <dt><code class="docutils literal"><span class="pre">**kwargs</span></code>:</dt>
 <dd>Keyword arguments passed to <cite>Pyplot scatter</cite></dd>

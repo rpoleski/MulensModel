@@ -67,23 +67,22 @@ Err. Loaded using np.loadtxt. See <code class="docutils literal"><span class="pr
 </dl>
 <p><strong>Either data_list or file_name is required.</strong></p>
 <dl class="docutils">
-<dt>phot_fmt: <em>str</em> </dt>
-<dd>Specifies whether the photometry is in Magnitudes or
-Flux units. accepts either ‘mag’ or ‘flux’. Default =
-‘mag’.</dd>
-<dt>coords: <em>astropy.SkyCoord</em>, optional </dt>
+<dt>phot_fmt: <em>str</em></dt>
+<dd>Specifies whether the photometry is in Magnitudes or Flux
+units. accepts either ‘mag’ or ‘flux’. Default = ‘mag’.</dd>
+<dt>coords: <em>astropy.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the event</dd>
-<dt>ra, dec: <em>str</em>, optional </dt>
+<dt>ra, dec: <em>str</em>, optional</dt>
 <dd>sky coordinates of the event</dd>
-<dt>ephemerides_file: <em>str</em>, optional </dt>
+<dt>ephemerides_file: <em>str</em>, optional</dt>
 <dd>Specify the ephemerides of a satellite over the period when
 the data were taken. Will be interpolated as necessary to
 model the satellite parallax effect. See “Instructions on
 getting satellite positions” in MulensModel.README.md</dd>
-<dt>add_2450000: <em>boolean</em>, optional </dt>
+<dt>add_2450000: <em>boolean</em>, optional</dt>
 <dd>Adds 2450000 to the input dates. Useful if the dates
 are supplied as HJD-2450000.</dd>
-<dt>add_2460000: <em>boolean</em>, optional </dt>
+<dt>add_2460000: <em>boolean</em>, optional</dt>
 <dd>Adds 2460000 to the input dates. Useful if the dates
 are supplied as HJD-2460000.</dd>
 </dl>
@@ -94,8 +93,8 @@ are supplied as HJD-2460000.</dd>
 plotting). Should be the same length as the number of data
 points.</dd>
 </dl>
-<p class="last"><code class="docutils literal"><span class="pre">**kwargs</span></code> - <code class="xref py py-func docutils literal"><span class="pre">np.loadtxt()</span></code> keywords. Used if file_name 
-is provided.</p>
+<p class="last"><code class="docutils literal"><span class="pre">**kwargs</span></code> - <code class="xref py py-func docutils literal"><span class="pre">np.loadtxt()</span></code> keywords. Used if
+file_name is provided.</p>
 </dd>
 </dl>
 <p>Attributes (all vectors):</p>
@@ -170,10 +169,11 @@ limb darkening coefficient. See also
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
 <dt>weights: <em>dict</em></dt>
-<dd>A dictionary that specifies weight for each bandpass. Keys are 
-<em>str</em> and values are <em>float</em>, e.g., <code class="docutils literal"><span class="pre">{'I':</span> <span class="pre">1.5,</span> <span class="pre">'V':</span> <span class="pre">1.}</span></code> if 
-the I-band gamma limb-darkening coefficient is 1.5-times 
-larger than the V-band</dd>
+<dd>A dictionary that specifies weight for each
+bandpass. Keys are <em>str</em> and values are <em>float</em>, e.g.,
+<code class="docutils literal"><span class="pre">{'I':</span> <span class="pre">1.5,</span> <span class="pre">'V':</span> <span class="pre">1.}</span></code> if the I-band gamma
+limb-darkening coefficient is 1.5-times larger than
+the V-band.</dd>
 </dl>
 </dd>
 </dl>
