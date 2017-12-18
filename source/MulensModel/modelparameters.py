@@ -468,7 +468,7 @@ class ModelParameters(object):
     @property
     def alpha(self):
         """
-        *astroph.Quantity*
+        *astropy.Quantity*
 
         The angle of the source trajectory relative to the binary lens
         axis (or primary-secondary axis). Measured counterclockwise,

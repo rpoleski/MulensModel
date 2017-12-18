@@ -9,7 +9,8 @@ class Source(object):
 
     Attributes :
         limb_darkening:
-            :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+        :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+
             Limb darkening coefficients of the source.
 
     """

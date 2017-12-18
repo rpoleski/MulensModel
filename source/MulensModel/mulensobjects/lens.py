@@ -34,15 +34,15 @@ class Lens(object):
     If units are not specified for distance it is assumed the value is
     given in kpc.
 
-    To be done:
-        - __repr__ function needs work
-        - a_proj, couples with source distance in mulensmodel to determine s.
-        - 2-body example 3 is missing s. Why? Does that work?
-        - problem with tracking number of masses, esp when
-          successively defining masses (see test_Lens.py)
-        - implement triple+ systems
-
     """
+    # To be done:
+    #    - __repr__ function needs work
+    #    - a_proj, couples with source distance in mulensmodel to determine s.
+    #    - 2-body example 3 is missing s. Why? Does that work?
+    #    - problem with tracking number of masses, esp when
+    #      successively defining masses (see test_Lens.py)
+    #    - implement triple+ systems
+
     def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
                  a_proj=None, distance=None, q=None, s=None, epsilon=None):
         self._caustics = None
