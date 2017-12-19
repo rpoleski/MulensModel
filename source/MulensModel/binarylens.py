@@ -350,14 +350,59 @@ class BinaryLens(object):
             self, source_x, source_y, rho, gamma=None, u_limb_darkening=None,
             accuracy=0.1, ld_accuracy=0.001):
         """
-        TO BE DONE
-
+        Binary lens finite source magnification calculated using 
+        Adaptive Contouring method by 
         `Dominik 2007 MNRAS, 377, 1679
         <http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D>`_
 
         See also
         `AdaptiveContouring website by Martin Dominik
         <http://star-www.st-and.ac.uk/~md35/Software.html>`_
+        
+        For coordinate system convention see
+        :py:func:`point_source_magnification()`
+
+        Parameters :
+            source_x: *float*
+                X-axis coordinate of the source.
+
+            source_y: *float*
+                Y-axis coordinate of the source.
+
+            rho: *float*
+                Source size relative to Einstein ring radius.
+
+            gamma: *float*, optional
+                Linear limb-darkening coefficient in gamma convention.
+
+            u_limb_darkening: *float*
+                Linear limb-darkening coefficient in u convention.
+                Note that either *gamma* or *u_limb_darkening* can be
+                set.  If neither of them is provided then limb
+                darkening is ignored.
+
+            accuracy: *float*, optional
+                Requested accuracy of the result defined as the sum of the area
+                of the squares that determine the contour line and 
+                the estimated total enclosed area (see sec. 4 of the paper). 
+                As M. Dominik states: *"this vastly overestimates 
+                the fractional error, and a suitable value should be chosen by
+                testing how itsvariation affects the final results - 
+                I recommend starting at acc = 0.1."* It significantly affects 
+                execution time.
+            
+            ld_accuracy: *float*, optional
+                Requested limb-darkening accuracy. As M. Dominik states: *"
+                Fractional uncertainty for the adaptive Simpson integration of
+                the limb-darkening profile-related function during application
+                of Green's theorem."* It does not addect execution time so can
+                be set to very small value.
+
+        Returns :
+            magnification: *float*
+                Magnification.
+
+        
         """
 
         if not self._adaptive_contouring_wrapped:
@@ -396,11 +441,10 @@ class BinaryLens(object):
         # so we have to transform the coordinates below.
         x = float(-source_x)
         y = float(-source_y)
-        # XXX
-        # assert accuracy > 0., ("VBBL requires accuracy > 0
-        # e.g. 0.01 or 0.001;" + "\n{:} was
-        # provided".format(accuracy)) Note that this accuracy is not
-        # guaranteed.
+        
+        assert accuracy > 0., "adaptive_contouring requires accuracy > 0"
+        assert ld_accuracy > 0., "adaptive_contouring requires ld_accuracy > 0"
+        # Note that this accuracy is not guaranteed.
 
         magnification = self._adaptive_contouring_linear(
             s, q, x, y, rho, gamma, accuracy, ld_accuracy)
