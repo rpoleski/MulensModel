@@ -8,6 +8,7 @@
 /* Revision 14-9-06 */
 /* Revision 29-9-06 */
 /* Revision 3-10-06 */
+/* Revision RP 19-12-17 */
 
 #include <math.h>
 #include <stdlib.h>
@@ -1715,14 +1716,19 @@ static FLOAT varprofile(FLOAT x1, FLOAT x2,
 	(*lenseq_func)(x1,x2,&y1,&y2,pl);
 	rho = rho_func(y1,y2,ps);
 	I0 = (*ld_func)(n,gam,0.0);
-	I1 = (*ld_func)(n,gam,1.0);
 	
-	if (rho == 1.0) 
+	if (rho == 1.0) { 
+	  I1 = (*ld_func)(n,gam,1.0);
 	  return(I0-I1);
-	else if (rho < 1.0) 
+	}
+	else if (rho < 1.0) {
+	  I1 = (*ld_func)(n,gam,1.0);
 	  return((*ld_func)(n,gam,rho)+I0-2.0*I1);
+	}
 	else  
 	  return(I0-(*ld_func)(n,gam,1.0/rho));
+// RP: This function can be faster if I0 and I1 are static 
+// variables that are changed only when n or gam[] changes. 
 }
 
 

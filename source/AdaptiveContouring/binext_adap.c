@@ -4,7 +4,7 @@
 /* MD 29-5-06 */
 /* MD 14-7-06 */
 /* MD 14-9-06 */
-
+/* RP 19-12-17 */
 
 #include <math.h>
 #include <stdlib.h>
@@ -57,22 +57,26 @@ void lenseq_bin(FLOAT x1, FLOAT x2, FLOAT *y1, FLOAT *y2,
 	FLOAT d,q;
 	FLOAT m1,m2;
 	FLOAT x11,x12,d1,d2;
+	FLOAT x22, m1d1, m2d2;
 
 	d = p[0];
 	q = p[1];
 
 	m1 = 1.0/(1.0+q);
-	m2 = q/(1.0+q);
+	m2 = q * m1;
 	x11 = x1-m2*d;
 	x12 = x1+m1*d;
-	d1 = SQ(x11)+SQ(x2);
-	d2 = SQ(x12)+SQ(x2);
+	x22 = x2 * x2;
+	d1 = SQ(x11)+x22;
+	d2 = SQ(x12)+x22;
 	if (d1 == 0.0 || d2 == 0.0) {
           *y1 = -BIGG;
 	  *y2 = -BIGG; 
 	} else {
-	  *y1 = x1-m1*x11/d1-m2*x12/d2;
-	  *y2 = x2-m1*x2/d1-m2*x2/d2;
+	  m1d1 = m1/d1;
+	  m2d2 = m2/d2;
+	  *y1 = x1-m1d1*x11-m2d2*x12;
+	  *y2 = x2-(m1d1+m2d2)*x2;
 	}
 }
 
@@ -94,25 +98,26 @@ boolean inside_circ(FLOAT y1, FLOAT y2, FLOAT *q)
 
 FLOAT rho_circ(FLOAT y1, FLOAT y2, FLOAT *q)
 {
-	FLOAT rsq,rhosq,d1,d2;
+	FLOAT rsq,d1,d2;
 
 	d1 = y1-q[0];
 	d2 = y2-q[1];
 	rsq = d1*d1+d2*d2;
-	rhosq = q[2]*q[2];
-	if (rhosq == 0.0) return(1e38);
-	return(sqrt(rsq/rhosq));
+	if (q[2] == 0.0) return(1e38);
+	return(sqrt(rsq)/q[2]);
 }
 
 
 
 FLOAT ld_linear(int n, FLOAT gam[], FLOAT rho)
 {
-	FLOAT val;
 
-	if (rho > 1.0) 
-		return(1.0-gam[0]);
-	return(1.0+gam[0]*(1.5*sqrt(1.0-SQ(rho))-1.0));
+	if (rho == 0.) 
+	  return 1+.5*gam[0];
+	else if (rho < 1.)
+	  return(1.0+gam[0]*(1.5*sqrt(1.0-SQ(rho))-1.0));
+	else 
+	  return 1.-gam[0];
 }
 
 FLOAT mag_binext(FLOAT y1, FLOAT y2, FLOAT rho, FLOAT d, FLOAT q, 
