@@ -19,7 +19,8 @@ In order to have this command invoked every time you open the terminal, please a
 
    gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o
 
-6. Congratulations! You have MulensModel installed fully.
+6. Repeat step 5. in ``source/AdaptiveContouring/`` subdirectory.
+7. Congratulations! You have MulensModel installed fully.
 
 .. _astropy package: http://www.astropy.org/
 .. _recent release: https://github.com/rpoleski/MulensModel/releases
