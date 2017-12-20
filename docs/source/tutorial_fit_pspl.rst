@@ -123,7 +123,7 @@ Fitting model parameters
 ------------------------
 
 Ok, finally we can fit the parameters. Here we will use 
-`the minimize() function <https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html>`_ 
+`the SciPy minimize() function <https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html>`_ 
 from SciPy subpackage optimize. We encourage you to 
 try other fitting routines.
 
