@@ -43,15 +43,14 @@ def _get_effect_strings(*args):
     alternate = []
     optional = []
 
-    short = lambda string: string.replace(" ", "")
-    args_0 = short(args[0].lower())
+    args_0 = args[0].lower().replace(" ", "")
 
     # number of lenses
-    if args_0 == short('point lens') or args_0[2:4] == 'pl':
+    if args_0 == 'pointlens' or args_0[2:4] == 'pl':
         basic = 'point lens'
         alternate.append('point lens alt')
 
-    if args_0 == short('binary lens'):
+    if args_0 == 'binarylens':
         basic = 'binary lens'
 
     if args_0[2:4] == 'bl':
@@ -60,7 +59,7 @@ def _get_effect_strings(*args):
         alternate.append('point lens alt')
 
     # Effects
-    if args_0 == short('finite source'):
+    if args_0 == 'finitesource':
         basic = 'finite source'
         alternate.append('finite source alt')
 
