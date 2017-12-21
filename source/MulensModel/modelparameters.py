@@ -134,6 +134,13 @@ def _print_all():
     _print_parameters(
         '---------\nlens orbital motion: ',
         _get_effect_strings('lens orbital motion'))
+    print('-----------------')
+    print('All Options: (call using which_parameters([option]) )')
+    print('-----------------')
+    print("Model types: 'PSPL', 'FSPL', 'PSBL', 'FSBL'")
+    print("Effects: 'point lens', 'binary lens', 'finite source', " +
+          "'parallax', 'lens orbital motion'")
+
 
 
 def which_parameters(*args):
