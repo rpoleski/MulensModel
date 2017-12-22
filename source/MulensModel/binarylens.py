@@ -83,40 +83,40 @@ class BinaryLens(object):
         zeta_conj_pow2 = zeta_conj * zeta_conj
 
         # Calculate the coefficients of the 5th order complex polynomial
-        coef_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
-        coef_4 = Utils.complex_fsum(
+        coeff_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
+        coeff_4 = Utils.complex_fsum(
             [-2. * total_m * zeta_conj,
              zeta * zeta_conj_pow2, -2. * m_diff * pos_z1,
              -zeta * z1_pow2])
-        coef_3 = Utils.complex_fsum(
+        coeff_3 = Utils.complex_fsum(
             [4. * total_m * zeta * zeta_conj,
              4. * m_diff * zeta_conj * pos_z1,
              2. * zeta_conj_pow2 * z1_pow2, -2. * z1_pow4])
-        coef_2 = Utils.complex_fsum(
+        coeff_2 = Utils.complex_fsum(
             [4. * total_m_pow2 * zeta,
              4. * total_m * m_diff * pos_z1,
              -4. * m_diff * zeta * zeta_conj * pos_z1,
              -2. * zeta * zeta_conj_pow2 * z1_pow2,
              4. * m_diff * z1_pow3, 2. * zeta * z1_pow4])
-        coef_1 = Utils.complex_fsum(
+        coeff_1 = Utils.complex_fsum(
             [-8. * total_m * m_diff * zeta * pos_z1,
              -4. * m_diff_pow2 * z1_pow2,
              -4. * total_m_pow2 * z1_pow2,
              -4. * total_m * zeta * zeta_conj * z1_pow2,
              -4. * m_diff * zeta_conj * z1_pow3,
              -zeta_conj_pow2 * z1_pow4, z1_pow3 * z1_pow3])
-        coef_0 = Utils.complex_fsum(
+        coeff_0 = Utils.complex_fsum(
             [4. * m_diff_pow2 * zeta,
              4. * total_m * m_diff * pos_z1,
              4. * m_diff * zeta * zeta_conj * pos_z1,
              2. * total_m * zeta_conj * z1_pow2,
              zeta * zeta_conj_pow2 * z1_pow2,
              -2. * m_diff * z1_pow3 - zeta * z1_pow4])
-        coef_0 *= z1_pow2
+        coeff_0 *= z1_pow2
 
         # Return the coefficients of the polynomial
-        coefs_list = [coef_0, coef_1, coef_2, coef_3, coef_4, coef_5]
-        return np.array(coefs_list).reshape(6)
+        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
+        return np.array(coeffs_list).reshape(6)
 
     def _get_polynomial_roots_WM95(self, source_x, source_y):
         """roots of the polynomial"""
@@ -270,7 +270,7 @@ class BinaryLens(object):
     def hexadecapole_magnification(self, source_x, source_y, rho, gamma,
                                    quadrupole=False, all_approximations=False):
         """
-        Magnification in hexadecpole approximation of the
+        Magnification in hexadecapole approximation of the
         binary-lens/finite-source event - based on `Gould 2008 ApJ
         681, 1593
         <http://adsabs.harvard.edu/abs/2008ApJ...681.1593G>`_.
@@ -309,7 +309,7 @@ class BinaryLens(object):
         """
         # In this function, variables named a_* depict magnification.
         if quadrupole and all_approximations:
-            raise ValueError('Inconsisient parameters of ' +
+            raise ValueError('Inconsistent parameters of ' +
                              'BinaryLens.hexadecapole_magnification()')
 
         a_center = self.point_source_magnification(
@@ -387,7 +387,7 @@ class BinaryLens(object):
                 the estimated total enclosed area (see sec. 4 of the paper). 
                 As M. Dominik states: *"this vastly overestimates 
                 the fractional error, and a suitable value should be chosen by
-                testing how itsvariation affects the final results - 
+                testing how its variation affects the final results - 
                 I recommend starting at acc = 0.1."* It significantly affects 
                 execution time.
             

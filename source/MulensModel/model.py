@@ -368,7 +368,7 @@ class Model(object):
 
     def get_ref_fluxes(self, data_ref=None):
         """
-        Get source and blending fluxes for the model by findig the
+        Get source and blending fluxes for the model by finding the
         best-fit values compared to data_ref.
 
         Parameters:
@@ -520,7 +520,7 @@ class Model(object):
             show_errorbars: *boolean*
                 If show_errorbars is True (default), plots with
                 matplotlib.errorbar(). If False, plots with
-                matplotib.scatter().
+                matplotlib.scatter().
 
             show_bad: *boolean*
                 if False, bad data are suppressed (default).

@@ -109,7 +109,7 @@ class Trajectory(object):
 
             # Apply topocentric parallax effect
             if self.parallax['topocentric'] and self.earth_coords is not None:
-                # When you implemenet it, make sure the behaviour
+                # When you implement it, make sure the behaviour
                 # depends on the access to the observatory location
                 # information as the satellite parallax depends on the
                 # acces to satellite_skycoord.
@@ -149,7 +149,7 @@ class Trajectory(object):
         return [delta_tau, delta_beta]
 
     def _annual_parallax_trajectory(self):
-        """calcualate annual parallax component of trajectory"""
+        """calculate annual parallax component of trajectory"""
 
         # Calculate the parallax offsets
         delta_annual = self._get_delta_annual()
@@ -205,7 +205,7 @@ class Trajectory(object):
         return out
 
     def _satellite_parallax_trajectory(self):
-        """calcualate satellite parallax component of trajectory"""
+        """calculate satellite parallax component of trajectory"""
         # Calculate the parallax offset due to the satellite
         delta_satellite = self._get_delta_satellite()
         return self._project_delta(delta_satellite)

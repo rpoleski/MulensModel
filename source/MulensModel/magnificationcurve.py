@@ -30,7 +30,7 @@ class MagnificationCurve(object):
         coords: :py:class:`MulensModel.coordinates.Coordinates`
             sky coordinates of the event
 
-        satellite_skycoord: *Astropy.coordinates.SkyCord*
+        satellite_skycoord: *Astropy.coordinates.SkyCoord*
             sky coordinates of the satellite specified by the
             ephemrides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
@@ -268,7 +268,7 @@ class MagnificationCurve(object):
                 self, rho, u, pspl_magnification):
         """
         calculate magnification for point lens and finite source.
-        The approximation was propsed by:
+        The approximation was proposed by:
 
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
@@ -290,7 +290,7 @@ class MagnificationCurve(object):
                 self, rho, u, pspl_magnification):
         """
         calculate magnification for point lens and finite source with
-        limb darkening. The approximation was propsed by:
+        limb darkening. The approximation was proposed by:
 
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G

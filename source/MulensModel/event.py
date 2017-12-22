@@ -308,6 +308,6 @@ class Event(object):
         raise NotImplementedError("This feature has not been implemented yet")
 
     def estimate_model_params(self):
-        """estiamtes model parameters without fitting them.
+        """estimates model parameters without fitting them.
         **Not Implemented.**"""
         raise NotImplementedError("This feature has not been implemented yet")
