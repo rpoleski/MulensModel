@@ -419,7 +419,7 @@ class Model(object):
 
     def _store_plot_properties(
             self, color_list=None, marker_list=None, size_list=None,
-            label_list=None, **kwargs):
+            label_list=None, alpha_list=None, **kwargs):
         """
         Store plot properties for each data set.
         """
@@ -431,6 +431,8 @@ class Model(object):
             self.plot_properties['size_list'] = size_list
         if label_list is not None:
             self.plot_properties['label_list'] = label_list
+        if alpha_list is not None:
+            self.plot_properties['alpha_list'] = alpha_list
         if len(kwargs) > 0:
             self.plot_properties['other_kwargs'] = kwargs
 
@@ -492,6 +494,9 @@ class Model(object):
             if 'label_list' in self.plot_properties.keys():
                 new_kwargs['label'] = self.plot_properties['label_list'][index]
 
+            if 'alpha_list' in self.plot_properties.keys():
+                new_kwargs['alpha'] = self.plot_properties['alpha_list'][index]
+
             if 'other_kwargs' in self.plot_properties.keys():
                 for (key, value) in self.plot_properties[
                         'other_kwargs'].items():
@@ -507,8 +512,8 @@ class Model(object):
     def plot_data(
             self, data_ref=None, show_errorbars=True, show_bad=False,
             color_list=None, marker_list=None, size_list=None,
-            label_list=None, subtract_2450000=False, subtract_2460000=False,
-            **kwargs):
+            label_list=None, alpha_list=None, subtract_2450000=False,
+            subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the model.
 
@@ -538,6 +543,10 @@ class Model(object):
                 Attaches a label to each data set, which can be used
                 to create a legend by calling pl.legend().
 
+            alpha_list: *list*
+                Alpha value for each data set: 0 for transparent through 1
+                for opaque.
+
             subtract_2450000, subtract_2460000: *boolean*
                 If True, subtracts 2450000 or 2460000 from the time
                 axis to get more human-scale numbers. If using, make
@@ -560,7 +569,7 @@ class Model(object):
 
         self._store_plot_properties(
             color_list=color_list, marker_list=marker_list,
-            size_list=size_list, label_list=label_list,
+            size_list=size_list, label_list=label_list, alpha_list=alpha_list,
             **kwargs)
 
         # Reference flux scale
@@ -631,7 +640,8 @@ class Model(object):
 
     def plot_residuals(
             self, show_errorbars=True, color_list=None,
-            marker_list=None, size_list=None, label_list=None, data_ref=None,
+            marker_list=None, size_list=None, label_list=None,
+            alpha_list=None, data_ref=None,
             subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model.  Uses the
@@ -647,7 +657,7 @@ class Model(object):
 
         self._store_plot_properties(
             color_list=color_list, marker_list=marker_list,
-            size_list=size_list, label_list=label_list,
+            size_list=size_list, label_list=label_list, alpha_list=alpha_list,
             **kwargs)
 
         # Get fluxes for all datasets
