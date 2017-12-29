@@ -659,6 +659,9 @@ class Model(object):
             color_list=color_list, marker_list=marker_list,
             size_list=size_list, label_list=label_list, alpha_list=alpha_list,
             **kwargs)
+            
+        # Reference flux scale
+        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
 
         # Get fluxes for all datasets
         fit = Fit(data=self.datasets, magnification=self.data_magnification)
@@ -682,12 +685,13 @@ class Model(object):
             # Calculate model magnitude
             f_source = fit.flux_of_sources(data)
             f_blend = fit.blending_flux(data)
-            model_flux = f_source * self.get_data_magnification(data) + f_blend
-            model_mag = Utils.get_mag_from_flux(model_flux)
+            model_mag = Utils.get_mag_from_flux(f_blend_0 +
+                    f_source_0 *self.get_data_magnification(data))
 
             # Calculate Residuals
-            (mag, err) = Utils.get_mag_and_err_from_flux(
-                data.flux, data.err_flux)
+            flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
+            err_flux = f_source_0 * data.err_flux / f_source
+            (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
             residuals = model_mag - mag
             delta_mag = max(delta_mag, np.max(np.abs(residuals)))
 
