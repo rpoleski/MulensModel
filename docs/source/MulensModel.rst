@@ -24,7 +24,6 @@ Submodules
    MulensModel.model
    MulensModel.modelparameters
    MulensModel.mulensdata
-   MulensModel.mulenstime
    MulensModel.satelliteskycoord
    MulensModel.trajectory
    MulensModel.utils

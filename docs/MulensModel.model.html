@@ -1,48 +1,38 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>MulensModel.model module &mdash; MulensModel 0.2.1 documentation</title>
-    
+    <title>MulensModel.model module &#8212; MulensModel 0.3.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.1',
+        VERSION:     '0.3.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="MulensModel 0.2.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MulensModel 0.2.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -54,7 +44,7 @@
 <dl class="class">
 <dt id="MulensModel.model.Model">
 <em class="property">class </em><code class="descclassname">MulensModel.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>parameters=None</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A Model for a microlensing event with the specified parameters.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
@@ -96,7 +86,7 @@ given times.</p>
 <dd><dl class="first last docutils">
 <dt>satellite_skycoord: <em>astropy.SkyCoord</em></dt>
 <dd><em>SkyCoord</em> giving satellite positions. The parameter
-<em>representation</em> is set to &#8216;spherical&#8217;.</dd>
+<em>representation</em> is set to ‘spherical’.</dd>
 </dl>
 </dd>
 </dl>
@@ -251,7 +241,7 @@ plot in flux units different than last value of <cite>data_ref</cite>
 <dl class="method">
 <dt id="MulensModel.model.Model.get_ref_fluxes">
 <code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get source and blending fluxes for the model by findig the
+<dd><p>Get source and blending fluxes for the model by finding the
 best-fit values compared to data_ref.</p>
 <dl class="docutils">
 <dt>Parameters:</dt>
@@ -276,7 +266,7 @@ will be used.</dd>
 (if <a class="reference internal" href="#MulensModel.model.Model.set_datasets" title="MulensModel.model.Model.set_datasets"><code class="xref py py-func docutils literal"><span class="pre">Model.set_datasets()</span></code></a> was previously called). If
 <em>data_ref</em> is not set, it will use the first dataset. If you
 call this without calling <a class="reference internal" href="#MulensModel.model.Model.set_datasets" title="MulensModel.model.Model.set_datasets"><code class="xref py py-func docutils literal"><span class="pre">set_datasets()</span></code></a> first,
-there will be an exception and that&#8217;s on you.</p>
+there will be an exception and that’s on you.</p>
 </dd></dl>
 
 <dl class="method">
@@ -287,7 +277,7 @@ there will be an exception and that&#8217;s on you.</p>
 
 <dl class="method">
 <dt id="MulensModel.model.Model.plot_data">
-<code class="descname">plot_data</code><span class="sig-paren">(</span><em>data_ref=None</em>, <em>show_errorbars=True</em>, <em>show_bad=False</em>, <em>color_list=None</em>, <em>marker_list=None</em>, <em>size_list=None</em>, <em>label_list=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_data</code><span class="sig-paren">(</span><em>data_ref=None</em>, <em>show_errorbars=True</em>, <em>show_bad=False</em>, <em>color_list=None</em>, <em>marker_list=None</em>, <em>size_list=None</em>, <em>label_list=None</em>, <em>alpha_list=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the data scaled to the model.</p>
 <dl class="docutils">
 <dt>Keywords (all optional):</dt>
@@ -298,11 +288,11 @@ as the reference for flux scale.</dd>
 <dt>show_errorbars: <em>boolean</em></dt>
 <dd>If show_errorbars is True (default), plots with
 matplotlib.errorbar(). If False, plots with
-matplotib.scatter().</dd>
+matplotlib.scatter().</dd>
 <dt>show_bad: <em>boolean</em></dt>
 <dd>if False, bad data are suppressed (default).
 if True, shows points marked as bad
-(<code class="xref py py-obj docutils literal"><span class="pre">mulensdata.MulensData.bad</span></code>) as &#8216;x&#8217;</dd>
+(<code class="xref py py-obj docutils literal"><span class="pre">mulensdata.MulensData.bad</span></code>) as ‘x’</dd>
 <dt>color_list, marker_list, size_list: <em>list</em></dt>
 <dd>Controls point types for each dataset (length must be
 equal to the number of datasets). May specify none,
@@ -312,6 +302,9 @@ e.g. fmt/marker, markersize/s.</dd>
 <dt>label_list: <em>list</em></dt>
 <dd>Attaches a label to each data set, which can be used
 to create a legend by calling pl.legend().</dd>
+<dt>alpha_list: <em>list</em></dt>
+<dd>Alpha value for each data set: 0 for transparent through 1
+for opaque.</dd>
 <dt>subtract_2450000, subtract_2460000: <em>boolean</em></dt>
 <dd>If True, subtracts 2450000 or 2460000 from the time
 axis to get more human-scale numbers. If using, make
@@ -323,7 +316,7 @@ plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Mode
 </dl>
 <p>May also use <code class="docutils literal"><span class="pre">**kwargs</span></code> or some combination of the lists and
 <code class="docutils literal"><span class="pre">**kwargs</span></code>. e.g. set color_list to specify which color each
-data set should be plotted in, but use fmt=&#8217;s&#8216; to make all
+data set should be plotted in, but use fmt=’s‘ to make all
 data points plotted as squares.</p>
 <p><code class="docutils literal"><span class="pre">**kwargs</span></code> (and point type lists) are remembered and used in
 subsequent calls to both plot_data() and plot_residuals().</p>
@@ -331,7 +324,7 @@ subsequent calls to both plot_data() and plot_residuals().</p>
 
 <dl class="method">
 <dt id="MulensModel.model.Model.plot_residuals">
-<code class="descname">plot_residuals</code><span class="sig-paren">(</span><em>show_errorbars=True</em>, <em>color_list=None</em>, <em>marker_list=None</em>, <em>size_list=None</em>, <em>label_list=None</em>, <em>data_ref=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_residuals" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_residuals</code><span class="sig-paren">(</span><em>show_errorbars=True</em>, <em>color_list=None</em>, <em>marker_list=None</em>, <em>size_list=None</em>, <em>label_list=None</em>, <em>alpha_list=None</em>, <em>data_ref=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_residuals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the residuals (in magnitudes) of the model.  Uses the
 best f_source, f_blend for each dataset (not scaled to a
 particular photometric system).</p>
@@ -446,7 +439,7 @@ between which it is on the list, e.g.,</p>
 <dt>methods_parameters: <em>dict</em></dt>
 <dd>Dictionary that for method names (keys) returns dictionary
 in the form of <code class="docutils literal"><span class="pre">**kwargs</span></code> that are passed to given method,
-e.g., <em>{&#8216;VBBL&#8217;: {&#8216;accuracy&#8217;: 0.005}}</em>.</dd>
+e.g., <em>{‘VBBL’: {‘accuracy’: 0.005}}</em>.</dd>
 </dl>
 </dd>
 </dl>
@@ -542,25 +535,28 @@ also
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.model.txt"
+      <li><a href="_sources/MulensModel.model.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -571,12 +567,12 @@ also
       &copy;2017, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/MulensModel.model.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="_sources/MulensModel.model.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     
