@@ -73,8 +73,8 @@ class Fit(object):
         # parameters
         for (i_dataset, dataset) in enumerate(self._datasets):
             # suppress bad data
-            select = np.logical_not(dataset.bad)
-            n_epochs = dataset.n_epochs - np.sum(dataset.bad)
+            select = dataset.good
+            n_epochs = np.sum(select)
 
             # Set up the x vector for the linear fit
             x = np.empty(shape=(n_fluxes, n_epochs))

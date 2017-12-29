@@ -607,10 +607,8 @@ class Model(object):
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
                 pl.errorbar(
-                    data.time[np.logical_not(data.bad)] - subtract,
-                    mag[np.logical_not(data.bad)],
-                    yerr=err[np.logical_not(data.bad)],
-                    **new_kwargs)
+                    data.time[data.good] - subtract,
+                    mag[data.good], yerr=err[data.good], **new_kwargs)
                 if show_bad:
                     pl.errorbar(
                         data.time[data.bad] - subtract, mag[data.bad],
@@ -618,8 +616,8 @@ class Model(object):
             else:
                 mag = Utils.get_mag_from_flux(flux)
                 pl.scatter(
-                    data.time[np.logical_not(data.bad)] - subtract,
-                    mag[np.logical_not(data.bad)], lw=0., **new_kwargs)
+                    data.time[data.good] - subtract,
+                    mag[data.good], lw=0., **new_kwargs)
                 if show_bad:
                     pl.scatter(
                         data.time[data.bad] - subtract, mag[data.bad],
