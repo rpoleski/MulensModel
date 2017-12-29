@@ -73,10 +73,29 @@ class MagnificationCurve(object):
 
     def set_magnification_methods(self, methods, default_method):
         """
-        sets methods used for magnification calculation; epochs is a
-        numpy ndarray of n epochs that specify when (n-1) methods will
-        be used
+        Sets methods used for magnification calculation.
 
+        Parameters :
+            methods: *list*
+                List that specifies which methods (*str*) should be
+                used when (*float* values for Julian dates). Given
+                method will be used for times between the times
+                between which it is on the list, e.g.,
+
+                ``methods = [2455746., 'Quadrupole', 2455746.6,
+                'Hexadecapole', 2455746.7, 'VBBL', 2455747.,
+                'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]``        
+        
+            default_method: *str*
+                Name of the method to be used for epochs outside the ranges
+                specified in *methods*.
+
+        For point-lens with finite source, the methods named
+        ``finite_source_uniform_Gould94`` and ``finite_source_LD_Gould94``
+        implement the algorithms presented by `Gould 1994 ApJ, 421L, 71 
+        <http://adsabs.harvard.edu/abs/1994ApJ...421L..71G>`_ and
+        `Yoo et al. 2004 ApJ, 603, 139
+        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_. 
         """
         self._default_method = default_method
         if methods is None:
@@ -220,7 +239,7 @@ class MagnificationCurve(object):
         """
         calculate B_0(z) function defined in:
 
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
@@ -242,7 +261,7 @@ class MagnificationCurve(object):
         """
         calculate B_1(z) function defined in:
 
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
@@ -270,7 +289,7 @@ class MagnificationCurve(object):
         calculate magnification for point lens and finite source.
         The approximation was proposed by:
 
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         and later the integral calculation was simplified by:
@@ -292,7 +311,7 @@ class MagnificationCurve(object):
         calculate magnification for point lens and finite source with
         limb darkening. The approximation was proposed by:
 
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         and later the integral calculation was simplified by:
