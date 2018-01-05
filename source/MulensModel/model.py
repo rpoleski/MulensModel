@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 import matplotlib.pyplot as pl
 from matplotlib import rcParams
 
@@ -487,6 +488,15 @@ class Model(object):
         if 'color_list' not in self.plot_properties.keys():
             self.plot_properties['color_list'] = rcParams[
                 'axes.prop_cycle'].by_key()['color']
+            if len(self.datasets) > len(self.plot_properties['color_list']):
+                repeat = int(len(self.datasets) /
+                        len(self.plot_properties['color_list'])) + 1
+                self.plot_properties['color_list'] *= repeat
+                warnings.warn(
+                    'Number of default matplotlib colors is smaller than ' +
+                    'number of datasets and different datasets will be ' +
+                    'shown using the same color. \nSet color_list parameter ' +
+                    'next time.')
         if not bad_data:
             new_kwargs[marker_key] = 'o'
             new_kwargs[size_key] = 3
