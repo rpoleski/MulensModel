@@ -93,18 +93,18 @@ class MagnificationCurve(object):
 
                 ``methods = [2455746., 'Quadrupole', 2455746.6,
                 'Hexadecapole', 2455746.7, 'VBBL', 2455747.,
-                'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]``        
-        
+                'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]``
+
             default_method: *str*
                 Name of the method to be used for epochs outside the ranges
                 specified in *methods*.
 
         For point-lens with finite source, the methods named
         ``finite_source_uniform_Gould94`` and ``finite_source_LD_Gould94``
-        implement the algorithms presented by `Gould 1994 ApJ, 421L, 71 
+        implement the algorithms presented by `Gould 1994 ApJ, 421L, 71
         <http://adsabs.harvard.edu/abs/1994ApJ...421L..71G>`_ and
         `Yoo et al. 2004 ApJ, 603, 139
-        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_. 
+        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_.
         """
         self._default_method = default_method
         if methods is None:
@@ -298,7 +298,8 @@ class MagnificationCurve(object):
             B_0 = self._B_0_function(z)
 
         function = (lambda r, theta: r * np.sqrt(1.-r**2) /
-            self.parameters.rho / np.sqrt(r**2+zz**2-2.*r*zz*np.cos(theta)))
+                    self.parameters.rho /
+                    np.sqrt(r**2+zz**2-2.*r*zz*np.cos(theta)))
         lim_0 = lambda x: 0
         lim_1 = lambda x: 1
         W_1 = 0. * z
@@ -358,14 +359,21 @@ class MagnificationCurve(object):
 
         Magnification Methods :
             point_source:
+                standard PSPL magnification calculation.
 
-            quadrupole:
-
-            hexadecapole:
+            quadrupole/hexadecapole:
+                From Gould 20008. See
+                :py:func:`MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
 
             vbbl:
+                Uses VBBinaryLensing (a Stokes theorem/contour
+                integration code) by Valerio Bozza. See
+                :py:func:`MulensModel.binarylens.BinaryLens.vbbl_magnification()`
 
-            adaptive_contouring:
+            adaptivecontouring:
+                Uses AdaptiveContouring (a Stokes theorem/contour
+                integration code) by Martin Dominik.  See
+                :py:func:`MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
         Returns :
             magnification: *np.ndarray*

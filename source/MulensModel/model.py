@@ -21,7 +21,7 @@ class Model(object):
 
     Arguments :
         parameters: *dictionary*,
-        :py:class:`~MulensModel.modelparameters.ModelParameters` 
+        :py:class:`~MulensModel.modelparameters.ModelParameters`
 
             see
             :py:class:`MulensModel.modelparameters.ModelParameters`
@@ -490,7 +490,7 @@ class Model(object):
                 'axes.prop_cycle'].by_key()['color']
             if len(self.datasets) > len(self.plot_properties['color_list']):
                 repeat = int(len(self.datasets) /
-                        len(self.plot_properties['color_list'])) + 1
+                             len(self.plot_properties['color_list'])) + 1
                 self.plot_properties['color_list'] *= repeat
                 warnings.warn(
                     'Number of default matplotlib colors is smaller than ' +
@@ -682,7 +682,7 @@ class Model(object):
             color_list=color_list, marker_list=marker_list,
             size_list=size_list, label_list=label_list, alpha_list=alpha_list,
             **kwargs)
-            
+
         # Reference flux scale
         (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
 
@@ -708,8 +708,8 @@ class Model(object):
             # Calculate model magnitude
             f_source = fit.flux_of_sources(data)
             f_blend = fit.blending_flux(data)
-            model_mag = Utils.get_mag_from_flux(f_blend_0 +
-                    f_source_0 *self.get_data_magnification(data))
+            model_mag = Utils.get_mag_from_flux(
+                f_blend_0 + f_source_0 * self.get_data_magnification(data))
 
             # Calculate Residuals
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
@@ -900,7 +900,7 @@ class Model(object):
             'point_source', 'finite_source_uniform_Gould94'.lower(),
             'finite_source_LD_Gould94'.lower()]
         methods_binary_lens = [
-            'point_source', 'quadrupole', 'hexadecapole', 'vbbl', 
+            'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
             'adaptivecontouring']
         methods = (set(parameters.keys()) - set(methods_point_lens) -
                    set(methods_binary_lens))
