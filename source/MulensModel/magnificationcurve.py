@@ -15,6 +15,10 @@ class MagnificationCurve(object):
     """
     The magnification curve calculated from the model light curve.
 
+    The key function is :py:func:`set_magnification_methods`, which
+    specifies the method used to calculate the finite source
+    magnification and when to use it..
+
     Arguments :
         times: iterable of *floats*
             the times at which to generate the magnification curve
@@ -22,20 +26,20 @@ class MagnificationCurve(object):
         parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
             specifies the microlensing parameters
 
-        parallax: *dict*
+        parallax: *dict*, optional
             dictionary specifying what parallax effects should be
             used, e.g., ``{'earth_orbital': True, 'satellite': False,
             'topocentric': False}``
 
-        coords: :py:class:`MulensModel.coordinates.Coordinates`
+        coords: :py:class:`MulensModel.coordinates.Coordinates`, optional
             sky coordinates of the event
 
-        satellite_skycoord: *Astropy.coordinates.SkyCord*
+        satellite_skycoord: *Astropy.coordinates.SkyCord*, optional
             sky coordinates of the satellite specified by the
             ephemrides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
 
-        gamma: *float*
+        gamma: *float*, optional
             limb darkening coefficient in gamma convention; defaults to 0
 
     """
@@ -75,7 +79,14 @@ class MagnificationCurve(object):
         """
         sets methods used for magnification calculation; epochs is a
         numpy ndarray of n epochs that specify when (n-1) methods will
-        be used
+        be used.
+
+        Example:
+
+        For available methods, see:
+            :py:func:`get_point_lens_magnification`
+
+            :py:func:`get_binary_lens_magnification`
 
         """
         self._default_method = default_method
@@ -170,9 +181,25 @@ class MagnificationCurve(object):
         """
         Calculate the Point Lens magnification.
 
+        Magnification Methods :
+            point_source:
+                standard Pczynski equation for a point source/point lens.
+
+            finite_source_uniform_Gould94:
+                Uses the Gould (1994) prescription assuming a
+                *uniform* (and circular) source.
+
+            finite_source_LD_Gould94:
+                Uses the Gould (1994) prescription for a circular source
+                *including limb-darkening.*
+
         Returns :
             magnification: *np.ndarray*
                 Vector of magnifications.
+
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
+        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
+
         """
 
         u2 = (self.trajectory.x**2 + self.trajectory.y**2)
@@ -220,7 +247,7 @@ class MagnificationCurve(object):
         """
         calculate B_0(z) function defined in:
 
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
@@ -242,7 +269,7 @@ class MagnificationCurve(object):
         """
         calculate B_1(z) function defined in:
 
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
@@ -270,7 +297,7 @@ class MagnificationCurve(object):
         calculate magnification for point lens and finite source.
         The approximation was propsed by:
 
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         and later the integral calculation was simplified by:
@@ -292,7 +319,7 @@ class MagnificationCurve(object):
         calculate magnification for point lens and finite source with
         limb darkening. The approximation was propsed by:
 
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         and later the integral calculation was simplified by:
@@ -311,6 +338,17 @@ class MagnificationCurve(object):
     def get_binary_lens_magnification(self):
         """
         Calculate the binary lens magnification.
+
+        Magnification Methods :
+            point_source:
+
+            quadrupole:
+
+            hexadecapole:
+
+            vbbl:
+
+            adaptive_contouring:
 
         Returns :
             magnification: *np.ndarray*
@@ -336,7 +374,7 @@ class MagnificationCurve(object):
             if self._methods_parameters is not None:
                 if method in self._methods_parameters.keys():
                     kwargs = self._methods_parameters[method]
-                    if method not in ['vbbl', 'adaptivecontouring']:
+                    if method not in ['vbbl', 'adaptive_contouring']:
                         msg = ('Methods parameters passed for method {:}' +
                                ' which does not accept any parameters')
                         raise ValueError(msg.format(method))
@@ -353,7 +391,7 @@ class MagnificationCurve(object):
             elif method == 'vbbl':
                 m = binary_lens.vbbl_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
-            elif method == 'adaptivecontouring':
+            elif method == 'adaptive_contouring':
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             else:
