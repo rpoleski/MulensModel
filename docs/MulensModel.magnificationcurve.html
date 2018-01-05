@@ -46,6 +46,9 @@
 <em class="property">class </em><code class="descclassname">MulensModel.magnificationcurve.</code><code class="descname">MagnificationCurve</code><span class="sig-paren">(</span><em>times</em>, <em>parameters</em>, <em>parallax=None</em>, <em>coords=None</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The magnification curve calculated from the model light curve.</p>
+<p>The key function is <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods"><code class="xref py py-func docutils literal"><span class="pre">set_magnification_methods()</span></code></a>, which
+specifies the method used to calculate the finite source
+magnification and when to use it..</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
 <dd><dl class="first last docutils">
@@ -53,17 +56,17 @@
 <dd>the times at which to generate the magnification curve</dd>
 <dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></dt>
 <dd>specifies the microlensing parameters</dd>
-<dt>parallax: <em>dict</em></dt>
+<dt>parallax: <em>dict</em>, optional</dt>
 <dd>dictionary specifying what parallax effects should be
 used, e.g., <code class="docutils literal"><span class="pre">{'earth_orbital':</span> <span class="pre">True,</span> <span class="pre">'satellite':</span> <span class="pre">False,</span>
 <span class="pre">'topocentric':</span> <span class="pre">False}</span></code></dd>
-<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.coordinates.Coordinates</span></code></a></dt>
+<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.coordinates.Coordinates</span></code></a>, optional</dt>
 <dd>sky coordinates of the event</dd>
-<dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em></dt>
+<dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the satellite specified by the
 ephemrides file. see
 <code class="xref py py-obj docutils literal"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
-<dt>gamma: <em>float</em></dt>
+<dt>gamma: <em>float</em>, optional</dt>
 <dd>limb darkening coefficient in gamma convention; defaults to 0</dd>
 </dl>
 </dd>
@@ -73,6 +76,10 @@ ephemrides file. see
 <code class="descname">set_magnification_methods</code><span class="sig-paren">(</span><em>methods</em>, <em>default_method</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets methods used for magnification calculation.</p>
 <dl class="docutils">
+<dt>For available methods, see:</dt>
+<dd><p class="first"><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification"><code class="xref py py-func docutils literal"><span class="pre">get_point_lens_magnification()</span></code></a></p>
+<p class="last"><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification"><code class="xref py py-func docutils literal"><span class="pre">get_binary_lens_magnification()</span></code></a></p>
+</dd>
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
 <dt>methods: <em>list</em></dt>
@@ -138,6 +145,18 @@ e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span cla
 <code class="descname">get_point_lens_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Point Lens magnification.</p>
 <dl class="docutils">
+<dt>Magnification Methods :</dt>
+<dd><dl class="first last docutils">
+<dt>point_source:</dt>
+<dd>standard Pczynski equation for a point source/point lens.</dd>
+<dt>finite_source_uniform_Gould94:</dt>
+<dd>Uses the Gould (1994) prescription assuming a
+<em>uniform</em> (and circular) source.</dd>
+<dt>finite_source_LD_Gould94:</dt>
+<dd>Uses the Gould (1994) prescription for a circular source
+<em>including limb-darkening.</em></dd>
+</dl>
+</dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
 <dt>magnification: <em>np.ndarray</em></dt>
@@ -145,6 +164,8 @@ e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span cla
 </dl>
 </dd>
 </dl>
+<p>Gould A. 1994 ApJ 421L, 71 “Proper motions of MACHOs”
+<a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">http://adsabs.harvard.edu/abs/1994ApJ…421L..71G</a></p>
 </dd></dl>
 
 <dl class="method">
@@ -152,6 +173,23 @@ e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span cla
 <code class="descname">get_binary_lens_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the binary lens magnification.</p>
 <dl class="docutils">
+<dt>Magnification Methods :</dt>
+<dd><dl class="first last docutils">
+<dt>point_source:</dt>
+<dd>standard PSPL magnification calculation.</dd>
+<dt>quadrupole/hexadecapole:</dt>
+<dd>From Gould 20008. See
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.binarylens.BinaryLens.hexadecapole_magnification()</span></code></a></dd>
+<dt>vbbl:</dt>
+<dd>Uses VBBinaryLensing (a Stokes theorem/contour
+integration code) by Valerio Bozza. See 
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="MulensModel.binarylens.BinaryLens.vbbl_magnification"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.binarylens.BinaryLens.vbbl_magnification()</span></code></a></dd>
+<dt>adaptivecontouring:</dt>
+<dd>Uses AdaptiveContouring (a Stokes theorem/contour
+integration code) by Martin Dominik.  See
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()</span></code></a></dd>
+</dl>
+</dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
 <dt>magnification: <em>np.ndarray</em></dt>
@@ -203,7 +241,7 @@ e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span cla
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/MulensModel.magnificationcurve.rst.txt"
