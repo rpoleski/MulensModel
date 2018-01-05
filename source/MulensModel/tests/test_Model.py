@@ -149,7 +149,7 @@ def test_BLPS_02_AC():
     
     t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
         2450000.)
-    ac_name = 'AdaptiveContouring'
+    ac_name = 'Adaptive_Contouring'
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
         ac_name, 2456117.5]
     accuracy_1 = {'accuracy': 0.04}

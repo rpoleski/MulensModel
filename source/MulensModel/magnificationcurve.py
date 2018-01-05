@@ -365,12 +365,12 @@ class MagnificationCurve(object):
                 From Gould 20008. See
                 :py:func:`MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
 
-            vbbl:
+            VBBL:
                 Uses VBBinaryLensing (a Stokes theorem/contour
                 integration code) by Valerio Bozza. See
                 :py:func:`MulensModel.binarylens.BinaryLens.vbbl_magnification()`
 
-            adaptivecontouring:
+            Adaptive_Contouring:
                 Uses AdaptiveContouring (a Stokes theorem/contour
                 integration code) by Martin Dominik.  See
                 :py:func:`MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
@@ -399,7 +399,7 @@ class MagnificationCurve(object):
             if self._methods_parameters is not None:
                 if method in self._methods_parameters.keys():
                     kwargs = self._methods_parameters[method]
-                    if method not in ['vbbl', 'adaptivecontouring']:
+                    if method not in ['vbbl', 'adaptive_contouring']:
                         msg = ('Methods parameters passed for method {:}' +
                                ' which does not accept any parameters')
                         raise ValueError(msg.format(method))
@@ -416,7 +416,7 @@ class MagnificationCurve(object):
             elif method == 'vbbl':
                 m = binary_lens.vbbl_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
-            elif method == 'adaptivecontouring':
+            elif method == 'adaptive_contouring':
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             else:
