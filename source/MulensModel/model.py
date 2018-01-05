@@ -50,9 +50,9 @@ class Model(object):
 
         # Initialize the parameters of the model
         if isinstance(parameters, ModelParameters):
-            self.parameters = parameters
+            self._parameters = parameters
         else:
-            self.parameters = ModelParameters(parameters)
+            self._parameters = ModelParameters(parameters)
 
         # Set the coordinates of the event
         coords_msg = 'Must specify both or neither of ra and dec'
@@ -92,6 +92,21 @@ class Model(object):
 
     def __repr__(self):
         return '{0}'.format(self.parameters)
+
+    @property
+    def parameters(self):
+        return self._parameters
+
+    @parameters.setter
+    def parameters(self, new_params):
+        if isinstance(new_params, ModelParameters):
+            self._parameters = new_params
+        elif isinstance(new_params, dict):
+            self._parameters = ModelParameters(new_params)
+        else:
+            raise TypeError(
+                'Model.parameters must be a dictionary or ModelParameters ' +
+                'object.')
 
     def get_satellite_coords(self, times):
         """
@@ -864,7 +879,7 @@ class Model(object):
             'finite_source_LD_Gould94'.lower()]
         methods_binary_lens = [
             'point_source', 'quadrupole', 'hexadecapole', 'vbbl', 
-            'adaptivecontouring']
+            'adaptive_contouring']
         methods = (set(parameters.keys()) - set(methods_point_lens) -
                    set(methods_binary_lens))
 
