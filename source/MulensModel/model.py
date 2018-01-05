@@ -383,7 +383,7 @@ class Model(object):
 
     def get_ref_fluxes(self, data_ref=None):
         """
-        Get source and blending fluxes for the model by findig the
+        Get source and blending fluxes for the model by finding the
         best-fit values compared to data_ref.
 
         Parameters:
@@ -434,7 +434,7 @@ class Model(object):
 
     def _store_plot_properties(
             self, color_list=None, marker_list=None, size_list=None,
-            label_list=None, **kwargs):
+            label_list=None, alpha_list=None, **kwargs):
         """
         Store plot properties for each data set.
         """
@@ -446,6 +446,8 @@ class Model(object):
             self.plot_properties['size_list'] = size_list
         if label_list is not None:
             self.plot_properties['label_list'] = label_list
+        if alpha_list is not None:
+            self.plot_properties['alpha_list'] = alpha_list
         if len(kwargs) > 0:
             self.plot_properties['other_kwargs'] = kwargs
 
@@ -507,6 +509,9 @@ class Model(object):
             if 'label_list' in self.plot_properties.keys():
                 new_kwargs['label'] = self.plot_properties['label_list'][index]
 
+            if 'alpha_list' in self.plot_properties.keys():
+                new_kwargs['alpha'] = self.plot_properties['alpha_list'][index]
+
             if 'other_kwargs' in self.plot_properties.keys():
                 for (key, value) in self.plot_properties[
                         'other_kwargs'].items():
@@ -522,8 +527,8 @@ class Model(object):
     def plot_data(
             self, data_ref=None, show_errorbars=True, show_bad=False,
             color_list=None, marker_list=None, size_list=None,
-            label_list=None, subtract_2450000=False, subtract_2460000=False,
-            **kwargs):
+            label_list=None, alpha_list=None, subtract_2450000=False,
+            subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the model.
 
@@ -535,7 +540,7 @@ class Model(object):
             show_errorbars: *boolean*
                 If show_errorbars is True (default), plots with
                 matplotlib.errorbar(). If False, plots with
-                matplotib.scatter().
+                matplotlib.scatter().
 
             show_bad: *boolean*
                 if False, bad data are suppressed (default).
@@ -552,6 +557,10 @@ class Model(object):
             label_list: *list*
                 Attaches a label to each data set, which can be used
                 to create a legend by calling pl.legend().
+
+            alpha_list: *list*
+                Alpha value for each data set: 0 for transparent through 1
+                for opaque.
 
             subtract_2450000, subtract_2460000: *boolean*
                 If True, subtracts 2450000 or 2460000 from the time
@@ -575,7 +584,7 @@ class Model(object):
 
         self._store_plot_properties(
             color_list=color_list, marker_list=marker_list,
-            size_list=size_list, label_list=label_list,
+            size_list=size_list, label_list=label_list, alpha_list=alpha_list,
             **kwargs)
 
         # Reference flux scale
@@ -613,10 +622,8 @@ class Model(object):
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
                 pl.errorbar(
-                    data.time[np.logical_not(data.bad)] - subtract,
-                    mag[np.logical_not(data.bad)],
-                    yerr=err[np.logical_not(data.bad)],
-                    **new_kwargs)
+                    data.time[data.good] - subtract,
+                    mag[data.good], yerr=err[data.good], **new_kwargs)
                 if show_bad:
                     pl.errorbar(
                         data.time[data.bad] - subtract, mag[data.bad],
@@ -624,8 +631,8 @@ class Model(object):
             else:
                 mag = Utils.get_mag_from_flux(flux)
                 pl.scatter(
-                    data.time[np.logical_not(data.bad)] - subtract,
-                    mag[np.logical_not(data.bad)], lw=0., **new_kwargs)
+                    data.time[data.good] - subtract,
+                    mag[data.good], lw=0., **new_kwargs)
                 if show_bad:
                     pl.scatter(
                         data.time[data.bad] - subtract, mag[data.bad],
@@ -646,7 +653,8 @@ class Model(object):
 
     def plot_residuals(
             self, show_errorbars=True, color_list=None,
-            marker_list=None, size_list=None, label_list=None, data_ref=None,
+            marker_list=None, size_list=None, label_list=None,
+            alpha_list=None, data_ref=None,
             subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model.  Uses the
@@ -662,8 +670,11 @@ class Model(object):
 
         self._store_plot_properties(
             color_list=color_list, marker_list=marker_list,
-            size_list=size_list, label_list=label_list,
+            size_list=size_list, label_list=label_list, alpha_list=alpha_list,
             **kwargs)
+            
+        # Reference flux scale
+        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
 
         # Get fluxes for all datasets
         fit = Fit(data=self.datasets, magnification=self.data_magnification)
@@ -687,12 +698,13 @@ class Model(object):
             # Calculate model magnitude
             f_source = fit.flux_of_sources(data)
             f_blend = fit.blending_flux(data)
-            model_flux = f_source * self.get_data_magnification(data) + f_blend
-            model_mag = Utils.get_mag_from_flux(model_flux)
+            model_mag = Utils.get_mag_from_flux(f_blend_0 +
+                    f_source_0 *self.get_data_magnification(data))
 
             # Calculate Residuals
-            (mag, err) = Utils.get_mag_and_err_from_flux(
-                data.flux, data.err_flux)
+            flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
+            err_flux = f_source_0 * data.err_flux / f_source
+            (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
             residuals = model_mag - mag
             delta_mag = max(delta_mag, np.max(np.abs(residuals)))
 

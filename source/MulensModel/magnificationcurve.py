@@ -34,7 +34,7 @@ class MagnificationCurve(object):
         coords: :py:class:`MulensModel.coordinates.Coordinates`, optional
             sky coordinates of the event
 
-        satellite_skycoord: *Astropy.coordinates.SkyCord*, optional
+        satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
             sky coordinates of the satellite specified by the
             ephemrides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
@@ -77,17 +77,34 @@ class MagnificationCurve(object):
 
     def set_magnification_methods(self, methods, default_method):
         """
-        sets methods used for magnification calculation; epochs is a
-        numpy ndarray of n epochs that specify when (n-1) methods will
-        be used.
-
-        Example:
+        Sets methods used for magnification calculation.
 
         For available methods, see:
             :py:func:`get_point_lens_magnification`
 
             :py:func:`get_binary_lens_magnification`
 
+        Parameters :
+            methods: *list*
+                List that specifies which methods (*str*) should be
+                used when (*float* values for Julian dates). Given
+                method will be used for times between the times
+                between which it is on the list, e.g.,
+
+                ``methods = [2455746., 'Quadrupole', 2455746.6,
+                'Hexadecapole', 2455746.7, 'VBBL', 2455747.,
+                'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]``        
+        
+            default_method: *str*
+                Name of the method to be used for epochs outside the ranges
+                specified in *methods*.
+
+        For point-lens with finite source, the methods named
+        ``finite_source_uniform_Gould94`` and ``finite_source_LD_Gould94``
+        implement the algorithms presented by `Gould 1994 ApJ, 421L, 71 
+        <http://adsabs.harvard.edu/abs/1994ApJ...421L..71G>`_ and
+        `Yoo et al. 2004 ApJ, 603, 139
+        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_. 
         """
         self._default_method = default_method
         if methods is None:
@@ -295,7 +312,7 @@ class MagnificationCurve(object):
                 self, rho, u, pspl_magnification):
         """
         calculate magnification for point lens and finite source.
-        The approximation was propsed by:
+        The approximation was proposed by:
 
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
@@ -317,7 +334,7 @@ class MagnificationCurve(object):
                 self, rho, u, pspl_magnification):
         """
         calculate magnification for point lens and finite source with
-        limb darkening. The approximation was propsed by:
+        limb darkening. The approximation was proposed by:
 
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G

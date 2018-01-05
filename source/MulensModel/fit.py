@@ -32,7 +32,7 @@ class Fit(object):
         if isinstance(magnification, list):
             self._magnification = magnification
         else:
-            self._magnificaiton = [magnification]
+            self._magnification = [magnification]
 
         if magnification is None and n_sources is None:
             raise ValueError(
@@ -48,7 +48,7 @@ class Fit(object):
         """
         Fit source(s) and blending fluxes. Performs a least squares
         linear fit (*np.linalg.lstsq()*) to the data for the flux
-        parameters. I.e., given the data :math:`y` and magnifcation
+        parameters. I.e., given the data :math:`y` and magnification
         :math:`A`, solves for :math:`f_{source}` and
         :math:`f_{blend}`:
 
@@ -73,8 +73,8 @@ class Fit(object):
         # parameters
         for (i_dataset, dataset) in enumerate(self._datasets):
             # suppress bad data
-            select = np.logical_not(dataset.bad)
-            n_epochs = dataset.n_epochs - np.sum(dataset.bad)
+            select = dataset.good
+            n_epochs = np.sum(select)
 
             # Set up the x vector for the linear fit
             x = np.empty(shape=(n_fluxes, n_epochs))

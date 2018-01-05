@@ -46,8 +46,8 @@ class SatelliteSkyCoord(object):
                 Epochs for which satellite coordinates will be calculated.
 
         Returns :
-            satellite_skycoord: *Astropy.coordinates.SkyCord*
-                *SkyCord* for satellite at epochs *times*.
+            satellite_skycoord: *Astropy.coordinates.SkyCoord*
+                *SkyCoord* for satellite at epochs *times*.
 
         """
         if self._horizons is None:

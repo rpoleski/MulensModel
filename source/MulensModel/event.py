@@ -179,8 +179,7 @@ class Event(object):
         chi2 = []
         for i, dataset in enumerate(self.datasets):
             # Calculate chi2 for the dataset excluding bad data
-            select = np.logical_not(dataset.bad)
-            chi2.append(fsum(chi2_per_point[i][select]))
+            chi2.append(fsum(chi2_per_point[i][dataset.good]))
 
         self.chi2 = fsum(chi2)
         if self.best_chi2 is None or self.best_chi2 > self.chi2:
@@ -228,9 +227,8 @@ class Event(object):
                     dataset.input_fmt))
 
         diff = data - self.fit.get_input_format(data=dataset)
-        select = np.logical_not(dataset.bad)
         chi2 = (diff / err_data)**2
-        return fsum(chi2[select])
+        return fsum(chi2[dataset.good])
 
     def get_chi2_per_point(self, fit_blending=None):
         """
@@ -308,6 +306,6 @@ class Event(object):
         raise NotImplementedError("This feature has not been implemented yet")
 
     def estimate_model_params(self):
-        """estiamtes model parameters without fitting them.
+        """estimates model parameters without fitting them.
         **Not Implemented.**"""
         raise NotImplementedError("This feature has not been implemented yet")

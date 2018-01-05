@@ -61,10 +61,14 @@ class MulensData(object):
 
         bandpass: see :obj:`bandpass`
 
-        bad: *boolean* array, optional
+        bad: *boolean np.ndarray*, optional
             Flags for bad data (data to exclude from fitting and
             plotting). Should be the same length as the number of data
             points.
+
+        good: *boolean np.ndarray*, optional
+            Flags for good data, should be the same length as the number of 
+            data points.
 
         ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
         file_name is provided.
@@ -80,7 +84,8 @@ class MulensData(object):
     def __init__(self, data_list=None, file_name=None,
                  phot_fmt="mag", coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
-                 add_2460000=False, bandpass=None, bad=None, **kwargs):
+                 add_2460000=False, bandpass=None, bad=None, good=None,
+                 **kwargs):
 
         # Initialize some variables
         self._n_epochs = None
@@ -129,8 +134,14 @@ class MulensData(object):
                 'MulensData cannot be initialized with ' +
                 'data_list or file_name')
 
-        if bad is not None:
+        if bad is not None and good is not None:
+            raise ValueError('Provide bad or good, but not both')
+        elif bad is not None:
             self.bad = bad
+        elif good is not None:
+            self.good = good
+        else:
+            self.bad = self.n_epochs * [False]
 
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
@@ -193,15 +204,41 @@ class MulensData(object):
             msg = 'unknown brightness format in MulensData'
             raise ValueError(msg)
 
-        # Create an array to flag bad epochs
-        self.bad = self.n_epochs * [False]
+    @property
+    def bad(self):
+        """
+        *np.ndarray boolean*
+
+        flags marking bad data
+        """
+        return self._bad
+        
+    @bad.setter
+    def bad(self, new_value):
+        self._bad = new_value
+        self._good = np.logical_not(self._bad)
+        
+    @property
+    def good(self):
+        """
+        *np.ndarray boolean*
+
+        flags marking good data i.e., opposite to py:func:`bad`
+        """
+        return self._good
+
+    @good.setter
+    def good(self, new_value):
+        self._good = new_value
+        self._bad = np.logical_not(self._good)
 
     @property
     def time(self):
         """
         *np.ndarray*
 
-        vector of dates"""
+        vector of dates
+        """
         return self._time
 
     @property
@@ -209,7 +246,8 @@ class MulensData(object):
         """
         *np.ndarray*
 
-        magnitude vector"""
+        magnitude vector
+        """
         if self._mag is None:
             (self._mag, self._err_mag) = Utils.get_mag_and_err_from_flux(
                 flux=self.flux, err_flux=self.err_flux)
@@ -220,7 +258,8 @@ class MulensData(object):
         """
         *np.ndarray*
 
-        vector of magnitude errors"""
+        vector of magnitude errors
+        """
         if self._err_mag is None:
             self.mag
         return self._err_mag
@@ -241,7 +280,8 @@ class MulensData(object):
         """
         *int*
 
-        give total number of epochs (including bad data)"""
+        give total number of epochs (including bad data)
+        """
         return self._n_epochs
 
     @property
@@ -308,3 +348,4 @@ class MulensData(object):
                 "parameter has to be dict, not {:}".format(type(weights)))
 
         self._limb_darkening_weights = weights
+

@@ -141,8 +141,6 @@ def _print_all():
     print("Effects: 'point lens', 'binary lens', 'finite source', " +
           "'parallax', 'lens orbital motion'")
 
-
-
 def which_parameters(*args):
     """
     Prints information on valid parameter combinations that can be

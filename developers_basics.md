@@ -83,3 +83,4 @@ Version numbers are according to MAJOR.MINOR.PATCH scheme - see [Semantic Versio
 * Major version must be incremented if any backwards incompatible changes are introduced to the public API. It may include minor and patch level changes.
 * Reset patch and minor version when major version is incremented. Reset patch when minor version is incremented.
 
+List of files to be updated: README.md docs/source/conf.py docs/source/install.rst source/MulensModel/version.py

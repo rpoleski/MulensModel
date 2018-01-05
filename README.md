@@ -3,7 +3,7 @@
 <dl>MulensModel is package for modeling microlensing (or &mu;-lensing) 
 events. </dl>
 
-It is still under development. [Latest release: 0.2.1](https://github.com/rpoleski/MulensModel/releases/tag/0.2.1)
+It is still under development. [Latest release: 0.3.1](https://github.com/rpoleski/MulensModel/releases/tag/0.3.1)
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
@@ -44,11 +44,11 @@ Future Development:
 3. Unpack the archive.
 4. Add the path to the unpack directory to the PYTHONPATH, e.g., if you've extracted the archive in your home directory (``/home/USER_NAME/``) in tcsh:
 ```
-setenv PYTHONPATH /home/USER_NAME/MulensModel-0.2.1/source\:$PYTHONPATH
+setenv PYTHONPATH /home/USER_NAME/MulensModel-0.3.1/source\:$PYTHONPATH
 ```
 in bash:
 ```
-export PYTHONPATH=/home/USER_NAME/MulensModel-0.2.1/source:$PYTHONPATH
+export PYTHONPATH=/home/USER_NAME/MulensModel-0.3.1/source:$PYTHONPATH
 ```
 In order to have this command invoked every time you open the terminal, please add this command to ``~/.cshrc`` or ``~/.bashrc`` file.
 
@@ -57,10 +57,11 @@ In order to have this command invoked every time you open the terminal, please a
 gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp
 gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o
 ```
-6. Congratulations! You have MulensModel installed fully. 
+6. Repeat above in ```source/AdaptiveContouring/```
+7. Congratulations! You have MulensModel installed fully. 
 
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Nov 2017
+file revised Dec 2017
 

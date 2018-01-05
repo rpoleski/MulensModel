@@ -22,7 +22,6 @@
 * Install
   * [2] makefile for Windows (basic instructions exist already)
 * Documentation
-  * remove intermediate Sphinx files from repo
   * [2] PSPL manual - add annual parallax
   * Sagan workshop hands-on activity in MM
   * binary calculations
@@ -33,13 +32,11 @@
   * Add \_\_repr\_\_ functions to Lens and Source
   * [2] files not yet well documented: 
     * RA & Dec in coordinates.py (maybe also code it better)
-    * mulenstime.py 
     * [2] magnificationcurve.py - **needs a list of allowed magnification methods**
     * utils.py 
     * [1] modelparameters.py - **needs more work**
 * Effects
   * Finite Source
-    * [2] _Martin's [FSBL code](http://star-www.st-and.ac.uk/~md35/Software.html)_
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
     * [2] _faster FSPL with LD_
     * FSPL ray shooting (ala getmag\_rs\_single.f)
@@ -85,7 +82,6 @@
   * ModelParameters:
     * should we set t\_E as a Astropy.quantity and then expect to get float?
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
-    * [2] \_\_repr\_\_ must print parallax as well
   * Plotting
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
    * [2] subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100))
@@ -104,7 +100,7 @@
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
 * Style/Architecture:
-  * Are we consistent with PEP8? [check here](http://pep8online.com/)
+  * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time checked in mid-Dec 2017
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
 * [2] submit to Astronomy&Computing
 
