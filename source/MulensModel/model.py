@@ -901,7 +901,7 @@ class Model(object):
             'finite_source_LD_Gould94'.lower()]
         methods_binary_lens = [
             'point_source', 'quadrupole', 'hexadecapole', 'vbbl', 
-            'adaptive_contouring']
+            'adaptivecontouring']
         methods = (set(parameters.keys()) - set(methods_point_lens) -
                    set(methods_binary_lens))
 
