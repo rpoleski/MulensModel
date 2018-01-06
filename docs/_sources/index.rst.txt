@@ -13,12 +13,13 @@ value. That chi2 can then be input into an arbitrary likelihood function to
 find the best fit parameters.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    Installation <install>
    Tutorial <tutorial>
    Fitting tutorial <tutorial_fit_pspl>
+   Parallax fitting tutorial <tutorial_fit_pi_E>
 
 
 Indices and tables

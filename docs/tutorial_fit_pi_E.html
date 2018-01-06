@@ -1,0 +1,285 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Mircolensing Parallax Fitting Tutorial &#8212; MulensModel 0.3.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Basic Fitting Tutorial" href="tutorial_fit_pspl.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mircolensing-parallax-fitting-tutorial">
+<h1>Mircolensing Parallax Fitting Tutorial<a class="headerlink" href="#mircolensing-parallax-fitting-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>Here you will learn how to fit the observed light-curve with a model that
+has a point lens, point source, but their relative motion is not rectilinear
+and includes annual microlensing parallax effect. If you haven’t yet looked
+at the other tutorials, then you may want to start there and come back here
+later.</p>
+<p>We need some data to fit. Let’s look at some long-timescale event from
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2015ApJS..216...12W">Wyrzykowski et al. (2015)</a>. As an example
+we can take event with ID 3291 (star BLG234.6.I.218982; also named
+OGLE-2005-BLG-086 on <a class="reference external" href="http://ogle.astrouw.edu.pl/ogle4/ews/ews.html">OGLE EWS website</a>). We can look at the plot of
+model without parallax: <a class="reference external" href="ftp://ftp.astrouw.edu.pl/ogle/ogle3/blg_tau/PLOTS/starBLG234.6.I.218982.dat.png">here</a>.
+We see that model does not fit data very well - there are trends in
+the residuals around 3400 and 3800.</p>
+<div class="section" id="imports-and-settings">
+<h2>Imports and settings<a class="headerlink" href="#imports-and-settings" title="Permalink to this headline">¶</a></h2>
+<p>We start by importing python modules:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">emcee</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">MulensModel</span>
+<span class="kn">from</span> <span class="nn">MulensModel</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">MulensData</span><span class="p">,</span> <span class="n">Coordinates</span>
+</pre></div>
+</div>
+<p>We’re using EMCEE package for fitting. You can download it from
+<a class="reference external" href="http://dfm.io/emcee/current/">http://dfm.io/emcee/current/</a> in case you don’t have it yet. Then we
+import the data and set the event coordinates:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;starBLG234.6.I.218982.dat&quot;</span><span class="p">)</span>
+<span class="n">my_data</span> <span class="o">=</span> <span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span> <span class="n">add_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">coords</span> <span class="o">=</span> <span class="n">Coordinates</span><span class="p">(</span><span class="s2">&quot;18:04:45.71 -26:59:15.2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that <em>add_2450000=True</em> is very important. The file has time vector
+of HJD-2450000 for convenience and it’s fine as long as we don’t fit
+the annual parallax. He have to set <em>MulensData</em> time vector to
+full HJD because this is used to calculate the position of Earth
+relative to Sun and we don’t want this to be off by around 6700 years.</p>
+<p>We set the starting values of the parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">params</span><span class="o">.</span><span class="n">t_0</span> <span class="o">=</span> <span class="mf">2453628.3</span>
+<span class="n">params</span><span class="o">.</span><span class="n">t_0_par</span> <span class="o">=</span> <span class="mf">2453628.</span>
+<span class="n">params</span><span class="o">.</span><span class="n">u_0</span> <span class="o">=</span> <span class="mf">0.37</span>
+<span class="n">params</span><span class="o">.</span><span class="n">t_E</span> <span class="o">=</span> <span class="mf">100.</span>
+<span class="n">params</span><span class="o">.</span><span class="n">pi_E_N</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="n">params</span><span class="o">.</span><span class="n">pi_E_E</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="n">my_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<span class="n">my_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">my_data</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">my_model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We set the parameter reference time (<em>t_0_par</em>) for rounded value of <em>t_0</em>.
+This is common approach.</p>
+<p>Further we need to specifies which parameters we want to fit and also
+specify dispersions in starting points. We choose the latter to be some
+small values:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">parameters_to_fit</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;t_0&quot;</span><span class="p">,</span> <span class="s2">&quot;u_0&quot;</span><span class="p">,</span> <span class="s2">&quot;t_E&quot;</span><span class="p">,</span> <span class="s2">&quot;pi_E_N&quot;</span><span class="p">,</span> <span class="s2">&quot;pi_E_E&quot;</span><span class="p">]</span>
+<span class="n">sigmas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Some more EMCEE settings - number of walkers, steps, and burn-in steps. Also
+the list of starting points:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">n_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameters_to_fit</span><span class="p">)</span>
+<span class="n">n_walkers</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="n">n_steps</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">n_burn</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">start_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters_to_fit</span><span class="p">]</span>
+<span class="n">start</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_dim</span><span class="p">)</span> <span class="o">*</span>  <span class="n">sigmas</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>We need one more important piece of information - the function that
+computes the logarithm of (unnormalized) probability. We split it into
+three separate functions for clarity:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ln_like</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; likelihood function &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parameters_to_fit</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">theta</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">event</span><span class="o">.</span><span class="n">get_chi2</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ln_prior</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;priors - we only reject obviously wrong models&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">theta</span><span class="p">[</span><span class="n">parameters_to_fit</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;t_E&quot;</span><span class="p">)]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">return</span> <span class="mf">0.0</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ln_prob</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; combines likelihood and priors&quot;&quot;&quot;</span>
+    <span class="n">ln_prior_</span> <span class="o">=</span> <span class="n">ln_prior</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ln_prior_</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">ln_like_</span> <span class="o">=</span> <span class="n">ln_like</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ln_like_</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">return</span> <span class="n">ln_prior_</span> <span class="o">+</span> <span class="n">ln_like_</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-sampler">
+<h2>Running the sampler<a class="headerlink" href="#running-the-sampler" title="Permalink to this headline">¶</a></h2>
+<p>Ok, we’re ready to run EMCEE:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sampler</span> <span class="o">=</span> <span class="n">emcee</span><span class="o">.</span><span class="n">EnsembleSampler</span><span class="p">(</span>
+    <span class="n">n_walkers</span><span class="p">,</span> <span class="n">n_dim</span><span class="p">,</span> <span class="n">ln_prob</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">my_event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">))</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">chain</span><span class="p">[:,</span> <span class="n">n_burn</span><span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_dim</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>And now we’re ready to look at the results and best-fitted model:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">84</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Fitted parameters:&quot;</span><span class="p">)</span>
+<span class="n">form</span> <span class="o">=</span> <span class="s2">&quot;{:.5f} {:.5f} {:.5f}&quot;</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_dim</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="o">-</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Best model:&quot;</span><span class="p">)</span>
+<span class="n">best</span> <span class="o">=</span> <span class="p">[</span><span class="n">my_event</span><span class="o">.</span><span class="n">best_chi2_parameters</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters_to_fit</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">best</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">best_chi2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>I hope you got (u_0, t_E, pi_E_N, pi_E_E) of around
+(0.44, 95, 0.21, 0.10) and chi^2 of 949.5.</p>
+<p>At this point you may want to say that the fit is done at this point.
+But it’s not! We have to check for degenerate solution. We’re fitting single
+lens model, hence, the search for degenerate solution is easy and it’s enough
+to start with negative u_0.</p>
+<p>Now you have time to do the second fit…</p>
+<p>Ok, I hope you got (u_0, t_E, pi_E_N, pi_E_E) of
+(-0.41, 110, -0.30, 0.11) and chi^2 of 947.0. The difference between
+the two solutions is small in chi^2 - they are degenerate. And u_0&lt;0 fits
+data slightly better. It turned out that the second fit was very important!</p>
+</div>
+<div class="section" id="plotting">
+<h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h2>
+<p>Let’s make a nice plot!</p>
+<p>I provide model parameters below. Here is how it goes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">model_0</span> <span class="o">=</span> <span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="mf">2453628.29062</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="mf">0.37263</span><span class="p">,</span>
+        <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="mf">102.387105</span><span class="p">})</span>
+<span class="n">model_1</span> <span class="o">=</span> <span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="mf">2453630.35507</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="mf">0.488817</span><span class="p">,</span>
+        <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="mf">93.611301</span><span class="p">,</span> <span class="s1">&#39;pi_E_N&#39;</span><span class="p">:</span> <span class="mf">0.2719</span><span class="p">,</span> <span class="s1">&#39;pi_E_E&#39;</span><span class="p">:</span> <span class="mf">0.1025</span><span class="p">,</span>
+        <span class="s1">&#39;t_0_par&#39;</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;t_0_par&#39;</span><span class="p">]},</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
+<span class="n">model_2</span> <span class="o">=</span> <span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="mf">2453630.67778</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.415677</span><span class="p">,</span>
+        <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="mf">110.120755</span><span class="p">,</span> <span class="s1">&#39;pi_E_N&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.2972</span><span class="p">,</span> <span class="s1">&#39;pi_E_E&#39;</span><span class="p">:</span> <span class="mf">0.1103</span><span class="p">,</span>
+        <span class="s1">&#39;t_0_par&#39;</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;t_0_par&#39;</span><span class="p">]},</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
+<span class="n">model_0</span><span class="o">.</span><span class="n">set_datasets</span><span class="p">([</span><span class="n">my_data</span><span class="p">])</span>
+<span class="n">model_1</span><span class="o">.</span><span class="n">set_datasets</span><span class="p">([</span><span class="n">my_data</span><span class="p">])</span>
+<span class="n">model_2</span><span class="o">.</span><span class="n">set_datasets</span><span class="p">([</span><span class="n">my_data</span><span class="p">])</span>
+
+<span class="n">t_1</span> <span class="o">=</span> <span class="mf">2453200.</span>
+<span class="n">t_2</span> <span class="o">=</span> <span class="mf">2453950.</span>
+<span class="n">plot_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;subtract_2450000&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s1">&#39;t_start&#39;</span><span class="p">:</span> <span class="n">t_1</span><span class="p">,</span> <span class="s1">&#39;t_stop&#39;</span><span class="p">:</span> <span class="n">t_2</span><span class="p">}</span>
+
+<span class="n">my_event</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">subtract_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">model_0</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;no pi_E&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_params</span><span class="p">)</span>
+<span class="n">model_1</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;pi_E, u_0&gt;0&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_params</span><span class="p">)</span>
+<span class="n">model_2</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;pi_E, u_0&lt;0&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">plot_params</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">t_1</span><span class="o">-</span><span class="mf">2450000.</span><span class="p">,</span> <span class="n">t_2</span><span class="o">-</span><span class="mf">2450000.</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Data and 3 fitted models&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>I hope you see that parallax models are better than the non-parallax model.
+If not, then zoom-in around epoch 3800. The non-parallax model has chi^2
+higher by about 400.</p>
+<p>Slightly modified source code from this tutorial is
+<a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/example_06_fit_parallax.py">example 6</a>.</p>
+</div>
+<div class="section" id="exercise">
+<h2>Exercise<a class="headerlink" href="#exercise" title="Permalink to this headline">¶</a></h2>
+<p>As an excersice you may try to fit other events from
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2015ApJS..216...12W">Wyrzykowski et al. (2015)</a>. It’s best to start with long events, that have bright sources, and small impact parameters.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Mircolensing Parallax Fitting Tutorial</a><ul>
+<li><a class="reference internal" href="#imports-and-settings">Imports and settings</a></li>
+<li><a class="reference internal" href="#running-the-sampler">Running the sampler</a></li>
+<li><a class="reference internal" href="#plotting">Plotting</a></li>
+<li><a class="reference internal" href="#exercise">Exercise</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="tutorial_fit_pspl.html" title="previous chapter">Basic Fitting Tutorial</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_fit_pi_E.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/tutorial_fit_pi_E.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
