@@ -175,8 +175,8 @@ much better.
 
 Congratulations! You have fitted the model to the data.
 
-Excercise
----------
+Exercise
+--------
 
 Try using different optimization routine, starting point, 
 or apply constraints on the fit. If 
