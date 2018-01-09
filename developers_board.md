@@ -1,14 +1,10 @@
-## Dec goals:
-1. manual for annaul parallax fitting
-2. Martin's FSBL code
-3. faster parallax calculations
-4. prepare paper
+## Jan goals:
+1. A&C paper and v1.0.0 release
+2. instantaneous orbital motion of binary lens,
+3. Jacobian for PSPL
+4. finish new implementation of ModelParameters
+5. PointLens class
 
-## Nov goals:
-1. instantaneous orbital motion of binary lens,
-2. Jacobian for PSPL
-3. finish new implementation of ModelParameters
-4. Sphinx docstrings for all classes and init functions
 
 ## Specific tasks to be performed
 (__boldfaced__ correspond to this month goals; _italics_ mark task useful for data challenge; try to put important stuff at the top)
@@ -22,7 +18,6 @@
 * Install
   * [2] makefile for Windows (basic instructions exist already)
 * Documentation
-  * [2] PSPL manual - add annual parallax
   * Sagan workshop hands-on activity in MM
   * binary calculations
     1. Confirm s is relative to Einstein radius of total mass of the binary lens.
@@ -56,7 +51,7 @@
   * _Cassan 2008 binary lens parameters_
   * [1] _dA/dparam for point lens models_
     * ~~[1] use case ~~ --> UC24
-  * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692)
+  * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y)
 * Function Improvements/Expansion
   * Binary Lens:
     * should BinaryLens() accept source\_x/y as lists or arrays?
