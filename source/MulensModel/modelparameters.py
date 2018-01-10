@@ -253,21 +253,31 @@ class ModelParameters(object):
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
             if ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys):
-                raise ValueError(
+                raise KeyError(
                     'A binary model requires all three of (s, q, alpha).')
 
         # Cannot define all 3 parameters for 2 observables
         if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
-            raise ValueError('Only 2 of (t_E, rho, t_star) may be defined.')
+            raise KeyError('Only 2 of (t_E, rho, t_star) may be defined.')
 
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
-            raise ValueError('Only 2 of (u_0, t_E, t_eff) may be defined.')
+            raise KeyError('Only 2 of (u_0, t_E, t_eff) may be defined.')
 
         # Parallax is either pi_E or (pi_E_N, pi_E_E)
         if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
-            raise ValueError(
+            raise KeyError(
                 'Parallax may be defined EITHER by pi_E OR by ' +
                 '(pi_E_N and pi_E_E).')
+
+        # If ds_dt is defined, dalpha_dt must be defined
+        if ('ds_dt' in keys) or ('dalpha_dt' in keys):
+            if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
+                raise KeyError(
+                    'Lens orbital motion requires both ds_dt and dalpha_dt.')
+            elif (
+                ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys)):
+                raise KeyError(
+                    'Lens orbital motion requires >2 bodies (s, q, alpha).')
 
     def _check_valid_parameter_values(self, parameters):
         """

@@ -33,8 +33,7 @@ model_static = MulensModel.Model(
 
 # We can get model exactly the same as model_orb this way:
 orb_parameters = {key: value for key, value in model_static.parameters.items()}
-orb_parameters['ds_dt'] = 0.
-orb_parameters['dalpha_dt'] = 0.
+orb_parameters.update({'ds_dt': 0., 'dalpha_dt': 0.})
 model_orb_2 = MulensModel.Model(Parameters=orb_parameters)
 
 dt = 36.525 # This is in days.
