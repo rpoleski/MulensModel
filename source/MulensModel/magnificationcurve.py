@@ -1,12 +1,8 @@
 import numpy as np
 import warnings
 
-from scipy.special import ellipe
-# This is incomplete elliptic integral of the second kind.
-
-from scipy import integrate
-
 from MulensModel.trajectory import Trajectory
+from MulensModel.pointlens import PointLens
 from MulensModel.binarylens import BinaryLens
 from MulensModel.modelparameters import ModelParameters
 
@@ -225,6 +221,8 @@ class MagnificationCurve(object):
         pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
         if self._methods_epochs is None:
             return pspl_magnification
+        else:
+            point_lens = PointLens(self.parameters)
 
         magnification = pspl_magnification
         u_all = np.sqrt(u2)
@@ -245,112 +243,20 @@ class MagnificationCurve(object):
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 selection = (methods == method)
                 magnification[selection] = (
-                    self._get_point_lens_finite_source_magnification(
-                        rho=self.parameters.rho, u=u_all[selection],
+                    point_lens._get_point_lens_finite_source_magnification(
+                        u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection]))
             elif method.lower() == 'finite_source_LD_Gould94'.lower():
                 selection = (methods == method)
                 magnification[selection] = (
-                    self._get_point_lens_limb_darkening_magnification(
-                        rho=self.parameters.rho, u=u_all[selection],
-                        pspl_magnification=pspl_magnification[selection]))
+                    point_lens._get_point_lens_limb_darkening_magnification(
+                        u=u_all[selection],
+                        pspl_magnification=pspl_magnification[selection],
+                        gamma=self._gamma))
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))
 
-        return magnification
-
-    def _B_0_function(self, z):
-        """
-        calculate B_0(z) function defined in:
-
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
-
-        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
-        Effects from a Point-Mass Lens"
-        http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
-
-        """
-        out = 4. * z / np.pi
-        function = lambda x: (1.-value**2*np.sin(x)**2)**.5
-
-        for (i, value) in enumerate(z):
-            if value < 1.:
-                out[i] *= ellipe(value*value)
-            else:
-                out[i] *= integrate.quad(function, 0., np.arcsin(1./value))[0]
-        return out
-
-    def _B_1_function(self, z, B_0=None):
-        """
-        calculate B_1(z) function defined in:
-
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
-
-        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
-        Effects from a Point-Mass Lens"
-        http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
-
-        """
-        if B_0 is None:
-            B_0 = self._B_0_function(z)
-
-        function = (lambda r, theta: r * np.sqrt(1.-r**2) /
-                    self.parameters.rho /
-                    np.sqrt(r**2+zz**2-2.*r*zz*np.cos(theta)))
-        lim_0 = lambda x: 0
-        lim_1 = lambda x: 1
-        W_1 = 0. * z
-        for (i, zz) in enumerate(z):
-            W_1[i] = integrate.dblquad(function, 0., 2.*np.pi, lim_0, lim_1)[0]
-
-        W_1 /= np.pi
-        return B_0 - 1.5 * z * self.parameters.rho * W_1
-
-    def _get_point_lens_finite_source_magnification(
-                self, rho, u, pspl_magnification):
-        """
-        calculate magnification for point lens and finite source.
-        The approximation was proposed by:
-
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
-
-        and later the integral calculation was simplified by:
-
-        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
-        Effects from a Point-Mass Lens"
-        http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
-
-        """
-        z = u / rho
-
-        magnification = pspl_magnification * self._B_0_function(z)
-        # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
-        return magnification
-
-    def _get_point_lens_limb_darkening_magnification(
-                self, rho, u, pspl_magnification):
-        """
-        calculate magnification for point lens and finite source with
-        limb darkening. The approximation was proposed by:
-
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
-
-        and later the integral calculation was simplified by:
-
-        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
-        Effects from a Point-Mass Lens"
-        http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
-
-        """
-        z = u / rho
-        B_0 = self._B_0_function(z)
-        B_1 = self._B_1_function(z, B_0=B_0)
-        magnification = pspl_magnification * (B_0 - self._gamma * B_1)
         return magnification
 
     def get_binary_lens_magnification(self):
