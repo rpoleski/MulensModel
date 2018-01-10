@@ -8,10 +8,10 @@ from MulensModel.modelparameters import ModelParameters
 
 class TestModelParameters(unittest.TestCase):
     def test_too_many_parameters_for_init(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             mp = ModelParameters(
                 {'pi_E':(1., 1.), 'pi_E_N':1.})
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             mp = ModelParameters(
                 {'pi_E':(1., 1.), 'pi_E_E':1.})
 
@@ -55,7 +55,7 @@ def test_rho_t_e_t_star():
 
 class test(unittest.TestCase):
     def test_too_much_rho_t_e_t_star(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             t_0 = 2450000.
             u_0 = 0.1
             t_E = 20. * u.day
