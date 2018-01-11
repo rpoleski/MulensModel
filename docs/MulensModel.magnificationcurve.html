@@ -78,6 +78,7 @@ ephemrides file. see
 <dl class="docutils">
 <dt>For available methods, see:</dt>
 <dd><p class="first"><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification"><code class="xref py py-func docutils literal"><span class="pre">get_point_lens_magnification()</span></code></a></p>
+<p>and</p>
 <p class="last"><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification"><code class="xref py py-func docutils literal"><span class="pre">get_binary_lens_magnification()</span></code></a></p>
 </dd>
 <dt>Parameters :</dt>
@@ -145,16 +146,16 @@ e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span cla
 <code class="descname">get_point_lens_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Point Lens magnification.</p>
 <dl class="docutils">
-<dt>Magnification Methods :</dt>
+<dt>Allowed magnification methods :</dt>
 <dd><dl class="first last docutils">
-<dt>point_source:</dt>
+<dt><code class="docutils literal"><span class="pre">point_source</span></code>:</dt>
 <dd>standard Pczynski equation for a point source/point lens.</dd>
-<dt>finite_source_uniform_Gould94:</dt>
-<dd>Uses the Gould (1994) prescription assuming a
+<dt><code class="docutils literal"><span class="pre">finite_source_uniform_Gould94</span></code>:</dt>
+<dd>Uses the <a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">Gould 1994 ApJ, 421L, 71</a> prescription assuming a
 <em>uniform</em> (and circular) source.</dd>
-<dt>finite_source_LD_Gould94:</dt>
-<dd>Uses the Gould (1994) prescription for a circular source
-<em>including limb-darkening.</em></dd>
+<dt><code class="docutils literal"><span class="pre">finite_source_LD_Gould94</span></code>:</dt>
+<dd>Uses the <a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">Gould 1994 ApJ, 421L, 71</a> prescription for
+a circular source <em>including limb-darkening.</em></dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
@@ -164,8 +165,6 @@ e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span cla
 </dl>
 </dd>
 </dl>
-<p>Gould A. 1994 ApJ 421L, 71 “Proper motions of MACHOs”
-<a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">http://adsabs.harvard.edu/abs/1994ApJ…421L..71G</a></p>
 </dd></dl>
 
 <dl class="method">
@@ -173,21 +172,24 @@ e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span cla
 <code class="descname">get_binary_lens_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the binary lens magnification.</p>
 <dl class="docutils">
-<dt>Magnification Methods :</dt>
+<dt>Allowed magnification methods :</dt>
 <dd><dl class="first last docutils">
-<dt>point_source:</dt>
-<dd>standard PSPL magnification calculation.</dd>
-<dt>quadrupole/hexadecapole:</dt>
-<dd>From Gould 20008. See
-<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.binarylens.BinaryLens.hexadecapole_magnification()</span></code></a></dd>
-<dt>VBBL:</dt>
+<dt><code class="docutils literal"><span class="pre">point_source</span></code>:</dt>
+<dd>standard point source magnification calculation.</dd>
+<dt><code class="docutils literal"><span class="pre">quadrupole</span></code>:</dt>
+<dd>From <a class="reference external" href="http://adsabs.harvard.edu/abs/2008ApJ...681.1593G">Gould 2008 ApJ, 681, 1593</a>. See
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal"><span class="pre">hexadecapole_magnification()</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">hexadecapole</span></code>:</dt>
+<dd>From <a class="reference external" href="http://adsabs.harvard.edu/abs/2008ApJ...681.1593G">Gould 2008 ApJ, 681, 1593</a> See
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal"><span class="pre">hexadecapole_magnification()</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">VBBL</span></code>:</dt>
 <dd>Uses VBBinaryLensing (a Stokes theorem/contour
 integration code) by Valerio Bozza. See
-<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="MulensModel.binarylens.BinaryLens.vbbl_magnification"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.binarylens.BinaryLens.vbbl_magnification()</span></code></a></dd>
-<dt>Adaptive_Contouring:</dt>
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="MulensModel.binarylens.BinaryLens.vbbl_magnification"><code class="xref py py-func docutils literal"><span class="pre">vbbl_magnification()</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">Adaptive_Contouring</span></code>:</dt>
 <dd>Uses AdaptiveContouring (a Stokes theorem/contour
 integration code) by Martin Dominik.  See
-<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()</span></code></a></dd>
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification"><code class="xref py py-func docutils literal"><span class="pre">adaptive_contouring_magnification()</span></code></a></dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
