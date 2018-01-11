@@ -78,6 +78,8 @@ class MagnificationCurve(object):
         For available methods, see:
             :py:func:`get_point_lens_magnification`
 
+            and
+
             :py:func:`get_binary_lens_magnification`
 
         Parameters :
@@ -194,24 +196,21 @@ class MagnificationCurve(object):
         """
         Calculate the Point Lens magnification.
 
-        Magnification Methods :
-            point_source:
+        Allowed magnification methods :
+            ``point_source``:
                 standard Pczynski equation for a point source/point lens.
 
-            finite_source_uniform_Gould94:
-                Uses the Gould (1994) prescription assuming a
+            ``finite_source_uniform_Gould94``:
+                Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a
                 *uniform* (and circular) source.
 
-            finite_source_LD_Gould94:
-                Uses the Gould (1994) prescription for a circular source
-                *including limb-darkening.*
+            ``finite_source_LD_Gould94``:
+                Uses the `Gould 1994 ApJ, 421L, 71`_ prescription for
+                a circular source *including limb-darkening.*
 
         Returns :
             magnification: *np.ndarray*
                 Vector of magnifications.
-
-        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
 
         """
 
@@ -263,23 +262,28 @@ class MagnificationCurve(object):
         """
         Calculate the binary lens magnification.
 
-        Magnification Methods :
-            point_source:
-                standard PSPL magnification calculation.
+        Allowed magnification methods :
+            ``point_source``:
+                standard point source magnification calculation.
 
-            quadrupole/hexadecapole:
-                From Gould 20008. See
-                :py:func:`MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
+            ``quadrupole``:
+                From `Gould 2008 ApJ, 681, 1593 
+                <http://adsabs.harvard.edu/abs/2008ApJ...681.1593G>`_. See
+                :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
 
-            VBBL:
+            ``hexadecapole``:
+                From `Gould 2008 ApJ, 681, 1593`_ See
+                :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
+
+            ``VBBL``:
                 Uses VBBinaryLensing (a Stokes theorem/contour
                 integration code) by Valerio Bozza. See
-                :py:func:`MulensModel.binarylens.BinaryLens.vbbl_magnification()`
+                :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
 
-            Adaptive_Contouring:
+            ``Adaptive_Contouring``:
                 Uses AdaptiveContouring (a Stokes theorem/contour
                 integration code) by Martin Dominik.  See
-                :py:func:`MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
+                :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
         Returns :
             magnification: *np.ndarray*
