@@ -96,6 +96,11 @@ class Model(object):
 
     @property
     def parameters(self):
+        """
+        :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+        Model parameters.
+        """
         return self._parameters
 
     @parameters.setter
@@ -178,7 +183,9 @@ class Model(object):
     @property
     def data_magnification(self):
         """
-        a *list* of magnifications calculated for every dataset time vector
+        *list*
+
+        A list of magnifications calculated for every dataset time vector.
         """
         self._data_magnification = []
 
