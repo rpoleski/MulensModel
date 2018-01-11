@@ -1,5 +1,5 @@
 ## Jan goals:
-1. A&C paper and v1.0.0 release
+1. prepare v1.0.0 release and A&C paper
 2. instantaneous orbital motion of binary lens,
 3. Jacobian for PSPL
 4. finish new implementation of ModelParameters
@@ -90,7 +90,8 @@
     * [2] plotting data in MulensData (also update PSPL tutorial)
     * interaction with fitting routines - see list of them e.g. https://arxiv.org/abs/1711.03329
     * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, there there is no point in remembering huge indexes (whole self.times)
-    * profile the code (python -m cProfile script.py) - most probably start with Fit.fit\_fluxes()
+    * profile the code (python -m cProfile script.py)
+    * Leap seconds library - [barycorrpy](https://arxiv.org/abs/1801.01634)
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
