@@ -98,7 +98,7 @@ class MagnificationCurve(object):
                 specified in *methods*.
 
         For point-lens with finite source, the methods named
-        ``finite_source_uniform_Gould94`` and ``finite_source_LD_Gould94``
+        ``finite_source_uniform_Gould94`` and ``finite_source_LD_Yoo04``
         implement the algorithms presented by `Gould 1994 ApJ, 421L, 71
         <http://adsabs.harvard.edu/abs/1994ApJ...421L..71G>`_ and
         `Yoo et al. 2004 ApJ, 603, 139
@@ -204,7 +204,7 @@ class MagnificationCurve(object):
                 Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a
                 *uniform* (and circular) source.
 
-            ``finite_source_LD_Gould94``:
+            ``finite_source_LD_Yoo04``:
                 Uses the `Gould 1994 ApJ, 421L, 71`_ prescription for
                 a circular source *including limb-darkening.*
 
@@ -245,7 +245,7 @@ class MagnificationCurve(object):
                     point_lens._get_point_lens_finite_source_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection]))
-            elif method.lower() == 'finite_source_LD_Gould94'.lower():
+            elif method.lower() == 'finite_source_LD_Yoo04'.lower():
                 selection = (methods == method)
                 magnification[selection] = (
                     point_lens._get_point_lens_limb_darkening_magnification(

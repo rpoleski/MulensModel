@@ -41,7 +41,7 @@ def test_fspl():
     params = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E, 'rho':rho})
 
     mag_curve = MagnificationCurve(times=t_vec, parameters=params, gamma=gamma)
-    methods = [t_0-t_E, 'finite_source_LD_Gould94', t_0+t_E]
+    methods = [t_0-t_E, 'finite_source_LD_Yoo04', t_0+t_E]
     mag_curve.set_magnification_methods(methods, 'point_source')
     results = mag_curve.get_point_lens_magnification()
     
@@ -53,5 +53,4 @@ def test_fspl():
     # were calculated by Andy Gould (file b0b1.dat).
     expected *= pspl
     
-    np.testing.assert_almost_equal(expected/results, 1., decimal=4)    
-    
+    np.testing.assert_almost_equal(expected/results, 1., decimal=4)

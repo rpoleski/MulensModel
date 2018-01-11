@@ -905,7 +905,7 @@ class Model(object):
             key.lower(): value for (key, value) in methods_parameters.items()}
         methods_point_lens = [
             'point_source', 'finite_source_uniform_Gould94'.lower(),
-            'finite_source_LD_Gould94'.lower()]
+            'finite_source_LD_Yoo04'.lower()]
         methods_binary_lens = [
             'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
             'adaptive_contouring']
