@@ -35,7 +35,9 @@
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
     * [2] _faster FSPL with LD_
     * FSPL ray shooting (ala getmag\_rs\_single.f)
+    * Yoo+04 full formalism 
     * [2] get gamma/u LD coefs from Claret papers etc.
+    * Full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
   * Higher Order Effects
     * xallarap (see below for references)
       - use case, 
