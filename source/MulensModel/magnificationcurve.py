@@ -242,13 +242,13 @@ class MagnificationCurve(object):
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 selection = (methods == method)
                 magnification[selection] = (
-                    point_lens._get_point_lens_finite_source_magnification(
+                    point_lens.get_point_lens_finite_source_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection]))
             elif method.lower() == 'finite_source_LD_Yoo04'.lower():
                 selection = (methods == method)
                 magnification[selection] = (
-                    point_lens._get_point_lens_limb_darkening_magnification(
+                    point_lens.get_point_lens_limb_darkening_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection],
                         gamma=self._gamma))

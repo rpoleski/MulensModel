@@ -70,11 +70,11 @@ class PointLens(object):
         W_1 /= np.pi
         return B_0 - 1.5 * z * self.parameters.rho * W_1
 
-    def _get_point_lens_finite_source_magnification(
+    def get_point_lens_finite_source_magnification(
                 self, u, pspl_magnification):
         """
-        calculate magnification for point lens and finite source.
-        The approximation was proposed by:
+        Calculate magnification for point lens and finite source (for
+        a *uniform* source).  The approximation was proposed by:
 
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
@@ -84,6 +84,17 @@ class PointLens(object):
         Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
         Effects from a Point-Mass Lens"
         http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
+
+        Parameters :
+            u: *float*, *np.array*
+                The instantaneous source-lens separation.
+
+            pspl_magnification: *float*, *np.array*
+                The point souce, point lens magnification at each value of u.
+
+        Returns :
+            magnification: *float*, *np.array*
+                The finite source source magnification.
 
         """
         z = u / self.parameters.rho
@@ -92,11 +103,11 @@ class PointLens(object):
         # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
         return magnification
 
-    def _get_point_lens_limb_darkening_magnification(
+    def get_point_lens_limb_darkening_magnification(
                 self, u, pspl_magnification, gamma):
         """
-        calculate magnification for point lens and finite source with
-        limb darkening. The approximation was proposed by:
+        calculate magnification for point lens and finite source *with
+        limb darkening*. The approximation was proposed by:
 
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
@@ -106,6 +117,20 @@ class PointLens(object):
         Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
         Effects from a Point-Mass Lens"
         http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
+
+        Parameters :
+            u: *float*, *np.array*
+                The instantaneous source-lens separation.
+
+            pspl_magnification: *float*, *np.array*
+                The point souce, point lens magnification at each value of u.
+
+            gamma: *float* The limb-darkening coefficient. See also
+                :py:class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+
+        Returns :
+            magnification: *float*, *np.array*
+                The finite source source magnification including limb-darkening.
 
         """
         z = u / self.parameters.rho
