@@ -697,33 +697,11 @@ class ModelParameters(object):
         else:
             return 2
 
-    def add(self, dict):
+    def as_dict(self):
         """
-        *dict*
+        Returns:
+            *dict*
 
-        Use dictionary.update() to update/add parameters to the
-        ModelParameters set.
+            The dictionary of model parameters.
         """
-        self.parameters.update(dict)
-
-    def items(self):
-        """
-        Returns an iterator over the ModelParameters parameters and
-        values. Acts like dict.items().
-        """
-        return self.parameters.items()
-
-    def keys(self):
-        """
-        Returns an iterator over the keys (variables) in
-        ModelParameters. Acts like dict.keys().
-        """
-        return self.parameters.keys()
-
-    def values(self):
-        """
-        Returns an iterator over the values (parameter values) in
-        ModelParameters. Acts like dict.values().
-        """
-        return self.parameters.values()
-
+        return self.parameters

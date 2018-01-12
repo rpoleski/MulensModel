@@ -63,11 +63,11 @@ class test(unittest.TestCase):
             t_star = t_E * rho
             ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E, 'rho':rho, 't_star':t_star})
 
-def test_add():
+def test_update():
     t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
     params = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
-    params.add({'rho': 0.001})
+    params.as_dict().update({'rho': 0.001})
 
     assert len(params.parameters.keys()) == 4
