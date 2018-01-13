@@ -1,6 +1,7 @@
 from astropy import units as u
 import numpy as np
 
+
 # Different parameter sets. Any parameters that may be given as
 # 'basic' should be a list. Parameters that may be 'optional' should
 # be a list of length 2. The second item will only be printed if the
@@ -699,9 +700,11 @@ class ModelParameters(object):
 
     def as_dict(self):
         """
-        Returns:
-            *dict*
+        Give parameters as a dict.
 
-            The dictionary of model parameters.
+        Returns :
+            dictionary: *dict*
+                The dictionary of model parameters.
         """
         return self.parameters
+
