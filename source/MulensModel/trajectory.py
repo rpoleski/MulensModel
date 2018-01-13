@@ -121,12 +121,17 @@ class Trajectory(object):
             vector_x = vector_tau
             vector_y = vector_u
         elif self.parameters.n_lenses == 2:
-            sin_alpha = np.sin(self.parameters.alpha).value
-            cos_alpha = np.cos(self.parameters.alpha).value
-            shift_x = - (self.parameters.s * self.parameters.q /
-                         (1. + self.parameters.q))
-            vector_x = vector_u * sin_alpha - vector_tau * cos_alpha + shift_x
-            vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
+            if self.parameters.alpha == 0.:
+                vector_x = vector_tau
+                vector_y = vector_u
+            else:
+                sin_alpha = np.sin(self.parameters.alpha).value
+                cos_alpha = np.cos(self.parameters.alpha).value
+                shift_x = - (self.parameters.s * self.parameters.q /
+                             (1. + self.parameters.q))
+                vector_x = (vector_u * sin_alpha - vector_tau * cos_alpha + 
+                            shift_x)
+                vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
             # The above equations use alpha in counterclockwise
             # convention, i.e., the same as proposed by Skowron et
             # al. (2011)
