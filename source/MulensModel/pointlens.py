@@ -1,21 +1,17 @@
 import numpy as np
 from scipy import integrate
 from scipy.special import ellipe
-# This is incomplete elliptic integral of the second kind.
+# This is an incomplete elliptic integral of the second kind.
+
 
 class PointLens(object):
     """
     Equations for calculating finite source effects for a point lens. 
 
-    Takes `parameters` as input (all parameters for the model), but
-    only uses rho, so maybe should modify.
+    Keywords :
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
+            Parameters of the model. 
 
-    To Do:
-       Add get_point_lens_magnification() method from
-       MagnificationCurve. Requires also adding `methods` to the
-       __init__ function.
-
-       Might want to pass `gamma` as part of the __init__.
     """
 
     def __init__(self, parameters=None):
@@ -125,7 +121,8 @@ class PointLens(object):
             pspl_magnification: *float*, *np.array*
                 The point souce, point lens magnification at each value of u.
 
-            gamma: *float* The limb-darkening coefficient. See also
+            gamma: *float*
+                The limb-darkening coefficient. See also
                 :py:class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
 
         Returns :
