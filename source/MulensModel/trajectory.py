@@ -16,7 +16,8 @@ class Trajectory(object):
     microlensing parallax affects the trajectory.
 
     For binary lens, the origin of the coordinate system is at the
-    center of mass with higher mass at negative X and Y=0.
+    center of mass with higher mass (assuming q < 1) at negative X and
+    Y=0.
 
     Arguments :
         times: [*float*, *list*, *np.ndarray*], required
@@ -125,9 +126,8 @@ class Trajectory(object):
             cos_alpha = np.cos(self.parameters.alpha).value
             shift_x = - (self.parameters.s * self.parameters.q /
                          (1. + self.parameters.q))
-            vector_x = (vector_u * sin_alpha - vector_tau * cos_alpha + 
-                        shift_x)
-            vector_y = -vector_u * cos_alpha - vector_tau * sin_alpha
+            vector_x = vector_tau * cos_alpha - vector_u * sin_alpha + shift_x
+            vector_y = vector_tau * sin_alpha + vector_u * cos_alpha
             # The above equations use alpha in counterclockwise
             # convention, i.e., the same as proposed by Skowron et
             # al. (2011)

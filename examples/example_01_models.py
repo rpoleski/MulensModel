@@ -22,10 +22,13 @@ pspl = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 #Create a planet model with same PSPL parameters
 s = 1.5
 q = 0.001
-alpha = np.rad2deg(np.pi - 0.37)
+alpha = np.rad2deg(2.756 - np.pi)
+rho = 0.001
 
 planet = Model(
-    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha})
+    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha, 
+     'rho': rho})
+planet.set_magnification_methods([3589., 'VBBL', 3595.])
 
 #Plot PSPL model
 pl.figure()
@@ -56,8 +59,11 @@ planet.plot_magnification(t_range=[3592, 3593],
 pl.title('Planetary Perturbation Detail')
 
 #Plot source trajectory and caustic
-pl.figure()
-planet.plot_trajectory(caustics=True)
+pl.figure(figsize=(6,6))
+planet.plot_trajectory(t_range=[t_0 - t_E, t_0], caustics=True, color='red')
+planet.plot_trajectory(t_range=[t_0, t_0 + t_E], caustics=True, color='blue')
+pl.xlim(-0.25, 1.0)
+pl.ylim(-0.25, 1.0)
 pl.title('Source Trajectory')
 
 pl.show()

@@ -101,8 +101,8 @@ def test_limb_darkening():
 def test_BLPS_01():
     """simple binary lens with point source"""
     params = ModelParameters({
-            't_0':6141.593, 'u_0':0.5425, 't_E':62.63*u.day, 
-            'alpha':49.58*u.deg, 's':1.3500, 'q':0.00578})
+            't_0': 6141.593, 'u_0': 0.5425, 't_E': 62.63*u.day, 
+            'alpha': 229.58*u.deg, 's': 1.3500, 'q': 0.00578})
     model = Model(parameters=params)
     t = np.array([6112.5])
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
@@ -112,10 +112,12 @@ def test_BLPS_01():
     # np.testing.assert_almost_equal(m, 4.710563917) # This value comes from Andy's getbinp().
 
 def test_BLPS_02():
-    """simple binary lens with extended source and different methods to evaluate magnification"""
+    """simple binary lens with extended source and different methods to
+    evaluate magnification"""
+
     params = ModelParameters({
-            't_0':2456141.593, 'u_0':0.5425, 't_E':62.63*u.day, 'alpha':49.58*u.deg, 
-            's':1.3500, 'q':0.00578, 'rho':0.01})
+            't_0': 2456141.593, 'u_0': 0.5425, 't_E': 62.63*u.day, 
+            'alpha': 229.58*u.deg, 's': 1.3500, 'q': 0.00578, 'rho': 0.01})
     model = Model(parameters=params)
     
     t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
@@ -143,8 +145,8 @@ def test_BLPS_02_AC():
     - version with adaptivecontouring
     """
     params = ModelParameters({
-            't_0':2456141.593, 'u_0':0.5425, 't_E':62.63*u.day, 'alpha':49.58*u.deg, 
-            's':1.3500, 'q':0.00578, 'rho':0.01})
+            't_0': 2456141.593, 'u_0': 0.5425, 't_E': 62.63*u.day, 
+            'alpha': 229.58*u.deg, 's': 1.3500, 'q': 0.00578, 'rho': 0.01})
     model = Model(parameters=params)
     
     t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
@@ -175,8 +177,8 @@ def test_BLPS_02_AC():
 def test_methods_parameters():
     """make sure additional parameters are properly passed to very inner functions"""
     params = ModelParameters({
-            't_0':2456141.593, 'u_0':0.5425, 't_E':62.63*u.day, 'alpha':49.58*u.deg, 
-            's':1.3500, 'q':0.00578, 'rho':0.01})
+            't_0': 2456141.593, 'u_0': 0.5425, 't_E': 62.63*u.day, 
+            'alpha': 229.58*u.deg, 's': 1.3500, 'q': 0.00578, 'rho': 0.01})
     model = Model(parameters=params)
     
     t = np.array([2456117.])
