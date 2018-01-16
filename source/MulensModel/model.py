@@ -296,7 +296,7 @@ class Model(object):
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
-            **kwargs):
+            satellite_skycoord=None, **kwargs):
         """
         Plot the model magnification curve.
 
@@ -316,7 +316,13 @@ class Model(object):
         if subtract_2460000:
             subtract = 2460000.
 
-        pl.plot(times-subtract, self.magnification(times), **kwargs)
+        if satellite_skycoord is not None:
+            satellite = satellite_skycoord.get_satellite_coords(times)
+        else:
+            satellite = None
+        magnification = self.magnification(times, satellite_skycoord=satellite)
+
+        pl.plot(times-subtract, magnification, **kwargs)
         pl.ylabel('Magnification')
         pl.xlabel('Time')
 

@@ -118,7 +118,7 @@ class MagnificationCurve(object):
         names = methods[1::2]
 
         for epoch in epochs:
-            if not isinstance(epoch, float):
+            if not isinstance(epoch, (float, int)):
                 raise TypeError('Wrong epoch: {:}'.format(epoch))
         for method in names:
             if not isinstance(method, str):
