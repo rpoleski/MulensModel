@@ -67,10 +67,10 @@ def test_event_get_chi2_2():
                                    err_msg='problem in resulting chi2 for fixed no blending')
 
     chi2_2 = ev.get_chi2_for_dataset(0)
-    assert chi2_2 == answer
+    np.testing.assert_almost_equal(chi2_2, answer)
     
     chi2_3 = ev.get_chi2_for_dataset(1)
-    assert chi2_3 == answer
+    np.testing.assert_almost_equal(chi2_3, answer)
 
 def test_event_get_chi2_double_source_simple():
     """basic test on ob08092 OGLE-IV data with added second source
