@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import os
 
-from MulensModel.model import Model, SatelliteSkyCoord
-import MulensModel
+from MulensModel import Model, SatelliteSkyCoord, MODULE_PATH
 
 
 # Define model parameters.
@@ -11,12 +10,12 @@ params_pi_E = {'pi_E_N': 0.35, 'pi_E_E': 0.5}
 params_planet = {'rho': 0.002, 's': 1.5, 'q': 0.001, 'alpha': 348.1}
 ra_dec = "18:00:00.00 -28:30:00.0"
 
-# Set models and satellite settings
+# Set models and satellite settings.
 model_pspl = Model(params)
 model_planet = Model({**params, **params_planet})
 model_planet.set_magnification_methods([245637, 'VBBL', 2456945])
 model_parallax = Model({**params, **params_pi_E}, coords=ra_dec)
-satellite = SatelliteSkyCoord(os.path.join(MulensModel.MODULE_PATH, 'data',
+satellite = SatelliteSkyCoord(os.path.join(MODULE_PATH, 'data',
     'Spitzer_ephemeris_01.dat'))
 
 # Plot the magnification curves.
