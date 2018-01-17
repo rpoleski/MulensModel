@@ -126,7 +126,7 @@ class MagnificationCurve(object):
         for (e_beg, e_end) in zip(epochs[::2], epochs[1::2]):
             if e_beg >= e_end:
                 msg = ('Incorrect epochs provided: {:} and {:} (first should' +
-                       'be earlier)')
+                       ' be earlier)')
                 raise ValueError(msg.format(e_beg, e_end))
 
         self._methods_epochs = np.array(epochs)

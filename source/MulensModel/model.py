@@ -296,14 +296,18 @@ class Model(object):
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
-            satellite_skycoord=None, **kwargs):
+            satellite_skycoord=None, gamma=0., **kwargs):
         """
         Plot the model magnification curve.
 
         Keywords :
             see :py:func:`plot_lc()`
+            
+            satellite_skycoord
+            
+            gamma
 
-        ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
+        ``**kwargs`` -- any arguments accepted by matplotlib.pyplot.plot().
 
         """
         if times is None:
@@ -320,7 +324,8 @@ class Model(object):
             satellite = satellite_skycoord.get_satellite_coords(times)
         else:
             satellite = None
-        magnification = self.magnification(times, satellite_skycoord=satellite)
+        magnification = self.magnification(times, satellite_skycoord=satellite,
+                gamma=gamma)
 
         pl.plot(times-subtract, magnification, **kwargs)
         pl.ylabel('Magnification')
