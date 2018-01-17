@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from scipy import integrate
 from scipy.special import ellipe
 # This is an incomplete elliptic integral of the second kind.
@@ -30,7 +31,7 @@ class PointLens(object):
 
         """
         out = 4. * z / np.pi
-        function = lambda x: (1.-value**2*np.sin(x)**2)**.5
+        function = lambda x: (1.-value**2*math.sin(x)**2)**.5
 
         for (i, value) in enumerate(z):
             if value < 1.:
@@ -54,13 +55,20 @@ class PointLens(object):
         if B_0 is None:
             B_0 = self._B_0_function(z)
 
-        function = (lambda r, theta: r * np.sqrt(1.-r**2) /
-                    self.parameters.rho /
-                    np.sqrt(r**2+zz**2-2.*r*zz*np.cos(theta)))
+        def function(r, theta):
+            r_2 = r * r
+            val = (1. - r_2) / (r_2 + function.arg_2 
+                    + r*function.arg_3*math.cos(theta))
+            return r * function.arg_4 * math.sqrt(val)
+
         lim_0 = lambda x: 0
         lim_1 = lambda x: 1
         W_1 = 0. * z
         for (i, zz) in enumerate(z):
+            function.arg_1 = zz
+            function.arg_2 = zz * zz
+            function.arg_3 = -2. * zz
+            function.arg_4 = 1./ self.parameters.rho
             W_1[i] = integrate.dblquad(function, 0., 2.*np.pi, lim_0, lim_1)[0]
 
         W_1 /= np.pi
