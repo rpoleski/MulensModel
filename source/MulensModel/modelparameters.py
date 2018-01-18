@@ -2,11 +2,12 @@ from astropy import units as u
 import numpy as np
 
 
+# For definition of class ModelParameters see below.
+
 # Different parameter sets. Any parameters that may be given as
 # 'basic' should be a list. Parameters that may be 'optional' should
 # be a list of length 2. The second item will only be printed if the
-# effect is included in the 'optional' list (see _get_effect_strings()
-# ).
+# effect is included in the 'optional' list (see _get_effect_strings()).
 _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
@@ -21,7 +22,6 @@ _valid_parameters = {
     'lens orbital motion opt': [
         't_binary',
         'may also be specified for orbital motion models. Defaults to t_0.']}
-
 
 def _get_effect_strings(*args):
     """
@@ -88,7 +88,6 @@ def _get_effect_strings(*args):
         'basic': basic, 'additional': additional, 'alternate': alternate,
         'optional': optional}
 
-
 def _print_parameters(header, components):
     """
     Prints the given parameter information under the requested header.
@@ -116,7 +115,6 @@ def _print_parameters(header, components):
         for item in components['optional']:
             print('optional: {0} {1}'.format(
                     _valid_parameters[item][0], _valid_parameters[item][1]))
-
 
 def _print_all():
     """
@@ -707,4 +705,3 @@ class ModelParameters(object):
                 The dictionary of model parameters.
         """
         return self.parameters
-
