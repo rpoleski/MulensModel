@@ -6,7 +6,7 @@ from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 
-
+# Point Lens Tests
 def test_model_PSPL_1():
     """tests basic evaluation of Paczynski model"""
     t_0 = 5379.57091
@@ -98,13 +98,33 @@ def test_limb_darkening():
     np.testing.assert_almost_equal(model.get_limb_coeff_gamma('I'), gamma)
     np.testing.assert_almost_equal(model.get_limb_coeff_u('I'), u)
 
+# Binary Lens tests
+# Binary lens parameters:
+alpha = 229.58 * u.deg
+s = 1.3500 
+q = 0.00578
+# Other parameters
+t_E = 62.63 * u.day
+rho = 0.01
+
+# Adjust t_0, u_0 from primary to CM
+shift_x = -s * q / (1. + q)
+delta_t_0 = -t_E.value * shift_x * np.cos(alpha).value
+delta_u_0 = -shift_x * np.sin(alpha).value
+t_0 = 2456141.593 + delta_t_0
+u_0 = 0.5425 + delta_u_0
+
 def test_BLPS_01():
     """simple binary lens with point source"""
+    print(shift_x, np.cos(alpha), np.sin(alpha))
+    print(delta_t_0, delta_u_0)
+
     params = ModelParameters({
-            't_0': 6141.593, 'u_0': 0.5425, 't_E': 62.63*u.day, 
-            'alpha': 229.58*u.deg, 's': 1.3500, 'q': 0.00578})
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
+            'q': q})
+
     model = Model(parameters=params)
-    t = np.array([6112.5])
+    t = np.array([2456112.5])
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     magnification = model.data_magnification[0][0]
@@ -116,8 +136,8 @@ def test_BLPS_02():
     evaluate magnification"""
 
     params = ModelParameters({
-            't_0': 2456141.593, 'u_0': 0.5425, 't_E': 62.63*u.day, 
-            'alpha': 229.58*u.deg, 's': 1.3500, 'q': 0.00578, 'rho': 0.01})
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
+            'q': q, 'rho': rho})
     model = Model(parameters=params)
     
     t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
@@ -145,8 +165,8 @@ def test_BLPS_02_AC():
     - version with adaptivecontouring
     """
     params = ModelParameters({
-            't_0': 2456141.593, 'u_0': 0.5425, 't_E': 62.63*u.day, 
-            'alpha': 229.58*u.deg, 's': 1.3500, 'q': 0.00578, 'rho': 0.01})
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
+            'q': q, 'rho': rho})
     model = Model(parameters=params)
     
     t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
@@ -177,8 +197,8 @@ def test_BLPS_02_AC():
 def test_methods_parameters():
     """make sure additional parameters are properly passed to very inner functions"""
     params = ModelParameters({
-            't_0': 2456141.593, 'u_0': 0.5425, 't_E': 62.63*u.day, 
-            'alpha': 229.58*u.deg, 's': 1.3500, 'q': 0.00578, 'rho': 0.01})
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
+            'q': q, 'rho': rho})
     model = Model(parameters=params)
     
     t = np.array([2456117.])
