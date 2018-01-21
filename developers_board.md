@@ -51,6 +51,7 @@
 * Parameterization
   * __t\_* instead of rho__
   * _Cassan 2008 binary lens parameters_
+  * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
   * [1] _dA/dparam for point lens models_
     * ~~[1] use case ~~ --> UC24
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y)
@@ -58,7 +59,10 @@
   * Binary Lens:
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * [2] function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
+    * topology of caustics based on (s,q)
+    * central and planetary caustic properties: [Chung et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...630..535C) and [Han 2006](http://adsabs.harvard.edu/abs/2006ApJ...638.1080H)
   * Caustics.\_calculate - optimize using vectors instead of a loop
+  * Caustic calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
   * Event class:
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_corrds etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
@@ -123,6 +127,9 @@ ob9919 - [Smith et al. 2002](http://adsabs.harvard.edu/abs/2002MNRAS.336..670S)
 
 [Han & Gould 1997](http://adsabs.harvard.edu/abs/1997ApJ...480..196H)
 
-[Griest & Hu 1992](http://adsabs.harvard.edu/abs/1992ApJ...397..362G)
+[Jiang et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...617.1307J)
 
+[Ghosh et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...615..450G)
+
+[Griest & Hu 1992](http://adsabs.harvard.edu/abs/1992ApJ...397..362G)
 
