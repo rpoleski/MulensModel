@@ -10,16 +10,16 @@
 | * annual parallax| Yes |
 | * satellite parallax effects| Yes |
 | point-source/point-lens magnification curves including| |
-| * finite source with limb darkening| Yes, but very slow |
+| * finite source with limb darkening| Yes |
 | binary lens magnification curves including| |
 | * finite source with limb darkening| |
 | * VBBL| Yes |
-| * Dominik's Adapative Contouring| No |
+| * Dominik's Adapative Contouring| Yes |
 | binary lenses caustics can be calculated and plotted together with source trajectory.| Yes |
 |event properties (tE, thetaE, rE) can be calculated from physical properties of the source and lens systems (e.g. M, pi\_s, pi\_l, and mu)| Yes |
 | The code contains
 | * examples that show how the main high-level functions can be used| Yes |
-| * tutorial | No |
+| * tutorial | Yes |
 
 
 ### Coding Style
