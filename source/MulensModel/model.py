@@ -235,14 +235,25 @@ class Model(object):
     @property
     def datasets(self):
         """
-        a *list* of datasets linked to given model
+        *list*
+
+        datasets linked to given model
         """
         if self._datasets is None:
             raise ValueError('No datasets were linked to the model')
         return self._datasets
 
     def set_datasets(self, datasets, data_ref=0):
-        """set :obj:`datasets` property"""
+        """
+        Set :obj:`datasets` property 
+
+        Parameters :
+            datasets: *list* of :py:class:`~MulensModel.mulensdata.MulensData`
+                Datasets to be stored.
+
+            data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`, optional
+                Reference dataset.
+        """
         self._datasets = datasets
         self._data_magnification = None
         self.data_ref = data_ref
@@ -336,7 +347,7 @@ class Model(object):
             dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None,
             subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
-        plot the model light curve in magnitudes.
+        Plot the model light curve in magnitudes.
 
         Keywords:
             times: [*float*, *list*, *numpy.ndarray*]
@@ -412,8 +423,8 @@ class Model(object):
                 will be used.
 
         Returns :
-            f_source: *float*
-                source flux
+            f_source: *np.ndarray*
+                sources' flux; normally of size (1)
             f_blend: *float*
                 blending flux
 
@@ -996,6 +1007,8 @@ class Model(object):
     @property
     def bandpasses(self):
         """
+        *list*
+
         List of all bandpasses for which limb darkening coefficients are set.
         """
         return self._bandpasses
