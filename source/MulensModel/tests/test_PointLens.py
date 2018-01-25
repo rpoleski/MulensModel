@@ -5,7 +5,7 @@ import MulensModel
 from MulensModel import PointLens, ModelParameters
 
 DATA_PATH = os.path.join(MulensModel.MODULE_PATH, 'data')
-SAMPLE_FILE = os.path.join(DATA_PATH, 'FSPL_test.dat')
+SAMPLE_FILE = os.path.join(DATA_PATH, 'FSPL_test_1.dat')
 
 def get_file_params(filename):
     """Read in the model parameters used to create the file"""
@@ -29,7 +29,7 @@ u = np.sqrt(PARAMETERS.u_0**2 + tau**2)
 z = u / PARAMETERS.rho
 pspl_magnification = (u**2 + 2.) / (u * np.sqrt(u**2 + 4.))
 
-mid_index = int(len(DATA['Time'])/2.)
+mid_index = 0
 
 def test_B_0_function():
     test_b_0 = point_lens._B_0_function(z)
@@ -39,16 +39,16 @@ def test_B_1_function():
     print(PARAMETERS)
     test_b_1 = point_lens._B_1_function(z)
     print(
-        test_b_1[mid_index-2:mid_index+2], 
-        DATA['b_1'][mid_index-2:mid_index+2])
+        test_b_1[mid_index], 
+        DATA['b_1'][mid_index])
     np.testing.assert_almost_equal(test_b_1, DATA['b_1'], decimal=5)
 
 def test_get_point_lens_finite_source_magnification():
     test_FSPL = point_lens.get_point_lens_finite_source_magnification(
         u, pspl_magnification)
     print(
-        test_FSPL[mid_index-2:mid_index+2], 
-        DATA['Mag_FS'][mid_index-2:mid_index+2])
+        test_FSPL[mid_index], 
+        DATA['Mag_FS'][mid_index])
     np.testing.assert_almost_equal(test_FSPL, DATA['Mag_FS'], decimal=5)
 
 def test_get_point_lens_limb_darkening_magnification():
@@ -56,8 +56,8 @@ def test_get_point_lens_limb_darkening_magnification():
     test_FSPL_LD = point_lens.get_point_lens_limb_darkening_magnification(
         u, pspl_magnification, GAMMA)
     print(
-        test_FSPL_LD[mid_index-2:mid_index+2], 
-        DATA['Mag_LD'][mid_index-2:mid_index+2])
+        test_FSPL_LD[mid_index], 
+        DATA['Mag_LD'][mid_index])
     np.testing.assert_almost_equal(test_FSPL_LD, DATA['Mag_LD'], decimal=5)
 
 

@@ -30,6 +30,11 @@ class PointLens(object):
         http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
 
         """
+        try:
+            interator = iter(z)
+        except TypeError:
+            z = np.array([z])
+
         out = 4. * z / np.pi
         function = lambda x: (1.-value**2*math.sin(x)**2)**.5
 
@@ -52,6 +57,11 @@ class PointLens(object):
         http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
 
         """
+        try:
+            interator = iter(z)
+        except TypeError:
+            z = np.array([z])
+
         if B_0 is None:
             B_0 = self._B_0_function(z)
 
