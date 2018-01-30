@@ -30,5 +30,5 @@ model_fs_ld.plot_magnification(gamma=gamma, label='finite source LD',
         **plot_kwargs)
 
 pyplot.legend(loc='best')
-pyplot.savefig('figure_2.png')
+pyplot.savefig('figure_1.png')
 
