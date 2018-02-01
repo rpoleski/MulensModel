@@ -690,6 +690,52 @@ class Model(object):
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
+    def get_residuals(self, data_ref=None):
+        """
+        Calculate the residuals (in magnitudes) from the model for
+        each dataset.
+
+        Keywords :
+            data_ref: optional
+                see :py:func:`get_ref_fluxes()`
+
+        Returns :
+            residuals: *list*
+                each element of the list is a np.array() with the
+                residuals for the corresponding dataset.
+        
+           errorbars: *list*
+                the scaled errorbars for each point. For plotting
+                errorbars for the residuals.
+        """
+        if data_ref is not None:
+            self.data_ref = data_ref
+        # Reference flux scale
+        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
+
+        # Get fluxes for all datasets
+        fit = Fit(data=self.datasets, magnification=self.data_magnification)
+        fit.fit_fluxes()
+
+        # Calculate residuals
+        residuals = []
+        errorbars = []
+        for (i, data) in enumerate(self.datasets):
+            # Calculate model magnitude
+            f_source = fit.flux_of_sources(data)
+            f_blend = fit.blending_flux(data)
+            model_mag = Utils.get_mag_from_flux(
+                f_blend_0 + f_source_0 * self.get_data_magnification(data))
+
+            # Calculate Residuals
+            flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
+            err_flux = f_source_0 * data.err_flux / f_source
+            (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+            residuals.append(model_mag - mag)
+            errorbars.append(err)
+
+        return (residuals, errorbars)
+
     def plot_residuals(
             self, show_errorbars=True, color_list=None,
             marker_list=None, size_list=None, label_list=None,
@@ -711,13 +757,8 @@ class Model(object):
             color_list=color_list, marker_list=marker_list,
             size_list=size_list, label_list=label_list, alpha_list=alpha_list,
             **kwargs)
-
-        # Reference flux scale
-        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
-
-        # Get fluxes for all datasets
-        fit = Fit(data=self.datasets, magnification=self.data_magnification)
-        fit.fit_fluxes()
+        
+        (residuals, err) = self.get_residuals(data_ref=data_ref)
 
         # Plot limit parameters
         delta_mag = 0.
@@ -734,27 +775,18 @@ class Model(object):
 
         # Plot residuals
         for (i, data) in enumerate(self.datasets):
-            # Calculate model magnitude
-            f_source = fit.flux_of_sources(data)
-            f_blend = fit.blending_flux(data)
-            model_mag = Utils.get_mag_from_flux(
-                f_blend_0 + f_source_0 * self.get_data_magnification(data))
-
-            # Calculate Residuals
-            flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
-            err_flux = f_source_0 * data.err_flux / f_source
-            (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-            residuals = model_mag - mag
-            delta_mag = max(delta_mag, np.max(np.abs(residuals)))
+            delta_mag = max(delta_mag, np.max(np.abs(residuals[i])))
 
             # Plot
             new_kwargs = self._set_plot_kwargs(
                 i, show_errorbars=show_errorbars)
             if show_errorbars:
                 pl.errorbar(
-                    data.time-subtract, residuals, yerr=err, **new_kwargs)
+                    data.time-subtract, residuals[i], yerr=err[i], 
+                    **new_kwargs)
             else:
-                pl.scatter(data.time-subtract, residuals, lw=0, **new_kwargs)
+                pl.scatter(
+                    data.time-subtract, residuals[i], lw=0, **new_kwargs)
 
             # Set plot limits
             t_min = min(t_min, np.min(data.time))
