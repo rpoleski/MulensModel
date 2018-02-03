@@ -115,21 +115,19 @@
 
 ### Xallarap references:
 
-ob07368 - [Sumi et al. 2010](http://adsabs.harvard.edu/abs/2010ApJ...710.1641S) and [Suzuki et al. 2016](http://adsabs.harvard.edu/abs/2016ApJ...833..145S)
-
-ob150845 = mb15277 - Calen leads
-
-mb10328 - [Furusawa et al. 2013](http://adsabs.harvard.edu/abs/2013ApJ...779...91F)
-
-[Poindexter et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...633..914P) - 23% of events are affected by xallarap
+[Griest & Hu 1992](http://adsabs.harvard.edu/abs/1992ApJ...397..362G),
+[Han & Gould 1997](http://adsabs.harvard.edu/abs/1997ApJ...480..196H),
+[Dominik 1998](http://adsabs.harvard.edu/abs/1998A%26A...329..361D),
+[Ghosh et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...615..450G),
+[Jiang et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...617.1307J)
 
 ob9919 - [Smith et al. 2002](http://adsabs.harvard.edu/abs/2002MNRAS.336..670S)
 
-[Han & Gould 1997](http://adsabs.harvard.edu/abs/1997ApJ...480..196H)
+[Poindexter et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...633..914P) - 23% of events are affected by xallarap
 
-[Jiang et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...617.1307J)
+ob07368 - [Sumi et al. 2010](http://adsabs.harvard.edu/abs/2010ApJ...710.1641S) and [Suzuki et al. 2016](http://adsabs.harvard.edu/abs/2016ApJ...833..145S)
 
-[Ghosh et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...615..450G)
+mb10328 - [Furusawa et al. 2013](http://adsabs.harvard.edu/abs/2013ApJ...779...91F)
 
-[Griest & Hu 1992](http://adsabs.harvard.edu/abs/1992ApJ...397..362G)
+ob150845 = mb15277 - Calen leads
 
