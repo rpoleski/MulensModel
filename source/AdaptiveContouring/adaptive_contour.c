@@ -9,6 +9,8 @@
 /* Revision 29-9-06 */
 /* Revision 3-10-06 */
 /* Revision RP 19-12-17 */
+/* Revision RP 02-02-18 */
+
 
 #include <math.h>
 #include <stdlib.h>
@@ -132,8 +134,8 @@ static void set_minlevels_insertions(FLOAT sc_unitsize,
   void (*lenseq_func)(), FLOAT *pl);
 static void get_region_with_point(REGION_PTR top, FLOAT x1, FLOAT x2,
 	REGION_PTR *reg1, REGION_PTR *reg2, POINT_PTR *pt);
-static void out_struct(REGION_PTR sc_struct, FILE *fp);
-static void output_struct(REGION_PTR sc_struct);
+// static void out_struct(REGION_PTR sc_struct, FILE *fp);
+// static void output_struct(REGION_PTR sc_struct);
 static void get_area(FLOAT (*rho_func)(), FLOAT *ps,
 	void (*lenseq_func)(), FLOAT *pl,
 	FLOAT (*ld_func)(int n, FLOAT gam[], FLOAT rho),
@@ -469,7 +471,7 @@ static void init_struct(REGION_PTR *sc_struct, FLOAT sc_unitsize,
         void (*lenseq_func)(), FLOAT *pl)
 {
 	int i,j;
-	FLOAT delx1, delx2;
+// 	FLOAT delx1, delx2;
 	POINT_PTR pt;
 	boolean extend;
 
@@ -555,7 +557,7 @@ static boolean subdivide_square(REGION_PTR sc_struct,
 	     mark these and put them on the stack */
 
 	REGION_PTR nsq,sq,adjsq,reg; 
-	POINT_PTR newsq,pt,newpt[4],newcenter;
+	POINT_PTR /*newsq,pt,*/newpt[4],newcenter;
 	int i,j,lvl;
 	FLOAT delx1, delx2;
 	unsigned long long dfac,dfrac;
@@ -1455,35 +1457,35 @@ static void extend_struct(REGION_PTR sc_struct, FLOAT sc_unitsize,
 }
 
 
-static void output_struct(REGION_PTR sc_struct)
-{
-	FILE *fp;
+// static void output_struct(REGION_PTR sc_struct)
+// {
+// 	FILE *fp;
+// 
+// 	fp = fopen("struct_out.dat","w");
+// 	out_struct(sc_struct,fp);
+// 	fclose(fp);
+// }
 
-	fp = fopen("struct_out.dat","w");
-	out_struct(sc_struct,fp);
-	fclose(fp);
-}
 
-
-static void out_struct(REGION_PTR sc_struct, FILE *fp)
-{
-	int i;
-
-	if (sc_struct->sub[0] != NULL) 
-	  for (i=0; i<=3; i++)
-	    out_struct(sc_struct->sub[i],fp);
-
-	  fprintf(fp,"%d ",
-		sc_struct->level);
-	  for (i=0; i<=3; i++) 
-	    fprintf(fp,"%d ",
-		sc_struct->points[i]->is_inside);
-	  for (i=0; i<=3; i++) 
-	    fprintf(fp,"%-8.6le %-8.6le ",
-		sc_struct->points[i]->x1,
-		sc_struct->points[i]->x2);
-	  fprintf(fp,"\n");
-}
+// static void out_struct(REGION_PTR sc_struct, FILE *fp)
+// {
+// 	int i;
+// 
+// 	if (sc_struct->sub[0] != NULL) 
+// 	  for (i=0; i<=3; i++)
+// 	    out_struct(sc_struct->sub[i],fp);
+// 
+// 	  fprintf(fp,"%d ",
+// 		sc_struct->level);
+// 	  for (i=0; i<=3; i++) 
+// 	    fprintf(fp,"%d ",
+// 		sc_struct->points[i]->is_inside);
+// 	  for (i=0; i<=3; i++) 
+// 	    fprintf(fp,"%-8.6le %-8.6le ",
+// 		sc_struct->points[i]->x1,
+// 		sc_struct->points[i]->x2);
+// 	  fprintf(fp,"\n");
+// }
 
 
 static void get_area(FLOAT (*rho_func)(), FLOAT *ps,
@@ -1609,7 +1611,7 @@ static void get_region_with_point(REGION_PTR top, FLOAT x1, FLOAT x2,
 	  return;
 	}
 	/* Note: splitting can occur only once */
-        if (x1 == x1div)
+        if (x1 == x1div) {
 	  if (x2 < x2div) {
 	    get_region_with_point(top->sub[0],x1,x2,reg1,&dum,pt);
 	    if (*pt == NULL)
@@ -1620,7 +1622,8 @@ static void get_region_with_point(REGION_PTR top, FLOAT x1, FLOAT x2,
 	    if (*pt == NULL)
 	      get_region_with_point(top->sub[2],x1,x2,reg2,&dum,pt);	
 	  }
-	else if (x2 == x2div)
+        }
+	else if (x2 == x2div) {
 	  if (x1 < x1div) {
 	    get_region_with_point(top->sub[0],x1,x2,reg1,&dum,pt);
 	    if (*pt == NULL)
@@ -1631,6 +1634,7 @@ static void get_region_with_point(REGION_PTR top, FLOAT x1, FLOAT x2,
 	    if (*pt == NULL)
 	      get_region_with_point(top->sub[1],x1,x2,reg2,&dum,pt);	
 	  }
+        }
 }
 
 
@@ -1853,8 +1857,8 @@ FLOAT adaptive_contour(FLOAT acc, FLOAT ld_acc,
 	int i,k,l;
 	boolean repeat;
 	PTLIST_PTR succ;
-	FLOAT errfrac,oldarea;
-	boolean unchanged;
+	FLOAT /*errfrac,*/oldarea;
+// 	boolean unchanged;
 	
 	ps = (FLOAT *) calloc(ns,sizeof(FLOAT));
 	pl = (FLOAT *) calloc(nl,sizeof(FLOAT));
