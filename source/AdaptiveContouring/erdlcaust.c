@@ -1458,7 +1458,7 @@ static void add_crit(FLOAT rmin, FLOAT rmax, FLOAT ty1min, FLOAT ty2min,
 	FLOAT perpd;
 	FLOAT rddperp;
 	FLOAT rdperp1,rdperp2;
-	FLOAT perp1,perp2;
+	FLOAT perp1=0.,perp2=0.;
 	
 
 	/* symmetry with respect to x1 (y1)-axis */
