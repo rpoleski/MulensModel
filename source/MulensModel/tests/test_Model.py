@@ -116,9 +116,6 @@ u_0 = 0.5425 + delta_u_0
 
 def test_BLPS_01():
     """simple binary lens with point source"""
-    print(shift_x, np.cos(alpha), np.sin(alpha))
-    print(delta_t_0, delta_u_0)
-
     params = ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
             'q': q})
