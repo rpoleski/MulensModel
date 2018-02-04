@@ -7,6 +7,7 @@ from MulensModel.model import *
 from MulensModel.modelparameters import *
 from MulensModel.mulensdata import *
 from MulensModel.binarylens import BinaryLens
+from MulensModel.pointlens import PointLens
 
 from MulensModel.mulensobjects import *
 
