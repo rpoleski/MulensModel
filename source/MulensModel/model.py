@@ -964,16 +964,21 @@ class Model(object):
                 e.g., *{'VBBL': {'accuracy': 0.005}}*.
 
         """
+        if self.n_lenses == 1: 
+            methods_ok = [
+                'point_source', 'finite_source_uniform_Gould94'.lower(),
+                'finite_source_LD_Yoo04'.lower()]
+        elif self.n_lenses == 2:
+            methods_ok = [
+                'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
+                'adaptive_contouring', 'point_source_point_lens']
+        else:
+            msg = 'wrong value of Model.n_lenses: {:}'
+            raise ValueError(msg.format(self.n_lenses))
+
         parameters = {
             key.lower(): value for (key, value) in methods_parameters.items()}
-        methods_point_lens = [
-            'point_source', 'finite_source_uniform_Gould94'.lower(),
-            'finite_source_LD_Yoo04'.lower()]
-        methods_binary_lens = [
-            'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
-            'adaptive_contouring']
-        methods = (set(parameters.keys()) - set(methods_point_lens) -
-                   set(methods_binary_lens))
+        methods = set(parameters.keys()) - set(methods_ok)
 
         if len(methods):
             raise KeyError('Unknown methods provided: {:}'.format(methods))

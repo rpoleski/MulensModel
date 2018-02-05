@@ -285,6 +285,11 @@ class MagnificationCurve(object):
                 integration code) by Martin Dominik.  See
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
+            ``point_source_point_lens``:
+                Ueses point-source _point-lens_ approximation; useful when you
+                consider binary lens but need magnification very far from
+                the lens (e.g. at separation u = 100).
+
         Returns :
             magnification: *np.ndarray*
                 Vector of magnifications.
@@ -329,6 +334,9 @@ class MagnificationCurve(object):
             elif method == 'adaptive_contouring':
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
+            elif method == 'point_source_point_lens':
+                u2 = x*x + y*y
+                m = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
