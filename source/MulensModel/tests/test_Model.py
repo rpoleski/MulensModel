@@ -6,6 +6,14 @@ from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 
+
+def test_n_lenses():
+    """check n_lenses property"""
+    model_1 = Model({"t_0": 2456789.})
+    model_2 = Model({"t_0": 2456789., "s": 1.1234, "q": 0.123, 'alpha': 12.34})
+    assert model_1.n_lenses == 1
+    assert model_2.n_lenses == 2
+
 # Point Lens Tests
 def test_model_PSPL_1():
     """tests basic evaluation of Paczynski model"""

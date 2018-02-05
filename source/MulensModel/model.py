@@ -114,6 +114,15 @@ class Model(object):
                 'Model.parameters must be a dictionary or ModelParameters ' +
                 'object.')
 
+    @property
+    def n_lenses(self):
+        """
+        *int*
+
+        number of objects in the lens system
+        """
+        return self._parameters.n_lenses
+
     def get_satellite_coords(self, times):
         """
         Get *astropy.SkyCoord* object that gives satellite positions for
