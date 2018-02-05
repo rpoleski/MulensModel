@@ -164,13 +164,21 @@ class BinaryLens(object):
         # If the lens equation is solved correctly, there should be
         # either 3 or 5 solutions (corresponding to 3 or 5 images)
         if len(out) not in [3, 5]:
-            msg = ('CRITICAL ERROR - CONTACT CODE AUTHORS AND PROVIDE: ' +
-                   '{:} {:} {:} {:} {:}')
+            msg = ("Wrong number of solutions to the lens equation of binary" +
+                " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
+                "(m1, m2, s, source_x, source_y) are:\n" +
+                "{:} {:} {:} {:} {:}\n\n")
             txt = msg.format(
-                repr(self.mass_1), repr(self.mass_2), repr(self.separation),
-                repr(source_x), repr(source_y))
-            # The repr() function gives absolute accuracy of float values
-            # allowing reproducing the results.
+                len(out), repr(self.mass_1), repr(self.mass_2),
+                repr(self.separation), repr(source_x), repr(source_y))
+            distance = sqrt(source_x**2 + source_y**2)
+            if distance < 50.:
+                txt += ("This is surprising error - please constact code " +
+                    "authors and provide the above error message")
+            else:
+                txt += ("Consider using 'point_source_point_lens' method for" +
+                    " epochs when the source is very far from the lens. Note" +
+                    " that it's different from 'point_source' method.")
             raise ValueError(txt)
 
         if return_distances:
