@@ -747,7 +747,7 @@ class Model(object):
             elif type == 'flux':
                 model_flux = (f_blend + 
                               f_source * self.get_data_magnification(data))
-                residuals.append(data_flux - model_flux)
+                residuals.append(data.flux - model_flux)
                 errorbars.append(data.err_flux)
             else:
                 raise ValueError("type keyword must be either 'mag' or 'flux'")
