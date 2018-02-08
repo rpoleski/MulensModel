@@ -90,3 +90,14 @@ run_kwargs = {
 result = solve(**run_kwargs)
 
 # https://github.com/JohannesBuchner/PyMultiNest/blob/7d35b09aebdf19937423bdd2040f06c56421088b/pymultinest/analyse.py
+#from pymultinest.analyse import Analyzer
+
+#analyzer = Analyzer(n_params=5,
+    #outputfiles_basename="chains/fit_pspl_02")
+    
+#modes = analyzer.get_mode_stats()['modes']
+#for mode in modes:
+    #print()
+    #print(mode['index'])
+    #print(mode['mean'])
+    #print(mode['sigma'])
