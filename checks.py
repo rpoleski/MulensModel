@@ -20,3 +20,6 @@ print("matplotlib: " + matplotlib.__version__)
 import astropy
 print("astropy: " + astropy.__version__)
 
+import MulensModel
+print("MulensModel: " + MulensModel.__version__)
+
