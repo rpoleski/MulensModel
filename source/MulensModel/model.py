@@ -349,7 +349,12 @@ class Model(object):
 
         pl.plot(times-subtract, magnification, **kwargs)
         pl.ylabel('Magnification')
-        pl.xlabel('Time')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -414,7 +419,12 @@ class Model(object):
 
         pl.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)
         pl.ylabel('Magnitude')
-        pl.xlabel('Time')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
 
         (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
@@ -692,7 +702,12 @@ class Model(object):
 
         # Plot properties
         pl.ylabel('Magnitude')
-        pl.xlabel('Time')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
         pl.xlim(t_min-subtract, t_max-subtract)
 
         (ymin, ymax) = pl.gca().get_ylim()
@@ -808,7 +823,12 @@ class Model(object):
         pl.ylim(-delta_mag, delta_mag)
         pl.xlim(t_min-subtract, t_max-subtract)
         pl.ylabel('Residuals')
-        pl.xlabel('Time')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
