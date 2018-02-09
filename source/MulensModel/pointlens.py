@@ -3,6 +3,7 @@ import math
 from scipy import integrate
 from scipy.special import ellipe
 # This is an incomplete elliptic integral of the second kind.
+
 from MulensModel.trajectory import Trajectory
 
 
@@ -16,10 +17,11 @@ def get_pspl_magnification(trajectory):
         *:py:class:`~MulensModel.trajectory.Trajectory`* object.
             The source-lens relative position. If _not_ a
             :py:class:`~MulensModel.trajectory.Trajectory` object,
-            assumed to be a scalar.
+            then trajectory is assumed to be value(s) of 
+            :math:`u`.
     
     Returns :
-        pspl_magnification: *float*, *np.ndarray*
+        pspl_magnification: *float* or *np.ndarray*
             The point-source--point-lens magnification for each point
             specified by `trajectory`. 
 
