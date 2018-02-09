@@ -3,7 +3,7 @@ import math
 from scipy import integrate
 from scipy.special import ellipe
 # This is an incomplete elliptic integral of the second kind.
-from trajectory import Trajectory
+from MulensModel.trajectory import Trajectory
 
 
 def get_pspl_magnification(trajectory):
@@ -184,4 +184,3 @@ class PointLens(object):
         B_1 = self._B_1_function(z, B_0=B_0)
         magnification = pspl_magnification * (B_0 - gamma * B_1)
         return magnification
-
