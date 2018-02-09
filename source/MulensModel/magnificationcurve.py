@@ -2,7 +2,7 @@ import numpy as np
 import warnings
 
 from MulensModel.trajectory import Trajectory
-from MulensModel.pointlens import PointLens
+from MulensModel.pointlens import PointLens, get_pspl_magnification
 from MulensModel.binarylens import BinaryLens
 from MulensModel.modelparameters import ModelParameters
 
@@ -214,16 +214,14 @@ class MagnificationCurve(object):
 
         """
 
-        u2 = (self.trajectory.x**2 + self.trajectory.y**2)
-        #  This is Paczynski equation, i.e., point-source/point-lens (PSPL)
-        #  magnification:
-        pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+        pspl_magnification = get_pspl_magnification(self.trajectory)
         if self._methods_epochs is None:
             return pspl_magnification
         else:
             point_lens = PointLens(self.parameters)
 
         magnification = pspl_magnification
+        u2 = (self.trajectory.x**2 + self.trajectory.y**2)
         u_all = np.sqrt(u2)
         methods = np.array(self._methods_for_epochs())
 
@@ -286,7 +284,7 @@ class MagnificationCurve(object):
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
             ``point_source_point_lens``:
-                Ueses point-source _point-lens_ approximation; useful when you
+                Uses point-source _point-lens_ approximation; useful when you
                 consider binary lens but need magnification very far from
                 the lens (e.g. at separation u = 100).
 
@@ -335,8 +333,8 @@ class MagnificationCurve(object):
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'point_source_point_lens':
-                u2 = x*x + y*y
-                m = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+                u = np.sqrt(x**2 + y**2)
+                m = get_pspl_magnification(u)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
