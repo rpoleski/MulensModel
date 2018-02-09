@@ -2,9 +2,9 @@ import numpy as np
 import math
 from scipy import integrate
 from scipy.special import ellipe
-
-from trajectory import Trajectory
 # This is an incomplete elliptic integral of the second kind.
+from trajectory import Trajectory
+
 
 def get_pspl_magnification(trajectory):
     """
@@ -19,9 +19,9 @@ def get_pspl_magnification(trajectory):
             assumed to be a scalar.
     
     Returns :
-        pspl_magnification: *np.ndarray*
+        pspl_magnification: *float*, *np.ndarray*
             The point-source--point-lens magnification for each point
-            specified by `trajectory`.
+            specified by `trajectory`. 
 
     """
     if isinstance(trajectory, Trajectory):
@@ -29,7 +29,10 @@ def get_pspl_magnification(trajectory):
     else:
         u2 = trajectory**2
 
-    pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    if isinstance(trajectory, float):
+        pspl_magnification = (u2 + 2.) / math.sqrt(u2 * (u2 + 4.))
+    else:
+        pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
 
     return pspl_magnification
 
