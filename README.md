@@ -59,7 +59,8 @@ gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp
 gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o
 ```
 6. Repeat above in ```source/AdaptiveContouring/```
-7. Congratulations! You have MulensModel installed fully. 
+7. Run ```py.test``` in ```source/MulensModel``` to check that all unit tests pass.
+8. Congratulations! You have MulensModel installed fully. 
 
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
