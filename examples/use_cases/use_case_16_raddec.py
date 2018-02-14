@@ -71,7 +71,6 @@ event = MulensModel.Event(datasets=[ground_data, space_data],
             model=MulensModel.Model(parameters=model_params), coords=ra_dec)
 
 pl.figure()
-
 event.plot_model()
 event.plot_data(label_list=['OGLE', 'Spitzer'])
 
@@ -82,5 +81,11 @@ pl.title('OB140939 Models with Data')
 pl.legend(loc='best')
 pl.xlim(2456780., 2456880.)
 pl.ylim(15.4, 14.6)
+
+
+pl.figure()
+ground_model.plot_trajectory()
+space_model.plot_trajectory() # Does not work right
+pl.title('Trajectory as Seen from Ground and Space')
 
 pl.show()

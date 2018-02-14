@@ -882,9 +882,14 @@ class Model(object):
 
         if arrow:
             index = int(len(times)/2)
+            if 'alpha' in self.parameters.as_dict().keys():
+                alpha = self.parameters.alpha
+            else:
+                alpha = 0.
+
             pl.scatter(
                 trajectory.x[index], trajectory.y[index],
-                marker=(3, 0, self.parameters.alpha), s=50)
+                marker=(3, 0, alpha), s=50)
 
         if caustics:
             self.plot_caustics(marker='.', color='red')
