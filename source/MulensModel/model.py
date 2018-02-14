@@ -67,7 +67,7 @@ class Model(object):
             else:
                 raise AttributeError(coords_msg)
         else:
-            if ra is not None:
+            if dec is not None:
                 raise AttributeError(coords_msg)
 
         self.ephemerides_file = ephemerides_file
