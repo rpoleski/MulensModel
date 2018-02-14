@@ -6,7 +6,7 @@ from MulensModel import Model
 # Define model parameters.
 t_0 = 2450000
 params_ps = {'t_0': t_0, 'u_0': 0.0008, 't_E': 30.}
-t_star = 0.05 # Day is default unit for t_E and t_star.
+t_star = 0.051 # Day is default unit for t_E and t_star.
 gamma = 0.4 # This is limb darkening coefficient.
 params_fs = {**params_ps, 't_star': t_star}
 

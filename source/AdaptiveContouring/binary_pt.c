@@ -6,6 +6,8 @@
 /* Martin Dominik 19.8.99 */
 /* adapted from "gl_fifth.c" 6-3-06 */
 /* modified 14-09-06 */
+/* modified RP 02-02-18 */
+
 
 
 #ifndef FLOAT
@@ -51,10 +53,11 @@ void sol_binpt(FLOAT y1, FLOAT y2, FLOAT d, FLOAT q, PTLIST_PTR *ptlist)
       FLOAT m1,m2,dm,mtot,mtotsq,dmsq;
       boolean polish;
       int m,l;
-      fcomplex err,dzeta,zetap,z1b,z2b,dumz,dumzb;
+//       fcomplex err,dzeta,zetap,z1b,z2b,dumz,dumzb;
+      fcomplex err, zetap, z1b, z2b;
       FLOAT cm;
       FLOAT pi;
-      FLOAT dzetaabs; /* new */
+//       FLOAT dzetaabs; /* new */
       PTLIST_PTR succ;
 
       *ptlist = NULL;

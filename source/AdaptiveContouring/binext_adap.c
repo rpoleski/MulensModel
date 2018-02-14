@@ -5,6 +5,7 @@
 /* MD 14-7-06 */
 /* MD 14-9-06 */
 /* RP 19-12-17 */
+/* RP 02-02-18 */
 
 #define _GNU_SOURCE
 #include <math.h>
@@ -51,6 +52,9 @@ FLOAT magt_binext(FLOAT t, FLOAT t0, FLOAT tE, FLOAT alpha, FLOAT u0,
 	FLOAT (*ld_func)(int,FLOAT*,FLOAT), int n, FLOAT gam[],
 	FLOAT acc, FLOAT ld_acc);
 
+// from erdlcaust.c :
+void get_crit_circ(FLOAT d, FLOAT m1, FLOAT y1c, FLOAT y2c, FLOAT rcirc,
+	PTLIST_PTR *crit_points);
 
 void lenseq_bin(FLOAT x1, FLOAT x2, FLOAT *y1, FLOAT *y2, 
 	 FLOAT *p)
@@ -174,7 +178,7 @@ FLOAT magt_binext(FLOAT t, FLOAT t0, FLOAT tE, FLOAT alpha, FLOAT u0,
 
 	p = (t-t0)/tE;
 
-	//sincos(alpha,&sa,&ca);
+	sincos(alpha,&sa,&ca);
 	y1 = p*ca-u0*sa;
 	y2 = p*sa+u0*ca;
 

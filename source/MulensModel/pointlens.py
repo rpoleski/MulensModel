@@ -4,6 +4,39 @@ from scipy import integrate
 from scipy.special import ellipe
 # This is an incomplete elliptic integral of the second kind.
 
+from MulensModel.trajectory import Trajectory
+
+
+def get_pspl_magnification(trajectory):
+    """
+    This is Paczynski equation, i.e., point-source--point-lens (PSPL)
+    magnification.
+
+    Arguments :
+        trajectory: *float*, *np.ndarray*, or
+        *:py:class:`~MulensModel.trajectory.Trajectory`* object.
+            The source-lens relative position. If _not_ a
+            :py:class:`~MulensModel.trajectory.Trajectory` object,
+            then trajectory is assumed to be value(s) of 
+            :math:`u`.
+    
+    Returns :
+        pspl_magnification: *float* or *np.ndarray*
+            The point-source--point-lens magnification for each point
+            specified by `trajectory`. 
+
+    """
+    if isinstance(trajectory, Trajectory):
+        u2 = (trajectory.x**2 + trajectory.y**2)
+    else:
+        u2 = trajectory**2
+
+    if isinstance(trajectory, float):
+        pspl_magnification = (u2 + 2.) / math.sqrt(u2 * (u2 + 4.))
+    else:
+        pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+
+    return pspl_magnification
 
 class PointLens(object):
     """
@@ -153,4 +186,3 @@ class PointLens(object):
         B_1 = self._B_1_function(z, B_0=B_0)
         magnification = pspl_magnification * (B_0 - gamma * B_1)
         return magnification
-

@@ -67,7 +67,7 @@ class Model(object):
             else:
                 raise AttributeError(coords_msg)
         else:
-            if ra is not None:
+            if dec is not None:
                 raise AttributeError(coords_msg)
 
         self.ephemerides_file = ephemerides_file
@@ -113,6 +113,15 @@ class Model(object):
             raise TypeError(
                 'Model.parameters must be a dictionary or ModelParameters ' +
                 'object.')
+
+    @property
+    def n_lenses(self):
+        """
+        *int*
+
+        number of objects in the lens system
+        """
+        return self._parameters.n_lenses
 
     def get_satellite_coords(self, times):
         """
@@ -340,7 +349,12 @@ class Model(object):
 
         pl.plot(times-subtract, magnification, **kwargs)
         pl.ylabel('Magnification')
-        pl.xlabel('Time')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -405,7 +419,12 @@ class Model(object):
 
         pl.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)
         pl.ylabel('Magnitude')
-        pl.xlabel('Time')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
 
         (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
@@ -683,7 +702,12 @@ class Model(object):
 
         # Plot properties
         pl.ylabel('Magnitude')
-        pl.xlabel('Time')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
         pl.xlim(t_min-subtract, t_max-subtract)
 
         (ymin, ymax) = pl.gca().get_ylim()
@@ -817,7 +841,12 @@ class Model(object):
         pl.ylim(-delta_mag, delta_mag)
         pl.xlim(t_min-subtract, t_max-subtract)
         pl.ylabel('Residuals')
-        pl.xlabel('Time')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -973,16 +1002,21 @@ class Model(object):
                 e.g., *{'VBBL': {'accuracy': 0.005}}*.
 
         """
+        if self.n_lenses == 1: 
+            methods_ok = [
+                'point_source', 'finite_source_uniform_Gould94'.lower(),
+                'finite_source_LD_Yoo04'.lower()]
+        elif self.n_lenses == 2:
+            methods_ok = [
+                'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
+                'adaptive_contouring', 'point_source_point_lens']
+        else:
+            msg = 'wrong value of Model.n_lenses: {:}'
+            raise ValueError(msg.format(self.n_lenses))
+
         parameters = {
             key.lower(): value for (key, value) in methods_parameters.items()}
-        methods_point_lens = [
-            'point_source', 'finite_source_uniform_Gould94'.lower(),
-            'finite_source_LD_Yoo04'.lower()]
-        methods_binary_lens = [
-            'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
-            'adaptive_contouring']
-        methods = (set(parameters.keys()) - set(methods_point_lens) -
-                   set(methods_binary_lens))
+        methods = set(parameters.keys()) - set(methods_ok)
 
         if len(methods):
             raise KeyError('Unknown methods provided: {:}'.format(methods))
