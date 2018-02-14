@@ -15,7 +15,7 @@ class SatelliteSkyCoord(object):
             for examples see *data/Spitzer_ephemeris_01.dat* or
             *data/K2_ephemeris_01.dat*
 
-        satellite: *str*
+        satellite: *str*, optional
             Just the name of the satellite.
 
     Attributes :

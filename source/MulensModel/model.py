@@ -125,8 +125,9 @@ class Model(object):
 
     def get_satellite_coords(self, times):
         """
-        Get *astropy.SkyCoord* object that gives satellite positions for
-        given times.
+        Get *astropy.SkyCoord* object that gives satellite positions
+        for given times. see also
+        :py:class:`MulensModel.satelliteskycoord.SatelliteSkyCoord`
 
         Parameters :
             times: *np.ndarray* or *list*
@@ -135,7 +136,9 @@ class Model(object):
         Returns :
             satellite_skycoord: *astropy.SkyCoord*
                 *SkyCoord* giving satellite positions. The parameter
-                *representation* is set to 'spherical'.
+                *representation* is set to 'spherical'. If
+                `ephemerides_file` is not set, returns *None*.
+
         """
         if self.ephemerides_file is None:
             return None
@@ -856,8 +859,8 @@ class Model(object):
               show the direction of the source motion. default=True (on)
 
           satellite_skycoord: *astropy.SkyCoord*
-              should allow user to specify the trajectory
-              is calculated for a satellite. (Not checked)
+             should allow user to specify the trajectory is calculated
+              for a satellite. see :py:func:`get_satellite_coords()`
 
           ``**kwargs`` controls plotting features of the trajectory.
 
