@@ -37,7 +37,7 @@ my_event = MulensModel.Event(
 
 # Plot the result:
 my_event.plot_model(
-    t_range=[2452810,2452890], subtract_2450000=True, color='black',
+    t_range=[2452810,2452890], n_epochs=10000, subtract_2450000=True, color='black',
     data_ref=1)
 my_event.plot_data(
     subtract_2450000=True, data_ref=1, label_list=['MOA', 'OGLE'], 
@@ -50,4 +50,5 @@ pl.legend(loc='best')
 pl.title('OGLE-2003-BLG-235/MOA-2003-BLG-53')
 pl.ylim(19., 16.5)
 pl.xlim(2810,2890)
-pl.savefig('figure_3.png')
+pl.show()
+#pl.savefig('figure_3.png')
