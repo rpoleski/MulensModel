@@ -11,6 +11,12 @@ This is a very simple tutorial showing how you might use those classes. It is al
 .. _MulensData: https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html
 .. _notebook: https://github.com/rpoleski/MulensModel/blob/master/examples/MulensModelTutorial.ipynb   
 
+This example shows OGLE-2003-BLG-235/MOA-2003-BLG-53, the first
+microlensing planet. See [Bond et
+al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...606L.155B). The data
+were downloaded from the [NASA Exoplanet
+Archive](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/DisplayOverview/nph-DisplayOverview?objname=OGLE-2003-BLG-235L+b&type=CONFIRMED_PLANET).
+
 Defining a Model
 ----------------
 
@@ -27,7 +33,7 @@ Or a model with 2-bodies:
    
    my_1S2L_model = MulensModel.Model({'t_0': 2452848.06, 'u_0': 0.133, 
         't_E': 61.5, 'rho': 0.00096, 'q': 0.0039, 's': 1.120, 
-        'alpha': 43.8})
+        'alpha': 223.8})
 
 (by default alpha is in degrees, but you could explicitly specify radians)
 
