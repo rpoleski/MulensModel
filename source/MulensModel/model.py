@@ -885,7 +885,7 @@ class Model(object):
             if 'alpha' in self.parameters.as_dict().keys():
                 alpha = self.parameters.alpha
             else:
-                alpha = 0.
+                alpha = -90.
 
             pl.scatter(
                 trajectory.x[index], trajectory.y[index],

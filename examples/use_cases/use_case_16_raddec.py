@@ -85,7 +85,8 @@ pl.ylim(15.4, 14.6)
 
 pl.figure()
 ground_model.plot_trajectory()
-space_model.plot_trajectory() # Does not work right
+space_model.plot_trajectory() 
 pl.title('Trajectory as Seen from Ground and Space')
-
+pl.xlim(-1., 1.)
+pl.ylim(-1., 1.)
 pl.show()
