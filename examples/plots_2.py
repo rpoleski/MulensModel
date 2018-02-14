@@ -33,4 +33,3 @@ model_parallax.plot_magnification(label='satellite parallax',
 
 pyplot.legend(loc='best')
 pyplot.savefig('figure_2.png')
-
