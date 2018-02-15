@@ -5,7 +5,7 @@ The data were downloaded from the NASA Exoplanet Archive:
 https://exoplanetarchive.ipac.caltech.edu/cgi-bin/DisplayOverview/
 nph-DisplayOverview?objname=OGLE-2003-BLG-235L+b&type=CONFIRMED_PLANET
 '''
-import matplotlib.pyplot as plt
+from matplotlib import pyplot
 import os
 
 import MulensModel as MM
@@ -38,7 +38,7 @@ my_event.plot_data(subtract_2450000=True, data_ref=1,
 my_event.plot_model(subtract_2450000=True, data_ref=1, t_range=t_range,
     n_epochs=4000, color='black')
 
-plt.legend(loc='best')
-plt.xlim(t_range[0]-2450000., t_range[1]-2450000.)
-plt.ylim(19., 16.7)
-plt.savefig('figure_3.png')
+pyplot.legend(loc='best')
+pyplot.xlim(t_range[0]-2450000., t_range[1]-2450000.)
+pyplot.ylim(19., 16.7)
+pyplot.savefig('figure_3.png')
