@@ -1,6 +1,7 @@
 import matplotlib.pyplot as pl
 from astropy import units as u 
 import os
+import numpy as np
 
 import MulensModel
 
@@ -20,3 +21,14 @@ model = MulensModel.Model(
 # Combine the model and the data
 event = MulensModel.Event(datasets=data, model=model) 
 print(event.get_chi2())
+
+# Get magnifications for selected dates
+model_times = np.arange(2457200, 2457800, 100.)
+print(model_times)
+print(event.model.magnification(model_times)) 
+
+# Get fluxes for all datasets
+for (i, dataset) in enumerate(event.datasets):
+    (f_source, f_blend) = event.model.get_ref_fluxes(data_ref=dataset)
+    print("dataset {:}: F_s = {:.3f} F_b = {:.3f}".format(i, f_source[0], f_blend))
+

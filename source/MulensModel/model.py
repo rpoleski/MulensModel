@@ -859,7 +859,7 @@ class Model(object):
               show the direction of the source motion. default=True (on)
 
           satellite_skycoord: *astropy.SkyCoord*
-             should allow user to specify the trajectory is calculated
+              should allow user to specify the trajectory is calculated
               for a satellite. see :py:func:`get_satellite_coords()`
 
           ``**kwargs`` controls plotting features of the trajectory.
