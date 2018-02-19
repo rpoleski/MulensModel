@@ -32,7 +32,7 @@ class MagnificationCurve(object):
 
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
             sky coordinates of the satellite specified by the
-            ephemrides file. see
+            ephemerides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
 
         gamma: *float*, optional
@@ -198,7 +198,7 @@ class MagnificationCurve(object):
 
         Allowed magnification methods :
             ``point_source``:
-                standard Pczynski equation for a point source/point lens.
+                standard Paczynski equation for a point source/point lens.
 
             ``finite_source_uniform_Gould94``:
                 Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a

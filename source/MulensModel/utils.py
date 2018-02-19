@@ -47,7 +47,7 @@ class Utils(object):
         """ transform fluxes into magnitudes """
         if np.any(flux <= 0.):
             warnings.warn(
-                "Flux to magnitude convertion approached negative flux",
+                "Flux to magnitude conversion approached negative flux",
                 UserWarning)
         mag = zeropoint - 2.5 * np.log10(flux)
         return mag
@@ -57,7 +57,7 @@ class Utils(object):
         """ transform fluxes into magnitudes including errorbars """
         if np.any(flux <= 0.):
             warnings.warn(
-                "Flux to magnitude convertion approached negative flux",
+                "Flux to magnitude conversion approached negative flux",
                 UserWarning)
         mag = zeropoint - 2.5 * np.log10(flux)
         err_mag = (err_flux / flux) * 2.5 / np.log(10.)

@@ -162,7 +162,7 @@ class MulensData(object):
         """
         if self._init_keys['add245'] and self._init_keys['add246']:
             raise ValueError(
-                'You cannot initilize MulensData with both ' +
+                'You cannot initialize MulensData with both ' +
                 'add_2450000 and add_2460000 being True')
 
         # Adjust the time vector as necessary.
