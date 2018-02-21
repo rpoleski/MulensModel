@@ -284,7 +284,7 @@ class MagnificationCurve(object):
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
             ``point_source_point_lens``:
-                Uses point-source _point-lens_ approximation; useful when you
+                Uses point-source _point_-_lens_ approximation; useful when you
                 consider binary lens but need magnification very far from
                 the lens (e.g. at separation u = 100).
 

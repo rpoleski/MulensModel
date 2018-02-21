@@ -24,9 +24,7 @@ class Trajectory(object):
             the times at which to generate the source trajectory,
             e.g. a vector.
 
-        parameters:
-        :py:class:`~MulensModel.modelparameters.ModelParameters`,
-        required
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`, required
             a ModelParameters object specifying the microlensing parameters
 
         parallax: *boolean dictionary*, optional
