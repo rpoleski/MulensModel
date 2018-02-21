@@ -18,6 +18,7 @@ A few useful resources:
   * [Example 04](examples/example_04_einsteinring.py) -- calculate the Einstein ring size for a grid of lens masses and distances,
   * [Example 05](examples/example_05_MB08310.py) -- plot multiple datasets for a single model, plot the residuals, and do this both in magnitude and magnification spaces,
   * [Example 06](examples/example_06_fit_parallax.py) -- fit parallax model using EMCEE,
+  * [Example 07](examples/example_07_fit_parallax_MN.py) -- fit parallax model using MultiNest.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
 More will be added soon.
