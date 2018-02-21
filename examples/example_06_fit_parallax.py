@@ -1,7 +1,15 @@
 import os
 import numpy as np
-import emcee
+try:
+    import emcee
+except ImportError as err:
+    print(err)
+    print("\nEMCEE could not be imported.")
+    print("Get it from: http://dfm.io/emcee/current/user/install/")
+    print("and re-run the script")
+    sys.exit(1)
 import matplotlib.pyplot as plt
+
 import MulensModel
 from MulensModel import Event, Model, MulensData, Coordinates
 
