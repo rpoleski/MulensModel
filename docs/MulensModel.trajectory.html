@@ -49,20 +49,16 @@
 plane. This class includes internal functions that calculate how
 microlensing parallax affects the trajectory.</p>
 <p>For binary lens, the origin of the coordinate system is at the
-center of mass with higher mass at negative X and Y=0.</p>
+center of mass with higher mass (assuming q &lt; 1) at negative X and
+Y=0.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
-<dd><dl class="first docutils">
+<dd><dl class="first last docutils">
 <dt>times: [<em>float</em>, <em>list</em>, <em>np.ndarray</em>], required</dt>
 <dd>the times at which to generate the source trajectory,
 e.g. a vector.</dd>
-</dl>
-<p>parameters:
-<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>,
-required</p>
-<blockquote>
-<div>a ModelParameters object specifying the microlensing parameters</div></blockquote>
-<dl class="last docutils">
+<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>, required</dt>
+<dd>a ModelParameters object specifying the microlensing parameters</dd>
 <dt>parallax: <em>boolean dictionary</em>, optional</dt>
 <dd>specifies what parallax effects should be used. Default is
 <em>False</em> for each of <em>‘earth_orbital’</em>, <em>‘satellite’</em>, and
@@ -71,9 +67,9 @@ required</p>
 <em>True</em>)</dd>
 <dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">Coordinates</span></code></a>, optional</dt>
 <dd>sky coordinates of the event; required for parallax calculations</dd>
-<dt>satellite_skycoord: <em>Astropy.coordinates.SkyCord</em>, optional</dt>
+<dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the satellite specified by the
-ephemrides file. see
+ephemerides file. see
 <code class="xref py py-obj docutils literal"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
 </dl>
 </dd>

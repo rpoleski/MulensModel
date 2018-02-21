@@ -46,6 +46,11 @@
 <p>The main MulensModel features are in classes <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>, <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html">MulensData</a>,
 and <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.event.html">Event</a>.</p>
 <p>This is a very simple tutorial showing how you might use those classes. It is also available (somewhat expanded) as a Jupyter <a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/MulensModelTutorial.ipynb">notebook</a>.</p>
+<p>This example shows OGLE-2003-BLG-235/MOA-2003-BLG-53, the first
+microlensing planet. See [Bond et
+al. 2004](<a class="reference external" href="http://adsabs.harvard.edu/abs/2004ApJ...606L.155B">http://adsabs.harvard.edu/abs/2004ApJ…606L.155B</a>). The data
+were downloaded from the [NASA Exoplanet
+Archive](<a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/cgi-bin/DisplayOverview/nph-DisplayOverview?objname=OGLE-2003-BLG-235L+b&amp;type=CONFIRMED_PLANET">https://exoplanetarchive.ipac.caltech.edu/cgi-bin/DisplayOverview/nph-DisplayOverview?objname=OGLE-2003-BLG-235L+b&amp;type=CONFIRMED_PLANET</a>).</p>
 <div class="section" id="defining-a-model">
 <h2>Defining a Model<a class="headerlink" href="#defining-a-model" title="Permalink to this headline">¶</a></h2>
 <p>The most basic thing to do is to define a microlensing model. For example, you could define a point lens model as follows:</p>
@@ -56,7 +61,7 @@ and <a class="reference external" href="https://rpoleski.github.io/MulensModel/M
 <p>Or a model with 2-bodies:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">my_1S2L_model</span> <span class="o">=</span> <span class="n">MulensModel</span><span class="o">.</span><span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="mf">2452848.06</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="mf">0.133</span><span class="p">,</span>
      <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="mf">61.5</span><span class="p">,</span> <span class="s1">&#39;rho&#39;</span><span class="p">:</span> <span class="mf">0.00096</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="mf">0.0039</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mf">1.120</span><span class="p">,</span>
-     <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">43.8</span><span class="p">})</span>
+     <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">223.8</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>(by default alpha is in degrees, but you could explicitly specify radians)</p>
