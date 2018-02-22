@@ -17,7 +17,7 @@ model_planet.set_magnification_methods([2456937, 'VBBL', 2456945]) # Calculate
 # finite source magnification using VBBL method for this range of dates.
 model_parallax = Model({**params, **params_pi_E}, coords=ra_dec)
 satellite = SatelliteSkyCoord(os.path.join(MODULE_PATH, 'data',
-    'Spitzer_ephemeris_01.dat')) # This file gives Spitzer ephemeris 
+    'Spitzer_ephemeris_01.dat')) # This file gives the Spitzer ephemeris 
     # and is part of MulensModel package.
 
 # Plot the magnification curves.
