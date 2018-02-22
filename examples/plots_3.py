@@ -41,3 +41,4 @@ pyplot.legend(loc='best')
 pyplot.xlim(t_range[0]-2450000., t_range[1]-2450000.)
 pyplot.ylim(19., 16.7)
 pyplot.savefig('figure_3.png')
+
