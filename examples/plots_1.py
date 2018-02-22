@@ -4,7 +4,7 @@ from MulensModel import Model
 
 
 # Define model parameters.
-t_0 = 2450000
+t_0 = 2460000
 params_ps = {'t_0': t_0, 'u_0': 0.0008, 't_E': 30.}
 t_star = 0.051 # Day is default unit for t_E and t_star.
 gamma = 0.4 # This is limb darkening coefficient.
@@ -23,7 +23,7 @@ model_fs_ld.set_magnification_methods([t_1, 'finite_source_LD_Yoo04', t_2])
 
 # Plot the magnification curves.
 plot_kwargs = {'t_start': t_0-5.5*t_star, 't_stop': t_0+5.5*t_star,
-        'subtract_2450000': True, 'lw': 2.}
+        'subtract_2460000': True, 'lw': 2.}
 model_ps.plot_magnification(label='point source', **plot_kwargs)
 model_fs.plot_magnification(label='finite source', **plot_kwargs)
 model_fs_ld.plot_magnification(gamma=gamma, label='finite source LD',
@@ -31,4 +31,3 @@ model_fs_ld.plot_magnification(gamma=gamma, label='finite source LD',
 
 pyplot.legend(loc='best')
 pyplot.savefig('figure_1.png')
-

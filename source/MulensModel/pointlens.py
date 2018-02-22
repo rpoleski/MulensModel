@@ -137,7 +137,7 @@ class PointLens(object):
                 The instantaneous source-lens separation.
 
             pspl_magnification: *float*, *np.array*
-                The point souce, point lens magnification at each value of u.
+                The point source, point lens magnification at each value of u.
 
         Returns :
             magnification: *float*, *np.array*
@@ -170,7 +170,7 @@ class PointLens(object):
                 The instantaneous source-lens separation.
 
             pspl_magnification: *float*, *np.array*
-                The point souce, point lens magnification at each value of u.
+                The point source, point lens magnification at each value of u.
 
             gamma: *float*
                 The limb-darkening coefficient. See also

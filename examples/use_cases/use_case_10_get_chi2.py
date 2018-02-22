@@ -1,80 +1,34 @@
 import matplotlib.pyplot as pl
 from astropy import units as u 
 import os
+import numpy as np
 
 import MulensModel
 
+"""
+Calculate the chi2 between a model and some data.
+"""
 
-data = MulensModel.MulensData(file_name=os.path.join(MulensModel.MODULE_PATH, 
-                                                'data', 'phot_ob160023.dat'))
+# Load the data
+data = MulensModel.MulensData(
+    file_name=os.path.join(
+        MulensModel.MODULE_PATH, 'data', 'phot_ob160023.dat'))
 
+# Define the model
 model = MulensModel.Model(
     {'t_0': 2457518.902, 'u_0': 0.590, 't_E': 133.34*u.day})
 
+# Combine the model and the data
 event = MulensModel.Event(datasets=data, model=model) 
-# note that data is an instance of Mulens.Data but event.datasets is a list
+print(event.get_chi2())
 
-event.get_chi2()
-print(event.chi2)
-
-#############
-raise NotImplementedError('Should the rest of this use case be removed?')
-
-#Original Use Case
-print(event.model.time, event.model.magnification, event.model.flux, 
-      event.model.magnitude)
-
-print(event.model.bandpass, event.model.source_flux, event.model.blend_flux) 
-# default value of event.model.bandpass is event.data[0].bandpass or 'W149' if no data; for source_flux -> 1.0; for blend_flux -> 0.0
-
-for dataset in event.datasets:
-    pl.scatter(dataset.time, dataset.mag)
-    pl.scatter(event.model.time_data[dataset], event.model.mag_data[dataset]) 
-
-#############
-# Actual Implementation (except that model.flux and model.magnitude
-# aren't implemented)
-
-import numpy as np
+# Get magnifications for selected dates
 model_times = np.arange(2457200, 2457800, 100.)
+print(model_times)
+print(event.model.magnification(model_times)) 
 
-print(
-    model_times, 
-    event.model.magnification(model_times), 
-    event.model.flux(model_times), 
-    event.model.magnitude(model_times))
-
+# Get fluxes for all datasets
 for (i, dataset) in enumerate(event.datasets):
     (f_source, f_blend) = event.model.get_ref_fluxes(data_ref=dataset)
-
-    pl.scatter(dataset.time, dataset.mag, label='DataSet {0}'.format(i))
-    pl.scatter(
-        dataset.time, 
-        event.model.magnitude(dataset.time, f_source=f_source, f_blend=f_blend),
-        label='Model for {0}'.format(i))
-
-pl.legend()
-pl.show()
-
-#############
-#Alternative Use Case (which will require implementation)
-
-print(event.model.time, event.model.magnification, event.model.flux, 
-      event.model.magnitude)
-
-print(event.model.bandpass, event.model.source_flux, event.model.blend_flux) 
-#Since these weren't set, they should be the default values
-#(event.model.bandpass is event.datasets[0].bandpass or 'W149' if no
-#data; source_flux and blend_flux are set by the event.datasets[0] or
-#source_flux -> 1.0; for blend_flux -> 0.0 if no data
-
-#Were these datasets meant to be scaled to the same flux system?
-for (i, dataset) in enumerate(event.datasets):
-    pl.scatter(dataset.time, dataset.mag, label='DataSet {0}'.format(i))
-    pl.scatter(
-        dataset.time, event.model.magnitude(dataset), 
-        label='Model for {0}'.format(i)) 
-
-pl.legend()
-pl.show()
+    print("dataset {:}: F_s = {:.3f} F_b = {:.3f}".format(i, f_source[0], f_blend))
 

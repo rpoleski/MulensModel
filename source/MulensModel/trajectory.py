@@ -24,9 +24,7 @@ class Trajectory(object):
             the times at which to generate the source trajectory,
             e.g. a vector.
 
-        parameters:
-        :py:class:`~MulensModel.modelparameters.ModelParameters`,
-        required
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`, required
             a ModelParameters object specifying the microlensing parameters
 
         parallax: *boolean dictionary*, optional
@@ -39,9 +37,9 @@ class Trajectory(object):
         coords: :py:class:`~MulensModel.coordinates.Coordinates`, optional
             sky coordinates of the event; required for parallax calculations
 
-        satellite_skycoord: *Astropy.coordinates.SkyCord*, optional
+        satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
             sky coordinates of the satellite specified by the
-            ephemrides file. see
+            ephemerides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
 
     """
@@ -113,7 +111,7 @@ class Trajectory(object):
                 # When you implement it, make sure the behaviour
                 # depends on the access to the observatory location
                 # information as the satellite parallax depends on the
-                # acces to satellite_skycoord.
+                # access to satellite_skycoord.
                 raise NotImplementedError(
                     "The topocentric parallax effect not implemented yet")
 
@@ -225,7 +223,7 @@ class Trajectory(object):
         east_projected /= np.linalg.norm(east_projected)
         north_projected = np.cross(direction, east_projected)
 
-        # Transform the satellite ephemrides to that coordinate system
+        # Transform the satellite ephemerides to that coordinate system
         satellite = self.satellite_skycoord
         satellite.transform_to(frame=self.coords.frame)
 

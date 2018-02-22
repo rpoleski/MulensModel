@@ -9,8 +9,7 @@ class Fit(object):
     Fits source and blending fluxes for given data and model magnification.
 
     Keywords :
-        data: :py:class:`MulensData` or list of :py:class:`MulensData`
-        instances
+        data: :py:class:`MulensData` or list of :py:class:`MulensData` instances
             Photometric data to be fitted.
 
         magnification: *np.ndarray* or *list of np.ndarrays*

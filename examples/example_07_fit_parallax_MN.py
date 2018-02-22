@@ -2,14 +2,13 @@
 # Fits parallax PSPL model using MultiNest technique. 
 # It finds two separate modes in automated way.
 #
-# THIS CODE IS NOT YET FINISHED.
-#
 import os
 import sys
 import numpy as np
 from MulensModel import Event, Model, MulensData, Coordinates, MODULE_PATH
 try:
     from pymultinest.solve import solve
+    from pymultinest.analyse import Analyzer
 except ImportError as err:
     print(err)
     print("\nPyMultiNest could not be imported.")
@@ -19,29 +18,41 @@ except ImportError as err:
 
 
 class Minimizer(object):
-    """XXX"""
+    """
+    A class used to store settings and functions that are used and called by
+    MultiNest. 
+    
+    Parameters :
+        event: *MulensModel.event*
+            Event for which chi^2 will be calculated.
+        parameters_to_fit: *list*
+            Names of parameters to be fitted, e.g.,  ["t_0", "u_0", "t_E"]
+    """
     def __init__(self, event, parameters_to_fit):
         self.event = event
         self.parameters_to_fit = parameters_to_fit
         self._chi2_0 = None
     
     def set_chi2_0(self, chi2_0=None):
-        """set reference value of chi2"""
+        """set reference value of chi2 (can help with numerical stability"""
         if chi2_0 is None:
             chi2_0 = np.sum([d.n_epochs for d in self.event.datasets])
         self._chi2_0 = chi2_0
     
     def set_cube(self, min_values, max_values):
-        """XXX"""
+        """
+        remembers minimum and maximum values of model parameters so that later
+        transform_cube() can be called
+        """
         self._zero_points = min_values
         self._differences = max_values - min_values
         
     def transform_cube(self, cube):
-        """ XXX """
+        """transforms n-dimensional cube into space of physical quantities"""
         return self._zero_points + self._differences * cube
         
     def chi2(self, theta):
-        """ XXX """
+        """return chi^2 for a parameters theta"""
         for (i, param) in enumerate(self.parameters_to_fit):
             setattr(self.event.model.parameters, param, theta[i])
         chi2 = self.event.get_chi2()
@@ -52,9 +63,9 @@ class Minimizer(object):
         return -0.5 * (self.chi2(theta) - self._chi2_0)
 
 # Read the data
-file_name = os.path.join(MODULE_PATH, "data",
-    "starBLG234.6.I.218982.dat")
-my_data = MulensData(file_name=file_name, add_2450000=True)
+my_data = MulensData(
+    file_name=os.path.join(MODULE_PATH, "data", "starBLG234.6.I.218982.dat"), 
+    add_2450000=True)
 
 # Starting parameters:
 coords = Coordinates("18:04:45.71 -26:59:15.2")
@@ -73,31 +84,30 @@ minimizer = Minimizer(my_event, parameters_to_fit)
 minimizer.set_cube(min_values, max_values)
 minimizer.set_chi2_0()
 
+# Make sure the directory with detailed results exists:
 dir_out = "chains/"
 if not os.path.exists(dir_out):
     os.mkdir(dir_out)
 file_prefix = __file__.split(".py")[0]
 
-# Run:
+# Run MultiNest:
 run_kwargs = {
     'LogLikelihood': minimizer.ln_likelihood,
     'Prior': minimizer.transform_cube,
     'n_dims': len(parameters_to_fit),
-    'outputfiles_basename': dir_out+file_prefix+"_",
+    'outputfiles_basename': os.path.join(dir_out, file_prefix+"_"),
     'resume': False,
     'importance_nested_sampling': False,
     'multimodal': True}
 result = solve(**run_kwargs)
 
-# https://github.com/JohannesBuchner/PyMultiNest/blob/7d35b09aebdf19937423bdd2040f06c56421088b/pymultinest/analyse.py
-#from pymultinest.analyse import Analyzer
-
-#analyzer = Analyzer(n_params=5,
-    #outputfiles_basename="chains/fit_pspl_02")
-    
-#modes = analyzer.get_mode_stats()['modes']
-#for mode in modes:
-    #print()
-    #print(mode['index'])
-    #print(mode['mean'])
-    #print(mode['sigma'])
+# Analyze results - we print each mode separately and give log-evidence:
+analyzer = Analyzer(n_params=run_kwargs['n_dims'],
+    outputfiles_basename=run_kwargs['outputfiles_basename'])
+modes = analyzer.get_mode_stats()['modes']
+for mode in modes:
+    print("\nMode {:} parameters:".format(mode['index']))
+    for (p, m, s) in zip(parameters_to_fit, mode['mean'], mode['sigma']):
+        print("{:6} = {:.4f} +- {:.4f}".format(p, m, s))
+    print("local log-evidence: {:.3f} +- {:.3f}".format(
+            mode["local log-evidence"], mode["local log-evidence error"]))

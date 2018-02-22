@@ -64,7 +64,7 @@ used, e.g., <code class="docutils literal"><span class="pre">{'earth_orbital':</
 <dd>sky coordinates of the event</dd>
 <dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the satellite specified by the
-ephemrides file. see
+ephemerides file. see
 <code class="xref py py-obj docutils literal"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
 <dt>gamma: <em>float</em>, optional</dt>
 <dd>limb darkening coefficient in gamma convention; defaults to 0</dd>
@@ -99,7 +99,7 @@ specified in <em>methods</em>.</dd>
 </dd>
 </dl>
 <p>For point-lens with finite source, the methods named
-<code class="docutils literal"><span class="pre">finite_source_uniform_Gould94</span></code> and <code class="docutils literal"><span class="pre">finite_source_LD_Gould94</span></code>
+<code class="docutils literal"><span class="pre">finite_source_uniform_Gould94</span></code> and <code class="docutils literal"><span class="pre">finite_source_LD_Yoo04</span></code>
 implement the algorithms presented by <a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">Gould 1994 ApJ, 421L, 71</a> and
 <a class="reference external" href="http://adsabs.harvard.edu/abs/2004ApJ...603..139Y">Yoo et al. 2004 ApJ, 603, 139</a>.</p>
 </dd></dl>
@@ -149,11 +149,11 @@ e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span cla
 <dt>Allowed magnification methods :</dt>
 <dd><dl class="first last docutils">
 <dt><code class="docutils literal"><span class="pre">point_source</span></code>:</dt>
-<dd>standard Pczynski equation for a point source/point lens.</dd>
+<dd>standard Paczynski equation for a point source/point lens.</dd>
 <dt><code class="docutils literal"><span class="pre">finite_source_uniform_Gould94</span></code>:</dt>
 <dd>Uses the <a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">Gould 1994 ApJ, 421L, 71</a> prescription assuming a
 <em>uniform</em> (and circular) source.</dd>
-<dt><code class="docutils literal"><span class="pre">finite_source_LD_Gould94</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">finite_source_LD_Yoo04</span></code>:</dt>
 <dd>Uses the <a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">Gould 1994 ApJ, 421L, 71</a> prescription for
 a circular source <em>including limb-darkening.</em></dd>
 </dl>
@@ -190,6 +190,10 @@ integration code) by Valerio Bozza. See
 <dd>Uses AdaptiveContouring (a Stokes theorem/contour
 integration code) by Martin Dominik.  See
 <a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification"><code class="xref py py-func docutils literal"><span class="pre">adaptive_contouring_magnification()</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">point_source_point_lens</span></code>:</dt>
+<dd>Uses point-source _point_-_lens_ approximation; useful when you
+consider binary lens but need magnification very far from
+the lens (e.g. at separation u = 100).</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>

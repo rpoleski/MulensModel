@@ -96,7 +96,7 @@ def test_init_parameters():
     np.testing.assert_almost_equal(model.parameters.t_E, t_E.value)
 
 def test_limb_darkening():
-    """check if limb_darkening coefs are properly passed and converted"""
+    """check if limb_darkening coeffs are properly passed and converted"""
     gamma = 0.4555
     u = 3. * gamma / (2. + gamma)
 
@@ -150,7 +150,7 @@ def test_BLPS_02():
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
         'VBBL', 2456117.5]
     model.set_magnification_methods(methods)
-    
+
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     result = model.data_magnification[0]
@@ -159,7 +159,7 @@ def test_BLPS_02():
         1.61038135, 1.63603122, 1.69045492, 1.77012807])
     np.testing.assert_almost_equal(result, expected)
 
-    # Below we test passing the limb coef to VBBL function.
+    # Below we test passing the limb coeff to VBBL function.
     data.bandpass = 'I'
     model.set_limb_coeff_u('I', 10.) # This is an absurd value but I needed something quick.
     result = model.data_magnification[0]
@@ -192,7 +192,7 @@ def test_BLPS_02_AC():
         1.61038135, 1.63603122, 1.69045492, 1.77012807])
     np.testing.assert_almost_equal(result, expected, decimal=3) 
 
-    # Below we test passing the limb coef to VBBL function.
+    # Below we test passing the limb coeff to VBBL function.
     data.bandpass = 'I'
     model.set_limb_coeff_u('I', 10.) # This is an absurd value but I needed something quick.
     model.set_magnification_methods_parameters({ac_name: accuracy_2})

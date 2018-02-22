@@ -25,3 +25,6 @@ source/AdaptiveContouring/*.so
 docs/_sources/
 #docs/_static/
 
+# Example figures
+examples/figure_[123].png
+

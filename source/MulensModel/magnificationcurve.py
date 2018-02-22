@@ -32,7 +32,7 @@ class MagnificationCurve(object):
 
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
             sky coordinates of the satellite specified by the
-            ephemrides file. see
+            ephemerides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
 
         gamma: *float*, optional
@@ -65,8 +65,8 @@ class MagnificationCurve(object):
 
         # Set methods' variables:
         self._methods_epochs = None
-        self._methods_names = None
-        self._default_magnification_method = None
+        self._methods_names = []
+        self._default_method = None
         self._methods_parameters = None
 
         self._gamma = gamma
@@ -107,7 +107,7 @@ class MagnificationCurve(object):
         self._default_method = default_method
         if methods is None:
             self._methods_epochs = None
-            self._methods_names = None
+            self._methods_names = []
             return
 
         if not isinstance(methods, list):
@@ -131,7 +131,6 @@ class MagnificationCurve(object):
 
         self._methods_epochs = np.array(epochs)
         self._methods_names = names
-        self._default_method = default_method
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
@@ -187,8 +186,8 @@ class MagnificationCurve(object):
         if self._methods_epochs is None:
             warnings.warn('No finite-source method is set')
             return
-        methods = self._methods_names + [self._default_magnification_method]
-        if set(methods) == set(['point_source']):
+        methods = self._methods_names + [self._default_method]
+        if len(set(methods)-set(['point_source', 'point_source_point_lens'])) == 0:
             warnings.warn('no finite-source method is set')
             return
 
@@ -198,7 +197,7 @@ class MagnificationCurve(object):
 
         Allowed magnification methods :
             ``point_source``:
-                standard Pczynski equation for a point source/point lens.
+                standard Paczynski equation for a point source/point lens.
 
             ``finite_source_uniform_Gould94``:
                 Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a
@@ -284,7 +283,7 @@ class MagnificationCurve(object):
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
             ``point_source_point_lens``:
-                Uses point-source _point-lens_ approximation; useful when you
+                Uses point-source _point_-_lens_ approximation; useful when you
                 consider binary lens but need magnification very far from
                 the lens (e.g. at separation u = 100).
 

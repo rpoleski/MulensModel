@@ -173,7 +173,7 @@ class BinaryLens(object):
                 repr(self.separation), repr(source_x), repr(source_y))
             distance = sqrt(source_x**2 + source_y**2)
             if distance < 50.:
-                txt += ("This is surprising error - please constact code " +
+                txt += ("This is surprising error - please contact code " +
                     "authors and provide the above error message")
             else:
                 txt += ("Consider using 'point_source_point_lens' method for" +
