@@ -20,8 +20,8 @@ MOA_data = MulensData(file_name=os.path.join(data_dir, 'OB03235_MOA.tbl.txt'),
     comments=['\\', '|'], phot_fmt='flux')
 
 # Define a model with a 2-body lens:
-model_1S2L = Model({'t_0': 2452848.06, 'u_0': 0.1317, 't_E': 61.5, 
-    'rho': 0.00096, 'q': 0.0039, 's': 1.120, 'alpha': 223.72})
+model_1S2L = Model({'t_0': 2452848.253135, 'u_0': 0.136012, 't_E': 61.5, 
+    'rho': 0.00096, 'q': 0.0039, 's': 1.120, 'alpha': 223.8})
 
 # Since rho is set, define a time range and method to apply 
 # finite source effects:
@@ -41,4 +41,3 @@ pyplot.legend(loc='best')
 pyplot.xlim(t_range[0]-2450000., t_range[1]-2450000.)
 pyplot.ylim(19., 16.7)
 pyplot.savefig('figure_3.png')
-
