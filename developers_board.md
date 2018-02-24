@@ -70,6 +70,7 @@
   * Model:  
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
+    * Function that print RA, Dec, and t\_0\_par.
   * ModelParameters:
     * check that non-exisiting parameters are not specified e.g. t0
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
