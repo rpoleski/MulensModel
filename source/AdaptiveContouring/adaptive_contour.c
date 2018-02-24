@@ -10,6 +10,7 @@
 /* Revision 3-10-06 */
 /* Revision RP 19-12-17 */
 /* Revision RP 02-02-18 */
+/* Revision RP 24-02-18 */
 
 
 #include <math.h>
@@ -134,8 +135,6 @@ static void set_minlevels_insertions(FLOAT sc_unitsize,
   void (*lenseq_func)(), FLOAT *pl);
 static void get_region_with_point(REGION_PTR top, FLOAT x1, FLOAT x2,
 	REGION_PTR *reg1, REGION_PTR *reg2, POINT_PTR *pt);
-// static void out_struct(REGION_PTR sc_struct, FILE *fp);
-// static void output_struct(REGION_PTR sc_struct);
 static void get_area(FLOAT (*rho_func)(), FLOAT *ps,
 	void (*lenseq_func)(), FLOAT *pl,
 	FLOAT (*ld_func)(int n, FLOAT gam[], FLOAT rho),
@@ -471,7 +470,6 @@ static void init_struct(REGION_PTR *sc_struct, FLOAT sc_unitsize,
         void (*lenseq_func)(), FLOAT *pl)
 {
 	int i,j;
-// 	FLOAT delx1, delx2;
 	POINT_PTR pt;
 	boolean extend;
 
@@ -1457,37 +1455,6 @@ static void extend_struct(REGION_PTR sc_struct, FLOAT sc_unitsize,
 }
 
 
-// static void output_struct(REGION_PTR sc_struct)
-// {
-// 	FILE *fp;
-// 
-// 	fp = fopen("struct_out.dat","w");
-// 	out_struct(sc_struct,fp);
-// 	fclose(fp);
-// }
-
-
-// static void out_struct(REGION_PTR sc_struct, FILE *fp)
-// {
-// 	int i;
-// 
-// 	if (sc_struct->sub[0] != NULL) 
-// 	  for (i=0; i<=3; i++)
-// 	    out_struct(sc_struct->sub[i],fp);
-// 
-// 	  fprintf(fp,"%d ",
-// 		sc_struct->level);
-// 	  for (i=0; i<=3; i++) 
-// 	    fprintf(fp,"%d ",
-// 		sc_struct->points[i]->is_inside);
-// 	  for (i=0; i<=3; i++) 
-// 	    fprintf(fp,"%-8.6le %-8.6le ",
-// 		sc_struct->points[i]->x1,
-// 		sc_struct->points[i]->x2);
-// 	  fprintf(fp,"\n");
-// }
-
-
 static void get_area(FLOAT (*rho_func)(), FLOAT *ps,
 	void (*lenseq_func)(), FLOAT *pl,
 	FLOAT (*ld_func)(int n, FLOAT gam[], FLOAT rho),
@@ -1989,5 +1956,4 @@ FLOAT adaptive_contour(FLOAT acc, FLOAT ld_acc,
 	*/
 	return(area/2.0);
 }
-
 
