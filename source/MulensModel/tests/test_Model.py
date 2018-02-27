@@ -180,7 +180,7 @@ def test_BLPS_02_AC():
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
         ac_name, 2456117.5]
     accuracy_1 = {'accuracy': 0.04}
-    accuracy_2 = {'accuracy': 0.01, 'ld_accuracy': 0.0001}
+    accuracy_2 = {'accuracy': 0.01, 'ld_accuracy': 0.00001}
     model.set_magnification_methods(methods)
     model.set_magnification_methods_parameters({ac_name: accuracy_1})
 

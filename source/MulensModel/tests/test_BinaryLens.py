@@ -57,6 +57,6 @@ def test_ac_1():
     bl = MulensModel.BinaryLens(m_1, m_2, s)
     
     result = bl.adaptive_contouring_magnification(0.01, 0.01, 0.01, 
-            accuracy=0.035, ld_accuracy=1e-4)
+            accuracy=0.019, ld_accuracy=1e-3)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
  

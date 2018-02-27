@@ -45,7 +45,7 @@ def test_B_1_function():
     """test private _B_1_function"""
     (data, _, point_lens, _, z, _) = get_variables()
     test_b_1 = point_lens._B_1_function(z)
-    np.testing.assert_almost_equal(test_b_1, data['b_1'], decimal=4.5)
+    np.testing.assert_almost_equal(test_b_1, data['b_1'], decimal=4)
 
 def test_get_point_lens_finite_source_magnification():
     """test PLFS"""
@@ -59,5 +59,5 @@ def test_get_point_lens_limb_darkening_magnification():
     (data, gamma, point_lens, u, _, pspl_magnification) = get_variables()
     test_FSPL_LD = point_lens.get_point_lens_limb_darkening_magnification(
         u, pspl_magnification, gamma)
-    np.testing.assert_almost_equal(test_FSPL_LD/data['Mag_LD'], 1., decimal=4.5)
+    np.testing.assert_almost_equal(test_FSPL_LD/data['Mag_LD'], 1., decimal=4)
 
