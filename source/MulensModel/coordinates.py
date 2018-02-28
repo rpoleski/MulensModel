@@ -8,7 +8,7 @@ class Coordinates(SkyCoord):
     astropy.SkyCoord_.
 
     May be set as a *str*, pair of *str*, or *SkyCoord* object, e.g.
-    
+
     .. code-block:: python
 
       Coordinates('18:00:00 -30:00:00')
@@ -18,7 +18,7 @@ class Coordinates(SkyCoord):
     If the unit keyword is not specified, defaults to
     unit=(u.hourangle, u.deg) where u is defined by "import
     astropy.units as u".
-    
+
     .. _astropy.SkyCoord:
       http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
 

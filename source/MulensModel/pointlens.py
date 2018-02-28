@@ -17,13 +17,12 @@ def get_pspl_magnification(trajectory):
         *:py:class:`~MulensModel.trajectory.Trajectory`* object.
             The source-lens relative position. If _not_ a
             :py:class:`~MulensModel.trajectory.Trajectory` object,
-            then trajectory is assumed to be value(s) of 
-            :math:`u`.
-    
+            then trajectory is assumed to be value(s) of :math:`u`.
+
     Returns :
         pspl_magnification: *float* or *np.ndarray*
             The point-source--point-lens magnification for each point
-            specified by `trajectory`. 
+            specified by `trajectory`.
 
     """
     if isinstance(trajectory, Trajectory):
@@ -38,13 +37,14 @@ def get_pspl_magnification(trajectory):
 
     return pspl_magnification
 
+
 class PointLens(object):
     """
-    Equations for calculating finite source effects for a point lens. 
+    Equations for calculating finite source effects for a point lens.
 
     Keywords :
         parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
-            Parameters of the model. 
+            Parameters of the model.
 
     """
 
@@ -100,8 +100,8 @@ class PointLens(object):
 
         def function(r, theta):
             r_2 = r * r
-            val = (1. - r_2) / (r_2 + function.arg_2 
-                    + r*function.arg_3*math.cos(theta))
+            val = (1. - r_2) / (r_2 + function.arg_2 +
+                                r*function.arg_3*math.cos(theta))
             return r * function.arg_4 * math.sqrt(val)
 
         lim_0 = lambda x: 0
@@ -111,7 +111,7 @@ class PointLens(object):
             function.arg_1 = zz
             function.arg_2 = zz * zz
             function.arg_3 = -2. * zz
-            function.arg_4 = 1./ self.parameters.rho
+            function.arg_4 = 1. / self.parameters.rho
             W_1[i] = integrate.dblquad(function, 0., 2.*np.pi, lim_0, lim_1)[0]
 
         W_1 /= np.pi
@@ -178,7 +178,8 @@ class PointLens(object):
 
         Returns :
             magnification: *float*, *np.array*
-                The finite source source magnification including limb-darkening.
+                The finite source source magnification including
+                limb-darkening.
 
         """
         z = u / self.parameters.rho

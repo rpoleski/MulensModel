@@ -165,20 +165,20 @@ class BinaryLens(object):
         # either 3 or 5 solutions (corresponding to 3 or 5 images)
         if len(out) not in [3, 5]:
             msg = ("Wrong number of solutions to the lens equation of binary" +
-                " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
-                "(m1, m2, s, source_x, source_y) are:\n" +
-                "{:} {:} {:} {:} {:}\n\n")
+                   " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
+                   "(m1, m2, s, source_x, source_y) are:\n" +
+                   "{:} {:} {:} {:} {:}\n\n")
             txt = msg.format(
                 len(out), repr(self.mass_1), repr(self.mass_2),
                 repr(self.separation), repr(source_x), repr(source_y))
             distance = sqrt(source_x**2 + source_y**2)
             if distance < 50.:
                 txt += ("This is surprising error - please contact code " +
-                    "authors and provide the above error message")
+                        "authors and provide the above error message")
             else:
                 txt += ("Consider using 'point_source_point_lens' method for" +
-                    " epochs when the source is very far from the lens. Note" +
-                    " that it's different from 'point_source' method.")
+                        " epochs when the source is very far from the lens." +
+                        "Note that it's different from 'point_source' method.")
             raise ValueError(txt)
 
         if return_distances:
@@ -353,20 +353,19 @@ class BinaryLens(object):
             return (a_hexadecapole, a_quadrupole, a_center)
         else:
             return a_hexadecapole
-    
+
     def adaptive_contouring_magnification(
             self, source_x, source_y, rho, gamma=None, u_limb_darkening=None,
             accuracy=0.1, ld_accuracy=0.001):
         """
-        Binary lens finite source magnification calculated using 
-        Adaptive Contouring method by 
-        `Dominik 2007 MNRAS, 377, 1679
+        Binary lens finite source magnification calculated using
+        Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
         <http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D>`_
 
         See also
         `AdaptiveContouring website by Martin Dominik
         <http://star-www.st-and.ac.uk/~md35/Software.html>`_
-        
+
         For coordinate system convention see
         :py:func:`point_source_magnification()`
 
@@ -390,27 +389,28 @@ class BinaryLens(object):
                 darkening is ignored.
 
             accuracy: *float*, optional
-                Requested accuracy of the result defined as the sum of the area
-                of the squares that determine the contour line and 
-                the estimated total enclosed area (see sec. 4 of the paper). 
-                As M. Dominik states: *"this vastly overestimates 
-                the fractional error, and a suitable value should be chosen by
-                testing how its variation affects the final results - 
-                I recommend starting at acc = 0.1."* It significantly affects 
-                execution time.
-            
+                Requested accuracy of the result defined as the sum of
+                the area of the squares that determine the contour
+                line and the estimated total enclosed area (see sec. 4
+                of the paper).  As M. Dominik states: *"this vastly
+                overestimates the fractional error, and a suitable
+                value should be chosen by testing how its variation
+                affects the final results - I recommend starting at
+                acc = 0.1."* It significantly affects execution time.
+
             ld_accuracy: *float*, optional
-                Requested limb-darkening accuracy. As M. Dominik states: *"
-                Fractional uncertainty for the adaptive Simpson integration of
-                the limb-darkening profile-related function during application
-                of Green's theorem."* It does not addect execution time so can
-                be set to very small value.
+                Requested limb-darkening accuracy. As M. Dominik
+                states: *" Fractional uncertainty for the adaptive
+                Simpson integration of the limb-darkening
+                profile-related function during application of Green's
+                theorem."* It does not addect execution time so can be
+                set to very small value.
 
         Returns :
             magnification: *float*
                 Magnification.
 
-        
+
         """
 
         if not self._adaptive_contouring_wrapped:
@@ -440,16 +440,16 @@ class BinaryLens(object):
             gamma = float(gamma)
         elif u_limb_darkening is not None:
             gamma = float(Utils.u_to_gamma(u_limb_darkening))
-        else: 
+        else:
             gamma = float(0.0)
-            
+
         s = float(self.separation)
         q = float(self.mass_2 / self.mass_1)
-        # AdaptiveContouring uses different coordinates conventions, 
+        # AdaptiveContouring uses different coordinates conventions,
         # so we have to transform the coordinates below.
         x = float(-source_x)
         y = float(-source_y)
-        
+
         assert accuracy > 0., "adaptive_contouring requires accuracy > 0"
         assert ld_accuracy > 0., "adaptive_contouring requires ld_accuracy > 0"
         # Note that this accuracy is not guaranteed.
@@ -507,8 +507,8 @@ class BinaryLens(object):
             try:
                 vbbl = ctypes.cdll.LoadLibrary(PATH)
             except OSError as error:
-                msg = ("Something went wrong with VBBL wrapping ({:})\n\n" 
-                        + repr(error))
+                msg = ("Something went wrong with VBBL wrapping ({:})\n\n" +
+                       repr(error))
                 raise OSError(msg.format(PATH))
             self._vbbl_wrapped = True
             vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]

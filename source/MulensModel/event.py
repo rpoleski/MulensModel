@@ -23,7 +23,7 @@ class Event(object):
         :py:obj:`model` (required): a
         :py:class:`~MulensModel.model.Model` object
 
-        :py:obj:`coords` (optional): 
+        :py:obj:`coords` (optional):
             the coordinates of the event (RA, Dec)
 
     Attributes :

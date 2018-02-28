@@ -257,13 +257,14 @@ class Model(object):
 
     def set_datasets(self, datasets, data_ref=0):
         """
-        Set :obj:`datasets` property 
+        Set :obj:`datasets` property
 
         Parameters :
             datasets: *list* of :py:class:`~MulensModel.mulensdata.MulensData`
                 Datasets to be stored.
 
-            data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`, optional
+            data_ref: *int* or
+            :py:class:`~MulensModel.mulensdata.MulensData`, optional
                 Reference dataset.
         """
         self._datasets = datasets
@@ -325,7 +326,7 @@ class Model(object):
 
         Keywords :
             see :py:func:`plot_lc()`
-            
+
             satellite_skycoord, gamma: see:py:func:`magnification()`
 
         ``**kwargs`` -- any arguments accepted by matplotlib.pyplot.plot().
@@ -345,8 +346,8 @@ class Model(object):
             satellite = satellite_skycoord.get_satellite_coords(times)
         else:
             satellite = None
-        magnification = self.magnification(times, satellite_skycoord=satellite,
-                gamma=gamma)
+        magnification = self.magnification(
+            times, satellite_skycoord=satellite, gamma=gamma)
 
         pl.plot(times-subtract, magnification, **kwargs)
         pl.ylabel('Magnification')
@@ -574,7 +575,8 @@ class Model(object):
                 new_kwargs['alpha'] = self.plot_properties['alpha_list'][index]
 
             if 'zorder_list' in self.plot_properties.keys():
-                new_kwargs['zorder'] = self.plot_properties['zorder_list'][index]
+                new_kwargs['zorder'] = (
+                    self.plot_properties['zorder_list'][index])
 
             if 'other_kwargs' in self.plot_properties.keys():
                 for (key, value) in self.plot_properties[
@@ -746,7 +748,7 @@ class Model(object):
             residuals: *list*
                 each element of the list is a np.array() with the
                 residuals for the corresponding dataset.
-        
+
            errorbars: *list*
                 the scaled errorbars for each point. For plotting
                 errorbars for the residuals.
@@ -779,7 +781,7 @@ class Model(object):
                 residuals.append(model_mag - mag)
                 errorbars.append(err)
             elif type == 'flux':
-                model_flux = (f_blend + 
+                model_flux = (f_blend +
                               f_source * self.get_data_magnification(data))
                 residuals.append(data.flux - model_flux)
                 errorbars.append(data.err_flux)
@@ -809,7 +811,7 @@ class Model(object):
             color_list=color_list, marker_list=marker_list,
             size_list=size_list, label_list=label_list, alpha_list=alpha_list,
             zorder_list=zorder_list, **kwargs)
-        
+
         (residuals, err) = self.get_residuals(data_ref=data_ref)
 
         # Plot limit parameters
@@ -834,7 +836,7 @@ class Model(object):
                 i, show_errorbars=show_errorbars)
             if show_errorbars:
                 pl.errorbar(
-                    data.time-subtract, residuals[i], yerr=err[i], 
+                    data.time-subtract, residuals[i], yerr=err[i],
                     **new_kwargs)
             else:
                 pl.scatter(
@@ -1017,7 +1019,7 @@ class Model(object):
                 e.g., *{'VBBL': {'accuracy': 0.005}}*.
 
         """
-        if self.n_lenses == 1: 
+        if self.n_lenses == 1:
             methods_ok = [
                 'point_source', 'finite_source_uniform_Gould94'.lower(),
                 'finite_source_LD_Yoo04'.lower()]

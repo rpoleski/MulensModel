@@ -67,8 +67,8 @@ class MulensData(object):
             points.
 
         good: *boolean np.ndarray*, optional
-            Flags for good data, should be the same length as the number of 
-            data points.
+            Flags for good data, should be the same length as the
+            number of data points.
 
         ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
         file_name is provided.
@@ -212,12 +212,12 @@ class MulensData(object):
         flags marking bad data
         """
         return self._bad
-        
+
     @bad.setter
     def bad(self, new_value):
         self._bad = new_value
         self._good = np.logical_not(self._bad)
-        
+
     @property
     def good(self):
         """
@@ -348,4 +348,3 @@ class MulensData(object):
                 "parameter has to be dict, not {:}".format(type(weights)))
 
         self._limb_darkening_weights = weights
-
