@@ -84,3 +84,6 @@ Version numbers are according to MAJOR.MINOR.PATCH scheme - see [Semantic Versio
 * Reset patch and minor version when major version is incremented. Reset patch when minor version is incremented.
 
 List of files to be updated: README.md docs/source/conf.py docs/source/install.rst source/MulensModel/version.py
+
+Also for code releases you should temporarily remove use cases and developers\* files.
+
