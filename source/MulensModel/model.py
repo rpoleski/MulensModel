@@ -263,8 +263,7 @@ class Model(object):
             datasets: *list* of :py:class:`~MulensModel.mulensdata.MulensData`
                 Datasets to be stored.
 
-            data_ref: *int* or
-            :py:class:`~MulensModel.mulensdata.MulensData`, optional
+            data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`, optional
                 Reference dataset.
         """
         self._datasets = datasets
