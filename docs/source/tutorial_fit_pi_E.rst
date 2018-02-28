@@ -206,7 +206,7 @@ higher by about 400.
 
 Slightly modified source code from this tutorial is
 `example 6 
-<https://github.com/rpoleski/MulensModel/blob/master/examples/example_06_fit_parallax.py>`_.
+<https://github.com/rpoleski/MulensModel/blob/master/examples/example_06_fit_parallax_EMCEE.py>`_.
 Additionally, `example 7 
 <https://github.com/rpoleski/MulensModel/blob/master/examples/example_07_fit_parallax_MN.py>`_ 
 shows how to fit parallax model using MultiNest instead of EMCEE algorithm.  
