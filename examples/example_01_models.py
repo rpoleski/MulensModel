@@ -24,7 +24,7 @@ pspl = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 # Create a planet model with same PSPL parameters
 s = 1.5
 q = 0.001
-alpha = np.rad2deg(2.756 - np.pi)
+alpha = 339.0
 rho = 0.001
 
 planet = Model(
