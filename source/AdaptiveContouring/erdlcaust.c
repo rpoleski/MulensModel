@@ -5,6 +5,7 @@
 /* modified 1-2-07 MD */
 /* modified 10-11-07 MD */
 /* modified 02-02-18 RP */
+/* modified 24-02-18 RP */
 
 
 #include <math.h>
@@ -31,14 +32,11 @@ typedef struct ptlist {
 void get_crit_circ(FLOAT d, FLOAT m1, FLOAT y1c, FLOAT y2c, FLOAT rcirc,
 	PTLIST_PTR *crit_points);
 
-// static FLOAT cross(FLOAT a1, FLOAT a2, FLOAT b1, FLOAT b2);
 static void add_ptlist(PTLIST_PTR *list, FLOAT x1, FLOAT x2);
 static FLOAT bisection3(FLOAT (*func)(FLOAT,FLOAT,FLOAT),
   FLOAT x1, FLOAT x2, FLOAT p1, FLOAT p2, FLOAT acc);
 static FLOAT bisection2(FLOAT (*func)(FLOAT,FLOAT),
   FLOAT x1, FLOAT x2, FLOAT p1, FLOAT acc);
-// static FLOAT get_root(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), FLOAT rmin, FLOAT rmax,
-// 	boolean pmflag, FLOAT d, FLOAT m1, FLOAT acc);
 static FLOAT get_rootdef(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), 
 	FLOAT rmin, FLOAT rmax,
 	boolean pmflag, FLOAT d, FLOAT m1, int signupper, FLOAT acc);
@@ -51,21 +49,9 @@ static void get_rootdef_lu(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT),
 	FLOAT rmin, FLOAT rmax,
 	boolean pmflag, FLOAT d, FLOAT m1, int signupper, 
 	FLOAT *lower, FLOAT *upper, FLOAT acc);
-// static void get_rootdefm_lu(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT,FLOAT,FLOAT), 
-// 	FLOAT rmin, FLOAT rmax,
-// 	boolean pmflag, FLOAT d, FLOAT m1, 
-// 	FLOAT y1c, FLOAT y2c,
-// 	int signupper, 
-// 	FLOAT *lower, FLOAT *upper, FLOAT acc);
 static FLOAT grid_brack(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), 
 	FLOAT rmin, FLOAT rmax,
 	boolean pmflag, FLOAT d, FLOAT m1, int sign, FLOAT acc);
-// static FLOAT grid_brackm(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT,FLOAT,FLOAT), 
-// 	FLOAT rmin, FLOAT rmax,
-// 	boolean pmflag, FLOAT d, FLOAT m1, FLOAT y1c, FLOAT y2c,
-// 	int sign, FLOAT acc);
-// static boolean is_bracketed(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), 
-// 	FLOAT rmin, FLOAT rmax, boolean pmflag, FLOAT d, FLOAT m1);
 static FLOAT erdl_dp(FLOAT r, FLOAT d, FLOAT m1);
 static FLOAT erdl_pm(FLOAT r, FLOAT d, FLOAT m1);
 static FLOAT erdl_pp(FLOAT r, FLOAT d, FLOAT m1);
@@ -80,16 +66,12 @@ static boolean close_binary(FLOAT d, FLOAT m1, FLOAT r1);
 static boolean wide_binary(FLOAT d, FLOAT m1, FLOAT r2);
 static void erdl_limits(FLOAT d, FLOAT m1, FLOAT *r_d1, FLOAT *r_d2,
 	FLOAT *r_d3, FLOAT *r_pm, FLOAT *r_pp1, FLOAT *r_pp2, FLOAT *r_pp3);
-// static void plot_contour(FLOAT d, FLOAT m1);
-// static void plot_contour2(FLOAT d, FLOAT m1);
-// static void plot_contour3(FLOAT d, FLOAT m1);
 static FLOAT perp_caust(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1,
         FLOAT y1c, FLOAT y2c);
 static FLOAT perp_caustd1(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1,
         FLOAT y1c, FLOAT y2c);
 static FLOAT perp_caustd2(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1,
         FLOAT y1c, FLOAT y2c);
-// static FLOAT curvature(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1);
 static FLOAT curvature_der(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1);
 static void add_to_list(PTLIST_PTR *list, FLOAT r, boolean pmflag,
 	FLOAT d, FLOAT m1, boolean invert);
@@ -100,11 +82,7 @@ static void add_crit(FLOAT rmin, FLOAT rmax, FLOAT ty1min, FLOAT ty2min,
 static void x1x2 (FLOAT r, FLOAT cval, FLOAT d, FLOAT m1,
    FLOAT *x1, FLOAT *x2);
 static FLOAT offdiag(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1);
-// static FLOAT offdiag_der(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1);
-// static FLOAT offdiag_der2(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1);
-// static FLOAT offdiag_der3(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1);
 static FLOAT cspf(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1);
-// static FLOAT cuspfunc(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1);
 static void normal(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1, FLOAT *n1, FLOAT *n2);
 static void tangent_y(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1, 
 	FLOAT *ty1, FLOAT *ty2);
@@ -122,17 +100,6 @@ static void binlensd4(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1,
 static void binlensd5(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1, 
 	FLOAT *y111111, FLOAT *y111112, FLOAT *y111122, 
 	FLOAT *y111222, FLOAT *y112222, FLOAT *y122222, FLOAT *y222222);
-
-
-
-// static FLOAT cross(FLOAT a1, FLOAT a2, FLOAT b1, FLOAT b2)
-// {
-// 	FLOAT val;
-// 
-// 	val = a1*b2-a2*b1;
-// 	return(val);
-// }
-
 
 
 #define JMAX 5000
@@ -234,46 +201,6 @@ static FLOAT bisection2(FLOAT (*func)(FLOAT,FLOAT),
 
 #undef MAXCNT 
 
-// #define MAXCNT 10000
-
-// static FLOAT get_root(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), FLOAT rmin, FLOAT rmax,
-// 	boolean pmflag, FLOAT d, FLOAT m1, FLOAT acc)
-// {
-//         int j;
-// 	FLOAT val, val2;
-// 	FLOAT diff, mid; 
-// 	FLOAT root;
-// 
-//         val = (*func)(rmin,pmflag,d,m1);
-//         val2 = (*func)(rmax,pmflag,d,m1);
-//         if (val == 0.0) return(rmin);
-//         if (val2 == 0.0) return(rmax);
-//         if (val*val2 > 0.0) {
-//            fprintf(stderr,"Function not bracketed in get_root");
-//            exit(1);
-//         }
-// 	if (val < 0.0) {
-// 	  root = rmin;
-// 	  diff = rmax-rmin;
-// 	} else {
-// 	  root = rmax;
-// 	  diff = rmin-rmax;
-// 	}
-//         for (j=1; j<=MAXCNT; j++) {
-// 	  diff /= 2.0;
-// 	  mid = root+diff;
-//           val2 = (*func)(mid,pmflag,d,m1);
-//           if (val2 <= 0.0)
-//             root = mid;
-//           if (fabs(diff) < acc || val2 == 0.0) 
-// 	    return(root);
-//         }
-//         fprintf(stderr,"Too many steps in get_root");
-//         exit(1);
-// }
-
-// #undef MAXCNT 
-
 #define MAXCNT 10000
 
 static FLOAT get_rootdef(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), FLOAT rmin, FLOAT rmax,
@@ -282,7 +209,6 @@ static FLOAT get_rootdef(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), FLOAT rmin, F
         int j;
 	FLOAT val;
 	FLOAT mid; 
-// 	FLOAT root;
    
 	/* acc *= fabs(rmax-rmin); */ /* fractional accuracy in x */
         for (j=1; j<=MAXCNT; j++) {
@@ -312,7 +238,6 @@ static FLOAT get_rootdefm(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT,FLOAT,FLOAT),
         int j;
 	FLOAT val;
 	FLOAT mid; 
-// 	FLOAT root;
 
    
 	/* acc *= fabs(rmax-rmin); */ /* fractional accuracy in x */
@@ -397,54 +322,11 @@ static FLOAT grid_brack(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), FLOAT rmin, FL
 
 #undef DEL 
 
-// #define DEL 1.0e-8 
-
-// static FLOAT grid_brackm(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT,FLOAT,FLOAT), 
-// 	FLOAT rmin, FLOAT rmax,
-// 	boolean pmflag, FLOAT d, FLOAT m1, FLOAT y1c, FLOAT y2c,
-// 	int sign, FLOAT acc)
-// {
-// 	FLOAT diff,delta;
-// 	FLOAT rquery;
-// 	FLOAT f;
-// 
-// 	/* search for point where function has required sign */
-//   
-// 	diff = rmax-rmin;
-// 	delta = diff;
-// 	do {
-// 	  rquery = rmin+delta/2.0;    
-// 	  do {
-//             f=(*func)(rquery,pmflag,d,m1,y1c,y2c);
-// 	    if (f*sign > 0) return(rquery);
-// 	    rquery += delta;
-// 	  } while (rquery < rmax);
-// 	  delta /= 2.0;
-// 	} while (fabs(delta/diff) > DEL); 
-//         fprintf(stderr,"Too many trials in grid_brackm");
-// }
-
-// #undef DEL 
-
-// static boolean is_bracketed(FLOAT (*func)(FLOAT,boolean,FLOAT,FLOAT), 
-// 	FLOAT rmin, FLOAT rmax, boolean pmflag, FLOAT d, FLOAT m1)
-// {
-// 	FLOAT vmin, vmax;
-// 
-// 	vmin = (*func)(rmin,pmflag,d,m1);
-// 	vmax = (*func)(rmax,pmflag,d,m1);
-// 	if (vmin*vmax < 0) return(TRUE);
-// 	  else return(FALSE);
-// }
-
-
 static void erdl_coeff(FLOAT r, FLOAT d, FLOAT m1, 
 	FLOAT *a0, FLOAT *a1, FLOAT *a2)
 {
 	FLOAT G,H;
 	FLOAT g,h;
-// 	FLOAT pm,pp;
-// 	FLOAT dp;
 	FLOAT rsq,dsq;
 	FLOAT m1sq;
 	FLOAT m2;
@@ -575,34 +457,6 @@ static FLOAT calc_d1(FLOAT m1,FLOAT acc)
 	return(bisection2(d1func,0.0,1.0,m1,acc));
 }
 
-// #define MAXSTEP 200
-
-// static FLOAT calc_d1_old(FLOAT m1,FLOAT acc)
-// {
-// 	FLOAT val;
-// 	FLOAT t;
-// 	int i;
-// 
-// 	if (m1 < 0.0) m1 = 0.0;
-// 
-// 	val = 0.0;
-// 	i = 0;
-// 
-// 	do {
-// 	  t = val*val;
-// 	  t = t*t;
-// 	  t = (1.0-t)/3.0;
-// 	  t = t*t*t/(m1*(1.0-m1));
-// 	  t = pow(t,0.125);
-// 	  if (fabs((t-val)/t) <= acc) return(t);
-// 	  val = t;
-// 	  i++;
-// 	} while (i<MAXSTEP);
-// 	return(val);
-// }
-
-// #undef MAXSTEP
-
 static boolean close_binary(FLOAT d, FLOAT m1, FLOAT r1)
 {
 	FLOAT rtm1,rt4m1;
@@ -678,122 +532,6 @@ static void erdl_limits(FLOAT d, FLOAT m1, FLOAT *r_d1, FLOAT *r_d2,
 	} 	
 }
 
-
-// static void plot_contour(FLOAT d, FLOAT m1)
-// {
-// 	FLOAT r_d1,r_d2,r_d3,r_pm,r_pp1,r_pp2,r_pp3;
-// 	FLOAT cval;
-// 	FLOAT rmin,rmax;
-// 	FLOAT r;
-// 	int rpts;
-// 	FLOAT rstep = 1.0e-3;
-// 	int i;
-// 	FLOAT d1,r1;
-// 	FLOAT d2,r2;
-// 
-//         erdl_limits(d,m1,&r_d1,&r_d2,&r_d3,&r_pm,&r_pp1,&r_pp2,&r_pp3);
-// 	d1 = calc_d1(m1,LIMPREC);
-// 	r1 = pow(m1*d1,1/3.0);
-//         d2 = pow(m1,1/3.0)+pow(1-m1,1/3.0);
-//         d2 = d2*d2*d2;
-//         d2 = sqrt(d2);
-//         r2 = pow(m1*d2,1/3.0);
-// 	if (close_binary(d,m1,r1)) {
-// 	  rmin = r_d1;
-// 	  rmax = r_d2;
-// 	  rpts = (rmax-rmin)/rstep;
-//           for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    if (cval < -1.0) cval = -1.0;
-// 	    if (cval > 1.0) cval = 1.0;
-// 	    printf("5 %-8.6lf %-8.6lf\n",r,cval);
-// 	    cval = cosminus(r,d,m1);	  
-// 	    if (cval < -1.0) cval = -1.0;
-// 	    if (cval > 1.0) cval = 1.0;
-// 	    printf("6 %-8.6lf %-8.6lf\n",r,cval);
-// 	  }
-// 	  rmin = r_pm;
-// 	  if (fabs(cosplus((r_pm+r_d3)/2.0,d,m1)) < 1.0) 
-//             rmin = r_d3;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    if (cval < -1.0) cval = -1.0;
-// 	    if (cval > 1.0) cval = 1.0;
-// 	    printf("3 %-8.6lf %-8.6lf\n",r,cval);
-// 	  }
-// 	  if (fabs(cosplus((r_pm+r_d3)/2.0,d,m1)) < 1.0) {
-// 	    rmin = r_d3;
-// 	    rmax = r_pm;
-// 	    rpts = (rmax-rmin)/rstep;
-// 	    for (i=0; i<=rpts; i++) {
-// 	      r = rmin+i*rstep;
-// 	      cval = cosminus(r,d,m1);	  
-// 	      if (cval < -1.0) cval = -1.0;
-// 	      if (cval > 1.0) cval = 1.0;
-// 	      printf("4 %-8.6lf %-8.6lf\n",r,cval);
-//             }
-// 	  }
-// 	} 
-// 	else if (wide_binary(d,m1,r2)) {
-// 	  rmin = r_pp2;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    if (cval < -1.0) cval = -1.0;
-// 	    if (cval > 1.0) cval = 1.0;
-// 	    printf("3 %-8.6lf %-8.6lf\n",r,cval);
-// 	  }
-// 	  rmin = r_d1;
-// 	  rmax = r_pp3;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    if (cval < -1.0) cval = -1.0;
-// 	    if (cval > 1.0) cval = 1.0;
-// 	    printf("7 %-8.6lf %-8.6lf\n",r,cval);
-// 	  }
-// 	  rmin = r_d1;
-// 	  rmax = r_pm;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosminus(r,d,m1);	  
-// 	    if (cval < -1.0) cval = -1.0;
-// 	    if (cval > 1.0) cval = 1.0;
-// 	    printf("4 %-8.6lf %-8.6lf\n",r,cval);
-// 	  }
-// 	}
-// 	else {   
-// 	  rmin = r_d1;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    if (cval < -1.0) cval = -1.0;
-// 	    if (cval > 1.0) cval = 1.0;
-// 	    printf("3 %-8.6lf %-8.6lf\n",r,cval);
-// 	  }
-// 	  rmin = r_d1;
-// 	  rmax = r_pm;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosminus(r,d,m1);	  
-// 	    if (cval < -1.0) cval = -1.0;
-// 	    if (cval > 1.0) cval = 1.0;
-// 	    printf("4 %-8.6lf %-8.6lf\n",r,cval);
-// 	  }
-//  	}	
-// }
-
 static void x1x2 (FLOAT r, FLOAT cval, FLOAT d, FLOAT m1,
    FLOAT *x1, FLOAT *x2)
 {
@@ -815,359 +553,6 @@ static void x1x2 (FLOAT r, FLOAT cval, FLOAT d, FLOAT m1,
 	*x1 = r*cval-m2*d;
 	*x2 = r*sval;
 }
-
-// static void plot_contour2(FLOAT d, FLOAT m1)
-// {
-// 	FLOAT r_d1,r_d2,r_d3,r_pm,r_pp1,r_pp2,r_pp3;
-// 	FLOAT cval;
-// 	FLOAT rmin,rmax;
-// 	FLOAT r;
-// 	int rpts;
-// 	FLOAT rstep = 1.0e-3;
-// 	int i;
-// 	FLOAT d1,r1;
-// 	FLOAT d2,r2;
-// 	FLOAT x1,x2;
-// 	FLOAT y1,y2;
-// 	FLOAT cf;
-// 	FLOAT n1,n2;
-// 
-//         erdl_limits(d,m1,&r_d1,&r_d2,&r_d3,&r_pm,&r_pp1,&r_pp2,&r_pp3);
-// 	d1 = calc_d1(m1,LIMPREC);
-// 	r1 = pow(m1*d1,1/3.0);
-//         d2 = pow(m1,1/3.0)+pow(1-m1,1/3.0);
-//         d2 = d2*d2*d2;
-//         d2 = sqrt(d2);
-//         r2 = pow(m1*d2,1/3.0);
-// 	if (close_binary(d,m1,r1)) {
-// 	  rmin = r_d1;
-// 	  rmax = r_d2;
-// 	  rpts = (rmax-rmin)/rstep;
-//           for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("5 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	    cval = cosminus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("6 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  rmin = r_pm;
-// 	  if (fabs(cosplus((r_pm+r_d3)/2.0,d,m1)) < 1.0) 
-//             rmin = r_d3;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("3 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  if (fabs(cosplus((r_pm+r_d3)/2.0,d,m1)) < 1.0) {
-// 	    rmin = r_d3;
-// 	    rmax = r_pm;
-// 	    rpts = (rmax-rmin)/rstep;
-// 	    for (i=0; i<=rpts; i++) {
-// 	      r = rmin+i*rstep;
-// 	      cval = cosminus(r,d,m1);	  
-// 	      x1x2(r,cval,d,m1,&x1,&x2);
-// 	      binlens(x1,x2,d,m1,&y1,&y2);
-// 	      cf = cuspfunc(x1,x2,d,m1);
-// 	      normal(x1,x2,d,m1,&n1,&n2); 
-// 	      printf("4 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-//             }
-// 	  }
-// 	} 
-// 	else if (wide_binary(d,m1,r2)) {
-// 	  rmin = r_pp2;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("3 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  rmin = r_d1;
-// 	  rmax = r_pp3;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("7 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  rmin = r_d1;
-// 	  rmax = r_pm;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosminus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("4 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	}
-// 	else {   
-// 	  rmin = r_d1;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("3 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  rmin = r_d1;
-// 	  rmax = r_pm;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosminus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("4 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-//  	}	
-// }
-
-
-// static void plot_contour3(FLOAT d, FLOAT m1)
-// {
-// 	FLOAT r_d1,r_d2,r_d3,r_pm,r_pp1,r_pp2,r_pp3;
-// 	FLOAT cval;
-// 	FLOAT rmin,rmax;
-// 	FLOAT r;
-// 	int rpts;
-// 	FLOAT rstep = 1.0e-3;
-// 	int i;
-// 	FLOAT d1,r1;
-// 	FLOAT d2,r2;
-// 	FLOAT x1,x2;
-// 	FLOAT y1,y2;
-// 	FLOAT cf;
-// 	FLOAT n1,n2;
-// 	FLOAT y11,y12,y22;
-// 
-//         erdl_limits(d,m1,&r_d1,&r_d2,&r_d3,&r_pm,&r_pp1,&r_pp2,&r_pp3);
-// 	d1 = calc_d1(m1,LIMPREC);
-// 	r1 = pow(m1*d1,1/3.0);
-//         d2 = pow(m1,1/3.0)+pow(1-m1,1/3.0);
-//         d2 = d2*d2*d2;
-//         d2 = sqrt(d2);
-//         r2 = pow(m1*d2,1/3.0);
-// 	if (close_binary(d,m1,r1)) {
-// 	  rmin = r_d1;
-// 	  rmax = r_d2;
-// 	  rpts = (rmax-rmin)/rstep;
-//           for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("5 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	    cval = cosminus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("6 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  rmin = r_pm;
-// 	  if (fabs(cosplus((r_pm+r_d3)/2.0,d,m1)) < 1.0) 
-//             rmin = r_d3;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("3 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  if (fabs(cosplus((r_pm+r_d3)/2.0,d,m1)) < 1.0) {
-// 	    rmin = r_d3;
-// 	    rmax = r_pm;
-// 	    rpts = (rmax-rmin)/rstep;
-// 	    for (i=0; i<=rpts; i++) {
-// 	      r = rmin+i*rstep;
-// 	      cval = cosminus(r,d,m1);	  
-// 	      x1x2(r,cval,d,m1,&x1,&x2);
-// 	      binlens(x1,x2,d,m1,&y1,&y2);
-// 	      cf = cuspfunc(x1,x2,d,m1);
-// 	      normal(x1,x2,d,m1,&n1,&n2); 
-// 	      printf("4 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-//             }
-// 	  }
-// 	} 
-// 	else if (wide_binary(d,m1,r2)) {
-// 	  rmin = r_pp2;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("3 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  rmin = r_d1;
-// 	  rmax = r_pp3;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    printf("7 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	  rmin = r_d1;
-// 	  rmax = r_pm;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosminus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	
-// 	    printf("4 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,cf,n1,n2);
-// 	  }
-// 	}
-// 	else {   
-// 	  rmin = r_d1;
-// 	  rmax = r_pp1;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosplus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	    printf("3 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",
-// 		r,cval,x1,x2,y1,y2,cf,n1,n2,y11,y22,y12);
-// 	  }
-// 	  /*
-// 	  if (is_bracketed(offdiag_der,rmin,rmax,TRUE,d,m1)) {
-// 	    fprintf(stderr,"brack! 1\n");
-// 	    r = get_root(offdiag_der,rmin,rmax,TRUE,d,m1,1e-15);
-// 	    cval = get_cos(r,TRUE,d,m1);
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    printf("0 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,0.0,0.0,0.0); 
-// 	  }
-// 	  */
-// 	  FLOAT rs,rb,ra,rcusp;
-// 
-// 	  rs = grid_brack(offdiag,rmin,rmax,TRUE,d,m1,-1,RTPREC);
-// 	  cval = get_cos(rs,TRUE,d,m1);
-// 	  x1x2(rs,cval,d,m1,&x1,&x2);
-// 	  binlens(x1,x2,d,m1,&y1,&y2);
-// 	  binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// /*
-// 	  printf("0 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",rs,cval,x1,x2,y1,y2,0.0,0.0,0.0,y11,y22,y12); 
-// */
-// 	  ra = get_rootdef(offdiag,rs,rmax,TRUE,d,m1,1,RTPREC);
-// 	  cval = get_cos(ra,TRUE,d,m1);
-// 	  x1x2(ra,cval,d,m1,&x1,&x2);
-// 	  binlens(x1,x2,d,m1,&y1,&y2);
-// 	  binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	  printf("0 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",ra,cval,x1,x2,y1,y2,cf,n1,n2,y11,y22,y12); 
-// 	  rb = get_rootdef(offdiag,rmin,rs,TRUE,d,m1,-1,RTPREC);
-// 	  cval = get_cos(rb,TRUE,d,m1);
-// 	  x1x2(rb,cval,d,m1,&x1,&x2);
-// 	  binlens(x1,x2,d,m1,&y1,&y2);
-// 	  binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	  printf("0 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",rb,cval,x1,x2,y1,y2,cf,n1,n2,y11,y22,y12); 
-// 	  rcusp = get_rootdef(cspf,rb,ra,TRUE,d,m1,-1,RTPREC);
-// 	  cval = get_cos(rcusp,TRUE,d,m1);
-// 	  x1x2(rcusp,cval,d,m1,&x1,&x2);
-// 	  binlens(x1,x2,d,m1,&y1,&y2);
-// 	  binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	  printf("0 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",rcusp,cval,x1,x2,y1,y2,cf,n1,n2,y11,y22,y12); 
-// 	  rmin = r_d1;
-// 	  rmin = r_d1;
-// 	  rmax = r_pm;
-// 	  rpts = (rmax-rmin)/rstep;
-// 	  for (i=0; i<=rpts; i++) {
-// 	    r = rmin+i*rstep;
-// 	    cval = cosminus(r,d,m1);	  
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	    binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	    printf("4 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",
-// 	       r,cval,x1,x2,y1,y2,cf,n1,n2,y11,y22,y12);
-// 	  }
-// 	 /*
-// 	  if (is_bracketed(offdiag_der,rmin,rmax,FALSE,d,m1)) {
-// 	    fprintf(stderr,"brack! 2\n");
-// 	    r = get_root(offdiag_der,rmin,rmax,FALSE,d,m1,1e-15);
-// 	    cval = get_cos(r,FALSE,d,m1);
-// 	    x1x2(r,cval,d,m1,&x1,&x2);
-// 	    binlens(x1,x2,d,m1,&y1,&y2);
-// 	    printf("0 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",r,cval,x1,x2,y1,y2,0.0,0.0,0.0); 
-// 	  }
-// 	  */
-// 	  ra = get_rootdef(offdiag,rmin,rmax,FALSE,d,m1,-1,RTPREC);
-// 	  cval = get_cos(ra,FALSE,d,m1);
-// 	  x1x2(ra,cval,d,m1,&x1,&x2);
-// 	  binlens(x1,x2,d,m1,&y1,&y2);
-// 	  binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	  printf("0 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",ra,cval,x1,x2,y1,y2,cf,n1,n2,y11,y22,y12); 
-// 	  rcusp = get_rootdef(cspf,rmin,ra,FALSE,d,m1,1,RTPREC);
-// 	  cval = get_cos(rcusp,FALSE,d,m1);
-// 	  x1x2(rcusp,cval,d,m1,&x1,&x2);
-// 	  binlens(x1,x2,d,m1,&y1,&y2);
-// 	  binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	    cf = cuspfunc(x1,x2,d,m1);
-// 	    normal(x1,x2,d,m1,&n1,&n2); 
-// 	  printf("0 %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf %-8.6lf\n",rcusp,cval,x1,x2,y1,y2,cf,n1,n2,y11,y22,y12); 
-//  	}	
-// }
-
 
 static FLOAT perp_caust(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1,
         FLOAT y1c, FLOAT y2c)
@@ -1302,47 +687,6 @@ static FLOAT perp_caustd2(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1,
         val = 3.0*ty1*tty1+3.0*ty2*tty2+(y1-y1c)*ttty1+(y2-y2c)*ttty2;
         return(val);
 }
-
-
-// static FLOAT aurvature(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
-// {
-// 	FLOAT y1,y2;
-// 	FLOAT y11,y12,y22,y111,y112,y122,y222,y1111,y1112,y1122,y1222,y2222;
-//         FLOAT cval,x1,x2,ty1,ty2;
-// 	FLOAT tty1,tty2;
-//         FLOAT n1,n2;
-// 	FLOAT n11,n12,n22;
-//         FLOAT val;
-// 	FLOAT normsq;
-// 	FLOAT normcb;
-// 
-//         if (pmflag)
-//             cval = cosplus(r,d,m1);
-//         else
-//             cval = cosminus(r,d,m1);
-//         x1x2(r,cval,d,m1,&x1,&x2);
-//         normal(x1,x2,d,m1,&n1,&n2);
-//         binlens(x1,x2,d,m1,&y1,&y2);
-//         binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	binlensd2(x1,x2,d,m1,&y111,&y112,&y122,&y222);
-// 	binlensd3(x1,x2,d,m1,&y1111,&y1112,&y1122,&y1222,&y2222);
-// 	n1 = y111*y22+y122*y11-2.0*y112*y12;
-// 	n2 = y112*y22+y222*y11-2.0*y122*y12;
-// 	n11 = y1111*y22-2.0*y1112*y12+y1122*y11+2.0*y111*y122-2.0*y112*y112;
-// 	n12 = y1112*y22-2.0*y1122*y12+y1222*y11+y111*y222-y112*y122;
-// 	n22 = y1122*y22-2.0*y1222*y12+y2222*y11+2.0*y112*y222-2.0*y122*y122;
-//         ty1 = n1*y12-n2*y11;
-//         ty2 = n1*y22-n2*y12;
-// 	tty1 = n1*(n12*y12-n22*y11+n1*y122-n2*y112)
-// 		  -n2*(n11*y12-n12*y11+n1*y112-n2*y111);
-// 	tty2 = n1*(n12*y22-n22*y12+n1*y222-n2*y122)
-// 		  -n2*(n11*y22-n12*y12+n1*y122-n2*y112);
-// 	normsq = SQ(ty1)+SQ(ty2);
-// 	normcb = normsq*sqrt(normsq);
-//         val = (ty1*tty2-ty2*tty1)/normcb; 
-//         return(val);
-// }
-
 
 static FLOAT curvature_der(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
 {
@@ -1655,77 +999,15 @@ static void add_crit(FLOAT rmin, FLOAT rmax, FLOAT ty1min, FLOAT ty2min,
 	}
 }
 
-/*
-static void add_crit(FLOAT rmin, FLOAT rmax, FLOAT ty1min, FLOAT ty2min,
-	FLOAT ty1max, FLOAT ty2max, boolean pmflag,
-	FLOAT d, FLOAT m1, FLOAT y1c, FLOAT y2c, FLOAT rcirc,
-	PTLIST_PTR *crit_points)
-{
-	FLOAT cval;
-	FLOAT x1,x2,y1,y2;
-	FLOAT minval_p, maxval_p;
-	FLOAT minval_m, maxval_m;
-	FLOAT mindistsq_p,mindistsq_m;
-	FLOAT maxdistsq_p,maxdistsq_m;
-	FLOAT rcircsq;
-	FLOAT rperp;
-	FLOAT rdiv;
-*/
-	/* symmetry with respect to x1 (y1)-axis */
-	/* check both semi-planes */
-/*
-
-	rcircsq = SQ(rcirc);
-	if (pmflag)
-	    cval = cosplus(rmin,d,m1);	  
-	else
-	    cval = cosminus(rmin,d,m1);	  
-	x1x2(rmin,cval,d,m1,&x1,&x2);
-	binlens(x1,x2,d,m1,&y1,&y2);
-	mindistsq_p = SQ(y1-y1c)+SQ(y2-y2c);
-	mindistsq_m = SQ(y1-y1c)+SQ(y2+y2c);
-	minval_p = (y1-y1c)*ty1min+(y2-y2c)*ty2min;
-	minval_m = (y1-y1c)*ty1min+(y2+y2c)*ty2min;
-	if (pmflag)
-	    cval = cosplus(rmax,d,m1);	  
-	else
-	    cval = cosminus(rmax,d,m1);	  
-	x1x2(rmax,cval,d,m1,&x1,&x2);
-	binlens(x1,x2,d,m1,&y1,&y2);
-	maxdistsq_p = SQ(y1-y1c)+SQ(y2-y2c);
-	maxdistsq_m = SQ(y1-y1c)+SQ(y2+y2c);
-	maxval_p = (y1-y1c)*ty1max+(y2-y2c)*ty2max;
-	maxval_m = (y1-y1c)*ty1max+(y2+y2c)*ty2max;
-	if (minval_p*maxval_p < 0) {
-	  rperp = get_rootdefm(perp_caust,rmin,rmax,pmflag,
-			d,m1,y1c,y2c,round(maxval_p/fabs(maxval_p)),RTPREC); 
-	  add_to_list(crit_points,rperp,pmflag,d,m1,FALSE);
-	} 
-	if (minval_m*maxval_m < 0) {
-	  rperp = get_rootdefm(perp_caust,rmin,rmax,pmflag,
-		 	d,m1,y1c,-y2c,round(maxval_m/fabs(maxval_m)),RTPREC); 
-	  add_to_list(crit_points,rperp,pmflag,d,m1,TRUE);
-	}
-}
-*/
-
 void get_crit_circ(FLOAT d, FLOAT m1, FLOAT y1c, FLOAT y2c, FLOAT rcirc,
 	PTLIST_PTR *crit_points)
 {
 	FLOAT r_d1,r_d2,r_d3,r_pm,r_pp1,r_pp2,r_pp3;
 	FLOAT cval;
 	FLOAT rmin,rmax;
-// 	FLOAT r;
-// 	int rpts;
-// 	FLOAT rstep = 1.0e-3;
-// 	int i;
 	FLOAT d1,r1;
 	FLOAT d2,r2;
 	FLOAT x1,x2;
-// 	FLOAT y1,y2;
-// 	FLOAT cf;
-// 	FLOAT n1,n2;
-// 	FLOAT y11,y12,y22;
 	FLOAT rs,rb,ra,rcusp_l,rcusp_u;
 	FLOAT rcusp2_l,rcusp2_u;
 	FLOAT rcmin;
@@ -2152,112 +1434,9 @@ void get_crit_circ(FLOAT d, FLOAT m1, FLOAT y1c, FLOAT y2c, FLOAT rcirc,
  	}	
 }
 
-// static void root_erdl(void)
-// {
-// 	FLOAT r;
-// 	FLOAT d;
-// 	FLOAT m1;
-// 
-// 	FLOAT dmin,dmax;
-// 	FLOAT dstep;
-// 	int dpts;
-// 	int i,j;
-// 
-// 	FLOAT r_d1,r_d2,r_d3,r_pm,r_pp1,r_pp2,r_pp3;
-// 
-// 	m1 = 0.3;
-// 
-// 	dpts = 2000;
-// 	
-// 	dmin = 0.0;
-// 	dmax = 4.0;
-// 
-// 	dstep = (dmax-dmin)/dpts;
-// 	for (i=0; i<=dpts; i++) {
-// 	  d = dmin+i*dstep;
-//           erdl_limits(d,m1,&r_d1,&r_d2,&r_d3,&r_pm,&r_pp1,&r_pp2,&r_pp3);
-// 	  printf("1 %-8.6lf %-8.6lf\n",d,r_d1);
-// 	  if (r_d2 != 0.0) 
-// 	    printf("3 %-8.6lf %-8.6lf\n",d,r_d2);
-// 	  if (r_d3 != 0.0)
-// 	    printf("3 %-8.6lf %-8.6lf\n",d,r_d3);
-// 	  printf("4 %-8.6lf %-8.6lf\n",d,r_pm);
-// 	  printf("5 %-8.6lf %-8.6lf\n",d,r_pp1);
-// 	  if (r_pp2 != 0.0) 
-// 	    printf("6 %-8.6lf %-8.6lf\n",d,r_pp2);
-// 	  if (r_pp3 != 0.0)
-// 	    printf("6 %-8.6lf %-8.6lf\n",d,r_pp3);
-// 	}
-// }
-
-// static void test_erdl(void)
-// {
-// 	FLOAT r;
-// 	FLOAT d;
-// 	FLOAT m1;
-// 
-// 	FLOAT rmin,rmax,dmin,dmax;
-// 	FLOAT dstep,rstep;
-// 	int dpts,rpts;
-// 	int i,j;
-// 
-// 	FLOAT oldr;
-// 	FLOAT val_dp, oldval_dp;
-// 	FLOAT val_pm, oldval_pm;
-// 	FLOAT val_pp, oldval_pp;
-// 	FLOAT r_int;
-// 
-// 	m1 = 0.001;
-// 
-// 	dpts = 2000;
-// 	rpts = 200000;
-// 	
-// 	dmin = 0.0;
-// 	rmin = 0.0;
-// 	dmax = 40.0;
-// 	rmax = 50.0;
-// 
-// 	dstep = (dmax-dmin)/dpts;
-// 	rstep = (rmax-rmin)/rpts;
-// 	for (i=1; i<=dpts; i++) {
-// 	  d = dmin+i*dstep;
-// 	  oldr = rmin;
-// 	  oldval_dp = 0.0;
-// 	  for (j=0; j<=rpts; j++) {
-// 	    r = rmin+j*rstep;
-// 	    val_dp = erdl_dp(r,d,m1);
-// 	    val_pm = erdl_pm(r,d,m1);
-// 	    val_pp = erdl_pp(r,d,m1);
-// 	    if (val_dp == 0.0) 
-// 	      printf("0 %-8.6lf %-8.6lf\n",d,r);
-// 	    else if (val_dp * oldval_dp < 0.0) {
-// 	      r_int = (oldr*val_dp-r*oldval_dp)/(val_dp-oldval_dp);
-// 	      printf("0 %-8.6lf %-8.6lf\n",d,r_int);
-// 	    }
-// 	    if (val_pm == 0.0) 
-// 	      printf("1 %-8.6lf %-8.6lf\n",d,r);
-// 	    else if (val_pm * oldval_pm < 0.0) {
-// 	      r_int = (oldr*val_pm-r*oldval_pm)/(val_pm-oldval_pm);
-// 	      printf("1 %-8.6lf %-8.6lf\n",d,r_int);
-// 	    }
-// 	    if (val_pp == 0.0) 
-// 	      printf("2 %-8.6lf %-8.6lf\n",d,r);
-// 	    else if (val_pp * oldval_pp < 0.0) {
-// 	      r_int = (oldr*val_pp-r*oldval_pp)/(val_pp-oldval_pp);
-// 	      printf("2 %-8.6lf %-8.6lf\n",d,r_int);
-// 	    }
-// 	    oldr = r;
-// 	    oldval_dp = val_dp;
-// 	    oldval_pm = val_pm;
-// 	    oldval_pp = val_pp;
-// 	  }
-// 	}
-// }
-
 static FLOAT offdiag(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
 {
 	FLOAT cval;
-// 	FLOAT val;
 	FLOAT x1,x2,y11,y12,y22;
 
 	cval = get_cos(r,pmflag,d,m1);
@@ -2265,116 +1444,6 @@ static FLOAT offdiag(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
 	binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
 	return(y12);
 }
-
-// static FLOAT offdiag_der(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
-// {
-// 	FLOAT cval;
-// 	FLOAT val;
-// 	FLOAT x1,x2,n1,n2,y111,y112,y122,y222;
-// 
-// 	cval = get_cos(r,pmflag,d,m1);
-// 	x1x2(r,cval,d,m1,&x1,&x2);
-// 	normal(x1,x2,d,m1,&n1,&n2);
-// 	binlensd2(x1,x2,d,m1,&y111,&y112,&y122,&y222);
-// 	val = n1*y122-n2*y112;
-// 	return(val);
-// }
-
-// static FLOAT offdiag_der2(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
-// {
-// 	FLOAT cval,val;
-// 	FLOAT x1,x2,y11,y12,y22,y111,y112,y122,y222;
-// 	FLOAT y1111,y1112,y1122,y1222,y2222;
-// 	FLOAT n1,n2,gd1,gd2,D11,D12,D22;
-// 	FLOAT norm;
-// 
-// 	cval = get_cos(r,pmflag,d,m1);
-// 	x1x2(r,cval,d,m1,&x1,&x2);
-// 	binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	binlensd2(x1,x2,d,m1,&y111,&y112,&y122,&y222);
-// 	binlensd3(x1,x2,d,m1,&y1111,&y1112,&y1122,&y1222,&y2222);
-// 	/* calculate normal */
-// 	gd1 = y111*y22+y122*y11-2.0*y112*y12;
-// 	gd2 = y112*y22+y222*y11-2.0*y122*y12;
-// 	norm = sqrt(gd1*gd1+gd2*gd2);
-// 	norm = 1.0;
-// 	n1 = gd1/norm;
-// 	n2 = gd2/norm;
-// 	/* and the derivates of grad det J */
-// 	D11 = y1111*y22-2.0*y1112*y12+y1122*y11+2.0*y111*y122-2.0*y112*y112;
-// 	D12 = y1112*y22-2.0*y1122*y12+y1222*y11+y111*y222-y112*y122;
-// 	D22 = y1122*y22-2.0*y1222*y12+y2222*y11+2.0*y112*y222-2.0*y122*y122;
-// 	val = (n1*D12-n2*D11)*y122+(n2*D12-n1*D22)*y112
-// 	       + n1*n1*y1222-2.0*n1*n2*y1122+n2*n2*y1112;	
-// 	return(val);
-// }
-
-// static FLOAT offdiag_der3(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
-// {
-// 	FLOAT cval,val;
-// 	FLOAT x1,x2,y11,y12,y22,y111,y112,y122,y222;
-// 	FLOAT y1111,y1112,y1122,y1222,y2222;
-// 	FLOAT y11111,y11112,y11122,y11222,y12222,y22222;
-// 	FLOAT n1,n2,gd1,gd2,n11,n12,n22;
-// 	FLOAT norm;
-// 	FLOAT n1sq,n2sq,n1n2,ndet,n1cb,n2cb;
-// 	FLOAT n111,n112,n122,n222;
-// 
-// 	cval = get_cos(r,pmflag,d,m1);
-// 	x1x2(r,cval,d,m1,&x1,&x2);
-// 	binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	binlensd2(x1,x2,d,m1,&y111,&y112,&y122,&y222);
-// 	binlensd3(x1,x2,d,m1,&y1111,&y1112,&y1122,&y1222,&y2222);
-// 	binlensd4(x1,x2,d,m1,&y11111,&y11112,&y11122,&y11222,&y12222,&y22222);
-// 	/* calculate normal */
-// 	gd1 = y111*y22+y122*y11-2.0*y112*y12;
-// 	gd2 = y112*y22+y222*y11-2.0*y122*y12;
-// 	norm = sqrt(gd1*gd1+gd2*gd2);
-// 	norm = 1.0;
-// 	n1 = gd1/norm;
-// 	n2 = gd2/norm;
-// 	/* and the derivates of grad det J */
-// 	n11 = y1111*y22-2.0*y1112*y12+y1122*y11+2.0*y111*y122-2.0*y112*y112;
-// 	n12 = y1112*y22-2.0*y1122*y12+y1222*y11+y111*y222-y112*y122;
-// 	n22 = y1122*y22-2.0*y1222*y12+y2222*y11+2.0*y112*y222-2.0*y122*y122;
-// 	n111 = y11111*y22-2.0*y11112*y12+y11122*y11
-// 	         +3.0*y1111*y122-6.0*y1112*y112+3.0*y1122*y111;
-// 	n112 = y11112*y22-2.0*y11122*y12+y11222*y11
-//                  +y1111*y222-3.0*y1122*y112+2.0*y1222*y111;
-// 	n122 = y11122*y22-2.0*y11222*y12+y12222*y11
-//                  +2.0*y1112*y222-3.0*y1122*y122+y2222*y111;
-// 	n222 = y22222*y11-2.0*y12222*y12+y11222*y22
-//                  +3.0*y1122*y222-6.0*y1222*y122+3.0*y2222*y112;
-// 	n1sq = n1*n1;
-// 	n2sq = n2*n2;
-// 	n1n2 = n1*n2;
-// 	n1cb = n1sq*n1;
-// 	n2cb = n2sq*n2;
-// 	ndet = n12*n12-n11*n22;
-// 	val = (n1sq*n122-2.0*n1n2*n112+n2sq*n111+n1*ndet)*y122
-// 	     -(n2sq*n112-2.0*n1n2*n122+n1sq*n222+n2*ndet)*y112
-// 	     +3.0*n1*(n1*n12-n2*n11)*y1222
-// 	     +3.0*(n2sq*n11-n1sq*n22)*y1122
-// 	     +3.0*n2*(n1*n22-n2*n12)*y1112
-// 	     +n1cb*y12222-3.0*n1sq*n2*y11222+3.0*n1*n2sq*y11122-n2cb*y11112;
-// 	return(val);
-// }
-
-// static FLOAT cuspfunc(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1)
-// {
-// 	FLOAT vz1, vz2;
-// 	FLOAT y11,y12,y22,y111,y112,y122,y222;
-// 	FLOAT gd1, gd2;
-// 
-// 	binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	binlensd2(x1,x2,d,m1,&y111,&y112,&y122,&y222);
-// 	gd1 = y111*y22+y122*y11-2.0*y112*y12;
-// 	gd2 = y112*y22+y222*y11-2.0*y122*y12;
-// 	vz1 = y22;
-// 	vz2 = -y12;
-// 	return(vz1*gd1+vz2*gd2);
-// }
-
 
 static FLOAT cspf(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
 {
@@ -2399,7 +1468,6 @@ static FLOAT cspf(FLOAT r, boolean pmflag, FLOAT d, FLOAT m1)
 static void normal (FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1,
 	FLOAT *n1, FLOAT *n2)
 {
-// 	FLOAT vz1, vz2;
 	FLOAT y11,y12,y22,y111,y112,y122,y222;
 	FLOAT gd1, gd2;
 	FLOAT norm;
@@ -2433,19 +1501,6 @@ static void tangent_y(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1,
 	} 
 	*/
 }
-
-// static void detder(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1, 
-// 	FLOAT *D11, FLOAT *D12, FLOAT *D22)
-// {
-// 	FLOAT y11,y12,y22,y111,y112,y122,y222,y1111,y1112,y1122,y1222,y2222;
-// 
-// 	binlensd1(x1,x2,d,m1,&y11,&y12,&y22);
-// 	binlensd2(x1,x2,d,m1,&y111,&y112,&y122,&y222);
-// 	binlensd3(x1,x2,d,m1,&y1111,&y1112,&y1122,&y1222,&y2222);
-// 	*D11 = y1111*y22-2.0*y1112*y12+y1122*y11+2.0*y111*y122-2.0*y112*y112;
-// 	*D12 = y1112*y22-2.0*y1122*y12+y1222*y11+y111*y222-y112*y122;
-// 	*D22 = y1122*y22-2.0*y1222*y12+y2222*y11+2.0*y112*y222-2.0*y122*y122;
-// }
 
 static void binlens(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1, 
 	FLOAT *y1, FLOAT *y2)
@@ -2780,27 +1835,3 @@ void test_der(void)
 	printf("%-8.6le %-8.6le\n",(z22222-y22222)/delta,y222222);
 }
 
-/*
-int main(void)
-{
-	FLOAT val;
-	PTLIST_PTR crit_points;
-
-*/
-/*
-	plot_contour3(1.003,1e-6);
-*/
-/*
-	plot_contour3(1.003,1e-8);
-*/
-/*
-	crit_points = NULL;
-	get_crit_circ(1.9,0.166666667,0.2,-0.2,0.1,&crit_points);
-*/
-/*
-	plot_contour3(1.2,0.2);
-*/
-/*
-	exit(0);
-}
-*/

@@ -19,7 +19,8 @@ OGLE_data = MulensData(
 MOA_data = MulensData(file_name=os.path.join(data_dir, 'OB03235_MOA.tbl.txt'),
     comments=['\\', '|'], phot_fmt='flux')
 
-# Define a model with 2-body lens:
+# Define a model with a 2-body lens 
+# (these parameters slightly differ from Bond et al. 2004):
 model_1S2L = Model({'t_0': 2452848.06, 'u_0': 0.1317, 't_E': 61.5, 
     'rho': 0.00096, 'q': 0.0039, 's': 1.120, 'alpha': 223.72})
 
@@ -39,6 +40,6 @@ my_event.plot_model(subtract_2450000=True, t_range=t_range, n_epochs=4000,
 
 pyplot.legend(loc='best')
 pyplot.xlim(t_range[0]-2450000., t_range[1]-2450000.)
-pyplot.ylim(19., 16.7)
+pyplot.ylim(19.0, 16.7)
 pyplot.savefig('figure_3.png')
 

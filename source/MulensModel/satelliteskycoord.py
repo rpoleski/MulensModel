@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 from astropy.coordinates import SkyCoord
 
 from MulensModel.horizons import Horizons
@@ -52,8 +53,9 @@ class SatelliteSkyCoord(object):
         """
         if self._horizons is None:
             self._horizons = Horizons(self.ephemerides_file)
-        # We should add some check if all values in times as within range
-        # covered by self._horizons.time.
+        if (np.max(self._horizons.time) + 0.001 < np.max(times) or
+                np.min(self._horizons.time) - 0.001 > np.min(times)):
+            warnings.warn("Satellite ephemeris doesn't cover requested epochs")
 
         x = np.interp(
                  times, self._horizons.time, self._horizons.xyz.x)
