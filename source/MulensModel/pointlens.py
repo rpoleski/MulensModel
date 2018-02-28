@@ -100,8 +100,8 @@ class PointLens(object):
 
         def function(r, theta):
             r_2 = r * r
-            val = (1. - r_2) / (r_2 + function.arg_2 +
-                                r*function.arg_3*math.cos(theta))
+            val = (1. - r_2) / (
+                    r_2 + function.arg_2 + r*function.arg_3*math.cos(theta))
             return r * function.arg_4 * math.sqrt(val)
 
         lim_0 = lambda x: 0
