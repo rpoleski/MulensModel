@@ -67,12 +67,15 @@
       * BJD\_TDB in satellite ephemeris [astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections)
   * Lens:
     * see "To be done:" in mulensobjects/lens.py::Lens docstring
+  * MagnificationCurve:
+    * re-write magnification() to use lazy loading (here or in model.py)
   * Model:  
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that print RA, Dec, and t\_0\_par.
   * ModelParameters:
     * check that non-exisiting parameters are not specified e.g. t0
+    * check that minimal parameters needed to specifiy a model are defined
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
   * Plotting
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
@@ -95,6 +98,7 @@
 * Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time checked in mid-Dec 2017 (but didn't include tests)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
+  * Utils - Make subpackage/submodules that group related functions (e.g. flux2mag conversions)?
 * [2] submit to Astronomy&Computing
 
 ### reStructuredText:
