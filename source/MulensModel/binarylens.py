@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 import sys
 import os
 import ctypes
@@ -138,14 +136,11 @@ class BinaryLens(object):
         roots = self._get_polynomial_roots_WM95(
             source_x=source_x, source_y=source_y)
 
-        # Can we use Utils.complex_fsum()-like function here (instead
-        # of np.conjugate)?
         component2 = self.mass_1 / np.conjugate(
             roots - self._position_z1_WM95)
         component3 = self.mass_2 / np.conjugate(
             roots - self._position_z2_WM95)
         solutions = self._zeta_WM95 + component2 + component3
-        # Can we use Utils.complex_fsum()-like function here?
         # This backs-up the lens equation.
 
         out = []
@@ -153,7 +148,6 @@ class BinaryLens(object):
         for (i, root) in enumerate(roots):
             distances_from_root = abs((solutions-root)**2)
             min_distance_arg = np.argmin(distances_from_root)
-            # Can we use Utils.complex_fsum()-like function here?
 
             if i == min_distance_arg:
                 out.append(root)
@@ -172,7 +166,7 @@ class BinaryLens(object):
                 len(out), repr(self.mass_1), repr(self.mass_2),
                 repr(self.separation), repr(source_x), repr(source_y))
             distance = sqrt(source_x**2 + source_y**2)
-            if distance < 50.:
+            if distance < 15. or distance < 2. * self.separation:
                 txt += ("This is surprising error - please contact code " +
                     "authors and provide the above error message")
             else:
@@ -196,10 +190,8 @@ class BinaryLens(object):
         denominator_2 = self._position_z2_WM95 - roots_ok_bar
         add_2 = self.mass_2 / denominator_2**2
         derivative = add_1 + add_2
-        # Can we use Utils.complex_fsum()-like function here?
 
         return 1.-derivative*np.conjugate(derivative)
-        # Can we use Utils.complex_fsum()-like function here?
 
     def _signed_magnification_WM95(self, source_x, source_y):
         """signed magnification for each image separately"""
