@@ -22,6 +22,7 @@ month_3letter_to_2digit = {
     'Dec': '12'
     }
 
+
 class Utils(object):
     """ A number of small functions used in different places """
 

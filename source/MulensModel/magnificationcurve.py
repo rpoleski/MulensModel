@@ -186,7 +186,9 @@ class MagnificationCurve(object):
             warnings.warn('No finite-source method is set')
             return
         methods = self._methods_names + [self._default_method]
-        if len(set(methods)-set(['point_source', 'point_source_point_lens'])) == 0:
+        if (
+            len(set(methods) -
+                set(['point_source', 'point_source_point_lens'])) == 0):
             warnings.warn('no finite-source method is set')
             return
 
@@ -263,7 +265,7 @@ class MagnificationCurve(object):
                 standard point source magnification calculation.
 
             ``quadrupole``:
-                From `Gould 2008 ApJ, 681, 1593 
+                From `Gould 2008 ApJ, 681, 1593
                 <http://adsabs.harvard.edu/abs/2008ApJ...681.1593G>`_. See
                 :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
 

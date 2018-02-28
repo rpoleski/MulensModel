@@ -23,6 +23,7 @@ _valid_parameters = {
         't_binary',
         'may also be specified for orbital motion models. Defaults to t_0.']}
 
+
 def _get_effect_strings(*args):
     """
     Given *args[0], figure out which parameters should be printed.
@@ -88,6 +89,7 @@ def _get_effect_strings(*args):
         'basic': basic, 'additional': additional, 'alternate': alternate,
         'optional': optional}
 
+
 def _print_parameters(header, components):
     """
     Prints the given parameter information under the requested header.
@@ -116,6 +118,7 @@ def _print_parameters(header, components):
             print('optional: {0} {1}'.format(
                     _valid_parameters[item][0], _valid_parameters[item][1]))
 
+
 def _print_all():
     """
     Give the user general information about common models and effects.
@@ -139,6 +142,7 @@ def _print_all():
     print("Model types: 'PSPL', 'FSPL', 'PSBL', 'FSBL'")
     print("Effects: 'point lens', 'binary lens', 'finite source', " +
           "'parallax', 'lens orbital motion'")
+
 
 def which_parameters(*args):
     """
@@ -273,8 +277,8 @@ class ModelParameters(object):
             if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
                 raise KeyError(
                     'Lens orbital motion requires both ds_dt and dalpha_dt.')
-            elif (
-                ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys)):
+            elif (('s' not in keys) or ('q' not in keys) or
+                  ('alpha' not in keys)):
                 raise KeyError(
                     'Lens orbital motion requires >2 bodies (s, q, alpha).')
 

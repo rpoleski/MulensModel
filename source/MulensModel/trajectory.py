@@ -24,7 +24,9 @@ class Trajectory(object):
             the times at which to generate the source trajectory,
             e.g. a vector.
 
-        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`, required
+        parameters:
+        :py:class:`~MulensModel.modelparameters.ModelParameters`,
+        required
             a ModelParameters object specifying the microlensing parameters
 
         parallax: *boolean dictionary*, optional
@@ -89,7 +91,6 @@ class Trajectory(object):
         # Calculate the position of the source
         vector_tau = ((self.times - self.parameters.t_0) /
                       self.parameters.t_E)
-                      # float(self.parameters.t_E))  # Is "float" necessary?
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
 
         # If parallax is non-zero, apply parallax effects:
