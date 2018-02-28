@@ -357,14 +357,21 @@ subsequent calls to both plot_data() and plot_residuals().</p>
 
 <dl class="method">
 <dt id="MulensModel.model.Model.get_residuals">
-<code class="descname">get_residuals</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_residuals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the residuals (in magnitudes) from the model for
+<code class="descname">get_residuals</code><span class="sig-paren">(</span><em>data_ref=None</em>, <em>type='mag'</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the residuals from the model for
 each dataset.</p>
+<p>Note: if residuals are returned in magnitudes, they are
+transformed to the magnitude system specified by <cite>data_ref</cite>,
+so only suitable for plotting.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
 <dd><dl class="first last docutils">
 <dt>data_ref: optional</dt>
 <dd>see <a class="reference internal" href="#MulensModel.model.Model.get_ref_fluxes" title="MulensModel.model.Model.get_ref_fluxes"><code class="xref py py-func docutils literal"><span class="pre">get_ref_fluxes()</span></code></a></dd>
+<dt>type: <em>str</em>, optional</dt>
+<dd>specify whether the residuals should be returned in
+magnitudes (‘mag’) or in flux (‘flux’). Default is
+‘mag’.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>

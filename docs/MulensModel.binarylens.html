@@ -136,9 +136,8 @@ point source approximations (<em>sequence</em> of three
 <dl class="method">
 <dt id="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification">
 <code class="descname">adaptive_contouring_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma=None</em>, <em>u_limb_darkening=None</em>, <em>accuracy=0.1</em>, <em>ld_accuracy=0.001</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Binary lens finite source magnification calculated using 
-Adaptive Contouring method by 
-<a class="reference external" href="http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D">Dominik 2007 MNRAS, 377, 1679</a></p>
+<dd><p>Binary lens finite source magnification calculated using
+Adaptive Contouring method by <a class="reference external" href="http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D">Dominik 2007 MNRAS, 377, 1679</a></p>
 <p>See also
 <a class="reference external" href="http://star-www.st-and.ac.uk/~md35/Software.html">AdaptiveContouring website by Martin Dominik</a></p>
 <p>For coordinate system convention see
@@ -160,20 +159,21 @@ Note that either <em>gamma</em> or <em>u_limb_darkening</em> can be
 set.  If neither of them is provided then limb
 darkening is ignored.</dd>
 <dt>accuracy: <em>float</em>, optional</dt>
-<dd>Requested accuracy of the result defined as the sum of the area
-of the squares that determine the contour line and 
-the estimated total enclosed area (see sec. 4 of the paper). 
-As M. Dominik states: <em>“this vastly overestimates 
-the fractional error, and a suitable value should be chosen by
-testing how its variation affects the final results - 
-I recommend starting at acc = 0.1.”</em> It significantly affects 
-execution time.</dd>
+<dd>Requested accuracy of the result defined as the sum of
+the area of the squares that determine the contour
+line and the estimated total enclosed area (see sec. 4
+of the paper).  As M. Dominik states: <em>“this vastly
+overestimates the fractional error, and a suitable
+value should be chosen by testing how its variation
+affects the final results - I recommend starting at
+acc = 0.1.”</em> It significantly affects execution time.</dd>
 <dt>ld_accuracy: <em>float</em>, optional</dt>
-<dd>Requested limb-darkening accuracy. As M. Dominik states: <em>”
-Fractional uncertainty for the adaptive Simpson integration of
-the limb-darkening profile-related function during application
-of Green’s theorem.”</em> It does not addect execution time so can
-be set to very small value.</dd>
+<dd>Requested limb-darkening accuracy. As M. Dominik
+states: <em>” Fractional uncertainty for the adaptive
+Simpson integration of the limb-darkening
+profile-related function during application of Green’s
+theorem.”</em> It does not addect execution time so can be
+set to very small value.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
