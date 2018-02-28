@@ -1,11 +1,7 @@
 """
 Create Figure 1.
 
-Example point-source magnification curves. Blue line shows the point
-source approximation (Paczynski curve) with high peak
-magnification. Green curve represents the finite source mag-
-nification curve (rho = 0.0017 and u_0 = 0.0008), while the red curve
-additionally includes the limb-darkening effect (Gamma = 0.4).
+Example point-source magnification curves.
 
 """
 from matplotlib import pyplot

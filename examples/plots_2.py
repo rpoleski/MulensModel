@@ -1,14 +1,7 @@
 """
 Create Figure 2.
 
-Example magnification curves: dashed green -- point-source point-lens,
-solid blue -- binary lens with planetary mass ratio (q = 0.001, s =
-1.5), dot-dashed red -- point-source point-lens curve affected by the
-annual parallax effect (relatively large value of pi = 0.61), and solid
-cyan -- point-source point-lens curve as seen by the Spitzer
-satellite. Note that the planetary model shows significant increase
-in magnification but also a slight de-magnification effect as compared
-to the single-lens model.
+Example magnification curves.
 
 """
 from matplotlib import pyplot

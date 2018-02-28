@@ -1,12 +1,8 @@
 """
 Creates Figure 3.
 
-This example shows OGLE-2003-BLG-235/MOA-2003-BLG-53, the first
-microlensing planet; Bond et al. 2004
-(http://adsabs.harvard.edu/abs/2004ApJ...606L.155B).  The data were
-downloaded from the NASA Exoplanet Archive:
-https://exoplanetarchive.ipac.caltech.edu/cgi-bin/DisplayOverview/
-nph-DisplayOverview?objname=OGLE-2003-BLG-235L+b&type=CONFIRMED_PLANET
+This example shows OGLE-2003-BLG-235/MOA-2003-BLG-53,
+the first microlensing planet.
 
 """
 from matplotlib import pyplot
