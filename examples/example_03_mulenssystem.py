@@ -1,7 +1,9 @@
-#
-# Define the model by providing mass and distance of lens, source distance, 
-# and relative proper motion. Plot the model light curve after specifying u_0.
-#
+"""
+Define the model by providing mass and distance of lens, source
+distance, and relative proper motion. Plot the model light curve after
+specifying u_0.
+
+"""
 import astropy.units as u
 import matplotlib.pyplot as pl
 
@@ -35,4 +37,3 @@ point_lens.plot_magnification(u_0=0.1)
 pl.title('Magnification Curve w/Proper Motion Defined')
 
 pl.show()
-
