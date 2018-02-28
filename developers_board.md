@@ -101,7 +101,7 @@
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
 * Style/Architecture:
-  * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time checked in mid-Dec 2017 (but didn't include tests)
+  * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time checked in 28 Feb 2018 (but didn't include tests)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
   * Utils - Make subpackage/submodules that group related functions (e.g. flux2mag conversions)?
 * [2] submit to Astronomy&Computing
