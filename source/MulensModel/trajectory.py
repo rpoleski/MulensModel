@@ -88,7 +88,8 @@ class Trajectory(object):
         """
         # Calculate the position of the source
         vector_tau = ((self.times - self.parameters.t_0) /
-                      float(self.parameters.t_E))  # Is "float" necessary?
+                      self.parameters.t_E)
+                      # float(self.parameters.t_E))  # Is "float" necessary?
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
 
         # If parallax is non-zero, apply parallax effects:

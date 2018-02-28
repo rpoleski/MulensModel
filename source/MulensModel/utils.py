@@ -22,11 +22,6 @@ month_3letter_to_2digit = {
     'Dec': '12'
     }
 
-# JCY: I think this class needs to be a subpackage with related
-# functions separated into their own files. e.g. all the flux/mag
-# functions together and separated from the math functions.
-
-
 class Utils(object):
     """ A number of small functions used in different places """
 

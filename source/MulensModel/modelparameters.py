@@ -329,12 +329,13 @@ class ModelParameters(object):
                 raise AttributeError(
                     'u_0 is not defined for these parameters: {0}'.format(
                         self.parameters.keys()))
-        # Needs option to return u_0 if t_eff is set.
 
     @u_0.setter
     def u_0(self, new_u_0):
-        self.parameters['u_0'] = new_u_0
-    # Needs check for 'rho' in parameters.keys(), cf t_eff.setter
+        if 'u_0' in self.parameters.keys():
+            self.parameters['u_0'] = new_u_0
+        else:
+            raise KeyError('u_0 is not a parameter of this model.')
 
     @property
     def t_star(self):

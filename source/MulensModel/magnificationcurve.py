@@ -154,7 +154,6 @@ class MagnificationCurve(object):
 
         """
         return self.get_magnification()
-        #  THIS HAS TO BE REWRITTEN - USE LAZY LOADING! (here or in model.py)
 
     def get_magnification(self):
         """
