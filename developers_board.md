@@ -66,7 +66,11 @@
       * conversions to BJD from HJD, JD etc. ([astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections))
       * BJD\_TDB in satellite ephemeris [astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections)
   * Lens:
-    * see "To be done:" in mulensobjects/lens.py::Lens docstring
+    * __repr__ function needs work                                         
+    * a_proj, couples with source distance in mulensmodel to determine s.  
+    * 2-body example 3 is missing s. Why? Does that work?                  
+    * problem with tracking number of masses, esp when successively defining masses (see test_Lens.py)                      
+    * implement triple+ systems  
   * MagnificationCurve:
     * re-write magnification() to use lazy loading (here or in model.py)
   * Model:  
