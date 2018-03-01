@@ -53,9 +53,9 @@ in bash:
 ```
 export PYTHONPATH=/home/USER_NAME/MulensModel-0.4.0/source:$PYTHONPATH
 ```
-In order to have this command invoked every time you open the terminal, please add this command to ``~/.cshrc`` or ``~/.bashrc`` file.
+In order to have this command invoked every time you open a terminal, please add this command to your startup file (``~/.cshrc``, ``~/.bashrc``, ``~/.profile`` or similar). If you didn't have ``PYTHONPATH`` defined before, then skip the last part of the above commands.
 
-5. Go to subdirecotry ```source/VBBL/``` and run ```make``` command. If it's not working and you're using Windows, then please run:
+5. Go to subdirectory ```source/VBBL/``` and run ```make``` command. If it's not working and you're using Windows, then please run:
 ```
 gcc -lm -lstdc++ -fPIC -c VBBinaryLensingLibrary.cpp
 gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o
@@ -67,5 +67,5 @@ gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLens
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Feb 2018
+file revised Mar 2018
 
