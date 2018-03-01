@@ -15,13 +15,12 @@ class Event(object):
     Allows a model to be fit to datasets.
 
     Arguments :
-        :py:obj:`datasets` (required): a
-        :py:class:`~MulensModel.mulensdata.MulensData` object or
-        *list* of :py:class:'~MulensModel.mulensdata.MulensData'
-        objects.
+        :py:obj:`datasets` (required):
+            a :py:class:`~MulensModel.mulensdata.MulensData` object or
+            *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects.
 
-        :py:obj:`model` (required): a
-        :py:class:`~MulensModel.model.Model` object
+        :py:obj:`model` (required):
+            a :py:class:`~MulensModel.model.Model` object
 
         :py:obj:`coords` (optional):
             the coordinates of the event (RA, Dec)
