@@ -73,10 +73,10 @@ together with data:
    pspl_model.plot_lc()
    plt.show()
 
-To associate a dataset with model we called Model.set_datasets() function. 
+To associate a dataset with model we called ``Model.set_datasets()`` function. 
 Its argument is a list of datasets. In the present case this list contains only 
 a single dataset. If you have more datasets, then just include all of them
-in the list passed to set_datasets(), e.g., 
+in the list passed to ``set_datasets()``, e.g., 
 ``pspl_model.set_datasets([my_data, my_friends_data])``. 
 
 The plot looks seems fine, i.e., the peak is more or less where it should be. 
