@@ -12,7 +12,7 @@ in bash::
 
     export PYTHONPATH=/home/USER_NAME/MulensModel-0.4.0/source:$PYTHONPATH
 
-In order to have this command invoked every time you open a terminal, please add this command to your startup file (``~/.cshrc``, ``~/.bashrc``, ``~/.profile`` or similar). If you didn't have ``PYTHONPATH`` defined before, then skip the last part of the above commands.
+In order to have this command invoked every time you open a terminal, please add this command to your startup file (``~/.cshrc``, ``~/.bashrc``, ``~/.profile``, or similar). If you didn't have ``PYTHONPATH`` defined before, then skip the last part of the above commands.
 
 5. Go to subdirectory ``source/VBBL/`` and run ``make`` command. If it's not working and you're using Windows, then please run::
 
@@ -21,7 +21,7 @@ In order to have this command invoked every time you open a terminal, please add
     gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLensingLibrary_wrapper.cpp -lm -lstdc++ -fPIC VBBinaryLensingLibrary.o
 
 6. Repeat step 5. in ``source/AdaptiveContouring/`` subdirectory.
-7. Run ```py.test``` in ```source/MulensModel/``` to check that all unit tests pass.
+7. Run ``py.test`` in ``source/MulensModel/`` to check that all unit tests pass.
 8. Congratulations! You have MulensModel installed fully.
 
 .. _astropy package: http://www.astropy.org/
