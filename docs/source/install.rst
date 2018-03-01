@@ -6,11 +6,11 @@ How to install?
 3. Unpack the archive.
 4. Add the path to the unpack directory to the ``PYTHONPATH``, e.g., if you've extracted the archive in your home directory (``/home/USER_NAME/``) in tcsh::
 
-    setenv PYTHONPATH /home/USER_NAME/MulensModel-0.4.0/source\:$PYTHONPATH
+    setenv PYTHONPATH /home/USER_NAME/MulensModel-1.0.0/source\:$PYTHONPATH
 
 in bash::
 
-    export PYTHONPATH=/home/USER_NAME/MulensModel-0.4.0/source:$PYTHONPATH
+    export PYTHONPATH=/home/USER_NAME/MulensModel-1.0.0/source:$PYTHONPATH
 
 In order to have this command invoked every time you open a terminal, please add this command to your startup file (``~/.cshrc``, ``~/.bashrc``, ``~/.profile``, or similar). If you didn't have ``PYTHONPATH`` defined before, then skip the last part of the above commands.
 
