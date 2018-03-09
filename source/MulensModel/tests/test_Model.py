@@ -228,4 +228,37 @@ def test_methods_parameters():
     assert result_1[0] != result_2[0]
     assert result_1[0] != result_3[0]
     assert result_2[0] != result_3[0]
-    
+
+def test_orbital_motion():
+    """test orbital motion parameters"""
+    params = {'t_0': 2456789.01234, 'u_0': 0.01, 't_E': 25., 'alpha': 30., 
+        's': 1.2345, 'q': 0.555}
+    model_static = Model(params)
+    model_motion = Model({**params, 'dalpha_dt': 10., 
+        'ds_dt': 0.1})
+
+    # Do the tests below need .parameters ?
+    assert model_static.is_static()
+    assert not model_motion.is_static()
+
+    epoch_1 = params['t_0'] - 18.2625
+    epoch_2 = params['t_0']
+    epoch_3 = params['t_0'] + 18.2625
+
+    static = model_static.parameters
+    assert static.get_s(epoch_1) == static.get_s(epoch_2)
+    assert static.get_s(epoch_1) == static.get_s(epoch_3)
+    assert static.get_s(epoch_1) == params['s']
+
+    motion = model_motion.parameters
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 29.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 30.)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_3), 30.5)
+
+    np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
+    np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
+    np.testing.assert_almost_equal(motion.get_s(epoch_3), 1.2395)
+# We further need to test .gamma_parallel .gamma_perp .gamma,
+# and causitcs for epoch=XXX,
+# and some version of t_0_orb.
+
