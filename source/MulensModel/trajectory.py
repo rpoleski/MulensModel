@@ -93,6 +93,11 @@ class Trajectory(object):
 
         # If parallax is non-zero, apply parallax effects:
         if self.parameters.pi_E is not None:
+            if self.coords is None:
+                raise ValueError("You're trying to calculate trajectory in " +
+                    "a parallax model, but event sky coordinates were not " +
+                    "provided.")
+
             # Apply Earth Orbital parallax effect
             if self.parallax['earth_orbital']:
                 [delta_tau, delta_u] = self._annual_parallax_trajectory()
