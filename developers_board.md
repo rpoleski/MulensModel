@@ -1,3 +1,9 @@
+## Mar goals:
+1. heliocentric frame for parallaxes and DAC data format
+2. orbital motion
+3. Jacobian for PSPL
+4. identify parts that will be affected by binary source
+
 ## Feb goals:
 1. finish paper and v1.0.0
 2. reading ephemeris in DAC format
@@ -28,7 +34,7 @@
     * [2] faster FSPL with LD
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * Yoo+04 full formalism 
-    * [2] get gamma/u LD coefs from Claret papers etc.
+    * [2] get gamma/u LD coeffs from Claret papers etc.
     * Full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
   * Higher Order Effects
     * xallarap (see below for references)
@@ -53,10 +59,11 @@
   * Caustics.\_calculate - optimize using vectors instead of a loop
   * Caustic calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
   * Event class:
-    * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_corrds etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
+    * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
     * Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter)
-    * give access to all fluxes without chainging data\_ref
+    * give access to all fluxes without changing data\_ref
+    * reduce calls to Fit.fit\_fluxes()
   * Fit:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
   * Horizons:
@@ -67,10 +74,10 @@
       * conversions to BJD from HJD, JD etc. ([astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections))
       * BJD\_TDB in satellite ephemeris [astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections)
   * Lens:
-    * __repr__ function needs work                                         
-    * a_proj, couples with source distance in mulensmodel to determine s.  
+    * \_\_repr\_\_ function needs work                                         
+    * a\_proj, couples with source distance in mulensmodel to determine s.  
     * 2-body example 3 is missing s. Why? Does that work?                  
-    * problem with tracking number of masses, esp when successively defining masses (see test_Lens.py)                      
+    * problem with tracking number of masses, esp when successively defining masses (see test\_Lens.py)
     * implement triple+ systems  
   * MagnificationCurve:
     * re-write magnification() to use lazy loading (here or in model.py)
@@ -79,9 +86,13 @@
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that print RA, Dec, and t\_0\_par.
   * ModelParameters:
-    * check that non-exisiting parameters are not specified e.g. t0
-    * check that minimal parameters needed to specifiy a model are defined
+    * check that non-existing parameters are not specified e.g. t0
+    * check that minimal parameters needed to specify a model are defined
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
+  * MulensData:
+    * add label which is passed to all the matplotlib functions and hence allows to show legend in easy way
+  * SatelliteSkyCoord:
+    * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
   * Plotting
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * [2] subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
