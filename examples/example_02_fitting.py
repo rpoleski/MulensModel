@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """
 Example usage of MulensModel to fit a point lens light curve to the
-data file phot_ob08092_O4.dat.
+data file phot_ob08092_O4.dat. It uses Scipy Nelder-Mead minimization method.
 
 """
 
@@ -12,7 +12,7 @@ import scipy.optimize as op
 import matplotlib.pyplot as pl
 
 import MulensModel
-from MulensModel import Event, Fit, Model, MulensData, Utils
+from MulensModel import Event, Model, MulensData
 
 
 def chi2_fun(theta, event, parameters_to_fit):

@@ -14,7 +14,7 @@ except ImportError as err:
     sys.exit(1)
 import matplotlib.pyplot as plt
 
-from MulensModel import Event, Model, MulensData, Coordinates, MODULE_PATH
+from MulensModel import Event, Model, MulensData, MODULE_PATH
 
 
 # Define likelihood functions
@@ -24,13 +24,11 @@ def ln_like(theta, event, parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
     return -0.5 * event.get_chi2()
 
-
 def ln_prior(theta, parameters_to_fit):
     """priors - we only reject obviously wrong models"""
     if theta[parameters_to_fit.index("t_E")] < 0.:
         return -np.inf
     return 0.0
-
 
 def ln_prob(theta, event, parameters_to_fit):
     """ combines likelihood and priors"""
@@ -51,7 +49,7 @@ def ln_prob(theta, event, parameters_to_fit):
 file_name = os.path.join(MODULE_PATH, "data", "starBLG234.6.I.218982.dat")
 my_data = MulensData(file_name=file_name, add_2450000=True)
 
-coords = Coordinates("18:04:45.71 -26:59:15.2")
+coords = "18:04:45.71 -26:59:15.2"
 
 # Starting parameters:
 params = dict()

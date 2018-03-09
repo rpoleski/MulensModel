@@ -65,13 +65,14 @@ class Minimizer(object):
         """logarithm of likelihood"""
         return -0.5 * (self.chi2(theta) - self._chi2_0)
 
+
 # Read the data
 my_data = MulensData(
     file_name=os.path.join(MODULE_PATH, "data", "starBLG234.6.I.218982.dat"),
     add_2450000=True)
 
 # Starting parameters:
-coords = Coordinates("18:04:45.71 -26:59:15.2")
+coords = "18:04:45.71 -26:59:15.2"
 t_0_par = 2453628.
 params = {'t_0': 2453628.3, 't_0_par': t_0_par, 'u_0': 0.37, 't_E': 100.,
           'pi_E_N': 0., 'pi_E_E': 0.}
