@@ -6,7 +6,7 @@ separate modes in automated way.
 import os
 import sys
 import numpy as np
-from MulensModel import Event, Model, MulensData, Coordinates, MODULE_PATH
+from MulensModel import Event, Model, MulensData, MODULE_PATH
 try:
     from pymultinest.solve import solve
     from pymultinest.analyse import Analyzer
