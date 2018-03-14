@@ -657,6 +657,9 @@ class ModelParameters(object):
     @property
     def ds_dt(self):
         """ change in s per year."""
+        if not isinstance(self.parameters['ds_dt'], u.Quantity):
+            self.parameters['ds_dt'] = self.parameters['ds_dt'] / u.yr
+
         return self.parameters['ds_dt'].to(1 / u.yr).value
 
     @ds_dt.setter
@@ -666,6 +669,10 @@ class ModelParameters(object):
     @property
     def dalpha_dt(self):
         """ change in alpha vs. time in deg/yr"""
+        if not isinstance(self.parameters['dalpha_dt'], u.Quantity):
+            self.parameters['dalpha_dt'] = (self.parameters['dalpha_dt'] *
+                                            u.deg / u.yr)
+
         return self.parameters['dalpha_dt'].to(u.deg / u.yr).value
 
     @dalpha_dt.setter
@@ -686,6 +693,69 @@ class ModelParameters(object):
     @t_binary.setter
     def t_binary(self, new_t_binary):
         self.parameters['t_binary'] = new_t_binary
+
+    def get_s(self, epoch):
+        """
+        Returns the value of s at a given epoch (if orbital motion
+        parameters are set).
+
+        Argument:
+            epoch: *float*, *list*, *np.ndarray*
+                The time(s) at which to calculate s.
+
+        """
+        if 'ds_dt' not in self.parameters.keys():
+            return self.s
+        else:
+            if isinstance(epoch, list):
+                epoch = np.array(epoch)
+
+            s_of_t = self.s + self.ds_dt * (epoch - self.t_binary) / 365.25
+            return s_of_t
+
+    def get_alpha(self, epoch):
+        """
+        Returns the value of `alpha` at a given epoch (if orbital motion
+        parameters are set).
+
+        Argument:
+            epoch: *float*, *list*, *np.ndarray*
+                The time(s) at which to calculate alpha.
+
+        """
+        if 'dalpha_dt' not in self.parameters.keys():
+            return self.alpha
+        else:
+            if isinstance(epoch, list):
+                epoch = np.array(epoch)
+
+            alpha_of_t = (self.alpha + 
+                          self.dalpha_dt * (epoch - self.t_binary) *
+                          u.deg / 365.25)
+
+            return alpha_of_t
+
+    @property
+    def gamma_parallel(self):
+        pass
+
+    @property
+    def gamma_perp(self):
+        pass
+
+    @property
+    def gamma(self):
+        pass
+
+    def is_static(self):
+        """
+        Checks if lens orbital parameters ('dalpha_dt', 'ds_dt') are set.
+        """
+        if ('dalpha_dt' in self.parameters.keys() or
+            'ds_dt' in self.parameters.keys()):
+            return False
+        else:
+            return True
 
     @property
     def n_lenses(self):

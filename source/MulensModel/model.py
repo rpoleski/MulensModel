@@ -123,6 +123,12 @@ class Model(object):
         """
         return self._parameters.n_lenses
 
+    def is_static(self):
+        """
+        see :py:func:`MulensModel.modelparameters.ModelParameters.is_static()`
+        """
+        return self._parameters.is_static()
+
     def get_satellite_coords(self, times):
         """
         Get *astropy.SkyCoord* object that gives satellite positions
@@ -914,7 +920,10 @@ class Model(object):
         if arrow:
             index = int(len(times)/2)
             if 'alpha' in self.parameters.as_dict().keys():
-                alpha = self.parameters.alpha
+                if self.is_static():
+                    alpha = self.parameters.alpha
+                else:
+                    alpha = self.parameters.get_alpha(times[index])
             else:
                 alpha = -90.
 
@@ -925,14 +934,19 @@ class Model(object):
         if caustics:
             self.plot_caustics(marker='.', color='red')
 
-    def plot_caustics(self, n_points=5000, **kwargs):
+    def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
         Plot the caustic structure. See
         :py:func:`MulensModel.caustics.Caustics.plot()`
 
         """
-        if self.caustics is None:
-            self.caustics = Caustics(q=self.parameters.q, s=self.parameters.s)
+        if (self.caustics is None) or (epoch is not None):
+            if epoch is None:
+                s = self.parameters.s
+            else:
+                s = self.parameters.get_s(epoch)
+
+            self.caustics = Caustics(q=self.parameters.q, s=s)
 
         self.caustics.plot(n_points=n_points, **kwargs)
 
