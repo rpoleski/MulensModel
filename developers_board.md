@@ -4,26 +4,15 @@
 3. Jacobian for PSPL
 4. identify parts that will be affected by binary source
 
-## Feb goals:
-1. finish paper and v1.0.0
-2. reading ephemeris in DAC format
-3. orbital motion unit tests
-4. Jacobian for PSPL (UC24)
-5. identify parts that will be affected by binary source
-
 
 ## Specific tasks to be performed
 
-[1] = Necessary for data challenge
-
-[2] = Nice for data challenge
-
 * Install
-  * [2] makefile for Windows (basic instructions exist already)
+  * makefile for Windows (basic instructions exist already)
 * Documentation
   * Sagan workshop hands-on activity in MM
   * Add \_\_repr\_\_ functions to Lens and Source
-  * [2] files not yet well documented: 
+  * files not yet well documented: 
     * RA & Dec in coordinates.py (maybe also code it better)
     * coordinates.py
     * utils.py 
@@ -31,28 +20,23 @@
 * Effects
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
-    * [2] faster FSPL with LD
+    * faster FSPL with LD
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * Yoo+04 full formalism 
     * [2] get gamma/u LD coeffs from Claret papers etc.
     * Full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
   * Higher Order Effects
     * xallarap (see below for references)
-      - use case, 
-      - unit test, 
-      - and code itself 
-    * [1] binary lens orbital motion
-      - unit test, 
-      - and code itself
+    * binary lens orbital motion
 * Parameterization
   * Cassan 2008 binary lens parameters
   * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
-  * [1] dA/dparam for point lens models; use case --> UC24
+  * dA/dparam for point lens models; use case --> UC24
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y)
 * Function Improvements/Expansion
   * Binary Lens:
     * should BinaryLens() accept source\_x/y as lists or arrays?
-    * [2] function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
+    * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
     * topology of caustics based on (s,q)
     * central and planetary caustic properties: [Chung et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...630..535C) and [Han 2006](http://adsabs.harvard.edu/abs/2006ApJ...638.1080H)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
@@ -84,13 +68,14 @@
   * Model:  
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
-    * Function that print RA, Dec, and t\_0\_par.
+    * Function that print RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
   * ModelParameters:
     * check that non-existing parameters are not specified e.g. t0
     * check that minimal parameters needed to specify a model are defined
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
   * MulensData:
     * add label which is passed to all the matplotlib functions and hence allows to show legend in easy way
+    * Errorbar scaling, in particular the two parameter.
   * SatelliteSkyCoord:
     * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
   * Utils:
@@ -102,10 +87,9 @@
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
     * guessing parameters of PSPL model ([Kim+17](https://arxiv.org/abs/1703.06883) as an example)
-    * Errorbar scaling, in particular the two parameter.
     * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
     * anything from use cases that does not work yet -- see TODO.md file
-    * [2] plotting data in MulensData (also update PSPL tutorial)
+    * plotting data in MulensData (also update PSPL tutorial)
     * interaction with fitting routines - see [list of them](https://arxiv.org/abs/1711.03329)
     * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, there there is no point in remembering huge indexes (whole self.times)
     * profile the code (python -m cProfile script.py)
@@ -114,10 +98,9 @@
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
 * Style/Architecture:
-  * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time checked in 28 Feb 2018 (but didn't include tests)
+  * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time checked on 28 Feb 2018 (but didn't include tests)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
   * Utils - Make subpackage/submodules that group related functions (e.g. flux2mag conversions)?
-* [2] submit to Astronomy&Computing
 
 ### reStructuredText:
 [1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
