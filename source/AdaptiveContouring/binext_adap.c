@@ -6,6 +6,7 @@
 /* MD 14-9-06 */
 /* RP 19-12-17 */
 /* RP 02-02-18 */
+/* RP 16-03-18 */
 
 #define _GNU_SOURCE
 #include <math.h>
@@ -178,7 +179,11 @@ FLOAT magt_binext(FLOAT t, FLOAT t0, FLOAT tE, FLOAT alpha, FLOAT u0,
 
 	p = (t-t0)/tE;
 
+#ifdef __APPLE__
+        __sincos(alpha,&sa,&ca);
+#else
 	sincos(alpha,&sa,&ca);
+#endif
 	y1 = p*ca-u0*sa;
 	y2 = p*sa+u0*ca;
 
