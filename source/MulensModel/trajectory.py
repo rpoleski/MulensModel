@@ -199,6 +199,10 @@ class Trajectory(object):
         vector_product_normalized = utils.Utils.vector_product_normalized
         east_projected = vector_product_normalized(north, direction)
         north_projected = vector_product_normalized(direction, east_projected)
+        # Earth velocity at t_0_par projected on the plane of the sky is:
+        # v_Earth_perp_N = np.dot(velocity, north_projected)
+        # v_Earth_perp_E = np.dot(velocity, east_projected)
+        #  and times 1731.48 to convert to km/s.
         out_n = -np.dot(delta_s.value, north_projected)
         out_e = -np.dot(delta_s.value, east_projected)
 
