@@ -61,13 +61,81 @@ class test(unittest.TestCase):
             t_E = 20. * u.day
             rho = 0.001
             t_star = t_E * rho
-            ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E, 'rho':rho, 't_star':t_star})
+            ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 't_star': t_star})
 
 def test_update():
     t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
-    params = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
+    params = ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     params.as_dict().update({'rho': 0.001})
 
     assert len(params.parameters.keys()) == 4
+
+def test_orbital_motion_1():
+    """basic tests of orbital motion"""
+    dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345, 
+        's': 1.2345, 'q': 0.01234, 'alpha': 30.}
+    dict_motion = dict_static.copy()
+    dict_motion.update({'dalpha_dt': 10., 'ds_dt': 0.1})
+    static = ModelParameters(dict_static)
+    motion = ModelParameters(dict_motion)
+
+    assert static.is_static()
+    assert not motion.is_static()
+
+    epoch_1 = dict_static['t_0'] - 18.2625
+    epoch_2 = dict_static['t_0']
+    epoch_3 = dict_static['t_0'] + 18.2625
+
+    # Test get_s() and get_alpha() for static case.
+    assert static.get_s(epoch_1) == static.get_s(epoch_2)
+    assert static.get_s(epoch_1) == static.get_s(epoch_3)
+    assert static.get_s(epoch_1) == dict_static['s']
+    assert static.get_alpha(epoch_1) == static.get_alpha(epoch_3)
+    assert static.get_alpha(epoch_1) == dict_static['alpha']
+
+    # Test get_s() and get_alpha() for orbital motion case.
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1).value, 29.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2).value, 30.)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_3).value, 30.5)
+    np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
+    np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
+    np.testing.assert_almost_equal(motion.get_s(epoch_3), 1.2395)
+ 
+    assert motion.alpha == 30.
+    assert motion.s == 1.2345
+
+def test_t_0_kep():
+    """test reference epoch for orbital motion"""
+    dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
+        's': 1.2345, 'q': 0.01234, 'alpha': 30.}
+    dict_motion = dict_static.copy()
+    dict_motion.update({'dalpha_dt': 10., 'ds_dt': 0.1})
+    dict_motion_2 = dict_motion.copy()
+    dict_motion_2.update({'t_0_kep': 2456789.01234-18.2625})
+    motion = ModelParameters(dict_motion)
+    motion_2 = ModelParameters(dict_motion_2)
+
+    assert motion.t_0_kep == motion.t_0
+    assert motion_2.t_0_kep == dict_motion_2['t_0_kep']
+
+    epoch_1 = dict_static['t_0'] - 18.2625
+    epoch_2 = dict_static['t_0']
+
+    # Test motion.
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1).value, 29.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2).value, 30.)
+    np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
+    np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
+
+    # Test motion_2.
+    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_1).value, 30.)
+    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_2).value, 30.5)
+    np.testing.assert_almost_equal(motion_2.get_s(epoch_1), 1.2345)
+    np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
+   
+def test_orbtial_motion_gammas():
+    """test .gamma_parallel .gamma_perp .gamma"""
+    pass
+
