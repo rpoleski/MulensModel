@@ -934,19 +934,27 @@ class Model(object):
         if caustics:
             self.plot_caustics(marker='.', color='red')
 
+    def update_caustic(self, epoch=None):
+        """
+        Updates :py:attr:`~caustics` property for given epoch.
+        """
+        if epoch is None:
+            s = self.parameters.s
+        else:
+            s = self.parameters.get_s(epoch)
+
+        if self.caustics is not None:
+            if s == self.caustics.s and self.parameters.q == self.caustics.q:
+                return
+
+        self.caustics = Caustics(q=self.parameters.q, s=s)
+    
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
         Plot the caustic structure. See
         :py:func:`MulensModel.caustics.Caustics.plot()`
-
         """
-        if (self.caustics is None) or (epoch is not None):
-            if epoch is None:
-                s = self.parameters.s
-            else:
-                s = self.parameters.get_s(epoch)
-
-            self.caustics = Caustics(q=self.parameters.q, s=s)
+        self.update_caustic(epoch=epoch)
 
         self.caustics.plot(n_points=n_points, **kwargs)
 

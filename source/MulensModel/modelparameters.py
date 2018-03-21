@@ -346,7 +346,7 @@ class ModelParameters(object):
         """
         *float*
 
-        t_star = rho * tE = source crossing time
+        t_star = rho * tE = source radius crossing time
 
         "day" is the default unit. Regardless of input value, returns
         value with units of u.day. May be set as a *float* --> assumes
