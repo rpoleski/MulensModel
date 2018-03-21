@@ -241,10 +241,32 @@ def test_caustic_for_orbtial_motion():
     model.update_caustics()
     np.testing.assert_almost_equal(model.caustics.get_caustics(), 
         Caustics(q=q, s=s).get_caustics())
+
     model.update_caustics(100.+365.25/2)
     np.testing.assert_almost_equal(model.caustics.get_caustics(), 
         Caustics(q=q, s=1.55).get_caustics())
 
 def test_magnifications_for_orbtial_motion():
-    pass
+    """
+    make sure that orbital motion parameters are properly passed to 
+    magnification methods calculations
+    """
+    dict_static = {'t_0': 100., 'u_0': 0.1, 't_E': 100., 'q': 0.99,
+        's': 1.1, 'alpha': 10.}
+    dict_motion = dict_static.copy()
+    dict_motion.update({'ds_dt': -2, 'dalpha_dt': -300.})
+    static = Model(dict_static)
+    motion = Model(dict_motion)
+
+    t_1 = 100.
+    np.testing.assert_almost_equal(
+        static.magnification(t_1), 
+        motion.magnification(t_1))
+
+    t_2 = 130.
+    static.parameters.s = 0.93572895
+    static.parameters.alpha = 345.359342916
+    np.testing.assert_almost_equal(
+        static.magnification(t_2),
+        motion.magnification(t_2))
 
