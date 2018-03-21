@@ -72,7 +72,7 @@ print('{0} == {1}?'.format(model_orb.parameters.gamma, 0.9346 / u.year))
 # Make a nice plot:
 plt.figure()
 model_orb.plot_caustics(epoch=t_0)
-model_orb.plot_caustics(epoch=t_0+dt, c='g') # second caustics are green
+model_orb.plot_caustics(epoch=t_0+dt, c='g', lw=0) # second caustics are green
 model_orb.plot_trajectory()
 plt.title('This plot shows a nice curved trajectory and caustics for 2 ' + 
         'different epochs')

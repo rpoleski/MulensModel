@@ -20,7 +20,7 @@ _valid_parameters = {
         'may also be specified for parallax models. Defaults to t_0.'],
     'lens orbital motion': ['dalpha_dt, ds_dt', '(for orbital motion)'],
     'lens orbital motion opt': [
-        't_binary',
+        't_0_kep',
         'may also be specified for orbital motion models. Defaults to t_0.']}
 
 
@@ -680,19 +680,19 @@ class ModelParameters(object):
         self.parameters['dalpha_dt'] = new_dalpha_dt
 
     @property
-    def t_binary(self):
+    def t_0_kep(self):
         """
         The reference time for the calculation of parallax. If not set
-        explicitly, set t_binary = t_0.
+        explicitly, assumes t_0_kep = t_0.
         """
-        if 't_binary' not in self.parameters.keys():
+        if 't_0_kep' not in self.parameters.keys():
             return self.parameters['t_0']
         else:
-            return self.parameters['t_binary']
+            return self.parameters['t_0_kep']
 
-    @t_binary.setter
-    def t_binary(self, new_t_binary):
-        self.parameters['t_binary'] = new_t_binary
+    @t_0_kep.setter
+    def t_0_kep(self, new):
+        self.parameters['t_0_kep'] = new
 
     def get_s(self, epoch):
         """
@@ -710,7 +710,8 @@ class ModelParameters(object):
             if isinstance(epoch, list):
                 epoch = np.array(epoch)
 
-            s_of_t = self.s + self.ds_dt * (epoch - self.t_binary) / 365.25
+            s_of_t = (self.s +
+                        self.ds_dt * (epoch - self.t_0_kep) / u.yr.to(u.d))
             return s_of_t
 
     def get_alpha(self, epoch):
@@ -729,9 +730,8 @@ class ModelParameters(object):
             if isinstance(epoch, list):
                 epoch = np.array(epoch)
 
-            alpha_of_t = (self.alpha + 
-                          self.dalpha_dt * (epoch - self.t_binary) *
-                          u.deg / 365.25)
+            alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)
+                        * u.deg / u.yr.to(u.d))
 
             return alpha_of_t
 
