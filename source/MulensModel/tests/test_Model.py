@@ -2,9 +2,7 @@ import numpy as np
 import unittest
 from astropy import units as u
 
-from MulensModel.model import Model
-from MulensModel.modelparameters import ModelParameters
-from MulensModel.mulensdata import MulensData
+from MulensModel import Model, ModelParameters, MulensData, Caustics
 
 
 def test_n_lenses():
@@ -231,7 +229,21 @@ def test_methods_parameters():
     assert result_2[0] != result_3[0]
 
 def test_caustic_for_orbtial_motion():
-    pass
+    """
+    check if caustics calculated for different epochs in orbital motion model
+    are as expected
+    """
+    q = 0.1
+    s = 1.3
+    model = Model(parameters={'t_0': 100., 'u_0': 0.1, 't_E': 10., 'q': q,
+        's': s, 'ds_dt': 0.5, 'alpha': 0., 'dalpha_dt': 0.})
+
+    model.update_caustics()
+    np.testing.assert_almost_equal(model.caustics.get_caustics(), 
+        Caustics(q=q, s=s).get_caustics())
+    model.update_caustics(100.+365.25/2)
+    np.testing.assert_almost_equal(model.caustics.get_caustics(), 
+        Caustics(q=q, s=1.55).get_caustics())
 
 def test_magnifications_for_orbtial_motion():
     pass

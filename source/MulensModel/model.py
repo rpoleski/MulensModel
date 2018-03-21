@@ -934,7 +934,7 @@ class Model(object):
         if caustics:
             self.plot_caustics(marker='.', color='red')
 
-    def update_caustic(self, epoch=None):
+    def update_caustics(self, epoch=None):
         """
         Updates :py:attr:`~caustics` property for given epoch.
         """
