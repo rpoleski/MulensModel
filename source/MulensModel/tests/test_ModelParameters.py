@@ -137,5 +137,12 @@ def test_t_0_kep():
    
 def test_orbtial_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
-    pass
+    dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00, 
+        's': 1.5, 'ds_dt': 0.5, 'q': 0.987, 
+        'alpha': 12.345, 'dalpha_dt': 50.}
+    params = ModelParameters(dict_params)
+
+    np.testing.assert_almost_equal(params.gamma_parallel, 0.3333333 / u.year)
+    np.testing.assert_almost_equal(params.gamma_perp, -0.87266 * u.rad / u.year)
+    np.testing.assert_almost_equal(params.gamma, 0.9346 / u.year)
 
