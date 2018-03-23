@@ -656,7 +656,12 @@ class ModelParameters(object):
 
     @property
     def ds_dt(self):
-        """ change in s per year."""
+        """
+        *float*
+
+        Change rate of separation py:attr:`~s` in 1/year. Can be set as *float*
+        or *AstroPy.Quantity*.
+        """
         if not isinstance(self.parameters['ds_dt'], u.Quantity):
             self.parameters['ds_dt'] = self.parameters['ds_dt'] / u.yr
 
@@ -668,7 +673,12 @@ class ModelParameters(object):
 
     @property
     def dalpha_dt(self):
-        """ change in alpha vs. time in deg/yr"""
+        """
+        *float*
+
+        Change rate of angle py:attr:`~alpha` in deg/year. Can be set as 
+        *float* or *AstroPy.Quantity*.
+        """
         if not isinstance(self.parameters['dalpha_dt'], u.Quantity):
             self.parameters['dalpha_dt'] = (self.parameters['dalpha_dt'] *
                                             u.deg / u.yr)
@@ -682,6 +692,8 @@ class ModelParameters(object):
     @property
     def t_0_kep(self):
         """
+        *float*
+
         The reference time for the calculation of parallax. If not set
         explicitly, assumes t_0_kep = t_0.
         """
@@ -696,44 +708,53 @@ class ModelParameters(object):
 
     def get_s(self, epoch):
         """
-        Returns the value of s at a given epoch (if orbital motion
-        parameters are set).
+        Returns the value of separation py:attr:`~s` at a given epoch or
+        epochs (if orbital motion parameters are set).
 
-        Argument:
+        Arguments :
             epoch: *float*, *list*, *np.ndarray*
-                The time(s) at which to calculate s.
+                The time(s) at which to calculate py:attr:`~s`.
+
+        Returns :
+            separation: *float* or *np.ndarray*
+                Value(s) of separation for given epochs.
 
         """
         if 'ds_dt' not in self.parameters.keys():
             return self.s
-        else:
-            if isinstance(epoch, list):
-                epoch = np.array(epoch)
 
-            s_of_t = (self.s +
-                        self.ds_dt * (epoch - self.t_0_kep) / u.yr.to(u.d))
-            return s_of_t
+        if isinstance(epoch, list):
+            epoch = np.array(epoch)
+
+        s_of_t = (self.s +
+                    self.ds_dt * (epoch - self.t_0_kep) / u.yr.to(u.d))
+        
+        return s_of_t
 
     def get_alpha(self, epoch):
         """
-        Returns the value of `alpha` at a given epoch (if orbital motion
-        parameters are set).
+        Returns the value of angle py:attr:`~alpha` at a given epoch or
+        epochs (if orbital motion parameters are set).
 
-        Argument:
+        Arguments :
             epoch: *float*, *list*, *np.ndarray*
-                The time(s) at which to calculate alpha.
+                The time(s) at which to calculate py:attr:`~alpha`.
+
+        Returns :
+            separation: *float* or *np.ndarray*
+                Value(s) of angle for given epochs.
 
         """
         if 'dalpha_dt' not in self.parameters.keys():
             return self.alpha
-        else:
-            if isinstance(epoch, list):
-                epoch = np.array(epoch)
 
-            alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)
-                        * u.deg / u.yr.to(u.d))
+        if isinstance(epoch, list):
+            epoch = np.array(epoch)
 
-            return alpha_of_t
+        alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)
+                    * u.deg / u.yr.to(u.d))
+
+        return alpha_of_t
 
     @property
     def gamma_parallel(self):
@@ -754,6 +775,7 @@ class ModelParameters(object):
         Returns :
             is_statis: *boolean*
                 *True* if *dalpha_dt* or *ds_dt* are set.
+        
         """
         if ('dalpha_dt' in self.parameters.keys() or
                 'ds_dt' in self.parameters.keys()):
