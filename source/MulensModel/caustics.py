@@ -36,11 +36,13 @@ class Caustics(object):
 
     def plot(self, n_points=5000, **kwargs):
         """
-        Plots the caustics (using matplotlib.pyplot.scatter()).
+        Plots the caustics using *matplotlib.pyplot.scatter()*.
 
-        Parameters:
-            n_points : *int*, optional
-                The number of points to calculate along the caustic.
+        Parameters :
+            n_points: *int*, optional
+                The number of points to calculate along the caustic. 
+                Defaults to 5000.
+
             ``**kwargs``
                 keywords accepted by *matplotlib.pyplot.scatter()*
         """

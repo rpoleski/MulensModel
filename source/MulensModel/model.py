@@ -32,6 +32,21 @@ class Model(object):
         ra, dec: *str*, optional
             Sky Coordinates of the event.
 
+        ephemerides_file: *str*, optional
+            Specify name of the file with satellite ephemerides. See
+            :py:class:`~MulensModel.mulensdata.MulensData` for more details.
+
+    Attributes :
+        ephemerides_file: *str*
+            Name of file with satellite ephemerides.
+
+        caustics: :py:class:`~MulensModel.caustics.Caustics`
+            Caustics for given model
+
+        data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`
+            Reference dataset. If *int* then gives index of reference dataset
+            in py:attr:`~datasets`.
+
     Default values for parallax are all True. Use :py:func:`parallax()`
     to turn different parallax effects ON/OFF. If using satellite
     parallax, you may also specify an `ephemerides_file` (see
@@ -39,7 +54,7 @@ class Model(object):
 
     Caveat:
     satellite parallax works for datasets, but not for
-    model. i.e. The satellite parallax will be calculated correctly
+    model, i.e., the satellite parallax will be calculated correctly
     for the model evaluated at the data points, but satellite parallax
     is not implemented for the model alone.
 
@@ -937,6 +952,12 @@ class Model(object):
     def update_caustics(self, epoch=None):
         """
         Updates :py:attr:`~caustics` property for given epoch.
+
+        Parameters :
+            epoch: *float*
+                For orbital motion models, epoch for which separation *s*
+                is calculated to calculate :py:attr:`~caustics`. Defaults
+                to *t_0_kep*, which defaults to *t_0*.
         """
         if epoch is None:
             s = self.parameters.s
@@ -952,7 +973,13 @@ class Model(object):
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
         Plot the caustic structure. See
-        :py:func:`MulensModel.caustics.Caustics.plot()`
+        :py:func:`MulensModel.caustics.Caustics.plot()`. 
+        
+        Additional parameters :
+            epoch: *float*, optional
+                Epoch for which separation *s* will be used. Important 
+                for models with orbital motion. Defaults to *t_0_kep*, 
+                which defaults to *t_0*.
         """
         self.update_caustic(epoch=epoch)
 

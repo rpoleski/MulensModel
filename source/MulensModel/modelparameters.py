@@ -749,10 +749,14 @@ class ModelParameters(object):
 
     def is_static(self):
         """
-        Checks if lens orbital parameters ('dalpha_dt', 'ds_dt') are set.
+        Checks if model is static, i.e., orbital motion parameters are not set.
+
+        Returns :
+            is_statis: *boolean*
+                *True* if *dalpha_dt* or *ds_dt* are set.
         """
         if ('dalpha_dt' in self.parameters.keys() or
-            'ds_dt' in self.parameters.keys()):
+                'ds_dt' in self.parameters.keys()):
             return False
         else:
             return True
