@@ -150,8 +150,8 @@ class Event(object):
 
     def reset_best_chi2(self):
         """
-        Reset *best_chi2* attribute and its parameters
-        (*best_chi2_parameters*)
+        Reset :py:attr:`~best_chi2` attribute and its parameters
+        (:py:attr:`~best_chi2_parameters`).
         """
         self.best_chi2 = None
         self.best_chi2_parameters = {}
