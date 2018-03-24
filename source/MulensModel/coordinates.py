@@ -32,6 +32,8 @@ class Coordinates(SkyCoord):
     @property
     def galactic_l(self):
         """
+        *astropy.coordinates.angles.Longitude*
+
         Galactic longitude. Note that for connivance, the values l >
         180 degrees are represented as 360-l.
         """
@@ -42,17 +44,41 @@ class Coordinates(SkyCoord):
 
     @property
     def galactic_b(self):
-        """Galactic latitude calculated from (RA, Dec)"""
+        """
+        *astropy.coordinates.angles.Latitude*
+
+        Galactic latitude calculated from (RA, Dec)
+        """
         return self.galactic.b
 
     @property
     def ecliptic_lon(self):
-        """ecliptic longitude calculated from (RA, Dec)"""
+        """
+        *astropy.coordinates.angles.Longitude*
+
+        ecliptic longitude calculated from (RA, Dec)
+        """
         from astropy.coordinates import GeocentricTrueEcliptic
         return self.transform_to(GeocentricTrueEcliptic).lon
 
     @property
     def ecliptic_lat(self):
-        """ecliptic latitude calculated from (RA, Dec) """
+        """
+        *astropy.coordinates.angles.Latitude*
+
+        ecliptic latitude calculated from (RA, Dec)
+        """
         from astropy.coordinates import GeocentricTrueEcliptic
         return self.transform_to(GeocentricTrueEcliptic).lat
+
+    @property
+    def projected_N_E(self):
+        """
+        North and East projected on the plane of the sky.
+        """
+    #direction = np.array(self.coords.cartesian.xyz.value)
+#            north = np.array([0., 0., 1.])
+#                    east_projected = np.cross(north, direction)
+#                            east_projected /= np.linalg.norm(east_projected)
+#                                    north_projected = np.cross(direction, east_projected)
+
