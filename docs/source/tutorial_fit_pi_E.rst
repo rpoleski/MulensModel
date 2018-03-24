@@ -30,7 +30,7 @@ We start by importing python modules:
    import emcee
    import matplotlib.pyplot as plt
    import MulensModel
-   from MulensModel import Event, Model, MulensData, Coordinates
+   from MulensModel import Event, Model, MulensData
 
 We're using EMCEE package for fitting. You can download it from
 `<http://dfm.io/emcee/current/>`_ in case you don't have it yet. Then we
@@ -41,7 +41,7 @@ import the data and set the event coordinates:
    file_name = os.path.join(MulensModel.MODULE_PATH, "data", 
        "starBLG234.6.I.218982.dat")
    my_data = MulensData(file_name=file_name, add_2450000=True)
-   coords = Coordinates("18:04:45.71 -26:59:15.2")
+   coords = "18:04:45.71 -26:59:15.2"
 
 Note that *add_2450000=True* is very important. The file has time vector 
 of HJD-2450000 for convenience and it's fine as long as we don't fit 
@@ -60,11 +60,12 @@ We set the starting values of the parameters:
    params.t_E = 100.
    params.pi_E_N = 0.
    params.pi_E_E = 0.
-   my_model = Model(params)
+   my_model = Model(params, coords=coords)
    my_event = Event(datasets=my_data, model=my_model)
 
 We set the parameter reference time (*t_0_par*) for rounded value of *t_0*.
-This is common approach. 
+This is common approach. If you don't set *t_0_par*, then fitting will be 
+slower, because Earth positions will be re-calculated for every model. 
 
 Further we need to specifies which parameters we want to fit and also 
 specify dispersions in starting points. We choose the latter to be some 
