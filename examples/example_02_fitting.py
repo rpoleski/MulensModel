@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 """
 Example usage of MulensModel to fit a point lens light curve to the
 data file phot_ob08092_O4.dat. It uses Scipy Nelder-Mead minimization method.

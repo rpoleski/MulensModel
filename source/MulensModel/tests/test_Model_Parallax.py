@@ -87,7 +87,8 @@ class _ParallaxFile(object):
 
 def test_annual_parallax_calculation():
     """
-    This is a high-level unit test for parallax. The "true" values were calculated from the sfit routine assuming fs=1.0, fb=0.0.
+    This is a high-level unit test for parallax. The "true" values were 
+    calculated from the sfit routine assuming fs=1.0, fb=0.0.
     """
     t_0 = 2457479.5 #April 1 2016, a time when parallax is large
     times = np.array([t_0-1., t_0, t_0+1., t_0+1.])
