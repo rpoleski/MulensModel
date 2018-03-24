@@ -161,18 +161,20 @@ class BinaryLens(object):
             msg = ("Wrong number of solutions to the lens equation of binary" +
                    " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
                    "(m1, m2, s, source_x, source_y) are:\n" +
-                   "{:} {:} {:} {:} {:}\n\n")
+                   "{:} {:} {:} {:} {:}\n\n" +
+                   "Consider using 'point_source_point_lens' method for " +
+                   "epochs when the source is very far from the lens. Note " +
+                   "that it's different from 'point_source' method.")
             txt = msg.format(
                 len(out), repr(self.mass_1), repr(self.mass_2),
                 repr(self.separation), repr(source_x), repr(source_y))
+
             distance = sqrt(source_x**2 + source_y**2)
-            if distance < 15. or distance < 2. * self.separation:
-                txt += ("This is surprising error - please contact code " +
-                        "authors and provide the above error message")
-            else:
-                txt += ("Consider using 'point_source_point_lens' method for" +
-                        " epochs when the source is very far from the lens." +
-                        "Note that it's different from 'point_source' method.")
+            if (self.mass_2 > 1.e-6 * self.mass_1 and 
+                    (distance < 15. or distance < 2. * self.separation)):
+                txt += ("\n\nThis is surprising error - please contact code " +
+                        "authors and provide the above error message.")
+
             raise ValueError(txt)
 
         if return_distances:
