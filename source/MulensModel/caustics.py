@@ -46,6 +46,8 @@ class Caustics(object):
             ``**kwargs``
                 keywords accepted by *matplotlib.pyplot.scatter()*
         """
+        if "linewidths" not in kwargs and "lw" not in kwargs:
+            kwargs["lw"] = 0.
         if self._x is None:
             self._calculate(n_points=n_points)
         pl.scatter(self._x, self._y, **kwargs)

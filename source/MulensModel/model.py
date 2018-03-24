@@ -981,7 +981,7 @@ class Model(object):
                 for models with orbital motion. Defaults to *t_0_kep*, 
                 which defaults to *t_0*.
         """
-        self.update_caustic(epoch=epoch)
+        self.update_caustics(epoch=epoch)
 
         self.caustics.plot(n_points=n_points, **kwargs)
 
