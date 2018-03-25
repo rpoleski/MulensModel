@@ -1,5 +1,6 @@
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+import numpy as np
 
 
 class Coordinates(SkyCoord):
@@ -28,6 +29,7 @@ class Coordinates(SkyCoord):
         if not isinstance(args[0], SkyCoord) and 'unit' not in kwargs:
             kwargs['unit'] = (u.hourangle, u.deg)
         SkyCoord.__init__(self, *args, **kwargs)
+        self._calculate_projected()
 
     @property
     def galactic_l(self):
@@ -70,15 +72,32 @@ class Coordinates(SkyCoord):
         """
         from astropy.coordinates import GeocentricTrueEcliptic
         return self.transform_to(GeocentricTrueEcliptic).lat
+            
+    @property
+    def north_projected(self):
+        """
+        *np.array*
+
+        North projected on the plane of the sky.
+        """
+        return self._north_projected
 
     @property
-    def projected_N_E(self):
+    def east_projected(self):
         """
-        North and East projected on the plane of the sky.
+        *np.array*
+
+        East projected on the plane of the sky.
         """
-    #direction = np.array(self.coords.cartesian.xyz.value)
-#            north = np.array([0., 0., 1.])
-#                    east_projected = np.cross(north, direction)
-#                            east_projected /= np.linalg.norm(east_projected)
-#                                    north_projected = np.cross(direction, east_projected)
+        return self._east_projected
+
+    def _calculate_projected(self):
+        """
+        Calculate North and East directions projected on the plane of the sky.
+        """
+        direction = np.array(self.cartesian.xyz.value)
+        north = np.array([0., 0., 1.])
+        east_projected = np.cross(north, direction)
+        self._east_projected = east_projected / np.linalg.norm(east_projected)
+        self._north_projected = np.cross(direction, self._east_projected)
 
