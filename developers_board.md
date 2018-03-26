@@ -42,12 +42,15 @@
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
   * Caustics.\_calculate - optimize using vectors instead of a loop
   * Caustic calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
+  * Coordinates
+    * write tests, possibly remove test\_Coords.py
   * Event class:
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
     * Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter)
     * give access to all fluxes without changing data\_ref
     * reduce calls to Fit.fit\_fluxes()
+    * get\_chi2() for given f\_b and f\_s
   * Fit:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
   * Horizons:
@@ -69,6 +72,10 @@
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that print RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
+    * plot\_trajectory() should use actual trajectory, not alpha because it may be confusing when orbital motion and parallax are used
+    * plot\_trajectory() - mark epochs using colorscale? Maybe it should be passed by kwargs (if so, then add example)
+    * Should get\_satellite\_coords() use caching?
+    * we should have versions of all plot functions to use magnifications instead of magnitudes; also add access via Event
   * ModelParameters:
     * check that non-existing parameters are not specified e.g. t0
     * check that minimal parameters needed to specify a model are defined
@@ -76,13 +83,17 @@
   * MulensData:
     * add label which is passed to all the matplotlib functions and hence allows to show legend in easy way
     * Errorbar scaling, in particular the two parameter.
+    * add version of n\_epochs that uses only good epochs
+  * PointLens:
+    * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
+    * 1+2/u^4 approximation for very large u
   * SatelliteSkyCoord:
     * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
   * Utils:
     * in np.any() ifs give more information in warning e.g., "out of 1234 values provided, the fails are: 12, 345, 678 (0-based)"
   * Plotting
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
-    * [2] subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
+    * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
   * Miscellaneous:
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
@@ -94,6 +105,7 @@
     * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, there there is no point in remembering huge indexes (whole self.times)
     * profile the code (python -m cProfile script.py)
     * Leap seconds library - [barycorrpy](https://arxiv.org/abs/1801.01634)
+    * example on how to remove airmass trends
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * annual parallax calculation - verify with VBBL
