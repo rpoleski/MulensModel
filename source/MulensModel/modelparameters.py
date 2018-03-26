@@ -536,6 +536,10 @@ class ModelParameters(object):
 
     @s.setter
     def s(self, new_s):
+        if new_s < 0.:
+            raise ValueError('Binary lens separation cannot be negative:', 
+                new_s)
+
         self.parameters['s'] = new_s
 
     @property
