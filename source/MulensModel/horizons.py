@@ -21,6 +21,12 @@ class Horizons(object):
     Arguments :
         file_name: *str*
             output from JPL Horizons file name
+
+    For info on preparing JPL Horizons file for import, see instructions_.
+
+    .. _instructions:
+        https://github.com/rpoleski/MulensModel/blob/master/documents/Horizons_manual.md
+
     """
 
     def __init__(self, file_name):

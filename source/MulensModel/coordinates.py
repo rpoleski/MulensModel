@@ -15,6 +15,7 @@ class Coordinates(SkyCoord):
       Coordinates('18:00:00 -30:00:00')
       Coordinates('18h00m00s', '-30d00m00s')
       Coordinates(SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg)))
+      Coordinates(SkyCoord(270.000, -30.000, unit=u.deg))
 
     If the unit keyword is not specified, defaults to
     unit=(u.hourangle, u.deg) where u is defined by "import
