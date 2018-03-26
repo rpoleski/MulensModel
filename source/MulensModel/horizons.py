@@ -30,7 +30,24 @@ class Horizons(object):
 
         # Read in the Horizons file
         self.file_properties = {"file_name": file_name}
-        self._read_horizons_file()
+        self._read_input_file()
+
+    def _read_input_file(self):
+        """check the file type and then read it properly"""
+        file_type = 'np.array'
+        with open(self.file_properties['file_name'], 'r') as in_file:
+            for line in in_file.readlines():
+                if line[0:5] == '$$SOE':
+                    file_type = 'Horizons'
+                    break
+
+        if file_type == 'Horizons':
+            self._read_horizons_file()
+        else:
+            (time, x, y, z) = np.loadtxt(self.file_properties['file_name'],
+                usecols=(0, 1, 2, 3), unpack=True)
+            self._time = time
+            self._xyz = SkyCoord(x=x, y=y, z=z, representation='cartesian')
 
     def _get_start_end(self):
         """
@@ -39,20 +56,19 @@ class Horizons(object):
         and beginning of the footer). Also counts the lines in the
         file. (self.line_count)
         """
-        in_file = open(self.file_properties['file_name'], 'r')
-        self.file_properties['line_count'] = 0
-        for (i, line) in enumerate(in_file):
-            # Check for "start data" string
-            if line[0:5] == '$$SOE':
-                self.file_properties['start_ind'] = i
+        with open(self.file_properties['file_name'], 'r') as in_file:
+            self.file_properties['line_count'] = 0
+            for (i, line) in enumerate(in_file):
+                # Check for "start data" string
+                if line[0:5] == '$$SOE':
+                    self.file_properties['start_ind'] = i
 
-            # Check for "end data" string
-            if line[0:5] == '$$EOE':
-                self.file_properties['stop_ind'] = i
+                # Check for "end data" string
+                if line[0:5] == '$$EOE':
+                    self.file_properties['stop_ind'] = i
 
-            # Count total number of lines
-            self.file_properties['line_count'] += 1
-        in_file.close()
+                # Count total number of lines
+                self.file_properties['line_count'] += 1
 
     def _read_horizons_file(self):
         """

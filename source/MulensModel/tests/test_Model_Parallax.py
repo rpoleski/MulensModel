@@ -245,7 +245,7 @@ def test_horizons_3d():
     (times, vec_x, vec_y, vec_z) = np.loadtxt(file_out, unpack=True)
     output = satellite.get_satellite_coords(times).cartesian
 
-    np.testing.assert_almost_equal(vec_x, output.x)
-    np.testing.assert_almost_equal(vec_y, output.y)
-    np.testing.assert_almost_equal(vec_z, output.z)
+    np.testing.assert_almost_equal(vec_x, output.x, decimal=4)
+    np.testing.assert_almost_equal(vec_y, output.y, decimal=4)
+    np.testing.assert_almost_equal(vec_z, output.z, decimal=4)
 
