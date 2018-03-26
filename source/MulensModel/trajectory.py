@@ -36,7 +36,7 @@ class Trajectory(object):
             :py:class:`~MulensModel.model.Model` which defaults to
             *True*)
 
-        coords: :py:class:`~MulensModel.coordinates.Coordinates`, optional
+        coords: :py:class:`~MulensModel.coordinates.Coordinates`, *Astropy.coordinates.SkyCoord*, or *str*, optional
             sky coordinates of the event; required for parallax calculations
 
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
