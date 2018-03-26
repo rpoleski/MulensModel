@@ -72,7 +72,7 @@ class Horizons(object):
 
     def _read_horizons_file(self):
         """
-        reads standard output from JPL Horizons into self.data_lists
+        reads standard output from JPL Horizons
         """
         # Read in the file
         self._get_start_end()
@@ -89,7 +89,14 @@ class Horizons(object):
         for (i, date) in enumerate(data['date']):
             data['date'][i] = Utils.date_change(date)
 
-        self.data_lists = data
+        #  Currently we assume HORIZONS works in UTC.
+        dates = [text.decode('UTF-8') for text in data['date']]
+        self._time = Time(dates, format='iso', scale='utc').tdb.jd
+
+        ra_dec = [text.decode('UTF-8') for text in data['ra_dec']]
+        xyz = SkyCoord(
+            ra_dec, distance=data['distance'], unit=(u.hourangle, u.deg, u.au))
+        self._xyz = xyz.cartesian
 
     @property
     def time(self):
@@ -98,12 +105,6 @@ class Horizons(object):
 
         return times in TDB (reference frame depends on Horizons input)
         """
-        if self._time is None:
-            #  Currently we assume HORIZONS works in UTC.
-            date_list = [
-                text.decode('UTF-8') for text in self.data_lists['date']]
-            times = Time(date_list, format='iso', scale='utc')
-            self._time = times.tdb.jd
         return self._time
 
     @property
@@ -113,12 +114,6 @@ class Horizons(object):
 
         return X,Y,Z positions based on RA, DEC and distance
         """
-        if self._xyz is None:
-            ra_dec = [
-                text.decode('UTF-8') for text in self.data_lists['ra_dec']]
-            self._xyz = SkyCoord(
-                ra_dec, distance=self.data_lists['distance'],
-                unit=(u.hourangle, u.deg, u.au)).cartesian
         return self._xyz
 
 """
