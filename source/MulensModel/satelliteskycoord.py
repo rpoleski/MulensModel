@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import interp1d
 import warnings
 from astropy.coordinates import SkyCoord
 
@@ -40,7 +41,7 @@ class SatelliteSkyCoord(object):
     def get_satellite_coords(self, times):
         """
         Calculate the coordinates of the satellite for given times
-        using interpolation.
+        using cubic interpolation.
 
         Parameters :
             times: *np.ndarray* or *list of floats*
@@ -53,19 +54,19 @@ class SatelliteSkyCoord(object):
         """
         if self._horizons is None:
             self._horizons = Horizons(self.ephemerides_file)
-        if (np.max(self._horizons.time) + 0.001 < np.max(times) or
-                np.min(self._horizons.time) - 0.001 > np.min(times)):
+
+        time = self._horizons.time
+        if (np.max(time) + 0.001 < np.max(times) or 
+                np.min(time) - 0.001 > np.min(times)):
             warnings.warn("Satellite ephemeris doesn't cover requested epochs")
 
-        x = np.interp(
-                 times, self._horizons.time, self._horizons.xyz.x)
-        y = np.interp(
-                 times, self._horizons.time, self._horizons.xyz.y)
-        z = np.interp(
-                 times, self._horizons.time, self._horizons.xyz.z)
+        x = interp1d(time, self._horizons.xyz.x, kind='cubic')(times)
+        y = interp1d(time, self._horizons.xyz.y, kind='cubic')(times)
+        z = interp1d(time, self._horizons.xyz.z, kind='cubic')(times)
 
         self._satellite_skycoord = SkyCoord(
                   x=x, y=y, z=z, representation='cartesian')
         self._satellite_skycoord.representation = 'spherical'
 
         return self._satellite_skycoord
+
