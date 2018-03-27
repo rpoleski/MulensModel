@@ -261,10 +261,10 @@ class ModelParameters(object):
 
         # Cannot define all 3 parameters for 2 observables
         if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
-            raise KeyError('Only 2 of (t_E, rho, t_star) may be defined.')
+            raise KeyError('Only 1 or 2 of (t_E, rho, t_star) may be defined.')
 
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
-            raise KeyError('Only 2 of (u_0, t_E, t_eff) may be defined.')
+            raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
         # Parallax is either pi_E or (pi_E_N, pi_E_E)
         if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
@@ -272,15 +272,45 @@ class ModelParameters(object):
                 'Parallax may be defined EITHER by pi_E OR by ' +
                 '(pi_E_N and pi_E_E).')
 
+        # If parallax is defined, then both components must be set:
+        if ('pi_E_N' in keys) != ('pi_E_E' in keys):
+            raise KeyError(
+                'You have to define either both or none of (pi_E_N, pi_E_E).')
+
+        # t_0_par makes sense only when parallax is defined.
+        if 't_0_par' in keys:
+            if 'pi_E' not in keys and 'pi_E_N' not in keys:
+                raise KeyError(
+                    't_0_par makes sense only when parallax is defined.')
+
+        # Parallax needs reference epoch:
+        if 'pi_E' in keys or 'pi_E_N' in keys:
+            if 't_0' not in keys and 't_0_par' not in keys:
+                raise KeyError(
+                    'Parallax is defined, hence either t_0 or t_0_par has ' +
+                    'to be set.')
+
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
             if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
                 raise KeyError(
-                    'Lens orbital motion requires both ds_dt and dalpha_dt.')
-            elif (('s' not in keys) or ('q' not in keys) or
+                    'Lens orbital motion requires both ds_dt and dalpha_dt.' +
+                    '\nNote that you can set either of them to 0.')
+        # If orbital motion is defined, then we need binary lens.
+            if (('s' not in keys) or ('q' not in keys) or
                   ('alpha' not in keys)):
                 raise KeyError(
                     'Lens orbital motion requires >2 bodies (s, q, alpha).')
+        # If orbital motion is defined, then reference epoch has to be set.
+            if 't_0' not in keys and 't_0_kep' not in keys:
+                raise KeyError('Orbital motion requires reference epoch, ' +
+                    'i.e., t_0 or t_0_kep')
+
+        # t_0_kep makes sense only when orbital motion is defined.
+        if 't_0_kep' in keys:
+            if 'ds_dt' not in keys or 'dalpha_dt' not in keys:
+                raise KeyError(
+                    't_0_kep makes sense only when orbital motion is defined.')
 
     def _check_valid_parameter_values(self, parameters):
         """
