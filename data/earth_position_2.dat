@@ -1,3 +1,7 @@
+#
+# This file gives X,Y,Z positions of Earth for some epochs. 
+# These data were calculated using Astropy.coordinates.get_body_barycentric()
+# 
 2458200.5 -0.994641456141 -0.0268621687852 -0.0117554436466
 2458201.5 -0.994153275494 -0.0426875528158 -0.0186160380898
 2458202.5 -0.993367590005 -0.0584967407581 -0.0254697433273
