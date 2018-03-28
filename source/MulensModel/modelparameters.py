@@ -312,6 +312,12 @@ class ModelParameters(object):
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
 
+        # Make sure user does not set the gamma parameters.
+        if 'gamma' in keys or 'gamma_perp' in keys or 'gamma_parallel' in keys:
+            raise KeyError('You cannot set gamma, gamma_perp, ' +
+                'or gamma_parallel. These are derived parameters. ' +
+                'You can set ds_dt and dalpha_dt instead.')
+
     def _check_valid_parameter_values(self, parameters):
         """
         Prevent user from setting negative (unphysical) values for
@@ -573,7 +579,7 @@ class ModelParameters(object):
         """
         *list of floats*
 
-        The microlens parallax vector. Must be set as a vector/list
+        The microlensing parallax vector. Must be set as a vector/list
         (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
         pi_E_mag
         """
@@ -608,7 +614,7 @@ class ModelParameters(object):
         """
         *float*
 
-        The North component of the microlens parallax vector.
+        The North component of the microlensing parallax vector.
         """
         if 'pi_E_N' in self.parameters.keys():
             return self.parameters['pi_E_N']
@@ -631,7 +637,7 @@ class ModelParameters(object):
         """
         *float*
 
-        The East component of the microlens parallax vector.
+        The East component of the microlensing parallax vector.
         """
         if 'pi_E_E' in self.parameters.keys():
             return self.parameters['pi_E_E']
@@ -687,37 +693,45 @@ class ModelParameters(object):
     @property
     def ds_dt(self):
         """
-        *float*
+        *astropy.Quantity*
 
-        Change rate of separation py:attr:`~s` in 1/year. Can be set as *float*
-        or *AstroPy.Quantity*.
+        Change rate of separation py:attr:`~s` in 1/year. Can be set as
+        *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
+        Regardless of input value, returns value in 1/year.
         """
         if not isinstance(self.parameters['ds_dt'], u.Quantity):
             self.parameters['ds_dt'] = self.parameters['ds_dt'] / u.yr
 
-        return self.parameters['ds_dt'].to(1 / u.yr).value
+        return self.parameters['ds_dt'].to(1 / u.yr)
 
     @ds_dt.setter
     def ds_dt(self, new_ds_dt):
-        self.parameters['ds_dt'] = new_ds_dt
+        if isinstance(new_ds_dt, u.Quantity):
+            self.parameters['ds_dt'] = new_ds_dt
+        else:
+            self.parameters['ds_dt'] = new_ds_dt / u.yr
 
     @property
     def dalpha_dt(self):
         """
-        *float*
+        *astropy.Quantity*
 
         Change rate of angle py:attr:`~alpha` in deg/year. Can be set as 
-        *float* or *AstroPy.Quantity*.
+        *AstroPy.Quantity* or as *float* (deg/year is assumed default unit).
+        Regardless of input value, returns value in deg/year.
         """
         if not isinstance(self.parameters['dalpha_dt'], u.Quantity):
             self.parameters['dalpha_dt'] = (self.parameters['dalpha_dt'] *
                                             u.deg / u.yr)
 
-        return self.parameters['dalpha_dt'].to(u.deg / u.yr).value
+        return self.parameters['dalpha_dt'].to(u.deg / u.yr)
 
     @dalpha_dt.setter
     def dalpha_dt(self, new_dalpha_dt):
-        self.parameters['dalpha_dt'] = new_dalpha_dt
+        if isinstance(new_dalpha_dt, u.Quantity):
+            self.parameters['dalpha_dt'] = new_dalpha_dt
+        else:
+            self.parameters['dalpha_dt'] = new_dalpha_dt * u.deg / u.yr
 
     @property
     def t_0_kep(self):
@@ -756,10 +770,9 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        s_of_t = (self.s +
-                    self.ds_dt * (epoch - self.t_0_kep) / u.yr.to(u.d))
-        
-        return s_of_t
+        s_of_t = (self.s + self.ds_dt * (epoch - self.t_0_kep) * u.d)
+
+        return s_of_t.value
 
     def get_alpha(self, epoch):
         """
@@ -771,8 +784,8 @@ class ModelParameters(object):
                 The time(s) at which to calculate py:attr:`~alpha`.
 
         Returns :
-            separation: *float* or *np.ndarray*
-                Value(s) of angle for given epochs.
+            separation: *astropy.Quantity*
+                Value(s) of angle for given epochs in degrees
 
         """
         if 'dalpha_dt' not in self.parameters.keys():
@@ -781,29 +794,51 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)
-                    * u.deg / u.yr.to(u.d))
-
-        return alpha_of_t
+        alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)*u.d)
+        
+        return alpha_of_t.to(u.deg)
 
     @property
     def gamma_parallel(self):
-        pass
+        """
+        *astropy.Quantity*
+
+        Parallel component of instantaneous velocity of the secondary
+        relative to the primary in 1/year.
+        It is parallel to the primary-secondary axis.
+        Equals py:attr:`~ds_dt`/py:attr:`~s`. Cannot be set.
+        """
+        return self.ds_dt / self.s
 
     @property
     def gamma_perp(self):
-        pass
+        """
+        *astropy.Quantity*
+
+        Perpendicular component of instantaneous velocity of the secondary
+        relative to the primary. It is perpendicular to the primary-secondary
+        axis. It has sign opposite to py:attr:`~dalpha_dt`
+        and is in rad/yr, not deg/yr. Cannot be set.
+        """
+        return -self.dalpha_dt.to(u.rad/u.yr)
 
     @property
     def gamma(self):
-        pass
+        """
+        *astropy.Quantity*
+
+        Instantaneous velocity of the secondary relative to the primary in
+        1/year. Cannot be set.
+        """
+        gamma_perp = (self.gamma_perp / u.rad).to(1/u.yr)
+        return (self.gamma_parallel**2 + gamma_perp**2)**0.5
 
     def is_static(self):
         """
         Checks if model is static, i.e., orbital motion parameters are not set.
 
         Returns :
-            is_statis: *boolean*
+            is_static: *boolean*
                 *True* if *dalpha_dt* or *ds_dt* are set.
         
         """

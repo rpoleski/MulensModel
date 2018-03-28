@@ -155,7 +155,7 @@ def test_t_0_kep():
     np.testing.assert_almost_equal(motion_2.get_s(epoch_1), 1.2345)
     np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
    
-def test_orbtial_motion_gammas():
+def test_orbital_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
     dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00, 
         's': 1.5, 'ds_dt': 0.5, 'q': 0.987, 
