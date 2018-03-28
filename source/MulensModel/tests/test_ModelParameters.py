@@ -93,7 +93,7 @@ def test_orbital_motion_1():
     assert static.get_s(epoch_1) == static.get_s(epoch_3)
     assert static.get_s(epoch_1) == dict_static['s']
     assert static.get_alpha(epoch_1) == static.get_alpha(epoch_3)
-    assert static.get_alpha(epoch_1) == dict_static['alpha']
+    assert static.get_alpha(epoch_1) == dict_static['alpha'] * u.deg
 
     # Test get_s() and get_alpha() for orbital motion case.
     np.testing.assert_almost_equal(motion.get_alpha(epoch_1).value, 29.5)
@@ -102,8 +102,28 @@ def test_orbital_motion_1():
     np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
     np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
     np.testing.assert_almost_equal(motion.get_s(epoch_3), 1.2395)
- 
-    assert motion.alpha == 30.
+
+    # Test arguments as list or array.
+    np.testing.assert_almost_equal(
+        motion.get_alpha([epoch_1, epoch_2, epoch_3]).value,
+        [29.5, 30., 30.5])
+    np.testing.assert_almost_equal(
+        motion.get_alpha(np.array([epoch_1, epoch_2, epoch_3])).value,
+        [29.5, 30., 30.5])
+    np.testing.assert_almost_equal(
+        motion.get_s([epoch_1, epoch_2, epoch_3]), 
+        [1.2295, 1.2345, 1.2395])
+    np.testing.assert_almost_equal(
+        motion.get_s(np.array([epoch_1, epoch_2, epoch_3])),
+        [1.2295, 1.2345, 1.2395])
+
+    # Test get_alpha() units.
+    assert static.get_alpha(epoch_1).unit == u.deg
+    assert static.get_alpha(epoch_2).unit == u.deg
+    assert motion.get_alpha(epoch_1).unit == u.deg
+    assert motion.get_alpha(epoch_2).unit == u.deg
+
+    assert motion.alpha == 30. * u.deg
     assert motion.s == 1.2345
 
 def test_t_0_kep():
@@ -142,7 +162,13 @@ def test_orbtial_motion_gammas():
         'alpha': 12.345, 'dalpha_dt': 50.}
     params = ModelParameters(dict_params)
 
-    np.testing.assert_almost_equal(params.gamma_parallel, 0.3333333 / u.year)
-    np.testing.assert_almost_equal(params.gamma_perp, -0.87266 * u.rad / u.year)
-    np.testing.assert_almost_equal(params.gamma, 0.9346 / u.year)
+    # Test values.
+    np.testing.assert_almost_equal(params.gamma_parallel.value, 0.3333333)
+    np.testing.assert_almost_equal(params.gamma_perp.value, -0.8726646)
+    np.testing.assert_almost_equal(params.gamma.value, 0.9341598)
+
+    # Test units.
+    assert params.gamma_parallel.unit == 1. / u.year
+    assert params.gamma_perp.unit == u.rad / u.year
+    assert params.gamma.unit == 1. / u.year
 
