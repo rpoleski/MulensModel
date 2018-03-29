@@ -32,6 +32,21 @@ class Model(object):
         ra, dec: *str*, optional
             Sky Coordinates of the event.
 
+        ephemerides_file: *str*, optional
+            Specify name of the file with satellite ephemerides. See
+            :py:class:`~MulensModel.mulensdata.MulensData` for more details.
+
+    Attributes :
+        ephemerides_file: *str*
+            Name of file with satellite ephemerides.
+
+        caustics: :py:class:`~MulensModel.caustics.Caustics`
+            Caustics for given model
+
+        data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`
+            Reference dataset. If *int* then gives index of reference dataset
+            in py:attr:`~datasets`.
+
     Default values for parallax are all True. Use :py:func:`parallax()`
     to turn different parallax effects ON/OFF. If using satellite
     parallax, you may also specify an `ephemerides_file` (see
@@ -39,7 +54,7 @@ class Model(object):
 
     Caveat:
     satellite parallax works for datasets, but not for
-    model. i.e. The satellite parallax will be calculated correctly
+    model, i.e., the satellite parallax will be calculated correctly
     for the model evaluated at the data points, but satellite parallax
     is not implemented for the model alone.
 
@@ -122,6 +137,12 @@ class Model(object):
         number of objects in the lens system
         """
         return self._parameters.n_lenses
+
+    def is_static(self):
+        """
+        see :py:func:`MulensModel.modelparameters.ModelParameters.is_static()`
+        """
+        return self._parameters.is_static()
 
     def get_satellite_coords(self, times):
         """
@@ -914,7 +935,10 @@ class Model(object):
         if arrow:
             index = int(len(times)/2)
             if 'alpha' in self.parameters.as_dict().keys():
-                alpha = self.parameters.alpha
+                if self.is_static():
+                    alpha = self.parameters.alpha
+                else:
+                    alpha = self.parameters.get_alpha(times[index])
             else:
                 alpha = -90.
 
@@ -925,14 +949,39 @@ class Model(object):
         if caustics:
             self.plot_caustics(marker='.', color='red')
 
-    def plot_caustics(self, n_points=5000, **kwargs):
+    def update_caustics(self, epoch=None):
+        """
+        Updates :py:attr:`~caustics` property for given epoch.
+
+        Parameters :
+            epoch: *float*
+                For orbital motion models, epoch for which separation *s*
+                is calculated to calculate :py:attr:`~caustics`. Defaults
+                to *t_0_kep*, which defaults to *t_0*.
+        """
+        if epoch is None:
+            s = self.parameters.s
+        else:
+            s = self.parameters.get_s(epoch)
+
+        if self.caustics is not None:
+            if s == self.caustics.s and self.parameters.q == self.caustics.q:
+                return
+
+        self.caustics = Caustics(q=self.parameters.q, s=s)
+    
+    def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
         Plot the caustic structure. See
-        :py:func:`MulensModel.caustics.Caustics.plot()`
-
+        :py:func:`MulensModel.caustics.Caustics.plot()`. 
+        
+        Additional parameters :
+            epoch: *float*, optional
+                Epoch for which separation *s* will be used. Important 
+                for models with orbital motion. Defaults to *t_0_kep*, 
+                which defaults to *t_0*.
         """
-        if self.caustics is None:
-            self.caustics = Caustics(q=self.parameters.q, s=self.parameters.s)
+        self.update_caustics(epoch=epoch)
 
         self.caustics.plot(n_points=n_points, **kwargs)
 

@@ -20,7 +20,7 @@ _valid_parameters = {
         'may also be specified for parallax models. Defaults to t_0.'],
     'lens orbital motion': ['dalpha_dt, ds_dt', '(for orbital motion)'],
     'lens orbital motion opt': [
-        't_binary',
+        't_0_kep',
         'may also be specified for orbital motion models. Defaults to t_0.']}
 
 
@@ -261,10 +261,10 @@ class ModelParameters(object):
 
         # Cannot define all 3 parameters for 2 observables
         if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
-            raise KeyError('Only 2 of (t_E, rho, t_star) may be defined.')
+            raise KeyError('Only 1 or 2 of (t_E, rho, t_star) may be defined.')
 
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
-            raise KeyError('Only 2 of (u_0, t_E, t_eff) may be defined.')
+            raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
         # Parallax is either pi_E or (pi_E_N, pi_E_E)
         if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
@@ -272,15 +272,51 @@ class ModelParameters(object):
                 'Parallax may be defined EITHER by pi_E OR by ' +
                 '(pi_E_N and pi_E_E).')
 
+        # If parallax is defined, then both components must be set:
+        if ('pi_E_N' in keys) != ('pi_E_E' in keys):
+            raise KeyError(
+                'You have to define either both or none of (pi_E_N, pi_E_E).')
+
+        # t_0_par makes sense only when parallax is defined.
+        if 't_0_par' in keys:
+            if 'pi_E' not in keys and 'pi_E_N' not in keys:
+                raise KeyError(
+                    't_0_par makes sense only when parallax is defined.')
+
+        # Parallax needs reference epoch:
+        if 'pi_E' in keys or 'pi_E_N' in keys:
+            if 't_0' not in keys and 't_0_par' not in keys:
+                raise KeyError(
+                    'Parallax is defined, hence either t_0 or t_0_par has ' +
+                    'to be set.')
+
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
             if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
                 raise KeyError(
-                    'Lens orbital motion requires both ds_dt and dalpha_dt.')
-            elif (('s' not in keys) or ('q' not in keys) or
+                    'Lens orbital motion requires both ds_dt and dalpha_dt.' +
+                    '\nNote that you can set either of them to 0.')
+        # If orbital motion is defined, then we need binary lens.
+            if (('s' not in keys) or ('q' not in keys) or
                   ('alpha' not in keys)):
                 raise KeyError(
                     'Lens orbital motion requires >2 bodies (s, q, alpha).')
+        # If orbital motion is defined, then reference epoch has to be set.
+            if 't_0' not in keys and 't_0_kep' not in keys:
+                raise KeyError('Orbital motion requires reference epoch, ' +
+                    'i.e., t_0 or t_0_kep')
+
+        # t_0_kep makes sense only when orbital motion is defined.
+        if 't_0_kep' in keys:
+            if 'ds_dt' not in keys or 'dalpha_dt' not in keys:
+                raise KeyError(
+                    't_0_kep makes sense only when orbital motion is defined.')
+
+        # Make sure user does not set the gamma parameters.
+        if 'gamma' in keys or 'gamma_perp' in keys or 'gamma_parallel' in keys:
+            raise KeyError('You cannot set gamma, gamma_perp, ' +
+                'or gamma_parallel. These are derived parameters. ' +
+                'You can set ds_dt and dalpha_dt instead.')
 
     def _check_valid_parameter_values(self, parameters):
         """
@@ -346,7 +382,7 @@ class ModelParameters(object):
         """
         *float*
 
-        t_star = rho * tE = source crossing time
+        t_star = rho * tE = source radius crossing time
 
         "day" is the default unit. Regardless of input value, returns
         value with units of u.day. May be set as a *float* --> assumes
@@ -547,7 +583,7 @@ class ModelParameters(object):
         """
         *list of floats*
 
-        The microlens parallax vector. Must be set as a vector/list
+        The microlensing parallax vector. Must be set as a vector/list
         (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
         pi_E_mag
         """
@@ -582,7 +618,7 @@ class ModelParameters(object):
         """
         *float*
 
-        The North component of the microlens parallax vector.
+        The North component of the microlensing parallax vector.
         """
         if 'pi_E_N' in self.parameters.keys():
             return self.parameters['pi_E_N']
@@ -605,7 +641,7 @@ class ModelParameters(object):
         """
         *float*
 
-        The East component of the microlens parallax vector.
+        The East component of the microlensing parallax vector.
         """
         if 'pi_E_E' in self.parameters.keys():
             return self.parameters['pi_E_E']
@@ -660,36 +696,161 @@ class ModelParameters(object):
 
     @property
     def ds_dt(self):
-        """ change in s per year."""
-        return self.parameters['ds_dt'].to(1 / u.yr).value
+        """
+        *astropy.Quantity*
+
+        Change rate of separation py:attr:`~s` in 1/year. Can be set as
+        *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
+        Regardless of input value, returns value in 1/year.
+        """
+        if not isinstance(self.parameters['ds_dt'], u.Quantity):
+            self.parameters['ds_dt'] = self.parameters['ds_dt'] / u.yr
+
+        return self.parameters['ds_dt'].to(1 / u.yr)
 
     @ds_dt.setter
     def ds_dt(self, new_ds_dt):
-        self.parameters['ds_dt'] = new_ds_dt
+        if isinstance(new_ds_dt, u.Quantity):
+            self.parameters['ds_dt'] = new_ds_dt
+        else:
+            self.parameters['ds_dt'] = new_ds_dt / u.yr
 
     @property
     def dalpha_dt(self):
-        """ change in alpha vs. time in deg/yr"""
-        return self.parameters['dalpha_dt'].to(u.deg / u.yr).value
+        """
+        *astropy.Quantity*
+
+        Change rate of angle py:attr:`~alpha` in deg/year. Can be set as 
+        *AstroPy.Quantity* or as *float* (deg/year is assumed default unit).
+        Regardless of input value, returns value in deg/year.
+        """
+        if not isinstance(self.parameters['dalpha_dt'], u.Quantity):
+            self.parameters['dalpha_dt'] = (self.parameters['dalpha_dt'] *
+                                            u.deg / u.yr)
+
+        return self.parameters['dalpha_dt'].to(u.deg / u.yr)
 
     @dalpha_dt.setter
     def dalpha_dt(self, new_dalpha_dt):
-        self.parameters['dalpha_dt'] = new_dalpha_dt
+        if isinstance(new_dalpha_dt, u.Quantity):
+            self.parameters['dalpha_dt'] = new_dalpha_dt
+        else:
+            self.parameters['dalpha_dt'] = new_dalpha_dt * u.deg / u.yr
 
     @property
-    def t_binary(self):
+    def t_0_kep(self):
         """
+        *float*
+
         The reference time for the calculation of parallax. If not set
-        explicitly, set t_binary = t_0.
+        explicitly, assumes t_0_kep = t_0.
         """
-        if 't_binary' not in self.parameters.keys():
+        if 't_0_kep' not in self.parameters.keys():
             return self.parameters['t_0']
         else:
-            return self.parameters['t_binary']
+            return self.parameters['t_0_kep']
 
-    @t_binary.setter
-    def t_binary(self, new_t_binary):
-        self.parameters['t_binary'] = new_t_binary
+    @t_0_kep.setter
+    def t_0_kep(self, new):
+        self.parameters['t_0_kep'] = new
+
+    def get_s(self, epoch):
+        """
+        Returns the value of separation py:attr:`~s` at a given epoch or
+        epochs (if orbital motion parameters are set).
+
+        Arguments :
+            epoch: *float*, *list*, *np.ndarray*
+                The time(s) at which to calculate py:attr:`~s`.
+
+        Returns :
+            separation: *float* or *np.ndarray*
+                Value(s) of separation for given epochs.
+
+        """
+        if 'ds_dt' not in self.parameters.keys():
+            return self.s
+
+        if isinstance(epoch, list):
+            epoch = np.array(epoch)
+
+        s_of_t = (self.s + self.ds_dt * (epoch - self.t_0_kep) * u.d)
+
+        return s_of_t.value
+
+    def get_alpha(self, epoch):
+        """
+        Returns the value of angle py:attr:`~alpha` at a given epoch or
+        epochs (if orbital motion parameters are set).
+
+        Arguments :
+            epoch: *float*, *list*, *np.ndarray*
+                The time(s) at which to calculate py:attr:`~alpha`.
+
+        Returns :
+            separation: *astropy.Quantity*
+                Value(s) of angle for given epochs in degrees
+
+        """
+        if 'dalpha_dt' not in self.parameters.keys():
+            return self.alpha
+
+        if isinstance(epoch, list):
+            epoch = np.array(epoch)
+
+        alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)*u.d)
+        
+        return alpha_of_t.to(u.deg)
+
+    @property
+    def gamma_parallel(self):
+        """
+        *astropy.Quantity*
+
+        Parallel component of instantaneous velocity of the secondary
+        relative to the primary in 1/year.
+        It is parallel to the primary-secondary axis.
+        Equals py:attr:`~ds_dt`/py:attr:`~s`. Cannot be set.
+        """
+        return self.ds_dt / self.s
+
+    @property
+    def gamma_perp(self):
+        """
+        *astropy.Quantity*
+
+        Perpendicular component of instantaneous velocity of the secondary
+        relative to the primary. It is perpendicular to the primary-secondary
+        axis. It has sign opposite to py:attr:`~dalpha_dt`
+        and is in rad/yr, not deg/yr. Cannot be set.
+        """
+        return -self.dalpha_dt.to(u.rad/u.yr)
+
+    @property
+    def gamma(self):
+        """
+        *astropy.Quantity*
+
+        Instantaneous velocity of the secondary relative to the primary in
+        1/year. Cannot be set.
+        """
+        gamma_perp = (self.gamma_perp / u.rad).to(1/u.yr)
+        return (self.gamma_parallel**2 + gamma_perp**2)**0.5
+
+    def is_static(self):
+        """
+        Checks if model is static, i.e., orbital motion parameters are not set.
+
+        Returns :
+            is_static: *boolean*
+                *True* if *dalpha_dt* or *ds_dt* are set.
+        
+        """
+        if ('dalpha_dt' in self.parameters.keys() or
+                'ds_dt' in self.parameters.keys()):
+            return False
+        else:
+            return True
 
     @property
     def n_lenses(self):

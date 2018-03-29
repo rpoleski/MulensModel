@@ -2,9 +2,7 @@ import numpy as np
 import unittest
 from astropy import units as u
 
-from MulensModel.model import Model
-from MulensModel.modelparameters import ModelParameters
-from MulensModel.mulensdata import MulensData
+from MulensModel import Model, ModelParameters, MulensData, Caustics
 
 
 def test_n_lenses():
@@ -144,7 +142,7 @@ def test_BLPS_02():
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
             'q': q, 'rho': rho})
     model = Model(parameters=params)
-    
+
     t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
         2450000.)
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
@@ -166,14 +164,15 @@ def test_BLPS_02():
     np.testing.assert_almost_equal(result[5], 1.6366862)
 
 def test_BLPS_02_AC():
-    """simple binary lens with extended source and different methods to evaluate magnification
+    """
+    simple binary lens with extended source and different methods to evaluate magnification
     - version with adaptivecontouring
     """
     params = ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
             'q': q, 'rho': rho})
     model = Model(parameters=params)
-    
+
     t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
         2450000.)
     ac_name = 'Adaptive_Contouring'
@@ -205,16 +204,16 @@ def test_methods_parameters():
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
             'q': q, 'rho': rho})
     model = Model(parameters=params)
-    
+
     t = np.array([2456117.])
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
         'VBBL', 2456117.5]
     model.set_magnification_methods(methods)
-    
+
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     result_1 = model.data_magnification[0]
-    
+
     vbbl_options = {'accuracy': 0.1}
     methods_parameters = {'VBBL': vbbl_options}
     model.set_magnification_methods_parameters(methods_parameters)
@@ -229,36 +228,45 @@ def test_methods_parameters():
     assert result_1[0] != result_3[0]
     assert result_2[0] != result_3[0]
 
-def test_orbital_motion():
-    """test orbital motion parameters"""
-    params = {'t_0': 2456789.01234, 'u_0': 0.01, 't_E': 25., 'alpha': 30., 
-        's': 1.2345, 'q': 0.555}
-    model_static = Model(params)
-    model_motion = Model({**params, 'dalpha_dt': 10., 
-        'ds_dt': 0.1})
+def test_caustic_for_orbtial_motion():
+    """
+    check if caustics calculated for different epochs in orbital motion model
+    are as expected
+    """
+    q = 0.1
+    s = 1.3
+    model = Model(parameters={'t_0': 100., 'u_0': 0.1, 't_E': 10., 'q': q,
+        's': s, 'ds_dt': 0.5, 'alpha': 0., 'dalpha_dt': 0.})
 
-    # Do the tests below need .parameters ?
-    assert model_static.is_static()
-    assert not model_motion.is_static()
+    model.update_caustics()
+    np.testing.assert_almost_equal(model.caustics.get_caustics(), 
+        Caustics(q=q, s=s).get_caustics())
 
-    epoch_1 = params['t_0'] - 18.2625
-    epoch_2 = params['t_0']
-    epoch_3 = params['t_0'] + 18.2625
+    model.update_caustics(100.+365.25/2)
+    np.testing.assert_almost_equal(model.caustics.get_caustics(), 
+        Caustics(q=q, s=1.55).get_caustics())
 
-    static = model_static.parameters
-    assert static.get_s(epoch_1) == static.get_s(epoch_2)
-    assert static.get_s(epoch_1) == static.get_s(epoch_3)
-    assert static.get_s(epoch_1) == params['s']
+def test_magnifications_for_orbtial_motion():
+    """
+    make sure that orbital motion parameters are properly passed to 
+    magnification methods calculations
+    """
+    dict_static = {'t_0': 100., 'u_0': 0.1, 't_E': 100., 'q': 0.99,
+        's': 1.1, 'alpha': 10.}
+    dict_motion = dict_static.copy()
+    dict_motion.update({'ds_dt': -2, 'dalpha_dt': -300.})
+    static = Model(dict_static)
+    motion = Model(dict_motion)
 
-    motion = model_motion.parameters
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 29.5)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 30.)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_3), 30.5)
+    t_1 = 100.
+    np.testing.assert_almost_equal(
+        static.magnification(t_1), 
+        motion.magnification(t_1))
 
-    np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
-    np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
-    np.testing.assert_almost_equal(motion.get_s(epoch_3), 1.2395)
-# We further need to test .gamma_parallel .gamma_perp .gamma,
-# and causitcs for epoch=XXX,
-# and some version of t_0_orb.
+    t_2 = 130.
+    static.parameters.s = 0.93572895
+    static.parameters.alpha = 345.359342916
+    np.testing.assert_almost_equal(
+        static.magnification(t_2),
+        motion.magnification(t_2))
 

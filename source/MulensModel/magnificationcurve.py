@@ -297,8 +297,10 @@ class MagnificationCurve(object):
         q = self.parameters.q
         m_1 = 1. / (1. + q)
         m_2 = q / (1. + q)
-        binary_lens = BinaryLens(
-            mass_1=m_1, mass_2=m_2, separation=self.parameters.s)
+        is_static = self.parameters.is_static()
+        if is_static:
+            binary_lens = BinaryLens(
+                mass_1=m_1, mass_2=m_2, separation=self.parameters.s)
         methods = self._methods_for_epochs()
 
         # Calculate the magnification
@@ -307,6 +309,10 @@ class MagnificationCurve(object):
             x = self.trajectory.x[index]
             y = self.trajectory.y[index]
             method = methods[index].lower()
+            if not is_static:
+                binary_lens = BinaryLens(
+                    mass_1=m_1, mass_2=m_2, 
+                    separation=self.parameters.get_s(self.times[index]))
 
             kwargs = {}
             if self._methods_parameters is not None:
