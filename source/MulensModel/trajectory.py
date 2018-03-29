@@ -221,7 +221,8 @@ class Trajectory(object):
         calculates differences of Earth and satellite positions
         projected on the plane of the sky at event position
         """
-        index = (hash(self.coords), hash(self.satellite_skycoord))
+        index = (hash(self.coords), hash(self.satellite_skycoord), 
+                tuple(self.times.tolist()))
         if index in self._get_delta_satellite_results.keys():
             return self._get_delta_satellite_results[index]
 
