@@ -54,12 +54,12 @@ We set the starting values of the parameters:
 .. code-block:: python
 
    params = dict()
-   params.t_0 = 2453628.3
-   params.t_0_par = 2453628.
-   params.u_0 = 0.37
-   params.t_E = 100.
-   params.pi_E_N = 0.
-   params.pi_E_E = 0.
+   params['t_0'] = 2453628.3
+   params['t_0_par'] = 2453628.
+   params['u_0'] = 0.37
+   params['t_E'] = 100.
+   params['pi_E_N'] = 0.
+   params['pi_E_E'] = 0.
    my_model = Model(params, coords=coords)
    my_event = Event(datasets=my_data, model=my_model)
 
