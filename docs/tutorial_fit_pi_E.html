@@ -62,7 +62,7 @@ the residuals around 3400 and 3800.</p>
 <span class="kn">import</span> <span class="nn">emcee</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">MulensModel</span>
-<span class="kn">from</span> <span class="nn">MulensModel</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">MulensData</span><span class="p">,</span> <span class="n">Coordinates</span>
+<span class="kn">from</span> <span class="nn">MulensModel</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">MulensData</span>
 </pre></div>
 </div>
 <p>We’re using EMCEE package for fitting. You can download it from
@@ -71,7 +71,7 @@ import the data and set the event coordinates:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
     <span class="s2">&quot;starBLG234.6.I.218982.dat&quot;</span><span class="p">)</span>
 <span class="n">my_data</span> <span class="o">=</span> <span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span> <span class="n">add_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="n">coords</span> <span class="o">=</span> <span class="n">Coordinates</span><span class="p">(</span><span class="s2">&quot;18:04:45.71 -26:59:15.2&quot;</span><span class="p">)</span>
+<span class="n">coords</span> <span class="o">=</span> <span class="s2">&quot;18:04:45.71 -26:59:15.2&quot;</span>
 </pre></div>
 </div>
 <p>Note that <em>add_2450000=True</em> is very important. The file has time vector
@@ -81,18 +81,19 @@ full HJD because this is used to calculate the position of Earth
 relative to Sun and we don’t want this to be off by around 6700 years.</p>
 <p>We set the starting values of the parameters:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-<span class="n">params</span><span class="o">.</span><span class="n">t_0</span> <span class="o">=</span> <span class="mf">2453628.3</span>
-<span class="n">params</span><span class="o">.</span><span class="n">t_0_par</span> <span class="o">=</span> <span class="mf">2453628.</span>
-<span class="n">params</span><span class="o">.</span><span class="n">u_0</span> <span class="o">=</span> <span class="mf">0.37</span>
-<span class="n">params</span><span class="o">.</span><span class="n">t_E</span> <span class="o">=</span> <span class="mf">100.</span>
-<span class="n">params</span><span class="o">.</span><span class="n">pi_E_N</span> <span class="o">=</span> <span class="mf">0.</span>
-<span class="n">params</span><span class="o">.</span><span class="n">pi_E_E</span> <span class="o">=</span> <span class="mf">0.</span>
-<span class="n">my_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;t_0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2453628.3</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;t_0_par&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2453628.</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;u_0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.37</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;t_E&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">100.</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;pi_E_N&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;pi_E_E&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="n">my_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
 <span class="n">my_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">my_data</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">my_model</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We set the parameter reference time (<em>t_0_par</em>) for rounded value of <em>t_0</em>.
-This is common approach.</p>
+This is common approach. If you don’t set <em>t_0_par</em>, then fitting will be
+slower, because Earth positions will be re-calculated for every model.</p>
 <p>Further we need to specifies which parameters we want to fit and also
 specify dispersions in starting points. We choose the latter to be some
 small values:</p>
