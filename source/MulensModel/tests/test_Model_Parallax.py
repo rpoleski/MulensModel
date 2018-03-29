@@ -79,7 +79,7 @@ class _ParallaxFile(object):
         return model
 
     def setup_trajectory(self):
-        """Return a trajectory using hte parameters of this file"""
+        """Return a trajectory using the parameters of this file"""
         trajectory = Trajectory(
             self.data['Time']+2450000., parameters=self.parameters,
             parallax={'earth_orbital':True}, coords=self.coords)
