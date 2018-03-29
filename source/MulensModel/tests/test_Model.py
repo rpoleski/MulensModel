@@ -228,7 +228,7 @@ def test_methods_parameters():
     assert result_1[0] != result_3[0]
     assert result_2[0] != result_3[0]
 
-def test_caustic_for_orbtial_motion():
+def test_caustic_for_orbital_motion():
     """
     check if caustics calculated for different epochs in orbital motion model
     are as expected
@@ -246,7 +246,7 @@ def test_caustic_for_orbtial_motion():
     np.testing.assert_almost_equal(model.caustics.get_caustics(), 
         Caustics(q=q, s=1.55).get_caustics())
 
-def test_magnifications_for_orbtial_motion():
+def test_magnifications_for_orbital_motion():
     """
     make sure that orbital motion parameters are properly passed to 
     magnification methods calculations
