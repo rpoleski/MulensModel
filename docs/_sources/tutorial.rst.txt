@@ -4,7 +4,11 @@ Very Basic Tutorial
 The main MulensModel features are in classes `Model`_, `MulensData`_,
 and `Event`_.
 
-This is a very simple tutorial showing how you might use those classes. It is also available (somewhat expanded) as a Jupyter `notebook`_.
+This is a very simple tutorial showing how you might use those classes. 
+It is also available (somewhat expanded) as a Jupyter `notebook`_. 
+Please note that MulensModel is written in Python3. If you're using Python2.X, 
+then start by adding ``from __future__ import print_function`` at the begin 
+of your codes and be advised that we don't gurantee that everything will work. 
 
 .. _Model: https://rpoleski.github.io/MulensModel/MulensModel.model.html
 .. _Event: https://rpoleski.github.io/MulensModel/MulensModel.event.html
@@ -24,6 +28,7 @@ The most basic thing to do is to define a microlensing model. For example, you c
 
 .. code-block:: python
 
+   import MulensModel
    my_pspl_model = MulensModel.Model({'t_0': 2452848.06, 
        'u_0': 0.133, 't_E': 61.5})
 
