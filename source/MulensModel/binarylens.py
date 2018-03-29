@@ -210,6 +210,36 @@ class BinaryLens(object):
         return self._point_source_WM95(
                 source_x=source_x, source_y=source_y)
 
+    def _import_adaptive_contouring(self):
+        """
+        import Adaptive_Contouring and 2 fuctions from it
+        """
+        if True:
+            PATH = os.path.join(
+                MulensModel.MODULE_PATH, 'source', 'AdaptiveContouring',
+                "AdaptiveContouring_wrapper.so")
+            try:
+                adaptive_contouring = ctypes.cdll.LoadLibrary(PATH)
+            except OSError as error:
+                msg = (
+                    "Something went wrong with AdaptiveContouring " +
+                    "wrapping ({:})\n\n" + repr(error))
+                raise OSError(msg.format(PATH))
+            self._adaptive_contouring_wrapped = True
+            adaptive_contouring.Adaptive_Contouring_Linear.argtypes = (
+                8 * [ctypes.c_double])
+            adaptive_contouring.Adaptive_Contouring_Linear.restype = (
+                ctypes.c_double)
+            self._adaptive_contouring_linear = (
+                adaptive_contouring.Adaptive_Contouring_Linear)
+
+            adaptive_contouring.Adaptive_Contouring_Point_Source.argtypes = (
+                4 * [ctypes.c_double])
+            adaptive_contouring.Adaptive_Contouring_Point_Source.restype = (
+                ctypes.c_double)
+            self._adaptive_contouring_ps = (
+                adaptive_contouring.Adaptive_Contouring_Point_Source)
+
     def point_source_magnification(self, source_x, source_y):
         """
         Calculate point source magnification for given position. The
@@ -229,6 +259,17 @@ class BinaryLens(object):
             magnification: *float*
                 Point source magnification.
         """
+        if not self._adaptive_contouring_wrapped:
+            self._import_adaptive_contouring()
+
+        s = float(self.separation)
+        q = float(self.mass_2 / self.mass_1)
+        x = float(-source_x)
+        y = float(-source_y)
+
+        return self._adaptive_contouring_ps(s, q, x, y)
+
+# The lines below are an old version.
         x_shift = self.separation * (0.5 +
                                      self.mass_2 / (self.mass_1 + self.mass_2))
         # We need to add this because WM95 use geometric center as an origin
@@ -408,23 +449,7 @@ class BinaryLens(object):
         """
 
         if not self._adaptive_contouring_wrapped:
-            PATH = os.path.join(
-                MulensModel.MODULE_PATH, 'source', 'AdaptiveContouring',
-                "AdaptiveContouring_wrapper.so")
-            try:
-                adaptive_contouring = ctypes.cdll.LoadLibrary(PATH)
-            except OSError as error:
-                msg = (
-                    "Something went wrong with AdaptiveContouring " +
-                    "wrapping ({:})\n\n" + repr(error))
-                raise OSError(msg.format(PATH))
-            self._adaptive_contouring_wrapped = True
-            adaptive_contouring.Adaptive_Contouring_Linear.argtypes = (
-                8 * [ctypes.c_double])
-            adaptive_contouring.Adaptive_Contouring_Linear.restype = (
-                ctypes.c_double)
-            self._adaptive_contouring_linear = (
-                adaptive_contouring.Adaptive_Contouring_Linear)
+            self._import_adaptive_contouring()
 
         if gamma is not None and u_limb_darkening is not None:
             raise ValueError(
@@ -542,3 +567,4 @@ class BinaryLens(object):
         #      }
         #  }
         #  delete Images;
+
