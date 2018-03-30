@@ -103,7 +103,7 @@ and the lens center of mass.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.t_star">
 <code class="descname">t_star</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>t_star = rho * tE = source crossing time</p>
+<p>t_star = rho * tE = source radius crossing time</p>
 <p>“day” is the default unit. Regardless of input value, returns
 value with units of u.day. May be set as a <em>float</em> –&gt; assumes
 units of degrees.</p>
@@ -173,7 +173,7 @@ Regardless of input value, returns value in degrees.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.pi_E">
 <code class="descname">pi_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list of floats</em></p>
-<p>The microlens parallax vector. Must be set as a vector/list
+<p>The microlensing parallax vector. Must be set as a vector/list
 (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
 pi_E_mag</p>
 </dd></dl>
@@ -182,14 +182,14 @@ pi_E_mag</p>
 <dt id="MulensModel.modelparameters.ModelParameters.pi_E_N">
 <code class="descname">pi_E_N</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_N" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>The North component of the microlens parallax vector.</p>
+<p>The North component of the microlensing parallax vector.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.pi_E_E">
 <code class="descname">pi_E_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_E" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>The East component of the microlens parallax vector.</p>
+<p>The East component of the microlensing parallax vector.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -210,20 +210,111 @@ explicitly, set t_0_par = t_0.</p>
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.ds_dt">
 <code class="descname">ds_dt</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="Permalink to this definition">¶</a></dt>
-<dd><p>change in s per year.</p>
+<dd><p><em>astropy.Quantity</em></p>
+<p>Change rate of separation py:attr:<cite>~s</cite> in 1/year. Can be set as
+<em>AstroPy.Quantity</em> or as <em>float</em> (1/year is assumed default unit).
+Regardless of input value, returns value in 1/year.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.dalpha_dt">
 <code class="descname">dalpha_dt</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="Permalink to this definition">¶</a></dt>
-<dd><p>change in alpha vs. time in deg/yr</p>
+<dd><p><em>astropy.Quantity</em></p>
+<p>Change rate of angle py:attr:<cite>~alpha</cite> in deg/year. Can be set as 
+<em>AstroPy.Quantity</em> or as <em>float</em> (deg/year is assumed default unit).
+Regardless of input value, returns value in deg/year.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="MulensModel.modelparameters.ModelParameters.t_binary">
-<code class="descname">t_binary</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_binary" title="Permalink to this definition">¶</a></dt>
-<dd><p>The reference time for the calculation of parallax. If not set
-explicitly, set t_binary = t_0.</p>
+<dt id="MulensModel.modelparameters.ModelParameters.t_0_kep">
+<code class="descname">t_0_kep</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_kep" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The reference time for the calculation of parallax. If not set
+explicitly, assumes t_0_kep = t_0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.modelparameters.ModelParameters.get_s">
+<code class="descname">get_s</code><span class="sig-paren">(</span><em>epoch</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of separation py:attr:<cite>~s</cite> at a given epoch or
+epochs (if orbital motion parameters are set).</p>
+<dl class="docutils">
+<dt>Arguments :</dt>
+<dd><dl class="first last docutils">
+<dt>epoch: <em>float</em>, <em>list</em>, <em>np.ndarray</em></dt>
+<dd>The time(s) at which to calculate py:attr:<cite>~s</cite>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>separation: <em>float</em> or <em>np.ndarray</em></dt>
+<dd>Value(s) of separation for given epochs.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.modelparameters.ModelParameters.get_alpha">
+<code class="descname">get_alpha</code><span class="sig-paren">(</span><em>epoch</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of angle py:attr:<cite>~alpha</cite> at a given epoch or
+epochs (if orbital motion parameters are set).</p>
+<dl class="docutils">
+<dt>Arguments :</dt>
+<dd><dl class="first last docutils">
+<dt>epoch: <em>float</em>, <em>list</em>, <em>np.ndarray</em></dt>
+<dd>The time(s) at which to calculate py:attr:<cite>~alpha</cite>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>separation: <em>astropy.Quantity</em></dt>
+<dd>Value(s) of angle for given epochs in degrees</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.gamma_parallel">
+<code class="descname">gamma_parallel</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em></p>
+<p>Parallel component of instantaneous velocity of the secondary
+relative to the primary in 1/year.
+It is parallel to the primary-secondary axis.
+Equals py:attr:<cite>~ds_dt</cite>/py:attr:<cite>~s</cite>. Cannot be set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.gamma_perp">
+<code class="descname">gamma_perp</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_perp" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em></p>
+<p>Perpendicular component of instantaneous velocity of the secondary
+relative to the primary. It is perpendicular to the primary-secondary
+axis. It has sign opposite to py:attr:<cite>~dalpha_dt</cite>
+and is in rad/yr, not deg/yr. Cannot be set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.gamma">
+<code class="descname">gamma</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.Quantity</em></p>
+<p>Instantaneous velocity of the secondary relative to the primary in
+1/year. Cannot be set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.modelparameters.ModelParameters.is_static">
+<code class="descname">is_static</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.is_static" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if model is static, i.e., orbital motion parameters are not set.</p>
+<dl class="docutils">
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>is_static: <em>boolean</em></dt>
+<dd><em>True</em> if <em>dalpha_dt</em> or <em>ds_dt</em> are set.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">

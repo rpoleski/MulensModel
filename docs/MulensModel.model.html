@@ -58,6 +58,20 @@
 <dd>Sky Coordinates of the event.</dd>
 <dt>ra, dec: <em>str</em>, optional</dt>
 <dd>Sky Coordinates of the event.</dd>
+<dt>ephemerides_file: <em>str</em>, optional</dt>
+<dd>Specify name of the file with satellite ephemerides. See
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> for more details.</dd>
+</dl>
+</dd>
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>ephemerides_file: <em>str</em></dt>
+<dd>Name of file with satellite ephemerides.</dd>
+<dt>caustics: <a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics" title="MulensModel.caustics.Caustics"><code class="xref py py-class docutils literal"><span class="pre">Caustics</span></code></a></dt>
+<dd>Caustics for given model</dd>
+<dt>data_ref: <em>int</em> or <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
+<dd>Reference dataset. If <em>int</em> then gives index of reference dataset
+in py:attr:<cite>~datasets</cite>.</dd>
 </dl>
 </dd>
 </dl>
@@ -67,7 +81,7 @@ parallax, you may also specify an <cite>ephemerides_file</cite> (see
 <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a>).</p>
 <p>Caveat:
 satellite parallax works for datasets, but not for
-model. i.e. The satellite parallax will be calculated correctly
+model, i.e., the satellite parallax will be calculated correctly
 for the model evaluated at the data points, but satellite parallax
 is not implemented for the model alone.</p>
 <dl class="attribute">
@@ -82,6 +96,12 @@ is not implemented for the model alone.</p>
 <code class="descname">n_lenses</code><a class="headerlink" href="#MulensModel.model.Model.n_lenses" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>number of objects in the lens system</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.is_static">
+<code class="descname">is_static</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.is_static" title="Permalink to this definition">¶</a></dt>
+<dd><p>see <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.is_static" title="MulensModel.modelparameters.ModelParameters.is_static"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.modelparameters.ModelParameters.is_static()</span></code></a></p>
 </dd></dl>
 
 <dl class="method">
@@ -431,10 +451,36 @@ for a satellite. see <a class="reference internal" href="#MulensModel.model.Mode
 </dd></dl>
 
 <dl class="method">
+<dt id="MulensModel.model.Model.update_caustics">
+<code class="descname">update_caustics</code><span class="sig-paren">(</span><em>epoch=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.update_caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates <code class="xref py py-attr docutils literal"><span class="pre">caustics</span></code> property for given epoch.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>epoch: <em>float</em></dt>
+<dd>For orbital motion models, epoch for which separation <em>s</em>
+is calculated to calculate <code class="xref py py-attr docutils literal"><span class="pre">caustics</span></code>. Defaults
+to <em>t_0_kep</em>, which defaults to <em>t_0</em>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.model.Model.plot_caustics">
-<code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_caustics" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>epoch=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_caustics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the caustic structure. See
-<a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a></p>
+<a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a>.</p>
+<dl class="docutils">
+<dt>Additional parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>epoch: <em>float</em>, optional</dt>
+<dd>Epoch for which separation <em>s</em> will be used. Important 
+for models with orbital motion. Defaults to <em>t_0_kep</em>, 
+which defaults to <em>t_0</em>.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">

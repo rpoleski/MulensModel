@@ -51,6 +51,7 @@
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">)</span>
 <span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18h00m00s&#39;</span><span class="p">,</span> <span class="s1">&#39;-30d00m00s&#39;</span><span class="p">)</span>
 <span class="n">Coordinates</span><span class="p">(</span><span class="n">SkyCoord</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">hourangle</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)))</span>
+<span class="n">Coordinates</span><span class="p">(</span><span class="n">SkyCoord</span><span class="p">(</span><span class="mf">270.000</span><span class="p">,</span> <span class="o">-</span><span class="mf">30.000</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>If the unit keyword is not specified, defaults to
@@ -59,26 +60,44 @@ astropy.units as u”.</p>
 <dl class="attribute">
 <dt id="MulensModel.coordinates.Coordinates.galactic_l">
 <code class="descname">galactic_l</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.galactic_l" title="Permalink to this definition">¶</a></dt>
-<dd><p>Galactic longitude. Note that for connivance, the values l &gt;
+<dd><p><em>astropy.coordinates.angles.Longitude</em></p>
+<p>Galactic longitude. Note that for connivance, the values l &gt;
 180 degrees are represented as 360-l.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.coordinates.Coordinates.galactic_b">
 <code class="descname">galactic_b</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.galactic_b" title="Permalink to this definition">¶</a></dt>
-<dd><p>Galactic latitude calculated from (RA, Dec)</p>
+<dd><p><em>astropy.coordinates.angles.Latitude</em></p>
+<p>Galactic latitude calculated from (RA, Dec)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.coordinates.Coordinates.ecliptic_lon">
 <code class="descname">ecliptic_lon</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.ecliptic_lon" title="Permalink to this definition">¶</a></dt>
-<dd><p>ecliptic longitude calculated from (RA, Dec)</p>
+<dd><p><em>astropy.coordinates.angles.Longitude</em></p>
+<p>ecliptic longitude calculated from (RA, Dec)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.coordinates.Coordinates.ecliptic_lat">
 <code class="descname">ecliptic_lat</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.ecliptic_lat" title="Permalink to this definition">¶</a></dt>
-<dd><p>ecliptic latitude calculated from (RA, Dec)</p>
+<dd><p><em>astropy.coordinates.angles.Latitude</em></p>
+<p>ecliptic latitude calculated from (RA, Dec)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.coordinates.Coordinates.north_projected">
+<code class="descname">north_projected</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.north_projected" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>np.array</em></p>
+<p>North projected on the plane of the sky.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.coordinates.Coordinates.east_projected">
+<code class="descname">east_projected</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.east_projected" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>np.array</em></p>
+<p>East projected on the plane of the sky.</p>
 </dd></dl>
 
 </dd></dl>
