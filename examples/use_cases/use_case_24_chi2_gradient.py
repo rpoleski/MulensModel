@@ -1,7 +1,7 @@
 """
-Some scipy.optimize.minimize methods require a Jacobian to run. Here
-is an example of how one would implement such a minimization method
-using MulensModel.
+Some scipy.optimize.minimize methods require a Jacobian 
+(or gradient of chi^2) to run. Here is an example of how one would 
+implement such a minimization method using MulensModel.
 
 Similar to example_02_fitting.py except using the 'Newton-CG" method to
 minimize the function (and now has a "Minimizer" class).
@@ -16,7 +16,7 @@ import MulensModel
 from MulensModel import Event, Fit, Model, MulensData, Utils
 
 
-raise NotImplementedError('jacobian not implemented for Event')
+raise NotImplementedError('chi2_gradient not implemented for Event')
 
 class Minimizer(object):
     """
@@ -38,10 +38,12 @@ class Minimizer(object):
         self.set_parameters(theta)
         return self.event.get_chi2()
     
-    def jacobian(self, theta):
-        """for a given set of parameters (theta), return the jacobian"""
+    def chi2_gradient(self, theta):
+        """
+        for a given set of parameters (theta), return the gradient of chi^2
+        """
         self.set_parameters(theta) #might be redundant, but probably safer
-        return self.event.jacobian(self.parameters_to_fit)
+        return self.event.chi2_gradient(self.parameters_to_fit)
 
 #Read in the data file
 SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, "data", 
@@ -66,7 +68,7 @@ minimizer = Minimizer(ev, parameters_to_fit)
 initial_guess = [t_0, u_0, t_E]
 result = op.minimize(
     minimizer.chi2_fun, x0=initial_guess, method='Newton-CG', 
-    jac=minimizer.jacobian)
+    jac=minimizer.chi2_gradient)
 
 print(result.x)
 (fit_t_0, fit_u_0, fit_t_E) = result.x
