@@ -21,6 +21,12 @@ class Horizons(object):
     Arguments :
         file_name: *str*
             output from JPL Horizons file name
+
+    For info on preparing JPL Horizons file for import, see instructions_.
+
+    .. _instructions:
+        https://github.com/rpoleski/MulensModel/blob/master/documents/Horizons_manual.md
+
     """
 
     def __init__(self, file_name):
@@ -30,7 +36,24 @@ class Horizons(object):
 
         # Read in the Horizons file
         self.file_properties = {"file_name": file_name}
-        self._read_horizons_file()
+        self._read_input_file()
+
+    def _read_input_file(self):
+        """check the file type and then read it properly"""
+        file_type = 'np.array'
+        with open(self.file_properties['file_name'], 'r') as in_file:
+            for line in in_file.readlines():
+                if line[0:5] == '$$SOE':
+                    file_type = 'Horizons'
+                    break
+
+        if file_type == 'Horizons':
+            self._read_horizons_file()
+        else:
+            (time, x, y, z) = np.loadtxt(self.file_properties['file_name'],
+                usecols=(0, 1, 2, 3), unpack=True)
+            self._time = time
+            self._xyz = SkyCoord(x=x, y=y, z=z, representation='cartesian')
 
     def _get_start_end(self):
         """
@@ -39,24 +62,23 @@ class Horizons(object):
         and beginning of the footer). Also counts the lines in the
         file. (self.line_count)
         """
-        in_file = open(self.file_properties['file_name'], 'r')
-        self.file_properties['line_count'] = 0
-        for (i, line) in enumerate(in_file):
-            # Check for "start data" string
-            if line[0:5] == '$$SOE':
-                self.file_properties['start_ind'] = i
+        with open(self.file_properties['file_name'], 'r') as in_file:
+            self.file_properties['line_count'] = 0
+            for (i, line) in enumerate(in_file):
+                # Check for "start data" string
+                if line[0:5] == '$$SOE':
+                    self.file_properties['start_ind'] = i
 
-            # Check for "end data" string
-            if line[0:5] == '$$EOE':
-                self.file_properties['stop_ind'] = i
+                # Check for "end data" string
+                if line[0:5] == '$$EOE':
+                    self.file_properties['stop_ind'] = i
 
-            # Count total number of lines
-            self.file_properties['line_count'] += 1
-        in_file.close()
+                # Count total number of lines
+                self.file_properties['line_count'] += 1
 
     def _read_horizons_file(self):
         """
-        reads standard output from JPL Horizons into self.data_lists
+        reads standard output from JPL Horizons
         """
         # Read in the file
         self._get_start_end()
@@ -73,7 +95,14 @@ class Horizons(object):
         for (i, date) in enumerate(data['date']):
             data['date'][i] = Utils.date_change(date)
 
-        self.data_lists = data
+        #  Currently we assume HORIZONS works in UTC.
+        dates = [text.decode('UTF-8') for text in data['date']]
+        self._time = Time(dates, format='iso', scale='utc').tdb.jd
+
+        ra_dec = [text.decode('UTF-8') for text in data['ra_dec']]
+        xyz = SkyCoord(
+            ra_dec, distance=data['distance'], unit=(u.hourangle, u.deg, u.au))
+        self._xyz = xyz.cartesian
 
     @property
     def time(self):
@@ -82,12 +111,6 @@ class Horizons(object):
 
         return times in TDB (reference frame depends on Horizons input)
         """
-        if self._time is None:
-            #  Currently we assume HORIZONS works in UTC.
-            date_list = [
-                text.decode('UTF-8') for text in self.data_lists['date']]
-            times = Time(date_list, format='iso', scale='utc')
-            self._time = times.tdb.jd
         return self._time
 
     @property
@@ -97,12 +120,6 @@ class Horizons(object):
 
         return X,Y,Z positions based on RA, DEC and distance
         """
-        if self._xyz is None:
-            ra_dec = [
-                text.decode('UTF-8') for text in self.data_lists['ra_dec']]
-            self._xyz = SkyCoord(
-                ra_dec, distance=self.data_lists['distance'],
-                unit=(u.hourangle, u.deg, u.au)).cartesian
         return self._xyz
 
 """

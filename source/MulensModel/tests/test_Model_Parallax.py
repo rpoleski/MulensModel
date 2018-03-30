@@ -8,6 +8,8 @@ from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 from MulensModel.trajectory import Trajectory
+from MulensModel.satelliteskycoord import SatelliteSkyCoord
+from MulensModel.coordinates import Coordinates
 
 
 DATA_PATH = os.path.join(MulensModel.MODULE_PATH, 'data')
@@ -231,4 +233,20 @@ def test_satellite_parallax_magnification():
     delta = (ground_model.magnification(t_0)
              - space_model.magnification(t_0))
     assert np.abs(delta) > 0.01
+
+def test_horizons_3d():
+    """
+    Test if Horizons properly reads file with 3D coordinates.
+    We use the satellite that has the same position as Earth.
+    """
+    file_in = os.path.join(DATA_PATH, "earth_position_1.dat")
+    file_out = os.path.join(DATA_PATH, "earth_position_2.dat")
+
+    satellite = SatelliteSkyCoord(file_in)
+    (times, vec_x, vec_y, vec_z) = np.loadtxt(file_out, unpack=True)
+    output = satellite.get_satellite_coords(times).cartesian
+
+    np.testing.assert_almost_equal(vec_x, output.x)
+    np.testing.assert_almost_equal(vec_y, output.y)
+    np.testing.assert_almost_equal(vec_z, output.z)
 

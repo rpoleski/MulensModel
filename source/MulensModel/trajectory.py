@@ -4,9 +4,11 @@ from astropy.coordinates import get_body_barycentric
 from astropy.coordinates.builtin_frames.utils import get_jd12
 from astropy import _erfa as erfa
 from astropy.time import Time
+from astropy.coordinates import SkyCoord
 
 from MulensModel import utils
 from MulensModel.modelparameters import ModelParameters
+from MulensModel.coordinates import Coordinates
 
 
 class Trajectory(object):
@@ -34,7 +36,7 @@ class Trajectory(object):
             :py:class:`~MulensModel.model.Model` which defaults to
             *True*)
 
-        coords: :py:class:`~MulensModel.coordinates.Coordinates`, optional
+        coords: :py:class:`~MulensModel.coordinates.Coordinates`, *Astropy.coordinates.SkyCoord*, or *str*, optional
             sky coordinates of the event; required for parallax calculations
 
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
@@ -69,7 +71,10 @@ class Trajectory(object):
             for (key, value) in parallax.items():
                 self.parallax[key] = value
 
-        self.coords = coords
+        if isinstance(coords, SkyCoord) and not isinstance(coords, Coordinates):
+            self.coords = Coordinates(coords)
+        else:
+            self.coords = coords
         self.satellite_skycoord = satellite_skycoord
         if earth_coords is not None:
             raise NotImplementedError(
@@ -199,17 +204,12 @@ class Trajectory(object):
         product = np.outer(self.times - time_ref, velocity) * u.au
         delta_s = position.xyz.T - product - position_ref.xyz.T
 
-        north = np.array([0., 0., 1.])
-        direction = np.array(self.coords.cartesian.xyz.value)
-        vector_product_normalized = utils.Utils.vector_product_normalized
-        east_projected = vector_product_normalized(north, direction)
-        north_projected = vector_product_normalized(direction, east_projected)
         # Earth velocity at t_0_par projected on the plane of the sky is:
-        # v_Earth_perp_N = np.dot(velocity, north_projected)
-        # v_Earth_perp_E = np.dot(velocity, east_projected)
+        # v_Earth_perp_N = np.dot(velocity, self.coords.north_projected)
+        # v_Earth_perp_E = np.dot(velocity, self.coords.east_projected)
         #  and times 1731.48 to convert to km/s.
-        out_n = -np.dot(delta_s.value, north_projected)
-        out_e = -np.dot(delta_s.value, east_projected)
+        out_n = -np.dot(delta_s.value, self.coords.north_projected)
+        out_e = -np.dot(delta_s.value, self.coords.east_projected)
 
         out = {'N': out_n, 'E': out_e}
         self._get_delta_annual_results[index] = out
@@ -226,22 +226,20 @@ class Trajectory(object):
         calculates differences of Earth and satellite positions
         projected on the plane of the sky at event position
         """
-        index = (hash(self.coords), hash(self.satellite_skycoord))
+        index = (hash(self.coords), hash(self.satellite_skycoord), 
+                tuple(self.times.tolist()))
         if index in self._get_delta_satellite_results.keys():
             return self._get_delta_satellite_results[index]
 
-        # Set the N,E coordinate frame based on the direction of the event
-        direction = np.array(self.coords.cartesian.xyz.value)
-        north = np.array([0., 0., 1.])
-        east_projected = np.cross(north, direction)
-        east_projected /= np.linalg.norm(east_projected)
-        north_projected = np.cross(direction, east_projected)
-
-        # Transform the satellite ephemerides to that coordinate system
+        # Transform the satellite ephemerides.
         satellite = self.satellite_skycoord
         satellite.transform_to(frame=self.coords.frame)
 
-        # Project the satellite parallax effect
+        # Project the satellite parallax effect based on the direction of 
+        # the event.
+        direction = np.array(self.coords.cartesian.xyz.value)
+        north_projected = self.coords.north_projected
+        east_projected = self.coords.east_projected
         delta_satellite = {}
         dot = utils.Utils.dot
         delta_satellite['N'] = -dot(satellite.cartesian, north_projected).value
@@ -250,3 +248,4 @@ class Trajectory(object):
 
         self._get_delta_satellite_results[index] = delta_satellite
         return delta_satellite
+
