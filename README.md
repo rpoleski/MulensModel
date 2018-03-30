@@ -24,21 +24,18 @@ A few useful resources:
 
 More will be added soon.
 
-[Documentation](https://rpoleski.github.io/MulensModel/)
+[Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of very function. 
 
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
 
+You can use MulensModel in [Microlensing Data Analysis Challenge](http://microlensing-source.org/data-challenge/). 
+
 Currently, MulensModel supports:
-* Lens Systems: Point Lens, Binary Lens
-* Source Stars: Single source
-* Effects: finite source (1-parameter)
+* Lens Systems: Point Lens, Binary Lens,
+* Source Stars: Single source,
+* Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion, different parametrizations of microlensing models.
 
-Under Development:
-* Effects: finite source (2-parameter), parallax (satellite, annual)
-
-Future Development:
-* Source Stars: Binary source, xallarap
-* Effects: parallax (topographic)
+Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues) or send us an e-mail. 
 
 ### How to install?
 
