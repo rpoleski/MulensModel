@@ -3,7 +3,7 @@
 <dl>MulensModel is package for modeling microlensing (or &mu;-lensing) 
 events. </dl>
 
-It is still under development. [Latest release: 1.0.0](https://github.com/rpoleski/MulensModel/releases/tag/1.0.0)
+It is still under development. [Latest release: 1.1.0](https://github.com/rpoleski/MulensModel/releases/latest)
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
@@ -44,11 +44,11 @@ Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues) or se
 3. Unpack the archive.
 4. Add the path to the unpack directory to the PYTHONPATH, e.g., if you've extracted the archive in your home directory (``/home/USER_NAME/``) in tcsh:
 ```
-setenv PYTHONPATH /home/USER_NAME/MulensModel-1.0.0/source\:$PYTHONPATH
+setenv PYTHONPATH /home/USER_NAME/MulensModel-1.1.0/source\:$PYTHONPATH
 ```
 in bash:
 ```
-export PYTHONPATH=/home/USER_NAME/MulensModel-1.0.0/source:$PYTHONPATH
+export PYTHONPATH=/home/USER_NAME/MulensModel-1.1.0/source:$PYTHONPATH
 ```
 In order to have this command invoked every time you open a terminal, please add this command to your startup file (``~/.cshrc``, ``~/.bashrc``, ``~/.profile`` or similar). If you didn't have ``PYTHONPATH`` defined before, then skip the last part of the above commands.
 
