@@ -1,5 +1,5 @@
 import numpy as np
-from math import fsum
+from math import fsum, log
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
@@ -215,15 +215,7 @@ class Event(object):
         else:
             self.fit.fit_fluxes()
 
-        if dataset.input_fmt == "mag":
-            data = dataset.mag
-            err_data = dataset.err_mag
-        elif dataset.input_fmt == "flux":
-            data = dataset.flux
-            err_data = dataset.err_flux
-        else:
-            raise ValueError('Unrecognized data format: {:}'.format(
-                    dataset.input_fmt))
+        (data, err_data) = dataset.data_and_err_in_input_fmt()
 
         diff = data - self.fit.get_input_format(data=dataset)
         chi2 = (diff / err_data)**2
@@ -258,21 +250,13 @@ class Event(object):
         # Calculate chi^2 given the fit
         chi2_per_point = []
         for (i, dataset) in enumerate(self.datasets):
-            if dataset.input_fmt == "mag":
-                data = dataset.mag
-                err_data = dataset.err_mag
-            elif dataset.input_fmt == "flux":
-                data = dataset.flux
-                err_data = dataset.err_flux
-            else:
-                raise ValueError('Unrecognized data format: {:}'.format(
-                        dataset.input_fmt))
+            (data, err_data) = dataset.data_and_err_in_input_fmt()
             diff = data - self.fit.get_input_format(data=dataset)
             chi2_per_point.append((diff/err_data)**2)
 
         return chi2_per_point
 
-    def chi2_gradient(self, parameters):
+    def chi2_gradient(self, parameters, fit_blending=None):
         """
         Calculate chi^2 gradient (also called Jacobian), i.e.,
         :math:`d chi^2/d parameter`.
@@ -284,6 +268,11 @@ class Event(object):
                 ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
                 which you request gradient must be defined in py:attr:`~model`.
 
+            fit_blending: *boolean*, optional
+                Are we fitting for blending flux? If not then blending flux is
+                fixed to 0.  Default is the same as
+                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+
         Returns :
             gradient: *float* or *np.ndarray*
                 chi^2 gradient
@@ -293,8 +282,27 @@ class Event(object):
         if self.model.n_lenses != 1:
             raise NotImplementedError('Event.chi2_gradient() works only ' +
                 'single lens models currently')
+        as_dict = self.model.parameters.as_dict()
+        if 'rho' in as_dict or 't_star' in as_dict:
+            raise NotImplementedError('Event.chi2_gradient() is not working ' +
+                'for finite source models yet')
 
-# check which parameters are in self.model.parameters.as_dict()
+        # Define a Fit given the model and perform linear fit for fs and fb
+        self.fit = Fit(
+            data=self.datasets, magnification=self.model.data_magnification)
+        if fit_blending is not None:
+            self.fit.fit_fluxes(fit_blending=fit_blending)
+        else:
+            self.fit.fit_fluxes()
+
+        #
+        for (i, dataset) in enumerate(self.datasets):
+            (data, err_data) = dataset.data_and_err_in_input_fmt()
+            factor_1 = data - self.fit.get_input_format(data=dataset)
+            factor_1 /= err_data**2
+            if dataset.input_fmt == 'mag':
+                factor_1 *= -2.5 / (log(10.) * Utils.get_flux_from_mag(mag))
+            factor_1 *= F_S
 # check which subset of (u_0, t_E, t_eff) is used
 # run get_chi2_per_point()
 # mag vs flux
