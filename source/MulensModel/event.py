@@ -279,6 +279,8 @@ class Event(object):
         """
         if not isinstance(parameters, list):
             parameters = [parameters]
+        gradient = {param: 0 for param in parameters}
+
         if self.model.n_lenses != 1:
             raise NotImplementedError('Event.chi2_gradient() works only ' +
                 'single lens models currently')
@@ -302,11 +304,28 @@ class Event(object):
             factor_1 /= err_data**2
             if dataset.input_fmt == 'mag':
                 factor_1 *= -2.5 / (log(10.) * Utils.get_flux_from_mag(mag))
-            factor_1 *= F_S
-# check which subset of (u_0, t_E, t_eff) is used
-# run get_chi2_per_point()
-# mag vs flux
-# dA/du
+            factor_1 *= self.fit.flux_of_sources(dataset)[0]
+
+            trajectory = Trajectory(dataset.time, self.model.parameters, 
+                self.model.get_parallax, self.coords, 
+                dataset.satellite_skycoord)
+            u_2 = trajectory.x**2 + trajectory.y**2
+            u = np.sqrt(u_2)
+            d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
+            d_x_d_u = trajectory.x / u
+            d_y_d_u = trajectory.y / u
+
+            # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
+            # gradient depends on which ones are defined. 
+            if 't_eff' not in as_dict:
+                pass
+            elif 't_E' not in as_dict:
+                pass
+            elif 'u_0' not in as_dict:
+                pass
+            else:
+                raise KeyError('')
+
 # parallax treated separately because doesnt depend on parametrization
         raise NotImplementedError('NOT FINISHED YET')
 
