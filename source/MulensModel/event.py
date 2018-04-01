@@ -272,6 +272,36 @@ class Event(object):
 
         return chi2_per_point
 
+    def chi2_gradient(self, parameters):
+        """
+        Calculate chi^2 gradient (also called Jacobian), i.e.,
+        :math:`d chi^2/d parameter`.
+
+        Parameters :
+            parameters: *str* or *list*, required
+                Parameters with respect to which gradient is calculated.
+                Currently accepted parameters are: ``t_0``, ``u_0``, ``t_eff``,
+                ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
+                which you request gradient must be defined in py:attr:`~model`.
+
+        Returns :
+            gradient: *float* or *np.ndarray*
+                chi^2 gradient
+        """
+        if not isinstance(parameters, list):
+            parameters = [parameters]
+        if self.model.n_lenses != 1:
+            raise NotImplementedError('Event.chi2_gradient() works only ' +
+                'single lens models currently')
+
+# check which parameters are in self.model.parameters.as_dict()
+# check which subset of (u_0, t_E, t_eff) is used
+# run get_chi2_per_point()
+# mag vs flux
+# dA/du
+# parallax treated separately because doesnt depend on parametrization
+        raise NotImplementedError('NOT FINISHED YET')
+
     def get_ref_fluxes(self, data_ref=None):
         """
         Get source and blending fluxes for the reference dataset. See
