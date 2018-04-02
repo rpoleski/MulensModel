@@ -303,7 +303,7 @@ class Event(object):
             factor = data - self.fit.get_input_format(data=dataset)
             factor *= -2. / err_data**2
             if dataset.input_fmt == 'mag':
-                factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(mag))
+                factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
             factor *= self.fit.flux_of_sources(dataset)[0]
 
             trajectory = Trajectory(dataset.time, self.model.parameters, 

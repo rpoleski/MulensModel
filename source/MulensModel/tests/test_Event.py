@@ -72,6 +72,33 @@ def test_event_get_chi2_2():
     chi2_3 = ev.get_chi2_for_dataset(1)
     np.testing.assert_almost_equal(chi2_3, answer)
 
+def test_event_get_chi2_3():
+    """test on ob08092 OGLE-IV data - MulensData.good & MulensData.bad"""
+    t_0 = 5379.57091
+    u_0 = 0.52298
+    t_E = 17.94002
+    
+    bad = np.zeros(383, dtype='bool')
+    bad[300:350] = True
+    data_1 = MulensData(file_name=SAMPLE_FILE_01, bad=bad)
+    data_2 = MulensData(file_name=SAMPLE_FILE_01, good=~bad)
+    
+    ev = Event()
+    mod = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+    mod.set_datasets([data_1])
+    ev.model = mod
+    ev.datasets = [data_1]
+    chi2 = ev.get_chi2()
+    np.testing.assert_almost_equal(float(chi2), 343.46567, decimal=4, 
+                                   err_msg='problem in resulting chi2')
+
+    mod.set_datasets([data_2])
+    ev.model = mod
+    ev.datasets = [data_2]
+    chi2 = ev.get_chi2()
+    np.testing.assert_almost_equal(float(chi2), 343.46567, decimal=4,
+                                    err_msg='problem in resulting chi2')
+
 def test_event_get_chi2_double_source_simple():
     """basic test on ob08092 OGLE-IV data with added second source
     Note that currently this test hacks into internal functions of 
