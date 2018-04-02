@@ -300,11 +300,11 @@ class Event(object):
         #
         for (i, dataset) in enumerate(self.datasets):
             (data, err_data) = dataset.data_and_err_in_input_fmt()
-            factor_1 = data - self.fit.get_input_format(data=dataset)
-            factor_1 /= err_data**2
+            factor = data - self.fit.get_input_format(data=dataset)
+            factor *= -2. / err_data**2
             if dataset.input_fmt == 'mag':
-                factor_1 *= -2.5 / (log(10.) * Utils.get_flux_from_mag(mag))
-            factor_1 *= self.fit.flux_of_sources(dataset)[0]
+                factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(mag))
+            factor *= self.fit.flux_of_sources(dataset)[0]
 
             trajectory = Trajectory(dataset.time, self.model.parameters, 
                 self.model.get_parallax, self.coords, 
@@ -312,22 +312,72 @@ class Event(object):
             u_2 = trajectory.x**2 + trajectory.y**2
             u = np.sqrt(u_2)
             d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
-            d_x_d_u = trajectory.x / u
-            d_y_d_u = trajectory.y / u
+            factor *= d_A_d_u
+
+            factor_d_x_d_u = factor * trajectory.x / u
+            sum_d_x_d_u = np.sum(factor_d_x_d_u)
+            factor_d_y_d_u = factor * trajectory.y / u
+            sum_d_y_d_u = np.sum(factor_d_y_d_u)
+            dt = dataset.time - as_dict['t_0']
 
             # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
             # gradient depends on which ones are defined. 
             if 't_eff' not in as_dict:
-                pass
+                if 't_0' in parameters:
+                    gradient['t_0'] += -sum_d_x_d_u / as_dict['t_E']
+                if 'u_0' in parameters:
+                    gradient['u_0'] += sum_d_y_d_u
+                if 't_E' in parameters:
+                    gradient['t_E'] += np.sum(
+                            factor_d_x_d_u * -dt / as_dict['t_E']**2)
             elif 't_E' not in as_dict:
-                pass
+                if 't_0' in parameters:
+                    gradient['t_0'] += (
+                            -sum_d_x_d_u * as_dict['u_0'] / as_dict['t_eff'])
+                if 'u_0' in parameters:
+                    gradient['u_0'] += sum_d_y_d_u + np.sum(
+                            factor_d_x_d_u * dt / as_dict['t_eff'])
+                if 't_eff' in parameters:
+                    gradient['t_eff'] += np.sum(factor_d_x_d_u * -dt *
+                            as_dict['u_0'] / as_dict['t_eff']**2)
             elif 'u_0' not in as_dict:
-                pass
+                if 't_0' in parameters:
+                    gradient['t_0'] += -sum_d_x_d_u / as_dict['t_E']
+                if 't_E' in parameters:
+                    gradient['t_E'] += (np.sum(factor_d_x_d_u * dt) -
+                            sum_d_y_d_u * as_dict['t_eff']) / as_dict['t_E']**2
+                if 't_eff' in parameters:
+                    gradient['t_eff'] += sum_d_y_d_u / as_dict['t_E']
             else:
-                raise KeyError('')
+                raise KeyError('Something is wrong with ModelParameters in ' +
+                    'Event.chi2_gradient():\n', as_dict)
 
-# parallax treated separately because doesnt depend on parametrization
-        raise NotImplementedError('NOT FINISHED YET')
+            # Below we deal with parallax only.
+            if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
+                parallax = {'earth_orbital': False, 'satellite': False,
+                        'topocentric': False}
+                trajectory_no_piE = Trajectory(dataset.time, 
+                    self.model.parameters, parallax, self.coords,
+                    dataset.satellite_skycoord)
+                dx = trajectory.x - trajectory_no_piE.x
+                dy = trajectory.y - trajectory_no_piE.y
+                pi_E_2 = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
+                E_normalized = as_dict['pi_E_E'] / pi_E_2
+                N_normalized = as_dict['pi_E_N'] / pi_E_2
+                delta_E = dx * E_normalized + dy * N_normalized
+                delta_N = dx * N_normalized - dy * E_normalized
+                if 'pi_E_N' in parameters:
+                    gradient['pi_E_N'] += np.sum(
+                        factor_d_x_d_u * delta_N + factor_d_y_d_u * delta_E)
+                if 'pi_E_E' in parameters:
+                    gradient['pi_E_E'] += np.sum(
+                        factor_d_x_d_u * delta_E - factor_d_y_d_u * delta_N)
+        
+        if len(parameters) == 1:
+            out = gradient[parameters[0]]
+        else:
+            out = np.array([gradient[p] for p in parameters])
+        return out
 
     def get_ref_fluxes(self, data_ref=None):
         """
