@@ -27,7 +27,6 @@
     * Full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
   * Higher Order Effects
     * xallarap (see below for references)
-    * binary lens orbital motion
 * Parameterization
   * Cassan 2008 binary lens parameters
   * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
@@ -47,7 +46,7 @@
   * Event class:
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
-    * Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter)
+    * Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter); also think how it will work for binary sources
     * give access to all fluxes without changing data\_ref
     * reduce calls to Fit.fit\_fluxes()
     * get\_chi2() for given f\_b and f\_s
@@ -71,7 +70,7 @@
   * Model:  
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
-    * Function that print RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
+    * Function that prints RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
     * plot\_trajectory() should use actual trajectory, not alpha because it may be confusing when orbital motion and parallax are used
     * plot\_trajectory() - mark epochs using colorscale? Maybe it should be passed by kwargs (if so, then add example)
     * Should get\_satellite\_coords() use caching?
@@ -84,6 +83,7 @@
     * add label which is passed to all the matplotlib functions and hence allows to show legend in easy way
     * Errorbar scaling, in particular the two parameter.
     * add version of n\_epochs that uses only good epochs
+    * read settings from file header
   * PointLens:
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
     * 1+2/u^4 approximation for very large u
@@ -102,7 +102,7 @@
     * anything from use cases that does not work yet -- see TODO.md file
     * plotting data in MulensData (also update PSPL tutorial)
     * interaction with fitting routines - see [list of them](https://arxiv.org/abs/1711.03329)
-    * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, there there is no point in remembering huge indexes (whole self.times)
+    * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, then there is no point in remembering huge indexes (whole self.times)
     * profile the code (python -m cProfile script.py)
     * Leap seconds library - [barycorrpy](https://arxiv.org/abs/1801.01634)
     * example on how to remove airmass trends
