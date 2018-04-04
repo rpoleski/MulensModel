@@ -297,7 +297,6 @@ class Event(object):
         else:
             self.fit.fit_fluxes()
 
-        #
         for (i, dataset) in enumerate(self.datasets):
             (data, err_data) = dataset.data_and_err_in_input_fmt()
             factor = data - self.fit.get_input_format(data=dataset)
@@ -314,11 +313,11 @@ class Event(object):
             d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
             factor *= d_A_d_u
 
-            factor_d_x_d_u = factor * trajectory.x / u
+            factor_d_x_d_u = (factor * trajectory.x / u)[dataset.good]
             sum_d_x_d_u = np.sum(factor_d_x_d_u)
-            factor_d_y_d_u = factor * trajectory.y / u
+            factor_d_y_d_u = (factor * trajectory.y / u)[dataset.good]
             sum_d_y_d_u = np.sum(factor_d_y_d_u)
-            dt = dataset.time - as_dict['t_0']
+            dt = dataset.time[dataset.good] - as_dict['t_0']
 
             # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
             # gradient depends on which ones are defined. 
@@ -359,20 +358,21 @@ class Event(object):
                 trajectory_no_piE = Trajectory(dataset.time, 
                     self.model.parameters, parallax, self.coords,
                     dataset.satellite_skycoord)
-                dx = trajectory.x - trajectory_no_piE.x
-                dy = trajectory.y - trajectory_no_piE.y
-                pi_E_2 = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
-                E_normalized = as_dict['pi_E_E'] / pi_E_2
-                N_normalized = as_dict['pi_E_N'] / pi_E_2
-                delta_E = dx * E_normalized + dy * N_normalized
-                delta_N = dx * N_normalized - dy * E_normalized
+                dx = (trajectory.x - trajectory_no_piE.x)[dataset.good]
+                dy = (trajectory.y - trajectory_no_piE.y)[dataset.good]
+                delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
+                delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
+                det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
+
                 if 'pi_E_N' in parameters:
                     gradient['pi_E_N'] += np.sum(
                         factor_d_x_d_u * delta_N + factor_d_y_d_u * delta_E)
+                    gradient['pi_E_N'] /= det
                 if 'pi_E_E' in parameters:
                     gradient['pi_E_E'] += np.sum(
                         factor_d_x_d_u * delta_E - factor_d_y_d_u * delta_N)
-        
+                    gradient['pi_E_E'] /= det
+
         if len(parameters) == 1:
             out = gradient[parameters[0]]
         else:
