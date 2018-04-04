@@ -425,7 +425,9 @@ class Model(object):
 
         if (f_source is None) and (f_blend is None):
             if self.data_ref is None:
-                raise ValueError('No reference dataset of fluxes provided')
+                raise ValueError('No reference dataset of fluxes provided. ' +
+                    "If you don't have a dataset, then try " +
+                    "plot_magnification() instead of plot_lc().")
             (f_source, f_blend) = self.get_ref_fluxes(data_ref=self.data_ref)
         elif (f_source is None) or (f_blend is None):
             raise AttributeError(
