@@ -8,6 +8,7 @@ from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
+from MulensModel.trajectory import Trajectory
 
 
 class Event(object):

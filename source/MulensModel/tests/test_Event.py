@@ -13,6 +13,8 @@ from MulensModel.utils import Utils
 
 SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
                                     "data", "phot_ob08092_O4.dat")
+SAMPLE_FILE_02 = os.path.join(MulensModel.MODULE_PATH, 
+                                    "data", "ob140939_OGLE.dat")
 
 def test_event_get_chi2_1():
     """basic unit test on ob08092 OGLE-IV data"""
@@ -183,3 +185,15 @@ class TestEvent(unittest.TestCase):
     def test_event_init_2(self):
         with self.assertRaises(TypeError):
             ev = Event(datasets='some_string')
+
+def test_event_chi2_gradient():
+    parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
+    gradient = {'t_0': -0.0348918609, 'u_0': -0.0933733096, 't_E': 1.52778388}
+
+    event = Event(
+        datasets=MulensData(file_name=SAMPLE_FILE_02), model=Model(parameters))
+    result = event.chi2_gradient(
+        [key for key in parameters.keys()], fit_blending=False)
+    
+    for key in gradient.keys():
+        np.testing.assert_almost_equal(gradient[key], result[key])
