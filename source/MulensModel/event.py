@@ -306,48 +306,52 @@ class Event(object):
                 factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
             factor *= self.fit.flux_of_sources(dataset)[0]
 
+            kwargs = {}
+            if dataset.ephemerides_file is not None:
+                kwargs['satellite_skycoord'] = dataset.satellite_skycoord
             trajectory = Trajectory(dataset.time, self.model.parameters, 
-                self.model.get_parallax, self.coords, 
-                dataset.satellite_skycoord)
+                    self.model.get_parallax(), self.coords, **kwargs)
             u_2 = trajectory.x**2 + trajectory.y**2
-            u = np.sqrt(u_2)
+            u_ = np.sqrt(u_2)
             d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
             factor *= d_A_d_u
 
-            factor_d_x_d_u = (factor * trajectory.x / u)[dataset.good]
+            factor_d_x_d_u = (factor * trajectory.x / u_)[dataset.good]
             sum_d_x_d_u = np.sum(factor_d_x_d_u)
-            factor_d_y_d_u = (factor * trajectory.y / u)[dataset.good]
+            factor_d_y_d_u = (factor * trajectory.y / u_)[dataset.good]
             sum_d_y_d_u = np.sum(factor_d_y_d_u)
             dt = dataset.time[dataset.good] - as_dict['t_0']
 
             # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
             # gradient depends on which ones are defined. 
             if 't_eff' not in as_dict:
+                t_E = as_dict['t_E'].to(u.day).value
                 if 't_0' in parameters:
-                    gradient['t_0'] += -sum_d_x_d_u / as_dict['t_E']
+                    gradient['t_0'] += -sum_d_x_d_u / t_E
                 if 'u_0' in parameters:
                     gradient['u_0'] += sum_d_y_d_u
                 if 't_E' in parameters:
-                    gradient['t_E'] += np.sum(
-                            factor_d_x_d_u * -dt / as_dict['t_E']**2)
+                    gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E**2)
             elif 't_E' not in as_dict:
+                t_eff = as_dict['t_eff'].to(u.day).value
                 if 't_0' in parameters:
-                    gradient['t_0'] += (
-                            -sum_d_x_d_u * as_dict['u_0'] / as_dict['t_eff'])
+                    gradient['t_0'] += -sum_d_x_d_u * as_dict['u_0'] / t_eff
                 if 'u_0' in parameters:
                     gradient['u_0'] += sum_d_y_d_u + np.sum(
-                            factor_d_x_d_u * dt / as_dict['t_eff'])
+                            factor_d_x_d_u * dt / t_eff)
                 if 't_eff' in parameters:
                     gradient['t_eff'] += np.sum(factor_d_x_d_u * -dt *
-                            as_dict['u_0'] / as_dict['t_eff']**2)
+                            as_dict['u_0'] / t_eff**2)
             elif 'u_0' not in as_dict:
+                t_E = as_dict['t_E'].to(u.day).value
+                t_eff = as_dict['t_eff'].to(u.day).value
                 if 't_0' in parameters:
-                    gradient['t_0'] += -sum_d_x_d_u / as_dict['t_E']
+                    gradient['t_0'] += -sum_d_x_d_u / t_E
                 if 't_E' in parameters:
                     gradient['t_E'] += (np.sum(factor_d_x_d_u * dt) -
-                            sum_d_y_d_u * as_dict['t_eff']) / as_dict['t_E']**2
+                            sum_d_y_d_u * t_eff) / t_E**2
                 if 't_eff' in parameters:
-                    gradient['t_eff'] += sum_d_y_d_u / as_dict['t_E']
+                    gradient['t_eff'] += sum_d_y_d_u / t_E
             else:
                 raise KeyError('Something is wrong with ModelParameters in ' +
                     'Event.chi2_gradient():\n', as_dict)
