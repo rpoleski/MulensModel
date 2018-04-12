@@ -188,12 +188,12 @@ class TestEvent(unittest.TestCase):
 
 def test_event_chi2_gradient():
     parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
+    params = ['t_0', 'u_0', 't_E']
     gradient = {'t_0': -0.0348918609, 'u_0': -0.0933733096, 't_E': 1.52778388}
 
     event = Event(
         datasets=MulensData(file_name=SAMPLE_FILE_02), model=Model(parameters))
-    result = event.chi2_gradient(
-        [key for key in parameters.keys()], fit_blending=False)
-    
-    for key in gradient.keys():
-        np.testing.assert_almost_equal(gradient[key], result[key])
+    result = event.chi2_gradient(params, fit_blending=False)
+
+    np.testing.assert_almost_equal([gradient[key] for key in  params], result)
+
