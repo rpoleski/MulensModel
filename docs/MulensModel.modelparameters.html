@@ -211,7 +211,7 @@ explicitly, set t_0_par = t_0.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.ds_dt">
 <code class="descname">ds_dt</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>Change rate of separation py:attr:<cite>~s</cite> in 1/year. Can be set as
+<p>Change rate of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal"><span class="pre">s</span></code></a> in 1/year. Can be set as
 <em>AstroPy.Quantity</em> or as <em>float</em> (1/year is assumed default unit).
 Regardless of input value, returns value in 1/year.</p>
 </dd></dl>
@@ -220,7 +220,7 @@ Regardless of input value, returns value in 1/year.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.dalpha_dt">
 <code class="descname">dalpha_dt</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>Change rate of angle py:attr:<cite>~alpha</cite> in deg/year. Can be set as 
+<p>Change rate of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal"><span class="pre">alpha</span></code></a> in deg/year. Can be set as 
 <em>AstroPy.Quantity</em> or as <em>float</em> (deg/year is assumed default unit).
 Regardless of input value, returns value in deg/year.</p>
 </dd></dl>
@@ -236,13 +236,13 @@ explicitly, assumes t_0_kep = t_0.</p>
 <dl class="method">
 <dt id="MulensModel.modelparameters.ModelParameters.get_s">
 <code class="descname">get_s</code><span class="sig-paren">(</span><em>epoch</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_s" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of separation py:attr:<cite>~s</cite> at a given epoch or
+<dd><p>Returns the value of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal"><span class="pre">s</span></code></a> at a given epoch or
 epochs (if orbital motion parameters are set).</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
 <dd><dl class="first last docutils">
 <dt>epoch: <em>float</em>, <em>list</em>, <em>np.ndarray</em></dt>
-<dd>The time(s) at which to calculate py:attr:<cite>~s</cite>.</dd>
+<dd>The time(s) at which to calculate <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal"><span class="pre">s</span></code></a>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
@@ -257,13 +257,13 @@ epochs (if orbital motion parameters are set).</p>
 <dl class="method">
 <dt id="MulensModel.modelparameters.ModelParameters.get_alpha">
 <code class="descname">get_alpha</code><span class="sig-paren">(</span><em>epoch</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_alpha" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of angle py:attr:<cite>~alpha</cite> at a given epoch or
+<dd><p>Returns the value of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal"><span class="pre">alpha</span></code></a> at a given epoch or
 epochs (if orbital motion parameters are set).</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
 <dd><dl class="first last docutils">
 <dt>epoch: <em>float</em>, <em>list</em>, <em>np.ndarray</em></dt>
-<dd>The time(s) at which to calculate py:attr:<cite>~alpha</cite>.</dd>
+<dd>The time(s) at which to calculate <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal"><span class="pre">alpha</span></code></a>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
@@ -282,7 +282,7 @@ epochs (if orbital motion parameters are set).</p>
 <p>Parallel component of instantaneous velocity of the secondary
 relative to the primary in 1/year.
 It is parallel to the primary-secondary axis.
-Equals py:attr:<cite>~ds_dt</cite>/py:attr:<cite>~s</cite>. Cannot be set.</p>
+Equals <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="MulensModel.modelparameters.ModelParameters.ds_dt"><code class="xref py py-attr docutils literal"><span class="pre">ds_dt</span></code></a>/<a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal"><span class="pre">s</span></code></a>. Cannot be set.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -291,7 +291,7 @@ Equals py:attr:<cite>~ds_dt</cite>/py:attr:<cite>~s</cite>. Cannot be set.</p>
 <dd><p><em>astropy.Quantity</em></p>
 <p>Perpendicular component of instantaneous velocity of the secondary
 relative to the primary. It is perpendicular to the primary-secondary
-axis. It has sign opposite to py:attr:<cite>~dalpha_dt</cite>
+axis. It has sign opposite to <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="MulensModel.modelparameters.ModelParameters.dalpha_dt"><code class="xref py py-attr docutils literal"><span class="pre">dalpha_dt</span></code></a>
 and is in rad/yr, not deg/yr. Cannot be set.</p>
 </dd></dl>
 
