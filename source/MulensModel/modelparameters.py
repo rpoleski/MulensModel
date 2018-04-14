@@ -700,7 +700,7 @@ class ModelParameters(object):
         """
         *astropy.Quantity*
 
-        Change rate of separation py:attr:`~s` in 1/year. Can be set as
+        Change rate of separation :py:attr:`~s` in 1/year. Can be set as
         *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
         Regardless of input value, returns value in 1/year.
         """
@@ -721,7 +721,7 @@ class ModelParameters(object):
         """
         *astropy.Quantity*
 
-        Change rate of angle py:attr:`~alpha` in deg/year. Can be set as 
+        Change rate of angle :py:attr:`~alpha` in deg/year. Can be set as 
         *AstroPy.Quantity* or as *float* (deg/year is assumed default unit).
         Regardless of input value, returns value in deg/year.
         """
@@ -757,12 +757,12 @@ class ModelParameters(object):
 
     def get_s(self, epoch):
         """
-        Returns the value of separation py:attr:`~s` at a given epoch or
+        Returns the value of separation :py:attr:`~s` at a given epoch or
         epochs (if orbital motion parameters are set).
 
         Arguments :
             epoch: *float*, *list*, *np.ndarray*
-                The time(s) at which to calculate py:attr:`~s`.
+                The time(s) at which to calculate :py:attr:`~s`.
 
         Returns :
             separation: *float* or *np.ndarray*
@@ -786,12 +786,12 @@ class ModelParameters(object):
 
     def get_alpha(self, epoch):
         """
-        Returns the value of angle py:attr:`~alpha` at a given epoch or
+        Returns the value of angle :py:attr:`~alpha` at a given epoch or
         epochs (if orbital motion parameters are set).
 
         Arguments :
             epoch: *float*, *list*, *np.ndarray*
-                The time(s) at which to calculate py:attr:`~alpha`.
+                The time(s) at which to calculate :py:attr:`~alpha`.
 
         Returns :
             separation: *astropy.Quantity*
@@ -816,7 +816,7 @@ class ModelParameters(object):
         Parallel component of instantaneous velocity of the secondary
         relative to the primary in 1/year.
         It is parallel to the primary-secondary axis.
-        Equals py:attr:`~ds_dt`/py:attr:`~s`. Cannot be set.
+        Equals :py:attr:`~ds_dt`/:py:attr:`~s`. Cannot be set.
         """
         return self.ds_dt / self.s
 
@@ -827,7 +827,7 @@ class ModelParameters(object):
 
         Perpendicular component of instantaneous velocity of the secondary
         relative to the primary. It is perpendicular to the primary-secondary
-        axis. It has sign opposite to py:attr:`~dalpha_dt`
+        axis. It has sign opposite to :py:attr:`~dalpha_dt`
         and is in rad/yr, not deg/yr. Cannot be set.
         """
         return -self.dalpha_dt.to(u.rad/u.yr)

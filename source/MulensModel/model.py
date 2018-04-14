@@ -45,7 +45,7 @@ class Model(object):
 
         data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`
             Reference dataset. If *int* then gives index of reference dataset
-            in py:attr:`~datasets`.
+            in :py:attr:`~datasets`.
 
     Default values for parallax are all True. Use :py:func:`parallax()`
     to turn different parallax effects ON/OFF. If using satellite

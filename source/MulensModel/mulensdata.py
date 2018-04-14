@@ -223,7 +223,7 @@ class MulensData(object):
         """
         *np.ndarray boolean*
 
-        flags marking good data i.e., opposite to py:func:`bad`
+        flags marking good data i.e., opposite to :py:func:`bad`
         """
         return self._good
 
