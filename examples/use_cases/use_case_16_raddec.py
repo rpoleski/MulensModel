@@ -1,5 +1,5 @@
 """
-Use cases for passing RA, DEC to MulensDAta, Model, and Event.
+Use cases for passing RA, DEC to MulensData, Model, and Event.
 
 Based on OGLE-2014-BLG-0939 from Yee et al. 2015 ApJ 802, 76
 (satellite parallax measurement)
@@ -30,7 +30,7 @@ coords = SkyCoord(ra_dec, unit=(u.hourangle, u.deg))
 data_3 = MulensModel.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), coords=coords)
 
-#Specifiying coordinates to calculate a model with parallax
+#Specifying coordinates to calculate a model with parallax
 t_0 = 2456836.22
 u_0 = 0.922
 t_E = 22.87
@@ -57,7 +57,7 @@ space_model.plot_magnification(label='space')
 pl.title('OB140939 Models with Parallax')
 pl.legend()
 
-#Sepcifying coordinates for an event
+#Specifying coordinates for an event
 ground_data = MulensModel.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'))
 space_data = MulensModel.MulensData(

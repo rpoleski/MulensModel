@@ -3,7 +3,7 @@ Use Case 18: Binary Magnification Equation
 
 Change how the binary magnification is calculated based on 
 - the time stamp of the model
-- the magnificaiton of the model (???)
+- the magnification of the model (???)
 """
 from astropy import units as u
 import numpy as np

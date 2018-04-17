@@ -8,7 +8,7 @@ This is a very simple tutorial showing how you might use those classes.
 It is also available (somewhat expanded) as a Jupyter `notebook`_. 
 Please note that MulensModel is written in Python3. If you're using Python2.X, 
 then start by adding ``from __future__ import print_function`` at the begin 
-of your codes and be advised that we don't gurantee that everything will work. 
+of your codes and be advised that we don't guarantee that everything will work. 
 
 .. _Model: https://rpoleski.github.io/MulensModel/MulensModel.model.html
 .. _Event: https://rpoleski.github.io/MulensModel/MulensModel.event.html

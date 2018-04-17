@@ -1,4 +1,4 @@
-Mircolensing Parallax Fitting Tutorial
+Microlensing Parallax Fitting Tutorial
 ======================================
 
 Here you will learn how to fit the observed light-curve with a model that 
