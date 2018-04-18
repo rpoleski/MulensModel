@@ -198,4 +198,6 @@ def test_event_chi2_gradient():
         datasets=[data], model=Model(parameters))
     result = event.chi2_gradient(params, fit_blending=False)
 
-    np.testing.assert_almost_equal([gradient[key] for key in  params], result)
+    reference = np.array([gradient[key] for key in  params])
+    np.testing.assert_almost_equal(reference/result, 1., decimal=1)
+
