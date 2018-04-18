@@ -200,10 +200,8 @@ class Event(object):
                 :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
-            chi2: *np.ndarray*
-                Chi^2 contribution from each data point,
-                e.g. chi2[obs_num][k] returns the chi2 contribution
-                from the *k*-th point of observatory *obs_num*.
+            chi2: *float*
+                chi2 for dataset[index_dataset].
 
         """
         dataset = self.datasets[index_dataset]
@@ -241,7 +239,7 @@ class Event(object):
                 :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
-            chi2: *np.ndarray*
+            chi2: *list* of *np.ndarray*
                 Chi^2 contribution from each data point,
                 e.g. chi2[obs_num][k] returns the chi2 contribution
                 from the *k*-th point of observatory *obs_num*.
