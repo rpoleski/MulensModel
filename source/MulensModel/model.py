@@ -570,7 +570,7 @@ class Model(object):
                     'Number of default matplotlib colors is smaller than ' +
                     'number of datasets and different datasets will be ' +
                     'shown using the same color. \nSet color_list parameter ' +
-                    'next time.')
+                    'next time.', UserWarning)
         if not bad_data:
             new_kwargs[marker_key] = 'o'
             new_kwargs[size_key] = 3

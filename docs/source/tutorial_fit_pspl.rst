@@ -143,14 +143,17 @@ a few:
    if not result.success:
        print(result.message)
    print("Function evaluations: {:}".format(result.nfev))
-   msg = "The smallest function value: {:.3f}"
-   print(msg.format(np.array(result.fun)[0]))
+   if isinstance(result.fun, np.ndarray):
+       result_fun = result.fun[0]
+   else:
+       result_fun = result.fun
+   print("The smallest function value: {:.3f}".format(result_fun))
    print("for parameters: {:.5f} {:.4f} {:.3f}".format(*result.x.tolist()))
 
 The best-fitting function parameters are stored in ``result.x``, which is 
 of numpy.ndarray type. To have a nice output, we converted them to a list. 
 The smallest function value is returned in ``result.fun``, which can be of 
-a float or a numpy.ndarray type. 
+a *float* or a *numpy.ndarray* type. 
 Let's plot two different models:
 
 .. code-block:: python
