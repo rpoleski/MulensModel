@@ -363,7 +363,7 @@ class MulensData(object):
 
 
     def plot(
-        self, type='mag', show_errorbars=True, show_bad=False,
+        self, fmt=self.input_fmt, show_errorbars=True, show_bad=False,
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data.
