@@ -299,12 +299,29 @@ class Event(object):
             self.fit.fit_fluxes()
 
         for (i, dataset) in enumerate(self.datasets):
-            (data, err_data) = dataset.data_and_err_in_input_fmt()
-            factor = data - self.fit.get_input_format(data=dataset)
-            factor *= -2. / err_data**2
-            if dataset.input_fmt == 'mag':
-                factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
-            factor *= self.fit.flux_of_sources(dataset)[0]
+            ## Original
+            #(data, err_data) = dataset.data_and_err_in_input_fmt()
+            #factor = data - self.fit.get_input_format(data=dataset)
+            #factor *= -2. / err_data**2
+            #if dataset.input_fmt == 'mag':
+            #    factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
+            #factor *= self.fit.flux_of_sources(dataset)[0]
+
+            ## np.log
+            #(data, err_data) = dataset.data_and_err_in_input_fmt()
+            #factor = data - self.fit.get_input_format(data=dataset)
+            #factor *= -2. / err_data**2
+            #if dataset.input_fmt == 'mag':
+            #    factor *= -2.5 / (np.log(10.) * Utils.get_flux_from_mag(data))
+            #factor *= self.fit.flux_of_sources(dataset)[0]
+
+            ## Fluxes
+            f_source = self.fit.flux_of_sources(dataset)[0]
+            f_blend = self.fit.blending_flux(dataset)
+            model_flux = (f_source *
+                          self.model.get_data_magnification(dataset) + f_blend)
+            factor = (-2. * f_source * 
+                       (dataset.flux - model_flux) / dataset.err_flux**2)
 
             kwargs = {}
             if dataset.ephemerides_file is not None:
