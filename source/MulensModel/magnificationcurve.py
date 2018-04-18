@@ -183,13 +183,13 @@ class MagnificationCurve(object):
         calculations and warn if not
         """
         if self._methods_epochs is None:
-            warnings.warn('No finite-source method is set')
+            warnings.warn('No finite-source method is set', UserWarning)
             return
         methods = self._methods_names + [self._default_method]
         if (
             len(set(methods) -
                 set(['point_source', 'point_source_point_lens'])) == 0):
-            warnings.warn('no finite-source method is set')
+            warnings.warn('no finite-source method is set', UserWarning)
             return
 
     def get_point_lens_magnification(self):
