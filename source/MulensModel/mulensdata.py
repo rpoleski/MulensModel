@@ -71,11 +71,11 @@ class MulensData(object):
             Flags for good data, should be the same length as the
             number of data points.
 
-        color: *string*, optional
-            Color for plotting the dataset.
+        color, label, marker: *string*, optional
+            matplotlib properties for plotting.
 
-        label: *string*, optional
-            Label for plotting the dataset.
+        size, alpha, zorder: *int*, *float*, optional
+            matplotlib properties for plotting
 
         ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
         file_name is provided.
@@ -92,7 +92,8 @@ class MulensData(object):
                  phot_fmt="mag", coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
-                 color=None, label=None,
+                 color=None, label=None, marker=None, size=None, alpha=None,
+                 zorder=None,
                  **kwargs):
 
         # Initialize some variables
@@ -137,6 +138,9 @@ class MulensData(object):
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
+            # Label
+            if label is None:
+                label = file_name
         else:
             raise ValueError(
                 'MulensData cannot be initialized with ' +
@@ -155,8 +159,9 @@ class MulensData(object):
         self.ephemerides_file = ephemerides_file
 
         # Plot properties
-        self.color = color
-        self.label = label
+        self.plot_properties = {
+            'color': color, 'label': label, 'marker': marker, 'size': size,
+            'alpha': alpha, 'zorder': zorder}
 
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
@@ -363,7 +368,7 @@ class MulensData(object):
 
 
     def plot(
-        self, fmt=self.input_fmt, show_errorbars=True, show_bad=False,
+        self, fmt=None, show_errorbars=True, show_bad=False,
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data.
@@ -391,6 +396,9 @@ class MulensData(object):
 
             ``**kwargs``: passed to matplotlib plotting functions.
         """
+        if fmt is None:
+            fmt = self.input_fmt
+
         subtract = 0.
         if subtract_2450000:
             subtract = 2450000.
