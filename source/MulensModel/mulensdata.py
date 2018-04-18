@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as pl
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
@@ -70,6 +71,12 @@ class MulensData(object):
             Flags for good data, should be the same length as the
             number of data points.
 
+        color: *string*, optional
+            Color for plotting the dataset.
+
+        label: *string*, optional
+            Label for plotting the dataset.
+
         ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
         file_name is provided.
 
@@ -85,6 +92,7 @@ class MulensData(object):
                  phot_fmt="mag", coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
+                 color=None, label=None,
                  **kwargs):
 
         # Initialize some variables
@@ -145,6 +153,10 @@ class MulensData(object):
 
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
+
+        # Plot properties
+        self.color = color
+        self.label = label
 
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
@@ -348,3 +360,68 @@ class MulensData(object):
                 "parameter has to be dict, not {:}".format(type(weights)))
 
         self._limb_darkening_weights = weights
+
+
+    def plot(
+        self, type='mag', show_errorbars=True, show_bad=False,
+        subtract_2450000=False, subtract_2460000=False, **kwargs):
+        """
+        Plot the data.
+
+        Keywords:
+            type: *string* ('mag', 'flux')
+            Whether to plot the data in magnitudes or in flux. Default
+            is 'mag'.
+
+            show_errorbars: *boolean*
+                If show_errorbars is True (default), plots with
+                matplotlib.errorbar(). If False, plots with
+                matplotlib.scatter().
+
+            show_bad: *boolean*
+                if False, bad data are suppressed (default).
+                if True, shows points marked as bad
+                (:py:obj:`mulensdata.MulensData.bad`) as 'x'
+
+            subtract_2450000, subtract_2460000: *boolean*
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers. If using, make
+                sure to also set the same settings for all other
+                plotting calls (e.g. :py:func:`plot_lc()`).
+
+            ``**kwargs``: passed to matplotlib plotting functions.
+        """
+        subtract = 0.
+        if subtract_2450000:
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
+
+            # Plot
+        if type == 'mag':
+            y_val = self.mag
+            err = self.err_mag
+        else:
+            y_val = self.flux
+            err = self.err_flux
+
+        if show_errorbars:
+            pl.errorbar(
+                self.time[self.good] - subtract,
+                y_val[self.good], yerr=err[self.good], fmt='o',
+                color=self.color, label=self.label, **kwargs)
+            if show_bad:
+                pl.errorbar(
+                    self.time[self.bad] - subtract, y_val[self.bad],
+                    yerr=err[self.bad], fmt='x', color=self.color, **kwargs)
+
+        else:
+            pl.scatter(
+                self.time[self.good] - subtract, y_val[self.good],
+                lw=0., marker='o', color=self.color, label=self.label, 
+                **kwargs)
+            if show_bad:
+                pl.scatter(
+                    self.time[self.bad] - subtract, y_val[self.bad],
+                    marker='x', color=self.color, **kwargs)
+

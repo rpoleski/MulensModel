@@ -96,8 +96,17 @@ class Fit(object):
 
             # Solve for the coefficients in y = fs * x + fb (point source)
             # These values are: F_s1, F_s2,..., F_b.
-            results = np.linalg.lstsq(xT, y)[0]
-
+            try:
+                results = np.linalg.lstsq(xT, y)[0]
+            except ValueError as e:
+                raise ValueError(
+                    '{0}\n'.format(e) +
+                    'If either of these numbers ({0}, {1})'.format(
+                        np.sum(np.isnan(xT)), np.sum(np.isnan(y))) +
+                    ' is greater than zero, there is a NaN somewhere,' +
+                    ' probably in the data (dataset={0}).'.format(
+                        i_dataset))
+                
             # Record the results
             if fit_blending:
                 self._flux_blending[dataset] = results[-1]
