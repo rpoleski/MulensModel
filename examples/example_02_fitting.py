@@ -69,8 +69,8 @@ pl.legend(loc='best')
 
 # Plot the fitted model with the data
 pl.figure()
-ev.plot_model()
 ev.plot_data()
+ev.plot_model(color='red')
 pl.title('Data and Fitted Model')
 
 pl.show()
