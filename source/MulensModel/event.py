@@ -267,7 +267,13 @@ class Event(object):
             else:
                 raise ValueError('Unrecognized data format: {:}'.format(
                         dataset.input_fmt))
-            diff = data - self.fit.get_input_format(data=dataset)
+            model = self.fit.get_input_format(data=dataset)
+            diff = data - model
+            if np.any(np.isnan(model)): # This can happen only for 
+                                        # input_fmt = 'mag' and model flux < 0.
+                mask = np.isnan(model)
+                diff[mask] = dataset.flux[mask] - self.fit.get_flux(data=dataset)[mask]
+                err_data[maks] = dataset.err_flux[mask]
             chi2_per_point.append((diff/err_data)**2)
 
         return chi2_per_point
