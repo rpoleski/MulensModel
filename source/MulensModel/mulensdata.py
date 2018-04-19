@@ -368,15 +368,15 @@ class MulensData(object):
 
 
     def plot(
-        self, fmt=None, show_errorbars=True, show_bad=False,
+        self, phot_fmt=None, show_errorbars=True, show_bad=False,
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data.
 
         Keywords:
-            type: *string* ('mag', 'flux')
-            Whether to plot the data in magnitudes or in flux. Default
-            is 'mag'.
+            phot_fmt: *string* ('mag', 'flux')
+                Whether to plot the data in magnitudes or in flux. Default
+                is the same as :py:attr:`phot_fmt`.
 
             show_errorbars: *boolean*
                 If show_errorbars is True (default), plots with
@@ -384,35 +384,41 @@ class MulensData(object):
                 matplotlib.scatter().
 
             show_bad: *boolean*
-                if False, bad data are suppressed (default).
-                if True, shows points marked as bad
+                If False, bad data are suppressed (default).
+                If True, shows points marked as bad
                 (:py:obj:`mulensdata.MulensData.bad`) as 'x'
 
             subtract_2450000, subtract_2460000: *boolean*
                 If True, subtracts 2450000 or 2460000 from the time
-                axis to get more human-scale numbers. If using, make
+                axis to get more human-scale numbers. If using it, make
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
             ``**kwargs``: passed to matplotlib plotting functions.
         """
-        if fmt is None:
-            fmt = self.input_fmt
+        if phot_fmt is None:
+            phot_fmt = self.input_fmt
 
         subtract = 0.
         if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError("plot() doesn't accept both " +
+                    "subtract_2450000 and subtract_2460000 as True")
             subtract = 2450000.
         if subtract_2460000:
             subtract = 2460000.
 
-            # Plot
-        if type == 'mag':
+        if phot_fmt == 'mag':
             y_val = self.mag
             err = self.err_mag
-        else:
+        elif phot_fmt == 'flux':
             y_val = self.flux
             err = self.err_flux
+        else:
+            raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
 
+        # The part below needs further development - combine kwargs with self.plot_properties and fmt/lw/marker.
+        # Also in self.plot_properties what to do about marker vs. fmt?
         if show_errorbars:
             pl.errorbar(
                 self.time[self.good] - subtract,
