@@ -142,10 +142,8 @@ fixed to 0.  Default is the same as
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
-<dt>chi2: <em>np.ndarray</em></dt>
-<dd>Chi^2 contribution from each data point,
-e.g. chi2[obs_num][k] returns the chi2 contribution
-from the <em>k</em>-th point of observatory <em>obs_num</em>.</dd>
+<dt>chi2: <em>float</em></dt>
+<dd>chi2 for dataset[index_dataset].</dd>
 </dl>
 </dd>
 </dl>
@@ -167,7 +165,7 @@ fixed to 0.  Default is the same as
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
-<dt>chi2: <em>np.ndarray</em></dt>
+<dt>chi2: <em>list</em> of <em>np.ndarray</em></dt>
 <dd>Chi^2 contribution from each data point,
 e.g. chi2[obs_num][k] returns the chi2 contribution
 from the <em>k</em>-th point of observatory <em>obs_num</em>.</dd>

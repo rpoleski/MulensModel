@@ -110,7 +110,7 @@ We have the ability to get the goodness of fit and it turn it into a function:
        """for given event set attributes from parameters_to_fit 
        (list of str) to values from the theta list"""
        for (key, parameter) in enumerate(parameters_to_fit):
-           setattr(event.model, parameter, theta[key])
+           setattr(event.model.parameters, parameter, theta[key])
        return event.get_chi2()
 
 The chi2_for_model() function as a first argument has a sequence of 
@@ -143,27 +143,33 @@ a few:
    if not result.success:
        print(result.message)
    print("Function evaluations: {:}".format(result.nfev))
-   msg = "The smallest function value: {:.3f}"
-   print(msg.format(np.array(result.fun)[0]))
+   if isinstance(result.fun, np.ndarray):
+       if result.fun.ndim == 0:
+           result_fun = float(result.fun)
+       else:
+           result_fun = result.fun[0]
+   else:
+       result_fun = result.fun
+   print("The smallest function value: {:.3f}".format(result_fun))
    print("for parameters: {:.5f} {:.4f} {:.3f}".format(*result.x.tolist()))
 
 The best-fitting function parameters are stored in ``result.x``, which is 
-of numpy.ndarray type. To have a nice output, we converted them to a list. 
+of *numpy.ndarray* type. To have a nice output, we converted them to a list. 
 The smallest function value is returned in ``result.fun``, which can be of 
-a float or a numpy.ndarray type. 
+a *float* or a *numpy.ndarray* type. 
 Let's plot two different models:
 
 .. code-block:: python
 
    # Initial model:
-   pspl_model.t_0 = t_0
-   pspl_model.u_0 = u_0
-   pspl_model.t_E = t_E
+   pspl_model.parameters.t_0 = t_0
+   pspl_model.parameters.u_0 = u_0
+   pspl_model.parameters.t_E = t_E
    pspl_model.plot_lc(label='initial', c='red')
    # Best fitting model:
-   pspl_model.t_0 = result.x[0]
-   pspl_model.u_0 = result.x[1]
-   pspl_model.t_E = result.x[2]
+   pspl_model.parameters.t_0 = result.x[0]
+   pspl_model.parameters.u_0 = result.x[1]
+   pspl_model.parameters.t_E = result.x[2]
    pspl_model.plot_lc(label='fitted')
    # Finally: data, legend, and show the plot:
    pspl_model.plot_data()
