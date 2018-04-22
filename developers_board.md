@@ -4,8 +4,16 @@
 3. Jacobian for PSPL
 4. identify parts that will be affected by binary source
 
+## May goals:
+1. binary source use cases
+2. errorbar scaling in MulensData
+3. finish improved passing of color/label/etc from MulensData to Model
+4. website with notes on data challenge and links related to it
+5. easier access to all the fluxes from Event
+
 
 ## Specific tasks to be performed
+**boldfaced** tasks are most important because requested by the users
 
 * Install
   * makefile for Windows (basic instructions exist already)
@@ -30,7 +38,6 @@
 * Parameterization
   * Cassan 2008 binary lens parameters
   * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
-  * dA/dparam for point lens models; use case --> UC24
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
 * Function Improvements/Expansion
   * Binary Lens:
@@ -41,16 +48,14 @@
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
   * Caustics.\_calculate - optimize using vectors instead of a loop
   * Caustic calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
-  * Coordinates
-    * write tests, possibly remove test\_Coords.py
   * Event class:
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
-    * Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter); also think how it will work for binary sources
-    * give access to all fluxes without changing data\_ref
+    * **Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter); also think how it will work for binary sources**
+    * **give access to all fluxes without changing data\_ref**
     * reduce calls to Fit.fit\_fluxes()
     * add finite source in chi2\_gradient()
-    * add get\_all\_source\_fluxes() which would not change data\_ref
+    * check all functions that should pass fit\_blending parameter
   * Fit:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
   * Horizons:
@@ -82,8 +87,8 @@
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
   * MulensData:
-    * add label which is passed to all the matplotlib functions and hence allows to show legend in easy way
-    * Errorbar scaling, in particular the two parameter.
+    * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
+    * **Errorbar scaling, in particular the two parameter.**
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info
   * PointLens:
@@ -92,14 +97,18 @@
   * SatelliteSkyCoord:
     * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
   * Trajectory:
-    * \_get\_delta\_satellite() should be using self.times
+    * **\_get\_delta\_satellite() should be using self.times**
   * Utils:
     * in np.any() ifs give more information in warning e.g., "out of 1234 values provided, the fails are: 12, 345, 678 (0-based)"
-    * add u(a) function: u = np.sqrt(2*A/np.sqrt(A*A-1.) - 2.)
+    * add u(a) function: u = np.sqrt(2A/np.sqrt(A^2-1.) - 2.)
   * Plotting
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
   * Examples:
+    * **triangle plots**
+    * **chi2 per dataset**
+    * PSPL fitting with gradient
+    * **fs,fb uncertainties**
     * add example that shows 'log\_' in the name of the parameter; central caustic anomaly planet would be best,
     * add illustration on how to remove airmass trends
     * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method
@@ -109,13 +118,14 @@
     * guessing parameters of PSPL model ([Kim+17](https://arxiv.org/abs/1703.06883) as an example)
     * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
     * anything from use cases that does not work yet -- see TODO.md file
-    * plotting data in MulensData (also update PSPL tutorial)
+    * **plotting data in MulensData (also update PSPL tutorial)**
     * interaction with fitting routines - see [list of them](https://arxiv.org/abs/1711.03329)
     * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, then there is no point in remembering huge indexes (whole self.times)
     * profile the code (python -m cProfile script.py)
     * Leap seconds library - [barycorrpy](https://arxiv.org/abs/1801.01634)
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
+  * Coordinates - write tests, possibly remove test\_Coords.py
   * annual parallax calculation - verify with VBBL
   * t\_eff is not tested
 * Style/Architecture:
