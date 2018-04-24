@@ -1,15 +1,10 @@
-## Mar goals:
-1. heliocentric frame for parallaxes and DAC data format
-2. orbital motion
-3. Jacobian for PSPL
-4. identify parts that will be affected by binary source
-
 ## May goals:
 1. binary source use cases
 2. errorbar scaling in MulensData
 3. finish improved passing of color/label/etc from MulensData to Model
 4. website with notes on data challenge and links related to it
 5. easier access to all the fluxes from Event
+6. improved usage of polynomial root solvers
 
 
 ## Specific tasks to be performed
@@ -107,11 +102,13 @@
   * Examples:
     * **triangle plots**
     * **chi2 per dataset**
+    * **scipy.curve\_fit() and print parameter uncertainties**
     * PSPL fitting with gradient
     * **fs,fb uncertainties**
     * add example that shows 'log\_' in the name of the parameter; central caustic anomaly planet would be best,
     * add illustration on how to remove airmass trends
     * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method
+    * **corner plots; they require [corner](https://github.com/dfm/corner.py), [pyhdust](https://github.com/danmoser/pyhdust), or [pyGTC](https://pypi.org/project/pyGTC/)**
   * Miscellaneous:
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
