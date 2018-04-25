@@ -51,6 +51,7 @@
     * reduce calls to Fit.fit\_fluxes()
     * add finite source in chi2\_gradient()
     * check all functions that should pass fit\_blending parameter
+    * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
   * Fit:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
   * Horizons:

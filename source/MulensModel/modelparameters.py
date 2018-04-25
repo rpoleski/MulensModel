@@ -777,12 +777,6 @@ class ModelParameters(object):
 
         s_of_t = (self.s + self.ds_dt * (epoch - self.t_0_kep) * u.d).value
 
-        if np.any(s_of_t < 0.):
-            warnings.warn('ModelParameters.get_s() found negative(!) values ' +
-                'of separation for some the epochs.\n' +
-                's_0 = {:}\nds_dt = {:}'.format(self.s, self.ds_dt), 
-                UserWarning)
-
         return s_of_t
 
     def get_alpha(self, epoch):
