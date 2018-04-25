@@ -137,35 +137,26 @@ class Fit(object):
         """
         return self._flux_sources[dataset]
 
-    def get_input_format(self, data=None):
+    def get_flux(self, data):
         """
-        Microlensing model in the same format as given dataset. The
-        output is either in flux units or magnitudes, depending on
-        format of the input data.
+        Microlensing model in flux units.
 
         Parameters :
             data: :py:class:`~MulensModel.mulensdata.MulensData`
                 A dataset for which model will be returned.
 
         Returns :
-            magnification: *np.ndarray*
-                Magnifications in flux units or magnitudes (depending on
-                the format of input data).
-
+            flux: *np.ndarray*
+                Microlensing model in flux units.
         """
-        # Check for potential problems
-        if data is None:
-            raise ValueError('Fit.get_input_format() dataset not provided')
         if data not in self._flux_blending:
             self._flux_blending[data] = 0.
             warnings.warn(
                 "Blending flux not set. This is strange...", SyntaxWarning)
 
-        # Initialize parameters
         n_sources = self.get_n_sources()
         index = self._datasets.index(data)
 
-        # Calculate the model flux
         flux = np.ones(data.n_epochs) * self._flux_blending[data]
         if n_sources == 1:
             if data not in self._flux_sources:
@@ -178,12 +169,39 @@ class Fit(object):
                 flux += self._flux_sources[data][i] \
                       * self._magnification[index][i]
 
+        return flux
+
+
+    def get_input_format(self, data=None):
+        """
+        Microlensing model in the same format as given dataset. The
+        output is either in flux units or magnitudes, depending on
+        format of the input data.
+
+        Parameters :
+            data: :py:class:`~MulensModel.mulensdata.MulensData`
+                A dataset for which model will be returned.
+
+        Returns :
+            model: *np.ndarray*
+                Microlensing model in flux units or magnitudes (depending on
+                the format of input data).
+
+        """
+        # Check for potential problems
+        if data is None:
+            raise ValueError('Fit.get_input_format() dataset not provided')
+        if data not in self._flux_blending:
+            self._flux_blending[data] = 0.
+            warnings.warn(
+                "Blending flux not set. This is strange...", SyntaxWarning)
+
         # Return the model flux in either flux or magnitudes
         # (depending on data)
         if data.input_fmt == "mag":
-            result = Utils.get_mag_from_flux(flux)
+            result = Utils.get_mag_from_flux(self.get_flux(data))
         elif data.input_fmt == "flux":
-            result = flux
+            result = self.get_flux(data)
         else:
             msg = 'Fit.get_input_format() unrecognized data input format'
             raise ValueError(msg)

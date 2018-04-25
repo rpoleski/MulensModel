@@ -32,6 +32,10 @@ class Event(object):
         best_chi2_parameters: *dict*
             Parameters that gave smallest chi2.
 
+    The datasets can be in magnitude or flux spaces. When we calculate chi^2
+    we do it in the same space as the dataset considered. If dataset is in
+    magnitude space and model results in negative flux, then we calculate chi^2
+    in flux space but only for the epochs with negative model flux.
     """
 
     def __init__(self, datasets=None, model=None, coords=None):
@@ -223,7 +227,14 @@ class Event(object):
             raise ValueError('Unrecognized data format: {:}'.format(
                     dataset.input_fmt))
 
-        diff = data - self.fit.get_input_format(data=dataset)
+        model = self.fit.get_input_format(data=dataset)
+        diff = data - model
+        if np.any(np.isnan(model[dataset.good])): # This can happen only for
+                                                  # input_fmt = 'mag' and model flux < 0.
+            mask = np.isnan(model)
+            masked_model = self.fit.get_flux(data=dataset)[mask]
+            diff[mask] = dataset.flux[mask] - masked_model
+            err_data[mask] = dataset.err_flux[mask]
         chi2 = (diff / err_data)**2
         return fsum(chi2[dataset.good])
 
@@ -265,7 +276,14 @@ class Event(object):
             else:
                 raise ValueError('Unrecognized data format: {:}'.format(
                         dataset.input_fmt))
-            diff = data - self.fit.get_input_format(data=dataset)
+            model = self.fit.get_input_format(data=dataset)
+            diff = data - model
+            if np.any(np.isnan(model)): # This can happen only for
+                                        # input_fmt = 'mag' and model flux < 0.
+                mask = np.isnan(model)
+                masked_model = self.fit.get_flux(data=dataset)[mask]
+                diff[mask] = dataset.flux[mask] - masked_model
+                err_data[mask] = dataset.err_flux[mask]
             chi2_per_point.append((diff/err_data)**2)
 
         return chi2_per_point
