@@ -9,7 +9,9 @@ magnification_curve_0 = MagnificationCurve(time, parameters=self.parameters_sour
 magnification_curve_1 = MagnificationCurve(time, parameters=self.parameters_source_1, ...)
 mag_0 = self._magnification_curve_0.magnification
 mag_1 = self._magnification_curve_1.magnification
-q_f = self._get_q_f(magnification_curve_0, magnification_curve_1) # If fixed, then just returns the value. Otherwise calls function from Event or Fit that findsall 3 fluxes (f_s0, f_s0, and f_b) and returns q_f = f_s0/f_s1.
+q_f = self._get_q_f(magnification_curve_0, magnification_curve_1) # If fixed, then just 
+# returns the value. Otherwise calls function from Event or Fit that finds all 3 fluxes 
+# (f_s0, f_s0, and f_b) and returns q_f = f_s0/f_s1.
 magnification = (mag_0 + mag_1 * q_f) / (1. + q_f)
 return magnification
 ```
