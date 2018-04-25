@@ -19,7 +19,8 @@ A few useful resources:
   * [Example 04](examples/example_04_einsteinring.py) -- calculate the Einstein ring size for a grid of lens masses and distances,
   * [Example 05](examples/example_05_MB08310.py) -- plot multiple datasets for a single model, plot the residuals, and do this both in magnitude and magnification spaces,
   * [Example 06](examples/example_06_fit_parallax_EMCEE.py) -- fit parallax model using EMCEE,
-  * [Example 07](examples/example_07_fit_parallax_MN.py) -- fit parallax model using MultiNest.
+  * [Example 07](examples/example_07_fit_parallax_MN.py) -- fit parallax model using MultiNest,
+  * [Example 08](examples/example_08_planet_grid_fitting.ipynb) -- shows how to fit simulated WFIRST light curve with planetary model.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
 More will be added soon.
@@ -36,6 +37,8 @@ Currently, MulensModel supports:
 * Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion, different parametrizations of microlensing models.
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues) or send us an e-mail. 
+
+Are you using MulensModel for scientific research? Please give us credit by citing the [paper](http://adsabs.harvard.edu/abs/2018arXiv180301003P) and [ASCL reference](http://ascl.net/1803.006).
 
 ### How to install?
 
@@ -64,5 +67,5 @@ gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLens
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Mar 2018
+file revised Apr 2018
 
