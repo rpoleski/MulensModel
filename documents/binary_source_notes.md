@@ -5,9 +5,12 @@
 Hence, the best approach I see is to have in Model and ModelParameters private properties that will be instances of these classes but for single sources. Then the main part of Model.magnification will look something like:
 
 ```python
-mag_0 = magnification_curve_0.magnification
-mag_1 = magnification_curve_1.magnification
-magnification = (mag_0 * f_s_0 + mag_1 * f_s_1) / (f_s_0 + f_s_1)
+magnification_curve_0 = MagnificationCurve(time, parameters=self.parameters_source_0, ...)
+magnification_curve_1 = MagnificationCurve(time, parameters=self.parameters_source_1, ...)
+mag_0 = self._magnification_curve_0.magnification
+mag_1 = self._magnification_curve_1.magnification
+q_f = self._get_q_f(magnification_curve_0, magnification_curve_1) # If fixed, then just returns the value. Otherwise calls function from Event or Fit that findsall 3 fluxes (f_s0, f_s0, and f_b) and returns q_f = f_s0/f_s1.
+magnification = (mag_0 + mag_1 * q_f) / (1. + q_f)
 return magnification
 ```
 
@@ -28,8 +31,10 @@ High level functions that need changes:
   * get\_ref\_fluxes()
   * all plotting functions (they call Model functions
 
+Also note that there is Fit.get\_n\_sources() function that should be taken care off. 
 Things related to binary source that we'll do in future:
 
+* what happens if there are multiple datasets in the same band? In that case, we want to fit the primary source flux and blend flux independently for each dataset, but constrain q\_f to be the same for all datasets with the same band.
 * different methods for both sources - we need to consider binary source with finite source for events that look like lowest mass planets
 * is satellite data and binary source causing any additional problems
 * xallarap
