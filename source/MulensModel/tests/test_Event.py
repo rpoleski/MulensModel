@@ -188,16 +188,29 @@ class TestEvent(unittest.TestCase):
 
 def test_event_chi2_gradient():
     # fs = 11.0415734, fb = 0.0 
-    parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
-    params = ['t_0', 'u_0', 't_E']
-    gradient = {'t_0': 236.206598, 'u_0': 101940.249,
+    parameters_1 = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
+    params_1 = ['t_0', 'u_0', 't_E']
+    gradient_1 = {'t_0': 236.206598, 'u_0': 101940.249,
                 't_E': -1006.88678}
+    test_1 = (parameters_1, params_1, gradient_1)
+
+    parameters_2 = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                    'pi_E_N': -0.248, 'pi_E_E': 0.234}
+    params_2 = ['t_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E', 'f_source', 'f_blend']
+    gradient_2 = {'t_0': 568.781786, 'u_0': 65235.3513, 't_E': -491.782005,
+                  'pi_E_N': -187878.357, 'pi_E_E': 129162.927,
+                  'f_source': -83124.5869, 'f_blend': -78653.242}
+    test_2 = (parameters_2, params_2, gradient_2)
 
     data = MulensData(file_name=SAMPLE_FILE_02)
-    event = Event(
-        datasets=[data], model=Model(parameters))
-    result = event.chi2_gradient(params, fit_blending=False)
 
-    reference = np.array([gradient[key] for key in  params])
-    np.testing.assert_almost_equal(reference/result, 1., decimal=1)
+    coords = '17:47:12.25 −21:22:58.7'
+    for test in [test_1, test_2]:
+        (parameters, params, gradient) = test
+        event = Event(
+            datasets=[data], model=Model(parameters), coords=coords)
+        result = event.chi2_gradient(params, fit_blending=False)
+
+        reference = np.array([gradient[key] for key in  params])
+        np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
