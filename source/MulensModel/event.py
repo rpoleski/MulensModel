@@ -379,7 +379,7 @@ class Event(object):
                         'topocentric': False}
                 trajectory_no_piE = Trajectory(dataset.time, 
                     self.model.parameters, parallax, self.coords,
-                    dataset.satellite_skycoord)
+                    **kwargs)
                 dx = (trajectory.x - trajectory_no_piE.x)[dataset.good]
                 dy = (trajectory.y - trajectory_no_piE.y)[dataset.good]
                 delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
