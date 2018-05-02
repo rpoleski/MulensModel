@@ -13,6 +13,8 @@ from MulensModel.utils import Utils
 
 SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
                                     "data", "phot_ob08092_O4.dat")
+SAMPLE_FILE_02 = os.path.join(MulensModel.MODULE_PATH, 
+                                    "data", "ob140939_OGLE.dat")
 
 def test_event_get_chi2_1():
     """basic unit test on ob08092 OGLE-IV data"""
@@ -71,6 +73,33 @@ def test_event_get_chi2_2():
     
     chi2_3 = ev.get_chi2_for_dataset(1)
     np.testing.assert_almost_equal(chi2_3, answer)
+
+def test_event_get_chi2_3():
+    """test on ob08092 OGLE-IV data - MulensData.good & MulensData.bad"""
+    t_0 = 5379.57091
+    u_0 = 0.52298
+    t_E = 17.94002
+    
+    bad = np.zeros(383, dtype='bool')
+    bad[300:350] = True
+    data_1 = MulensData(file_name=SAMPLE_FILE_01, bad=bad)
+    data_2 = MulensData(file_name=SAMPLE_FILE_01, good=~bad)
+    
+    ev = Event()
+    mod = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+    mod.set_datasets([data_1])
+    ev.model = mod
+    ev.datasets = [data_1]
+    chi2 = ev.get_chi2()
+    np.testing.assert_almost_equal(float(chi2), 343.46567, decimal=4, 
+                                   err_msg='problem in resulting chi2')
+
+    mod.set_datasets([data_2])
+    ev.model = mod
+    ev.datasets = [data_2]
+    chi2 = ev.get_chi2()
+    np.testing.assert_almost_equal(float(chi2), 343.46567, decimal=4,
+                                    err_msg='problem in resulting chi2')
 
 def test_event_get_chi2_double_source_simple():
     """basic test on ob08092 OGLE-IV data with added second source
@@ -156,3 +185,33 @@ class TestEvent(unittest.TestCase):
     def test_event_init_2(self):
         with self.assertRaises(TypeError):
             ev = Event(datasets='some_string')
+
+def test_event_chi2_gradient():
+    # fs = 11.0415734, fb = 0.0 
+    parameters_1 = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
+    params_1 = ['t_0', 'u_0', 't_E']
+    gradient_1 = {'t_0': 236.206598, 'u_0': 101940.249,
+                't_E': -1006.88678}
+    test_1 = (parameters_1, params_1, gradient_1)
+
+    parameters_2 = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                    'pi_E_N': -0.248, 'pi_E_E': 0.234} # This model also
+                    # used fluxes given above.
+    params_2 = ['t_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E', 'f_source', 'f_blend']
+    gradient_2 = {'t_0': 568.781786, 'u_0': 65235.3513, 't_E': -491.782005,
+                  'pi_E_N': -187878.357, 'pi_E_E': 129162.927,
+                  'f_source': -83124.5869, 'f_blend': -78653.242}
+    test_2 = (parameters_2, params_2, gradient_2)
+    # We're not applying the test above, yet. See 'for' loop below.
+
+    data = MulensData(file_name=SAMPLE_FILE_02)
+    kwargs = {'datasets': [data], 'coords': '17:47:12.25 −21:22:58.7'}
+    
+    for test in [test_1]:#, test_2]:
+        (parameters, params, gradient) = test
+        event = Event(model=Model(parameters), **kwargs)
+        result = event.chi2_gradient(params, fit_blending=False)
+
+        reference = np.array([gradient[key] for key in  params])
+        np.testing.assert_almost_equal(reference/result, 1., decimal=1)
+

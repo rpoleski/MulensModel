@@ -22,11 +22,12 @@ def chi2_fun(theta, event, parameters_to_fit):
 def get_color_constraint(event):
     """
     Calculate the color constraint chi2 penalty
+
     KMT = *int*, dataset number for KMTC I-band
     Spitzer = *int*, dataset number for Spitzer
     """
-    KMT=0
-    Spitzer=9
+    KMT = 0
+    Spitzer = 9
 
     # Color constraint for OB161195 (I_KMT - L_Spitzer)
     (source_color, sigma) = (0.78 0.03)
@@ -38,6 +39,7 @@ def get_color_constraint(event):
     
     return (color - source_color)**2 / sigma**2
 
+# Add data from OB161195
 datasets = []
 filenames = ['KCT01I.dat', 'KCT41I.dat', 'KCT42I.dat', 'KSA01I.dat', 'KSA41I.dat',
              'KSA42I.dat', 'KSS01I.dat', 'KSS41I.dat', 'KSS42I.dat', 

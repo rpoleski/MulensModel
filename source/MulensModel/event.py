@@ -1,5 +1,5 @@
 import numpy as np
-from math import fsum
+from math import fsum, log
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
@@ -8,6 +8,7 @@ from MulensModel.fit import Fit
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
+from MulensModel.trajectory import Trajectory
 
 
 class Event(object):
@@ -217,15 +218,7 @@ class Event(object):
         else:
             self.fit.fit_fluxes()
 
-        if dataset.input_fmt == "mag":
-            data = dataset.mag
-            err_data = dataset.err_mag
-        elif dataset.input_fmt == "flux":
-            data = dataset.flux
-            err_data = dataset.err_flux
-        else:
-            raise ValueError('Unrecognized data format: {:}'.format(
-                    dataset.input_fmt))
+        (data, err_data) = dataset.data_and_err_in_input_fmt()
 
         model = self.fit.get_input_format(data=dataset)
         diff = data - model
@@ -284,9 +277,154 @@ class Event(object):
                 masked_model = self.fit.get_flux(data=dataset)[mask]
                 diff[mask] = dataset.flux[mask] - masked_model
                 err_data[mask] = dataset.err_flux[mask]
+
             chi2_per_point.append((diff/err_data)**2)
 
         return chi2_per_point
+
+    def chi2_gradient(self, parameters, fit_blending=None):
+        """
+        Calculate chi^2 gradient (also called Jacobian), i.e.,
+        :math:`d chi^2/d parameter`.
+
+        Parameters :
+            parameters: *str* or *list*, required
+                Parameters with respect to which gradient is calculated.
+                Currently accepted parameters are: ``t_0``, ``u_0``, ``t_eff``,
+                ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
+                which you request gradient must be defined in py:attr:`~model`.
+
+            fit_blending: *boolean*, optional
+                Are we fitting for blending flux? If not then blending flux is
+                fixed to 0.  Default is the same as
+                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+
+        Returns :
+            gradient: *float* or *np.ndarray*
+                chi^2 gradient
+        """
+        if not isinstance(parameters, list):
+            parameters = [parameters]
+        gradient = {param: 0 for param in parameters}
+
+        if self.model.n_lenses != 1:
+            raise NotImplementedError('Event.chi2_gradient() works only ' +
+                'single lens models currently')
+        as_dict = self.model.parameters.as_dict()
+        if 'rho' in as_dict or 't_star' in as_dict:
+            raise NotImplementedError('Event.chi2_gradient() is not working ' +
+                'for finite source models yet')
+
+        # Define a Fit given the model and perform linear fit for fs and fb
+        self.fit = Fit(
+            data=self.datasets, magnification=self.model.data_magnification)
+        if fit_blending is not None:
+            self.fit.fit_fluxes(fit_blending=fit_blending)
+        else:
+            self.fit.fit_fluxes()
+
+        for (i, dataset) in enumerate(self.datasets):
+            ## Original
+            (data, err_data) = dataset.data_and_err_in_input_fmt()
+            factor = data - self.fit.get_input_format(data=dataset)
+            factor *= -2. / err_data**2
+            if dataset.input_fmt == 'mag':
+                factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
+            factor *= self.fit.flux_of_sources(dataset)[0]
+
+            ## np.log
+            #(data, err_data) = dataset.data_and_err_in_input_fmt()
+            #factor = data - self.fit.get_input_format(data=dataset)
+            #factor *= -2. / err_data**2
+            #if dataset.input_fmt == 'mag':
+            #    factor *= -2.5 / (np.log(10.) * Utils.get_flux_from_mag(data))
+            #factor *= self.fit.flux_of_sources(dataset)[0]
+
+            ## Fluxes
+            #f_source = self.fit.flux_of_sources(dataset)[0]
+            #f_blend = self.fit.blending_flux(dataset)
+            #model_flux = (f_source *
+            #              self.model.get_data_magnification(dataset) + f_blend)
+            #factor = (-2. * f_source * 
+            #           (dataset.flux - model_flux) / dataset.err_flux**2)
+
+            kwargs = {}
+            if dataset.ephemerides_file is not None:
+                kwargs['satellite_skycoord'] = dataset.satellite_skycoord
+            trajectory = Trajectory(dataset.time, self.model.parameters, 
+                    self.model.get_parallax(), self.coords, **kwargs)
+            u_2 = trajectory.x**2 + trajectory.y**2
+            u_ = np.sqrt(u_2)
+            d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
+            factor *= d_A_d_u
+
+            factor_d_x_d_u = (factor * trajectory.x / u_)[dataset.good]
+            sum_d_x_d_u = np.sum(factor_d_x_d_u)
+            factor_d_y_d_u = (factor * trajectory.y / u_)[dataset.good]
+            sum_d_y_d_u = np.sum(factor_d_y_d_u)
+            dt = dataset.time[dataset.good] - as_dict['t_0']
+
+            # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
+            # gradient depends on which ones are defined. 
+            if 't_eff' not in as_dict:
+                t_E = as_dict['t_E'].to(u.day).value
+                if 't_0' in parameters:
+                    gradient['t_0'] += -sum_d_x_d_u / t_E
+                if 'u_0' in parameters:
+                    gradient['u_0'] += sum_d_y_d_u
+                if 't_E' in parameters:
+                    gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E**2)
+            elif 't_E' not in as_dict:
+                t_eff = as_dict['t_eff'].to(u.day).value
+                if 't_0' in parameters:
+                    gradient['t_0'] += -sum_d_x_d_u * as_dict['u_0'] / t_eff
+                if 'u_0' in parameters:
+                    gradient['u_0'] += sum_d_y_d_u + np.sum(
+                            factor_d_x_d_u * dt / t_eff)
+                if 't_eff' in parameters:
+                    gradient['t_eff'] += np.sum(factor_d_x_d_u * -dt *
+                            as_dict['u_0'] / t_eff**2)
+            elif 'u_0' not in as_dict:
+                t_E = as_dict['t_E'].to(u.day).value
+                t_eff = as_dict['t_eff'].to(u.day).value
+                if 't_0' in parameters:
+                    gradient['t_0'] += -sum_d_x_d_u / t_E
+                if 't_E' in parameters:
+                    gradient['t_E'] += (np.sum(factor_d_x_d_u * dt) -
+                            sum_d_y_d_u * t_eff) / t_E**2
+                if 't_eff' in parameters:
+                    gradient['t_eff'] += sum_d_y_d_u / t_E
+            else:
+                raise KeyError('Something is wrong with ModelParameters in ' +
+                    'Event.chi2_gradient():\n', as_dict)
+
+            # Below we deal with parallax only.
+            if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
+                parallax = {'earth_orbital': False, 'satellite': False,
+                        'topocentric': False}
+                trajectory_no_piE = Trajectory(dataset.time, 
+                    self.model.parameters, parallax, self.coords,
+                    **kwargs)
+                dx = (trajectory.x - trajectory_no_piE.x)[dataset.good]
+                dy = (trajectory.y - trajectory_no_piE.y)[dataset.good]
+                delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
+                delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
+                det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
+
+                if 'pi_E_N' in parameters:
+                    gradient['pi_E_N'] += np.sum(
+                        factor_d_x_d_u * delta_N + factor_d_y_d_u * delta_E)
+                    gradient['pi_E_N'] /= det
+                if 'pi_E_E' in parameters:
+                    gradient['pi_E_E'] += np.sum(
+                        factor_d_x_d_u * delta_E - factor_d_y_d_u * delta_N)
+                    gradient['pi_E_E'] /= det
+
+        if len(parameters) == 1:
+            out = gradient[parameters[0]]
+        else:
+            out = np.array([gradient[p] for p in parameters])
+        return out
 
     def get_ref_fluxes(self, data_ref=None):
         """

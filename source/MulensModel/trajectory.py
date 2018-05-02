@@ -87,9 +87,9 @@ class Trajectory(object):
 
     def get_xy(self):
         """
-        For a given set of parameters (a
-        :py:class:`~MulensModel.modelparameters.ModelParameters`
-        object), calculate the xy position of the source.
+        For a given set of parameters
+        (a :py:class:`~MulensModel.modelparameters.ModelParameters` object),
+        calculate the xy position of the source.
         """
         # Calculate the position of the source
         vector_tau = ((self.times - self.parameters.t_0) /
