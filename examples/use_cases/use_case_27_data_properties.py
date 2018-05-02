@@ -8,7 +8,7 @@ data_path = os.path.join(mm.MODULE_PATH, 'data')
 ob03235_ogle_data = mm.MulensData(
     data_file=os.path.join(data_path, 'OB03235', 'OB03235_OGLE.tbl.txt'),
     phot_fmt='mag', 
-    plot_properties={'marker': 'o', 'size': 5, 'color': 'black', zorder=10})
+    plot_properties={'size': 5, 'color': 'black', zorder=10})
 ob03235_moa_data = mm.MulensData(
     data_file=os.path.join(data_path, 'OB03235', 'OB03235_MOA.tbl.txt'),
     phot_fmt='flux', 
