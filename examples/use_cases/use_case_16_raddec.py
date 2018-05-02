@@ -12,7 +12,10 @@ import os
 import MulensModel 
 
 
-data_dir = os.path.join(MulensModel.MODULE_PATH, 'data')
+data_dir = os.path.join(
+    MulensModel.MODULE_PATH, 'data/photometry_files/OB140939')
+ephemeris_dir = os.path.join(MulensModel.MODULE_PATH, 'data/ephemeris_files')
+
 ra = '17:47:12.25'
 dec = '-21:22:58.2'
 ra_dec = ra + " " + dec
@@ -38,12 +41,13 @@ pi_E_N = -0.248
 pi_E_E = 0.234
 
 ground_model = MulensModel.Model(
-        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]})
+    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]})
 ground_model.coords = '17:47:12.25 -21:22:58.2'
 space_model = MulensModel.Model(
-        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
-        ra=ra, dec=dec, 
-        ephemerides_file=os.path.join(data_dir, 'Spitzer_ephemeris_01.dat'))
+    {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
+    ra=ra, dec=dec, 
+    ephemerides_file=os.path.join(
+        ephemeris_dir, 'Spitzer_ephemeris_01.dat'))
 
 #Access Galactic and ecliptic coordinates:
 print('l {0}'.format(ground_model.coords.galactic_l))
@@ -62,7 +66,8 @@ ground_data = MulensModel.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'))
 space_data = MulensModel.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_Spitzer.dat'), 
-    ephemerides_file=os.path.join(data_dir, 'Spitzer_ephemeris_01.dat'))
+    ephemerides_file=os.path.join(
+        ephemeris_dir, 'Spitzer_ephemeris_01.dat'))
 
 model_params = MulensModel.ModelParameters(
         {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E_N': pi_E_N, 

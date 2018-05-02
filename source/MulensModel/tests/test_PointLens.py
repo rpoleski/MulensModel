@@ -4,7 +4,8 @@ import os
 from MulensModel import PointLens, ModelParameters, MODULE_PATH
 
 
-SAMPLE_FILE = os.path.join(MODULE_PATH, 'data', 'FSPL_test_1.dat')
+SAMPLE_FILE = os.path.join(
+    MODULE_PATH, 'data/unit_test_files/', 'FSPL_test_1.dat')
 
 
 def get_file_params(filename):

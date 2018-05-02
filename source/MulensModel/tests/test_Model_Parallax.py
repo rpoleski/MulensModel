@@ -14,17 +14,27 @@ from MulensModel.coordinates import Coordinates
 
 DATA_PATH = os.path.join(MulensModel.MODULE_PATH, 'data')
 
-SAMPLE_FILE_02 = os.path.join(DATA_PATH, 'phot_ob151100_OGLE_v1.dat') #HJD'
-SAMPLE_FILE_02_REF = os.path.join(DATA_PATH, 'ob151100_OGLE_ref_v1.dat') #HJD'
-SAMPLE_FILE_03 = os.path.join(DATA_PATH, 'phot_ob151100_Spitzer_2_v2.dat') #HJD'
-SAMPLE_FILE_03_EPH = os.path.join(DATA_PATH, 'Spitzer_ephemeris_01.dat') #UTC
-SAMPLE_FILE_03_REF = os.path.join(DATA_PATH, 'ob151100_Spitzer_ref_v1.dat') #HJD'
+SAMPLE_FILE_02 = os.path.join(
+    DATA_PATH, 'photometry_files/OB151100', 'phot_ob151100_OGLE_v1.dat') #HJD'
+SAMPLE_FILE_02_REF = os.path.join(
+    DATA_PATH, 'unit_test_files', 'ob151100_OGLE_ref_v1.dat') #HJD'
+SAMPLE_FILE_03 = os.path.join(
+    DATA_PATH, 'photometry_files/OB151100', 'phot_ob151100_Spitzer_2_v2.dat') #HJD'
+SAMPLE_FILE_03_EPH = os.path.join(
+    DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat') #UTC
+SAMPLE_FILE_03_REF = os.path.join(
+    DATA_PATH, 'unit_test_files', 'ob151100_Spitzer_ref_v1.dat') #HJD'
 
-SAMPLE_ANNUAL_PARALLAX_FILE_01 = os.path.join(DATA_PATH, 'parallax_test_1.dat') #HJD'
-SAMPLE_ANNUAL_PARALLAX_FILE_02 = os.path.join(DATA_PATH, 'parallax_test_2.dat') #HJD'
-SAMPLE_ANNUAL_PARALLAX_FILE_03 = os.path.join(DATA_PATH, 'parallax_test_3.dat') #HJD'
-SAMPLE_ANNUAL_PARALLAX_FILE_04 = os.path.join(DATA_PATH, 'parallax_test_4.dat') #HJD'
-SAMPLE_ANNUAL_PARALLAX_FILE_05 = os.path.join(DATA_PATH, 'parallax_test_5.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_01 = os.path.join(
+    DATA_PATH, 'unit_test_files', 'parallax_test_1.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_02 = os.path.join(
+    DATA_PATH, 'unit_test_files', 'parallax_test_2.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_03 = os.path.join(
+    DATA_PATH, 'unit_test_files', 'parallax_test_3.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_04 = os.path.join(
+    DATA_PATH, 'unit_test_files', 'parallax_test_4.dat') #HJD'
+SAMPLE_ANNUAL_PARALLAX_FILE_05 = os.path.join(
+    DATA_PATH, 'unit_test_files', 'parallax_test_5.dat') #HJD'
 
 class _ParallaxFile(object):
     """
@@ -239,8 +249,10 @@ def test_horizons_3d():
     Test if Horizons properly reads file with 3D coordinates.
     We use the satellite that has the same position as Earth.
     """
-    file_in = os.path.join(DATA_PATH, "earth_position_1.dat")
-    file_out = os.path.join(DATA_PATH, "earth_position_2.dat")
+    file_in = os.path.join(
+        DATA_PATH, "unit_test_files", "earth_position_1.dat")
+    file_out = os.path.join(
+        DATA_PATH, "unit_test_files", "earth_position_2.dat")
 
     satellite = SatelliteSkyCoord(file_in)
     (times, vec_x, vec_y, vec_z) = np.loadtxt(file_out, unpack=True)
@@ -249,4 +261,3 @@ def test_horizons_3d():
     np.testing.assert_almost_equal(vec_x, output.x)
     np.testing.assert_almost_equal(vec_y, output.y)
     np.testing.assert_almost_equal(vec_z, output.z)
-

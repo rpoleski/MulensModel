@@ -30,7 +30,7 @@ def get_color_constraint(event):
     Spitzer = 9
 
     # Color constraint for OB161195 (I_KMT - L_Spitzer)
-    (source_color, sigma) = (0.78 0.03)
+    (source_color, sigma) = (0.78, 0.03)
 
     f_s_ogle = event.get_source_flux(dataset=KMT)
     f_s_spitz = event.get_source_flux(dataset=Spitzer) 
@@ -47,7 +47,7 @@ filenames = ['KCT01I.dat', 'KCT41I.dat', 'KCT42I.dat', 'KSA01I.dat', 'KSA41I.dat
 for file in filenames:
     datasets.append(MulensModel.MulensData(
             file_name=os.path.join(
-        MulensModel.MODULE_PATH, "data", "OB161195", file)))
+        MulensModel.MODULE_PATH, "data/photometry_files", "OB161195", file)))
 
 # Close-- model
 model = MulensModel.Model(

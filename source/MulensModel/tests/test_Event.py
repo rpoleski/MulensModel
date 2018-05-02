@@ -11,10 +11,11 @@ from MulensModel.model import Model
 from MulensModel.utils import Utils
 
 
-SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
-                                    "data", "phot_ob08092_O4.dat")
-SAMPLE_FILE_02 = os.path.join(MulensModel.MODULE_PATH, 
-                                    "data", "ob140939_OGLE.dat")
+SAMPLE_FILE_01 = os.path.join(
+    MulensModel.MODULE_PATH, "data/photometry_files", "phot_ob08092_O4.dat")
+SAMPLE_FILE_02 = os.path.join(
+    MulensModel.MODULE_PATH, "data/photometry_files/OB140939",
+    "ob140939_OGLE.dat")
 
 def test_event_get_chi2_1():
     """basic unit test on ob08092 OGLE-IV data"""

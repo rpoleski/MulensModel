@@ -9,8 +9,8 @@ from MulensModel.mulensdata import MulensData
 from MulensModel.event import Event
 
 
-SAMPLE_FILE_01 = os.path.join(MulensModel.MODULE_PATH, 
-                                    "data", "phot_ob08092_O4.dat")
+SAMPLE_FILE_01 = os.path.join(
+    MulensModel.MODULE_PATH, "data/photometry_files", "phot_ob08092_O4.dat")
 
 
 def test_model_coords():
