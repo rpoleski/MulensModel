@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.mulensdata module &#8212; MulensModel 1.1.0 documentation</title>
+    <title>MulensModel.mulensdata module &#8212; MulensModel 1.2.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1.0',
+        VERSION:     '1.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -151,6 +151,22 @@ file_name is provided.</p>
 <code class="descname">n_epochs</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.n_epochs" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>give total number of epochs (including bad data)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.mulensdata.MulensData.data_and_err_in_input_fmt">
+<code class="descname">data_and_err_in_input_fmt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.data_and_err_in_input_fmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives photometry in input format (mag or flux).</p>
+<dl class="docutils">
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>data: <em>np.ndarray</em></dt>
+<dd>Magnitudes or fluxes</dd>
+<dt>data_err: <em>np.ndarray</em></dt>
+<dd>Uncertainties of magnitudes or of fluxes</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">

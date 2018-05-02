@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.event module &#8212; MulensModel 1.1.0 documentation</title>
+    <title>MulensModel.event module &#8212; MulensModel 1.2.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1.0',
+        VERSION:     '1.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -67,6 +67,10 @@
 </dl>
 </dd>
 </dl>
+<p>The datasets can be in magnitude or flux spaces. When we calculate chi^2
+we do it in the same space as the dataset considered. If dataset is in
+magnitude space and model results in negative flux, then we calculate chi^2
+in flux space but only for the epochs with negative model flux.</p>
 <dl class="attribute">
 <dt id="MulensModel.event.Event.datasets">
 <code class="descname">datasets</code><a class="headerlink" href="#MulensModel.event.Event.datasets" title="Permalink to this definition">¶</a></dt>
@@ -169,6 +173,34 @@ fixed to 0.  Default is the same as
 <dd>Chi^2 contribution from each data point,
 e.g. chi2[obs_num][k] returns the chi2 contribution
 from the <em>k</em>-th point of observatory <em>obs_num</em>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.chi2_gradient">
+<code class="descname">chi2_gradient</code><span class="sig-paren">(</span><em>parameters</em>, <em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.chi2_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate chi^2 gradient (also called Jacobian), i.e.,
+<span class="math">\(d chi^2/d parameter\)</span>.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>parameters: <em>str</em> or <em>list</em>, required</dt>
+<dd>Parameters with respect to which gradient is calculated.
+Currently accepted parameters are: <code class="docutils literal"><span class="pre">t_0</span></code>, <code class="docutils literal"><span class="pre">u_0</span></code>, <code class="docutils literal"><span class="pre">t_eff</span></code>,
+<code class="docutils literal"><span class="pre">t_E</span></code>, <code class="docutils literal"><span class="pre">pi_E_N</span></code>, and <code class="docutils literal"><span class="pre">pi_E_E</span></code>. The parameters for
+which you request gradient must be defined in py:attr:<cite>~model</cite>.</dd>
+<dt>fit_blending: <em>boolean</em>, optional</dt>
+<dd>Are we fitting for blending flux? If not then blending flux is
+fixed to 0.  Default is the same as
+<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>gradient: <em>float</em> or <em>np.ndarray</em></dt>
+<dd>chi^2 gradient</dd>
 </dl>
 </dd>
 </dl>
