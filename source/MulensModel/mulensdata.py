@@ -284,6 +284,30 @@ class MulensData(object):
         """
         return self._n_epochs
 
+    def data_and_err_in_input_fmt(self):
+        """
+        Gives photometry in input format (mag or flux).
+
+        Returns :
+            data: *np.ndarray*
+                Magnitudes or fluxes
+
+            data_err: *np.ndarray*
+                Uncertainties of magnitudes or of fluxes
+
+        """
+        if self.input_fmt == "mag":
+            data = self.mag
+            err_data = self.err_mag
+        elif dataset.input_fmt == "flux":
+            data = self.flux
+            err_data = self.err_flux
+        else:
+            raise ValueError('Unrecognized data format: {:}'.format(
+                    self.input_fmt))
+        
+        return (data, err_data)
+
     @property
     def satellite_skycoord(self):
         """

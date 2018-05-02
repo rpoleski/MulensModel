@@ -337,6 +337,18 @@ class Model(object):
             if topocentric is not None:
                 self._parallax['topocentric'] = topocentric
 
+    def get_parallax(self):
+        """
+        Returns *dict* that specifies the types of the microlensing parallax
+        that are included in calculations.
+
+        Returns :
+            parallax: *dict*
+                For keys ``'earth_orbital'``, ``'satellite'``,
+                and ``'topocentric'`` returns *bool*.
+        """
+        return self._parallax
+
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
