@@ -121,12 +121,33 @@ class BinaryLens(object):
         polynomial_input = [self.mass_1, self.mass_2, self.separation,
                             source_x, source_y]
 
-        if polynomial_input != self._last_polynomial_input:
-            polynomial = self._get_polynomial_WM95(
-                source_x=source_x, source_y=source_y)
-            self._polynomial_roots_WM95 = (
-                    np.polynomial.polynomial.polyroots(polynomial))
-            self._last_polynomial_input = polynomial_input
+        if polynomial_input == self._last_polynomial_input:
+            return self._polynomial_roots_WM95
+        
+        polynomial = self._get_polynomial_WM95(
+            source_x=source_x, source_y=source_y)
+        if not self._vbbl_wrapped:
+            self._import_vbbl()
+            if not self._vbbl_wrapped:
+                solver = 'numpy'
+            else:
+                solver = 'Skowron_and_Gould_12'
+        else:
+            solver = 'Skowron_and_Gould_12'
+            
+        if solver == 'Skowron_and_Gould_12':
+            poly = [p.real.item() for p in polynomial]
+            poly += [p.imag.item() for p in polynomial]
+            out = self._vbbl_SG12_5(*poly)
+            roots = [out[i] + out[i+5] * 1.j for i in range(5)]
+            self._polynomial_roots_WM95 = np.array(roots)
+        elif solver == 'numpy':
+            self._polynomial_roots_WM95 = np.polynomial.polynomial.polyroots(
+                                                                    polynomial)
+        else:
+            raise ValueError('Unkown solver')
+        self._last_solver = solver
+        self._last_polynomial_input = polynomial_input
 
         return self._polynomial_roots_WM95
 
@@ -202,8 +223,9 @@ class BinaryLens(object):
 
     def _point_source_WM95(self, source_x, source_y):
         """calculate point source magnification using Witt & Mao 1995"""
-        return fsum(abs(self._signed_magnification_WM95(
-                source_x=source_x, source_y=source_y)))
+        signed_magnification = self._signed_magnification_WM95(
+            source_x=source_x, source_y=source_y)
+        return fsum(abs(signed_magnification))
 
     def _point_source_Witt_Mao_95(self, source_x, source_y):
         """calculate point source magnification using Witt & Mao 1995"""
@@ -233,13 +255,6 @@ class BinaryLens(object):
             self._adaptive_contouring_linear = (
                 adaptive_contouring.Adaptive_Contouring_Linear)
 
-            adaptive_contouring.Adaptive_Contouring_Point_Source.argtypes = (
-                4 * [ctypes.c_double])
-            adaptive_contouring.Adaptive_Contouring_Point_Source.restype = (
-                ctypes.c_double)
-            self._adaptive_contouring_ps = (
-                adaptive_contouring.Adaptive_Contouring_Point_Source)
-
     def point_source_magnification(self, source_x, source_y):
         """
         Calculate point source magnification for given position. The
@@ -259,17 +274,6 @@ class BinaryLens(object):
             magnification: *float*
                 Point source magnification.
         """
-        if not self._adaptive_contouring_wrapped:
-            self._import_adaptive_contouring()
-
-        s = float(self.separation)
-        q = float(self.mass_2 / self.mass_1)
-        x = float(-source_x)
-        y = float(-source_y)
-
-        return self._adaptive_contouring_ps(s, q, x, y)
-
-# The lines below are an old version.
         x_shift = self.separation * (0.5 +
                                      self.mass_2 / (self.mass_1 + self.mass_2))
         # We need to add this because WM95 use geometric center as an origin
@@ -478,6 +482,32 @@ class BinaryLens(object):
 
         return magnification
 
+    def _import_vbbl(self):
+        """
+        just import VBBL library
+        """
+        #print("XXX")
+        if True:
+            PATH = os.path.join(
+                MulensModel.MODULE_PATH, 'source', 'VBBL',
+                "VBBinaryLensingLibrary_wrapper.so")
+            try:
+                vbbl = ctypes.cdll.LoadLibrary(PATH)
+            except OSError as error:
+                msg = ("Something went wrong with VBBL wrapping ({:})\n\n" +
+                       repr(error))
+                raise OSError(msg.format(PATH))
+            self._vbbl_wrapped = True
+
+            vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
+            vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
+            self._vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
+
+            vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
+            vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
+                    dtype=ctypes.c_double, shape=(10,))
+            self._vbbl_SG12_5 = vbbl.VBBL_SG12_5        
+
     def vbbl_magnification(self, source_x, source_y, rho,
                            gamma=None, u_limb_darkening=None,
                            accuracy=0.001):
@@ -520,19 +550,7 @@ class BinaryLens(object):
 
         """
         if not self._vbbl_wrapped:
-            PATH = os.path.join(
-                MulensModel.MODULE_PATH, 'source', 'VBBL',
-                "VBBinaryLensingLibrary_wrapper.so")
-            try:
-                vbbl = ctypes.cdll.LoadLibrary(PATH)
-            except OSError as error:
-                msg = ("Something went wrong with VBBL wrapping ({:})\n\n" +
-                       repr(error))
-                raise OSError(msg.format(PATH))
-            self._vbbl_wrapped = True
-            vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
-            vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
-            self._vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
+            self._import_vbbl()
 
         if gamma is not None and u_limb_darkening is not None:
             raise ValueError('Only one limb darkening parameters can be set' +
@@ -567,4 +585,6 @@ class BinaryLens(object):
         #      }
         #  }
         #  delete Images;
+        # This code was written for version 1.X. Check if it's the same 
+        # (maybe simpler) in 2.X.
 
