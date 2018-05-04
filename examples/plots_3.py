@@ -12,7 +12,7 @@ from MulensModel import MulensData, Model, Event, MODULE_PATH
 
 
 # Import data
-data_dir = os.path.join(MODULE_PATH, 'data', 'OB03235')
+data_dir = os.path.join(MODULE_PATH, 'data', 'photometry_files', 'OB03235')
 OGLE_data = MulensData(
     file_name=os.path.join(data_dir, 'OB03235_OGLE.tbl.txt'),
     comments=['\\', '|'])
