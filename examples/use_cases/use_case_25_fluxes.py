@@ -47,7 +47,7 @@ filenames = ['KCT01I.dat', 'KCT41I.dat', 'KCT42I.dat', 'KSA01I.dat', 'KSA41I.dat
 for file in filenames:
     datasets.append(MulensModel.MulensData(
             file_name=os.path.join(
-        MulensModel.MODULE_PATH, "data/photometry_files", "OB161195", file)))
+        MulensModel.MODULE_PATH, "data", "photometry_files", "OB161195", file)))
 
 # Close-- model
 model = MulensModel.Model(

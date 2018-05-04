@@ -11,7 +11,7 @@ import MulensModel
 #Read in some data
 data = []
 file_name = os.path.join(
-    MulensModel.MODULE_PATH, 'data/photometry_files/OB151100', 
+    MulensModel.MODULE_PATH, 'data', 'photometry_files', 'OB151100',
     'phot_ob151100_OGLE_v1.dat')
 data.append(MulensModel.MulensData(file_name=file_name, add_2450000=True))
 

@@ -15,11 +15,11 @@ from MulensModel.coordinates import Coordinates
 DATA_PATH = os.path.join(MulensModel.MODULE_PATH, 'data')
 
 SAMPLE_FILE_02 = os.path.join(
-    DATA_PATH, 'photometry_files/OB151100', 'phot_ob151100_OGLE_v1.dat') #HJD'
+    DATA_PATH, 'photometry_files', 'OB151100', 'phot_ob151100_OGLE_v1.dat') #HJD'
 SAMPLE_FILE_02_REF = os.path.join(
     DATA_PATH, 'unit_test_files', 'ob151100_OGLE_ref_v1.dat') #HJD'
 SAMPLE_FILE_03 = os.path.join(
-    DATA_PATH, 'photometry_files/OB151100', 'phot_ob151100_Spitzer_2_v2.dat') #HJD'
+    DATA_PATH, 'photometry_files', 'OB151100', 'phot_ob151100_Spitzer_2_v2.dat') #HJD'
 SAMPLE_FILE_03_EPH = os.path.join(
     DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat') #UTC
 SAMPLE_FILE_03_REF = os.path.join(

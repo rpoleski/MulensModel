@@ -13,8 +13,8 @@ import MulensModel
 
 
 data_dir = os.path.join(
-    MulensModel.MODULE_PATH, 'data/photometry_files/OB140939')
-ephemeris_dir = os.path.join(MulensModel.MODULE_PATH, 'data/ephemeris_files')
+    MulensModel.MODULE_PATH, 'data', 'photometry_files', 'OB140939')
+ephemeris_dir = os.path.join(MulensModel.MODULE_PATH, 'data', 'ephemeris_files')
 
 ra = '17:47:12.25'
 dec = '-21:22:58.2'
