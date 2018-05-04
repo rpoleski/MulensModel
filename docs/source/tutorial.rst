@@ -68,11 +68,15 @@ Suppose you also had some data you want to import:
 
 .. code-block:: python
 
-   path = MulensModel.MODULE_PATH + '/data/OB03235/'
-   OGLE_data = MulensModel.MulensData(file_name=path + 
-       'OB03235_OGLE.tbl.txt', comments=['\\', '|'])
-   MOA_data = MulensModel.MulensData(file_name=path + 
-       'OB03235_MOA.tbl.txt', phot_fmt='flux', comments=['\\', '|'])
+   import os
+   path = os.path.join(MulensModel.MODULE_PATH, 'data',
+        'photometry_files', 'OB03235')
+   OGLE_data = MulensModel.MulensData(
+        file_name=os.path.join(path, 'OB03235_OGLE.tbl.txt'),
+        comments=['\\', '|'])
+   MOA_data = MulensModel.MulensData(
+        file_name=os.path.join(path, 'OB03235_MOA.tbl.txt'),
+        comments=['\\', '|'])
 
 Combining Data with a Model
 ---------------------------
