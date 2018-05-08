@@ -32,7 +32,7 @@ model = mm.Model(
 # Fit the model
 event = mm.Event(datasets=datasets, model=model)
 
-parameters_to_fit = ['t_0_1', 'u_0_1', 't_0_2', 't_0_2', 't_E', 'q_I', 'q_V']
+parameters_to_fit = ['t_0_1', 'u_0_1', 't_0_2', 'u_0_2', 't_E', 'q_I', 'q_V']
 initial_guess = [
     model.parameters.t_0_1,
     model.parameters.u_0_1,
@@ -47,3 +47,4 @@ result = op.minimize(
     chi2_fun, x0=initial_guess, args=(event, parameters_to_fit),
     method='Nelder-Mead')
 print(result.x)
+

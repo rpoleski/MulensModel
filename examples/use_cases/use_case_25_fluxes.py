@@ -6,6 +6,7 @@ import glob
 
 import MulensModel
 
+
 def chi2_fun(theta, event, parameters_to_fit):
     """
     for given event set attributes from parameters_to_fit (list of
@@ -41,13 +42,13 @@ def get_color_constraint(event):
 
 # Add data from OB161195
 datasets = []
-filenames = ['KCT01I.dat', 'KCT41I.dat', 'KCT42I.dat', 'KSA01I.dat', 'KSA41I.dat',
-             'KSA42I.dat', 'KSS01I.dat', 'KSS41I.dat', 'KSS42I.dat', 
-             'spitzer_b12.dat']
-for file in filenames:
+file_names = ['KCT01I.dat', 'KCT41I.dat', 'KCT42I.dat', 'KSA01I.dat',
+            'KSA41I.dat', 'KSA42I.dat', 'KSS01I.dat', 'KSS41I.dat', 
+            'KSS42I.dat', 'spitzer_b12.dat']
+for file_ in file_names:
     datasets.append(MulensModel.MulensData(
             file_name=os.path.join(
-        MulensModel.MODULE_PATH, "data", "photometry_files", "OB161195", file)))
+        MulensModel.MODULE_PATH, "data", "photometry_files", "OB161195", file_)))
 
 # Close-- model
 model = MulensModel.Model(
@@ -57,3 +58,4 @@ model = MulensModel.Model(
 
 event = MulensModel.Event(datasets=datasets, model=model)
 print(chi2_fun(event))
+
