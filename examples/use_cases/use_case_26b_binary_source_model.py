@@ -2,6 +2,8 @@ import MulensModel as mm
 import matplotlib.pyplot as pl
 import numpy as np
 
+raise NotImplementedError('This use case has not been implemented.')
+
 # Model parameters
 t_0_1 = 2458000.
 u_0_1 = 0.1
