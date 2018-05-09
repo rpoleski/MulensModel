@@ -13,12 +13,22 @@ data_path = os.path.join(mm.MODULE_PATH, 'data', 'photometry_files')
 ob03235_ogle_data = mm.MulensData(
     data_file=os.path.join(data_path, 'OB03235', 'OB03235_OGLE.tbl.txt'),
     phot_fmt='mag', 
-    plot_properties={'size': 5, 'color': 'black', 'zorder'=10})
+    plot_properties={'color': 'black', 'zorder'=10})
 ob03235_moa_data = mm.MulensData(
     data_file=os.path.join(data_path, 'OB03235', 'OB03235_MOA.tbl.txt'),
     phot_fmt='flux', 
     plot_properties={'marker': 's', 'size': 2, 'color': 'red', 'zorder'=2,
                      'show_errorbars'=False, 'show_bad'=False})
+
+# Setting plot properties after MulensData is defined
+ob03235_ogle_data.plot_properties['size'] = 10
+
+# Making a plot
+pl.figure()
+pl.subplot(1, 2, 1)
+ob03235_ogle_data.plot()
+pl.subplot(1, 2, 2)
+ob03235_moa_data.plot()
 
 # Set plot_properties for many datasets
 def set_plot_properties(filename):
@@ -56,5 +66,8 @@ t_star = 0.05487
 model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 't_star': t_star})
 
 event = mm.Event(datasets=datasets, model=model)
+
+pl.figure()
 event.plot_data()
+pl.legend()
 pl.show()
