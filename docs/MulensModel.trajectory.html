@@ -51,6 +51,9 @@ microlensing parallax affects the trajectory.</p>
 <p>For binary lens, the origin of the coordinate system is at the
 center of mass with higher mass (assuming q &lt; 1) at negative X and
 Y=0.</p>
+<p>This class follows the conventions defined in Appendix A of 
+<cite>Skowron et al. (2011) 
+&lt;http://adsabs.harvard.edu/abs/2011ApJ…738…87S&gt;</cite>.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
 <dd><dl class="first last docutils">
@@ -73,6 +76,13 @@ ephemerides file. see
 <code class="xref py py-obj docutils literal"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
 </dl>
 </dd>
+<dt>Attributes :</dt>
+<dd><p class="first">x: <em>np.ndarray</em></p>
+<dl class="last docutils">
+<dt>y: <em>np.ndarray</em></dt>
+<dd>Dimensionless source trajectory.</dd>
+</dl>
+</dd>
 </dl>
 <dl class="method">
 <dt id="MulensModel.trajectory.Trajectory.get_xy">
@@ -80,6 +90,8 @@ ephemerides file. see
 <dd><p>For a given set of parameters
 (a <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a> object),
 calculate the xy position of the source.</p>
+<p>This function has no input and no output. It sets <code class="xref py py-attr docutils literal"><span class="pre">x</span></code> and
+<code class="xref py py-attr docutils literal"><span class="pre">y</span></code> attributes.</p>
 </dd></dl>
 
 </dd></dl>
