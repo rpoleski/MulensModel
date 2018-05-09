@@ -1,8 +1,9 @@
-import MulensModel as mm
-
 import os
 import glob
 import matplotlib.pyplot as pl
+
+import MulensModel as mm
+
 
 raise NotImplementedError('This use case has not been implemented')
 
@@ -36,21 +37,17 @@ def set_plot_properties(filename):
         plot_properties['color'] = 'red'
         plot_properties['zorder'] = 2
         plot_properties['show_errorbars'] = False
-    else:
-        return None
 
     return plot_properties
 
 
 file_list = glob.glob(os.path.join(data_path, 'MB08310', '*'))
 datasets = []
-for file in file_list:
-    plot_properties = set_plot_properties(file)
-    if plot_properties == None:
-        plot_properties = {}
-
-    plot_properties['label'] = file.split('_', maxsplit=2)[0]
-    datasets.append(mm.MulensData(file_name=file), plot_properties=plot_properties)
+for file_ in file_list:
+    plot_properties = set_plot_properties(file_)
+    plot_properties['label'] = file_.split('_', maxsplit=2)[0]
+    datasets.append(mm.MulensData(file_name=file_, 
+        plot_properties=plot_properties))
 
 t_0 = 2454656.39975
 u_0 = 0.00300

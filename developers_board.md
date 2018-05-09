@@ -101,7 +101,6 @@
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
   * Examples:
-    * **triangle plots**
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
     * PSPL fitting with gradient
