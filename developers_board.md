@@ -50,6 +50,7 @@
     * **give access to all fluxes without changing data\_ref**
     * reduce calls to Fit.fit\_fluxes()
     * add finite source in chi2\_gradient()
+    * chi2\_gradient() should cope NaN values in a way similar to get\_chi2()
     * check all functions that should pass fit\_blending parameter
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
   * Fit:
