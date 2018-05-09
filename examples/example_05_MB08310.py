@@ -14,8 +14,8 @@ from MulensModel import Event, Model, MulensData, MODULE_PATH
 
 # Read in MB08310 data files (see data/MB08310) as MulensData objects.
 # Grabbing all data files in the MB08310 folder
-files = glob.glob(os.path.join(
-        MODULE_PATH, "data/photometry_files", "MB08310", "*.tbl"))
+files = glob.glob(os.path.join(MODULE_PATH, "data", "photometry_files",
+    "MB08310", "*.tbl"))
 
 datasets = []
 labels = []

@@ -299,7 +299,7 @@ class MulensData(object):
         if self.input_fmt == "mag":
             data = self.mag
             err_data = self.err_mag
-        elif dataset.input_fmt == "flux":
+        elif self.input_fmt == "flux":
             data = self.flux
             err_data = self.err_flux
         else:

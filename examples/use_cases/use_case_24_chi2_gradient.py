@@ -47,7 +47,7 @@ class Minimizer(object):
 
 #Read in the data file
 SAMPLE_FILE_01 = os.path.join(
-    MulensModel.MODULE_PATH, "data/photometry_files", "phot_ob08092_O4.dat")
+    MulensModel.MODULE_PATH, "data", "photometry_files", "phot_ob08092_O4.dat")
 data = MulensData(file_name=SAMPLE_FILE_01)
 
 #Initialize the fit

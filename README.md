@@ -7,6 +7,8 @@ It is still under development. [Latest release: 1.2.0](https://github.com/rpoles
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
+Are you interested in [Microlensing Data Analysis Challenge](http://microlensing-source.org/data-challenge/)? For more details on using MulensModel in data challenge, see [this document](documents/data_challenge.md).
+
 A few useful resources:
 
 * [Basic usage tutorial](https://rpoleski.github.io/MulensModel/tutorial.html),
@@ -28,8 +30,6 @@ More will be added soon.
 [Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of very function. 
 
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
-
-You can use MulensModel in [Microlensing Data Analysis Challenge](http://microlensing-source.org/data-challenge/). 
 
 Currently, MulensModel supports:
 * Lens Systems: Point Lens, Binary Lens,
@@ -67,5 +67,5 @@ gcc -Wl,-soname,rapper -shared -o VBBinaryLensingLibrary_wrapper.so VBBinaryLens
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Apr 2018
+file revised May 2018
 

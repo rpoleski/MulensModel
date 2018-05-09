@@ -3,7 +3,7 @@ import os
 
 raise NotImplementedError('This use case has not been implemented')
 
-data_path = os.path.join(mm.MODULE_PATH, 'data/photometry_files')
+data_path = os.path.join(mm.MODULE_PATH, 'data', 'photometry_files')
 
 ob03235_ogle_data = mm.MulensData(
     data_file=os.path.join(data_path, 'OB03235', 'OB03235_OGLE.tbl.txt'),

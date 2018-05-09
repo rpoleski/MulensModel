@@ -68,8 +68,8 @@ class Minimizer(object):
 
 # Read the data
 my_data = MulensData(
-    file_name=os.path.join(
-        MODULE_PATH, "data/photometry_files", "starBLG234.6.I.218982.dat"),
+    file_name=os.path.join(MODULE_PATH, "data", "photometry_files",
+        "starBLG234.6.I.218982.dat"),
     add_2450000=True)
 
 # Starting parameters:

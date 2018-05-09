@@ -16,7 +16,7 @@ model = MulensModel.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 #Import data
 file_name = os.path.join(
-    MulensModel.MODULE_PATH, 'data/photometry_files', 'phot_ob160023.dat')
+    MulensModel.MODULE_PATH, 'data', 'photometry_files', 'phot_ob160023.dat')
 data = MulensModel.MulensData(file_name=file_name)
 
 #Create Event

@@ -62,7 +62,7 @@ namespace VBBinaryLensingLibrary {
 		void ComputeParallax(double, double, double *);
 		_curve *NewImages(complex,complex  *,_theta *);
 		void OrderImages(_sols *,_curve *);
-		void cmplx_roots_gen(complex *, complex *, int, bool, bool);
+		//void cmplx_roots_gen(complex *, complex *, int, bool, bool);
 		void cmplx_laguerre(complex *, int, complex *, int &, bool &);
 		void cmplx_newton_spec(complex *, int, complex *, int &, bool &);
 		void cmplx_laguerre2newton(complex *, int, complex *, int &, bool &, int);
@@ -95,6 +95,7 @@ namespace VBBinaryLensingLibrary {
 		double ESPLMag2(double u, double rho);
 		double ESPLMagDark(double u, double rho, double a1);
 
+                void cmplx_roots_gen(complex *, complex *, int, bool, bool);
 
 	// New (v2) light curve functions, operating on arrays
 

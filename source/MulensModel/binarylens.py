@@ -6,10 +6,48 @@ from math import fsum, sqrt
 
 import MulensModel
 from MulensModel.utils import Utils
-# For VBBL and AdaptiveContouring import and wrapping see
-# self._vbbl_wrapped and
-# self._adaptive_contouring_wrapped
-# below.
+MODULE_PATH = os.path.abspath(__file__)
+for i in range(3):
+    MODULE_PATH = os.path.dirname(MODULE_PATH)
+PATH = os.path.join(MODULE_PATH, 'source', 'VBBL',
+        "VBBinaryLensingLibrary_wrapper.so")
+try:
+    vbbl = ctypes.cdll.LoadLibrary(PATH)
+except OSError as error:
+    msg = "Something went wrong with VBBL wrapping ({:})\n\n" + repr(error)
+    print(msg.format(PATH))
+    _vbbl_wrapped = False
+else:
+    _vbbl_wrapped = True
+    vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
+    vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
+    _vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
+    
+    vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
+    vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(dtype=ctypes.c_double, 
+            shape=(10,))
+    _vbbl_SG12_5 = vbbl.VBBL_SG12_5
+
+if not _vbbl_wrapped:
+    _solver = 'numpy'
+else:
+    _solver = 'Skowron_and_Gould_12'
+
+PATH = os.path.join(MODULE_PATH, 'source', 'AdaptiveContouring',
+                "AdaptiveContouring_wrapper.so")
+try:
+    adaptive_contouring = ctypes.cdll.LoadLibrary(PATH)
+except OSError as error:
+    msg = ("Something went wrong with AdaptiveContouring " +
+           "wrapping ({:})\n\n" + repr(error))
+    print(msg.format(PATH))
+    _adaptive_contouring_wrapped = False
+else:
+    _adaptive_contouring_wrapped = True
+    adaptive_contouring.Adaptive_Contouring_Linear.argtypes = (
+                8 * [ctypes.c_double])
+    adaptive_contouring.Adaptive_Contouring_Linear.restype = (ctypes.c_double)
+    _adaptive_contouring_linear = adaptive_contouring.Adaptive_Contouring_Linear
 
 
 class BinaryLens(object):
@@ -47,8 +85,6 @@ class BinaryLens(object):
         self._position_z1_WM95 = None
         self._position_z2_WM95 = None
         self._last_polynomial_input = None
-        self._vbbl_wrapped = False
-        self._adaptive_contouring_wrapped = False
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
@@ -121,12 +157,23 @@ class BinaryLens(object):
         polynomial_input = [self.mass_1, self.mass_2, self.separation,
                             source_x, source_y]
 
-        if polynomial_input != self._last_polynomial_input:
-            polynomial = self._get_polynomial_WM95(
-                source_x=source_x, source_y=source_y)
-            self._polynomial_roots_WM95 = (
-                    np.polynomial.polynomial.polyroots(polynomial))
-            self._last_polynomial_input = polynomial_input
+        if polynomial_input == self._last_polynomial_input:
+            return self._polynomial_roots_WM95
+        
+        polynomial = self._get_polynomial_WM95(
+            source_x=source_x, source_y=source_y)
+            
+        if _solver == 'Skowron_and_Gould_12':
+            out = _vbbl_SG12_5(*(polynomial.real.tolist() +
+                    polynomial.imag.tolist()))
+            roots = [out[i] + out[i+5] * 1.j for i in range(5)]
+            self._polynomial_roots_WM95 = np.array(roots)
+        elif _solver == 'numpy':
+            self._polynomial_roots_WM95 = np.polynomial.polynomial.polyroots(
+                                                                    polynomial)
+        else:
+            raise ValueError('Unkown solver: {:}'.format(_solver))
+        self._last_polynomial_input = polynomial_input
 
         return self._polynomial_roots_WM95
 
@@ -202,43 +249,14 @@ class BinaryLens(object):
 
     def _point_source_WM95(self, source_x, source_y):
         """calculate point source magnification using Witt & Mao 1995"""
-        return fsum(abs(self._signed_magnification_WM95(
-                source_x=source_x, source_y=source_y)))
+        signed_magnification = self._signed_magnification_WM95(
+            source_x=source_x, source_y=source_y)
+        return fsum(abs(signed_magnification))
 
     def _point_source_Witt_Mao_95(self, source_x, source_y):
         """calculate point source magnification using Witt & Mao 1995"""
         return self._point_source_WM95(
                 source_x=source_x, source_y=source_y)
-
-    def _import_adaptive_contouring(self):
-        """
-        import Adaptive_Contouring and 2 fuctions from it
-        """
-        if True:
-            PATH = os.path.join(
-                MulensModel.MODULE_PATH, 'source', 'AdaptiveContouring',
-                "AdaptiveContouring_wrapper.so")
-            try:
-                adaptive_contouring = ctypes.cdll.LoadLibrary(PATH)
-            except OSError as error:
-                msg = (
-                    "Something went wrong with AdaptiveContouring " +
-                    "wrapping ({:})\n\n" + repr(error))
-                raise OSError(msg.format(PATH))
-            self._adaptive_contouring_wrapped = True
-            adaptive_contouring.Adaptive_Contouring_Linear.argtypes = (
-                8 * [ctypes.c_double])
-            adaptive_contouring.Adaptive_Contouring_Linear.restype = (
-                ctypes.c_double)
-            self._adaptive_contouring_linear = (
-                adaptive_contouring.Adaptive_Contouring_Linear)
-
-            adaptive_contouring.Adaptive_Contouring_Point_Source.argtypes = (
-                4 * [ctypes.c_double])
-            adaptive_contouring.Adaptive_Contouring_Point_Source.restype = (
-                ctypes.c_double)
-            self._adaptive_contouring_ps = (
-                adaptive_contouring.Adaptive_Contouring_Point_Source)
 
     def point_source_magnification(self, source_x, source_y):
         """
@@ -259,17 +277,6 @@ class BinaryLens(object):
             magnification: *float*
                 Point source magnification.
         """
-        if not self._adaptive_contouring_wrapped:
-            self._import_adaptive_contouring()
-
-        s = float(self.separation)
-        q = float(self.mass_2 / self.mass_1)
-        x = float(-source_x)
-        y = float(-source_y)
-
-        return self._adaptive_contouring_ps(s, q, x, y)
-
-# The lines below are an old version.
         x_shift = self.separation * (0.5 +
                                      self.mass_2 / (self.mass_1 + self.mass_2))
         # We need to add this because WM95 use geometric center as an origin
@@ -448,8 +455,8 @@ class BinaryLens(object):
 
         """
 
-        if not self._adaptive_contouring_wrapped:
-            self._import_adaptive_contouring()
+        if not _adaptive_contouring_wrapped:
+            raise ValueError('Adaptive Contouring was not imported properly')
 
         if gamma is not None and u_limb_darkening is not None:
             raise ValueError(
@@ -473,7 +480,7 @@ class BinaryLens(object):
         assert ld_accuracy > 0., "adaptive_contouring requires ld_accuracy > 0"
         # Note that this accuracy is not guaranteed.
 
-        magnification = self._adaptive_contouring_linear(
+        magnification = _adaptive_contouring_linear(
             s, q, x, y, rho, gamma, accuracy, ld_accuracy)
 
         return magnification
@@ -519,20 +526,8 @@ class BinaryLens(object):
                 Magnification.
 
         """
-        if not self._vbbl_wrapped:
-            PATH = os.path.join(
-                MulensModel.MODULE_PATH, 'source', 'VBBL',
-                "VBBinaryLensingLibrary_wrapper.so")
-            try:
-                vbbl = ctypes.cdll.LoadLibrary(PATH)
-            except OSError as error:
-                msg = ("Something went wrong with VBBL wrapping ({:})\n\n" +
-                       repr(error))
-                raise OSError(msg.format(PATH))
-            self._vbbl_wrapped = True
-            vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
-            vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
-            self._vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
+        if not _vbbl_wrapped:
+            raise ValueError('VBBL was not imported properly')
 
         if gamma is not None and u_limb_darkening is not None:
             raise ValueError('Only one limb darkening parameters can be set' +
@@ -553,7 +548,7 @@ class BinaryLens(object):
             "\n{:} was  provided".format(accuracy))
         # Note that this accuracy is not guaranteed.
 
-        magnification = self._vbbl_binary_mag_dark(
+        magnification = _vbbl_binary_mag_dark(
             s, q, x, y, rho, u_limb_darkening, accuracy)
 
         return magnification
@@ -567,4 +562,6 @@ class BinaryLens(object):
         #      }
         #  }
         #  delete Images;
+        # This code was written for version 1.X. Check if it's the same 
+        # (maybe simpler) in 2.X.
 

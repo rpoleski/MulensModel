@@ -87,11 +87,15 @@ effects:</p>
 <div class="section" id="introducing-data">
 <h2>Introducing Data<a class="headerlink" href="#introducing-data" title="Permalink to this headline">¶</a></h2>
 <p>Suppose you also had some data you want to import:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span> <span class="o">+</span> <span class="s1">&#39;/data/OB03235/&#39;</span>
-<span class="n">OGLE_data</span> <span class="o">=</span> <span class="n">MulensModel</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">path</span> <span class="o">+</span>
-    <span class="s1">&#39;OB03235_OGLE.tbl.txt&#39;</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">])</span>
-<span class="n">MOA_data</span> <span class="o">=</span> <span class="n">MulensModel</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">path</span> <span class="o">+</span>
-    <span class="s1">&#39;OB03235_MOA.tbl.txt&#39;</span><span class="p">,</span> <span class="n">phot_fmt</span><span class="o">=</span><span class="s1">&#39;flux&#39;</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">])</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span>
+     <span class="s1">&#39;photometry_files&#39;</span><span class="p">,</span> <span class="s1">&#39;OB03235&#39;</span><span class="p">)</span>
+<span class="n">OGLE_data</span> <span class="o">=</span> <span class="n">MulensModel</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span>
+     <span class="n">file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;OB03235_OGLE.tbl.txt&#39;</span><span class="p">),</span>
+     <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">])</span>
+<span class="n">MOA_data</span> <span class="o">=</span> <span class="n">MulensModel</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span>
+     <span class="n">file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;OB03235_MOA.tbl.txt&#39;</span><span class="p">),</span>
+     <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>

@@ -59,7 +59,7 @@ the data. Similar material can be found in
 <p>Then we import the data (downloaded together with the code) to
 the <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html">MulensData class</a>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;phot_ob08092_O4.dat&quot;</span><span class="p">)</span>
+    <span class="s2">&quot;photometry_files&quot;</span><span class="p">,</span> <span class="s2">&quot;phot_ob08092_O4.dat&quot;</span><span class="p">)</span>
 <span class="n">my_data</span> <span class="o">=</span> <span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{:} file was imported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
 </pre></div>
