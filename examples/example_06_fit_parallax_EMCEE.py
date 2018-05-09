@@ -46,7 +46,8 @@ def ln_prob(theta, event, parameters_to_fit):
 
 
 # Read the data
-file_name = os.path.join(MODULE_PATH, "data", "starBLG234.6.I.218982.dat")
+file_name = os.path.join(
+    MODULE_PATH, "data/photometry_files", "starBLG234.6.I.218982.dat")
 my_data = MulensData(file_name=file_name, add_2450000=True)
 
 coords = "18:04:45.71 -26:59:15.2"

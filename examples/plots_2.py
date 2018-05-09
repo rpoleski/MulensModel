@@ -28,7 +28,8 @@ model_planet.set_magnification_methods([2456937, 'VBBL', 2456945])
 model_parallax = Model({**params, **params_pi_E}, coords=ra_dec)
 model_parallax.parallax(earth_orbital=True, satellite=True)
 satellite = SatelliteSkyCoord(
-    os.path.join(MODULE_PATH, 'data', 'Spitzer_ephemeris_01.dat'))
+    os.path.join(
+        MODULE_PATH, 'data/ephemeris_files', 'Spitzer_ephemeris_01.dat'))
 # This file gives the Spitzer ephemeris and is part of MulensModel package.
 
 # Plot the magnification curves.
