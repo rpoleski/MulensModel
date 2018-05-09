@@ -23,7 +23,7 @@ class Trajectory(object):
 
     This class follows the conventions defined in Appendix A of 
     `Skowron et al. (2011) 
-    <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`.
+    <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_.
 
     Arguments :
         times: [*float*, *list*, *np.ndarray*], required
