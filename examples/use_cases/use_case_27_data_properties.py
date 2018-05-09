@@ -25,6 +25,7 @@ ob03235_ogle_data.plot_properties['size'] = 10
 
 # Making a plot
 pl.figure()
+pl.title('OB03235')
 pl.subplot(1, 2, 1)
 ob03235_ogle_data.plot()
 pl.subplot(1, 2, 2)
@@ -68,6 +69,7 @@ model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 't_star': t_star})
 event = mm.Event(datasets=datasets, model=model)
 
 pl.figure()
+pl.title('MB08310')
 event.plot_data()
 pl.legend()
 pl.show()
