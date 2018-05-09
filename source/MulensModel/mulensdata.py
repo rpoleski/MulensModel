@@ -71,11 +71,9 @@ class MulensData(object):
             Flags for good data, should be the same length as the
             number of data points.
 
-        color, label, marker: *string*, optional
-            matplotlib properties for plotting.
-
-        size, alpha, zorder: *int*, *float*, optional
-            matplotlib properties for plotting
+        plot_properties: *dict*, optional
+            Specify properties for plotting, e.g. color, marker, label, and also the show_bad and show_errorbars
+            properties. See :py:func:`plot()`.
 
         ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
         file_name is provided.
@@ -92,9 +90,7 @@ class MulensData(object):
                  phot_fmt="mag", coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
-                 color=None, label=None, marker=None, size=None, alpha=None,
-                 zorder=None,
-                 **kwargs):
+                 plot_properties=None, **kwargs):
 
         # Initialize some variables
         self._n_epochs = None
@@ -159,9 +155,7 @@ class MulensData(object):
         self.ephemerides_file = ephemerides_file
 
         # Plot properties
-        self.plot_properties = {
-            'color': color, 'label': label, 'marker': marker, 'size': size,
-            'alpha': alpha, 'zorder': zorder}
+        self.plot_properties = plot_properties
 
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
@@ -368,7 +362,7 @@ class MulensData(object):
 
 
     def plot(
-        self, phot_fmt=None, show_errorbars=True, show_bad=False,
+        self, phot_fmt=None, show_errorbars=None, show_bad=None,
         subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data.
@@ -417,25 +411,31 @@ class MulensData(object):
         else:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
 
+        if show_errorbars is None and 'show_errorbars' in self.plot_properties.keys():
+            show_errorbars = self.plot_properties['show_errorbars']
+
+        if show_bad is None and 'show_bad' in self.plot_properties.keys():
+            show_bad = self.plot_properties['show_bad']
+
         # The part below needs further development - combine kwargs with self.plot_properties and fmt/lw/marker.
         # Also in self.plot_properties what to do about marker vs. fmt?
         if show_errorbars:
             pl.errorbar(
                 self.time[self.good] - subtract,
                 y_val[self.good], yerr=err[self.good], fmt='o',
-                color=self.color, label=self.label, **kwargs)
+                color=self.plot_properties['color'], label=self.plot_properties['label'], **kwargs)
             if show_bad:
                 pl.errorbar(
                     self.time[self.bad] - subtract, y_val[self.bad],
-                    yerr=err[self.bad], fmt='x', color=self.color, **kwargs)
+                    yerr=err[self.bad], fmt='x', color=self.plot_properties['color'], **kwargs)
 
         else:
             pl.scatter(
                 self.time[self.good] - subtract, y_val[self.good],
-                lw=0., marker='o', color=self.color, label=self.label, 
+                lw=0., marker='o', color=self.plot_properties['color'], label=self.plot_properties['label'],
                 **kwargs)
             if show_bad:
                 pl.scatter(
                     self.time[self.bad] - subtract, y_val[self.bad],
-                    marker='x', color=self.color, **kwargs)
+                    marker='x', color=self.plot_properties['color'], **kwargs)
 
