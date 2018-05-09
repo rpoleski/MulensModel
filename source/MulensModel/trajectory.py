@@ -22,7 +22,7 @@ class Trajectory(object):
     Y=0.
 
     This class follows the conventions defined in Appendix A of 
-    `Skowron et al. (2011)
+    `Skowron et al. (2011) 
     <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`.
 
     Arguments :
@@ -50,6 +50,7 @@ class Trajectory(object):
 
     Attributes :
         x: *np.ndarray*
+        
         y: *np.ndarray*
             Dimensionless source trajectory.
     """
