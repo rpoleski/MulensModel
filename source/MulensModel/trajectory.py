@@ -21,6 +21,10 @@ class Trajectory(object):
     center of mass with higher mass (assuming q < 1) at negative X and
     Y=0.
 
+    This class follows the conventions defined in Appendix A of 
+    `Skowron et al. (2011)
+    <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`.
+
     Arguments :
         times: [*float*, *list*, *np.ndarray*], required
             the times at which to generate the source trajectory,
@@ -44,6 +48,10 @@ class Trajectory(object):
             ephemerides file. see
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
 
+    Attributes :
+        x: *np.ndarray*
+        y: *np.ndarray*
+            Dimensionless source trajectory.
     """
     _get_delta_annual_results = dict()
     _get_delta_satellite_results = dict()
@@ -90,6 +98,9 @@ class Trajectory(object):
         For a given set of parameters
         (a :py:class:`~MulensModel.modelparameters.ModelParameters` object),
         calculate the xy position of the source.
+        
+        This function has no input and no output. It sets :py:attr:`~x` and
+        :py:attr:`~y` attributes.
         """
         # Calculate the position of the source
         vector_tau = ((self.times - self.parameters.t_0) /
