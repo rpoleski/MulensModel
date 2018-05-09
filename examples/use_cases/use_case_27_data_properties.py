@@ -4,7 +4,7 @@ import os
 import glob
 import matplotlib.pyplot as pl
 
-# raise NotImplementedError('This use case has not been implemented')
+raise NotImplementedError('This use case has not been implemented')
 
 data_path = os.path.join(mm.MODULE_PATH, 'data', 'photometry_files')
 
@@ -45,7 +45,12 @@ def set_plot_properties(filename):
 file_list = glob.glob(os.path.join(data_path, 'MB08310', '*'))
 datasets = []
 for file in file_list:
-    datasets.append(mm.MulensData(file_name=file), plot_properties=set_plot_properties(file))
+    plot_properties = set_plot_properties(file)
+    if plot_properties == None:
+        plot_properties = {}
+
+    plot_properties['label'] = file.split('_', maxsplit=2)[0]
+    datasets.append(mm.MulensData(file_name=file), plot_properties=plot_properties)
 
 t_0 = 2454656.39975
 u_0 = 0.00300
