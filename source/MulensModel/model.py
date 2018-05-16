@@ -783,7 +783,7 @@ class Model(object):
                 each element of the list is a np.array() with the
                 residuals for the corresponding dataset.
 
-           errorbars: *list*
+            errorbars: *list*
                 the scaled errorbars for each point. For plotting
                 errorbars for the residuals.
         """
@@ -812,7 +812,7 @@ class Model(object):
                         f_source + f_blend_0)
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                residuals.append(model_mag - mag)
+                residuals.append(mag - model_mag)
                 errorbars.append(err)
             elif type == 'flux':
                 model_flux = (f_blend +
@@ -884,7 +884,7 @@ class Model(object):
             delta_mag = 0.5
 
         # Plot properties
-        pl.ylim(-delta_mag, delta_mag)
+        pl.ylim(delta_mag, -delta_mag)
         pl.xlim(t_min-subtract, t_max-subtract)
         pl.ylabel('Residuals')
         if subtract_2450000:
