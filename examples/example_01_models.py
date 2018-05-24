@@ -4,7 +4,7 @@ source models. The binary lens model has a planetary mass ratio and
 one can clearly see that the planetary anomaly is a short perturbation
 on top of smooth single point lens light curve. Also the lens source
 geometry (i.e., the source trajectory and the caustic position are
-plotted.
+plotted).
 
 """
 import matplotlib.pyplot as pl

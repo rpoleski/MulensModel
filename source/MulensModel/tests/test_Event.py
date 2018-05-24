@@ -206,7 +206,7 @@ def test_event_chi2_gradient():
     # We're not applying the test above, yet. See 'for' loop below.
 
     data = MulensData(file_name=SAMPLE_FILE_02)
-    kwargs = {'datasets': [data], 'coords': '17:47:12.25 −21:22:58.7'}
+    kwargs = {'datasets': [data], 'coords': '17:47:12.25 -21:22:58.7'}
     
     for test in [test_1]:#, test_2]:
         (parameters, params, gradient) = test
