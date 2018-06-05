@@ -34,7 +34,8 @@ model_1S2L.set_magnification_methods([2452833., 'VBBL', 2452845.])
 my_event = Event(datasets=[OGLE_data, MOA_data], model=model_1S2L)
 
 # Make the plot:
-t_range = [2452810., 2452890.]
+t_range = [2452800., 2452875.]
+pyplot.axes([0.09, 0.08, 0.9, 0.9])
 my_event.plot_data(
     subtract_2450000=True, label_list=['OGLE', 'MOA'],
     color_list=['red', 'blue'], zorder_list=[2, 1], s=6)
@@ -44,4 +45,9 @@ my_event.plot_model(
 pyplot.legend(loc='best')
 pyplot.xlim(t_range[0]-2450000., t_range[1]-2450000.)
 pyplot.ylim(19.0, 16.7)
+
+pyplot.axes([0.17, 0.7, 0.3, 0.2]) # Figure inset stars here.
+model_1S2L.plot_trajectory(caustics=True)
+pyplot.xlim(-0.1, 0.45)
+pyplot.ylim(-0.14, 0.14)
 pyplot.savefig('figure_3.png')
