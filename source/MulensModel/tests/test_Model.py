@@ -104,6 +104,19 @@ def test_limb_darkening():
     np.testing.assert_almost_equal(model.get_limb_coeff_gamma('I'), gamma)
     np.testing.assert_almost_equal(model.get_limb_coeff_u('I'), u)
 
+def test_t_E():
+    """make sure t_E can be accessed properly"""
+    t_0 = 2460000.
+    u_0 = 0.1
+    t_E = 12.3456
+    t_star = 0.01234
+    params = dict(t_0=t_0, u_0=u_0, t_E=t_E)
+    model_1 = Model(params)
+    model_2 = Model({**params, 't_star': t_star})
+
+    np.testing.assert_almost_equal(model_1.parameters.t_E, t_E)
+    np.testing.assert_almost_equal(model_2.parameters.t_E, t_E)
+
 # Binary Lens tests
 # Binary lens parameters:
 alpha = 229.58 * u.deg
