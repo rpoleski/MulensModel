@@ -38,12 +38,19 @@ pl.figure()
 pl.suptitle('OB03235 Data')
 
 pl.subplot(2, 1, 1)
+# Expected plot properties:
+# black circles of size 5 with error bars. First season of data marker = 'x'.
+# horizontal line plots *behind* data.
 pl.title('OGLE Data w/ errors and bad data')
 ob03235_ogle_data.plot()
 pl.axhline(np.median(ob03235_ogle_data.mag), zorder=5)
 pl.gca().invert_yaxis()
 
 pl.subplot(2, 1, 2)
+# Expected plot properties:
+# red squares of size 2, no error bars. Second season of data suppressed.
+# horizontal line plots *in front* of data.
+# legend shows file path as the data label.
 pl.title('MOA Data w/o errors or bad data')
 ob03235_moa_data.plot()
 pl.axhline(np.median(ob03235_moa_data.flux), zorder=5)
