@@ -44,7 +44,9 @@ class PointLens(object):
 
     Keywords :
         parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
-            Parameters of the model.
+            Parameters of the model. Currently, only 
+            :py:attr:`~MulensModel.modelparameters.ModelParameters.rho`
+            attribute is used. 
 
     """
 
@@ -134,7 +136,8 @@ class PointLens(object):
 
         Parameters :
             u: *float*, *np.array*
-                The instantaneous source-lens separation.
+                The instantaneous source-lens separation. 
+                Multiple values can be provided.
 
             pspl_magnification: *float*, *np.array*
                 The point source, point lens magnification at each value of u.
@@ -142,6 +145,7 @@ class PointLens(object):
         Returns :
             magnification: *float*, *np.array*
                 The finite source source magnification.
+                Type is the same as of u parameter.
 
         """
         z = u / self.parameters.rho
@@ -167,7 +171,8 @@ class PointLens(object):
 
         Parameters :
             u: *float*, *np.array*
-                The instantaneous source-lens separation.
+                The instantaneous source-lens separation. Multiple values 
+                can be provided.
 
             pspl_magnification: *float*, *np.array*
                 The point source, point lens magnification at each value of u.
@@ -179,7 +184,7 @@ class PointLens(object):
         Returns :
             magnification: *float*, *np.array*
                 The finite source source magnification including
-                limb-darkening.
+                limb-darkening. Type is the same as of u parameter.
 
         """
         z = u / self.parameters.rho
