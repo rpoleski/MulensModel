@@ -73,7 +73,7 @@ class MulensData(object):
 
         plot_properties: *dict*, optional
             Specify properties for plotting, e.g. color, marker, label, and also the show_bad and show_errorbars
-            properties. See :py:func:`plot()`.
+            properties. See :py:func:`set_plot_properties()`.
 
         ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
         file_name is provided.
@@ -336,6 +336,36 @@ class MulensData(object):
                 "cannot bandpass now.")
         self._bandpass = value
 
+    @property
+    def plot_properties(self):
+        """
+        *dictionary* 
+
+        Properties for plotting the data. May be any keywords accepted
+        by both pl.scatter() and pl.errorbar(). May also include keys
+        specific to one or the other, BUT there may be problems if you
+        use `py:plot()` to call the wrong one.
+
+        Note: `plot_properties` takes 'marker' and 'size' as keys
+        to set the point type and size of points. This function
+        translates those keys into the keys appropriate for
+        pl.errorbar ('fmt', 'markersize') and pl.scatter('marker',
+        'size'). 
+
+        Other special keys:
+            show_errorbars: *boolean*, optional
+                Whether or not to show the errorbars for this dataset.
+
+            show_bad: *boolean*, optional
+                Whether or not to plot data points flagged as bad.
+
+        """
+        return self._plot_properties
+
+    @plot_properties.setter
+    def plot_properties(self, dictionary):
+        self._plot_properties = dictionary
+
     def set_limb_darkening_weights(self, weights):
         """
         Save a dictionary of weights that will be used to evaluate the
@@ -425,39 +455,46 @@ class MulensData(object):
             else:
                 show_bad = False
 
-        # The part below needs further development - combine kwargs with self.plot_properties and fmt/lw/marker.
-        # Also in self.plot_properties what to do about marker vs. fmt?
         if show_errorbars:
-            properties = self._set_plot_properties(errorbars=True, **kwargs)
+            properties = self.set_plot_properties(errorbars=True, **kwargs)
             pl.errorbar(
                 self.time[self.good] - subtract,
                 y_val[self.good], yerr=err[self.good], **properties)
             if show_bad:
-                properties = self._set_plot_properties(
+                properties = self.set_plot_properties(
                     errorbars=True, bad=True, **kwargs)
                 pl.errorbar(
                     self.time[self.bad] - subtract, y_val[self.bad],
                     yerr=err[self.bad], **properties)
 
         else:
-            properties = self._set_plot_properties(errorbars=False, **kwargs)
+            properties = self.set_plot_properties(errorbars=False, **kwargs)
             pl.scatter(
                 self.time[self.good] - subtract, y_val[self.good], 
                 **properties)
             if show_bad:
-                properties = self._set_plot_properties(
+                properties = self.set_plot_properties(
                     errorbars=False, bad=True, **kwargs)
-#                pl.scatter(
-#                    self.time[self.bad] - subtract, y_val[self.bad],
-#                    marker='x', color=self.plot_properties['color'], **kwargs)
                 pl.scatter(
                     self.time[self.bad] - subtract, y_val[self.bad],
                     **properties)
 
-    def _set_plot_properties(self, errorbars=True, bad=False, **kwargs):
+    def set_plot_properties(self, errorbars=True, bad=False, **kwargs):
         """
         Set plot properties using **kwargs and
-        `py:plot_properties`. kwargs takes precendent.
+        `py:plot_properties`. kwargs takes precedent.
+
+        Keywords:
+            errobars: *boolean*
+                `True` means plotting done with pl.errorbar. `False`
+                measn plotting done with pl.scatter.
+
+            bad: *boolean*
+                `True` means marker is default to 'x'. `False` means
+                marker is default to 'o'.
+
+           **kwargs: *dict*
+               Keywords accepted by pl.errorbar or pl.scatter.
 
         """
         properties = kwargs
