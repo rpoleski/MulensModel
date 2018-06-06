@@ -1,35 +1,54 @@
 import os
 import glob
 import matplotlib.pyplot as pl
+import numpy as np
 
 import MulensModel as mm
 
 
-raise NotImplementedError('This use case has not been implemented')
+#raise NotImplementedError('This use case has not been implemented')
 
-data_path = os.path.join(mm.MODULE_PATH, 'data', 'photometry_files')
+#data_path = os.path.join(mm.MODULE_PATH, 'data', 'photometry_files')
+data_path = os.path.join(mm.MODULE_PATH, 'data')
+ex_arv_comments = ['\\', '|']
 
 # Basic: Two datasets with specified data properties
 ob03235_ogle_data = mm.MulensData(
-    data_file=os.path.join(data_path, 'OB03235', 'OB03235_OGLE.tbl.txt'),
-    phot_fmt='mag', 
-    plot_properties={'color': 'black', 'zorder'=10})
+    file_name=os.path.join(data_path, 'OB03235', 'OB03235_OGLE.tbl.txt'),
+    phot_fmt='mag', comments=ex_arv_comments,
+    plot_properties={'color': 'black', 'zorder': 10, 'show_bad': True})
 ob03235_moa_data = mm.MulensData(
-    data_file=os.path.join(data_path, 'OB03235', 'OB03235_MOA.tbl.txt'),
-    phot_fmt='flux', 
-    plot_properties={'marker': 's', 'size': 2, 'color': 'red', 'zorder'=2,
-                     'show_errorbars'=False, 'show_bad'=False})
+    file_name=os.path.join(data_path, 'OB03235', 'OB03235_MOA.tbl.txt'),
+    phot_fmt='flux', comments=ex_arv_comments,
+    plot_properties={'marker': 's', 'size': 2, 'color': 'red', 'zorder': 2,
+                     'show_errorbars': False})
+
+def suppress_a_season(data):
+    data.bad = (data.time > 2451900) & (data.time < 2452300)
+
+# Set one season to "bad"
+suppress_a_season(ob03235_ogle_data)
+suppress_a_season(ob03235_moa_data)
 
 # Setting plot properties after MulensData is defined
-ob03235_ogle_data.plot_properties['size'] = 10
+ob03235_ogle_data.plot_properties['size'] = 5
 
 # Making a plot
 pl.figure()
-pl.title('OB03235')
-pl.subplot(1, 2, 1)
+pl.suptitle('OB03235 Data')
+
+pl.subplot(2, 1, 1)
+pl.title('OGLE Data w/ errors and bad data')
 ob03235_ogle_data.plot()
-pl.subplot(1, 2, 2)
+pl.axhline(np.median(ob03235_ogle_data.mag), zorder=5)
+pl.gca().invert_yaxis()
+
+pl.subplot(2, 1, 2)
+pl.title('MOA Data w/o errors or bad data')
 ob03235_moa_data.plot()
+pl.axhline(np.median(ob03235_moa_data.flux), zorder=5)
+pl.legend(loc='best')
+pl.show()
 
 # Set plot_properties for many datasets
 def set_plot_properties(filename):
@@ -48,6 +67,8 @@ def set_plot_properties(filename):
         plot_properties['color'] = 'red'
         plot_properties['zorder'] = 2
         plot_properties['show_errorbars'] = False
+    elif 'CTIO_I' in filename:
+        plot_properties['color'] = 'green'
 
     return plot_properties
 
@@ -57,7 +78,7 @@ datasets = []
 for file_ in file_list:
     plot_properties = set_plot_properties(file_)
     plot_properties['label'] = file_.split('_', maxsplit=2)[0]
-    datasets.append(mm.MulensData(file_name=file_, 
+    datasets.append(mm.MulensData(file_name=file_, comments=ex_arv_comments,
         plot_properties=plot_properties))
 
 t_0 = 2454656.39975
@@ -65,11 +86,14 @@ u_0 = 0.00300
 t_E = 11.14
 t_star = 0.05487
 model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 't_star': t_star})
+model.set_magnification_methods(
+    [t_0 - 2.* t_star, 'finite_source_LD_Yoo04', t_0 + 2. * t_star])
 
 event = mm.Event(datasets=datasets, model=model)
 
 pl.figure()
-pl.title('MB08310')
+pl.title('MB08310 Data and Model')
 event.plot_data()
+event.plot_model()
 pl.legend()
 pl.show()

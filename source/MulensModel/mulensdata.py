@@ -117,9 +117,12 @@ class MulensData(object):
             if ra is not None:
                 raise AttributeError(coords_msg)
 
+        # Plot properties
+        self.plot_properties = plot_properties
+
         # Import the photometry...
         if data_list is not None and file_name is not None:
-            m = 'MulensData cannot be initialized with data_list and file_name'
+            m = 'MulensData cannot be initialized with both data_list and file_name. Choose one or the other.'
             raise ValueError(m)
         elif data_list is not None:
             # ...from an array
@@ -134,9 +137,11 @@ class MulensData(object):
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
-            # Label
-            if label is None:
-                label = file_name
+            # check if data label specified, if not use file_name
+            if self.plot_properties is not None:
+                if not 'label' in self.plot_properties.keys():
+                    self.plot_properties['label'] = file_name
+                
         else:
             raise ValueError(
                 'MulensData cannot be initialized with ' +
@@ -153,9 +158,6 @@ class MulensData(object):
 
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
-
-        # Plot properties
-        self.plot_properties = plot_properties
 
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
@@ -411,31 +413,86 @@ class MulensData(object):
         else:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
 
-        if show_errorbars is None and 'show_errorbars' in self.plot_properties.keys():
-            show_errorbars = self.plot_properties['show_errorbars']
+        if show_errorbars is None:
+            if 'show_errorbars' in self.plot_properties.keys():
+                show_errorbars = self.plot_properties['show_errorbars']
+            else:
+                show_errorbars = True
 
-        if show_bad is None and 'show_bad' in self.plot_properties.keys():
-            show_bad = self.plot_properties['show_bad']
+        if show_bad is None:
+            if 'show_bad' in self.plot_properties.keys():
+                show_bad = self.plot_properties['show_bad']
+            else:
+                show_bad = False
 
         # The part below needs further development - combine kwargs with self.plot_properties and fmt/lw/marker.
         # Also in self.plot_properties what to do about marker vs. fmt?
         if show_errorbars:
+            properties = self._set_plot_properties(errorbars=True, **kwargs)
             pl.errorbar(
                 self.time[self.good] - subtract,
-                y_val[self.good], yerr=err[self.good], fmt='o',
-                color=self.plot_properties['color'], label=self.plot_properties['label'], **kwargs)
+                y_val[self.good], yerr=err[self.good], **properties)
             if show_bad:
+                properties = self._set_plot_properties(
+                    errorbars=True, bad=True, **kwargs)
                 pl.errorbar(
                     self.time[self.bad] - subtract, y_val[self.bad],
-                    yerr=err[self.bad], fmt='x', color=self.plot_properties['color'], **kwargs)
+                    yerr=err[self.bad], **properties)
 
         else:
+            properties = self._set_plot_properties(errorbars=False, **kwargs)
             pl.scatter(
-                self.time[self.good] - subtract, y_val[self.good],
-                lw=0., marker='o', color=self.plot_properties['color'], label=self.plot_properties['label'],
-                **kwargs)
+                self.time[self.good] - subtract, y_val[self.good], 
+                **properties)
             if show_bad:
+                properties = self._set_plot_properties(
+                    errorbars=False, bad=True, **kwargs)
+#                pl.scatter(
+#                    self.time[self.bad] - subtract, y_val[self.bad],
+#                    marker='x', color=self.plot_properties['color'], **kwargs)
                 pl.scatter(
                     self.time[self.bad] - subtract, y_val[self.bad],
-                    marker='x', color=self.plot_properties['color'], **kwargs)
+                    **properties)
 
+    def _set_plot_properties(self, errorbars=True, bad=False, **kwargs):
+        """
+        Set plot properties using **kwargs and
+        `py:plot_properties`. kwargs takes precendent.
+
+        """
+        properties = kwargs
+        for key in self.plot_properties.keys():
+            if key != 'show_bad' and key != 'show_errorbars':
+                if not key in kwargs.keys():
+                    properties[key] = self.plot_properties[key]
+
+        # Set defaults and deal with differences between pl.errorbar
+        # and pl.scatter.
+        if 'marker' in properties.keys():
+            if errorbars:
+                properties['fmt'] = properties.pop('marker')
+        else:
+            if not bad:
+                default_marker = 'o'
+            else:
+                default_marker = 'x'
+
+            if errorbars:
+                properties['fmt'] = default_marker
+            else:
+                properties['marker'] = default_marker
+
+        if 'size' in properties.keys():
+            if errorbars:
+                properties['markersize'] = properties.pop('size')
+            else:
+                properties['s'] = properties.pop('size')
+        else:
+            default_size = 10
+            if errorbars:
+                properties['markersize'] = default_size
+            else:
+                properties['s'] = default_size
+
+
+        return properties
