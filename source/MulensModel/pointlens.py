@@ -104,20 +104,20 @@ class PointLens(object):
             r_2 = r * r
             val = (1. - r_2) / (
                     r_2 + function.arg_2 + r*function.arg_3*math.cos(theta))
-            return r * function.arg_4 * math.sqrt(val)
+            return r * math.sqrt(val)
 
         lim_0 = lambda x: 0
         lim_1 = lambda x: 1
-        W_1 = 0. * z
+        rho_W_1 = 0. * z # This equals rho * W_1().
         for (i, zz) in enumerate(z):
             function.arg_1 = zz
             function.arg_2 = zz * zz
             function.arg_3 = -2. * zz
-            function.arg_4 = 1. / self.parameters.rho
-            W_1[i] = integrate.dblquad(function, 0., 2.*np.pi, lim_0, lim_1)[0]
+            rho_W_1[i] = integrate.dblquad(
+                function, 0., 2.*np.pi, lim_0, lim_1)[0]
 
-        W_1 /= np.pi
-        return B_0 - 1.5 * z * self.parameters.rho * W_1
+        rho_W_1 /= np.pi
+        return B_0 - 1.5 * z * rho_W_1 
 
     def get_point_lens_finite_source_magnification(
                 self, u, pspl_magnification):
