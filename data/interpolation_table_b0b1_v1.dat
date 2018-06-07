@@ -1,12 +1,9 @@
 # z, b0(z), b0(z)-b1(z)
 #
-# (z, b0, b0mb1) = np.loadtxt(THIS_FILE, unpack=True)
-# from scipy.interpolate import interp1d
-# b0_interp = interp1d(z, b0, kind='cubic')
-# b0mb1_interp = interp1d(z, b0mb1, kind='cubic')
+# in Yoo et al. 2004 http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
+# notation
 #
-# b0_requested = b0_interp(np.array(z_requested))
-# b0mb1_requested = b0mb1_interp(np.array(z_requested))
+# Prepared by Radek Poleski
 #
 0.000000000000000000e+00 0.000000000000000000e+00 0.000000000000000000e+00
 1.000000000000000021e-02 1.999949999062461056e-02 2.356076680470783197e-02
