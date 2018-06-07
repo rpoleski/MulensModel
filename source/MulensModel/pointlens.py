@@ -130,7 +130,7 @@ class PointLens(object):
         return B_0 - 1.5 * z * rho_W_1 
 
     def get_point_lens_finite_source_magnification(
-                self, u, pspl_magnification):
+                self, u, pspl_magnification, direct=False):
         """
         Calculate magnification for point lens and finite source (for
         a *uniform* source).  The approximation was proposed by:
@@ -152,6 +152,9 @@ class PointLens(object):
             pspl_magnification: *float*, *np.array*
                 The point source, point lens magnification at each value of u.
 
+            direct: *boolean*
+                Use direct calculation (slow) instead of interpolation.
+
         Returns :
             magnification: *float*, *np.array*
                 The finite source source magnification.
@@ -167,8 +170,12 @@ class PointLens(object):
         if not PointLens._B0B1_file_read:
             self._read_B0B1_file()
 
+        if direct:
+            mask = np.zeros_like(z, dtype=bool)
+        else:
+            mask = (z > PointLens._z_min) & (z < PointLens._z_max)
+        
         B0 = 0. * z
-        mask = (z > PointLens._z_min) & (z < PointLens._z_max)
         if np.any(mask): # Here we use interpolation.
             B0[mask] = PointLens._B0_interpolation(z[mask])
 
@@ -181,7 +188,7 @@ class PointLens(object):
         return magnification
 
     def get_point_lens_limb_darkening_magnification(
-                self, u, pspl_magnification, gamma):
+                self, u, pspl_magnification, gamma, direct=False):
         """
         calculate magnification for point lens and finite source *with
         limb darkening*. The approximation was proposed by:
@@ -206,6 +213,9 @@ class PointLens(object):
             gamma: *float*
                 The limb-darkening coefficient. See also
                 :py:class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+                
+            direct: *boolean*
+                Use direct calculation (very slow) instead of interpolation.
 
         Returns :
             magnification: *float*, *np.array*
@@ -222,9 +232,12 @@ class PointLens(object):
         if not PointLens._B0B1_file_read:
             self._read_B0B1_file()
 
-        magnification = 0. * z + pspl_magnification
-        
-        mask = (z > PointLens._z_min) & (z < PointLens._z_max)
+        if direct:
+            mask = np.zeros_like(z, dtype=bool)
+        else:
+            mask = (z > PointLens._z_min) & (z < PointLens._z_max)
+
+        magnification = 0. * z + pspl_magnification    
         if np.any(mask): # Here we use interpolation.
             B_0 = PointLens._B0_interpolation(z[mask])
             B_0_minus_B_1 = PointLens._B0_minus_B1_interpolation(z[mask])
