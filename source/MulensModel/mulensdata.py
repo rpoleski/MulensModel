@@ -72,8 +72,28 @@ class MulensData(object):
             number of data points.
 
         plot_properties: *dict*, optional
-            Specify properties for plotting, e.g. color, marker, label, and also the show_bad and show_errorbars
+
+            Specify properties for plotting, e.g. color, marker,
+            label, and also the show_bad and show_errorbars
             properties. See :py:func:`set_plot_properties()`.
+
+            May be any keywords accepted by both pl.scatter() and
+            pl.errorbar(). May also include keys specific to one or
+            the other, BUT there may be problems if you use
+            `py:plot()` to call the wrong one.
+
+            Note: `plot_properties` takes 'marker' and 'size' as keys
+            to set the point type and size of points. This function
+            translates those keys into the keys appropriate for
+            pl.errorbar ('fmt', 'markersize') and pl.scatter('marker',
+            'size').
+
+            Other special keys:
+                show_errorbars: *boolean*, optional
+                    Whether or not to show the errorbars for this dataset.
+
+                show_bad: *boolean*, optional
+                    Whether or not to plot data points flagged as bad.
 
         ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
         file_name is provided.
@@ -321,7 +341,7 @@ class MulensData(object):
     @property
     def bandpass(self):
         """
-        *string*
+        *String*
 
         bandpass of given dataset (primary usage is limb darkening), e.g. 'I'
         or 'V'
@@ -335,36 +355,6 @@ class MulensData(object):
                 "Limb darkening weights were already set - you" +
                 "cannot bandpass now.")
         self._bandpass = value
-
-    @property
-    def plot_properties(self):
-        """
-        *dictionary* 
-
-        Properties for plotting the data. May be any keywords accepted
-        by both pl.scatter() and pl.errorbar(). May also include keys
-        specific to one or the other, BUT there may be problems if you
-        use `py:plot()` to call the wrong one.
-
-        Note: `plot_properties` takes 'marker' and 'size' as keys
-        to set the point type and size of points. This function
-        translates those keys into the keys appropriate for
-        pl.errorbar ('fmt', 'markersize') and pl.scatter('marker',
-        'size'). 
-
-        Other special keys:
-            show_errorbars: *boolean*, optional
-                Whether or not to show the errorbars for this dataset.
-
-            show_bad: *boolean*, optional
-                Whether or not to plot data points flagged as bad.
-
-        """
-        return self._plot_properties
-
-    @plot_properties.setter
-    def plot_properties(self, dictionary):
-        self._plot_properties = dictionary
 
     def set_limb_darkening_weights(self, weights):
         """
