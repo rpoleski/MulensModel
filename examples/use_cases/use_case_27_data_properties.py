@@ -84,7 +84,9 @@ file_list = glob.glob(os.path.join(data_path, 'MB08310', '*'))
 datasets = []
 for file_ in file_list:
     plot_properties = set_plot_properties(file_)
-    plot_properties['label'] = file_.split('_', maxsplit=2)[0]
+    plot_properties['label'] = os.path.basename(file_).split(
+        '_', maxsplit=2)[0]
+    print(plot_properties['label'])
     datasets.append(mm.MulensData(file_name=file_, comments=ex_arv_comments,
         plot_properties=plot_properties))
 
@@ -99,8 +101,20 @@ model.set_magnification_methods(
 event = mm.Event(datasets=datasets, model=model)
 
 pl.figure()
+# Expected Behavior:
+# MOA data plotted in red with points of size 2, no error bars.
+# All other data have error bars.
+# CTIO_I plotted in green.
+# All other data sets plotted in random colors (different from each other).
+# Labels set by first part of the filename.
 pl.title('MB08310 Data and Model')
 event.plot_data()
 event.plot_model()
-pl.legend()
+pl.legend(loc='best')
+
+# Plot axes
+t_start = t_0 - 3.
+t_stop = t_0 + 1.
+pl.ylim(17.5, 12.5)
+pl.xlim(t_start, t_stop)
 pl.show()
