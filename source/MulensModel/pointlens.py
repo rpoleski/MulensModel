@@ -166,9 +166,6 @@ class PointLens(object):
 
         if not PointLens._B0B1_file_read:
             self._read_B0B1_file()
-        
-        mask = np.logical_not(mask)
-        if np.any(mask): # Here we use direct calculation.
 
         B0 = 0. * z
         mask = (z > PointLens._z_min) & (z < PointLens._z_max)
