@@ -37,7 +37,13 @@ class MulensData(object):
 
         phot_fmt: *str*
            Specifies whether the photometry is in Magnitudes or Flux
-           units. accepts either 'mag' or 'flux'. Default = 'mag'.
+           units. Accepts either 'mag' or 'flux'. Default = 'mag'.
+
+        chi2_fmt: *str*
+           Specifies whether the format used for chi^2 calculation
+           should be done in Magnitude or Flux spaces. Accepts either
+           'mag' or 'flux'. Default is 'flux' because almost always
+           the errors are gaussian in flux space. 
 
         coords: *astropy.SkyCoord*, optional
            sky coordinates of the event
@@ -82,7 +88,8 @@ class MulensData(object):
     """
 
     def __init__(self, data_list=None, file_name=None,
-                 phot_fmt="mag", coords=None, ra=None, dec=None,
+                 phot_fmt="mag", chi2_fmt="flux",
+                 coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
                  **kwargs):
@@ -95,6 +102,7 @@ class MulensData(object):
         self._init_keys = {'add245': add_2450000, 'add246': add_2460000}
         self._limb_darkening_weights = None
         self.bandpass = bandpass
+        self.chi2_fmt = chi2_fmt
 
         # Set the coords (if applicable)...
         coords_msg = 'Must specify both or neither of ra and dec'
@@ -305,6 +313,31 @@ class MulensData(object):
         else:
             raise ValueError('Unrecognized data format: {:}'.format(
                     self.input_fmt))
+        
+        return (data, err_data)
+
+    def data_and_err_in_chi2_fmt(self):
+        """
+        Gives photometry in format used for chi2 calculation
+        (flux in most cases, but magnitude possible).
+
+        Returns :
+            data: *np.ndarray*
+                Magnitudes or fluxes
+
+            data_err: *np.ndarray*
+                Uncertainties of magnitudes or of fluxes
+
+        """
+        if self.chi2_fmt == "mag":
+            data = self.mag
+            err_data = self.err_mag
+        elif self.chi2_fmt == "flux":
+            data = self.flux
+            err_data = self.err_flux
+        else:
+            raise ValueError('Unrecognized data format: {:}'.format(
+                    self.chi2_fmt))
         
         return (data, err_data)
 

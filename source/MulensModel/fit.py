@@ -188,7 +188,6 @@ class Fit(object):
                 the format of input data).
 
         """
-        # Check for potential problems
         if data is None:
             raise ValueError('Fit.get_input_format() dataset not provided')
         if data not in self._flux_blending:
@@ -204,6 +203,36 @@ class Fit(object):
             result = self.get_flux(data)
         else:
             msg = 'Fit.get_input_format() unrecognized data input format'
+            raise ValueError(msg)
+        return result
+
+    def get_chi2_format(self, data):
+        """
+        Microlensing model in the format used for chi^2 calculation.
+        The output is in flux space in most cases, but can be in
+        magnitudes depending on dataset format.
+
+        Parameters :
+            data: :py:class:`~MulensModel.mulensdata.MulensData`
+                A dataset for which model will be returned.
+
+        Returns :
+            model: *np.ndarray*
+                Microlensing model in flux units or magnitudes (depending on
+                the settings of input data).
+
+        """
+        if data not in self._flux_blending:
+            self._flux_blending[data] = 0.
+            warnings.warn(
+                "Blending flux not set. This is strange...", SyntaxWarning)
+
+        if data.chi2_fmt == "mag":
+            result = Utils.get_mag_from_flux(self.get_flux(data))
+        elif data.chi2_fmt == "flux":
+            result = self.get_flux(data)
+        else:
+            msg = 'Fit.get_chi2_format() unrecognized data input format'
             raise ValueError(msg)
         return result
 
