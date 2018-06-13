@@ -1,4 +1,5 @@
-import sys, os
+import sys
+import os
 import numpy as np
 from astropy.coordinates import SkyCoord
 import astropy.units as u

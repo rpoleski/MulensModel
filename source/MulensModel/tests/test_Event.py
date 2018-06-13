@@ -1,4 +1,5 @@
-import sys, os
+import sys
+import os
 import unittest
 import numpy as np
 from astropy import units as u
