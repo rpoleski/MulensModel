@@ -7,7 +7,7 @@ from pyLIMA import event, telescopes, microlmodels
 from pyLIMA_functions import chi2_telescope
 
 
-file_1 = "/home/antares/poleski/WFIRST/MulensModel/data/photometry_files/phot_ob08092_O4.dat"
+file_1 = "test_1000.txt"
 data_1 = np.loadtxt(file_1)
 telescope_1 = telescopes.Telescope(light_curve_magnitude=data_1)
 
@@ -21,4 +21,3 @@ u_0 = 0.52298
 t_E = 17.94002
 
 pyLIMA_parameters = model_1.compute_pyLIMA_parameters([t_0, u_0, t_E])
-

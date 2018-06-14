@@ -4,7 +4,7 @@ sys.path.append("/home/antares/poleski/WFIRST/MulensModel/source")
 import MulensModel as mm
 
 
-file_1 = "/home/antares/poleski/WFIRST/MulensModel/data/photometry_files/phot_ob08092_O4.dat"
+file_1 = "test_1000.txt"
 data_1 = mm.MulensData(file_name=file_1)
 data_1.input_fmt = 'flux'
 t_0 = 5379.57091
