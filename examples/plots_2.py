@@ -46,7 +46,7 @@ pyplot.legend(loc='best')
 
 pyplot.axes([0.1, 0.07, 0.85, 0.25]) # Lower panel starts here.
 model_planet.plot_trajectory(caustics=True)
-pyplot.xlim(-1.6, 1.6)
+pyplot.xlim(-1.52, 1.61)
 pyplot.xlabel(r"$\theta_x$")
 pyplot.ylabel(r"$\theta_y$")
 pyplot.savefig('figure_2.png')
