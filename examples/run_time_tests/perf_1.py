@@ -16,14 +16,22 @@ def read_and_simplify(file_name):
 
 
 kwargses = []
+# Add settings for simple PSPL models:
 kwargses.append(dict(name='MM', setup=read_and_simplify('MM_setup_1.py'), 
     stmt='event.get_chi2()'))
 kwargses.append(dict(name='pyLIMA', 
     setup=read_and_simplify('pyLIMA_setup_1.py'), 
-    stmt='chi2_telescope(your_event, model_1, pyLIMA_parameters)'))
+    stmt='chi2_telescope(your_event, model_1, parameters_list)'))
 kwargses.append(dict(name='numpy', 
     setup=read_and_simplify('numpy_setup_1.py'),
-    stmt=read_and_simplify('numpy_run_1.py')))
+    stmt='numpy_chi2_v1(time, obs_flux, obs_flux_err, t_0, u_0, t_E)'))
+
+# Add settings for PSPL models with parallax:
+kwargses.append(dict(name='MM_piE', setup=read_and_simplify('MM_setup_2.py'), 
+    stmt='event.get_chi2()'))
+kwargses.append(dict(name='pyLIMA_piE', 
+    setup=read_and_simplify('pyLIMA_setup_2.py'), 
+    stmt='chi2_telescope(your_event, model_1, parameters_list)'))
 
 n_processes = 10 # 20 is default value.
 
@@ -31,4 +39,3 @@ n_processes = 10 # 20 is default value.
 runner = perf.Runner(processes=n_processes)
 for kwargs in kwargses:
     runner.timeit(**kwargs)
-

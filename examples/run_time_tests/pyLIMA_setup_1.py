@@ -20,4 +20,4 @@ t_0 = 5379.57091
 u_0 = 0.52298
 t_E = 17.94002
 
-pyLIMA_parameters = model_1.compute_pyLIMA_parameters([t_0, u_0, t_E])
+parameters_list = [t_0, u_0, t_E]

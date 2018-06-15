@@ -49,15 +49,14 @@ if __name__ == '__main__':
     simulate_PSPL('test_10000.txt', 10000)
 
     parameters = {'t_0': 2456900., 'u_0': 0.1, 't_E': 50.,
-        'pi_E_N': 1., 'pi_E_E': 2.}
-#        'pi_E_N': 0.6, 'pi_E_E': 0.8}
+        'pi_E_N': 0.6, 'pi_E_E': 0.8}
     model = Model(parameters, coords="18:00:00.00 -30:00:00.0")
     model.parallax(earth_orbital = True)
 
     kwargs = {'magnification_function': model.magnification,
         't_start': parameters['t_0']-80.,
         't_stop': parameters['t_0']+80.}
-        
+
     simulate_PSPL('test_100_piE.txt', 100, **kwargs)
     simulate_PSPL('test_1000_piE.txt', 1000, **kwargs)
     simulate_PSPL('test_10000_piE.txt', 10000, **kwargs)
