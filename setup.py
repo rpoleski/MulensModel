@@ -7,7 +7,7 @@ setup(
     author='Radek Poleski',
     author_email='poleski.1@osu.edu',
     description='packge for modeling gravitational microlensing events',
-    packages=find_packages(),
+    packages=['source/MulensModel'],
     install_requires=['numpy >= 1.11.1', 'matplotlib >= 1.5.1'],
 )
 
