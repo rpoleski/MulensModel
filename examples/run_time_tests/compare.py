@@ -33,8 +33,8 @@ vbbl_data = np.loadtxt("fake.out", unpack=True)
 plt.plot(vbbl_data[0], vbbl_data[1], 'g-.', label='VBBL')
 
 # This are the changes I have to make to make the results as close as possible:
-u_0 = -u_0
 pi_E_E = -pi_E_E
+pi_E_N = -pi_E_N
 
 # pyLIMA calculations and plots:
 your_event = event.Event()
