@@ -54,3 +54,13 @@ setup(
 #    do_my_stuff()
 #
 #setup(..., cmdclass={'install': CustomInstall})
+
+# Generate documentation dictionary and save it in "lib/"
+# import get_docstring
+# docstring = get_docstring.get_docstring()
+# f = open("lib/docstring_pickle.pkl", "wb")
+# pickle.dump(docstring, f)
+# f.close()
+#and later setup options were:
+#package_dir = {'pyslalib': 'lib'},
+#package_data = {'pyslalib': ['docstring_pickle.pkl']},
