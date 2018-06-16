@@ -25,7 +25,32 @@ setup(
 # - install_requires
 # - other setup options
 
+# from distutils.core import Extension
+# ext_module = Extension("some_NAME_HERE", 
+#   sources=["..."], # relative to the distribution root (where the setup script lives)
+#   include_dirs=["...],
+#   library_dirs = [os.getcwd(),],  # path to .a or .so file(s)
+#   extra_compile_args=["-O2", "-lm"],
+#   extra_link_args=["", ""], # this will be for last command only, most probably
+#   depends=["", ""], # list of files that the extension depends on
+#   optional=False/True, # specifies that a build failure in the extension should not abort the build process, but simply skip the extension.
+#   language='c++11']
+#later:
+#    ext_modules=[ext_module]
+
 # import subprocess
 # make_process = subprocess.Popen("make clean all", stderr=subprocess.STDOUT)
 # if make_process.wait() != 0:
 #     DO_SOMETHING
+
+#from distutils.command.install import install
+# OR:
+#from setuptools.command.install import instal
+#
+#class CustomInstall(install):
+#def run(self):
+#    install.run(self)
+#    # custom stuff here
+#    do_my_stuff()
+#
+#setup(..., cmdclass={'install': CustomInstall})
