@@ -19,7 +19,7 @@ kwargses = []
 # Add settings for simple PSPL models:
 for i in ['100', '1000', '10000']:
     kwargses.append(dict(name='numpy_{:}'.format(i), 
-        setup=read_and_simplify('numpy_setup_1.py'),
+        setup=read_and_simplify('numpy_setup_1_{:}.py'.format(i)),
         stmt='numpy_chi2_v1(time, obs_flux, obs_flux_err, t_0, u_0, t_E)'))
 for i in ['100', '1000', '10000']:
     kwargses.append(dict(name='MM_static_{:}'.format(i), 
@@ -38,7 +38,7 @@ for i in ['100', '1000', '10000']:
         setup=read_and_simplify('pyLIMA_setup_2_{:}.py'.format(i)), 
         stmt='chi2_telescope(your_event, model_1, parameters_list)'))
 
-n_processes = 10 # 20 is default value.
+n_processes = 50 # 20 is default value.
 
 # Main part is below.
 runner = perf.Runner(processes=n_processes)
