@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 GCC = gcc
-CFLAGS += -lm -fPIC
+LDFLAGS += -lm -fPIC
 CFLAGS += -O2
 # CFLAGS += -Wall
 
@@ -11,11 +11,11 @@ o_files = binext_adap.o adaptive_contour.o complex.o binary_pt.o integrate.o dyn
 
 OS := $(shell uname)
 ifeq ($(OS), Darwin)
-  OPTIONS = -Wl,-install_name,$(wrapper)
+  LDFLAGS += -Wl,-install_name,$(wrapper)
 else
-  OPTIONS = -Wl,-soname,$(basename $wrapper)
+  LDFLAGS += -Wl,-soname,$(basename $wrapper)
 endif
-OPTIONS += -shared
+LDFLAGS += -shared
 
 
 all: $(wrapper)
@@ -24,7 +24,7 @@ all: $(wrapper)
 	$(GCC) $(CFLAGS) -c $^
 
 $(wrapper): $(o_files) $(wrapper_source)
-	$(GCC) $(OPTIONS) -o $(wrapper) $(wrapper_source) $(CFLAGS) $(o_files)
+	$(GCC) $(LDFLAGS) -o $(wrapper) $(wrapper_source) $(CFLAGS) $(o_files)
 
 .PHONY: clean
 clean:
