@@ -17,21 +17,26 @@ def read_and_simplify(file_name):
 
 kwargses = []
 # Add settings for simple PSPL models:
-kwargses.append(dict(name='MM', setup=read_and_simplify('MM_setup_1.py'), 
-    stmt='event.get_chi2()'))
-kwargses.append(dict(name='pyLIMA', 
-    setup=read_and_simplify('pyLIMA_setup_1.py'), 
-    stmt='chi2_telescope(your_event, model_1, parameters_list)'))
-kwargses.append(dict(name='numpy', 
-    setup=read_and_simplify('numpy_setup_1.py'),
-    stmt='numpy_chi2_v1(time, obs_flux, obs_flux_err, t_0, u_0, t_E)'))
+for i in ['100', '1000', '10000']:
+    kwargses.append(dict(name='numpy_{:}'.format(i), 
+        setup=read_and_simplify('numpy_setup_1.py'),
+        stmt='numpy_chi2_v1(time, obs_flux, obs_flux_err, t_0, u_0, t_E)'))
+for i in ['100', '1000', '10000']:
+    kwargses.append(dict(name='MM_static_{:}'.format(i), 
+        setup=read_and_simplify('MM_setup_1_{:}.py'.format(i)), 
+        stmt='event.get_chi2()'))
+    kwargses.append(dict(name='pyLIMA_static_{:}'.format(i), 
+        setup=read_and_simplify('pyLIMA_setup_1_{:}.py'.format(i)), 
+        stmt='chi2_telescope(your_event, model_1, parameters_list)'))
 
 # Add settings for PSPL models with parallax:
-kwargses.append(dict(name='MM_piE', setup=read_and_simplify('MM_setup_2.py'), 
-    stmt='event.get_chi2()'))
-kwargses.append(dict(name='pyLIMA_piE', 
-    setup=read_and_simplify('pyLIMA_setup_2.py'), 
-    stmt='chi2_telescope(your_event, model_1, parameters_list)'))
+for i in ['100', '1000', '10000']:
+    kwargses.append(dict(name='MM_piE_{:}'.format(i), 
+        setup=read_and_simplify('MM_setup_2_{:}.py'.format(i)), 
+        stmt='event.get_chi2()'))
+    kwargses.append(dict(name='pyLIMA_piE_{:}'.format(i), 
+        setup=read_and_simplify('pyLIMA_setup_2_{:}.py'.format(i)), 
+        stmt='chi2_telescope(your_event, model_1, parameters_list)'))
 
 n_processes = 10 # 20 is default value.
 
