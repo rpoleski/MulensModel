@@ -16,8 +16,8 @@ your_event.telescopes.append(telescope_1)
 model_1 = microlmodels.create_model('PSPL', your_event)
 model_1.define_model_parameters()
 
-t_0 = 5379.57091
-u_0 = 0.52298
-t_E = 17.94002
+t_0 = 2456900.
+u_0 = 0.01
+t_E = 20.
 
 parameters_list = [t_0, u_0, t_E]
