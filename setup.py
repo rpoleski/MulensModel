@@ -1,66 +1,53 @@
 from setuptools import setup
+from setuptools.command.install import install
+import subprocess
+import os
+import sys
+
+
+dir_ = os.path.join('lib', 'python' + sys.version[:3], 'site-packages', 
+                    'MulensModel')
+
+source_VBBL = os.path.join('source', 'VBBL')
+source_AC = os.path.join('source', 'AdaptiveContouring')
+source_MM = os.path.join('source', 'MulensModel')
+source_MMmo = os.path.join(source_MM, 'mulensobjects')
+
+wrapper_VBBL = os.path.join(source_VBBL, 'VBBinaryLensingLibrary_wrapper.so')
+wrapper_AC = os.path.join(source_AC, 'AdaptiveContouring_wrapper.so')
+
+
+class CustomInstall(install):
+    """
+    Custom install procedure that runs makefiles.
+    """
+    def run(self):
+        print("Begin running makefiles...")
+        kwargs = {"stderr": subprocess.STDOUT, 'shell': True}
+        make_process = subprocess.Popen("make -C " + source_VBBL, **kwargs)
+        if make_process.wait():
+            print("VBBL MAKEFILE FAILED.")
+        make_process = subprocess.Popen("make -C " + source_AC, **kwargs)
+        if make_process.wait():
+            print("AdaptiveContouring MAKEFILE FAILED.")
+        print("Finish running makefiles...")
+        install.run(self)
 
 setup(
     name='MulensModel',
     version='1.2.10',
     url='git@github.com:rpoleski/MulensModel.git',
+    cmdclass={'install': CustomInstall},
     author='Radek Poleski',
     author_email='poleski.1@osu.edu',
     description='packge for modeling gravitational microlensing events',
-    package_dir = {
-        'MulensModel': 'source/MulensModel',
-        'MulensModel.mulensobjects': 'source/MulensModel/mulensobjects'},
     packages=['MulensModel', 'MulensModel.mulensobjects'],
+    package_dir = {
+        'MulensModel': source_MM,
+        'MulensModel.mulensobjects': source_MMmo},
     data_files=[
-        ('source/VBBL', ['source/VBBL/VBBinaryLensingLibrary_wrapper.so']),
-        ('source/AdaptiveContouring', ['source/AdaptiveContouring/AdaptiveContouring_wrapper.so'])],
-    install_requires=['numpy >= 1.11.1', 'matplotlib >= 1.5.1', 'math', 
-        'os', 'sys', 'warnings', 'ctypes', 'scipy', 'astropy'],
+        (os.path.join(dir_, source_VBBL), [wrapper_VBBL]),
+        (os.path.join(dir_, source_AC), [wrapper_AC])],
+    install_requires=['numpy >= 1.11.1', 'matplotlib >= 1.5.1', 'scipy',
+        'astropy']
 )
-
-# TO DO:
-# - run makefile
-# - 2 vs 3 levels in binarylens.py - probably we have to remove first "source/" in data_files records above
-# - b0b1 file
-# - install_requires
-# - other setup options
-
-# from distutils.core import Extension
-# ext_module = Extension("some_NAME_HERE", 
-#   sources=["..."], # relative to the distribution root (where the setup script lives)
-#   include_dirs=["...],
-#   library_dirs = [os.getcwd(),],  # path to .a or .so file(s)
-#   extra_compile_args=["-O2", "-lm"],
-#   extra_link_args=["", ""], # this will be for last command only, most probably
-#   depends=["", ""], # list of files that the extension depends on
-#   optional=False/True, # specifies that a build failure in the extension should not abort the build process, but simply skip the extension.
-#   language='c++11']
-#later:
-#    ext_modules=[ext_module]
-
-# import subprocess
-# make_process = subprocess.Popen("make clean all", stderr=subprocess.STDOUT)
-# if make_process.wait() != 0:
-#     DO_SOMETHING
-
-#from distutils.command.install import install
-# OR:
-#from setuptools.command.install import instal
-#
-#class CustomInstall(install):
-#def run(self):
-#    install.run(self)
-#    # custom stuff here
-#    do_my_stuff()
-#
-#setup(..., cmdclass={'install': CustomInstall})
-
-# Generate documentation dictionary and save it in "lib/"
-# import get_docstring
-# docstring = get_docstring.get_docstring()
-# f = open("lib/docstring_pickle.pkl", "wb")
-# pickle.dump(docstring, f)
-# f.close()
-#and later setup options were:
-#package_dir = {'pyslalib': 'lib'},
-#package_data = {'pyslalib': ['docstring_pickle.pkl']},
