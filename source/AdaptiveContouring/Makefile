@@ -1,8 +1,8 @@
 .PHONY: all clean
 
 GCC = gcc
-LDFLAGS += -lm -fPIC
-CFLAGS += -O2
+LDFLAGS += -lm 
+CFLAGS += -O2 -fPIC
 # CFLAGS += -Wall
 
 wrapper = AdaptiveContouring_wrapper.so

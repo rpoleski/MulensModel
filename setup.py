@@ -28,13 +28,6 @@ class CustomInstall(install):
         print("Begin running makefiles...")
         subprocess.run(["make", "-C", source_VBBL])
         subprocess.run(["make", "-C", source_AC])
-        #kwargs = {"stderr": subprocess.STDOUT, 'shell': True}
-        #make_process = subprocess.Popen("make -C " + source_VBBL, **kwargs)
-        #if make_process.wait():
-            #print("VBBL MAKEFILE FAILED.")
-        #make_process = subprocess.Popen("make -C " + source_AC, **kwargs)
-        #if make_process.wait():
-            #print("AdaptiveContouring MAKEFILE FAILED.")
         print("Finish running makefiles...")
         if os.path.isfile(wrapper_VBBL):
             data_files.append( 
@@ -42,6 +35,7 @@ class CustomInstall(install):
         else:
             msg = "Makefile failed to produce: {:}\n!!!"
             warnings.warn(msg.format(wrapper_VBBL))
+
         if os.path.isfile(wrapper_AC):
             data_files.append( (os.path.join(dir_, source_AC), [wrapper_AC]) )
         else:
@@ -66,3 +60,4 @@ setup(
     install_requires=['numpy >= 1.11.1', 'matplotlib >= 1.5.1', 'scipy',
         'astropy']
 )
+
