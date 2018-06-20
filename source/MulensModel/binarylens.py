@@ -7,8 +7,6 @@ from math import fsum, sqrt
 import MulensModel
 from MulensModel.utils import Utils
 MODULE_PATH = os.path.abspath(__file__)
-#for i in range(3):
-#for i in range(2):
 if True:
     MODULE_PATH = os.path.dirname(MODULE_PATH)
 PATH = os.path.join(MODULE_PATH, 'source', 'VBBL',
@@ -39,7 +37,6 @@ if _vbbl_wrapped:
     vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(dtype=ctypes.c_double, 
             shape=(10,))
     _vbbl_SG12_5 = vbbl.VBBL_SG12_5
-
 
 if not _vbbl_wrapped:
     _solver = 'numpy'
