@@ -7,18 +7,28 @@ from math import fsum, sqrt
 import MulensModel
 from MulensModel.utils import Utils
 MODULE_PATH = os.path.abspath(__file__)
-for i in range(3):
+if True:
     MODULE_PATH = os.path.dirname(MODULE_PATH)
 PATH = os.path.join(MODULE_PATH, 'source', 'VBBL',
         "VBBinaryLensingLibrary_wrapper.so")
 try:
     vbbl = ctypes.cdll.LoadLibrary(PATH)
 except OSError as error:
-    msg = "Something went wrong with VBBL wrapping ({:})\n\n" + repr(error)
-    print(msg.format(PATH))
-    _vbbl_wrapped = False
+    MODULE_PATH = os.path.dirname(MODULE_PATH)
+    MODULE_PATH = os.path.dirname(MODULE_PATH)
+    PATH = os.path.join(MODULE_PATH, 'source', 'VBBL',
+        "VBBinaryLensingLibrary_wrapper.so")
+    try:
+        vbbl = ctypes.cdll.LoadLibrary(PATH)
+    except OSError as error:
+        msg = "Something went wrong with VBBL wrapping ({:})\n\n" + repr(error)
+        print(msg.format(PATH))
+        _vbbl_wrapped = False
+    else:
+        _vbbl_wrapped = True
 else:
     _vbbl_wrapped = True
+if _vbbl_wrapped:
     vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
     vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
     _vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
