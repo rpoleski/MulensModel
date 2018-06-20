@@ -165,6 +165,29 @@ the format of input data).</dd>
 </dd></dl>
 
 <dl class="method">
+<dt id="MulensModel.fit.Fit.get_chi2_format">
+<code class="descname">get_chi2_format</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.get_chi2_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Microlensing model in the format used for chi^2 calculation.
+The output is in flux space in most cases, but can be in
+magnitudes depending on dataset format.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
+<dd>A dataset for which model will be returned.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>model: <em>np.ndarray</em></dt>
+<dd>Microlensing model in flux units or magnitudes (depending on
+the settings of input data).</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.fit.Fit.get_n_sources">
 <code class="descname">get_n_sources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.get_n_sources" title="Permalink to this definition">¶</a></dt>
 <dd><p>Count sources.</p>

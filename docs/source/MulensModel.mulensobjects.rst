@@ -1,5 +1,5 @@
-MulensModel.mulensobjects package
-=================================
+MulensModel\.mulensobjects package
+==================================
 
 Submodules
 ----------

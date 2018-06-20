@@ -1,5 +1,5 @@
-MulensModel.version module
-==========================
+MulensModel\.version module
+===========================
 
 .. automodule:: MulensModel.version
     :members:

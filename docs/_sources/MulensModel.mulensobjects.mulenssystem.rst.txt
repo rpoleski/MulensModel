@@ -1,5 +1,5 @@
-MulensModel.mulensobjects.mulenssystem module
-=============================================
+MulensModel\.mulensobjects\.mulenssystem module
+===============================================
 
 .. automodule:: MulensModel.mulensobjects.mulenssystem
     :members:

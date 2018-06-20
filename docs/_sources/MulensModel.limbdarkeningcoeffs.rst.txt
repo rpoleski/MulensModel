@@ -1,5 +1,5 @@
-MulensModel.limbdarkeningcoeffs module
-======================================
+MulensModel\.limbdarkeningcoeffs module
+=======================================
 
 .. automodule:: MulensModel.limbdarkeningcoeffs
     :members:

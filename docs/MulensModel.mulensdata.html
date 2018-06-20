@@ -43,7 +43,7 @@
 <span id="mulensmodel-mulensdata-module"></span><h1>MulensModel.mulensdata module<a class="headerlink" href="#module-MulensModel.mulensdata" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="MulensModel.mulensdata.MulensData">
-<em class="property">class </em><code class="descclassname">MulensModel.mulensdata.</code><code class="descname">MulensData</code><span class="sig-paren">(</span><em>data_list=None</em>, <em>file_name=None</em>, <em>phot_fmt='mag'</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em>, <em>add_2450000=False</em>, <em>add_2460000=False</em>, <em>bandpass=None</em>, <em>bad=None</em>, <em>good=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">MulensModel.mulensdata.</code><code class="descname">MulensData</code><span class="sig-paren">(</span><em>data_list=None</em>, <em>file_name=None</em>, <em>phot_fmt='mag'</em>, <em>chi2_fmt='flux'</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em>, <em>add_2450000=False</em>, <em>add_2460000=False</em>, <em>bandpass=None</em>, <em>bad=None</em>, <em>good=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A set of photometric measurements for a microlensing event.</p>
 <dl class="docutils">
@@ -69,7 +69,12 @@ Err. Loaded using np.loadtxt. See <code class="docutils literal"><span class="pr
 <dl class="docutils">
 <dt>phot_fmt: <em>str</em></dt>
 <dd>Specifies whether the photometry is in Magnitudes or Flux
-units. accepts either ‘mag’ or ‘flux’. Default = ‘mag’.</dd>
+units. Accepts either ‘mag’ or ‘flux’. Default = ‘mag’.</dd>
+<dt>chi2_fmt: <em>str</em></dt>
+<dd>Specifies whether the format used for chi^2 calculation
+should be done in Magnitude or Flux spaces. Accepts either
+‘mag’ or ‘flux’. Default is ‘flux’ because almost always
+the errors are gaussian in flux space.</dd>
 <dt>coords: <em>astropy.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the event</dd>
 <dt>ra, dec: <em>str</em>, optional</dt>
@@ -157,6 +162,23 @@ file_name is provided.</p>
 <dt id="MulensModel.mulensdata.MulensData.data_and_err_in_input_fmt">
 <code class="descname">data_and_err_in_input_fmt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.data_and_err_in_input_fmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives photometry in input format (mag or flux).</p>
+<dl class="docutils">
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>data: <em>np.ndarray</em></dt>
+<dd>Magnitudes or fluxes</dd>
+<dt>data_err: <em>np.ndarray</em></dt>
+<dd>Uncertainties of magnitudes or of fluxes</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.mulensdata.MulensData.data_and_err_in_chi2_fmt">
+<code class="descname">data_and_err_in_chi2_fmt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.data_and_err_in_chi2_fmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives photometry in format used for chi2 calculation
+(flux in most cases, but magnitude possible).</p>
 <dl class="docutils">
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">

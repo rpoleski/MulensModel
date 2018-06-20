@@ -1,5 +1,5 @@
-MulensModel.fit module
-======================
+MulensModel\.fit module
+=======================
 
 .. automodule:: MulensModel.fit
     :members:

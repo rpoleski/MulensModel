@@ -1,5 +1,5 @@
-MulensModel.coordinates module
-==============================
+MulensModel\.coordinates module
+===============================
 
 .. automodule:: MulensModel.coordinates
     :members:
