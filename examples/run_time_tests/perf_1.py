@@ -1,6 +1,9 @@
 """
 Run benchmarks using perf package. We run the same calculations using
 MulensModel, pyLIMA, and numpy.
+
+To save results in JSON file:
+python perf_1.py -o OUT.json > OUT
 """
 import perf
 
