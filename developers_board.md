@@ -12,6 +12,7 @@
 
 * Install
   * makefile for Windows (basic instructions exist already)
+  * setup.py should use Extensions instead of custom makefile
 * Documentation
   * Sagan workshop hands-on activity in MM
   * Add \_\_repr\_\_ functions to Lens and Source
@@ -20,6 +21,10 @@
     * coordinates.py
     * utils.py 
     * modelparameters.py
+    * _Event.fit seems to be not documented_
+  * Include full documentation via setup.py data\_files mechanism.
+  * **multiple datasets - improve in docstrings/tutorials**
+  * **data_list in MulensData - improve in docstrings/tutorials**
 * Effects
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
@@ -31,7 +36,7 @@
   * Higher Order Effects
     * xallarap (see below for references)
 * Parameterization
-  * Cassan 2008 binary lens parameters
+  * Cassan 2008 binary lens parameters 
   * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
 * Function Improvements/Expansion
@@ -41,8 +46,10 @@
     * topology of caustics based on (s,q)
     * central and planetary caustic properties: [Chung et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...630..535C) and [Han 2006](http://adsabs.harvard.edu/abs/2006ApJ...638.1080H)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
-  * Caustics.\_calculate - optimize using vectors instead of a loop
-  * Caustic calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
+    * faster hexadecapole using Cassan 2017 ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
+  * Caustics:
+    * Caustics.\_calculate - optimize using vectors instead of a loop
+    * Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
   * Event class:
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
@@ -105,7 +112,7 @@
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
     * PSPL fitting with gradient
-    * **fs,fb uncertainties**
+    * **fs,fb uncertainties - use blobs in EMCEE**
     * add example that shows 'log\_' in the name of the parameter; central caustic anomaly planet would be best,
     * add illustration on how to remove airmass trends
     * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method
@@ -124,7 +131,6 @@
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * Coordinates - write tests, possibly remove test\_Coords.py
-  * annual parallax calculation - verify with VBBL
   * t\_eff is not tested
 * Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time checked on 28 Feb 2018 (but didn't include tests)
