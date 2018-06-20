@@ -102,7 +102,9 @@ class MagnificationCurve(object):
         implement the algorithms presented by `Gould 1994 ApJ, 421L, 71
         <http://adsabs.harvard.edu/abs/1994ApJ...421L..71G>`_ and
         `Yoo et al. 2004 ApJ, 603, 139
-        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_.
+        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_ and interpolate
+        pre-computed tables when possible. Add ``_direct`` to these names to
+        force direct integration.
         """
         self._default_method = default_method
         if methods is None:
@@ -202,11 +204,25 @@ class MagnificationCurve(object):
 
             ``finite_source_uniform_Gould94``:
                 Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a
-                *uniform* (and circular) source.
+                *uniform* (and circular) source. This method interpolates
+                pre-computed tables. The relative interpolation
+                errors are smaller than 10^-4.
 
             ``finite_source_LD_Yoo04``:
                 Uses the `Gould 1994 ApJ, 421L, 71`_ prescription for
-                a circular source *including limb-darkening.*
+                a circular source *including limb-darkening*. This method
+                interpolates pre-computed tables. The relative interpolation
+                errors are smaller than 10^-4.
+
+            ``finite_source_uniform_Gould94_direct``:
+                Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a
+                *uniform* (and circular) source. This method calculates
+                the underlying functions directly.
+
+            ``finite_source_LD_Yoo04_direct``:
+                Uses the `Gould 1994 ApJ, 421L, 71`_ prescription for
+                a circular source *including limb-darkening*. This method
+                calculates 2D integral directly (hence can be slow).
 
         Returns :
             magnification: *np.ndarray*
@@ -243,6 +259,14 @@ class MagnificationCurve(object):
                     point_lens.get_point_lens_finite_source_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection]))
+            elif (method.lower() ==
+                            'finite_source_uniform_Gould94_direct'.lower()):
+                selection = (methods == method)
+                magnification[selection] = (
+                    point_lens.get_point_lens_finite_source_magnification(
+                        u=u_all[selection],
+                        pspl_magnification=pspl_magnification[selection],
+                        direct=True))
             elif method.lower() == 'finite_source_LD_Yoo04'.lower():
                 selection = (methods == method)
                 magnification[selection] = (
@@ -250,6 +274,14 @@ class MagnificationCurve(object):
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection],
                         gamma=self._gamma))
+            elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
+                selection = (methods == method)
+                magnification[selection] = (
+                    point_lens.get_point_lens_limb_darkening_magnification(
+                        u=u_all[selection],
+                        pspl_magnification=pspl_magnification[selection],
+                        gamma=self._gamma,
+                        direct=True))
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))

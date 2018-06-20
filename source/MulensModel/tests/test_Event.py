@@ -34,23 +34,24 @@ def test_event_get_chi2_1():
 
     chi2 = ev.get_chi2()
     assert isinstance(chi2, float), 'wrong type of chi2'
-    np.testing.assert_almost_equal(float(chi2), 428.58655, decimal=4, 
+    np.testing.assert_almost_equal(float(chi2), 427.20382, decimal=4, 
                                    err_msg='problem in resulting chi2')
     
     chi2_no_blend = ev.get_chi2(fit_blending=False)
     assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
-    np.testing.assert_almost_equal(float(chi2_no_blend), 460.72308, decimal=4, 
+    np.testing.assert_almost_equal(float(chi2_no_blend), 459.09826, decimal=4, 
                                    err_msg='problem in resulting chi2 for fixed no blending')
 
 def test_event_get_chi2_2():
-    """basic unit test on ob08092 OGLE-IV data. Same as above but with
+    """
+    Basic unit test on ob08092 OGLE-IV data. Same as above but with
     the data input twice (to test behavior for multiple datasets);
-    also test if Event.get_chi2_for_dataset() gives correct answers
+    also test if Event.get_chi2_for_dataset() gives correct answers.
     """
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
-    answer = 428.5865729245029
+    answer = 427.20382201
     
     data = MulensData(file_name=SAMPLE_FILE_01)
     
@@ -67,7 +68,7 @@ def test_event_get_chi2_2():
     
     chi2_no_blend = ev.get_chi2(fit_blending=False)
     assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
-    np.testing.assert_almost_equal(float(chi2_no_blend), 2.*460.72308, decimal=4, 
+    np.testing.assert_almost_equal(float(chi2_no_blend), 2.*459.09826, decimal=4, 
                                    err_msg='problem in resulting chi2 for fixed no blending')
 
     chi2_2 = ev.get_chi2_for_dataset(0)
@@ -104,9 +105,11 @@ def test_event_get_chi2_3():
                                     err_msg='problem in resulting chi2')
 
 def test_event_get_chi2_double_source_simple():
-    """basic test on ob08092 OGLE-IV data with added second source
+    """
+    basic test on ob08092 OGLE-IV data with added second source
     Note that currently this test hacks into internal functions of 
-    MulensData and MulensModel classes!"""
+    MulensData and MulensModel classes!
+    """
     t_0 = 5379.57091
     u_0 = 0.52298
     t_E = 17.94002
@@ -124,7 +127,7 @@ def test_event_get_chi2_double_source_simple():
     
     assert isinstance(chi2, float), 'wrong type of chi2'
     message = 'problem in resulting chi2 for 2 exactly the same datasets'
-    np.testing.assert_almost_equal(chi2, 857.17310, decimal=4, err_msg=message)
+    np.testing.assert_almost_equal(chi2, 854.407644, decimal=4, err_msg=message)
 
 def test_event_get_chi2_3():
     """Test: If I change the model parameters, the chi2 should change."""

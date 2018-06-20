@@ -26,7 +26,7 @@ def test_fspl_noLD():
     # were calculated by Andy Gould (file b0b1.dat).
     expected *= pspl
     
-    np.testing.assert_almost_equal(expected, results, decimal=5)
+    np.testing.assert_almost_equal(expected, results, decimal=4)
     
 def test_fspl():
     """check if FSPL magnification is calculate properly"""

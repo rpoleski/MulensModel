@@ -218,9 +218,9 @@ class Event(object):
         else:
             self.fit.fit_fluxes()
 
-        (data, err_data) = dataset.data_and_err_in_input_fmt()
+        (data, err_data) = dataset.data_and_err_in_chi2_fmt()
 
-        model = self.fit.get_input_format(data=dataset)
+        model = self.fit.get_chi2_format(data=dataset)
         diff = data - model
         if np.any(np.isnan(model[dataset.good])): # This can happen only for
                                                   # input_fmt = 'mag' and model flux < 0.
@@ -260,16 +260,16 @@ class Event(object):
         # Calculate chi^2 given the fit
         chi2_per_point = []
         for (i, dataset) in enumerate(self.datasets):
-            if dataset.input_fmt == "mag":
+            if dataset.chi2_fmt == "mag":
                 data = dataset.mag
                 err_data = dataset.err_mag
-            elif dataset.input_fmt == "flux":
+            elif dataset.chi2_fmt == "flux":
                 data = dataset.flux
                 err_data = dataset.err_flux
             else:
                 raise ValueError('Unrecognized data format: {:}'.format(
-                        dataset.input_fmt))
-            model = self.fit.get_input_format(data=dataset)
+                        dataset.chi2_fmt))
+            model = self.fit.get_chi2_format(data=dataset)
             diff = data - model
             if np.any(np.isnan(model)): # This can happen only for
                                         # input_fmt = 'mag' and model flux < 0.
@@ -325,10 +325,10 @@ class Event(object):
 
         for (i, dataset) in enumerate(self.datasets):
             ## Original
-            (data, err_data) = dataset.data_and_err_in_input_fmt()
-            factor = data - self.fit.get_input_format(data=dataset)
+            (data, err_data) = dataset.data_and_err_in_chi2_fmt()
+            factor = data - self.fit.get_chi2_format(data=dataset)
             factor *= -2. / err_data**2
-            if dataset.input_fmt == 'mag':
+            if dataset.chi2_fmt == 'mag':
                 factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
             factor *= self.fit.flux_of_sources(dataset)[0]
 
