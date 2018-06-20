@@ -50,11 +50,13 @@ class Trajectory(object):
 
     Attributes :
         x: *np.ndarray*
-        
+
         y: *np.ndarray*
             Dimensionless source trajectory.
     """
     _get_delta_annual_results = dict()
+    _get_delta_annual_last = None
+    _get_delta_annual_last_index = None
     _get_delta_satellite_results = dict()
 
     def __init__(self, times, parameters, parallax=None,
@@ -185,8 +187,10 @@ class Trajectory(object):
         """
         index = (self.parameters.t_0_par, hash(self.coords),
                  tuple(self.times.tolist()))
-        if index in self._get_delta_annual_results:
-            return self._get_delta_annual_results[index]
+        if index == Trajectory._get_delta_annual_last_index:
+            return Trajectory._get_delta_annual_last
+        if index in Trajectory._get_delta_annual_results:
+            return Trajectory._get_delta_annual_results[index]
         time_ref = self.parameters.t_0_par
 
         position_ref = get_body_barycentric(
@@ -224,7 +228,9 @@ class Trajectory(object):
         out_e = -np.dot(delta_s.value, self.coords.east_projected)
 
         out = {'N': out_n, 'E': out_e}
-        self._get_delta_annual_results[index] = out
+        Trajectory._get_delta_annual_results[index] = out
+        Trajectory._get_delta_annual_last_index = index + tuple()
+        Trajectory._get_delta_annual_last = out
         return out
 
     def _satellite_parallax_trajectory(self):
@@ -240,8 +246,8 @@ class Trajectory(object):
         """
         index = (hash(self.coords), hash(self.satellite_skycoord), 
                 tuple(self.times.tolist()))
-        if index in self._get_delta_satellite_results.keys():
-            return self._get_delta_satellite_results[index]
+        if index in Trajectory._get_delta_satellite_results.keys():
+            return Trajectory._get_delta_satellite_results[index]
 
         # Transform the satellite ephemerides.
         satellite = self.satellite_skycoord
@@ -258,6 +264,5 @@ class Trajectory(object):
         delta_satellite['E'] = -dot(satellite.cartesian, east_projected).value
         delta_satellite['D'] = -dot(satellite.cartesian, direction).value
 
-        self._get_delta_satellite_results[index] = delta_satellite
+        Trajectory._get_delta_satellite_results[index] = delta_satellite
         return delta_satellite
-
