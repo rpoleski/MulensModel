@@ -46,7 +46,7 @@ class CustomInstall(install):
 
 setup(
     name='MulensModel',
-    version='1.2.10',
+    version='1.3.0',
     url='git@github.com:rpoleski/MulensModel.git',
     cmdclass={'install': CustomInstall},
     author='Radek Poleski',
