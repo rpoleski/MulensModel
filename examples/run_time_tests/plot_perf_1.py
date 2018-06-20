@@ -47,8 +47,8 @@ ids = {
     "pyLIMA_piE": 3}
 common_kwargs = {'lw': 3}
 plot_kwargs = {
-    0: {"fmt": 'rs', "ms": 5, "label": "MM static", **common_kwargs},
-    1: {"fmt": 'bs', "ms": 5, "label": "pyLIMA static", **common_kwargs},
+    0: {"fmt": 'rs', "ms": 5, "label": "MM rectilinear", **common_kwargs},
+    1: {"fmt": 'bs', "ms": 5, "label": "pyLIMA rectilinear", **common_kwargs},
     2: {"fmt": 'ro', "ms": 10, "label": "MM parallax", **common_kwargs},
     3: {"fmt": 'bo', "ms": 10, "label": "pyLIMA parallax", **common_kwargs}
     }
