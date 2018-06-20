@@ -16,7 +16,7 @@ def get_pspl_magnification(trajectory):
     magnification.
 
     Arguments :
-        trajectory: *float*, *np.ndarray*, or *:py:class:`~MulensModel.trajectory.Trajectory`* object
+        trajectory: *float*, *np.ndarray*, or :py:class:`~MulensModel.trajectory.Trajectory` object
             The source-lens relative position. If _not_ a
             :py:class:`~MulensModel.trajectory.Trajectory` object,
             then trajectory is assumed to be value(s) of :math:`u`.
@@ -211,7 +211,7 @@ class PointLens(object):
 
             gamma: *float*
                 The limb-darkening coefficient. See also
-                :py:class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+                :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
                 
             direct: *boolean*
                 Use direct calculation (very slow) instead of interpolation.
