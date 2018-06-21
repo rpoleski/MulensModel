@@ -28,3 +28,6 @@ docs/_sources/
 # Example figures
 examples/figure_[123].png
 
+# Test files in examples:
+examples/run_time_tests/test_100*txt
+
