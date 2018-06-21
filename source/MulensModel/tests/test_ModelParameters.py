@@ -163,9 +163,9 @@ def test_orbital_motion_gammas():
     params = ModelParameters(dict_params)
 
     # Test values.
-    np.testing.assert_almost_equal(params.gamma_parallel.value, 0.3333333)
-    np.testing.assert_almost_equal(params.gamma_perp.value, -0.8726646)
-    np.testing.assert_almost_equal(params.gamma.value, 0.9341598)
+    np.testing.assert_almost_equal(params.gamma_parallel.value, 0.333333333)
+    np.testing.assert_almost_equal(params.gamma_perp.value, -0.872664626)
+    np.testing.assert_almost_equal(params.gamma.value, 0.934159869)
 
     # Test units.
     assert params.gamma_parallel.unit == 1. / u.year
