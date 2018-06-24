@@ -17,7 +17,13 @@ source_MMmo = os.path.join(source_MM, 'mulensobjects')
 wrapper_VBBL = os.path.join(source_VBBL, 'VBBinaryLensingLibrary_wrapper.so')
 wrapper_AC = os.path.join(source_AC, 'AdaptiveContouring_wrapper.so')
 
-data_files = []
+data_files = [ (os.path.join(dir_, 'data'), [os.path.join('data', 'interpolation_table_b0b1_v1.dat')]) ]
+
+version = "unknown"
+with open(os.path.join('source', 'MulensModel', 'version.py')) as in_put:
+    for line_ in in_put.readlines():
+        if line_.startswith('__version__'):
+            version = line_.split()[2][1:-1]
 
 
 class CustomInstall(install):
@@ -46,7 +52,7 @@ class CustomInstall(install):
 
 setup(
     name='MulensModel',
-    version='1.3.0',
+    version=version,
     url='git@github.com:rpoleski/MulensModel.git',
     cmdclass={'install': CustomInstall},
     author='Radek Poleski',
