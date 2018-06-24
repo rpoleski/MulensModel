@@ -13,16 +13,17 @@ PATH = os.path.join(MODULE_PATH, 'source', 'VBBL',
         "VBBinaryLensingLibrary_wrapper.so")
 try:
     vbbl = ctypes.cdll.LoadLibrary(PATH)
-except OSError as error:
+except OSError as error_1:
     MODULE_PATH = os.path.dirname(MODULE_PATH)
     MODULE_PATH = os.path.dirname(MODULE_PATH)
     PATH = os.path.join(MODULE_PATH, 'source', 'VBBL',
         "VBBinaryLensingLibrary_wrapper.so")
     try:
         vbbl = ctypes.cdll.LoadLibrary(PATH)
-    except OSError as error:
-        msg = "Something went wrong with VBBL wrapping ({:})\n\n" + repr(error)
-        print(msg.format(PATH))
+    except OSError as error_1:
+        msg = "Something went wrong with VBBL wrapping ({:})\n\nERROR_1:\n"
+        print(msg.format(PATH) + repr(error_1) + "\n\nERROR_2:\n" +
+                repr(error_2))
         _vbbl_wrapped = False
     else:
         _vbbl_wrapped = True
