@@ -1,5 +1,9 @@
 import numpy as np
-from math import fsum, log
+from math import log
+# math.fsum version:
+from math import fsum
+# numpy.sum version:
+# from numpy import sum as fsum
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
