@@ -74,20 +74,31 @@ class Fit(object):
             # suppress bad data
             select = dataset.good
             n_epochs = np.sum(select)
+            all_ok = np.all(select)
 
             # Set up the x vector for the linear fit
             x = np.empty(shape=(n_fluxes, n_epochs))
             if fit_blending:
-                x[0:(n_fluxes-1), ] = self._magnification[i_dataset][select]
-                x[n_fluxes-1] = 1.
+                if all_ok:
+                    x[0:n_sources, ] = self._magnification[i_dataset]
+                else:
+                    x[0:n_sources, ] = self._magnification[i_dataset][select]
+                x[n_sources] = 1.
             else:
-                x = self._magnification[i_dataset][select]
+                if all_ok:
+                    x = self._magnification[i_dataset]
+                else:
+                    x = self._magnification[i_dataset][select]
 
             # Take the transpose of x and define y
             xT = np.copy(x).T
             xT.shape = (n_epochs, n_fluxes)
-            y = np.copy(self._datasets[i_dataset].flux[select])
-            sigma_inverse = 1. / self._datasets[i_dataset].err_flux[select]
+            if all_ok:
+                y = np.copy(self._datasets[i_dataset].flux)
+                sigma_inverse = 1. / self._datasets[i_dataset].err_flux
+            else:
+                y = self._datasets[i_dataset].flux[select]
+                sigma_inverse = 1. / self._datasets[i_dataset].err_flux[select]
             y *= sigma_inverse
             if fit_blending:
                 xT *= np.array([sigma_inverse, sigma_inverse]).T
