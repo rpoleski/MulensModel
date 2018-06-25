@@ -32,8 +32,8 @@ class CustomInstall(install):
     """
     def run(self):
         print("Begin running makefiles...")
-        subprocess.run(["make", "-C", source_VBBL])
-        subprocess.run(["make", "-C", source_AC])
+        subprocess.call(["make", "-C", source_VBBL])
+        subprocess.call(["make", "-C", source_AC])
         print("Finish running makefiles...")
         if os.path.isfile(wrapper_VBBL):
             data_files.append( 
