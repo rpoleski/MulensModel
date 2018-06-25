@@ -107,7 +107,7 @@ class Fit(object):
 
             # Solve for the coefficients in y = fs * x + fb (point source)
             # These values are: F_s1, F_s2,..., F_b.
-            results = np.linalg.lstsq(xT, y)[0]
+            results = np.linalg.lstsq(xT, y, rcond=-1)[0]
 
             # Record the results
             if fit_blending:
