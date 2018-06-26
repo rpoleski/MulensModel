@@ -21,8 +21,8 @@ class Trajectory(object):
     center of mass with higher mass (assuming q < 1) at negative X and
     Y=0.
 
-    This class follows the conventions defined in Appendix A of 
-    `Skowron et al. (2011) 
+    This class follows the conventions defined in Appendix A of
+    `Skowron et al. (2011)
     <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_.
 
     Arguments :
@@ -101,7 +101,7 @@ class Trajectory(object):
         For a given set of parameters
         (a :py:class:`~MulensModel.modelparameters.ModelParameters` object),
         calculate the xy position of the source.
-        
+
         This function has no input and no output. It sets :py:attr:`~x` and
         :py:attr:`~y` attributes.
         """
@@ -244,7 +244,7 @@ class Trajectory(object):
         calculates differences of Earth and satellite positions
         projected on the plane of the sky at event position
         """
-        index = (hash(self.coords), hash(self.satellite_skycoord), 
+        index = (hash(self.coords), hash(self.satellite_skycoord),
                 tuple(self.times.tolist()))
         if index in Trajectory._get_delta_satellite_results.keys():
             return Trajectory._get_delta_satellite_results[index]
@@ -253,7 +253,7 @@ class Trajectory(object):
         satellite = self.satellite_skycoord
         satellite.transform_to(frame=self.coords.frame)
 
-        # Project the satellite parallax effect based on the direction of 
+        # Project the satellite parallax effect based on the direction of
         # the event.
         direction = np.array(self.coords.cartesian.xyz.value)
         north_projected = self.coords.north_projected

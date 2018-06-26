@@ -33,9 +33,9 @@ if _vbbl_wrapped:
     vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
     vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
     _vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
-    
+
     vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
-    vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(dtype=ctypes.c_double, 
+    vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(dtype=ctypes.c_double,
             shape=(10,))
     _vbbl_SG12_5 = vbbl.VBBL_SG12_5
 
@@ -170,10 +170,10 @@ class BinaryLens(object):
 
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots_WM95
-        
+
         polynomial = self._get_polynomial_WM95(
             source_x=source_x, source_y=source_y)
-            
+
         if _solver == 'Skowron_and_Gould_12':
             out = _vbbl_SG12_5(*(polynomial.real.tolist() +
                     polynomial.imag.tolist()))
@@ -228,17 +228,18 @@ class BinaryLens(object):
                 repr(self.separation), repr(source_x), repr(source_y), _solver)
 
             if _solver != "Skowron_and_Gould_12":
-                txt += ("\n\nYou should switch to using Skowron_and_Gould_12 " +
-                    "polynomial root solver. It is much more accurate than " +
+                txt += ("\n\nYou should switch to using Skowron_and_Gould_12" +
+                    " polynomial root solver. It is much more accurate than " +
                     "numpy.polynomial.polynomial.polyroots(). " +
-                    "Skowron_and_Gould_12 method is selected in automated way" +
-                    " if VBBL is imported properly.")
+                    "Skowron_and_Gould_12 method is selected in automated " +
+                    "way if VBBL is imported properly.")
             else:
                 distance = sqrt(source_x**2 + source_y**2)
-                if (self.mass_2 > 1.e-6 * self.mass_1 and 
+                if (self.mass_2 > 1.e-6 * self.mass_1 and
                         (distance < 15. or distance < 2. * self.separation)):
-                    txt += ("\n\nThis is surprising error - please contact code " +
-                            "authors and provide the above error message.")
+                    txt += ("\n\nThis is surprising error - please contact " +
+                            "code authors and provide the above error " +
+                            "message.")
 
             raise ValueError(txt)
 
@@ -580,6 +581,5 @@ class BinaryLens(object):
         #      }
         #  }
         #  delete Images;
-        # This code was written for version 1.X. Check if it's the same 
+        # This code was written for version 1.X. Check if it's the same
         # (maybe simpler) in 2.X.
-

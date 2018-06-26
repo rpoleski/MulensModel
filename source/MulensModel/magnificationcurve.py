@@ -343,7 +343,7 @@ class MagnificationCurve(object):
             method = methods[index].lower()
             if not is_static:
                 binary_lens = BinaryLens(
-                    mass_1=m_1, mass_2=m_2, 
+                    mass_1=m_1, mass_2=m_2,
                     separation=self.parameters.get_s(self.times[index]))
 
             kwargs = {}

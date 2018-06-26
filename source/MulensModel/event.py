@@ -226,8 +226,8 @@ class Event(object):
 
         model = self.fit.get_chi2_format(data=dataset)
         diff = data - model
-        if np.any(np.isnan(model[dataset.good])): # This can happen only for
-                                                  # input_fmt = 'mag' and model flux < 0.
+        if np.any(np.isnan(model[dataset.good])):  # This can happen only for
+                                        # input_fmt = 'mag' and model flux < 0.
             mask = np.isnan(model)
             masked_model = self.fit.get_flux(data=dataset)[mask]
             diff[mask] = dataset.flux[mask] - masked_model
@@ -275,7 +275,7 @@ class Event(object):
                         dataset.chi2_fmt))
             model = self.fit.get_chi2_format(data=dataset)
             diff = data - model
-            if np.any(np.isnan(model)): # This can happen only for
+            if np.any(np.isnan(model)):  # This can happen only for
                                         # input_fmt = 'mag' and model flux < 0.
                 mask = np.isnan(model)
                 masked_model = self.fit.get_flux(data=dataset)[mask]
@@ -328,7 +328,7 @@ class Event(object):
             self.fit.fit_fluxes()
 
         for (i, dataset) in enumerate(self.datasets):
-            ## Original
+            # Original
             (data, err_data) = dataset.data_and_err_in_chi2_fmt()
             factor = data - self.fit.get_chi2_format(data=dataset)
             factor *= -2. / err_data**2
@@ -336,7 +336,7 @@ class Event(object):
                 factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
             factor *= self.fit.flux_of_sources(dataset)[0]
 
-            ## np.log
+            # np.log
             #(data, err_data) = dataset.data_and_err_in_input_fmt()
             #factor = data - self.fit.get_input_format(data=dataset)
             #factor *= -2. / err_data**2
@@ -344,18 +344,18 @@ class Event(object):
             #    factor *= -2.5 / (np.log(10.) * Utils.get_flux_from_mag(data))
             #factor *= self.fit.flux_of_sources(dataset)[0]
 
-            ## Fluxes
+            # Fluxes
             #f_source = self.fit.flux_of_sources(dataset)[0]
             #f_blend = self.fit.blending_flux(dataset)
             #model_flux = (f_source *
-            #              self.model.get_data_magnification(dataset) + f_blend)
-            #factor = (-2. * f_source * 
+            #          self.model.get_data_magnification(dataset) + f_blend)
+            #factor = (-2. * f_source *
             #           (dataset.flux - model_flux) / dataset.err_flux**2)
 
             kwargs = {}
             if dataset.ephemerides_file is not None:
                 kwargs['satellite_skycoord'] = dataset.satellite_skycoord
-            trajectory = Trajectory(dataset.time, self.model.parameters, 
+            trajectory = Trajectory(dataset.time, self.model.parameters,
                     self.model.get_parallax(), self.coords, **kwargs)
             u_2 = trajectory.x**2 + trajectory.y**2
             u_ = np.sqrt(u_2)
@@ -369,7 +369,7 @@ class Event(object):
             dt = dataset.time[dataset.good] - as_dict['t_0']
 
             # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
-            # gradient depends on which ones are defined. 
+            # gradient depends on which ones are defined.
             if 't_eff' not in as_dict:
                 t_E = as_dict['t_E'].to(u.day).value
                 if 't_0' in parameters:
@@ -406,7 +406,7 @@ class Event(object):
             if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
                 parallax = {'earth_orbital': False, 'satellite': False,
                         'topocentric': False}
-                trajectory_no_piE = Trajectory(dataset.time, 
+                trajectory_no_piE = Trajectory(dataset.time,
                     self.model.parameters, parallax, self.coords,
                     **kwargs)
                 dx = (trajectory.x - trajectory_no_piE.x)[dataset.good]

@@ -983,16 +983,16 @@ class Model(object):
                 return
 
         self.caustics = Caustics(q=self.parameters.q, s=s)
-    
+
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
         Plot the caustic structure. See
-        :py:func:`MulensModel.caustics.Caustics.plot()`. 
-        
+        :py:func:`MulensModel.caustics.Caustics.plot()`.
+
         Additional parameters :
             epoch: *float*, optional
-                Epoch for which separation *s* will be used. Important 
-                for models with orbital motion. Defaults to *t_0_kep*, 
+                Epoch for which separation *s* will be used. Important
+                for models with orbital motion. Defaults to *t_0_kep*,
                 which defaults to *t_0*.
         """
         self.update_caustics(epoch=epoch)

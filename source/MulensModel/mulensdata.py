@@ -43,7 +43,7 @@ class MulensData(object):
            Specifies whether the format used for chi^2 calculation
            should be done in Magnitude or Flux spaces. Accepts either
            'mag' or 'flux'. Default is 'flux' because almost always
-           the errors are gaussian in flux space. 
+           the errors are gaussian in flux space.
 
         coords: *astropy.SkyCoord*, optional
            sky coordinates of the event
@@ -313,7 +313,7 @@ class MulensData(object):
         else:
             raise ValueError('Unrecognized data format: {:}'.format(
                     self.input_fmt))
-        
+
         return (data, err_data)
 
     def data_and_err_in_chi2_fmt(self):
@@ -338,7 +338,7 @@ class MulensData(object):
         else:
             raise ValueError('Unrecognized data format: {:}'.format(
                     self.chi2_fmt))
-        
+
         return (data, err_data)
 
     @property

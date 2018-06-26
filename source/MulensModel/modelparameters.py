@@ -304,7 +304,8 @@ class ModelParameters(object):
                     'Lens orbital motion requires >2 bodies (s, q, alpha).')
         # If orbital motion is defined, then reference epoch has to be set.
             if 't_0' not in keys and 't_0_kep' not in keys:
-                raise KeyError('Orbital motion requires reference epoch, ' +
+                raise KeyError(
+                    'Orbital motion requires reference epoch, ' +
                     'i.e., t_0 or t_0_kep')
 
         # t_0_kep makes sense only when orbital motion is defined.
@@ -315,7 +316,8 @@ class ModelParameters(object):
 
         # Make sure user does not set the gamma parameters.
         if 'gamma' in keys or 'gamma_perp' in keys or 'gamma_parallel' in keys:
-            raise KeyError('You cannot set gamma, gamma_perp, ' +
+            raise KeyError(
+                'You cannot set gamma, gamma_perp, ' +
                 'or gamma_parallel. These are derived parameters. ' +
                 'You can set ds_dt and dalpha_dt instead.')
 
@@ -574,7 +576,7 @@ class ModelParameters(object):
     @s.setter
     def s(self, new_s):
         if new_s < 0.:
-            raise ValueError('Binary lens separation cannot be negative:', 
+            raise ValueError('Binary lens separation cannot be negative:',
                 new_s)
 
         self.parameters['s'] = new_s
@@ -800,7 +802,7 @@ class ModelParameters(object):
             epoch = np.array(epoch)
 
         alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)*u.d)
-        
+
         return alpha_of_t.to(u.deg)
 
     @property
@@ -845,7 +847,7 @@ class ModelParameters(object):
         Returns :
             is_static: *boolean*
                 *True* if *dalpha_dt* or *ds_dt* are set.
-        
+
         """
         if ('dalpha_dt' in self.parameters.keys() or
                 'ds_dt' in self.parameters.keys()):
