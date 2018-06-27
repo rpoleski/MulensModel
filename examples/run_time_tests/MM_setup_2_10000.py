@@ -6,7 +6,6 @@ import MulensModel as mm
 
 file_1 = "test_10000_piE.txt"
 data_1 = mm.MulensData(file_name=file_1)
-data_1.input_fmt = 'flux'
 t_0 = 2456900.
 u_0 = 0.1
 t_E = 50.
