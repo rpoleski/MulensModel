@@ -78,10 +78,10 @@ with open(in_file) as in_data:
             results[ids[name], n_all.index(n_name)] = out[0]
             results_sigma[ids[name], n_all.index(n_name)] = out[1]
             
-x = np.array([float(n) for n in n_all])
+x = np.array([float(n) for n in n_all]) * 0.9
 for i in range(len(ids)):
     plt.errorbar(x, results[i], results_sigma[i], **{**plot_kwargs[i], 'lw': 3})
-    x *= 1.04
+    x *= 1.07
     
 plt.xlim(50., 30000.)
 plt.xscale('log')
