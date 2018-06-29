@@ -24,7 +24,7 @@
     * _Event.fit seems to be not documented_
   * Include full documentation via setup.py data\_files mechanism.
   * **multiple datasets - improve in docstrings/tutorials**
-  * **data_list in MulensData - improve in docstrings/tutorials**
+  * **data\_list in MulensData - improve in docstrings/tutorials**
 * Effects
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
@@ -35,11 +35,20 @@
     * Full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
   * Higher Order Effects
     * xallarap (see below for references)
+  * Multi-lens ray shooting:
+    * mapmaking version which adds new rays as needed
+    * Yossi's idea to find all the images
 * Parameterization
   * Cassan 2008 binary lens parameters 
   * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
-* Function Improvements/Expansion
+* Function Improvements/Expansion:
+  * **Binary source**:
+    * finish use cases
+    * list all the high-level functions that will be affected
+    * write unit tests
+    * make changes
+    * check if all the high-level functions were corrected 
   * Binary Lens:
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
@@ -50,6 +59,7 @@
   * Caustics:
     * Caustics.\_calculate - optimize using vectors instead of a loop
     * Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
+    * root solver can be used the same as in binarylens.py
   * Event class:
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
@@ -60,6 +70,7 @@
     * chi2\_gradient() should cope NaN values in a way similar to get\_chi2()
     * check all functions that should pass fit\_blending parameter
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
+    * get flux and its error in reference system
   * Fit:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
   * Horizons:
@@ -85,6 +96,8 @@
     * plot\_trajectory() - mark epochs using colorscale? Maybe it should be passed by kwargs (if so, then add example)
     * Should get\_satellite\_coords() use caching?
     * we should have versions of all plot functions to use magnifications instead of magnitudes; also add access via Event
+    * set\_datasets() - check input
+    * add option to use random zorder when plotting multiple datasets (e.g. gaussian with sigma depending on number of plotted datapoints)
   * ModelParameters:
     * check that non-existing parameters are not specified e.g. t0
     * check that minimal parameters needed to specify a model are defined
@@ -95,6 +108,7 @@
     * **Errorbar scaling, in particular the two parameter.**
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info
+    * try/except in all np.loadtxt()
   * PointLens:
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
     * 1+2/u^4 approximation for very large u
