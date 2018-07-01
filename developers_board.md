@@ -13,6 +13,7 @@
 * Install
   * makefile for Windows (basic instructions exist already)
   * setup.py should use Extensions instead of custom makefile
+  * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
 * Documentation
   * Sagan workshop hands-on activity in MM
   * Add \_\_repr\_\_ functions to Lens and Source
@@ -26,6 +27,13 @@
   * **multiple datasets - improve in docstrings/tutorials**
   * **data\_list in MulensData - improve in docstrings/tutorials**
 * Effects
+  * **Binary source**:
+    * finish use cases
+    * list all the high-level functions that will be affected
+    * decide how to implement in general e.g. Model has separate internal Model instances for each source? Maybe Event should have 2 internal instances of for each source?
+    * write unit tests
+    * make changes
+    * check if all the high-level functions were corrected 
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
     * faster FSPL with LD
@@ -43,12 +51,6 @@
   * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
 * Function Improvements/Expansion:
-  * **Binary source**:
-    * finish use cases
-    * list all the high-level functions that will be affected
-    * write unit tests
-    * make changes
-    * check if all the high-level functions were corrected 
   * Binary Lens:
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
@@ -132,6 +134,7 @@
     * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method
     * **corner plots; they require [corner](https://github.com/dfm/corner.py), [pyhdust](https://github.com/danmoser/pyhdust), or [pyGTC](https://pypi.org/project/pyGTC/)**
   * Miscellaneous:
+    * add function to get Earth's projected velocity
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
     * guessing parameters of PSPL model ([Kim+17](https://arxiv.org/abs/1703.06883) as an example)
