@@ -31,7 +31,7 @@ High level functions that need changes:
   * get\_chi2\_for\_dataset()
   * get\_chi2\_per\_point()
   * get\_ref\_fluxes()
-  * all plotting functions (they call Model functions
+  * all plotting functions (they call Model functions)
 
 Also note that there is Fit.get\_n\_sources() function that should be taken care off. 
 Things related to binary source that we'll do in future:
@@ -41,5 +41,5 @@ Things related to binary source that we'll do in future:
 * is satellite data and binary source causing any additional problems
 * xallarap
 * binary-lens/binary-source models
-* there may be different limb darkening coeffs for each source
+* there may be different limb darkening coeffs for each source - this would affect MulensData
 

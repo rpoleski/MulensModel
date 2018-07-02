@@ -10,6 +10,8 @@
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
 
+_italics_ mark important tasks
+
 * Install
   * makefile for Windows (basic instructions exist already)
   * setup.py should use Extensions instead of custom makefile
@@ -26,39 +28,40 @@
   * Include full documentation via setup.py data\_files mechanism.
   * **multiple datasets - improve in docstrings/tutorials**
   * **data\_list in MulensData - improve in docstrings/tutorials**
-* Effects
-  * **Binary source**:
+* Effects:
+  * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
-    * list all the high-level functions that will be affected
+    * list of all the high-level functions that will be affected
     * decide how to implement in general e.g. Model has separate internal Model instances for each source? Maybe Event should have 2 internal instances of for each source?
     * write unit tests
     * make changes
     * check if all the high-level functions were corrected 
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
-    * faster FSPL with LD
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * Yoo+04 full formalism 
-    * [2] get gamma/u LD coeffs from Claret papers etc.
-    * Full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
-  * Higher Order Effects
-    * xallarap (see below for references)
+    * get gamma/u LD coeffs from Claret papers etc.
+    * full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
+  * Xallarap (see below for references)
+  * Quadratic limb darkening
   * Multi-lens ray shooting:
     * mapmaking version which adds new rays as needed
     * Yossi's idea to find all the images
+  * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
+  * _Magnification function provided by the user - already started in user\_method branch_
 * Parameterization
   * Cassan 2008 binary lens parameters 
   * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
 * Function Improvements/Expansion:
-  * Binary Lens:
+  * BinaryLens class:
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
     * topology of caustics based on (s,q)
     * central and planetary caustic properties: [Chung et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...630..535C) and [Han 2006](http://adsabs.harvard.edu/abs/2006ApJ...638.1080H)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
     * faster hexadecapole using Cassan 2017 ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
-  * Caustics:
+  * Caustics class:
     * Caustics.\_calculate - optimize using vectors instead of a loop
     * Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
     * root solver can be used the same as in binarylens.py
@@ -73,24 +76,24 @@
     * check all functions that should pass fit\_blending parameter
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
     * get flux and its error in reference system
-  * Fit:
+  * Fit class:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
-  * Horizons:
+  * Horizons class:
     * JPL Horizons
       * correct JPL Horizons => CSV file format; also example usage
       * check if Horizons e-mail is for correct satellite
     * BJD
       * conversions to BJD from HJD, JD etc. ([astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections))
       * BJD\_TDB in satellite ephemeris [astropy link](http://docs.astropy.org/en/stable/time/#barycentric-and-heliocentric-light-travel-time-corrections)
-  * Lens:
+  * Lens class:
     * \_\_repr\_\_ function needs work                                         
     * a\_proj, couples with source distance in mulensmodel to determine s.  
     * 2-body example 3 is missing s. Why? Does that work?                  
     * problem with tracking number of masses, esp when successively defining masses (see test\_Lens.py)
     * implement triple+ systems  
-  * MagnificationCurve:
+  * MagnificationCurve class:
     * re-write magnification() to use lazy loading (here or in model.py)
-  * Model:  
+  * Model class:
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that prints RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
@@ -100,28 +103,30 @@
     * we should have versions of all plot functions to use magnifications instead of magnitudes; also add access via Event
     * set\_datasets() - check input
     * add option to use random zorder when plotting multiple datasets (e.g. gaussian with sigma depending on number of plotted datapoints)
-  * ModelParameters:
+  * ModelParameters class:
     * check that non-existing parameters are not specified e.g. t0
     * check that minimal parameters needed to specify a model are defined
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
-  * MulensData:
+  * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
     * **Errorbar scaling, in particular the two parameter.**
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info
     * try/except in all np.loadtxt()
-  * PointLens:
+  * PointLens class:
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
     * 1+2/u^4 approximation for very large u
-  * SatelliteSkyCoord:
+    * improve the b0b1 tables so that relative interpolation errors are below 1e-5
+  * SatelliteSkyCoord class:
     * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
-  * Trajectory:
-    * **\_get\_delta\_satellite() should be using self.times**
-  * Utils:
+  * Trajectory class:
+    * _\_get\_delta\_satellite() should be using self.times_
+    * annual parallax could be made faster most probably (this claim is based on figure 3 in paper)
+  * Utils class:
     * in np.any() ifs give more information in warning e.g., "out of 1234 values provided, the fails are: 12, 345, 678 (0-based)"
     * add u(a) function: u = np.sqrt(2A/np.sqrt(A^2-1.) - 2.)
-  * Plotting
+  * Plotting:
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
   * Examples:
