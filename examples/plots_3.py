@@ -50,4 +50,4 @@ pyplot.axes([0.17, 0.7, 0.3, 0.2]) # Figure inset stars here.
 model_1S2L.plot_trajectory(caustics=True)
 pyplot.xlim(-0.1, 0.45)
 pyplot.ylim(-0.14, 0.14)
-pyplot.savefig('figure_3.png')
+pyplot.savefig('figure_4.png')
