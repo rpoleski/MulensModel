@@ -1,5 +1,5 @@
 """
-Creates Figure 3.
+Creates Figure 4.
 
 This example shows OGLE-2003-BLG-235/MOA-2003-BLG-53,
 the first microlensing planet.
