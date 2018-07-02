@@ -298,8 +298,9 @@ class ModelParameters(object):
                     'Lens orbital motion requires both ds_dt and dalpha_dt.' +
                     '\nNote that you can set either of them to 0.')
         # If orbital motion is defined, then we need binary lens.
-            if (('s' not in keys) or ('q' not in keys) or
-                  ('alpha' not in keys)):
+            if (
+                    ('s' not in keys) or ('q' not in keys) or
+                    ('alpha' not in keys)):
                 raise KeyError(
                     'Lens orbital motion requires >2 bodies (s, q, alpha).')
         # If orbital motion is defined, then reference epoch has to be set.
@@ -576,8 +577,8 @@ class ModelParameters(object):
     @s.setter
     def s(self, new_s):
         if new_s < 0.:
-            raise ValueError('Binary lens separation cannot be negative:',
-                new_s)
+            raise ValueError(
+                'Binary lens separation cannot be negative:', new_s)
 
         self.parameters['s'] = new_s
 
@@ -723,7 +724,7 @@ class ModelParameters(object):
         """
         *astropy.Quantity*
 
-        Change rate of angle :py:attr:`~alpha` in deg/year. Can be set as 
+        Change rate of angle :py:attr:`~alpha` in deg/year. Can be set as
         *AstroPy.Quantity* or as *float* (deg/year is assumed default unit).
         Regardless of input value, returns value in deg/year.
         """
@@ -745,7 +746,7 @@ class ModelParameters(object):
         """
         *float*
 
-        The reference time for the calculation of lens orbital motion. 
+        The reference time for the calculation of lens orbital motion.
         If not set explicitly, assumes t_0_kep = t_0.
         """
         if 't_0_kep' not in self.parameters.keys():

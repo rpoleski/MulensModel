@@ -50,7 +50,8 @@ class Horizons(object):
         if file_type == 'Horizons':
             self._read_horizons_file()
         else:
-            (time, x, y, z) = np.loadtxt(self.file_properties['file_name'],
+            (time, x, y, z) = np.loadtxt(
+                self.file_properties['file_name'],
                 usecols=(0, 1, 2, 3), unpack=True)
             self._time = time
             self._xyz = SkyCoord(x=x, y=y, z=z, representation='cartesian')

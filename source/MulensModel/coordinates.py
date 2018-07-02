@@ -73,7 +73,7 @@ class Coordinates(SkyCoord):
         """
         from astropy.coordinates import GeocentricTrueEcliptic
         return self.transform_to(GeocentricTrueEcliptic).lat
-            
+
     @property
     def north_projected(self):
         """
@@ -101,4 +101,3 @@ class Coordinates(SkyCoord):
         east_projected = np.cross(north, direction)
         self._east_projected = east_projected / np.linalg.norm(east_projected)
         self._north_projected = np.cross(direction, self._east_projected)
-

@@ -46,34 +46,37 @@ class PointLens(object):
 
     Keywords :
         parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
-            Parameters of the model. Currently, only 
+            Parameters of the model. Currently, only
             :py:attr:`~MulensModel.modelparameters.ModelParameters.rho`
-            attribute is used. 
+            attribute is used.
 
     """
 
     _B0B1_file_read = False
-    
+
     def __init__(self, parameters=None):
         self.parameters = parameters
 
     def _read_B0B1_file(self):
         """Read file with pre-computed function values"""
-        file_ = os.path.join(MulensModel.MODULE_PATH, 'data', 
+        file_ = os.path.join(
+            MulensModel.MODULE_PATH, 'data',
             'interpolation_table_b0b1_v1.dat')
         if not os.path.exists(file_):
-            file_ = os.path.join(os.path.dirname(__file__), 'data',
-                        'interpolation_table_b0b1_v1.dat')
+            file_ = os.path.join(
+                os.path.dirname(__file__), 'data',
+                'interpolation_table_b0b1_v1.dat')
             if not os.path.exists(file_):
-                raise ValueError('File with FSPL data does not exist.\n' + file_)
+                raise ValueError(
+                    'File with FSPL data does not exist.\n' + file_)
         (z, B0, B0_minus_B1) = np.loadtxt(file_, unpack=True)
         PointLens._B0B1_file_read = True
         PointLens._B0_interpolation = interp1d(z, B0, kind='cubic')
-        PointLens._B0_minus_B1_interpolation = interp1d(z, B0_minus_B1, 
-                kind='cubic')
+        PointLens._B0_minus_B1_interpolation = interp1d(
+                z, B0_minus_B1, kind='cubic')
         PointLens._z_min = np.min(z)
         PointLens._z_max = np.max(z)
-            
+
     def _B_0_function(self, z):
         """
         calculate B_0(z) function defined in:
@@ -120,7 +123,7 @@ class PointLens(object):
 
         lim_0 = lambda x: 0
         lim_1 = lambda x: 1
-        rho_W_1 = 0. * z # This equals rho * W_1().
+        rho_W_1 = 0. * z  # This equals rho * W_1().
         for (i, zz) in enumerate(z):
             function.arg_1 = zz
             function.arg_2 = zz * zz
@@ -129,7 +132,7 @@ class PointLens(object):
                 function, 0., 2.*np.pi, lim_0, lim_1)[0]
 
         rho_W_1 /= np.pi
-        return B_0 - 1.5 * z * rho_W_1 
+        return B_0 - 1.5 * z * rho_W_1
 
     def get_point_lens_finite_source_magnification(
                 self, u, pspl_magnification, direct=False):
@@ -148,7 +151,7 @@ class PointLens(object):
 
         Parameters :
             u: *float*, *np.array*
-                The instantaneous source-lens separation. 
+                The instantaneous source-lens separation.
                 Multiple values can be provided.
 
             pspl_magnification: *float*, *np.array*
@@ -176,13 +179,13 @@ class PointLens(object):
             mask = np.zeros_like(z, dtype=bool)
         else:
             mask = (z > PointLens._z_min) & (z < PointLens._z_max)
-        
+
         B0 = 0. * z
-        if np.any(mask): # Here we use interpolation.
+        if np.any(mask):  # Here we use interpolation.
             B0[mask] = PointLens._B0_interpolation(z[mask])
 
         mask = np.logical_not(mask)
-        if np.any(mask): # Here we use direct calculation.
+        if np.any(mask):  # Here we use direct calculation.
             B0[mask] = self._B_0_function(z[mask])
 
         magnification = pspl_magnification * B0
@@ -206,7 +209,7 @@ class PointLens(object):
 
         Parameters :
             u: *float*, *np.array*
-                The instantaneous source-lens separation. Multiple values 
+                The instantaneous source-lens separation. Multiple values
                 can be provided.
 
             pspl_magnification: *float*, *np.array*
@@ -215,7 +218,7 @@ class PointLens(object):
             gamma: *float*
                 The limb-darkening coefficient. See also
                 :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
-                
+
             direct: *boolean*
                 Use direct calculation (very slow) instead of interpolation.
 
@@ -239,14 +242,14 @@ class PointLens(object):
         else:
             mask = (z > PointLens._z_min) & (z < PointLens._z_max)
 
-        magnification = 0. * z + pspl_magnification    
-        if np.any(mask): # Here we use interpolation.
+        magnification = 0. * z + pspl_magnification
+        if np.any(mask):  # Here we use interpolation.
             B_0 = PointLens._B0_interpolation(z[mask])
             B_0_minus_B_1 = PointLens._B0_minus_B1_interpolation(z[mask])
             magnification[mask] *= (B_0*(1.-gamma) + B_0_minus_B_1*gamma)
-        
+
         mask = np.logical_not(mask)
-        if np.any(mask): # Here we use direct calculation.
+        if np.any(mask):  # Here we use direct calculation.
             B_0 = self._B_0_function(z[mask])
             B_1 = self._B_1_function(z[mask], B_0=B_0)
             magnification[mask] *= (B_0 - gamma * B_1)

@@ -312,11 +312,13 @@ class Event(object):
         gradient = {param: 0 for param in parameters}
 
         if self.model.n_lenses != 1:
-            raise NotImplementedError('Event.chi2_gradient() works only ' +
+            raise NotImplementedError(
+                'Event.chi2_gradient() works only ' +
                 'single lens models currently')
         as_dict = self.model.parameters.as_dict()
         if 'rho' in as_dict or 't_star' in as_dict:
-            raise NotImplementedError('Event.chi2_gradient() is not working ' +
+            raise NotImplementedError(
+                'Event.chi2_gradient() is not working ' +
                 'for finite source models yet')
 
         # Define a Fit given the model and perform linear fit for fs and fb
@@ -328,7 +330,6 @@ class Event(object):
             self.fit.fit_fluxes()
 
         for (i, dataset) in enumerate(self.datasets):
-            # Original
             (data, err_data) = dataset.data_and_err_in_chi2_fmt()
             factor = data - self.fit.get_chi2_format(data=dataset)
             factor *= -2. / err_data**2
@@ -336,26 +337,11 @@ class Event(object):
                 factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
             factor *= self.fit.flux_of_sources(dataset)[0]
 
-            # np.log
-            #(data, err_data) = dataset.data_and_err_in_input_fmt()
-            #factor = data - self.fit.get_input_format(data=dataset)
-            #factor *= -2. / err_data**2
-            #if dataset.input_fmt == 'mag':
-            #    factor *= -2.5 / (np.log(10.) * Utils.get_flux_from_mag(data))
-            #factor *= self.fit.flux_of_sources(dataset)[0]
-
-            # Fluxes
-            #f_source = self.fit.flux_of_sources(dataset)[0]
-            #f_blend = self.fit.blending_flux(dataset)
-            #model_flux = (f_source *
-            #          self.model.get_data_magnification(dataset) + f_blend)
-            #factor = (-2. * f_source *
-            #           (dataset.flux - model_flux) / dataset.err_flux**2)
-
             kwargs = {}
             if dataset.ephemerides_file is not None:
                 kwargs['satellite_skycoord'] = dataset.satellite_skycoord
-            trajectory = Trajectory(dataset.time, self.model.parameters,
+            trajectory = Trajectory(
+                    dataset.time, self.model.parameters,
                     self.model.get_parallax(), self.coords, **kwargs)
             u_2 = trajectory.x**2 + trajectory.y**2
             u_ = np.sqrt(u_2)
@@ -386,7 +372,8 @@ class Event(object):
                     gradient['u_0'] += sum_d_y_d_u + np.sum(
                             factor_d_x_d_u * dt / t_eff)
                 if 't_eff' in parameters:
-                    gradient['t_eff'] += np.sum(factor_d_x_d_u * -dt *
+                    gradient['t_eff'] += np.sum(
+                            factor_d_x_d_u * -dt *
                             as_dict['u_0'] / t_eff**2)
             elif 'u_0' not in as_dict:
                 t_E = as_dict['t_E'].to(u.day).value
@@ -394,20 +381,24 @@ class Event(object):
                 if 't_0' in parameters:
                     gradient['t_0'] += -sum_d_x_d_u / t_E
                 if 't_E' in parameters:
-                    gradient['t_E'] += (np.sum(factor_d_x_d_u * dt) -
+                    gradient['t_E'] += (
+                            np.sum(factor_d_x_d_u * dt) -
                             sum_d_y_d_u * t_eff) / t_E**2
                 if 't_eff' in parameters:
                     gradient['t_eff'] += sum_d_y_d_u / t_E
             else:
-                raise KeyError('Something is wrong with ModelParameters in ' +
+                raise KeyError(
+                    'Something is wrong with ModelParameters in ' +
                     'Event.chi2_gradient():\n', as_dict)
 
             # Below we deal with parallax only.
             if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-                parallax = {'earth_orbital': False, 'satellite': False,
-                        'topocentric': False}
-                trajectory_no_piE = Trajectory(dataset.time,
-                    self.model.parameters, parallax, self.coords,
+                parallax = {
+                    'earth_orbital': False,
+                    'satellite': False,
+                    'topocentric': False}
+                trajectory_no_piE = Trajectory(
+                    dataset.time, self.model.parameters, parallax, self.coords,
                     **kwargs)
                 dx = (trajectory.x - trajectory_no_piE.x)[dataset.good]
                 dy = (trajectory.y - trajectory_no_piE.y)[dataset.good]

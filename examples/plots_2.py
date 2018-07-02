@@ -34,7 +34,7 @@ satellite = SatelliteSkyCoord(
 
 # Plot the magnification curves.
 plot_kwargs = {'subtract_2450000': True, 'lw': 2.}
-pyplot.figure(figsize=(8,8))
+pyplot.figure(figsize=(8, 8))
 pyplot.axes([0.1, 0.43, 0.85, 0.55])
 model_planet.plot_magnification(label='planetary', **plot_kwargs)
 model_parallax.plot_magnification(
@@ -44,7 +44,7 @@ model_parallax.plot_magnification(
     label='satellite parallax', satellite_skycoord=satellite, **plot_kwargs)
 pyplot.legend(loc='best')
 
-pyplot.axes([0.1, 0.07, 0.85, 0.25]) # Lower panel starts here.
+pyplot.axes([0.1, 0.07, 0.85, 0.25])  # Lower panel starts here.
 model_planet.plot_trajectory(caustics=True)
 pyplot.xlim(-1.52, 1.61)
 pyplot.xlabel(r"$\theta_x$")

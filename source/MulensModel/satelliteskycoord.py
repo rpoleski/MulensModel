@@ -56,10 +56,11 @@ class SatelliteSkyCoord(object):
             self._horizons = Horizons(self.ephemerides_file)
 
         time = self._horizons.time
-        if (np.max(time) + 0.001 < np.max(times) or 
+        if (np.max(time) + 0.001 < np.max(times) or
                 np.min(time) - 0.001 > np.min(times)):
-            warnings.warn("Satellite ephemeris doesn't cover requested epochs", 
-                        UserWarning)
+            warnings.warn(
+                "Satellite ephemeris doesn't cover requested epochs",
+                UserWarning)
 
         x = interp1d(time, self._horizons.xyz.x, kind='cubic')(times)
         y = interp1d(time, self._horizons.xyz.y, kind='cubic')(times)
@@ -70,4 +71,3 @@ class SatelliteSkyCoord(object):
         self._satellite_skycoord.representation = 'spherical'
 
         return self._satellite_skycoord
-

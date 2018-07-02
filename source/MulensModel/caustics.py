@@ -40,7 +40,7 @@ class Caustics(object):
 
         Parameters :
             n_points: *int*, optional
-                The number of points to calculate along the caustic. 
+                The number of points to calculate along the caustic.
                 Defaults to 5000.
 
             ``**kwargs``

@@ -46,7 +46,7 @@ pyplot.legend(loc='best')
 pyplot.xlim(t_range[0]-2450000., t_range[1]-2450000.)
 pyplot.ylim(19.0, 16.7)
 
-pyplot.axes([0.17, 0.7, 0.3, 0.2]) # Figure inset stars here.
+pyplot.axes([0.17, 0.7, 0.3, 0.2])  # Figure inset stars here.
 model_1S2L.plot_trajectory(caustics=True)
 pyplot.xlim(-0.1, 0.45)
 pyplot.ylim(-0.14, 0.14)
