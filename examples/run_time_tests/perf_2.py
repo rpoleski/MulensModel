@@ -28,6 +28,9 @@ for i in ['100', '1000', '10000']:
     kwargses.append(dict(name='MM_static_{:}'.format(i), 
         setup=read_and_simplify('MM_setup_1_{:}.py'.format(i)), 
         stmt='event.get_chi2()'))
+    kwargses.append(dict(name='MM_static-NP_{:}'.format(i), 
+        setup=read_and_simplify('MM_setup_3_{:}.py'.format(i)), 
+        stmt='event.get_chi2()'))
     kwargses.append(dict(name='pyLIMA_static_{:}'.format(i), 
         setup=read_and_simplify('pyLIMA_setup_1_{:}.py'.format(i)), 
         stmt='chi2_telescope(your_event, model_1, parameters_list)'))
@@ -36,6 +39,9 @@ for i in ['100', '1000', '10000']:
 for i in ['100', '1000', '10000']:
     kwargses.append(dict(name='MM_piE_{:}'.format(i), 
         setup=read_and_simplify('MM_setup_2_{:}.py'.format(i)), 
+        stmt='event.get_chi2()'))
+    kwargses.append(dict(name='MM_piE-NP_{:}'.format(i),
+        setup=read_and_simplify('MM_setup_4_{:}.py'.format(i)),
         stmt='event.get_chi2()'))
     kwargses.append(dict(name='pyLIMA_piE_{:}'.format(i), 
         setup=read_and_simplify('pyLIMA_setup_2_{:}.py'.format(i)), 
