@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>How to install? &#8212; MulensModel 1.3.0 documentation</title>
+    <title>How to install? &#8212; MulensModel 1.3.7 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.3.0',
+        VERSION:     '1.3.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,6 +43,17 @@
             
   <div class="section" id="how-to-install">
 <h1>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this headline">¶</a></h1>
+<p>MulensModel can be installed using setup.py - just download the source, go to the package directory and run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>To make sure that all the necessary packages (including <a class="reference external" href="http://www.astropy.org/">astropy package</a>) are installed, please run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>and this should work. If there are problems, please contact code authors.</p>
+<div class="section" id="old-installation">
+<h2>Old installation<a class="headerlink" href="#old-installation" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
 <li><p class="first">Make sure you have python with <a class="reference external" href="http://www.astropy.org/">astropy package</a> installed.</p>
 </li>
@@ -77,13 +88,22 @@
 </li>
 </ol>
 </div>
+</div>
 
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">How to install?</a><ul>
+<li><a class="reference internal" href="#old-installation">Old installation</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>

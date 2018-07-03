@@ -13,7 +13,7 @@ and this should work. If there are problems, please contact code authors.
 
 
 Old installation
-================
+****************
 
 1. Make sure you have python with `astropy package`_ installed.
 2. Download source code - either `recent release`_ or the current repository from `MulensModel github page`_ (green button on right).
