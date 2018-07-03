@@ -122,7 +122,7 @@ _italics_ mark important tasks
     * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
   * Trajectory class:
     * _\_get\_delta\_satellite() should be using self.times_
-    * annual parallax could be made faster most probably (this claim is based on figure 3 in paper)
+    * annual parallax caching - if moved to MulensData, then would be faster because hashing of coords and time vector takes time
   * Utils class:
     * in np.any() ifs give more information in warning e.g., "out of 1234 values provided, the fails are: 12, 345, 678 (0-based)"
     * add u(a) function: u = np.sqrt(2A/np.sqrt(A^2-1.) - 2.)
