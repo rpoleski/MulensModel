@@ -1,8 +1,9 @@
 * logically, the 2 sources will be specified in ModelParameters
 * current UC: have t\_0\_1 and t\_0\_2 instead of t\_0, same for u\_0
-* think how we calculate effective magnification - is q\_f ModelParameters property? Probably No, because it can be fitted via regression; maybe the best is to have q\_f as a Model property that can be either fix or fitted
+* think how we calculate effective magnification - is q\_f ModelParameters property? Probably No, because it can be fitted via regression; maybe the best is to have q\_f as a Model or Event property that can be either fix or fitted
+* also q\_f is needed in Model because without it, there is no effective magnification
 
-Hence, the best approach I see is to have in Model and ModelParameters private properties that will be instances of these classes but for single sources. Then the main part of Model.magnification will look something like:
+Hence, the best approach I see is to have in Model and ModelParameters (maybe Event as well) private properties that will be instances of these classes but for single sources. Then the main part of Model.magnification will look something like:
 
 ```python
 magnification_curve_0 = MagnificationCurve(time, parameters=self.parameters_source_0, ...)
@@ -33,7 +34,8 @@ High level functions that need changes:
   * get\_ref\_fluxes()
   * all plotting functions (they call Model functions)
 
-Also note that there is Fit.get\_n\_sources() function that should be taken care off. 
+Also note that there is Fit.get\_n\_sources() function that should be taken care off.
+
 Things related to binary source that we'll do in future:
 
 * what happens if there are multiple datasets in the same band? In that case, we want to fit the primary source flux and blend flux independently for each dataset, but constrain q\_f to be the same for all datasets with the same band.
@@ -42,4 +44,5 @@ Things related to binary source that we'll do in future:
 * xallarap
 * binary-lens/binary-source models
 * there may be different limb darkening coeffs for each source - this would affect MulensData
+* chi2 gradient
 
