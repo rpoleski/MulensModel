@@ -63,7 +63,6 @@ setup(
         'MulensModel': source_MM,
         'MulensModel.mulensobjects': source_MMmo},
     data_files=data_files,
-    install_requires=['numpy >= 1.11.1', 'matplotlib >= 1.5.1', 'scipy',
-        'astropy']
+    install_requires=['numpy', 'matplotlib', 'scipy', 'astropy>=1.2.0']
 )
 

@@ -1,6 +1,20 @@
 How to install?
 ===============
 
+MulensModel can be installed using setup.py - just download the source, go to the package directory and run::
+
+    python setup.py install
+
+To make sure that all the necessary packages (including `astropy package`_) are installed, please run::
+
+    pip install -r requirements.txt
+
+and this should work. If there are problems, please contact code authors.
+
+
+Old installation
+================
+
 1. Make sure you have python with `astropy package`_ installed.
 2. Download source code - either `recent release`_ or the current repository from `MulensModel github page`_ (green button on right).
 3. Unpack the archive.
