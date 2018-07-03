@@ -1,5 +1,5 @@
 import numpy as np
-from numpy_functions import numpy_chi2_v1
+from numpy_functions import numpy_chi2_v1, numpy_chi2_v2
 
 
 MAG_ZEROPOINT = 18.
