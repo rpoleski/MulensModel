@@ -1,9 +1,5 @@
 import numpy as np
-from math import log
-# math.fsum version:
-from math import fsum
-# numpy.sum version:
-# from numpy import sum as fsum
+from math import log, fsum
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
@@ -37,6 +33,12 @@ class Event(object):
         best_chi2_parameters: *dict*
             Parameters that gave smallest chi2.
 
+        sum_function: *str*
+            Function used for adding chi^2 contributions. Can be either
+            'math.fsum' (default value) or 'numpy.sum'. The former is
+            slightly slower and more accurate, which may be important for
+            large datasets.
+
     The datasets can be in magnitude or flux spaces. When we calculate chi^2
     we do it in the same space as the dataset considered. If dataset is in
     magnitude space and model results in negative flux, then we calculate chi^2
@@ -65,6 +67,7 @@ class Event(object):
             self._coords = None
 
         self.reset_best_chi2()
+        self.sum_function = 'math.fsum'
 
     @property
     def datasets(self):
@@ -165,6 +168,16 @@ class Event(object):
         self.best_chi2 = None
         self.best_chi2_parameters = {}
 
+    def _sum(self, data):
+        """calculate sum of the data"""
+        if self.sum_function == 'numpy.sum':
+            return np.sum(data)
+        elif self.sum_function == 'math.fsum':
+            return fsum(data)
+        else:
+            raise ValueError(
+                'Event.sum_function unrecognized: ' + self.sum_function)
+
     def get_chi2(self, fit_blending=None):
         """
         Calculates chi^2 of current model by fitting for source and
@@ -187,9 +200,9 @@ class Event(object):
         chi2 = []
         for i, dataset in enumerate(self.datasets):
             # Calculate chi2 for the dataset excluding bad data
-            chi2.append(fsum(chi2_per_point[i][dataset.good]))
+            chi2.append(self._sum(chi2_per_point[i][dataset.good]))
 
-        self.chi2 = fsum(chi2)
+        self.chi2 = self._sum(chi2)
         if self.best_chi2 is None or self.best_chi2 > self.chi2:
             self.best_chi2 = self.chi2
             self.best_chi2_parameters = dict(self.model.parameters.parameters)
@@ -233,7 +246,7 @@ class Event(object):
             diff[mask] = dataset.flux[mask] - masked_model
             err_data[mask] = dataset.err_flux[mask]
         chi2 = (diff / err_data)**2
-        return fsum(chi2[dataset.good])
+        return self._sum(chi2[dataset.good])
 
     def get_chi2_per_point(self, fit_blending=None):
         """

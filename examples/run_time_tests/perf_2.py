@@ -23,10 +23,13 @@ kwargses = []
 for i in ['100', '1000', '10000']:
     kwargses.append(dict(name='numpy_{:}'.format(i), 
         setup=read_and_simplify('numpy_setup_1_{:}.py'.format(i)),
-        stmt='numpy_chi2_v2(time, obs_flux, obs_flux_err, t_0, u_0, t_E)'))
+        stmt='numpy_chi2_v1(time, obs_flux, obs_flux_err, t_0, u_0, t_E)'))
 for i in ['100', '1000', '10000']:
     kwargses.append(dict(name='MM_static_{:}'.format(i), 
         setup=read_and_simplify('MM_setup_1_{:}.py'.format(i)), 
+        stmt='event.get_chi2()'))
+    kwargses.append(dict(name='MM_static-NP_{:}'.format(i), 
+        setup=read_and_simplify('MM_setup_3_{:}.py'.format(i)), 
         stmt='event.get_chi2()'))
     kwargses.append(dict(name='pyLIMA_static_{:}'.format(i), 
         setup=read_and_simplify('pyLIMA_setup_1_{:}.py'.format(i)), 
@@ -36,6 +39,9 @@ for i in ['100', '1000', '10000']:
 for i in ['100', '1000', '10000']:
     kwargses.append(dict(name='MM_piE_{:}'.format(i), 
         setup=read_and_simplify('MM_setup_2_{:}.py'.format(i)), 
+        stmt='event.get_chi2()'))
+    kwargses.append(dict(name='MM_piE-NP_{:}'.format(i),
+        setup=read_and_simplify('MM_setup_4_{:}.py'.format(i)),
         stmt='event.get_chi2()'))
     kwargses.append(dict(name='pyLIMA_piE_{:}'.format(i), 
         setup=read_and_simplify('pyLIMA_setup_2_{:}.py'.format(i)), 
