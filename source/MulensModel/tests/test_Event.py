@@ -42,6 +42,10 @@ def test_event_get_chi2_1():
     np.testing.assert_almost_equal(float(chi2_no_blend), 459.09826, decimal=4, 
                                    err_msg='problem in resulting chi2 for fixed no blending')
 
+    ev.sum_function = 'numpy.sum'
+    np.testing.assert_almost_equal(ev.get_chi2(), 427.20382, decimal=4,
+                                    err_msg='problem with numpy.sum')
+
 def test_event_get_chi2_2():
     """
     Basic unit test on ob08092 OGLE-IV data. Same as above but with
