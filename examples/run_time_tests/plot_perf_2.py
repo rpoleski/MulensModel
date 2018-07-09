@@ -88,9 +88,9 @@ for i in range(len(ids)):
     x *= 1.07
     
 plt.xlim(50., 30000.)
-plt.ylim(0.35, 3.4)
+plt.ylim(0.36, 3.46)
 plt.xscale('log')
-plt.legend(loc='best')
+plt.legend(loc='best', fontsize=15)
 matplotlib.rcParams.update({'font.size': 15})
 plt.xlabel(r"$N_{points}$")
 plt.ylabel(r"$T/T_{numpy,rectilinear}$")
