@@ -13,7 +13,7 @@
 _italics_ mark important tasks
 
 * Install
-  * makefile for Windows (basic instructions exist already)
+  * _makefile for Windows (basic instructions exist already)_
   * setup.py should use Extensions instead of custom makefile
   * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
 * Documentation
@@ -48,7 +48,7 @@ _italics_ mark important tasks
     * mapmaking version which adds new rays as needed
     * Yossi's idea to find all the images
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
-  * _Magnification function provided by the user - already started in user\_method branch_
+  * _Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that_
 * Parameterization
   * Cassan 2008 binary lens parameters 
   * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
@@ -63,8 +63,8 @@ _italics_ mark important tasks
     * faster hexadecapole using Cassan 2017 ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
   * Caustics class:
     * Caustics.\_calculate - optimize using vectors instead of a loop
-    * Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach
-    * root solver can be used the same as in binarylens.py
+    * _Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach_
+    * root solver can be used the same as in binarylens.py - not needed for binary lens and Erdl & Schneider 1993
   * Event class:
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification. 
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
@@ -97,7 +97,7 @@ _italics_ mark important tasks
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that prints RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
-    * plot\_trajectory() should use actual trajectory, not alpha because it may be confusing when orbital motion and parallax are used
+    * _plot\_trajectory() should use actual trajectory (not alpha) to plot arrow because it may be confusing when orbital motion and parallax are used_
     * plot\_trajectory() - mark epochs using colorscale? Maybe it should be passed by kwargs (if so, then add example)
     * Should get\_satellite\_coords() use caching?
     * we should have versions of all plot functions to use magnifications instead of magnitudes; also add access via Event
@@ -123,6 +123,7 @@ _italics_ mark important tasks
   * Trajectory class:
     * _\_get\_delta\_satellite() should be using self.times_
     * annual parallax caching - if moved to MulensData, then would be faster because hashing of coords and time vector takes time
+    * maybe Trajectory should be able to plot itself, and Model.plot\_trajectory() should call it - it would be easier for binary sources etc.
   * Utils class:
     * in np.any() ifs give more information in warning e.g., "out of 1234 values provided, the fails are: 12, 345, 678 (0-based)"
     * add u(a) function: u = np.sqrt(2A/np.sqrt(A^2-1.) - 2.)

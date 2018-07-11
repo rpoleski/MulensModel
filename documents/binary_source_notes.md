@@ -51,4 +51,4 @@ Things related to binary source that we'll do in future:
 * binary-lens/binary-source models
 * there may be different limb darkening coeffs for each source - this would affect MulensData
 * chi2 gradient
-
+* three sources? We already had to consider them to fully analyze events that turn out to be 2L2S or 3L1S
