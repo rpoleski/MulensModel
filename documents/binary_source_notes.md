@@ -5,7 +5,9 @@ General comments:
 * q\_f is needed in Model because without it, there is no effective magnification! Maybe q\_f can be ModelParameters (not Model) property. Looking at current API it seems q\_f is more similar to ModelParameters properties (just floats in most cases) than Model (complicated functions in most cases). 
 * q\_f can be fixed or fitted via regression
 * Model should somehow remember Fit instance used to find q\_f and then if Event wants to access Fit, then it first checks, if Model has it already. It's better to remember Fit, not just q\_f because it saves least squares function calls.
+* Model.magnification() does not currently know which dataset it is using - most probably needs a new parameter to make sure that for a second dataset it does not use the first one to calculate q\_f
 * We should find better name than q\_f because it's similar to q\_1 that will be used in triple lenses. Maybe source\_flux\_ratio or flux\_ratio?
+* Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
 
 
 Hence, the best approach I see is to have in Model and ModelParameters (maybe Event as well) private properties that will be instances of these classes but for single sources. Then the main part of Model.magnification will look something like:
@@ -15,10 +17,14 @@ magnification_curve_0 = MagnificationCurve(time, parameters=self.parameters_sour
 magnification_curve_1 = MagnificationCurve(time, parameters=self.parameters_source_1, ...)
 mag_0 = self._magnification_curve_0.magnification
 mag_1 = self._magnification_curve_1.magnification
-q_f = self._get_q_f(magnification_curve_0, magnification_curve_1) # If fixed, then just 
-# returns the value. Otherwise calls function from Event or Fit that finds all 3 fluxes 
-# (f_s0, f_s0, and f_b) and returns q_f = f_s0/f_s1.
-# If calculates these values, then remember Fit instance, so that Event can access it; think about when to reset this Fit instance.
+if 'q_f' in self._parameters.parameters:
+    q_f = self._parameters.q_f
+else:
+    self._fit = Fit(data=self._datasets, magnification=[mag_0, mag_1]) 
+    # Event will try to use this instance of Fit before creating a new one.
+    self._fit.fit_fluxes()
+    f_s = self._fit.flux_of_sources(SOME_DATASET) # self.datasets[0] as default
+    q_f = f_s[1] / f_s[0] 
 magnification = (mag_0 + mag_1 * q_f) / (1. + q_f)
 return magnification
 ```
