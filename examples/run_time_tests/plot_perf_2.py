@@ -82,10 +82,10 @@ with open(in_file) as in_data:
             results[ids[name], n_all.index(n_name)] = out[0]
             results_sigma[ids[name], n_all.index(n_name)] = out[1]
             
-x = np.array([float(n) for n in n_all]) * 0.84
+x = np.array([float(n) for n in n_all]) * np.array([0.844, 0.885, 0.929])
 for i in range(len(ids)):
     plt.errorbar(x, results[i], results_sigma[i], **{**plot_kwargs[i], 'lw': 3})
-    x *= 1.07
+    x *= np.array([1.07, 1.05, 1.03])
     
 plt.xlim(50., 30000.)
 plt.ylim(0.36, 3.46)
