@@ -58,3 +58,6 @@ Things related to binary source that we'll do in future:
 * there may be different limb darkening coeffs for each source - this would affect MulensData
 * chi2 gradient
 * three sources? We already had to consider them to fully analyze events that turn out to be 2L2S or 3L1S
+* different t\_E (and alpha in the case of binary lens) for each source - see [Han+17 on ob160263](http://adsabs.harvard.edu/abs/2017AJ....154..133H) and [Bennett+18 on mb10117](http://adsabs.harvard.edu/abs/2018AJ....155..141B)
+* it would be nice to have a plotting function that plots combined model, but also A1\*F\_S1+F\_B and A2\*F\_S2+F\_B, so that we can well see the contribution of each source
+
