@@ -478,7 +478,7 @@ class MulensData(object):
 
     def set_plot_properties(self, errorbars=True, bad=False, **kwargs):
         """
-        Set plot properties using **kwargs and
+        Set plot properties using ``**kwargs`` and
         `py:plot_properties`. kwargs takes precedent.
 
         Keywords:
@@ -490,7 +490,7 @@ class MulensData(object):
                 `True` means marker is default to 'x'. `False` means
                 marker is default to 'o'.
 
-           **kwargs: *dict*
+           ``**kwargs``: *dict*
                Keywords accepted by pl.errorbar or pl.scatter.
 
         """
