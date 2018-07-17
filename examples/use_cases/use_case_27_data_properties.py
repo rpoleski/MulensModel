@@ -73,6 +73,7 @@ def set_plot_properties(filename):
     elif 'MOA' in filename:
         plot_properties['color'] = 'red'
         plot_properties['zorder'] = 2
+        plot_properties['marker'] = 's'
         plot_properties['show_errorbars'] = False
     elif 'CTIO_I' in filename:
         plot_properties['color'] = 'green'
@@ -96,7 +97,7 @@ t_E = 11.14
 t_star = 0.05487
 model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 't_star': t_star})
 model.set_magnification_methods(
-    [t_0 - 2.* t_star, 'finite_source_LD_Yoo04', t_0 + 2. * t_star])
+    [t_0 - 2.* t_star, 'finite_source_uniform_Gould94', t_0 + 2. * t_star])
 
 event = mm.Event(datasets=datasets, model=model)
 
@@ -108,7 +109,7 @@ pl.figure()
 # All other data sets plotted in random colors (different from each other).
 # Labels set by first part of the filename.
 pl.title('MB08310 Data and Model')
-event.plot_data()
+event.plot_data_new()
 event.plot_model()
 pl.legend(loc='best')
 

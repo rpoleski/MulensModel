@@ -293,7 +293,24 @@ class Event(object):
         """
         self.model.plot_data(**kwargs)
 
+    def plot_data_new(self, **kwargs):
+        """
+        Plot the data scaled to the model. See
+        :py:func:`MulensModel.model.Model.plot_data()` for details.
+
+        *** TESTING ***
+        """
+        print('model.plot_data_new() is still in testing.')
+        self.model.plot_data_new(**kwargs)
+
     def plot_residuals(self, **kwargs):
+        """
+        Plot the residuals (in magnitudes) of the model.
+        See :py:func:`MulensModel.model.Model.plot_residuals()` for details.
+        """
+        self.model.plot_residuals(**kwargs)
+
+    def plot_residuals_new(self, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model.
         See :py:func:`MulensModel.model.Model.plot_residuals()` for details.

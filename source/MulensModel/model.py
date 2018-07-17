@@ -589,6 +589,95 @@ class Model(object):
 
         return new_kwargs
 
+    def _set_default_colors(self):
+        color_index = 0
+        for data in self.datasets:
+            if 'color' not in data.plot_properties.keys():
+                data.plot_properties['color'] = 'C{0}'.format(color_index % 10)
+                color_index += 1
+            
+
+    def plot_data_new(
+        self, data_ref=None, **kwargs):
+        """
+
+        if show_errorbars is set, it will apply that setting to all data
+        sets. If it is not set, it should use the default for that
+        dataset.
+
+        """
+
+        self._set_default_colors()
+
+        if 'show_errorbars' in kwargs.keys():
+            show_errorbars = kwargs['show_errorbars']
+        else:
+            show_errorbars = True
+
+        if 'subtract_2450000' in kwargs.keys():
+            subtract_2450000 = kwargs['subtract_2450000']
+        else:
+            subtract_2450000 = False
+
+        if 'subtract_2460000' in kwargs.keys():
+            subtract_2460000 = kwargs['subtract_2460000']
+        else:
+            subtract_2460000 = False
+
+        if data_ref is not None:
+            self.data_ref = data_ref
+
+        # Set plot limits
+        t_min = 3000000.
+        t_max = 0.
+        subtract = 0.
+        if subtract_2450000:
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
+
+        # Reference flux scale
+        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
+
+        # Get fluxes for all datasets
+        fit = Fit(data=self.datasets, magnification=self.data_magnification)
+        fit.fit_fluxes()
+
+        for (i, data) in enumerate(self.datasets):
+            # Calculate scaled flux
+            f_source = fit.flux_of_sources(data)
+            f_blend = fit.blending_flux(data)
+            flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
+
+            print(show_errorbars)
+            print(data.plot_properties)
+            if show_errorbars:
+                err_flux = f_source_0 * data.err_flux / f_source
+                (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+                data._plot_data(mag, y_err=err, **kwargs)
+            else:
+                mag = Utils.get_mag_from_flux(flux)
+                data._plot_data(mag, **kwargs)
+
+            # Set plot limits
+            t_min = min(t_min, np.min(data.time))
+            t_max = max(t_max, np.max(data.time))
+
+        # Plot properties
+        pl.ylabel('Magnitude')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
+        pl.xlim(t_min-subtract, t_max-subtract)
+
+        (ymin, ymax) = pl.gca().get_ylim()
+        if ymax > ymin:
+            pl.gca().invert_yaxis()
+            
+
     def plot_data(
             self, data_ref=None, show_errorbars=True, show_bad=False,
             color_list=None, marker_list=None, size_list=None,
@@ -789,6 +878,76 @@ class Model(object):
 
         return (residuals, errorbars)
 
+    def plot_residuals_new(self, **kwargs):
+
+        if 'show_errorbars' in kwargs.keys():
+            show_errorbars = kwargs['show_errorbars']
+        else:
+            show_errorbars = None
+
+        if 'subtract_2450000' in kwargs.keys():
+            subtract_2450000 = kwargs['subtract_2450000']
+        else:
+            subtract_2450000 = False
+
+        if 'subtract_2460000' in kwargs.keys():
+            subtract_2460000 = kwargs['subtract_2460000']
+        else:
+            subtract_2460000 = False
+
+        self._set_default_colors()
+
+        if data_ref is not None:
+            self.data_ref = data_ref
+
+        (residuals, err) = self.get_residuals(data_ref=data_ref)
+
+        # Plot limit parameters
+        delta_mag = 0.
+        t_min = 3000000.
+        t_max = 0.
+        subtract = 0.
+        if subtract_2450000:
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
+
+        # Plot zeropoint line
+        pl.plot([0., 3000000.], [0., 0.], color='black')
+
+        # Plot residuals
+        for (i, data) in enumerate(self.datasets):
+            delta_mag = max(delta_mag, np.max(np.abs(residuals[i])))
+
+
+            # Plot
+            new_kwargs = data.set_plot_properties(**kwargs)
+            if show_errorbars:
+                pl.errorbar(
+                    data.time-subtract, residuals[i], yerr=err[i],
+                    **new_kwargs)
+            else:
+                pl.scatter(
+                    data.time-subtract, residuals[i], lw=0, **new_kwargs)
+
+            # Set plot limits
+            t_min = min(t_min, np.min(data.time))
+            t_max = max(t_max, np.max(data.time))
+
+        if delta_mag > 1.:
+            delta_mag = 0.5
+
+        # Plot properties
+        pl.ylim(-delta_mag, delta_mag)
+        pl.xlim(t_min-subtract, t_max-subtract)
+        pl.ylabel('Residuals')
+        if subtract_2450000:
+            pl.xlabel('Time - 2450000')
+        elif subtract_2460000:
+            pl.xlabel('Time - 2460000')
+        else:
+            pl.xlabel('Time')
+
     def plot_residuals(
             self, show_errorbars=True, color_list=None,
             marker_list=None, size_list=None, label_list=None,
@@ -803,6 +962,7 @@ class Model(object):
         :py:func:`plot_data()`.
 
         """
+
         if data_ref is not None:
             self.data_ref = data_ref
 
