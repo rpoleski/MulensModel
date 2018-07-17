@@ -117,21 +117,6 @@ class Fit(object):
                 self._flux_blending[dataset] = 0.
                 self._flux_sources[dataset] = results
 
-    def blending_flux(self, dataset):
-        """
-        Blending flux for given dataset.
-
-        Parameters :
-            dataset: :py:class:`~MulensModel.mulensdata.MulensData`
-                A dataset for which blending flux will be given.
-
-        Returns :
-            blending_flux: *np.float64*
-                Blending flux in units where 1 corresponds to 22 mag.
-
-        """
-        return self._flux_blending[dataset]
-
     def flux_of_sources(self, dataset):
         """
         Fluxes of source(s).
@@ -147,6 +132,21 @@ class Fit(object):
 
         """
         return self._flux_sources[dataset]
+
+    def blending_flux(self, dataset):
+        """
+        Blending flux for given dataset.
+
+        Parameters :
+            dataset: :py:class:`~MulensModel.mulensdata.MulensData`
+                A dataset for which blending flux will be given.
+
+        Returns :
+            blending_flux: *np.float64*
+                Blending flux in units where 1 corresponds to 22 mag.
+
+        """
+        return self._flux_blending[dataset]
 
     def get_flux(self, data):
         """
