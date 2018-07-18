@@ -14,6 +14,7 @@ _italics_ mark important tasks
 
 * Install
   * _makefile for Windows (basic instructions exist already)_
+  * _PIP install_
   * setup.py should use Extensions instead of custom makefile
   * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
 * Documentation
@@ -51,8 +52,10 @@ _italics_ mark important tasks
   * _Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that_
 * Parameterization
   * Cassan 2008 binary lens parameters 
-  * Albrow et al. 1999 (also Cassan 2008 Sec. 5)
+  * [Albrow et al. 1999](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A) (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
+  * caustic size w [Dong+09](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [Chung+05](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
+  * check if new parameters are defined here: [Liebig, D'Ago, Bozza, and Dominik 2015](http://adsabs.harvard.edu/abs/2015MNRAS.450.1565L)
 * Function Improvements/Expansion:
   * BinaryLens class:
     * should BinaryLens() accept source\_x/y as lists or arrays?
@@ -151,6 +154,7 @@ _italics_ mark important tasks
     * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, then there is no point in remembering huge indexes (whole self.times)
     * profile the code (python -m cProfile script.py)
     * Leap seconds library - [barycorrpy](https://arxiv.org/abs/1801.01634)
+    * go to [documents/TODO.md](documents/TODO.md) file and check use cases listed there
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * Coordinates - write tests, possibly remove test\_Coords.py
