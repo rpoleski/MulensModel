@@ -13,8 +13,8 @@ General comments:
 Hence, the best approach I see is to have in Model and ModelParameters (maybe Event as well) private properties that will be instances of these classes but for single sources. Then the main part of Model.magnification will look something like:
 
 ```python
-magnification_curve_0 = MagnificationCurve(time, parameters=self.parameters_source_0, ...)
-magnification_curve_1 = MagnificationCurve(time, parameters=self.parameters_source_1, ...)
+self._magnification_curve_0 = MagnificationCurve(time, parameters=self.parameters_source_0, ...)
+self._magnification_curve_1 = MagnificationCurve(time, parameters=self.parameters_source_1, ...)
 mag_0 = self._magnification_curve_0.magnification
 mag_1 = self._magnification_curve_1.magnification
 if 'q_f' in self._parameters.parameters:
@@ -52,7 +52,7 @@ Things related to binary source that we'll do in future:
 
 * what happens if there are multiple datasets in the same band? In that case, we want to fit the primary source flux and blend flux independently for each dataset, but constrain q\_f to be the same for all datasets with the same band.
 * different methods for both sources - we need to consider binary source with finite source for events that look like lowest mass planets; short-term solution can be to change FSPL calculations to PSPL when FS corrections are smaller than 10^-6 or so.
-* is satellite data and binary source causing any additional problems
+* are satellite data causing any additional problems
 * xallarap
 * binary-lens/binary-source models
 * there may be different limb darkening coeffs for each source - this would affect MulensData
