@@ -152,8 +152,10 @@ class MulensData(object):
                 err_brightness=vector_3, coords=self._coords)
         elif file_name is not None:
             # ...from a file
+            if 'usecols' not in kwargs:
+                kwargs['usecols'] = [0, 1, 2]
             (vector_1, vector_2, vector_3) = np.loadtxt(
-                fname=file_name, unpack=True, usecols=(0, 1, 2), **kwargs)
+                fname=file_name, unpack=True, **kwargs)
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
@@ -512,20 +514,26 @@ class MulensData(object):
                 default_marker = 'x'
 
             if errorbars:
-                properties['fmt'] = default_marker
+                if 'fmt' not in kwargs.keys():
+                    properties['fmt'] = default_marker
             else:
-                properties['marker'] = default_marker
+                if 'marker' not in kwargs.keys():
+                    properties['marker'] = default_marker
 
         if 'size' in properties.keys():
             if errorbars:
-                properties['markersize'] = properties.pop('size')
+                if 'markersize' not in kwargs.keys():
+                    properties['markersize'] = properties.pop('size')
             else:
-                properties['s'] = properties.pop('size')
+                if 's' not in kwargs.keys():
+                    properties['s'] = properties.pop('size')
         else:
             default_size = 10
             if errorbars:
-                properties['markersize'] = default_size
+                if 'markersize' not in kwargs.keys():
+                    properties['markersize'] = default_size
             else:
-                properties['s'] = default_size
+                if 's' not in kwargs.keys():
+                    properties['s'] = default_size
 
         return properties
