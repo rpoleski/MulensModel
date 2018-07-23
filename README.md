@@ -3,7 +3,7 @@
 <dl>MulensModel is package for modeling microlensing (or &mu;-lensing) 
 events. </dl>
 
-It is still under development. [Latest release: 1.4.0](https://github.com/rpoleski/MulensModel/releases/latest)
+[Latest release: 1.4.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
@@ -25,9 +25,7 @@ A few useful resources:
   * [Example 08](examples/example_08_planet_grid_fitting.ipynb) -- shows how to fit simulated WFIRST light curve with planetary model.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
-More will be added soon.
-
-[Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of very function. 
+[Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
 
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
 

@@ -22,7 +22,7 @@ If you participate and you see that MulensModel is missing some important functi
 
 * The data challenge requires specifying code versions. How do I get these?
 
-   Convenient Method: Go to the directory where you installed MulensModel (the one above source/). Run checks.py (i.e., python checks.py).
+   Convenient Method: Go to the directory where you installed MulensModel (the one above source/), then examples/, and run checks.py: `python checks.py`.
 
    General Method: To find which version of python you're using just type `import sys` and `print(sys.version)`.  For MulensModel use `print(MulensModel.__version__)` instead.  Similar commands should work for numpy, scipy, matplotlib, ctypes, and astropy.
 

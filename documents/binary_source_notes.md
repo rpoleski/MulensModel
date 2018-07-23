@@ -1,12 +1,15 @@
+**Questions to Jen are in bold**
+
 General comments:
 
-* logically, the 2 sources will be specified in ModelParameters
+* logically, the 2 sources will be specified in ModelParameters (and hence available in Model)
 * current UC: have t\_0\_1 and t\_0\_2 instead of t\_0, same for u\_0
-* q\_f is needed in Model because without it, there is no effective magnification! Maybe q\_f can be ModelParameters (not Model) property. Looking at current API it seems q\_f is more similar to ModelParameters properties (just floats in most cases) than Model (complicated functions in most cases). 
+* q\_f is needed in Model because without it, there is no effective magnification! Maybe q\_f can be ModelParameters (not Model) property. Looking at current API it seems q\_f is more similar to ModelParameters properties (just floats in most cases) than Model (complicated functions in most cases). On the other hand, q\_f is complicated thing - depends on a dataset, or band, hence maybe should be in Model. **What's your opinion?**
 * q\_f can be fixed or fitted via regression
 * Model should somehow remember Fit instance used to find q\_f and then if Event wants to access Fit, then it first checks, if Model has it already. It's better to remember Fit, not just q\_f because it saves least squares function calls.
-* Model.magnification() does not currently know which dataset it is using - most probably needs a new parameter to make sure that for a second dataset it does not use the first one to calculate q\_f
-* We should find better name than q\_f because it's similar to q\_1 that will be used in triple lenses. Maybe source\_flux\_ratio or flux\_ratio?
+* Model.magnification() does not currently know which dataset it is using - most probably needs a new parameter to make sure that for a second dataset it does not use the first one to calculate q\_f. 
+* More general - should q\_f calculation depend on MulensData or on band. The problem with MulensData is that if a given dataset does not cover one of the peaks, then flux fit is ill-conditioned (maybe the best solution is to check for it in Fit and possibly rise Exception). It seems more natural for me to take MulesData as q\_f parameter and there can be option to sync dataset X with dataset Y.
+* We should find better name than q\_f because it's similar to q\_1 that will be used in triple lenses. Maybe source\_flux\_ratio or flux\_ratio? **Any preferences?**
 * Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
 
 

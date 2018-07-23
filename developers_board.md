@@ -1,10 +1,8 @@
-## May goals:
-1. binary source use cases
-2. errorbar scaling in MulensData
-3. finish improved passing of color/label/etc from MulensData to Model
-4. website with notes on data challenge and links related to it
-5. easier access to all the fluxes from Event
-6. improved usage of polynomial root solvers
+## Aug goals:
+1. finish improved passing of color/label/etc from MulensData to Model
+2. binary source magnification and chi2 calculations: finish use cases, write unit tests, and implement
+3. EMCEE fitting example with posterior statistics of fluxes
+4. PIP install
 
 
 ## Specific tasks to be performed
@@ -17,8 +15,10 @@ _italics_ mark important tasks
   * _PIP install_
   * setup.py should use Extensions instead of custom makefile
   * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
+  * more metadata in setup.py
 * Documentation
   * Sagan workshop hands-on activity in MM
+  * _examples as ipython notebooks_
   * Add \_\_repr\_\_ functions to Lens and Source
   * files not yet well documented: 
     * RA & Dec in coordinates.py (maybe also code it better)
@@ -32,7 +32,6 @@ _italics_ mark important tasks
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
-    * list of all the high-level functions that will be affected
     * decide how to implement in general e.g. Model has separate internal Model instances for each source? Maybe Event should have 2 internal instances of for each source?
     * write unit tests
     * make changes
@@ -46,7 +45,7 @@ _italics_ mark important tasks
   * Xallarap (see below for references)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
-    * mapmaking version which adds new rays as needed
+    * mapmaking version which adds new rays as needed (but rememember that it runs for fixed (s,q) only!)
     * Yossi's idea to find all the images
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
   * _Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that_
@@ -97,6 +96,7 @@ _italics_ mark important tasks
   * MagnificationCurve class:
     * re-write magnification() to use lazy loading (here or in model.py)
   * Model class:
+    * reorder functions so that it looks good on website
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that prints RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
