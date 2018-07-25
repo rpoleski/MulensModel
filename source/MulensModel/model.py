@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as pl
 from matplotlib import rcParams
+from astropy import units as u
 
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -1078,9 +1079,13 @@ class Model(object):
             else:
                 alpha = -90.
 
+            if 'color' in kwargs.keys():
+                color = kwargs['color']
+            else:
+                color = 'black'
             pl.scatter(
                 trajectory.x[index], trajectory.y[index],
-                marker=(3, 0, alpha), s=50)
+                marker=(3, 0, alpha-90.*u.deg), s=50, color=color)
 
         if caustics:
             self.plot_caustics(marker='.', color='red')
