@@ -870,6 +870,18 @@ class ModelParameters(object):
         else:
             return 2
 
+    @property
+    def n_sources(self):
+        """
+        *int*
+        
+        number of luminous sources; it's possible to be 1 for xallarap model
+        """
+        if 't_0' in self.parameters.keys():
+            return 1
+        else:
+            return 2
+
     def as_dict(self):
         """
         Give parameters as a dict.
