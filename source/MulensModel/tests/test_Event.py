@@ -225,17 +225,20 @@ def test_event_chi2_gradient():
 
 def test_event_chi2_binary_source():
     """simple test if chi2 calculation for binary source works fine"""
-    parameters = {'t_0_1': 5000., 'u_0_1': 0.05, 
-        't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.}
-    model = Model(parameters)
+    model = Model({
+        't_0_1': 5000., 'u_0_1': 0.05, 
+        't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.})
     # The 2 lines below will be changed later, when we decide on UC.
     model_1 = Model({'t_0': 5000., 'u_0': 0.05, 't_E': 25.}) 
     model_2 = Model({'t_0': 5100., 'u_0': 0.15, 't_E': 25.}) 
+
+    # prepare fake data:
     time = np.linspace(4900., 5200, 600.)
     mag_1 = model_1.magnification(time)
     mag_2 = model_2.magnification(time)
     flux = 100. * mag_1 + 300. * mag_2 + 50.
     data = MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
+    
+    # Calcualte chi^2:
     event = Event([data], model)
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
-    
