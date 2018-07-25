@@ -3,7 +3,7 @@
 General comments:
 
 * logically, the 2 sources will be specified in ModelParameters (and hence available in Model)
-* current UC: have t\_0\_1 and t\_0\_2 instead of t\_0, same for u\_0
+* current UC: have t\_0\_1 and t\_0\_2 instead of t\_0, same for u\_0; **Maybe we should use 2 underscores to mark that we're taking about different sources?** i.e. t\_0\_\_1, t\_0\_\_2 etc. This way we remove lots of confusion, which may arise with other parameters that can end in \_1 or \_2. These could be triple lens parameters (q\_1, q\_2), Cassan 2008 paramteres (s\_1, s\_2, t\_1, t\_2) and some other as well.
 * q\_f is needed in Model because without it, there is no effective magnification! Maybe q\_f can be ModelParameters (not Model) property. Looking at current API it seems q\_f is more similar to ModelParameters properties (just floats in most cases) than Model (complicated functions in most cases). On the other hand, q\_f is complicated thing - depends on a dataset or band and requires significant calculations, hence maybe should be in Model. **What's your opinion?**
 * q\_f can be fixed or fitted via regression
 * Model should remember Fit instance used to find q\_f and then if Event wants to access Fit, then it first checks, if Model has it already. It's better to remember Fit, not just q\_f because it saves least squares function calls.
