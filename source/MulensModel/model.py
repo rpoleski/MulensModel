@@ -168,6 +168,73 @@ class Model(object):
                  ephemerides_file=self.ephemerides_file)
             return satellite_skycoords.get_satellite_coords(times)
 
+    def _magnification_1_source(self, time, satellite_skycoord, gamma):
+        """
+        calculate model magnification for given times for model with 
+        a single source
+        """
+        magnification_curve = MagnificationCurve(
+            time, parameters=self.parameters,
+            parallax=self._parallax, coords=self._coords,
+            satellite_skycoord=satellite_skycoord,
+            gamma=gamma)
+        magnification_curve.set_magnification_methods(
+            self._methods, self._default_magnification_method)
+        magnification_curve.set_magnification_methods_parameters(
+            self._methods_parameters)
+
+        return magnification_curve.magnification
+
+    def _set_each_source_parameters(self):
+        """
+        set the values of self._parameters_source_1 and 
+        self._parameters_source_2
+        """
+        params_1 = {}
+        params_2 = {}
+        for (key, value) in self.parameters.as_dict().items():
+            if key[-2:] == "_1":
+                params_1[key[:-2]] = value
+            elif key[-2:] == "_2":
+                params_2[key[:-2]] = value
+            else:
+                params_1[key] = value
+                params_2[key] = value
+                
+        self._parameters_source_1 = ModelParameters(params_1)
+        self._parameters_source_2 = ModelParameters(params_2)
+
+    def _magnification_2_sources(self, time, satellite_skycoord, gamma):
+        """
+        calculate model magnification for given times for model with 
+        two sources
+        """
+        self._set_each_source_parameters()
+        self._magnification_curve_1 = MagnificationCurve(
+            time, parameters=self._parameters_source_1,
+            parallax=self._parallax, coords=self._coords,
+            satellite_skycoord=satellite_skycoord,
+            gamma=gamma)
+        self._magnification_curve_2 = MagnificationCurve(
+            time, parameters=self._parameters_source_2,
+            parallax=self._parallax, coords=self._coords,
+            satellite_skycoord=satellite_skycoord,
+            gamma=gamma)
+        mag_1 = self._magnification_curve_1.magnification
+        mag_2 = self._magnification_curve_2.magnification    
+        
+        #if 'q_f' in self._parameters.parameters:
+            #q_f = self._parameters.q_f
+        #else:
+        if True:
+            self._fit = Fit(
+                data=self._datasets, magnification=np.array([mag_1, mag_2]))
+            self._fit.fit_fluxes()
+            f_s = self._fit.flux_of_sources(self.datasets[0]) # XXX - which dataset to use?
+            q_f = f_s[1] / f_s[0]
+        magnification = (mag_1 + mag_2 * q_f) / (1. + q_f)
+        return magnification
+    
     def magnification(self, time, satellite_skycoord=None, gamma=0.):
         """
         Calculate the model magnification for the given time(s).
@@ -201,18 +268,17 @@ class Model(object):
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)
 
-        magnification_curve = MagnificationCurve(
-            time, parameters=self.parameters,
-            parallax=self._parallax, coords=self._coords,
-            satellite_skycoord=satellite_skycoord,
-            gamma=gamma)
-        magnification_curve.set_magnification_methods(
-            self._methods, self._default_magnification_method)
-        magnification_curve.set_magnification_methods_parameters(
-            self._methods_parameters)
-
-        return magnification_curve.magnification
-
+        if self.parameters.n_sources == 1:
+            magnification = self._magnification_1_source(
+                                time, satellite_skycoord, gamma)
+        elif self.parameters.n_sources == 2:
+            magnification = self._magnification_2_sources(
+                                time, satellite_skycoord, gamma)
+        else:
+            raise ValueError('strange number of sources: {:}'.format(
+                    self.parameters.n_sources))
+        return magnification
+        
     @property
     def data_magnification(self):
         """
