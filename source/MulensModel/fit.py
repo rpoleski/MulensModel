@@ -100,10 +100,7 @@ class Fit(object):
                 y = self._datasets[i_dataset].flux[select]
                 sigma_inverse = 1. / self._datasets[i_dataset].err_flux[select]
             y *= sigma_inverse
-            if fit_blending:
-                xT *= np.array([sigma_inverse, sigma_inverse]).T
-            else:
-                xT *= np.array([sigma_inverse]).T
+            xT *= np.array([sigma_inverse] * n_fluxes).T
 
             # Solve for the coefficients in y = fs * x + fb (point source)
             # These values are: F_s1, F_s2,..., F_b.
