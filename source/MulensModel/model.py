@@ -359,7 +359,7 @@ class Model(object):
         Keywords :
             see :py:func:`plot_lc()`
 
-            satellite_skycoord, gamma: see:py:func:`magnification()`
+            satellite_skycoord, gamma: see :py:func:`magnification()`
 
         ``**kwargs`` -- any arguments accepted by matplotlib.pyplot.plot().
 
