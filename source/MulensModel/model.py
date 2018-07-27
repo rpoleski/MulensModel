@@ -204,7 +204,8 @@ class Model(object):
         self._parameters_source_1 = ModelParameters(params_1)
         self._parameters_source_2 = ModelParameters(params_2)
 
-    def _magnification_2_sources(self, time, satellite_skycoord, gamma):
+    def _magnification_2_sources(self, time, satellite_skycoord, gamma,
+            source_fluxes):
         """
         calculate model magnification for given times for model with 
         two sources
@@ -228,14 +229,15 @@ class Model(object):
         #else:
         if True:
             self._fit = Fit(
-                data=self._datasets, magnification=np.array([mag_1, mag_2]))
+                data=source_fluxes, magnification=np.array([mag_1, mag_2]))
             self._fit.fit_fluxes()
-            f_s = self._fit.flux_of_sources(self.datasets[0]) # XXX - which dataset to use?
+            f_s = self._fit.flux_of_sources(source_fluxes) # XXX - which dataset to use?
             q_f = f_s[1] / f_s[0]
         magnification = (mag_1 + mag_2 * q_f) / (1. + q_f)
         return magnification
     
-    def magnification(self, time, satellite_skycoord=None, gamma=0.):
+    def magnification(self, time, satellite_skycoord=None, gamma=0.,
+            source_fluxes=None):
         """
         Calculate the model magnification for the given time(s).
 
@@ -252,9 +254,15 @@ class Model(object):
                 The limb darkening coefficient in gamma convention. Default is
                 0 which means no limb darkening effect.
 
+            source_fluxes: :py:class:`~MulensModel.mulensdata.MulensData`, optional
+                Data to constrain the flux ratio for sources in binary source
+                models. Currently accepts only
+                :py:class:`~MulensModel.mulensdata.MulensData` instances.
+
         Returns :
             magnification: *np.ndarray*
-                A vector of calculated magnification values.
+                A vector of calculated magnification values. For binary source
+                models, the effective magnification is returned.
         """
         # Check for type
         if not isinstance(time, np.ndarray):
@@ -269,11 +277,15 @@ class Model(object):
             satellite_skycoord = self.get_satellite_coords(time)
 
         if self.parameters.n_sources == 1:
+            if source_fluxes is not None:
+                raise ValueError('Model.magnification() parameter ' +
+                    'source_fluxes has to be None for single source models, ' +
+                    'not {:}'.format(type(source_fluxes)))
             magnification = self._magnification_1_source(
                                 time, satellite_skycoord, gamma)
         elif self.parameters.n_sources == 2:
             magnification = self._magnification_2_sources(
-                                time, satellite_skycoord, gamma)
+                                time, satellite_skycoord, gamma, source_fluxes)
         else:
             raise ValueError('strange number of sources: {:}'.format(
                     self.parameters.n_sources))
@@ -326,9 +338,15 @@ class Model(object):
             gamma = self._limb_darkening_coeffs.get_limb_coeff_gamma(
                 dataset.bandpass)
 
+        if self.parameters.n_sources == 1:
+            source_fluxes = None
+        elif self.parameters.n_sources == 2:
+            source_fluxes=dataset
+        else:
+            raise ValueError('Wrong number of sources')
         magnification = self.magnification(
                 dataset.time, satellite_skycoord=dataset_satellite_skycoord,
-                gamma=gamma)
+                gamma=gamma, source_fluxes=source_fluxes)
         return magnification
 
     @property
