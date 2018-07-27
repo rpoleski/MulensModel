@@ -3,10 +3,10 @@ General comments:
 * logically, the 2 sources will be specified in ModelParameters (and hence available in Model)
 * current UC: have t\_0\_1 and t\_0\_2 instead of t\_0, same for u\_0; 
 * q\_f should be Model or ModelParameters property; it seems Model is better, because ModelParameters does not know anything about datasets.
-* q\_f can be fixed or fitted via regression
+* q\_f can be fixed or fitted via regression (to a single or more datasets)
 * Model should remember Fit instance used to find q\_f and then if Event wants to access Fit, then it first checks, if Model has it already. It's better to remember Fit, not just q\_f because it saves least squares function calls.
-* Model.magnification() does not currently know which dataset it is using to calculate q\_f - new parameter is needed. 
-* More general - q\_f calculation should depend on MulensData. The problem with MulensData is that if a given dataset does not cover one of the peaks, then flux fit is ill-conditioned (maybe the best solution is to check for it in Fit and possibly rise Exception). There will be option like ```Model.same\_source\_flux\_ratio(band="I")```.
+* Model.magnification() does not currently know which dataset it is using to calculate q\_f via regression - new parameter is needed. 
+* More general - q\_f calculation should depend on MulensData or all instances of MulensData in given filter. The problem with MulensData is that if a given dataset does not cover one of the peaks, then flux fit is ill-conditioned (maybe the best solution is to check for it in Fit and possibly rise Exception). There will be option like ```Model.same_source_flux_ratio(band="I")```.
 * use source\_flux\_ratio instead of q\_f
 * Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
 
