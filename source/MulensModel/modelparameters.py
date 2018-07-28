@@ -241,7 +241,10 @@ class ModelParameters(object):
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
-        variables, values = '', ''
+        if self.n_sources != 1:
+            raise NotImplementedError("__repr__ for binary source")
+
+        (variables, values) = ('', '')
         if 't_0' in self.parameters.keys():
             variables += '{0:>13} '.format('t_0 (HJD)')
             values += '{0:>13.5f} '.format(self.t_0)
