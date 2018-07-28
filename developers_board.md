@@ -111,6 +111,7 @@ _italics_ mark important tasks
     * check that minimal parameters needed to specify a model are defined
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
+    * change order to improve the website
   * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
     * **Errorbar scaling, in particular the two parameter.**
