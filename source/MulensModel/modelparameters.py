@@ -249,11 +249,7 @@ class ModelParameters(object):
     def _check_valid_combination(self, keys):
         """
         Check that the user hasn't over-defined the ModelParameters.
-
         """
-        # ***Check minimal parameters for a model are defined (Not
-        # Implemented)***
-
         # Make sure that there are no unwanted keys
         allowed_keys = set([
             't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',

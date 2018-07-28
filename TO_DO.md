@@ -24,3 +24,5 @@
 
 If merging and some parts are not finished, then add ```raise NotImplementedError()``` where needed.
 
+When merging, also update developers_board.md, because some tasks should have been removed from there. Or maybe add something.
+
