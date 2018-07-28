@@ -229,8 +229,8 @@ def test_event_chi2_binary_source():
         't_0_1': 5000., 'u_0_1': 0.05, 
         't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.})
     # The 2 lines below will be changed later, when we decide on UC.
-    model_1 = Model({'t_0': 5000., 'u_0': 0.05, 't_E': 25.}) 
-    model_2 = Model({'t_0': 5100., 'u_0': 0.15, 't_E': 25.}) 
+    model_1 = Model(model.parameters.source_1_parameters) 
+    model_2 = Model(model.parameters.source_2_parameters) 
 
     # prepare fake data:
     time = np.linspace(4900., 5200, 600.)
@@ -252,8 +252,8 @@ def test_event_chi2_binary_source_2datasets():
         't_0_1': 5000., 'u_0_1': 0.05, 
         't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.})
     # The 2 lines below will be changed later, when we decide on UC.
-    model_1 = Model({'t_0': 5000., 'u_0': 0.05, 't_E': 25.}) 
-    model_2 = Model({'t_0': 5100., 'u_0': 0.15, 't_E': 25.}) 
+    model_1 = Model(model.parameters.source_1_parameters) 
+    model_2 = Model(model.parameters.source_2_parameters) 
 
     # prepare fake data:
     time = np.linspace(4900., 5200, 600.)
@@ -267,3 +267,6 @@ def test_event_chi2_binary_source_2datasets():
     # Calcualte chi^2:
     event = Event([data_1, data_2], model)
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
+    np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
+    np.testing.assert_almost_equal(event.get_chi2_for_dataset(1), 0.)
+

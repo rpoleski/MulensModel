@@ -5,7 +5,6 @@
 * ModelParameters - update self.\_source\_1\_parameters and \_2\_ when parameters are changed for parent; Can child properties be changed?
 * Model.magnification() - better name for source\_fluxes parameter
 * Event tries to access self.model.\_fit or one of Model functions passes Fit as additional output - make sure which one exactly
-* Event.get\_chi2\_for\_dataset() - unit test
 * rho or t\_star for one or 2 sources
 * Model.\_magnification\_2\_sources() - check for fixed q\_f; also implement single q\_f for all datasets provided by the user
 * in model.py internal variables: q\_f -> source\_flux\_ratio
