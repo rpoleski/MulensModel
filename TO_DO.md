@@ -2,8 +2,6 @@
 
 * finish use cases
 * Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
-* public access to \_source\_1\_parameters and \_2\_ in ModelParameters and use it in Model.magnification()
-* remove Model.\_set\_each\_source\_parameters
 * ModelParameters - update self.\_source\_1\_parameters and \_2\_ when parameters are changed for parent; Can child properties be changed?
 * Model.magnification() - better name for source\_fluxes parameter
 * Event tries to access self.model.\_fit or one of Model functions passes Fit as additional output - make sure which one exactly

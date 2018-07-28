@@ -185,39 +185,19 @@ class Model(object):
 
         return magnification_curve.magnification
 
-    def _set_each_source_parameters(self):
-        """
-        set the values of self._parameters_source_1 and 
-        self._parameters_source_2
-        """
-        params_1 = {}
-        params_2 = {}
-        for (key, value) in self.parameters.as_dict().items():
-            if key[-2:] == "_1":
-                params_1[key[:-2]] = value
-            elif key[-2:] == "_2":
-                params_2[key[:-2]] = value
-            else:
-                params_1[key] = value
-                params_2[key] = value
-                
-        self._parameters_source_1 = ModelParameters(params_1)
-        self._parameters_source_2 = ModelParameters(params_2)
-
     def _magnification_2_sources(self, time, satellite_skycoord, gamma,
             source_fluxes):
         """
         calculate model magnification for given times for model with 
         two sources
         """
-        self._set_each_source_parameters()
         self._magnification_curve_1 = MagnificationCurve(
-            time, parameters=self._parameters_source_1,
+            time, parameters=self.parameters.source_1_parameters,
             parallax=self._parallax, coords=self._coords,
             satellite_skycoord=satellite_skycoord,
             gamma=gamma)
         self._magnification_curve_2 = MagnificationCurve(
-            time, parameters=self._parameters_source_2,
+            time, parameters=self.parameters.source_2_parameters,
             parallax=self._parallax, coords=self._coords,
             satellite_skycoord=satellite_skycoord,
             gamma=gamma)

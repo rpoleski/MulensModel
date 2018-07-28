@@ -928,6 +928,30 @@ class ModelParameters(object):
         """
         return self._n_sources
 
+    @property
+    def source_1_parameters(self):
+        """
+        :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+        Parameters of source 1 in multi-source model.
+        """
+        if self.n_sources == 1:
+            raise ValueError('source_1_parameters cannot be accessed for ' +
+                'single source models')
+        return self._source_1_parameters
+
+    @property
+    def source_2_parameters(self):
+        """
+        :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+        Parameters of source 2 in multi-source model.
+        """
+        if self.n_sources == 1:
+            raise ValueError('source_2_parameters cannot be accessed for ' +
+                'single source models')
+        return self._source_2_parameters
+
     def as_dict(self):
         """
         Give parameters as a dict.
