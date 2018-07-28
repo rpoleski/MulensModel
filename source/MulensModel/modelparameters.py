@@ -38,7 +38,7 @@ def _get_effect_strings(*args):
         model type.
 
     e.g. 'FSPL' returns basic = [t_0, u_0, tE], additional = [rho, s,
-    q, alpha], alternate = [teff, tstar], and optional = [pi_E or
+    q, alpha], alternate = [t_eff, t_star], and optional = [pi_E or
     pi_E_N, pi_E_E]
     """
     basic = None
@@ -254,6 +254,23 @@ class ModelParameters(object):
         # ***Check minimal parameters for a model are defined (Not
         # Implemented)***
 
+        # Make sure that there are no unwanted keys
+        allowed_keys = set([
+            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
+            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt', 
+            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2'])
+        difference = set(keys) - allowed_keys
+        if len(difference) > 0:
+            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
+            if set(keys).intersection(derived_1):
+                msg = ('You cannot set gamma, gamma_perp, ' +
+                    'or gamma_parallel. These are derived parameters. ' +
+                    'You can set ds_dt and dalpha_dt instead.\n')
+            else:
+                msg = ""
+            msg += 'Unrecognized parameters: {:}'.format(difference)
+            raise KeyError(msg)
+
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
             if ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys):
@@ -314,13 +331,6 @@ class ModelParameters(object):
             if 'ds_dt' not in keys or 'dalpha_dt' not in keys:
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
-
-        # Make sure user does not set the gamma parameters.
-        if 'gamma' in keys or 'gamma_perp' in keys or 'gamma_parallel' in keys:
-            raise KeyError(
-                'You cannot set gamma, gamma_perp, ' +
-                'or gamma_parallel. These are derived parameters. ' +
-                'You can set ds_dt and dalpha_dt instead.')
 
     def _check_valid_parameter_values(self, parameters):
         """

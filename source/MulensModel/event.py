@@ -198,7 +198,7 @@ class Event(object):
             fit_blending=fit_blending)
         # Calculate chi^2 given the fit
         chi2 = []
-        for i, dataset in enumerate(self.datasets):
+        for (i, dataset) in enumerate(self.datasets):
             # Calculate chi2 for the dataset excluding bad data
             chi2.append(self._sum(chi2_per_point[i][dataset.good]))
 
