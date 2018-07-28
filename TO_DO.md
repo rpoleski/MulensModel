@@ -1,17 +1,17 @@
 ### What we need to do for binary sources
 
 * finish use cases
-* should we use q\_f or flux\_ratio etc. (what about triple source events?)
 * Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
-* ModelParameters.n\_sources - make it more intelligent, best if initialized in \_\_init\_\_
-* t\_0\_X and u\_0\_X in ModelParameters.\_check\_valid\_combination() - Maybe it should be better to initialize each sub-instance and there will be checks if everything is fine? Otherwise we will have lots of basically copied statements (rho and tstar etc.) - see next task; ModelParameters.\_check\_valid\_combination() should be only checked for single sources? - rename the function
-* Model.\_set\_each\_source\_parameters() should probably be moved to modelparameters; Then how to update them whenever any \_1 or \_2 parameter is updated?
+* public access to \_source\_1\_parameters and \_2\_ in ModelParameters and use it in Model.magnification()
+* remove Model.\_set\_each\_source\_parameters
+* ModelParameters - update self.\_source\_1\_parameters and \_2\_ when parameters are changed for parent; Can child properties be changed?
 * Model.magnification() - better name for source\_fluxes parameter
 * Event tries to access self.model.\_fit or one of Model functions passes Fit as additional output - make sure which one exactly
 * Event.get\_chi2\_for\_dataset() - unit test
 * rho or t\_star for one or 2 sources
 * Model.\_magnification\_2\_sources() - check for fixed q\_f; also implement single q\_f for all datasets provided by the user
 * in model.py internal variables: q\_f -> source\_flux\_ratio
+* ModelParameters.\_check\_valid\_combination() - make sure minimum parameters are defined
 * user can define t\_eff\_1 instead of u\_0\_1 etc.
 * implement Model.same\_source\_flux\_ratio(band="I")
 * add binary source parameters to \_valid\_parameters in modelparameters.py and check that which\_parameters() works properly

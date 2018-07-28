@@ -196,8 +196,48 @@ class ModelParameters(object):
                 "as a parameter\ne.g., ModelParameters({'t_0': " +
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
-        self._check_valid_combination(parameters.keys())
+        self._count_sources(parameters.keys())
+
+        if self.n_sources == 1:
+            self._check_valid_combination_1_source(parameters.keys())
+        elif self.n_sources == 2:
+            (params_1, params_2) = self._divide_parameters(parameters)
+            self._source_1_parameters = ModelParameters(params_1)
+            self._source_2_parameters = ModelParameters(params_2)
+            # This way we force checks from "== 1" above to be run on 
+            # each source paramteres separately.
+        else:
+            raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
+
+    def _count_sources(self, keys):
+        """How many sources there are?"""
+        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
+        if len(set(binary_params).intersection(set(keys))) > 0:
+            self._n_sources = 2
+        else:
+            self._n_sources = 1
+
+    def _divide_parameters(self, parameters):
+        """
+        Divide an input dict into 2 - each source separately. Some of the parameters 
+        are copied to both dicts.
+        """
+        separate_parameters = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
+        parameters_1 = {}
+        parameters_2 = {}
+        for (key, value) in parameters.items():
+            if key in separate_parameters:
+                if key[-2:] == "_1":
+                    parameters_1[key[:-2]] = value
+                elif key[-2:] == "_2":
+                    parameters_2[key[:-2]] = value
+                else:
+                    raise ValueError('unexpected error')
+            else:
+                parameters_1[key] = value
+                parameters_2[key] = value
+        return (parameters_1, parameters_2)
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
@@ -246,7 +286,7 @@ class ModelParameters(object):
 
         return '{0}\n{1}\n'.format(variables, values)
 
-    def _check_valid_combination(self, keys):
+    def _check_valid_combination_1_source(self, keys):
         """
         Check that the user hasn't over-defined the ModelParameters.
         """
@@ -345,6 +385,9 @@ class ModelParameters(object):
                             full_names[name], parameters[name]))
 
     def _set_parameters(self, parameters):
+        """
+        check if patameter values make sense and remember the copy of the dict
+        """
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
 
@@ -883,10 +926,7 @@ class ModelParameters(object):
         
         number of luminous sources; it's possible to be 1 for xallarap model
         """
-        if 't_0' in self.parameters.keys():
-            return 1
-        else:
-            return 2
+        return self._n_sources
 
     def as_dict(self):
         """
