@@ -176,9 +176,15 @@ class ModelParameters(object):
 
     Arguments :
         parameters: *dictionary*
-
             A dictionary of parameters and their values. See
             :py:func:`which_parameters()` for valid parameter combinations.
+
+    Attributes :
+        parameters: *dictionary*
+            A dictionary of parameters and their values. Do not use it to
+            change paramter values, instead use e.g.: 
+            ``model_parameters.u_0 = 0.1`` or 
+            ``setattr(model_parameters, 'u_0', 0.1)``.
 
     Example:
         Define a point lens model:
