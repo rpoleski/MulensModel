@@ -270,3 +270,28 @@ def test_event_chi2_binary_source_2datasets():
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(1), 0.)
 
+def test_event_chi2_binary_and_finite_sources():
+    """
+    test if chi2 calculation for binary source works with finite sources 
+    (both rho and t_star given)
+    """
+    model = Model({
+        't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001, 
+        't_0_2': 5100., 'u_0_2': 0.003, 't_star_2': 0.03, 't_E': 25.})
+    # The 2 lines below will be changed later, when we decide on UC.
+    model_1 = Model(model.parameters.source_1_parameters) 
+    model_2 = Model(model.parameters.source_2_parameters) 
+
+# METHOD !
+
+    # prepare fake data:
+    time = np.linspace(4900., 5200, 600.)
+    mag_1 = model_1.magnification(time)
+    mag_2 = model_2.magnification(time)
+    flux = 100. * mag_1 + 300. * mag_2 + 50.
+    data = MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
+    
+    # Calcualte chi^2:
+    event = Event([data], model)
+    np.testing.assert_almost_equal(event.get_chi2(), 0.)
+
