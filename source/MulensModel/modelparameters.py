@@ -201,6 +201,9 @@ class ModelParameters(object):
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
         elif self.n_sources == 2:
+            if not 't_E' in parameters.keys():
+                raise KeyError('Currently, the binary source calculations ' +
+                    'require t_E to be directly defined')
             (params_1, params_2) = self._divide_parameters(parameters)
             self._source_1_parameters = ModelParameters(params_1)
             self._source_2_parameters = ModelParameters(params_2)
