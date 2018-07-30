@@ -6,7 +6,6 @@
 * Event tries to access self.model.\_fit or one of Model functions passes Fit as additional output - make sure which one exactly
 * Model.\_magnification\_2\_sources() - check for fixed q\_f; also implement single q\_f for all datasets provided by the user
 * ModelParameters - define t\_0\_1, u\_0\_1, rho\_1, t\_star\_1 and \_2 using @property
-* in model.py internal variables: q\_f -> source\_flux\_ratio
 * ModelParameters.\_check\_valid\_combination() - make sure minimum parameters are defined, also make sure that t\_E is NOT defined both via t\_eff and t\_star
 * user can define t\_eff\_1 instead of u\_0\_1 etc.
 * implement Model.same\_source\_flux\_ratio(band="I")

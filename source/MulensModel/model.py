@@ -200,6 +200,8 @@ class Model(object):
             self._methods, self._default_magnification_method)
         self._magnification_curve_1.set_magnification_methods_parameters(
             self._methods_parameters)            
+        mag_1 = self._magnification_curve_1.magnification
+
         self._magnification_curve_2 = MagnificationCurve(
             time, parameters=self.parameters.source_2_parameters,
             parallax=self._parallax, coords=self._coords,
@@ -208,13 +210,11 @@ class Model(object):
         self._magnification_curve_2.set_magnification_methods(
             self._methods, self._default_magnification_method)
         self._magnification_curve_2.set_magnification_methods_parameters(
-            self._methods_parameters)            
-            
-        mag_1 = self._magnification_curve_1.magnification
+            self._methods_parameters)                        
         mag_2 = self._magnification_curve_2.magnification    
         
-        #if 'q_f' in self._parameters.parameters:
-            #q_f = self._parameters.q_f
+        #if 'source_flux_ratio' in self._parameters.parameters:
+            #source_flux_ratio = self._parameters.source_flux_ratio
         #else:
         if True:
             self._fit = Fit(
@@ -222,8 +222,9 @@ class Model(object):
                 magnification=np.array([mag_1, mag_2]))
             self._fit.fit_fluxes()
             f_s = self._fit.flux_of_sources(flux_ratio_constraint) # XXX - which dataset to use?
-            q_f = f_s[1] / f_s[0]
-        magnification = (mag_1 + mag_2 * q_f) / (1. + q_f)
+            source_flux_ratio = f_s[1] / f_s[0]
+        magnification = mag_1 + mag_2 * source_flux_ratio 
+        magnification /= (1. + source_flux_ratio)
         return magnification
     
     def magnification(self, time, satellite_skycoord=None, gamma=0.,
