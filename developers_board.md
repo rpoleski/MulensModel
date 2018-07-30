@@ -101,7 +101,7 @@ _italics_ mark important tasks
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that prints RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
-    * _plot\_trajectory() should use actual trajectory (not alpha) to plot arrow because it may be confusing when orbital motion and parallax are used_
+    * _plot\_trajectory() should use actual trajectory (not alpha) to plot arrow because it may be confusing when orbital motion and parallax are used; also make arrow less symetric, so that it's obvious which direction it is pointing at_
     * plot\_trajectory() - mark epochs using colorscale? Maybe it should be passed by kwargs (if so, then add example)
     * Should get\_satellite\_coords() use caching?
     * we should have versions of all plot functions to use magnifications instead of magnitudes; also add access via Event
