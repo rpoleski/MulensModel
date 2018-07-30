@@ -186,7 +186,7 @@ class Model(object):
         return magnification_curve.magnification
 
     def _magnification_2_sources(self, time, satellite_skycoord, gamma,
-            source_fluxes):
+            flux_ratio_constraint):
         """
         calculate model magnification for given times for model with 
         two sources
@@ -218,15 +218,16 @@ class Model(object):
         #else:
         if True:
             self._fit = Fit(
-                data=source_fluxes, magnification=np.array([mag_1, mag_2]))
+                data=flux_ratio_constraint,
+                magnification=np.array([mag_1, mag_2]))
             self._fit.fit_fluxes()
-            f_s = self._fit.flux_of_sources(source_fluxes) # XXX - which dataset to use?
+            f_s = self._fit.flux_of_sources(flux_ratio_constraint) # XXX - which dataset to use?
             q_f = f_s[1] / f_s[0]
         magnification = (mag_1 + mag_2 * q_f) / (1. + q_f)
         return magnification
     
     def magnification(self, time, satellite_skycoord=None, gamma=0.,
-            source_fluxes=None):
+            flux_ratio_constraint=None):
         """
         Calculate the model magnification for the given time(s).
 
@@ -243,7 +244,7 @@ class Model(object):
                 The limb darkening coefficient in gamma convention. Default is
                 0 which means no limb darkening effect.
 
-            source_fluxes: :py:class:`~MulensModel.mulensdata.MulensData`, optional
+            flux_ratio_constraint: :py:class:`~MulensModel.mulensdata.MulensData`, optional
                 Data to constrain the flux ratio for sources in binary source
                 models. Currently accepts only
                 :py:class:`~MulensModel.mulensdata.MulensData` instances.
@@ -266,15 +267,16 @@ class Model(object):
             satellite_skycoord = self.get_satellite_coords(time)
 
         if self.parameters.n_sources == 1:
-            if source_fluxes is not None:
+            if flux_ratio_constraint is not None:
                 raise ValueError('Model.magnification() parameter ' +
-                    'source_fluxes has to be None for single source models, ' +
-                    'not {:}'.format(type(source_fluxes)))
+                    'flux_ratio_constraint has to be None for single source ' +
+                    'models, not {:}'.format(type(flux_ratio_constraint)))
             magnification = self._magnification_1_source(
                                 time, satellite_skycoord, gamma)
         elif self.parameters.n_sources == 2:
             magnification = self._magnification_2_sources(
-                                time, satellite_skycoord, gamma, source_fluxes)
+                                time, satellite_skycoord, gamma, 
+                                flux_ratio_constraint)
         else:
             raise ValueError('strange number of sources: {:}'.format(
                     self.parameters.n_sources))
@@ -328,14 +330,14 @@ class Model(object):
                 dataset.bandpass)
 
         if self.parameters.n_sources == 1:
-            source_fluxes = None
+            flux_ratio_constraint = None
         elif self.parameters.n_sources == 2:
-            source_fluxes=dataset
+            flux_ratio_constraint = dataset
         else:
             raise ValueError('Wrong number of sources')
         magnification = self.magnification(
                 dataset.time, satellite_skycoord=dataset_satellite_skycoord,
-                gamma=gamma, source_fluxes=source_fluxes)
+                gamma=gamma, flux_ratio_constraint=flux_ratio_constraint)
         return magnification
 
     @property

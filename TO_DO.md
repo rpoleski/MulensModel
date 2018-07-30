@@ -3,7 +3,6 @@
 * finish use cases
 * Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
 * ModelParameters - update self.\_source\_1\_parameters and \_2\_ when parameters are changed for parent; Can child properties be changed?
-* Model.magnification() - better name for source\_fluxes parameter
 * Event tries to access self.model.\_fit or one of Model functions passes Fit as additional output - make sure which one exactly
 * Model.\_magnification\_2\_sources() - check for fixed q\_f; also implement single q\_f for all datasets provided by the user
 * ModelParameters - define t\_0\_1, u\_0\_1, rho\_1, t\_star\_1 and \_2 using @property
