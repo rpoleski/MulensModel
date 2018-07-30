@@ -207,6 +207,7 @@ class ModelParameters(object):
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
         elif self.n_sources == 2:
+            self._check_valid_combination_2_sources(parameters.keys())
             if not 't_E' in parameters.keys():
                 raise KeyError('Currently, the binary source calculations ' +
                     'require t_E to be directly defined')
@@ -299,6 +300,18 @@ class ModelParameters(object):
                     self.ds_dt, self.dalpha_dt)
 
         return '{0}\n{1}\n'.format(variables, values)
+
+    def _check_valid_combination_2_sources(self, keys):
+        """
+        make sure that there is no conflict between t_0 and t_0_1 etc.
+        """
+        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
+            't_star_1', 't_star_2']
+        for parameter in binary_params:
+            if parameter in keys:
+                if parameter[:-2] in keys:
+                    raise ValueError('You cannot set {:} and {:}'.format(
+                                        parameter, parameter[:-2]))
 
     def _check_valid_combination_1_source(self, keys):
         """
