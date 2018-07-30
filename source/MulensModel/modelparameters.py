@@ -212,7 +212,8 @@ class ModelParameters(object):
 
     def _count_sources(self, keys):
         """How many sources there are?"""
-        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
+        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
+            't_star_1', 't_star_2']
         if len(set(binary_params).intersection(set(keys))) > 0:
             self._n_sources = 2
         else:
@@ -223,7 +224,8 @@ class ModelParameters(object):
         Divide an input dict into 2 - each source separately. Some of the parameters 
         are copied to both dicts.
         """
-        separate_parameters = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
+        separate_parameters = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
+            'rho_1', 'rho_2', 't_star_1', 't_star_2']
         parameters_1 = {}
         parameters_2 = {}
         for (key, value) in parameters.items():
@@ -297,7 +299,8 @@ class ModelParameters(object):
         allowed_keys = set([
             't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
             'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt', 
-            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2'])
+            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
+            't_star_1', 't_star_2'])
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']

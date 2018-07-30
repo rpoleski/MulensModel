@@ -196,11 +196,20 @@ class Model(object):
             parallax=self._parallax, coords=self._coords,
             satellite_skycoord=satellite_skycoord,
             gamma=gamma)
+        self._magnification_curve_1.set_magnification_methods(
+            self._methods, self._default_magnification_method)
+        self._magnification_curve_1.set_magnification_methods_parameters(
+            self._methods_parameters)            
         self._magnification_curve_2 = MagnificationCurve(
             time, parameters=self.parameters.source_2_parameters,
             parallax=self._parallax, coords=self._coords,
             satellite_skycoord=satellite_skycoord,
             gamma=gamma)
+        self._magnification_curve_2.set_magnification_methods(
+            self._methods, self._default_magnification_method)
+        self._magnification_curve_2.set_magnification_methods_parameters(
+            self._methods_parameters)            
+            
         mag_1 = self._magnification_curve_1.magnification
         mag_2 = self._magnification_curve_2.magnification    
         
