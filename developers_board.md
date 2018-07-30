@@ -49,6 +49,7 @@ _italics_ mark important tasks
     * Yossi's idea to find all the images
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
   * _Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that_
+  * calculate jerk parallax degeneracy: [Park+04](http://adsabs.harvard.edu/abs/2004ApJ...609..166P) [Gould 04](http://adsabs.harvard.edu/abs/2004ApJ...606..319G)  
 * Parameterization
   * Cassan 2008 binary lens parameters 
   * [Albrow et al. 1999](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A) (also Cassan 2008 Sec. 5)
