@@ -419,6 +419,19 @@ class ModelParameters(object):
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
 
+    def _update_sources(self, parameter, value):
+        """
+        For multi-source models, update the values for all sources.
+        Note that pi_E_N and pi_E_E are changed separately.
+        """
+        if self.n_sources == 1:
+            return
+
+        if parameter in self._source_1_parameters.parameters:
+            setattr(self._source_1_parameters, parameter, value)
+        if parameter in self._source_2_parameters.parameters:
+            setattr(self._source_2_parameters, parameter, value)
+
     @property
     def t_0(self):
         """
@@ -432,6 +445,7 @@ class ModelParameters(object):
     @t_0.setter
     def t_0(self, new_t_0):
         self.parameters['t_0'] = new_t_0
+        self._update_sources('t_0', new_t_0)
 
     @property
     def u_0(self):
@@ -455,6 +469,7 @@ class ModelParameters(object):
     def u_0(self, new_u_0):
         if 'u_0' in self.parameters.keys():
             self.parameters['u_0'] = new_u_0
+            self._update_sources('u_0', new_u_0)
         else:
             raise KeyError('u_0 is not a parameter of this model.')
 
@@ -488,6 +503,7 @@ class ModelParameters(object):
     def t_star(self, new_t_star):
         if 't_star' in self.parameters.keys():
             self._set_time_quantity('t_star', new_t_star)
+            self._update_sources('t_star', new_t_star)
         else:
             raise KeyError('t_star is not a parameter of this model.')
 
@@ -525,6 +541,7 @@ class ModelParameters(object):
     def t_eff(self, new_t_eff):
         if 't_eff' in self.parameters.keys():
             self._set_time_quantity('t_eff', new_t_eff)
+            self._update_sources('t_eff', new_t_eff)
         else:
             raise KeyError('t_eff is not a parameter of this model.')
 
@@ -559,6 +576,7 @@ class ModelParameters(object):
 
         if 't_E' in self.parameters.keys():
             self._set_time_quantity('t_E', new_t_E)
+            self._update_sources('t_E', new_t_E)
         else:
             raise KeyError('t_E is not a parameter of this model.')
 
@@ -597,6 +615,7 @@ class ModelParameters(object):
             if new_rho < 0.:
                 raise ValueError('source size (rho) cannot be negative')
             self.parameters['rho'] = new_rho
+            self._update_sources('rho', new_rho)
         else:
             raise KeyError('rho is not a parameter of this model.')
 
@@ -624,6 +643,7 @@ class ModelParameters(object):
             self.parameters['alpha'] = new_alpha
         else:
             self.parameters['alpha'] = new_alpha * u.deg
+        self._update_sources('alpha', new_alpha)
 
     @property
     def q(self):
@@ -639,6 +659,7 @@ class ModelParameters(object):
     @q.setter
     def q(self, new_q):
         self.parameters['q'] = new_q
+        self._update_sources('q', new_q)
 
     @property
     def s(self):
@@ -658,6 +679,7 @@ class ModelParameters(object):
                 'Binary lens separation cannot be negative:', new_s)
 
         self.parameters['s'] = new_s
+        self._update_sources('s', new_s)
 
     @property
     def pi_E(self):
@@ -684,6 +706,7 @@ class ModelParameters(object):
         if 'pi_E' in self.parameters.keys():
             if len(new_pi_E) == 2:
                 self.parameters['pi_E'] = new_pi_E
+                self._update_sources('pi_E', new_pi_E)
             else:
                 raise TypeError('pi_E is a 2D vector. It must have length 2.')
 
@@ -691,6 +714,8 @@ class ModelParameters(object):
               'pi_E_E' in self.parameters.keys()):
             self.parameters['pi_E_N'] = new_pi_E[0]
             self.parameters['pi_E_E'] = new_pi_E[1]
+            self._update_sources('pi_E_N', new_pi_E[0])
+            self._update_sources('pi_E_E', new_pi_E[1])
         else:
             raise KeyError('pi_E is not a parameter of this model.')
 
@@ -712,8 +737,12 @@ class ModelParameters(object):
     def pi_E_N(self, new_value):
         if 'pi_E_N' in self.parameters.keys():
             self.parameters['pi_E_N'] = new_value
+            self._update_sources('pi_E_N', new_value)
         elif 'pi_E' in self.parameters.keys():
             self.parameters['pi_E'][0] = new_value
+            if self.n_sources != 1:
+                self._source_1_parameters.parameters['pi_E'][0] = new_value
+                self._source_2_parameters.parameters['pi_E'][0] = new_value            
         else:
             raise KeyError('pi_E_N is not a parameter of this model.')
 
@@ -735,8 +764,12 @@ class ModelParameters(object):
     def pi_E_E(self, new_value):
         if 'pi_E_E' in self.parameters.keys():
             self.parameters['pi_E_E'] = new_value
+            self._update_sources('pi_E_E', new_value)
         elif 'pi_E' in self.parameters.keys():
             self.parameters['pi_E'][1] = new_value
+            if self.n_sources != 1:
+                self._source_1_parameters.parameters['pi_E'][1] = new_value
+                self._source_2_parameters.parameters['pi_E'][1] = new_value
         else:
             raise KeyError('pi_E_E is not a parameter of this model.')
 
@@ -756,6 +789,7 @@ class ModelParameters(object):
     @t_0_par.setter
     def t_0_par(self, new_t_0_par):
         self.parameters['t_0_par'] = new_t_0_par
+        self._update_sources('t_0_par', new_t_0_par)
 
     @property
     def pi_E_mag(self):
@@ -795,6 +829,7 @@ class ModelParameters(object):
             self.parameters['ds_dt'] = new_ds_dt
         else:
             self.parameters['ds_dt'] = new_ds_dt / u.yr
+        self._update_sources('ds_dt', new_ds_dt)
 
     @property
     def dalpha_dt(self):
@@ -817,6 +852,7 @@ class ModelParameters(object):
             self.parameters['dalpha_dt'] = new_dalpha_dt
         else:
             self.parameters['dalpha_dt'] = new_dalpha_dt * u.deg / u.yr
+        self._update_sources('dalpha_dt', new_dalpha_dt)
 
     @property
     def t_0_kep(self):
@@ -834,6 +870,7 @@ class ModelParameters(object):
     @t_0_kep.setter
     def t_0_kep(self, new):
         self.parameters['t_0_kep'] = new
+        self._update_sources('t_0_kep', new)
 
     def get_s(self, epoch):
         """
