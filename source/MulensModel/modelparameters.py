@@ -872,6 +872,126 @@ class ModelParameters(object):
         self.parameters['t_0_kep'] = new
         self._update_sources('t_0_kep', new)
 
+
+    @property
+    def t_0_1(self):
+        """
+        *float*
+
+        The time of minimum projected separation between the source no. 1
+        and the lens center of mass.
+        """
+        return self.parameters['t_0_1']
+
+    @t_0_1.setter
+    def t_0_1(self, new_t_0_1):
+        self.parameters['t_0_1'] = new_t_0_1
+        self._source_1_parameters.t_0 = new_t_0_1
+
+    @property
+    def t_0_2(self):
+        """
+        *float*
+
+        The time of minimum projected separation between the source no. 2
+        and the lens center of mass.
+        """
+        return self.parameters['t_0_2']
+
+    @t_0_2.setter
+    def t_0_2(self, new_t_0_2):
+        self.parameters['t_0_2'] = new_t_0_2
+        self._source_2_parameters.t_0 = new_t_0_2
+
+    #@property
+    #def u_0(self):
+        #"""
+        #*float*
+
+        #The minimum projected separation between the source
+        #and the lens center of mass.
+        #"""
+        #if 'u_0' in self.parameters.keys():
+            #return self.parameters['u_0']
+        #else:
+            #try:
+                #return self.parameters['t_eff'] / self.parameters['t_E']
+            #except KeyError:
+                #raise AttributeError(
+                    #'u_0 is not defined for these parameters: {0}'.format(
+                        #self.parameters.keys()))
+
+    #@u_0.setter
+    #def u_0(self, new_u_0):
+        #if 'u_0' in self.parameters.keys():
+            #self.parameters['u_0'] = new_u_0
+            #self._update_sources('u_0', new_u_0)
+        #else:
+            #raise KeyError('u_0 is not a parameter of this model.')
+
+    #@property
+    #def t_star(self):
+        #"""
+        #*float*
+
+        #t_star = rho * tE = source radius crossing time
+
+        #"day" is the default unit. Regardless of input value, returns
+        #value with units of u.day. May be set as a *float* --> assumes
+        #units of degrees.
+
+        #Returns:
+            #*float* value in days.
+        #"""
+        #if 't_star' in self.parameters.keys():
+            #self._check_time_quantity('t_star')
+            #return self.parameters['t_star'].to(u.day).value
+        #else:
+            #try:
+                #return (self.parameters['t_E'].to(u.day).value *
+                        #self.parameters['rho'])
+            #except KeyError:
+                #raise AttributeError(
+                    #'t_star is not defined for these parameters: {0}'.format(
+                        #self.parameters.keys()))
+
+    #@t_star.setter
+    #def t_star(self, new_t_star):
+        #if 't_star' in self.parameters.keys():
+            #self._set_time_quantity('t_star', new_t_star)
+            #self._update_sources('t_star', new_t_star)
+        #else:
+            #raise KeyError('t_star is not a parameter of this model.')
+
+        #if new_t_star < 0.:
+            #raise ValueError(
+                #'Source crossing time cannot be negative:', new_t_star)
+
+    #@property
+    #def rho(self):
+        #"""
+        #*float*
+
+        #source size as a fraction of the Einstein radius
+        #"""
+        #if 'rho' in self.parameters.keys():
+            #return self.parameters['rho']
+        #elif ('t_star' in self.parameters.keys() and
+              #'t_E' in self.parameters.keys()):
+            #return self.t_star/self.t_E
+        #else:
+            #return None
+
+    #@rho.setter
+    #def rho(self, new_rho):
+        #if 'rho' in self.parameters.keys():
+            #if new_rho < 0.:
+                #raise ValueError('source size (rho) cannot be negative')
+            #self.parameters['rho'] = new_rho
+            #self._update_sources('rho', new_rho)
+        #else:
+            #raise KeyError('rho is not a parameter of this model.')
+
     def get_s(self, epoch):
         """
         Returns the value of separation :py:attr:`~s` at a given epoch or

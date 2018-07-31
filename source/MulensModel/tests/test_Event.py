@@ -272,3 +272,5 @@ def test_event_chi2_binary_source_2datasets():
     assert event.get_chi2() > 1., 'wrong chi2'
     model.parameters.t_E = 25.
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
+    model.parameters.t_0_1 = 5010.
+    assert event.get_chi2() > 1., 'wrong chi2'
