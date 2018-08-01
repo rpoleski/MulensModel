@@ -79,6 +79,7 @@ _italics_ mark important tasks
     * check all functions that should pass fit\_blending parameter
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
     * get flux and its error in reference system
+    * get\_ref\_fluxes() - add fit\_blending=False option (also in Model class)
   * Fit class:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
   * Horizons class:
@@ -136,6 +137,7 @@ _italics_ mark important tasks
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
     * add option to plot satellite coordinates as in Henderson+16 where K2 and Spitzer orbits were compared
+    * add plotting with fit\_blending=False for functions that use magnitude space
   * Examples:
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
