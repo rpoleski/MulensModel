@@ -140,6 +140,15 @@ class Model(object):
         """
         return self._parameters.n_lenses
 
+    @property
+    def n_sources(self):
+        """
+        *int*
+        
+        number of luminous sources; it's possible to be 1 for xallarap model
+        """
+        return self._parameters.n_sources
+
     def is_static(self):
         """
         see :py:func:`MulensModel.modelparameters.ModelParameters.is_static()`

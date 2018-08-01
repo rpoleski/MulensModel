@@ -290,10 +290,10 @@ def test_model_binary_and_finite_sources():
     finite sources (both rho and t_star given)
     """
     model = Model({
-        't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001, 
+        't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001,
         't_0_2': 5100., 'u_0_2': 0.0003, 't_star_2': 0.03, 't_E': 25.})
-    model_1 = Model(model.parameters.source_1_parameters) 
-    model_2 = Model(model.parameters.source_2_parameters) 
+    model_1 = Model(model.parameters.source_1_parameters)
+    model_2 = Model(model.parameters.source_2_parameters)
 
     t1 = 4999.95
     t2 = 5000.05
