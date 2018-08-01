@@ -63,6 +63,7 @@ _italics_ mark important tasks
     * central and planetary caustic properties: [Chung et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...630..535C) and [Han 2006](http://adsabs.harvard.edu/abs/2006ApJ...638.1080H)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
     * faster hexadecapole using Cassan 2017 ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
+    * _VBBL2.0 - are we using accuracy limit as default? If so then we should switch to relative accuracy_
   * Caustics class:
     * Caustics.\_calculate - optimize using vectors instead of a loop
     * _Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach_
@@ -107,10 +108,9 @@ _italics_ mark important tasks
     * set\_datasets() - check input
     * add option to use random zorder when plotting multiple datasets (e.g. gaussian with sigma depending on number of plotted datapoints)
   * ModelParameters class:
-    * check that non-existing parameters are not specified e.g. t0
-    * check that minimal parameters needed to specify a model are defined
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
-    * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
+    * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
+    * why .rho returns None if it's not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
   * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
     * **Errorbar scaling, in particular the two parameter.**

@@ -335,6 +335,17 @@ class ModelParameters(object):
             msg += 'Unrecognized parameters: {:}'.format(difference)
             raise KeyError(msg)
 
+        # Make sure that mimum set of parameters are defined - we need to know
+        # t_0, u_0, and t_E.
+        if 't_0' not in keys:
+            raise KeyError('t_0 must be defined')
+        if ('u_0' not in keys) and ('t_eff' not in keys):
+            raise KeyError('not enough information to calculate u_0')
+        if (('t_E' not in keys) and
+                (('u_0' not in keys) or ('t_eff' not in keys)) and
+                (('rho' not in keys) or ('t_star' not in keys))):
+            raise KeyError('not enough information to calculate t_E')
+
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
             if ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys):
@@ -347,6 +358,11 @@ class ModelParameters(object):
 
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
+
+        # Cannot define t_E in 2 different ways
+        if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
+                ('t_eff' in keys)):
+            raise KeyError('You cannot define rho, t_star, u_0, and t_eff')
 
         # Parallax is either pi_E or (pi_E_N, pi_E_E)
         if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):

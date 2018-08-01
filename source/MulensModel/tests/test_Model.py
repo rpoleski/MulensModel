@@ -7,8 +7,9 @@ from MulensModel import Model, ModelParameters, MulensData, Caustics
 
 def test_n_lenses():
     """check n_lenses property"""
-    model_1 = Model({"t_0": 2456789.})
-    model_2 = Model({"t_0": 2456789., "s": 1.1234, "q": 0.123, 'alpha': 12.34})
+    model_1 = Model({"t_0": 2456789., "u_0": 1., "t_E": 30.})
+    model_2 = Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
+        "s": 1.1234, "q": 0.123, 'alpha': 12.34})
     assert model_1.n_lenses == 1
     assert model_2.n_lenses == 2
 
