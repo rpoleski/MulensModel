@@ -478,14 +478,10 @@ class ModelParameters(object):
         """
         *float*
 
-        t_star = rho * tE = source radius crossing time
+        t_star = rho * t_E = source radius crossing time
 
-        "day" is the default unit. Regardless of input value, returns
-        value with units of u.day. May be set as a *float* --> assumes
-        units of degrees.
-
-        Returns:
-            *float* value in days.
+        "day" is the default unit. Can be set as *float* or
+        *astropy.Quantity*, but always returns *float* in units of days.
         """
         if 't_star' in self.parameters.keys():
             self._check_time_quantity('t_star')
@@ -518,12 +514,8 @@ class ModelParameters(object):
 
         t_eff = u_0 * t_E = effective timescale
 
-        "day" is the default unit. Regardless of input value, returns
-        value with units of u.day. May be set as a *float* --> assumes
-        units of degrees.
-
-        Returns:
-            *float* value in days.
+        "day" is the default unit. Can be set as *float* or
+        *astropy.Quantity*, but always returns *float* in units of days.
         """
         if 't_eff' in self.parameters.keys():
             self._check_time_quantity('t_eff')
@@ -548,11 +540,11 @@ class ModelParameters(object):
     @property
     def t_E(self):
         """
-        *astropy.Quantity*
+        *float*
 
-        The Einstein timescale. "day" is the default unit. Regardless
-        of input value, returns value with units of u.day. May be set
-        as a *float* --> assumes units of degrees.
+        The Einstein timescale. "day" is the default unit. Can be set as
+        *float* or *astropy.Quantity*, but always returns *float* in units of
+        days.
         """
         if 't_E' in self.parameters.keys():
             self._check_time_quantity('t_E')
@@ -591,6 +583,9 @@ class ModelParameters(object):
             self.parameters[key] = new_time * u.day
 
     def _check_time_quantity(self, key):
+        """
+        Make sure that value for give key has quantity, add it if missing.
+        """
         if not isinstance(self.parameters[key], u.Quantity):
             self._set_time_quantity(key, self.parameters[key])
 
@@ -903,69 +898,131 @@ class ModelParameters(object):
         self.parameters['t_0_2'] = new_t_0_2
         self._source_2_parameters.t_0 = new_t_0_2
 
-    #@property
-    #def u_0(self):
-        #"""
-        #*float*
+    @property
+    def u_0_1(self):
+        """
+        *float*
 
-        #The minimum projected separation between the source
-        #and the lens center of mass.
-        #"""
-        #if 'u_0' in self.parameters.keys():
-            #return self.parameters['u_0']
-        #else:
-            #try:
-                #return self.parameters['t_eff'] / self.parameters['t_E']
-            #except KeyError:
-                #raise AttributeError(
-                    #'u_0 is not defined for these parameters: {0}'.format(
-                        #self.parameters.keys()))
+        The minimum projected separation between the source no. 1
+        and the lens center of mass.
+        """
+        if 'u_0_1' in self.parameters.keys():
+            return self.parameters['u_0_1']
+        else:
+            try:
+                t_eff = self._source_1_parameters.parameters['t_eff']
+                t_E = self._source_1_parameters.parameters['t_E']
+                return t_eff / t_E
+            except KeyError:
+                raise AttributeError(
+                    'u_0_1 is not defined for these parameters: {0}'.format(
+                        self.parameters.keys()))
 
-    #@u_0.setter
-    #def u_0(self, new_u_0):
-        #if 'u_0' in self.parameters.keys():
-            #self.parameters['u_0'] = new_u_0
-            #self._update_sources('u_0', new_u_0)
-        #else:
-            #raise KeyError('u_0 is not a parameter of this model.')
+    @u_0_1.setter
+    def u_0_1(self, new_u_0_1):
+        if 'u_0_1' in self.parameters.keys():
+            self.parameters['u_0_1'] = new_u_0_1
+            self._source_1_parameters.u_0 = new_u_0_1
+        else:
+            raise KeyError('u_0_1 is not a parameter of this model.')
 
-    #@property
-    #def t_star(self):
-        #"""
-        #*float*
+    @property
+    def u_0_2(self):
+        """
+        *float*
 
-        #t_star = rho * tE = source radius crossing time
+        The minimum projected separation between the source no. 2
+        and the lens center of mass.
+        """
+        if 'u_0_2' in self.parameters.keys():
+            return self.parameters['u_0_2']
+        else:
+            try:
+                t_eff = self._source_2_parameters.parameters['t_eff']
+                t_E = self._source_2_parameters.parameters['t_E']
+                return t_eff / t_E
+            except KeyError:
+                raise AttributeError(
+                    'u_0_2 is not defined for these parameters: {0}'.format(
+                        self.parameters.keys()))
 
-        #"day" is the default unit. Regardless of input value, returns
-        #value with units of u.day. May be set as a *float* --> assumes
-        #units of degrees.
+    @u_0_2.setter
+    def u_0_2(self, new_u_0_2):
+        if 'u_0_2' in self.parameters.keys():
+            self.parameters['u_0_2'] = new_u_0_2
+            self._source_2_parameters.u_0 = new_u_0_2
+        else:
+            raise KeyError('u_0_2 is not a parameter of this model.')
 
-        #Returns:
-            #*float* value in days.
-        #"""
-        #if 't_star' in self.parameters.keys():
-            #self._check_time_quantity('t_star')
-            #return self.parameters['t_star'].to(u.day).value
-        #else:
-            #try:
-                #return (self.parameters['t_E'].to(u.day).value *
-                        #self.parameters['rho'])
-            #except KeyError:
-                #raise AttributeError(
-                    #'t_star is not defined for these parameters: {0}'.format(
-                        #self.parameters.keys()))
+    @property
+    def t_star_1(self):
+        """
+        *float*
 
-    #@t_star.setter
-    #def t_star(self, new_t_star):
-        #if 't_star' in self.parameters.keys():
-            #self._set_time_quantity('t_star', new_t_star)
-            #self._update_sources('t_star', new_t_star)
-        #else:
-            #raise KeyError('t_star is not a parameter of this model.')
+        t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time
 
-        #if new_t_star < 0.:
-            #raise ValueError(
-                #'Source crossing time cannot be negative:', new_t_star)
+        "day" is the default unit. Can be set as *float* or
+        *astropy.Quantity*, but always returns *float* in units of days.
+        """
+        if 't_star_1' in self.parameters.keys():
+            self._check_time_quantity('t_star_1')
+            return self.parameters['t_star_1'].to(u.day).value
+        else:
+            try:
+                t_E = self._source_1_parameters.parameters['t_E'].to(u.day)
+                rho = self._source_1_parameters.parameters['rho']
+                return t_E.value * rho
+            except KeyError:
+                raise AttributeError(
+                    't_star_1 is not defined for these parameters: {0}'.format(
+                        self.parameters.keys()))
+
+    @t_star_1.setter
+    def t_star_1(self, new_t_star_1):
+        if 't_star_1' in self.parameters.keys():
+            self._set_time_quantity('t_star_1', new_t_star_1)
+            self._source_1_parameters.t_star = new_t_star_1
+        else:
+            raise KeyError('t_star_1 is not a parameter of this model.')
+
+        if new_t_star_1 < 0.:
+            raise ValueError(
+                'Source crossing time cannot be negative:', new_t_star_1)
+
+    @property
+    def t_star_2(self):
+        """
+        *float*
+
+        t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time
+
+        "day" is the default unit. Can be set as *float* or
+        *astropy.Quantity*, but always returns *float* in units of days.
+        """
+        if 't_star_2' in self.parameters.keys():
+            self._check_time_quantity('t_star_2')
+            return self.parameters['t_star_2'].to(u.day).value
+        else:
+            try:
+                t_E = self._source_2_parameters.parameters['t_E'].to(u.day)
+                rho = self._source_2_parameters.parameters['rho']
+                return t_E.value * rho
+            except KeyError:
+                raise AttributeError(
+                    't_star_2 is not defined for these parameters: {0}'.format(
+                        self.parameters.keys()))
+
+    @t_star_2.setter
+    def t_star_2(self, new_t_star_2):
+        if 't_star_2' in self.parameters.keys():
+            self._set_time_quantity('t_star_2', new_t_star_2)
+            self._source_2_parameters.t_star = new_t_star_2
+        else:
+            raise KeyError('t_star_2 is not a parameter of this model.')
+
+        if new_t_star_2 < 0.:
+            raise ValueError(
+                'Source crossing time cannot be negative:', new_t_star_2)
 
     #@property
     #def rho(self):
