@@ -192,7 +192,7 @@ def test_binary_source():
     assert params.source_2_parameters.t_star == 0.075
     assert params.t_star_2 == 0.075
     assert params.source_2_parameters.rho == 0.003
-    assert params.rho_2 == 0.075
+    assert params.rho_2 == 0.003
 
     params.t_E = 12.5
     assert params.t_star_1 == 0.025

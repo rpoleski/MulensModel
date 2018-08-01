@@ -1024,30 +1024,57 @@ class ModelParameters(object):
             raise ValueError(
                 'Source crossing time cannot be negative:', new_t_star_2)
 
-    #@property
-    #def rho(self):
-        #"""
-        #*float*
+    @property
+    def rho_1(self):
+        """
+        *float*
 
-        #source size as a fraction of the Einstein radius
-        #"""
-        #if 'rho' in self.parameters.keys():
-            #return self.parameters['rho']
-        #elif ('t_star' in self.parameters.keys() and
-              #'t_E' in self.parameters.keys()):
-            #return self.t_star/self.t_E
-        #else:
-            #return None
+        source no. 1 size as a fraction of the Einstein radius
+        """
+        if 'rho_1' in self.parameters.keys():
+            return self.parameters['rho_1']
+        elif ('t_star' in self._source_1_parameters.parameters.keys() and
+                't_E' in self._source_1_parameters.parameters.keys()):
+            return (self._source_1_parameters.t_star /
+                    self._source_1_parameters.t_E)
+        else:
+            return None
 
-    #@rho.setter
-    #def rho(self, new_rho):
-        #if 'rho' in self.parameters.keys():
-            #if new_rho < 0.:
-                #raise ValueError('source size (rho) cannot be negative')
-            #self.parameters['rho'] = new_rho
-            #self._update_sources('rho', new_rho)
-        #else:
-            #raise KeyError('rho is not a parameter of this model.')
+    @rho_1.setter
+    def rho_1(self, new_rho_1):
+        if 'rho_1' in self.parameters.keys():
+            if new_rho_1 < 0.:
+                raise ValueError('source size (rho_1) cannot be negative')
+            self.parameters['rho_1'] = new_rho_1
+            self._source_1_parameters.rho = new_rho_1
+        else:
+            raise KeyError('rho_1 is not a parameter of this model.')
+
+    @property
+    def rho_2(self):
+        """
+        *float*
+
+        source no. 2 size as a fraction of the Einstein radius
+        """
+        if 'rho_2' in self.parameters.keys():
+            return self.parameters['rho_2']
+        elif ('t_star' in self._source_2_parameters.parameters.keys() and
+                't_E' in self._source_2_parameters.parameters.keys()):
+            return (self._source_2_parameters.t_star /
+                    self._source_2_parameters.t_E)
+        else:
+            return None
+
+    @rho_2.setter
+    def rho_2(self, new_rho_2):
+        if 'rho_2' in self.parameters.keys():
+            if new_rho_2 < 0.:
+                raise ValueError('source size (rho_2) cannot be negative')
+            self.parameters['rho_2'] = new_rho_2
+            self._source_2_parameters.rho = new_rho_2
+        else:
+            raise KeyError('rho_2 is not a parameter of this model.')
 
     def get_s(self, epoch):
         """
