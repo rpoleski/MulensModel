@@ -241,6 +241,11 @@ def test_event_chi2_binary_source():
     # Calcualte chi^2:
     event = Event([data], model)
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
+    # Make sure Model.set_source_flux_ratio() is taken into account.
+    model.set_source_flux_ratio(1.)
+    assert event.get_chi2() > 1.
+    model.set_source_flux_ratio(3.)
+    np.testing.assert_almost_equal(event.get_chi2(), 0.)
 
 def test_event_chi2_binary_source_2datasets():
     """

@@ -103,6 +103,8 @@ class Model(object):
 
         self._limb_darkening_coeffs = LimbDarkeningCoeffs()
         self._bandpasses = []
+        
+        self._source_flux_ratio_constraint = None
 
         self._datasets = None
 
@@ -213,10 +215,9 @@ class Model(object):
             self._methods_parameters)                        
         mag_2 = self._magnification_curve_2.magnification    
         
-        #if 'source_flux_ratio' in self._parameters.parameters:
-            #source_flux_ratio = self._parameters.source_flux_ratio
-        #else:
-        if True:
+        if self._source_flux_ratio_constraint is not None:
+            source_flux_ratio = self._source_flux_ratio_constraint
+        else:
             self._fit = Fit(
                 data=flux_ratio_constraint,
                 magnification=np.array([mag_1, mag_2]))
@@ -249,6 +250,8 @@ class Model(object):
                 Data to constrain the flux ratio for sources in binary source
                 models. Currently accepts only
                 :py:class:`~MulensModel.mulensdata.MulensData` instances.
+                Note that :py:func:`set_source_flux_ratio()` takes precedence over
+                *flux_ratio_constraint*.
 
         Returns :
             magnification: *np.ndarray*
@@ -340,6 +343,22 @@ class Model(object):
                 dataset.time, satellite_skycoord=dataset_satellite_skycoord,
                 gamma=gamma, flux_ratio_constraint=flux_ratio_constraint)
         return magnification
+
+    def set_source_flux_ratio(self, ratio):
+        """
+        Sets flux ratio for binary source models. It takes precedence over
+        flux_ratio_constraint paramter of :py:func:`magnification()`.
+
+        Parameters :
+            ratio: *float*
+                ratio of fluxes of source no. 2 to source no. 1, i.e.,
+                flux_source_2/flux_source_1
+        """
+        if not isinstance(ratio, (np.float, float)):
+            raise TypeError(('wrong type of input in ' +
+                'Model.set_source_flux_ratio(): got {:}, ' +
+                'expected float').format(type(ratio)))
+        self._source_flux_ratio_constraint = ratio
 
     @property
     def datasets(self):
