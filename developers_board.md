@@ -111,6 +111,8 @@ _italics_ mark important tasks
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
     * why .rho returns None if it's not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
+    * use loops in \_\_repr\_\_ to make it shorter
+    * to make \_check\_valid\_combination\_1\_source shorter, make a boolean dict that says if given paramter is defined or not
   * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
     * **Errorbar scaling, in particular the two parameter.**

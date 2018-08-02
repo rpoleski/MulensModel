@@ -202,11 +202,11 @@ class Model(object):
         calculate model magnification for given times for model with 
         two sources
         """
+        kwargs = {'times': time, 'parallax': self._parallax,
+            'coords': self._coords, 'satellite_skycoord': satellite_skycoord,
+            'gamma': gamma}
         self._magnification_curve_1 = MagnificationCurve(
-            time, parameters=self.parameters.source_1_parameters,
-            parallax=self._parallax, coords=self._coords,
-            satellite_skycoord=satellite_skycoord,
-            gamma=gamma)
+            parameters=self.parameters.source_1_parameters, **kwargs)
         self._magnification_curve_1.set_magnification_methods(
             self._methods, self._default_magnification_method)
         self._magnification_curve_1.set_magnification_methods_parameters(
@@ -214,10 +214,7 @@ class Model(object):
         mag_1 = self._magnification_curve_1.magnification
 
         self._magnification_curve_2 = MagnificationCurve(
-            time, parameters=self.parameters.source_2_parameters,
-            parallax=self._parallax, coords=self._coords,
-            satellite_skycoord=satellite_skycoord,
-            gamma=gamma)
+            parameters=self.parameters.source_2_parameters, **kwargs)
         self._magnification_curve_2.set_magnification_methods(
             self._methods, self._default_magnification_method)
         self._magnification_curve_2.set_magnification_methods_parameters(
@@ -226,12 +223,14 @@ class Model(object):
         
         if self._source_flux_ratio_constraint is not None:
             source_flux_ratio = self._source_flux_ratio_constraint
+        #elif XXX and XXX:
+        #    source_flux_ratio = 
         else:
             self._fit = Fit(
                 data=flux_ratio_constraint,
                 magnification=np.array([mag_1, mag_2]))
             self._fit.fit_fluxes()
-            f_s = self._fit.flux_of_sources(flux_ratio_constraint) # XXX - which dataset to use?
+            f_s = self._fit.flux_of_sources(flux_ratio_constraint)
             source_flux_ratio = f_s[1] / f_s[0]
         magnification = mag_1 + mag_2 * source_flux_ratio 
         magnification /= (1. + source_flux_ratio)
@@ -279,20 +278,20 @@ class Model(object):
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)
 
-        if self.parameters.n_sources == 1:
+        if self.n_sources == 1:
             if flux_ratio_constraint is not None:
                 raise ValueError('Model.magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
                     'models, not {:}'.format(type(flux_ratio_constraint)))
             magnification = self._magnification_1_source(
                                 time, satellite_skycoord, gamma)
-        elif self.parameters.n_sources == 2:
+        elif self.n_sources == 2:
             magnification = self._magnification_2_sources(
                                 time, satellite_skycoord, gamma, 
                                 flux_ratio_constraint)
         else:
             raise ValueError('strange number of sources: {:}'.format(
-                    self.parameters.n_sources))
+                    self.n_sources))
         return magnification
         
     @property
@@ -373,6 +372,7 @@ class Model(object):
 # a) Do not allow it.
 # b) Use either/or, depending which one was set last.
 # c) Single value first, then take the band.
+# d) same as c) but gives warning.
 
 # Remember that magnification() paramter flux_ratio_constraint can be set to band
 # and then we use q_f for given band.
@@ -398,6 +398,11 @@ class Model(object):
             #raise TypeError(('wrong type of input in ' +
                 #'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 #'expected float').format(type(ratio)))
+        #if self._datasets is not None:
+            #bands = [d.bandpass for d in self.datasets]
+            #if band not in bands:
+                #warnings.warn("No datasets in bandpass {:}".format(band),
+                    #UserWarning)
         #XXX
 
     @property
