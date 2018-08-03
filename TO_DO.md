@@ -12,9 +12,12 @@
 * make sure that you can plot model without data (with q\_f specified)
 * t\_0\_par and t\_0\_kep - what are default values for binary sources?
 * check binary source parallax models
+* when finding q\_f via regression, make sure the source fluxes are not negative, at least give warning
+* when finging q\_f via regression, how we can get q\_f value?
 * ModelParameters.\_\_repr\_\_ has to be updated
 * example with q\_f as a MCMC chain parameter
 * in modelparameters.py in first 3 functions, what should be names of models (like PSPL, FSBL) for 2 sources where 1 or 2 of them are finite etc.?
+* We would like to plot e.g. A\_1/(1+q\_f) or A\_1 etc. - how to access these quantities?
 * PEP8 for files with most changes
 * go to master branch and review [documents/binary_source_notes.md](https://github.com/rpoleski/MulensModel/blob/master/documents/binary_source_notes.md)
 

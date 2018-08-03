@@ -182,8 +182,8 @@ class ModelParameters(object):
     Attributes :
         parameters: *dictionary*
             A dictionary of parameters and their values. Do not use it to
-            change paramter values, instead use e.g.: 
-            ``model_parameters.u_0 = 0.1`` or 
+            change paramter values, instead use e.g.:
+            ``model_parameters.u_0 = 0.1`` or
             ``setattr(model_parameters, 'u_0', 0.1)``.
 
     Example:
@@ -208,13 +208,13 @@ class ModelParameters(object):
             self._check_valid_combination_1_source(parameters.keys())
         elif self.n_sources == 2:
             self._check_valid_combination_2_sources(parameters.keys())
-            if not 't_E' in parameters.keys():
+            if 't_E' not in parameters.keys():
                 raise KeyError('Currently, the binary source calculations ' +
-                    'require t_E to be directly defined')
+                               'require t_E to be directly defined')
             (params_1, params_2) = self._divide_parameters(parameters)
             self._source_1_parameters = ModelParameters(params_1)
             self._source_2_parameters = ModelParameters(params_2)
-            # This way we force checks from "== 1" above to be run on 
+            # This way we force checks from "== 1" above to be run on
             # each source paramteres separately.
         else:
             raise ValueError('wrong number of sources')
@@ -223,7 +223,7 @@ class ModelParameters(object):
     def _count_sources(self, keys):
         """How many sources there are?"""
         binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-            't_star_1', 't_star_2']
+                         't_star_1', 't_star_2']
         if len(set(binary_params).intersection(set(keys))) > 0:
             self._n_sources = 2
         else:
@@ -231,11 +231,11 @@ class ModelParameters(object):
 
     def _divide_parameters(self, parameters):
         """
-        Divide an input dict into 2 - each source separately. Some of the parameters 
-        are copied to both dicts.
+        Divide an input dict into 2 - each source separately.
+        Some of the parameters are copied to both dicts.
         """
         separate_parameters = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
-            'rho_1', 'rho_2', 't_star_1', 't_star_2']
+                               'rho_1', 'rho_2', 't_star_1', 't_star_2']
         parameters_1 = {}
         parameters_2 = {}
         for (key, value) in parameters.items():
@@ -306,7 +306,7 @@ class ModelParameters(object):
         make sure that there is no conflict between t_0 and t_0_1 etc.
         """
         binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-            't_star_1', 't_star_2']
+                         't_star_1', 't_star_2']
         for parameter in binary_params:
             if parameter in keys:
                 if parameter[:-2] in keys:
@@ -320,7 +320,7 @@ class ModelParameters(object):
         # Make sure that there are no unwanted keys
         allowed_keys = set([
             't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
-            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt', 
+            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
             't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
             't_star_1', 't_star_2'])
         difference = set(keys) - allowed_keys
@@ -328,8 +328,8 @@ class ModelParameters(object):
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
             if set(keys).intersection(derived_1):
                 msg = ('You cannot set gamma, gamma_perp, ' +
-                    'or gamma_parallel. These are derived parameters. ' +
-                    'You can set ds_dt and dalpha_dt instead.\n')
+                       'or gamma_parallel. These are derived parameters. ' +
+                       'You can set ds_dt and dalpha_dt instead.\n')
             else:
                 msg = ""
             msg += 'Unrecognized parameters: {:}'.format(difference)
@@ -753,7 +753,7 @@ class ModelParameters(object):
             self.parameters['pi_E'][0] = new_value
             if self.n_sources != 1:
                 self._source_1_parameters.parameters['pi_E'][0] = new_value
-                self._source_2_parameters.parameters['pi_E'][0] = new_value            
+                self._source_2_parameters.parameters['pi_E'][0] = new_value
         else:
             raise KeyError('pi_E_N is not a parameter of this model.')
 
@@ -882,7 +882,6 @@ class ModelParameters(object):
     def t_0_kep(self, new):
         self.parameters['t_0_kep'] = new
         self._update_sources('t_0_kep', new)
-
 
     @property
     def t_0_1(self):
@@ -1208,7 +1207,7 @@ class ModelParameters(object):
     def n_sources(self):
         """
         *int*
-        
+
         number of luminous sources; it's possible to be 1 for xallarap model
         """
         return self._n_sources
@@ -1222,7 +1221,7 @@ class ModelParameters(object):
         """
         if self.n_sources == 1:
             raise ValueError('source_1_parameters cannot be accessed for ' +
-                'single source models')
+                             'single source models')
         return self._source_1_parameters
 
     @property
@@ -1234,7 +1233,7 @@ class ModelParameters(object):
         """
         if self.n_sources == 1:
             raise ValueError('source_2_parameters cannot be accessed for ' +
-                'single source models')
+                             'single source models')
         return self._source_2_parameters
 
     def as_dict(self):

@@ -103,7 +103,7 @@ class Model(object):
 
         self._limb_darkening_coeffs = LimbDarkeningCoeffs()
         self._bandpasses = []
-        
+
         self._source_flux_ratio_constraint = None
 
         self._datasets = None
@@ -144,7 +144,7 @@ class Model(object):
     def n_sources(self):
         """
         *int*
-        
+
         number of luminous sources; it's possible to be 1 for xallarap model
         """
         return self._parameters.n_sources
@@ -181,7 +181,7 @@ class Model(object):
 
     def _magnification_1_source(self, time, satellite_skycoord, gamma):
         """
-        calculate model magnification for given times for model with 
+        calculate model magnification for given times for model with
         a single source
         """
         magnification_curve = MagnificationCurve(
@@ -197,20 +197,20 @@ class Model(object):
         return magnification_curve.magnification
 
     def _magnification_2_sources(self, time, satellite_skycoord, gamma,
-            flux_ratio_constraint):
+                                 flux_ratio_constraint):
         """
-        calculate model magnification for given times for model with 
+        calculate model magnification for given times for model with
         two sources
         """
         kwargs = {'times': time, 'parallax': self._parallax,
-            'coords': self._coords, 'satellite_skycoord': satellite_skycoord,
-            'gamma': gamma}
+                  'coords': self._coords,
+                  'satellite_skycoord': satellite_skycoord, 'gamma': gamma}
         self._magnification_curve_1 = MagnificationCurve(
             parameters=self.parameters.source_1_parameters, **kwargs)
         self._magnification_curve_1.set_magnification_methods(
             self._methods, self._default_magnification_method)
         self._magnification_curve_1.set_magnification_methods_parameters(
-            self._methods_parameters)            
+            self._methods_parameters)
         mag_1 = self._magnification_curve_1.magnification
 
         self._magnification_curve_2 = MagnificationCurve(
@@ -218,13 +218,13 @@ class Model(object):
         self._magnification_curve_2.set_magnification_methods(
             self._methods, self._default_magnification_method)
         self._magnification_curve_2.set_magnification_methods_parameters(
-            self._methods_parameters)                        
-        mag_2 = self._magnification_curve_2.magnification    
-        
+            self._methods_parameters)
+        mag_2 = self._magnification_curve_2.magnification
+
         if self._source_flux_ratio_constraint is not None:
             source_flux_ratio = self._source_flux_ratio_constraint
-        #elif XXX and XXX:
-        #    source_flux_ratio = 
+#        elif XXX and XXX:
+#            source_flux_ratio =
         else:
             self._fit = Fit(
                 data=flux_ratio_constraint,
@@ -232,12 +232,12 @@ class Model(object):
             self._fit.fit_fluxes()
             f_s = self._fit.flux_of_sources(flux_ratio_constraint)
             source_flux_ratio = f_s[1] / f_s[0]
-        magnification = mag_1 + mag_2 * source_flux_ratio 
+        magnification = mag_1 + mag_2 * source_flux_ratio
         magnification /= (1. + source_flux_ratio)
         return magnification
-    
+
     def magnification(self, time, satellite_skycoord=None, gamma=0.,
-            flux_ratio_constraint=None):
+                      flux_ratio_constraint=None):
         """
         Calculate the model magnification for the given time(s).
 
@@ -254,12 +254,13 @@ class Model(object):
                 The limb darkening coefficient in gamma convention. Default is
                 0 which means no limb darkening effect.
 
-            flux_ratio_constraint: :py:class:`~MulensModel.mulensdata.MulensData`, optional
+            flux_ratio_constraint:
+            :py:class:`~MulensModel.mulensdata.MulensData`, optional
                 Data to constrain the flux ratio for sources in binary source
                 models. Currently accepts only
                 :py:class:`~MulensModel.mulensdata.MulensData` instances.
-                Note that :py:func:`set_source_flux_ratio()` takes precedence over
-                *flux_ratio_constraint*.
+                Note that :py:func:`set_source_flux_ratio()` takes precedence
+                over *flux_ratio_constraint*.
 
         Returns :
             magnification: *np.ndarray*
@@ -280,20 +281,21 @@ class Model(object):
 
         if self.n_sources == 1:
             if flux_ratio_constraint is not None:
-                raise ValueError('Model.magnification() parameter ' +
+                raise ValueError(
+                    'Model.magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
                     'models, not {:}'.format(type(flux_ratio_constraint)))
             magnification = self._magnification_1_source(
                                 time, satellite_skycoord, gamma)
         elif self.n_sources == 2:
             magnification = self._magnification_2_sources(
-                                time, satellite_skycoord, gamma, 
+                                time, satellite_skycoord, gamma,
                                 flux_ratio_constraint)
         else:
             raise ValueError('strange number of sources: {:}'.format(
                     self.n_sources))
         return magnification
-        
+
     @property
     def data_magnification(self):
         """
@@ -363,19 +365,19 @@ class Model(object):
                 flux_source_2/flux_source_1
         """
         if not isinstance(ratio, (np.float, float)):
-            raise TypeError(('wrong type of input in ' +
-                'Model.set_source_flux_ratio(): got {:}, ' +
-                'expected float').format(type(ratio)))
+            raise TypeError(
+                'wrong type of input in Model.set_source_flux_ratio(): ' +
+                'got {:}, expected float'.format(type(ratio)))
         self._source_flux_ratio_constraint = ratio
 
-# Ok, but how we deall with both single value and values for bands? 
+# Ok, but how we deall with both single value and values for bands?
 # a) Do not allow it.
 # b) Use either/or, depending which one was set last.
 # c) Single value first, then take the band.
 # d) same as c) but gives warning.
 
-# Remember that magnification() paramter flux_ratio_constraint can be set to band
-# and then we use q_f for given band.
+# Remember that magnification() paramter flux_ratio_constraint can be set to
+# band and then we use q_f for given band.
 
     #def set_source_flux_ratio_for_band(self, band, ratio):
         #"""
@@ -424,7 +426,8 @@ class Model(object):
             datasets: *list* of :py:class:`~MulensModel.mulensdata.MulensData`
                 Datasets to be stored.
 
-            data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`, optional
+            data_ref:
+            *int* or :py:class:`~MulensModel.mulensdata.MulensData`, optional
                 Reference dataset.
         """
         self._datasets = datasets
@@ -578,8 +581,8 @@ class Model(object):
         if (f_source is None) and (f_blend is None):
             if self.data_ref is None:
                 raise ValueError('No reference dataset of fluxes provided. ' +
-                    "If you don't have a dataset, then try " +
-                    "plot_magnification() instead of plot_lc().")
+                                 "If you don't have a dataset, then try " +
+                                 "plot_magnification() instead of plot_lc().")
             (f_source, f_blend) = self.get_ref_fluxes(data_ref=self.data_ref)
         elif (f_source is None) or (f_blend is None):
             raise AttributeError(
@@ -1068,6 +1071,11 @@ class Model(object):
           ``**kwargs`` controls plotting features of the trajectory.
 
         """
+        if self.n_sources != 1:
+            raise NotImplementedError(
+                "trajectory only for " +
+                "single source models can be plotted currently")
+
         if show_data:
             raise NotImplementedError(
                                 "show_data option is not yet implemented")
@@ -1222,7 +1230,8 @@ class Model(object):
 
         """
         if self.n_lenses == 1:
-            methods_ok = ['point_source',
+            methods_ok = [
+                'point_source',
                 'finite_source_uniform_Gould94'.lower(),
                 'finite_source_uniform_Gould94_direct'.lower(),
                 'finite_source_LD_Yoo04'.lower(),
