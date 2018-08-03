@@ -179,7 +179,6 @@ class Fit(object):
 
         return flux
 
-
     def get_input_format(self, data=None):
         """
         Microlensing model in the same format as given dataset. The
