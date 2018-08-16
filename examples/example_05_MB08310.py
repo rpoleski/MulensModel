@@ -21,7 +21,6 @@ for file_ in sorted(files):
     data = MulensData(file_name=file_, comments=["\\", "|"])
     datasets_default.append(data)
 
-
 # Define basic point lens model
 t_0 = 2454656.39975
 u_0 = 0.00300
@@ -55,7 +54,9 @@ color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
 for i, file_ in enumerate(sorted(files)):
     data = MulensData(
         file_name=file_, comments=["\\", "|"], 
-        plot_properties={'color': color_list[i]})
+        plot_properties={
+            'color': color_list[i], 
+            'label': os.path.basename(file_).split('_', maxsplit=2)[0]})
     datasets_custom.append(data)
 
 event_custom = Event(datasets=datasets_custom, model=plens_model)

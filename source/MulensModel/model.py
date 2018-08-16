@@ -597,6 +597,23 @@ class Model(object):
                 data.plot_properties['color'] = 'C{0}'.format(color_index % 10)
                 color_index += 1
             
+    def _check_old_plot_kwargs(self, **kwargs):
+        old_plot_keywords = [
+            'color_list', 'marker_list', 'size_list',
+            'label_list', 'alpha_list', 'zorder_list']
+
+        for old_keyword in old_plot_keywords:
+            if old_keyword in kwargs.keys():
+                warnings.warn('\n'.join(
+                        ['Keyword "{0}" deprecated.'.format(old_keyword),
+                         'Use MulensData.plot_properties instead.']))
+                value = kwargs.pop(old_keyword)
+                key = old_keyword[:-5]
+                print('key: {0}'.format(key))
+                for i, dataset in enumerate(self.datasets):
+                    dataset.plot_properties[key] = value[i]
+
+        return kwargs
 
     def plot_data_new(
         self, data_ref=None, **kwargs):
@@ -609,6 +626,7 @@ class Model(object):
         """
 
         self._set_default_colors()
+        kwargs = self._check_old_plot_kwargs(**kwargs)
 
         if 'show_errorbars' in kwargs.keys():
             show_errorbars = kwargs['show_errorbars']
@@ -882,6 +900,7 @@ class Model(object):
         show_errorbars=True, **kwargs):
 
         self._set_default_colors()
+        kwargs = self._check_old_plot_kwargs(**kwargs)
 
         if data_ref is not None:
             self.data_ref = data_ref

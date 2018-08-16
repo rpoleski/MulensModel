@@ -55,7 +55,7 @@ t_start = t_0 - 3.
 t_stop = t_0 + 1.
 ev.plot_model(
     color='black', t_start=t_start, t_stop=t_stop, subtract_2450000=True)
-ev.plot_data(
+ev.plot_data_new(
     label_list=labels, marker='o', markersize=5,
     color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'],
     subtract_2450000=True)
@@ -66,7 +66,7 @@ pl.title('Data and Fitted Model (Custom)')
 
 # Plot the residuals
 pl.subplot(gs[1])
-ev.plot_residuals(subtract_2450000=True)
+ev.plot_residuals_new(subtract_2450000=True)
 pl.xlim(t_start-2450000., t_stop-2450000.)
 
 pl.show()
