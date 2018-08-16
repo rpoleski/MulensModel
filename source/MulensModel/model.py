@@ -591,6 +591,10 @@ class Model(object):
         return new_kwargs
 
     def _set_default_colors(self):
+        """
+        If the user has not specified a color for a dataset, assign
+        one.
+        """
         color_index = 0
         for data in self.datasets:
             if 'color' not in data.plot_properties.keys():
@@ -598,6 +602,11 @@ class Model(object):
                 color_index += 1
             
     def _check_old_plot_kwargs(self, **kwargs):
+        """
+        Check for deprecated "_list" keywords. Issue a warning, then
+        transfer the properties to the new
+        :py:attr:`mulensdata.MulensData.plot_properties` system.
+        """
         old_plot_keywords = [
             'color_list', 'marker_list', 'size_list',
             'label_list', 'alpha_list', 'zorder_list']
@@ -615,13 +624,39 @@ class Model(object):
 
         return kwargs
 
-    def plot_data_new(
-        self, data_ref=None, **kwargs):
-        """
 
-        if show_errorbars is set, it will apply that setting to all data
-        sets. If it is not set, it should use the default for that
-        dataset.
+    def plot_data_new(self, data_ref=None, **kwargs):
+        """
+        Plot the data scaled to the model.
+
+        Keywords (all optional):
+            data_ref: see :py:func:`get_ref_fluxes()`
+                If data_ref is not specified, uses the first dataset
+                as the reference for flux scale.
+
+            show_errorbars: *boolean* 
+                If show_errorbars is True (default), plots with
+                matplotlib.errorbar(). If False, plots with
+                matplotlib.scatter(). If
+                :py:attr:`show_errorbars` is set, it will apply
+                that setting to all data sets. If it is not set, it
+                should use the default for that dataset.
+
+            show_bad: *boolean*
+                if False, bad data are suppressed (default).  if True,
+                shows points marked as bad
+                (:py:obj:`mulensdata.MulensData.bad`) as 'x'. Same
+                default behavior as show_errorbars.
+
+            subtract_2450000, subtract_2460000: *boolean*
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers. If using, make
+                sure to also set the same settings for all other
+                plotting calls (e.g. :py:func:`plot_lc()`).
+
+            ``**kwargs``: passed to matplotlib plotting
+            functions. Contrary to previous behavior, ``**kwargs`` are
+            no longer remembered.
 
         """
 
@@ -632,7 +667,6 @@ class Model(object):
             show_errorbars = kwargs['show_errorbars']
         else:
             show_errorbars = True
-
         if 'subtract_2450000' in kwargs.keys():
             subtract_2450000 = kwargs['subtract_2450000']
         else:
@@ -654,6 +688,7 @@ class Model(object):
             subtract = 2450000.
         if subtract_2460000:
             subtract = 2460000.
+        # JCY - these subtract blocks should be refactored.
 
         # Reference flux scale
         (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
@@ -898,6 +933,15 @@ class Model(object):
     def plot_residuals_new(
         self, data_ref=None, subtract_2450000=False, subtract_2460000=False, 
         show_errorbars=True, **kwargs):
+        """
+        Plot the residuals (in magnitudes) of the model.  Uses the
+        best f_source, f_blend for each dataset (not scaled to a
+        particular photometric system).
+
+        For explanation of keywords, see doctrings in
+        :py:func:`plot_data()`.
+
+        """
 
         self._set_default_colors()
         kwargs = self._check_old_plot_kwargs(**kwargs)

@@ -38,7 +38,6 @@ gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 
 # Plot the data and model
 pl.figure()
-print('FIGURE 1')
 pl.subplot(gs[0])
 event_default.plot_model(subtract_2450000=True)
 event_default.plot_data_new(subtract_2450000=True)
@@ -62,13 +61,12 @@ for i, file_ in enumerate(sorted(files)):
 event_custom = Event(datasets=datasets_custom, model=plens_model)
 
 pl.figure()
-print('FIGURE 2')
 pl.subplot(gs[0])
 t_start = t_0 - 3.
 t_stop = t_0 + 1.
 event_custom.plot_model(
     color='black', t_start=t_start, t_stop=t_stop, subtract_2450000=True)
-event_custom.plot_data_new(marker='o', markersize=5, subtract_2450000=True)
+event_custom.plot_data_new(marker='s', markersize=3, subtract_2450000=True)
 pl.ylim(17.5, 12.5)
 pl.xlim(t_start-2450000., t_stop-2450000.)
 pl.legend(loc='upper left')
@@ -76,7 +74,7 @@ pl.title('Data and Fitted Model (Custom)')
 
 # Plot the residuals
 pl.subplot(gs[1])
-event_custom.plot_residuals_new(subtract_2450000=True)
+event_custom.plot_residuals_new(marker='s', markersize=3, subtract_2450000=True)
 pl.xlim(t_start-2450000., t_stop-2450000.)
 
 pl.show()

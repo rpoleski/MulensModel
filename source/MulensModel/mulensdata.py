@@ -163,8 +163,6 @@ class MulensData(object):
                 err_brightness=vector_3, coords=self._coords)
 
             # check if data label specified, if not use file_name
-            print(file_name)
-            print(self.plot_properties)
             if not 'label' in self.plot_properties.keys():
                 self.plot_properties['label'] = file_name
 
@@ -185,7 +183,6 @@ class MulensData(object):
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
 
-        print('mulensdata.plot_properties: ', self.plot_properties)
 
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
