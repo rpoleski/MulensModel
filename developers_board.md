@@ -2,7 +2,7 @@
 1. finish improved passing of color/label/etc from MulensData to Model
 2. binary source magnification and chi2 calculations: finish use cases, write unit tests, and implement
 3. EMCEE fitting example with posterior statistics of fluxes
-4. PIP install
+4. PIP install https://packaging.python.org/tutorials/packaging-projects/
 
 
 ## Specific tasks to be performed
@@ -14,6 +14,7 @@ _italics_ mark important tasks
   * _makefile for Windows (basic instructions exist already)_
   * _PIP install_
   * setup.py should use Extensions instead of custom makefile
+  * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
   * more metadata in setup.py
 * Documentation
@@ -50,12 +51,16 @@ _italics_ mark important tasks
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
   * _Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that_
   * calculate jerk parallax degeneracy: [Park+04](http://adsabs.harvard.edu/abs/2004ApJ...609..166P) [Gould 04](http://adsabs.harvard.edu/abs/2004ApJ...606..319G)  
+  * elliptical source magnification [Heyrovsky & Loeb 1997](http://adsabs.harvard.edu/abs/1997ApJ...490...38H)
+  * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
+  * **try/except for Model functions: plot\_lc, plot\_data, plot\_residuals, plot\_trajectory, plot\_magnification; also Caustics.plot, Coordinates.\_\_init\_\_, MulensData.\_\_init\_\_**
 * Parameterization
   * Cassan 2008 binary lens parameters 
   * [Albrow et al. 1999](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A) (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
   * caustic size w [Dong+09](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [Chung+05](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
   * check if new parameters are defined here: [Liebig, D'Ago, Bozza, and Dominik 2015](http://adsabs.harvard.edu/abs/2015MNRAS.450.1565L)
+  * [Heyrovsky 2003](http://adsabs.harvard.edu/abs/2003ApJ...594..464H) parametrization of limb-darkening
 * Function Improvements/Expansion:
   * BinaryLens class:
     * should BinaryLens() accept source\_x/y as lists or arrays?
@@ -114,6 +119,7 @@ _italics_ mark important tasks
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
     * change order to improve the website
+    * _values in dimentionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
   * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
     * **Errorbar scaling, in particular the two parameter.**
@@ -133,11 +139,14 @@ _italics_ mark important tasks
   * Utils class:
     * in np.any() ifs give more information in warning e.g., "out of 1234 values provided, the fails are: 12, 345, 678 (0-based)"
     * add u(a) function: u = np.sqrt(2A/np.sqrt(A^2-1.) - 2.)
+  * MulensObjects submodule:
+    * in mulenssystem.py add pi\_E
   * Plotting:
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
     * add option to plot satellite coordinates as in Henderson+16 where K2 and Spitzer orbits were compared
     * add plotting with fit\_blending=False for functions that use magnitude space
+    * add plt.xlim() and ylim in plotting functions (using t\_start) etc.; then also update (simpify) tutorials, examples etc.
   * Examples:
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
