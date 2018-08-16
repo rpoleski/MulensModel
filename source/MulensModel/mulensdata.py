@@ -110,7 +110,7 @@ class MulensData(object):
                  phot_fmt="mag", coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
-                 plot_properties={}, **kwargs):
+                 plot_properties=None, **kwargs):
 
         # Initialize some variables
         self._n_epochs = None
@@ -138,6 +138,8 @@ class MulensData(object):
                 raise AttributeError(coords_msg)
 
         # Plot properties
+        if plot_properties is None:
+            plot_properties = {}
         self.plot_properties = plot_properties
 
         # Import the photometry...
