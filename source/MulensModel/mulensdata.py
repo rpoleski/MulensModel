@@ -159,11 +159,13 @@ class MulensData(object):
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
+
             # check if data label specified, if not use file_name
-            if self.plot_properties is not None:
-                if not 'label' in self.plot_properties.keys():
-                    self.plot_properties['label'] = file_name
-                
+            print(file_name)
+            print(self.plot_properties)
+            if not 'label' in self.plot_properties.keys():
+                self.plot_properties['label'] = file_name
+
         else:
             raise ValueError(
                 'MulensData cannot be initialized with ' +
@@ -180,6 +182,8 @@ class MulensData(object):
 
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
+
+        print('mulensdata.plot_properties: ', self.plot_properties)
 
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
@@ -528,7 +532,7 @@ class MulensData(object):
                 if 's' not in kwargs.keys():
                     properties['s'] = properties.pop('size')
         else:
-            default_size = 10
+            default_size = 5
             if errorbars:
                 if 'markersize' not in kwargs.keys():
                     properties['markersize'] = default_size

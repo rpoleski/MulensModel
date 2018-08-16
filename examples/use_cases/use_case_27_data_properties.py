@@ -87,8 +87,8 @@ for file_ in file_list:
     plot_properties = set_plot_properties(file_)
     plot_properties['label'] = os.path.basename(file_).split(
         '_', maxsplit=2)[0]
-    print(plot_properties['label'])
-    datasets.append(mm.MulensData(file_name=file_, comments=ex_arv_comments,
+    datasets.append(
+        mm.MulensData(file_name=file_, comments=ex_arv_comments,
         plot_properties=plot_properties))
 
 t_0 = 2454656.39975

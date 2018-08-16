@@ -157,7 +157,7 @@ class Model(object):
                 Times for which magnification values are requested.
 
             satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
-                *SkyCoord* object that gives satellite positions. Must be
+               *SkyCoord* object that gives satellite positions. Must be
                 the same length as time parameter. Use only for satellite
                 parallax calculations.
 
@@ -650,8 +650,6 @@ class Model(object):
             f_blend = fit.blending_flux(data)
             flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
 
-            print(show_errorbars)
-            print(data.plot_properties)
             if show_errorbars:
                 err_flux = f_source_0 * data.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
@@ -879,22 +877,9 @@ class Model(object):
 
         return (residuals, errorbars)
 
-    def plot_residuals_new(self, **kwargs):
-
-        if 'show_errorbars' in kwargs.keys():
-            show_errorbars = kwargs['show_errorbars']
-        else:
-            show_errorbars = None
-
-        if 'subtract_2450000' in kwargs.keys():
-            subtract_2450000 = kwargs['subtract_2450000']
-        else:
-            subtract_2450000 = False
-
-        if 'subtract_2460000' in kwargs.keys():
-            subtract_2460000 = kwargs['subtract_2460000']
-        else:
-            subtract_2460000 = False
+    def plot_residuals_new(
+        self, data_ref=None, subtract_2450000=False, subtract_2460000=False, 
+        show_errorbars=True, **kwargs):
 
         self._set_default_colors()
 
@@ -922,12 +907,13 @@ class Model(object):
 
 
             # Plot
-            new_kwargs = data.set_plot_properties(**kwargs)
             if show_errorbars:
+                new_kwargs = data.set_plot_properties(errorbars=True, **kwargs)
                 pl.errorbar(
                     data.time-subtract, residuals[i], yerr=err[i],
                     **new_kwargs)
             else:
+                new_kwargs = data.set_plot_properties(**kwargs)
                 pl.scatter(
                     data.time-subtract, residuals[i], lw=0, **new_kwargs)
 

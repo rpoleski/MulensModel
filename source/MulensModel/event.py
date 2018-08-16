@@ -315,7 +315,7 @@ class Event(object):
         Plot the residuals (in magnitudes) of the model.
         See :py:func:`MulensModel.model.Model.plot_residuals()` for details.
         """
-        self.model.plot_residuals(**kwargs)
+        self.model.plot_residuals_new(**kwargs)
 
     def clean_data(self):
         """masks outlying datapoints. **Not Implemented.**"""

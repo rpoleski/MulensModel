@@ -21,6 +21,7 @@ for file_ in sorted(files):
     data = MulensData(file_name=file_, comments=["\\", "|"])
     datasets_default.append(data)
 
+
 # Define basic point lens model
 t_0 = 2454656.39975
 u_0 = 0.00300
@@ -38,13 +39,14 @@ gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 
 # Plot the data and model
 pl.figure()
+print('FIGURE 1')
 pl.subplot(gs[0])
 event_default.plot_model(subtract_2450000=True)
 event_default.plot_data_new(subtract_2450000=True)
 pl.title('Data and Fitted Model (Default)')
 # Plot the residuals
 pl.subplot(gs[1])
-event_default.plot_residuals(subtract_2450000=True)
+event_default.plot_residuals_new(subtract_2450000=True)
 
 #-----------------
 # Plot the data and model (customized)
@@ -59,6 +61,7 @@ for i, file_ in enumerate(sorted(files)):
 event_custom = Event(datasets=datasets_custom, model=plens_model)
 
 pl.figure()
+print('FIGURE 2')
 pl.subplot(gs[0])
 t_start = t_0 - 3.
 t_stop = t_0 + 1.
