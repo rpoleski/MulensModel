@@ -397,7 +397,7 @@ class Model(object):
         """
         Plot the model light curve in magnitudes.
 
-        Keywords:
+        Keywords :
             times: [*float*, *list*, *numpy.ndarray*]
                 a list of times at which to plot the magnifications
 
@@ -471,7 +471,7 @@ class Model(object):
         Get source and blending fluxes for the model by finding the
         best-fit values compared to data_ref.
 
-        Parameters:
+        Parameters :
             data_ref: :py:class:`~MulensModel.mulensdata.MulensData` or *int*
                 Reference dataset. If *int*, corresponds to the index of
                 the dataset in self.datasets. If None, than the first dataset

@@ -120,6 +120,8 @@ _italics_ mark important tasks
     * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
     * change order to improve the website
     * _values in dimentionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
+    * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
+    * **plot\_lc() - add satellite option like in plot\_magnification()**
   * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
     * **Errorbar scaling, in particular the two parameter.**
