@@ -2,7 +2,7 @@
 1. finish improved passing of color/label/etc from MulensData to Model
 2. binary source magnification and chi2 calculations: finish use cases, write unit tests, and implement
 3. EMCEE fitting example with posterior statistics of fluxes
-4. PIP install https://packaging.python.org/tutorials/packaging-projects/
+4. PIP install https://packaging.python.org/tutorials/packaging-projects/ https://setuptools.readthedocs.io/en/latest/setuptools.html
 
 
 ## Specific tasks to be performed
