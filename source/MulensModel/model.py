@@ -502,8 +502,7 @@ class Model(object):
             if old_keyword in kwargs.keys():
                 warnings.warn(''.join(['Keyword "', old_keyword, '" deprecated. Use MulensData.plot_properties instead.']))
                 value = kwargs.pop(old_keyword)
-                key = old_keyword[:-5]
-                print('key: {0}'.format(key))
+                key = old_keyword[:,-5]
                 for i, dataset in enumerate(self.datasets):
                     dataset.plot_properties[key] = value[i]
 

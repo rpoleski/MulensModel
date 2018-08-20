@@ -109,7 +109,7 @@ pl.figure()
 # All other data sets plotted in random colors (different from each other).
 # Labels set by first part of the filename.
 pl.title('MB08310 Data and Model')
-event.plot_data_new()
+event.plot_data()
 event.plot_model()
 pl.legend(loc='best')
 
