@@ -183,7 +183,6 @@ class MulensData(object):
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
 
-
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
         """
@@ -386,7 +385,6 @@ class MulensData(object):
                 "parameter has to be dict, not {:}".format(type(weights)))
 
         self._limb_darkening_weights = weights
-
 
     def _plot_data(self, y_val, y_err=None, show_errorbars=None, show_bad=None,
         subtract_2450000=False, subtract_2460000=False, **kwargs):

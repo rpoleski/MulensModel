@@ -154,7 +154,7 @@ class Model(object):
                 Times for which magnification values are requested.
 
             satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
-               *SkyCoord* object that gives satellite positions. Must be
+                *SkyCoord* object that gives satellite positions. Must be
                 the same length as time parameter. Use only for satellite
                 parallax calculations.
 
@@ -483,9 +483,11 @@ class Model(object):
         one.
         """
         color_index = 0
+        colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink',
+                  'gray', 'olive', 'cyan']
         for data in self.datasets:
             if 'color' not in data.plot_properties.keys():
-                data.plot_properties['color'] = 'C{0}'.format(color_index % 10)
+                data.plot_properties['color'] = colors[color_index]
                 color_index += 1
             
     def _check_old_plot_kwargs(self, **kwargs):
@@ -612,8 +614,6 @@ class Model(object):
         (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
             pl.gca().invert_yaxis()
-            
-
 
     def get_residuals(self, data_ref=None, type='mag'):
         """
