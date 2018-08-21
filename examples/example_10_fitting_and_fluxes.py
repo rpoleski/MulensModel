@@ -1,6 +1,6 @@
 """
-Fits PSPL model for MB08310 with parallax using EMCEE sampler and reports
-posterior flux parameters. The flux parameters are found by regression
+Fits PSPL model for MB08310 with finite source effect using EMCEE sampler and
+reports posterior flux parameters. The flux parameters are found by regression
 for each model and cached using EMCEE blobs mechanism.
 
 This example uses config file:
@@ -174,8 +174,11 @@ for param in parameters_to_fit:
     setattr(model.parameters, param, event.best_chi2_parameters[param])
 
 # Plot model and data.
+print("\nNow let's plot the best model")
 event.plot_model(subtract_2450000=True, **plot_kwargs)
 ylim = plt.ylim()
+# The command below raises warning - it's not your fault. It's caused
+# by the input data.
 event.plot_data(subtract_2450000=True, label_list=file_ids)
 if 't_start' in plot_kwargs:
     plt.xlim(xmin=plot_kwargs['t_start']-2450000.)
@@ -184,3 +187,4 @@ if 't_stop' in plot_kwargs:
 plt.ylim(*ylim)
 plt.legend(loc='best')
 plt.show()
+
