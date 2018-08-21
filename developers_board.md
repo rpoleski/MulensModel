@@ -76,6 +76,7 @@
   * MulensData:
     * add label which is passed to all the matplotlib functions and hence allows to show legend in easy way
     * Errorbar scaling, in particular the two parameter.
+    * in plot() add keyword to decide if labels should be marked and make sure that Model.plot\_data() sets it to False so that we're not overplotting labels
   * SatelliteSkyCoord:
     * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
   * Utils:

@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as pl
+from os.path import basename
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
@@ -164,7 +165,7 @@ class MulensData(object):
 
             # check if data label specified, if not use file_name
             if not 'label' in self.plot_properties.keys():
-                self.plot_properties['label'] = file_name
+                self.plot_properties['label'] = basename(file_name)
 
         else:
             raise ValueError(
@@ -475,7 +476,6 @@ class MulensData(object):
             err = self.err_flux
         else:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
-
 
         self._plot_data(y_val, y_err=err, **kwargs)
 
