@@ -314,6 +314,36 @@ class Model(object):
             if topocentric is not None:
                 self._parallax['topocentric'] = topocentric
 
+    def _subtract(self, subtract_2450000, subtract_2460000):
+        """
+        find value of HJD to be subtracted
+        """
+        if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError('subtract_2450000 and subtract_2460000 ' +
+                                 'cannot be both True')
+            subtract = 2450000.
+        elif subtract_2460000:
+            subtract = 2460000.
+        else:
+            subtract = 0.
+        return subtract
+
+    def _subtract_xlabel(self, subtract_2450000, subtract_2460000):
+        """
+        string that would be past to plt.xlabel()
+        """
+        if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError('subtract_2450000 and subtract_2460000 ' +
+                                 'cannot be both True')
+            out = 'Time - 2450000'
+        elif subtract_2460000:
+            out = 'Time - 2460000'
+        else:
+            out = 'Time'
+        return out
+
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
@@ -333,11 +363,7 @@ class Model(object):
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
-        subtract = 0.
-        if subtract_2450000:
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
+        subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         if satellite_skycoord is not None:
             satellite = satellite_skycoord.get_satellite_coords(times)
@@ -348,12 +374,7 @@ class Model(object):
 
         pl.plot(times-subtract, magnification, **kwargs)
         pl.ylabel('Magnification')
-        if subtract_2450000:
-            pl.xlabel('Time - 2450000')
-        elif subtract_2460000:
-            pl.xlabel('Time - 2460000')
-        else:
-            pl.xlabel('Time')
+        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -410,20 +431,10 @@ class Model(object):
 
         flux = f_source * self.magnification(times) + f_blend
 
-        subtract = 0.
-        if subtract_2450000:
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
-
+        subtract = self._subtract(subtract_2450000, subtract_2460000)
         pl.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)
         pl.ylabel('Magnitude')
-        if subtract_2450000:
-            pl.xlabel('Time - 2450000')
-        elif subtract_2460000:
-            pl.xlabel('Time - 2460000')
-        else:
-            pl.xlabel('Time')
+        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
         (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
@@ -512,7 +523,12 @@ class Model(object):
 
         return kwargs
 
-
+# Expected:
+# def plot_data(
+#   self, data_ref=None, show_errorbars=True, show_bad=False,
+#   color_list=None, marker_list=None, size_list=None,
+#   label_list=None, alpha_list=None, zorder_list=None,
+#   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_data(self, data_ref=None, **kwargs):
         """
         Plot the data scaled to the model.
@@ -571,12 +587,7 @@ class Model(object):
         # Set plot limits
         t_min = 3000000.
         t_max = 0.
-        subtract = 0.
-        if subtract_2450000:
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
-        # JCY - these subtract blocks should be refactored.
+        subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         # Reference flux scale
         (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
@@ -605,12 +616,7 @@ class Model(object):
 
         # Plot properties
         pl.ylabel('Magnitude')
-        if subtract_2450000:
-            pl.xlabel('Time - 2450000')
-        elif subtract_2460000:
-            pl.xlabel('Time - 2460000')
-        else:
-            pl.xlabel('Time')
+        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
         pl.xlim(t_min-subtract, t_max-subtract)
 
         (ymin, ymax) = pl.gca().get_ylim()
@@ -681,6 +687,12 @@ class Model(object):
 
         return (residuals, errorbars)
 
+# Expected:
+# def plot_residuals(
+#   self, show_errorbars=True, color_list=None,
+#   marker_list=None, size_list=None, label_list=None,
+#   alpha_list=None, zorder_list=None, data_ref=None,
+#   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_residuals(
         self, data_ref=None, subtract_2450000=False, subtract_2460000=False, 
         show_errorbars=True, **kwargs):
@@ -706,11 +718,7 @@ class Model(object):
         delta_mag = 0.
         t_min = 3000000.
         t_max = 0.
-        subtract = 0.
-        if subtract_2450000:
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
+        subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         # Plot zeropoint line
         pl.plot([0., 3000000.], [0., 0.], color='black')
@@ -742,13 +750,7 @@ class Model(object):
         pl.ylim(-delta_mag, delta_mag)
         pl.xlim(t_min-subtract, t_max-subtract)
         pl.ylabel('Residuals')
-        if subtract_2450000:
-            pl.xlabel('Time - 2450000')
-        elif subtract_2460000:
-            pl.xlabel('Time - 2460000')
-        else:
-            pl.xlabel('Time')
-
+        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
