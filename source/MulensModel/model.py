@@ -487,6 +487,16 @@ class Model(object):
 
         return (f_source, f_blend)
 
+    def reset_plot_properties(self):
+        """
+        This function will be **deprecated**.
+
+        Resets properties of all attached datasets.
+        """
+        warnings.warn('reset_plot_properties() will be deprecated in future',
+                      FutureWarning)
+        for data in self.datasets:
+            data.plot_properties = {}
 
     def _set_default_colors(self):
         """
@@ -514,10 +524,10 @@ class Model(object):
         for old_keyword in old_plot_keywords:
             if old_keyword in kwargs.keys():
                 warnings.warn('Keyword "' + old_keyword + '" is deprecated.' +
-                              'Use MulensData.plot_properties instead.', 
-                              DeprecationWarning)
+                              'Use MulensData.plot_properties instead.',
+                              FutureWarning)
                 value = kwargs.pop(old_keyword)
-                key = old_keyword[:,-5]
+                key = old_keyword[:-5]
                 for i, dataset in enumerate(self.datasets):
                     dataset.plot_properties[key] = value[i]
 
