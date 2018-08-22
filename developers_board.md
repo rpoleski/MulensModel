@@ -1,10 +1,8 @@
-## May goals:
-1. binary source use cases
-2. errorbar scaling in MulensData
-3. finish improved passing of color/label/etc from MulensData to Model
-4. website with notes on data challenge and links related to it
-5. easier access to all the fluxes from Event
-6. improved usage of polynomial root solvers
+## Aug goals:
+1. finish improved passing of color/label/etc from MulensData to Model
+2. binary source magnification and chi2 calculations: finish use cases, write unit tests, and implement
+3. EMCEE fitting example with posterior statistics of fluxes
+4. PIP install https://packaging.python.org/tutorials/packaging-projects/ https://setuptools.readthedocs.io/en/latest/setuptools.html
 
 
 ## Specific tasks to be performed
@@ -16,9 +14,12 @@ _italics_ mark important tasks
   * _makefile for Windows (basic instructions exist already)_
   * _PIP install_
   * setup.py should use Extensions instead of custom makefile
+  * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
+  * more metadata in setup.py
 * Documentation
   * Sagan workshop hands-on activity in MM
+  * _examples as ipython notebooks_
   * Add \_\_repr\_\_ functions to Lens and Source
   * files not yet well documented: 
     * RA & Dec in coordinates.py (maybe also code it better)
@@ -32,7 +33,6 @@ _italics_ mark important tasks
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
-    * list of all the high-level functions that will be affected
     * decide how to implement in general e.g. Model has separate internal Model instances for each source? Maybe Event should have 2 internal instances of for each source?
     * write unit tests
     * make changes
@@ -46,16 +46,21 @@ _italics_ mark important tasks
   * Xallarap (see below for references)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
-    * mapmaking version which adds new rays as needed
+    * mapmaking version which adds new rays as needed (but rememember that it runs for fixed (s,q) only!)
     * Yossi's idea to find all the images
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
   * _Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that_
+  * calculate jerk parallax degeneracy: [Park+04](http://adsabs.harvard.edu/abs/2004ApJ...609..166P) [Gould 04](http://adsabs.harvard.edu/abs/2004ApJ...606..319G)  
+  * elliptical source magnification [Heyrovsky & Loeb 1997](http://adsabs.harvard.edu/abs/1997ApJ...490...38H)
+  * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
+  * **try/except for Model functions: plot\_lc, plot\_data, plot\_residuals, plot\_trajectory, plot\_magnification; also Caustics.plot, Coordinates.\_\_init\_\_, MulensData.\_\_init\_\_**
 * Parameterization
   * Cassan 2008 binary lens parameters 
   * [Albrow et al. 1999](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A) (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
   * caustic size w [Dong+09](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [Chung+05](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
   * check if new parameters are defined here: [Liebig, D'Ago, Bozza, and Dominik 2015](http://adsabs.harvard.edu/abs/2015MNRAS.450.1565L)
+  * [Heyrovsky 2003](http://adsabs.harvard.edu/abs/2003ApJ...594..464H) parametrization of limb-darkening
 * Function Improvements/Expansion:
   * BinaryLens class:
     * should BinaryLens() accept source\_x/y as lists or arrays?
@@ -79,6 +84,7 @@ _italics_ mark important tasks
     * check all functions that should pass fit\_blending parameter
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
     * get flux and its error in reference system
+    * get\_ref\_fluxes() - add fit\_blending=False option (also in Model class)
   * Fit class:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
   * Horizons class:
@@ -97,10 +103,11 @@ _italics_ mark important tasks
   * MagnificationCurve class:
     * re-write magnification() to use lazy loading (here or in model.py)
   * Model class:
+    * reorder functions so that it looks good on website
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that prints RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, and textual description of type of model
-    * _plot\_trajectory() should use actual trajectory (not alpha) to plot arrow because it may be confusing when orbital motion and parallax are used_
+    * _plot\_trajectory() should use actual trajectory (not alpha) to plot arrow because it may be confusing when orbital motion and parallax are used; also make arrow less symetric, so that it's obvious which direction it is pointing at_
     * plot\_trajectory() - mark epochs using colorscale? Maybe it should be passed by kwargs (if so, then add example)
     * Should get\_satellite\_coords() use caching?
     * we should have versions of all plot functions to use magnifications instead of magnitudes; also add access via Event
@@ -111,6 +118,11 @@ _italics_ mark important tasks
     * check that minimal parameters needed to specify a model are defined
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
+    * change order to improve the website
+    * _values in dimentionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
+    * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
+    * **plot\_lc() - add satellite option like in plot\_magnification()**
+    * _LaTeX strings with parameters names (useful e.g. for corner plots)_
   * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
     * **Errorbar scaling, in particular the two parameter.**
@@ -130,9 +142,14 @@ _italics_ mark important tasks
   * Utils class:
     * in np.any() ifs give more information in warning e.g., "out of 1234 values provided, the fails are: 12, 345, 678 (0-based)"
     * add u(a) function: u = np.sqrt(2A/np.sqrt(A^2-1.) - 2.)
+  * MulensObjects submodule:
+    * in mulenssystem.py add pi\_E
   * Plotting:
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
+    * add option to plot satellite coordinates as in Henderson+16 where K2 and Spitzer orbits were compared
+    * add plotting with fit\_blending=False for functions that use magnitude space
+    * add plt.xlim() and ylim in plotting functions (using t\_start) etc.; then also update (simpify) tutorials, examples etc.
   * Examples:
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
@@ -142,6 +159,7 @@ _italics_ mark important tasks
     * add illustration on how to remove airmass trends
     * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method
     * **corner plots; they require [corner](https://github.com/dfm/corner.py), [pyhdust](https://github.com/danmoser/pyhdust), or [pyGTC](https://pypi.org/project/pyGTC/)**
+    * _F\_s for MOA data for MB08310 differs from Janczak paper - is it caused by FSPL vs. FSBL models?_
   * Miscellaneous:
     * add function to get Earth's projected velocity
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity

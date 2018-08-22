@@ -12,6 +12,8 @@ class Coordinates(SkyCoord):
 
     .. code-block:: python
 
+      from astropy.coordinates import SkyCoord
+      from astropy import units as u
       Coordinates('18:00:00 -30:00:00')
       Coordinates('18h00m00s', '-30d00m00s')
       Coordinates(SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg)))
