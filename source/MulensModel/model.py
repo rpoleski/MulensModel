@@ -540,7 +540,9 @@ class Model(object):
 #   color_list=None, marker_list=None, size_list=None,
 #   label_list=None, alpha_list=None, zorder_list=None,
 #   subtract_2450000=False, subtract_2460000=False, **kwargs):
-    def plot_data(self, data_ref=None, **kwargs):
+    def plot_data(
+            self, data_ref=None, show_errorbars=True, show_bad=False,
+            subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the model.
 
@@ -578,20 +580,6 @@ class Model(object):
         self._set_default_colors()
         kwargs = self._check_old_plot_kwargs(**kwargs)
 
-        if 'show_errorbars' in kwargs.keys():
-            show_errorbars = kwargs['show_errorbars']
-        else:
-            show_errorbars = True
-        if 'subtract_2450000' in kwargs.keys():
-            subtract_2450000 = kwargs['subtract_2450000']
-        else:
-            subtract_2450000 = False
-
-        if 'subtract_2460000' in kwargs.keys():
-            subtract_2460000 = kwargs['subtract_2460000']
-        else:
-            subtract_2460000 = False
-
         if data_ref is not None:
             self.data_ref = data_ref
 
@@ -600,28 +588,17 @@ class Model(object):
         t_max = 0.
         subtract = self._subtract(subtract_2450000, subtract_2460000)
 
-        # Reference flux scale
-        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
-
         # Get fluxes for all datasets
         fit = Fit(data=self.datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
 
         for (i, data) in enumerate(self.datasets):
-            # Calculate scaled flux
-            f_source = fit.flux_of_sources(data)
-            f_blend = fit.blending_flux(data)
-            flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
+            data.plot(
+                data_ref=data_ref, show_errorbars=show_errorbars, 
+                show_bad=show_bad, subtract_2450000=subtract_2450000, 
+                subtract_2460000=subtract_2460000, model=self, fit=fit,
+                **kwargs)
 
-            if show_errorbars:
-                err_flux = f_source_0 * data.err_flux / f_source
-                (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                data._plot_data(mag, y_err=err, **kwargs)
-            else:
-                mag = Utils.get_mag_from_flux(flux)
-                data._plot_data(mag, **kwargs)
-
-            # Set plot limits
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
 
@@ -705,8 +682,9 @@ class Model(object):
 #   alpha_list=None, zorder_list=None, data_ref=None,
 #   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_residuals(
-            self, data_ref=None, subtract_2450000=False,
-            subtract_2460000=False, show_errorbars=True, **kwargs):
+            self, show_errorbars=True, 
+            data_ref=None,
+            subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model.  Uses the
         best f_source, f_blend for each dataset (not scaled to a
@@ -740,12 +718,12 @@ class Model(object):
 
             # Plot
             if show_errorbars:
-                new_kwargs = data.set_plot_properties(errorbars=True, **kwargs)
+                new_kwargs = data._set_plot_properties(errorbars=True, **kwargs)
                 pl.errorbar(
                     data.time-subtract, residuals[i], yerr=err[i],
                     **new_kwargs)
             else:
-                new_kwargs = data.set_plot_properties(**kwargs)
+                new_kwargs = data._set_plot_properties(**kwargs)
                 pl.scatter(
                     data.time-subtract, residuals[i], lw=0, **new_kwargs)
 

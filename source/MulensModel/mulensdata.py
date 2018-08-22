@@ -167,7 +167,6 @@ class MulensData(object):
             # check if data label specified, if not use file_name
             if 'label' not in self.plot_properties.keys():
                 self.plot_properties['label'] = basename(file_name)
-
         else:
             raise ValueError(
                 'MulensData cannot be initialized with ' +
@@ -388,56 +387,10 @@ class MulensData(object):
 
         self._limb_darkening_weights = weights
 
-    def _plot_data(self, y_val, y_err=None, show_errorbars=None, show_bad=None,
-                   subtract_2450000=False, subtract_2460000=False, **kwargs):
 
-        subtract = 0.
-        if subtract_2450000:
-            if subtract_2460000:
-                raise ValueError("plot() doesn't accept both " +
-                                 "subtract_2450000 and subtract_2460000 as " +
-                                 "True")
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
-
-        if show_errorbars is None:
-            if 'show_errorbars' in self.plot_properties.keys():
-                show_errorbars = self.plot_properties['show_errorbars']
-            else:
-                show_errorbars = True
-
-        if show_bad is None:
-            if 'show_bad' in self.plot_properties.keys():
-                show_bad = self.plot_properties['show_bad']
-            else:
-                show_bad = False
-
-        if show_errorbars:
-            properties = self.set_plot_properties(errorbars=True, **kwargs)
-            pl.errorbar(
-                self.time[self.good] - subtract,
-                y_val[self.good], yerr=y_err[self.good], **properties)
-            if show_bad:
-                properties = self.set_plot_properties(
-                    errorbars=True, bad=True, **kwargs)
-                pl.errorbar(
-                    self.time[self.bad] - subtract, y_val[self.bad],
-                    yerr=y_err[self.bad], **properties)
-
-        else:
-            properties = self.set_plot_properties(errorbars=False, **kwargs)
-            pl.scatter(
-                self.time[self.good] - subtract, y_val[self.good],
-                **properties)
-            if show_bad:
-                properties = self.set_plot_properties(
-                    errorbars=False, bad=True, **kwargs)
-                pl.scatter(
-                    self.time[self.bad] - subtract, y_val[self.bad],
-                    **properties)
-
-    def plot(self, phot_fmt=None, **kwargs):
+    def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None, 
+             subtract_2450000=False, subtract_2460000=False, 
+             model=None, fit=None, data_ref=None, **kwargs):
         """
         Plot the data.
 
@@ -468,18 +421,66 @@ class MulensData(object):
         if phot_fmt is None:
             phot_fmt = self.input_fmt
 
+        subtract = 0.
+        if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError("subtract_2450000 and subtract_2460000 " +
+                                 "cannot be both True")
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
+
+        if show_errorbars is None:
+            if 'show_errorbars' in self.plot_properties.keys():
+                show_errorbars = self.plot_properties['show_errorbars']
+            else:
+                show_errorbars = True
+
+        if show_bad is None:
+            if 'show_bad' in self.plot_properties.keys():
+                show_bad = self.plot_properties['show_bad']
+            else:
+                show_bad = False
+
+        if model is not None:
+            (f_source_0, f_blend_0) = model.get_ref_fluxes(data_ref=data_ref)
+            f_source = fit.flux_of_sources(self)
+            f_blend = fit.blending_flux(self)
+            flux = f_source_0 * (self.flux - f_blend) / f_source + f_blend_0
+            err_flux = f_source_0 * self.err_flux / f_source
+        else:
+            flux = self.flux
+            err_flux = self.err_flux
+            
         if phot_fmt == 'mag':
-            y_val = self.mag
-            err = self.err_mag
+            (y_val, y_err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
         elif phot_fmt == 'flux':
-            y_val = self.flux
-            err = self.err_flux
+            y_val = flux
+            y_err = err_flux
         else:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
 
-        self._plot_data(y_val, y_err=err, **kwargs)
+        properties = self._set_plot_properties(
+                errorbars=show_errorbars, **kwargs)
+        properties_bad = self._set_plot_properties(
+                errorbars=show_errorbars, bad=True, **kwargs)
 
-    def set_plot_properties(self, errorbars=True, bad=False, **kwargs):
+        time_good = self.time[self.good] - subtract
+        time_bad = self.time[self.bad] - subtract
+        
+        if show_errorbars:
+            pl.errorbar(time_good, y_val[self.good], yerr=y_err[self.good], 
+                        **properties)
+            if show_bad:
+                pl.errorbar(time_bad, y_val[self.bad], yerr=y_err[self.bad], 
+                            **properties_bad)
+        else:
+            pl.scatter(time_good, y_val[self.good], **properties)
+            if show_bad:
+                pl.scatter(time_bad, y_val[self.bad], **properties_bad)
+
+# XXX below it seems that errorbars should be the same as show_errorbars
+    def _set_plot_properties(self, errorbars=True, bad=False, **kwargs):
         """
         Set plot properties using ``**kwargs`` and
         `py:plot_properties`. kwargs takes precedent.
@@ -497,7 +498,7 @@ class MulensData(object):
                Keywords accepted by pl.errorbar or pl.scatter.
 
         """
-        properties = kwargs
+        properties = {**kwargs}
         for key in self.plot_properties.keys():
             if key != 'show_bad' and key != 'show_errorbars':
                 if key not in kwargs.keys():
@@ -518,7 +519,7 @@ class MulensData(object):
                 if 'fmt' not in kwargs.keys():
                     properties['fmt'] = default_marker
             else:
-                if 'marker' not in kwargs.keys():
+                if 'marker' not in kwargs.keys(): # XXX  - never happend because inside "else" of "if 'marker' in properties.keys()"
                     properties['marker'] = default_marker
 
         if 'size' in properties.keys():
