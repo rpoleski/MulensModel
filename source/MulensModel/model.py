@@ -223,8 +223,6 @@ class Model(object):
 
         if self._source_flux_ratio_constraint is not None:
             source_flux_ratio = self._source_flux_ratio_constraint
-#        elif XXX and XXX:
-#            source_flux_ratio =
         else:
             self._fit = Fit(
                 data=flux_ratio_constraint,
@@ -375,37 +373,32 @@ class Model(object):
 # b) Use either/or, depending which one was set last.
 # c) Single value first, then take the band.
 # d) same as c) but gives warning.
+    def _set_source_flux_ratio_for_band(self, band, ratio):
+        """
+        Sets flux ratio for binary source models for given band.
 
-# Remember that magnification() paramter flux_ratio_constraint can be set to
-# band and then we use q_f for given band.
-
-    #def set_source_flux_ratio_for_band(self, band, ratio):
-        #"""
-        #Sets flux ratio for binary source models for given band.
-        #XXX It takes precedence over
-        #XXX flux_ratio_constraint paramter of :py:func:`magnification()`.
-
-        #Parameters :
-            #band: *str*
-                #Band for which constraint is given.
-            #ratio: *float*
-                #ratio of fluxes of source no. 2 to source no. 1, i.e.,
-                #flux_source_band_2/flux_source_band_1
-        #"""
-        #if not isinstance(band, str):
-            #raise TypeError(('wrong type of input in ' +
-                #'Model.set_source_flux_ratio_for_band(): got {:}, ' +
-                #'expected string').format(type(band)))
-        #if not isinstance(ratio, (np.float, float)):
-            #raise TypeError(('wrong type of input in ' +
-                #'Model.set_source_flux_ratio_for_band(): got {:}, ' +
-                #'expected float').format(type(ratio)))
-        #if self._datasets is not None:
-            #bands = [d.bandpass for d in self.datasets]
-            #if band not in bands:
-                #warnings.warn("No datasets in bandpass {:}".format(band),
-                    #UserWarning)
-        #XXX
+        Parameters :
+            band: *str*
+                Band for which constraint is given.
+            ratio: *float*
+                ratio of fluxes of source no. 2 to source no. 1, i.e.,
+                flux_source_band_2/flux_source_band_1
+        """
+        if not isinstance(band, str):
+            raise TypeError(('wrong type of input in ' +
+                'Model.set_source_flux_ratio_for_band(): got {:}, ' +
+                'expected string').format(type(band)))
+        if not isinstance(ratio, (np.float, float)):
+            raise TypeError(('wrong type of input in ' +
+                'Model.set_source_flux_ratio_for_band(): got {:}, ' +
+                'expected float').format(type(ratio)))
+        if self._datasets is not None:
+            bands = [d.bandpass for d in self.datasets]
+            if band not in bands:
+                warnings.warn("No datasets in bandpass {:}".format(band),
+                    UserWarning)
+        raise NotImplementedError("we're working on fixed source flux for " +
+                                  "given band")
 
     @property
     def datasets(self):

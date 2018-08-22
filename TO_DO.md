@@ -12,8 +12,9 @@
 * make sure that you can plot model without data (with q\_f specified)
 * t\_0\_par and t\_0\_kep - what are default values for binary sources?
 * check binary source parallax models
+* Model.\_set\_source\_flux\_ratio\_for\_band - finish and make public
 * when finding q\_f via regression, make sure the source fluxes are not negative, at least give warning
-* when finging q\_f via regression, how we can get q\_f value?
+* when finding q\_f via regression, how we can get q\_f value?
 * ModelParameters.\_\_repr\_\_ has to be updated
 * example with q\_f as a MCMC chain parameter
 * in modelparameters.py in first 3 functions, what should be names of models (like PSPL, FSBL) for 2 sources where 1 or 2 of them are finite etc.?
