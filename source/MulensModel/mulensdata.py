@@ -145,8 +145,9 @@ class MulensData(object):
 
         # Import the photometry...
         if data_list is not None and file_name is not None:
-            m = 'MulensData cannot be initialized with both data_list and file_name. Choose one or the other.'
-            raise ValueError(m)
+            raise ValueError(
+                'MulensData cannot be initialized with both data_list and ' +
+                'file_name. Choose one or the other.')
         elif data_list is not None:
             # ...from an array
             (vector_1, vector_2, vector_3) = list(data_list)
@@ -164,7 +165,7 @@ class MulensData(object):
                 err_brightness=vector_3, coords=self._coords)
 
             # check if data label specified, if not use file_name
-            if not 'label' in self.plot_properties.keys():
+            if 'label' not in self.plot_properties.keys():
                 self.plot_properties['label'] = basename(file_name)
 
         else:
@@ -388,13 +389,14 @@ class MulensData(object):
         self._limb_darkening_weights = weights
 
     def _plot_data(self, y_val, y_err=None, show_errorbars=None, show_bad=None,
-        subtract_2450000=False, subtract_2460000=False, **kwargs):
+                   subtract_2450000=False, subtract_2460000=False, **kwargs):
 
         subtract = 0.
         if subtract_2450000:
             if subtract_2460000:
                 raise ValueError("plot() doesn't accept both " +
-                    "subtract_2450000 and subtract_2460000 as True")
+                                 "subtract_2450000 and subtract_2460000 as " +
+                                 "True")
             subtract = 2450000.
         if subtract_2460000:
             subtract = 2460000.
@@ -426,7 +428,7 @@ class MulensData(object):
         else:
             properties = self.set_plot_properties(errorbars=False, **kwargs)
             pl.scatter(
-                self.time[self.good] - subtract, y_val[self.good], 
+                self.time[self.good] - subtract, y_val[self.good],
                 **properties)
             if show_bad:
                 properties = self.set_plot_properties(
@@ -435,9 +437,7 @@ class MulensData(object):
                     self.time[self.bad] - subtract, y_val[self.bad],
                     **properties)
 
-
-    def plot(
-        self, phot_fmt=None, **kwargs):
+    def plot(self, phot_fmt=None, **kwargs):
         """
         Plot the data.
 
@@ -500,7 +500,7 @@ class MulensData(object):
         properties = kwargs
         for key in self.plot_properties.keys():
             if key != 'show_bad' and key != 'show_errorbars':
-                if not key in kwargs.keys():
+                if key not in kwargs.keys():
                     properties[key] = self.plot_properties[key]
 
         # Set defaults and deal with differences between pl.errorbar

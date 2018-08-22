@@ -104,9 +104,8 @@ class Fit(object):
                     'If either of these numbers ({0}, {1})'.format(
                         np.sum(np.isnan(xT)), np.sum(np.isnan(y))) +
                     ' is greater than zero, there is a NaN somewhere,' +
-                    ' probably in the data (dataset={0}).'.format(
-                        i_dataset))
-                
+                    ' probably in the data (dataset={0}).'.format(i_dataset))
+
             # Record the results
             if fit_blending:
                 self._flux_blending[dataset] = results[-1]

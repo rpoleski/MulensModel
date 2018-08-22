@@ -261,7 +261,8 @@ class Model(object):
             datasets: *list* of :py:class:`~MulensModel.mulensdata.MulensData`
                 Datasets to be stored.
 
-            data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`, optional
+            data_ref: *int* or
+            :py:class:`~MulensModel.mulensdata.MulensData`, optional
                 Reference dataset.
         """
         self._datasets = datasets
@@ -510,7 +511,7 @@ class Model(object):
             if 'color' not in data.plot_properties.keys():
                 data.plot_properties['color'] = colors[color_index]
                 color_index += 1
-            
+
     def _check_old_plot_kwargs(self, **kwargs):
         """
         Check for deprecated "_list" keywords. Issue a warning, then
@@ -548,7 +549,7 @@ class Model(object):
                 If data_ref is not specified, uses the first dataset
                 as the reference for flux scale.
 
-            show_errorbars: *boolean* 
+            show_errorbars: *boolean*
                 If show_errorbars is True (default), plots with
                 matplotlib.errorbar(). If False, plots with
                 matplotlib.scatter(). If
@@ -704,8 +705,8 @@ class Model(object):
 #   alpha_list=None, zorder_list=None, data_ref=None,
 #   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_residuals(
-        self, data_ref=None, subtract_2450000=False, subtract_2460000=False, 
-        show_errorbars=True, **kwargs):
+            self, data_ref=None, subtract_2450000=False,
+            subtract_2460000=False, show_errorbars=True, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model.  Uses the
         best f_source, f_blend for each dataset (not scaled to a
@@ -736,7 +737,6 @@ class Model(object):
         # Plot residuals
         for (i, data) in enumerate(self.datasets):
             delta_mag = max(delta_mag, np.max(np.abs(residuals[i])))
-
 
             # Plot
             if show_errorbars:
