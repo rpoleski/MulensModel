@@ -133,6 +133,16 @@ class MulensSystem(object):
         return self.lens.pi_L.to(u.mas) - self.source.pi_S.to(u.mas)
 
     @property
+    def pi_E(self):
+        """
+        float, read-only
+
+        The Einstein ring radius. It's equal to pi_rel / theta_E. 
+        Dimensionless.
+        """
+        return (self.pi_rel / self.theta_E).decompose().value
+
+    @property
     def theta_E(self):
         """
         *astropy.Quantity*, read-only
