@@ -1218,6 +1218,10 @@ class ModelParameters(object):
         :py:class:`~MulensModel.modelparameters.ModelParameters`
 
         Parameters of source 1 in multi-source model.
+
+        **Do not change values in results of this function.** To change
+        parameters of the source 1, simply change the parameters of double
+        source instance.
         """
         if self.n_sources == 1:
             raise ValueError('source_1_parameters cannot be accessed for ' +
@@ -1230,6 +1234,10 @@ class ModelParameters(object):
         :py:class:`~MulensModel.modelparameters.ModelParameters`
 
         Parameters of source 2 in multi-source model.
+
+        **Do not change values in results of this function.** To change
+        parameters of the source 1, simply change the parameters of double
+        source instance.
         """
         if self.n_sources == 1:
             raise ValueError('source_2_parameters cannot be accessed for ' +

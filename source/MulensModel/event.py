@@ -226,6 +226,9 @@ class Event(object):
                 chi2 for dataset[index_dataset].
 
         """
+        if self.model.n_sources > 1 and fit_blending is False:
+            raise NotImplementedError("Sorry, chi2 for binary sources with " +
+                                      "no blending is not yet coded.")
         dataset = self.datasets[index_dataset]
         magnification = self.model.get_data_magnification(dataset)
         self.fit = Fit(data=dataset, magnification=[magnification])
@@ -266,6 +269,10 @@ class Event(object):
                 from the *k*-th point of observatory *obs_num*.
 
         """
+        if self.model.n_sources > 1 and fit_blending is False:
+            raise NotImplementedError("Sorry, chi2 for binary sources with " +
+                                      "no blending is not yet coded.")
+
         # Define a Fit given the model and perform linear fit for fs and fb
         self.fit = Fit(
             data=self.datasets, magnification=self.model.data_magnification)
@@ -324,6 +331,9 @@ class Event(object):
             parameters = [parameters]
         gradient = {param: 0 for param in parameters}
 
+        if self.model.n_sources != 1:
+            raise NotImplementedError("Sorry, chi2 for binary sources is " +
+                                      "not implemented yet")
         if self.model.n_lenses != 1:
             raise NotImplementedError(
                 'Event.chi2_gradient() works only ' +
