@@ -113,7 +113,8 @@ def test_t_E():
     t_star = 0.01234
     params = dict(t_0=t_0, u_0=u_0, t_E=t_E)
     model_1 = Model(params)
-    model_2 = Model({**params, 't_star': t_star})
+    params['t_star'] = t_star
+    model_2 = Model(params)
 
     np.testing.assert_almost_equal(model_1.parameters.t_E, t_E)
     np.testing.assert_almost_equal(model_2.parameters.t_E, t_E)
