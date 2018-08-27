@@ -1,12 +1,6 @@
-## Aug goals:
-1. finish improved passing of color/label/etc from MulensData to Model
-2. binary source magnification and chi2 calculations: finish use cases, write unit tests, and implement
-3. EMCEE fitting example with posterior statistics of fluxes
-4. PIP install https://packaging.python.org/tutorials/packaging-projects/ https://setuptools.readthedocs.io/en/latest/setuptools.html
-
 ## Sep goals:
 1. finish improved passing of color/label/etc from MulensData to Model
-2. Model.plot_trajectory: 1) arrow plotting for orbital motion models, and 2) binary source
+2. Model.plot\_trajectory: 1) arrow plotting for orbital motion models, and 2) binary source
 3. binary source - example
 4. print ModelParamters - simplify and cope with binary source
 
@@ -18,7 +12,7 @@ _italics_ mark important tasks
 
 * Install
   * _makefile for Windows (basic instructions exist already)_
-  * PIP install
+  * PIP install - the problem is that CustomInstall from setup.py is run when the archive is pripared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
   * setup.py should use Extensions instead of custom makefile
   * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
@@ -70,7 +64,7 @@ _italics_ mark important tasks
   * caustic size w [Dong+09](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [Chung+05](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
   * check if new parameters are defined here: [Liebig, D'Ago, Bozza, and Dominik 2015](http://adsabs.harvard.edu/abs/2015MNRAS.450.1565L)
   * [Heyrovsky 2003](http://adsabs.harvard.edu/abs/2003ApJ...594..464H) parametrization of limb-darkening
-  * t_0_planet, u_0_planet, t_E_planet instead of s, q, alpha
+  * t\_0\_planet, u\_0\_planet, t\_E\_planet instead of s, q, alpha
 * Function Improvements/Expansion:
   * BinaryLens class:
     * should BinaryLens() accept source\_x/y as lists or arrays?
@@ -125,13 +119,16 @@ _italics_ mark important tasks
     * set\_datasets() - check input
     * add option to use random zorder when plotting multiple datasets (e.g. gaussian with sigma depending on number of plotted datapoints)
     * add \_\_repr\_\_ function that calls ModelParameters.\_\_repr\_\_ plus adds info on satellite info, limb coeffs etc.
-  * ModelParameters class:
-    * Transform t\_E and other parameters between geocentric and heliocentric frames.
-    * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
-    * change order to improve the website
-    * _values in dimentionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
     * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
     * **plot\_lc() - add satellite option like in plot\_magnification()**
+  * ModelParameters class:
+    * Transform t\_E and other parameters between geocentric and heliocentric frames.
+    * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
+    * why .rho returns None if it's not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
+    * use loops in \_\_repr\_\_ to make it shorter
+    * to make \_check\_valid\_combination\_1\_source shorter, make a boolean dict that says if given paramter is defined or not
+    * change order to improve the website
+    * _values in dimentionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
     * _LaTeX strings with parameters names (useful e.g. for corner plots)_
   * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
