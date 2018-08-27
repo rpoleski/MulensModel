@@ -15,6 +15,7 @@ def test_mulenssystem():
               - source['dist'].to(u.mas, equivalencies=u.parallax()))
     thetaE = np.sqrt( kappa * lens['mass'] * pi_rel)
     tE = thetaE / mu_rel
+    pi_E = pi_rel / thetaE
 
     test_system = MulensSystem(
         lens=Lens(mass=lens['mass'], distance=lens['dist']), 
@@ -23,6 +24,8 @@ def test_mulenssystem():
     
     assert test_system.pi_rel == pi_rel
     assert abs(test_system.theta_E / thetaE - 1.) < 1.2e-4
+    assert abs(test_system.pi_E / pi_E - 1.) < 1.2e-4
+    assert isinstance(test_system.pi_E, float)
     assert abs(test_system.t_E / tE - 1.) < 1.2e-4
 
 def test_mulenssytem():

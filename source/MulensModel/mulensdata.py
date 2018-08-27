@@ -155,6 +155,8 @@ class MulensData(object):
         else:
             self.bad = self.n_epochs * [False]
 
+        self._bandpass = None
+
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
 
@@ -371,8 +373,8 @@ class MulensData(object):
         """
         *string*
 
-        bandpass of given dataset (primary usage is limb darkening), e.g. 'I'
-        or 'V'
+        Bandpass of given dataset (primary usage is limb darkening), e.g. 'I'
+        or 'V'. Returns *None* if not set.
         """
         return self._bandpass
 
