@@ -419,7 +419,7 @@ class MulensData(object):
         """
 
         if phot_fmt is None:
-            phot_fmt = self.input_fmt
+            phot_fmt = 'mag' # XXX - is it the right choice? If so, then make it default in plot()
 
         subtract = 0.
         if subtract_2450000:
@@ -434,7 +434,7 @@ class MulensData(object):
             show_errorbars = self.plot_properties.get('show_errorbars', True)
 
         if show_bad is None:
-            show_errorbars = self.plot_properties.get('show_bad', True)
+            show_bad = self.plot_properties.get('show_bad', False)
 
         if model is not None:
             (f_source_0, f_blend_0) = model.get_ref_fluxes()
@@ -455,13 +455,13 @@ class MulensData(object):
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
 
         properties = self._set_plot_properties(
-                errorbars=show_errorbars, **kwargs)
+                show_errorbars=show_errorbars, **kwargs)
         properties_bad = self._set_plot_properties(
-                errorbars=show_errorbars, bad=True, **kwargs)
+                show_errorbars=show_errorbars, bad=True, **kwargs)
 
         time_good = self.time[self.good] - subtract
         time_bad = self.time[self.bad] - subtract
-        
+
         if show_errorbars:
             pl.errorbar(time_good, y_val[self.good], yerr=y_err[self.good], 
                         **properties)
@@ -473,16 +473,15 @@ class MulensData(object):
             if show_bad:
                 pl.scatter(time_bad, y_val[self.bad], **properties_bad)
 
-# XXX below it seems that errorbars should be the same as show_errorbars
-    def _set_plot_properties(self, errorbars=True, bad=False, **kwargs):
+    def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
         Set plot properties using ``**kwargs`` and
         `py:plot_properties`. kwargs takes precedent.
 
         Keywords:
-            errobars: *boolean*
+            show_errobars: *boolean*
                 `True` means plotting done with pl.errorbar. `False`
-                measn plotting done with pl.scatter.
+                means plotting done with pl.scatter.
 
             bad: *boolean*
                 `True` means marker is default to 'x'. `False` means
@@ -492,44 +491,34 @@ class MulensData(object):
                Keywords accepted by pl.errorbar or pl.scatter.
 
         """
-        properties = dict(**kwargs)
-        for key in self.plot_properties.keys():
-            if key != 'show_bad' and key != 'show_errorbars':
-                if key not in kwargs.keys():
-                    properties[key] = self.plot_properties[key]
-
-        # Set defaults and deal with differences between pl.errorbar
-        # and pl.scatter.
-        if 'marker' in properties.keys():
-            if errorbars:
-                properties['fmt'] = properties.pop('marker')
+        if show_errorbars:
+            marker_key = 'fmt'
+            size_key = 'markersize'  # In pl.errorbar(), 'ms' is equivalent.
         else:
+            marker_key = 'marker'
+            size_key = 's'
+        marker_keys_all = ['marker', 'fmt']
+        size_keys_all = ['markersize', 'ms', 's']
+
+        properties = {}
+
+        # Overwrite dataset settings (i.e., self.plot_properties) with kwargs.
+        for dictionary in [self.plot_properties, kwargs]:
+            for (key, value) in dictionary.items():
+                if key in marker_keys_all:
+                    properties[marker_key] = value
+                elif key in size_keys_all:
+                    properties[size_key] = value
+                else:
+                    properties[key] = value
+
+        if marker_key not in properties.keys():
             if not bad:
-                default_marker = 'o'
+                properties[marker_key] = 'o'
             else:
-                default_marker = 'x'
+                properties[marker_key] = 'x'
 
-            if errorbars:
-                if 'fmt' not in kwargs.keys():
-                    properties['fmt'] = default_marker
-            else:
-                if 'marker' not in kwargs.keys(): # XXX  - never happend because inside "else" of "if 'marker' in properties.keys()"
-                    properties['marker'] = default_marker
-
-        if 'size' in properties.keys():
-            if errorbars:
-                if 'markersize' not in kwargs.keys():
-                    properties['markersize'] = properties.pop('size')
-            else:
-                if 's' not in kwargs.keys():
-                    properties['s'] = properties.pop('size')
-        else:
-            default_size = 5
-            if errorbars:
-                if 'markersize' not in kwargs.keys():
-                    properties['markersize'] = default_size
-            else:
-                if 's' not in kwargs.keys():
-                    properties['s'] = default_size
-
+        if size_key not in properties.keys():
+            properties[size_key] = 5
+            
         return properties

@@ -718,7 +718,7 @@ class Model(object):
 
             # Plot
             if show_errorbars:
-                new_kwargs = data._set_plot_properties(errorbars=True, **kwargs)
+                new_kwargs = data._set_plot_properties(show_errorbars=True, **kwargs)
                 pl.errorbar(
                     data.time-subtract, residuals[i], yerr=err[i],
                     **new_kwargs)
