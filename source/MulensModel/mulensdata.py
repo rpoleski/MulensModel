@@ -132,10 +132,7 @@ class MulensData(object):
                 err_brightness=vector_3, coords=self._coords)
         elif file_name is not None:
             # ...from a file
-            if 'usecols' not in kwargs.keys():
-                usecols=(0, 1, 2)
-            else:
-                usecols = kwargs.pop('usecols')
+            usecols = kwargs.pop('usecols', (0, 1, 2))
             (vector_1, vector_2, vector_3) = np.loadtxt(
                 fname=file_name, unpack=True, usecols=usecols, **kwargs)
             self._initialize(
