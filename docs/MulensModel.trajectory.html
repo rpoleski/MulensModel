@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.trajectory module &#8212; MulensModel 1.4.0 documentation</title>
+    <title>MulensModel.trajectory module &#8212; MulensModel 1.5.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.4.0',
+        VERSION:     '1.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -55,20 +55,29 @@ Y=0.</p>
 <a class="reference external" href="http://adsabs.harvard.edu/abs/2011ApJ...738...87S">Skowron et al. (2011)</a>.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
-<dd><dl class="first last docutils">
+<dd><dl class="first docutils">
 <dt>times: [<em>float</em>, <em>list</em>, <em>np.ndarray</em>], required</dt>
 <dd>the times at which to generate the source trajectory,
 e.g. a vector.</dd>
-<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>, required</dt>
-<dd>a ModelParameters object specifying the microlensing parameters</dd>
+</dl>
+<p>parameters:
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>, required</p>
+<blockquote>
+<div>a ModelParameters object specifying the microlensing parameters</div></blockquote>
+<dl class="docutils">
 <dt>parallax: <em>boolean dictionary</em>, optional</dt>
 <dd>specifies what parallax effects should be used. Default is
 <em>False</em> for each of <em>‘earth_orbital’</em>, <em>‘satellite’</em>, and
 <em>‘topocentric’</em>. (differs from
 <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> which defaults to
 <em>True</em>)</dd>
-<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">Coordinates</span></code></a>, <em>Astropy.coordinates.SkyCoord</em>, or <em>str</em>, optional</dt>
-<dd>sky coordinates of the event; required for parallax calculations</dd>
+</dl>
+<p>coords:
+<a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">Coordinates</span></code></a>,
+<em>Astropy.coordinates.SkyCoord</em>, or <em>str</em>, optional</p>
+<blockquote>
+<div>sky coordinates of the event; required for parallax calculations</div></blockquote>
+<dl class="last docutils">
 <dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the satellite specified by the
 ephemerides file. see

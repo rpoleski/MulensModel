@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.modelparameters module &#8212; MulensModel 1.4.0 documentation</title>
+    <title>MulensModel.modelparameters module &#8212; MulensModel 1.5.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.4.0',
+        VERSION:     '1.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -68,10 +68,20 @@ lens. The pi_E assumes NE coordinates (Parallel, Perpendicular
 coordinates are not supported).</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
-<dd><p class="first">parameters: <em>dictionary</em></p>
-<blockquote class="last">
-<div>A dictionary of parameters and their values. See
-<a class="reference internal" href="#MulensModel.modelparameters.which_parameters" title="MulensModel.modelparameters.which_parameters"><code class="xref py py-func docutils literal"><span class="pre">which_parameters()</span></code></a> for valid parameter combinations.</div></blockquote>
+<dd><dl class="first last docutils">
+<dt>parameters: <em>dictionary</em></dt>
+<dd>A dictionary of parameters and their values. See
+<a class="reference internal" href="#MulensModel.modelparameters.which_parameters" title="MulensModel.modelparameters.which_parameters"><code class="xref py py-func docutils literal"><span class="pre">which_parameters()</span></code></a> for valid parameter combinations.</dd>
+</dl>
+</dd>
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>parameters: <em>dictionary</em></dt>
+<dd>A dictionary of parameters and their values. Do not use it to
+change paramter values, instead use e.g.:
+<code class="docutils literal"><span class="pre">model_parameters.u_0</span> <span class="pre">=</span> <span class="pre">0.1</span></code> or
+<code class="docutils literal"><span class="pre">setattr(model_parameters,</span> <span class="pre">'u_0',</span> <span class="pre">0.1)</span></code>.</dd>
+</dl>
 </dd>
 <dt>Example:</dt>
 <dd><dl class="first last docutils">
@@ -103,14 +113,9 @@ and the lens center of mass.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.t_star">
 <code class="descname">t_star</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>t_star = rho * tE = source radius crossing time</p>
-<p>“day” is the default unit. Regardless of input value, returns
-value with units of u.day. May be set as a <em>float</em> –&gt; assumes
-units of degrees.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><em>float</em> value in days.</dd>
-</dl>
+<p>t_star = rho * t_E = source radius crossing time</p>
+<p>“day” is the default unit. Can be set as <em>float</em> or
+<em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -118,22 +123,17 @@ units of degrees.</p>
 <code class="descname">t_eff</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_eff" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>t_eff = u_0 * t_E = effective timescale</p>
-<p>“day” is the default unit. Regardless of input value, returns
-value with units of u.day. May be set as a <em>float</em> –&gt; assumes
-units of degrees.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><em>float</em> value in days.</dd>
-</dl>
+<p>“day” is the default unit. Can be set as <em>float</em> or
+<em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.t_E">
 <code class="descname">t_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_E" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
-<p>The Einstein timescale. “day” is the default unit. Regardless
-of input value, returns value with units of u.day. May be set
-as a <em>float</em> –&gt; assumes units of degrees.</p>
+<dd><p><em>float</em></p>
+<p>The Einstein timescale. “day” is the default unit. Can be set as
+<em>float</em> or <em>astropy.Quantity</em>, but always returns <em>float</em> in units of
+days.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -233,6 +233,70 @@ Regardless of input value, returns value in deg/year.</p>
 If not set explicitly, assumes t_0_kep = t_0.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.t_0_1">
+<code class="descname">t_0_1</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_1" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The time of minimum projected separation between the source no. 1
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.t_0_2">
+<code class="descname">t_0_2</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_2" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The time of minimum projected separation between the source no. 2
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.u_0_1">
+<code class="descname">u_0_1</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0_1" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The minimum projected separation between the source no. 1
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.u_0_2">
+<code class="descname">u_0_2</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0_2" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The minimum projected separation between the source no. 2
+and the lens center of mass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.t_star_1">
+<code class="descname">t_star_1</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star_1" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time</p>
+<p>“day” is the default unit. Can be set as <em>float</em> or
+<em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.t_star_2">
+<code class="descname">t_star_2</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star_2" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time</p>
+<p>“day” is the default unit. Can be set as <em>float</em> or
+<em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.rho_1">
+<code class="descname">rho_1</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho_1" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>source no. 1 size as a fraction of the Einstein radius</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.rho_2">
+<code class="descname">rho_2</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho_2" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>source no. 2 size as a fraction of the Einstein radius</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="MulensModel.modelparameters.ModelParameters.get_s">
 <code class="descname">get_s</code><span class="sig-paren">(</span><em>epoch</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_s" title="Permalink to this definition">¶</a></dt>
@@ -322,6 +386,33 @@ and is in rad/yr, not deg/yr. Cannot be set.</p>
 <code class="descname">n_lenses</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_lenses" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>number of objects in the lens system</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.n_sources">
+<code class="descname">n_sources</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>number of luminous sources; it’s possible to be 1 for xallarap model</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.source_1_parameters">
+<code class="descname">source_1_parameters</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.source_1_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></p>
+<p>Parameters of source 1 in multi-source model.</p>
+<p><strong>Do not change values in results of this function.</strong> To change
+parameters of the source 1, simply change the parameters of double
+source instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.source_2_parameters">
+<code class="descname">source_2_parameters</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.source_2_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></p>
+<p>Parameters of source 2 in multi-source model.</p>
+<p><strong>Do not change values in results of this function.</strong> To change
+parameters of the source 1, simply change the parameters of double
+source instance.</p>
 </dd></dl>
 
 <dl class="method">
