@@ -4,6 +4,12 @@
 3. EMCEE fitting example with posterior statistics of fluxes
 4. PIP install https://packaging.python.org/tutorials/packaging-projects/ https://setuptools.readthedocs.io/en/latest/setuptools.html
 
+## Sep goals:
+1. finish improved passing of color/label/etc from MulensData to Model
+2. Model.plot_trajectory: 1) arrow plotting for orbital motion models, and 2) binary source
+3. binary source - example
+4. print ModelParamters - simplify and cope with binary source
+
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
@@ -12,7 +18,7 @@ _italics_ mark important tasks
 
 * Install
   * _makefile for Windows (basic instructions exist already)_
-  * _PIP install_
+  * PIP install
   * setup.py should use Extensions instead of custom makefile
   * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
@@ -33,10 +39,12 @@ _italics_ mark important tasks
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
-    * decide how to implement in general e.g. Model has separate internal Model instances for each source? Maybe Event should have 2 internal instances of for each source?
-    * write unit tests
-    * make changes
-    * check if all the high-level functions were corrected 
+    * check if all the high-level functions were corrected
+    * models with fixed no blending: fit\_blending keyword changes
+    * flux ratio - for band and for a list of datasets and both fixed and via regression
+    * parallax models
+    * binary lens binary source
+    * different t\_E for each source
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
     * FSPL ray shooting (ala getmag\_rs\_single.f)
@@ -51,6 +59,7 @@ _italics_ mark important tasks
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
   * _Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that_
   * calculate jerk parallax degeneracy: [Park+04](http://adsabs.harvard.edu/abs/2004ApJ...609..166P) [Gould 04](http://adsabs.harvard.edu/abs/2004ApJ...606..319G)  
+  * topocentric/Earth parallax
   * elliptical source magnification [Heyrovsky & Loeb 1997](http://adsabs.harvard.edu/abs/1997ApJ...490...38H)
   * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
   * **try/except for Model functions: plot\_lc, plot\_data, plot\_residuals, plot\_trajectory, plot\_magnification; also Caustics.plot, Coordinates.\_\_init\_\_, MulensData.\_\_init\_\_**
@@ -61,6 +70,7 @@ _italics_ mark important tasks
   * caustic size w [Dong+09](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [Chung+05](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
   * check if new parameters are defined here: [Liebig, D'Ago, Bozza, and Dominik 2015](http://adsabs.harvard.edu/abs/2015MNRAS.450.1565L)
   * [Heyrovsky 2003](http://adsabs.harvard.edu/abs/2003ApJ...594..464H) parametrization of limb-darkening
+  * t_0_planet, u_0_planet, t_E_planet instead of s, q, alpha
 * Function Improvements/Expansion:
   * BinaryLens class:
     * should BinaryLens() accept source\_x/y as lists or arrays?
@@ -113,6 +123,7 @@ _italics_ mark important tasks
     * we should have versions of all plot functions to use magnifications instead of magnitudes; also add access via Event
     * set\_datasets() - check input
     * add option to use random zorder when plotting multiple datasets (e.g. gaussian with sigma depending on number of plotted datapoints)
+    * add \_\_repr\_\_ function that calls ModelParameters.\_\_repr\_\_ plus adds info on satellite info, limb coeffs etc.
   * ModelParameters class:
     * check that non-existing parameters are not specified e.g. t0
     * check that minimal parameters needed to specify a model are defined
@@ -150,11 +161,10 @@ _italics_ mark important tasks
     * add option to plot satellite coordinates as in Henderson+16 where K2 and Spitzer orbits were compared
     * add plotting with fit\_blending=False for functions that use magnitude space
     * add plt.xlim() and ylim in plotting functions (using t\_start) etc.; then also update (simpify) tutorials, examples etc.
+    * rotate the trajectory, caustics, and critical curve plots so that the motion of the source is in general along X-axis - similar to Skowron+11 paper
   * Examples:
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
-    * PSPL fitting with gradient
-    * **fs,fb uncertainties - use blobs in EMCEE**
     * add example that shows 'log\_' in the name of the parameter; central caustic anomaly planet would be best,
     * add illustration on how to remove airmass trends
     * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method
@@ -178,7 +188,7 @@ _italics_ mark important tasks
   * Coordinates - write tests, possibly remove test\_Coords.py
   * t\_eff is not tested
 * Style/Architecture:
-  * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time checked on 28 Feb 2018 (but didn't include tests)
+  * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time fully checked on 28 Feb 2018 (but didn't include tests)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
   * Utils - Make subpackage/submodules that group related functions (e.g. flux2mag conversions)?
 
