@@ -219,6 +219,8 @@ class ModelParameters(object):
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
+        #print()
+        #print(self)
 
     def _count_sources(self, keys):
         """How many sources there are?"""
@@ -253,51 +255,67 @@ class ModelParameters(object):
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
-        if self.n_sources != 1:
-            raise NotImplementedError("__repr__ for binary source")
 
-        (variables, values) = ('', '')
-        if 't_0' in self.parameters.keys():
-            variables += '{0:>13} '.format('t_0 (HJD)')
-            values += '{0:>13.5f} '.format(self.t_0)
+        keys = set(self.parameters.keys())
+        if 'pi_E' in keys:
+            keys.remove('pi_E')
+            keys |= {'pi_E_E', 'pi_E_N'}
 
-        if 'u_0' in self.parameters.keys():
-            variables += '{0:>9} '.format('u_0')
-            values += '{0:>9.6f} '.format(self.u_0)
+        # Below we define dict of dicts. Key of inner ones: 'width',
+        # 'precision', and optional: 'unit' and 'name'.
+        formats = {
+            't_0': {'width': 13, 'precision': 5, 'unit': 'HJD'},
+            'u_0': {'width': 9, 'precision': 6},
+            't_eff': {'width': 10, 'precision': 6, 'unit': 'd'},
+            't_E': {'width': 10, 'precision': 4, 'unit': 'd'},
+            'rho': {'width': 7, 'precision': 5},
+            't_star': {'width': 13, 'precision': 6, 'unit': 'd'},
+            'pi_E_N': {'width': 9, 'precision': 5},
+            'pi_E_E': {'width': 9, 'precision': 5},
+            's': {'width': 9, 'precision': 5},
+            'q': {'width': 12, 'precision': 8},
+            'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
+            'ds_dt': {
+                'width': 11, 'precision': 5, 'unit': '/yr', 'name': 'ds/dt'},
+            'dalpha_dt': {
+                'width': 18, 'precision': 5, 'unit': 'deg/yr',
+                'name': 'dalpha/dt'}
+        }
+        # Add binary source parameters with the same settings.
+        binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
+                              'rho_1', 'rho_2', 't_star_1', 't_star_2']
+        for key in binary_source_keys:
+            form = formats[key[:-2]]
+            formats[key] = {'width': form['width'],
+                            'precision': form['precision']}
+            if 'unit' in form:
+                formats[key]['unit'] = form['unit']
+            if 'name' in form:
+                raise KeyError('internal issue: {:}'.format(key))
+        formats_keys = [
+            't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
+            'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
+            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'ds_dt', 'dalpha_dt'
+        ]
 
-        if 't_eff' in self.parameters.keys():
-            variables += '{0:>10} '.format('t_eff (d)')
-            values += '{0:>10.6f} '.format(self.t_eff)
+        variables = ''
+        values = ''
 
-        if 't_E' in self.parameters.keys():
-            variables += '{0:>10} '.format('t_E (d)')
-            values += '{0:>10.4f} '.format(self.t_E)
-
-        if 'rho' in self.parameters.keys():
-            variables += '{0:>7} '.format('rho')
-            values += '{0:>7.5f} '.format(self.rho)
-
-        if 't_star' in self.parameters.keys():
-            variables += '{0:>10} '.format('t_star (d)')
-            values += '{0:>10.6f} '.format(self.t_star)
-
-        if ('pi_E' in self.parameters.keys() or
-                'pi_E_N' in self.parameters.keys()):
-            variables += '{0:>9} {1:>9} '.format('pi_E_N', 'pi_E_E')
-            values += '{0:>9.5f} {1:>9.5f} '.format(self.pi_E_N, self.pi_E_E)
-
-        if ('s' in self.parameters.keys() or
-                'q' in self.parameters.keys() or
-                'alpha' in self.parameters.keys()):
-            variables += '{0:>9} {1:>12} {2:>11} '.format(
-                's', 'q', 'alpha ({0})'.format(self.alpha.unit))
-            values += '{0:>9.5f} {1:>12.8f} {2:>11.5f} '.format(
-                self.s, self.q, self.alpha.value)
-            if 'ds_dt' in self.parameters.keys():
-                variables += '{0:>11} {1:>18} '.format(
-                    'ds/dt (/yr)', 'dalpha/dt (deg/yr)')
-                values += '{0:11.5f} {1:>18.5f} '.format(
-                    self.ds_dt, self.dalpha_dt)
+        for key in formats_keys:
+            if key not in keys:
+                continue
+            form = formats[key]
+            fmt_1 = '{:>' + str(form['width'])
+            fmt_2 = fmt_1 + '.' + str(form['precision']) + 'f} '
+            fmt_1 += '} '
+            full_name = form.get('name', key)
+            if 'unit' in form:
+                full_name += " ({:})".format(form['unit'])
+            variables += fmt_1.format(full_name)
+            value = getattr(self, key)
+            if isinstance(value, u.Quantity):
+                value = value.value
+            values += fmt_2.format(value)
 
         return '{0}\n{1}\n'.format(variables, values)
 

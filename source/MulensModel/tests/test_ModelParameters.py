@@ -33,7 +33,7 @@ def test_repr_parameters():
     
     out_1 = "    t_0 (HJD)       u_0    t_E (d) \n"
     out_2 = "2456141.59300  0.542500    62.6300 \n"
-    
+
     assert (out_1 + out_2) == str(params)
 
 def test_rho_t_e_t_star():
