@@ -109,10 +109,11 @@ _italics_ mark important tasks
     * add option to use random zorder when plotting multiple datasets (e.g. gaussian with sigma depending on number of plotted datapoints)
   * ModelParameters class:
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
-    * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
-    * why .rho returns None if it's not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
-    * use loops in \_\_repr\_\_ to make it shorter
-    * to make \_check\_valid\_combination\_1\_source shorter, make a boolean dict that says if given paramter is defined or not
+    * option to return t\_E, alpha, dalpha\_dt etc. as floats instead of astropy.quantities
+    * change order to improve the website
+    * _values in dimentionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
+    * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
+    * _LaTeX strings with parameters names (useful e.g. for corner plots)_
   * MulensData class:
     * **add label/color/... which is passed to all the matplotlib functions and hence allows to show legend in easy way**
     * **Errorbar scaling, in particular the two parameter.**
