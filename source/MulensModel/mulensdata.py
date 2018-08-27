@@ -431,16 +431,10 @@ class MulensData(object):
             subtract = 2460000.
 
         if show_errorbars is None:
-            if 'show_errorbars' in self.plot_properties.keys():
-                show_errorbars = self.plot_properties['show_errorbars']
-            else:
-                show_errorbars = True
+            show_errorbars = self.plot_properties.get('show_errorbars', True)
 
         if show_bad is None:
-            if 'show_bad' in self.plot_properties.keys():
-                show_bad = self.plot_properties['show_bad']
-            else:
-                show_bad = False
+            show_errorbars = self.plot_properties.get('show_bad', True)
 
         if model is not None:
             (f_source_0, f_blend_0) = model.get_ref_fluxes()
@@ -498,7 +492,7 @@ class MulensData(object):
                Keywords accepted by pl.errorbar or pl.scatter.
 
         """
-        properties = {**kwargs}
+        properties = dict(**kwargs)
         for key in self.plot_properties.keys():
             if key != 'show_bad' and key != 'show_errorbars':
                 if key not in kwargs.keys():
