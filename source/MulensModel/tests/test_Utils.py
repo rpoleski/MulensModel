@@ -9,7 +9,8 @@ SAMPLE_FILE_01 = os.path.join(
     MulensModel.MODULE_PATH, "data", "photometry_files", "phot_ob08092_O4.dat")
 
 def test_complex_fsum_1():
-    z = [(0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1-1e+99j), (0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1+1e+99j), (0.1+0.1j)]
+    z = [(0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1-1e+99j), (0.1+0.1j),
+        (0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1+1e+99j), (0.1+0.1j)]
     assert MulensModel.utils.Utils.complex_fsum(z) == (1 + 0.8j)
 
 def do_mag2flux_conversions_test(mag, mag_err):

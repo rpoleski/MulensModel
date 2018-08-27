@@ -7,8 +7,9 @@ from MulensModel import Model, ModelParameters, MulensData, Caustics
 
 def test_n_lenses():
     """check n_lenses property"""
-    model_1 = Model({"t_0": 2456789.})
-    model_2 = Model({"t_0": 2456789., "s": 1.1234, "q": 0.123, 'alpha': 12.34})
+    model_1 = Model({"t_0": 2456789., "u_0": 1., "t_E": 30.})
+    model_2 = Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
+        "s": 1.1234, "q": 0.123, 'alpha': 12.34})
     assert model_1.n_lenses == 1
     assert model_2.n_lenses == 2
 
@@ -283,3 +284,38 @@ def test_magnifications_for_orbital_motion():
         static.magnification(t_2),
         motion.magnification(t_2))
 
+def test_model_binary_and_finite_sources():
+    """
+    test if model magnification calculation for binary source works with 
+    finite sources (both rho and t_star given)
+    """
+    model = Model({
+        't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001,
+        't_0_2': 5100., 'u_0_2': 0.0003, 't_star_2': 0.03, 't_E': 25.})
+    model_1 = Model(model.parameters.source_1_parameters)
+    model_2 = Model(model.parameters.source_2_parameters)
+
+    t1 = 4999.95
+    t2 = 5000.05
+    t3 = 5099.95
+    t4 = 5100.05
+    finite = 'finite_source_uniform_Gould94'
+    model.set_magnification_methods([t1, finite, t2, 'point_source', t3,
+        finite, t4])
+    model_1.set_magnification_methods([t1, finite, t2])
+    model_2.set_magnification_methods([t3, finite, t4])
+
+    # prepare fake data:
+    (f_s_1, f_s_2, f_b) = (100., 300., 50.)
+    time = np.linspace(4900., 5200, 4200.)
+    mag_1 = model_1.magnification(time)
+    mag_2 = model_2.magnification(time)
+    flux = f_s_1 * mag_1 + f_s_2 * mag_2 + f_b
+    data = MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
+    model.set_datasets([data])
+    model_1.set_datasets([data])
+    model_2.set_datasets([data])
+    
+    fitted = model.get_data_magnification(data)
+    expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
+    np.testing.assert_almost_equal(fitted, expected)

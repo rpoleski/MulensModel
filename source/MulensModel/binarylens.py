@@ -9,21 +9,21 @@ from MulensModel.utils import Utils
 MODULE_PATH = os.path.abspath(__file__)
 if True:
     MODULE_PATH = os.path.dirname(MODULE_PATH)
-PATH = os.path.join(MODULE_PATH, 'source', 'VBBL',
-        "VBBinaryLensingLibrary_wrapper.so")
+PATH = os.path.join(
+        MODULE_PATH, 'source', 'VBBL', "VBBinaryLensingLibrary_wrapper.so")
 try:
     vbbl = ctypes.cdll.LoadLibrary(PATH)
 except OSError as error_1:
     MODULE_PATH = os.path.dirname(MODULE_PATH)
     MODULE_PATH = os.path.dirname(MODULE_PATH)
-    PATH = os.path.join(MODULE_PATH, 'source', 'VBBL',
-        "VBBinaryLensingLibrary_wrapper.so")
+    PATH = os.path.join(
+        MODULE_PATH, 'source', 'VBBL', "VBBinaryLensingLibrary_wrapper.so")
     try:
         vbbl = ctypes.cdll.LoadLibrary(PATH)
     except OSError as error_1:
         msg = "Something went wrong with VBBL wrapping ({:})\n\nERROR_1:\n"
         print(msg.format(PATH) + repr(error_1) + "\n\nERROR_2:\n" +
-                repr(error_2))
+              repr(error_2))
         _vbbl_wrapped = False
     else:
         _vbbl_wrapped = True
@@ -35,8 +35,8 @@ if _vbbl_wrapped:
     _vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
 
     vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
-    vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(dtype=ctypes.c_double,
-            shape=(10,))
+    vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
+            dtype=ctypes.c_double, shape=(10,))
     _vbbl_SG12_5 = vbbl.VBBL_SG12_5
 
 if not _vbbl_wrapped:
@@ -45,9 +45,9 @@ else:
     _solver = 'Skowron_and_Gould_12'
 
 PATH = os.path.join(MODULE_PATH, 'source', 'AdaptiveContouring',
-                "AdaptiveContouring_wrapper.so")
+                    "AdaptiveContouring_wrapper.so")
 try:
-    adaptive_contouring = ctypes.cdll.LoadLibrary(PATH)
+    adaptive_contour = ctypes.cdll.LoadLibrary(PATH)
 except OSError as error:
     msg = ("Something went wrong with AdaptiveContouring " +
            "wrapping ({:})\n\n" + repr(error))
@@ -55,10 +55,10 @@ except OSError as error:
     _adaptive_contouring_wrapped = False
 else:
     _adaptive_contouring_wrapped = True
-    adaptive_contouring.Adaptive_Contouring_Linear.argtypes = (
+    adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
                 8 * [ctypes.c_double])
-    adaptive_contouring.Adaptive_Contouring_Linear.restype = (ctypes.c_double)
-    _adaptive_contouring_linear = adaptive_contouring.Adaptive_Contouring_Linear
+    adaptive_contour.Adaptive_Contouring_Linear.restype = (ctypes.c_double)
+    _adaptive_contouring_linear = adaptive_contour.Adaptive_Contouring_Linear
 
 
 class BinaryLens(object):
@@ -175,8 +175,8 @@ class BinaryLens(object):
             source_x=source_x, source_y=source_y)
 
         if _solver == 'Skowron_and_Gould_12':
-            out = _vbbl_SG12_5(*(polynomial.real.tolist() +
-                    polynomial.imag.tolist()))
+            out = _vbbl_SG12_5(
+                    *(polynomial.real.tolist() + polynomial.imag.tolist()))
             roots = [out[i] + out[i+5] * 1.j for i in range(5)]
             self._polynomial_roots_WM95 = np.array(roots)
         elif _solver == 'numpy':
@@ -228,7 +228,8 @@ class BinaryLens(object):
                 repr(self.separation), repr(source_x), repr(source_y), _solver)
 
             if _solver != "Skowron_and_Gould_12":
-                txt += ("\n\nYou should switch to using Skowron_and_Gould_12" +
+                txt += (
+                    "\n\nYou should switch to using Skowron_and_Gould_12" +
                     " polynomial root solver. It is much more accurate than " +
                     "numpy.polynomial.polynomial.polyroots(). " +
                     "Skowron_and_Gould_12 method is selected in automated " +
