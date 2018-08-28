@@ -389,7 +389,7 @@ class MulensData(object):
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False,
-             model=None, **kwargs):
+             model=None, plot_residuals=False, **kwargs):
         """
         Plot the data.
 
@@ -414,11 +414,20 @@ class MulensData(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
+            model:
+            
+            plot_residuals:
+
             ``**kwargs``: passed to matplotlib plotting functions.
         """
 
         if phot_fmt is None:
             phot_fmt = self.input_fmt
+        if phot_fmt not in ['mag', 'flux']:
+            raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
+        if not plot_residuals and model is None:
+            raise ValueError(
+                    'MulensData.plot() requires model to plot residuals')
 
         subtract = 0.
         if subtract_2450000:
@@ -439,19 +448,22 @@ class MulensData(object):
             (f_source_0, f_blend_0) = model.get_ref_fluxes()
             f_source = model.fit.flux_of_sources(self)
             f_blend = model.fit.blending_flux(self)
-            flux = f_source_0 * (self.flux - f_blend) / f_source + f_blend_0
-            err_flux = f_source_0 * self.err_flux / f_source
+            if plot_residuals:
+                residuals = model.get_residuals(data_ref=model.data_ref,
+                                                type=phot_fmt, data=self)
+                y_value = residuals[0][0]
+                y_err = residuals[1][0]
+            else:
+                flux = f_source_0 * (self.flux - f_blend) / f_source
+                flux += f_blend_0
+                err_flux = f_source_0 * self.err_flux / f_source
+                (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
+                                                           flux, err_flux)
         else:
             flux = self.flux
             err_flux = self.err_flux
-
-        if phot_fmt == 'mag':
-            (y_value, y_err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-        elif phot_fmt == 'flux':
-            y_value = flux
-            y_err = err_flux
-        else:
-            raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
+            (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
+                                                       flux, flux_err)
 
         properties = self._set_plot_properties(
                 show_errorbars=show_errorbars, **kwargs)
@@ -471,6 +483,15 @@ class MulensData(object):
             pl.scatter(time_good, y_value[self.good], **properties)
             if show_bad:
                 pl.scatter(time_bad, y_value[self.bad], **properties_bad)
+
+    def _get_y_value_y_err(self, phot_fmt, flux, flux_err):
+        """
+        just calculate magnitudes if needed, or return input otherwise
+        """
+        if phot_fmt == 'mag':
+            return Utils.get_mag_and_err_from_flux(flux, flux_err)
+        else:
+            return (flux, flux_err)
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """

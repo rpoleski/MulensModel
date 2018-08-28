@@ -674,7 +674,7 @@ class Model(object):
                         f_source + f_blend_0)
                 err_flux = f_source_0 * data_.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                residuals.append(model_mag - mag)
+                residuals.append(mag - model_mag)
                 errorbars.append(err)
             elif type == 'flux':
                 model_flux = f_blend + f_source * magnification
@@ -729,29 +729,22 @@ class Model(object):
 
         # Plot residuals
         for (i, data) in enumerate(self.datasets):
-            delta_mag = max(delta_mag, np.max(np.abs(residuals[i])))
-
-            # Plot
-            if show_errorbars:
-                new_kwargs = data._set_plot_properties(show_errorbars=True, 
-                                                       **kwargs)
-                pl.errorbar(
-                    data.time-subtract, residuals[i], yerr=err[i],
-                    **new_kwargs)
-            else:
-                new_kwargs = data._set_plot_properties(**kwargs)
-                pl.scatter(
-                    data.time-subtract, residuals[i], lw=0, **new_kwargs)
-
+            data.plot(
+                phot_fmt='mag', show_errorbars=show_errorbars,
+                #show_bad=show_bad, XXX
+                subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000, model=self,
+                plot_residuals=True,
+                **kwargs)
             # Set plot limits
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
-
-        if delta_mag > 1.:
-            delta_mag = 0.5
+            delta_mag = max(delta_mag, np.max(np.abs(residuals[i])))
 
         # Plot properties
-        pl.ylim(-delta_mag, delta_mag)
+        if delta_mag > 1.:
+            delta_mag = 0.5
+        pl.ylim(delta_mag, -delta_mag)
         pl.xlim(t_min-subtract, t_max-subtract)
         pl.ylabel('Residuals')
         pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
