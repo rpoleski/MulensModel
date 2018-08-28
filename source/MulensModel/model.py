@@ -83,6 +83,7 @@ class Model(object):
         self._methods_parameters = {}
         self.caustics = None
         self.data_ref = None
+        self._fit = None
 
         self._limb_darkening_coeffs = LimbDarkeningCoeffs()
         self._bandpasses = []
@@ -591,12 +592,13 @@ class Model(object):
         # Get fluxes for all datasets
         fit = Fit(data=self.datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
+        self._fit = fit
 
         for (i, data) in enumerate(self.datasets):
             data.plot(
                 phot_fmt='mag', show_errorbars=show_errorbars,
                 show_bad=show_bad, subtract_2450000=subtract_2450000,
-                subtract_2460000=subtract_2460000, model=self, fit=fit,
+                subtract_2460000=subtract_2460000, model=self,
                 **kwargs)
 
             t_min = min(t_min, np.min(data.time))
@@ -998,3 +1000,13 @@ class Model(object):
         List of all bandpasses for which limb darkening coefficients are set.
         """
         return self._bandpasses
+
+    @property
+    def fit(self):
+        """
+        :py:class:`MulensModel.fit.Fit`
+        
+        :py:class:`MulensModel.fit.Fit` instance recently used. It gives
+        access to source and blending fluxes.
+        """
+        return self._fit

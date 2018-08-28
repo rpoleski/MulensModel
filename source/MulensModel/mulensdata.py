@@ -389,7 +389,7 @@ class MulensData(object):
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False,
-             model=None, fit=None, **kwargs):
+             model=None, **kwargs):
         """
         Plot the data.
 
@@ -437,8 +437,8 @@ class MulensData(object):
 
         if model is not None:
             (f_source_0, f_blend_0) = model.get_ref_fluxes()
-            f_source = fit.flux_of_sources(self)
-            f_blend = fit.blending_flux(self)
+            f_source = model.fit.flux_of_sources(self)
+            f_blend = model.fit.blending_flux(self)
             flux = f_source_0 * (self.flux - f_blend) / f_source + f_blend_0
             err_flux = f_source_0 * self.err_flux / f_source
         else:
