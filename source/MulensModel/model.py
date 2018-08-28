@@ -594,8 +594,8 @@ class Model(object):
 
         for (i, data) in enumerate(self.datasets):
             data.plot(
-                show_errorbars=show_errorbars, 
-                show_bad=show_bad, subtract_2450000=subtract_2450000, 
+                show_errorbars=show_errorbars,
+                show_bad=show_bad, subtract_2450000=subtract_2450000,
                 subtract_2460000=subtract_2460000, model=self, fit=fit,
                 **kwargs)
 
@@ -682,7 +682,7 @@ class Model(object):
 #   alpha_list=None, zorder_list=None, data_ref=None,
 #   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_residuals(
-            self, show_errorbars=True, 
+            self, show_errorbars=True,
             data_ref=None,
             subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
@@ -718,7 +718,8 @@ class Model(object):
 
             # Plot
             if show_errorbars:
-                new_kwargs = data._set_plot_properties(show_errorbars=True, **kwargs)
+                new_kwargs = data._set_plot_properties(show_errorbars=True, 
+                                                       **kwargs)
                 pl.errorbar(
                     data.time-subtract, residuals[i], yerr=err[i],
                     **new_kwargs)

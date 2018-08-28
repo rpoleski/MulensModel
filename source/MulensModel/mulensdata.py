@@ -387,9 +387,8 @@ class MulensData(object):
 
         self._limb_darkening_weights = weights
 
-
-    def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None, 
-             subtract_2450000=False, subtract_2460000=False, 
+    def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
+             subtract_2450000=False, subtract_2460000=False,
              model=None, fit=None, **kwargs):
         """
         Plot the data.
@@ -397,7 +396,7 @@ class MulensData(object):
         Keywords:
             phot_fmt: *string* ('mag', 'flux')
                 Whether to plot the data in magnitudes or in flux. Default
-                is the same as :py:attr:`phot_fmt`.
+                is the same as :py:attr:`phot_fmt`. XXX
 
             show_errorbars: *boolean*
                 If show_errorbars is True (default), plots with
@@ -419,7 +418,7 @@ class MulensData(object):
         """
 
         if phot_fmt is None:
-            phot_fmt = 'mag' # XXX - is it the right choice? If so, then make it default in plot()
+            phot_fmt = 'mag'  # XXX - is it the right choice? If so, then make it default in plot()
 
         subtract = 0.
         if subtract_2450000:
@@ -445,11 +444,11 @@ class MulensData(object):
         else:
             flux = self.flux
             err_flux = self.err_flux
-            
+
         if phot_fmt == 'mag':
-            (y_val, y_err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+            (y_value, y_err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
         elif phot_fmt == 'flux':
-            y_val = flux
+            y_value = flux
             y_err = err_flux
         else:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
@@ -463,15 +462,15 @@ class MulensData(object):
         time_bad = self.time[self.bad] - subtract
 
         if show_errorbars:
-            pl.errorbar(time_good, y_val[self.good], yerr=y_err[self.good], 
+            pl.errorbar(time_good, y_value[self.good], yerr=y_err[self.good],
                         **properties)
             if show_bad:
-                pl.errorbar(time_bad, y_val[self.bad], yerr=y_err[self.bad], 
+                pl.errorbar(time_bad, y_value[self.bad], yerr=y_err[self.bad],
                             **properties_bad)
         else:
-            pl.scatter(time_good, y_val[self.good], **properties)
+            pl.scatter(time_good, y_value[self.good], **properties)
             if show_bad:
-                pl.scatter(time_bad, y_val[self.bad], **properties_bad)
+                pl.scatter(time_bad, y_value[self.bad], **properties_bad)
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
@@ -520,5 +519,5 @@ class MulensData(object):
 
         if size_key not in properties.keys():
             properties[size_key] = 5
-            
+
         return properties
