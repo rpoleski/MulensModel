@@ -616,10 +616,10 @@ class Model(object):
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
-    def get_residuals(self, data_ref=None, type='mag'):
+    def get_residuals(self, data_ref=None, type='mag', data=None):
         """
         Calculate the residuals from the model for
-        each dataset.
+        each dataset at once, or just a single dataset.
 
         Note: if residuals are returned in magnitudes, they are
         transformed to the magnitude system specified by `data_ref`,
@@ -633,6 +633,10 @@ class Model(object):
                 specify whether the residuals should be returned in
                 magnitudes ('mag') or in flux ('flux'). Default is
                 'mag'.
+
+            data: :py:class:`~MulensModel.mulensdata.MulensData`, optional
+                dataset for which residuals are returned. If specified,
+                then returned lists are single element.
 
         Returns :
             residuals: *list*
@@ -652,29 +656,30 @@ class Model(object):
         fit = Fit(data=self.datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
 
-        # Calculate residuals
         residuals = []
         errorbars = []
-        for (i, data) in enumerate(self.datasets):
-            f_source = fit.flux_of_sources(data)
-            f_blend = fit.blending_flux(data)
-            # Calculate Residuals
-            if type == 'mag':
-                # Calculate model magnitude
-                model_mag = Utils.get_mag_from_flux(
-                    f_blend_0 + f_source_0 * self.get_data_magnification(data))
+        data_list = self.datasets
+        if data is not None:
+            data_list = [data]
 
-                flux = (f_source_0 * (data.flux - f_blend) /
+        # Calculate residuals.
+        for data_ in data_list:
+            f_source = fit.flux_of_sources(data_)
+            f_blend = fit.blending_flux(data_)
+            magnification = self.get_data_magnification(data_)
+            if type == 'mag':
+                model_mag = Utils.get_mag_from_flux(
+                    f_blend_0 + f_source_0 * magnification)
+                flux = (f_source_0 * (data_.flux - f_blend) /
                         f_source + f_blend_0)
-                err_flux = f_source_0 * data.err_flux / f_source
+                err_flux = f_source_0 * data_.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
                 residuals.append(model_mag - mag)
                 errorbars.append(err)
             elif type == 'flux':
-                model_flux = (f_blend +
-                              f_source * self.get_data_magnification(data))
-                residuals.append(data.flux - model_flux)
-                errorbars.append(data.err_flux)
+                model_flux = f_blend + f_source * magnification
+                residuals.append(data_.flux - model_flux)
+                errorbars.append(data_.err_flux)
             else:
                 raise ValueError("type keyword must be either 'mag' or 'flux'")
 
