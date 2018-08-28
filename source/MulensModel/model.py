@@ -524,16 +524,14 @@ class Model(object):
             'label_list', 'alpha_list', 'zorder_list']
 
         for old_keyword in old_plot_keywords:
-            if old_keyword in kwargs.keys():
+            if kwargs[old_keyword] is not None:
                 warnings.warn('Keyword "' + old_keyword + '" is deprecated.' +
                               'Use MulensData.plot_properties instead.',
                               FutureWarning)
-                value = kwargs.pop(old_keyword)
+                values = kwargs[old_keyword]
                 key = old_keyword[:-5]
-                for i, dataset in enumerate(self.datasets):
-                    dataset.plot_properties[key] = value[i]
-
-        return kwargs
+                for (dataset, value) in zip(self.datasets, values):
+                    dataset.plot_properties[key] = value
 
 # Expected:
 # def plot_data(
@@ -543,6 +541,8 @@ class Model(object):
 #   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_data(
             self, data_ref=None, show_errorbars=True, show_bad=False,
+            color_list=None, marker_list=None, size_list=None,
+            label_list=None, alpha_list=None, zorder_list=None,
             subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the model.
@@ -579,7 +579,10 @@ class Model(object):
         """
 
         self._set_default_colors()
-        kwargs = self._check_old_plot_kwargs(**kwargs)
+        self._check_old_plot_kwargs(
+            color_list=color_list, marker_list=marker_list,
+            size_list=size_list, label_list=label_list,
+            alpha_list=alpha_list, zorder_list=zorder_list)
 
         if data_ref is not None:
             self.data_ref = data_ref
@@ -685,6 +688,8 @@ class Model(object):
 #   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_residuals(
             self, show_errorbars=True,
+            color_list=None, marker_list=None, size_list=None,
+            label_list=None, alpha_list=None, zorder_list=None,
             data_ref=None,
             subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
@@ -698,7 +703,10 @@ class Model(object):
         """
 
         self._set_default_colors()
-        kwargs = self._check_old_plot_kwargs(**kwargs)
+        self._check_old_plot_kwargs(
+            color_list=color_list, marker_list=marker_list,
+            size_list=size_list, label_list=label_list,
+            alpha_list=alpha_list, zorder_list=zorder_list)        
 
         if data_ref is not None:
             self.data_ref = data_ref
