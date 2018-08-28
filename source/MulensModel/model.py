@@ -594,7 +594,7 @@ class Model(object):
 
         for (i, data) in enumerate(self.datasets):
             data.plot(
-                show_errorbars=show_errorbars,
+                phot_fmt='mag', show_errorbars=show_errorbars,
                 show_bad=show_bad, subtract_2450000=subtract_2450000,
                 subtract_2460000=subtract_2460000, model=self, fit=fit,
                 **kwargs)

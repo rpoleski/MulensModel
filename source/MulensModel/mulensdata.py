@@ -396,7 +396,7 @@ class MulensData(object):
         Keywords:
             phot_fmt: *string* ('mag', 'flux')
                 Whether to plot the data in magnitudes or in flux. Default
-                is the same as :py:attr:`phot_fmt`. XXX
+                is the same as :py:attr:`input_fmt`.
 
             show_errorbars: *boolean*
                 If show_errorbars is True (default), plots with
@@ -418,7 +418,7 @@ class MulensData(object):
         """
 
         if phot_fmt is None:
-            phot_fmt = 'mag'  # XXX - is it the right choice? If so, then make it default in plot()
+            phot_fmt = self.input_fmt
 
         subtract = 0.
         if subtract_2450000:
