@@ -695,15 +695,15 @@ class Model(object):
             self, show_errorbars=True,
             color_list=None, marker_list=None, size_list=None,
             label_list=None, alpha_list=None, zorder_list=None,
-            data_ref=None,
-            subtract_2450000=False, subtract_2460000=False, **kwargs):
+            data_ref=None, subtract_2450000=False, subtract_2460000=False,
+            show_bad=None, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model.  Uses the
         best f_source, f_blend for each dataset (not scaled to a
         particular photometric system).
 
         For explanation of keywords, see doctrings in
-        :py:func:`plot_data()`.
+        :py:func:`plot_data()`. Note different order of keywords.
 
         """
 
@@ -715,8 +715,6 @@ class Model(object):
 
         if data_ref is not None:
             self.data_ref = data_ref
-
-        (residuals, err) = self.get_residuals(data_ref=data_ref)
 
         # Plot limit parameters
         t_min = 3000000.
@@ -730,11 +728,9 @@ class Model(object):
         for data in self.datasets:
             data.plot(
                 phot_fmt='mag', show_errorbars=show_errorbars,
-                #show_bad=show_bad, XXX
-                subtract_2450000=subtract_2450000,
+                show_bad=show_bad, subtract_2450000=subtract_2450000,
                 subtract_2460000=subtract_2460000, model=self,
-                plot_residuals=True,
-                **kwargs)
+                plot_residuals=True, **kwargs)
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
 
