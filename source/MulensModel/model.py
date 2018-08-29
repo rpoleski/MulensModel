@@ -1039,29 +1039,31 @@ class Model(object):
 
         Keywords (all optional) :
 
-          times, t_range, t_start, t_stop, dt, n_epochs:
-              May all be used to specify exactly when to plot the
-              source trajectory. See also :py:func:`plot_lc()` and
-              :py:func:`set_times()`.
+            times, t_range, t_start, t_stop, dt, n_epochs:
+                May all be used to specify exactly when to plot the
+                source trajectory. See also :py:func:`plot_lc()` and
+                :py:func:`set_times()`.
 
-          caustics: *boolean*
-              plot the caustic structure in addition to the source
-              trajectory. default=False (off). For finer control of
-              plotting features, e.g. color, use :py:func:`plot_caustics()`
-              instead.
+            caustics: *boolean*
+                plot the caustic structure in addition to the source
+                trajectory. default=False (off). For finer control of
+                plotting features, e.g. color, use :py:func:`plot_caustics()`
+                instead.
 
-          show_data: *boolean*
-              mark epochs of data (**Not implemented**, marker types
-              should match data plotting.)
+            show_data: *boolean*
+                mark epochs of data (**Not implemented**, marker types
+                should match data plotting.)
 
-          arrow: *boolean*
-              show the direction of the source motion. default=True (on)
+            arrow: *boolean*
+                show the direction of the source motion. default=True (on)
 
-          satellite_skycoord: *astropy.SkyCoord*
-              should allow user to specify the trajectory is calculated
-              for a satellite. see :py:func:`get_satellite_coords()`
+            satellite_skycoord: *astropy.SkyCoord*
+                should allow user to specify the trajectory is calculated
+                for a satellite. see :py:func:`get_satellite_coords()`
 
-          ``**kwargs`` controls plotting features of the trajectory.
+            ``**kwargs``
+                Controls plotting features of the trajectory. It's passed to
+                :py:func:`pyplot.plot()`.
 
         """
         if self.n_sources != 1:
@@ -1081,19 +1083,27 @@ class Model(object):
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
 
+        self._plot_single_trajectory(times, self.parameters,
+                                     satellite_skycoord, arrow, **kwargs)
+
+        if caustics:
+            self.plot_caustics(marker='.', color='red')
+
+    def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
+                                arrow, **kwargs):
+        """
+        Plots trajectory of a single source.
+        """
         trajectory = Trajectory(
-            times, parameters=self.parameters, parallax=self._parallax,
+            times, parameters=parameters, parallax=self._parallax,
             coords=self._coords, satellite_skycoord=satellite_skycoord)
 
         pl.plot(trajectory.x, trajectory.y, **kwargs)
 
         if arrow:
             index = int(len(times)/2)
-            if 'alpha' in self.parameters.as_dict().keys():
-                if self.is_static():
-                    alpha = self.parameters.alpha
-                else:
-                    alpha = self.parameters.get_alpha(times[index])
+            if 'alpha' in parameters.as_dict().keys():
+                alpha = parameters.get_alpha(times[index])
             else:
                 alpha = -90.
 
@@ -1101,8 +1111,6 @@ class Model(object):
                 trajectory.x[index], trajectory.y[index],
                 marker=(3, 0, alpha), s=50)
 
-        if caustics:
-            self.plot_caustics(marker='.', color='red')
 
     def update_caustics(self, epoch=None):
         """
