@@ -1159,6 +1159,8 @@ class Model(object):
         """
         Return a list of times. If no keywords are specified, default
         is 1000 epochs from [`t_0` - 1.5* `t_E`, `t_0` + 1.5* `t_E`].
+        For binary source models, respectively, smaller and larger of
+        `t_0_1/2` values are used.
 
         Keywords (all optional) :
             t_range: [*list*, *tuple*]
@@ -1180,9 +1182,19 @@ class Model(object):
 
         n_tE = 1.5
         if t_start is None:
-            t_start = self.parameters.t_0 - (n_tE * self.parameters.t_E)
+            if self.n_sources == 1:
+                t_0 = self.parameters.t_0
+            else:
+                t_0 = min(self.parameters.source_1_parameters.t_0,
+                          self.parameters.source_2_parameters.t_0)
+            t_start = t_0 - (n_tE * self.parameters.t_E)
         if t_stop is None:
-            t_stop = self.parameters.t_0 + (n_tE * self.parameters.t_E)
+            if self.n_sources == 1:
+                t_0 = self.parameters.t_0
+            else:
+                t_0 = max(self.parameters.source_1_parameters.t_0,
+                          self.parameters.source_2_parameters.t_0)
+            t_stop = t_0 + (n_tE * self.parameters.t_E)
 
         if dt is None:
             if n_epochs is None:
