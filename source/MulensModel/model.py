@@ -719,7 +719,6 @@ class Model(object):
         (residuals, err) = self.get_residuals(data_ref=data_ref)
 
         # Plot limit parameters
-        delta_mag = 0.
         t_min = 3000000.
         t_max = 0.
         subtract = self._subtract(subtract_2450000, subtract_2460000)
@@ -728,7 +727,7 @@ class Model(object):
         pl.plot([0., 3000000.], [0., 0.], color='black')
 
         # Plot residuals
-        for (i, data) in enumerate(self.datasets):
+        for data in self.datasets:
             data.plot(
                 phot_fmt='mag', show_errorbars=show_errorbars,
                 #show_bad=show_bad, XXX
@@ -736,15 +735,14 @@ class Model(object):
                 subtract_2460000=subtract_2460000, model=self,
                 plot_residuals=True,
                 **kwargs)
-            # Set plot limits
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
-            delta_mag = max(delta_mag, np.max(np.abs(residuals[i])))
 
         # Plot properties
-        if delta_mag > 1.:
-            delta_mag = 0.5
-        pl.ylim(delta_mag, -delta_mag)
+        y_lim = np.max([np.abs(y_lim) for y_lim in pl.gca().get_ylim()])
+        if y_lim > 1.:
+            y_lim = 0.5
+        pl.ylim(y_lim, -y_lim)
         pl.xlim(t_min-subtract, t_max-subtract)
         pl.ylabel('Residuals')
         pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
