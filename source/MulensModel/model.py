@@ -1066,11 +1066,6 @@ class Model(object):
                 :py:func:`pyplot.plot()`.
 
         """
-        if self.n_sources != 1:
-            raise NotImplementedError(
-                "trajectory only for " +
-                "single source models can be plotted currently")
-
         if show_data:
             raise NotImplementedError(
                                 "show_data option is not yet implemented")
@@ -1079,12 +1074,22 @@ class Model(object):
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
-
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
 
-        self._plot_single_trajectory(times, self.parameters,
-                                     satellite_skycoord, arrow, **kwargs)
+        if self.n_sources == 1:
+            self._plot_single_trajectory(times, self.parameters,
+                                         satellite_skycoord, arrow, **kwargs)
+        elif self.n_sources == 2:
+            self._plot_single_trajectory(
+                times, self.parameters.source_1_parameters,
+                satellite_skycoord, arrow, **kwargs)
+            self._plot_single_trajectory(
+                times, self.parameters.source_2_parameters,
+                satellite_skycoord, arrow, **kwargs)
+        else:
+            raise ValueError(
+                    'Wrong number of sources: {:}'.format(self.n_sources))
 
         if caustics:
             self.plot_caustics(marker='.', color='red')
