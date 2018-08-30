@@ -537,7 +537,7 @@ class Model(object):
         for old_keyword in old_plot_keywords:
             if kwargs[old_keyword] is not None:
                 warnings.warn('Keyword "' + old_keyword + '" is deprecated.' +
-                              'Use MulensData.plot_properties instead.',
+                              ' Use MulensData.plot_properties instead.',
                               FutureWarning)
                 values = kwargs[old_keyword]
                 key = old_keyword[:-5]
