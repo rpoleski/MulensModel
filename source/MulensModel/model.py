@@ -466,6 +466,22 @@ class Model(object):
         call this without calling :py:func:`set_datasets()` first,
         there will be an exception and that's on you.
         """
+        data = self._get_data_ref(data_ref)
+
+        fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
+        fit.fit_fluxes()
+        self._fit = fit
+
+        f_source = fit.flux_of_sources(data)
+        f_blend = fit.blending_flux(data)
+
+        return (f_source, f_blend)
+
+    def _get_data_ref(self, data_ref):
+        """
+        Guess which reference dataset is talked about. Returns MulensData
+        instance.
+        """
         if data_ref is None:
             if self._datasets is None:
                 raise ValueError(
@@ -482,12 +498,7 @@ class Model(object):
             data = self.datasets[data_ref]
             self.data_ref = data_ref
 
-        fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
-        fit.fit_fluxes()
-        f_source = fit.flux_of_sources(data)
-        f_blend = fit.blending_flux(data)
-
-        return (f_source, f_blend)
+        return data
 
     def reset_plot_properties(self):
         """
@@ -649,25 +660,29 @@ class Model(object):
         """
         if data_ref is not None:
             self.data_ref = data_ref
-        # Reference flux scale
-        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
+        data_ref_ = self._get_data_ref(data_ref)
 
-        # Get fluxes for all datasets
-        fit = Fit(data=self.datasets, magnification=self.data_magnification)
+        if data is not None:
+            data_list = [data]
+            fit_data = list(set([data, data_ref_]))
+            magnifications = [self.get_data_magnification(d) for d in fit_data]
+            fit = Fit(data=fit_data, magnification=magnifications)
+        else:
+            data_list = self.datasets
+            fit = Fit(data=data_list, magnification=self.data_magnification)
         fit.fit_fluxes()
+        self._fit = fit
 
         residuals = []
         errorbars = []
-        data_list = self.datasets
-        if data is not None:
-            data_list = [data]
-
         # Calculate residuals.
         for data_ in data_list:
-            f_source = fit.flux_of_sources(data_)
-            f_blend = fit.blending_flux(data_)
+            f_source = self.fit.flux_of_sources(data_)
+            f_blend = self.fit.blending_flux(data_)
             magnification = self.get_data_magnification(data_)
             if type == 'mag':
+                f_source_0 = self.fit.flux_of_sources(data_ref_)
+                f_blend_0 = self.fit.blending_flux(data_ref_)
                 model_mag = Utils.get_mag_from_flux(
                     f_blend_0 + f_source_0 * magnification)
                 flux = (f_source_0 * (data_.flux - f_blend) /
@@ -1010,3 +1025,4 @@ class Model(object):
         access to source and blending fluxes.
         """
         return self._fit
+
