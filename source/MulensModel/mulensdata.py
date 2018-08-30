@@ -392,6 +392,14 @@ class MulensData(object):
              model=None, plot_residuals=False, **kwargs):
         """
         Plot the data.
+        
+        Uses :py:attr:`plot_properties` to for label, color, etc.
+        This settings can be changed by setting ``**kwargs``.
+
+        You can plot in either flux or magnitude space. You can plot
+        data in a scale defined by other dataset -- pass *model* argument
+        and *model.data_ref* will be used as reference. Instead of plotting
+        data themselves, you can also plot the residuals of a *model*.
 
         Keywords:
             phot_fmt: *string* ('mag', 'flux')
@@ -414,9 +422,14 @@ class MulensData(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
-            model:
-            
-            plot_residuals:
+            model: :py:class:`~MulensModel.model.Model`
+                Model used to scale the data or calculate residuals
+                (if *plot_residuals* is *True*). If provided, then data are
+                scaled to *model.data_ref* dataset.
+
+            plot_residuals: *boolean*
+                If *True* then residuals are plotted (*model* is required).
+                Default is *False*, i.e., plot the data.
 
             ``**kwargs``: passed to matplotlib plotting functions.
         """

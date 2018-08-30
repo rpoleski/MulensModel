@@ -583,9 +583,9 @@ class Model(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
-            ``**kwargs``: passed to matplotlib plotting
-            functions. Contrary to previous behavior, ``**kwargs`` are
-            no longer remembered.
+            ``**kwargs``: 
+                Passed to matplotlib plotting functions. Contrary to
+                previous behavior, ``**kwargs`` are no longer remembered.
 
         """
 
@@ -654,7 +654,7 @@ class Model(object):
                 each element of the list is a np.array() with the
                 residuals for the corresponding dataset.
 
-           errorbars: *list*
+            errorbars: *list*
                 the scaled errorbars for each point. For plotting
                 errorbars for the residuals.
         """
