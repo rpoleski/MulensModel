@@ -445,15 +445,17 @@ class MulensData(object):
             show_bad = self.plot_properties.get('show_bad', False)
 
         if model is not None:
-            (f_source_0, f_blend_0) = model.get_ref_fluxes()
-            f_source = model.fit.flux_of_sources(self)
-            f_blend = model.fit.blending_flux(self)
             if plot_residuals:
                 residuals = model.get_residuals(data_ref=model.data_ref,
                                                 type=phot_fmt, data=self)
                 y_value = residuals[0][0]
                 y_err = residuals[1][0]
             else:
+                data_ref = model.datasets[model.data_ref]
+                f_source_0 = model.fit.flux_of_sources(data_ref)
+                f_blend_0 = model.fit.blending_flux(data_ref)
+                f_source = model.fit.flux_of_sources(self)
+                f_blend = model.fit.blending_flux(self)
                 flux = f_source_0 * (self.flux - f_blend) / f_source
                 flux += f_blend_0
                 err_flux = f_source_0 * self.err_flux / f_source
