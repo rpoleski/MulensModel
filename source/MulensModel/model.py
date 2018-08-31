@@ -583,7 +583,7 @@ class Model(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
-            ``**kwargs``: 
+            ``**kwargs``:
                 Passed to matplotlib plotting functions. Contrary to
                 previous behavior, ``**kwargs`` are no longer remembered.
 
@@ -726,7 +726,7 @@ class Model(object):
         self._check_old_plot_kwargs(
             color_list=color_list, marker_list=marker_list,
             size_list=size_list, label_list=label_list,
-            alpha_list=alpha_list, zorder_list=zorder_list)        
+            alpha_list=alpha_list, zorder_list=zorder_list)
 
         if data_ref is not None:
             self.data_ref = data_ref
@@ -1020,7 +1020,7 @@ class Model(object):
     def fit(self):
         """
         :py:class:`MulensModel.fit.Fit`
-        
+
         :py:class:`MulensModel.fit.Fit` instance recently used. It gives
         access to source and blending fluxes.
         """

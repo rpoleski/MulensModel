@@ -78,26 +78,25 @@ class MulensData(object):
             label, and also the show_bad and show_errorbars
             properties. See :py:func:`set_plot_properties()`.
 
-            May be any keywords accepted by both pl.scatter() and
-            pl.errorbar(). May also include keys specific to one or
-            the other, BUT there may be problems if you use
-            `py:plot()` to call the wrong one.
+            Note: pyplot functions errorbar() and scatter() are used to
+            plot data with errorbars and without them, respectively.
+            The type and size of marker are specified using different
+            keywords: ('fmt', 'markersize') for errorbar() and
+            ('marker', 'size') for scatter(). You can use either convention
+            in :py:attr:`plot_properties` and they will be translated
+            to appropriate keywords. If there are similar problems with
+            other keywords, then they won't be translated unless you
+            contact code authors.
 
-            Note: `plot_properties` takes 'marker' and 'size' as keys
-            to set the point type and size of points. This function
-            translates those keys into the keys appropriate for
-            pl.errorbar ('fmt', 'markersize') and pl.scatter('marker',
-            'size').
-
-            Other special keys:
+            Other special keys :
                 show_errorbars: *boolean*, optional
                     Whether or not to show the errorbars for this dataset.
 
                 show_bad: *boolean*, optional
                     Whether or not to plot data points flagged as bad.
 
-        ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
-        file_name is provided.
+        ``**kwargs``
+            :py:func:`np.loadtxt()` keywords. Used if *file_name* is provided.
 
     Attributes (all vectors):
 
@@ -392,7 +391,7 @@ class MulensData(object):
              model=None, plot_residuals=False, **kwargs):
         """
         Plot the data.
-        
+
         Uses :py:attr:`plot_properties` to for label, color, etc.
         This settings can be changed by setting ``**kwargs``.
 
@@ -557,3 +556,4 @@ class MulensData(object):
             properties[size_key] = 5
 
         return properties
+
