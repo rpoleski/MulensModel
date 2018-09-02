@@ -219,8 +219,6 @@ class ModelParameters(object):
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
-        #print()
-        #print(self)
 
     def _count_sources(self, keys):
         """How many sources there are?"""
