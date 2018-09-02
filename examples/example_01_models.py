@@ -62,8 +62,8 @@ pl.title('Planetary Perturbation Detail')
 
 # Plot source trajectory and caustic
 pl.figure(figsize=(6, 6))
-planet.plot_trajectory(t_range=[t_0 - t_E, t_0], caustics=True, color='red')
-planet.plot_trajectory(t_range=[t_0, t_0 + t_E], caustics=True, color='blue')
+planet.plot_trajectory(t_range=[t_0 - t_E, t_0], color='red', caustics=True)
+planet.plot_trajectory(t_range=[t_0, t_0 + t_E], color='blue')
 pl.xlim(-0.25, 1.0)
 pl.ylim(-0.25, 1.0)
 pl.title('Source Trajectory')

@@ -1107,15 +1107,11 @@ class Model(object):
 
         if arrow:
             index = int(len(times)/2)
-            if 'alpha' in parameters.as_dict().keys():
-                alpha = parameters.get_alpha(times[index])
-            else:
-                alpha = -90.
-
-            pl.scatter(
-                trajectory.x[index], trajectory.y[index],
-                marker=(3, 0, alpha), s=50)
-
+            x_0 = trajectory.x[index]
+            y_0 = trajectory.y[index]
+            d_x = trajectory.x[index+1] - x_0
+            d_y = trajectory.y[index+1] - y_0
+            pl.arrow(x_0, y_0, d_x, d_y, lw=0)
 
     def update_caustics(self, epoch=None):
         """
