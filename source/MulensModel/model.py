@@ -1039,36 +1039,33 @@ class Model(object):
 
         Keywords (all optional) :
 
-          times, t_range, t_start, t_stop, dt, n_epochs:
-              May all be used to specify exactly when to plot the
-              source trajectory. See also :py:func:`plot_lc()` and
-              :py:func:`set_times()`.
+            times, t_range, t_start, t_stop, dt, n_epochs:
+                May all be used to specify exactly when to plot the
+                source trajectory. See also :py:func:`plot_lc()` and
+                :py:func:`set_times()`.
 
-          caustics: *boolean*
-              plot the caustic structure in addition to the source
-              trajectory. default=False (off). For finer control of
-              plotting features, e.g. color, use :py:func:`plot_caustics()`
-              instead.
+            caustics: *boolean*
+                plot the caustic structure in addition to the source
+                trajectory. default=False (off). For finer control of
+                plotting features, e.g. color, use :py:func:`plot_caustics()`
+                instead.
 
-          show_data: *boolean*
-              mark epochs of data (**Not implemented**, marker types
-              should match data plotting.)
+            show_data: *boolean*
+                mark epochs of data (**Not implemented**, marker types
+                should match data plotting.)
 
-          arrow: *boolean*
-              show the direction of the source motion. default=True (on)
+            arrow: *boolean*
+                show the direction of the source motion. default=True (on)
 
-          satellite_skycoord: *astropy.SkyCoord*
-              should allow user to specify the trajectory is calculated
-              for a satellite. see :py:func:`get_satellite_coords()`
+            satellite_skycoord: *astropy.SkyCoord*
+                should allow user to specify the trajectory is calculated
+                for a satellite. see :py:func:`get_satellite_coords()`
 
-          ``**kwargs`` controls plotting features of the trajectory.
+            ``**kwargs``
+                Controls plotting features of the trajectory. It's passed to
+                :py:func:`pyplot.plot()`.
 
         """
-        if self.n_sources != 1:
-            raise NotImplementedError(
-                "trajectory only for " +
-                "single source models can be plotted currently")
-
         if show_data:
             raise NotImplementedError(
                                 "show_data option is not yet implemented")
@@ -1077,32 +1074,44 @@ class Model(object):
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
-
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
 
+        if self.n_sources == 1:
+            self._plot_single_trajectory(times, self.parameters,
+                                         satellite_skycoord, arrow, **kwargs)
+        elif self.n_sources == 2:
+            self._plot_single_trajectory(
+                times, self.parameters.source_1_parameters,
+                satellite_skycoord, arrow, **kwargs)
+            self._plot_single_trajectory(
+                times, self.parameters.source_2_parameters,
+                satellite_skycoord, arrow, **kwargs)
+        else:
+            raise ValueError(
+                    'Wrong number of sources: {:}'.format(self.n_sources))
+
+        if caustics:
+            self.plot_caustics(marker='.', color='red')
+
+    def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
+                                arrow, **kwargs):
+        """
+        Plots trajectory of a single source.
+        """
         trajectory = Trajectory(
-            times, parameters=self.parameters, parallax=self._parallax,
+            times, parameters=parameters, parallax=self._parallax,
             coords=self._coords, satellite_skycoord=satellite_skycoord)
 
         pl.plot(trajectory.x, trajectory.y, **kwargs)
 
         if arrow:
             index = int(len(times)/2)
-            if 'alpha' in self.parameters.as_dict().keys():
-                if self.is_static():
-                    alpha = self.parameters.alpha
-                else:
-                    alpha = self.parameters.get_alpha(times[index])
-            else:
-                alpha = -90.
-
-            pl.scatter(
-                trajectory.x[index], trajectory.y[index],
-                marker=(3, 0, alpha), s=50)
-
-        if caustics:
-            self.plot_caustics(marker='.', color='red')
+            x_0 = trajectory.x[index]
+            y_0 = trajectory.y[index]
+            d_x = trajectory.x[index+1] - x_0
+            d_y = trajectory.y[index+1] - y_0
+            pl.arrow(x_0, y_0, d_x, d_y, lw=0)
 
     def update_caustics(self, epoch=None):
         """
@@ -1146,6 +1155,8 @@ class Model(object):
         """
         Return a list of times. If no keywords are specified, default
         is 1000 epochs from [`t_0` - 1.5* `t_E`, `t_0` + 1.5* `t_E`].
+        For binary source models, respectively, smaller and larger of
+        `t_0_1/2` values are used.
 
         Keywords (all optional) :
             t_range: [*list*, *tuple*]
@@ -1167,9 +1178,19 @@ class Model(object):
 
         n_tE = 1.5
         if t_start is None:
-            t_start = self.parameters.t_0 - (n_tE * self.parameters.t_E)
+            if self.n_sources == 1:
+                t_0 = self.parameters.t_0
+            else:
+                t_0 = min(self.parameters.source_1_parameters.t_0,
+                          self.parameters.source_2_parameters.t_0)
+            t_start = t_0 - (n_tE * self.parameters.t_E)
         if t_stop is None:
-            t_stop = self.parameters.t_0 + (n_tE * self.parameters.t_E)
+            if self.n_sources == 1:
+                t_0 = self.parameters.t_0
+            else:
+                t_0 = max(self.parameters.source_1_parameters.t_0,
+                          self.parameters.source_2_parameters.t_0)
+            t_stop = t_0 + (n_tE * self.parameters.t_E)
 
         if dt is None:
             if n_epochs is None:
