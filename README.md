@@ -22,7 +22,9 @@ A few useful resources:
   * [Example 05](examples/example_05_MB08310.py) -- plot multiple datasets for a single model, plot the residuals, and do this both in magnitude and magnification spaces,
   * [Example 06](examples/example_06_fit_parallax_EMCEE.py) -- fit parallax model using EMCEE,
   * [Example 07](examples/example_07_fit_parallax_MN.py) -- fit parallax model using MultiNest,
-  * [Example 08](examples/example_08_planet_grid_fitting.ipynb) -- shows how to fit simulated WFIRST light curve with planetary model.
+  * [Example 08](examples/example_08_planet_grid_fitting.ipynb) -- shows how to fit simulated WFIRST light curve with planetary model,
+  * [Example 09](examples/example_09_gradient_fitting.py) -- fit point lens model using chi^2 gradient,
+  * [Example 10](examples/example_10_fitting_and_fluxes.py) -- fit model and extract posterior fluxes.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
 [Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
@@ -30,8 +32,8 @@ A few useful resources:
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
 
 Currently, MulensModel supports:
-* Lens Systems: Point Lens, Binary Lens,
-* Source Stars: Single source,
+* Lens Systems: point lens or binary lens.
+* Source Stars: single source or binary source.
 * Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion, different parametrizations of microlensing models.
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues) or send us an e-mail. 
@@ -53,5 +55,5 @@ If you have any problems, please contact the authors and we will try to help.
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised July 2018
+file revised Sep 2018
 
