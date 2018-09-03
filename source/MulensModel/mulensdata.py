@@ -27,11 +27,11 @@ class MulensData(object):
 
     Keywords :
         data_list: [*list* of *lists*, *numpy.ndarray*], optional
-            columns: Date, Magnitude/Flux, Err
+            columns: Date, Magnitude/Flux, Error
 
         file_name: *str*, optional
             The path to a file with columns: Date, Magnitude/Flux,
-            Err. Loaded using np.loadtxt. See ``**kwargs``.
+            Err. Loaded using :py:func:`numpy.loadtxt()`. See ``**kwargs``.
 
         **Either data_list or file_name is required.**
 
@@ -76,14 +76,26 @@ class MulensData(object):
             Flags for good data, should be the same length as the
             number of data points.
 
-        ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
-        file_name is provided.
+        ``**kwargs``: *dict*, optional
+            :py:func:`numpy.loadtxt()` keywords.
+            Used if *file_name* is provided.
 
-    Attributes (all vectors):
+    Attributes :
 
-        flux - the brightness in flux
+        flux: *numpy.ndarray*
+            The measured brightness in flux units.
 
-        err_flux - the errors on the fluxes
+        err_flux: *numpy.ndarray*
+            Uncertainties of *flux* values.
+
+        input_fmt: *str* ('mag', 'flux')
+            Input format - same as *phot_fmt* keyword in __init__.
+
+        chi2_fmt: *str* ('mag', 'flux')
+            Photometry format used for chi^2 calculations. Default is 'flux'.
+
+        ephemerides_file: *str*
+            File with satellite ephemeris.
 
     """
 
@@ -126,6 +138,8 @@ class MulensData(object):
             raise ValueError(m)
         elif data_list is not None:
             # ...from an array
+            if len(kwargs) > 0:
+                raise ValueError('data_list and kwargs cannot be both set')
             (vector_1, vector_2, vector_3) = list(data_list)
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
