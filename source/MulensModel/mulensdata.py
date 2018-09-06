@@ -165,7 +165,10 @@ class MulensData(object):
 
             # check if data label specified, if not use file_name
             if 'label' not in self.plot_properties.keys():
-                self.plot_properties['label'] = basename(file_name)
+                if file_name is not None:
+                    self.plot_properties['label'] = basename(file_name)
+                else:
+                    self.plot_properties['label'] = 'a dataset'
         else:
             raise ValueError(
                 'MulensData cannot be initialized with ' +
