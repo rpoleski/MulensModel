@@ -440,7 +440,7 @@ class MulensData(object):
             phot_fmt = self.input_fmt
         if phot_fmt not in ['mag', 'flux']:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
-        if not plot_residuals and model is None:
+        if plot_residuals and model is None:
             raise ValueError(
                     'MulensData.plot() requires model to plot residuals')
 
@@ -478,7 +478,7 @@ class MulensData(object):
                                                            flux, err_flux)
         else:
             flux = self.flux
-            err_flux = self.err_flux
+            flux_err = self.err_flux
             (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
                                                        flux, flux_err)
 
@@ -536,6 +536,16 @@ class MulensData(object):
             size_key = 's'
         marker_keys_all = ['marker', 'fmt']
         size_keys_all = ['markersize', 'ms', 's']
+
+        # Some older versions of matplotlib have problems when both
+        # 'fmt' and 'color' are specified.
+        if 'fmt' in kwargs:
+            for char in ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']:
+            # The above list comes from Notes section of:
+            # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
+                if char in kwargs['fmt']:
+                    kwargs['fmt'] = kwargs['fmt'].replace(char, "")
+                    kwargs['color'] = char
 
         properties = {}
 
