@@ -517,8 +517,8 @@ class Model(object):
         one.
         """
         color_index = 0
-        colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink',
-                  'gray', 'olive', 'cyan']
+        colors = [cycle['color'] for cycle in rcParams['axes.prop_cycle']]
+
         for data in self.datasets:
             if 'color' not in data.plot_properties.keys():
                 data.plot_properties['color'] = colors[color_index]
