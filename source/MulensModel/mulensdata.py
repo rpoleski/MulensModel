@@ -558,11 +558,10 @@ class MulensData(object):
                 else:
                     properties[key] = value
 
-        if marker_key not in properties.keys():
-            if not bad:
-                properties[marker_key] = 'o'
-            else:
-                properties[marker_key] = 'x'
+        if bad:
+            properties[marker_key] = 'x'
+        elif marker_key not in properties.keys():
+            properties[marker_key] = 'o'
 
         if size_key not in properties.keys():
             properties[size_key] = 5
