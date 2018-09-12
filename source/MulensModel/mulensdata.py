@@ -459,7 +459,11 @@ class MulensData(object):
         if show_bad is None:
             show_bad = self.plot_properties.get('show_bad', False)
 
-        if model is not None:
+        if model is None:
+            (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
+                                                       self.flux,
+                                                       self.flux_err)
+        else:
             if plot_residuals:
                 residuals = model.get_residuals(data_ref=model.data_ref,
                                                 type=phot_fmt, data=self)
@@ -476,11 +480,6 @@ class MulensData(object):
                 err_flux = f_source_0 * self.err_flux / f_source
                 (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
                                                            flux, err_flux)
-        else:
-            flux = self.flux
-            flux_err = self.err_flux
-            (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
-                                                       flux, flux_err)
 
         properties = self._set_plot_properties(
                 show_errorbars=show_errorbars, **kwargs)
