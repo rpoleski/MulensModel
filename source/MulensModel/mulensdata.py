@@ -462,7 +462,7 @@ class MulensData(object):
         if model is None:
             (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
                                                        self.flux,
-                                                       self.flux_err)
+                                                       self.err_flux)
         else:
             if plot_residuals:
                 residuals = model.get_residuals(data_ref=model.data_ref,
@@ -499,6 +499,11 @@ class MulensData(object):
             pl.scatter(time_good, y_value[self.good], **properties)
             if show_bad:
                 pl.scatter(time_bad, y_value[self.bad], **properties_bad)
+
+        if phot_fmt == 'mag':
+            (ymin, ymax) = pl.gca().get_ylim()
+            if ymax > ymin:
+                pl.gca().invert_yaxis()
 
     def _get_y_value_y_err(self, phot_fmt, flux, flux_err):
         """
