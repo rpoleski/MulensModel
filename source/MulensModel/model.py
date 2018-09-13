@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as pl
 from matplotlib import rcParams
+from matplotlib.colors import ColorConverter
 from astropy import units as u
 
 from MulensModel.modelparameters import ModelParameters
@@ -516,13 +517,62 @@ class Model(object):
         If the user has not specified a color for a dataset, assign
         one.
         """
-        color_index = 0
         colors = [cycle['color'] for cycle in rcParams['axes.prop_cycle']]
 
+        # Below we change the order of colors to most distinct first.
+        used_colors = []
+        for data in self.datasets:
+            if 'color' in data.plot_properties.keys():
+                used_colors.append(data.plot_properties['color'])
+        if len(used_colors) == len(self.datasets):
+            return
+        if len(used_colors) == 0:
+            differences = None
+        else:
+            d_col = self._color_differences
+            diffs = np.array([np.min(d_col(used_colors, c)) for c in colors])
+            indexes = np.argsort(diffs)[::-1]
+            colors = colors[indexes]
+            differences = diffs[indexes]
+
+        # Assign colors when needed.
+        color_index = 0
         for data in self.datasets:
             if 'color' not in data.plot_properties.keys():
+                if differences is not None:
+                    if differences[color_index] < 0.35:
+                        msg = ('The color assign to one of the datasets in ' +
+                               'automated way (' + colors[color_index] +
+                               ') is very similar to already used color')
+                        warnings.warn(msg, UserWarning)
                 data.plot_properties['color'] = colors[color_index]
                 color_index += 1
+
+    def _color_differences(color_list, color):
+        """
+        Calculate color difference between a list of colors and a single color.
+        Uses algorithm from
+        `this Wikipedia page<https://en.wikipedia.org/wiki/Color_difference>`_.
+        Arguments :
+            color_list: *list* of *str*
+                list of matplotlib colors e.g., ``['black', '#E9967A']``
+            color: *str*
+                single matplotlib color
+        Returns :
+            differences: *np.ndarray*
+                differences of colors, values < 0.3 are very similar
+        """
+        rgba = ColorConverter.to_rgba
+        array = np.array(
+            [[float(x) for x in list(rgba(c))[:3]] for c in color_list])
+        # We use float above because some versions of matplotlib return str.
+        color_value = [float(x) for x in list(rgba(color))[:3]]
+        mean_red = 0.5 * (array[:,0] + color_value[0])
+        diffs = (array - color_value)**2
+        add_1 = (2. + mean_red) * diffs[:,0]
+        add_2 = 4. * diffs[:,1]
+        add_3 = (3. + mean_red) * diffs[:,2]
+        return np.sqrt(add_1 + add_2 + add_3)
 
     def _check_old_plot_kwargs(self, **kwargs):
         """
