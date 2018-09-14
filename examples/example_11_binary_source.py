@@ -1,5 +1,9 @@
 """
 Fits binary source model using EMCEE sampler.
+
+The code simulates binary source light curve and fits the model twice:
+with source flux ratio found via linear regression and 
+with source flux ratio as a chain parameter.
 """
 import os
 import sys
@@ -26,7 +30,6 @@ def ln_like(theta, event, parameters_to_fit):
             event.model.set_source_flux_ratio(theta_)
         else:
             setattr(event.model.parameters, param, theta_)
-    #print(event.get_chi2(), *theta, 'XXX')
     return -0.5 * event.get_chi2()
 
 def ln_prior(theta, parameters_to_fit):
@@ -96,10 +99,11 @@ def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
 
 # First, prepare the data. There is nothing very exciting in this part,
 # so you may skip it.
-assumed_parameters = {
-    't_0_1': 6100., 'u_0_1': 0.2,
-    't_0_2': 6140., 'u_0_2': 0.01,
-    't_E': 25.}
+t_0_1 = 6100.
+u_0_1 = 0.2
+t_0_2 = 6140.
+u_0_2 = 0.01
+t_E = 25.
 assumed_flux_1 = 100.
 assumed_flux_2 = 5.
 assumed_flux_blend = 10.
@@ -108,13 +112,10 @@ n_b = 600
 time_a = np.linspace(6000., 6300., n_a)
 time_b = np.linspace(6139., 6141., n_b)
 time = np.sort(np.concatenate((time_a, time_b)))
-tau_1 = (time - assumed_parameters['t_0_1']) / assumed_parameters['t_E']
-tau_2 = (time - assumed_parameters['t_0_2']) / assumed_parameters['t_E']
-u2_1 = assumed_parameters['u_0_1']**2 + tau_1**2
-u2_2 = assumed_parameters['u_0_2']**2 + tau_2**2
-A_1 = (u2_1 + 2.) / np.sqrt(u2_1 * (u2_1 + 4.))
-A_2 = (u2_2 + 2.) / np.sqrt(u2_2 * (u2_2 + 4.))
-# Model.magnification(time)
+model_1 = Model({'t_0': t_0_1, 'u_0': u_0_1, 't_E': t_E})
+A_1 = model_1.magnification(time)
+model_2 = Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
+A_2 = model_2.magnification(time)
 flux = A_1 * assumed_flux_1 + A_2 * assumed_flux_2 + assumed_flux_blend
 flux_err = 6. + 0. * time
 flux += flux_err * np.random.normal(size=n_a+n_b)
@@ -124,7 +125,7 @@ my_dataset = MulensData([time, flux, flux_err], phot_fmt='flux')
 #plt.show()
 
 # Starting parameters:
-params = {'t_0_1': 6101., 'u_0_1': 0.15, 't_0_2': 6140.123, 'u_0_2': 0.04,
+params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,
           't_E': 20.}
 my_model = Model(params)
 my_event = Event(datasets=my_dataset, model=my_model)
@@ -132,12 +133,12 @@ my_event = Event(datasets=my_dataset, model=my_model)
 # First fit - source flux ratio not set, hence found by regression:
 parameters_to_fit = ["t_0_1", "u_0_1", "t_0_2", "u_0_2", "t_E"]
 sigmas = [0.1, 0.05, 1., 0.01, 1.]
-print("\nFirst fit, this can take some time...")
-#fit_EMCEE(parameters_to_fit, params, sigmas, ln_prob, my_event)
+print("\nFirst fit. This can take some time...")
+fit_EMCEE(parameters_to_fit, params, sigmas, ln_prob, my_event)
 
 # Starting parameters for second fit:
-params = {'t_0_1': 6105., 'u_0_1': 0.15, 't_0_2': 6140.123, 'u_0_2': 0.05,
-          't_E': 20.}
+params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,
+          't_E': 25.987}
 my_model = Model(params)
 my_event = Event(datasets=my_dataset, model=my_model)
 params['flux_ratio'] = 0.02
@@ -145,5 +146,5 @@ params['flux_ratio'] = 0.02
 # Second fit - source flux ratio as one of the chain parameters:
 parameters_to_fit = ["t_0_1", "u_0_1", "t_0_2", "u_0_2", "t_E", "flux_ratio"]
 sigmas = [0.1, 0.05, 1., 0.01, 1., 0.001]
-print("\nSecond fit, this can take some time...")
+print("\nSecond fit. This can take some time...")
 fit_EMCEE(parameters_to_fit, params, sigmas, ln_prob, my_event)
