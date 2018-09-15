@@ -567,11 +567,11 @@ class Model(object):
             [[float(x) for x in list(rgba(c))[:3]] for c in color_list])
         # We use float above because some versions of matplotlib return str.
         color_value = [float(x) for x in list(rgba(color))[:3]]
-        mean_red = 0.5 * (array[:,0] + color_value[0])
+        mean_red = 0.5 * (array[:, 0] + color_value[0])
         diffs = (array - color_value)**2
-        add_1 = (2. + mean_red) * diffs[:,0]
-        add_2 = 4. * diffs[:,1]
-        add_3 = (3. + mean_red) * diffs[:,2]
+        add_1 = (2. + mean_red) * diffs[:, 0]
+        add_2 = 4. * diffs[:, 1]
+        add_3 = (3. + mean_red) * diffs[:, 2]
         return np.sqrt(add_1 + add_2 + add_3)
 
     def _check_old_plot_kwargs(self, **kwargs):
@@ -594,12 +594,6 @@ class Model(object):
                 for (dataset, value) in zip(self.datasets, values):
                     dataset.plot_properties[key] = value
 
-# Expected:
-# def plot_data(
-#   self, data_ref=None, show_errorbars=True, show_bad=False,
-#   color_list=None, marker_list=None, size_list=None,
-#   label_list=None, alpha_list=None, zorder_list=None,
-#   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_data(
             self, data_ref=None, show_errorbars=True, show_bad=False,
             color_list=None, marker_list=None, size_list=None,
@@ -750,12 +744,6 @@ class Model(object):
 
         return (residuals, errorbars)
 
-# Expected:
-# def plot_residuals(
-#   self, show_errorbars=True, color_list=None,
-#   marker_list=None, size_list=None, label_list=None,
-#   alpha_list=None, zorder_list=None, data_ref=None,
-#   subtract_2450000=False, subtract_2460000=False, **kwargs):
     def plot_residuals(
             self, show_errorbars=True,
             color_list=None, marker_list=None, size_list=None,
@@ -1075,4 +1063,3 @@ class Model(object):
         access to source and blending fluxes.
         """
         return self._fit
-

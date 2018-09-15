@@ -46,15 +46,15 @@ pl.title('Data and Fitted Model (Default)')
 pl.subplot(gs[1])
 event_default.plot_residuals(subtract_2450000=True)
 
-#-----------------
+# -----------------
 # Plot the data and model (customized)
 datasets_custom = []
-color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
-for i, file_ in enumerate(sorted(files)):
+color_list = ['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
+for (i, file_) in enumerate(sorted(files)):
     data = MulensData(
-        file_name=file_, comments=["\\", "|"], 
+        file_name=file_, comments=["\\", "|"],
         plot_properties={
-            'color': color_list[i], 
+            'color': color_list[i],
             'label': os.path.basename(file_).split('_', maxsplit=2)[0]})
     datasets_custom.append(data)
 

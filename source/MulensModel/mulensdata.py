@@ -10,9 +10,6 @@ from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.coordinates import Coordinates
 
 
-# data_list and ephemerides_file must have the same time standard.
-# To implement: mjd2hjd = T/F
-# usecols
 class MulensData(object):
     """
     A set of photometric measurements for a microlensing event.
@@ -542,11 +539,11 @@ class MulensData(object):
         size_keys_all = ['markersize', 'ms', 's']
 
         # Some older versions of matplotlib have problems when both
-        # 'fmt' and 'color' are specified.
+        # 'fmt' and 'color' are specified. Below we take a list of formats
+        # from Notes section of:
+        # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
         if 'fmt' in kwargs:
             for char in ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']:
-            # The above list comes from Notes section of:
-            # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
                 if char in kwargs['fmt']:
                     kwargs['fmt'] = kwargs['fmt'].replace(char, "")
                     kwargs['color'] = char
@@ -572,4 +569,3 @@ class MulensData(object):
             properties[size_key] = 5
 
         return properties
-
