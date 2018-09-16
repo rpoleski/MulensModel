@@ -20,7 +20,7 @@ ob03235_ogle_data = mm.MulensData(
 ob03235_moa_data = mm.MulensData(
     file_name=os.path.join(data_path, 'OB03235', 'OB03235_MOA.tbl.txt'),
     phot_fmt='flux', comments=ex_arv_comments,
-    plot_properties={'marker': 's', 'size': 2, 'color': 'red', 'zorder': 2,
+    plot_properties={'marker': 's', 'markersize': 2, 'color': 'red', 'zorder': 2,
                      'show_errorbars': False})
 
 def suppress_a_season(data):
@@ -31,7 +31,7 @@ suppress_a_season(ob03235_ogle_data)
 suppress_a_season(ob03235_moa_data)
 
 # Setting plot properties after MulensData is defined
-ob03235_ogle_data.plot_properties['size'] = 5
+ob03235_ogle_data.plot_properties['markersize'] = 5
 
 # Making a plot
 pl.figure()
@@ -44,7 +44,6 @@ pl.subplot(2, 1, 1)
 pl.title('OGLE Data w/ errors and bad data')
 ob03235_ogle_data.plot()
 pl.axhline(np.median(ob03235_ogle_data.mag), zorder=5)
-pl.gca().invert_yaxis()
 
 pl.subplot(2, 1, 2)
 # Expected plot properties:
