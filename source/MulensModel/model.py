@@ -595,7 +595,7 @@ class Model(object):
                     dataset.plot_properties[key] = value
 
     def plot_data(
-            self, data_ref=None, show_errorbars=True, show_bad=False,
+            self, data_ref=None, show_errorbars=None, show_bad=None,
             color_list=None, marker_list=None, size_list=None,
             label_list=None, alpha_list=None, zorder_list=None,
             subtract_2450000=False, subtract_2460000=False, **kwargs):
@@ -607,19 +607,18 @@ class Model(object):
                 If data_ref is not specified, uses the first dataset
                 as the reference for flux scale.
 
-            show_errorbars: *boolean*
-                If show_errorbars is True (default), plots with
-                matplotlib.errorbar(). If False, plots with
-                matplotlib.scatter(). If
-                :py:attr:`show_errorbars` is set, it will apply
-                that setting to all data sets. If it is not set, it
-                should use the default for that dataset.
+            show_errorbars: *boolean* or *None*
+                Do you want errorbars to be shown for all datasets?
+                Default is *None*, which means the option is taken from each
+                dataset plotting properties (for which default is *True*).
+                If *True*, then data are plotted using matplotlib.errorbar().
+                If *False*, then data are plotted using matplotlib.scatter().
 
-            show_bad: *boolean*
-                if False, bad data are suppressed (default).  if True,
-                shows points marked as bad
-                (:py:obj:`mulensdata.MulensData.bad`) as 'x'. Same
-                default behavior as show_errorbars.
+            show_bad: *boolean* or *None*
+                Do you want data marked as bad to be shown?
+                Default is *None*, which means the option is taken from each
+                dataset plotting properties (for which default is *False*).
+                If bad data are shown, then they are plotted with 'x' marker.
 
             subtract_2450000, subtract_2460000: *boolean*
                 If True, subtracts 2450000 or 2460000 from the time
@@ -745,19 +744,16 @@ class Model(object):
         return (residuals, errorbars)
 
     def plot_residuals(
-            self, show_errorbars=True,
+            self, show_errorbars=None,
             color_list=None, marker_list=None, size_list=None,
             label_list=None, alpha_list=None, zorder_list=None,
             data_ref=None, subtract_2450000=False, subtract_2460000=False,
             show_bad=None, **kwargs):
         """
-        Plot the residuals (in magnitudes) of the model.  Uses the
-        best f_source, f_blend for each dataset (not scaled to a
-        particular photometric system).
+        Plot the residuals (in magnitudes) of the model.
 
         For explanation of keywords, see doctrings in
         :py:func:`plot_data()`. Note different order of keywords.
-
         """
 
         self._set_default_colors()
