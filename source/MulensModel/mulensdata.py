@@ -568,4 +568,7 @@ class MulensData(object):
         if size_key not in properties.keys():
             properties[size_key] = 5
 
+        for remove_key in ['show_bad', 'show_errorbars']:
+            properties.pop(remove_key, None)
+
         return properties
