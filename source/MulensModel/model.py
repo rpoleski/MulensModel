@@ -532,7 +532,7 @@ class Model(object):
             d_col = self._color_differences
             diffs = np.array([np.min(d_col(used_colors, c)) for c in colors])
             indexes = np.argsort(diffs)[::-1]
-            colors = colors[indexes]
+            colors = [colors[i] for i in indexes]
             differences = diffs[indexes]
 
         # Assign colors when needed.
@@ -548,7 +548,7 @@ class Model(object):
                 data.plot_properties['color'] = colors[color_index]
                 color_index += 1
 
-    def _color_differences(color_list, color):
+    def _color_differences(self, color_list, color):
         """
         Calculate color difference between a list of colors and a single color.
         Uses algorithm from
