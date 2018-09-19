@@ -6,25 +6,46 @@ import numpy as np
 import MulensModel as mm
 
 
-#raise NotImplementedError('This use case has not been implemented')
+def suppress_a_season(data):
+    data.bad = (data.time > 2451900) & (data.time < 2452300)
 
-#data_path = os.path.join(mm.MODULE_PATH, 'data', 'photometry_files')
-data_path = os.path.join(mm.MODULE_PATH, 'data')
-ex_arv_comments = ['\\', '|']
+# Set plot_properties for many datasets
+def set_plot_properties(filename):
+    """
+    Get "standard" plot properties based on the filename.
+
+    :param filename:
+    :return plot_properties:
+    """
+
+    plot_properties = {}
+    if 'OGLE' in filename:
+        plot_properties['color']  = 'black'
+        plot_properties['zorder'] = 10
+    elif 'MOA' in filename:
+        plot_properties['color'] = 'red'
+        plot_properties['zorder'] = 2
+        plot_properties['marker'] = 's'
+        plot_properties['show_errorbars'] = False
+    elif 'CTIO_I' in filename:
+        plot_properties['color'] = 'green'
+
+    return plot_properties
+
+
+data_path = os.path.join(mm.MODULE_PATH, 'data', 'photometry_files')
+comments = ['\\', '|']
 
 # Basic: Two datasets with specified data properties
 ob03235_ogle_data = mm.MulensData(
     file_name=os.path.join(data_path, 'OB03235', 'OB03235_OGLE.tbl.txt'),
-    phot_fmt='mag', comments=ex_arv_comments,
+    phot_fmt='mag', comments=comments,
     plot_properties={'color': 'black', 'zorder': 10, 'show_bad': True})
 ob03235_moa_data = mm.MulensData(
     file_name=os.path.join(data_path, 'OB03235', 'OB03235_MOA.tbl.txt'),
-    phot_fmt='flux', comments=ex_arv_comments,
+    phot_fmt='flux', comments=comments,
     plot_properties={'marker': 's', 'markersize': 2, 'color': 'red', 'zorder': 2,
                      'show_errorbars': False})
-
-def suppress_a_season(data):
-    data.bad = (data.time > 2451900) & (data.time < 2452300)
 
 # Set one season to "bad"
 suppress_a_season(ob03235_ogle_data)
@@ -56,30 +77,6 @@ pl.axhline(np.median(ob03235_moa_data.flux), zorder=5)
 pl.legend(loc='best')
 pl.show()
 
-# Set plot_properties for many datasets
-def set_plot_properties(filename):
-    """
-    Get "standard" plot properties based on the filename.
-
-    :param filename:
-    :return plot_properties:
-    """
-
-    plot_properties = {}
-    if 'OGLE' in filename:
-        plot_properties['color']  = 'black'
-        plot_properties['zorder'] = 10
-    elif 'MOA' in filename:
-        plot_properties['color'] = 'red'
-        plot_properties['zorder'] = 2
-        plot_properties['marker'] = 's'
-        plot_properties['show_errorbars'] = False
-    elif 'CTIO_I' in filename:
-        plot_properties['color'] = 'green'
-
-    return plot_properties
-
-
 file_list = glob.glob(os.path.join(data_path, 'MB08310', '*'))
 datasets = []
 for file_ in file_list:
@@ -87,7 +84,7 @@ for file_ in file_list:
     plot_properties['label'] = os.path.basename(file_).split(
         '_', maxsplit=2)[0]
     datasets.append(
-        mm.MulensData(file_name=file_, comments=ex_arv_comments,
+        mm.MulensData(file_name=file_, comments=comments,
         plot_properties=plot_properties))
 
 t_0 = 2454656.39975
@@ -118,3 +115,4 @@ t_stop = t_0 + 1.
 pl.ylim(17.5, 12.5)
 pl.xlim(t_start, t_stop)
 pl.show()
+
