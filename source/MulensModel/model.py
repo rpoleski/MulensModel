@@ -2,6 +2,8 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as pl
 from matplotlib import rcParams
+from matplotlib.colors import ColorConverter
+from astropy import units as u
 
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -97,9 +99,7 @@ class Model(object):
         self._methods_parameters = {}
         self.caustics = None
         self.data_ref = None
-
-        # Set dictionary to store plotting properties
-        self.reset_plot_properties()
+        self._fit = None
 
         self._limb_darkening_coeffs = LimbDarkeningCoeffs()
         self._bandpasses = []
@@ -485,6 +485,36 @@ class Model(object):
         """
         return self._parallax
 
+    def _subtract(self, subtract_2450000, subtract_2460000):
+        """
+        find value of HJD to be subtracted
+        """
+        if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError('subtract_2450000 and subtract_2460000 ' +
+                                 'cannot be both True')
+            subtract = 2450000.
+        elif subtract_2460000:
+            subtract = 2460000.
+        else:
+            subtract = 0.
+        return subtract
+
+    def _subtract_xlabel(self, subtract_2450000, subtract_2460000):
+        """
+        string that would be past to plt.xlabel()
+        """
+        if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError('subtract_2450000 and subtract_2460000 ' +
+                                 'cannot be both True')
+            out = 'Time - 2450000'
+        elif subtract_2460000:
+            out = 'Time - 2460000'
+        else:
+            out = 'Time'
+        return out
+
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
@@ -504,11 +534,7 @@ class Model(object):
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
-        subtract = 0.
-        if subtract_2450000:
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
+        subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         if satellite_skycoord is not None:
             satellite = satellite_skycoord.get_satellite_coords(times)
@@ -519,12 +545,7 @@ class Model(object):
 
         pl.plot(times-subtract, magnification, **kwargs)
         pl.ylabel('Magnification')
-        if subtract_2450000:
-            pl.xlabel('Time - 2450000')
-        elif subtract_2460000:
-            pl.xlabel('Time - 2460000')
-        else:
-            pl.xlabel('Time')
+        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -583,20 +604,10 @@ class Model(object):
 
         flux = f_source * self.magnification(times) + f_blend
 
-        subtract = 0.
-        if subtract_2450000:
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
-
+        subtract = self._subtract(subtract_2450000, subtract_2460000)
         pl.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)
         pl.ylabel('Magnitude')
-        if subtract_2450000:
-            pl.xlabel('Time - 2450000')
-        elif subtract_2460000:
-            pl.xlabel('Time - 2460000')
-        else:
-            pl.xlabel('Time')
+        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
         (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
@@ -626,6 +637,22 @@ class Model(object):
         call this without calling :py:func:`set_datasets()` first,
         there will be an exception and that's on you.
         """
+        data = self._get_data_ref(data_ref)
+
+        fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
+        fit.fit_fluxes()
+        self._fit = fit
+
+        f_source = fit.flux_of_sources(data)
+        f_blend = fit.blending_flux(data)
+
+        return (f_source, f_blend)
+
+    def _get_data_ref(self, data_ref):
+        """
+        Guess which reference dataset is talked about. Returns MulensData
+        instance.
+        """
         if data_ref is None:
             if self._datasets is None:
                 raise ValueError(
@@ -642,126 +669,103 @@ class Model(object):
             data = self.datasets[data_ref]
             self.data_ref = data_ref
 
-        fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
-        fit.fit_fluxes()
-        f_source = fit.flux_of_sources(data)
-        f_blend = fit.blending_flux(data)
-
-        return (f_source, f_blend)
+        return data
 
     def reset_plot_properties(self):
-        """resets internal settings for plotting"""
-        self.plot_properties = {}
-
-    def _store_plot_properties(
-            self, color_list=None, marker_list=None, size_list=None,
-            label_list=None, alpha_list=None, zorder_list=None, **kwargs):
         """
-        Store plot properties for each data set.
+        This function will be **deprecated**.
+
+        Resets internal plotting properties of all attached datasets.
         """
-        if color_list is not None:
-            self.plot_properties['color_list'] = color_list
-        if marker_list is not None:
-            self.plot_properties['marker_list'] = marker_list
-        if size_list is not None:
-            self.plot_properties['size_list'] = size_list
-        if label_list is not None:
-            self.plot_properties['label_list'] = label_list
-        if alpha_list is not None:
-            self.plot_properties['alpha_list'] = alpha_list
-        if zorder_list is not None:
-            self.plot_properties['zorder_list'] = zorder_list
-        if len(kwargs) > 0:
-            self.plot_properties['other_kwargs'] = kwargs
+        warnings.warn('reset_plot_properties() will be deprecated in future',
+                      FutureWarning)
+        for data in self.datasets:
+            data.plot_properties = {}
 
-    def _set_plot_kwargs(self, index, show_errorbars=True, bad_data=False):
+    def _set_default_colors(self):
         """
-        Set ``**kwargs`` arguments for plotting. If set, use previous values.
-        But new values take precedence.
+        If the user has not specified a color for a dataset, assign
+        one.
+        """
+        colors = [cycle['color'] for cycle in rcParams['axes.prop_cycle']]
 
-        Automatically handles (some) differences in keywords for pl.errorbar
-        vs. pl.scatter: fmt/marker, markersize/s
-
-        Parameters :
-            index: *int*
-                index of the dataset for which ``**kwargs`` will be set
-
-            show_errorbars: *boolean*, optional
-                Do you want to see errorbars on the plot? Defaults to *True*.
-
-            bad_data: *boolean*, optional
-                Default is *False* --> set ``**kwargs`` for plotting good data,
-                i.e., *marker*='o', *size*=3. If *True*, then *marker*='x' and
-                *size*=10.
-
-       """
-        # Set different keywords for pl.errorbar vs. pl.scatter
-        if show_errorbars:
-            marker_key = 'fmt'
-            size_key = 'markersize'  # In pl.errorbar(), 'ms' is equivalent.
+        # Below we change the order of colors to most distinct first.
+        used_colors = []
+        for data in self.datasets:
+            if 'color' in data.plot_properties.keys():
+                used_colors.append(data.plot_properties['color'])
+        if len(used_colors) == len(self.datasets):
+            return
+        if len(used_colors) == 0:
+            differences = None
         else:
-            marker_key = 'marker'
-            size_key = 's'
+            d_col = self._color_differences
+            diffs = np.array([np.min(d_col(used_colors, c)) for c in colors])
+            indexes = np.argsort(diffs)[::-1]
+            colors = [colors[i] for i in indexes]
+            differences = diffs[indexes]
 
-        # Create new kwargs dictionary
-        new_kwargs = {}
+        # Assign colors when needed.
+        color_index = 0
+        for data in self.datasets:
+            if 'color' not in data.plot_properties.keys():
+                if differences is not None:
+                    if differences[color_index] < 0.35:
+                        msg = ('The color assign to one of the datasets in ' +
+                               'automated way (' + colors[color_index] +
+                               ') is very similar to already used color')
+                        warnings.warn(msg, UserWarning)
+                data.plot_properties['color'] = colors[color_index]
+                color_index += 1
 
-        # Set defaults
-        if 'color_list' not in self.plot_properties.keys():
-            self.plot_properties['color_list'] = rcParams[
-                'axes.prop_cycle'].by_key()['color']
-            if len(self.datasets) > len(self.plot_properties['color_list']):
-                repeat = int(len(self.datasets) /
-                             len(self.plot_properties['color_list'])) + 1
-                self.plot_properties['color_list'] *= repeat
-                warnings.warn(
-                    'Number of default matplotlib colors is smaller than ' +
-                    'number of datasets and different datasets will be ' +
-                    'shown using the same color. \nSet color_list parameter ' +
-                    'next time.', UserWarning)
-        if not bad_data:
-            new_kwargs[marker_key] = 'o'
-            new_kwargs[size_key] = 3
-        else:
-            new_kwargs[marker_key] = 'x'
-            new_kwargs[size_key] = 10
+    def _color_differences(self, color_list, color):
+        """
+        Calculate color difference between a list of colors and a single color.
+        Uses algorithm from
+        `this Wikipedia page<https://en.wikipedia.org/wiki/Color_difference>`_.
+        Arguments :
+            color_list: *list* of *str*
+                list of matplotlib colors e.g., ``['black', '#E9967A']``
+            color: *str*
+                single matplotlib color
+        Returns :
+            differences: *np.ndarray*
+                differences of colors, values < 0.3 are very similar
+        """
+        rgba = ColorConverter.to_rgba
+        array = np.array(
+            [[float(x) for x in list(rgba(c))[:3]] for c in color_list])
+        # We use float above because some versions of matplotlib return str.
+        color_value = [float(x) for x in list(rgba(color))[:3]]
+        mean_red = 0.5 * (array[:, 0] + color_value[0])
+        diffs = (array - color_value)**2
+        add_1 = (2. + mean_red) * diffs[:, 0]
+        add_2 = 4. * diffs[:, 1]
+        add_3 = (3. + mean_red) * diffs[:, 2]
+        return np.sqrt(add_1 + add_2 + add_3)
 
-        # Set custom
-        if len(self.plot_properties) > 0:
-            if 'color_list' in self.plot_properties.keys():
-                new_kwargs['color'] = self.plot_properties['color_list'][index]
+    def _check_old_plot_kwargs(self, **kwargs):
+        """
+        Check for deprecated "_list" keywords. Issue a warning, then
+        transfer the properties to the new
+        :py:attr:`mulensdata.MulensData.plot_properties` system.
+        """
+        old_plot_keywords = [
+            'color_list', 'marker_list', 'size_list',
+            'label_list', 'alpha_list', 'zorder_list']
 
-            if 'marker_list' in self.plot_properties.keys():
-                new_kwargs[marker_key] = self.plot_properties['marker_list'][
-                    index]
-
-            if 'size_list' in self.plot_properties.keys():
-                new_kwargs[size_key] = self.plot_properties['size_list'][index]
-
-            if 'label_list' in self.plot_properties.keys():
-                new_kwargs['label'] = self.plot_properties['label_list'][index]
-
-            if 'alpha_list' in self.plot_properties.keys():
-                new_kwargs['alpha'] = self.plot_properties['alpha_list'][index]
-
-            if 'zorder_list' in self.plot_properties.keys():
-                new_kwargs['zorder'] = (
-                    self.plot_properties['zorder_list'][index])
-
-            if 'other_kwargs' in self.plot_properties.keys():
-                for (key, value) in self.plot_properties[
-                        'other_kwargs'].items():
-                    if key in ['markersize', 'ms', 's']:
-                        new_kwargs[size_key] = value
-                    elif key in ['marker', 'fmt']:
-                        new_kwargs[marker_key] = value
-                    else:
-                        new_kwargs[key] = value
-
-        return new_kwargs
+        for old_keyword in old_plot_keywords:
+            if kwargs[old_keyword] is not None:
+                warnings.warn('Keyword "' + old_keyword + '" is deprecated.' +
+                              ' Use MulensData.plot_properties instead.',
+                              FutureWarning)
+                values = kwargs[old_keyword]
+                key = old_keyword[:-5]
+                for (dataset, value) in zip(self.datasets, values):
+                    dataset.plot_properties[key] = value
 
     def plot_data(
-            self, data_ref=None, show_errorbars=True, show_bad=False,
+            self, data_ref=None, show_errorbars=None, show_bad=None,
             color_list=None, marker_list=None, size_list=None,
             label_list=None, alpha_list=None, zorder_list=None,
             subtract_2450000=False, subtract_2460000=False, **kwargs):
@@ -773,34 +777,18 @@ class Model(object):
                 If data_ref is not specified, uses the first dataset
                 as the reference for flux scale.
 
-            show_errorbars: *boolean*
-                If show_errorbars is True (default), plots with
-                matplotlib.errorbar(). If False, plots with
-                matplotlib.scatter().
+            show_errorbars: *boolean* or *None*
+                Do you want errorbars to be shown for all datasets?
+                Default is *None*, which means the option is taken from each
+                dataset plotting properties (for which default is *True*).
+                If *True*, then data are plotted using matplotlib.errorbar().
+                If *False*, then data are plotted using matplotlib.scatter().
 
-            show_bad: *boolean*
-                if False, bad data are suppressed (default).
-                if True, shows points marked as bad
-                (:py:obj:`mulensdata.MulensData.bad`) as 'x'
-
-            color_list, marker_list, size_list: *list*
-                Controls point types for each dataset (length must be
-                equal to the number of datasets). May specify none,
-                some, or all of these lists. Automatically handles
-                keyword variations in errorbar() vs. scatter():
-                e.g. fmt/marker, markersize/s.
-
-            label_list: *list*
-                Attaches a label to each data set, which can be used
-                to create a legend by calling pl.legend().
-
-            alpha_list: *list*
-                Alpha value for each data set: 0 for transparent through 1
-                for opaque.
-
-            zorder_list: *list*
-                Values of zorder (*float*) for each data set: datasets
-                with smaller zorder are drawn first.
+            show_bad: *boolean* or *None*
+                Do you want data marked as bad to be shown?
+                Default is *None*, which means the option is taken from each
+                dataset plotting properties (for which default is *False*).
+                If bad data are shown, then they are plotted with 'x' marker.
 
             subtract_2450000, subtract_2460000: *boolean*
                 If True, subtracts 2450000 or 2460000 from the time
@@ -808,98 +796,54 @@ class Model(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
-            ``**kwargs``: passed to matplotlib plotting functions.
-
-        May also use ``**kwargs`` or some combination of the lists and
-        ``**kwargs``. e.g. set color_list to specify which color each
-        data set should be plotted in, but use fmt='s' to make all
-        data points plotted as squares.
-
-        ``**kwargs`` (and point type lists) are remembered and used in
-        subsequent calls to both plot_data() and plot_residuals().
+            ``**kwargs``:
+                Passed to matplotlib plotting functions. Contrary to
+                previous behavior, ``**kwargs`` are no longer remembered.
 
         """
+
+        self._set_default_colors()
+        self._check_old_plot_kwargs(
+            color_list=color_list, marker_list=marker_list,
+            size_list=size_list, label_list=label_list,
+            alpha_list=alpha_list, zorder_list=zorder_list)
+
         if data_ref is not None:
             self.data_ref = data_ref
 
-        self._store_plot_properties(
-            color_list=color_list, marker_list=marker_list,
-            size_list=size_list, label_list=label_list, alpha_list=alpha_list,
-            zorder_list=zorder_list, **kwargs)
-
-        # Reference flux scale
-        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
+        # Set plot limits
+        t_min = 3000000.
+        t_max = 0.
+        subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         # Get fluxes for all datasets
         fit = Fit(data=self.datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
+        self._fit = fit
 
-        # Set plot defaults.
-        t_min = 3000000.
-        t_max = 0.
-        subtract = 0.
-        if subtract_2450000:
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
-
-        # Plot each dataset
         for (i, data) in enumerate(self.datasets):
-            # Calculate scaled flux
-            f_source = fit.flux_of_sources(data)
-            f_blend = fit.blending_flux(data)
-            flux = f_source_0 * (data.flux - f_blend) / f_source + f_blend_0
+            data.plot(
+                phot_fmt='mag', show_errorbars=show_errorbars,
+                show_bad=show_bad, subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000, model=self,
+                **kwargs)
 
-            new_kwargs = self._set_plot_kwargs(
-                i, show_errorbars=show_errorbars)
-            if show_bad:
-                bad_kwargs = self._set_plot_kwargs(
-                    i, show_errorbars=show_errorbars, bad_data=True)
-                bad_kwargs['label'] = None
-
-            # Plot
-            if show_errorbars:
-                err_flux = f_source_0 * data.err_flux / f_source
-                (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                pl.errorbar(
-                    data.time[data.good] - subtract,
-                    mag[data.good], yerr=err[data.good], **new_kwargs)
-                if show_bad:
-                    pl.errorbar(
-                        data.time[data.bad] - subtract, mag[data.bad],
-                        yerr=err[data.bad], **bad_kwargs)
-            else:
-                mag = Utils.get_mag_from_flux(flux)
-                pl.scatter(
-                    data.time[data.good] - subtract,
-                    mag[data.good], lw=0., **new_kwargs)
-                if show_bad:
-                    pl.scatter(
-                        data.time[data.bad] - subtract, mag[data.bad],
-                        **bad_kwargs)
-
-            # Set plot limits
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
 
         # Plot properties
         pl.ylabel('Magnitude')
-        if subtract_2450000:
-            pl.xlabel('Time - 2450000')
-        elif subtract_2460000:
-            pl.xlabel('Time - 2460000')
-        else:
-            pl.xlabel('Time')
+        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
         pl.xlim(t_min-subtract, t_max-subtract)
 
         (ymin, ymax) = pl.gca().get_ylim()
         if ymax > ymin:
             pl.gca().invert_yaxis()
 
-    def get_residuals(self, data_ref=None, type='mag'):
+    def get_residuals(self, data_ref=None, type='mag', data=None):
         """
         Calculate the residuals from the model for
-        each dataset.
+        each dataset at once, or just a single dataset.
 
         Note: if residuals are returned in magnitudes, they are
         transformed to the magnitude system specified by `data_ref`,
@@ -914,6 +858,10 @@ class Model(object):
                 magnitudes ('mag') or in flux ('flux'). Default is
                 'mag'.
 
+            data: :py:class:`~MulensModel.mulensdata.MulensData`, optional
+                dataset for which residuals are returned. If specified,
+                then returned lists are single element.
+
         Returns :
             residuals: *list*
                 each element of the list is a np.array() with the
@@ -925,110 +873,94 @@ class Model(object):
         """
         if data_ref is not None:
             self.data_ref = data_ref
-        # Reference flux scale
-        (f_source_0, f_blend_0) = self.get_ref_fluxes(data_ref=data_ref)
+        data_ref_ = self._get_data_ref(data_ref)
 
-        # Get fluxes for all datasets
-        fit = Fit(data=self.datasets, magnification=self.data_magnification)
+        if data is not None:
+            data_list = [data]
+            fit_data = list(set([data, data_ref_]))
+            magnifications = [self.get_data_magnification(d) for d in fit_data]
+            fit = Fit(data=fit_data, magnification=magnifications)
+        else:
+            data_list = self.datasets
+            fit = Fit(data=data_list, magnification=self.data_magnification)
         fit.fit_fluxes()
+        self._fit = fit
 
-        # Calculate residuals
         residuals = []
         errorbars = []
-        for (i, data) in enumerate(self.datasets):
-            f_source = fit.flux_of_sources(data)
-            f_blend = fit.blending_flux(data)
-            # Calculate Residuals
+        # Calculate residuals.
+        for data_ in data_list:
+            f_source = self.fit.flux_of_sources(data_)
+            f_blend = self.fit.blending_flux(data_)
+            magnification = self.get_data_magnification(data_)
             if type == 'mag':
-                # Calculate model magnitude
+                f_source_0 = self.fit.flux_of_sources(data_ref_)
+                f_blend_0 = self.fit.blending_flux(data_ref_)
                 model_mag = Utils.get_mag_from_flux(
-                    f_blend_0 + f_source_0 * self.get_data_magnification(data))
-
-                flux = (f_source_0 * (data.flux - f_blend) /
+                    f_blend_0 + f_source_0 * magnification)
+                flux = (f_source_0 * (data_.flux - f_blend) /
                         f_source + f_blend_0)
-                err_flux = f_source_0 * data.err_flux / f_source
+                err_flux = f_source_0 * data_.err_flux / f_source
                 (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
                 residuals.append(mag - model_mag)
                 errorbars.append(err)
             elif type == 'flux':
-                model_flux = (f_blend +
-                              f_source * self.get_data_magnification(data))
-                residuals.append(data.flux - model_flux)
-                errorbars.append(data.err_flux)
+                model_flux = f_blend + f_source * magnification
+                residuals.append(data_.flux - model_flux)
+                errorbars.append(data_.err_flux)
             else:
                 raise ValueError("type keyword must be either 'mag' or 'flux'")
 
         return (residuals, errorbars)
 
     def plot_residuals(
-            self, show_errorbars=True, color_list=None,
-            marker_list=None, size_list=None, label_list=None,
-            alpha_list=None, zorder_list=None, data_ref=None,
-            subtract_2450000=False, subtract_2460000=False, **kwargs):
+            self, show_errorbars=None,
+            color_list=None, marker_list=None, size_list=None,
+            label_list=None, alpha_list=None, zorder_list=None,
+            data_ref=None, subtract_2450000=False, subtract_2460000=False,
+            show_bad=None, **kwargs):
         """
-        Plot the residuals (in magnitudes) of the model.  Uses the
-        best f_source, f_blend for each dataset (not scaled to a
-        particular photometric system).
+        Plot the residuals (in magnitudes) of the model.
 
         For explanation of keywords, see doctrings in
-        :py:func:`plot_data()`.
-
+        :py:func:`plot_data()`. Note different order of keywords.
         """
+
+        self._set_default_colors()
+        self._check_old_plot_kwargs(
+            color_list=color_list, marker_list=marker_list,
+            size_list=size_list, label_list=label_list,
+            alpha_list=alpha_list, zorder_list=zorder_list)
+
         if data_ref is not None:
             self.data_ref = data_ref
 
-        self._store_plot_properties(
-            color_list=color_list, marker_list=marker_list,
-            size_list=size_list, label_list=label_list, alpha_list=alpha_list,
-            zorder_list=zorder_list, **kwargs)
-
-        (residuals, err) = self.get_residuals(data_ref=data_ref)
-
         # Plot limit parameters
-        delta_mag = 0.
         t_min = 3000000.
         t_max = 0.
-        subtract = 0.
-        if subtract_2450000:
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
+        subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         # Plot zeropoint line
         pl.plot([0., 3000000.], [0., 0.], color='black')
 
         # Plot residuals
-        for (i, data) in enumerate(self.datasets):
-            delta_mag = max(delta_mag, np.max(np.abs(residuals[i])))
-
-            # Plot
-            new_kwargs = self._set_plot_kwargs(
-                i, show_errorbars=show_errorbars)
-            if show_errorbars:
-                pl.errorbar(
-                    data.time-subtract, residuals[i], yerr=err[i],
-                    **new_kwargs)
-            else:
-                pl.scatter(
-                    data.time-subtract, residuals[i], lw=0, **new_kwargs)
-
-            # Set plot limits
+        for data in self.datasets:
+            data.plot(
+                phot_fmt='mag', show_errorbars=show_errorbars,
+                show_bad=show_bad, subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000, model=self,
+                plot_residuals=True, **kwargs)
             t_min = min(t_min, np.min(data.time))
             t_max = max(t_max, np.max(data.time))
 
-        if delta_mag > 1.:
-            delta_mag = 0.5
-
         # Plot properties
-        pl.ylim(delta_mag, -delta_mag)
+        y_lim = np.max([np.abs(y_lim) for y_lim in pl.gca().get_ylim()])
+        if y_lim > 1.:
+            y_lim = 0.5
+        pl.ylim(y_lim, -y_lim)
         pl.xlim(t_min-subtract, t_max-subtract)
         pl.ylabel('Residuals')
-        if subtract_2450000:
-            pl.xlabel('Time - 2450000')
-        elif subtract_2460000:
-            pl.xlabel('Time - 2460000')
-        else:
-            pl.xlabel('Time')
+        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -1111,7 +1043,8 @@ class Model(object):
             y_0 = trajectory.y[index]
             d_x = trajectory.x[index+1] - x_0
             d_y = trajectory.y[index+1] - y_0
-            pl.arrow(x_0, y_0, d_x, d_y, lw=0)
+            color = kwargs.get('color', 'black')
+            pl.arrow(x_0, y_0, d_x, d_y, lw=0, color=color)
 
     def update_caustics(self, epoch=None):
         """
@@ -1340,3 +1273,13 @@ class Model(object):
         List of all bandpasses for which limb darkening coefficients are set.
         """
         return self._bandpasses
+
+    @property
+    def fit(self):
+        """
+        :py:class:`MulensModel.fit.Fit`
+
+        :py:class:`MulensModel.fit.Fit` instance recently used. It gives
+        access to source and blending fluxes.
+        """
+        return self._fit
