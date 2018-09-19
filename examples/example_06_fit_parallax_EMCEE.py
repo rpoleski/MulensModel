@@ -3,6 +3,7 @@ Fits PSPL model with parallax using EMCEE sampler.
 
 """
 import os
+import sys
 import numpy as np
 try:
     import emcee

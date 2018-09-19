@@ -100,14 +100,19 @@ class Fit(object):
                 y = self._datasets[i_dataset].flux[select]
                 sigma_inverse = 1. / self._datasets[i_dataset].err_flux[select]
             y *= sigma_inverse
-            if fit_blending:
-                xT *= np.array([sigma_inverse, sigma_inverse]).T
-            else:
-                xT *= np.array([sigma_inverse]).T
+            xT *= np.array([sigma_inverse] * n_fluxes).T
 
             # Solve for the coefficients in y = fs * x + fb (point source)
             # These values are: F_s1, F_s2,..., F_b.
-            results = np.linalg.lstsq(xT, y, rcond=-1)[0]
+            try:
+                results = np.linalg.lstsq(xT, y, rcond=-1)[0]
+            except ValueError as e:
+                raise ValueError(
+                    '{0}\n'.format(e) +
+                    'If either of these numbers ({0}, {1})'.format(
+                        np.sum(np.isnan(xT)), np.sum(np.isnan(y))) +
+                    ' is greater than zero, there is a NaN somewhere,' +
+                    ' probably in the data (dataset={0}).'.format(i_dataset))
 
             # Record the results
             if fit_blending:
@@ -181,7 +186,6 @@ class Fit(object):
                       * self._magnification[index][i]
 
         return flux
-
 
     def get_input_format(self, data=None):
         """

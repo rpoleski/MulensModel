@@ -24,9 +24,11 @@ params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q,
         'alpha': alpha_0, 's': s_0}
 
 #Generate models:
-model_orb = Model({**params, 'dalpha_dt': dalpha_dt, 'ds_dt': ds_dt})
-# t_0_kep is not provided hence defaults to t_0
 model_static = Model(params)
+params['dalpha_dt'] = dalpha_dt
+params['ds_dt'] = ds_dt
+model_orb = Model(params)
+# t_0_kep is not provided hence defaults to t_0
 
 # We can get model exactly the same as model_orb this way:
 orb_parameters = model_static.parameters.as_dict().copy()

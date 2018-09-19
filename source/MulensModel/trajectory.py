@@ -30,7 +30,8 @@ class Trajectory(object):
             the times at which to generate the source trajectory,
             e.g. a vector.
 
-        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`, required
+        parameters:
+        :py:class:`~MulensModel.modelparameters.ModelParameters`, required
             a ModelParameters object specifying the microlensing parameters
 
         parallax: *boolean dictionary*, optional
@@ -40,7 +41,9 @@ class Trajectory(object):
             :py:class:`~MulensModel.model.Model` which defaults to
             *True*)
 
-        coords: :py:class:`~MulensModel.coordinates.Coordinates`, *Astropy.coordinates.SkyCoord*, or *str*, optional
+        coords:
+        :py:class:`~MulensModel.coordinates.Coordinates`,
+        *Astropy.coordinates.SkyCoord*, or *str*, optional
             sky coordinates of the event; required for parallax calculations
 
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
@@ -82,7 +85,9 @@ class Trajectory(object):
             for (key, value) in parallax.items():
                 self.parallax[key] = value
 
-        if isinstance(coords, SkyCoord) and not isinstance(coords, Coordinates):
+        if (
+                isinstance(coords, SkyCoord) and
+                not isinstance(coords, Coordinates)):
             self.coords = Coordinates(coords)
         else:
             self.coords = coords
@@ -114,8 +119,8 @@ class Trajectory(object):
         if self.parameters.pi_E is not None:
             if self.coords is None:
                 raise ValueError("You're trying to calculate trajectory in " +
-                    "a parallax model, but event sky coordinates were not " +
-                    "provided.")
+                                 "a parallax model, but event sky " +
+                                 "coordinates were not provided.")
 
             # Apply Earth Orbital parallax effect
             if self.parallax['earth_orbital']:
@@ -245,7 +250,7 @@ class Trajectory(object):
         projected on the plane of the sky at event position
         """
         index = (hash(self.coords), hash(self.satellite_skycoord),
-                tuple(self.times.tolist()))
+                 tuple(self.times.tolist()))
         if index in Trajectory._get_delta_satellite_results.keys():
             return Trajectory._get_delta_satellite_results[index]
 

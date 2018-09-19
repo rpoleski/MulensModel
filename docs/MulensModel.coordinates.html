@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.coordinates module &#8212; MulensModel 1.4.0 documentation</title>
+    <title>MulensModel.coordinates module &#8212; MulensModel 1.5.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.4.0',
+        VERSION:     '1.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -48,7 +48,9 @@
 <p>A class for the coordinates (RA, Dec) of an event. Inherits from
 <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html">astropy.SkyCoord</a>.</p>
 <p>May be set as a <em>str</em>, pair of <em>str</em>, or <em>SkyCoord</em> object, e.g.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">)</span>
 <span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18h00m00s&#39;</span><span class="p">,</span> <span class="s1">&#39;-30d00m00s&#39;</span><span class="p">)</span>
 <span class="n">Coordinates</span><span class="p">(</span><span class="n">SkyCoord</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">hourangle</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)))</span>
 <span class="n">Coordinates</span><span class="p">(</span><span class="n">SkyCoord</span><span class="p">(</span><span class="mf">270.000</span><span class="p">,</span> <span class="o">-</span><span class="mf">30.000</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">))</span>

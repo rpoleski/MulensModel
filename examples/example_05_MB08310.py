@@ -17,12 +17,10 @@ from MulensModel import Event, Model, MulensData, MODULE_PATH
 files = glob.glob(os.path.join(MODULE_PATH, "data", "photometry_files",
     "MB08310", "*.tbl"))
 
-datasets = []
-labels = []
+datasets_default = []
 for file_ in sorted(files):
     data = MulensData(file_name=file_, comments=["\\", "|"])
-    datasets.append(data)
-    labels.append(os.path.basename(file_))
+    datasets_default.append(data)
 
 # Define basic point lens model
 t_0 = 2454656.39975
@@ -34,32 +32,42 @@ method = 'finite_source_uniform_Gould94'
 plens_model.set_magnification_methods([t_0-.05, method, t_0+.05])
 
 # Combine the data and model into an event
-ev = Event(datasets=datasets, model=plens_model)
-ev.data_ref = 6
+event_default = Event(datasets=datasets_default, model=plens_model)
+event_default.data_ref = 6
 
 gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 
 # Plot the data and model
 pl.figure()
 pl.subplot(gs[0])
-ev.plot_model(subtract_2450000=True)
-ev.plot_data(subtract_2450000=True)
+event_default.plot_model(subtract_2450000=True)
+event_default.plot_data(subtract_2450000=True)
 pl.title('Data and Fitted Model (Default)')
 # Plot the residuals
 pl.subplot(gs[1])
-ev.plot_residuals(subtract_2450000=True)
+event_default.plot_residuals(subtract_2450000=True)
 
+# -----------------
 # Plot the data and model (customized)
+datasets_custom = []
+color_list = ['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
+for (i, file_) in enumerate(sorted(files)):
+    data = MulensData(
+        file_name=file_, comments=["\\", "|"],
+        plot_properties={
+            'color': color_list[i],
+            'label': os.path.basename(file_).split('_', maxsplit=2)[0]})
+    datasets_custom.append(data)
+
+event_custom = Event(datasets=datasets_custom, model=plens_model)
+
 pl.figure()
 pl.subplot(gs[0])
 t_start = t_0 - 3.
 t_stop = t_0 + 1.
-ev.plot_model(
+event_custom.plot_model(
     color='black', t_start=t_start, t_stop=t_stop, subtract_2450000=True)
-ev.plot_data(
-    label_list=labels, marker='o', markersize=5,
-    color_list=['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple'],
-    subtract_2450000=True)
+event_custom.plot_data(marker='s', markersize=3, subtract_2450000=True)
 pl.ylim(17.5, 12.5)
 pl.xlim(t_start-2450000., t_stop-2450000.)
 pl.legend(loc='upper left')
@@ -67,7 +75,7 @@ pl.title('Data and Fitted Model (Custom)')
 
 # Plot the residuals
 pl.subplot(gs[1])
-ev.plot_residuals(subtract_2450000=True)
+event_custom.plot_residuals(marker='s', markersize=3, subtract_2450000=True)
 pl.xlim(t_start-2450000., t_stop-2450000.)
 
 pl.show()

@@ -194,6 +194,7 @@ class TestEvent(unittest.TestCase):
             ev = Event(datasets='some_string')
 
 def test_event_chi2_gradient():
+    """test calculation of chi2 gradient"""
     # fs = 11.0415734, fb = 0.0 
     parameters_1 = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
     params_1 = ['t_0', 'u_0', 't_E']
@@ -222,3 +223,59 @@ def test_event_chi2_gradient():
         reference = np.array([gradient[key] for key in  params])
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
+def test_event_chi2_binary_source():
+    """simple test if chi2 calculation for binary source works fine"""
+    model = Model({
+        't_0_1': 5000., 'u_0_1': 0.05, 
+        't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.})
+    model_1 = Model(model.parameters.source_1_parameters) 
+    model_2 = Model(model.parameters.source_2_parameters) 
+
+    # prepare fake data:
+    time = np.linspace(4900., 5200, 600.)
+    mag_1 = model_1.magnification(time)
+    mag_2 = model_2.magnification(time)
+    flux = 100. * mag_1 + 300. * mag_2 + 50.
+    data = MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
+    
+    # Calcualte chi^2:
+    event = Event([data], model)
+    np.testing.assert_almost_equal(event.get_chi2(), 0.)
+    # Make sure Model.set_source_flux_ratio() is taken into account.
+    model.set_source_flux_ratio(1.)
+    assert event.get_chi2() > 1.
+    model.set_source_flux_ratio(3.)
+    np.testing.assert_almost_equal(event.get_chi2(), 0.)
+
+def test_event_chi2_binary_source_2datasets():
+    """
+    simple test if chi2 calculation for binary source
+    works fine for 2 datasets
+    """
+    model = Model({
+        't_0_1': 5000., 'u_0_1': 0.05, 
+        't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.})
+    model_1 = Model(model.parameters.source_1_parameters) 
+    model_2 = Model(model.parameters.source_2_parameters) 
+
+    # prepare fake data:
+    time = np.linspace(4900., 5200, 600.)
+    mag_1 = model_1.magnification(time)
+    mag_2 = model_2.magnification(time)
+    flux = 100. * mag_1 + 300. * mag_2 + 50.
+    data_1 = MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
+    flux = 20. * mag_1 + 30. * mag_2 + 50.
+    data_2 = MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
+    
+    # Calcualte chi^2:
+    event = Event([data_1, data_2], model)
+    np.testing.assert_almost_equal(event.get_chi2(), 0.)
+    np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
+    np.testing.assert_almost_equal(event.get_chi2_for_dataset(1), 0.)
+    # Make sure that changing parameters changes chi2:
+    model.parameters.t_E = 100.
+    assert event.get_chi2() > 1., 'wrong chi2'
+    model.parameters.t_E = 25.
+    np.testing.assert_almost_equal(event.get_chi2(), 0.)
+    model.parameters.t_0_1 = 5010.
+    assert event.get_chi2() > 1., 'wrong chi2'

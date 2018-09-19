@@ -260,7 +260,7 @@ class MagnificationCurve(object):
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection]))
             elif (method.lower() ==
-                            'finite_source_uniform_Gould94_direct'.lower()):
+                  'finite_source_uniform_Gould94_direct'.lower()):
                 selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(

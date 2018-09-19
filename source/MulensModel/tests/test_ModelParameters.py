@@ -33,7 +33,7 @@ def test_repr_parameters():
     
     out_1 = "    t_0 (HJD)       u_0    t_E (d) \n"
     out_2 = "2456141.59300  0.542500    62.6300 \n"
-    
+
     assert (out_1 + out_2) == str(params)
 
 def test_rho_t_e_t_star():
@@ -171,4 +171,36 @@ def test_orbital_motion_gammas():
     assert params.gamma_parallel.unit == 1. / u.year
     assert params.gamma_perp.unit == u.rad / u.year
     assert params.gamma.unit == 1. / u.year
+
+def test_binary_source():
+    """
+    Test if binary source parameters are properly set and changed
+    """
+    params = ModelParameters({
+        't_0_1': 2455000.1, 'u_0_1': 0.05, 't_star_1': 0.025,
+        't_0_2': 2455123.4, 'u_0_2': 0.15, 't_star_2': 0.050,
+        't_E': 25.})
+    assert params.t_E == 25.
+    assert params.source_1_parameters.rho == 0.001
+    assert params.source_2_parameters.rho == 0.002
+
+    params.t_0_1 = 2456789.012345
+    assert params.t_0_1 == 2456789.012345
+    assert params.source_1_parameters.t_0 == 2456789.012345
+
+    params.t_star_2 = 0.075
+    assert params.source_2_parameters.t_star == 0.075
+    assert params.t_star_2 == 0.075
+    assert params.source_2_parameters.rho == 0.003
+    assert params.rho_2 == 0.003
+
+    params.t_E = 12.5
+    assert params.t_star_1 == 0.025
+    assert params.source_1_parameters.t_star == 0.025
+    assert params.rho_1 == 0.002
+    assert params.source_1_parameters.rho == 0.002
+    assert params.t_star_2 == 0.075
+    assert params.source_2_parameters.t_star == 0.075
+    assert params.rho_2 == 0.006
+    assert params.source_2_parameters.rho == 0.006
 

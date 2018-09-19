@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as pl
+from os.path import basename
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
@@ -8,9 +10,6 @@ from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.coordinates import Coordinates
 
 
-# data_list and ephemerides_file must have the same time standard.
-# To implement: mjd2hjd = T/F
-# usecols
 class MulensData(object):
     """
     A set of photometric measurements for a microlensing event.
@@ -27,11 +26,11 @@ class MulensData(object):
 
     Keywords :
         data_list: [*list* of *lists*, *numpy.ndarray*], optional
-            columns: Date, Magnitude/Flux, Err
+            columns: Date, Magnitude/Flux, Error
 
         file_name: *str*, optional
             The path to a file with columns: Date, Magnitude/Flux,
-            Err. Loaded using np.loadtxt. See ``**kwargs``.
+            Err. Loaded using :py:func:`numpy.loadtxt()`. See ``**kwargs``.
 
         **Either data_list or file_name is required.**
 
@@ -76,14 +75,45 @@ class MulensData(object):
             Flags for good data, should be the same length as the
             number of data points.
 
-        ``**kwargs`` - :py:func:`np.loadtxt()` keywords. Used if
-        file_name is provided.
+        plot_properties: *dict*, optional
 
-    Attributes (all vectors):
+            Specify properties for plotting, e.g. color, marker,
+            label, and also the show_bad and show_errorbars
+            properties. See :py:func:`set_plot_properties()`.
 
-        flux - the brightness in flux
+            Note: pyplot functions errorbar() and scatter() are used to
+            plot data with errorbars and without them, respectively.
+            The type and size of marker are specified using different
+            keywords: ('fmt', 'markersize') for errorbar() and
+            ('marker', 'size') for scatter(). You can use either convention
+            in :py:attr:`plot_properties` and they will be translated
+            to appropriate keywords. If there are similar problems with
+            other keywords, then they won't be translated unless you
+            contact code authors.
 
-        err_flux - the errors on the fluxes
+            Other special keys :
+                show_errorbars: *boolean*, optional
+                    Whether or not to show the errorbars for this dataset.
+
+                show_bad: *boolean*, optional
+                    Whether or not to plot data points flagged as bad.
+
+    Attributes :
+
+        flux: *numpy.ndarray*
+            The measured brightness in flux units.
+
+        err_flux: *numpy.ndarray*
+            Uncertainties of *flux* values.
+
+        input_fmt: *str* ('mag', 'flux')
+            Input format - same as *phot_fmt* keyword in __init__.
+
+        chi2_fmt: *str* ('mag', 'flux')
+            Photometry format used for chi^2 calculations. Default is 'flux'.
+
+        ephemerides_file: *str*
+            File with satellite ephemeris.
 
     """
 
@@ -92,7 +122,7 @@ class MulensData(object):
                  coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
-                 **kwargs):
+                 plot_properties=None, **kwargs):
 
         # Initialize some variables
         self._n_epochs = None
@@ -120,25 +150,39 @@ class MulensData(object):
             if ra is not None:
                 raise AttributeError(coords_msg)
 
+        # Plot properties
+        if plot_properties is None:
+            plot_properties = {}
+        self.plot_properties = plot_properties
+
         # Import the photometry...
         if data_list is not None and file_name is not None:
-            m = 'MulensData cannot be initialized with data_list and file_name'
-            raise ValueError(m)
+            raise ValueError(
+                'MulensData cannot be initialized with both data_list and ' +
+                'file_name. Choose one or the other.')
         elif data_list is not None:
             # ...from an array
+            if len(kwargs) > 0:
+                raise ValueError('data_list and kwargs cannot be both set')
             (vector_1, vector_2, vector_3) = list(data_list)
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
         elif file_name is not None:
             # ...from a file
-            if 'usecols' not in kwargs:
-                kwargs['usecols'] = [0, 1, 2]
+            usecols = kwargs.pop('usecols', (0, 1, 2))
             (vector_1, vector_2, vector_3) = np.loadtxt(
-                fname=file_name, unpack=True, **kwargs)
+                fname=file_name, unpack=True, usecols=usecols, **kwargs)
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
+
+            # check if data label specified, if not use file_name
+            if 'label' not in self.plot_properties.keys():
+                if file_name is not None:
+                    self.plot_properties['label'] = basename(file_name)
+                else:
+                    self.plot_properties['label'] = 'a dataset'
         else:
             raise ValueError(
                 'MulensData cannot be initialized with ' +
@@ -152,6 +196,8 @@ class MulensData(object):
             self.good = good
         else:
             self.bad = self.n_epochs * [False]
+
+        self._bandpass = None
 
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
@@ -367,10 +413,10 @@ class MulensData(object):
     @property
     def bandpass(self):
         """
-        *string*
+        *String*
 
-        bandpass of given dataset (primary usage is limb darkening), e.g. 'I'
-        or 'V'
+        Bandpass of given dataset (primary usage is limb darkening), e.g. 'I'
+        or 'V'. Returns *None* if not set.
         """
         return self._bandpass
 
@@ -407,3 +453,190 @@ class MulensData(object):
                 "parameter has to be dict, not {:}".format(type(weights)))
 
         self._limb_darkening_weights = weights
+
+    def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
+             subtract_2450000=False, subtract_2460000=False,
+             model=None, plot_residuals=False, **kwargs):
+        """
+        Plot the data.
+
+        Uses :py:attr:`plot_properties` to for label, color, etc.
+        This settings can be changed by setting ``**kwargs``.
+
+        You can plot in either flux or magnitude space. You can plot
+        data in a scale defined by other dataset -- pass *model* argument
+        and *model.data_ref* will be used as reference. Instead of plotting
+        data themselves, you can also plot the residuals of a *model*.
+
+        Keywords:
+            phot_fmt: *string* ('mag', 'flux')
+                Whether to plot the data in magnitudes or in flux. Default
+                is the same as :py:attr:`input_fmt`.
+
+            show_errorbars: *boolean*
+                If show_errorbars is True (default), plots with
+                matplotlib.errorbar(). If False, plots with
+                matplotlib.scatter().
+
+            show_bad: *boolean*
+                If False, bad data are suppressed (default).
+                If True, shows points marked as bad
+                (:py:obj:`mulensdata.MulensData.bad`) as 'x'
+
+            subtract_2450000, subtract_2460000: *boolean*
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers. If using it, make
+                sure to also set the same settings for all other
+                plotting calls (e.g. :py:func:`plot_lc()`).
+
+            model: :py:class:`~MulensModel.model.Model`
+                Model used to scale the data or calculate residuals
+                (if *plot_residuals* is *True*). If provided, then data are
+                scaled to *model.data_ref* dataset.
+
+            plot_residuals: *boolean*
+                If *True* then residuals are plotted (*model* is required).
+                Default is *False*, i.e., plot the data.
+
+            ``**kwargs``: passed to matplotlib plotting functions.
+        """
+
+        if phot_fmt is None:
+            phot_fmt = self.input_fmt
+        if phot_fmt not in ['mag', 'flux']:
+            raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
+        if plot_residuals and model is None:
+            raise ValueError(
+                    'MulensData.plot() requires model to plot residuals')
+
+        subtract = 0.
+        if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError("subtract_2450000 and subtract_2460000 " +
+                                 "cannot be both True")
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
+
+        if show_errorbars is None:
+            show_errorbars = self.plot_properties.get('show_errorbars', True)
+
+        if show_bad is None:
+            show_bad = self.plot_properties.get('show_bad', False)
+
+        if model is None:
+            (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
+                                                       self.flux,
+                                                       self.err_flux)
+        else:
+            if plot_residuals:
+                residuals = model.get_residuals(data_ref=model.data_ref,
+                                                type=phot_fmt, data=self)
+                y_value = residuals[0][0]
+                y_err = residuals[1][0]
+            else:
+                data_ref = model.datasets[model.data_ref]
+                f_source_0 = model.fit.flux_of_sources(data_ref)
+                f_blend_0 = model.fit.blending_flux(data_ref)
+                f_source = model.fit.flux_of_sources(self)
+                f_blend = model.fit.blending_flux(self)
+                flux = f_source_0 * (self.flux - f_blend) / f_source
+                flux += f_blend_0
+                err_flux = f_source_0 * self.err_flux / f_source
+                (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
+                                                           flux, err_flux)
+
+        properties = self._set_plot_properties(
+                show_errorbars=show_errorbars, **kwargs)
+        properties_bad = self._set_plot_properties(
+                show_errorbars=show_errorbars, bad=True, **kwargs)
+
+        time_good = self.time[self.good] - subtract
+        time_bad = self.time[self.bad] - subtract
+
+        if show_errorbars:
+            pl.errorbar(time_good, y_value[self.good], yerr=y_err[self.good],
+                        **properties)
+            if show_bad:
+                pl.errorbar(time_bad, y_value[self.bad], yerr=y_err[self.bad],
+                            **properties_bad)
+        else:
+            pl.scatter(time_good, y_value[self.good], **properties)
+            if show_bad:
+                pl.scatter(time_bad, y_value[self.bad], **properties_bad)
+
+        if phot_fmt == 'mag':
+            (ymin, ymax) = pl.gca().get_ylim()
+            if ymax > ymin:
+                pl.gca().invert_yaxis()
+
+    def _get_y_value_y_err(self, phot_fmt, flux, flux_err):
+        """
+        just calculate magnitudes if needed, or return input otherwise
+        """
+        if phot_fmt == 'mag':
+            return Utils.get_mag_and_err_from_flux(flux, flux_err)
+        else:
+            return (flux, flux_err)
+
+    def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
+        """
+        Set plot properties using ``**kwargs`` and
+        `py:plot_properties`. kwargs takes precedent.
+
+        Keywords:
+            show_errobars: *boolean*
+                `True` means plotting done with pl.errorbar. `False`
+                means plotting done with pl.scatter.
+
+            bad: *boolean*
+                `True` means marker is default to 'x'. `False` means
+                marker is default to 'o'.
+
+           ``**kwargs``: *dict*
+               Keywords accepted by pl.errorbar or pl.scatter.
+
+        """
+        if show_errorbars:
+            marker_key = 'fmt'
+            size_key = 'markersize'  # In pl.errorbar(), 'ms' is equivalent.
+        else:
+            marker_key = 'marker'
+            size_key = 's'
+        marker_keys_all = ['marker', 'fmt']
+        size_keys_all = ['markersize', 'ms', 's']
+
+        # Some older versions of matplotlib have problems when both
+        # 'fmt' and 'color' are specified. Below we take a list of formats
+        # from Notes section of:
+        # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
+        if 'fmt' in kwargs:
+            for char in ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']:
+                if char in kwargs['fmt']:
+                    kwargs['fmt'] = kwargs['fmt'].replace(char, "")
+                    kwargs['color'] = char
+
+        properties = {}
+
+        # Overwrite dataset settings (i.e., self.plot_properties) with kwargs.
+        for dictionary in [self.plot_properties, kwargs]:
+            for (key, value) in dictionary.items():
+                if key in marker_keys_all:
+                    properties[marker_key] = value
+                elif key in size_keys_all:
+                    properties[size_key] = value
+                else:
+                    properties[key] = value
+
+        if bad:
+            properties[marker_key] = 'x'
+        elif marker_key not in properties.keys():
+            properties[marker_key] = 'o'
+
+        if size_key not in properties.keys():
+            properties[size_key] = 5
+
+        for remove_key in ['show_bad', 'show_errorbars']:
+            properties.pop(remove_key, None)
+
+        return properties

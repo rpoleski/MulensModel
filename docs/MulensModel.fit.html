@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.fit module &#8212; MulensModel 1.4.0 documentation</title>
+    <title>MulensModel.fit module &#8212; MulensModel 1.5.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.4.0',
+        VERSION:     '1.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -81,26 +81,6 @@ be fixed at 0 (<em>False</em>)? Default is <em>True</em></dd>
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.fit.Fit.blending_flux">
-<code class="descname">blending_flux</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.blending_flux" title="Permalink to this definition">¶</a></dt>
-<dd><p>Blending flux for given dataset.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
-<dd>A dataset for which blending flux will be given.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>blending_flux: <em>np.float64</em></dt>
-<dd>Blending flux in units where 1 corresponds to 22 mag.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="MulensModel.fit.Fit.flux_of_sources">
 <code class="descname">flux_of_sources</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.flux_of_sources" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fluxes of source(s).</p>
@@ -116,6 +96,26 @@ be fixed at 0 (<em>False</em>)? Default is <em>True</em></dd>
 <dt>source_fluxes: <em>np.ndarray</em></dt>
 <dd>Fluxes of sources in units where 1 corresponds to 22 mag.
 The number of array elements is the same as number of sources.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.fit.Fit.blending_flux">
+<code class="descname">blending_flux</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.blending_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blending flux for given dataset.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
+<dd>A dataset for which blending flux will be given.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>blending_flux: <em>np.float64</em></dt>
+<dd>Blending flux in units where 1 corresponds to 22 mag.</dd>
 </dl>
 </dd>
 </dl>

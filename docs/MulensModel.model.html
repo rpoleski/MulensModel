@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.4.0 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.5.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.4.0',
+        VERSION:     '1.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -98,6 +98,13 @@ is not implemented for the model alone.</p>
 <p>number of objects in the lens system</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="MulensModel.model.Model.n_sources">
+<code class="descname">n_sources</code><a class="headerlink" href="#MulensModel.model.Model.n_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>number of luminous sources; it’s possible to be 1 for xallarap model</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="MulensModel.model.Model.is_static">
 <code class="descname">is_static</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.is_static" title="Permalink to this definition">¶</a></dt>
@@ -130,11 +137,11 @@ for given times. see also
 
 <dl class="method">
 <dt id="MulensModel.model.Model.magnification">
-<code class="descname">magnification</code><span class="sig-paren">(</span><em>time</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.magnification" title="Permalink to this definition">¶</a></dt>
+<code class="descname">magnification</code><span class="sig-paren">(</span><em>time</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em>, <em>flux_ratio_constraint=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the model magnification for the given time(s).</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
-<dd><dl class="first last docutils">
+<dd><dl class="first docutils">
 <dt>time: <em>np.ndarray</em>, <em>list of floats</em>, or <em>float</em></dt>
 <dd>Times for which magnification values are requested.</dd>
 <dt>satellite_skycoord: <em>astropy.coordinates.SkyCoord</em>, optional</dt>
@@ -145,11 +152,20 @@ parallax calculations.</dd>
 <dd>The limb darkening coefficient in gamma convention. Default is
 0 which means no limb darkening effect.</dd>
 </dl>
+<p>flux_ratio_constraint:
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a>, optional</p>
+<blockquote class="last">
+<div>Data to constrain the flux ratio for sources in binary source
+models. Currently accepts only
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> instances.
+Note that <a class="reference internal" href="#MulensModel.model.Model.set_source_flux_ratio" title="MulensModel.model.Model.set_source_flux_ratio"><code class="xref py py-func docutils literal"><span class="pre">set_source_flux_ratio()</span></code></a> takes precedence
+over <em>flux_ratio_constraint</em>.</div></blockquote>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
 <dt>magnification: <em>np.ndarray</em></dt>
-<dd>A vector of calculated magnification values.</dd>
+<dd>A vector of calculated magnification values. For binary source
+models, the effective magnification is returned.</dd>
 </dl>
 </dd>
 </dl>
@@ -184,6 +200,22 @@ account.</dd>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="MulensModel.model.Model.set_source_flux_ratio">
+<code class="descname">set_source_flux_ratio</code><span class="sig-paren">(</span><em>ratio</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_source_flux_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets flux ratio for binary source models. It takes precedence over
+flux_ratio_constraint paramter of <a class="reference internal" href="#MulensModel.model.Model.magnification" title="MulensModel.model.Model.magnification"><code class="xref py py-func docutils literal"><span class="pre">magnification()</span></code></a>.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>ratio: <em>float</em></dt>
+<dd>ratio of fluxes of source no. 2 to source no. 1, i.e.,
+flux_source_2/flux_source_1</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="MulensModel.model.Model.datasets">
 <code class="descname">datasets</code><a class="headerlink" href="#MulensModel.model.Model.datasets" title="Permalink to this definition">¶</a></dt>
@@ -197,12 +229,14 @@ account.</dd>
 <dd><p>Set <a class="reference internal" href="#MulensModel.model.Model.datasets" title="MulensModel.model.Model.datasets"><code class="xref py py-obj docutils literal"><span class="pre">datasets</span></code></a> property</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
-<dd><dl class="first last docutils">
+<dd><dl class="first docutils">
 <dt>datasets: <em>list</em> of <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
 <dd>Datasets to be stored.</dd>
-<dt>data_ref: <em>int</em> or <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a>, optional</dt>
-<dd>Reference dataset.</dd>
 </dl>
+<p>data_ref:
+<em>int</em> or <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a>, optional</p>
+<blockquote class="last">
+<div>Reference dataset.</div></blockquote>
 </dd>
 </dl>
 </dd></dl>
@@ -261,7 +295,7 @@ and <code class="docutils literal"><span class="pre">'topocentric'</span></code>
 <dl class="docutils">
 <dt>Keywords :</dt>
 <dd><p class="first">see <a class="reference internal" href="#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal"><span class="pre">plot_lc()</span></code></a></p>
-<p class="last">satellite_skycoord, gamma: see:py:func:<cite>magnification()</cite></p>
+<p class="last">satellite_skycoord, gamma: see <a class="reference internal" href="#MulensModel.model.Model.magnification" title="MulensModel.model.Model.magnification"><code class="xref py py-func docutils literal"><span class="pre">magnification()</span></code></a></p>
 </dd>
 </dl>
 <p><code class="docutils literal"><span class="pre">**kwargs</span></code> – any arguments accepted by matplotlib.pyplot.plot().</p>
@@ -272,7 +306,7 @@ and <code class="docutils literal"><span class="pre">'topocentric'</span></code>
 <code class="descname">plot_lc</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the model light curve in magnitudes.</p>
 <dl class="docutils">
-<dt>Keywords:</dt>
+<dt>Keywords :</dt>
 <dd><dl class="first docutils">
 <dt>times: [<em>float</em>, <em>list</em>, <em>numpy.ndarray</em>]</dt>
 <dd>a list of times at which to plot the magnifications</dd>
@@ -310,7 +344,7 @@ plot in flux units different than last value of <cite>data_ref</cite>
 <dd><p>Get source and blending fluxes for the model by finding the
 best-fit values compared to data_ref.</p>
 <dl class="docutils">
-<dt>Parameters:</dt>
+<dt>Parameters :</dt>
 <dd><dl class="first last docutils">
 <dt>data_ref: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> or <em>int</em></dt>
 <dd>Reference dataset. If <em>int</em>, corresponds to the index of
