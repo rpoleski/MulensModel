@@ -2,6 +2,7 @@
 # Byte-compiled / optimized 
 __pycache__/
 *.py[cod]
+.pytest_cache
 
 # simple editor backups
 *~
