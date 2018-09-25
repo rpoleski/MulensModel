@@ -329,17 +329,18 @@ class Model(object):
         else:
             dataset_satellite_skycoord = None
 
-        if dataset.bandpass is None:
-            gamma = 0.
-        else:
-            if dataset.bandpass not in self.bandpasses:
-                raise ValueError((
-                        "Limb darkening coefficient requested for " +
-                        "bandpass {:}, but not set before. Use " +
-                        "set_limb_coeff_gamma() or set_limb_coeff_u()"
-                        ).format(dataset.bandpass))
-            gamma = self._limb_darkening_coeffs.get_limb_coeff_gamma(
-                dataset.bandpass)
+        if self.parameters.rho is not None:
+            if dataset.bandpass is None:
+                gamma = 0.
+            else:
+                if dataset.bandpass not in self.bandpasses:
+                    raise ValueError((
+                            "Limb darkening coefficient requested for " +
+                            "bandpass {:}, but not set before. Use " +
+                            "set_limb_coeff_gamma() or set_limb_coeff_u()"
+                            ).format(dataset.bandpass))
+                gamma = self._limb_darkening_coeffs.get_limb_coeff_gamma(
+                    dataset.bandpass)
 
         if self.parameters.n_sources == 1:
             flux_ratio_constraint = None
