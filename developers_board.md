@@ -1,14 +1,9 @@
-## Sep goals:
-1. finish improved passing of color/label/etc from MulensData to Model
-2. Model.plot\_trajectory: 1) arrow plotting for orbital motion models, and 2) binary source
-3. binary source - example
-4. print ModelParamters - simplify and cope with binary source
-
 ## Oct goals:
 1. Cassan 2008 parametrization
 2. Binary source - finish all high level functions
-3. ???
-4. ???
+3. try/except for high-level functions from other packages
+4. Improve MulensData docstrings
+
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
@@ -17,10 +12,10 @@ _italics_ mark important tasks
 
 * Install
   * _makefile for Windows (basic instructions exist already)_
-  * PIP install - the problem is that CustomInstall from setup.py is run when the archive is pripared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
+  * PIP install - the problem is that CustomInstall from setup.py is run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
   * setup.py should use Extensions instead of custom makefile
   * in setup.py in setup() add keywords: long\_description, classifiers
-  * virtualenv; pip install -r requirements.txt; its best to install the dependancies first
+  * virtualenv; pip install -r requirements.txt; its best to install the dependencies first
   * more metadata in setup.py
 * Documentation
   * Sagan workshop hands-on activity in MM
@@ -60,7 +55,7 @@ _italics_ mark important tasks
   * Xallarap (see below for references)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
-    * mapmaking version which adds new rays as needed (but rememember that it runs for fixed (s,q) only!)
+    * mapmaking version which adds new rays as needed (but remember that it runs for fixed (s,q) only!)
     * Yossi's idea to find all the images
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
   * _Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that_
@@ -108,7 +103,7 @@ _italics_ mark important tasks
     * get flux and its error in reference system
     * get\_ref\_fluxes() - add fit\_blending=False option (also in Model class)
     * change order to improve the website
-    * for consitency, it would be good to combine get\_chi2\_for\_dataset() and get\_chi2\_per\_point()
+    * for consistency, it would be good to combine get\_chi2\_for\_dataset() and get\_chi2\_per\_point()
   * Fit class:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
     * n\_sources somehow inconsistent in different places
@@ -146,11 +141,11 @@ _italics_ mark important tasks
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
     * why .rho returns None if it's not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
-    * to make \_check\_valid\_combination\_1\_source shorter, make a boolean dict that says if given paramter is defined or not
+    * to make \_check\_valid\_combination\_1\_source shorter, make a boolean dict that says if given parameter is defined or not
     * change order to improve the website
-    * _values in dimentionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
+    * _values in dimensionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
     * _LaTeX strings with parameters names (useful e.g. for corner plots)_
-    * check if t\_eff and t\_star can be used as input simultanously
+    * check if t\_eff and t\_star can be used as input simultaneously
   * MulensData class:
     * **Errorbar scaling, in particular the two parameter.**
     * add version of n\_epochs that uses only good epochs
@@ -159,7 +154,7 @@ _italics_ mark important tasks
     * change order to improve the website
     * docstring phot\_fmt vs. input\_fmt
     * data\_ref lacks docstring
-    * data\_and\_err\_in\_input\_fmt() and Fit.get\_input\_format() possible can be depreceted or removed because we shifted to chi2\_fmt instead of input\_fmt
+    * data\_and\_err\_in\_input\_fmt() and Fit.get\_input\_format() possible can be deprecated or removed because we shifted to chi2\_fmt instead of input\_fmt
     * when plotting data, make sure that max/min limits on Y axis include errorbars, if the errorbars are shown
     * export/save given data file in scale of other dataset and model
     * data\_list and ephemerides\_file must have the same time standard
@@ -180,13 +175,12 @@ _italics_ mark important tasks
     * utils.py:57 - code produces 2 warnings, should produce just one; use masking
     * documentation - use ITALICS
   * MulensObjects submodule:
-    * in mulenssystem.py add pi\_E
   * Plotting:
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
     * add option to plot satellite coordinates as in Henderson+16 where K2 and Spitzer orbits were compared
     * add plotting with fit\_blending=False for functions that use magnitude space
-    * add plt.xlim() and ylim in plotting functions (using t\_start) etc.; then also update (simpify) tutorials, examples etc.
+    * add plt.xlim() and ylim in plotting functions (using t\_start) etc.; then also update (simplify) tutorials, examples etc.
     * rotate the trajectory, caustics, and critical curve plots so that the motion of the source is in general along X-axis - similar to Skowron+11 paper
     * caustics for trajectory plot with single lens models
   * Examples:
