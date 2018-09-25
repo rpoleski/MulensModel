@@ -555,20 +555,45 @@ class MulensData(object):
         time_bad = self.time[self.bad] - subtract
 
         if show_errorbars:
-            plt.errorbar(time_good, y_value[self.good], yerr=y_err[self.good],
-                        **properties)
+            self._plt_errorbar(time_good, y_value[self.good],
+                               y_err[self.good], properties)
             if show_bad:
-                plt.errorbar(time_bad, y_value[self.bad], yerr=y_err[self.bad],
-                            **properties_bad)
+                self._plt_errorbar(time_bad, y_value[self.bad],
+                                   y_err[self.bad], properties_bad)
         else:
-            plt.scatter(time_good, y_value[self.good], **properties)
+            self._plt_scatter(time_good, y_value[self.good], properties)
             if show_bad:
-                plt.scatter(time_bad, y_value[self.bad], **properties_bad)
+                self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
 
         if phot_fmt == 'mag':
             (ymin, ymax) = plt.gca().get_ylim()
             if ymax > ymin:
                 plt.gca().invert_yaxis()
+
+    def _plt_errorbar(self, time, y, yerr, kwargs):
+        """
+        save run of matplotlib.pyplot.errorbar()
+        """
+        try:
+            plt.errorbar(time, y, yerr=yerr, **kwargs)
+        #except AttributeError as msg:
+            #print(str(msg).split()[-1])
+            #raise
+        except:
+            print("kwargs passed to plt.errorbar():")
+            print(kwargs)
+            raise
+
+    def _plt_scatter(self, time, y, kwargs):
+        """
+        save run of matplotlib.pyplot.scatter()
+        """
+        try:
+            plt.scatter(time, y, **kwargs)
+        except:
+            print("kwargs passed to plt.scatter():")
+            print(kwargs)
+            raise
 
     def _get_y_value_y_err(self, phot_fmt, flux, flux_err):
         """
