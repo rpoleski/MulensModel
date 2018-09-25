@@ -197,7 +197,7 @@ class MulensData(object):
         else:
             self.bad = self.n_epochs * [False]
 
-        self._bandpass = None
+        # self._bandpass = None
 
         # Set up satellite properties (if applicable)
         self.ephemerides_file = ephemerides_file
