@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 from os.path import basename
 
 from astropy.coordinates import SkyCoord
@@ -555,20 +555,20 @@ class MulensData(object):
         time_bad = self.time[self.bad] - subtract
 
         if show_errorbars:
-            pl.errorbar(time_good, y_value[self.good], yerr=y_err[self.good],
+            plt.errorbar(time_good, y_value[self.good], yerr=y_err[self.good],
                         **properties)
             if show_bad:
-                pl.errorbar(time_bad, y_value[self.bad], yerr=y_err[self.bad],
+                plt.errorbar(time_bad, y_value[self.bad], yerr=y_err[self.bad],
                             **properties_bad)
         else:
-            pl.scatter(time_good, y_value[self.good], **properties)
+            plt.scatter(time_good, y_value[self.good], **properties)
             if show_bad:
-                pl.scatter(time_bad, y_value[self.bad], **properties_bad)
+                plt.scatter(time_bad, y_value[self.bad], **properties_bad)
 
         if phot_fmt == 'mag':
-            (ymin, ymax) = pl.gca().get_ylim()
+            (ymin, ymax) = plt.gca().get_ylim()
             if ymax > ymin:
-                pl.gca().invert_yaxis()
+                plt.gca().invert_yaxis()
 
     def _get_y_value_y_err(self, phot_fmt, flux, flux_err):
         """
@@ -586,20 +586,20 @@ class MulensData(object):
 
         Keywords:
             show_errobars: *boolean*
-                `True` means plotting done with pl.errorbar. `False`
-                means plotting done with pl.scatter.
+                `True` means plotting done with plt.errorbar. `False`
+                means plotting done with plt.scatter.
 
             bad: *boolean*
                 `True` means marker is default to 'x'. `False` means
                 marker is default to 'o'.
 
            ``**kwargs``: *dict*
-               Keywords accepted by pl.errorbar or pl.scatter.
+               Keywords accepted by plt.errorbar or plt.scatter.
 
         """
         if show_errorbars:
             marker_key = 'fmt'
-            size_key = 'markersize'  # In pl.errorbar(), 'ms' is equivalent.
+            size_key = 'markersize'  # In plt.errorbar(), 'ms' is equivalent.
         else:
             marker_key = 'marker'
             size_key = 's'

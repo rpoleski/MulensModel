@@ -1,6 +1,6 @@
 import numpy as np
 import warnings
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib.colors import ColorConverter
 from astropy import units as u
@@ -543,9 +543,9 @@ class Model(object):
         magnification = self.magnification(
             times, satellite_skycoord=satellite, gamma=gamma)
 
-        pl.plot(times-subtract, magnification, **kwargs)
-        pl.ylabel('Magnification')
-        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.plot(times-subtract, magnification, **kwargs)
+        plt.ylabel('Magnification')
+        plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -605,13 +605,13 @@ class Model(object):
         flux = f_source * self.magnification(times) + f_blend
 
         subtract = self._subtract(subtract_2450000, subtract_2460000)
-        pl.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)
-        pl.ylabel('Magnitude')
-        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)
+        plt.ylabel('Magnitude')
+        plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
-        (ymin, ymax) = pl.gca().get_ylim()
+        (ymin, ymax) = plt.gca().get_ylim()
         if ymax > ymin:
-            pl.gca().invert_yaxis()
+            plt.gca().invert_yaxis()
 
     def get_ref_fluxes(self, data_ref=None):
         """
@@ -832,13 +832,13 @@ class Model(object):
             t_max = max(t_max, np.max(data.time))
 
         # Plot properties
-        pl.ylabel('Magnitude')
-        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
-        pl.xlim(t_min-subtract, t_max-subtract)
+        plt.ylabel('Magnitude')
+        plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.xlim(t_min-subtract, t_max-subtract)
 
-        (ymin, ymax) = pl.gca().get_ylim()
+        (ymin, ymax) = plt.gca().get_ylim()
         if ymax > ymin:
-            pl.gca().invert_yaxis()
+            plt.gca().invert_yaxis()
 
     def get_residuals(self, data_ref=None, type='mag', data=None):
         """
@@ -941,7 +941,7 @@ class Model(object):
         subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         # Plot zeropoint line
-        pl.plot([0., 3000000.], [0., 0.], color='black')
+        plt.plot([0., 3000000.], [0., 0.], color='black')
 
         # Plot residuals
         for data in self.datasets:
@@ -954,13 +954,13 @@ class Model(object):
             t_max = max(t_max, np.max(data.time))
 
         # Plot properties
-        y_lim = np.max([np.abs(y_lim) for y_lim in pl.gca().get_ylim()])
+        y_lim = np.max([np.abs(y_lim) for y_lim in plt.gca().get_ylim()])
         if y_lim > 1.:
             y_lim = 0.5
-        pl.ylim(y_lim, -y_lim)
-        pl.xlim(t_min-subtract, t_max-subtract)
-        pl.ylabel('Residuals')
-        pl.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.ylim(y_lim, -y_lim)
+        plt.xlim(t_min-subtract, t_max-subtract)
+        plt.ylabel('Residuals')
+        plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -1035,7 +1035,7 @@ class Model(object):
             times, parameters=parameters, parallax=self._parallax,
             coords=self._coords, satellite_skycoord=satellite_skycoord)
 
-        pl.plot(trajectory.x, trajectory.y, **kwargs)
+        plt.plot(trajectory.x, trajectory.y, **kwargs)
 
         if arrow:
             index = int(len(times)/2)
@@ -1044,7 +1044,7 @@ class Model(object):
             d_x = trajectory.x[index+1] - x_0
             d_y = trajectory.y[index+1] - y_0
             color = kwargs.get('color', 'black')
-            pl.arrow(x_0, y_0, d_x, d_y, lw=0, color=color)
+            plt.arrow(x_0, y_0, d_x, d_y, lw=0, color=color)
 
     def update_caustics(self, epoch=None):
         """
