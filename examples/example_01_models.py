@@ -7,7 +7,7 @@ geometry (i.e., the source trajectory and the caustic position are
 plotted).
 
 """
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 import numpy as np
 
 import MulensModel
@@ -33,39 +33,39 @@ planet = Model(
 planet.set_magnification_methods([3589., 'VBBL', 3595.])
 
 # Plot PSPL model
-pl.figure()
+plt.figure()
 pspl.plot_magnification()
-pl.title('A Point Lens Model')
+plt.title('A Point Lens Model')
 
 # Plot PSPL model in magnitudes with arbitrary blending
-pl.figure()
+plt.figure()
 pspl.plot_lc(f_source=1.0, f_blend=0.0, label='fs=1.0, fb=0.0')
 pspl.plot_lc(f_source=0.5, f_blend=0.5, label='fs=0.5, fb=0.5')
-pl.legend(loc='best')
-pl.title('A Point Lens Model in Magnitudes')
+plt.legend(loc='best')
+plt.title('A Point Lens Model in Magnitudes')
 
 # Plot planet and PSPL models and show difference in magnification at
 # planet perturbation
-pl.figure()
+plt.figure()
 pspl.plot_magnification(
     color='blue', linestyle=':', zorder=1, label='Point Lens')
 planet.plot_magnification(
     color='red', linestyle='-', zorder=2, label='Planet')
-pl.title('Planet vs. Point Lens Models')
-pl.legend(loc='best')
+plt.title('Planet vs. Point Lens Models')
+plt.legend(loc='best')
 
 # Plot detail of the planet perturbation
-pl.figure()
+plt.figure()
 planet.plot_magnification(
     t_range=[3592, 3593], color='red', linestyle='-', zorder=2, label='Planet')
-pl.title('Planetary Perturbation Detail')
+plt.title('Planetary Perturbation Detail')
 
 # Plot source trajectory and caustic
-pl.figure(figsize=(6, 6))
+plt.figure(figsize=(6, 6))
 planet.plot_trajectory(t_range=[t_0 - t_E, t_0], color='red', caustics=True)
 planet.plot_trajectory(t_range=[t_0, t_0 + t_E], color='blue')
-pl.xlim(-0.25, 1.0)
-pl.ylim(-0.25, 1.0)
-pl.title('Source Trajectory')
+plt.xlim(-0.25, 1.0)
+plt.ylim(-0.25, 1.0)
+plt.title('Source Trajectory')
 
-pl.show()
+plt.show()
