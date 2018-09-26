@@ -543,7 +543,7 @@ class Model(object):
         magnification = self.magnification(
             times, satellite_skycoord=satellite, gamma=gamma)
 
-        plt.plot(times-subtract, magnification, **kwargs)
+        self._plt_plot(times-subtract, magnification, kwargs)
         plt.ylabel('Magnification')
         plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
@@ -605,13 +605,24 @@ class Model(object):
         flux = f_source * self.magnification(times) + f_blend
 
         subtract = self._subtract(subtract_2450000, subtract_2460000)
-        plt.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)
+        self._plt_plot(times-subtract, Utils.get_mag_from_flux(flux), kwargs)
         plt.ylabel('Magnitude')
         plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
         (ymin, ymax) = plt.gca().get_ylim()
         if ymax > ymin:
             plt.gca().invert_yaxis()
+
+    def _plt_plot(self, x, y, kwargs):
+        """
+        save run of matplotlib.pyplot.plot()
+        """
+        try:
+            plt.plot(x, y, **kwargs)
+        except:
+            print("kwargs passed to plt.plot():")
+            print(kwargs)
+            raise
 
     def get_ref_fluxes(self, data_ref=None):
         """
@@ -1036,6 +1047,7 @@ class Model(object):
             coords=self._coords, satellite_skycoord=satellite_skycoord)
 
         plt.plot(trajectory.x, trajectory.y, **kwargs)
+        #self._plt_plot(trajectory.x, trajectory.y, kwargs)
 
         if arrow:
             index = int(len(times)/2)
@@ -1045,6 +1057,7 @@ class Model(object):
             d_y = trajectory.y[index+1] - y_0
             color = kwargs.get('color', 'black')
             plt.arrow(x_0, y_0, d_x, d_y, lw=0, color=color)
+            print(x_0, y_0, d_x, d_y)
 
     def update_caustics(self, epoch=None):
         """
