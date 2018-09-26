@@ -1044,10 +1044,10 @@ class Model(object):
             index = int(len(times)/2)
             x_0 = trajectory.x[index]
             y_0 = trajectory.y[index]
-            d_x = trajectory.x[index+1] - x_0
-            d_y = trajectory.y[index+1] - y_0
+            d_x = (trajectory.x[index+1] - x_0) / 1e6
+            d_y = (trajectory.y[index+1] - y_0) / 1e6
             color = kwargs.get('color', 'black')
-            pl.arrow(x_0, y_0, d_x, d_y, lw=0, color=color)
+            pl.arrow(x_0, y_0, d_x, d_y, lw=0, width=0.01, color=color)
 
     def update_caustics(self, epoch=None):
         """
