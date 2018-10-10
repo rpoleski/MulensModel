@@ -23,10 +23,15 @@ class MulensData(object):
     BJD_TDB. See** :py:class:`~MulensModel.trajectory.Trajectory`. If
     you aren't using parallax, the time system shouldn't matter as
     long as it is consistent across all MulensData and Model objects.
+    If you have multiple datasets, then you also need multiple instances
+    of MulensData class.
 
     Keywords :
         data_list: [*list* of *lists*, *numpy.ndarray*], optional
-            columns: Date, Magnitude/Flux, Error
+            The list that contains three *lists* or *numpy.ndarrays*
+            that specify: time, magnitude or flux, and its uncertainty
+            (in that order0. The lengths of these three objects must be
+            the same.
 
         file_name: *str*, optional
             The path to a file with columns: Date, Magnitude/Flux,
@@ -35,8 +40,8 @@ class MulensData(object):
         **Either data_list or file_name is required.**
 
         phot_fmt: *str*
-           Specifies whether the photometry is in Magnitudes or Flux
-           units. Accepts either 'mag' or 'flux'. Default = 'mag'.
+           Specifies whether the photometry is provided in magnitude or flux
+           space. Accepts either 'mag' or 'flux'. Default = 'mag'.
 
         chi2_fmt: *str*
            Specifies whether the format used for chi^2 calculation
@@ -54,7 +59,9 @@ class MulensData(object):
            Specify the ephemerides of a satellite over the period when
            the data were taken. Will be interpolated as necessary to
            model the satellite parallax effect. See "Instructions on
-           getting satellite positions" in MulensModel.README.md
+           getting satellite positions" in MulensModel/README.md file.
+           Note that there is no check on time format (e.g., BJD TBD vs. HJD)
+           and it should be the same as in *data_list* or *file_name*.
 
         add_2450000: *boolean*, optional
             Adds 2450000 to the input dates. Useful if the dates
