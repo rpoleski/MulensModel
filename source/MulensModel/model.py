@@ -596,7 +596,8 @@ class Model(object):
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None,
-            subtract_2450000=False, subtract_2460000=False, **kwargs):
+            subtract_2450000=False, subtract_2460000=False,
+            flux_ratio_constraint=None, **kwargs):
         """
         Plot the model light curve in magnitudes.
 
@@ -605,12 +606,6 @@ class Model(object):
                 a list of times at which to plot the magnifications
 
             t_range, t_start, t_stop, dt, n_epochs: see :py:func:`set_times`
-
-            subtract_2450000, subtract_2460000: *boolean*, optional
-                If True, subtracts 2450000 or 2460000 from the time
-                axis to get more human-scale numbers. If using, make
-                sure to also set the same settings for all other
-                plotting calls (e.g. :py:func:`plot_data()`)
 
             data_ref: *int* or a
             :py:class:`~MulensModel.mulensdata.MulensData` object
@@ -622,6 +617,21 @@ class Model(object):
                 Explicitly specify the source and blend fluxes in a
                 system where flux = 1 corresponds to
                 :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag).
+
+            subtract_2450000, subtract_2460000: *boolean*, optional
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers. If using, make
+                sure to also set the same settings for all other
+                plotting calls (e.g. :py:func:`plot_data()`)
+
+            flux_ratio_constraint:
+            :py:class:`~MulensModel.mulensdata.MulensData`, optional
+                Option for binary source models only.
+                Data to constrain the flux ratio for sources
+                Currently accepts only
+                :py:class:`~MulensModel.mulensdata.MulensData` instances.
+                Note that :py:func:`set_source_flux_ratio()` takes precedence
+                over *flux_ratio_constraint*.
 
             ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
@@ -638,6 +648,26 @@ class Model(object):
         if data_ref is not None:
             self.data_ref = data_ref
 
+        if self.n_sources == 2:
+            if (flux_ratio_constraint is None and
+                    self._source_flux_ratio_constraint is None):
+                if len(self.datasets) == 1:
+                    flux_ratio_constraint = self.datasets[0]
+                    warnings.warn(
+                        'To plot magnification for binary source model you ' +
+                        'have to set the flux ratio (using ' +
+                        'set_source_flux_ratio()) or provide dataset which ' +
+                        'will be used to find flux ratio (option ' +
+                        'flux_ratio_constraint).\n' +
+                        'You have provided only one dataset, so for now we ' +
+                        "will use it, but it won't work if there are mode " +
+                        'datasets.')
+                else:
+                    raise ValueError(
+                        'Not enough information to plot the model ' +
+                        'magnification. Use set_source_flux_ratio() function' +
+                        ' or flux_ratio_constraint option')
+
         if (f_source is None) and (f_blend is None):
             if self.data_ref is None:
                 raise ValueError('No reference dataset of fluxes provided. ' +
@@ -648,7 +678,11 @@ class Model(object):
             raise AttributeError(
                 'If f_source is set, f_blend must also be set and vice versa.')
 
-        flux = f_source * self.magnification(times) + f_blend
+        magnification = self.magnification(
+            times,
+            flux_ratio_constraint=flux_ratio_constraint
+            )
+        flux = f_source * magnification + f_blend
 
         subtract = self._subtract(subtract_2450000, subtract_2460000)
         pl.plot(times-subtract, Utils.get_mag_from_flux(flux), **kwargs)

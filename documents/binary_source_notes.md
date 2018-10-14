@@ -69,7 +69,7 @@ High level functions that need changes:
   * *get\_ref\_fluxes() - IMPROVE DOCSTRINGS*
   * *get\_residuals() - NEEDS WORK (self.fit.get\_flux() etc.)*
   * *functions for setting methods (this is less important for now): set\_default\_magnification\_method(), set\_magnification\_methods(), and set\_magnification\_methods\_parameters() - NOT CHECKED YET*
-  * *all plotting functions - TBD: plot\_lc(), plot\_residuals(), plot\_caustics()*; already done: plot\_magnification()
+  * *all plotting functions - TBD: plot\_residuals()*; already done: plot\_magnification(), plot\_lc()
 * Event:
   * get\_chi2()
   * get\_chi2\_for\_dataset()
