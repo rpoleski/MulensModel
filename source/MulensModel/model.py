@@ -972,10 +972,20 @@ class Model(object):
         for data_ in data_list:
             f_source = self.fit.flux_of_sources(data_)
             f_blend = self.fit.blending_flux(data_)
-            magnification = self.get_data_magnification(data_)
             if type == 'mag':
                 f_source_0 = self.fit.flux_of_sources(data_ref_)
                 f_blend_0 = self.fit.blending_flux(data_ref_)
+                magnification = self.get_data_magnification(data_)
+                #print(f_source_0)
+                #if len(f_source_0) == 1:
+                #    magnification = self.get_data_magnification(data_)
+                #    model_mag = Utils.get_mag_from_flux(
+                #        f_blend_0 + f_source_0 * magnification)
+                #else:
+                #    model_mag = Utils.get_mag_from_flux(
+                #        f_blend_0 +
+                #        f_source_0[0] * magnifications[fit_data.index(data_)][0] +
+                #        f_source_0[1] * magnifications[fit_data.index(data_)][1])
                 model_mag = Utils.get_mag_from_flux(
                     f_blend_0 + f_source_0 * magnification)
                 flux = (f_source_0 * (data_.flux - f_blend) /
@@ -985,6 +995,7 @@ class Model(object):
                 residuals.append(mag - model_mag)
                 errorbars.append(err)
             elif type == 'flux':
+                magnification = self.get_data_magnification(data_)
                 model_flux = f_blend + f_source * magnification
                 residuals.append(data_.flux - model_flux)
                 errorbars.append(data_.err_flux)
