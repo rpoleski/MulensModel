@@ -9,8 +9,6 @@ Instead of t_0, u_0, t_E, and alpha parameters, the new parameterization
 uses two epochs of caustic crossing and corresponding two curvilinear
 abscissa along the caustic. The epochs of caustic crossing are well defined
 in typical cases and it is advantageous to use them as fitting parameters.
-
-These curvilinear abscissa are normalized so that XXX
 """
 import matplotlib.pyplot as plt
 
@@ -25,7 +23,7 @@ model = MM.Model({'s': 1.01, 'q': 0.001, 'rho': 0.002,
 # which are simply separation values at t_caustic_in and t_caustic_out.
 # The values of s_in and s_out will be not much different from s.
 
-print(model.n_lenses, model.n_sources) # Returns "2 1"
+print(model.n_lenses, model.n_sources) # Returns "2 1".
 
 # Plot trajectory and caustic:
 model.plot_trajectory(caustics=True)
