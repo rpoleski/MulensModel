@@ -4,12 +4,9 @@
 * example with q\_f fitted and set by the user (compare 2 EMCEE runs) - **easy**
 * user can define t\_eff\_1 instead of u\_0\_1 etc. - **easy**
 * Model.magnification() - allow float flux\_ratio\_constraint (check also functions that call it)  - **easy**
-* ModelParameters.\_\_repr\_\_ has to be updated - **easy**
 * when finding q\_f via regression, make sure the source fluxes are not negative, at least give warning that includes print(model)
-* Model.plot\_trajectory has to be implemented
 * check Model.get\_ref\_fluxes (also fit\_blending)
 * check Model.get\_residuals (also fit\_blending)
-* check all Model plotting functions
 * add fit\_blending parameter for binary sources only: Model.magnification(), data\_magnification(), get\_data\_magnification(), and plot functions; Event.get\_chi2\_for\_dataset() and get\_chi2\_per\_point(), get\_chi2() as well
 * Event tries to access self.model.\_fit or one of Model functions passes Fit as additional output - make sure which one exactly
 * Model.\_set\_source\_flux\_ratio\_for\_band - finish and make public
