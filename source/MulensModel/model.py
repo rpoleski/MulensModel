@@ -570,7 +570,7 @@ class Model(object):
             if (flux_ratio_constraint is None and
                     self._source_flux_ratio_constraint is None):
                 if len(self.datasets) == 1:
-                    flux_ratio_constraint == self.datasets[0]
+                    flux_ratio_constraint = self.datasets[0]
                     warnings.warn(
                         'To plot magnification for binary source model you ' +
                         'have to set the flux ratio (using ' +
@@ -584,7 +584,7 @@ class Model(object):
                     raise ValueError(
                         'Not enough information to plot the model ' +
                         'magnification. Use set_source_flux_ratio() function' +
-                        ' flux_ratio_constraint option')
+                        ' or flux_ratio_constraint option')
         magnification = self.magnification(
             times, satellite_skycoord=satellite, gamma=gamma,
             flux_ratio_constraint=flux_ratio_constraint)
