@@ -40,3 +40,10 @@ print("You may also be interested in t_star:")
 print(model.parameters.t_star) 
 # This makes sure that internally t_E is properly defined.
 
+# The function below only runs calculations that speed-up further calculations.
+# It significantly speeds-up model fitting but has no immediate result.
+# Maybe it's possible to run these calculations once and save everything in
+# a file? Then this function won't be needed.
+model.precompute_Cassan08_normalization(
+    s_start=0.9, s_stop=1.1, q_start=1.e-5, q_stop=0.1)
+
