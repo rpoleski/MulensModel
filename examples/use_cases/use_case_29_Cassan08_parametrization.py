@@ -16,7 +16,7 @@ import MulensModel as MM
 
 
 model = MM.Model({'s': 1.01, 'q': 0.001, 'rho': 0.002,
-                  's_caustic_in': 1.36, 's_caustic_out': 0.72,
+                  'x_caustic_in': 1.36, 'x_caustic_out': 0.72,
                   't_caustic_in': 6543.123, 't_caustic_out': 6550.987}
 # For models with orbital motion we will be using also:
 # s_in s_out
@@ -45,7 +45,9 @@ print(model.parameters.t_star)
 # Maybe it's possible to run these calculations once and save everything in
 # a file? Then this function won't be needed.
 model.precompute_Cassan08_normalization(
-    s_start=0.9, s_stop=1.1, q_start=1.e-5, q_stop=0.1)
+    x_caustic_start=0.9, x_caustic_stop=1.1, q_start=1.e-5, q_stop=0.1)
+# There may be additional parameters that specify how finely the values are
+# calculated.
 
 # The function below calculates the integral for selected (s, q) and
 # remembers it, so that further calculations of (t_0, u_0, t_E, alpha)
