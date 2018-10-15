@@ -47,3 +47,8 @@ print(model.parameters.t_star)
 model.precompute_Cassan08_normalization(
     s_start=0.9, s_stop=1.1, q_start=1.e-5, q_stop=0.1)
 
+# The function below calculates the integral for selected (s, q) and
+# remembers it, so that further calculations of (t_0, u_0, t_E, alpha)
+# with these (s, q) would require just interpolation instead of integration.
+model.precompute_Cassan08_for_fixed_s_q(s=1.01, q=0.001)
+
