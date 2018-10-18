@@ -383,14 +383,14 @@ class Model(object):
         flux_ratio_constraint paramter of :py:func:`magnification()`.
 
         Parameters :
-            ratio: *float*
+            ratio: *float* or *None*
                 ratio of fluxes of source no. 2 to source no. 1, i.e.,
                 flux_source_2/flux_source_1
         """
-        if not isinstance(ratio, (np.float, float)):
+        if not isinstance(ratio, (np.float, float)) and ratio is not None:
             raise TypeError(
                 'wrong type of input in Model.set_source_flux_ratio(): ' +
-                'got {:}, expected float'.format(type(ratio)))
+                'got {:}, expected float or None'.format(type(ratio)))
         self._source_flux_ratio_constraint = ratio
 
 # Ok, but how we deal with both single value and values for bands?
@@ -706,7 +706,9 @@ class Model(object):
 
         Returns :
             f_source: *np.ndarray*
-                sources' flux; normally of size (1)
+                Sources' flux; normally of size (1). If it is of size (1)
+                for a double source model, then it is a sum of fluxes
+                of both sources.
             f_blend: *float*
                 blending flux
 
@@ -719,7 +721,12 @@ class Model(object):
         """
         data = self._get_data_ref(data_ref)
 
-        fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
+        # If flux_ratio is fitted via regression,
+        #     then return fluxes from self.fit (2 sources, but if flux_ratio is set, then current version would return only 1 value for sources)
+        # else:
+        #     proceed as below
+        mags = self.get_data_magnification(data)
+        fit = Fit(data=data, magnification=mags)
         fit.fit_fluxes()
         self._fit = fit
 
@@ -976,16 +983,6 @@ class Model(object):
                 f_source_0 = self.fit.flux_of_sources(data_ref_)
                 f_blend_0 = self.fit.blending_flux(data_ref_)
                 magnification = self.get_data_magnification(data_)
-                #print(f_source_0)
-                #if len(f_source_0) == 1:
-                #    magnification = self.get_data_magnification(data_)
-                #    model_mag = Utils.get_mag_from_flux(
-                #        f_blend_0 + f_source_0 * magnification)
-                #else:
-                #    model_mag = Utils.get_mag_from_flux(
-                #        f_blend_0 +
-                #        f_source_0[0] * magnifications[fit_data.index(data_)][0] +
-                #        f_source_0[1] * magnifications[fit_data.index(data_)][1])
                 model_mag = Utils.get_mag_from_flux(
                     f_blend_0 + f_source_0 * magnification)
                 flux = (f_source_0 * (data_.flux - f_blend) /
