@@ -2,6 +2,7 @@
 
 
 * user can define t\_eff\_1 instead of u\_0\_1 etc. - **easy**
+* make sure that you can plot model without data (with q\_f specified) **easy**
 * when finding q\_f via regression, make sure the source fluxes are not negative, at least give warning that includes print(model)
 * Model.get\_ref\_fluxes - see notes there and decide how many values should be returned
 * Model.get\_ref\_fluxes - fit\_blending)
@@ -13,7 +14,6 @@
 * add binary source parameters to \_valid\_parameters in modelparameters.py and check that which\_parameters() works properly
 * implement Model.same\_source\_flux\_ratio(band="I") **important**
 * finish use cases: 21, 26, and 26b (Model.set\_source\_flux\_ratio()) **important**
-* make sure that you can plot model without data (with q\_f specified) **easy**
 * Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
 * t\_0\_par and t\_0\_kep - what are default values for binary sources?; adding t\_0\_par\_1/2 may be the best option
 * check binary source parallax models
