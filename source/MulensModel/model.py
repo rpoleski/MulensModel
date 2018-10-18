@@ -1046,8 +1046,7 @@ class Model(object):
             times, parameters=parameters, parallax=self._parallax,
             coords=self._coords, satellite_skycoord=satellite_skycoord)
 
-        plt.plot(trajectory.x, trajectory.y, **kwargs)
-        #self._plt_plot(trajectory.x, trajectory.y, kwargs)
+        self._plt_plot(trajectory.x, trajectory.y, kwargs)
 
         if arrow:
             index = int(len(times)/2)
@@ -1055,9 +1054,9 @@ class Model(object):
             y_0 = trajectory.y[index]
             d_x = trajectory.x[index+1] - x_0
             d_y = trajectory.y[index+1] - y_0
+            dd = 1e6 * (d_x*d_x + d_y*d_y)**.5
             color = kwargs.get('color', 'black')
-            plt.arrow(x_0, y_0, d_x, d_y, lw=0, color=color)
-            print(x_0, y_0, d_x, d_y)
+            plt.arrow(x_0, y_0, d_x/dd, d_y/dd, lw=0, color=color, width=0.01)
 
     def update_caustics(self, epoch=None):
         """
