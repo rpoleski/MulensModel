@@ -96,6 +96,13 @@ def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
     print(*[repr(b) if isinstance(b, float) else b.value for b in best])
     print('chi^2 =', event.best_chi2)
 
+    # Set model parameters to best value. Note that
+    # event.model.parameters does not know flux_ratio.
+    for param in parameters_to_fit:
+        if param != 'flux_ratio':
+            setattr(event.model.parameters, param,
+                    event.best_chi2_parameters[param])
+
 
 # First, prepare the data. There is nothing very exciting in this part,
 # so you may skip it.
@@ -148,3 +155,4 @@ parameters_to_fit = ["t_0_1", "u_0_1", "t_0_2", "u_0_2", "t_E", "flux_ratio"]
 sigmas = [0.1, 0.05, 1., 0.01, 1., 0.001]
 print("\nSecond fit. This can take some time...")
 fit_EMCEE(parameters_to_fit, params, sigmas, ln_prob, my_event)
+
