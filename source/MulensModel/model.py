@@ -304,7 +304,8 @@ class Model(object):
             if self._source_flux_ratio_constraint is not None:
                 flux_ratio_constraint = self._source_flux_ratio_constraint
             if (flux_ratio_constraint is not None and
-                    not isinstance(flux_ratio_constraint, (MulensData, float))):
+                    not isinstance(flux_ratio_constraint,
+                                   (MulensData, float))):
                 raise TypeError('flux_ratio_constraint has to be of type ' +
                                 'MulensData or float, not ' +
                                 '{:}'.format(type(flux_ratio_constraint)))
@@ -410,18 +411,20 @@ class Model(object):
                 flux_source_band_2/flux_source_band_1
         """
         if not isinstance(band, str):
-            raise TypeError(('wrong type of input in ' +
+            raise TypeError((
+                'wrong type of input in ' +
                 'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 'expected string').format(type(band)))
         if not isinstance(ratio, (np.float, float)):
-            raise TypeError(('wrong type of input in ' +
+            raise TypeError((
+                'wrong type of input in ' +
                 'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 'expected float').format(type(ratio)))
         if self._datasets is not None:
             bands = [d.bandpass for d in self.datasets]
             if band not in bands:
                 warnings.warn("No datasets in bandpass {:}".format(band),
-                    UserWarning)
+                              UserWarning)
         raise NotImplementedError("we're working on fixed source flux for " +
                                   "given band")
 
@@ -722,7 +725,9 @@ class Model(object):
         data = self._get_data_ref(data_ref)
 
         # If flux_ratio is fitted via regression,
-        #     then return fluxes from self.fit (2 sources, but if flux_ratio is set, then current version would return only 1 value for sources)
+        #     then return fluxes from self.fit (2 sources, but if
+        #     flux_ratio is set, then current version would return only 1
+        #     value for sources)
         # else:
         #     proceed as below
         mags = self.get_data_magnification(data)
