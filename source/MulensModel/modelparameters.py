@@ -334,31 +334,12 @@ class ModelParameters(object):
                     raise ValueError('You cannot set {:} and {:}'.format(
                                         parameter, parameter[:-2]))
 
-    def _check_valid_combination_1_source(self, keys):
+    def _check_valid_combination_1_source_standard(self, keys):
         """
-        Check that the user hasn't over-defined the ModelParameters.
+        Here we check parameters for non-Cassan08 parameterization.
         """
-        # Make sure that there are no unwanted keys
-        allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
-            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
-            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-            't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
-            't_caustic_in', 't_caustic_out'])
-        difference = set(keys) - allowed_keys
-        if len(difference) > 0:
-            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
-            if set(keys).intersection(derived_1):
-                msg = ('You cannot set gamma, gamma_perp, ' +
-                       'or gamma_parallel. These are derived parameters. ' +
-                       'You can set ds_dt and dalpha_dt instead.\n')
-            else:
-                msg = ""
-            msg += 'Unrecognized parameters: {:}'.format(difference)
-            raise KeyError(msg)
-
-        # Make sure that mimum set of parameters are defined - we need to know
-        # t_0, u_0, and t_E.
+        # Make sure that minimum set of parameters are defined - we need 
+        # to know t_0, u_0, and t_E.
         if 't_0' not in keys:
             raise KeyError('t_0 must be defined')
         if ('u_0' not in keys) and ('t_eff' not in keys):
@@ -370,7 +351,8 @@ class ModelParameters(object):
 
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
-            if ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys):
+            if (('s' not in keys) or
+                    ('q' not in keys) or ('alpha' not in keys)):
                 raise KeyError(
                     'A binary model requires all three of (s, q, alpha).')
 
@@ -433,6 +415,70 @@ class ModelParameters(object):
             if 'ds_dt' not in keys or 'dalpha_dt' not in keys:
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
+
+
+    def _check_valid_combination_1_source_Cassan08(self, keys):
+        """
+        Check parameters defined for Cassan 2008 parameterization.
+        Currently, only static models are accepted.
+        """
+        # Check that all required parameters are defined.
+        parameters = ['s', 'q', 'x_caustic_in', 'x_caustic_out',
+                      't_caustic_in', 't_caustic_out']
+        for parameter in parameters:
+            if parameter not in keys:
+                raise KeyError(
+                    'If you use Cassan 2008 parameterization, then all ' +
+                    'these parameters have to be defined:\n' +
+                    ' \n'.join(parameters))
+
+        # Make sure that there are no unwanted keys
+        allowed_keys = set(parameters + ['rho', 't_star'])
+        difference = set(keys) - allowed_keys
+        if len(difference) > 0:
+            msg += 'Unrecognized parameters: {:}'.format(difference)
+            raise KeyError(msg)
+
+        # Source size cannot be over-defined.
+        if ('rho' in keys) and ('t_star' in keys):
+            raise KeyError('Both rho and t_star cannot be defined for ' +
+                           'Cassan 08 parametrization.')
+
+    def _check_valid_combination_1_source(self, keys):
+        """
+        Check that the user hasn't over-defined the ModelParameters.
+        """
+        # Make sure that there are no unwanted keys
+        allowed_keys = set([
+            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
+            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
+            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
+            't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
+            't_caustic_in', 't_caustic_out'])
+        difference = set(keys) - allowed_keys
+        if len(difference) > 0:
+            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
+            if set(keys).intersection(derived_1):
+                msg = ('You cannot set gamma, gamma_perp, ' +
+                       'or gamma_parallel. These are derived parameters. ' +
+                       'You can set ds_dt and dalpha_dt instead.\n')
+            else:
+                msg = ""
+            msg += 'Unrecognized parameters: {:}'.format(difference)
+            raise KeyError(msg)
+
+        # There are 2 types of models: standard and Cassan08 (no t_0, u_0, t_E, alpha)
+        self._Cassan08 = False
+        Cassan08_parameters = [
+            'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out']
+        for parameter in Cassan08_parameters:
+            if parameter in keys:
+                self._Cassan08 = True
+
+        if self._Cassan08:
+            self._check_valid_combination_1_source_Cassan08(keys)
+        else:
+            self._check_valid_combination_1_source_standard(keys)
 
     def _check_valid_parameter_values(self, parameters):
         """
