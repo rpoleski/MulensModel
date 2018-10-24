@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.6.0 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.7.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -199,7 +199,7 @@ flux_ratio_constraint paramter of <a class="reference internal" href="#MulensMod
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>ratio: <em>float</em></dt>
+<dt>ratio: <em>float</em> or <em>None</em></dt>
 <dd>ratio of fluxes of source no. 2 to source no. 1, i.e.,
 flux_source_2/flux_source_1</dd>
 </dl>
@@ -224,8 +224,8 @@ flux_source_2/flux_source_1</dd>
 <dt>datasets: <em>list</em> of <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a></dt>
 <dd>Datasets to be stored.</dd>
 </dl>
-<p>data_ref:
-<em>int</em> or <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>, optional</p>
+<p>data_ref: <em>int</em> or,
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>, optional</p>
 <blockquote class="last">
 <div>Reference dataset.</div></blockquote>
 </dd>
@@ -281,7 +281,7 @@ and <code class="docutils literal notranslate"><span class="pre">'topocentric'</
 
 <dl class="method">
 <dt id="MulensModel.model.Model.plot_magnification">
-<code class="descname">plot_magnification</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_magnification" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_magnification</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em>, <em>flux_ratio_constraint=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the model magnification curve.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
@@ -294,7 +294,7 @@ and <code class="docutils literal notranslate"><span class="pre">'topocentric'</
 
 <dl class="method">
 <dt id="MulensModel.model.Model.plot_lc">
-<code class="descname">plot_lc</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_lc</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>flux_ratio_constraint=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the model light curve in magnitudes.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
@@ -303,13 +303,6 @@ and <code class="docutils literal notranslate"><span class="pre">'topocentric'</
 <dd>a list of times at which to plot the magnifications</dd>
 </dl>
 <p>t_range, t_start, t_stop, dt, n_epochs: see <a class="reference internal" href="#MulensModel.model.Model.set_times" title="MulensModel.model.Model.set_times"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_times()</span></code></a></p>
-<dl class="docutils">
-<dt>subtract_2450000, subtract_2460000: <em>boolean</em>, optional</dt>
-<dd>If True, subtracts 2450000 or 2460000 from the time
-axis to get more human-scale numbers. If using, make
-sure to also set the same settings for all other
-plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>)</dd>
-</dl>
 <p>data_ref: <em>int</em> or a
 <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> object</p>
 <blockquote>
@@ -320,7 +313,21 @@ plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Mode
 <dd>Explicitly specify the source and blend fluxes in a
 system where flux = 1 corresponds to
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">MulensModel.utils.MAG_ZEROPOINT</span></code> (= 22 mag).</dd>
+<dt>subtract_2450000, subtract_2460000: <em>boolean</em>, optional</dt>
+<dd>If True, subtracts 2450000 or 2460000 from the time
+axis to get more human-scale numbers. If using, make
+sure to also set the same settings for all other
+plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>)</dd>
 </dl>
+<p>flux_ratio_constraint: instance of
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>, optional</p>
+<blockquote>
+<div>Option for binary source models only.
+Data to constrain the flux ratio for sources
+Currently accepts only
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> instances.
+Note that <a class="reference internal" href="#MulensModel.model.Model.set_source_flux_ratio" title="MulensModel.model.Model.set_source_flux_ratio"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_source_flux_ratio()</span></code></a> takes precedence
+over <em>flux_ratio_constraint</em>.</div></blockquote>
 <p class="last"><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> any arguments accepted by matplotlib.pyplot.plot().</p>
 </dd>
 </dl>
@@ -346,7 +353,9 @@ will be used.</dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
 <dt>f_source: <em>np.ndarray</em></dt>
-<dd>sources’ flux; normally of size (1)</dd>
+<dd>Sources’ flux; normally of size (1). If it is of size (1)
+for a double source model, then it is a sum of fluxes
+of both sources.</dd>
 <dt>f_blend: <em>float</em></dt>
 <dd>blending flux</dd>
 </dl>

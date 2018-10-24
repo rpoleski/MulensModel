@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.trajectory module &#8212; MulensModel 1.6.0 documentation</title>
+    <title>MulensModel.trajectory module &#8212; MulensModel 1.7.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -51,7 +51,7 @@ Y=0.</p>
 <dd>the times at which to generate the source trajectory,
 e.g. a vector.</dd>
 </dl>
-<p>parameters:
+<p>parameters: instance of
 <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a>, required</p>
 <blockquote>
 <div>a ModelParameters object specifying the microlensing parameters</div></blockquote>
@@ -63,17 +63,16 @@ e.g. a vector.</dd>
 <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a> which defaults to
 <em>True</em>)</dd>
 </dl>
-<p>coords:
+<p>coords: <em>str</em>, or
 <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></a>,
-<em>Astropy.coordinates.SkyCoord</em>, or <em>str</em>, optional</p>
+<em>Astropy.coordinates.SkyCoord</em>, optional</p>
 <blockquote>
 <div>sky coordinates of the event; required for parallax calculations</div></blockquote>
-<dl class="last docutils">
-<dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</dt>
-<dd>sky coordinates of the satellite specified by the
-ephemerides file. see
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
-</dl>
+<p>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</p>
+<blockquote class="last">
+<div>sky coordinates of the satellite specified by the
+ephemerides file. See
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></div></blockquote>
 </dd>
 <dt>Attributes :</dt>
 <dd><p class="first">x: <em>np.ndarray</em></p>

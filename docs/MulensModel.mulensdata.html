@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.mulensdata module &#8212; MulensModel 1.6.0 documentation</title>
+    <title>MulensModel.mulensdata module &#8212; MulensModel 1.7.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -46,12 +46,17 @@
 <p><strong>Parallax calculations assume that the dates supplied are
 BJD_TDB. See</strong> <a class="reference internal" href="MulensModel.trajectory.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trajectory</span></code></a>. If
 you aren’t using parallax, the time system shouldn’t matter as
-long as it is consistent across all MulensData and Model objects.</p>
+long as it is consistent across all MulensData and Model objects.
+If you have multiple datasets, then you also need multiple instances
+of MulensData class.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
 <dd><dl class="first docutils">
 <dt>data_list: [<em>list</em> of <em>lists</em>, <em>numpy.ndarray</em>], optional</dt>
-<dd>columns: Date, Magnitude/Flux, Error</dd>
+<dd>The list that contains three <em>lists</em> or <em>numpy.ndarrays</em>
+that specify: time, magnitude or flux, and its uncertainty
+(in that order0. The lengths of these three objects must be
+the same.</dd>
 <dt>file_name: <em>str</em>, optional</dt>
 <dd>The path to a file with columns: Date, Magnitude/Flux,
 Err. Loaded using <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.loadtxt()</span></code>. See <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>.</dd>
@@ -59,8 +64,8 @@ Err. Loaded using <code class="xref py py-func docutils literal notranslate"><sp
 <p><strong>Either data_list or file_name is required.</strong></p>
 <dl class="docutils">
 <dt>phot_fmt: <em>str</em></dt>
-<dd>Specifies whether the photometry is in Magnitudes or Flux
-units. Accepts either ‘mag’ or ‘flux’. Default = ‘mag’.</dd>
+<dd>Specifies whether the photometry is provided in magnitude or flux
+space. Accepts either ‘mag’ or ‘flux’. Default = ‘mag’.</dd>
 <dt>chi2_fmt: <em>str</em></dt>
 <dd>Specifies whether the format used for chi^2 calculation
 should be done in Magnitude or Flux spaces. Accepts either
@@ -74,7 +79,9 @@ the errors are gaussian in flux space.</dd>
 <dd>Specify the ephemerides of a satellite over the period when
 the data were taken. Will be interpolated as necessary to
 model the satellite parallax effect. See “Instructions on
-getting satellite positions” in MulensModel.README.md</dd>
+getting satellite positions” in MulensModel/README.md file.
+Note that there is no check on time format (e.g., BJD TBD vs. HJD)
+and it should be the same as in <em>data_list</em> or <em>file_name</em>.</dd>
 <dt>add_2450000: <em>boolean</em>, optional</dt>
 <dd>Adds 2450000 to the input dates. Useful if the dates
 are supplied as HJD-2450000.</dd>
