@@ -1,4 +1,5 @@
 import numpy as np
+from os.path import isfile
 
 from astropy.coordinates import SkyCoord
 import astropy.units as u
@@ -47,6 +48,10 @@ class Horizons(object):
                     file_type = 'Horizons'
                     break
 
+        if not isfile(self.file_properties['file_name']):
+            msg = 'Horizons files {:} does not exists.'
+            message = msg.format(self.file_properties['file_name'])
+            raise FileExistsError(message)
         if file_type == 'Horizons':
             self._read_horizons_file()
         else:
