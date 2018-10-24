@@ -385,18 +385,20 @@ class Model(object):
                 flux_source_band_2/flux_source_band_1
         """
         if not isinstance(band, str):
-            raise TypeError(('wrong type of input in ' +
+            raise TypeError((
+                'wrong type of input in ' +
                 'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 'expected string').format(type(band)))
         if not isinstance(ratio, (np.float, float)):
-            raise TypeError(('wrong type of input in ' +
+            raise TypeError((
+                'wrong type of input in ' +
                 'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 'expected float').format(type(ratio)))
         if self._datasets is not None:
             bands = [d.bandpass for d in self.datasets]
             if band not in bands:
                 warnings.warn("No datasets in bandpass {:}".format(band),
-                    UserWarning)
+                              UserWarning)
         raise NotImplementedError("we're working on fixed source flux for " +
                                   "given band")
 

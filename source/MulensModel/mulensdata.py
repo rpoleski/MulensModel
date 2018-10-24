@@ -582,9 +582,9 @@ class MulensData(object):
         """
         try:
             plt.errorbar(time, y, yerr=yerr, **kwargs)
-        #except AttributeError as msg:
-            #print(str(msg).split()[-1])
-            #raise
+#       except AttributeError as msg:
+#           print(str(msg).split()[-1])
+#           raise
         except:
             print("kwargs passed to plt.errorbar():")
             print(kwargs)
