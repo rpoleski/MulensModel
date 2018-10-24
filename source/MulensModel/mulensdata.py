@@ -171,8 +171,14 @@ class MulensData(object):
         elif file_name is not None:
             # ...from a file
             usecols = kwargs.pop('usecols', (0, 1, 2))
-            (vector_1, vector_2, vector_3) = np.loadtxt(
-                fname=file_name, unpack=True, usecols=usecols, **kwargs)
+            try:
+                (vector_1, vector_2, vector_3) = np.loadtxt(
+                    fname=file_name, unpack=True, usecols=usecols, **kwargs)
+            except:
+                print("kwargs passed to np.loadtxt():")
+                print(kwargs)
+                print("usecols =", usecols)
+                raise
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
