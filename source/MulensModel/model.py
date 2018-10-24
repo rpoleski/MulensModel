@@ -805,11 +805,11 @@ class Model(object):
 
         """
 
-        self._set_default_colors()
         self._check_old_plot_kwargs(
             color_list=color_list, marker_list=marker_list,
             size_list=size_list, label_list=label_list,
             alpha_list=alpha_list, zorder_list=zorder_list)
+        self._set_default_colors()
 
         if data_ref is not None:
             self.data_ref = data_ref
@@ -929,11 +929,11 @@ class Model(object):
         :py:func:`plot_data()`. Note different order of keywords.
         """
 
-        self._set_default_colors()
         self._check_old_plot_kwargs(
             color_list=color_list, marker_list=marker_list,
             size_list=size_list, label_list=label_list,
             alpha_list=alpha_list, zorder_list=zorder_list)
+        self._set_default_colors()
 
         if data_ref is not None:
             self.data_ref = data_ref
