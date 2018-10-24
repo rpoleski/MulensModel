@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 
 from astropy import units as u
 from astropy.constants import au, c, G
@@ -221,7 +221,7 @@ class MulensSystem(object):
 
             model = Model(parameters=parameters)
             model.plot_magnification(**kwargs)
-            pl.xlabel(xtitle)
+            plt.xlabel(xtitle)
 
     def plot_caustics(self, n_points=5000, **kwargs):
         """

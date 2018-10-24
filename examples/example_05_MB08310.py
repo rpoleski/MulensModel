@@ -7,7 +7,7 @@ From `Janczak et al. 2010, ApJ 711, 731
 """
 import glob
 import os
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
 from MulensModel import Event, Model, MulensData, MODULE_PATH
@@ -38,13 +38,13 @@ event_default.data_ref = 6
 gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 
 # Plot the data and model
-pl.figure()
-pl.subplot(gs[0])
+plt.figure()
+plt.subplot(gs[0])
 event_default.plot_model(subtract_2450000=True)
 event_default.plot_data(subtract_2450000=True)
-pl.title('Data and Fitted Model (Default)')
+plt.title('Data and Fitted Model (Default)')
 # Plot the residuals
-pl.subplot(gs[1])
+plt.subplot(gs[1])
 event_default.plot_residuals(subtract_2450000=True)
 
 # -----------------
@@ -61,21 +61,21 @@ for (i, file_) in enumerate(sorted(files)):
 
 event_custom = Event(datasets=datasets_custom, model=plens_model)
 
-pl.figure()
-pl.subplot(gs[0])
+plt.figure()
+plt.subplot(gs[0])
 t_start = t_0 - 3.
 t_stop = t_0 + 1.
 event_custom.plot_model(
     color='black', t_start=t_start, t_stop=t_stop, subtract_2450000=True)
 event_custom.plot_data(marker='s', markersize=3, subtract_2450000=True)
-pl.ylim(17.5, 12.5)
-pl.xlim(t_start-2450000., t_stop-2450000.)
-pl.legend(loc='upper left')
-pl.title('Data and Fitted Model (Custom)')
+plt.ylim(17.5, 12.5)
+plt.xlim(t_start-2450000., t_stop-2450000.)
+plt.legend(loc='upper left')
+plt.title('Data and Fitted Model (Custom)')
 
 # Plot the residuals
-pl.subplot(gs[1])
+plt.subplot(gs[1])
 event_custom.plot_residuals(marker='s', markersize=3, subtract_2450000=True)
-pl.xlim(t_start-2450000., t_stop-2450000.)
+plt.xlim(t_start-2450000., t_stop-2450000.)
 
-pl.show()
+plt.show()

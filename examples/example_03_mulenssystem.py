@@ -5,7 +5,7 @@ specifying u_0.
 
 """
 import astropy.units as u
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 
 from MulensModel.mulensobjects.lens import Lens
 from MulensModel.mulensobjects.source import Source
@@ -23,17 +23,17 @@ point_lens = MulensSystem(lens=my_lens, source=my_source)
 print('The Lens-Source system WITHOUT proper motion specified:')
 print(point_lens)
 
-pl.figure()
+plt.figure()
 point_lens.plot_magnification(u_0=0.1)
-pl.title('Magnification Curve')
+plt.title('Magnification Curve')
 
 # Give the objects a relative proper motion
 point_lens.mu_rel = 4. * u.mas / u.yr
 print('------\nThe Lens-Source system WITH proper motion specified:')
 print(point_lens)
 
-pl.figure()
+plt.figure()
 point_lens.plot_magnification(u_0=0.1)
-pl.title('Magnification Curve w/Proper Motion Defined')
+plt.title('Magnification Curve w/Proper Motion Defined')
 
-pl.show()
+plt.show()

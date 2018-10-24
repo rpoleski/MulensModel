@@ -1,5 +1,5 @@
 import numpy as np
-import math
+from math import sin, cos, sqrt
 import os
 from scipy import integrate
 from scipy.interpolate import interp1d
@@ -34,7 +34,7 @@ def get_pspl_magnification(trajectory):
         u2 = trajectory**2
 
     if isinstance(trajectory, float):
-        pspl_magnification = (u2 + 2.) / math.sqrt(u2 * (u2 + 4.))
+        pspl_magnification = (u2 + 2.) / sqrt(u2 * (u2 + 4.))
     else:
         pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
 
@@ -92,7 +92,7 @@ class PointLens(object):
         """
 
         out = 4. * z / np.pi
-        function = lambda x: (1.-value**2*math.sin(x)**2)**.5
+        function = lambda x: (1.-value**2*sin(x)**2)**.5
 
         for (i, value) in enumerate(z):
             if value < 1.:
@@ -119,8 +119,8 @@ class PointLens(object):
         def function(r, theta):
             r_2 = r * r
             val = (1. - r_2) / (
-                    r_2 + function.arg_2 + r*function.arg_3*math.cos(theta))
-            return r * math.sqrt(val)
+                    r_2 + function.arg_2 + r*function.arg_3*cos(theta))
+            return r * sqrt(val)
 
         lim_0 = lambda x: 0
         lim_1 = lambda x: 1

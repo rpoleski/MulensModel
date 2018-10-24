@@ -1,6 +1,6 @@
 import numpy as np
 from math import cos, sin
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 
 from MulensModel.utils import Utils
 
@@ -50,7 +50,13 @@ class Caustics(object):
             kwargs["lw"] = 0.
         if self._x is None:
             self._calculate(n_points=n_points)
-        pl.scatter(self._x, self._y, **kwargs)
+
+        try:
+            plt.scatter(self._x, self._y, **kwargs)
+        except:
+            print("kwargs passed to plt.scatter():")
+            print(kwargs)
+            raise
 
     def get_caustics(self, n_points=5000):
         """
