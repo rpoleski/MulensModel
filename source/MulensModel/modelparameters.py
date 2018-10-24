@@ -277,7 +277,11 @@ class ModelParameters(object):
                 'width': 11, 'precision': 5, 'unit': '/yr', 'name': 'ds/dt'},
             'dalpha_dt': {
                 'width': 18, 'precision': 5, 'unit': 'deg/yr',
-                'name': 'dalpha/dt'}
+                'name': 'dalpha/dt'},
+            'x_caustic_in': {'width': 9, 'precision': 7},
+            'x_caustic_out': {'width': 9, 'precision': 7},
+            't_caustic_in': {'width': 13, 'precision': 5, 'unit': 'HJD'},
+            't_caustic_out': {'width': 13, 'precision': 5, 'unit': 'HJD'},
         }
         # Add binary source parameters with the same settings.
         binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
@@ -293,7 +297,8 @@ class ModelParameters(object):
         formats_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'ds_dt', 'dalpha_dt'
+            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'ds_dt', 'dalpha_dt',
+            'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
         ]
 
         variables = ''
@@ -338,7 +343,8 @@ class ModelParameters(object):
             't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
             'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
             't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-            't_star_1', 't_star_2'])
+            't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
+            't_caustic_in', 't_caustic_out'])
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
