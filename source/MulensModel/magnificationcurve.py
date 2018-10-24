@@ -233,11 +233,9 @@ class MagnificationCurve(object):
         pspl_magnification = get_pspl_magnification(self.trajectory)
         if self._methods_epochs is None:
             return pspl_magnification
-        else:
-            point_lens = PointLens(self.parameters)
-
+        point_lens = PointLens(self.parameters)
         magnification = pspl_magnification
-        u2 = (self.trajectory.x**2 + self.trajectory.y**2)
+        u2 = self.trajectory.x**2 + self.trajectory.y**2
         u_all = np.sqrt(u2)
         methods = np.array(self._methods_for_epochs())
 
@@ -252,7 +250,7 @@ class MagnificationCurve(object):
                         'no point lens method accepts the parameters')
 
             if method.lower() == 'point_source':
-                pass  # This cases are already taken care of.
+                pass  # These cases are already taken care of.
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 selection = (methods == method)
                 magnification[selection] = (

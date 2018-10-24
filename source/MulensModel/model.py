@@ -196,15 +196,14 @@ class Model(object):
 
         return magnification_curve.magnification
 
-    def _magnification_2_sources(self, time, satellite_skycoord, gamma,
-                                 flux_ratio_constraint):
+    def _separate_magnifications(self, time, satellite_skycoord, gamma):
         """
-        calculate model magnification for given times for model with
-        two sources
+        Calculate magnification separately for each source.
         """
         kwargs = {'times': time, 'parallax': self._parallax,
                   'coords': self._coords,
                   'satellite_skycoord': satellite_skycoord, 'gamma': gamma}
+
         self._magnification_curve_1 = MagnificationCurve(
             parameters=self.parameters.source_1_parameters, **kwargs)
         self._magnification_curve_1.set_magnification_methods(
@@ -221,15 +220,31 @@ class Model(object):
             self._methods_parameters)
         mag_2 = self._magnification_curve_2.magnification
 
+        return (mag_1, mag_2)
+
+    def _magnification_2_sources(self, time, satellite_skycoord, gamma,
+                                 flux_ratio_constraint):
+        """
+        calculate model magnification for given times for model with
+        two sources
+        """
+        (mag_1, mag_2) = self._separate_magnifications(
+                time, satellite_skycoord, gamma)
+
         if self._source_flux_ratio_constraint is not None:
             source_flux_ratio = self._source_flux_ratio_constraint
         else:
-            self._fit = Fit(
-                data=flux_ratio_constraint,
-                magnification=np.array([mag_1, mag_2]))
+            if np.all(flux_ratio_constraint.time == time):
+                mags = np.array([mag_1, mag_2])
+            else:
+                (mag_1_data, mag_2_data) = self._separate_magnifications(
+                    flux_ratio_constraint.time, satellite_skycoord, gamma)
+                mags = np.array([mag_1_data, mag_2_data])
+            self._fit = Fit(data=flux_ratio_constraint, magnification=mags)
             self._fit.fit_fluxes()
             f_s = self._fit.flux_of_sources(flux_ratio_constraint)
             source_flux_ratio = f_s[1] / f_s[0]
+
         magnification = mag_1 + mag_2 * source_flux_ratio
         magnification /= (1. + source_flux_ratio)
         return magnification
@@ -286,6 +301,14 @@ class Model(object):
             magnification = self._magnification_1_source(
                                 time, satellite_skycoord, gamma)
         elif self.n_sources == 2:
+            if self._source_flux_ratio_constraint is not None:
+                flux_ratio_constraint = self._source_flux_ratio_constraint
+            if (flux_ratio_constraint is not None and
+                    not isinstance(flux_ratio_constraint,
+                                   (MulensData, float))):
+                raise TypeError('flux_ratio_constraint has to be of type ' +
+                                'MulensData or float, not ' +
+                                '{:}'.format(type(flux_ratio_constraint)))
             magnification = self._magnification_2_sources(
                                 time, satellite_skycoord, gamma,
                                 flux_ratio_constraint)
@@ -361,17 +384,17 @@ class Model(object):
         flux_ratio_constraint paramter of :py:func:`magnification()`.
 
         Parameters :
-            ratio: *float*
+            ratio: *float* or *None*
                 ratio of fluxes of source no. 2 to source no. 1, i.e.,
                 flux_source_2/flux_source_1
         """
-        if not isinstance(ratio, (np.float, float)):
+        if not isinstance(ratio, (np.float, float)) and ratio is not None:
             raise TypeError(
                 'wrong type of input in Model.set_source_flux_ratio(): ' +
-                'got {:}, expected float'.format(type(ratio)))
+                'got {:}, expected float or None'.format(type(ratio)))
         self._source_flux_ratio_constraint = ratio
 
-# Ok, but how we deall with both single value and values for bands?
+# Ok, but how we deal with both single value and values for bands?
 # a) Do not allow it.
 # b) Use either/or, depending which one was set last.
 # c) Single value first, then take the band.
@@ -523,7 +546,8 @@ class Model(object):
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
-            satellite_skycoord=None, gamma=0., **kwargs):
+            satellite_skycoord=None, gamma=0., flux_ratio_constraint=None,
+            **kwargs):
         """
         Plot the model magnification curve.
 
@@ -545,8 +569,28 @@ class Model(object):
             satellite = satellite_skycoord.get_satellite_coords(times)
         else:
             satellite = None
+        if self.n_sources == 2:
+            if (flux_ratio_constraint is None and
+                    self._source_flux_ratio_constraint is None):
+                if len(self.datasets) == 1:
+                    flux_ratio_constraint = self.datasets[0]
+                    warnings.warn(
+                        'To plot magnification for binary source model you ' +
+                        'have to set the flux ratio (using ' +
+                        'set_source_flux_ratio()) or provide dataset which ' +
+                        'will be used to find flux ratio (option ' +
+                        'flux_ratio_constraint).\n' +
+                        'You have provided only one dataset, so for now we ' +
+                        "will use it, but it won't work if there are mode " +
+                        'datasets.')
+                else:
+                    raise ValueError(
+                        'Not enough information to plot the model ' +
+                        'magnification. Use set_source_flux_ratio() function' +
+                        ' or flux_ratio_constraint option')
         magnification = self.magnification(
-            times, satellite_skycoord=satellite, gamma=gamma)
+            times, satellite_skycoord=satellite, gamma=gamma,
+            flux_ratio_constraint=flux_ratio_constraint)
 
         self._plt_plot(times-subtract, magnification, kwargs)
         plt.ylabel('Magnification')
@@ -555,7 +599,8 @@ class Model(object):
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None,
-            subtract_2450000=False, subtract_2460000=False, **kwargs):
+            subtract_2450000=False, subtract_2460000=False,
+            flux_ratio_constraint=None, **kwargs):
         """
         Plot the model light curve in magnitudes.
 
@@ -564,12 +609,6 @@ class Model(object):
                 a list of times at which to plot the magnifications
 
             t_range, t_start, t_stop, dt, n_epochs: see :py:func:`set_times`
-
-            subtract_2450000, subtract_2460000: *boolean*, optional
-                If True, subtracts 2450000 or 2460000 from the time
-                axis to get more human-scale numbers. If using, make
-                sure to also set the same settings for all other
-                plotting calls (e.g. :py:func:`plot_data()`)
 
             data_ref: *int* or a
             :py:class:`~MulensModel.mulensdata.MulensData` object
@@ -581,6 +620,21 @@ class Model(object):
                 Explicitly specify the source and blend fluxes in a
                 system where flux = 1 corresponds to
                 :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag).
+
+            subtract_2450000, subtract_2460000: *boolean*, optional
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers. If using, make
+                sure to also set the same settings for all other
+                plotting calls (e.g. :py:func:`plot_data()`)
+
+            flux_ratio_constraint:
+            :py:class:`~MulensModel.mulensdata.MulensData`, optional
+                Option for binary source models only.
+                Data to constrain the flux ratio for sources
+                Currently accepts only
+                :py:class:`~MulensModel.mulensdata.MulensData` instances.
+                Note that :py:func:`set_source_flux_ratio()` takes precedence
+                over *flux_ratio_constraint*.
 
             ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
@@ -597,6 +651,26 @@ class Model(object):
         if data_ref is not None:
             self.data_ref = data_ref
 
+        if self.n_sources == 2:
+            if (flux_ratio_constraint is None and
+                    self._source_flux_ratio_constraint is None):
+                if len(self.datasets) == 1:
+                    flux_ratio_constraint = self.datasets[0]
+                    warnings.warn(
+                        'To plot magnification for binary source model you ' +
+                        'have to set the flux ratio (using ' +
+                        'set_source_flux_ratio()) or provide dataset which ' +
+                        'will be used to find flux ratio (option ' +
+                        'flux_ratio_constraint).\n' +
+                        'You have provided only one dataset, so for now we ' +
+                        "will use it, but it won't work if there are mode " +
+                        'datasets.')
+                else:
+                    raise ValueError(
+                        'Not enough information to plot the model ' +
+                        'magnification. Use set_source_flux_ratio() function' +
+                        ' or flux_ratio_constraint option')
+
         if (f_source is None) and (f_blend is None):
             if self.data_ref is None:
                 raise ValueError('No reference dataset of fluxes provided. ' +
@@ -607,7 +681,11 @@ class Model(object):
             raise AttributeError(
                 'If f_source is set, f_blend must also be set and vice versa.')
 
-        flux = f_source * self.magnification(times) + f_blend
+        magnification = self.magnification(
+            times,
+            flux_ratio_constraint=flux_ratio_constraint
+            )
+        flux = f_source * magnification + f_blend
 
         subtract = self._subtract(subtract_2450000, subtract_2460000)
         self._plt_plot(times-subtract, Utils.get_mag_from_flux(flux), kwargs)
@@ -642,7 +720,9 @@ class Model(object):
 
         Returns :
             f_source: *np.ndarray*
-                sources' flux; normally of size (1)
+                Sources' flux; normally of size (1). If it is of size (1)
+                for a double source model, then it is a sum of fluxes
+                of both sources.
             f_blend: *float*
                 blending flux
 
@@ -655,7 +735,14 @@ class Model(object):
         """
         data = self._get_data_ref(data_ref)
 
-        fit = Fit(data=data, magnification=[self.get_data_magnification(data)])
+        # If flux_ratio is fitted via regression,
+        #     then return fluxes from self.fit (2 sources, but if
+        #     flux_ratio is set, then current version would return only 1
+        #     value for sources)
+        # else:
+        #     proceed as below
+        mags = self.get_data_magnification(data)
+        fit = Fit(data=data, magnification=mags)
         fit.fit_fluxes()
         self._fit = fit
 
@@ -908,10 +995,10 @@ class Model(object):
         for data_ in data_list:
             f_source = self.fit.flux_of_sources(data_)
             f_blend = self.fit.blending_flux(data_)
-            magnification = self.get_data_magnification(data_)
             if type == 'mag':
                 f_source_0 = self.fit.flux_of_sources(data_ref_)
                 f_blend_0 = self.fit.blending_flux(data_ref_)
+                magnification = self.get_data_magnification(data_)
                 model_mag = Utils.get_mag_from_flux(
                     f_blend_0 + f_source_0 * magnification)
                 flux = (f_source_0 * (data_.flux - f_blend) /
@@ -921,6 +1008,7 @@ class Model(object):
                 residuals.append(mag - model_mag)
                 errorbars.append(err)
             elif type == 'flux':
+                magnification = self.get_data_magnification(data_)
                 model_flux = f_blend + f_source * magnification
                 residuals.append(data_.flux - model_flux)
                 errorbars.append(data_.err_flux)
