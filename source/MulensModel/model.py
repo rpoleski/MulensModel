@@ -269,6 +269,7 @@ class Model(object):
 
             flux_ratio_constraint:
             :py:class:`~MulensModel.mulensdata.MulensData`, optional
+
                 Data to constrain the flux ratio for sources in binary source
                 models. Currently accepts only
                 :py:class:`~MulensModel.mulensdata.MulensData` instances.
@@ -447,8 +448,9 @@ class Model(object):
             datasets: *list* of :py:class:`~MulensModel.mulensdata.MulensData`
                 Datasets to be stored.
 
-            data_ref:
-            *int* or :py:class:`~MulensModel.mulensdata.MulensData`, optional
+            data_ref: *int* or,
+            :py:class:`~MulensModel.mulensdata.MulensData`, optional
+
                 Reference dataset.
         """
         self._datasets = datasets
@@ -627,8 +629,9 @@ class Model(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_data()`)
 
-            flux_ratio_constraint:
+            flux_ratio_constraint: instance of
             :py:class:`~MulensModel.mulensdata.MulensData`, optional
+
                 Option for binary source models only.
                 Data to constrain the flux ratio for sources
                 Currently accepts only

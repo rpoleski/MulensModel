@@ -18,6 +18,7 @@ def get_pspl_magnification(trajectory):
     Arguments :
         trajectory: *float*, *np.ndarray*, or
         :py:class:`~MulensModel.trajectory.Trajectory` object
+
             The source-lens relative position. If _not_ a
             :py:class:`~MulensModel.trajectory.Trajectory` object,
             then trajectory is assumed to be value(s) of :math:`u`.

@@ -30,8 +30,9 @@ class Trajectory(object):
             the times at which to generate the source trajectory,
             e.g. a vector.
 
-        parameters:
+        parameters: instance of
         :py:class:`~MulensModel.modelparameters.ModelParameters`, required
+
             a ModelParameters object specifying the microlensing parameters
 
         parallax: *boolean dictionary*, optional
@@ -41,14 +42,16 @@ class Trajectory(object):
             :py:class:`~MulensModel.model.Model` which defaults to
             *True*)
 
-        coords:
+        coords: *str*, or
         :py:class:`~MulensModel.coordinates.Coordinates`,
-        *Astropy.coordinates.SkyCoord*, or *str*, optional
+        *Astropy.coordinates.SkyCoord*, optional
+
             sky coordinates of the event; required for parallax calculations
 
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
+
             sky coordinates of the satellite specified by the
-            ephemerides file. see
+            ephemerides file. See
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
 
     Attributes :
