@@ -170,7 +170,7 @@ class PointLens(object):
         """
         z = u / self.parameters.rho
         try:
-            interator = iter(z)
+            _ = iter(z)
         except TypeError:
             z = np.array([z])
 
@@ -232,7 +232,7 @@ class PointLens(object):
         """
         z = u / self.parameters.rho
         try:
-            interator = iter(z)
+            _ = iter(z)
         except TypeError:
             z = np.array([z])
 
@@ -257,3 +257,228 @@ class PointLens(object):
             magnification[mask] *= (B_0 - gamma * B_1)
 
         return magnification
+
+    def get_point_lens_uniform_integrated_magnification(self, u, rho):
+        """
+        XXX
+
+        `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
+        Microlensing: A Precise, Easy to Implement, Fast, and Numerically
+        Stable Formalism"
+        <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_
+        """
+        n = 100
+
+        mag = np.zeros_like(u)
+
+        for i in range(len(u)):
+            if u[i] > rho:
+                mag[i] = self._temp_noLD_2a(u[i], rho, n)
+            else:
+                mag[i] = self._temp_noLD_2b(u[i], rho, n)
+        return mag
+
+    def _temp_noLD_2a(self, u, rho, n):
+        """XXX"""
+        if n % 2 != 0:
+            raise ValueError('odd number expected')
+        theta_max = np.arcsin(rho / u)
+        rho2 = rho * rho
+
+        def u_1(theta):
+            """XXX here theta is a vector; Eq. 4 of Lee+09"""
+            if u <= rho:
+                return 0.
+            out = np.zeros_like(theta)
+            mask = (theta <= theta_max)
+            if np.any(mask):
+                ucos = u * np.cos(theta[mask])
+                out[mask] = ucos - np.sqrt(rho2 - u * u + ucos**2)
+            return out
+
+        def u_2(theta):
+            """XXX here theta is a vector; Eq. 5 of Lee+09"""
+            if u <= rho:
+                ucos = u * np.cos(theta)
+                return ucos + np.sqrt(rho2 - u * u + ucos**2)
+            else:
+                out = np.zeros_like(theta)
+                mask = (theta <= theta_max)
+                if np.any(mask):
+                    ucos = u * np.cos(theta[mask])
+                    out[mask] = ucos + np.sqrt(rho2 - u * u + ucos**2)
+                return out
+
+        def f(theta):
+            """
+            XXX
+            here theta is a vector
+            equation in text between Eq. 7 and 8
+            """
+            u_1_ = u_1(theta)
+            u_2_ = u_2(theta)
+            return u_2_*np.sqrt(u_2_**2+4.) - u_1_*np.sqrt(u_1_**2+4.)
+
+        out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
+        vector_1 = np.arange(1., (n/2 - 1.) + 1)
+        vector_2 = np.arange(1., n/2 + 1)
+        out += 2. * np.sum(f(2.*vector_1*theta_max/n))
+        out += 4. * np.sum(f((2.*vector_2-1.)*theta_max/n))
+        out *= theta_max / (3.*np.pi*rho2*n)
+        return out
+
+    def _temp_noLD_2b(self, u, rho, n):
+        """XXX"""
+        if n % 2 != 0:
+            raise ValueError('odd number expected')
+        rho2 = rho * rho
+
+        def u_1(theta):
+            """XXX here theta is a vector; Eq. 4 of Lee+09"""
+            if u <= rho:
+                return 0.
+            out = np.zeros_like(theta)
+            mask = (theta <= theta_max)
+            if np.any(mask):
+                ucos = u * np.cos(theta[mask])
+                out[mask] = ucos - np.sqrt(rho2 - u * u + ucos**2)
+            return out
+
+        def u_2(theta):
+            """XXX here theta is a vector; Eq. 5 of Lee+09"""
+            if u <= rho:
+                ucos = u * np.cos(theta)
+                return ucos + np.sqrt(rho2 - u * u + ucos**2)
+            else:
+                out = np.zeros_like(theta)
+                mask = (theta <= theta_max)
+                if np.any(mask):
+                    ucos = u * np.cos(theta[mask])
+                    out[mask] = ucos + np.sqrt(rho2 - u * u + ucos**2)
+                return out
+
+        def f(theta):
+            """
+            XXX
+            here theta is a vector;
+            equation in text between Eq. 7 and 8
+            """
+            u_1_ = u_1(theta)
+            u_2_ = u_2(theta)
+            return u_2_*np.sqrt(u_2_**2+4.) - u_1_*np.sqrt(u_1_**2+4.)
+
+        out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
+        vector_1 = np.arange(1., (n - 1.) + 1)
+        vector_2 = np.arange(1., n + 1)
+        out += 2. * np.sum(f(vector_1 * np.pi / n))
+        out += 4. * np.sum(f((2.*vector_2-1.)*np.pi/(2.*n)))
+        out /= 2. * 3. * n * rho2
+        return out
+
+####################################################
+# OBSOLETE CODE BELOW
+####################################################
+
+    def _temp_noLD(self, u, rho):
+        """XXX"""
+        if u >= rho:
+            theta_max = np.arcsin(rho / u)
+        rho2 = rho * rho
+        u2 = u * u
+
+        def u_1(theta):
+            """XXX"""
+            if u <= rho:
+                return 0.
+            if theta > theta_max:
+                return 0.
+            return u*cos(theta) - sqrt(rho2 - (u*sin(theta))**2)
+#            return u_1.out
+
+        def u_2(theta):
+            """XXX"""
+            if u > rho and theta > theta_max:
+                return 0.
+            return u*cos(theta) + sqrt(rho2 - (u*sin(theta))**2)
+#            a = u*cos(theta)
+#            b = sqrt(rho2 - u2 + a * a)
+#            u_1.out = a - b
+#            return a + b
+
+        def short_fun(u_):
+            """XXX"""
+            if u_ == 0.:
+                return 0.
+            return u_ * sqrt(u_ * u_ + 4.)
+
+        def integrand(theta):
+            """XXX"""
+            u_1_ = u_1(theta)
+            u_2_ = u_2(theta)
+            return short_fun(u_2_) - short_fun(u_1_)
+#            return u_2_*sqrt(u_2_**2+4.) - u_1_*sqrt(u_1_**2+4.)
+
+        integral = integrate.quad(integrand, 0, np.pi, epsabs=0., epsrel=1e-5)
+        return integral[0] / (np.pi * rho2)
+
+
+
+    def _temp(self, u, rho, gamma):
+        """
+        apply general method from Lee+09 to a single datapoint
+        """
+        if u >= rho:
+            theta_max = np.arcsin(rho / u)
+        rho2 = rho * rho
+        u2 = u * u
+
+        def u_1(theta):
+            """XXX"""
+            if u <= rho:
+                return 0.
+            if theta > theta_max:
+                return 0.
+#            return u_1.out
+            return u*cos(theta) - sqrt(rho2 - (u*sin(theta))**2)
+
+        def u_2(theta):
+            """XXX"""
+            if u > rho and theta > theta_max:
+                return 0.
+#            a = u*cos(theta)
+#            b = sqrt(rho2 - u2 + a * a)
+#            u_1.out = a - b
+#            return a + b
+            return u*cos(theta) + sqrt(rho2 - (u*sin(theta))**2)
+
+        def temp(u_2):
+            return (u_2 + 2.) / sqrt(u_2 + 4.)
+
+#        fac = 1.5 / rho
+
+        def fun(u_, theta):
+            """XXX"""
+#            if fun.theta != theta:
+#                fun.theta = theta
+#                fun.temp = 2. * cos(theta)
+            u_2 = u_ * u_
+            frac = (u_2 - 2.*u*u_*cos(theta) + u2) / rho2
+#            frac = u_2 - 2.*u*u_*cos(theta) + u2
+#            if frac > rho2:
+#                return 0.
+#            return temp(u_2)*(1.-gamma*(1.-fac*sqrt(rho2-frac)))
+#            frac = (u_2 - fun.temp*u*u_ + u2) / rho2
+            if frac > 1.:
+                return 0.
+#            return temp(u_2)*(1.-gamma*(1.-1.5*sqrt(1.-frac)))
+            temp = (u_2 + 2.) / sqrt(u_2 + 4.)
+            return temp*(1.-gamma*(1.-1.5*sqrt(1.-frac)))
+
+#        fun.theta = None
+
+        e = 1e-2
+        integral = integrate.dblquad(fun, 0., np.pi, u_1, u_2,
+                                     epsabs=0., epsrel=e)
+        mag = integral[0] * 2. / (np.pi * rho * rho)
+        return mag
+
