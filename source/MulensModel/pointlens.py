@@ -278,101 +278,69 @@ class PointLens(object):
                 mag[i] = self._temp_noLD_2b(u[i], rho, n)
         return mag
 
-    def _temp_noLD_2a(self, u, rho, n):
-        """XXX"""
-        if n % 2 != 0:
-            raise ValueError('odd number expected')
-        theta_max = np.arcsin(rho / u)
-        rho2 = rho * rho
+    def _u_1_Lee09(self, theta, u, rho, theta_max=None):
+        """Calculates Equation 4 of Lee et al. 2009"""
+        if u <= rho:
+            return 0.
+        out = np.zeros_like(theta)
+        mask = (theta <= theta_max)
+        if np.any(mask):
+            ucos = u * np.cos(theta[mask])
+            out[mask] = ucos - np.sqrt(rho * rho - u * u + ucos**2)
+        return out
 
-        def u_1(theta):
-            """XXX here theta is a vector; Eq. 4 of Lee+09"""
-            if u <= rho:
-                return 0.
+    def _u_2_Lee09(self, theta, u, rho, theta_max=None):
+        """Calculates Equation 5 of Lee et al. 2009"""
+        if u <= rho:
+            ucos = u * np.cos(theta)
+            return ucos + np.sqrt(rho * rho - u * u + ucos**2)
+        else:
             out = np.zeros_like(theta)
             mask = (theta <= theta_max)
             if np.any(mask):
                 ucos = u * np.cos(theta[mask])
-                out[mask] = ucos - np.sqrt(rho2 - u * u + ucos**2)
+                out[mask] = ucos + np.sqrt(rho * rho - u * u + ucos**2)
             return out
 
-        def u_2(theta):
-            """XXX here theta is a vector; Eq. 5 of Lee+09"""
-            if u <= rho:
-                ucos = u * np.cos(theta)
-                return ucos + np.sqrt(rho2 - u * u + ucos**2)
-            else:
-                out = np.zeros_like(theta)
-                mask = (theta <= theta_max)
-                if np.any(mask):
-                    ucos = u * np.cos(theta[mask])
-                    out[mask] = ucos + np.sqrt(rho2 - u * u + ucos**2)
-                return out
+    def _f_Lee09(self, theta, u, rho, theta_max=None):
+        """
+        Calculates equation in text between Eq. 7 and 8 from
+        Lee et al. 2009.
+        """
+        u_1_ = self._u_1_Lee09(theta, u, rho, theta_max)
+        u_2_ = self._u_2_Lee09(theta, u, rho, theta_max)
 
-        def f(theta):
-            """
-            XXX
-            here theta is a vector
-            equation in text between Eq. 7 and 8
-            """
-            u_1_ = u_1(theta)
-            u_2_ = u_2(theta)
-            return u_2_*np.sqrt(u_2_**2+4.) - u_1_*np.sqrt(u_1_**2+4.)
+        f_u_1 = u_1_ * np.sqrt(u_1_**2 + 4.)
+        f_u_2 = u_2_ * np.sqrt(u_2_**2 + 4.)
+        return f_u_2 - f_u_1
 
+    def _temp_noLD_2a(self, u, rho, n):
+        """XXX"""
+        if n % 2 != 0:
+            raise ValueError('internal error - odd number expected')
+        theta_max = np.arcsin(rho / u)
         out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
         vector_1 = np.arange(1., (n/2 - 1.) + 1)
         vector_2 = np.arange(1., n/2 + 1)
-        out += 2. * np.sum(f(2.*vector_1*theta_max/n))
-        out += 4. * np.sum(f((2.*vector_2-1.)*theta_max/n))
-        out *= theta_max / (3.*np.pi*rho2*n)
+        arg_1 = 2. * vector_1 * theta_max / n
+        arg_2 = (2. * vector_2 - 1.) * theta_max / n
+        out += 2. * np.sum(self._f_Lee09(arg_1, u, rho, theta_max))
+        out += 4. * np.sum(self._f_Lee09(arg_2, u, rho, theta_max))
+        out *= theta_max / (3. * np.pi * rho * rho * n)
         return out
 
     def _temp_noLD_2b(self, u, rho, n):
         """XXX"""
         if n % 2 != 0:
-            raise ValueError('odd number expected')
-        rho2 = rho * rho
-
-        def u_1(theta):
-            """XXX here theta is a vector; Eq. 4 of Lee+09"""
-            if u <= rho:
-                return 0.
-            out = np.zeros_like(theta)
-            mask = (theta <= theta_max)
-            if np.any(mask):
-                ucos = u * np.cos(theta[mask])
-                out[mask] = ucos - np.sqrt(rho2 - u * u + ucos**2)
-            return out
-
-        def u_2(theta):
-            """XXX here theta is a vector; Eq. 5 of Lee+09"""
-            if u <= rho:
-                ucos = u * np.cos(theta)
-                return ucos + np.sqrt(rho2 - u * u + ucos**2)
-            else:
-                out = np.zeros_like(theta)
-                mask = (theta <= theta_max)
-                if np.any(mask):
-                    ucos = u * np.cos(theta[mask])
-                    out[mask] = ucos + np.sqrt(rho2 - u * u + ucos**2)
-                return out
-
-        def f(theta):
-            """
-            XXX
-            here theta is a vector;
-            equation in text between Eq. 7 and 8
-            """
-            u_1_ = u_1(theta)
-            u_2_ = u_2(theta)
-            return u_2_*np.sqrt(u_2_**2+4.) - u_1_*np.sqrt(u_1_**2+4.)
-
+            raise ValueError('internal error - odd number expected')
         out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
         vector_1 = np.arange(1., (n - 1.) + 1)
         vector_2 = np.arange(1., n + 1)
-        out += 2. * np.sum(f(vector_1 * np.pi / n))
-        out += 4. * np.sum(f((2.*vector_2-1.)*np.pi/(2.*n)))
-        out /= 2. * 3. * n * rho2
+        arg_1 = vector_1 * np.pi / n
+        arg_2 = (2. * vector_2 - 1.) * np.pi / (2. * n)
+        out += 2. * np.sum(self._f_Lee09(arg_1, u, rho))
+        out += 4. * np.sum(self._f_Lee09(arg_2, u, rho))
+        out /= 2. * 3. * n * rho * rho
         return out
 
 ####################################################
