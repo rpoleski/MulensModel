@@ -38,7 +38,7 @@ def test_fspl():
     t_vec = np.array([-(rho**2-u_0**2)**0.5, 0., ((0.5*rho)**2-u_0**2)**0.5])
     t_vec = t_vec * t_E + t_0
     
-    params = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E, 'rho':rho})
+    params = ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
 
     mag_curve = MagnificationCurve(times=t_vec, parameters=params, gamma=gamma)
     methods = [t_0-t_E, 'finite_source_LD_Yoo04', t_0+t_E]
@@ -54,6 +54,18 @@ def test_fspl():
     expected *= pspl
     
     np.testing.assert_almost_equal(expected/results, 1., decimal=4)
+
+def test_Lee09():
+    """
+    test Lee+2009 finite source calculation
+    """
+    params = ModelParameters({'t_0': 0., 'u_0': 0.1, 't_E': 10., 'rho': 0.5})
+    t_vec = np.array([0])
+    mag_curve = MagnificationCurve(times=t_vec, parameters=params, gamma=0.3)
+    methods = [-1., 'finite_source_uniform_Lee09', 1.]
+    mag_curve.set_magnification_methods(methods, 'point_source')
+    results = mag_curve.get_point_lens_magnification()
+    assert results[0] > 4. and results[0] < 4.3
 
 def test_PSPL_for_binary():
     """test PSPL model used in a model that is defined as binary"""
