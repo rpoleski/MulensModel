@@ -273,9 +273,9 @@ class PointLens(object):
 
         for i in range(len(u)):
             if u[i] > rho:
-                mag[i] = self._temp_noLD_2a(u[i], rho, n)
+                mag[i] = self._noLD_Lee09_large_u(u[i], rho, n)
             else:
-                mag[i] = self._temp_noLD_2b(u[i], rho, n)
+                mag[i] = self._noLD_Lee09_small_u(u[i], rho, n)
         return mag
 
     def _u_1_Lee09(self, theta, u, rho, theta_max=None):
@@ -314,8 +314,10 @@ class PointLens(object):
         f_u_2 = u_2_ * np.sqrt(u_2_**2 + 4.)
         return f_u_2 - f_u_1
 
-    def _temp_noLD_2a(self, u, rho, n):
-        """XXX"""
+    def _noLD_Lee09_large_u(self, u, rho, n):
+        """
+        Calculates Equation 7 from Lee et al. 2009 in case u > rho.
+        """
         if n % 2 != 0:
             raise ValueError('internal error - odd number expected')
         theta_max = np.arcsin(rho / u)
@@ -329,8 +331,10 @@ class PointLens(object):
         out *= theta_max / (3. * np.pi * rho * rho * n)
         return out
 
-    def _temp_noLD_2b(self, u, rho, n):
-        """XXX"""
+    def _noLD_Lee09_small_u(self, u, rho, n):
+        """
+        Calculates Equation 7 from Lee et al. 2009 in case u < rho.
+        """
         if n % 2 != 0:
             raise ValueError('internal error - odd number expected')
         out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
