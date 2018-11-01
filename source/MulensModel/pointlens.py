@@ -279,9 +279,12 @@ class PointLens(object):
         return mag
 
     def _u_1_Lee09(self, theta, u, rho, theta_max=None):
-        """Calculates Equation 4 of Lee et al. 2009"""
+        """
+        Calculates Equation 4 of Lee et al. 2009.
+        The u variable is float, theta is np.ndarray.
+        """
         if u <= rho:
-            return 0.
+            return 0. * theta
         out = np.zeros_like(theta)
         mask = (theta <= theta_max)
         if np.any(mask):
@@ -290,7 +293,10 @@ class PointLens(object):
         return out
 
     def _u_2_Lee09(self, theta, u, rho, theta_max=None):
-        """Calculates Equation 5 of Lee et al. 2009"""
+        """
+        Calculates Equation 5 of Lee et al. 2009.
+        The u variable is float, theta is np.ndarray.
+        """
         if u <= rho:
             ucos = u * np.cos(theta)
             return ucos + np.sqrt(rho * rho - u * u + ucos**2)
@@ -356,16 +362,56 @@ class PointLens(object):
         Stable Formalism"
         <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_
         """
-        n = 100
+        n_theta = 80
+        n_u = 100
 
         mag = np.zeros_like(u)
 
         for i in range(len(u)):
-            mag[i] = self._LD_Lee09(u[i], rho, gamma, n)
+            mag[i] = self._LD_Lee09(u[i], rho, gamma, n_theta, n_u)
 
         return mag
 
+    def _LD_Lee09(self, u, rho, gamma, n_theta, n_u):
+        """
+        Calculates Equation 13 from Lee et al. 2009.
+        """
+        if n_theta % 2 != 0:
+            raise ValueError('internal error - odd number expected')
+        if n_u % 2 != 0:
+            raise ValueError('internal error - odd number expected')
 
+        if u > rho:
+            theta_max = np.arcsin(rho / u)
+        else:
+            theta_max = None
+            theta_max = np.pi
+        theta = np.linspace(0, theta_max-1e-10, n_theta) # XXX
+        integrand_values = np.zeros_like(theta)
+        u_1 = self._u_1_Lee09(theta, u, rho, theta_max)
+        u_2 = self._u_2_Lee09(theta, u, rho, theta_max)
+
+        def lam2(u_, u, theta_, rho):
+            """XXX"""
+            values = 1. - (u_**2 - 2. * u_ * u * cos(theta_) + u**2) / rho**2
+            out = np.zeros_like(u_)
+            mask = (values >= 0.) # XXX
+            out[mask] = np.sqrt(values[mask])
+            out = 1. - gamma * (1. - 1.5 * out)
+            out *= (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
+            return out
+
+        for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
+            # XXX do we need 2 lines below ?
+            if u_1_ == 0. and u_2_ == 0.:
+                continue
+            u_ = np.linspace(u_1_, u_2_, n_u)
+            integrand_values[i] = integrate.simps(lam2(u_, u, theta_, rho), u_)
+
+        out = integrate.simps(integrand_values, theta)
+        out *= 2. / (np.pi * rho**2)
+
+        return out
 
 ####################################################
 # OBSOLETE CODE BELOW
