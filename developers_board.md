@@ -1,4 +1,4 @@
-## Oct goals:
+## Nov goals:
 1. Cassan 2008 parametrization
 2. triple lens use cases
 3. FSPL for large rho with LD (Lee+09)
