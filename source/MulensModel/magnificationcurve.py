@@ -286,6 +286,13 @@ class MagnificationCurve(object):
                     point_lens.get_point_lens_uniform_integrated_magnification(
                         u=u_all[selection],
                         rho=self.parameters.rho))
+            elif method.lower() == 'finite_source_LD_Lee09'.lower():
+                selection = (methods == method)
+                magnification[selection] = (
+                    point_lens.get_point_lens_LD_integrated_magnification(
+                        u=u_all[selection],
+                        rho=self.parameters.rho,
+                        gamma=self._gamma))
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))

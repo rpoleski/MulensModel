@@ -347,6 +347,26 @@ class PointLens(object):
         out /= 2. * 3. * n * rho * rho
         return out
 
+    def get_point_lens_LD_integrated_magnification(self, u, rho, gamma):
+        """
+        XXX
+
+        `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
+        Microlensing: A Precise, Easy to Implement, Fast, and Numerically
+        Stable Formalism"
+        <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_
+        """
+        n = 100
+
+        mag = np.zeros_like(u)
+
+        for i in range(len(u)):
+            mag[i] = self._LD_Lee09(u[i], rho, gamma, n)
+
+        return mag
+
+
+
 ####################################################
 # OBSOLETE CODE BELOW
 ####################################################
