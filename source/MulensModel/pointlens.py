@@ -151,6 +151,9 @@ class PointLens(object):
         Effects from a Point-Mass Lens"
         <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_
 
+        This approach assumes rho is small (rho < 0.1). For larger sources
+        use :py:func:`get_point_lens_uniform_integrated_magnification`.
+
         Parameters :
             u: *float*, *np.array*
                 The instantaneous source-lens separation.
@@ -260,7 +263,9 @@ class PointLens(object):
 
     def get_point_lens_uniform_integrated_magnification(self, u, rho):
         """
-        XXX
+        Calculate magnification for the point lens and uniform finite source.
+        This approach works well for for small and large sources
+        (e.g., rho~0.5). Uses the method presented by:
 
         `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
         Microlensing: A Precise, Easy to Implement, Fast, and Numerically
@@ -355,7 +360,9 @@ class PointLens(object):
 
     def get_point_lens_LD_integrated_magnification(self, u, rho, gamma):
         """
-        XXX
+        Calculate magnification for the point lens and finite source with
+        limb-darkening. This approach works well for for small and large
+        sources (e.g., rho~0.5). Uses the method presented by:
 
         `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
         Microlensing: A Precise, Easy to Implement, Fast, and Numerically
@@ -371,6 +378,20 @@ class PointLens(object):
             mag[i] = self._LD_Lee09(u[i], rho, gamma, n_theta, n_u)
 
         return mag
+
+    def _integrand_Lee09(self, u_, u, theta_, rho):
+        """
+        Integrand in Equation 13 in Lee et al. 2009.
+
+        u_ is np.ndarray, other parameters are scalars.
+        """
+        values = 1. - (u_**2 - 2. * u_ * u * cos(theta_) + u**2) / rho**2
+        out = np.zeros_like(u_)
+        mask = (values >= 0.) # XXX
+        out[mask] = np.sqrt(values[mask])
+        out = 1. - gamma * (1. - 1.5 * out)
+        out *= (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
+        return out
 
     def _LD_Lee09(self, u, rho, gamma, n_theta, n_u):
         """
@@ -391,22 +412,13 @@ class PointLens(object):
         u_1 = self._u_1_Lee09(theta, u, rho, theta_max)
         u_2 = self._u_2_Lee09(theta, u, rho, theta_max)
 
-        def lam2(u_, u, theta_, rho):
-            """XXX"""
-            values = 1. - (u_**2 - 2. * u_ * u * cos(theta_) + u**2) / rho**2
-            out = np.zeros_like(u_)
-            mask = (values >= 0.) # XXX
-            out[mask] = np.sqrt(values[mask])
-            out = 1. - gamma * (1. - 1.5 * out)
-            out *= (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
-            return out
-
         for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
             # XXX do we need 2 lines below ?
             if u_1_ == 0. and u_2_ == 0.:
                 continue
             u_ = np.linspace(u_1_, u_2_, n_u)
-            integrand_values[i] = integrate.simps(lam2(u_, u, theta_, rho), u_)
+            integrand = self._integrand_Lee09(u_, u, theta_, rho)
+            integrand_values[i] = integrate.simps(integrand, u_)
 
         out = integrate.simps(integrand_values, theta)
         out *= 2. / (np.pi * rho**2)
