@@ -224,6 +224,16 @@ class MagnificationCurve(object):
                 a circular source *including limb-darkening*. This method
                 calculates 2D integral directly (hence can be slow).
 
+            ``finite_source_uniform_Lee09``:
+                Uses the `Lee et al. 2009 ApJ, 695, 200`_ method for
+                a circular and *uniform* source. This method
+                works well for large sources (rho ~ 1).
+
+            ``finite_source_LD_Lee09``:
+                Uses the `Lee et al. 2009 ApJ, 695, 200`_ method for
+                a circular source *including limb-darkening*. This method
+                works well for large sources (rho ~ 1).
+
         Returns :
             magnification: *np.ndarray*
                 Vector of magnifications.

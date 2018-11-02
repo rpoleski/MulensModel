@@ -1290,7 +1290,9 @@ class Model(object):
                 'finite_source_uniform_Gould94'.lower(),
                 'finite_source_uniform_Gould94_direct'.lower(),
                 'finite_source_LD_Yoo04'.lower(),
-                'finite_source_LD_Yoo04_direct'.lower()]
+                'finite_source_LD_Yoo04_direct'.lower(),
+                'finite_source_uniform_Lee09'.lower(),
+                'finite_source_LD_Lee09'.lower()]
         elif self.n_lenses == 2:
             methods_ok = [
                 'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
