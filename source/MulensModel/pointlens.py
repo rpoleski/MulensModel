@@ -379,13 +379,24 @@ class PointLens(object):
 
         return mag
 
-    def _integrand_Lee09(self, u_, u, theta_, rho):
+    def _integrand_Lee09(self, u_, u, theta_, rho, gamma):
         """
         Integrand in Equation 13 in Lee et al. 2009.
 
         u_ is np.ndarray, other parameters are scalars.
         """
         values = 1. - (u_**2 - 2. * u_ * u * cos(theta_) + u**2) / rho**2
+        values[-1] = 0.
+# just for de-bugging:
+#        mask = values<0
+#        if np.any(mask):
+#            print(u_[mask])
+#            print(values[mask])
+#            print(u_)
+        out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
+        return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
+
+# XXX unused code - REMOVE
         out = np.zeros_like(u_)
         mask = (values >= 0.) # XXX
         out[mask] = np.sqrt(values[mask])
@@ -407,7 +418,8 @@ class PointLens(object):
         else:
             theta_max = None
             theta_max = np.pi
-        theta = np.linspace(0, theta_max-1e-10, n_theta) # XXX
+#        theta = np.linspace(0, theta_max-1e-10, n_theta) # XXX
+        theta = np.linspace(0, theta_max-1e-4, n_theta) # XXX
         integrand_values = np.zeros_like(theta)
         u_1 = self._u_1_Lee09(theta, u, rho, theta_max)
         u_2 = self._u_2_Lee09(theta, u, rho, theta_max)
@@ -416,9 +428,13 @@ class PointLens(object):
             # XXX do we need 2 lines below ?
             if u_1_ == 0. and u_2_ == 0.:
                 continue
+# XXX - correct this:
+#            du_ = (u_2_ - u_1_) / (n_u-1)
+#            u_ = np.arange(u_1_, u_2_+du_, du_)
             u_ = np.linspace(u_1_, u_2_, n_u)
-            integrand = self._integrand_Lee09(u_, u, theta_, rho)
-            integrand_values[i] = integrate.simps(integrand, u_)
+            integrand = self._integrand_Lee09(u_, u, theta_, rho, gamma)
+            integrand_values[i] = integrate.simps(integrand, dx=u_[1]-u_[0])
+#            integrand_values[i] = integrate.simps(integrand, u_)
 
         out = integrate.simps(integrand_values, theta)
         out *= 2. / (np.pi * rho**2)
