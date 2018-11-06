@@ -431,6 +431,13 @@ class PointLens(object):
 # XXX - correct this:
 #            du_ = (u_2_ - u_1_) / (n_u-1)
 #            u_ = np.arange(u_1_, u_2_+du_, du_)
+# https://github.com/numpy/numpy/blob/v1.15.0/numpy/core/function_base.py#L25-L150
+# div = (num - 1)
+# y = _nx.arange(0, num, dtype=dt)
+# delta = stop - start
+# step = delta / div
+# y *= step
+# y += start
             u_ = np.linspace(u_1_, u_2_, n_u)
             integrand = self._integrand_Lee09(u_, u, theta_, rho, gamma)
             integrand_values[i] = integrate.simps(integrand, dx=u_[1]-u_[0])
