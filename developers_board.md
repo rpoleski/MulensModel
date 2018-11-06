@@ -28,28 +28,35 @@ _italics_ mark important tasks
     * modelparameters.py
     * _Event.fit seems to be not documented_
   * Include full documentation via setup.py data\_files mechanism.
-  * **multiple datasets - improve in docstrings/tutorials**
   * note that all plotting functions require plt.show() or plt.save()
   * try removing Attributes from docstrings - just make short @property functions
   * "Do not change values in results of this function." - change, because it's not a function
+  * add a note that pi_E is "geocentric" (and "heliocentric" has the same length of vector but rotetated)
+  * _list of all magnification methods_
+  * _tutorial on model types_
+  * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
+  * _Event Arguments docstring_
+  * make sure that website shows correct version of MM
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
-    * source\_flux\_ratio added to ModelParameters
+    * _source\_flux\_ratio added to ModelParameters_
     * Fit.fit\_fluxes docstring to be updated
-    * which\_parameters() - note that it doesn't work for binary source parameters, but the parameters work properly
+    * which\_parameters() - note that it doesn't work for binary source parameters, but the parameters work properly; just BSPL and rho_2 etc. are optional
     * models with fixed no blending: fit\_blending keyword changes
     * flux ratio - for band and for a list of datasets and both fixed and via regression
     * parallax models
     * binary source - there should be one Fit less in Event.get\_chi2xxx functions - if there are 2 sources, then calculate magnification and use F\_S = F\_S\_1+F\_S\_2 and get it from self.model.fit; most probably adding some function to Fit would help
     * binary lens binary source
     * different t\_E for each source (correct Model.set\_times)
+    * test binary source with exactly one rho_X defined
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * Yoo+04 full formalism 
     * get gamma/u LD coeffs from Claret papers etc.
     * full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
+    * [Lee+09] - gradient calculations for uniform source
   * Xallarap (see below for references)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
@@ -64,7 +71,9 @@ _italics_ mark important tasks
   * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
   * fit\_blending for only some of the datasets
 * Parameterization
-  * Cassan 2008 binary lens parameters 
+  * Cassan 2008 binary lens parameters:
+    * Cassan 2010 - Eq. 23, 24 and 25 - multiply s_in,s_out so that prior is uniform in (alpha,u0)
+    * option to change scaling (from [0,1] to C08 params) to work well near topology change
   * [Albrow et al. 1999](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A) (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
   * caustic size w [Dong+09](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [Chung+05](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
@@ -76,7 +85,7 @@ _italics_ mark important tasks
   * BinaryLens class:
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
-    * topology of caustics based on (s,q)
+    * topology of caustics based on (s,q) - already is inside the Cassan+08 calculations, mostly needs use case
     * central and planetary caustic properties: [Chung et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...630..535C) and [Han 2006](http://adsabs.harvard.edu/abs/2006ApJ...638.1080H)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
     * faster hexadecapole using [Cassan 2017](http://adsabs.harvard.edu/abs/2017MNRAS.468.3993C) ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
@@ -129,10 +138,14 @@ _italics_ mark important tasks
     * set\_datasets() - check input
     * add option to use random zorder when plotting multiple datasets (e.g. gaussian with sigma depending on number of plotted datapoints)
     * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
-    * **plot\_lc() - add satellite option like in plot\_magnification()**
+    * **plot\_lc() - add satellite option like in plot\_magnification(), other options as well** - use keywords passed to self.magnification()
+    * does Model.plot\_lc() give docstring for flux\_ratio\_constraint option? If not, then present it in plot\_magnification() docstring
     * use pl.axhline() to plot 0 line in residuals plots at the end, using t\_min,t\_max
     * get\_residuals needs unit test
     * plot\_trajectory - mark data epochs (as pyplot kwargs use MulensData.plot\_properties)
+    * plot\_caustics() - check if model has > 1 lens? or just plot a point for single lens
+    * plot\_data & plot\_residuals - if color is not set by the user and show\_bad is True, then X-s are plotted using different color
+    * _data\_ref lacks docstring_
   * ModelParameters class:
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
@@ -142,17 +155,16 @@ _italics_ mark important tasks
     * _values in dimensionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
     * _LaTeX strings with parameters names (useful e.g. for corner plots)_
     * check if t\_eff and t\_star can be used as input simultaneously
+    * check if input values are floats (or something else accepted)
   * MulensData class:
     * **Errorbar scaling, in particular the two parameter.**
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info
     * change order to improve the website
     * docstring phot\_fmt vs. input\_fmt
-    * data\_ref lacks docstring
     * data\_and\_err\_in\_input\_fmt() and Fit.get\_input\_format() possible can be deprecated or removed because we shifted to chi2\_fmt instead of input\_fmt
     * when plotting data, make sure that max/min limits on Y axis include errorbars, if the errorbars are shown
     * export/save given data file in scale of other dataset and model
-    * data\_list and ephemerides\_file must have the same time standard
   * PointLens class:
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
     * 1+2/u^4 approximation for very large u
@@ -169,6 +181,7 @@ _italics_ mark important tasks
     * add u(a) function: u = np.sqrt(2A/np.sqrt(A^2-1.) - 2.)
     * utils.py:57 - code produces 2 warnings, should produce just one; use masking
     * documentation - use ITALICS
+    * uses masks there if warnings and apply None etc. - check examples after change!
   * MulensObjects submodule:
   * Plotting:
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
@@ -183,7 +196,7 @@ _italics_ mark important tasks
     * **scipy.curve\_fit() and print parameter uncertainties**
     * add example that shows 'log\_' in the name of the parameter; central caustic anomaly planet would be best,
     * add illustration on how to remove airmass trends
-    * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method
+    * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method [link](https://github.com/MichaelDAlbrow/SingleLensFitter/blob/master/SingleLensFitter.py)
     * **corner plots; they require [corner](https://github.com/dfm/corner.py), [pyhdust](https://github.com/danmoser/pyhdust), or [pyGTC](https://pypi.org/project/pyGTC/)**
     * _F\_s for MOA data for MB08310 differs from Janczak paper - is it caused by FSPL vs. FSBL models?_
     * plotting - sharex where possible
@@ -204,6 +217,7 @@ _italics_ mark important tasks
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * Coordinates - write tests, possibly remove test\_Coords.py
   * t\_eff is not tested
+  * plt.scatter -> plt.plot; after that we can start unit tests for plt calls
 * Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time fully checked on 28 Feb 2018 (but didn't include tests)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
