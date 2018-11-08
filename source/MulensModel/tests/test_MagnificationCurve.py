@@ -59,26 +59,6 @@ def test_Lee09():
     """
     test Lee+2009 finite source calculation
     """
-# uniform rho = 1 (u, A):
-# 3.53553390593 1.01084060513
-# 2.06155281281 1.06962639343
-# 1.11803398875 1.42451408166
-# 0.707106781187 2.02334097551
-# 0.5 2.13919086656
-
-# LD gamma=0.5:
-# 3.50142828 1.01110609638
-# 2.00249843945 1.07461016241
-# 1.00498756211 1.57232954942
-# 0.509901951359 2.21990790526
-# 0.1 2.39458814753
-
-# 2LD lambda=0.3:
-# 3.50142828 1.0110829794
-# 2.00249843945 1.07404148634
-# 1.00498756211 1.55620547462
-# 0.509901951359 2.24809136704
-# 0.1 2.44503143812
 
     t_vec = np.array([3.5, 2., 1., 0.5, 0.])
 
@@ -89,7 +69,11 @@ def test_Lee09():
                            2.21990790526, 2.39458814753])
     expected_2 = np.array([1.0110829794, 1.07404148634, 1.55620547462,
                            2.24809136704, 2.44503143812])
-    # The last values are for 2-parameter LD with same settings and lambda=0.3.
+# The last values are for 2-parameter LD with same settings and lambda=0.3.
+# Correction is:
+#  -lambda*(1-1.25*sqrt(costh))
+# and before we used:
+#  1-gamma*(1-1.5*costh)
 
     # Test uniform source first.
     params_0 = ModelParameters({'t_0': 0., 'u_0': 0.5, 't_E': 1., 'rho': 1.})
