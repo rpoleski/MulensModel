@@ -11,6 +11,7 @@
 /* Revision RP 19-12-17 */
 /* Revision RP 02-02-18 */
 /* Revision RP 24-02-18 */
+/* Revision RP 15-11-18 */
 
 
 #include <math.h>
@@ -151,16 +152,16 @@ static FLOAT varprofile(FLOAT x1, FLOAT x2,
 
 static void push (REGNODE_PTR *regstack, REGION_PTR newreg)
 {
-	REGNODE_PTR new;
+	REGNODE_PTR new_;
 
-	new = (REGNODE_PTR) malloc(sizeof(REGNODE));
-	if (new == NULL) {
+	new_ = (REGNODE_PTR) malloc(sizeof(REGNODE));
+	if (new_ == NULL) {
 	  fprintf(stderr,"Sorry, not enough memory available\n");
 	  exit(1);
 	}
-	new->sq = newreg;
-	new->next = *regstack;
-	*regstack = new;
+	new_->sq = newreg;
+	new_->next = *regstack;
+	*regstack = new_;
 }
 
 static REGION_PTR pop(REGNODE_PTR *regstack)
@@ -199,16 +200,16 @@ static void delete_from_stack(REGION_PTR reg, REGNODE_PTR *stack)
 
 static void push_num (INTNODE_PTR *numstack, int num)
 {
-	INTNODE_PTR new;
+	INTNODE_PTR new_;
 
-	new = (INTNODE_PTR) malloc(sizeof(INTNODE));
-	if (new == NULL) {
+	new_ = (INTNODE_PTR) malloc(sizeof(INTNODE));
+	if (new_ == NULL) {
 	  fprintf(stderr,"Sorry, not enough memory available\n");
 	  exit(1);
 	}
-	new->val = num;
-	new->next = *numstack;
-	*numstack = new;
+	new_->val = num;
+	new_->next = *numstack;
+	*numstack = new_;
 }
 
 static int pop_num(INTNODE_PTR *numstack)
@@ -1664,8 +1665,8 @@ static void insert_point(REGION_PTR sc_struct, FLOAT sc_unitsize,
 }
 
 
-static boolean inside(FLOAT x1, FLOAT x2, boolean (*inside_func)(),
-	FLOAT *ps, void (*lenseq_func)(), FLOAT *pl)
+static boolean inside(FLOAT x1, FLOAT x2, boolean (*inside_func)(FLOAT, FLOAT, FLOAT*),
+	FLOAT *ps, void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl)
 {
 	FLOAT y1,y2;
 	
@@ -1674,7 +1675,8 @@ static boolean inside(FLOAT x1, FLOAT x2, boolean (*inside_func)(),
 }
 	
 static FLOAT varprofile(FLOAT x1, FLOAT x2, 
-	FLOAT (*rho_func)(), FLOAT *ps, void (*lenseq_func)(), FLOAT *pl,
+	FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), 
+        FLOAT *ps, void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl,
 	FLOAT (*ld_func)(int,FLOAT*,FLOAT), int n, FLOAT gam[])
 {
 	FLOAT y1,y2;

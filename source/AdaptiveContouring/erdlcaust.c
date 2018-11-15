@@ -6,6 +6,7 @@
 /* modified 10-11-07 MD */
 /* modified 02-02-18 RP */
 /* modified 24-02-18 RP */
+/* modified 15-11-18 RP */
 
 
 #include <math.h>
@@ -106,18 +107,18 @@ static void binlensd5(FLOAT x1, FLOAT x2, FLOAT d, FLOAT m1,
 
 static void add_ptlist(PTLIST_PTR *list, FLOAT x1, FLOAT x2)
 {
-	PTLIST_PTR new;
+	PTLIST_PTR new_;
 
-	new = (PTLIST_PTR) malloc(sizeof(PTLIST));
-	if (new == NULL) {
+	new_ = (PTLIST_PTR) malloc(sizeof(PTLIST));
+	if (new_ == NULL) {
 	  fprintf(stderr,"Sorry, not enough memory available\n");
 	  exit(1);
 	}
-	new->x1 = x1;
-	new->x2 = x2;
-	new->min_lvl = 0;
-	new->next = *list;
-	*list = new;
+	new_->x1 = x1;
+	new_->x2 = x2;
+	new_->min_lvl = 0;
+	new_->next = *list;
+	*list = new_;
 }
 
 

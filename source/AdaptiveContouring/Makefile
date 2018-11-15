@@ -13,7 +13,7 @@ OS := $(shell uname)
 ifeq ($(OS), Darwin)
   LDFLAGS += -Wl,-install_name,$(wrapper)
 else
-  LDFLAGS += -Wl,-soname,$(basename $wrapper)
+  LDFLAGS += -Wl,-soname,$(basename $(wrapper))
 endif
 LDFLAGS += -shared
 

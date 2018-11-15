@@ -7,6 +7,7 @@
 /* RP 19-12-17 */
 /* RP 02-02-18 */
 /* RP 16-03-18 */
+/* RP 15-11-18 */
 
 #define _GNU_SOURCE
 #include <math.h>
@@ -43,7 +44,9 @@ FLOAT adaptive_contour(FLOAT acc, FLOAT ld_acc,
         PTLIST_PTR *pointlist, PTLIST_PTR *holelist,
 	FLOAT (*ld_func)(int n, FLOAT gam[], FLOAT rho),
 	int n, FLOAT gam[], 
-	FLOAT (*rho_func)(), boolean (*inside_func)(), void (*lenseq_func)(), 
+	FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*),
+        boolean (*inside_func)(FLOAT, FLOAT, FLOAT*),
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*),
 	int ns, int nl, ...);
 FLOAT mag_binext(FLOAT y1, FLOAT y2, FLOAT rho, FLOAT d, FLOAT q, 
 	FLOAT (*ld_func)(int,FLOAT*,FLOAT), int n, FLOAT gam[],
