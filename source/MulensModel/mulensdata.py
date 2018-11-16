@@ -84,8 +84,9 @@ class MulensData(object):
 
         plot_properties: *dict*, optional
 
-            Specify properties for plotting, e.g. color, marker,
-            label, and also the show_bad and show_errorbars
+            Specify properties for plotting, e.g. ``color``, ``marker``,
+            ``label``, ``alpha``, ``zorder``, ``markersize``, ``visible``,
+            and also the ``show_bad`` and ``show_errorbars``
             properties. See :py:func:`set_plot_properties()`.
 
             Note: pyplot functions errorbar() and scatter() are used to
