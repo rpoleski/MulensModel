@@ -90,6 +90,17 @@ def test_Lee09():
     mag_curve_1.set_magnification_methods(methods_1, 'point_source')
     results_1 = mag_curve_1.get_point_lens_magnification()
     np.testing.assert_almost_equal(expected_1, results_1, decimal=3)
+    if False:
+        import time
+        start = time.time()
+        for i in range(100):
+            results_1 = mag_curve_1.get_point_lens_magnification()
+        end = time.time()
+        print(results_1)
+        print(end-start)
+
+if __name__ == '__main__':
+    test_Lee09()
 
 def test_PSPL_for_binary():
     """test PSPL model used in a model that is defined as binary"""

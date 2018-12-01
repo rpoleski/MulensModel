@@ -402,6 +402,16 @@ class PointLens(object):
         out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
         return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
 
+    def _integrand_Lee09_v3(self, theta, rho, theta_max, gamma, u, n_u):
+        """XXX"""
+        theta_ = np.array([theta])
+        u_1 = self._u_1_Lee09(theta_, u, rho, theta_max)[0]
+        u_1 += 1.e-13 # XXX
+        u_2 = self._u_2_Lee09(theta_, u, rho, theta_max)[0]
+        u_ = np.linspace(u_1, u_2, n_u)
+        integrand = self._integrand_Lee09(u_, u, theta_, rho, gamma)
+        return integrate.simps(integrand, dx=u_[1]-u_[0])
+
     def _LD_Lee09(self, u, rho, gamma, n_theta, n_u):
         """
         Calculates Equation 13 from Lee et al. 2009.
@@ -422,9 +432,16 @@ class PointLens(object):
         u_1 += 1.e-13 # XXX
         u_2 = self._u_2_Lee09(theta, u, rho, theta_max)
 
+# Third version:
+        if False:
+        #if True:
+            out = integrate.quad(self._integrand_Lee09_v3, theta[0], theta[-1], args=(rho, theta_max, gamma, u, n_u), epsabs=1e-4, epsrel=0.)[0]
+            out *= 2. / (np.pi * rho**2)
+            return out
+
         #if False:
         if True:
-# First version
+# First version - faster than version "Second below"
             temp = np.zeros( (len(theta), n_u) )
             temp2 = (np.zeros( (len(theta), n_u) ).T + np.cos(theta)).T
             for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
@@ -439,6 +456,7 @@ class PointLens(object):
             #out = integrate.simps(integrand_values, theta)
             out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
             out *= 2. / (np.pi * rho**2)
+#            print(out)
             return out
 
 # Second version
@@ -455,5 +473,5 @@ class PointLens(object):
 
         out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
         out *= 2. / (np.pi * rho**2)
-
+#        print(out)
         return out
