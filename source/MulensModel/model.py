@@ -823,6 +823,11 @@ class Model(object):
                         warnings.warn(msg, UserWarning)
                 data.plot_properties['color'] = colors[color_index]
                 color_index += 1
+                if color_index == len(colors):
+                    color_index = 0
+                    msg = ('Too many datasets without colors assigned - ' +
+                        'same color will be used for different datasets')
+                    warnings.warn(msg, UserWarning)
 
     def _color_differences(self, color_list, color):
         """
