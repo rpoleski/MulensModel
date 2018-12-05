@@ -1,4 +1,4 @@
-## Nov goals:
+## Dec goals:
 1. Cassan 2008 parametrization
 2. triple lens use cases
 3. FSPL for large rho with LD (Lee+09)
@@ -11,12 +11,15 @@
 _italics_ mark important tasks
 
 * Install
-  * _makefile for Windows (basic instructions exist already)_
+  * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
+  * setup.py - don't try to compile if .so file is there
   * PIP install - the problem is that CustomInstall from setup.py is run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
-  * setup.py should use Extensions instead of custom makefile
+  * setup.py should use Extensions or Distutils instead of custom makefile
   * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependencies first
   * more metadata in setup.py
+  * more on setup.py: [link](https://github.com/kennethreitz/setup.py)
+  * compile with "pedantic" flags for compilers
 * Documentation
   * Sagan workshop hands-on activity in MM
   * _examples as ipython notebooks_
@@ -37,6 +40,7 @@ _italics_ mark important tasks
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
   * _Event Arguments docstring_
   * make sure that website shows correct version of MM
+  * note that we're not checking for negative source or blending flux
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
@@ -74,6 +78,7 @@ _italics_ mark important tasks
   * Cassan 2008 binary lens parameters:
     * Cassan 2010 - Eq. 23, 24 and 25 - multiply s_in,s_out so that prior is uniform in (alpha,u0)
     * option to change scaling (from [0,1] to C08 params) to work well near topology change
+    * test repr in ModelParameters for Cassan08 parameters
   * [Albrow et al. 1999](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A) (also Cassan 2008 Sec. 5)
   * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
   * caustic size w [Dong+09](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [Chung+05](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
@@ -81,6 +86,7 @@ _italics_ mark important tasks
   * [Heyrovsky 2003](http://adsabs.harvard.edu/abs/2003ApJ...594..464H) parametrization of limb-darkening
   * t\_0\_planet, u\_0\_planet, t\_E\_planet instead of s, q, alpha
   * [Dominik 2009](http://adsabs.harvard.edu/abs/2009MNRAS.393..816D) for PSPL
+  * [Jung+17](http://adsabs.harvard.edu/abs/2017AJ....153..129J) - rotating triple lens - somehow special version of xallarap
 * Function Improvements/Expansion:
   * BinaryLens class:
     * should BinaryLens() accept source\_x/y as lists or arrays?
@@ -106,9 +112,11 @@ _italics_ mark important tasks
     * check all functions that should pass fit\_blending parameter
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
     * get flux and its error in reference system
-    * get\_ref\_fluxes() - add fit\_blending=False option (also in Model class)
+    * get\_ref\_fluxes() - add fit\_blending=False option (also in Model)
     * change order to improve the website
     * for consistency, it would be good to combine get\_chi2\_for\_dataset() and get\_chi2\_per\_point()
+    * other likelihoods, e.g., [Dominik+18](https://arxiv.org/abs/1808.03149), [ARTEMiS](http://adsabs.harvard.edu/abs/2008AN....329..248D), SIGNALMEN, [RoboTAP](http://adsabs.harvard.edu/abs/2018A%26A...609A..55H)
+    * function that calculates cumulative chi2 so that it can be plotted easier
   * Fit class:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
     * n\_sources somehow inconsistent in different places
@@ -146,6 +154,8 @@ _italics_ mark important tasks
     * plot\_caustics() - check if model has > 1 lens? or just plot a point for single lens
     * plot\_data & plot\_residuals - if color is not set by the user and show\_bad is True, then X-s are plotted using different color
     * _data\_ref lacks docstring_
+    * allow rotating plots, so that source travel "exactly" from left to right
+    * when plotting residuals allow keywords to be passed for plotting 0-line
   * ModelParameters class:
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
@@ -157,6 +167,7 @@ _italics_ mark important tasks
     * check if t\_eff and t\_star can be used as input simultaneously
     * check if input values are floats (or something else accepted)
   * MulensData class:
+    * _link to set_plot\_properties() doesn't work (just after "ad and show\_errorbars properties. See") UPPPPSSSS.... this function is not coded at all_
     * **Errorbar scaling, in particular the two parameter.**
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info
@@ -213,6 +224,7 @@ _italics_ mark important tasks
     * profile the code (python -m cProfile script.py)
     * Leap seconds library - [barycorrpy](https://arxiv.org/abs/1801.01634)
     * go to [documents/TODO.md](documents/TODO.md) file and check use cases listed there
+    * add transformation Jacobians, see: Batista+11 and Skowron+11
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * Coordinates - write tests, possibly remove test\_Coords.py
@@ -241,6 +253,8 @@ _italics_ mark important tasks
 ob9919 - [Smith et al. 2002](http://adsabs.harvard.edu/abs/2002MNRAS.336..670S)
 
 [Poindexter et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...633..914P) - 23% of events are affected by xallarap
+
+ob07514 - [Miyake+12](http://adsabs.harvard.edu/abs/2012ApJ...752...82M)
 
 ob07368 - [Sumi et al. 2010](http://adsabs.harvard.edu/abs/2010ApJ...710.1641S) and [Suzuki et al. 2016](http://adsabs.harvard.edu/abs/2016ApJ...833..145S)
 
