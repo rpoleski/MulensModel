@@ -93,7 +93,6 @@ section = "photometry files"
 if section not in config:
     raise KeyError('Sorry, no photometry files specified in config.')
 file_names = [config.get(section, var) for var in config[section]]
-file_ids = list(config[section])
 kwargs = {'comments': ["\\", "|"]}
 data = [MulensData(file_name=name, **kwargs) for name in file_names]
 
@@ -179,7 +178,7 @@ event.plot_model(subtract_2450000=True, **plot_kwargs)
 ylim = plt.ylim()
 # The command below raises warning - it's not your fault. It's caused
 # by the input data.
-event.plot_data(subtract_2450000=True, label_list=file_ids)
+event.plot_data(subtract_2450000=True)
 if 't_start' in plot_kwargs:
     plt.xlim(xmin=plot_kwargs['t_start']-2450000.)
 if 't_stop' in plot_kwargs:

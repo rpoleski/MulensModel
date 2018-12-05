@@ -265,8 +265,17 @@ class Event(object):
         Returns :
             chi2: *list* of *np.ndarray*
                 Chi^2 contribution from each data point,
-                e.g. chi2[obs_num][k] returns the chi2 contribution
-                from the *k*-th point of observatory *obs_num*.
+                e.g. ``chi2[data_num][k]`` returns the chi2 contribution
+                from the *k*-th point of dataset *data_num*.
+
+        Example :
+            Assumming ``event`` is instance of Event class to get chi2
+            for 10-th point point of 0-th dataset.
+
+            .. code-block:: python
+
+               chi2 = event.get_chi2_per_point()
+               print(chi2[0][10])
 
         """
         if self.model.n_sources > 1 and fit_blending is False:
