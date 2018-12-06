@@ -232,7 +232,8 @@ class MagnificationCurve(object):
             ``finite_source_LD_Lee09``:
                 Uses the `Lee et al. 2009 ApJ, 695, 200`_ method for
                 a circular source *including limb-darkening*. This method
-                works well for large sources (rho ~ 1).
+                works well for large sources (rho ~ 1) but can be slow
+                compared to other methods.
 
         Returns :
             magnification: *np.ndarray*

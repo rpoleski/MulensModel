@@ -59,7 +59,6 @@ def test_Lee09():
     """
     test Lee+2009 finite source calculation
     """
-
     t_vec = np.array([3.5, 2., 1., 0.5, 0.])
 
     # The values below were calculated using code developed by P. Mroz.
@@ -72,7 +71,7 @@ def test_Lee09():
 # The last values are for 2-parameter LD with same settings and lambda=0.3.
 # Correction is:
 #  -lambda*(1-1.25*sqrt(costh))
-# and before we used:
+# and for 1-parameter LD we used:
 #  1-gamma*(1-1.5*costh)
 
     # Test uniform source first.

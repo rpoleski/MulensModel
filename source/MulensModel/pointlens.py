@@ -402,8 +402,10 @@ class PointLens(object):
         #out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
         #return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
 
-    def _integrand_Lee09_v3(self, theta, rho, theta_max, gamma, u, n_u):
-        """XXX"""
+    def _integrate_Lee09(self, theta, rho, theta_max, gamma, u, n_u):
+        """
+        Calculates inner integral in Equation 13 in Lee et al. 2009.
+        """
         theta_ = np.array([theta])
         u_1 = self._u_1_Lee09(theta_, u, rho, theta_max)[0]
         u_1 += 1.e-13 # XXX
@@ -436,7 +438,7 @@ class PointLens(object):
 
 # Third version:
         #if False:
-        integral = integrate.quad(self._integrand_Lee09_v3,
+        integral = integrate.quad(self._integrate_Lee09,
             theta[0], theta[-1], args=(rho, theta_max, gamma, u, n_u),
             epsabs=accuracy, epsrel=0.)
         out = integral[0] * 2. / (np.pi * rho**2)
