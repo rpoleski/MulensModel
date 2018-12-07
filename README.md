@@ -7,8 +7,6 @@ events. </dl>
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
-Are you interested in [Microlensing Data Analysis Challenge](http://microlensing-source.org/data-challenge/)? For more details on using MulensModel in data challenge, see [this document](documents/data_challenge.md).
-
 A few useful resources:
 
 * [Basic usage tutorial](https://rpoleski.github.io/MulensModel/tutorial.html),
@@ -24,7 +22,8 @@ A few useful resources:
   * [Example 07](examples/example_07_fit_parallax_MN.py) -- fit parallax model using MultiNest,
   * [Example 08](examples/example_08_planet_grid_fitting.ipynb) -- shows how to fit simulated WFIRST light curve with planetary model,
   * [Example 09](examples/example_09_gradient_fitting.py) -- fit point lens model using chi^2 gradient,
-  * [Example 10](examples/example_10_fitting_and_fluxes.py) -- fit model and extract posterior fluxes.
+  * [Example 10](examples/example_10_fitting_and_fluxes.py) -- fit model and extract posterior fluxes,
+  * [Example 11](examples/example_11_binary_source.py) -- simulate and fit binary source event.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
 [Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
@@ -55,5 +54,5 @@ If you have any problems, please contact the authors and we will try to help.
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Sep 2018
+file revised Dec 2018
 
