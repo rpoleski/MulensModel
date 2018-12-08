@@ -88,11 +88,22 @@ def test_Lee09():
     methods_1 = [-5., 'finite_source_LD_Lee09', 5.]
     mag_curve_1.set_magnification_methods(methods_1, 'point_source')
     results_1 = mag_curve_1.get_point_lens_magnification()
+    #print(expected_1[0], results_1[0])
+    #print(1-expected_1[0]/results_1[0])
     np.testing.assert_almost_equal(expected_1, results_1, decimal=3)
+
+    t_vec = np.linspace(0., 5., 10000)
+    mag_curve_1 = MagnificationCurve(times=t_vec, parameters=params_1, gamma=0.5)
+    methods_1 = [-5., 'finite_source_LD_Lee09', 5.]
+    mag_curve_1.set_magnification_methods(methods_1, 'point_source')
+    if False:
+        results_1 = mag_curve_1.get_point_lens_magnification()
+        #for (t, r) in zip(t_vec, results_1):
+        #    print(t, r)
     if False:
         import time
         start = time.time()
-        for i in range(100):
+        for i in range(1000):
             results_1 = mag_curve_1.get_point_lens_magnification()
         end = time.time()
         print(results_1)
