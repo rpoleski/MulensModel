@@ -222,6 +222,13 @@ class Model(object):
 
         return (mag_1, mag_2)
 
+#    def _get_source_flux_ratio(self, datasets, magnifications):
+#        """
+#        XXX
+#        """
+#        self._fit = Fit(data=datasets, magnification=magnifications)
+#        self._fit.fit_fluxes()
+
     def _magnification_2_sources(self, time, satellite_skycoord, gamma,
                                  flux_ratio_constraint):
         """
@@ -330,6 +337,13 @@ class Model(object):
         for dataset in self.datasets:
             magnification = self.get_data_magnification(dataset)
             self._data_magnification.append(magnification)
+            if (self.n_sources > 1 and self._source_flux_ratio_constraint is None):
+                if dataset is self.datasets[0]:
+                    fit = self._fit
+                else:
+                    fit.update(self._fit)
+                    if dataset is self.datasets[-1]:
+                        self._fit = fit
 
         return self._data_magnification
 

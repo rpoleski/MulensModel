@@ -231,12 +231,15 @@ class Event(object):
                                       "no blending is not yet coded.")
         dataset = self.datasets[index_dataset]
         magnification = self.model.get_data_magnification(dataset)
-        self.fit = Fit(data=dataset, magnification=[magnification])
 
-        if fit_blending is not None:
-            self.fit.fit_fluxes(fit_blending=fit_blending)
+        if self.model.n_sources != 1:
+            self.fit = self.model._fit
         else:
-            self.fit.fit_fluxes()
+            self.fit = Fit(data=dataset, magnification=[magnification])
+            if fit_blending is not None:
+                self.fit.fit_fluxes(fit_blending=fit_blending)
+            else:
+                self.fit.fit_fluxes()
 
         (data, err_data) = dataset.data_and_err_in_chi2_fmt()
 
@@ -283,12 +286,17 @@ class Event(object):
                                       "no blending is not yet coded.")
 
         # Define a Fit given the model and perform linear fit for fs and fb
-        self.fit = Fit(
-            data=self.datasets, magnification=self.model.data_magnification)
-        if fit_blending is not None:
-            self.fit.fit_fluxes(fit_blending=fit_blending)
+        if (self.model.n_sources != 1 and
+                    self.model._source_flux_ratio_constraint is None):
+            self.model.data_magnification
+            self.fit = self.model.fit
         else:
-            self.fit.fit_fluxes()
+            self.fit = Fit(data=self.datasets,
+                magnification=self.model.data_magnification)
+            if fit_blending is not None:
+                self.fit.fit_fluxes(fit_blending=fit_blending)
+            else:
+                self.fit.fit_fluxes()
 
         # Calculate chi^2 given the fit
         chi2_per_point = []
@@ -356,6 +364,8 @@ class Event(object):
         # Define a Fit given the model and perform linear fit for fs and fb
         self.fit = Fit(
             data=self.datasets, magnification=self.model.data_magnification)
+        # For binary source cases, the above line would need to be replaced,
+        # so that it uses self.model.fit.
         if fit_blending is not None:
             self.fit.fit_fluxes(fit_blending=fit_blending)
         else:
