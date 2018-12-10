@@ -252,7 +252,8 @@ class Fit(object):
         return result
 
     def get_n_sources(self):
-        """Count sources.
+        """
+        Count sources.
 
         Returns :
             n_sources: *int*
@@ -268,3 +269,21 @@ class Fit(object):
             else:
                 n_sources = self._magnification[0].shape[0]
         return n_sources
+
+    def update(self, fit):
+        """
+        Update internal variables using information from a different
+        instance of the same class.
+
+        Parameters :
+            fit: :py:class:`~MulensModel.fit.Fit`
+                A different instance of this class.
+        """
+        assert isinstance(fit, Fit)
+        assert self.get_n_sources() == fit.get_n_sources()
+
+        self._datasets.extend(fit._datasets)
+        self._magnification.extend(fit._magnification)
+        self._flux_blending = {**self._flux_blending, **fit._flux_blending}
+        self._flux_sources = {**self._flux_sources, **fit._flux_sources}
+
