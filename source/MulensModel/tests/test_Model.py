@@ -343,6 +343,8 @@ def test_binary_source_and_fluxes_for_bands():
     q_f_V = f_s_2_V / f_s_1_V
     (mag_1_I, mag_2_I) = model.magnification(times_I, separate=True)
     (mag_1_V, mag_2_V) = model.magnification(times_V, separate=True)
+    effective_mag_I = (mag_1_I + mag_2_I * q_f_I) / (1. + q_f_I)
+    effective_mag_V = (mag_1_V + mag_2_V * q_f_V) / (1. + q_f_V)
     flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
     flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
     data_I = MulensData(data_list=[times_I, flux_I, flux_I/100.],
@@ -357,12 +359,12 @@ def test_binary_source_and_fluxes_for_bands():
     # Test Model.magnification()
     result_I = model.magnification(times_I, flux_ratio_constraint='I')
     result_V = model.magnification(times_V, flux_ratio_constraint='V')
-    np.testing.assert_almost_equal(result_I, mag_1_I + mag_2_I * q_f_I)
-    np.testing.assert_almost_equal(result_V, mag_1_V + mag_2_V * q_f_V)
+    np.testing.assert_almost_equal(result_I, effective_mag_I)
+    np.testing.assert_almost_equal(result_V, effective_mag_V)
 
     # Test Model.get_data_magnification()
     result_I = model.get_data_magnification(data_I)
     result_V = model.get_data_magnification(data_V)
-    np.testing.assert_almost_equal(result_I, mag_1_I + mag_2_I * q_f_I)
-    np.testing.assert_almost_equal(result_V, mag_1_V + mag_2_V * q_f_V)
+    np.testing.assert_almost_equal(result_I, effective_mag_I)
+    np.testing.assert_almost_equal(result_V, effective_mag_V)
 
