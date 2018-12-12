@@ -222,6 +222,7 @@ class Model(object):
 
         return (mag_1, mag_2)
 
+# HERE
 #    def _get_source_flux_ratio(self, datasets, magnifications):
 #        """
 #        XXX
@@ -442,6 +443,7 @@ class Model(object):
         Parameters :
             band: *str*
                 Band for which constraint is given.
+
             ratio: *float*
                 ratio of fluxes of source no. 2 to source no. 1, i.e.,
                 flux_source_band_2/flux_source_band_1
@@ -463,6 +465,7 @@ class Model(object):
                               UserWarning)
         raise NotImplementedError("we're working on fixed source flux for " +
                                   "given band")
+# HERE XXX
 
     @property
     def datasets(self):
@@ -773,6 +776,7 @@ class Model(object):
         """
         data = self._get_data_ref(data_ref)
 
+# XXX HERE
         # If flux_ratio is fitted via regression,
         #     then return fluxes from self.fit (2 sources, but if
         #     flux_ratio is set, then current version would return only 1
