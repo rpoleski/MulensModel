@@ -230,13 +230,16 @@ class Model(object):
 #        self._fit.fit_fluxes()
 
     def _magnification_2_sources(self, time, satellite_skycoord, gamma,
-                                 flux_ratio_constraint):
+                                 flux_ratio_constraint, separate):
         """
         calculate model magnification for given times for model with
         two sources
         """
         (mag_1, mag_2) = self._separate_magnifications(
                 time, satellite_skycoord, gamma)
+
+        if separate:
+            return (mag_1, mag_2)
 
         if self._source_flux_ratio_constraint is not None:
             source_flux_ratio = self._source_flux_ratio_constraint
@@ -257,7 +260,7 @@ class Model(object):
         return magnification
 
     def magnification(self, time, satellite_skycoord=None, gamma=0.,
-                      flux_ratio_constraint=None):
+                      flux_ratio_constraint=None, separate=False):
         """
         Calculate the model magnification for the given time(s).
 
@@ -283,6 +286,11 @@ class Model(object):
                 Note that :py:func:`set_source_flux_ratio()` takes precedence
                 over *flux_ratio_constraint*.
 
+            separate: *boolean*, optional
+                For binary source models, return magnification of each source
+                separately. Default is *False* and then only effective
+                magnification is returned.
+
         Returns :
             magnification: *np.ndarray*
                 A vector of calculated magnification values. For binary source
@@ -306,8 +314,21 @@ class Model(object):
                     'Model.magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
                     'models, not {:}'.format(type(flux_ratio_constraint)))
+            if separate:
+                raise ValueError(
+                    'Model.magnification() parameter separate ' +
+                    'cannot be True for single source models')
             magnification = self._magnification_1_source(
                                 time, satellite_skycoord, gamma)
+        elif self.n_sources == 2 and separate:
+            if flux_ratio_constraint is not None:
+                raise ValueError(
+                    'You cannot set both flux_ratio_constraint and separate' +
+                    " parameters in Model.magnification().  This doesn't " +
+                    'sense')
+            magnification = self._magnification_2_sources(
+                time, satellite_skycoord, gamma, flux_ratio_constraint,
+                separate)
         elif self.n_sources == 2:
             if self._source_flux_ratio_constraint is not None:
                 flux_ratio_constraint = self._source_flux_ratio_constraint
@@ -319,7 +340,7 @@ class Model(object):
                                 '{:}'.format(type(flux_ratio_constraint)))
             magnification = self._magnification_2_sources(
                                 time, satellite_skycoord, gamma,
-                                flux_ratio_constraint)
+                                flux_ratio_constraint, separate)
         else:
             raise ValueError('strange number of sources: {:}'.format(
                     self.n_sources))
