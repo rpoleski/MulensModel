@@ -250,8 +250,9 @@ def test_caustic_for_orbital_motion():
     """
     q = 0.1
     s = 1.3
-    model = Model(parameters={'t_0': 100., 'u_0': 0.1, 't_E': 10., 'q': q,
-        's': s, 'ds_dt': 0.5, 'alpha': 0., 'dalpha_dt': 0.})
+    params = {'t_0': 100., 'u_0': 0.1, 't_E': 10., 'q': q,
+        's': s, 'ds_dt': 0.5, 'alpha': 0., 'dalpha_dt': 0.}
+    model = Model(parameters=params)
 
     model.update_caustics()
     np.testing.assert_almost_equal(model.caustics.get_caustics(), 
@@ -296,10 +297,8 @@ def test_model_binary_and_finite_sources():
     model_1 = Model(model.parameters.source_1_parameters)
     model_2 = Model(model.parameters.source_2_parameters)
 
-    t1 = 4999.95
-    t2 = 5000.05
-    t3 = 5099.95
-    t4 = 5100.05
+    (t1, t2) = (4999.95, 5000.05)
+    (t3, t4) = (5099.95, 5100.05)
     finite = 'finite_source_uniform_Gould94'
     model.set_magnification_methods([t1, finite, t2, 'point_source', t3,
         finite, t4])
@@ -316,7 +315,14 @@ def test_model_binary_and_finite_sources():
     model.set_datasets([data])
     model_1.set_datasets([data])
     model_2.set_datasets([data])
-    
+
+    # test:
     fitted = model.get_data_magnification(data)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
     np.testing.assert_almost_equal(fitted, expected)
+
+    # test separate=True option:
+    (mag_1_, mag_2_) = model.magnification(time, separate=True)
+    np.testing.assert_almost_equal(mag_1, mag_1_)
+    np.testing.assert_almost_equal(mag_2, mag_2_)
+
