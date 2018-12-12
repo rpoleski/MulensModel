@@ -326,3 +326,43 @@ def test_model_binary_and_finite_sources():
     np.testing.assert_almost_equal(mag_1, mag_1_)
     np.testing.assert_almost_equal(mag_2, mag_2_)
 
+def test_binary_source_and_fluxes_for_bands():
+    """
+    Test if setting different flux ratios for different bands in binary
+    source models works properly. The argument flux_ratio_constraint
+    is set as string.
+    """
+    model = Model({'t_0_1': 5000., 'u_0_1': 0.05,
+                   't_0_2': 5100., 'u_0_2': 0.003, 't_E': 30.})
+
+    times_I = np.linspace(4900., 5200, 3000)
+    times_V = np.linspace(4800., 5300, 250)
+    (f_s_1_I, f_s_2_I, f_b_I) = (10., 20., 3.)
+    (f_s_1_V, f_s_2_V, f_b_V) = (15., 5., 30.)
+    q_f_I = f_s_2_I / f_s_1_I
+    q_f_V = f_s_2_V / f_s_1_V
+    (mag_1_I, mag_2_I) = model.magnification(times_I, separate=True)
+    (mag_1_V, mag_2_V) = model.magnification(times_V, separate=True)
+    flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
+    flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
+    data_I = MulensData(data_list=[times_I, flux_I, flux_I/100.],
+                        phot_fmt='flux', bandpass='I')
+    data_V = MulensData(data_list=[times_V, flux_V, flux_V/1000.],
+                        phot_fmt='flux', bandpass='V')
+    model.set_datasets([data_V, data_I])
+
+    model.set_source_flux_ratio_for_band('I', q_f_I)
+    model.set_source_flux_ratio_for_band('V', q_f_V)
+
+    # Test Model.magnification()
+    result_I = model.magnification(times_I, flux_ratio_constraint='I')
+    result_V = model.magnification(times_V, flux_ratio_constraint='V')
+    np.testing.assert_almost_equal(result_I, mag_1_I + mag_2_I * q_f_I)
+    np.testing.assert_almost_equal(result_V, mag_1_V + mag_2_V * q_f_V)
+
+    # Test Model.get_data_magnification()
+    result_I = model.get_data_magnification(data_I)
+    result_V = model.get_data_magnification(data_V)
+    np.testing.assert_almost_equal(result_I, mag_1_I + mag_2_I * q_f_I)
+    np.testing.assert_almost_equal(result_V, mag_1_V + mag_2_V * q_f_V)
+
