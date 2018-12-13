@@ -244,12 +244,18 @@ class Model(object):
 
         if self._source_flux_ratio_constraint is not None:
             source_flux_ratio = self._source_flux_ratio_constraint
+#            if isinstance(flux_ratio_constraint, (float, np.float)):
+#                source_flux_ratio = flux_ratio_constraint
+#            else:
+#                source_flux_ratio = self._source_flux_ratio_constraint
         else:
             if np.all(flux_ratio_constraint.time == time):
+# This is not enough to check if the magnifications are the same - gamma and skycoord are ignored here.
                 mags = np.array([mag_1, mag_2])
             else:
                 (mag_1_data, mag_2_data) = self._separate_magnifications(
                     flux_ratio_constraint.time, satellite_skycoord, gamma)
+# The above line should use caching if possible (probably via Fit.update()).
                 mags = np.array([mag_1_data, mag_2_data])
             self._fit = Fit(data=flux_ratio_constraint, magnification=mags)
             self._fit.fit_fluxes()
@@ -306,6 +312,7 @@ class Model(object):
             else:
                 raise TypeError('time must be a float, list, or np.ndarray')
 
+# Check type of flux_ratio_constraint - should be MulensData or str; I think it cannot be float (use self.set... instead).
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)
 
@@ -331,14 +338,20 @@ class Model(object):
                 time, satellite_skycoord, gamma, flux_ratio_constraint,
                 separate)
         elif self.n_sources == 2:
+# This meant ignoring user provided parameter:
             if self._source_flux_ratio_constraint is not None:
                 flux_ratio_constraint = self._source_flux_ratio_constraint
+# The above two lines should be commented most probably.
             if (flux_ratio_constraint is not None and
                     not isinstance(flux_ratio_constraint,
                                    (MulensData, float))):
+#                                   (MulensData, float, str))):
                 raise TypeError('flux_ratio_constraint has to be of type ' +
                                 'MulensData or float, not ' +
+#                                'MulensData, float, or str, not ' +
                                 '{:}'.format(type(flux_ratio_constraint)))
+#            if isinstance(flux_ratio_constraint, str):
+#                flux_ratio_constraint = self._source_flux_ratio_constraint[flux_ratio_constraint]
             magnification = self._magnification_2_sources(
                                 time, satellite_skycoord, gamma,
                                 flux_ratio_constraint, separate)
@@ -408,6 +421,10 @@ class Model(object):
             flux_ratio_constraint = None
         elif self.parameters.n_sources == 2:
             flux_ratio_constraint = dataset
+#            if dataset.bandpass is not None:
+#                flux_ratio_constraint = dataset.bandpass
+#            else:
+#                flux_ratio_constraint = dataset
         else:
             raise ValueError('Wrong number of sources')
         magnification = self.magnification(
@@ -430,13 +447,14 @@ class Model(object):
                 'wrong type of input in Model.set_source_flux_ratio(): ' +
                 'got {:}, expected float or None'.format(type(ratio)))
         self._source_flux_ratio_constraint = ratio
+# above requires update XXX
 
 # Ok, but how we deal with both single value and values for bands?
 # a) Do not allow it.
 # b) Use either/or, depending which one was set last.
 # c) Single value first, then take the band.
 # d) same as c) but gives warning.
-    def _set_source_flux_ratio_for_band(self, band, ratio):
+    def set_source_flux_ratio_for_band(self, band, ratio):
         """
         Sets flux ratio for binary source models for given band.
 
@@ -463,8 +481,13 @@ class Model(object):
             if band not in bands:
                 warnings.warn("No datasets in bandpass {:}".format(band),
                               UserWarning)
-        raise NotImplementedError("we're working on fixed source flux for " +
-                                  "given band")
+
+        if self._source_flux_ratio_constraint is None:
+            self._source_flux_ratio_constraint = dict()
+        elif isinstance(self._source_flux_ratio_constraint, (float, np.float)):
+            self._source_flux_ratio_constraint = {'None': self._source_flux_ratio_constraint}
+
+        self._source_flux_ratio_constraint[band] = ratio
 # HERE XXX
 
     @property
