@@ -303,6 +303,15 @@ class Model(object):
                 A vector of calculated magnification values. For binary source
                 models, the effective magnification is returned.
         """
+        mag = self._magnification(time, satellite_skycoord, gamma,
+                                  flux_ratio_constraint, separate)
+        return mag
+
+    def _magnification(self, time, satellite_skycoord, gamma,
+                       flux_ratio_constraint, separate):
+        """
+        Internal function that calculates magnification.
+        """
         # Check for type
         if not isinstance(time, np.ndarray):
             if isinstance(time, (np.float, float)):
