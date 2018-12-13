@@ -436,9 +436,10 @@ class Model(object):
 #                flux_ratio_constraint = dataset
         else:
             raise ValueError('Wrong number of sources')
-        magnification = self.magnification(
+        magnification = self._magnification(
                 dataset.time, satellite_skycoord=dataset_satellite_skycoord,
-                gamma=gamma, flux_ratio_constraint=flux_ratio_constraint)
+                gamma=gamma, flux_ratio_constraint=flux_ratio_constraint,
+                separate=False)
         return magnification
 
     def set_source_flux_ratio(self, ratio):
