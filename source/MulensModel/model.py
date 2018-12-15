@@ -454,8 +454,10 @@ class Model(object):
 
     def set_source_flux_ratio(self, ratio):
         """
-        Sets flux ratio for binary source models. It takes precedence over
-        flux_ratio_constraint paramter of :py:func:`magnification()`.
+        Sets flux ratio for binary source models. If you also call
+        :py:func:`set_source_flux_ratio_for_band()`, then the value set here
+        will be used when: 1) no band is specified, or 2) band is specified
+        but flux ratio for given band was not specified.
 
         Parameters :
             ratio: *float* or *None*
@@ -711,14 +713,9 @@ class Model(object):
                 plotting calls (e.g. :py:func:`plot_data()`)
 
             flux_ratio_constraint: instance of
-            :py:class:`~MulensModel.mulensdata.MulensData`, optional
-
+            :py:class:`~MulensModel.mulensdata.MulensData` or *str*, optional
                 Option for binary source models only.
-                Data to constrain the flux ratio for sources
-                Currently accepts only
-                :py:class:`~MulensModel.mulensdata.MulensData` instances.
-                Note that :py:func:`set_source_flux_ratio()` takes precedence
-                over *flux_ratio_constraint*.
+                Data or bandpass to constrain the flux ratio of sources.
 
             ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
 
