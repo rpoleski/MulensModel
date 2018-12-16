@@ -60,13 +60,13 @@ def ln_prob(theta, event, parameters_to_fit):
     """
     ln_prior_ = ln_prior(theta, parameters_to_fit)
     if not np.isfinite(ln_prior_):
-        return -np.inf
+        return (-np.inf, None)
     ln_like_ = ln_like(theta, event, parameters_to_fit)
 
     # In the cases that source fluxes are negative we want to return
     # these as if they were not in priors.
     if np.isnan(ln_like_):
-        return -np.inf
+        return (-np.inf, None)
 
     ln_prob_ = ln_prior_ + ln_like_
     fluxes = get_fluxes(event)
