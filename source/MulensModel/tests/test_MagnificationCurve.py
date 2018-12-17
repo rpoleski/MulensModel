@@ -24,8 +24,8 @@ def test_fspl_noLD():
 
     u = np.array([rho, u_0, 0.5*rho])
     pspl = (u**2 + 2.) / np.sqrt(u**2 * (u**2 + 4.))
-    expected = np.array([1.27323965, 0.19949906, 0.93421546]) # These values
-    # were calculated by Andy Gould (file b0b1.dat).
+    expected = np.array([1.27323965, 0.19949906, 0.93421546])
+# These values were calculated by Andy Gould (file b0b1.dat).
     expected *= pspl
 
     np.testing.assert_almost_equal(expected, results, decimal=4)
