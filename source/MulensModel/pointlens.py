@@ -379,17 +379,6 @@ class PointLens(object):
 
         return mag
 
-    def _integrand_Lee09(self, u_, u, theta_, rho, gamma):
-        """
-        Integrand in Equation 13 in Lee et al. 2009.
-
-        u_ is np.ndarray, other parameters are scalars.
-        """
-        values = 1. - (u_**2 - 2. * u_ * u * cos(theta_) + u**2) / rho**2
-        values[-1] = 0.
-        out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
-        return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
-
     def _integrand_Lee09_v2(self, u_, u, theta_, rho, gamma):
         """
         Integrand in Equation 13 in Lee et al. 2009.
@@ -404,23 +393,13 @@ class PointLens(object):
         out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
         return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
 
-    def _integrate_Lee09(self, theta, rho, theta_max, gamma, u, n_u):
-        """
-        Calculates inner integral in Equation 13 in Lee et al. 2009.
-        """
-        theta_ = np.array([theta])
-        u_1 = self._u_1_Lee09(theta_, u, rho, theta_max)[0]
-        u_1 += 1.e-13 # XXX
-        u_2 = self._u_2_Lee09(theta_, u, rho, theta_max)[0]
-        u_ = np.linspace(u_1, u_2, n_u)
-        integrand = self._integrand_Lee09(u_, u, theta_, rho, gamma)
-        return integrate.simps(integrand, dx=u_[1]-u_[0])
-
     def _LD_Lee09(self, u, rho, gamma, n_theta, n_u):
         """
         Calculates Equation 13 from Lee et al. 2009.
         """
         accuracy = 1e-4
+        theta_sub = 1.e-12
+        u_1_min = 1.e-13
 
         if n_theta % 2 != 0:
             raise ValueError('internal error - odd number expected')
@@ -431,46 +410,20 @@ class PointLens(object):
             theta_max = np.arcsin(rho / u)
         else:
             theta_max = np.pi
-        theta = np.linspace(0, theta_max-1e-12, n_theta) # XXX XXX
+        theta = np.linspace(0, theta_max-theta_sub, n_theta)
         integrand_values = np.zeros_like(theta)
         u_1 = self._u_1_Lee09(theta, u, rho, theta_max)
-        u_1 += 1.e-13 # XXX XXX
+        u_1 += u_1_min
         u_2 = self._u_2_Lee09(theta, u, rho, theta_max)
 
-# Third version:
-        if False:
-            integral = integrate.quad(self._integrate_Lee09,
-                theta[0], theta[-1], args=(rho, theta_max, gamma, u, n_u),
-                epsabs=accuracy, epsrel=0.)
-            out = integral[0] * 2. / (np.pi * rho**2)
-            return out
-        #if False:
-        if True:
-## First version - faster than version "Second below"
-            temp = np.zeros( (len(theta), n_u) )
-            temp2 = (np.zeros( (len(theta), n_u) ).T + np.cos(theta)).T
-            for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
-                temp[i] = np.linspace(u_1_, u_2_, n_u)
-            integrand = self._integrand_Lee09_v2(temp, u, temp2, rho, gamma)
-            for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
-                integrand_values[i] = integrate.simps(integrand[i], dx=temp[i, 1]-temp[i, 0])
-            out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
-            out *= 2. / (np.pi * rho**2)
-            return out
+        temp = np.zeros( (len(theta), n_u) )
+        temp2 = (np.zeros( (len(theta), n_u) ).T + np.cos(theta)).T
+        for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
+            temp[i] = np.linspace(u_1_, u_2_, n_u)
+        integrand = self._integrand_Lee09_v2(temp, u, temp2, rho, gamma)
+        for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
+            integrand_values[i] = integrate.simps(integrand[i], dx=temp[i, 1]-temp[i, 0])
+        out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
+        out *= 2. / (np.pi * rho**2)
+        return out
 
-## Second version
-        #for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
-            ## XXX do we need 2 lines below ? It seems to slow down.
-            ##if u_1_ == 0. and u_2_ == 0.:
-                ##continue
-
-## XXX - correct this:
-## https://github.com/numpy/numpy/blob/v1.15.0/numpy/core/function_base.py#L25-L150
-            #u_ = np.linspace(u_1_, u_2_, n_u)
-            #integrand = self._integrand_Lee09(u_, u, theta_, rho, gamma)
-            #integrand_values[i] = integrate.simps(integrand, dx=u_[1]-u_[0])
-
-        #out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
-        #out *= 2. / (np.pi * rho**2)
-##        print(out)
-        #return out
