@@ -387,7 +387,7 @@ class PointLens(object):
         theta_ is in fact cos(theta_) here
         """
         values = 1. - (u_**2 - 2. * u_ * u * theta_ + u**2) / rho**2
-        values[:,-1] = 0.
+        values[:, -1] = 0.
         if values[-1, 0] < 0.:
             values[-1, 0] = 0.
         out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
@@ -416,13 +416,15 @@ class PointLens(object):
         u_1 += u_1_min
         u_2 = self._u_2_Lee09(theta, u, rho, theta_max)
 
-        temp = np.zeros( (len(theta), n_u) )
-        temp2 = (np.zeros( (len(theta), n_u) ).T + np.cos(theta)).T
+        size = (len(theta), n_u)
+        temp = np.zeros(size)
+        temp2 = (np.zeros(size).T + np.cos(theta)).T
         for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
             temp[i] = np.linspace(u_1_, u_2_, n_u)
         integrand = self._integrand_Lee09_v2(temp, u, temp2, rho, gamma)
         for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
-            integrand_values[i] = integrate.simps(integrand[i], dx=temp[i, 1]-temp[i, 0])
+            integrand_values[i] = integrate.simps(integrand[i],
+                                                  dx=temp[i, 1]-temp[i, 0])
         out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
         out *= 2. / (np.pi * rho**2)
         return out
