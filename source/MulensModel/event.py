@@ -287,12 +287,12 @@ class Event(object):
 
         # Define a Fit given the model and perform linear fit for fs and fb
         if (self.model.n_sources != 1 and
-                    self.model._source_flux_ratio_constraint is None):
+                self.model._source_flux_ratio_constraint is None):
             self.model.data_magnification
             self.fit = self.model.fit
         else:
             self.fit = Fit(data=self.datasets,
-                magnification=self.model.data_magnification)
+                           magnification=self.model.data_magnification)
             if fit_blending is not None:
                 self.fit.fit_fluxes(fit_blending=fit_blending)
             else:
