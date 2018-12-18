@@ -9,7 +9,7 @@ def test_n_lenses():
     """check n_lenses property"""
     model_1 = Model({"t_0": 2456789., "u_0": 1., "t_E": 30.})
     model_2 = Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
-        "s": 1.1234, "q": 0.123, 'alpha': 12.34})
+                     "s": 1.1234, "q": 0.123, 'alpha': 12.34})
     assert model_1.n_lenses == 1
     assert model_2.n_lenses == 2
 
@@ -21,12 +21,12 @@ def test_model_PSPL_1():
     t_E = 17.94002
     times = np.array([t_0-2.5*t_E, t_0, t_0+t_E])
     data = MulensData(data_list=[times, times*0., times*0.])
-    model = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
+    model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     model.parameters.u_0 = u_0
     model.parameters.t_E = t_E
     model.set_datasets([data])
     np.testing.assert_almost_equal(model.data_magnification, [
-            np.array([1.028720763, 2.10290259, 1.26317278])], 
+            np.array([1.028720763, 2.10290259, 1.26317278])],
             err_msg="PSPL model returns wrong values")
 
 def test_model_init_1():
@@ -35,52 +35,65 @@ def test_model_init_1():
     u_0 = 0.001
     t_E = 123.456
     rho = 0.0123
-    my_model = Model({'t_0':t_0, 'u_0':u_0, 't_E':t_E, 'rho':rho})
-    np.testing.assert_almost_equal(my_model.parameters.t_0, t_0, err_msg='t_0 not set properly')
-    np.testing.assert_almost_equal(my_model.parameters.u_0, u_0, err_msg='u_0 not set properly')
-    np.testing.assert_almost_equal(my_model.parameters.t_E, t_E, err_msg='t_E not set properly')
-    np.testing.assert_almost_equal(my_model.parameters.rho, rho, err_msg='rho not set properly')
+    my_model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
+    np.testing.assert_almost_equal(my_model.parameters.t_0, t_0,
+                                   err_msg='t_0 not set properly')
+    np.testing.assert_almost_equal(my_model.parameters.u_0, u_0,
+                                   err_msg='u_0 not set properly')
+    np.testing.assert_almost_equal(my_model.parameters.t_E, t_E,
+                                   err_msg='t_E not set properly')
+    np.testing.assert_almost_equal(my_model.parameters.rho, rho,
+                                   err_msg='rho not set properly')
 
 class TestModel(unittest.TestCase):
     def test_negative_t_E(self):
         with self.assertRaises(ValueError):
-            my_model = Model({'t_0':2450000., 'u_0':0.1, 't_E':-100.})
+            my_model = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
 
 def test_model_parallax_definition():
-    # JCY: I don't think we should allow parameters to be set sequentially like this.
-    #model_1 = Model()
-    #model_1.parameters.pi_E = [0.1, 0.2]
-    #assert model_1.pi_E_N == 0.1
-    #assert model_1.pi_E_E == 0.2
+# JCY: I don't think we should allow parameters to be set sequentially like this.
+#model_1 = Model()
+#model_1.parameters.pi_E = [0.1, 0.2]
+#assert model_1.pi_E_N == 0.1
+#assert model_1.pi_E_E == 0.2
 
-    # JCY: below is acceptable (i.e. if the parameter has been
-    # defined, the user can change it. If the user wants to add a
-    # parameter, they need to create a new model.)
-    model_2 = Model({'t_0':2450000., 'u_0':0.1, 't_E':100., 'pi_E_N':0.1, 'pi_E_E':0.2})
+# JCY: below is acceptable (i.e. if the parameter has been
+# defined, the user can change it. If the user wants to add a
+# parameter, they need to create a new model.)
+    model_2 = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
+                     'pi_E_N': 0.1, 'pi_E_E': 0.2})
 
     model_2.parameters.pi_E_N = 0.3
     model_2.parameters.pi_E_E = 0.4
     assert model_2.parameters.pi_E_N == 0.3
     assert model_2.parameters.pi_E_E == 0.4
 
-    model_3 = Model({'t_0':2450000., 'u_0':0.1, 't_E':100., 'pi_E':(0.5, 0.6)})
+    model_3 = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
+                     'pi_E': (0.5, 0.6)})
     assert model_3.parameters.pi_E_N == 0.5
     assert model_3.parameters.pi_E_E == 0.6
 
-    model_4 = Model({'t_0':2450000., 'u_0':0.1, 't_E':100., 'pi_E_N':0.7, 'pi_E_E':0.8})
+    model_4 = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
+                     'pi_E_N':0.7, 'pi_E_E':0.8})
     assert model_4.parameters.pi_E_N == 0.7
     assert model_4.parameters.pi_E_E == 0.8
 
 def test_coords_transformation():
-    """this was tested using http://ned.ipac.caltech.edu/forms/calculator.html"""
+    """
+    this was tested using http://ned.ipac.caltech.edu/forms/calculator.html
+    """
     coords = "17:54:32.1 -30:12:34.0"
-    model = Model({'t_0':2450000., 'u_0':0.1, 't_E':100.}, coords=coords)
+    model = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.}, coords=coords)
 
-    np.testing.assert_almost_equal(model.coords.galactic_l.value, 359.90100049-360., decimal=4)
-    np.testing.assert_almost_equal(model.coords.galactic_b.value, -2.31694073, decimal=3)
+    np.testing.assert_almost_equal(model.coords.galactic_l.value,
+                                   359.90100049-360., decimal=4)
+    np.testing.assert_almost_equal(model.coords.galactic_b.value,
+                                   -2.31694073, decimal=3)
 
-    np.testing.assert_almost_equal(model.coords.ecliptic_lon.value, 268.81102051, decimal=1)
-    np.testing.assert_almost_equal(model.coords.ecliptic_lat.value, -6.77579203, decimal=2)
+    np.testing.assert_almost_equal(model.coords.ecliptic_lon.value,
+                                   268.81102051, decimal=1)
+    np.testing.assert_almost_equal(model.coords.ecliptic_lat.value,
+                                   -6.77579203, decimal=2)
 
 
 def test_init_parameters():
@@ -88,7 +101,7 @@ def test_init_parameters():
     t_0 = 6141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
-    params = ModelParameters({'t_0':t_0, 'u_0':u_0, 't_E':t_E})
+    params = ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     model = Model(parameters=params)
     np.testing.assert_almost_equal(model.parameters.t_0, t_0)
     np.testing.assert_almost_equal(model.parameters.u_0, u_0)
@@ -99,7 +112,7 @@ def test_limb_darkening():
     gamma = 0.4555
     u = 3. * gamma / (2. + gamma)
 
-    model = Model({'t_0':2450000., 'u_0':0.1, 't_E':100., 'rho':0.001})
+    model = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
     model.set_limb_coeff_gamma('I', gamma)
 
     np.testing.assert_almost_equal(model.get_limb_coeff_gamma('I'), gamma)
@@ -146,12 +159,16 @@ def test_BLPS_01():
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     magnification = model.data_magnification[0][0]
-    np.testing.assert_almost_equal(magnification, 4.691830781584699) # This value comes from early version of this code.
-    # np.testing.assert_almost_equal(m, 4.710563917) # This value comes from Andy's getbinp().
+    np.testing.assert_almost_equal(magnification, 4.691830781584699)
+# This value comes from early version of this code.
+# np.testing.assert_almost_equal(m, 4.710563917)
+# This value comes from Andy's getbinp().
 
 def test_BLPS_02():
-    """simple binary lens with extended source and different methods to
-    evaluate magnification"""
+    """
+    simple binary lens with extended source and different methods to
+    evaluate magnification
+    """
 
     params = ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
@@ -174,14 +191,15 @@ def test_BLPS_02():
 
     # Below we test passing the limb coeff to VBBL function.
     data.bandpass = 'I'
-    model.set_limb_coeff_u('I', 10.) # This is an absurd value but I needed something quick.
+    model.set_limb_coeff_u('I', 10.)
+    # This is an absurd value but I needed something quick.
     result = model.data_magnification[0]
     np.testing.assert_almost_equal(result[5], 1.6366862)
 
 def test_BLPS_02_AC():
     """
-    simple binary lens with extended source and different methods to evaluate magnification
-    - version with adaptivecontouring
+    simple binary lens with extended source and different methods to evaluate
+    magnification - version with adaptivecontouring
     """
     params = ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
@@ -208,13 +226,16 @@ def test_BLPS_02_AC():
 
     # Below we test passing the limb coeff to VBBL function.
     data.bandpass = 'I'
-    model.set_limb_coeff_u('I', 10.) # This is an absurd value but I needed something quick.
+    model.set_limb_coeff_u('I', 10.)
+    # This is an absurd value but I needed something quick.
     model.set_magnification_methods_parameters({ac_name: accuracy_2})
     result = model.data_magnification[0]
     np.testing.assert_almost_equal(result[5], 1.6366862, decimal=3) 
 
 def test_methods_parameters():
-    """make sure additional parameters are properly passed to very inner functions"""
+    """
+    make sure additional parameters are properly passed to very inner functions
+    """
     params = ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
             'q': q, 'rho': rho})
@@ -250,8 +271,9 @@ def test_caustic_for_orbital_motion():
     """
     q = 0.1
     s = 1.3
-    model = Model(parameters={'t_0': 100., 'u_0': 0.1, 't_E': 10., 'q': q,
-        's': s, 'ds_dt': 0.5, 'alpha': 0., 'dalpha_dt': 0.})
+    params = {'t_0': 100., 'u_0': 0.1, 't_E': 10., 'q': q,
+              's': s, 'ds_dt': 0.5, 'alpha': 0., 'dalpha_dt': 0.}
+    model = Model(parameters=params)
 
     model.update_caustics()
     np.testing.assert_almost_equal(model.caustics.get_caustics(), 
@@ -296,10 +318,8 @@ def test_model_binary_and_finite_sources():
     model_1 = Model(model.parameters.source_1_parameters)
     model_2 = Model(model.parameters.source_2_parameters)
 
-    t1 = 4999.95
-    t2 = 5000.05
-    t3 = 5099.95
-    t4 = 5100.05
+    (t1, t2) = (4999.95, 5000.05)
+    (t3, t4) = (5099.95, 5100.05)
     finite = 'finite_source_uniform_Gould94'
     model.set_magnification_methods([t1, finite, t2, 'point_source', t3,
         finite, t4])
@@ -316,7 +336,56 @@ def test_model_binary_and_finite_sources():
     model.set_datasets([data])
     model_1.set_datasets([data])
     model_2.set_datasets([data])
-    
+
+    # test:
     fitted = model.get_data_magnification(data)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
     np.testing.assert_almost_equal(fitted, expected)
+
+    # test separate=True option:
+    (mag_1_, mag_2_) = model.magnification(time, separate=True)
+    np.testing.assert_almost_equal(mag_1, mag_1_)
+    np.testing.assert_almost_equal(mag_2, mag_2_)
+
+def test_binary_source_and_fluxes_for_bands():
+    """
+    Test if setting different flux ratios for different bands in binary
+    source models works properly. The argument flux_ratio_constraint
+    is set as string.
+    """
+    model = Model({'t_0_1': 5000., 'u_0_1': 0.05,
+                   't_0_2': 5100., 'u_0_2': 0.003, 't_E': 30.})
+
+    times_I = np.linspace(4900., 5200, 3000)
+    times_V = np.linspace(4800., 5300, 250)
+    (f_s_1_I, f_s_2_I, f_b_I) = (10., 20., 3.)
+    (f_s_1_V, f_s_2_V, f_b_V) = (15., 5., 30.)
+    q_f_I = f_s_2_I / f_s_1_I
+    q_f_V = f_s_2_V / f_s_1_V
+    (mag_1_I, mag_2_I) = model.magnification(times_I, separate=True)
+    (mag_1_V, mag_2_V) = model.magnification(times_V, separate=True)
+    effective_mag_I = (mag_1_I + mag_2_I * q_f_I) / (1. + q_f_I)
+    effective_mag_V = (mag_1_V + mag_2_V * q_f_V) / (1. + q_f_V)
+    flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
+    flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
+    data_I = MulensData(data_list=[times_I, flux_I, flux_I/100.],
+                        phot_fmt='flux', bandpass='I')
+    data_V = MulensData(data_list=[times_V, flux_V, flux_V/1000.],
+                        phot_fmt='flux', bandpass='V')
+    model.set_datasets([data_V, data_I])
+
+    model.set_source_flux_ratio_for_band('I', q_f_I)
+    model.set_source_flux_ratio_for_band('V', q_f_V)
+
+    # Test Model.magnification()
+    result_I = model.magnification(times_I, flux_ratio_constraint='I')
+    result_V = model.magnification(times_V, flux_ratio_constraint='V')
+    np.testing.assert_almost_equal(result_I, effective_mag_I)
+    np.testing.assert_almost_equal(result_V, effective_mag_V)
+
+    # Test Model.get_data_magnification()
+    result_I = model.get_data_magnification(data_I)
+    result_V = model.get_data_magnification(data_V)
+    np.testing.assert_almost_equal(result_I, effective_mag_I)
+    np.testing.assert_almost_equal(result_V, effective_mag_V)
+
