@@ -222,13 +222,6 @@ class Model(object):
 
         return (mag_1, mag_2)
 
-#    def _get_source_flux_ratio(self, datasets, magnifications):
-#        """
-#        XXX
-#        """
-#        self._fit = Fit(data=datasets, magnification=magnifications)
-#        self._fit.fit_fluxes()
-
     def _magnification_2_sources(self, time, satellite_skycoord, gamma,
                                  flux_ratio_constraint, separate, same_dataset):
         """
@@ -258,12 +251,10 @@ class Model(object):
         else:
             if same_dataset:
                 assert (flux_ratio_constraint.time == time).all()
-                # Some masking like [flux_ratio_constraint.good] is needed? XXX
                 mags = np.array([mag_1, mag_2])
             elif not same_dataset:
                 (mag_1_data, mag_2_data) = self._separate_magnifications(
                     flux_ratio_constraint.time, satellite_skycoord, gamma)
-# The above line should use caching if possible (probably via Fit.update()). XXX
                 mags = np.array([mag_1_data, mag_2_data])
             else:
                 raise ValueError('same_dataset must be True or False, not ' +
@@ -476,12 +467,6 @@ class Model(object):
         else:
             self._source_flux_ratio_constraint[None] = ratio
 
-# XXX
-# Ok, but how we deal with both single value and values for bands?
-# a) Do not allow it.
-# b) Use either/or, depending which one was set last.
-# c) Single value first, then take the band.
-# d) same as c) but gives warning.
     def set_source_flux_ratio_for_band(self, band, ratio):
         """
         Sets flux ratio for binary source models for given band.
@@ -816,13 +801,6 @@ class Model(object):
         """
         data = self._get_data_ref(data_ref)
 
-# XXX HERE
-        # If flux_ratio is fitted via regression,
-        #     then return fluxes from self.fit (2 sources, but if
-        #     flux_ratio is set, then current version would return only 1
-        #     value for sources)
-        # else:
-        #     proceed as below
         mags = self.get_data_magnification(data)
         fit = Fit(data=data, magnification=mags)
         fit.fit_fluxes()
