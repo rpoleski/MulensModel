@@ -231,8 +231,8 @@ class Model(object):
         flux_ratio_constraint: *float* or *MulensData*
 
         same_dataset: *boolean*
-            If flux_ratio_constraint is of *MulensData* type then is it
-            the same as one for we want magnification?
+            If *flux_ratio_constraint* is of *MulensData* type, then is it
+            the same dataset as the one for which you want magnification?
         """
         (mag_1, mag_2) = self._separate_magnifications(
                 time, satellite_skycoord, gamma)
@@ -293,7 +293,7 @@ class Model(object):
                 instance and in that case this dataset is used to find flux
                 ratio via regression and this flux ratio is applied in
                 calculation of effective magnification.  If *str* is provided,
-                then it is band and we use value set by
+                then it indicates the bandpass and we use value set by
                 :py:func:`set_source_flux_ratio_for_band()`.
 
             separate: *boolean*, optional
@@ -445,7 +445,7 @@ class Model(object):
 
     def set_source_flux_ratio(self, ratio):
         """
-        Sets flux ratio for binary source models. If you also call
+        Sets flux ratio of sources for binary source models. If you also call
         :py:func:`set_source_flux_ratio_for_band()`, then the value set here
         will be used when: 1) no band is specified, or 2) band is specified
         but flux ratio for given band was not specified.
@@ -458,7 +458,7 @@ class Model(object):
                 via regression (unless specific value is provided for
                 bandpass).
         """
-        if not isinstance(ratio, (np.float, float)):
+        if not isinstance(ratio, (np.float, float, type(None))):
             raise TypeError(
                 'wrong type of input in Model.set_source_flux_ratio(): ' +
                 'got {:}, expected float or None'.format(type(ratio)))

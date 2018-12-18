@@ -23,7 +23,7 @@ def test_fit_get_input_format():
 
     input_fmt = fit.get_input_format(data=dataset)
     err_msg = 'Fit.get_input_format() returns something wrong'
-    np.testing.assert_almost_equal(input_fmt, mag, err_msg=err_msg)
+    almost(input_fmt, mag, err_msg=err_msg)
 
 def test_update():
     """
