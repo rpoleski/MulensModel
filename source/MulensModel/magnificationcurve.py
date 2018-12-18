@@ -224,6 +224,17 @@ class MagnificationCurve(object):
                 a circular source *including limb-darkening*. This method
                 calculates 2D integral directly (hence can be slow).
 
+            ``finite_source_uniform_Lee09``:
+                Uses the `Lee et al. 2009 ApJ, 695, 200`_ method for
+                a circular and *uniform* source. This method
+                works well for large sources (rho ~ 1).
+
+            ``finite_source_LD_Lee09``:
+                Uses the `Lee et al. 2009 ApJ, 695, 200`_ method for
+                a circular source *including limb-darkening*. This method
+                works well for large sources (rho ~ 1) but can be slow
+                compared to other methods.
+
         Returns :
             magnification: *np.ndarray*
                 Vector of magnifications.
@@ -280,6 +291,19 @@ class MagnificationCurve(object):
                         pspl_magnification=pspl_magnification[selection],
                         gamma=self._gamma,
                         direct=True))
+            elif method.lower() == 'finite_source_uniform_Lee09'.lower():
+                selection = (methods == method)
+                magnification[selection] = (
+                    point_lens.get_point_lens_uniform_integrated_magnification(
+                        u=u_all[selection],
+                        rho=self.parameters.rho))
+            elif method.lower() == 'finite_source_LD_Lee09'.lower():
+                selection = (methods == method)
+                magnification[selection] = (
+                    point_lens.get_point_lens_LD_integrated_magnification(
+                        u=u_all[selection],
+                        rho=self.parameters.rho,
+                        gamma=self._gamma))
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))

@@ -151,6 +151,9 @@ class PointLens(object):
         Effects from a Point-Mass Lens"
         <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_
 
+        This approach assumes rho is small (rho < 0.1). For larger sources
+        use :py:func:`get_point_lens_uniform_integrated_magnification`.
+
         Parameters :
             u: *float*, *np.array*
                 The instantaneous source-lens separation.
@@ -170,7 +173,7 @@ class PointLens(object):
         """
         z = u / self.parameters.rho
         try:
-            interator = iter(z)
+            _ = iter(z)
         except TypeError:
             z = np.array([z])
 
@@ -232,7 +235,7 @@ class PointLens(object):
         """
         z = u / self.parameters.rho
         try:
-            interator = iter(z)
+            _ = iter(z)
         except TypeError:
             z = np.array([z])
 
@@ -257,3 +260,172 @@ class PointLens(object):
             magnification[mask] *= (B_0 - gamma * B_1)
 
         return magnification
+
+    def get_point_lens_uniform_integrated_magnification(self, u, rho):
+        """
+        Calculate magnification for the point lens and uniform finite source.
+        This approach works well for for small and large sources
+        (e.g., rho~0.5). Uses the method presented by:
+
+        `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
+        Microlensing: A Precise, Easy to Implement, Fast, and Numerically
+        Stable Formalism"
+        <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_
+        """
+        n = 100
+
+        mag = np.zeros_like(u)
+
+        for i in range(len(u)):
+            if u[i] > rho:
+                mag[i] = self._noLD_Lee09_large_u(u[i], rho, n)
+            else:
+                mag[i] = self._noLD_Lee09_small_u(u[i], rho, n)
+        return mag
+
+    def _u_1_Lee09(self, theta, u, rho, theta_max=None):
+        """
+        Calculates Equation 4 of Lee et al. 2009.
+        The u variable is float, theta is np.ndarray.
+        """
+        if u <= rho:
+            return 0. * theta
+        out = np.zeros_like(theta)
+        mask = (theta <= theta_max)
+        if np.any(mask):
+            ucos = u * np.cos(theta[mask])
+            out[mask] = ucos - np.sqrt(rho * rho - u * u + ucos**2)
+        return out
+
+    def _u_2_Lee09(self, theta, u, rho, theta_max=None):
+        """
+        Calculates Equation 5 of Lee et al. 2009.
+        The u variable is float, theta is np.ndarray.
+        """
+        if u <= rho:
+            ucos = u * np.cos(theta)
+            return ucos + np.sqrt(rho * rho - u * u + ucos**2)
+        else:
+            out = np.zeros_like(theta)
+            mask = (theta <= theta_max)
+            if np.any(mask):
+                ucos = u * np.cos(theta[mask])
+                out[mask] = ucos + np.sqrt(rho * rho - u * u + ucos**2)
+            return out
+
+    def _f_Lee09(self, theta, u, rho, theta_max=None):
+        """
+        Calculates equation in text between Eq. 7 and 8 from
+        Lee et al. 2009.
+        """
+        u_1_ = self._u_1_Lee09(theta, u, rho, theta_max)
+        u_2_ = self._u_2_Lee09(theta, u, rho, theta_max)
+
+        f_u_1 = u_1_ * np.sqrt(u_1_**2 + 4.)
+        f_u_2 = u_2_ * np.sqrt(u_2_**2 + 4.)
+        return f_u_2 - f_u_1
+
+    def _noLD_Lee09_large_u(self, u, rho, n):
+        """
+        Calculates Equation 7 from Lee et al. 2009 in case u > rho.
+        """
+        if n % 2 != 0:
+            raise ValueError('internal error - odd number expected')
+        theta_max = np.arcsin(rho / u)
+        out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
+        vector_1 = np.arange(1., (n/2 - 1.) + 1)
+        vector_2 = np.arange(1., n/2 + 1)
+        arg_1 = 2. * vector_1 * theta_max / n
+        arg_2 = (2. * vector_2 - 1.) * theta_max / n
+        out += 2. * np.sum(self._f_Lee09(arg_1, u, rho, theta_max))
+        out += 4. * np.sum(self._f_Lee09(arg_2, u, rho, theta_max))
+        out *= theta_max / (3. * np.pi * rho * rho * n)
+        return out
+
+    def _noLD_Lee09_small_u(self, u, rho, n):
+        """
+        Calculates Equation 7 from Lee et al. 2009 in case u < rho.
+        """
+        if n % 2 != 0:
+            raise ValueError('internal error - odd number expected')
+        out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
+        vector_1 = np.arange(1., (n - 1.) + 1)
+        vector_2 = np.arange(1., n + 1)
+        arg_1 = vector_1 * np.pi / n
+        arg_2 = (2. * vector_2 - 1.) * np.pi / (2. * n)
+        out += 2. * np.sum(self._f_Lee09(arg_1, u, rho))
+        out += 4. * np.sum(self._f_Lee09(arg_2, u, rho))
+        out /= 2. * 3. * n * rho * rho
+        return out
+
+    def get_point_lens_LD_integrated_magnification(self, u, rho, gamma):
+        """
+        Calculate magnification for the point lens and finite source with
+        limb-darkening. This approach works well for for small and large
+        sources (e.g., rho~0.5). Uses the method presented by:
+
+        `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
+        Microlensing: A Precise, Easy to Implement, Fast, and Numerically
+        Stable Formalism"
+        <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_
+        """
+        n_theta = 90
+        n_u = 1000
+
+        mag = np.zeros_like(u)
+
+        for i in range(len(u)):
+            mag[i] = self._LD_Lee09(u[i], rho, gamma, n_theta, n_u)
+
+        return mag
+
+    def _integrand_Lee09_v2(self, u_, u, theta_, rho, gamma):
+        """
+        Integrand in Equation 13 in Lee et al. 2009.
+
+        u_ and theta_ are np.ndarray, other parameters are scalars.
+        theta_ is in fact cos(theta_) here
+        """
+        values = 1. - (u_**2 - 2. * u_ * u * theta_ + u**2) / rho**2
+        values[:, -1] = 0.
+        if values[-1, 0] < 0.:
+            values[-1, 0] = 0.
+        out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
+        return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
+
+    def _LD_Lee09(self, u, rho, gamma, n_theta, n_u):
+        """
+        Calculates Equation 13 from Lee et al. 2009.
+        """
+        accuracy = 1e-4
+        theta_sub = 1.e-12
+        u_1_min = 1.e-13
+
+        if n_theta % 2 != 0:
+            raise ValueError('internal error - odd number expected')
+        if n_u % 2 != 0:
+            raise ValueError('internal error - odd number expected')
+
+        if u > rho:
+            theta_max = np.arcsin(rho / u)
+        else:
+            theta_max = np.pi
+        theta = np.linspace(0, theta_max-theta_sub, n_theta)
+        integrand_values = np.zeros_like(theta)
+        u_1 = self._u_1_Lee09(theta, u, rho, theta_max)
+        u_1 += u_1_min
+        u_2 = self._u_2_Lee09(theta, u, rho, theta_max)
+
+        size = (len(theta), n_u)
+        temp = np.zeros(size)
+        temp2 = (np.zeros(size).T + np.cos(theta)).T
+        for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
+            temp[i] = np.linspace(u_1_, u_2_, n_u)
+        integrand = self._integrand_Lee09_v2(temp, u, temp2, rho, gamma)
+        for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
+            integrand_values[i] = integrate.simps(integrand[i],
+                                                  dx=temp[i, 1]-temp[i, 0])
+        out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
+        out *= 2. / (np.pi * rho**2)
+        return out
+
