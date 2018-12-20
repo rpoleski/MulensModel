@@ -233,7 +233,7 @@ class Event(object):
         magnification = self.model.get_data_magnification(dataset)
 
         if self.model.n_sources != 1:
-            self.fit = self.model._fit
+            self.fit = self.model.fit
         else:
             self.fit = Fit(data=dataset, magnification=[magnification])
             if fit_blending is not None:
