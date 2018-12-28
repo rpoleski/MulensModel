@@ -1,33 +1,28 @@
 """
 Triple lens definition.
 """
-from astropy import units as u
+from matplotlib import pyplot as plt
 
 import MulensModel
 
 
 raise NotImplementedError('Triple Lenses are Not Supported')
 
-# first way
-lens = MulensModel.Lens(n_components=3)
-lens.s_2 = 1.3
-lens.q_2 = 0.001
-lens.s_3 = 0.8
-lens.q_3 = 0.4
-lens.beta_23 = 30. * u.deg
+model = MulensModel.Model({
+    't_0': 2456789.12, 'u_0': 0.01, 't_E': 34.56, 'rho': 0.0012, 'alpha': 45.,
+    's_21': 1.1, 's_31': 0.5, 'q_21': 0.2, 'q_31': 0.01234, 'psi': 90.})
+# The line above is shows the names of triple lens parameters.
 
-# second way
-lens_2 = MulensModel.Lens(n_components=3)
-lens_2.set_component(component=2, s=0.5, q=0.4, beta=0.*u.deg)
-lens_2.set_component(component=3, s=0.6, q=34., beta=50.*u.deg)
+model.set_default_magnification_method('point_source_point_lens')
+model.set_magnification_methods([
+    2456700., 'point_source', 2456730., 'hexadecapole', 2456800.])
 
-# third way
-lens_3 = MulensModel.Lens(n_components=3, s=[1.1, 0.5], q=[0.01, 0.2], beta=[0.0, 30.]*u.deg)
+model.plot_magnification(subtract_2450000=True)
+plt.show()
 
-# and some usage:
-print(lens.s, lens.q) #lens.s = [lens.s2,lens.s3]
-print(lens.s_23)
-print(lens.component[2])  # i.e. s2, q2, beta2
+model.plot_trajectory(caustics=True)
+plt.show()
 
-
+# Previously we wanted to have Model.parameters.s which should return a list 
+# (e.g., [1.2, 0.5]) but it doesn't seem to be a good idea now.
 
