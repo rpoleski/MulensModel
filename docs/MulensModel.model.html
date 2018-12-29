@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.7.4 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.8.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -128,7 +128,7 @@ for given times. see also
 
 <dl class="method">
 <dt id="MulensModel.model.Model.magnification">
-<code class="descname">magnification</code><span class="sig-paren">(</span><em>time</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em>, <em>flux_ratio_constraint=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.magnification" title="Permalink to this definition">¶</a></dt>
+<code class="descname">magnification</code><span class="sig-paren">(</span><em>time</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em>, <em>flux_ratio_constraint=None</em>, <em>separate=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the model magnification for the given time(s).</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
@@ -144,19 +144,28 @@ parallax calculations.</dd>
 0 which means no limb darkening effect.</dd>
 </dl>
 <p>flux_ratio_constraint:
-<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>, optional</p>
-<blockquote class="last">
-<div>Data to constrain the flux ratio for sources in binary source
-models. Currently accepts only
-<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> instances.
-Note that <a class="reference internal" href="#MulensModel.model.Model.set_source_flux_ratio" title="MulensModel.model.Model.set_source_flux_ratio"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_source_flux_ratio()</span></code></a> takes precedence
-over <em>flux_ratio_constraint</em>.</div></blockquote>
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> or <em>str</em>, optional</p>
+<blockquote>
+<div>Data to constrain the flux ratio of sources in binary source
+models. Can be <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>
+instance and in that case this dataset is used to find flux
+ratio via regression and this flux ratio is applied in
+calculation of effective magnification.  If <em>str</em> is provided,
+then it indicates the bandpass and we use value set by
+<a class="reference internal" href="#MulensModel.model.Model.set_source_flux_ratio_for_band" title="MulensModel.model.Model.set_source_flux_ratio_for_band"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_source_flux_ratio_for_band()</span></code></a>.</div></blockquote>
+<dl class="last docutils">
+<dt>separate: <em>boolean</em>, optional</dt>
+<dd>For binary source models, return magnification of each source
+separately. Default is <em>False</em> and then only effective
+magnification is returned.</dd>
+</dl>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
 <dt>magnification: <em>np.ndarray</em></dt>
 <dd>A vector of calculated magnification values. For binary source
-models, the effective magnification is returned.</dd>
+models, the effective magnification is returned (unless
+<em>separate=True</em>).</dd>
 </dl>
 </dd>
 </dl>
@@ -194,14 +203,36 @@ account.</dd>
 <dl class="method">
 <dt id="MulensModel.model.Model.set_source_flux_ratio">
 <code class="descname">set_source_flux_ratio</code><span class="sig-paren">(</span><em>ratio</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_source_flux_ratio" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets flux ratio for binary source models. It takes precedence over
-flux_ratio_constraint paramter of <a class="reference internal" href="#MulensModel.model.Model.magnification" title="MulensModel.model.Model.magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">magnification()</span></code></a>.</p>
+<dd><p>Sets flux ratio of sources for binary source models. If you also call
+<a class="reference internal" href="#MulensModel.model.Model.set_source_flux_ratio_for_band" title="MulensModel.model.Model.set_source_flux_ratio_for_band"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_source_flux_ratio_for_band()</span></code></a>, then the value set here
+will be used when: 1) no band is specified, or 2) band is specified
+but flux ratio for given band was not specified.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
 <dt>ratio: <em>float</em> or <em>None</em></dt>
+<dd>The ratio of fluxes of source no. 2 to source no. 1, i.e.,
+flux_source_2/flux_source_1. Setting it to <em>None</em> removes
+the internal information, i.e., flux ratio will be fitted
+via regression (unless specific value is provided for
+bandpass).</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.set_source_flux_ratio_for_band">
+<code class="descname">set_source_flux_ratio_for_band</code><span class="sig-paren">(</span><em>band</em>, <em>ratio</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_source_flux_ratio_for_band" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets flux ratio for binary source models for given band.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>band: <em>str</em></dt>
+<dd>Band for which constraint is given.</dd>
+<dt>ratio: <em>float</em></dt>
 <dd>ratio of fluxes of source no. 2 to source no. 1, i.e.,
-flux_source_2/flux_source_1</dd>
+flux_source_band_2/flux_source_band_1</dd>
 </dl>
 </dd>
 </dl>
@@ -320,14 +351,10 @@ sure to also set the same settings for all other
 plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>)</dd>
 </dl>
 <p>flux_ratio_constraint: instance of
-<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>, optional</p>
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> or <em>str</em>, optional</p>
 <blockquote>
 <div>Option for binary source models only.
-Data to constrain the flux ratio for sources
-Currently accepts only
-<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> instances.
-Note that <a class="reference internal" href="#MulensModel.model.Model.set_source_flux_ratio" title="MulensModel.model.Model.set_source_flux_ratio"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_source_flux_ratio()</span></code></a> takes precedence
-over <em>flux_ratio_constraint</em>.</div></blockquote>
+Data or bandpass to constrain the flux ratio of sources.</div></blockquote>
 <p class="last"><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> any arguments accepted by matplotlib.pyplot.plot().</p>
 </dd>
 </dl>

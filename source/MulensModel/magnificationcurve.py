@@ -225,8 +225,9 @@ class MagnificationCurve(object):
                 calculates 2D integral directly (hence can be slow).
 
             ``finite_source_uniform_Lee09``:
-                Uses the `Lee et al. 2009 ApJ, 695, 200`_ method for
-                a circular and *uniform* source. This method
+                Uses the `Lee et al. 2009 ApJ, 695, 200
+                <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_ method
+                for a circular and *uniform* source. This method
                 works well for large sources (rho ~ 1).
 
             ``finite_source_LD_Lee09``:
