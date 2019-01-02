@@ -16,7 +16,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
 * Install
   * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
   * **note PYTHONPATH "install"**
-  * setup.py - don't try to compile if .so file is there
+  * _setup.py - don't try to compile if .so file is there_
   * PIP install - the problem is that CustomInstall from setup.py is run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
   * setup.py should use Extensions or Distutils instead of custom makefile
   * in setup.py in setup() add keywords: long\_description, classifiers
@@ -30,22 +30,20 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Add \_\_repr\_\_ functions to Lens and Source
   * files not yet well documented: 
     * RA & Dec in coordinates.py (maybe also code it better)
-    * coordinates.py
     * utils.py 
     * modelparameters.py
     * _Event.fit seems to be not documented_
   * Include full documentation via setup.py data\_files mechanism.
   * note that all plotting functions require plt.show() or plt.save()
   * try removing Attributes from docstrings - just make short @property functions
-  * "Do not change values in results of this function." - change, because it's not a function
-  * add a note that pi_E is "geocentric" (and "heliocentric" has the same length of vector but rotetated)
+  * add a note that pi_E is "geocentric" (and "heliocentric" has the same length of vector but is rotated)
   * _list of all magnification methods_
   * _tutorial on model types_
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
   * _Event Arguments docstring_
   * make sure that website shows correct version of MM
   * note that we're not checking for negative source or blending flux
-  * change all ADS links in code and documentation to new version
+  * change all ADS links in code and documentation to new version, e.g., https://ui.adsabs.harvard.edu//#abs/2009ApJ...695..970D/
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
@@ -177,7 +175,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * check if t\_eff and t\_star can be used as input simultaneously
     * check if input values are floats (or something else accepted)
   * MulensData class:
-    * **link to set_plot\_properties() doesn't work (just after "ad and show\_errorbars properties. See") UPPPPSSSS.... this function is not coded at all**
     * **Errorbar scaling, in particular the two parameter.**
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info

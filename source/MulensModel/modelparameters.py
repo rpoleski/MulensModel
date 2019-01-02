@@ -1235,7 +1235,7 @@ class ModelParameters(object):
 
         Parameters of source 1 in multi-source model.
 
-        **Do not change values in results of this function.** To change
+        **Do not change returned values.** To change
         parameters of the source 1, simply change the parameters of double
         source instance.
         """
@@ -1251,7 +1251,7 @@ class ModelParameters(object):
 
         Parameters of source 2 in multi-source model.
 
-        **Do not change values in results of this function.** To change
+        **Do not change returned values.** To change
         parameters of the source 1, simply change the parameters of double
         source instance.
         """
