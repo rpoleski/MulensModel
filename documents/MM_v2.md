@@ -1,6 +1,6 @@
 # What we want to change when going from v1.X.Y to v2.0.0?
 
-Once the changes are accepted to be made, mark them in the code using warnings.warn("XXX", FutureWarning) and note it here.
+Once the changes are accepted to be made, **mark them in the code using warnings.warn("XXX", FutureWarning)** and note it here. Also release a version that differs from previous one only in these warnings - this will allow users to correct their codes.  Also give **suggested changes in warnings**.
 
 ### Major changes:
 
@@ -9,6 +9,7 @@ Once the changes are accepted to be made, mark them in the code using warnings.w
    * Model.get\_residuals()
    * Model.get\_ref\_fluxes() - possibly
    * Model.reset\_plot\_properties() will be removed
+   * Model.set\_source\_flux\_ratio\_for\_band
  * fit\_blending maybe should be class property, not an option, or maybe even it should be MulensData property! - This change should simplify Event and Fit functions where we see many "if fit\_blending:"
 
 ### Minor changes:
@@ -23,6 +24,8 @@ Once the changes are accepted to be made, mark them in the code using warnings.w
  * new class for a collection of datasets to make looping over datasets easier; also there will be data\_ref defined
  * VBBL and AC in subdirs of source/MulensModel/ for easier install
  * MulensData can plot itself - _this seems to be already done_
- * stop updating data\_ref
+ * stop updating data\_ref in Model
  * the same order of arguments in plotting functions (if possible)
+ * Model.magnification has parameter gamma - shouldn't it be bandpass?
+ * Model.magnification has parameter flux\_ratio\_constraint but there is also Model.set\_source\_flux\_ratio() - probably there should be just one version of that - the latter seems more logical
 

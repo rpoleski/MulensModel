@@ -1,17 +1,21 @@
-## Dec goals:
-1. Cassan 2008 parametrization
-2. triple lens use cases
-3. FSPL for large rho with LD (Lee+09)
-4. Binary source - allow setting flux ratio for all datasets in given band 
-
+## Jan goals:
+1. new release
+2. link paper, prepare additional documentation for hack session
+3. Windows install
+4. triple-lens point-source calculations (hexadecapole if possible as well)
+5. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
+6. Cassan 2008 parametrization
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
 
 _italics_ mark important tasks
 
+Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
+
 * Install
   * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
+  * **note PYTHONPATH "install"**
   * setup.py - don't try to compile if .so file is there
   * PIP install - the problem is that CustomInstall from setup.py is run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
   * setup.py should use Extensions or Distutils instead of custom makefile
@@ -41,26 +45,26 @@ _italics_ mark important tasks
   * _Event Arguments docstring_
   * make sure that website shows correct version of MM
   * note that we're not checking for negative source or blending flux
+  * change all ADS links in code and documentation to new version
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
     * _source\_flux\_ratio added to ModelParameters_
+    * _separate methods for each source in binary source models_
     * Fit.fit\_fluxes docstring to be updated
     * which\_parameters() - note that it doesn't work for binary source parameters, but the parameters work properly; just BSPL and rho_2 etc. are optional
     * models with fixed no blending: fit\_blending keyword changes
-    * flux ratio - for band and for a list of datasets and both fixed and via regression
     * parallax models
     * binary source - there should be one Fit less in Event.get\_chi2xxx functions - if there are 2 sources, then calculate magnification and use F\_S = F\_S\_1+F\_S\_2 and get it from self.model.fit; most probably adding some function to Fit would help
     * binary lens binary source
     * different t\_E for each source (correct Model.set\_times)
-    * test binary source with exactly one rho_X defined
+    * test binary source with exactly one rho\_X defined
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * Yoo+04 full formalism 
     * get gamma/u LD coeffs from Claret papers etc.
-    * full formalism of [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L)
-    * [Lee+09] - gradient calculations for uniform source
+    * [Lee+09] - gradient calculations for uniform source, also faster calculations
   * Xallarap (see below for references)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
@@ -74,6 +78,7 @@ _italics_ mark important tasks
   * elliptical source magnification [Heyrovsky & Loeb 1997](http://adsabs.harvard.edu/abs/1997ApJ...490...38H)
   * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
   * fit\_blending for only some of the datasets
+  * _wrapper for ESPLMag2 from VBBL_
 * Parameterization
   * Cassan 2008 binary lens parameters:
     * Cassan 2010 - Eq. 23, 24 and 25 - multiply s_in,s_out so that prior is uniform in (alpha,u0)
@@ -117,6 +122,8 @@ _italics_ mark important tasks
     * for consistency, it would be good to combine get\_chi2\_for\_dataset() and get\_chi2\_per\_point()
     * other likelihoods, e.g., [Dominik+18](https://arxiv.org/abs/1808.03149), [ARTEMiS](http://adsabs.harvard.edu/abs/2008AN....329..248D), SIGNALMEN, [RoboTAP](http://adsabs.harvard.edu/abs/2018A%26A...609A..55H)
     * function that calculates cumulative chi2 so that it can be plotted easier
+    * _get\_chi2\_for\_dataset() - it was working before bs2 was merged_
+    * Binary source - see optimization comment at begin of Event.get\_chi2\_for\_dataset()
   * Fit class:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
     * n\_sources somehow inconsistent in different places
@@ -135,6 +142,7 @@ _italics_ mark important tasks
     * implement triple+ systems  
   * MagnificationCurve class:
     * re-write magnification() to use lazy loading (here or in model.py)
+    * _get\_point\_lens\_magnification() - correct Yoo in docstring_
   * Model class:
     * reorder functions so that it looks good on website
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
@@ -156,6 +164,8 @@ _italics_ mark important tasks
     * _data\_ref lacks docstring_
     * allow rotating plots, so that source travel "exactly" from left to right
     * when plotting residuals allow keywords to be passed for plotting 0-line
+    * get_data\_magnification() - should there be data.good masking?
+    * get\_ref\_fluxes - use caching (self.\_fit) inside it
   * ModelParameters class:
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
@@ -167,7 +177,7 @@ _italics_ mark important tasks
     * check if t\_eff and t\_star can be used as input simultaneously
     * check if input values are floats (or something else accepted)
   * MulensData class:
-    * _link to set_plot\_properties() doesn't work (just after "ad and show\_errorbars properties. See") UPPPPSSSS.... this function is not coded at all_
+    * **link to set_plot\_properties() doesn't work (just after "ad and show\_errorbars properties. See") UPPPPSSSS.... this function is not coded at all**
     * **Errorbar scaling, in particular the two parameter.**
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info
@@ -212,6 +222,7 @@ _italics_ mark important tasks
     * _F\_s for MOA data for MB08310 differs from Janczak paper - is it caused by FSPL vs. FSBL models?_
     * plotting - sharex where possible
     * note in PSPL tutorial about plotting data in MulensData
+    * add example that after calling Event.get\_chi2() use Event.fit to get e.g. magnifications so that the magnification is not calculated twice
   * Miscellaneous:
     * add function to get Earth's projected velocity
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
@@ -219,17 +230,19 @@ _italics_ mark important tasks
     * guessing parameters of PSPL model ([Kim+17](https://arxiv.org/abs/1703.06883) as an example)
     * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
     * anything from use cases that does not work yet -- see TODO.md file
+    * comments at begin of each use case and example
     * interaction with fitting routines - see [list of them](https://arxiv.org/abs/1711.03329)
     * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, then there is no point in remembering huge indexes (whole self.times)
-    * profile the code (python -m cProfile script.py)
+    * profile the code (python -m cProfile script.py - you only should check 2nd and 4th column)
     * Leap seconds library - [barycorrpy](https://arxiv.org/abs/1801.01634)
-    * go to [documents/TODO.md](documents/TODO.md) file and check use cases listed there
+    * [documents/TODO.md](documents/TODO.md) file - move content and remove
     * add transformation Jacobians, see: Batista+11 and Skowron+11
 * Other Tests:
   * add unit tests for Horizons and MulensData.satellite\_skycoord
   * Coordinates - write tests, possibly remove test\_Coords.py
   * t\_eff is not tested
   * plt.scatter -> plt.plot; after that we can start unit tests for plt calls
+  * check for memory leaks by running long calculations and monitoring RAM usage
 * Style/Architecture:
   * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time fully checked on 28 Feb 2018 (but didn't include tests)
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
@@ -249,6 +262,7 @@ _italics_ mark important tasks
 [Dominik 1998](http://adsabs.harvard.edu/abs/1998A%26A...329..361D),
 [Ghosh et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...615..450G),
 [Jiang et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...617.1307J)
+[Dong et al. 2009](http://adsabs.harvard.edu/abs/2009ApJ...695..970D)
 
 ob9919 - [Smith et al. 2002](http://adsabs.harvard.edu/abs/2002MNRAS.336..670S)
 
