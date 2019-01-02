@@ -2,7 +2,7 @@
 Use cases showing how to implement a flux constraint.
 """
 import numpy as np
-import glob
+import os
 
 import MulensModel
 
@@ -48,7 +48,8 @@ file_names = ['KCT01I.dat', 'KCT41I.dat', 'KCT42I.dat', 'KSA01I.dat',
 for file_ in file_names:
     datasets.append(MulensModel.MulensData(
             file_name=os.path.join(
-        MulensModel.MODULE_PATH, "data", "photometry_files", "OB161195", file_)))
+        MulensModel.MODULE_PATH, "data", "photometry_files", "OB161195", file_),
+        add_2450000=True))
 
 # Close-- model
 model = MulensModel.Model(
@@ -56,6 +57,13 @@ model = MulensModel.Model(
      'pi_E_N': -0.2154, 'pi_E_E': -0.380, 
      'alpha': np.rad2deg(-0.9684), 's': 0.9842, 'q': 0.0000543})
 
-event = MulensModel.Event(datasets=datasets, model=model)
-print(chi2_fun(event))
+methods = [7560., 'VBBL', 7580.]
+
+model.set_magnification_methods(methods)
+model.set_default_magnification_method('point_source_point_lens')
+
+event = MulensModel.Event(datasets=datasets, model=model,
+                          coords="17:55:23.50 -30:12:26.1")
+
+print(chi2_fun([], event, []))
 

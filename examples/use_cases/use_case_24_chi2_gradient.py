@@ -84,8 +84,8 @@ print('scipy.optimize.minimize result:')
 print(result)
 
 #Plot and compare the two models
-init_model = Model(t_0=t_0, u_0=u_0, t_E=t_E)
-final_model = Model(t_0=fit_t_0, u_0=fit_u_0, t_E=fit_t_E)
+init_model = Model(dict(t_0=t_0, u_0=u_0, t_E=t_E))
+final_model = Model(dict(t_0=fit_t_0, u_0=fit_u_0, t_E=fit_t_E))
 pl.figure()
 init_model.plot_lc(data_ref=data, label='Initial Trial')
 final_model.plot_lc(data_ref=data, label='Final Model')

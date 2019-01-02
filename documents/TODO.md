@@ -12,9 +12,9 @@
 | point-source/point-lens magnification curves including| |
 | * finite source with limb darkening| Yes |
 | binary lens magnification curves including| |
-| * finite source with limb darkening| |
+| * finite source with limb darkening| Yes |
 | * VBBL| Yes |
-| * Dominik's Adapative Contouring| Yes |
+| * Dominik's Adaptive Contouring| Yes |
 | binary lenses caustics can be calculated and plotted together with source trajectory.| Yes |
 |event properties (tE, thetaE, rE) can be calculated from physical properties of the source and lens systems (e.g. M, pi\_s, pi\_l, and mu)| Yes |
 | The code contains
@@ -54,7 +54,7 @@
 |06| WFIRST data | No |
 |07| triple lenses | No |
 |08| plotting | Yes |
-|10| get chi2 | |
+|10| get chi2 | Yes |
 |11| clean bad data | No |
 |12| simple fit PSPL | Yes |
 |13| adding parallax to a model| Yes |
@@ -63,10 +63,14 @@
 |16| raddec | Yes |
 |17| magnitudes | Yes |
 |18| binary equation | Yes, but UC not finished |
-|19| limb\_darkening | Yes, but lacks data|
-|20| binary lens instantaneous orbital motion | No |
+|19| limb\_darkening | maybe - lacks data|
+|20| binary lens instantaneous orbital motion | Yes |
 |21| binary source modeling | No |
 |22| parameters accessed as a vector | No |
 |23| ModelParameters dictionary | No |
 |24| Jacobian | No |
+|25| flux constraint | UC needs re-writing |
+|26| binary source | No |
+|26b| binary source | No |
+|27|  | Yes |
 

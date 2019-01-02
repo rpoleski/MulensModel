@@ -5,6 +5,7 @@ components should have the same flux fraction if the band is the same.
 import MulensModel as mm
 import scipy.optimize as op
 
+
 raise NotImplementedError('This use case has not been implemented.')
 
 def chi2_fun(theta, event, parameters_to_fit):
@@ -17,10 +18,10 @@ def chi2_fun(theta, event, parameters_to_fit):
     return event.get_chi2()
 
 # Import Data
-data_site1_band1 = mm.MulensData(file_name='DATA_FILE_1.dat', band='I')
-data_site1_band2 = mm.MulensData(file_name='DATA_FILE_2.dat', band='V')
-data_site2_band1 = mm.MulensData(file_name='DATA_FILE_3.dat', band='I')
-data_site2_band2 = mm.MulensData(file_name='DATA_FILE_4.dat', band='V')
+data_site1_band1 = mm.MulensData(file_name='DATA_FILE_1.dat', bandpass='I')
+data_site1_band2 = mm.MulensData(file_name='DATA_FILE_2.dat', bandpass='V')
+data_site2_band1 = mm.MulensData(file_name='DATA_FILE_3.dat', bandpass='I')
+data_site2_band2 = mm.MulensData(file_name='DATA_FILE_4.dat', bandpass='V')
 datasets = [
     data_site1_band1, data_site1_band2, data_site2_band1, data_site2_band2]
 
