@@ -3,7 +3,7 @@
 <dl>MulensModel is package for modeling microlensing (or &mu;-lensing) 
 events. </dl>
 
-[Latest release: 1.5.3](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 1.8.3](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
@@ -37,7 +37,7 @@ Currently, MulensModel supports:
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues) or send us an e-mail. 
 
-Are you using MulensModel for scientific research? Please give us credit by citing the [paper](http://adsabs.harvard.edu/abs/2018arXiv180301003P) and [ASCL reference](http://ascl.net/1803.006).
+Are you using MulensModel for scientific research? Please give us credit by citing the [paper published in "Astronomy and Computing"](http://adsabs.harvard.edu/abs/2019A%26C....26...35P) and [ASCL reference](http://ascl.net/1803.006). For arXiv see [link](https://arxiv.org/abs/1803.01003).
 
 ## How to install?
 
@@ -49,10 +49,10 @@ MulensModel requires some standard packages plus [astropy package](http://www.as
 ```
 pip install -r requirements.txt
 ```
-If you have any problems, please contact the authors and we will try to help.
+Alternatively, you can run makefiles (`source/VBBL/Makefile` and `source/AdaptiveContouring/Makefile`) and add the path to your `PYTHONPATH`. If you have any problems, please contact the authors and we will try to help.
 
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Dec 2018
+file revised Jan 2019
 

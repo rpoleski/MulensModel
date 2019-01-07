@@ -1,5 +1,5 @@
 ## Jan goals:
-1. new release
+1. new release - DONE
 2. link paper, prepare additional documentation for hack session
 3. Windows install
 4. triple-lens point-source calculations (hexadecapole if possible as well)
