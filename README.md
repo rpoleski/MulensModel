@@ -12,7 +12,7 @@ A few useful resources:
 * [Basic usage tutorial](https://rpoleski.github.io/MulensModel/tutorial.html),
 * [Fitting tutorial](https://rpoleski.github.io/MulensModel/tutorial_fit_pspl.html),
 * [Microlensing parallax fitting tutorial](https://rpoleski.github.io/MulensModel/tutorial_fit_pi_E.html),
-* [**Explanation of microlensing parameters&**](documents/parameter_names.pdf)
+* [**Explanation of microlensing parameters**](documents/parameter_names.pdf)
 * [Examples on how to use the code](examples/):
   * [Example 01](examples/example_01_models.py) -- plot simple point-source/point-lens (PSPL) model and model with planetary lens,
   * [Example 02](examples/example_02_fitting.py) -- fit PSPL model to the data using scipy.optimize.minimize(),
