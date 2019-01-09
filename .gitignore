@@ -35,3 +35,7 @@ examples/run_time_tests/test_100*txt
 # Temporary tasks:
 DEV
 
+# Latex files:
+*.aux
+*.log
+
