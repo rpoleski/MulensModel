@@ -3,8 +3,10 @@
 2. link paper, prepare additional documentation for hack session
 3. Windows install
 4. triple-lens point-source calculations (hexadecapole if possible as well)
+4. triple-lens use cases
 5. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
 6. Cassan 2008 parametrization
+8. VBBL 2.0
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
