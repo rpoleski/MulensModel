@@ -243,6 +243,7 @@ def test_event_chi2_binary_source():
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
     # Make sure Model.set_source_flux_ratio() is taken into account.
     model.set_source_flux_ratio(1.)
+    np.testing.assert_almost_equal(model.magnification(time), (mag_1+mag_2)/2.)
     assert event.get_chi2() > 1.
     model.set_source_flux_ratio(3.)
     np.testing.assert_almost_equal(event.get_chi2(), 0.)

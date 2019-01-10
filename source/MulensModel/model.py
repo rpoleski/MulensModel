@@ -366,6 +366,8 @@ class Model(object):
                     flux_ratio_constraint = dict_constraint[None]
             elif isinstance(flux_ratio_constraint, str):
                 flux_ratio_constraint = dict_constraint[flux_ratio_constraint]
+            elif None in dict_constraint:
+                flux_ratio_constraint = dict_constraint[None]
             magnification = self._magnification_2_sources(
                                 time, satellite_skycoord, gamma,
                                 flux_ratio_constraint, separate, same_dataset)
