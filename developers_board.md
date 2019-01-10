@@ -7,6 +7,8 @@
 5. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
 6. Cassan 2008 parametrization
 8. VBBL 2.0
+9. extract flux ratio for binary source models when fluxes are fitted via regression
+10. different ranges of finite source calculations for binary source models
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
