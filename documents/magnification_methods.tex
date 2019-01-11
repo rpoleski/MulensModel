@@ -1,0 +1,58 @@
+\documentclass[12pt]{article}
+
+\usepackage{geometry}
+\geometry{textwidth=520pt,top=20mm,bottom=20mm}
+
+\newcommand\MM{{\tt MulensModel}}
+
+
+\begin{document} % ########################################
+
+\MM offers a wide range of methods used to calculate magnifications. 
+These methods are passed to {\tt Model} class using 
+{\tt set\_magnification\_methods()} function.  For each method one has to 
+pass the time ranges when the method will be used.  These parameters are 
+passed in a list, e.g.:
+
+\begin{verbatim}
+model = Model(...)
+model.set_magnification_methods(
+    [2455745., 'Hexadecapole', 2455746., 'VBBL', 2455747., 'Hexadecapole', 2455748.])
+\end{verbatim}
+
+There are two other useful functions. 
+First, {\tt set\_default\_magnification\_method()}\linebreak allows setting method that 
+is used outside time ranges specified above.  
+Second, \linebreak{\tt set\_magnification\_methods\_parameters()} allows 
+providing additional parameters for calculations.  Currently, only 
+{\tt VBBL} and {\tt Adaptive\_Contouring} allow providing these parameters. 
+
+\bigskip\bigskip
+Point lens methods:
+\begin{itemize}
+\item {\tt point\_source}
+\item {\tt finite\_source\_uniform\_Gould94}
+\item {\tt finite\_source\_LD\_Yoo04}
+\item {\tt finite\_source\_uniform\_Lee09}
+\item {\tt finite\_source\_LD\_Lee09}
+\end{itemize}
+% XXX finite_source_uniform_Gould94_direct
+% XXX finite_source_LD_Yoo04_direct
+
+\bigskip\bigskip
+Binary lens methods:
+\begin{itemize}
+\item {\tt point\_source}
+\item {\tt quadrupole}
+\item {\tt hexadecapole}
+\item {\tt VBBL} -- parameters {\tt accuracy}
+\item {\tt Adaptive\_Contouring} -- parameters {\tt accuracy} and {\tt adaptive\_contouring}
+\item {\tt point\_source\_point\_lens}
+\end{itemize}
+
+\bigskip\bigskip
+Triple lens methods -- under construction.  Come back soon!
+
+
+\end{document}
+
