@@ -2,13 +2,14 @@
 1. new release - DONE
 2. link paper, prepare additional documentation for hack session
 3. Windows install
-4. triple-lens point-source calculations (hexadecapole if possible as well)
-4. triple-lens use cases
-5. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
-6. Cassan 2008 parametrization
-8. VBBL 2.0
-9. extract flux ratio for binary source models when fluxes are fitted via regression
-10. different ranges of finite source calculations for binary source models
+4. no makefile run if files exist
+5. triple-lens point-source calculations (hexadecapole if possible as well)
+6. triple-lens use cases
+7. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
+8. Cassan 2008 parametrization
+9. VBBL 2.0
+10. extract flux ratio for binary source models when fluxes are fitted via regression
+11. different ranges of finite source calculations for binary source models
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
