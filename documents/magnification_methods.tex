@@ -1,5 +1,6 @@
 \documentclass[12pt]{article}
 
+\usepackage{amssymb}
 \usepackage{geometry}
 \geometry{textwidth=520pt,top=20mm,bottom=20mm}
 
@@ -30,24 +31,25 @@ providing additional parameters for calculations.  Currently, only
 \bigskip\bigskip
 Point lens methods:
 \begin{itemize}
-\item {\tt point\_source}
-\item {\tt finite\_source\_uniform\_Gould94}
-\item {\tt finite\_source\_LD\_Yoo04}
-\item {\tt finite\_source\_uniform\_Lee09}
-\item {\tt finite\_source\_LD\_Lee09}
+\item {\tt point\_source} -- the simplest thing that exists, also called ``Paczy\'nski curve'':\linebreak $A(u) = \left(u^2+2\right)/\left(u\sqrt{u^2+4}\right)$.
+\item {\tt finite\_source\_uniform\_Gould94} -- for the finite source with uniform profile (i.e., no limb-darkening effect) use approximation presented by Gould (1994).  It works only for small $\rho$, i.e, $\rho\lesssim0.1$.
+\item {\tt finite\_source\_LD\_Yoo04} -- for the finite source with limb darkening use Yoo et al.~(2004) approximation.  It works only for small $\rho$, i.e, $\rho\lesssim0.1$.
+\item {\tt finite\_source\_uniform\_Lee09} -- for the finite source with uniform profile (Lee et al.~2009) but works well for large $\rho$ as well (e.g., $\rho = 2$).  It is significantly slower than approximate method {\tt finite\_source\_uniform\_Gould94}.
+\item {\tt finite\_source\_LD\_Lee09} -- for the finite source with limb darkening that works well for large sources (e.g., $\rho = 2$).  This method is much slower than {\tt finite\_source\_LD\_Yoo04}.
 \end{itemize}
-% XXX finite_source_uniform_Gould94_direct
-% XXX finite_source_LD_Yoo04_direct
+Please note that {\tt finite\_source\_uniform\_Gould94} and {\tt finite\_source\_LD\_Yoo04} interpolate pre-com\-pu\-ted values.  This interpolation should be very accurate.
+If you want to test it, then request direct calculations using {\tt finite\_source\_uniform\_Gould94\_direct} or {\tt finite\_source\_LD\_Yoo04\_direct}.
+For $u/\rho$ that is outside pre-computed values the direct calculation is used as well.
 
 \bigskip\bigskip
 Binary lens methods:
 \begin{itemize}
-\item {\tt point\_source}
-\item {\tt quadrupole}
-\item {\tt hexadecapole}
-\item {\tt VBBL} -- parameters {\tt accuracy}
-\item {\tt Adaptive\_Contouring} -- parameters {\tt accuracy} and {\tt adaptive\_contouring}
-\item {\tt point\_source\_point\_lens}
+\item {\tt point\_source} -- assumes the source is just a point (hence not valid near caustics) and solves fifth order complex polynomial once.
+\item {\tt quadrupole} --
+\item {\tt hexadecapole} --
+\item {\tt VBBL} -- parameters: {\tt accuracy}
+\item {\tt Adaptive\_Contouring} -- parameters: {\tt accuracy} and {\tt ld\_accuracy}
+\item {\tt point\_source\_point\_lens} --
 \end{itemize}
 
 \bigskip\bigskip
