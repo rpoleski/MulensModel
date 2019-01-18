@@ -1,8 +1,8 @@
 ## Jan goals:
 1. new release - DONE
-2. link paper, prepare additional documentation for hack session
+2. link paper, prepare additional documentation for hack session - DONE
 3. Windows install
-4. no makefile run if files exist
+4. no makefile run if files exist - DONE, BUT NOT TESTED
 5. triple-lens point-source calculations (hexadecapole if possible as well)
 6. triple-lens use cases
 7. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
