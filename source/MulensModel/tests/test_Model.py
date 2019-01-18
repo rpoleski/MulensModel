@@ -389,3 +389,28 @@ def test_binary_source_and_fluxes_for_bands():
     np.testing.assert_almost_equal(result_I, effective_mag_I)
     np.testing.assert_almost_equal(result_V, effective_mag_V)
 
+def test_separate_method_for_each_source():
+    """
+    Checks if setting separate magnification method for each source in
+    binary source models works properly.
+    """
+    model = Model({'t_0_1': 5000., 'u_0_1': 0.01, 'rho_1': 0.005,
+                   't_0_2': 5100., 'u_0_2': 0.001, 'rho_2': 0.005,
+                   't_E': 1000.})
+
+    model.set_magnification_methods(
+        [4999., 'finite_source_uniform_Gould94', 5101.], source=1)
+    # In order not to get "no FS method" warning:
+    model.set_magnification_methods(
+        [0., 'finite_source_uniform_Gould94', 1.], source=2)
+    out = model.magnification(5000., separate=True)
+    np.testing.assert_almost_equal([out[0][0], out[1][0]],
+                                   [103.46704167, 10.03696291])
+
+    model.set_magnification_methods(
+        [4999., 'finite_source_uniform_Gould94', 5001.], source=1)
+    model.set_magnification_methods(
+        [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
+    out = model.magnification(5100., separate=True)
+    np.testing.assert_almost_equal([out[0][0], out[1][0]],
+                                   [9.98801936, 395.96963727])

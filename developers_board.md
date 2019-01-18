@@ -9,7 +9,7 @@
 8. Cassan 2008 parametrization
 9. VBBL 2.0
 10. extract flux ratio for binary source models when fluxes are fitted via regression
-11. different ranges of finite source calculations for binary source models
+11. different ranges of finite source calculations for binary source models - DONE
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
@@ -53,7 +53,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * **Binary source - see documents/binary\_source\_notes.md**:
     * finish use cases
     * _source\_flux\_ratio added to ModelParameters_
-    * _separate methods for each source in binary source models_
     * Fit.fit\_fluxes docstring to be updated
     * which\_parameters() - note that it doesn't work for binary source parameters, but the parameters work properly; just BSPL and rho_2 etc. are optional
     * models with fixed no blending: fit\_blending keyword changes

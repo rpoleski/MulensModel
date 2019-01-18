@@ -15,17 +15,17 @@ A few useful resources:
 * [**Explanation of microlensing parameters**](documents/parameter_names.pdf)
 * [Explanation of methods used for calculating magnification - under development](documents/magnification_methods.pdf)
 * [Examples on how to use the code](examples/):
-  * [Example 01](examples/example_01_models.py) -- plot simple point-source/point-lens (PSPL) model and model with planetary lens,
-  * [Example 02](examples/example_02_fitting.py) -- fit PSPL model to the data using scipy.optimize.minimize(),
-  * [Example 03](examples/example_03_mulenssystem.py) -- define PSPL model using physical properties and plot the resulting magnification curve,
-  * [Example 04](examples/example_04_einsteinring.py) -- calculate the Einstein ring size for a grid of lens masses and distances,
-  * [Example 05](examples/example_05_MB08310.py) -- plot multiple datasets for a single model, plot the residuals, and do this both in magnitude and magnification spaces,
-  * [Example 06](examples/example_06_fit_parallax_EMCEE.py) -- fit parallax model using EMCEE,
-  * [Example 07](examples/example_07_fit_parallax_MN.py) -- fit parallax model using MultiNest,
-  * [Example 08](examples/example_08_planet_grid_fitting.ipynb) -- shows how to fit simulated WFIRST light curve with planetary model,
-  * [Example 09](examples/example_09_gradient_fitting.py) -- fit point lens model using chi^2 gradient,
-  * [Example 10](examples/example_10_fitting_and_fluxes.py) -- fit model and extract posterior fluxes,
-  * [Example 11](examples/example_11_binary_source.py) -- simulate and fit binary source event.
+  * [Example 01](examples/example_01_models.py) - plot simple point-source/point-lens (PSPL) model and model with planetary lens,
+  * [Example 02](examples/example_02_fitting.py) - fit PSPL model to the data using scipy.optimize.minimize(),
+  * [Example 03](examples/example_03_mulenssystem.py) - define PSPL model using physical properties and plot the resulting magnification curve,
+  * [Example 04](examples/example_04_einsteinring.py) - calculate the Einstein ring size for a grid of lens masses and distances,
+  * [Example 05](examples/example_05_MB08310.py) - plot multiple datasets for a single model, plot the residuals, and do this both in magnitude and magnification spaces,
+  * [Example 06](examples/example_06_fit_parallax_EMCEE.py) - fit parallax model using EMCEE,
+  * [Example 07](examples/example_07_fit_parallax_MN.py) - fit parallax model using MultiNest,
+  * [Example 08](examples/example_08_planet_grid_fitting.ipynb) - shows how to fit simulated WFIRST light curve with planetary model,
+  * [Example 09](examples/example_09_gradient_fitting.py) - fit point lens model using chi^2 gradient,
+  * [Example 10](examples/example_10_fitting_and_fluxes.py) - fit model and extract posterior fluxes, **use config file to pass all parameters**,
+  * [Example 11](examples/example_11_binary_source.py) - simulate and fit binary source event.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
 [Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 

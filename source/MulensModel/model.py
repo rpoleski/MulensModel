@@ -204,10 +204,17 @@ class Model(object):
                   'coords': self._coords,
                   'satellite_skycoord': satellite_skycoord, 'gamma': gamma}
 
+        if isinstance(self._methods, dict):
+            methods_1 = self._methods.get(1, None)
+            methods_2 = self._methods.get(2, None)
+        else:
+            methods_1 = self._methods
+            methods_2 = self._methods
+
         self._magnification_curve_1 = MagnificationCurve(
             parameters=self.parameters.source_1_parameters, **kwargs)
         self._magnification_curve_1.set_magnification_methods(
-            self._methods, self._default_magnification_method)
+            methods_1, self._default_magnification_method)
         self._magnification_curve_1.set_magnification_methods_parameters(
             self._methods_parameters)
         mag_1 = self._magnification_curve_1.magnification
@@ -215,7 +222,7 @@ class Model(object):
         self._magnification_curve_2 = MagnificationCurve(
             parameters=self.parameters.source_2_parameters, **kwargs)
         self._magnification_curve_2.set_magnification_methods(
-            self._methods, self._default_magnification_method)
+            methods_2, self._default_magnification_method)
         self._magnification_curve_2.set_magnification_methods_parameters(
             self._methods_parameters)
         mag_2 = self._magnification_curve_2.magnification
@@ -1318,7 +1325,7 @@ class Model(object):
         """
         self._default_magnification_method = method
 
-    def set_magnification_methods(self, methods):
+    def set_magnification_methods(self, methods, source=None):
         """
         Sets methods used for magnification calculation. See
         :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
@@ -1334,8 +1341,29 @@ class Model(object):
                 ``methods = [2455746., 'Quadrupole', 2455746.6,
                 'Hexadecapole', 2455746.7, 'VBBL', 2455747.,
                 'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]``
+
+            source: *int* or *None*
+                Which source given methods apply to? Accepts 1, 2, or *None*
+                (i.e., all sources).
         """
-        self._methods = methods
+        if not isinstance(methods, list):
+            raise TypeError('Parameter methods has to be a list.')
+        if source not in [None, 1, 2]:
+            raise ValueError('In Model.set_magnification_methods() ' +
+                             'the parameter source, has to be 1, 2 or None.')
+
+        if source is None:
+            if isinstance(self._methods, dict):
+                raise ValueError('You cannot set methods for all sources ' +
+                                 'after setting them for a single source')
+            self._methods = methods
+        else:
+            if isinstance(self._methods, list):
+                raise ValueError('You cannot set methods for a single ' +
+                                 'source after setting them for all sources.')
+            if self._methods is None:
+                self._methods = {}
+            self._methods[source] = methods
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """

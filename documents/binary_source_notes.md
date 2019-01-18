@@ -48,7 +48,6 @@ Also note that there is Fit.get\_n\_sources() function that should be taken care
 
 Things related to binary source that we'll do in future:
 
-* different methods for both sources - we need to consider binary source with finite source for events that look like lowest mass planets; short-term solution can be to change FSPL calculations to PSPL when FS corrections are smaller than 10^-6 or so.
 * are satellite data causing any additional problems
 * xallarap
 * binary-lens/binary-source models
