@@ -45,11 +45,12 @@ For $u/\rho$ that is outside pre-computed values the direct calculation is used 
 Binary lens methods:
 \begin{itemize}
 \item {\tt point\_source} -- assumes the source is just a point (hence not valid near caustics) and solves fifth order complex polynomial once.
-\item {\tt quadrupole} --
-\item {\tt hexadecapole} --
-\item {\tt VBBL} -- parameters: {\tt accuracy}
-\item {\tt Adaptive\_Contouring} -- parameters: {\tt accuracy} and {\tt ld\_accuracy}
-\item {\tt point\_source\_point\_lens} --
+\item {\tt quadrupole} -- uses Taylor expansion -- evaluates point-source magnification at 9 points.  Works only outside caustic.
+\item {\tt hexadecapole} -- uses Taylor expansion -- evaluates point-source magnification at 13 points.  Works only outside caustic.
+\item {\tt VBBL} -- Bozza (2010) method -- finite source with limb darkening.  Most widely used method nowadays.  Parameters that ca be set: {\tt accuracy}.
+\item {\tt Adaptive\_Contouring} -- Dominik (2007) method -- finite source with limb darkening.  Parameters that can be set: {\tt accuracy} and {\tt ld\_accuracy}
+\item {\tt point\_source\_point\_lens} -- approximates binary lens as a single lens.  It is useful when binary lens effects are negligible and binary lens calculations 
+may cause numerical errors, e.g., $q\approx10^{-6}$ and source far from caustics.  
 \end{itemize}
 
 \bigskip\bigskip
