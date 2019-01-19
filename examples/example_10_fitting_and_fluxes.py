@@ -179,11 +179,13 @@ ylim = plt.ylim()
 # The command below raises warning - it's not your fault. It's caused
 # by the input data.
 event.plot_data(subtract_2450000=True)
+xlim = list(plt.xlim())
 if 't_start' in plot_kwargs:
-    plt.xlim(xmin=plot_kwargs['t_start']-2450000.)
+    xlim[0] = plot_kwargs['t_start'] - 2450000.
 if 't_stop' in plot_kwargs:
-    plt.xlim(xmax=plot_kwargs['t_stop']-2450000.)
+    xlim[1] = plot_kwargs['t_stop'] - 2450000.
 plt.ylim(*ylim)
+plt.xlim(*xlim)
 plt.legend(loc='best')
 plt.show()
 
