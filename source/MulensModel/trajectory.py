@@ -214,7 +214,9 @@ class Trajectory(object):
         """
         (jd1, jd2) = get_jd12(Time(time_ref, format='jd', scale='tdb'), 'tdb')
         (earth_pv_helio, earth_pv_bary) = erfa.epv00(jd1, jd2)
-        velocity = earth_pv_bary[..., 1, :]  # This is in (u.au/u.day)
+        # The returned values are of np.ndarray type in astropy v1 and v2,
+        # but np.void in v3.
+        velocity = np.asarray(earth_pv_bary[1])  # This is in (u.au/u.day)
         # but we don't multiply by unit here, because np.outer() (used later)
         # destroys information of argument units.
 
