@@ -241,6 +241,7 @@ class BinaryLens(object):
                     txt += ("\n\nThis is surprising error - please contact " +
                             "code authors and provide the above error " +
                             "message.")
+            txt += "\nMulensModel version: {:}".format(MulensModel.__version__)
 
             raise ValueError(txt)
 
