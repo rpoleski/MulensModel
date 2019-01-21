@@ -95,7 +95,7 @@ for i in range(n_dim):
     print("{:.5f} {:.5f} {:.5f}".format(r, results[2, i]-r, r-results[0, i]))
 
 # We extract best model parameters and chi2 from my_event:
-print("\nBest model:")
+print("\nSmallest chi2 model:")
 best = [my_event.best_chi2_parameters[p] for p in parameters_to_fit]
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print(my_event.best_chi2)

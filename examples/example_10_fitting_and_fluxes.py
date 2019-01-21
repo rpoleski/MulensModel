@@ -165,7 +165,7 @@ for i in range(n_fluxes):
           i//2+1, *uncertainties(blob_results[:, i])))
 
 # We extract best model parameters and chi2 from my_event:
-print("\nBest model:")
+print("\nSmallest chi2 model:")
 best = [event.best_chi2_parameters[p] for p in parameters_to_fit]
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print("chi2 = ", event.best_chi2)

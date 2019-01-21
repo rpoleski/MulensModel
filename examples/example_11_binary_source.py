@@ -89,7 +89,7 @@ def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
         print(msg.format(r, results[2, i]-r, r-results[0, i]))
 
     # We extract best model parameters and chi2 from event:
-    print("\nBest model:")
+    print("\nSmallest chi2 model:")
     if "flux_ratio" in parameters_to_fit:
         parameters_to_fit.pop(parameters_to_fit.index("flux_ratio"))
     best = [event.best_chi2_parameters[p] for p in parameters_to_fit]
