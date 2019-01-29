@@ -16,7 +16,7 @@ A few useful resources:
 * [**Explanation of methods used for calculating magnification**](documents/magnification_methods.pdf)
 * [Examples on how to use the code](examples/):
   * [**Hack session example 1**](examples/hack_example_1.py),
-  * [**Hack session example 2**](examples/hack_example_2.py), [config reading code](examples/example_read.py), [first config file](examples/ob05390_v1.cfg), and [second config file](examples/ob05390_v2.cfg),
+  * [**Hack session example 2**](examples/hack_example_2.py), [config reading code](examples/hack_read.py), [first config file](examples/ob05390_v1.cfg), and [second config file](examples/ob05390_v2.cfg),
   * [Example 01](examples/example_01_models.py) - plot simple point-source/point-lens (PSPL) model and model with planetary lens,
   * [Example 02](examples/example_02_fitting.py) - fit PSPL model to the data using scipy.optimize.minimize(),
   * [Example 03](examples/example_03_mulenssystem.py) - define PSPL model using physical properties and plot the resulting magnification curve,
