@@ -47,6 +47,16 @@ def read_parameters_start(config):
         starting[param] = [words[0]] + [float(word) for word in words[1:]]
     return (parameters_to_fit, starting)
 
+def read_fix_parameters(config):
+    """
+    Read parameters that will be kept fixed during fitting process.
+    """
+    section = 'fixed parameters'
+    fixed = {}
+    for var in config[section]:
+        fixed[var] = config.getfloat(section, var)
+    return fixed
+
 def read_min_max(config):
     """
     Read minimum and maximum values of parameters used for prior.

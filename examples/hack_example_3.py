@@ -92,6 +92,7 @@ config.read(config_file)
 files = read.read_files_from_config(config)
 model_settings = read.read_model_settings(config)
 (parameters, starting) = read.read_parameters_start(config)
+fixed_parameters = read.read_fix_parameters(config)
 (min_values, max_values) = read.read_min_max(config)
 ln_prior.min = min_values
 ln_prior.max = max_values
@@ -105,7 +106,9 @@ datasets = [MM.MulensData(file_name=f[0], phot_fmt=f[1]) for f in files]
 start = generate_random_parameters(parameters, starting, emcee_settings['n_walkers'])
 
 # Setup Event instance that combines model and data.
-my_model = MM.Model(dict(zip(parameters, start[0])), coords=model_settings['coords'])
+par = dict(zip(parameters, start[0]))
+par = {**par, **fixed_parameters}
+my_model = MM.Model(par, coords=model_settings['coords'])
 if 'methods' in model_settings:
     my_model.set_magnification_methods(model_settings['methods'])
 if 'default_method' in model_settings:
@@ -141,6 +144,7 @@ print(my_event.best_chi2)
 
 # Plot results.
 ln_like(best, my_event, parameters, False) # This allows plotting of the best model.
+print(my_event.model)
 my_event.plot_data(subtract_2450000=True)
 my_event.plot_model(subtract_2450000=True)
 plt.xlim(*other_settings['plot_time'])
