@@ -53,6 +53,8 @@ def read_fix_parameters(config):
     """
     section = 'fixed parameters'
     fixed = {}
+    if section not in config:
+        return fixed
     for var in config[section]:
         fixed[var] = config.getfloat(section, var)
     return fixed

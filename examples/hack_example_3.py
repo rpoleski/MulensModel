@@ -146,6 +146,9 @@ print(my_event.best_chi2)
 ln_like(best, my_event, parameters, False) # This allows plotting of the best model.
 print(my_event.model)
 my_event.plot_data(subtract_2450000=True)
-my_event.plot_model(subtract_2450000=True)
+my_event.plot_model(
+    subtract_2450000=True,
+    t_start=other_settings['plot_time'][0]+2450000.,
+    t_stop=other_settings['plot_time'][1]+2450000.)
 plt.xlim(*other_settings['plot_time'])
 plt.show()
