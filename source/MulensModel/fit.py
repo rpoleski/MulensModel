@@ -284,6 +284,6 @@ class Fit(object):
 
         self._datasets.extend(fit._datasets)
         self._magnification.extend(fit._magnification)
-        self._flux_blending = {**self._flux_blending, **fit._flux_blending}
-        self._flux_sources = {**self._flux_sources, **fit._flux_sources}
+        self._flux_blending.update(fit._flux_blending)
+        self._flux_sources.update(fit._flux_sources)
 
