@@ -175,8 +175,8 @@ class BinaryLens(object):
             source_x=source_x, source_y=source_y)
 
         if _solver == 'Skowron_and_Gould_12':
-            out = _vbbl_SG12_5(
-                    *(polynomial.real.tolist() + polynomial.imag.tolist()))
+            args = polynomial.real.tolist() + polynomial.imag.tolist()
+            out = _vbbl_SG12_5(*args)
             roots = [out[i] + out[i+5] * 1.j for i in range(5)]
             self._polynomial_roots_WM95 = np.array(roots)
         elif _solver == 'numpy':
