@@ -1,15 +1,22 @@
-## Jan goals:
-1. new release - DONE
-2. link paper, prepare additional documentation for hack session - DONE
+## Feb goals:
 3. Windows install
-4. no makefile run if files exist - DONE, BUT NOT TESTED
+4. no makefile run if files exist - DONE, BUT NOT TESTED - now this seems to be bad idea (branch: install)
 5. triple-lens point-source calculations (hexadecapole if possible as well)
 6. triple-lens use cases
 7. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
 8. Cassan 2008 parametrization
 9. VBBL 2.0
-10. extract flux ratio for binary source models when fluxes are fitted via regression
-11. different ranges of finite source calculations for binary source models - DONE
+9. extract flux ratio for binary source models when fluxes are fitted via regression
+9. MacOS PEP 3118 error (ValueError: '< P' is not a valid PEP 3118 buffer format string) - \_vbbl\_SG12\_5() in binarylens.py (add simple try/except)
+9. Hack session codes
+9. _0-sized arrays by Calen - search for float and np.ndarray in docstrings_
+9. link https://stackoverflow.com/questions/52509602/cant-compile-c-program-on-a-mac-after-upgrade-to-mojave
+9. **UC 29 - plot\_source()**
+9. _ephemerides files - suggest longer time frame for these for nicer plots etc._
+9. _example for using satellite data_
+9. _ephemerides files - note distinction between Model and MulensData_
+9. user method
+
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
@@ -22,6 +29,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
   * **note PYTHONPATH "install"**
   * _setup.py - don't try to compile if .so file is there_
+  * _include data/ files for unit tests and examples - each subdir has to be added separately_
   * PIP install - the problem is that CustomInstall from setup.py is run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
   * setup.py should use Extensions or Distutils instead of custom makefile
   * in setup.py in setup() add keywords: long\_description, classifiers
@@ -54,7 +62,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * finish use cases
     * _source\_flux\_ratio added to ModelParameters_
     * Fit.fit\_fluxes docstring to be updated
-    * which\_parameters() - note that it doesn't work for binary source parameters, but the parameters work properly; just BSPL and rho_2 etc. are optional
+    * which\_parameters() - note that it doesn't work for binary source parameters, but the parameters work properly; just BSPL and rho\_2 etc. are optional
     * models with fixed no blending: fit\_blending keyword changes
     * parallax models
     * binary source - there should be one Fit less in Event.get\_chi2xxx functions - if there are 2 sources, then calculate magnification and use F\_S = F\_S\_1+F\_S\_2 and get it from self.model.fit; most probably adding some function to Fit would help
@@ -105,7 +113,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * _VBBL2.0 - are we using accuracy limit as default? If so then we should switch to relative accuracy_
   * Caustics class:
     * Caustics.\_calculate - optimize using vectors instead of a loop
-    * _Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach_
+    * _Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach_ ; there is also [Asada 2002](http://adsabs.harvard.edu/abs/2002A%26A...390L..11A) and I don't know if it makes sense to code that one as well
     * root solver can be used the same as in binarylens.py - not needed for binary lens and Erdl & Schneider 1993
     * smaller points
   * Event class:
@@ -126,6 +134,8 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * function that calculates cumulative chi2 so that it can be plotted easier
     * _get\_chi2\_for\_dataset() - it was working before bs2 was merged_
     * Binary source - see optimization comment at begin of Event.get\_chi2\_for\_dataset()
+    * plot cumulative chi2 difference between 2 models - magnification and magnitude spaces
+    * **plot magnitude difference between 2 models for residuals plot**
   * Fit class:
     * should use marginalized distributions of fluxes (if those are from linear fits); JCY - it needs UC
     * n\_sources somehow inconsistent in different places
@@ -144,7 +154,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * implement triple+ systems  
   * MagnificationCurve class:
     * re-write magnification() to use lazy loading (here or in model.py)
-    * _get\_point\_lens\_magnification() - correct Yoo in docstring_
+    * _docstrings: get\_point\_lens\_magnification() - correct Gould-> Yoo references AND add references to Valerio and Martin's papers in get\_binary\_lens\_magnification()_
   * Model class:
     * reorder functions so that it looks good on website
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
@@ -180,6 +190,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * check if input values are floats (or something else accepted)
   * MulensData class:
     * **Errorbar scaling, in particular the two parameter.**
+    * _quick look alignment for MulensData objects - just use interpolation_
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info
     * change order to improve the website
@@ -214,6 +225,8 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * rotate the trajectory, caustics, and critical curve plots so that the motion of the source is in general along X-axis - similar to Skowron+11 paper
     * caustics for trajectory plot with single lens models
   * Examples:
+    * change order 01<->02
+    * _plot many models from posterior_
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
     * add example that shows 'log\_' in the name of the parameter; central caustic anomaly planet would be best,

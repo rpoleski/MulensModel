@@ -26,6 +26,7 @@ model.plot_trajectory(
 #     dataset(s) (requires MulensData)
 # ...allow for color and marker style (open circle; maybe "x" as well?)
 times = params["t_0"]
-kwargs = {} # You can add some kwargs here and they will be passed to plt function.
-model.plot_source(times, kwargs)
+kwargs = {}  # You can add some kwargs here and they will be passed
+# to plt function.
+model.plot_source(times, **kwargs)
 
