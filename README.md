@@ -56,8 +56,10 @@ pip install -r requirements.txt
 ```
 Alternatively, you can run makefiles: go to `source/VBBL/` and run `make`, then go to `source/AdaptiveContouring/` and do the same. Then and add the path `MulensModel/source` to your `PYTHONPATH`. If you have any problems, please contact the authors and we will try to help.
 
+If you have **problems with installing or running MulensModel on MacOS**, please see notes [here](documents/macos_install.md).
+
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Jan 2019
+file revised Feb 2019
 

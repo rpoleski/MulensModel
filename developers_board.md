@@ -4,6 +4,8 @@
     * _example for using satellite data_
     * _ephemerides files - suggest longer time frame for these for nicer plots etc._
     * examples order change 01 <-> 02
+    * clean-up after hack session
+    * file with list of examples
 2. MacOS installation comments:
     * make file with notes (ValueError: '< P' is not a valid PEP 3118 buffer format string) - \_vbbl\_SG12\_5() in binarylens.py (add simple try/except)
     * link https://stackoverflow.com/questions/52509602/cant-compile-c-program-on-a-mac-after-upgrade-to-mojave
