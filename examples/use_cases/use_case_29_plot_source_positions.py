@@ -1,9 +1,10 @@
 from matplotlib import pyplot as plt
+
 import MulensModel as MM
 
 
 # Define Model object
-params = {"t_0": 0.0, "u_0": 0.1, "t_E": 25.0, "rho": 1e-4, "s": 1.0,
+params = {"t_0": 0.0, "u_0": 0.1, "t_E": 25.0, "rho": 1e-2, "s": 1.0,
           "q": 1e-3, "alpha": 90.}
 model = MM.Model(parameters=params)
 
@@ -14,8 +15,8 @@ ax = fig.add_subplot(111)
 # Plot caustics and source trajectory for specified model
 model.plot_caustics(color="black")
 model.plot_trajectory(
-    t_start=params["t_0"]-1.5*params["t_E"],
-    t_stop=params["t_0"]+1.5*params["t_E"],
+    t_start=params["t_0"]-0.15*params["t_E"],
+    t_stop=params["t_0"]+0.15*params["t_E"],
     caustics=False, color="blue")
 
 # Stages for plotting source positions (MM documentation has this listed but
@@ -29,4 +30,5 @@ times = params["t_0"]
 kwargs = {}  # You can add some kwargs here and they will be passed
 # to plt function.
 model.plot_source(times, **kwargs)
+plt.show()
 

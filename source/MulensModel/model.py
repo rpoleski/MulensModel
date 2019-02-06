@@ -1261,6 +1261,45 @@ class Model(object):
 
         self.caustics.plot(n_points=n_points, **kwargs)
 
+    def plot_source(self, times=None, **kwargs):
+        """
+        Plot source: circles of the radius rho at positions corresponding to
+        source positions at times.
+
+        Parameters:
+            times: *float* or *np.ndarray*
+                epochs for which source positions will be plotted
+
+            ``**kwargs``:
+                passed to `matplotlib Circle
+                <https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html>`_
+                function.  Examples: ``color='red'``, ``fill=False``, ``alpha=0.5``.
+        """
+        if isinstance(times, float):
+            times = [times]
+        if isinstance(times, list):
+            times = np.array(times)
+
+        if self.parameters.rho is None:
+            raise ValueError('rho is not defined, so we cannot plot source')
+
+        trajectory = Trajectory(
+            times, parameters=self.parameters, parallax=self._parallax,
+            coords=self._coords,
+            satellite_skycoord=self.get_satellite_coords(times))
+
+        axis = plt.gca()
+
+        if 'color' not in kwargs:
+            kwargs['color'] = 'red'
+        if 'zorder' not in kwargs:
+            kwargs['zorder'] = np.inf
+        if 'radius' not in kwargs:
+            kwargs['radius'] = self.parameters.rho
+
+        for (x, y) in zip(trajectory.x, trajectory.y):
+            axis.add_artist(plt.Circle((x, y), **kwargs))
+
     def set_times(
             self, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=1000):
@@ -1270,7 +1309,7 @@ class Model(object):
         For binary source models, respectively, smaller and larger of
         `t_0_1/2` values are used.
 
-        Keywords (all optional) :
+        Parameters (all optional):
             t_range: [*list*, *tuple*]
                 A range of times of the form [t_start, t_stop]
 
