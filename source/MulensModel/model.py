@@ -1297,6 +1297,20 @@ class Model(object):
         if 'radius' not in kwargs:
             kwargs['radius'] = self.parameters.rho
 
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        if not (xlim == (0., 1.) and ylim == (0., 1.)):
+            # We've checked that default limits were changed.
+            limits = max(np.abs(xlim[1]-xlim[0]), np.abs(ylim[1]-ylim[0]))
+            if limits > 1e3 * kwargs['radius']:
+                warnings.warn(
+                    "Model.plot_source() - the source radius is much smaller" +
+                    " than the axis range (at this point). The plotted " +
+                    "source may be hard to see. To correct it you can change" +
+                    " axis range (plt.xlim() or ylim()) or plot larger " +
+                    "circle by passing *radius* via kwargs.",
+                    UserWarning)
+
         for (x, y) in zip(trajectory.x, trajectory.y):
             axis.add_artist(plt.Circle((x, y), **kwargs))
 
