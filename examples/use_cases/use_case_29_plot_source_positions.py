@@ -26,7 +26,7 @@ model.plot_trajectory(
 # (3) plot source positions along trajectory, color-coded to time(s) of
 #     dataset(s) (requires MulensData)
 # ...allow for color and marker style (open circle; maybe "x" as well?)
-times = params["t_0"]
+times = params["t_0"] - 0.05 * params["t_E"]
 kwargs = {}  # You can add some kwargs here and they will be passed
 # to plt function.
 model.plot_source(times, **kwargs)

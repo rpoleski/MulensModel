@@ -1143,7 +1143,7 @@ class Model(object):
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, caustics=False, show_data=False,
-            arrow=True, satellite_skycoord=None, **kwargs):
+            arrow=True, satellite_skycoord=None, arrow_kwargs=None, **kwargs):
         """
         Plot the source trajectory.
 
@@ -1165,11 +1165,21 @@ class Model(object):
                 should match data plotting.)
 
             arrow: *boolean*
-                show the direction of the source motion. default=True (on)
+                Show the direction of the source motion. Default is *True*.
 
             satellite_skycoord: *astropy.SkyCoord*
                 should allow user to specify the trajectory is calculated
                 for a satellite. see :py:func:`get_satellite_coords()`
+
+            arrow_kwargs: *dict*
+                Kwargs that are passed to :py:func:`pyplot.arrow()`. If no
+                color is given here, then we use one specified in ``**kwargs``
+                and if nothing is there, then we use black. The size of
+                the arrow is determined based on limits of current axis.
+                If those are not adequate, then change the size by specifying
+                *width* keyword and maybe other as well. Note that
+                *arrow_kwargs* are of *dict* type and are different than
+                ``**kwargs``.
 
             ``**kwargs``
                 Controls plotting features of the trajectory. It's passed to
@@ -1178,7 +1188,10 @@ class Model(object):
         """
         if show_data:
             raise NotImplementedError(
-                                "show_data option is not yet implemented")
+                "show_data option is not yet implemented")
+        if not arrow and arrow_kwargs is not None:
+            raise ValueError(
+                "arrow_kwargs can be only given if arrow is True")
 
         if times is None:
             times = self.set_times(
@@ -1188,15 +1201,16 @@ class Model(object):
             satellite_skycoord = self.get_satellite_coords(times)
 
         if self.n_sources == 1:
-            self._plot_single_trajectory(times, self.parameters,
-                                         satellite_skycoord, arrow, **kwargs)
+            self._plot_single_trajectory(
+                times, self.parameters, satellite_skycoord,
+                arrow, arrow_kwargs, **kwargs)
         elif self.n_sources == 2:
             self._plot_single_trajectory(
                 times, self.parameters.source_1_parameters,
-                satellite_skycoord, arrow, **kwargs)
+                satellite_skycoord, arrow, arrow_kwargs, **kwargs)
             self._plot_single_trajectory(
                 times, self.parameters.source_2_parameters,
-                satellite_skycoord, arrow, **kwargs)
+                satellite_skycoord, arrow, arrow_kwargs, **kwargs)
         else:
             raise ValueError(
                     'Wrong number of sources: {:}'.format(self.n_sources))
@@ -1205,7 +1219,7 @@ class Model(object):
             self.plot_caustics(marker='.', color='red')
 
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
-                                arrow, **kwargs):
+                                arrow, arrow_kwargs, **kwargs):
         """
         Plots trajectory of a single source.
         """
@@ -1222,8 +1236,17 @@ class Model(object):
             d_x = trajectory.x[index+1] - x_0
             d_y = trajectory.y[index+1] - y_0
             dd = 1e6 * (d_x*d_x + d_y*d_y)**.5
+
+            xlim = plt.xlim()
+            ylim = plt.ylim()
+            width = np.abs(xlim[1]-xlim[0]) * np.abs(ylim[1]-ylim[0])
+            width = width**.5 / 100.
+
             color = kwargs.get('color', 'black')
-            plt.arrow(x_0, y_0, d_x/dd, d_y/dd, lw=0, color=color, width=0.01)
+            kwargs_ = {'width': width, 'color': color, 'lw': 0}
+            if arrow_kwargs is not None:
+                kwargs_.update(arrow_kwargs)
+            plt.arrow(x_0, y_0, d_x/dd, d_y/dd, **kwargs_)
 
     def update_caustics(self, epoch=None):
         """
