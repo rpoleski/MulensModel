@@ -1,8 +1,8 @@
 ## Feb goals:
 1. improve documentation:
-    * _ephemerides files - note distinction between Model and MulensData_
+    * _ephemerides files - note distinction between Model and MulensData_ - DONE
     * _example for using satellite data_
-    * _ephemerides files - suggest longer time frame for these for nicer plots etc._
+    * _ephemerides files - suggest longer time frame for these for nicer plots etc._ - DONE
     * examples order change 01 <-> 02
     * clean-up after hack session
     * file with list of examples
@@ -10,7 +10,7 @@
     * make file with notes (ValueError: '< P' is not a valid PEP 3118 buffer format string) - \_vbbl\_SG12\_5() in binarylens.py (add simple try/except)
     * link https://stackoverflow.com/questions/52509602/cant-compile-c-program-on-a-mac-after-upgrade-to-mojave
     * link https://github.com/orgs/ulens-hack/teams/testing-algorithms-on-mb07192
-3. Model.plot\_source() - UC29
+3. Model.plot\_source() - UC29 (also arrow plotting improved)
 7. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
 8. Cassan 2008 parametrization
 9. _0-sized arrays by Calen - search for float and np.ndarray in docstrings_
@@ -261,10 +261,8 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Utils - Make subpackage/submodules that group related functions (e.g. flux2mag conversions)?
 
 ### reStructuredText:
-[1st tutorial] (http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
-
+[1st tutorial](http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
 [2nd tutorial](http://www.sphinx-doc.org/en/stable/rest.html)
-
 [example](https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html)
 
 ### Xallarap references:

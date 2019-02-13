@@ -37,6 +37,11 @@ class Model(object):
         ephemerides_file: *str*, optional
             Specify name of the file with satellite ephemerides. See
             :py:class:`~MulensModel.mulensdata.MulensData` for more details.
+            Note that if you provide file name here, then it will affect
+            all calculations for this model. In most cases you want to combine
+            ground-based and satellite data and in those cases use
+            :py:class:`~MulensModel.mulensdata.MulensData` to specific
+            datasets to pass satellite information.
 
     Attributes :
         ephemerides_file: *str*

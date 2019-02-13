@@ -57,9 +57,10 @@ class MulensData(object):
 
         ephemerides_file: *str*, optional
            Specify the ephemerides of a satellite over the period when
-           the data were taken. Will be interpolated as necessary to
-           model the satellite parallax effect. See "Instructions on
-           getting satellite positions" in MulensModel/README.md file.
+           the data were taken. You may want to extend the time range
+           to get nicer plots. Will be interpolated as necessary to
+           model the satellite parallax effect. See instructions_ on
+           getting satellite positions.
            Note that there is no check on time format (e.g., BJD TBD vs. HJD)
            and it should be the same as in *data_list* or *file_name*.
 
@@ -122,6 +123,9 @@ class MulensData(object):
 
         ephemerides_file: *str*
             File with satellite ephemeris.
+
+    .. _instructions:
+        https://github.com/rpoleski/MulensModel/blob/master/documents/Horizons_manual.md
 
     """
 
