@@ -261,8 +261,8 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Utils - Make subpackage/submodules that group related functions (e.g. flux2mag conversions)?
 
 ### reStructuredText:
-[1st tutorial](http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html)
-[2nd tutorial](http://www.sphinx-doc.org/en/stable/rest.html)
+[1st tutorial](http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html), 
+[2nd tutorial](http://www.sphinx-doc.org/en/stable/rest.html), 
 [example](https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html)
 
 ### Xallarap references:

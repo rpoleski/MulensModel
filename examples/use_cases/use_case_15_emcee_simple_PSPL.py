@@ -9,7 +9,7 @@ import MulensModel
 
 
 def lnlike(theta, event, parameters_to_fit):
-    """ likelihood function """
+    """likelihood function """
     for key, val in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
     return -0.5 * (event.get_chi2() - chi2_0)
@@ -21,7 +21,7 @@ def lnprior(theta, parameters_to_fit):
     return 0.0
 
 def lnprob(theta, event, parameters_to_fit):
-    """ combines likelihood and priors"""
+    """combines likelihood and priors"""
     lp = lnprior(theta, parameters_to_fit)
     if not np.isfinite(lp):
         return -np.inf
@@ -42,8 +42,8 @@ print("Initial", model.parameters)
 
 #Read in the data
 data = MulensModel.MulensData(file_name=os.path.join(
-        MulensModel.MODULE_PATH, "data", "photometry_files",
-        "phot_ob160023.dat"))
+    MulensModel.MODULE_PATH, "data", "photometry_files",
+    "phot_ob08092_O4.dat"))
 
 #Set up the Event
 event = MulensModel.Event(datasets=data, model=model)

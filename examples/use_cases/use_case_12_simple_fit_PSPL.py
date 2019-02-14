@@ -16,7 +16,7 @@ model = MulensModel.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 #Import data
 file_name = os.path.join(
-    MulensModel.MODULE_PATH, 'data', 'photometry_files', 'phot_ob160023.dat')
+    MulensModel.MODULE_PATH, 'data', 'photometry_files', 'phot_ob08092_O4.dat')
 data = MulensModel.MulensData(file_name=file_name)
 
 #Create Event
@@ -25,8 +25,10 @@ print('Initial Model')
 print(event.model.parameters)
 
 def chi2(theta, event, parameters_to_fit):
-    """for given event set attributes from parameters_to_fit (list of str) 
-    to values from theta list"""
+    """
+    for given event set attributes from parameters_to_fit (list of str)
+    to values from theta list
+    """
     for key, val in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
     return event.get_chi2()
