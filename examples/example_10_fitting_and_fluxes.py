@@ -47,6 +47,8 @@ def get_fluxes(event):
     """
     For given Event instance extract all the fluxes and return them in
     a list. Odd elements are source fluxes and even ones are blending fluxes.
+    These fluxes are in units used by MulensModel, where 1 corresponds to
+    22 mag.
     """
     fluxes = []
     for dataset in event.datasets:
