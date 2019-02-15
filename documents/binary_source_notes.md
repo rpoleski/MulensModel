@@ -13,7 +13,7 @@
 * add binary source parameters to \_valid\_parameters in modelparameters.py and check that which\_parameters() works properly
 * in modelparameters.py in first 3 functions, what should be names of models (like PSPL, FSBL) for 2 sources where 1 or 2 of them are finite etc.?
 * Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
-* t\_0\_par and t\_0\_kep - what are default values for binary sources?; adding t\_0\_par\_1/2 may be the best option
+* t\_0\_par and t\_0\_kep - Jen suggests t\_0\_1 as most obvious choice
 * check 2L2S models [reference](http://adsabs.harvard.edu/abs/2018AJ....155..141B)
 * ModelParameters - How to forbid changing "child" properties in ModelParameters by the user? - re-define dict class?
 * when finding q\_f via regression, how we can get q\_f value? **important**
