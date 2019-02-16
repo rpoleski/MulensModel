@@ -46,12 +46,13 @@ class Event(object):
     """
 
     def __init__(self, datasets=None, model=None, coords=None):
+        self._model = None
+        self._coords = None
+
         # Initialise self._model (and check that model is defined).
         if isinstance(model, Model):
             self._model = model
-        elif model is None:
-            self._model = None
-        else:
+        elif model is not None:
             raise TypeError('incorrect argument model of class Event()')
 
         # Initialise self._datasets (and check that datasets is defined).
@@ -63,8 +64,6 @@ class Event(object):
         # Set event coordinates
         if coords is not None:
             self._update_coords(coords=coords)
-        else:
-            self._coords = None
 
         self.reset_best_chi2()
         self.sum_function = 'math.fsum'
@@ -496,6 +495,8 @@ class Event(object):
         raise NotImplementedError("This feature has not been implemented yet")
 
     def estimate_model_params(self):
-        """estimates model parameters without fitting them.
-        **Not Implemented.**"""
+        """
+        estimates model parameters without fitting them.
+        **Not Implemented.**
+        """
         raise NotImplementedError("This feature has not been implemented yet")
