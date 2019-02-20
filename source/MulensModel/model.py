@@ -230,7 +230,8 @@ class Model(object):
         return (mag_1, mag_2)
 
     def _magnification_2_sources(self, time, satellite_skycoord, gamma,
-                                 flux_ratio_constraint, separate, same_dataset):
+                                 flux_ratio_constraint,
+                                 separate, same_dataset):
         """
         calculate model magnification for given times for model with
         two sources
@@ -314,7 +315,8 @@ class Model(object):
                 models, the effective magnification is returned (unless
                 *separate=True*).
         """
-        if not isinstance(flux_ratio_constraint, (MulensData, str, type(None))):
+        allowed = (MulensData, str, type(None))
+        if not isinstance(flux_ratio_constraint, allowed):
             raise TypeError(
                 'The flux_ratio_constraint must be MulensData or str. If ' +
                 'you want to fix it, then pass float value to ' +
@@ -358,7 +360,7 @@ class Model(object):
             if flux_ratio_constraint is not None:
                 raise ValueError(
                     'You cannot set both flux_ratio_constraint and separate' +
-                    " parameters in Model.magnification().  This doesn't make" +
+                    " parameters in Model.magnification(). This doesn't make" +
                     'sense')
             magnification = self._magnification_2_sources(
                 time, satellite_skycoord, gamma, flux_ratio_constraint,
@@ -395,7 +397,8 @@ class Model(object):
         for dataset in self.datasets:
             magnification = self.get_data_magnification(dataset)
             self._data_magnification.append(magnification)
-            if (self.n_sources > 1 and self._source_flux_ratio_constraint is None):
+            if (self.n_sources > 1 and
+                    self._source_flux_ratio_constraint is None):
                 if dataset is self.datasets[0]:
                     fit = self._fit
                 else:
@@ -892,7 +895,7 @@ class Model(object):
                 if color_index == len(colors):
                     color_index = 0
                     msg = ('Too many datasets without colors assigned - ' +
-                        'same color will be used for different datasets')
+                           'same color will be used for different datasets')
                     warnings.warn(msg, UserWarning)
 
     def _color_differences(self, color_list, color):
@@ -1313,6 +1316,45 @@ class Model(object):
             satellite_skycoord=self.get_satellite_coords(times))
 
         self._plot_source_for_trajectory(trajectory, **kwargs)
+
+    def plot_source_for_datasets(self, **kwargs):
+        """
+        Plot source positions for all linked datasets. Colors used for
+        each dataset are the same used for plotting photometry.
+
+        Parameters:
+            ``**kwargs``:
+                passed to `matplotlib Circle
+                <https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html>`_
+                function.  Examples: ``fill=False`` (this is default),
+                ``linewidth=3``, ``alpha=0.5``.
+        """
+        if 'color' in kwargs:
+            raise ValueError(
+                'Color cannot be passed to plot_source_for_datasets(). To ' +
+                'change color, just change color for given MulensData object')
+        if self.datasets is None:
+            raise ValueError(
+                'No data linked to Model, so calling ' +
+                'plot_source_for_datasets() makes no sense.')
+
+        self._set_default_colors()
+        if isinstance(self.datasets, MulensData):
+            datasets = [self.datasets]
+        else:
+            datasets = self.datasets
+        if 'fill' not in kwargs:
+            kwargs['fill'] = False
+
+        for data in datasets:
+            times = data.time
+            kwargs['color'] = data.plot_properties['color']
+            trajectory = Trajectory(
+                times, parameters=self.parameters, parallax=self._parallax,
+                coords=self._coords,
+                satellite_skycoord=self.get_satellite_coords(times))
+            self._plot_source_for_trajectory(trajectory, **kwargs)
+        del kwargs['color']
 
     def _plot_source_for_trajectory(self, trajectory, **kwargs):
         """
