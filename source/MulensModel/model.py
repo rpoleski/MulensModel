@@ -111,7 +111,8 @@ class Model(object):
 
         self._source_flux_ratio_constraint = dict()
 
-        self._datasets = None
+        self._datasets = []
+        self._datasets_set_single = False
 
     def __repr__(self):
         return '{0}'.format(self.parameters)
@@ -397,15 +398,15 @@ class Model(object):
         """
         self._data_magnification = []
 
-        for dataset in self.datasets:
+        for dataset in self._datasets:
             magnification = self.get_data_magnification(dataset)
             self._data_magnification.append(magnification)
             if (self.n_sources > 1 and self._source_flux_ratio_constraint is None):
-                if dataset is self.datasets[0]:
+                if dataset is self._datasets[0]:
                     fit = self._fit
                 else:
                     fit.update(self._fit)
-                    if dataset is self.datasets[-1]:
+                    if dataset is self._datasets[-1]:
                         self._fit = fit
 
         return self._data_magnification
@@ -503,8 +504,8 @@ class Model(object):
                 'wrong type of input in ' +
                 'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 'expected float').format(type(ratio)))
-        if self._datasets is not None:
-            bands = [d.bandpass for d in self.datasets]
+        if len(self._datasets) > 0:
+            bands = [d.bandpass for d in self._datasets]
             if band not in bands:
                 warnings.warn("No datasets with bandpass {:}".format(band),
                               UserWarning)
@@ -518,8 +519,15 @@ class Model(object):
 
         datasets linked to given model
         """
-        if self._datasets is None:
+        if len(self._datasets) == 0:
             raise ValueError('No datasets were linked to the model')
+        # The condition below should be removed, but we keep it for backward
+        # compatibility, i.e., at some point if user called
+        # Model.set_datasets(dataset) then Model.datasets was dataset, but for
+        # Model.set_datasets([dataset]) then Model.datasets was [dataset].
+        # Note that always self._datasets is of list type.
+        if len(self._datasets) == 1 and self._datasets_set_single:
+            return self._datasets[0]
         return self._datasets
 
     def set_datasets(self, datasets, data_ref=0):
@@ -535,7 +543,12 @@ class Model(object):
 
                 Reference dataset.
         """
-        self._datasets = datasets
+        if isinstance(datasets, MulensData):
+            self._datasets_set_single = True
+            self._datasets = [datasets]
+        else:
+            self._datasets_set_single = False
+            self._datasets = datasets
         self._data_magnification = None
         self.data_ref = data_ref
 
@@ -656,8 +669,8 @@ class Model(object):
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
                     self._source_flux_ratio_constraint is None):
-                if len(self.datasets) == 1:
-                    flux_ratio_constraint = self.datasets[0]
+                if len(self._datasets) == 1:
+                    flux_ratio_constraint = self._datasets[0]
                     warnings.warn(
                         'To plot magnification for binary source model you ' +
                         'have to set the flux ratio (using ' +
@@ -734,8 +747,8 @@ class Model(object):
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
                     self._source_flux_ratio_constraint is None):
-                if len(self.datasets) == 1:
-                    flux_ratio_constraint = self.datasets[0]
+                if len(self._datasets) == 1:
+                    flux_ratio_constraint = self._datasets[0]
                     warnings.warn(
                         'To plot magnification for binary source model you ' +
                         'have to set the flux ratio (using ' +
@@ -831,19 +844,19 @@ class Model(object):
         instance.
         """
         if data_ref is None:
-            if self._datasets is None:
+            if len(self._datasets) == 0:
                 raise ValueError(
                     'You cannot get reference flux for Model if' +
                     ' you have not linked data first.')
             if isinstance(self.data_ref, MulensData):
                 data = self.data_ref
             else:
-                data = self.datasets[self.data_ref]
+                data = self._datasets[self.data_ref]
         elif isinstance(data_ref, MulensData):
             data = data_ref
             self.data_ref = data_ref
         else:
-            data = self.datasets[data_ref]
+            data = self._datasets[data_ref]
             self.data_ref = data_ref
 
         return data
@@ -856,7 +869,7 @@ class Model(object):
         """
         warnings.warn('reset_plot_properties() will be deprecated in future',
                       FutureWarning)
-        for data in self.datasets:
+        for data in self._datasets:
             data.plot_properties = {}
 
     def _set_default_colors(self):
@@ -868,10 +881,10 @@ class Model(object):
 
         # Below we change the order of colors to most distinct first.
         used_colors = []
-        for data in self.datasets:
+        for data in self._datasets:
             if 'color' in data.plot_properties.keys():
                 used_colors.append(data.plot_properties['color'])
-        if len(used_colors) == len(self.datasets):
+        if len(used_colors) == len(self._datasets):
             return
         if len(used_colors) == 0:
             differences = None
@@ -884,7 +897,7 @@ class Model(object):
 
         # Assign colors when needed.
         color_index = 0
-        for data in self.datasets:
+        for data in self._datasets:
             if 'color' not in data.plot_properties.keys():
                 if differences is not None:
                     if differences[color_index] < 0.35:
@@ -943,7 +956,7 @@ class Model(object):
                               FutureWarning)
                 values = kwargs[old_keyword]
                 key = old_keyword[:-5]
-                for (dataset, value) in zip(self.datasets, values):
+                for (dataset, value) in zip(self._datasets, values):
                     dataset.plot_properties[key] = value
 
     def plot_data(
@@ -999,11 +1012,11 @@ class Model(object):
         subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         # Get fluxes for all datasets
-        fit = Fit(data=self.datasets, magnification=self.data_magnification)
+        fit = Fit(data=self._datasets, magnification=self.data_magnification)
         fit.fit_fluxes()
         self._fit = fit
 
-        for (i, data) in enumerate(self.datasets):
+        for (i, data) in enumerate(self._datasets):
             data.plot(
                 phot_fmt='mag', show_errorbars=show_errorbars,
                 show_bad=show_bad, subtract_2450000=subtract_2450000,
@@ -1063,7 +1076,7 @@ class Model(object):
             magnifications = [self.get_data_magnification(d) for d in fit_data]
             fit = Fit(data=fit_data, magnification=magnifications)
         else:
-            data_list = self.datasets
+            data_list = self._datasets
             fit = Fit(data=data_list, magnification=self.data_magnification)
         fit.fit_fluxes()
         self._fit = fit
@@ -1127,7 +1140,7 @@ class Model(object):
         plt.plot([0., 3000000.], [0., 0.], color='black')
 
         # Plot residuals
-        for data in self.datasets:
+        for data in self._datasets:
             data.plot(
                 phot_fmt='mag', show_errorbars=show_errorbars,
                 show_bad=show_bad, subtract_2450000=subtract_2450000,
