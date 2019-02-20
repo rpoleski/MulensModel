@@ -18,12 +18,12 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * ephemerides\_file -> ephemeris\_file
  * Model.plot\_\* - remove \_list parameters etc.
  * Model.get\_residuals should have keyword phot\_fmt, not type to be consistent with other functions
+ * Model.set\_datasets and .datasets - make sure it's allways a list even if only single MulensData object is provided
 
 ### Yet unsorted/undecided:
  * check all NotImplementedError and maybe remove some functions/options
  * new class for a collection of datasets to make looping over datasets easier; also there will be data\_ref defined
  * VBBL and AC in subdirs of source/MulensModel/ for easier install
- * MulensData can plot itself - _this seems to be already done_
  * stop updating data\_ref in Model
  * the same order of arguments in plotting functions (if possible)
  * Model.magnification has parameter gamma - shouldn't it be bandpass?
