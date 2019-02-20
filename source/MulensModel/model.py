@@ -1312,6 +1312,12 @@ class Model(object):
             coords=self._coords,
             satellite_skycoord=self.get_satellite_coords(times))
 
+        self._plot_source_for_trajectory(trajectory, **kwargs)
+
+    def _plot_source_for_trajectory(self, trajectory, **kwargs):
+        """
+        Internal function for plotting sources.
+        """
         axis = plt.gca()
 
         if 'color' not in kwargs:
