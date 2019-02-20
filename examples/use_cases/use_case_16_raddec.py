@@ -87,10 +87,18 @@ pl.legend(loc='best')
 pl.xlim(2456780., 2456880.)
 pl.ylim(15.4, 14.6)
 
-
 pl.figure()
 ground_model.plot_trajectory()
-space_model.plot_trajectory() 
+space_model.plot_trajectory()
+
+ground_model.set_datasets([ground_data])
+ground_model.parameters.parameters['rho'] = 0.02
+ground_model.plot_source_for_datasets()
+
+space_model.set_datasets([space_data])
+space_model.parameters.parameters['rho'] = 0.015
+space_model.plot_source_for_datasets()
+
 pl.title('Trajectory as Seen from Ground and Space')
 pl.xlim(-1., 1.)
 pl.ylim(-1., 1.)
