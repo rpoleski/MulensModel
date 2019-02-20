@@ -491,6 +491,14 @@ class Event(object):
         """
         self.model.plot_residuals(**kwargs)
 
+    def plot_source_for_datasets(self, **kwargs):
+        """
+        Plot source positions for all linked datasets.
+        See :py:func:`MulensModel.model.Model.plot_source_for_datasets()` for
+        details.
+        """
+        self.model.plot_source_for_datasets(**kwargs)
+
     def clean_data(self):
         """masks outlying datapoints. **Not Implemented.**"""
         raise NotImplementedError("This feature has not been implemented yet")
