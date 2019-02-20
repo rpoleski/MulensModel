@@ -1296,7 +1296,8 @@ class Model(object):
             ``**kwargs``:
                 passed to `matplotlib Circle
                 <https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html>`_
-                function.  Examples: ``color='red'``, ``fill=False``, ``alpha=0.5``.
+                function.  Examples: ``color='red'``, ``fill=False``,
+                ``linewidth=3``, ``alpha=0.5``.
         """
         if isinstance(times, float):
             times = [times]
