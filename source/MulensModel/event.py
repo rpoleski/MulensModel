@@ -64,6 +64,9 @@ class Event(object):
         # Set event coordinates
         if coords is not None:
             self._update_coords(coords=coords)
+        elif self._model is not None:
+            if self._model.coords is not None:
+                self._update_coords(coords=self._model.coords)
 
         self.reset_best_chi2()
         self.sum_function = 'math.fsum'

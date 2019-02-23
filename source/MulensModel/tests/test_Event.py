@@ -18,6 +18,16 @@ SAMPLE_FILE_02 = os.path.join(
     MulensModel.MODULE_PATH, "data", "photometry_files", "OB140939",
     "ob140939_OGLE.dat")
 
+def test_model_event_coords():
+    """
+    Check if coordinates are properly passed from Model to Event.
+    """
+    coords = "18:12:34.56 -23:45:55.55"
+    model = Model({'t_0': 0, 'u_0': .5, 't_E': 10.}, coords=coords)
+    event = Event(model=model)
+    np.testing.assert_almost_equal(event.coords.ra.value, 273.144)
+    np.testing.assert_almost_equal(event.coords.dec.value, -23.765430555555554)
+
 def test_event_get_chi2_1():
     """basic unit test on ob08092 OGLE-IV data"""
     t_0 = 5379.57091
