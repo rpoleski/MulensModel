@@ -1,34 +1,53 @@
 import sys
 import os
 import ctypes
+import glob
 import numpy as np
 from math import fsum, sqrt
 
 import MulensModel
 from MulensModel.utils import Utils
-MODULE_PATH = os.path.abspath(__file__)
-if True:
-    MODULE_PATH = os.path.dirname(MODULE_PATH)
-PATH = os.path.join(
-        MODULE_PATH, 'source', 'VBBL', "VBBinaryLensingLibrary_wrapper.so")
-try:
-    vbbl = ctypes.cdll.LoadLibrary(PATH)
-except OSError as error_1:
-    MODULE_PATH = os.path.dirname(MODULE_PATH)
-    MODULE_PATH = os.path.dirname(MODULE_PATH)
+
+
+def _try_load(path):
+    """XXX"""
+    try:
+        out = ctypes.cdll.LoadLibrary(path)
+    except:
+        out = None
+    return out
+
+PATH = os.path.join(os.path.dirname(MulensModel.__file__), "VBBL*.so")
+PATH = glob.glob(PATH) # XXX - checks on length
+if len(PATH) > 0:
+    vbbl = _try_load(PATH[0])
+else:
+    vbbl = None
+if vbbl is None:
+    MODULE_PATH = os.path.abspath(__file__)
+    for i in range(3):
+        MODULE_PATH = os.path.dirname(MODULE_PATH)
     PATH = os.path.join(
         MODULE_PATH, 'source', 'VBBL', "VBBinaryLensingLibrary_wrapper.so")
-    try:
-        vbbl = ctypes.cdll.LoadLibrary(PATH)
-    except OSError as error_1:
-        msg = "Something went wrong with VBBL wrapping ({:})\n\nERROR_1:\n"
-        print(msg.format(PATH) + repr(error_1) + "\n\nERROR_2:\n" +
-              repr(error_2))
-        _vbbl_wrapped = False
-    else:
-        _vbbl_wrapped = True
+    vbbl = _try_load(PATH)
+_vbbl_wrapped = (vbbl is not None)
+
+PATH = os.path.join(os.path.dirname(MulensModel.__file__), "AdaptiveContouring*.so")
+PATH = glob.glob(PATH) # XXX - checks on length
+if len(PATH) > 0:
+    adaptive_contour = _try_load(PATH[0])
 else:
-    _vbbl_wrapped = True
+    adaptive_contour = None
+if adaptive_contour is None:
+    MODULE_PATH = os.path.abspath(__file__)
+    for i in range(3):
+        MODULE_PATH = os.path.dirname(MODULE_PATH)
+    PATH = os.path.join(
+        MODULE_PATH, 'source', 'AdaptiveContouring',
+        "AdaptiveContouring_wrapper.so")
+    adaptive_contour = _try_load(PATH)
+_adaptive_contouring_wrapped = (adaptive_contour is not None)
+
 if _vbbl_wrapped:
     vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
     vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
@@ -44,17 +63,7 @@ if not _vbbl_wrapped:
 else:
     _solver = 'Skowron_and_Gould_12'
 
-PATH = os.path.join(MODULE_PATH, 'source', 'AdaptiveContouring',
-                    "AdaptiveContouring_wrapper.so")
-try:
-    adaptive_contour = ctypes.cdll.LoadLibrary(PATH)
-except OSError as error:
-    msg = ("Something went wrong with AdaptiveContouring " +
-           "wrapping ({:})\n\n" + repr(error))
-    print(msg.format(PATH))
-    _adaptive_contouring_wrapped = False
-else:
-    _adaptive_contouring_wrapped = True
+if _adaptive_contouring_wrapped:
     adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
                 8 * [ctypes.c_double])
     adaptive_contour.Adaptive_Contouring_Linear.restype = (ctypes.c_double)
