@@ -1204,6 +1204,8 @@ class Model(object):
                 n_epochs=n_epochs)
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
+        else:
+            satellite_skycoord = satellite_skycoord.get_satellite_coords(times)
 
         if self.n_sources == 1:
             self._plot_single_trajectory(times, self.parameters,
