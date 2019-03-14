@@ -106,6 +106,7 @@ class BinaryLens(object):
         self._position_z1_WM95 = None
         self._position_z2_WM95 = None
         self._last_polynomial_input = None
+        self._solver = _solver
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
@@ -184,22 +185,22 @@ class BinaryLens(object):
         polynomial = self._get_polynomial_WM95(
             source_x=source_x, source_y=source_y)
 
-        if _solver == 'Skowron_and_Gould_12':
+        if self._solver == 'Skowron_and_Gould_12':
             try:
                 out = _vbbl_SG12_5(
                     *(polynomial.real.tolist() + polynomial.imag.tolist()))
                 roots = [out[i] + out[i+5] * 1.j for i in range(5)]
             except ValueError as err: # XXX
-                err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
-                warnings.warn(err + err2, UserWarning)
-                _solver == 'numpy'
+                err2 = "\nSwitching from Skowron & Gould 2012 to numpy"
+                warnings.warn(str(err) + err2, UserWarning)
+                self._solver = 'numpy'
             else:
                 self._polynomial_roots_WM95 = np.array(roots)
-        if _solver == 'numpy':
+        if self._solver == 'numpy':
             self._polynomial_roots_WM95 = np.polynomial.polynomial.polyroots(
                                                                     polynomial)
-        if _solver not in ['Skowron_and_Gould_12', 'numpy']:
-            raise ValueError('Unkown solver: {:}'.format(_solver))
+        if self._solver not in ['Skowron_and_Gould_12', 'numpy']:
+            raise ValueError('Unkown solver: {:}'.format(self._solver))
         self._last_polynomial_input = polynomial_input
 
         return self._polynomial_roots_WM95
@@ -241,9 +242,10 @@ class BinaryLens(object):
                    "that it's different from 'point_source' method.")
             txt = msg.format(
                 len(out), repr(self.mass_1), repr(self.mass_2),
-                repr(self.separation), repr(source_x), repr(source_y), _solver)
+                repr(self.separation), repr(source_x), repr(source_y),
+                self._solver)
 
-            if _solver != "Skowron_and_Gould_12":
+            if self._solver != "Skowron_and_Gould_12":
                 txt += (
                     "\n\nYou should switch to using Skowron_and_Gould_12" +
                     " polynomial root solver. It is much more accurate than " +
