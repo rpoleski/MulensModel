@@ -2,6 +2,7 @@ import sys
 import os
 import ctypes
 import glob
+import warnings
 import numpy as np
 from math import fsum, sqrt
 
@@ -184,14 +185,20 @@ class BinaryLens(object):
             source_x=source_x, source_y=source_y)
 
         if _solver == 'Skowron_and_Gould_12':
-            out = _vbbl_SG12_5(
+            try:
+                out = _vbbl_SG12_5(
                     *(polynomial.real.tolist() + polynomial.imag.tolist()))
-            roots = [out[i] + out[i+5] * 1.j for i in range(5)]
-            self._polynomial_roots_WM95 = np.array(roots)
-        elif _solver == 'numpy':
+                roots = [out[i] + out[i+5] * 1.j for i in range(5)]
+            except ValueError as err: # XXX
+                err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
+                warnings.warn(err + err2, UserWarning)
+                _solver == 'numpy'
+            else:
+                self._polynomial_roots_WM95 = np.array(roots)
+        if _solver == 'numpy':
             self._polynomial_roots_WM95 = np.polynomial.polynomial.polyroots(
                                                                     polynomial)
-        else:
+        if _solver not in ['Skowron_and_Gould_12', 'numpy']:
             raise ValueError('Unkown solver: {:}'.format(_solver))
         self._last_polynomial_input = polynomial_input
 
