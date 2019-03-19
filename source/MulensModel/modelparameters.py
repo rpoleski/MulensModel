@@ -432,6 +432,8 @@ class ModelParameters(object):
         """
         Prevent user from setting negative (unphysical) values for
         t_E, t_star, rho.
+
+        Also, check that all values are scalars (except pi_E vector).
         """
         names = ['t_E', 't_star', 'rho']
         full_names = {
@@ -443,6 +445,13 @@ class ModelParameters(object):
                 if parameters[name] < 0.:
                     raise ValueError("{:} cannot be negative: {:}".format(
                             full_names[name], parameters[name]))
+
+        for key, value in parameters.items():
+            if key != 'pi_E':
+                if not np.isscalar(value) or isinstance(value, str):
+                    raise TypeError(
+                        "{0} must be a scalar: {1}, {2}".format(
+                            key, value, type(value) ))
 
     def _set_parameters(self, parameters):
         """
