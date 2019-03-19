@@ -448,10 +448,11 @@ class ModelParameters(object):
 
         for key, value in parameters.items():
             if key != 'pi_E':
-                if not np.isscalar(value) or isinstance(value, str):
-                    raise TypeError(
-                        "{0} must be a scalar: {1}, {2}".format(
-                            key, value, type(value) ))
+                if not isinstance(value, u.Quantity):
+                    if not np.isscalar(value) or isinstance(value, str):
+                        raise TypeError(
+                            "{0} must be a scalar: {1}, {2}".format(
+                                key, value, type(value) ))
 
     def _set_parameters(self, parameters):
         """
