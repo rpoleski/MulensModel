@@ -59,7 +59,9 @@ class SatelliteSkyCoord(object):
         if (np.max(time) + 0.001 < np.max(times) or
                 np.min(time) - 0.001 > np.min(times)):
             warnings.warn(
-                "Satellite ephemeris doesn't cover requested epochs",
+                "{0}\n Ephemerides file: [{1}, {2}] \n Requested dates: [{3}, {4}]".format(
+                    "Satellite ephemeris doesn't cover requested epochs. ", 
+                    np.min(time), np.max(time), np.min(times), np.max(times)),
                 UserWarning)
 
         x = interp1d(time, self._horizons.xyz.x, kind='cubic')(times)
