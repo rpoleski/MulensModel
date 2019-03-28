@@ -15,26 +15,26 @@ from MulensModel.coordinates import Coordinates
 DATA_PATH = os.path.join(MulensModel.MODULE_PATH, 'data')
 
 SAMPLE_FILE_02 = os.path.join(
-    DATA_PATH, 'photometry_files', 'OB151100', 'phot_ob151100_OGLE_v1.dat') #HJD'
+    DATA_PATH, 'photometry_files', 'OB140939', 'ob140939_OGLE.dat') # HJD'
 SAMPLE_FILE_02_REF = os.path.join(
-    DATA_PATH, 'unit_test_files', 'ob151100_OGLE_ref_v1.dat') #HJD'
+    DATA_PATH, 'unit_test_files', 'ob140939_OGLE_ref_v1.dat') # HJD'
 SAMPLE_FILE_03 = os.path.join(
-    DATA_PATH, 'photometry_files', 'OB151100', 'phot_ob151100_Spitzer_2_v2.dat') #HJD'
+    DATA_PATH, 'photometry_files', 'OB140939', 'ob140939_Spitzer.dat') # HJD'
 SAMPLE_FILE_03_EPH = os.path.join(
-    DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat') #UTC
+    DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat') # UTC
 SAMPLE_FILE_03_REF = os.path.join(
-    DATA_PATH, 'unit_test_files', 'ob151100_Spitzer_ref_v1.dat') #HJD'
+    DATA_PATH, 'unit_test_files', 'ob140939_Spitzer_ref_v1.dat') # HJD'
 
 SAMPLE_ANNUAL_PARALLAX_FILE_01 = os.path.join(
-    DATA_PATH, 'unit_test_files', 'parallax_test_1.dat') #HJD'
+    DATA_PATH, 'unit_test_files', 'parallax_test_1.dat') # HJD'
 SAMPLE_ANNUAL_PARALLAX_FILE_02 = os.path.join(
-    DATA_PATH, 'unit_test_files', 'parallax_test_2.dat') #HJD'
+    DATA_PATH, 'unit_test_files', 'parallax_test_2.dat') # HJD'
 SAMPLE_ANNUAL_PARALLAX_FILE_03 = os.path.join(
-    DATA_PATH, 'unit_test_files', 'parallax_test_3.dat') #HJD'
+    DATA_PATH, 'unit_test_files', 'parallax_test_3.dat') # HJD'
 SAMPLE_ANNUAL_PARALLAX_FILE_04 = os.path.join(
-    DATA_PATH, 'unit_test_files', 'parallax_test_4.dat') #HJD'
+    DATA_PATH, 'unit_test_files', 'parallax_test_4.dat') # HJD'
 SAMPLE_ANNUAL_PARALLAX_FILE_05 = os.path.join(
-    DATA_PATH, 'unit_test_files', 'parallax_test_5.dat') #HJD'
+    DATA_PATH, 'unit_test_files', 'parallax_test_5.dat') # HJD'
 
 class _ParallaxFile(object):
     """
@@ -201,26 +201,25 @@ def test_annual_parallax_calculation_6():
 
 def test_satellite_and_annual_parallax_calculation():
     """test parallax calculation with Spitzer data"""
-    model_with_par = Model({'t_0':2457181.93930, 'u_0':0.08858, 't_E':20.23090, 
-                            'pi_E_N':-0.05413, 'pi_E_E':-0.16434}, 
-                            coords="18:17:54.74 -22:59:33.4")
+    model_with_par = Model({'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                            'pi_E_N': -0.248, 'pi_E_E': 0.234},
+                           coords="17:47:12.25 -21:22:58.2")
     model_with_par.parallax(satellite=True, earth_orbital=True, 
                             topocentric=False)
-    model_with_par.parameters.t_0_par = 2457181.9
+    model_with_par.parameters.t_0_par = 2456836.2
 
-    data_OGLE = MulensData(file_name=SAMPLE_FILE_02, add_2450000=True)
+    data_OGLE = MulensData(file_name=SAMPLE_FILE_02)
     data_Spitzer = MulensData(
-        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH,
-        add_2450000=True)
+        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
     model_with_par.set_datasets([data_OGLE, data_Spitzer])
 
     ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True, usecols=[5])
     ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True, usecols=[5])
 
     np.testing.assert_almost_equal(model_with_par.data_magnification[0], 
-                                    ref_OGLE, decimal=2)
+                                   ref_OGLE, decimal=4)
     ratio = model_with_par.data_magnification[1] / ref_Spitzer
-    np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=3)
+    np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
 
 def test_satellite_parallax_magnification():
     """
@@ -240,8 +239,7 @@ def test_satellite_parallax_magnification():
                          ra='17:47:12.25', dec='-21:22:58.2', 
                          ephemerides_file=SAMPLE_FILE_03_EPH)
 
-    delta = (ground_model.magnification(t_0)
-             - space_model.magnification(t_0))
+    delta = ground_model.magnification(t_0) - space_model.magnification(t_0)
     assert np.abs(delta) > 0.01
 
 def test_horizons_3d():

@@ -9,9 +9,10 @@ raise NotImplementedError('satellite keyword for MulensData not supported')
 
 #Import Data
 file_dir = os.path.join(MulensModel.MODULE_PATH, "data")
+file_name = os.path.join(file_dir, "photometry_files", "OB140939",
+                         "ob140939_Spitzer.dat")
 spitzer_data = MulensModel.MulensData(
-    file_name=os.path.join(
-        file_dir, "photometry_files", "ob151100_Spitzer_2_v1.dat"), 
+    file_name=file_name,
     satellite="Spitzer", #this keyword does not work.
     ephemerides_file=os.path.join(
         file_dir, "ephemeris_files", "Spitzer_ephemeris_01.dat"))
