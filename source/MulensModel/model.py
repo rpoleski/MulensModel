@@ -38,10 +38,11 @@ class Model(object):
             Specify name of the file with satellite ephemerides. See
             :py:class:`~MulensModel.mulensdata.MulensData` for more details.
             Note that if you provide file name here, then it will affect
-            all calculations for this model. In most cases you want to combine
-            ground-based and satellite data and in those cases use
-            :py:class:`~MulensModel.mulensdata.MulensData` to specific
-            datasets to pass satellite information.
+            all calculations for this model. In most cases, you want to
+            combine ground-based and satellite data and in those cases set
+            ephemerides_file for specific
+            :py:class:`~MulensModel.mulensdata.MulensData` instance
+            to pass satellite information.
 
     Attributes :
         ephemerides_file: *str*
@@ -58,13 +59,6 @@ class Model(object):
     to turn different parallax effects ON/OFF. If using satellite
     parallax, you may also specify an `ephemerides_file` (see
     :py:class:`~MulensModel.mulensdata.MulensData`).
-
-    Caveat:
-    satellite parallax works for datasets, but not for
-    model, i.e., the satellite parallax will be calculated correctly
-    for the model evaluated at the data points, but satellite parallax
-    is not implemented for the model alone.
-
     """
 
     def __init__(

@@ -54,7 +54,10 @@ the manual linked below. These epochs don't have to be exactly the same
 as the epochs in which you have observations. If they don't match, 
 then they'll be interpolated. However, keep in mind that the time step 
 used for interpolation cannot be too short -- if you're using data from 
-satellite on a low Earth orbit, then the step size cannot be 1 day!
+satellite on a low Earth orbit, then the step size cannot be 1 day! 
+It is a good practice to extend epochs range to be wider than your data. 
+This allows one to make nice plots that contain both ground-based and 
+space-based data.
 
 ---
 
