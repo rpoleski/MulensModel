@@ -446,13 +446,13 @@ class ModelParameters(object):
                     raise ValueError("{:} cannot be negative: {:}".format(
                             full_names[name], parameters[name]))
 
-        for key, value in parameters.items():
-            if key != 'pi_E':
-                if not isinstance(value, u.Quantity):
-                    if not np.isscalar(value) or isinstance(value, str):
-                        raise TypeError(
-                            "{0} must be a scalar: {1}, {2}".format(
-                                key, value, type(value) ))
+        for (key, value) in parameters.items():
+            if key == 'pi_E':
+                continue
+            check = (not np.isscalar(value) or isinstance(value, str))
+            if not isinstance(value, u.Quantity) and check:
+                msg = "{:} must be a scalar: {:}, {:}"
+                raise TypeError(msg.format(key, value, type(value)))
 
     def _set_parameters(self, parameters):
         """
