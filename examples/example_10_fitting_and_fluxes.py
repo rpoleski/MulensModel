@@ -13,6 +13,7 @@ Data from `Janczak et al. 2010, ApJ 711, 731
 """
 
 import sys
+from os.path import isfile
 import numpy as np
 try:
     import emcee
@@ -60,15 +61,17 @@ def ln_prob(theta, event, parameters_to_fit):
     """
     combines likelihood and priors; returns ln(prob) and a list of fluxes
     """
+    fluxes = [None] * 2 * len(event.datasets)
+
     ln_prior_ = ln_prior(theta, parameters_to_fit)
     if not np.isfinite(ln_prior_):
-        return (-np.inf, None)
+        return (-np.inf, fluxes)
     ln_like_ = ln_like(theta, event, parameters_to_fit)
 
     # In the cases that source fluxes are negative we want to return
     # these as if they were not in priors.
     if np.isnan(ln_like_):
-        return (-np.inf, None)
+        return (-np.inf, fluxes)
 
     ln_prob_ = ln_prior_ + ln_like_
     fluxes = get_fluxes(event)
@@ -86,6 +89,8 @@ def uncertainties(x):
 if len(sys.argv) != 2:
     raise ValueError('Exactly one argument needed - cfg file')
 config_file = sys.argv[1]
+if not isfile(config_file):
+    raise FileNotFoundError('File: {:}'.format(config_file))
 config = configparser.ConfigParser()
 config.optionxform = str
 config.read(config_file)
