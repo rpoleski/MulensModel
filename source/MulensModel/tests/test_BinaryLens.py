@@ -5,6 +5,25 @@ import unittest
 import MulensModel
 
 
+def test_small_q():
+    """
+    run calculations with small mass-ratio
+    """
+    q = 1.e-5
+    s = 0.5
+    x = -0.5
+    y = 0.45 
+
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+
+    lens = MulensModel.BinaryLens(m_1, m_2, q)
+    #print()
+    #print(lens.vbbl_magnification(x, y, 1.e-6))
+    #print(lens.point_source_magnification(x, y))
+    result = lens.point_source_magnification(x, y)
+    np.testing.assert_almost_equal(result, 1.7278784235582734)
+
 def test_binary_lens_hexadecapole():
     """
     tests hexadecapole and quadrupole calculation for planetary case 
