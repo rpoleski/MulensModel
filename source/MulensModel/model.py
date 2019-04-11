@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib.colors import ColorConverter
 from astropy import units as u
+from astropy.coordinates import SkyCoord
 
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -645,7 +646,9 @@ class Model(object):
         Keywords :
             see :py:func:`plot_lc()`
 
-            satellite_skycoord, gamma: see :py:func:`magnification()`
+            gamma: see :py:func:`magnification()`
+
+            satellite_skycoord: see :py:func:`plot_trajectory()`
 
         ``**kwargs`` -- any arguments accepted by matplotlib.pyplot.plot().
 
@@ -657,7 +660,11 @@ class Model(object):
         subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         if satellite_skycoord is not None:
-            satellite = satellite_skycoord.get_satellite_coords(times)
+            if isinstance(satellite_skycoord, SatelliteSkyCoord):
+                satellite = satellite_skycoord.get_satellite_coords(times)
+            elif not isinstance(satellite_skycoord, SkyCoord):
+                raise TypeError('Wrong type of satellite_skycoord in ' +
+                                'Model.plot_magnification()')
         else:
             satellite = None
         if self.n_sources == 2:
@@ -1179,9 +1186,13 @@ class Model(object):
             arrow: *boolean*
                 show the direction of the source motion. default=True (on)
 
-            satellite_skycoord: *astropy.SkyCoord*
-                should allow user to specify the trajectory is calculated
-                for a satellite. see :py:func:`get_satellite_coords()`
+            satellite_skycoord: *astropy.SkyCoord* or
+            :py:class:`MulensModel.satelliteskycoord.SatelliteSkyCoord`
+
+                Allows the user to specify that the trajectory is calculated
+                for a satellite. If *astropy.SkyCoord* object is provided,
+                then these are satellite positions for all epochs.
+                See also :py:func:`get_satellite_coords()`
 
             ``**kwargs``
                 Controls plotting features of the trajectory. It's passed to
@@ -1199,7 +1210,12 @@ class Model(object):
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
         else:
-            satellite_skycoord = satellite_skycoord.get_satellite_coords(times)
+            if isinstance(satellite_skycoord, SatelliteSkyCoord):
+                satellite_skycoord = satellite_skycoord.get_satellite_coords(
+                    times)
+            elif not isinstance(satellite_skycoord, SkyCoord):
+                raise TypeError('Wrong type of satellite_skycoord in ' +
+                                'Model.plot_trajectory()')
 
         if self.n_sources == 1:
             self._plot_single_trajectory(times, self.parameters,
