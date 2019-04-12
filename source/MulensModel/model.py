@@ -1237,7 +1237,9 @@ class Model(object):
             d_y = trajectory.y[index+1] - y_0
             dd = 1e6 * (d_x*d_x + d_y*d_y)**.5
             color = kwargs.get('color', 'black')
-            plt.arrow(x_0, y_0, d_x/dd, d_y/dd, lw=0, color=color, width=0.01)
+            kwargs_ = {'lw': 0, 'color': color, 'width': 0.01,
+                       'zorder': -np.inf}
+            plt.arrow(x_0, y_0, d_x/dd, d_y/dd, **kwargs_)
 
     def update_caustics(self, epoch=None):
         """
