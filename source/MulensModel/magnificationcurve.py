@@ -114,7 +114,7 @@ class MagnificationCurve(object):
 
         if not isinstance(methods, list):
             msg = ('MagnificationCurve.set_magnification_methods() requires' +
-                   'list as a parameter')
+                   'a list as a parameter')
             raise TypeError(msg)
         epochs = methods[0::2]
         names = methods[1::2]
