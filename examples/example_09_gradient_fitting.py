@@ -30,8 +30,9 @@ def jacobian(theta, event, parameters_to_fit):
     return event.chi2_gradient(parameters_to_fit)
 
 # Read in the data file
-data = MulensData(file_name=os.path.join(MODULE_PATH, "data", 
-        "photometry_files", "phot_ob08092_O4.dat"))
+file_ = os.path.join(MODULE_PATH, "data", "photometry_files", "OB08092",
+                     "phot_ob08092_O4.dat")
+data = MulensData(file_name=file_)
 
 # Initialize the fit
 parameters_to_fit = ["t_0", "u_0", "t_E"]

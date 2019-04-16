@@ -42,7 +42,7 @@ print("Initial", model.parameters)
 
 #Read in the data
 data = MulensModel.MulensData(file_name=os.path.join(
-    MulensModel.MODULE_PATH, "data", "photometry_files",
+    MulensModel.MODULE_PATH, "data", "photometry_files", "OB08092",
     "phot_ob08092_O4.dat"))
 
 #Set up the Event

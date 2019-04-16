@@ -12,7 +12,7 @@ Calculate the chi2 between a model and some data.
 # Load the data
 data = MulensModel.MulensData(
     file_name=os.path.join(
-        MulensModel.MODULE_PATH, 'data', 'photometry_files',
+        MulensModel.MODULE_PATH, 'data', 'photometry_files', 'OB08092',
         'phot_ob08092_O4.dat'))
 
 # Define the model
