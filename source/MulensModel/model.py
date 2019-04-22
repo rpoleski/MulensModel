@@ -395,7 +395,8 @@ class Model(object):
         for dataset in self._datasets:
             magnification = self.get_data_magnification(dataset)
             self._data_magnification.append(magnification)
-            if (self.n_sources > 1 and self._source_flux_ratio_constraint is None):
+            if (self.n_sources > 1 and
+                    None not in self._source_flux_ratio_constraint):
                 if dataset is self._datasets[0]:
                     fit = self._fit
                 else:
@@ -662,7 +663,7 @@ class Model(object):
             satellite = None
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
-                    self._source_flux_ratio_constraint is None):
+                    None not in self._source_flux_ratio_constraint):
                 if len(self._datasets) == 1:
                     flux_ratio_constraint = self._datasets[0]
                     warnings.warn(
@@ -740,7 +741,7 @@ class Model(object):
 
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
-                    self._source_flux_ratio_constraint is None):
+                    None not in self._source_flux_ratio_constraint):
                 if len(self._datasets) == 1:
                     flux_ratio_constraint = self._datasets[0]
                     warnings.warn(
@@ -756,7 +757,7 @@ class Model(object):
                     raise ValueError(
                         'Not enough information to plot the model ' +
                         'magnification. Use set_source_flux_ratio() function' +
-                        ' or flux_ratio_constraint option')
+                        ' or flux_ratio_constraint option.')
 
         if (f_source is None) and (f_blend is None):
             if self.data_ref is None:
@@ -1377,6 +1378,10 @@ class Model(object):
             if isinstance(self._methods, list):
                 raise ValueError('You cannot set methods for a single ' +
                                  'source after setting them for all sources.')
+            if source > self.n_sources:
+                msg = ('Cannot set methods for source {:} for model with ' +
+                       'only {:} sources.')
+                raise ValueError(msg.format(source, self.n_sources))
             if self._methods is None:
                 self._methods = {}
             self._methods[source] = methods
