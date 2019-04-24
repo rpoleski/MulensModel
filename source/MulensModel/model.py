@@ -1290,32 +1290,43 @@ class Model(object):
     def plot_source(self, times=None, **kwargs):
         """
         Plot source: circles of the radius rho at positions corresponding to
-        source positions at times.
+        source positions at times. When the rho is not defined, then X symbols
+        are plotted.
 
         Parameters:
             times: *float* or *np.ndarray*
                 epochs for which source positions will be plotted
 
             ``**kwargs``:
-                passed to `matplotlib Circle
+                Keyword arguments passed to `matplotlib Circle
                 <https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html>`_
                 function.  Examples: ``color='red'``, ``fill=False``,
-                ``linewidth=3``, ``alpha=0.5``.
+                ``linewidth=3``, ``alpha=0.5``. When the rho is not defined,
+                then keyword arguments are passed to `matplotlib plot
+                <https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html>`_
+                function.
         """
         if isinstance(times, float):
             times = [times]
         if isinstance(times, list):
             times = np.array(times)
 
-        if self.parameters.rho is None:
-            raise ValueError('rho is not defined, so we cannot plot source')
+        kwargs_ = {
+            'times': times, 'parallax': self._parallax, 'coords': self._coords,
+            'satellite_skycoord': self.get_satellite_coords(times)}
 
-        trajectory = Trajectory(
-            times, parameters=self.parameters, parallax=self._parallax,
-            coords=self._coords,
-            satellite_skycoord=self.get_satellite_coords(times))
-
-        self._plot_source_for_trajectory(trajectory, **kwargs)
+        if self.n_sources == 1:
+            trajectory = Trajectory(parameters=self.parameters, **kwargs_)
+            self._plot_source_for_trajectory(trajectory, **kwargs)
+        elif self.n_sources == 2:
+            trajectory = Trajectory(
+                parameters=self.parameters.source_1_parameters, **kwargs_)
+            self._plot_source_for_trajectory(trajectory, **kwargs)
+            trajectory = Trajectory(
+                parameters=self.parameters.source_2_parameters, **kwargs_)
+            self._plot_source_for_trajectory(trajectory, **kwargs)
+        else:
+            raise ValueError('Wrong number of sources!')
 
     def plot_source_for_datasets(self, **kwargs):
         """
@@ -1324,10 +1335,7 @@ class Model(object):
 
         Parameters:
             ``**kwargs``:
-                passed to `matplotlib Circle
-                <https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html>`_
-                function.  Examples: ``fill=False`` (this is default),
-                ``linewidth=3``, ``alpha=0.5``.
+                see :py:func:`plot_source`
         """
         if 'color' in kwargs:
             raise ValueError(
@@ -1343,18 +1351,14 @@ class Model(object):
             datasets = [self.datasets]
         else:
             datasets = self.datasets
-        if 'fill' not in kwargs:
-            kwargs['fill'] = False
+
+        kwargs_ = dict(kwargs)
+        if 'fill' not in kwargs_:
+            kwargs_['fill'] = False
 
         for data in datasets:
-            times = data.time
-            kwargs['color'] = data.plot_properties['color']
-            trajectory = Trajectory(
-                times, parameters=self.parameters, parallax=self._parallax,
-                coords=self._coords,
-                satellite_skycoord=self.get_satellite_coords(times))
-            self._plot_source_for_trajectory(trajectory, **kwargs)
-        del kwargs['color']
+            kwargs_['color'] = data.plot_properties['color']
+            self.plot_source(times=data.time, **kwargs_)
 
     def _plot_source_for_trajectory(self, trajectory, **kwargs):
         """
@@ -1362,16 +1366,21 @@ class Model(object):
         """
         axis = plt.gca()
 
+        plot_circle = (trajectory.parameters.rho is not None)
+        if not plot_circle:
+            warnings.warn(
+                'rho is not defined, so X is used to show source positions')
+
         if 'color' not in kwargs:
             kwargs['color'] = 'red'
         if 'zorder' not in kwargs:
             kwargs['zorder'] = np.inf
-        if 'radius' not in kwargs:
-            kwargs['radius'] = self.parameters.rho
+        if plot_circle and 'radius' not in kwargs:
+            kwargs['radius'] = trajectory.parameters.rho
 
         xlim = plt.xlim()
         ylim = plt.ylim()
-        if not (xlim == (0., 1.) and ylim == (0., 1.)):
+        if plot_circle and not (xlim == (0., 1.) and ylim == (0., 1.)):
             # We've checked that default limits were changed.
             limits = max(np.abs(xlim[1]-xlim[0]), np.abs(ylim[1]-ylim[0]))
             if limits > 1e3 * kwargs['radius']:
@@ -1383,8 +1392,11 @@ class Model(object):
                     "circle by passing *radius* via kwargs.",
                     UserWarning)
 
-        for (x, y) in zip(trajectory.x, trajectory.y):
-            axis.add_artist(plt.Circle((x, y), **kwargs))
+        if not plot_circle:
+            plt.plot(trajectory.x, trajectory.y, 'x', **kwargs)
+        else:
+            for (x, y) in zip(trajectory.x, trajectory.y):
+                axis.add_artist(plt.Circle((x, y), **kwargs))
 
     def set_times(
             self, t_range=None, t_start=None, t_stop=None, dt=None,
