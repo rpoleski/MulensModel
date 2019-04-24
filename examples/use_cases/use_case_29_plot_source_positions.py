@@ -15,10 +15,10 @@ ax = fig.add_subplot(111)
 
 # Plot caustics and source trajectory for specified model
 model.plot_caustics(color="black")
-model.plot_trajectory(
-    t_start=params["t_0"]-0.15*params["t_E"],
-    t_stop=params["t_0"]+0.15*params["t_E"],
-    caustics=False, color="blue")
+trajectory_kwargs = {'t_start': params["t_0"]-0.15*params["t_E"],
+                     't_stop': params["t_0"]+0.15*params["t_E"],
+                     'caustics': False, 'color': "blue"}
+model.plot_trajectory(**trajectory_kwargs)
 
 # Stages for plotting source positions (MM documentation has this listed but
 # describes it as not yet implemented)
@@ -31,7 +31,17 @@ times = params["t_0"] - 0.05 * params["t_E"]
 kwargs = {}  # You can add some kwargs here and they will be passed
 # to plt function.
 model.plot_source(times, **kwargs)
-plt.axis('equal') # So that circles don't look like elipses.
+plt.axis('equal') # So that circles don't look like ellipses.
+plt.show()
+
+# Repeat above, but also plot data:
+epochs = np.array([-3.5, -1., 0.5, 0.6, 0.75, 0.95, 2.])
+dataset = MM.MulensData([epochs, epochs*0.+20., epochs*0.+.1])
+model.set_datasets([dataset])
+model.plot_caustics(color="black")
+model.plot_trajectory(show_data=True, **trajectory_kwargs)
+model.plot_source(times, **kwargs)
+plt.axis('equal')
 plt.show()
 
 # Plotting for binary source model:
@@ -41,7 +51,7 @@ model = MM.Model({
 times = np.linspace(4980., 5050.)
 model.plot_trajectory()
 model.plot_source(times)
-plt.show()
+plt.show() # Circles are squished because of X-axis range.
 
 # Same as above, but no source size provided:
 model = MM.Model({

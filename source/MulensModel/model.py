@@ -1164,8 +1164,8 @@ class Model(object):
                 instead.
 
             show_data: *boolean*
-                mark epochs of data (**Not implemented**, marker types
-                should match data plotting.)
+                Mark epochs of data. Use :py:func:`plot_source_for_datasets()`
+                for more control of how data epochs are marked.
 
             arrow: *boolean*
                 Show the direction of the source motion. Default is *True*.
@@ -1189,9 +1189,6 @@ class Model(object):
                 :py:func:`pyplot.plot()`.
 
         """
-        if show_data:
-            raise NotImplementedError(
-                "show_data option is not yet implemented")
         if not arrow and arrow_kwargs is not None:
             raise ValueError(
                 "arrow_kwargs can be only given if arrow is True")
@@ -1220,6 +1217,9 @@ class Model(object):
 
         if caustics:
             self.plot_caustics(marker='.', color='red')
+
+        if show_data:
+            self.plot_source_for_datasets()
 
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):
