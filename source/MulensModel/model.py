@@ -255,6 +255,7 @@ class Model(object):
 
         if isinstance(flux_ratio_constraint, (float, np.float)):
             source_flux_ratio = flux_ratio_constraint
+            self._fit = None
         else:
             if same_dataset:
                 assert (flux_ratio_constraint.time == time).all()
@@ -393,17 +394,18 @@ class Model(object):
         """
         self._data_magnification = []
 
+        fit = None
         for dataset in self._datasets:
             magnification = self.get_data_magnification(dataset)
             self._data_magnification.append(magnification)
-            if (self.n_sources > 1 and
-                    None not in self._source_flux_ratio_constraint):
-                if dataset is self._datasets[0]:
+            if (self._fit is not None and self.n_sources > 1 and
+                        None not in self._source_flux_ratio_constraint):
+                if fit is None:
                     fit = self._fit
                 else:
                     fit.update(self._fit)
-                    if dataset is self._datasets[-1]:
-                        self._fit = fit
+        if self.n_sources > 1:
+            self._fit = fit
 
         return self._data_magnification
 

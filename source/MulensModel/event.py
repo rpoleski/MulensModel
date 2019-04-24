@@ -234,7 +234,12 @@ class Event(object):
         dataset = self.datasets[index_dataset]
         magnification = self.model.get_data_magnification(dataset)
 
-        if self.model.n_sources != 1:
+        dataset_in_fit = True
+        try:
+            self.model.fit.flux_of_sources(dataset)
+        except:
+            dataset_in_fit = False
+        if self.model.n_sources != 1 and dataset_in_fit:
             self.fit = self.model.fit
         else:
             self.fit = Fit(data=dataset, magnification=[magnification])
