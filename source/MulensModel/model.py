@@ -637,6 +637,29 @@ class Model(object):
             out = 'Time'
         return out
 
+    def _flux_ratio_constraint_for_plotting(self):
+        """
+        Warning or error message for lack of source flux ratio information.
+        """
+        msg = (
+            '\n\nTo plot magnification for binary source model you have ' +
+            'to set the flux ratio (using set_source_flux_ratio()) ' +
+            'or provide dataset which will be used to find flux ' +
+            'ratio (keyword flux_ratio_constraint).\n\n')
+        if len(self._datasets) == 1:
+            warnings.warn(msg + 'You have provided only one dataset, so ' +
+                          "for now we will use that one.", RuntimeWarning)
+            return self._datasets[0]
+        elif len(self._datasets) > 1:
+            warnings.warn(msg + 'You have provided only some datasets and ' +
+                          "for now we will use the first one.", RuntimeWarning)
+            return self._datasets[0]
+        else:
+            raise ValueError(
+                'Not enough information to plot the model magnification. ' +
+                'Use set_source_flux_ratio() function ' +
+                'or flux_ratio_constraint keyword.')
+
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
@@ -666,22 +689,9 @@ class Model(object):
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
                     None not in self._source_flux_ratio_constraint):
-                if len(self._datasets) == 1:
-                    flux_ratio_constraint = self._datasets[0]
-                    warnings.warn(
-                        'To plot magnification for binary source model you ' +
-                        'have to set the flux ratio (using ' +
-                        'set_source_flux_ratio()) or provide dataset which ' +
-                        'will be used to find flux ratio (option ' +
-                        'flux_ratio_constraint).\n' +
-                        'You have provided only one dataset, so for now we ' +
-                        "will use it, but it won't work if there are mode " +
-                        'datasets.')
-                else:
-                    raise ValueError(
-                        'Not enough information to plot the model ' +
-                        'magnification. Use set_source_flux_ratio() function' +
-                        ' or flux_ratio_constraint option')
+                flux_ratio_constraint = (
+                    self._flux_ratio_constraint_for_plotting())
+
         magnification = self.magnification(
             times, satellite_skycoord=satellite, gamma=gamma,
             flux_ratio_constraint=flux_ratio_constraint)
@@ -744,37 +754,22 @@ class Model(object):
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
                     None not in self._source_flux_ratio_constraint):
-                if len(self._datasets) == 1:
-                    flux_ratio_constraint = self._datasets[0]
-                    warnings.warn(
-                        'To plot magnification for binary source model you ' +
-                        'have to set the flux ratio (using ' +
-                        'set_source_flux_ratio()) or provide dataset which ' +
-                        'will be used to find flux ratio (option ' +
-                        'flux_ratio_constraint).\n' +
-                        'You have provided only one dataset, so for now we ' +
-                        "will use it, but it won't work if there are mode " +
-                        'datasets.')
-                else:
-                    raise ValueError(
-                        'Not enough information to plot the model ' +
-                        'magnification. Use set_source_flux_ratio() function' +
-                        ' or flux_ratio_constraint option.')
+                flux_ratio_constraint = (
+                    self._flux_ratio_constraint_for_plotting())
 
-        if (f_source is None) and (f_blend is None):
+        if f_source is None and f_blend is None:
             if self.data_ref is None:
                 raise ValueError('No reference dataset of fluxes provided. ' +
                                  "If you don't have a dataset, then try " +
                                  "plot_magnification() instead of plot_lc().")
             (f_source, f_blend) = self.get_ref_fluxes(data_ref=self.data_ref)
-        elif (f_source is None) or (f_blend is None):
+        elif f_source is None or f_blend is None:
             raise AttributeError(
                 'If f_source is set, f_blend must also be set and vice versa.')
 
         magnification = self.magnification(
             times,
-            flux_ratio_constraint=flux_ratio_constraint
-            )
+            flux_ratio_constraint=flux_ratio_constraint)
         flux = f_source * magnification + f_blend
 
         subtract = self._subtract(subtract_2450000, subtract_2460000)
