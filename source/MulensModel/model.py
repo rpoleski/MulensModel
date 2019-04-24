@@ -314,7 +314,8 @@ class Model(object):
                 models, the effective magnification is returned (unless
                 *separate=True*).
         """
-        if not isinstance(flux_ratio_constraint, (MulensData, str, type(None))):
+        allowed = (MulensData, str, type(None))
+        if not isinstance(flux_ratio_constraint, allowed):
             raise TypeError(
                 'The flux_ratio_constraint must be MulensData or str. If ' +
                 'you want to fix it, then pass float value to ' +
@@ -426,20 +427,21 @@ class Model(object):
         else:
             dataset_satellite_skycoord = None
 
-        if self.parameters.rho is not None:
+        if self.parameters.rho is None:
+            gamma = 0.
+        else:
             if dataset.bandpass is None:
                 gamma = 0.
+            elif dataset.bandpass not in self.bandpasses:
+                message = (
+                    "Limb darkening coefficient requested for bandpass {:}, " +
+                    "but not set before. We're assuming gamma=0. Use " +
+                    "set_limb_coeff_gamma() or set_limb_coeff_u().")
+                warnings.warn(message.format(dataset.bandpass), RuntimeWarning)
+                gamma = 0.
             else:
-                if dataset.bandpass not in self.bandpasses:
-                    raise ValueError((
-                            "Limb darkening coefficient requested for " +
-                            "bandpass {:}, but not set before. Use " +
-                            "set_limb_coeff_gamma() or set_limb_coeff_u()"
-                            ).format(dataset.bandpass))
                 gamma = self._limb_darkening_coeffs.get_limb_coeff_gamma(
                     dataset.bandpass)
-        else:
-            gamma = 0.
 
         if self.parameters.n_sources == 1:
             flux_ratio_constraint = None

@@ -52,7 +52,7 @@ class MagnificationCurve(object):
             self.parameters = parameters
         else:
             raise ValueError(
-                'parameters is a required and must be a ' +
+                'parameters is a required keyword and must be a ' +
                 'ModelParameters object')
 
         # Calculate the source trajectory (i.e. u(t))
