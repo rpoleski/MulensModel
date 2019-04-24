@@ -178,8 +178,9 @@ class MulensData(object):
                 raise ValueError('data_list and kwargs cannot be both set')
             (vector_1, vector_2, vector_3) = list(data_list)
             self._initialize(
-                phot_fmt, time=vector_1, brightness=vector_2,
-                err_brightness=vector_3, coords=self._coords)
+                phot_fmt, time=np.array(vector_1),
+                brightness=np.array(vector_2),
+                err_brightness=np.array(vector_3), coords=self._coords)
         elif file_name is not None:
             # ...from a file
             usecols = kwargs.pop('usecols', (0, 1, 2))
@@ -237,6 +238,11 @@ class MulensData(object):
                 'You cannot initialize MulensData with both ' +
                 'add_2450000 and add_2460000 being True')
 
+        if time.dtype != np.float64:
+            raise TypeError((
+                    'time vector in MulensData() must be of ' +
+                    'numpy.float64 type, not {:}').format(time.dtype))
+
         # Adjust the time vector as necessary.
         if self._init_keys['add245']:
             time += 2450000.
@@ -244,10 +250,6 @@ class MulensData(object):
             time += 2460000.
 
         # Store the time vector
-        if time.dtype != np.float64:
-            raise TypeError((
-                    'time vector in MulensData() must be of ' +
-                    'numpy.float64 type, not {:}').format(time.dtype))
         self._time = time
         self._n_epochs = len(time)
 
