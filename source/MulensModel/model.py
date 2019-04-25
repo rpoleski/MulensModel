@@ -428,7 +428,9 @@ class Model(object):
         else:
             dataset_satellite_skycoord = None
 
-        if self.parameters.rho is not None:
+        if not self.parameters.is_finite_source():
+            gamma = 0.
+        else:
             if dataset.bandpass is None:
                 gamma = 0.
             else:
@@ -440,8 +442,6 @@ class Model(object):
                             ).format(dataset.bandpass))
                 gamma = self._limb_darkening_coeffs.get_limb_coeff_gamma(
                     dataset.bandpass)
-        else:
-            gamma = 0.
 
         if self.parameters.n_sources == 1:
             flux_ratio_constraint = None

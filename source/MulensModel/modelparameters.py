@@ -1190,6 +1190,23 @@ class ModelParameters(object):
         gamma_perp = (self.gamma_perp / u.rad).to(1/u.yr)
         return (self.gamma_parallel**2 + gamma_perp**2)**0.5
 
+    def is_finite_source(self):
+        """
+        Checks if model has finite source. For binary source models it checks
+        if either of the sources is finite.
+
+        Returns:
+            is_finite_source: *boolean*
+                *True* if at least one source has finite size.
+        """
+        if self.rho is not None:
+            return True
+        elif (self.n_sources > 1 and
+                (self.rho_1 is not None or self.rho_2 is not None)):
+            return True
+        else:
+            return False
+
     def is_static(self):
         """
         Checks if model is static, i.e., orbital motion parameters are not set.
