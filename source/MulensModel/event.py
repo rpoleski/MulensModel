@@ -13,18 +13,28 @@ from MulensModel.trajectory import Trajectory
 
 class Event(object):
     """
-    Allows a model to be fit to datasets.
+    Combines a microlensing model with data. Allows calculating chi^2 and
+    making a number of plots.
 
     Arguments :
-        :py:obj:`datasets` (required):
-            a :py:class:`~MulensModel.mulensdata.MulensData` object or
-            *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects.
+        datasets:  :py:class:`~MulensModel.mulensdata.MulensData` or
+        *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects
 
-        :py:obj:`model` (required):
-            a :py:class:`~MulensModel.model.Model` object
+            Datasets that will be linked to the event. These datasets will
+            be used for chi^2 calculation, plotting etc.
 
-        :py:obj:`coords` (optional):
-            the coordinates of the event (RA, Dec)
+        model: :py:class:`~MulensModel.model.Model`
+            Microlensing model that will be linked to the event. In order to
+            get chi^2 for different sets of model parameters you should
+            keep a single :py:class:`~MulensModel.model.Model` instance and
+            change parameters for this model (i.e., do not provide separate
+            :py:class:`~MulensModel.model.Model` instances).
+
+        coords: *str*, :py:class:`~MulensModel.coordinates.Coordinates`,
+        or astropy.SkyCoord_
+
+            Coordinates of the event. If *str*, then needs format accepted by
+            astropy.SkyCoord_ e.g., ``'18:00:00 -30:00:00'``.
 
     Attributes :
         best_chi2: *float*
@@ -43,6 +53,9 @@ class Event(object):
     we do it in the same space as the dataset considered. If dataset is in
     magnitude space and model results in negative flux, then we calculate chi^2
     in flux space but only for the epochs with negative model flux.
+
+    .. _astropy.SkyCoord:
+      http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
     """
 
     def __init__(self, datasets=None, model=None, coords=None):

@@ -1298,13 +1298,15 @@ class Model(object):
                 epochs for which source positions will be plotted
 
             ``**kwargs``:
-                Keyword arguments passed to `matplotlib Circle
-                <https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html>`_
-                function.  Examples: ``color='red'``, ``fill=False``,
+                Keyword arguments passed to matplotlib.Circle_.
+                Examples: ``color='red'``, ``fill=False``,
                 ``linewidth=3``, ``alpha=0.5``. When the rho is not defined,
-                then keyword arguments are passed to `matplotlib plot
-                <https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html>`_
-                function.
+                then keyword arguments are passed to matplotlib.plot_.
+
+        .. _matplotlib.Circle:
+          https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html
+        .. _matplotlib.plot:
+          https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
         """
         if isinstance(times, float):
             times = [times]
