@@ -353,6 +353,11 @@ class Event(object):
         """
         if not isinstance(parameters, list):
             parameters = [parameters]
+        implemented = {'t_0', 't_E', 'u_0', 't_eff', 'pi_E_N', 'pi_E_E'}
+        if len(set(parameters) - implemented) > 0:
+            raise NotImplementedError((
+                "chi^2 gradient is implemented only for {:}\nCannot work " +
+                "with {:}").format(implemented, parameters))
         gradient = {param: 0 for param in parameters}
 
         if self.model.n_sources != 1:
