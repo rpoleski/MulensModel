@@ -209,7 +209,7 @@ class MagnificationCurve(object):
                 errors are smaller than 10^-4.
 
             ``finite_source_LD_Yoo04``:
-                Uses the `Gould 1994 ApJ, 421L, 71`_ prescription for
+                Uses the `Yoo et al. 2004 ApJ, 603, 139`_ prescription for
                 a circular source *including limb-darkening*. This method
                 interpolates pre-computed tables. The relative interpolation
                 errors are smaller than 10^-4.
@@ -220,7 +220,7 @@ class MagnificationCurve(object):
                 the underlying functions directly.
 
             ``finite_source_LD_Yoo04_direct``:
-                Uses the `Gould 1994 ApJ, 421L, 71`_ prescription for
+                Uses the `Yoo et al. 2004 ApJ, 603, 139`_ prescription for
                 a circular source *including limb-darkening*. This method
                 calculates 2D integral directly (hence can be slow).
 
@@ -330,12 +330,14 @@ class MagnificationCurve(object):
 
             ``VBBL``:
                 Uses VBBinaryLensing (a Stokes theorem/contour
-                integration code) by Valerio Bozza. See
+                integration code) by Valerio Bozza (`Bozza 2010 MNRAS, 408, 2188
+                <http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B>`_). See
                 :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
 
             ``Adaptive_Contouring``:
                 Uses AdaptiveContouring (a Stokes theorem/contour
-                integration code) by Martin Dominik.  See
+                integration code) by Martin Dominik (`Dominik 2007 MNRAS, 377, 1679
+                <http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D>`_). See
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
             ``point_source_point_lens``:
