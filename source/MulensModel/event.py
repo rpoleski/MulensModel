@@ -198,8 +198,8 @@ class Event(object):
 
         Parameters :
             fit_blending: *boolean*, optional
-                If True, then the blend flux is a free parameter. If
-                False, the blend flux is fixed at zero.  Default is
+                If *True*, then the blend flux is a free parameter. If
+                *False*, the blend flux is fixed at zero.  Default is
                 the same as :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
 
         Returns :
