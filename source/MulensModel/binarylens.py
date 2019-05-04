@@ -1,34 +1,54 @@
 import sys
 import os
 import ctypes
+import glob
+import warnings
 import numpy as np
 from math import fsum, sqrt
 
 import MulensModel
 from MulensModel.utils import Utils
-MODULE_PATH = os.path.abspath(__file__)
-if True:
-    MODULE_PATH = os.path.dirname(MODULE_PATH)
-PATH = os.path.join(
-        MODULE_PATH, 'source', 'VBBL', "VBBinaryLensingLibrary_wrapper.so")
-try:
-    vbbl = ctypes.cdll.LoadLibrary(PATH)
-except OSError as error_1:
-    MODULE_PATH = os.path.dirname(MODULE_PATH)
-    MODULE_PATH = os.path.dirname(MODULE_PATH)
+
+
+def _try_load(path):
+    """XXX"""
+    try:
+        out = ctypes.cdll.LoadLibrary(path)
+    except:
+        out = None
+    return out
+
+PATH = os.path.join(os.path.dirname(MulensModel.__file__), "VBBL*.so")
+PATH = glob.glob(PATH) # XXX - checks on length
+if len(PATH) > 0:
+    vbbl = _try_load(PATH[0])
+else:
+    vbbl = None
+if vbbl is None:
+    MODULE_PATH = os.path.abspath(__file__)
+    for i in range(3):
+        MODULE_PATH = os.path.dirname(MODULE_PATH)
     PATH = os.path.join(
         MODULE_PATH, 'source', 'VBBL', "VBBinaryLensingLibrary_wrapper.so")
-    try:
-        vbbl = ctypes.cdll.LoadLibrary(PATH)
-    except OSError as error_1:
-        msg = "Something went wrong with VBBL wrapping ({:})\n\nERROR_1:\n"
-        print(msg.format(PATH) + repr(error_1) + "\n\nERROR_2:\n" +
-              repr(error_2))
-        _vbbl_wrapped = False
-    else:
-        _vbbl_wrapped = True
+    vbbl = _try_load(PATH)
+_vbbl_wrapped = (vbbl is not None)
+
+PATH = os.path.join(os.path.dirname(MulensModel.__file__), "AdaptiveContouring*.so")
+PATH = glob.glob(PATH) # XXX - checks on length
+if len(PATH) > 0:
+    adaptive_contour = _try_load(PATH[0])
 else:
-    _vbbl_wrapped = True
+    adaptive_contour = None
+if adaptive_contour is None:
+    MODULE_PATH = os.path.abspath(__file__)
+    for i in range(3):
+        MODULE_PATH = os.path.dirname(MODULE_PATH)
+    PATH = os.path.join(
+        MODULE_PATH, 'source', 'AdaptiveContouring',
+        "AdaptiveContouring_wrapper.so")
+    adaptive_contour = _try_load(PATH)
+_adaptive_contouring_wrapped = (adaptive_contour is not None)
+
 if _vbbl_wrapped:
     vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
     vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
@@ -44,17 +64,7 @@ if not _vbbl_wrapped:
 else:
     _solver = 'Skowron_and_Gould_12'
 
-PATH = os.path.join(MODULE_PATH, 'source', 'AdaptiveContouring',
-                    "AdaptiveContouring_wrapper.so")
-try:
-    adaptive_contour = ctypes.cdll.LoadLibrary(PATH)
-except OSError as error:
-    msg = ("Something went wrong with AdaptiveContouring " +
-           "wrapping ({:})\n\n" + repr(error))
-    print(msg.format(PATH))
-    _adaptive_contouring_wrapped = False
-else:
-    _adaptive_contouring_wrapped = True
+if _adaptive_contouring_wrapped:
     adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
                 8 * [ctypes.c_double])
     adaptive_contour.Adaptive_Contouring_Linear.restype = (ctypes.c_double)
@@ -96,6 +106,7 @@ class BinaryLens(object):
         self._position_z1_WM95 = None
         self._position_z2_WM95 = None
         self._last_polynomial_input = None
+        self._solver = _solver
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
@@ -174,16 +185,22 @@ class BinaryLens(object):
         polynomial = self._get_polynomial_WM95(
             source_x=source_x, source_y=source_y)
 
-        if _solver == 'Skowron_and_Gould_12':
-            args = polynomial.real.tolist() + polynomial.imag.tolist()
-            out = _vbbl_SG12_5(*args)
-            roots = [out[i] + out[i+5] * 1.j for i in range(5)]
-            self._polynomial_roots_WM95 = np.array(roots)
-        elif _solver == 'numpy':
+        if self._solver == 'numpy':
             self._polynomial_roots_WM95 = np.polynomial.polynomial.polyroots(
                                                                     polynomial)
+        elif self._solver == 'Skowron_and_Gould_12':
+            args = polynomial.real.tolist() + polynomial.imag.tolist()
+            try:
+                out = _vbbl_SG12_5(*args)
+            except ValueError as err:
+                err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
+                warnings.warn(str(err) + err2, UserWarning)
+                self._solver = 'numpy'
+            else:
+                roots = [out[i] + out[i+5] * 1.j for i in range(5)]
+                self._polynomial_roots_WM95 = np.array(roots)
         else:
-            raise ValueError('Unkown solver: {:}'.format(_solver))
+            raise ValueError('Unkown solver: {:}'.format(self._solver))
         self._last_polynomial_input = polynomial_input
 
         return self._polynomial_roots_WM95
@@ -225,9 +242,10 @@ class BinaryLens(object):
                    "that it's different from 'point_source' method.")
             txt = msg.format(
                 len(out), repr(self.mass_1), repr(self.mass_2),
-                repr(self.separation), repr(source_x), repr(source_y), _solver)
+                repr(self.separation), repr(source_x), repr(source_y),
+                self._solver)
 
-            if _solver != "Skowron_and_Gould_12":
+            if self._solver != "Skowron_and_Gould_12":
                 txt += (
                     "\n\nYou should switch to using Skowron_and_Gould_12" +
                     " polynomial root solver. It is much more accurate than " +
