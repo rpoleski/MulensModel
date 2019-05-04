@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.9.8 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.10.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -53,10 +53,11 @@
 <dd>Specify name of the file with satellite ephemerides. See
 <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> for more details.
 Note that if you provide file name here, then it will affect
-all calculations for this model. In most cases you want to combine
-ground-based and satellite data and in those cases use
-<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> to specific
-datasets to pass satellite information.</dd>
+all calculations for this model. In most cases, you want to
+combine ground-based and satellite data and in those cases set
+ephemerides_file for specific
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> instance
+to pass satellite information.</dd>
 </dl>
 </dd>
 <dt>Attributes :</dt>
@@ -75,11 +76,6 @@ in <a class="reference internal" href="#MulensModel.model.Model.datasets" title=
 to turn different parallax effects ON/OFF. If using satellite
 parallax, you may also specify an <cite>ephemerides_file</cite> (see
 <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>).</p>
-<p>Caveat:
-satellite parallax works for datasets, but not for
-model, i.e., the satellite parallax will be calculated correctly
-for the model evaluated at the data points, but satellite parallax
-is not implemented for the model alone.</p>
 <dl class="attribute">
 <dt id="MulensModel.model.Model.parameters">
 <code class="descname">parameters</code><a class="headerlink" href="#MulensModel.model.Model.parameters" title="Permalink to this definition">¶</a></dt>
@@ -322,7 +318,8 @@ and <code class="docutils literal notranslate"><span class="pre">'topocentric'</
 <dl class="docutils">
 <dt>Keywords :</dt>
 <dd><p class="first">see <a class="reference internal" href="#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_lc()</span></code></a></p>
-<p class="last">satellite_skycoord, gamma: see <a class="reference internal" href="#MulensModel.model.Model.magnification" title="MulensModel.model.Model.magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">magnification()</span></code></a></p>
+<p>gamma: see <a class="reference internal" href="#MulensModel.model.Model.magnification" title="MulensModel.model.Model.magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">magnification()</span></code></a></p>
+<p class="last">satellite_skycoord: see <a class="reference internal" href="#MulensModel.model.Model.plot_trajectory" title="MulensModel.model.Model.plot_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_trajectory()</span></code></a></p>
 </dd>
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> – any arguments accepted by matplotlib.pyplot.plot().</p>
@@ -487,7 +484,7 @@ errorbars for the residuals.</dd>
 
 <dl class="method">
 <dt id="MulensModel.model.Model.plot_trajectory">
-<code class="descname">plot_trajectory</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>caustics=False</em>, <em>show_data=False</em>, <em>arrow=True</em>, <em>satellite_skycoord=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_trajectory" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_trajectory</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>caustics=False</em>, <em>show_data=False</em>, <em>arrow=True</em>, <em>satellite_skycoord=None</em>, <em>arrow_kwargs=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the source trajectory.</p>
 <p>Keywords (all optional) :</p>
 <blockquote>
@@ -502,13 +499,28 @@ trajectory. default=False (off). For finer control of
 plotting features, e.g. color, use <a class="reference internal" href="#MulensModel.model.Model.plot_caustics" title="MulensModel.model.Model.plot_caustics"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_caustics()</span></code></a>
 instead.</dd>
 <dt>show_data: <em>boolean</em></dt>
-<dd>mark epochs of data (<strong>Not implemented</strong>, marker types
-should match data plotting.)</dd>
+<dd>Mark epochs of data. Use <a class="reference internal" href="#MulensModel.model.Model.plot_source_for_datasets" title="MulensModel.model.Model.plot_source_for_datasets"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_source_for_datasets()</span></code></a>
+for more control of how data epochs are marked.</dd>
 <dt>arrow: <em>boolean</em></dt>
-<dd>show the direction of the source motion. default=True (on)</dd>
-<dt>satellite_skycoord: <em>astropy.SkyCoord</em></dt>
-<dd>should allow user to specify the trajectory is calculated
-for a satellite. see <a class="reference internal" href="#MulensModel.model.Model.get_satellite_coords" title="MulensModel.model.Model.get_satellite_coords"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_satellite_coords()</span></code></a></dd>
+<dd>Show the direction of the source motion. Default is <em>True</em>.</dd>
+</dl>
+<p>satellite_skycoord: <em>astropy.SkyCoord</em> or
+<a class="reference internal" href="MulensModel.satelliteskycoord.html#MulensModel.satelliteskycoord.SatelliteSkyCoord" title="MulensModel.satelliteskycoord.SatelliteSkyCoord"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.satelliteskycoord.SatelliteSkyCoord</span></code></a></p>
+<blockquote>
+<div>Allows the user to specify that the trajectory is calculated
+for a satellite. If <em>astropy.SkyCoord</em> object is provided,
+then these are satellite positions for all epochs.
+See also <a class="reference internal" href="#MulensModel.model.Model.get_satellite_coords" title="MulensModel.model.Model.get_satellite_coords"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_satellite_coords()</span></code></a></div></blockquote>
+<dl class="docutils">
+<dt>arrow_kwargs: <em>dict</em></dt>
+<dd>Kwargs that are passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">pyplot.arrow()</span></code>. If no
+color is given here, then we use one specified in <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>
+and if nothing is there, then we use black. The size of
+the arrow is determined based on limits of current axis.
+If those are not adequate, then change the size by specifying
+<em>width</em> keyword and maybe other as well. Note that
+<em>arrow_kwargs</em> are of <em>dict</em> type and are different than
+<code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>.</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code></dt>
 <dd>Controls plotting features of the trajectory. It’s passed to
 <code class="xref py py-func docutils literal notranslate"><span class="pre">pyplot.plot()</span></code>.</dd>
@@ -550,6 +562,42 @@ which defaults to <em>t_0</em>.</dd>
 </dd></dl>
 
 <dl class="method">
+<dt id="MulensModel.model.Model.plot_source">
+<code class="descname">plot_source</code><span class="sig-paren">(</span><em>times=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot source: circles of the radius rho at positions corresponding to
+source positions at times. When the rho is not defined, then X symbols
+are plotted.</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd><dl class="first last docutils">
+<dt>times: <em>float</em> or <em>np.ndarray</em></dt>
+<dd>epochs for which source positions will be plotted</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt>
+<dd>Keyword arguments passed to <a class="reference external" href="https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html">matplotlib.Circle</a>.
+Examples: <code class="docutils literal notranslate"><span class="pre">color='red'</span></code>, <code class="docutils literal notranslate"><span class="pre">fill=False</span></code>,
+<code class="docutils literal notranslate"><span class="pre">linewidth=3</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha=0.5</span></code>. When the rho is not defined,
+then keyword arguments are passed to <a class="reference external" href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html">matplotlib.plot</a>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.plot_source_for_datasets">
+<code class="descname">plot_source_for_datasets</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_source_for_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot source positions for all linked datasets. Colors used for
+each dataset are the same used for plotting photometry.</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd><dl class="first last docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt>
+<dd>see <a class="reference internal" href="#MulensModel.model.Model.plot_source" title="MulensModel.model.Model.plot_source"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_source()</span></code></a></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.model.Model.set_times">
 <code class="descname">set_times</code><span class="sig-paren">(</span><em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=1000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_times" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of times. If no keywords are specified, default
@@ -557,7 +605,7 @@ is 1000 epochs from [<cite>t_0</cite> - 1.5* <cite>t_E</cite>, <cite>t_0</cite> 
 For binary source models, respectively, smaller and larger of
 <cite>t_0_1/2</cite> values are used.</p>
 <dl class="docutils">
-<dt>Keywords (all optional) :</dt>
+<dt>Parameters (all optional):</dt>
 <dd><dl class="first last docutils">
 <dt>t_range: [<em>list</em>, <em>tuple</em>]</dt>
 <dd>A range of times of the form [t_start, t_stop]</dd>

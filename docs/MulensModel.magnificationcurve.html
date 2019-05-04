@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.magnificationcurve module &#8212; MulensModel 1.9.8 documentation</title>
+    <title>MulensModel.magnificationcurve module &#8212; MulensModel 1.10.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -149,7 +149,7 @@ e.g., <code class="docutils literal notranslate"><span class="pre">{'VBBL':</spa
 pre-computed tables. The relative interpolation
 errors are smaller than 10^-4.</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">finite_source_LD_Yoo04</span></code>:</dt>
-<dd>Uses the <a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">Gould 1994 ApJ, 421L, 71</a> prescription for
+<dd>Uses the <a class="reference external" href="http://adsabs.harvard.edu/abs/2004ApJ...603..139Y">Yoo et al. 2004 ApJ, 603, 139</a> prescription for
 a circular source <em>including limb-darkening</em>. This method
 interpolates pre-computed tables. The relative interpolation
 errors are smaller than 10^-4.</dd>
@@ -158,7 +158,7 @@ errors are smaller than 10^-4.</dd>
 <em>uniform</em> (and circular) source. This method calculates
 the underlying functions directly.</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">finite_source_LD_Yoo04_direct</span></code>:</dt>
-<dd>Uses the <a class="reference external" href="http://adsabs.harvard.edu/abs/1994ApJ...421L..71G">Gould 1994 ApJ, 421L, 71</a> prescription for
+<dd>Uses the <a class="reference external" href="http://adsabs.harvard.edu/abs/2004ApJ...603..139Y">Yoo et al. 2004 ApJ, 603, 139</a> prescription for
 a circular source <em>including limb-darkening</em>. This method
 calculates 2D integral directly (hence can be slow).</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">finite_source_uniform_Lee09</span></code>:</dt>
@@ -198,11 +198,11 @@ compared to other methods.</dd>
 <a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">hexadecapole_magnification()</span></code></a></dd>
 <dt><code class="docutils literal notranslate"><span class="pre">VBBL</span></code>:</dt>
 <dd>Uses VBBinaryLensing (a Stokes theorem/contour
-integration code) by Valerio Bozza. See
+integration code) by Valerio Bozza (<a class="reference external" href="http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B">Bozza 2010 MNRAS, 408, 2188</a>). See
 <a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="MulensModel.binarylens.BinaryLens.vbbl_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">vbbl_magnification()</span></code></a></dd>
 <dt><code class="docutils literal notranslate"><span class="pre">Adaptive_Contouring</span></code>:</dt>
 <dd>Uses AdaptiveContouring (a Stokes theorem/contour
-integration code) by Martin Dominik.  See
+integration code) by Martin Dominik (<a class="reference external" href="http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D">Dominik 2007 MNRAS, 377, 1679</a>). See
 <a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">adaptive_contouring_magnification()</span></code></a></dd>
 <dt><code class="docutils literal notranslate"><span class="pre">point_source_point_lens</span></code>:</dt>
 <dd>Uses point-source _point_-_lens_ approximation; useful when you

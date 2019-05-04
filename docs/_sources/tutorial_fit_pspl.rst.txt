@@ -24,7 +24,7 @@ the `MulensData class <https://rpoleski.github.io/MulensModel/MulensModel.mulens
 .. code-block:: python
 
    file_name = os.path.join(MulensModel.MODULE_PATH, "data",
-       "photometry_files", "phot_ob08092_O4.dat")
+       "photometry_files", "OB08092", "phot_ob08092_O4.dat")
    my_data = MulensData(file_name=file_name)
    print("{:} file was imported".format(file_name))
 
