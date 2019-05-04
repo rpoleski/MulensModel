@@ -23,7 +23,8 @@ class Trajectory(object):
 
     This class follows the conventions defined in Appendix A of
     `Skowron et al. (2011)
-    <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_.
+    <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_
+    except the definition of *alpha*, which is shifted by 180 deg.
 
     Arguments :
         times: [*float*, *list*, *np.ndarray*], required
@@ -164,7 +165,7 @@ class Trajectory(object):
             vector_y = vector_tau * sin_alpha + vector_u * cos_alpha
             # The above equations use alpha in counterclockwise
             # convention, i.e., the same as proposed by Skowron et
-            # al. (2011)
+            # al. (2011), but shifted by 180 deg.
         else:
             raise NotImplementedError(
                 "trajectory for more than 2 lenses not handled yet")

@@ -675,9 +675,10 @@ class ModelParameters(object):
 
         The angle of the source trajectory relative to the binary lens
         axis (or primary-secondary axis). Measured counterclockwise,
-        i.e., according to convention advocated by `Skowron et
-        al. 2011 (ApJ, 738, 87)
-        <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_.  May be
+        i.e., according to convention advocated by
+        `Skowron et al. 2011 (ApJ, 738, 87)
+        <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_,
+        but shifted by 180 deg.  May be
         set as a *float* --> assumes "deg" is the default unit.
         Regardless of input value, returns value in degrees.
         """
