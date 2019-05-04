@@ -51,15 +51,17 @@ class TestModel(unittest.TestCase):
             my_model = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
 
 def test_model_parallax_definition():
-# JCY: I don't think we should allow parameters to be set sequentially like this.
-#model_1 = Model()
-#model_1.parameters.pi_E = [0.1, 0.2]
-#assert model_1.pi_E_N == 0.1
-#assert model_1.pi_E_E == 0.2
+    # JCY: I don't think we should allow parameters
+    # to be set sequentially like this.
+    # model_1 = Model()
+    # model_1.parameters.pi_E = [0.1, 0.2]
+    # assert model_1.pi_E_N == 0.1
+    # assert model_1.pi_E_E == 0.2
 
-# JCY: below is acceptable (i.e. if the parameter has been
-# defined, the user can change it. If the user wants to add a
-# parameter, they need to create a new model.)
+    # JCY: below is acceptable (i.e. if the parameter has been
+    # defined, the user can change it. If the user wants to add a
+    # parameter, they need to create a new model.)
+
     model_2 = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
                      'pi_E_N': 0.1, 'pi_E_E': 0.2})
 
@@ -74,7 +76,7 @@ def test_model_parallax_definition():
     assert model_3.parameters.pi_E_E == 0.6
 
     model_4 = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
-                     'pi_E_N':0.7, 'pi_E_E':0.8})
+                     'pi_E_N': 0.7, 'pi_E_E': 0.8})
     assert model_4.parameters.pi_E_N == 0.7
     assert model_4.parameters.pi_E_E == 0.8
 
@@ -135,7 +137,7 @@ def test_t_E():
 # Binary Lens tests
 # Binary lens parameters:
 alpha = 229.58 * u.deg
-s = 1.3500 
+s = 1.3500
 q = 0.00578
 # Other parameters
 t_E = 62.63 * u.day
@@ -151,7 +153,7 @@ u_0 = 0.5425 + delta_u_0
 def test_BLPS_01():
     """simple binary lens with point source"""
     params = ModelParameters({
-            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
             'q': q})
 
     model = Model(parameters=params)
@@ -171,22 +173,22 @@ def test_BLPS_02():
     """
 
     params = ModelParameters({
-            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
             'q': q, 'rho': rho})
     model = Model(parameters=params)
 
-    t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
-        2450000.)
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
-        'VBBL', 2456117.5]
+    t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
+    t += 2450000.
+    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
+               'VBBL', 2456117.5]
     model.set_magnification_methods(methods)
 
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     result = model.data_magnification[0]
 
-    expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704, 
-        1.61038135, 1.63603122, 1.69045492, 1.77012807])
+    expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
+                         1.61038135, 1.63603122, 1.69045492, 1.77012807])
     np.testing.assert_almost_equal(result, expected)
 
     # Below we test passing the limb coeff to VBBL function.
@@ -202,15 +204,15 @@ def test_BLPS_02_AC():
     magnification - version with adaptivecontouring
     """
     params = ModelParameters({
-            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
             'q': q, 'rho': rho})
     model = Model(parameters=params)
 
-    t = (np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119]) + 
-        2450000.)
+    t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
+    t += 2450000.
     ac_name = 'Adaptive_Contouring'
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
-        ac_name, 2456117.5]
+    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
+               ac_name, 2456117.5]
     accuracy_1 = {'accuracy': 0.04}
     accuracy_2 = {'accuracy': 0.01, 'ld_accuracy': 0.00001}
     model.set_magnification_methods(methods)
@@ -220,9 +222,9 @@ def test_BLPS_02_AC():
     model.set_datasets([data])
     result = model.data_magnification[0]
 
-    expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704, 
-        1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    np.testing.assert_almost_equal(result, expected, decimal=3) 
+    expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
+                         1.61038135, 1.63603122, 1.69045492, 1.77012807])
+    np.testing.assert_almost_equal(result, expected, decimal=3)
 
     # Below we test passing the limb coeff to VBBL function.
     data.bandpass = 'I'
@@ -230,20 +232,20 @@ def test_BLPS_02_AC():
     # This is an absurd value but I needed something quick.
     model.set_magnification_methods_parameters({ac_name: accuracy_2})
     result = model.data_magnification[0]
-    np.testing.assert_almost_equal(result[5], 1.6366862, decimal=3) 
+    np.testing.assert_almost_equal(result[5], 1.6366862, decimal=3)
 
 def test_methods_parameters():
     """
     make sure additional parameters are properly passed to very inner functions
     """
     params = ModelParameters({
-            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s, 
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
             'q': q, 'rho': rho})
     model = Model(parameters=params)
 
     t = np.array([2456117.])
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 
-        'VBBL', 2456117.5]
+    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
+               'VBBL', 2456117.5]
     model.set_magnification_methods(methods)
 
     data = MulensData(data_list=[t, t*0.+16., t*0.+0.01])
@@ -276,20 +278,20 @@ def test_caustic_for_orbital_motion():
     model = Model(parameters=params)
 
     model.update_caustics()
-    np.testing.assert_almost_equal(model.caustics.get_caustics(), 
-        Caustics(q=q, s=s).get_caustics())
+    np.testing.assert_almost_equal(model.caustics.get_caustics(),
+                                   Caustics(q=q, s=s).get_caustics())
 
     model.update_caustics(100.+365.25/2)
-    np.testing.assert_almost_equal(model.caustics.get_caustics(), 
-        Caustics(q=q, s=1.55).get_caustics())
+    np.testing.assert_almost_equal(model.caustics.get_caustics(),
+                                   Caustics(q=q, s=1.55).get_caustics())
 
 def test_magnifications_for_orbital_motion():
     """
-    make sure that orbital motion parameters are properly passed to 
+    make sure that orbital motion parameters are properly passed to
     magnification methods calculations
     """
     dict_static = {'t_0': 100., 'u_0': 0.1, 't_E': 100., 'q': 0.99,
-        's': 1.1, 'alpha': 10.}
+                   's': 1.1, 'alpha': 10.}
     dict_motion = dict_static.copy()
     dict_motion.update({'ds_dt': -2, 'dalpha_dt': -300.})
     static = Model(dict_static)
@@ -297,7 +299,7 @@ def test_magnifications_for_orbital_motion():
 
     t_1 = 100.
     np.testing.assert_almost_equal(
-        static.magnification(t_1), 
+        static.magnification(t_1),
         motion.magnification(t_1))
 
     t_2 = 130.
@@ -309,7 +311,7 @@ def test_magnifications_for_orbital_motion():
 
 def test_model_binary_and_finite_sources():
     """
-    test if model magnification calculation for binary source works with 
+    test if model magnification calculation for binary source works with
     finite sources (both rho and t_star given)
     """
     model = Model({
@@ -321,8 +323,8 @@ def test_model_binary_and_finite_sources():
     (t1, t2) = (4999.95, 5000.05)
     (t3, t4) = (5099.95, 5100.05)
     finite = 'finite_source_uniform_Gould94'
-    model.set_magnification_methods([t1, finite, t2, 'point_source', t3,
-        finite, t4])
+    model.set_magnification_methods(
+        [t1, finite, t2, 'point_source', t3, finite, t4])
     model_1.set_magnification_methods([t1, finite, t2])
     model_2.set_magnification_methods([t3, finite, t4])
 

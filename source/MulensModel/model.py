@@ -230,7 +230,8 @@ class Model(object):
         return (mag_1, mag_2)
 
     def _magnification_2_sources(self, time, satellite_skycoord, gamma,
-                                 flux_ratio_constraint, separate, same_dataset):
+                                 flux_ratio_constraint,
+                                 separate, same_dataset):
         """
         calculate model magnification for given times for model with
         two sources
@@ -360,7 +361,7 @@ class Model(object):
             if flux_ratio_constraint is not None:
                 raise ValueError(
                     'You cannot set both flux_ratio_constraint and separate' +
-                    " parameters in Model.magnification().  This doesn't make" +
+                    " parameters in Model.magnification(). This doesn't make" +
                     'sense')
             magnification = self._magnification_2_sources(
                 time, satellite_skycoord, gamma, flux_ratio_constraint,
@@ -399,7 +400,7 @@ class Model(object):
             magnification = self.get_data_magnification(dataset)
             self._data_magnification.append(magnification)
             if (self._fit is not None and self.n_sources > 1 and
-                        None not in self._source_flux_ratio_constraint):
+                    None not in self._source_flux_ratio_constraint):
                 if fit is None:
                     fit = self._fit
                 else:
@@ -429,7 +430,7 @@ class Model(object):
         else:
             dataset_satellite_skycoord = None
 
-        if self.parameters.rho is None:
+        if not self.parameters.is_finite_source():
             gamma = 0.
         else:
             if dataset.bandpass is None:
@@ -785,7 +786,7 @@ class Model(object):
 
     def _plt_plot(self, x, y, kwargs):
         """
-        save run of matplotlib.pyplot.plot()
+        safe run of matplotlib.pyplot.plot()
         """
         try:
             plt.plot(x, y, **kwargs)
@@ -904,7 +905,7 @@ class Model(object):
                 if color_index == len(colors):
                     color_index = 0
                     msg = ('Too many datasets without colors assigned - ' +
-                        'same color will be used for different datasets')
+                           'same color will be used for different datasets')
                     warnings.warn(msg, UserWarning)
 
     def _color_differences(self, color_list, color):
@@ -1155,7 +1156,7 @@ class Model(object):
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, caustics=False, show_data=False,
-            arrow=True, satellite_skycoord=None, **kwargs):
+            arrow=True, satellite_skycoord=None, arrow_kwargs=None, **kwargs):
         """
         Plot the source trajectory.
 
@@ -1173,24 +1174,34 @@ class Model(object):
                 instead.
 
             show_data: *boolean*
-                mark epochs of data (**Not implemented**, marker types
-                should match data plotting.)
+                Mark epochs of data. Use :py:func:`plot_source_for_datasets()`
+                for more control of how data epochs are marked.
 
             arrow: *boolean*
-                show the direction of the source motion. default=True (on)
+                Show the direction of the source motion. Default is *True*.
 
             satellite_skycoord: *astropy.SkyCoord*
                 should allow user to specify the trajectory is calculated
                 for a satellite. see :py:func:`get_satellite_coords()`
+
+            arrow_kwargs: *dict*
+                Kwargs that are passed to :py:func:`pyplot.arrow()`. If no
+                color is given here, then we use one specified in ``**kwargs``
+                and if nothing is there, then we use black. The size of
+                the arrow is determined based on limits of current axis.
+                If those are not adequate, then change the size by specifying
+                *width* keyword and maybe other as well. Note that
+                *arrow_kwargs* are of *dict* type and are different than
+                ``**kwargs``.
 
             ``**kwargs``
                 Controls plotting features of the trajectory. It's passed to
                 :py:func:`pyplot.plot()`.
 
         """
-        if show_data:
-            raise NotImplementedError(
-                                "show_data option is not yet implemented")
+        if not arrow and arrow_kwargs is not None:
+            raise ValueError(
+                "arrow_kwargs can be only given if arrow is True")
 
         if times is None:
             times = self.set_times(
@@ -1202,15 +1213,16 @@ class Model(object):
             satellite_skycoord = satellite_skycoord.get_satellite_coords(times)
 
         if self.n_sources == 1:
-            self._plot_single_trajectory(times, self.parameters,
-                                         satellite_skycoord, arrow, **kwargs)
+            self._plot_single_trajectory(
+                times, self.parameters, satellite_skycoord,
+                arrow, arrow_kwargs, **kwargs)
         elif self.n_sources == 2:
             self._plot_single_trajectory(
                 times, self.parameters.source_1_parameters,
-                satellite_skycoord, arrow, **kwargs)
+                satellite_skycoord, arrow, arrow_kwargs, **kwargs)
             self._plot_single_trajectory(
                 times, self.parameters.source_2_parameters,
-                satellite_skycoord, arrow, **kwargs)
+                satellite_skycoord, arrow, arrow_kwargs, **kwargs)
         else:
             raise ValueError(
                     'Wrong number of sources: {:}'.format(self.n_sources))
@@ -1218,8 +1230,11 @@ class Model(object):
         if caustics:
             self.plot_caustics(marker='.', color='red')
 
+        if show_data:
+            self.plot_source_for_datasets()
+
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
-                                arrow, **kwargs):
+                                arrow, arrow_kwargs, **kwargs):
         """
         Plots trajectory of a single source.
         """
@@ -1236,9 +1251,17 @@ class Model(object):
             d_x = trajectory.x[index+1] - x_0
             d_y = trajectory.y[index+1] - y_0
             dd = 1e6 * (d_x*d_x + d_y*d_y)**.5
+
+            xlim = plt.xlim()
+            ylim = plt.ylim()
+            width = np.abs(xlim[1]-xlim[0]) * np.abs(ylim[1]-ylim[0])
+            width = width**.5 / 100.
+
             color = kwargs.get('color', 'black')
-            kwargs_ = {'lw': 0, 'color': color, 'width': 0.01,
+            kwargs_ = {'width': width, 'color': color, 'lw': 0,
                        'zorder': -np.inf}
+            if arrow_kwargs is not None:
+                kwargs_.update(arrow_kwargs)
             plt.arrow(x_0, y_0, d_x/dd, d_y/dd, **kwargs_)
 
     def update_caustics(self, epoch=None):
@@ -1277,6 +1300,119 @@ class Model(object):
 
         self.caustics.plot(n_points=n_points, **kwargs)
 
+    def plot_source(self, times=None, **kwargs):
+        """
+        Plot source: circles of the radius rho at positions corresponding to
+        source positions at times. When the rho is not defined, then X symbols
+        are plotted.
+
+        Parameters:
+            times: *float* or *np.ndarray*
+                epochs for which source positions will be plotted
+
+            ``**kwargs``:
+                Keyword arguments passed to matplotlib.Circle_.
+                Examples: ``color='red'``, ``fill=False``,
+                ``linewidth=3``, ``alpha=0.5``. When the rho is not defined,
+                then keyword arguments are passed to matplotlib.plot_.
+
+        .. _matplotlib.Circle:
+          https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html
+        .. _matplotlib.plot:
+          https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
+        """
+        if isinstance(times, float):
+            times = [times]
+        if isinstance(times, list):
+            times = np.array(times)
+
+        kwargs_ = {
+            'times': times, 'parallax': self._parallax, 'coords': self._coords,
+            'satellite_skycoord': self.get_satellite_coords(times)}
+
+        if self.n_sources == 1:
+            trajectory = Trajectory(parameters=self.parameters, **kwargs_)
+            self._plot_source_for_trajectory(trajectory, **kwargs)
+        elif self.n_sources == 2:
+            trajectory = Trajectory(
+                parameters=self.parameters.source_1_parameters, **kwargs_)
+            self._plot_source_for_trajectory(trajectory, **kwargs)
+            trajectory = Trajectory(
+                parameters=self.parameters.source_2_parameters, **kwargs_)
+            self._plot_source_for_trajectory(trajectory, **kwargs)
+        else:
+            raise ValueError('Wrong number of sources!')
+
+    def plot_source_for_datasets(self, **kwargs):
+        """
+        Plot source positions for all linked datasets. Colors used for
+        each dataset are the same used for plotting photometry.
+
+        Parameters:
+            ``**kwargs``:
+                see :py:func:`plot_source`
+        """
+        if 'color' in kwargs:
+            raise ValueError(
+                'Color cannot be passed to plot_source_for_datasets(). To ' +
+                'change color, just change color for given MulensData object')
+        if self.datasets is None:
+            raise ValueError(
+                'No data linked to Model, so calling ' +
+                'plot_source_for_datasets() makes no sense.')
+
+        self._set_default_colors()
+        if isinstance(self.datasets, MulensData):
+            datasets = [self.datasets]
+        else:
+            datasets = self.datasets
+
+        kwargs_ = dict(kwargs)
+        if 'fill' not in kwargs_:
+            kwargs_['fill'] = False
+
+        for data in datasets:
+            kwargs_['color'] = data.plot_properties['color']
+            self.plot_source(times=data.time, **kwargs_)
+
+    def _plot_source_for_trajectory(self, trajectory, **kwargs):
+        """
+        Internal function for plotting sources.
+        """
+        axis = plt.gca()
+
+        plot_circle = (trajectory.parameters.rho is not None)
+        if not plot_circle:
+            warnings.warn(
+                'rho is not defined, so X is used to show source positions')
+
+        if 'color' not in kwargs:
+            kwargs['color'] = 'red'
+        if 'zorder' not in kwargs:
+            kwargs['zorder'] = np.inf
+        if plot_circle and 'radius' not in kwargs:
+            kwargs['radius'] = trajectory.parameters.rho
+
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        if plot_circle and not (xlim == (0., 1.) and ylim == (0., 1.)):
+            # We've checked that default limits were changed.
+            limits = max(np.abs(xlim[1]-xlim[0]), np.abs(ylim[1]-ylim[0]))
+            if limits > 1e3 * kwargs['radius']:
+                warnings.warn(
+                    "Model.plot_source() - the source radius is much smaller" +
+                    " than the axis range (at this point). The plotted " +
+                    "source may be hard to see. To correct it you can change" +
+                    " axis range (plt.xlim() or ylim()) or plot larger " +
+                    "circle by passing *radius* via kwargs.",
+                    UserWarning)
+
+        if not plot_circle:
+            plt.plot(trajectory.x, trajectory.y, 'x', **kwargs)
+        else:
+            for (x, y) in zip(trajectory.x, trajectory.y):
+                axis.add_artist(plt.Circle((x, y), **kwargs))
+
     def set_times(
             self, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=1000):
@@ -1286,7 +1422,7 @@ class Model(object):
         For binary source models, respectively, smaller and larger of
         `t_0_1/2` values are used.
 
-        Keywords (all optional) :
+        Parameters (all optional):
             t_range: [*list*, *tuple*]
                 A range of times of the form [t_start, t_stop]
 
