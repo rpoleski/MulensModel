@@ -49,7 +49,6 @@ class Trajectory(object):
             sky coordinates of the event; required for parallax calculations
 
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
-
             sky coordinates of the satellite specified by the
             ephemerides file. See
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
