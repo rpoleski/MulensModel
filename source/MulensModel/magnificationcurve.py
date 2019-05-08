@@ -100,11 +100,11 @@ class MagnificationCurve(object):
         For point-lens with finite source, the methods named
         ``finite_source_uniform_Gould94`` and ``finite_source_LD_Yoo04``
         implement the algorithms presented by `Gould 1994 ApJ, 421L, 71
-        <http://adsabs.harvard.edu/abs/1994ApJ...421L..71G>`_ and
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_ and
         `Yoo et al. 2004 ApJ, 603, 139
-        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_ and interpolate
-        pre-computed tables when possible. Add ``_direct`` to these names to
-        force direct integration.
+        <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_ and
+        interpolate pre-computed tables when possible. Add ``_direct`` to
+        these names to force direct integration.
         """
         self._default_method = default_method
         if methods is None:
@@ -222,8 +222,8 @@ class MagnificationCurve(object):
 
             ``finite_source_uniform_Lee09``:
                 Uses the `Lee et al. 2009 ApJ, 695, 200
-                <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_ method
-                for a circular and *uniform* source. This method
+                <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+                method for a circular and *uniform* source. This method
                 works well for large sources (rho ~ 1).
 
             ``finite_source_LD_Lee09``:
@@ -317,7 +317,8 @@ class MagnificationCurve(object):
 
             ``quadrupole``:
                 From `Gould 2008 ApJ, 681, 1593
-                <http://adsabs.harvard.edu/abs/2008ApJ...681.1593G>`_. See
+                <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
+                See
                 :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
 
             ``hexadecapole``:
@@ -327,13 +328,15 @@ class MagnificationCurve(object):
             ``VBBL``:
                 Uses VBBinaryLensing (a Stokes theorem/contour
                 integration code) by Valerio Bozza (`Bozza 2010 MNRAS, 408, 2188
-                <http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B>`_). See
+                <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).
+                See
                 :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
 
             ``Adaptive_Contouring``:
                 Uses AdaptiveContouring (a Stokes theorem/contour
                 integration code) by Martin Dominik (`Dominik 2007 MNRAS, 377, 1679
-                <http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D>`_). See
+                <https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract>`_).
+                See
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
             ``point_source_point_lens``:

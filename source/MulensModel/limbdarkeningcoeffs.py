@@ -7,8 +7,8 @@ class LimbDarkeningCoeffs(object):
     can be used.  The *u* convention is more frequently used in
     studies other than microlensing.  It has fixed flux at the center.
     `An et al. 2002 (ApJ 572, 521)
-    <http://adsabs.harvard.edu/abs/2002ApJ...572..521A>`_ introduced
-    the *gamma* convention:
+    <https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract>`_
+    introduced the *gamma* convention:
 
     gamma = (2 * u) / (3 - u)
 

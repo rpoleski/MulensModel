@@ -84,11 +84,11 @@ class PointLens(object):
         calculate B_0(z) function defined in:
 
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
+        https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract
 
         Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
         Effects from a Point-Mass Lens"
-        http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
+        https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
 
         """
 
@@ -107,11 +107,11 @@ class PointLens(object):
         calculate B_1(z) function defined in:
 
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        http://adsabs.harvard.edu/abs/1994ApJ...421L..71G
+        https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract
 
         Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
         Effects from a Point-Mass Lens"
-        http://adsabs.harvard.edu/abs/2004ApJ...603..139Y
+        https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
 
         """
         if B_0 is None:
@@ -143,13 +143,13 @@ class PointLens(object):
         a *uniform* source).  The approximation was proposed by:
 
         `Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        <http://adsabs.harvard.edu/abs/1994ApJ...421L..71G>`_
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
 
         and later the integral calculation was simplified by:
 
         `Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
         Effects from a Point-Mass Lens"
-        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_
+        <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_
 
         This approach assumes rho is small (rho < 0.1). For larger sources
         use :py:func:`get_point_lens_uniform_integrated_magnification`.
@@ -204,13 +204,13 @@ class PointLens(object):
         limb darkening*. The approximation was proposed by:
 
         `Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-        <http://adsabs.harvard.edu/abs/1994ApJ...421L..71G>`_
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
 
         and later the integral calculation was simplified by:
 
         `Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
         Effects from a Point-Mass Lens"
-        <http://adsabs.harvard.edu/abs/2004ApJ...603..139Y>`_
+        <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_
 
         Parameters :
             u: *float*, *np.array*
@@ -270,7 +270,7 @@ class PointLens(object):
         `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
         Microlensing: A Precise, Easy to Implement, Fast, and Numerically
         Stable Formalism"
-        <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_
+        <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
         """
         n = 100
 
@@ -367,7 +367,7 @@ class PointLens(object):
         `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
         Microlensing: A Precise, Easy to Implement, Fast, and Numerically
         Stable Formalism"
-        <http://adsabs.harvard.edu/abs/2009ApJ...695..200L>`_
+        <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
         """
         n_theta = 90
         n_u = 1000

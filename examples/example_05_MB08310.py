@@ -2,7 +2,7 @@
 Plots data and model for MB08310 with residuals (no fitting).
 
 From `Janczak et al. 2010, ApJ 711, 731
-<http://adsabs.harvard.edu/abs/2010ApJ...711..731J>`_.
+<https://ui.adsabs.harvard.edu/abs/2010ApJ...711..731J/abstract>`_.
 
 """
 import glob

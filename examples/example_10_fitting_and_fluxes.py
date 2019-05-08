@@ -8,7 +8,7 @@ This example uses config file:
 python example_10_fitting_and_fluxes.py example_10.cfg
 
 Data from `Janczak et al. 2010, ApJ 711, 731
-<http://adsabs.harvard.edu/abs/2010ApJ...711..731J>`_.
+<https://ui.adsabs.harvard.edu/abs/2010ApJ...711..731J/abstract>`_.
 
 """
 

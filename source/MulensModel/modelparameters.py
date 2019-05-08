@@ -677,7 +677,7 @@ class ModelParameters(object):
         axis (or primary-secondary axis). Measured counterclockwise,
         i.e., according to convention advocated by
         `Skowron et al. 2011 (ApJ, 738, 87)
-        <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_,
+        <https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract>`_,
         but shifted by 180 deg.  May be
         set as a *float* --> assumes "deg" is the default unit.
         Regardless of input value, returns value in degrees.

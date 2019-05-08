@@ -24,8 +24,8 @@ We present a python package for modeling of microlensing events. The package aim
 
 ### Model conventions
 
-* Gould 2000 [http://adsabs.harvard.edu/abs/2000ApJ...542..785G](http://adsabs.harvard.edu/abs/2000ApJ...542..785G)
-* Skowron et al. 2011 [http://adsabs.harvard.edu/abs/2011ApJ...738...87S](http://adsabs.harvard.edu/abs/2011ApJ...738...87S) - appendix A
+* Gould 2000 [https://ui.adsabs.harvard.edu/abs/2000ApJ...542..785G/abstract](https://ui.adsabs.harvard.edu/abs/2000ApJ...542..785G/abstract)
+* Skowron et al. 2011 [https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract](https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract) - appendix A
 
 
 ### How do we develop the code?

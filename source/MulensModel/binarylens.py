@@ -19,7 +19,7 @@ def _try_load(path):
     return out
 
 PATH = os.path.join(os.path.dirname(MulensModel.__file__), "VBBL*.so")
-PATH = glob.glob(PATH) # XXX - checks on length
+PATH = glob.glob(PATH)  # XXX - checks on length
 if len(PATH) > 0:
     vbbl = _try_load(PATH[0])
 else:
@@ -33,8 +33,9 @@ if vbbl is None:
     vbbl = _try_load(PATH)
 _vbbl_wrapped = (vbbl is not None)
 
-PATH = os.path.join(os.path.dirname(MulensModel.__file__), "AdaptiveContouring*.so")
-PATH = glob.glob(PATH) # XXX - checks on length
+PATH = os.path.join(os.path.dirname(MulensModel.__file__),
+    "AdaptiveContouring*.so")
+PATH = glob.glob(PATH)  # XXX - checks on length
 if len(PATH) > 0:
     adaptive_contour = _try_load(PATH[0])
 else:
@@ -362,7 +363,7 @@ class BinaryLens(object):
         Magnification in hexadecapole approximation of the
         binary-lens/finite-source event - based on `Gould 2008 ApJ
         681, 1593
-        <http://adsabs.harvard.edu/abs/2008ApJ...681.1593G>`_.
+        <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
 
         For coordinate system convention see
         :py:func:`point_source_magnification()`
@@ -441,7 +442,7 @@ class BinaryLens(object):
         """
         Binary lens finite source magnification calculated using
         Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
-        <http://adsabs.harvard.edu/abs/2007MNRAS.377.1679D>`_
+        <https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract>`_
 
         See also
         `AdaptiveContouring website by Martin Dominik
@@ -531,8 +532,8 @@ class BinaryLens(object):
         Binary lens finite source magnification calculated using VBBL
         library that implements advanced contour integration algorithm
         presented by `Bozza 2010 MNRAS, 408, 2188
-        <http://adsabs.harvard.edu/abs/2010MNRAS.408.2188B>`_. See
-        also `VBBL website by Valerio Bozza
+        <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_.
+        See also `VBBL website by Valerio Bozza
         <http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm>`_.
 
         For coordinate system convention see

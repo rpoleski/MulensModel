@@ -14,7 +14,7 @@
 * in modelparameters.py in first 3 functions, what should be names of models (like PSPL, FSBL) for 2 sources where 1 or 2 of them are finite etc.?
 * Decide on how to request single source output in double source models and then use it consistently in all plotting functions, magnification functions etc.
 * t\_0\_par and t\_0\_kep - Jen suggests t\_0\_1 as most obvious choice
-* check 2L2S models [reference](http://adsabs.harvard.edu/abs/2018AJ....155..141B)
+* check 2L2S models [reference](https://ui.adsabs.harvard.edu/abs/2018AJ....155..141B/abstract)
 * ModelParameters - How to forbid changing "child" properties in ModelParameters by the user? - re-define dict class?
 * when finding q\_f via regression, how we can get q\_f value? **important**
 * We would like to plot e.g. A\_1/(1+q\_f) or A\_1 etc. - how to access these quantities?
@@ -53,7 +53,7 @@ Things related to binary source that we'll do in future:
 * binary-lens/binary-source models
 * there may be different limb darkening coeffs for each source - this would affect MulensData
 * three sources? We already had to consider them to fully analyze events that turn out to be 2L2S or 3L1S
-* different t\_E (and alpha in the case of binary lens) for each source - see [Han+17 on ob160263](http://adsabs.harvard.edu/abs/2017AJ....154..133H) and [Bennett+18 on mb10117](http://adsabs.harvard.edu/abs/2018AJ....155..141B)
+* different t\_E (and alpha in the case of binary lens) for each source - see [Han+17 on ob160263](https://ui.adsabs.harvard.edu/abs/2017AJ....154..133H/abstract) and [Bennett+18 on mb10117](https://ui.adsabs.harvard.edu/abs/2018AJ....155..141B/abstract)
 * it would be nice to have a plotting function that plots combined model, but also A1\*F\_S1+F\_B and A2\*F\_S2+F\_B, so that we can well see the contribution of each source
 * if there are different datasets in the same filter, then there is a function that makes flux ratio very similar (or exactly the same) and fitted via regression
 

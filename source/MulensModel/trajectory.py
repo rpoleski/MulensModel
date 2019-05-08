@@ -23,7 +23,7 @@ class Trajectory(object):
 
     This class follows the conventions defined in Appendix A of
     `Skowron et al. (2011)
-    <http://adsabs.harvard.edu/abs/2011ApJ...738...87S>`_
+    <https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract>`_
     except the definition of *alpha*, which is shifted by 180 deg.
 
     Arguments :

@@ -51,7 +51,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * _Event Arguments docstring_
   * make sure that website shows correct version of MM
   * note that we're not checking for negative source or blending flux
-  * change all ADS links in code and documentation to new version, e.g., https://ui.adsabs.harvard.edu//#abs/2009ApJ...695..970D/
+  * change all ADS links in code and documentation to new version, e.g., https://ui.adsabs.harvard.edu/abs/2009ApJ...695..970D/abstract
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * _extract flux ratio for binary source models when fluxes are fitted via regression_
@@ -68,21 +68,21 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * **Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that**
   * _triple lens - use cases, point source, hexadecapole..._
   * Finite Source
-    * FSPL with low magnification - do [Witt & Mao 94](http://adsabs.harvard.edu/abs/1994ApJ...430..505W) or [Witt 95](http://adsabs.harvard.edu/abs/1995ApJ...449...42W) give the right formulas?
+    * FSPL with low magnification - do [Witt & Mao 94](https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract) or [Witt 95](https://ui.adsabs.harvard.edu/abs/1995ApJ...449...42W/abstract) give the right formulas?
     * FSPL ray shooting (ala getmag\_rs\_single.f)
     * Yoo+04 full formalism 
     * get gamma/u LD coeffs from Claret papers etc.
-    * [Lee+09](http://adsabs.harvard.edu/abs/2009ApJ...695..200L) - gradient calculations for uniform source, also faster calculations
+    * [Lee+09](https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract) - gradient calculations for uniform source, also faster calculations
   * Xallarap (see below for references)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
     * mapmaking version which adds new rays as needed (but remember that it runs for fixed (s,q) only!)
     * Yossi's idea to find all the images
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
-  * calculate jerk parallax degeneracy: [Park+04](http://adsabs.harvard.edu/abs/2004ApJ...609..166P) [Gould 04](http://adsabs.harvard.edu/abs/2004ApJ...606..319G)  
+  * calculate jerk parallax degeneracy: [Park+04](https://ui.adsabs.harvard.edu/abs/2004ApJ...609..166P/abstract) [Gould 04](https://ui.adsabs.harvard.edu/abs/2004ApJ...606..319G/abstract)  
   * topocentric/Earth parallax
   * Chang-Refsdal binary calculations
-  * elliptical source magnification [Heyrovsky & Loeb 1997](http://adsabs.harvard.edu/abs/1997ApJ...490...38H)
+  * elliptical source magnification [Heyrovsky & Loeb 1997](https://ui.adsabs.harvard.edu/abs/1997ApJ...490...38H/abstract)
   * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
   * fit\_blending for only some of the datasets
   * _wrapper for ESPLMag2 from VBBL_
@@ -91,27 +91,27 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * Cassan 2010 - Eq. 23, 24 and 25 - multiply s_in,s_out so that prior is uniform in (alpha,u0)
     * option to change scaling (from [0,1] to C08 params) to work well near topology change
     * test repr in ModelParameters for Cassan08 parameters
-  * [Albrow et al. 1999](http://adsabs.harvard.edu/abs/1999ApJ...522.1022A) (also Cassan 2008 Sec. 5)
-  * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](http://adsabs.harvard.edu/abs/2012ApJ...755..102Y), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
-  * caustic size w [Dong+09](http://adsabs.harvard.edu/abs/2009ApJ...698.1826D) refers to [Chung+05](http://adsabs.harvard.edu/abs/2005ApJ...630..535C)
-  * check if new parameters are defined here: [Liebig, D'Ago, Bozza, and Dominik 2015](http://adsabs.harvard.edu/abs/2015MNRAS.450.1565L)
-  * [Heyrovsky 2003](http://adsabs.harvard.edu/abs/2003ApJ...594..464H) parametrization of limb-darkening
+  * [Albrow et al. 1999](https://ui.adsabs.harvard.edu/abs/1999ApJ...522.1022A/abstract) (also Cassan 2008 Sec. 5)
+  * t\_eff as a parameter - see [Andy's paper](https://arxiv.org/abs/1312.6692) and maybe also other from [Jen's 2012 paper](https://ui.adsabs.harvard.edu/abs/2012ApJ...755..102Y/abstract), i.e., f\_lim=f\_s/u\_0 and q\*t\_E
+  * caustic size w [Dong+09](https://ui.adsabs.harvard.edu/abs/2009ApJ...698.1826D/abstract) refers to [Chung+05](https://ui.adsabs.harvard.edu/abs/2005ApJ...630..535C/abstract)
+  * check if new parameters are defined here: [Liebig, D'Ago, Bozza, and Dominik 2015](https://ui.adsabs.harvard.edu/abs/2015MNRAS.450.1565L/abstract)
+  * [Heyrovsky 2003](https://ui.adsabs.harvard.edu/abs/2003ApJ...594..464H/abstract) parametrization of limb-darkening
   * t\_0\_planet, u\_0\_planet, t\_E\_planet instead of s, q, alpha
-  * [Dominik 2009](http://adsabs.harvard.edu/abs/2009MNRAS.393..816D) for PSPL
-  * [Jung+17](http://adsabs.harvard.edu/abs/2017AJ....153..129J) - rotating triple lens - somehow special version of xallarap
+  * [Dominik 2009](https://ui.adsabs.harvard.edu/abs/2009MNRAS.393..816D/abstract) for PSPL
+  * [Jung+17](https://ui.adsabs.harvard.edu/abs/2017AJ....153..129J/abstract) - rotating triple lens - somehow special version of xallarap
 * Function Improvements/Expansion:
   * BinaryLens class:
     * _are we using VBBL with improvements from 2018 paper?_
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
     * topology of caustics based on (s,q) - already is inside the Cassan+08 calculations, mostly needs use case
-    * central and planetary caustic properties: [Chung et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...630..535C) and [Han 2006](http://adsabs.harvard.edu/abs/2006ApJ...638.1080H)
+    * central and planetary caustic properties: [Chung et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...630..535C/abstract) and [Han 2006](https://ui.adsabs.harvard.edu/abs/2006ApJ...638.1080H/abstract)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
-    * faster hexadecapole using [Cassan 2017](http://adsabs.harvard.edu/abs/2017MNRAS.468.3993C) ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
+    * faster hexadecapole using [Cassan 2017](https://ui.adsabs.harvard.edu/abs/2017MNRAS.468.3993C/abstract) ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
     * _VBBL2.0 - are we using accuracy limit as default? If so then we should switch to relative accuracy_
   * Caustics class:
     * Caustics.\_calculate - optimize using vectors instead of a loop
-    * _Caustics calculations using [Erdl & Schneider 1993](http://adsabs.harvard.edu/abs/1993A%26A...268..453E) approach; there is also [Asada 2002](http://adsabs.harvard.edu/abs/2002A%26A...390L..11A) and I don't know if it makes sense to code that one as well_
+    * _Caustics calculations using [Erdl & Schneider 1993](https://ui.adsabs.harvard.edu/abs/1993A%26A...268..453E/abstract) approach; there is also [Asada 2002](https://ui.adsabs.harvard.edu/abs/2002A%26A...390L..11A/abstract) and I don't know if it makes sense to code that one as well_
     * root solver can be used the same as in binarylens.py - not needed for binary lens and Erdl & Schneider 1993
     * smaller points
   * Event class:
@@ -131,7 +131,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * get\_ref\_fluxes() - add fit\_blending=False option (also in Model)
     * change order to improve the website
     * for consistency, it would be good to combine get\_chi2\_for\_dataset() and get\_chi2\_per\_point()
-    * other likelihoods, e.g., [Dominik+18](https://arxiv.org/abs/1808.03149), [ARTEMiS](http://adsabs.harvard.edu/abs/2008AN....329..248D), SIGNALMEN, [RoboTAP](http://adsabs.harvard.edu/abs/2018A%26A...609A..55H)
+    * other likelihoods, e.g., [Dominik+18](https://arxiv.org/abs/1808.03149), [ARTEMiS](https://ui.adsabs.harvard.edu/abs/2008AN....329..248D/abstract), SIGNALMEN, [RoboTAP](https://ui.adsabs.harvard.edu/abs/2018A%26A...609A..55H/abstract)
     * function that calculates cumulative chi2 so that it can be plotted easier
     * Binary source - see optimization comment at begin of Event.get\_chi2\_for\_dataset()
     * plot cumulative chi2 difference between 2 models - magnification and magnitude spaces
@@ -231,7 +231,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * _F\_s for MOA data for MB08310 differs from Janczak paper - is it caused by FSPL vs. FSBL models?_
     * add example that shows 'log\_' in the name of the parameter; central caustic anomaly planet would be best,
     * add illustration on how to remove airmass trends
-    * add example of fitting PSPL model using [Albrow (2004)](http://adsabs.harvard.edu/abs/2004ApJ...607..821A) method [link](https://github.com/MichaelDAlbrow/SingleLensFitter/blob/master/SingleLensFitter.py)
+    * add example of fitting PSPL model using [Albrow (2004)](https://ui.adsabs.harvard.edu/abs/2004ApJ...607..821A/abstract) method [link](https://github.com/MichaelDAlbrow/SingleLensFitter/blob/master/SingleLensFitter.py)
     * plotting - sharex where possible
     * note in PSPL tutorial about plotting data in MulensData
     * add example that after calling Event.get\_chi2() use Event.fit to get e.g. magnifications so that the magnification is not calculated twice
@@ -240,7 +240,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
     * guessing parameters of PSPL model ([Kim+17](https://arxiv.org/abs/1703.06883) as an example)
-    * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](http://adsabs.harvard.edu/abs/2014ApJ...790..142Y)
+    * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](https://ui.adsabs.harvard.edu/abs/2014ApJ...790..142Y/abstract)
     * anything from use cases that does not work yet -- see TODO.md file
     * comments at begin of each use case and example
     * interaction with fitting routines - see [list of them](https://arxiv.org/abs/1711.03329)
@@ -267,22 +267,22 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
 
 ### Xallarap references:
 
-[Griest & Hu 1992](http://adsabs.harvard.edu/abs/1992ApJ...397..362G),
-[Han & Gould 1997](http://adsabs.harvard.edu/abs/1997ApJ...480..196H),
-[Dominik 1998](http://adsabs.harvard.edu/abs/1998A%26A...329..361D),
-[Ghosh et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...615..450G),
-[Jiang et al. 2004](http://adsabs.harvard.edu/abs/2004ApJ...617.1307J)
-[Dong et al. 2009](http://adsabs.harvard.edu/abs/2009ApJ...695..970D)
+[Griest & Hu 1992](https://ui.adsabs.harvard.edu/abs/1992ApJ...397..362G/abstract),
+[Han & Gould 1997](https://ui.adsabs.harvard.edu/abs/1997ApJ...480..196H/abstract),
+[Dominik 1998](https://ui.adsabs.harvard.edu/abs/1998A%26A...329..361D/abstract),
+[Ghosh et al. 2004](https://ui.adsabs.harvard.edu/abs/2004ApJ...615..450G/abstract),
+[Jiang et al. 2004](https://ui.adsabs.harvard.edu/abs/2004ApJ...617.1307J/abstract)
+[Dong et al. 2009](https://ui.adsabs.harvard.edu/abs/2009ApJ...695..970D/abstract)
 
-ob9919 - [Smith et al. 2002](http://adsabs.harvard.edu/abs/2002MNRAS.336..670S)
+ob9919 - [Smith et al. 2002](https://ui.adsabs.harvard.edu/abs/2002MNRAS.336..670S/abstract)
 
-[Poindexter et al. 2005](http://adsabs.harvard.edu/abs/2005ApJ...633..914P) - 23% of events are affected by xallarap
+[Poindexter et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...633..914P/abstract) - 23% of events are affected by xallarap
 
-ob07514 - [Miyake+12](http://adsabs.harvard.edu/abs/2012ApJ...752...82M)
+ob07514 - [Miyake+12](https://ui.adsabs.harvard.edu/abs/2012ApJ...752...82M/abstract)
 
-ob07368 - [Sumi et al. 2010](http://adsabs.harvard.edu/abs/2010ApJ...710.1641S) and [Suzuki et al. 2016](http://adsabs.harvard.edu/abs/2016ApJ...833..145S)
+ob07368 - [Sumi et al. 2010](https://ui.adsabs.harvard.edu/abs/2010ApJ...710.1641S/abstract) and [Suzuki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...833..145S/abstract)
 
-mb10328 - [Furusawa et al. 2013](http://adsabs.harvard.edu/abs/2013ApJ...779...91F)
+mb10328 - [Furusawa et al. 2013](https://ui.adsabs.harvard.edu/abs/2013ApJ...779...91F/abstract)
 
 ob150845 = mb15277 - Calen leads
 

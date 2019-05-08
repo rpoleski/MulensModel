@@ -9,8 +9,8 @@ later.
 
 We need some data to fit. Let's look at some long-timescale event from 
 `Wyrzykowski et al. (2015) 
-<http://adsabs.harvard.edu/abs/2015ApJS..216...12W>`_. As an example 
-we can take event with ID 3291 (star BLG234.6.I.218982; also named 
+<https://ui.adsabs.harvard.edu/abs/2015ApJS..216...12W/abstract>`_. As an 
+example we can take event with ID 3291 (star BLG234.6.I.218982; also named 
 OGLE-2005-BLG-086 on `OGLE EWS website
 <http://ogle.astrouw.edu.pl/ogle4/ews/ews.html>`_). We can look at the plot of
 model without parallax: `here 

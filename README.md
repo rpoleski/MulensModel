@@ -42,7 +42,7 @@ Currently, MulensModel supports:
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues) or send us an e-mail. 
 
-Are you using MulensModel for scientific research? Please give us credit by citing the [paper published in "Astronomy and Computing"](http://adsabs.harvard.edu/abs/2019A%26C....26...35P) and [ASCL reference](http://ascl.net/1803.006). For arXiv see [link](https://arxiv.org/abs/1803.01003).
+Are you using MulensModel for scientific research? Please give us credit by citing the [paper published in "Astronomy and Computing"](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract) and [ASCL reference](http://ascl.net/1803.006). For arXiv see [link](https://arxiv.org/abs/1803.01003).
 
 ## How to install?
 

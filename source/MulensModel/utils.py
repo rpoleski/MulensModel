@@ -87,7 +87,7 @@ class Utils(object):
 
     # The two functions below implement convention introduced by:
     # An et al. 2002 (ApJ 572, 521)
-    # http://adsabs.harvard.edu/abs/2002ApJ...572..521A
+    # https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract
     def gamma_to_u(gamma):
         """ transform gamma limb darkening coefficient to u """
         return 3. * gamma / (2. + gamma)
