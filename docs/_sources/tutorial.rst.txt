@@ -17,7 +17,7 @@ of your codes and be advised that we don't guarantee that everything will work.
 
 This example shows OGLE-2003-BLG-235/MOA-2003-BLG-53, the first
 microlensing planet. See `Bond et al. (2004) 
-<http://adsabs.harvard.edu/abs/2004ApJ...606L.155B>`_.
+<https://ui.adsabs.harvard.edu/abs/2004ApJ...606L.155B/abstract>`_.
 The data were downloaded from the `NASA Exoplanet Archive
 <https://exoplanetarchive.ipac.caltech.edu/cgi-bin/DisplayOverview/nph-DisplayOverview?objname=OGLE-2003-BLG-235L+b&type=CONFIRMED_PLANET>`_.
 
