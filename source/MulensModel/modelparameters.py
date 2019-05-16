@@ -224,10 +224,22 @@ class ModelParameters(object):
         """How many sources there are?"""
         binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
                          't_star_1', 't_star_2']
-        if len(set(binary_params).intersection(set(keys))) > 0:
-            self._n_sources = 2
-        else:
+        common = set(binary_params).intersection(set(keys))
+        if len(common) == 0:
             self._n_sources = 1
+        elif len(common) == 1:
+            raise ValueError('Wrong parameters - the only binary source ' +
+                             'parameter is {:}'.format(common))
+        else:
+            common_no_1_2 = {param[:-2] for param in common}
+            condition_1 = (len(common_no_1_2) == len(common))
+            condition_2 = not (
+                'rho' in common_no_1_2 and 't_star' in common_no_1_2)
+            if condition_1 and condition_2:
+                raise ValueError(
+                    'Given binary source parameters do not allow defining ' +
+                    'the Model: {:}'.format(common))
+            self._n_sources = 2
 
     def _divide_parameters(self, parameters):
         """
@@ -338,7 +350,7 @@ class ModelParameters(object):
         """
         Here we check parameters for non-Cassan08 parameterization.
         """
-        # Make sure that minimum set of parameters are defined - we need 
+        # Make sure that minimum set of parameters are defined - we need
         # to know t_0, u_0, and t_E.
         if 't_0' not in keys:
             raise KeyError('t_0 must be defined')
@@ -416,7 +428,6 @@ class ModelParameters(object):
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
 
-
     def _check_valid_combination_1_source_Cassan08(self, keys):
         """
         Check parameters defined for Cassan 2008 parameterization.
@@ -467,7 +478,9 @@ class ModelParameters(object):
             msg += 'Unrecognized parameters: {:}'.format(difference)
             raise KeyError(msg)
 
-        # There are 2 types of models: standard and Cassan08 (no t_0, u_0, t_E, alpha)
+        # There are 2 types of models:
+        # - standard
+        # - Cassan08 (no t_0, u_0, t_E, alpha)
         self._Cassan08 = False
         Cassan08_parameters = [
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out']
@@ -496,9 +509,17 @@ class ModelParameters(object):
                     raise ValueError("{:} cannot be negative: {:}".format(
                             full_names[name], parameters[name]))
 
+        for (key, value) in parameters.items():
+            if key == 'pi_E':
+                continue
+            check = (not np.isscalar(value) or isinstance(value, str))
+            if not isinstance(value, u.Quantity) and check:
+                msg = "{:} must be a scalar: {:}, {:}"
+                raise TypeError(msg.format(key, value, type(value)))
+
     def _set_parameters(self, parameters):
         """
-        check if patameter values make sense and remember the copy of the dict
+        check if parameter values make sense and remember the copy of the dict
         """
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
