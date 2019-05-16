@@ -1,19 +1,18 @@
 ## Feb goals:
+8. Cassan 2008 parametrization
+2. small q calculations corrected
 1. improve documentation:
-    * _ephemerides files - note distinction between Model and MulensData_ - DONE
     * _example for using satellite data_
-    * _ephemerides files - suggest longer time frame for these for nicer plots etc._ - DONE
     * examples order change 01 <-> 02
     * clean-up after hack session
     * file with list of examples
-2. MacOS installation comments:
-    * make file with notes (ValueError: '< P' is not a valid PEP 3118 buffer format string) - \_vbbl\_SG12\_5() in binarylens.py (add simple try/except)
-    * link https://stackoverflow.com/questions/52509602/cant-compile-c-program-on-a-mac-after-upgrade-to-mojave
-    * link https://github.com/orgs/ulens-hack/teams/testing-algorithms-on-mb07192
-3. Model.plot\_source() - UC29 (also arrow plotting improved)
+    * note 1:1 scale for plotting trajectory
+    * note conversion of parameters: Valerio's +/-180 deg in alpha
+    * README.md in AdaptiveContouring
 7. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
-8. Cassan 2008 parametrization
 9. _0-sized arrays by Calen - search for float and np.ndarray in docstrings_
+6. XXX in binarylens.py
+5. finish branch bs3
 
 
 ## Specific tasks to be performed
@@ -48,7 +47,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * try removing Attributes from docstrings - just make short @property functions
   * add a note that pi_E is "geocentric" (and "heliocentric" has the same length of vector but is rotated)
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
-  * _Event Arguments docstring_
   * make sure that website shows correct version of MM
   * note that we're not checking for negative source or blending flux
   * change all ADS links in code and documentation to new version, e.g., https://ui.adsabs.harvard.edu/abs/2009ApJ...695..970D/abstract
@@ -117,9 +115,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Event class:
     * **Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter); also think how it will work for binary sources**
     * **give access to all fluxes without changing data\_ref**
-    * _get\_chi2\_for\_dataset() - it was working before bs2 was merged_
     * **plot magnitude difference between 2 models for residuals plot**
-
     * Event should sync information on which of the 3 types of parallax are used, so that if it's specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification.
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
     * reduce calls to Fit.fit\_fluxes()
@@ -153,7 +149,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * implement triple+ systems  
   * MagnificationCurve class:
     * re-write magnification() to use lazy loading (here or in model.py)
-    * _docstrings: get\_point\_lens\_magnification() - correct Gould-> Yoo references AND add references to Valerio and Martin's papers in get\_binary\_lens\_magnification()_
   * Model class:
     * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
     * **plot\_lc() - add satellite option like in plot\_magnification(), other options as well - use keywords passed to self.magnification()**
@@ -200,7 +195,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * PointLens class:
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
     * 1+2/u^4 approximation for very large u
-    * improve the b0b1 tables so that relative interpolation errors are below 1e-5
   * SatelliteSkyCoord class:
     * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
   * Trajectory class:
