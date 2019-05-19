@@ -290,10 +290,10 @@ class ModelParameters(object):
             'dalpha_dt': {
                 'width': 18, 'precision': 5, 'unit': 'deg/yr',
                 'name': 'dalpha/dt'},
-            'x_caustic_in': {'width': 9, 'precision': 7},
-            'x_caustic_out': {'width': 9, 'precision': 7},
-            't_caustic_in': {'width': 13, 'precision': 5, 'unit': 'HJD'},
-            't_caustic_out': {'width': 13, 'precision': 5, 'unit': 'HJD'},
+            'x_caustic_in': {'width': 13, 'precision': 7},
+            'x_caustic_out': {'width': 13, 'precision': 7},
+            't_caustic_in': {'width': 19, 'precision': 5, 'unit': 'HJD'},
+            't_caustic_out': {'width': 19, 'precision': 5, 'unit': 'HJD'},
         }
         # Add binary source parameters with the same settings.
         binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
@@ -447,7 +447,8 @@ class ModelParameters(object):
         allowed_keys = set(parameters + ['rho', 't_star'])
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
-            msg += 'Unrecognized parameters: {:}'.format(difference)
+            msg = 'Parameters not allow in Cassan (2008) parameterization '
+            msg += '(at this point): {:}'.format(difference)
             raise KeyError(msg)
 
         # Source size cannot be over-defined.
@@ -516,6 +517,12 @@ class ModelParameters(object):
             if not isinstance(value, u.Quantity) and check:
                 msg = "{:} must be a scalar: {:}, {:}"
                 raise TypeError(msg.format(key, value, type(value)))
+
+        for name in ['x_caustic_in', 'x_caustic_out']:
+            if name in parameters.keys():
+                if parameters[name] < 0. or parameters[name] > 1.:
+                    msg = "{:} has to be in (0, 1) range, not {:}"
+                    raise ValueError(msg.format(name, parameters[name]))
 
     def _set_parameters(self, parameters):
         """
@@ -908,6 +915,64 @@ class ModelParameters(object):
         else:
             raise KeyError('pi_E not defined for this model')
         return np.sqrt(pi_E_N**2 + pi_E_E**2)
+
+    @property
+    def x_caustic_in(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['x_caustic_in']
+
+    @x_caustic_in.setter
+    def x_caustic_in(self, new_value):
+        if new_value < 0. or new_value > 1.:
+            msg = "x_caustic_in must be between 0 and 1, not {:}"
+            raise ValueError(msg.format(new_value))
+        self.parameters['x_caustic_in'] = new_value
+
+    @property
+    def x_caustic_out(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['x_caustic_out']
+
+    @x_caustic_out.setter
+    def x_caustic_out(self, new_value):
+        if new_value < 0. or new_value > 1.:
+            msg = "x_caustic_out must be between 0 and 1, not {:}"
+            raise ValueError(msg.format(new_value))
+        self.parameters['x_caustic_out'] = new_value
+
+    @property
+    def t_caustic_in(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['t_caustic_in']
+
+    @t_caustic_in.setter
+    def t_caustic_in(self, new_value):
+        self.parameters['t_caustic_in'] = new_value
+
+    @property
+    def t_caustic_out(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['t_caustic_out']
+
+    @t_caustic_out.setter
+    def t_caustic_out(self, new_value):
+        self.parameters['t_caustic_out'] = new_value
 
     @property
     def ds_dt(self):
