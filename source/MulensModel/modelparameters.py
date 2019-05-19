@@ -2,6 +2,8 @@ from astropy import units as u
 import numpy as np
 import warnings
 
+from MulensModel.uniformcausticsampling import UniformCausticSampling
+
 
 # For definition of class ModelParameters see below.
 
@@ -206,11 +208,16 @@ class ModelParameters(object):
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
+            if self._Cassan08:
+                self._uniform_caustic = None
+                self._standard_parameters = None
         elif self.n_sources == 2:
+            self._Cassan08 = False
             self._check_valid_combination_2_sources(parameters.keys())
             if 't_E' not in parameters.keys():
                 raise KeyError('Currently, the binary source calculations ' +
-                               'require t_E to be directly defined')
+                               'require t_E to be directly defined, i.e., ' +
+                               'has to be the same for both sources.')
             (params_1, params_2) = self._divide_parameters(parameters)
             self._source_1_parameters = ModelParameters(params_1)
             self._source_2_parameters = ModelParameters(params_2)
@@ -544,6 +551,27 @@ class ModelParameters(object):
         if parameter in self._source_2_parameters.parameters:
             setattr(self._source_2_parameters, parameter, value)
 
+    def _get_standard_parameters_from_Cassan08(self):
+        """
+        Calculate these parameters:
+        t_0 u_0 t_E alpha
+        based on:
+        x_caustic_in x_caustic_out t_caustic_in t_caustic_out
+        using transformation that depends on:
+        s q
+        """
+        sq_changed = (self.s != self._uniform_caustic.s or
+                      self.q != self._uniform_caustic.q)
+        if self._uniform_caustic is None or sq_changed:
+            self._uniform_caustic = UniformCausticSampling(s=self.s, q=self.q)
+            self._standard_parameters = None
+        if self._standard_parameters is None:
+            keys = ['x_caustic_in', 'x_caustic_out',
+                    't_caustic_in', 't_caustic_out']
+            kwargs = {key: self.parameters[key] for key in keys}
+            self._standard_parameters = (
+                self._uniform_caustic.get_standard_parameters(**kwargs))
+
     @property
     def t_0(self):
         """
@@ -552,6 +580,9 @@ class ModelParameters(object):
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
+        if self._Cassan08:
+            self._get_standard_parameters_from_Cassan08()
+            return self._standard_parameters['t_0']
         return self.parameters['t_0']
 
     @t_0.setter
@@ -567,6 +598,9 @@ class ModelParameters(object):
         The minimum projected separation between the source
         and the lens center of mass.
         """
+        if self._Cassan08:
+            self._get_standard_parameters_from_Cassan08()
+            return self._standard_parameters['u_0']
         if 'u_0' in self.parameters.keys():
             return self.parameters['u_0']
         else:
@@ -658,6 +692,9 @@ class ModelParameters(object):
         *float* or *astropy.Quantity*, but always returns *float* in units of
         days.
         """
+        if self._Cassan08:
+            self._get_standard_parameters_from_Cassan08()
+            return self._standard_parameters['t_E']
         if 't_E' in self.parameters.keys():
             self._check_time_quantity('t_E')
             return self.parameters['t_E'].to(u.day).value
@@ -739,9 +776,12 @@ class ModelParameters(object):
         set as a *float* --> assumes "deg" is the default unit.
         Regardless of input value, returns value in degrees.
         """
+        if self._Cassan08:
+            self._get_standard_parameters_from_Cassan08()
+            return self._standard_parameters['alpha']
+
         if not isinstance(self.parameters['alpha'], u.Quantity):
             self.parameters['alpha'] = self.parameters['alpha'] * u.deg
-
         return self.parameters['alpha'].to(u.deg)
 
     @alpha.setter
@@ -930,6 +970,7 @@ class ModelParameters(object):
         if new_value < 0. or new_value > 1.:
             msg = "x_caustic_in must be between 0 and 1, not {:}"
             raise ValueError(msg.format(new_value))
+        self._standard_parameters = None
         self.parameters['x_caustic_in'] = new_value
 
     @property
@@ -946,6 +987,7 @@ class ModelParameters(object):
         if new_value < 0. or new_value > 1.:
             msg = "x_caustic_out must be between 0 and 1, not {:}"
             raise ValueError(msg.format(new_value))
+        self._standard_parameters = None
         self.parameters['x_caustic_out'] = new_value
 
     @property
@@ -959,6 +1001,7 @@ class ModelParameters(object):
 
     @t_caustic_in.setter
     def t_caustic_in(self, new_value):
+        self._standard_parameters = None
         self.parameters['t_caustic_in'] = new_value
 
     @property
@@ -972,6 +1015,7 @@ class ModelParameters(object):
 
     @t_caustic_out.setter
     def t_caustic_out(self, new_value):
+        self._standard_parameters = None
         self.parameters['t_caustic_out'] = new_value
 
     @property
