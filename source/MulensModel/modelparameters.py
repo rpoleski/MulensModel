@@ -560,9 +560,10 @@ class ModelParameters(object):
         using transformation that depends on:
         s q
         """
-        sq_changed = (self.s != self._uniform_caustic.s or
-                      self.q != self._uniform_caustic.q)
-        if self._uniform_caustic is None or sq_changed:
+        recalculate = (self._uniform_caustic is None or
+                       self.s != self._uniform_caustic.s or
+                       self.q != self._uniform_caustic.q)
+        if recalculate:
             self._uniform_caustic = UniformCausticSampling(s=self.s, q=self.q)
             self._standard_parameters = None
         if self._standard_parameters is None:
