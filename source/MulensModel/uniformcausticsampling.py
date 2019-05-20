@@ -61,7 +61,8 @@ class UniformCausticSampling(object):
 
     def _find_inflections_and_correct(self):
         """
-        XXX
+        Find inflection points of s(phi). In the case of close configuration
+        also correct the phase of planetary caustic.
         """
         indexes = self._get_indexes_of_inflection_points(self._sum_1)
         self._inflections_fractions = {1: [float(i)/self._n_points for i in indexes]}
@@ -278,7 +279,26 @@ class UniformCausticSampling(object):
         """
         Get standard binary lens parameters (i.e., t_0, u_0, t_E, alpha)
         based on provided parameters.
-        XXX
+
+        Keywords :
+            x_caustic_in: *float*
+                Curvelinear coordinate of caustic entrance.
+                Must be in (0, 1) range.
+
+            x_caustic_out: *float*
+                Curvelinear coordinate of caustic exit.
+                Must be in (0, 1) range.
+
+            t_caustic_in: *float*
+                Epoch of caustic entrance.
+
+            t_caustic_out: *float*
+                Epoch of caustic exit.
+
+        Returns :
+            parameters: *dict*
+                Dictionary with standard binary parameters, i.e, keys are
+                ``t_0``, ``u_0``, ``t_E``, and ``alpha``.
         """
         caustic_in = self.which_caustic(x_caustic_in)
         caustic_out = self.which_caustic(x_caustic_out)
@@ -371,11 +391,22 @@ class UniformCausticSampling(object):
 
     def which_caustic(self, x_caustic):
         """
-        XXX
-        Returns (int):
-        1 - central
-        2 - planetary (upper for close configuration)
-        3 - planetary (lower)
+        Indicates on which caustic given point is.
+
+        Keywords :
+            x_caustic: *float*
+                Curvelinear coordinate to be checked
+
+        Returns :
+            i_caustic: *int*
+                Number indicating the caustic:
+
+                ``1`` - central caustic,
+
+                ``2`` - planetary caustic; for close configuration it is
+                the upper of the two planetary caustics,
+
+                ``3`` - lower planetary caustic.
         """
         if x_caustic > 1.:
             raise ValueError('Got x_caustic > 1 : {:}'.format(x_caustic))
