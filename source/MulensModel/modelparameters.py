@@ -633,6 +633,8 @@ class ModelParameters(object):
         if 't_star' in self.parameters.keys():
             self._check_time_quantity('t_star')
             return self.parameters['t_star'].to(u.day).value
+        elif ('rho' in self.parameters.keys() and self._Cassan08):
+            return self.rho * self.t_E
         else:
             try:
                 return (self.parameters['t_E'].to(u.day).value *
@@ -750,7 +752,9 @@ class ModelParameters(object):
             return self.parameters['rho']
         elif ('t_star' in self.parameters.keys() and
               't_E' in self.parameters.keys()):
-            return self.t_star/self.t_E
+            return self.t_star / self.t_E
+        elif ('t_star' in self.parameters.keys() and self._Cassan08):
+            return self.t_star / self.t_E
         else:
             return None
 
@@ -779,7 +783,7 @@ class ModelParameters(object):
         """
         if self._Cassan08:
             self._get_standard_parameters_from_Cassan08()
-            return self._standard_parameters['alpha']
+            return self._standard_parameters['alpha'] * u.deg
 
         if not isinstance(self.parameters['alpha'], u.Quantity):
             self.parameters['alpha'] = self.parameters['alpha'] * u.deg
