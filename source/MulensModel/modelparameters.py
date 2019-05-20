@@ -551,6 +551,23 @@ class ModelParameters(object):
         if parameter in self._source_2_parameters.parameters:
             setattr(self._source_2_parameters, parameter, value)
 
+    def _set_time_quantity(self, key, new_time):
+        """
+        Save a variable with units of time (e.g. t_E, t_star,
+        t_eff). If units are not given, assume days.
+        """
+        if isinstance(new_time, u.Quantity):
+            self.parameters[key] = new_time
+        else:
+            self.parameters[key] = new_time * u.day
+
+    def _check_time_quantity(self, key):
+        """
+        Make sure that value for give key has quantity, add it if missing.
+        """
+        if not isinstance(self.parameters[key], u.Quantity):
+            self._set_time_quantity(key, self.parameters[key])
+
     def _get_standard_parameters_from_Cassan08(self):
         """
         Calculate these parameters:
@@ -723,23 +740,6 @@ class ModelParameters(object):
             self._update_sources('t_E', new_t_E)
         else:
             raise KeyError('t_E is not a parameter of this model.')
-
-    def _set_time_quantity(self, key, new_time):
-        """
-        Save a variable with units of time (e.g. t_E, t_star,
-        t_eff). If units are not given, assume days.
-        """
-        if isinstance(new_time, u.Quantity):
-            self.parameters[key] = new_time
-        else:
-            self.parameters[key] = new_time * u.day
-
-    def _check_time_quantity(self, key):
-        """
-        Make sure that value for give key has quantity, add it if missing.
-        """
-        if not isinstance(self.parameters[key], u.Quantity):
-            self._set_time_quantity(key, self.parameters[key])
 
     @property
     def rho(self):
