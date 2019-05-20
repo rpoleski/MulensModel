@@ -46,6 +46,9 @@ class Event(object):
     """
 
     def __init__(self, datasets=None, model=None, coords=None):
+        self._model = None
+        self._coords = None
+
         # Initialise self._model (and check that model is defined).
         if isinstance(model, Model):
             self._model = model
@@ -63,8 +66,9 @@ class Event(object):
         # Set event coordinates
         if coords is not None:
             self._update_coords(coords=coords)
-        else:
-            self._coords = None
+        elif self._model is not None:
+            if self._model.coords is not None:
+                self._update_coords(coords=self._model.coords)
 
         self.reset_best_chi2()
         self.sum_function = 'math.fsum'
