@@ -23,15 +23,19 @@ $\rho$ & {\tt rho} & & The radius of the source as a fraction of the Einstein ri
 $t_{\star}$ & {\tt t\_star} & d & The source self-crossing time, $t_\star \equiv \rho t_{\rm E}$. \\
 $\pi_{{\rm E}, N}$ & {\tt pi\_E\_N} & & The North component of the microlensing parallax vector. \\
 $\pi_{{\rm E}, E}$ & {\tt pi\_E\_E} & & The East component of the microlensing parallax vector. \\
-$t_{0,{\rm par}}$ & {\tt t\_0\_par} & & The reference time for parameters in parallax models. \\
+$t_{0,{\rm par}}$ & {\tt t\_0\_par} & & The reference time for parameters in parallax models.$^a$ \\
 $s$ & {\tt s} & & The projected separation between the lens primary and its companion as a fraction of the Einstein ring radius. \\
 $q$ & {\tt q} & & The mass ratio between the lens companion and the lens primary $q \equiv m_2/m_1$. \\
 $\alpha$ & {\tt alpha} & deg. & The angle between the source trajectory and the binary axis. \\
 $ds/dt$ & {\tt ds\_dt} & yr$^{-1}$ & The rate of change of the separation. \\
 $d\alpha/dt$ & {\tt dalpha\_dt} & deg.~yr$^{-1}$ & The rate of change of $\alpha$. \\
-$t_{0,{\rm kep}}$ & {\tt t\_0\_kep} & & The reference time for lens orbital motion calculations. \\
+$t_{0,{\rm kep}}$ & {\tt t\_0\_kep} & & The reference time for lens orbital motion calculations.$^a$ \\
+\hline
 \end{tabular}
-%\caption{\label{}}
+\caption{Notes: 
+$^a$ -- $t_{0,{\rm par}}$ and $t_{0,{\rm kep}}$ are reference parameters, hence, do not change these during fitting.
+%\label{}
+}
 \end{table*}
 
 Some of the parameters can be defined separately for each of the sources.  

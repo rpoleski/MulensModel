@@ -829,7 +829,10 @@ class ModelParameters(object):
         *float*
 
         The reference time for the calculation of parallax. If not set
-        explicitly, set t_0_par = t_0.
+        explicitly, then it is assumed t_0_par = t_0.
+
+        Note that this is a reference value and not the fitting parameter.
+        It is best to fix it at the begin of calculations.
         """
         if 't_0_par' not in self.parameters.keys():
             return self.parameters['t_0']
@@ -910,7 +913,10 @@ class ModelParameters(object):
         *float*
 
         The reference time for the calculation of lens orbital motion.
-        If not set explicitly, assumes t_0_kep = t_0.
+        If not set explicitly, then it is assumed t_0_kep = t_0.
+
+        Note that this is a reference value and not the fitting parameter.
+        It is best to fix it at the begin of calculations.
         """
         if 't_0_kep' not in self.parameters.keys():
             return self.parameters['t_0']
