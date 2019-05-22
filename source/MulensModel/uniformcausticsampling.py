@@ -1,12 +1,14 @@
 import numpy as np
 import math
-import matplotlib.pyplot as plt # XXX probably remove that
+import matplotlib.pyplot as plt  # XXX probably remove that
 
 
 class UniformCausticSampling(object):
     def __init__(self, s, q, n_points=1000):
         """
         XXX
+
+        calculations take some time
         https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract
         https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract
         """
@@ -25,35 +27,37 @@ class UniformCausticSampling(object):
         """
         XXX
         """
-        pass # XXX
+        pass  # XXX
 
     def _add_third_caustic(self):
         """
         XXX
         """
         # Previously we had:
-        #    caustic_zeta_sum3 = [caustic_zeta_sum2[i].conjugate() for i in [0, 2, 1]]
-        pass # XXX
+        #    caustic_zeta_sum3 = [
+        #        caustic_zeta_sum2[i].conjugate() for i in [0, 2, 1]]
+        pass  # XXX
 
     def _get_indexes_of_inflection_points(self, values):
         """
-        XXX
+        Find inflection points in give tabulated function.
         """
         diff_ = values[1:] - values[:-1]
         diff = np.concatenate( ([diff_[-2], diff_[-1]], diff_) )
-        #diff = np.concatenate( (diff_, [diff_[0], diff_[1]]) )
+        # diff = np.concatenate( (diff_, [diff_[0], diff_[1]]) )
         out = []
         for i in range(1, len(diff)-1):
             if diff[i-1] > diff[i] and diff[i+1] > diff[i]:
-                #out.append(i-1) # XXX
+                # out.append(i-1) # XXX
                 out.append(i)
-        #print("INFLECTIONS:", out)
+        # print("INFLECTIONS:", out)
         return out
 
     def _zeta(self, z):
         """
-        XXX
-        shift to center of mass coordiantes"""
+        Apply lens equation in complex coordinates and
+        shift to center of mass coordinates.
+        """
         z_bar = np.conjugate(z)
         zeta = -z + (1./z_bar + self.q/(z_bar+self.s)) / (1. + self.q)
         zeta -= self.s * self.q / (1. + self.q)
@@ -65,7 +69,8 @@ class UniformCausticSampling(object):
         also correct the phase of planetary caustic.
         """
         indexes = self._get_indexes_of_inflection_points(self._sum_1)
-        self._inflections_fractions = {1: [float(i)/self._n_points for i in indexes]}
+        value_1 = [float(i)/self._n_points for i in indexes]
+        self._inflections_fractions = {1: value_1}
         cusps_z_1 = [self._z_sum_1[i] for i in indexes]
         if self._n_caustics == 1:
             cusps_z_1 = [self._z_all[indexes[2], 0]] + cusps_z_1
@@ -85,7 +90,8 @@ class UniformCausticSampling(object):
             return
 
         indexes = self._get_indexes_of_inflection_points(self._sum_2)
-        self._inflections_fractions[2] = [float(i)/self._n_points for i in indexes]
+        value_2 = [float(i)/self._n_points for i in indexes]
+        self._inflections_fractions[2] = value_2
         cusps_z_2 = [self._z_sum_2[i] for i in indexes]
         if self._n_caustics == 2:
             cusps_z_2 = [self._z_all[indexes[1], 0]] + cusps_z_2
@@ -94,16 +100,17 @@ class UniformCausticSampling(object):
         cusps_zeta_2 = [self._zeta(z) for z in cusps_z_2]
 
 # HERE
-# XXX - currently we skip this part because it produces an artifact in self.plot_caustic()
+# XXX - currently we skip this part because it produces an artifact
+# in self.plot_caustic()
         if False:
         # Only for close configuration there is a need to modify self._sum_2
-        # in order to make inflaction point closer to 0.
-        #if self._n_caustics == 3:
+        # in order to make inflection point closer to 0.
+        #  if self._n_caustics == 3:
             arg = np.argmin([np.abs(z) for z in cusps_zeta_2])
             shift = indexes[arg] - 1
-            #shift = 0
-            #shift = indexes[arg]
-            #print("SHIFT", shift)
+            # shift = 0
+            # shift = indexes[arg]
+            # print("SHIFT", shift)
             d_1 = self._sum_2[-1] - self._sum_2[-2]
             d_2 = self._sum_2[1] - self._sum_2[0]
             value_shift = self._sum_2[-1] + (d_1 + d_2) / 2.
@@ -115,8 +122,10 @@ class UniformCausticSampling(object):
             self._sum_2 -= self._sum_2[0]
 
             indexes = self._get_indexes_of_inflection_points(self._sum_2)
-            self._inflections_fractions[2] = [float(i)/self._n_points for i in indexes]
-            self._inflections_fractions[3] = [self._inflections_fractions[2][i] for i in [0, 2, 1]]
+            value_2 = [float(i)/self._n_points for i in indexes]
+            self._inflections_fractions[2] = value_2
+            value_3 = [self._inflections_fractions[2][i] for i in [0, 2, 1]]
+            self._inflections_fractions[3] = value_3
             cusps_z_2 = [self._z_sum_2[i] for i in indexes]
             cusps_zeta_2 = [self._zeta(z) for z in cusps_z_2]
 
@@ -155,8 +164,7 @@ class UniformCausticSampling(object):
 
     def _critical_curve(self, phi):
         """
-        XXX
-        Eq. 6
+        Calculate a point on critical curve - see eq. 6 in Cassan 2008.
         """
         coeffs = [0., 0., 0., 2.*self.s, 1.]
         exp_i_phi = np.exp(1j * phi)
@@ -280,6 +288,10 @@ class UniformCausticSampling(object):
         Get standard binary lens parameters (i.e., t_0, u_0, t_E, alpha)
         based on provided parameters.
 
+        Note that this function quite frequently raises ValueError exception.
+        That is because not all (s, q, x_caustic_in and x_caustic_out)
+        correspond to real trajectories.
+
         Keywords :
             x_caustic_in: *float*
                 Curvelinear coordinate of caustic entrance.
@@ -300,6 +312,7 @@ class UniformCausticSampling(object):
                 Dictionary with standard binary parameters, i.e, keys are
                 ``t_0``, ``u_0``, ``t_E``, and ``alpha``.
         """
+        # XXX do we need t_caustic_in < t_caustic_out check here?
         caustic_in = self.which_caustic(x_caustic_in)
         caustic_out = self.which_caustic(x_caustic_out)
         if caustic_in != caustic_out:
@@ -337,16 +350,18 @@ class UniformCausticSampling(object):
         For given value of x_caustic_in or _out get 1 or 2 ranges in
         which the other parameter has to be (required condition, but not
         necessarily enough).
+
         XXX
         """
         caustic = self.which_caustic(x_caustic)
         print(self._inflections_fractions)
         print(self._which_caustic)
-        pass # XXX
+        pass  # XXX
 
     def _mirror_normalize_to_0_1(self, x, x_min=0., x_max=1.):
         """
-        XXX
+        Normalizes input to 0-1 range but in special way,
+        which considers the middle point.
         """
         if x < x_min or x > x_max:
             msg = "problem in _mirror_normalize: {:} {:} {:}"
@@ -361,16 +376,27 @@ class UniformCausticSampling(object):
 
     def caustic_point(self, x_caustic):
         """
-        XXX
+        Calculate caustic position corresponding to given x_caustic.
+
+        Keywords :
+            x_caustic: *float*
+                Curvelinear coordinate of the point considered.
+                Has to be in 0-1 range.
+
+        Returns :
+            point: *numpy.complex128*
+                Caustic point in complex coordinates.
         """
         caustic = self.which_caustic(x_caustic)
-        
+
         if self._n_caustics < 3 or caustic == 1:
             (fraction_in_caustic, flip) = self._mirror_normalize_to_0_1(
-                x_caustic, self._which_caustic[caustic-1], self._which_caustic[caustic])
+                x_caustic, self._which_caustic[caustic-1],
+                self._which_caustic[caustic])
         else:
             in_caustic = x_caustic - self._which_caustic[caustic-1]
-            diff = self._which_caustic[caustic] - self._which_caustic[caustic-1]
+            diff = (
+                self._which_caustic[caustic] - self._which_caustic[caustic-1])
             fraction_in_caustic = in_caustic / diff
             flip = False
 
@@ -383,7 +409,7 @@ class UniformCausticSampling(object):
         sum_ = fraction_in_caustic * sum_use[-1]
         phi_interp = np.interp([sum_], sum_use, self._phi)[0]
         z_interp = np.interp([phi_interp], self._phi, z_use)[0]
-        #z_interp = np.interp([sum_], sum_use, z_use)[0] # XXX
+        # z_interp = np.interp([sum_], sum_use, z_use)[0] # XXX
         zeta = self._zeta(z_interp)
         if flip or caustic == 3:
             zeta = zeta.conjugate()
@@ -419,19 +445,25 @@ class UniformCausticSampling(object):
     @property
     def s(self):
         """
-        XXX
+        *float*
+
+        separation of the two lens components relative to Einstein ring size
         """
         return self._s
 
     @property
     def q(self):
         """
-        XXX
+        *float*
+
+        Mass ratio.
         """
         return self._q
 
     def _plot_caustic(self, n_points=200):
-        """XXX"""
+        """
+        Plot caustic using uniform sampling and color scale
+        """
         x = np.zeros(n_points)
         y = np.zeros(n_points)
         color = np.linspace(0, 1, n_points+2)[1:-1]
@@ -443,10 +475,15 @@ class UniformCausticSampling(object):
         plt.axis('equal')
         plt.colorbar()
 
-    def _plot_full(self, x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out, n_points=200):
-        """XXX"""
+    def _plot_full(self, x_caustic_in, x_caustic_out, t_caustic_in,
+                   t_caustic_out, n_points=200):
+        """
+        Plot caustic and trajectory - useful for checks of model parameter
+        calculations.
+        """
         self._plot_caustic(n_points=n_points)
-        params = self.get_standard_parameters(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out)
+        params = self.get_standard_parameters(x_caustic_in, x_caustic_out,
+                                              t_caustic_in, t_caustic_out)
         params['s'] = self.s
         params['q'] = self.q
         model = MM.Model(params)
@@ -458,6 +495,6 @@ class UniformCausticSampling(object):
         plt.scatter(c_in.real, c_in.imag, marker='X', c='pink')
         plt.scatter(c_out.real, c_out.imag, marker='X', c='red')
 
-        plt.title("s = {:} q = {:} x_caustic_in = {:} x_caustic_out = {:}".format(self.s, self.q, x_caustic_in, x_caustic_out))
+        txt = "s = {:} q = {:} x_caustic_in = {:} x_caustic_out = {:}"
+        plt.title(txt.format(self.s, self.q, x_caustic_in, x_caustic_out))
         plt.tight_layout()
-

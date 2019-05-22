@@ -16,8 +16,8 @@ import MulensModel as MM
 
 
 model = MM.Model({'s': 1.01, 'q': 0.001, 'rho': 0.002,
-                  'x_caustic_in': 1.36, 'x_caustic_out': 0.72,
-                  't_caustic_in': 6543.123, 't_caustic_out': 6550.987}
+                  'x_caustic_in': 0.36, 'x_caustic_out': 0.72,
+                  't_caustic_in': 6543.123, 't_caustic_out': 6550.987})
 # For models with orbital motion we will be using also:
 # s_in s_out
 # which are simply separation values at t_caustic_in and t_caustic_out.
