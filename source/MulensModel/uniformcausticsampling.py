@@ -99,6 +99,9 @@ class UniformCausticSampling(object):
 
         cusps_zeta_2 = [self._zeta(z) for z in cusps_z_2]
 
+        #if self._n_caustics == 3:
+            #arg = np.argmin([np.abs(z) for z in cusps_zeta_2])
+            #self._shift = self._sum_2[indexes[arg] - 1]
 # HERE
 # XXX - currently we skip this part because it produces an artifact
 # in self.plot_caustic()
@@ -231,9 +234,10 @@ class UniformCausticSampling(object):
             self._sum_2 = np.zeros(self._n_points)
             self._z_sum_2 = np.zeros(self._n_points, dtype=np.complex128)
             self._z_index_sum_2 = np.zeros(self._n_points, dtype=int)
-            if self._n_caustics == 3:
-                self._z_index_sum_1 += 0
-                self._z_index_sum_2 += 2
+            # XXX removed not unused code
+            #if self._n_caustics == 3:
+                #self._z_index_sum_1 += 0
+                #self._z_index_sum_2 += 2
         self._critical_curve_previous = None
 
         for (i, phi) in enumerate(self._phi):
@@ -250,6 +254,17 @@ class UniformCausticSampling(object):
                 if self._n_caustics == 2:
                     self._z_index_sum_2[i] = int(phi / np.pi)
                     self._z_index_sum_1[i] = self._z_index_sum_2[i] + 2
+                if self._n_caustics == 3:
+                    signs = 1. / np.conjugate(self._z_all[i])
+                    signs = (signs - self._z_all[i]).imag
+                    if signs[1] * signs[2] >= 0.:
+                        args = [
+                            self.s, self.q, self._n_points, i, self._z_all[i]]
+                        raise ValueError("Critical error: {:}".format(args))
+                    if signs[1] < 0.:
+                        self._z_index_sum_2[i] = 2
+                    else:
+                        self._z_index_sum_2[i] = 1
                 self._z_sum_1[i] = self._z_all[i, self._z_index_sum_1[i]]
                 self._z_sum_2[i] = self._z_all[i, self._z_index_sum_2[i]]
                 abs_1 = abs(self._dzeta_dphi(self._z_sum_1[i], phi))
