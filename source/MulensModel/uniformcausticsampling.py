@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt  # XXX probably remove that
 
 
 class UniformCausticSampling(object):
-    def __init__(self, s, q, n_points=1000):
+    def __init__(self, s, q, n_points=10000):
         """
         XXX
 
@@ -242,8 +242,6 @@ class UniformCausticSampling(object):
 
         for (i, phi) in enumerate(self._phi):
             self._z_all[i] = self._critical_curve(phi)
-            if i == 0:
-                continue
 
             if self._n_caustics == 1:
                 self._z_index_sum_1[i] = int(phi / np.pi)
@@ -424,7 +422,6 @@ class UniformCausticSampling(object):
         sum_ = fraction_in_caustic * sum_use[-1]
         phi_interp = np.interp([sum_], sum_use, self._phi)[0]
         z_interp = np.interp([phi_interp], self._phi, z_use)[0]
-        # z_interp = np.interp([sum_], sum_use, z_use)[0] # XXX
         zeta = self._zeta(z_interp)
         if flip or caustic == 3:
             zeta = zeta.conjugate()
@@ -455,6 +452,13 @@ class UniformCausticSampling(object):
             raise ValueError('Got x_caustic < 0 : {:}'.format(x_caustic))
         if self._n_caustics == 1:
             return 1
+        caustic = np.searchsorted(self._which_caustic, x_caustic)
+        if caustic == 0:
+            if x_caustic == 0.:
+                return 1
+            else:
+                fmt = 'which_caustic() got {:} and internally had {:}'
+                raise ValueError(fmt.format(x_caustic, self._which_caustic))
         return np.searchsorted(self._which_caustic, x_caustic)
 
     @property
@@ -513,3 +517,10 @@ class UniformCausticSampling(object):
         txt = "s = {:} q = {:} x_caustic_in = {:} x_caustic_out = {:}"
         plt.title(txt.format(self.s, self.q, x_caustic_in, x_caustic_out))
         plt.tight_layout()
+
+
+if __name__ == "__main__":
+    caustic = UniformCausticSampling(s=1.01, q=0.001)
+    for x_caustic in np.linspace(0, 1, 15000):
+        point = caustic.caustic_point(x_caustic)
+        print(point.real, point.imag, x_caustic, 'xxx')
