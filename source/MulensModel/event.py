@@ -244,6 +244,10 @@ class Event(object):
         if self.model.n_sources > 1 and fit_blending is False:
             raise NotImplementedError("Sorry, chi2 for binary sources with " +
                                       "no blending is not yet coded.")
+        if not isinstance(index_dataset, int):
+            msg = 'index_dataset has to be int type, not {:}'
+            raise TypeError(msg.format(type(index_dataset)))
+
         dataset = self.datasets[index_dataset]
         magnification = self.model.get_data_magnification(dataset)
 
