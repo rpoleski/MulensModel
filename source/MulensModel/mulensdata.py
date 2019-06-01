@@ -579,14 +579,25 @@ class MulensData(object):
         time_bad = self.time[self.bad] - subtract
 
         if show_errorbars:
-            self._plt_errorbar(time_good, y_value[self.good],
-                               y_err[self.good], properties)
+            container = self._plt_errorbar(time_good, y_value[self.good],
+                                           y_err[self.good], properties)
             if show_bad:
+                if 'color' in properties_bad or 'c' in properties_bad:
+                    pass
+                else:
+                    properties_bad['color'] = container[0].get_color()
                 self._plt_errorbar(time_bad, y_value[self.bad],
                                    y_err[self.bad], properties_bad)
         else:
-            self._plt_scatter(time_good, y_value[self.good], properties)
+            collection = self._plt_scatter(time_good, y_value[self.good],
+                                           properties)
             if show_bad:
+                change = True
+                keys = ['c', 'color', 'facecolor', 'facecolors', 'edgecolors']
+                for key in keys:
+                    change &= key not in properties_bad
+                if change:
+                    properties_bad['color'] = collection.get_edgecolor()
                 self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
 
         if phot_fmt == 'mag':
@@ -596,28 +607,27 @@ class MulensData(object):
 
     def _plt_errorbar(self, time, y, yerr, kwargs):
         """
-        save run of matplotlib.pyplot.errorbar()
+        save run of matplotlib.pyplot.errorbar(); returns ErrorbarContainer
         """
         try:
-            plt.errorbar(time, y, yerr=yerr, **kwargs)
-#       except AttributeError as msg:
-#           print(str(msg).split()[-1])
-#           raise
+            container = plt.errorbar(time, y, yerr=yerr, **kwargs)
         except:
             print("kwargs passed to plt.errorbar():")
             print(kwargs)
             raise
+        return container
 
     def _plt_scatter(self, time, y, kwargs):
         """
-        save run of matplotlib.pyplot.scatter()
+        save run of matplotlib.pyplot.scatter(); returns PathCollection
         """
         try:
-            plt.scatter(time, y, **kwargs)
+            collection = plt.scatter(time, y, **kwargs)
         except:
             print("kwargs passed to plt.scatter():")
             print(kwargs)
             raise
+        return collection
 
     def _get_y_value_y_err(self, phot_fmt, flux, flux_err):
         """
