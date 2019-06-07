@@ -113,8 +113,8 @@ class MagnificationCurve(object):
             return
 
         if not isinstance(methods, list):
-            msg = ('MagnificationCurve.set_magnification_methods() requires' +
-                   'a list as a parameter')
+            msg = ('MagnificationCurve.set_magnification_methods() ' +
+                   'requires a list as a parameter')
             raise TypeError(msg)
         epochs = methods[0::2]
         names = methods[1::2]
@@ -327,14 +327,16 @@ class MagnificationCurve(object):
 
             ``VBBL``:
                 Uses VBBinaryLensing (a Stokes theorem/contour
-                integration code) by Valerio Bozza (`Bozza 2010 MNRAS, 408, 2188
+                integration code) by Valerio Bozza
+                (`Bozza 2010 MNRAS, 408, 2188
                 <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).
                 See
                 :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
 
             ``Adaptive_Contouring``:
                 Uses AdaptiveContouring (a Stokes theorem/contour
-                integration code) by Martin Dominik (`Dominik 2007 MNRAS, 377, 1679
+                integration code) by Martin Dominik
+                (`Dominik 2007 MNRAS, 377, 1679
                 <https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract>`_).
                 See
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
