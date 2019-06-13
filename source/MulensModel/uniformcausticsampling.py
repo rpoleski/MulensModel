@@ -213,6 +213,83 @@ class UniformCausticSampling(object):
         dz_bar_dphi_ = self._dz_bar_dphi(np.conjugate(z))
         return dz_dphi_ + np.exp(1j * phi) * dz_bar_dphi_
 
+    def direction_check(self, x_caustic_in, x_caustic_out):
+        """XXX"""
+        zeta_in = self.caustic_point(x_caustic_in)
+        dzeta_dphi_in = self._dzeta_dphi(self._last_z_interp,
+                                         self._last_phi_interp)
+        zeta_out = self.caustic_point(x_caustic_out)
+        dzeta_dphi_out = self._dzeta_dphi(self._last_z_interp,
+                                          self._last_phi_interp)
+
+        # Eq. 27 from Cassan+2010:
+        n_t = (zeta_out - zeta_in) / np.abs(zeta_out - zeta_in)
+        # Eq. 26 from Cassan+2010:
+        n_c_in = 1j * dzeta_dphi_in / np.abs(dzeta_dphi_in)
+        n_c_out = 1j * dzeta_dphi_out / np.abs(dzeta_dphi_out)
+
+        condition_in = n_c_in.real * n_t.real + n_c_in.imag * n_t.imag
+        condition_out = n_c_out.real * n_t.real + n_c_out.imag * n_t.imag
+        # XXX  This is not finished
+        return (condition_in, condition_out)
+
+    def _caustic_and_trajectory(self, zetas, u_0, alpha, sum_use, flip, caustic):
+        """
+        check if caustic crosses the line defined by 2 points
+        """
+        if self._n_caustics != 1:
+            raise ValueError('only resonant caustic in _caustic_and_trajectory() at this point')
+        if caustic != 1:
+            raise ValueError('only central caustic in _caustic_and_trajectory() at this point')
+
+        cos_a = np.cos(alpha * np.pi / 180.)
+        sin_a = np.sin(alpha * np.pi / 180.)
+
+        x_1 = zetas[:-1].real
+        y_1 = zetas[:-1].imag
+        x_2 = zetas[1:].real
+        y_2 = zetas[1:].imag
+        dx = x_2 - x_1
+        dy = y_2 - y_1
+        tau = (x_1 * y_2 - x_2 * y_1 + u_0 * (dy * sin_a + dx * cos_a))
+        tau /= dy * cos_a - dx * sin_a
+        x_cross = tau * cos_a - u_0 * sin_a
+        indexes = np.where((x_cross - x_1) * (x_cross - x_2) < 0.)[0].tolist()
+        fractions = []
+        sums = []
+        in_caustics = []
+        x_caustic_ = []
+        for i in indexes:
+            fraction = (x_cross[i] - x_1[i]) / (x_2[i] - x_1[i])
+            fractions.append(fraction)
+            sum_ = sum_use[i] * (1. - fraction) + sum_use[i+1] * fraction
+            sums.append(sum_)
+            in_caustic = sum_ / sum_use[-1]
+            in_caustics.append(in_caustic)
+            middle = (self._which_caustic[caustic] + self._which_caustic[caustic-1]) / 2.
+            if flip:
+                x_caustic = self._which_caustic[caustic] + in_caustic * (middle - self._which_caustic[caustic])
+            else:
+                x_caustic = self._which_caustic[caustic-1] + in_caustic * (middle - self._which_caustic[caustic-1])
+            x_caustic_.append(x_caustic)
+        return (indexes, fractions, sums, in_caustics, x_caustic_)
+
+    def get_x_in_x_out(self, u_0, alpha):
+        """XXX"""
+        if self._n_caustics != 1:
+            raise ValueError('only resonant caustic in get_x_in_x_out() at this point')
+        # "Random" points on a trajectory:
+        zetas_1 = self._zeta(self._z_sum_1)
+        if self._n_caustics > 1:
+            zetas_2 = self._zeta(self._z_sum_2)
+
+        points_A = self._caustic_and_trajectory(
+            zetas_1, u_0, alpha, self._sum_1, flip=False, caustic=1)
+        points_B = self._caustic_and_trajectory(
+            zetas_1.conjugate(), u_0, alpha, self._sum_1, flip=True, caustic=1)
+        points = tuple([points_A[i] + points_B[i] for i in range(len(points_A))])
+        return points[-1]
+
     def _integrate(self):
         """
         Main integration for Cassan (2008) parameterization.
@@ -422,6 +499,8 @@ class UniformCausticSampling(object):
         sum_ = fraction_in_caustic * sum_use[-1]
         phi_interp = np.interp([sum_], sum_use, self._phi)[0]
         z_interp = np.interp([phi_interp], self._phi, z_use)[0]
+        self._last_phi_interp = phi_interp
+        self._last_z_interp = z_interp
         zeta = self._zeta(z_interp)
         if flip or caustic == 3:
             zeta = zeta.conjugate()
@@ -459,7 +538,7 @@ class UniformCausticSampling(object):
             else:
                 fmt = 'which_caustic() got {:} and internally had {:}'
                 raise ValueError(fmt.format(x_caustic, self._which_caustic))
-        return np.searchsorted(self._which_caustic, x_caustic)
+        return caustic
 
     @property
     def s(self):
@@ -520,7 +599,33 @@ class UniformCausticSampling(object):
 
 
 if __name__ == "__main__":
-    caustic = UniformCausticSampling(s=1.01, q=0.001)
-    for x_caustic in np.linspace(0, 1, 15000):
-        point = caustic.caustic_point(x_caustic)
-        print(point.real, point.imag, x_caustic, 'xxx')
+    caustic = UniformCausticSampling(s=1.1, q=0.1)
+    if False:  # Check basic calculation
+        params = caustic.get_standard_parameters(0.13, 0.04, 0., 1.)
+        caustic.get_x_in_x_out(u_0=params['u_0'], alpha=params['alpha'])
+
+    if True: # Get x_caustic for many (u_0, alpha)
+        n_points = 10000
+        cusps = [0., 0.205897, 0.381309, 0.5, 0.618691, 0.794103, 1.] # for s=1.1, q=0.1
+        u_0_ = np.random.rand(n_points) * 3 - 1.5
+        alpha_ = np.random.rand(n_points) * 360.
+        for (i, (u_0, alpha)) in enumerate(zip(u_0_, alpha_)):
+            x_caustic = caustic.get_x_in_x_out(u_0=u_0, alpha=alpha)
+            folds = [np.searchsorted(cusps, x) for x in x_caustic]
+            for i in range(len(x_caustic)):
+                for j in range(i+1, len(x_caustic)):
+                    if folds[i] == folds[j]:
+                        continue
+                    print(x_caustic[i], x_caustic[j], len(x_caustic))
+                    print(x_caustic[j], x_caustic[i], len(x_caustic))
+
+    if False: # Test direction_check()
+        n_points = 100000
+        x_in = np.random.rand(n_points)
+        x_out = np.random.rand(n_points)
+        for (x_in_, x_out_) in zip(x_in, x_out):
+            if caustic.which_caustic(x_in_) != caustic.which_caustic(x_out_):
+                continue
+            directions = caustic.direction_check(x_in_, x_out_)
+            print(x_in_, x_out_, directions[0], directions[1])
+
