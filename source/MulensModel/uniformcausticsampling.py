@@ -2,6 +2,8 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt  # XXX probably remove that
 
+import MulensModel as MM
+
 
 class UniformCausticSampling(object):
     def __init__(self, s, q, n_points=10000):
@@ -58,7 +60,7 @@ class UniformCausticSampling(object):
         Apply lens equation in complex coordinates and
         shift to center of mass coordinates.
         """
-        z_bar = np.conjugate(z)
+        z_bar = z.conjugate()
         zeta = -z + (1./z_bar + self.q/(z_bar+self.s)) / (1. + self.q)
         zeta -= self.s * self.q / (1. + self.q)
         return zeta
@@ -213,15 +215,12 @@ class UniformCausticSampling(object):
         dz_bar_dphi_ = self._dz_bar_dphi(np.conjugate(z))
         return dz_dphi_ + np.exp(1j * phi) * dz_bar_dphi_
 
-    def direction_check(self, x_caustic_in, x_caustic_out):
+    def orientation_check(self, x_caustic_in, x_caustic_out):
         """XXX"""
         zeta_in = self.caustic_point(x_caustic_in)
-        dzeta_dphi_in = self._dzeta_dphi(self._last_z_interp,
-                                         self._last_phi_interp)
+        dzeta_dphi_in = self._last_dzeta_dphi
         zeta_out = self.caustic_point(x_caustic_out)
-        dzeta_dphi_out = self._dzeta_dphi(self._last_z_interp,
-                                          self._last_phi_interp)
-
+        dzeta_dphi_out = self._last_dzeta_dphi
         # Eq. 27 from Cassan+2010:
         n_t = (zeta_out - zeta_in) / np.abs(zeta_out - zeta_in)
         # Eq. 26 from Cassan+2010:
@@ -230,8 +229,11 @@ class UniformCausticSampling(object):
 
         condition_in = n_c_in.real * n_t.real + n_c_in.imag * n_t.imag
         condition_out = n_c_out.real * n_t.real + n_c_out.imag * n_t.imag
-        # XXX  This is not finished
-        return (condition_in, condition_out)
+
+        if condition_in < 0. and condition_out > 0.:
+            return True
+        else:
+            return False
 
     def _caustic_and_trajectory(self, zetas, u_0, alpha, sum_use, flip, caustic):
         """
@@ -242,8 +244,8 @@ class UniformCausticSampling(object):
         if caustic != 1:
             raise ValueError('only central caustic in _caustic_and_trajectory() at this point')
 
-        cos_a = np.cos(alpha * np.pi / 180.)
-        sin_a = np.sin(alpha * np.pi / 180.)
+        cos_a = math.cos(alpha * np.pi / 180.)
+        sin_a = math.sin(alpha * np.pi / 180.)
 
         x_1 = zetas[:-1].real
         y_1 = zetas[:-1].imag
@@ -272,7 +274,7 @@ class UniformCausticSampling(object):
             else:
                 x_caustic = self._which_caustic[caustic-1] + in_caustic * (middle - self._which_caustic[caustic-1])
             x_caustic_.append(x_caustic)
-        return (indexes, fractions, sums, in_caustics, x_caustic_)
+        return x_caustic_
 
     def get_x_in_x_out(self, u_0, alpha):
         """XXX"""
@@ -287,8 +289,7 @@ class UniformCausticSampling(object):
             zetas_1, u_0, alpha, self._sum_1, flip=False, caustic=1)
         points_B = self._caustic_and_trajectory(
             zetas_1.conjugate(), u_0, alpha, self._sum_1, flip=True, caustic=1)
-        points = tuple([points_A[i] + points_B[i] for i in range(len(points_A))])
-        return points[-1]
+        return points_A + points_B
 
     def _integrate(self):
         """
@@ -498,12 +499,18 @@ class UniformCausticSampling(object):
             z_use = self._z_sum_2
         sum_ = fraction_in_caustic * sum_use[-1]
         phi_interp = np.interp([sum_], sum_use, self._phi)[0]
-        z_interp = np.interp([phi_interp], self._phi, z_use)[0]
-        self._last_phi_interp = phi_interp
-        self._last_z_interp = z_interp
-        zeta = self._zeta(z_interp)
+        zeta = self._zeta(np.interp([phi_interp], self._phi, z_use)[0])
+        # XXX the calculation of dzeta_dphi should not use index
+        index = np.argsort(np.abs(phi_interp-self._phi))[0]
+        zeta_1 = self._zeta(z_use[index])
+        zeta_2 = self._zeta(z_use[index+1])
         if flip or caustic == 3:
             zeta = zeta.conjugate()
+            dzeta = zeta_1.conjugate() - zeta_2.conjugate()
+        else:
+            dzeta = zeta_2 - zeta_1
+        dzeta /= np.abs(dzeta)
+        self._last_dzeta_dphi = dzeta
         return zeta
 
     def which_caustic(self, x_caustic):
@@ -584,9 +591,9 @@ class UniformCausticSampling(object):
                                               t_caustic_in, t_caustic_out)
         params['s'] = self.s
         params['q'] = self.q
-        model = MM.Model(params)
+        model = MM.Model(params) # remove import, if you remove this line
         model.plot_trajectory(t_start=t_caustic_in, t_stop=t_caustic_out)
-        model.plot_trajectory([params['t_0']], marker='X', arrow=False)
+        model.plot_trajectory(np.array([params['t_0']]), marker='X', arrow=False)
 
         c_in = self.caustic_point(x_caustic_in)
         c_out = self.caustic_point(x_caustic_out)
@@ -606,15 +613,15 @@ if __name__ == "__main__":
 
     if True: # Get x_caustic for many (u_0, alpha)
         n_points = 10000
-        cusps = [0., 0.205897, 0.381309, 0.5, 0.618691, 0.794103, 1.] # for s=1.1, q=0.1
         u_0_ = np.random.rand(n_points) * 3 - 1.5
         alpha_ = np.random.rand(n_points) * 360.
-        for (i, (u_0, alpha)) in enumerate(zip(u_0_, alpha_)):
+        for (u_0, alpha) in zip(u_0_, alpha_):
             x_caustic = caustic.get_x_in_x_out(u_0=u_0, alpha=alpha)
-            folds = [np.searchsorted(cusps, x) for x in x_caustic]
             for i in range(len(x_caustic)):
                 for j in range(i+1, len(x_caustic)):
-                    if folds[i] == folds[j]:
+                    check = caustic.orientation_check(x_caustic[i],
+                                                      x_caustic[j])
+                    if not check:
                         continue
                     print(x_caustic[i], x_caustic[j], len(x_caustic))
                     print(x_caustic[j], x_caustic[i], len(x_caustic))
