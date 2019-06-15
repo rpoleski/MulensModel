@@ -287,36 +287,6 @@ class UniformCausticSampling(object):
         x_caustic = reference + in_caustic * (middle - reference)
         return x_caustic.tolist()
 
-    def get_x_in_x_out(self, u_0, alpha):
-        """
-        XXX
-
-        Parameters :
-            u_0: *float*
-                The parameter u_0 of source trajectory, i.e., impact parameter.
-
-            alpha: *float*
-                Angle defining the source trajectory.
-
-        Returns :
-            x_caustic_points: *list* of *float*
-                Caustic coordinates of points where given trajectory crosses
-                the caustic. The length is between 0 and 6.
-        """
-        if self._n_caustics != 1:
-            raise ValueError(
-                'only resonant caustic in get_x_in_x_out() at this point')
-        # "Random" points on a trajectory:
-        zetas_1 = self._zeta(self._z_sum_1)
-        if self._n_caustics > 1:
-            zetas_2 = self._zeta(self._z_sum_2)
-
-        points_A = self._caustic_and_trajectory(
-            zetas_1, u_0, alpha, self._sum_1, flip=False, caustic=1)
-        points_B = self._caustic_and_trajectory(
-            zetas_1.conjugate(), u_0, alpha, self._sum_1, flip=True, caustic=1)
-        return points_A + points_B
-
     def _integrate(self):
         """
         Main integration for Cassan (2008) parameterization.
@@ -464,6 +434,36 @@ class UniformCausticSampling(object):
         t_0 += 0.5 * (t_caustic_out + t_caustic_in)
 
         return {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha}
+
+    def get_x_in_x_out(self, u_0, alpha):
+        """
+        XXX
+
+        Parameters :
+            u_0: *float*
+                The parameter u_0 of source trajectory, i.e., impact parameter.
+
+            alpha: *float*
+                Angle defining the source trajectory.
+
+        Returns :
+            x_caustic_points: *list* of *float*
+                Caustic coordinates of points where given trajectory crosses
+                the caustic. The length is between 0 and 6.
+        """
+        if self._n_caustics != 1:
+            raise ValueError(
+                'only resonant caustic in get_x_in_x_out() at this point')
+        # "Random" points on a trajectory:
+        zetas_1 = self._zeta(self._z_sum_1)
+        if self._n_caustics > 1:
+            zetas_2 = self._zeta(self._z_sum_2)
+
+        points_A = self._caustic_and_trajectory(
+            zetas_1, u_0, alpha, self._sum_1, flip=False, caustic=1)
+        points_B = self._caustic_and_trajectory(
+            zetas_1.conjugate(), u_0, alpha, self._sum_1, flip=True, caustic=1)
+        return points_A + points_B
 
     def allowed_ranges(self, x_caustic):
         """
