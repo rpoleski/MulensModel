@@ -216,7 +216,22 @@ class UniformCausticSampling(object):
         return dz_dphi_ + np.exp(1j * phi) * dz_bar_dphi_
 
     def orientation_check(self, x_caustic_in, x_caustic_out):
-        """XXX"""
+        """
+        Check if given (x_caustic_in, x_caustic_out) define an existing
+        trajectory. An obvious case, when they don't is when both caustic
+        points are on the same fold, but other cases exists.
+
+        Parameters :
+            x_caustic_in: *float*
+                Coordinate of putative caustic entrance.
+
+            x_caustic_out: *float*
+                Coordinate of putative caustic exit.
+
+        Returns :
+            check: *bool*
+                *True* if input defines a trajectory, *False* if it does not.
+        """
         zeta_in = self.caustic_point(x_caustic_in)
         dzeta_dphi_in = self._last_dzeta_dphi
         zeta_out = self.caustic_point(x_caustic_out)
@@ -273,7 +288,21 @@ class UniformCausticSampling(object):
         return x_caustic.tolist()
 
     def get_x_in_x_out(self, u_0, alpha):
-        """XXX"""
+        """
+        XXX
+
+        Parameters :
+            u_0: *float*
+                The parameter u_0 of source trajectory, i.e., impact parameter.
+
+            alpha: *float*
+                Angle defining the source trajectory.
+
+        Returns :
+            x_caustic_points: *list* of *float*
+                Caustic coordinates of points where given trajectory crosses
+                the caustic. The length is between 0 and 6.
+        """
         if self._n_caustics != 1:
             raise ValueError(
                 'only resonant caustic in get_x_in_x_out() at this point')
@@ -440,7 +469,7 @@ class UniformCausticSampling(object):
         """
         For given value of x_caustic_in or _out get 1 or 2 ranges in
         which the other parameter has to be (required condition, but not
-        necessarily enough).
+        necessarily enough - see also :py:func:`orientation_check()`).
 
         XXX
         """
@@ -501,6 +530,7 @@ class UniformCausticSampling(object):
         phi_interp = np.interp([sum_], sum_use, self._phi)[0]
         zeta = self._zeta(np.interp([phi_interp], self._phi, z_use)[0])
         # XXX the calculation of dzeta_dphi should not use index
+        # XXX and should only be done if really needed
         index = np.argsort(np.abs(phi_interp-self._phi))[0]
         zeta_1 = self._zeta(z_use[index])
         zeta_2 = self._zeta(z_use[index+1])
