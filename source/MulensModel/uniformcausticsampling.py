@@ -45,8 +45,7 @@ class UniformCausticSampling(object):
         Find inflection points in give tabulated function.
         """
         diff_ = values[1:] - values[:-1]
-        diff = np.concatenate( ([diff_[-2], diff_[-1]], diff_) )
-        # diff = np.concatenate( (diff_, [diff_[0], diff_[1]]) )
+        diff = np.concatenate(([diff_[-2], diff_[-1]], diff_))
         out = []
         for i in range(1, len(diff)-1):
             if diff[i-1] > diff[i] and diff[i+1] > diff[i]:
@@ -235,14 +234,17 @@ class UniformCausticSampling(object):
         else:
             return False
 
-    def _caustic_and_trajectory(self, zetas, u_0, alpha, sum_use, flip, caustic):
+    def _caustic_and_trajectory(self, zetas, u_0, alpha,
+                                sum_use, flip, caustic):
         """
         check if caustic crosses the line defined by 2 points
         """
         if self._n_caustics != 1:
-            raise ValueError('only resonant caustic in _caustic_and_trajectory() at this point')
+            raise ValueError('only resonant caustic in ' +
+                             '_caustic_and_trajectory() at this point')
         if caustic != 1:
-            raise ValueError('only central caustic in _caustic_and_trajectory() at this point')
+            raise ValueError('only central caustic in ' +
+                             '_caustic_and_trajectory() at this point')
 
         cos_a = math.cos(alpha * np.pi / 180.)
         sin_a = math.sin(alpha * np.pi / 180.)
@@ -256,30 +258,24 @@ class UniformCausticSampling(object):
         tau = (x_1 * y_2 - x_2 * y_1 + u_0 * (dy * sin_a + dx * cos_a))
         tau /= dy * cos_a - dx * sin_a
         x_cross = tau * cos_a - u_0 * sin_a
-        indexes = np.where((x_cross - x_1) * (x_cross - x_2) < 0.)[0].tolist()
-        fractions = []
-        sums = []
-        in_caustics = []
-        x_caustic_ = []
-        for i in indexes:
-            fraction = (x_cross[i] - x_1[i]) / (x_2[i] - x_1[i])
-            fractions.append(fraction)
-            sum_ = sum_use[i] * (1. - fraction) + sum_use[i+1] * fraction
-            sums.append(sum_)
-            in_caustic = sum_ / sum_use[-1]
-            in_caustics.append(in_caustic)
-            middle = (self._which_caustic[caustic] + self._which_caustic[caustic-1]) / 2.
-            if flip:
-                x_caustic = self._which_caustic[caustic] + in_caustic * (middle - self._which_caustic[caustic])
-            else:
-                x_caustic = self._which_caustic[caustic-1] + in_caustic * (middle - self._which_caustic[caustic-1])
-            x_caustic_.append(x_caustic)
-        return x_caustic_
+        index = np.where((x_cross - x_1) * (x_cross - x_2) < 0.)[0]
+        fraction = (x_cross[index] - x_1[index]) / (x_2[index] - x_1[index])
+        sum_ = sum_use[index] * (1. - fraction) + sum_use[index+1] * fraction
+        in_caustic = sum_ / sum_use[-1]
+        middle = self._which_caustic[caustic] + self._which_caustic[caustic-1]
+        middle /= 2.
+        if flip:
+            reference = self._which_caustic[caustic]
+        else:
+            reference = self._which_caustic[caustic-1]
+        x_caustic = reference + in_caustic * (middle - reference)
+        return x_caustic.tolist()
 
     def get_x_in_x_out(self, u_0, alpha):
         """XXX"""
         if self._n_caustics != 1:
-            raise ValueError('only resonant caustic in get_x_in_x_out() at this point')
+            raise ValueError(
+                'only resonant caustic in get_x_in_x_out() at this point')
         # "Random" points on a trajectory:
         zetas_1 = self._zeta(self._z_sum_1)
         if self._n_caustics > 1:
@@ -312,10 +308,6 @@ class UniformCausticSampling(object):
             self._sum_2 = np.zeros(self._n_points)
             self._z_sum_2 = np.zeros(self._n_points, dtype=np.complex128)
             self._z_index_sum_2 = np.zeros(self._n_points, dtype=int)
-            # XXX removed not unused code
-            #if self._n_caustics == 3:
-                #self._z_index_sum_1 += 0
-                #self._z_index_sum_2 += 2
         self._critical_curve_previous = None
 
         for (i, phi) in enumerate(self._phi):
@@ -591,9 +583,10 @@ class UniformCausticSampling(object):
                                               t_caustic_in, t_caustic_out)
         params['s'] = self.s
         params['q'] = self.q
-        model = MM.Model(params) # remove import, if you remove this line
+        model = MM.Model(params)  # remove import, if you remove this line
         model.plot_trajectory(t_start=t_caustic_in, t_stop=t_caustic_out)
-        model.plot_trajectory(np.array([params['t_0']]), marker='X', arrow=False)
+        model.plot_trajectory(np.array([params['t_0']]),
+                              marker='X', arrow=False)
 
         c_in = self.caustic_point(x_caustic_in)
         c_out = self.caustic_point(x_caustic_out)
@@ -611,7 +604,7 @@ if __name__ == "__main__":
         params = caustic.get_standard_parameters(0.13, 0.04, 0., 1.)
         caustic.get_x_in_x_out(u_0=params['u_0'], alpha=params['alpha'])
 
-    if True: # Get x_caustic for many (u_0, alpha)
+    if True:  # Get x_caustic for many (u_0, alpha)
         n_points = 10000
         u_0_ = np.random.rand(n_points) * 3 - 1.5
         alpha_ = np.random.rand(n_points) * 360.
@@ -626,7 +619,7 @@ if __name__ == "__main__":
                     print(x_caustic[i], x_caustic[j], len(x_caustic))
                     print(x_caustic[j], x_caustic[i], len(x_caustic))
 
-    if False: # Test direction_check()
+    if False:  # Test direction_check()
         n_points = 100000
         x_in = np.random.rand(n_points)
         x_out = np.random.rand(n_points)
