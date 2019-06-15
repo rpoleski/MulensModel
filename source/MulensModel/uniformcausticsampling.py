@@ -49,9 +49,9 @@ class UniformCausticSampling(object):
         out = []
         for i in range(1, len(diff)-1):
             if diff[i-1] > diff[i] and diff[i+1] > diff[i]:
-                # out.append(i-1) # XXX
+                parabola = np.polyfit([-1., 0., 1.], diff[i-1:i+2], 2)
+                shift = -parabola[1] / parabola[0]  # XXX
                 out.append(i)
-        # print("INFLECTIONS:", out)
         return out
 
     def _zeta(self, z):
@@ -67,7 +67,8 @@ class UniformCausticSampling(object):
     def _find_inflections_and_correct(self):
         """
         Find inflection points of s(phi). In the case of close configuration
-        also correct the phase of planetary caustic.
+        also correct the phase of planetary caustic - Do we do it in current
+        version XXX ???
         """
         indexes = self._get_indexes_of_inflection_points(self._sum_1)
         value_1 = [float(i)/self._n_points for i in indexes]
@@ -395,7 +396,13 @@ class UniformCausticSampling(object):
                 Dictionary with standard binary parameters, i.e, keys are
                 ``t_0``, ``u_0``, ``t_E``, and ``alpha``.
         """
-        # XXX do we need t_caustic_in < t_caustic_out check here?
+        if (x_caustic_in < 0. or x_caustic_in > 1. or
+                x_caustic_out < 0. or x_caustic_out > 1. or
+                t_caustic_in >= t_caustic_out):
+            msg = 'Wrong input in get_standard_parameters(): {:} {:} {:} {:}'
+            raise ValueError(msg.format(x_caustic_in, x_caustic_out,
+                                        t_caustic_in, t_caustic_out))
+
         caustic_in = self.which_caustic(x_caustic_in)
         caustic_out = self.which_caustic(x_caustic_out)
         if caustic_in != caustic_out:
@@ -426,6 +433,7 @@ class UniformCausticSampling(object):
         t_0 = ((zeta_out + zeta_in) / (zeta_out - zeta_in)).real
         t_0 *= 0.5 * (t_caustic_in - t_caustic_out)
         t_0 += 0.5 * (t_caustic_out + t_caustic_in)
+
         return {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha}
 
     def allowed_ranges(self, x_caustic):
