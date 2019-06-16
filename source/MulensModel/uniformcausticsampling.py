@@ -51,7 +51,8 @@ class UniformCausticSampling(object):
             if diff[i-1] > diff[i] and diff[i+1] > diff[i]:
                 parabola = np.polyfit([-1., 0., 1.], diff[i-1:i+2], 2)
                 shift = -0.5 * parabola[1] / parabola[0]  # XXX 1) use it
-                # XXX 2) if shift > 0.5 or < -0.5 than use other triple to calculate it
+                # XXX 2) if shift > 0.5 or < -0.5 than use other
+                # triple to calculate it
                 out.append(i)
         return out
 
@@ -218,7 +219,8 @@ class UniformCausticSampling(object):
 
     def orientation_check(self, x_caustic_in, x_caustic_out):
         """
-        XXX - this function should have different name because we check other condition i.e., if the same caustics are hit
+        XXX - this function should have different name because we check other
+        condition i.e., if the same caustics are hit
 
         Check if given (x_caustic_in, x_caustic_out) define an existing
         trajectory. An obvious case, when they don't is when both caustic
@@ -235,11 +237,19 @@ class UniformCausticSampling(object):
             check: *bool*
                 *True* if input defines a trajectory, *False* if it does not.
         """
+        return self._orientation_check(x_caustic_in, x_caustic_out)[0]
+
+    def _orientation_check(self, x_caustic_in, x_caustic_out):
+        """
+        XXX
+
+        Returns a list
+        """
         if self._n_caustics > 1:
             caustic_in = self.which_caustic(x_caustic_in)
             caustic_out = self.which_caustic(x_caustic_out)
             if caustic_in != caustic_out:
-                return False
+                return [False]
 
         zeta_in = self.caustic_point(x_caustic_in)
         dzeta_dphi_in = self._last_dzeta_dphi
@@ -255,9 +265,9 @@ class UniformCausticSampling(object):
         condition_out = n_c_out.real * n_t.real + n_c_out.imag * n_t.imag
 
         if condition_in < 0. and condition_out > 0.:
-            return True
+            return [True, zeta_in, zeta_out, dzeta_dphi_in, dzeta_dphi_out]
         else:
-            return False
+            return [False]
 
     def _caustic_and_trajectory(self, zetas, u_0, alpha,
                                 sum_use, flip, caustic):
@@ -443,6 +453,105 @@ class UniformCausticSampling(object):
         t_0 += 0.5 * (t_caustic_out + t_caustic_in)
 
         return {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha}
+
+    def get_uniform_sampling(self, n_points, n_min_for_caustic=10):
+        """
+        XXX
+        XXX - note Jacobian from Cassan+10
+
+        Relative number of points per caustic is not yet specified.
+        Points do not repeat.
+
+        Parameters :
+            n_points: *int*
+                number of points to be returned
+
+            n_min_for_caustic: *int*
+                minimum number of points in each caustic
+
+        Returns :
+            points: XXX
+                XXX
+        """
+        if n_min_for_caustic * self._n_caustics > n_points:
+            msg = 'wrong input for {:} caustics: {:} {:}'
+            raise ValueError(msg.format(
+                self._n_caustics, n_points, n_min_for_caustic))
+
+        increase_factor = 10  # How many more points we will have internally.
+        n_points_for_caustic = self._select_n_points(n_points,
+                                                     n_min_for_caustic)
+
+        # XXX inner part of this loop could be a separate function
+        for (i, n_points_) in enumerate(n_points_for_caustic):
+            n_all = n_points_ * increase_factor
+            caustic = i + 1
+            begin = self._which_caustic[caustic-1]
+            scale = self._which_caustic[caustic] - begin
+            x_1 = np.random.rand(n_all) * scale + begin
+            x_2 = np.random.rand(n_all) * scale + begin
+            jacobian = np.zeros(n_all)
+            for (j, (x_1_, x_2_)) in enumerate(zip(x_1, x_2)):
+                jacobian[j] = self._jacobian(x_1_, x_2_)
+                # XXX - make sure number of non-zero elements in jacobian is > n_points_
+                # XXX - normalize
+                # XXX - np.random.choice(INDEXES_XXX, size=n_points_, replace=False, p=normalized)
+                # XXX - concatenate selected points to a single output
+# HERE XXX
+        return
+
+    def _jacobian(self, x_caustic_in, x_caustic_out):
+        """
+        Evaluates Eq. 23 from Cassan et al. (2010) with condition under Eq. 27.
+        """
+        check = self._orientation_check(x_caustic_in, x_caustic_out)
+        if not check[0]:
+            return 0.
+        (zeta_in, zeta_out, dzeta_dphi_in, dzeta_dphi_out) = check[1:]
+        dzeta = zeta_out - zeta_in
+        wedge_in = (dzeta.real * dzeta_dphi_in.imag -
+                    dzeta.imag * dzeta_dphi_in.real)
+        wedge_out = (dzeta.real * dzeta_dphi_out.imag -
+                     dzeta.imag * dzeta_dphi_out.real)
+        jacobian = np.abs(wedge_in) * np.abs(wedge_out) / np.abs(dzeta)**4
+        return jacobian
+
+    def _select_n_points(self, n_points, n_min_for_caustic):
+        """
+        divide n_points into caustics
+        """
+        if self._n_caustics == 1:
+            out = [n_points]
+        elif self._n_caustics == 2:
+            area_1 = (self._which_caustic[1] - self._which_caustic[0])**2
+            area_2 = (self._which_caustic[2] - self._which_caustic[1])**2
+            fraction = area_1 / (area_1 + area_2)
+            n_1 = int(fraction * n_points + 0.5)
+            if n_1 < n_min_for_caustic:
+                n_1 = n_min_for_caustic
+            n_2 = n_points - n_1
+            if n_2 < n_min_for_caustic:
+                n_2 = n_min_for_caustic
+                n_1 = n_points - n_2
+            out = [n_1, n_2]
+        elif self._n_caustics == 3:
+            area_1 = (self._which_caustic[1] - self._which_caustic[0])**2
+            area_2 = (self._which_caustic[2] - self._which_caustic[1])**2
+            area_3 = area_2
+            fraction_2 = area_2 / (area_1 + area_2 + area_3)
+            n_2 = int(fraction_2 * n_points + 0.5)
+            if n_2 < n_min_for_caustic:
+                n_2 = n_min_for_caustic
+            n_3 = n_2
+            n_1 = n_points - n_2 - n_3
+            if n_1 < n_min_for_caustic:
+                n_1 = n_min_for_caustic
+                n_2 = (n_points - n_1) // 2
+                n_3 = n_points - n_1 - n_2
+            out = [n_1, n_2, n_3]
+        else:
+            raise ValueError('strange error: {:}'.format(self._n_caustics))
+        return out
 
     def get_x_in_x_out(self, u_0, alpha):
         """
@@ -650,12 +759,18 @@ class UniformCausticSampling(object):
 
 
 if __name__ == "__main__":
-    caustic = UniformCausticSampling(s=1.1, q=0.1)
+    #caustic = UniformCausticSampling(s=1.1, q=0.1)
     if False:  # Check basic calculation
         params = caustic.get_standard_parameters(0.13, 0.04, 0., 1.)
         caustic.get_x_in_x_out(u_0=params['u_0'], alpha=params['alpha'])
 
-    if True:  # Get x_caustic for many (u_0, alpha)
+    if True:  # Test get_uniform_sampling()
+        for s in [0.5]: # [1.1, 2., 0.5]:
+            caustic = UniformCausticSampling(s=s, q=0.1)
+            out = caustic.get_uniform_sampling(1000)
+            print(out)
+
+    if False:  # Get x_caustic for many (u_0, alpha)
         n_points = 10000
         u_0_ = np.random.rand(n_points) * 3.4 - 1.7
         alpha_ = np.random.rand(n_points) * 360.
