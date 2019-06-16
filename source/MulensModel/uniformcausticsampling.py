@@ -667,8 +667,8 @@ if __name__ == "__main__":
                                                       x_caustic[j])
                     if not check:
                         continue
-                    print(x_caustic[i], x_caustic[j], u_0, len(x_caustic))
-                    print(x_caustic[j], x_caustic[i], u_0, len(x_caustic))
+                    print(x_caustic[i], x_caustic[j], len(x_caustic))
+                    print(x_caustic[j], x_caustic[i], len(x_caustic))
 
     if False:  # Test direction_check()
         n_points = 100000
