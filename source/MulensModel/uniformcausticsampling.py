@@ -470,7 +470,9 @@ class UniformCausticSampling(object):
                 minimum number of points in each caustic
 
         Returns :
-            points: XXX
+            x_caustic_in: XXX
+                XXX
+            x_caustic_out: XXX
                 XXX
         """
         if n_min_for_caustic * self._n_caustics > n_points:
@@ -483,23 +485,45 @@ class UniformCausticSampling(object):
                                                      n_min_for_caustic)
 
         # XXX inner part of this loop could be a separate function
+        x_1_out = []
+        x_2_out = []
         for (i, n_points_) in enumerate(n_points_for_caustic):
-            n_all = n_points_ * increase_factor
             caustic = i + 1
-            begin = self._which_caustic[caustic-1]
-            scale = self._which_caustic[caustic] - begin
-            x_1 = np.random.rand(n_all) * scale + begin
-            x_2 = np.random.rand(n_all) * scale + begin
-            jacobian = np.zeros(n_all)
-            for (j, (x_1_, x_2_)) in enumerate(zip(x_1, x_2)):
-                jacobian[j] = self._jacobian(x_1_, x_2_)
-                # XXX - make sure number of non-zero elements in jacobian is > n_points_
-                # XXX - normalize
-                # XXX - np.random.choice(INDEXES_XXX, size=n_points_, replace=False, p=normalized)
-                # XXX - concatenate selected points to a single output
+            out = [False]
+            factor = 1.
+            while not out[0]:
+                out = self._get_uniform_sampling_one_caustic(
+                    caustic, n_points_, increase_factor*factor)
+                if not out[0]:
+                    factor *= 1.1 * out[1]
+            x_1_out += out[1].tolist()
+            x_2_out += out[2].tolist()
 # HERE XXX
-        return
+        return (x_1_out, x_2_out)
 
+    def _get_uniform_sampling_one_caustic(self, caustic, n_points,
+                                          increase_factor=10):
+        """XXX"""
+        min_factor = 3
+
+        n_all = int(n_points * increase_factor) + 1
+        begin = self._which_caustic[caustic-1]
+        scale = self._which_caustic[caustic] - begin
+        x_1 = np.random.rand(n_all) * scale + begin
+        x_2 = np.random.rand(n_all) * scale + begin
+        jacobian = np.zeros(n_all)
+        for (i, (x_1_, x_2_)) in enumerate(zip(x_1, x_2)):
+            jacobian[i] = self._jacobian(x_1_, x_2_)
+        index = np.where(jacobian > 0.)[0]
+        if len(index) < n_points * min_factor:
+            return (False, n_points * min_factor / len(index))
+        jacobian_masked = jacobian[index]
+        probabilities = jacobian_masked / np.sum(jacobian_masked)
+        out = np.random.choice(index, size=n_points, replace=False,
+                               p=probabilities)
+        return (True, x_1[out], x_2[out])
+
+# XXX the function below should be public
     def _jacobian(self, x_caustic_in, x_caustic_out):
         """
         Evaluates Eq. 23 from Cassan et al. (2010) with condition under Eq. 27.
@@ -759,16 +783,18 @@ class UniformCausticSampling(object):
 
 
 if __name__ == "__main__":
-    #caustic = UniformCausticSampling(s=1.1, q=0.1)
+    # caustic = UniformCausticSampling(s=1.1, q=0.1)
     if False:  # Check basic calculation
         params = caustic.get_standard_parameters(0.13, 0.04, 0., 1.)
         caustic.get_x_in_x_out(u_0=params['u_0'], alpha=params['alpha'])
 
     if True:  # Test get_uniform_sampling()
-        for s in [0.5]: # [1.1, 2., 0.5]:
+        for s in [1.1, 2., 0.5]:
             caustic = UniformCausticSampling(s=s, q=0.1)
             out = caustic.get_uniform_sampling(1000)
-            print(out)
+            # print(out)
+            plt.scatter(out[0], out[1])
+            plt.show()
 
     if False:  # Get x_caustic for many (u_0, alpha)
         n_points = 10000
