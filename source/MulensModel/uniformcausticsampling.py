@@ -372,6 +372,16 @@ class UniformCausticSampling(object):
         self._d_phi = (phi_end - phi_begin) / self._n_points
         self._phi = np.linspace(phi_begin, phi_end, self._n_points)
 
+    @property
+    def n_caustics(self):
+        """
+        *int*
+
+        Number of caustics: *1* for resonant topology, *2* for wide tolopogy,
+        or *3* for close topology.
+        """
+        return self._n_caustics
+
     def _get_n_caustics(self):
         """
         Get number of caustics: 1, 2, or 3.
@@ -454,13 +464,23 @@ class UniformCausticSampling(object):
 
         return {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha}
 
-    def get_uniform_sampling(self, n_points, n_min_for_caustic=10):
+    def get_uniform_sampling(self, n_points, n_min_for_caustic=10,
+                             caustic=None):
         """
-        XXX
-        XXX - note Jacobian from Cassan+10
+        Sample uniformly (x_caustic_in, x_caustic_out) space according to
+        Jacobian and requirement that x_caustic_in corresponds to caustic
+        entrance, and x_caustic_out corresponds to caustic exit. The Jacobian
+        is defined by Eq. 23 of:
+
+        `Cassan A. et al. 2010 A&A 515, 52
+        "Bayesian analysis of caustic-crossing microlensing events"
+        <https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract>`_
+
+        and the above requirement is defined under Eq. 27 of that paper.
 
         Relative number of points per caustic is not yet specified.
-        Points do not repeat.
+        Points do not repeat. This function is useful for sampling starting
+        distribution for model fitting.
 
         Parameters :
             n_points: *int*
@@ -469,37 +489,51 @@ class UniformCausticSampling(object):
             n_min_for_caustic: *int*
                 minimum number of points in each caustic
 
+            caustic: *int* or *None*
+                Select which caustic will be sampled. *None* means all
+                caustics. Can be *1*, *2*, or *3* but has to be
+                <= :py:attr:`n_caustics`.
+
         Returns :
-            x_caustic_in: XXX
-                XXX
-            x_caustic_out: XXX
-                XXX
+            x_caustic_in: *np.ndarray*
+                Randomly drawn entrance points.
+
+            x_caustic_out: *np.ndarray*
+                Corresponding randomly drawn exit points.
         """
+        if caustic is not None:
+            instance = isinstance(caustic, int)
+            if not instance or caustic < 1 or caustic > self._n_caustics:
+                raise ValueError(
+                    'Wrong caustic in get_uniform_sampling(): ' + str(caustic))
         if n_min_for_caustic * self._n_caustics > n_points:
             msg = 'wrong input for {:} caustics: {:} {:}'
             raise ValueError(msg.format(
                 self._n_caustics, n_points, n_min_for_caustic))
 
         increase_factor = 10  # How many more points we will have internally.
-        n_points_for_caustic = self._select_n_points(n_points,
-                                                     n_min_for_caustic)
 
-        # XXX inner part of this loop could be a separate function
+        if caustic is not None:
+            n_points_for_caustic = [n_points]
+            caustics = [caustic]
+        else:
+            n_points_for_caustic = self._select_n_points(n_points,
+                                                         n_min_for_caustic)
+            caustics = [i+1 for i in range(self._n_caustics)]
+
         x_1_out = []
         x_2_out = []
-        for (i, n_points_) in enumerate(n_points_for_caustic):
-            caustic = i + 1
+        for (caustic_, n_points_) in zip(caustics, n_points_for_caustic):
             out = [False]
             factor = 1.
             while not out[0]:
                 out = self._get_uniform_sampling_one_caustic(
-                    caustic, n_points_, increase_factor*factor)
+                    caustic_, n_points_, increase_factor*factor)
                 if not out[0]:
                     factor *= 1.1 * out[1]
             x_1_out += out[1].tolist()
             x_2_out += out[2].tolist()
-# HERE XXX
-        return (x_1_out, x_2_out)
+        return (np.array(x_1_out), np.array(x_2_out))
 
     def _get_uniform_sampling_one_caustic(self, caustic, n_points,
                                           increase_factor=10):
@@ -792,8 +826,7 @@ if __name__ == "__main__":
         for s in [1.1, 2., 0.5]:
             caustic = UniformCausticSampling(s=s, q=0.1)
             out = caustic.get_uniform_sampling(1000)
-            # print(out)
-            plt.scatter(out[0], out[1])
+            plt.scatter(out[0], out[1], marker='.')
             plt.show()
 
     if False:  # Get x_caustic for many (u_0, alpha)
