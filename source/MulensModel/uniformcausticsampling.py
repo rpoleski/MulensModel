@@ -62,7 +62,7 @@ class UniformCausticSampling(object):
         shift to center of mass coordinates.
         """
         z_bar = z.conjugate()
-        zeta = -z + (1./z_bar + self.q/(z_bar+self.s)) / (1. + self.q)
+        zeta = -z_bar + (1./z + self.q/(z+self.s)) / (1. + self.q)
         zeta -= self.s * self.q / (1. + self.q)
         return zeta
 
@@ -76,7 +76,8 @@ class UniformCausticSampling(object):
         value_1 = [float(i)/self._n_points for i in indexes]
         self._inflections_fractions = {1: value_1}
         cusps_z_1 = [self._z_sum_1[i] for i in indexes]
-        if self._n_caustics == 1:
+        if self._n_caustics == 1:  # XXX - it seems we should quit
+        # here - see "if" below
             cusps_z_1 = [self._z_all[indexes[2], 0]] + cusps_z_1
             cusps_z_1 += [c.conjugate() for c in cusps_z_1[1::-1]]
         else:
@@ -110,6 +111,7 @@ class UniformCausticSampling(object):
 # XXX - currently we skip this part because it produces an artifact
 # in self.plot_caustic()
         if False:
+# XXX - THE PART BELOW WAS NOT CHECKED FOR Y-AXIS CHANGE
         # Only for close configuration there is a need to modify self._sum_2
         # in order to make inflection point closer to 0.
         #  if self._n_caustics == 3:
@@ -716,9 +718,9 @@ class UniformCausticSampling(object):
         zeta_2 = self._zeta(z_use[index+1])
         if flip or caustic == 3:
             zeta = zeta.conjugate()
-            dzeta = zeta_1.conjugate() - zeta_2.conjugate()
+            dzeta = zeta_2.conjugate() - zeta_1.conjugate()
         else:
-            dzeta = zeta_2 - zeta_1
+            dzeta = zeta_1 - zeta_2
         dzeta /= np.abs(dzeta)
         self._last_dzeta_dphi = dzeta
         return zeta
@@ -738,9 +740,9 @@ class UniformCausticSampling(object):
                 ``1`` - central caustic,
 
                 ``2`` - planetary caustic; for close configuration it is
-                the upper of the two planetary caustics,
+                the lower of the two planetary caustics,
 
-                ``3`` - lower planetary caustic.
+                ``3`` - upper planetary caustic.
         """
         if x_caustic > 1.:
             raise ValueError('Got x_caustic > 1 : {:}'.format(x_caustic))
