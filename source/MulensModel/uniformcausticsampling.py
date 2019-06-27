@@ -89,24 +89,19 @@ class UniformCausticSampling(object):
         indexes = self._get_indexes_of_inflection_points(self._sum_1)
         value_1 = [float(i)/self._n_points for i in indexes]
         self._inflections_fractions = {1: value_1}
-        cusps_z_1 = [self._z_sum_1[i] for i in indexes]
-        if self._n_caustics == 1:  # XXX - it seems we should quit
-        # here - see "if" below
-            cusps_z_1 = [self._z_all[indexes[2], 0]] + cusps_z_1
-            cusps_z_1 += [c.conjugate() for c in cusps_z_1[1::-1]]
-        else:
-            if self._n_caustics == 2:
-                add = self._z_all[indexes[1], 2]
-            else:
-                add = self._z_all[indexes[1], 3]
-            cusps_z_1 = [add] + cusps_z_1
-            cusps_z_1 += [cusps_z_1[0].conjugate()]
-
-        cusps_zeta_1 = [self._zeta(z) for z in cusps_z_1]
-
         if self._n_caustics == 1:
             self._which_caustic = np.array([0., 1.])
             return
+
+        cusps_z_1 = [self._z_sum_1[i] for i in indexes]
+        if self._n_caustics == 2:
+            add = self._z_all[indexes[1], 2]
+        else:
+            add = self._z_all[indexes[1], 3]
+        cusps_z_1 = [add] + cusps_z_1
+        cusps_z_1 += [cusps_z_1[0].conjugate()]
+
+        cusps_zeta_1 = [self._zeta(z) for z in cusps_z_1]
 
         indexes = self._get_indexes_of_inflection_points(self._sum_2)
         value_2 = [float(i)/self._n_points for i in indexes]
