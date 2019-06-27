@@ -18,7 +18,15 @@ class UniformCausticSampling(object):
         caustic crossing (*x_caustic_in*, *x_caustic_out*). The curvelinear
         coordinates are defined so that going from 0 to 1 draws all caustics
         for given separation and mass ratio (this is different convention than
-        in papers cited below).
+        in papers cited below). For wide topology (i.e., 2 caustics), there is
+        a value between 0 and 1 which separates the caustics (x_sep)
+        and a trajectory
+        exists only if *x_caustic_in* and *x_caustic_out* correspond to
+        the same caustic, i.e., both are smaller than x_sep or
+        both are larger than x_sep. For close topology (i.e., 3 caustics),
+        there are two such separating values.
+
+        For description of the curvelinear coordinates, see:
 
         `Cassan A. 2008 A&A 491, 587 "An alternative parameterisation for
         binary-lens caustic-crossing events"
