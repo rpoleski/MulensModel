@@ -390,7 +390,7 @@ class UniformCausticSampling(object):
         """
         *int*
 
-        Number of caustics: *1* for resonant topology, *2* for wide tolopogy,
+        Number of caustics: *1* for resonant topology, *2* for wide topology,
         or *3* for close topology.
         """
         return self._n_caustics
@@ -737,7 +737,10 @@ class UniformCausticSampling(object):
         # XXX and should only be done if really needed
         index = np.argsort(np.abs(phi_interp-self._phi))[0]
         zeta_1 = self._zeta(z_use[index])
-        zeta_2 = self._zeta(z_use[index+1])
+        index_ = index + 1
+        if index_ == self._n_points:
+            index_ = 0
+        zeta_2 = self._zeta(z_use[index_])
         if flip or caustic == 3:
             zeta = zeta.conjugate()
             dzeta = zeta_2.conjugate() - zeta_1.conjugate()
@@ -805,7 +808,7 @@ class UniformCausticSampling(object):
         """
         x = np.zeros(n_points)
         y = np.zeros(n_points)
-        color = np.linspace(0, 1, n_points+2)[1:-1]
+        color = np.linspace(0, 1, n_points)
         for (i, value) in enumerate(color):
             c = self.caustic_point(value)
             x[i] = c.real
@@ -861,8 +864,8 @@ if __name__ == "__main__":
             x_caustic = caustic.get_x_in_x_out(u_0=u_0, alpha=alpha)
             for i in range(len(x_caustic)):
                 for j in range(i+1, len(x_caustic)):
-                    check = caustic.orientation_check(x_caustic[i],
-                                                      x_caustic[j])
+                    check = caustic.orientation_check(
+                        x_caustic[i], x_caustic[j])
                     if not check:
                         continue
                     print(x_caustic[i], x_caustic[j], len(x_caustic))
