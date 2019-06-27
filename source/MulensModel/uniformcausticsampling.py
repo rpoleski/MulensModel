@@ -8,11 +8,17 @@ import MulensModel as MM
 class UniformCausticSampling(object):
     def __init__(self, s, q, n_points=10000):
         """
-        XXX
+        Uniform sampling of a binary lens caustic.
+        Note that calculations take some time for given (s, q).
+        Keep that in mind, when optimizing your fitting routine.
 
-        calculations take some time
-        https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract
-        https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract
+        `Cassan A. 2008 A&A 491, 587 "An alternative parameterisation for
+        binary-lens caustic-crossing events"
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_
+
+        `Cassan A. et al. 2010 A&A 515, 52
+        "Bayesian analysis of caustic-crossing microlensing events"
+        <https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract>`_
         """
         self._s = s
         self._q = q
@@ -70,7 +76,7 @@ class UniformCausticSampling(object):
         """
         Find inflection points of s(phi). In the case of close configuration
         also correct the phase of planetary caustic - Do we do it in current
-        version XXX ???
+        version XXX ??? - yes because of self._which_caustic
         """
         indexes = self._get_indexes_of_inflection_points(self._sum_1)
         value_1 = [float(i)/self._n_points for i in indexes]
@@ -222,7 +228,9 @@ class UniformCausticSampling(object):
     def orientation_check(self, x_caustic_in, x_caustic_out):
         """
         XXX - this function should have different name because we check other
-        condition i.e., if the same caustics are hit
+        condition i.e., if the same caustics are hit; also update name of
+        function below
+        XXX trajectory_exists
 
         Check if given (x_caustic_in, x_caustic_out) define an existing
         trajectory. An obvious case, when they don't is when both caustic
@@ -243,9 +251,9 @@ class UniformCausticSampling(object):
 
     def _orientation_check(self, x_caustic_in, x_caustic_out):
         """
-        XXX
+        Check if given parameters define real trajectory.
 
-        Returns a list
+        Returns a list with first element being True/False
         """
         if self._n_caustics > 1:
             caustic_in = self.which_caustic(x_caustic_in)
@@ -539,7 +547,9 @@ class UniformCausticSampling(object):
 
     def _get_uniform_sampling_one_caustic(self, caustic, n_points,
                                           increase_factor=10):
-        """XXX"""
+        """
+        Get uniform sampling for a single caustic.
+        """
         min_factor = 3
 
         n_all = int(n_points * increase_factor) + 1
@@ -563,6 +573,16 @@ class UniformCausticSampling(object):
     def _jacobian(self, x_caustic_in, x_caustic_out):
         """
         Evaluates Eq. 23 from Cassan et al. (2010) with condition under Eq. 27.
+
+        Parameters :
+            x_caustic_in: *float*
+                Point of caustic entrance.
+            x_caustic_out: *float*
+                Point of caustic exit.
+
+        Returns :
+            jacobian: *float*
+                Value of Jacobian. Returns *0.* if trajectory does not exist.
         """
         check = self._orientation_check(x_caustic_in, x_caustic_out)
         if not check[0]:
@@ -613,9 +633,9 @@ class UniformCausticSampling(object):
             raise ValueError('strange error: {:}'.format(self._n_caustics))
         return out
 
-    def get_x_in_x_out(self, u_0, alpha):
+    def get_x_in_x_out(self, u_0, alpha):  # XXX name of the function?
         """
-        XXX
+        Calculate where given trajectory crosses the caustic.
 
         Parameters :
             u_0: *float*
@@ -623,8 +643,6 @@ class UniformCausticSampling(object):
 
             alpha: *float*
                 Angle defining the source trajectory.
-
-        XXX - maybe change output to np.array
 
         Returns :
             x_caustic_points: *list* of *float*
