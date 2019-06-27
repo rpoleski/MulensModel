@@ -12,6 +12,14 @@ class UniformCausticSampling(object):
         Note that calculations take some time for given (s, q).
         Keep that in mind, when optimizing your fitting routine.
 
+        Instead of standard parameters (*t_0*, *u_0*, *t_E*, *alpha*), here
+        we use four other parameters: two epochs of caustic crossing
+        (*t_caustic_in*, *t_caustic_out*) and two curvelinear coordinates of
+        caustic crossing (*x_caustic_in*, *x_caustic_out*). The curvelinear
+        coordinates are defined so that going from 0 to 1 draws all caustics
+        for given separation and mass ratio (this is different convention than
+        in papers cited below).
+
         `Cassan A. 2008 A&A 491, 587 "An alternative parameterisation for
         binary-lens caustic-crossing events"
         <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_
@@ -412,7 +420,8 @@ class UniformCausticSampling(object):
 
         Note that this function quite frequently raises ValueError exception.
         That is because not all (s, q, x_caustic_in and x_caustic_out)
-        correspond to real trajectories.
+        correspond to real trajectories. The returned values are in
+        conventions used by :py:class:`~MulensModel.model.Model`.
 
         Keywords :
             x_caustic_in: *float*
