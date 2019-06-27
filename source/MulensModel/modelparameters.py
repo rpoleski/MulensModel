@@ -466,6 +466,7 @@ class ModelParameters(object):
     def _check_valid_combination_1_source(self, keys):
         """
         Check that the user hasn't over-defined the ModelParameters.
+        This function sets self._Cassan08 property.
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set([
@@ -605,6 +606,9 @@ class ModelParameters(object):
 
     @t_0.setter
     def t_0(self, new_t_0):
+        if self._Cassan08:
+            raise ValueError('t_0 cannot be set for model using ' +
+                             'Cassan (2008) parameterization')
         self.parameters['t_0'] = new_t_0
         self._update_sources('t_0', new_t_0)
 
@@ -631,6 +635,9 @@ class ModelParameters(object):
 
     @u_0.setter
     def u_0(self, new_u_0):
+        if self._Cassan08:
+            raise ValueError('u_0 cannot be set for model using ' +
+                             'Cassan (2008) parameterization')
         if 'u_0' in self.parameters.keys():
             self.parameters['u_0'] = new_u_0
             self._update_sources('u_0', new_u_0)
@@ -729,6 +736,10 @@ class ModelParameters(object):
 
     @t_E.setter
     def t_E(self, new_t_E):
+        if self._Cassan08:
+            raise ValueError('t_E cannot be set for model using ' +
+                             'Cassan (2008) parameterization')
+
         if new_t_E is None:
             raise ValueError('Must provide a value')
 
@@ -791,6 +802,10 @@ class ModelParameters(object):
 
     @alpha.setter
     def alpha(self, new_alpha):
+        if self._Cassan08:
+            raise ValueError('alpha cannot be set for model using ' +
+                             'Cassan (2008) parameterization')
+
         if isinstance(new_alpha, u.Quantity):
             self.parameters['alpha'] = new_alpha
         else:
