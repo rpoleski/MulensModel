@@ -93,8 +93,8 @@ class MagnificationCurve(object):
 
                   methods = [
                       2455746., 'Quadrupole', 2455746.6, 'Hexadecapole',
-                      2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15,
-                      'Quadrupole', 2455748.]
+                      2455746.7, 'VBBL', 2455747., 'Hexadecapole',
+                      2455747.15, 'Quadrupole', 2455748.]
 
             default_method: *str*
                 Name of the method to be used for epochs outside the ranges

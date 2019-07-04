@@ -16,7 +16,8 @@ class Coordinates(SkyCoord):
       from astropy import units as u
       Coordinates('18:00:00 -30:00:00')
       Coordinates('18h00m00s', '-30d00m00s')
-      Coordinates(SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg)))
+      Coordinates(SkyCoord('18:00:00 -30:00:00',
+                  unit=(u.hourangle, u.deg)))
       Coordinates(SkyCoord(270.000, -30.000, unit=u.deg))
 
     If the unit keyword is not specified, defaults to
@@ -42,10 +43,10 @@ class Coordinates(SkyCoord):
         Galactic longitude. Note that for connivance, the values l >
         180 degrees are represented as 360-l.
         """
-        l = self.galactic.l
-        if l > 180. * u.deg:
-            l = l - 360. * u.deg
-        return l
+        gal_l = self.galactic.l
+        if gal_l > 180. * u.deg:
+            gal_l = gal_l - 360. * u.deg
+        return gal_l
 
     @property
     def galactic_b(self):

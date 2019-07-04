@@ -1065,7 +1065,7 @@ class Model(object):
 
         Returns :
             residuals: *list*
-                each element of the list is a np.array() with the
+                each element of the list is a *np.ndarray* with the
                 residuals for the corresponding dataset.
 
             errorbars: *list*
@@ -1438,7 +1438,8 @@ class Model(object):
             n_epochs=1000):
         """
         Return a list of times. If no keywords are specified, default
-        is 1000 epochs from [`t_0` - 1.5* `t_E`, `t_0` + 1.5* `t_E`].
+        is 1000 epochs from [:math:`t_0 - 1.5 * t_E`,
+        :math:`t_0 + 1.5 * t_E`].
         For binary source models, respectively, smaller and larger of
         `t_0_1/2` values are used.
 
@@ -1514,8 +1515,8 @@ class Model(object):
 
                   methods = [
                       2455746., 'Quadrupole', 2455746.6, 'Hexadecapole',
-                      2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15,
-                      'Quadrupole', 2455748.]
+                      2455746.7, 'VBBL', 2455747., 'Hexadecapole',
+                      2455747.15, 'Quadrupole', 2455748.]
 
             source: *int* or *None*
                 Which source given methods apply to? Accepts 1, 2, or *None*
@@ -1552,7 +1553,7 @@ class Model(object):
             methods_parameters: *dict*
                 Dictionary that for method names (keys) returns dictionary
                 in the form of ``**kwargs`` that are passed to given method,
-                e.g., *{'VBBL': {'accuracy': 0.005}}*.
+                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
 
         """
         if self.n_lenses == 1:
