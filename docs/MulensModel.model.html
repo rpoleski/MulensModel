@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.10.1 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.10.7 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -318,11 +318,16 @@ and <code class="docutils literal notranslate"><span class="pre">'topocentric'</
 <dl class="docutils">
 <dt>Keywords :</dt>
 <dd><p class="first">see <a class="reference internal" href="#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_lc()</span></code></a></p>
-<p>gamma: see <a class="reference internal" href="#MulensModel.model.Model.magnification" title="MulensModel.model.Model.magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">magnification()</span></code></a></p>
-<p class="last">satellite_skycoord: see <a class="reference internal" href="#MulensModel.model.Model.plot_trajectory" title="MulensModel.model.Model.plot_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_trajectory()</span></code></a></p>
+<dl class="last docutils">
+<dt>gamma:</dt>
+<dd>see <a class="reference internal" href="#MulensModel.model.Model.magnification" title="MulensModel.model.Model.magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">magnification()</span></code></a></dd>
+<dt>satellite_skycoord:</dt>
+<dd>see <a class="reference internal" href="#MulensModel.model.Model.plot_trajectory" title="MulensModel.model.Model.plot_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_trajectory()</span></code></a></dd>
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt>
+<dd>any arguments accepted by <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</dd>
+</dl>
 </dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> – any arguments accepted by matplotlib.pyplot.plot().</p>
 </dd></dl>
 
 <dl class="method">
@@ -357,7 +362,10 @@ plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Mode
 <blockquote>
 <div>Option for binary source models only.
 Data or bandpass to constrain the flux ratio of sources.</div></blockquote>
-<p class="last"><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> any arguments accepted by matplotlib.pyplot.plot().</p>
+<dl class="last docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt>
+<dd>any arguments accepted by <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</dd>
+</dl>
 </dd>
 </dl>
 <p>Provide <cite>data_ref</cite> or (<cite>f_source</cite>, <cite>f_blend</cite>) if you want to
@@ -651,9 +659,12 @@ for a list of implemented methods.</p>
 used when (<em>float</em> values for Julian dates). Given
 method will be used for times between the times
 between which it is on the list, e.g.,</p>
-<p class="last"><code class="docutils literal notranslate"><span class="pre">methods</span> <span class="pre">=</span> <span class="pre">[2455746.,</span> <span class="pre">'Quadrupole',</span> <span class="pre">2455746.6,</span>
-<span class="pre">'Hexadecapole',</span> <span class="pre">2455746.7,</span> <span class="pre">'VBBL',</span> <span class="pre">2455747.,</span>
-<span class="pre">'Hexadecapole',</span> <span class="pre">2455747.15,</span> <span class="pre">'Quadrupole',</span> <span class="pre">2455748.]</span></code></p>
+<div class="last highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">methods</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">2455746.</span><span class="p">,</span> <span class="s1">&#39;Quadrupole&#39;</span><span class="p">,</span> <span class="mf">2455746.6</span><span class="p">,</span> <span class="s1">&#39;Hexadecapole&#39;</span><span class="p">,</span>
+    <span class="mf">2455746.7</span><span class="p">,</span> <span class="s1">&#39;VBBL&#39;</span><span class="p">,</span> <span class="mf">2455747.</span><span class="p">,</span> <span class="s1">&#39;Hexadecapole&#39;</span><span class="p">,</span> <span class="mf">2455747.15</span><span class="p">,</span>
+    <span class="s1">&#39;Quadrupole&#39;</span><span class="p">,</span> <span class="mf">2455748.</span><span class="p">]</span>
+</pre></div>
+</div>
 </dd>
 <dt>source: <em>int</em> or <em>None</em></dt>
 <dd>Which source given methods apply to? Accepts 1, 2, or <em>None</em>
