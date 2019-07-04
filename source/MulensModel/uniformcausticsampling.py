@@ -814,13 +814,10 @@ class UniformCausticSampling(object):
         """
         Plot caustic using uniform sampling and color scale
         """
-        x = np.zeros(n_points)
-        y = np.zeros(n_points)
         color = np.linspace(0, 1, n_points)
-        for (i, value) in enumerate(color):
-            c = self.caustic_point(value)
-            x[i] = c.real
-            y[i] = c.imag
+        points = [self.caustic_point(c) for c in color]
+        x = [p.real for p in points]
+        y = [p.imag for p in points]
         plt.scatter(x, y, c=color)
         plt.axis('equal')
         plt.colorbar()
@@ -858,10 +855,12 @@ if __name__ == "__main__":
         caustic.get_x_in_x_out(u_0=params['u_0'], alpha=params['alpha'])
 
     if True:  # Test get_uniform_sampling()
-        for s in [1.1, 2., 0.5]:
-            caustic = UniformCausticSampling(s=s, q=0.1)
-            out = caustic.get_uniform_sampling(1000)
-            plt.scatter(out[0], out[1], marker='.')
+        for s in [1.1, 2., 0.7]:
+            caustic = UniformCausticSampling(s=s, q=0.3)
+            caustic._plot_caustic()
+            # 1) Counter-clockwise; starting at largest X
+            # 2) Counter-clockwise Counter-clockwise; starting at largest X - BOTH
+            # 3) Counter-clockwise Counter-clockwise CLOCKWISE; starting at largest X - AND - two not specified
             plt.show()
 
     if False:  # Get x_caustic for many (u_0, alpha)
