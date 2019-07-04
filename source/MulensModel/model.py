@@ -675,11 +675,14 @@ class Model(object):
         Keywords :
             see :py:func:`plot_lc()`
 
-            gamma: see :py:func:`magnification()`
+            gamma:
+                see :py:func:`magnification()`
 
-            satellite_skycoord: see :py:func:`plot_trajectory()`
+            satellite_skycoord:
+                see :py:func:`plot_trajectory()`
 
-        ``**kwargs`` -- any arguments accepted by matplotlib.pyplot.plot().
+            ``**kwargs``:
+                any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
 
         """
         if times is None:
@@ -746,7 +749,8 @@ class Model(object):
                 Option for binary source models only.
                 Data or bandpass to constrain the flux ratio of sources.
 
-            ``**kwargs`` any arguments accepted by matplotlib.pyplot.plot().
+            ``**kwargs``:
+                any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
 
         Provide `data_ref` or (`f_source`, `f_blend`) if you want to
         plot in flux units different than last value of `data_ref`
@@ -1506,9 +1510,12 @@ class Model(object):
                 method will be used for times between the times
                 between which it is on the list, e.g.,
 
-                ``methods = [2455746., 'Quadrupole', 2455746.6,
-                'Hexadecapole', 2455746.7, 'VBBL', 2455747.,
-                'Hexadecapole', 2455747.15, 'Quadrupole', 2455748.]``
+                .. code-block:: python
+
+                  methods = [
+                      2455746., 'Quadrupole', 2455746.6, 'Hexadecapole',
+                      2455746.7, 'VBBL', 2455747., 'Hexadecapole', 2455747.15,
+                      'Quadrupole', 2455748.]
 
             source: *int* or *None*
                 Which source given methods apply to? Accepts 1, 2, or *None*

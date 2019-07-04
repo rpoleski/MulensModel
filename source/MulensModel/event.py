@@ -45,9 +45,9 @@ class Event(object):
 
         sum_function: *str*
             Function used for adding chi^2 contributions. Can be either
-            'math.fsum' (default value) or 'numpy.sum'. The former is
-            slightly slower and more accurate, which may be important for
-            large datasets.
+            :py:func:`math.fsum()` (default value) or :py:func:`numpy.sum`.
+            The former is slightly slower and more accurate,
+            which may be important for large datasets.
 
     The datasets can be in magnitude or flux spaces. When we calculate chi^2
     we do it in the same space as the dataset considered. If dataset is in
