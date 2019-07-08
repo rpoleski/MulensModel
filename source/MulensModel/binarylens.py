@@ -11,43 +11,45 @@ from MulensModel.utils import Utils
 
 
 def _try_load(path):
-    """XXX"""
-    try:
-        out = ctypes.cdll.LoadLibrary(path)
-    except:
-        out = None
-    return out
+    """
+    Try loading compiled C library.
+    Input is *str* or *list* of *str*.
+    """
+    if isinstance(path, str):
+        path = [path]
+    for path_ in path:
+        try:
+            out = ctypes.cdll.LoadLibrary(path_)
+        except OSError:
+            print("D")
+            pass
+        else:
+            return out
+    return None
 
-PATH = os.path.join(os.path.dirname(MulensModel.__file__), "VBBL*.so")
-PATH = glob.glob(PATH)  # XXX - checks on length
-if len(PATH) > 0:
-    vbbl = _try_load(PATH[0])
-else:
-    vbbl = None
-if vbbl is None:
-    MODULE_PATH = os.path.abspath(__file__)
+
+def _get_path_1(name):
+    """convenience function"""
+    return os.path.join(os.path.dirname(MulensModel.__file__), name + "*.so")
+
+
+def _get_path_2(name_1, name_2):
+    """convenience function"""
+    module_path = os.path.abspath(__file__)
     for i in range(3):
-        MODULE_PATH = os.path.dirname(MODULE_PATH)
-    PATH = os.path.join(
-        MODULE_PATH, 'source', 'VBBL', "VBBinaryLensingLibrary_wrapper.so")
-    vbbl = _try_load(PATH)
+        module_path = os.path.dirname(module_path)
+    return os.path.join(module_path, 'source', name_1, name_2)
+
+
+vbbl = _try_load(glob.glob(_get_path_1("VBBL")))
+if vbbl is None:
+    vbbl = _try_load(_get_path_2('VBBL', "VBBinaryLensingLibrary_wrapper.so"))
 _vbbl_wrapped = (vbbl is not None)
 
-PATH = os.path.join(os.path.dirname(MulensModel.__file__),
-    "AdaptiveContouring*.so")
-PATH = glob.glob(PATH)  # XXX - checks on length
-if len(PATH) > 0:
-    adaptive_contour = _try_load(PATH[0])
-else:
-    adaptive_contour = None
+ac = "AdaptiveContouring"
+adaptive_contour = _try_load(glob.glob(_get_path_1(ac)))
 if adaptive_contour is None:
-    MODULE_PATH = os.path.abspath(__file__)
-    for i in range(3):
-        MODULE_PATH = os.path.dirname(MODULE_PATH)
-    PATH = os.path.join(
-        MODULE_PATH, 'source', 'AdaptiveContouring',
-        "AdaptiveContouring_wrapper.so")
-    adaptive_contour = _try_load(PATH)
+    adaptive_contour = _try_load(_get_path_2(ac, ac + "_wrapper.so"))
 _adaptive_contouring_wrapped = (adaptive_contour is not None)
 
 if _vbbl_wrapped:
@@ -67,8 +69,8 @@ else:
 
 if _adaptive_contouring_wrapped:
     adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
-                8 * [ctypes.c_double])
-    adaptive_contour.Adaptive_Contouring_Linear.restype = (ctypes.c_double)
+        8 * [ctypes.c_double])
+    adaptive_contour.Adaptive_Contouring_Linear.restype = ctypes.c_double
     _adaptive_contouring_linear = adaptive_contour.Adaptive_Contouring_Linear
 
 
