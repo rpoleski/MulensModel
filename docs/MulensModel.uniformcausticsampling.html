@@ -1,0 +1,293 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MulensModel.uniformcausticsampling module &#8212; MulensModel 1.6.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.uniformcausticsampling">
+<span id="mulensmodel-uniformcausticsampling-module"></span><h1>MulensModel.uniformcausticsampling module<a class="headerlink" href="#module-MulensModel.uniformcausticsampling" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling">
+<em class="property">class </em><code class="descclassname">MulensModel.uniformcausticsampling.</code><code class="descname">UniformCausticSampling</code><span class="sig-paren">(</span><em>s</em>, <em>q</em>, <em>n_points=10000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check">
+<code class="descname">orientation_check</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>XXX - this function should have different name because we check other
+condition i.e., if the same caustics are hit; also update name of
+function below
+XXX trajectory_exists</p>
+<p>Check if given (x_caustic_in, x_caustic_out) define an existing
+trajectory. An obvious case, when they don’t is when both caustic
+points are on the same fold, but other cases exists.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>x_caustic_in: <em>float</em></dt>
+<dd>Coordinate of putative caustic entrance.</dd>
+<dt>x_caustic_out: <em>float</em></dt>
+<dd>Coordinate of putative caustic exit.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>check: <em>bool</em></dt>
+<dd><em>True</em> if input defines a trajectory, <em>False</em> if it does not.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics">
+<code class="descname">n_caustics</code><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>Number of caustics: <em>1</em> for resonant topology, <em>2</em> for wide topology,
+or <em>3</em> for close topology.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters">
+<code class="descname">get_standard_parameters</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em>, <em>t_caustic_in</em>, <em>t_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get standard binary lens parameters (i.e., t_0, u_0, t_E, alpha)
+based on provided parameters.</p>
+<p>Note that this function quite frequently raises ValueError exception.
+That is because not all (s, q, x_caustic_in and x_caustic_out)
+correspond to real trajectories. The returned values are in
+conventions used by <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>.</p>
+<dl class="docutils">
+<dt>Keywords :</dt>
+<dd><dl class="first last docutils">
+<dt>x_caustic_in: <em>float</em></dt>
+<dd>Curvelinear coordinate of caustic entrance.
+Must be in (0, 1) range.</dd>
+<dt>x_caustic_out: <em>float</em></dt>
+<dd>Curvelinear coordinate of caustic exit.
+Must be in (0, 1) range.</dd>
+<dt>t_caustic_in: <em>float</em></dt>
+<dd>Epoch of caustic entrance.</dd>
+<dt>t_caustic_out: <em>float</em></dt>
+<dd>Epoch of caustic exit.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>parameters: <em>dict</em></dt>
+<dd>Dictionary with standard binary parameters, i.e, keys are
+<code class="docutils literal notranslate"><span class="pre">t_0</span></code>, <code class="docutils literal notranslate"><span class="pre">u_0</span></code>, <code class="docutils literal notranslate"><span class="pre">t_E</span></code>, and <code class="docutils literal notranslate"><span class="pre">alpha</span></code>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_uniform_sampling">
+<code class="descname">get_uniform_sampling</code><span class="sig-paren">(</span><em>n_points</em>, <em>n_min_for_caustic=10</em>, <em>caustic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_uniform_sampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample uniformly (x_caustic_in, x_caustic_out) space according to
+Jacobian and requirement that x_caustic_in corresponds to caustic
+entrance, and x_caustic_out corresponds to caustic exit. The Jacobian
+is defined by Eq. 23 of:</p>
+<p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract">Cassan A. et al. 2010 A&amp;A 515, 52
+“Bayesian analysis of caustic-crossing microlensing events”</a></p>
+<p>and the above requirement is defined under Eq. 27 of that paper.</p>
+<p>Relative number of points per caustic is not yet specified.
+Points do not repeat. This function is useful for sampling starting
+distribution for model fitting.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>n_points: <em>int</em></dt>
+<dd>number of points to be returned</dd>
+<dt>n_min_for_caustic: <em>int</em></dt>
+<dd>minimum number of points in each caustic</dd>
+<dt>caustic: <em>int</em> or <em>None</em></dt>
+<dd>Select which caustic will be sampled. <em>None</em> means all
+caustics. Can be <em>1</em>, <em>2</em>, or <em>3</em> but has to be
+&lt;= <a class="reference internal" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics" title="MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics"><code class="xref py py-attr docutils literal notranslate"><span class="pre">n_caustics</span></code></a>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>x_caustic_in: <em>np.ndarray</em></dt>
+<dd>Randomly drawn entrance points.</dd>
+<dt>x_caustic_out: <em>np.ndarray</em></dt>
+<dd>Corresponding randomly drawn exit points.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out">
+<code class="descname">get_x_in_x_out</code><span class="sig-paren">(</span><em>u_0</em>, <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate where given trajectory crosses the caustic.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>u_0: <em>float</em></dt>
+<dd>The parameter u_0 of source trajectory, i.e., impact parameter.</dd>
+<dt>alpha: <em>float</em></dt>
+<dd>Angle defining the source trajectory.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>x_caustic_points: <em>list</em> of <em>float</em></dt>
+<dd>Caustic coordinates of points where given trajectory crosses
+the caustic. The length is between 0 and 6.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges">
+<code class="descname">allowed_ranges</code><span class="sig-paren">(</span><em>x_caustic</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>For given value of x_caustic_in or _out get 1 or 2 ranges in
+which the other parameter has to be (required condition, but not
+necessarily enough - see also <a class="reference internal" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check"><code class="xref py py-func docutils literal notranslate"><span class="pre">orientation_check()</span></code></a>).</p>
+<p>XXX</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.caustic_point">
+<code class="descname">caustic_point</code><span class="sig-paren">(</span><em>x_caustic</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.caustic_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate caustic position corresponding to given x_caustic.</p>
+<dl class="docutils">
+<dt>Keywords :</dt>
+<dd><dl class="first last docutils">
+<dt>x_caustic: <em>float</em></dt>
+<dd>Curvelinear coordinate of the point considered.
+Has to be in 0-1 range.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>point: <em>numpy.complex128</em></dt>
+<dd>Caustic point in complex coordinates.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.which_caustic">
+<code class="descname">which_caustic</code><span class="sig-paren">(</span><em>x_caustic</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.which_caustic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates on which caustic given point is.</p>
+<dl class="docutils">
+<dt>Keywords :</dt>
+<dd><dl class="first last docutils">
+<dt>x_caustic: <em>float</em></dt>
+<dd>Curvelinear coordinate to be checked</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>i_caustic: <em>int</em></dt>
+<dd><p class="first">Number indicating the caustic:</p>
+<p><code class="docutils literal notranslate"><span class="pre">1</span></code> - central caustic,</p>
+<p><code class="docutils literal notranslate"><span class="pre">2</span></code> - planetary caustic; for close configuration it is
+the lower of the two planetary caustics,</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">3</span></code> - upper planetary caustic.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.s">
+<code class="descname">s</code><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.s" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>separation of the two lens components relative to Einstein ring size</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.q">
+<code class="descname">q</code><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.q" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Mass ratio.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.uniformcausticsampling.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/MulensModel.uniformcausticsampling.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
