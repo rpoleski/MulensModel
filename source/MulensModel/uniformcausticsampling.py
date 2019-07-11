@@ -11,6 +11,18 @@ class UniformCausticSampling(object):
     Note that calculations take some time for given (s, q).
     Keep that in mind, when optimizing your fitting routine.
 
+    Arguments :
+        s: *float*
+            Separation of the two lens components relative to
+            the Einstein ring size.
+
+        q: *float*
+            Mass ratio of the two lens components.
+
+        n_points: *int*
+            Number of points used for internal integration.
+            Default value should work find.
+
     Instead of standard parameters (*t_0*, *u_0*, *t_E*, *alpha*), here
     we use four other parameters: two epochs of caustic crossing
     (*t_caustic_in*, *t_caustic_out*) and two curvelinear coordinates of
@@ -18,11 +30,11 @@ class UniformCausticSampling(object):
     coordinates are defined so that going from 0 to 1 draws all caustics
     for given separation and mass ratio (this is different convention than
     in papers cited below). For a wide topology (i.e., 2 caustics), there
-    is a value between 0 and 1 which separates the caustics (:math:`x_sep`)
+    is a value between 0 and 1 which separates the caustics (:math:`{x_sep}`)
     and a trajectory
     exists only if *x_caustic_in* and *x_caustic_out* correspond to
-    the same caustic, i.e., both are smaller than :math:`x_sep` or
-    both are larger than :math:`x_sep`. For a close topology
+    the same caustic, i.e., both are smaller than :math:`x_{sep}` or
+    both are larger than :math:`x_{sep}`. For a close topology
     (i.e., 3 caustics), there are two such separating values.
 
     For description of the curvelinear coordinates, see:
@@ -265,12 +277,10 @@ class UniformCausticSampling(object):
         dz_bar_dphi_ = self._dz_bar_dphi(np.conjugate(z))
         return dz_dphi_ + np.exp(1j * phi) * dz_bar_dphi_
 
-    def orientation_check(self, x_caustic_in, x_caustic_out):
+    def orientation_check(self, x_caustic_in, x_caustic_out):  # XXX
         """
-        XXX - this function should have different name because we check other
-        condition i.e., if the same caustics are hit; also update name of
-        function below
-        XXX trajectory_exists
+        **TO DO: this function should have different name because we check
+        the other condition i.e., if the same caustics are hit**
 
         Check if given (x_caustic_in, x_caustic_out) define an existing
         trajectory. An obvious case, when they don't is when both caustic
@@ -447,11 +457,14 @@ class UniformCausticSampling(object):
     def get_standard_parameters(self, x_caustic_in, x_caustic_out,
                                 t_caustic_in, t_caustic_out):
         """
-        Get standard binary lens parameters (i.e., t_0, u_0, t_E, alpha)
-        based on provided parameters.
+        Get standard binary lens parameters (i.e., ``t_0``, ``u_0``, ``t_E``,
+        ``alpha``; see
+        :py:class:`~MulensModel.modelparameters.ModelParameters`)
+        based on provided curvelinear parameters.
 
-        Note that this function quite frequently raises ValueError exception.
-        That is because not all (s, q, x_caustic_in and x_caustic_out)
+        Note that this function quite frequently raises ``ValueError``
+        exception. This is because not all
+        (``s``, ``q``, ``x_caustic_in``, and ``x_caustic_out``)
         correspond to real trajectories. The returned values are in
         conventions used by :py:class:`~MulensModel.model.Model`.
 
@@ -531,7 +544,10 @@ class UniformCausticSampling(object):
 
         Relative number of points per caustic is not yet specified.
         Points do not repeat. This function is useful for sampling starting
-        distribution for model fitting.
+        distribution for model fitting. For example sampling see
+        `Cassan et al. (2010)
+        <https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract>`_
+        bottom panel of Fig. 1.
 
         Parameters :
             n_points: *int*
@@ -706,13 +722,13 @@ class UniformCausticSampling(object):
                 caustic=self._n_caustics)
         return points
 
-    def allowed_ranges(self, x_caustic):
+    def allowed_ranges(self, x_caustic):  # XXX
         """
+        **Not implemented yet. Not sure how useful it is**
+
         For given value of x_caustic_in or _out get 1 or 2 ranges in
         which the other parameter has to be (required condition, but not
         necessarily enough - see also :py:func:`orientation_check()`).
-
-        XXX
         """
         caustic = self.which_caustic(x_caustic)
         print(self._inflections_fractions)

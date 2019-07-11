@@ -39,6 +39,20 @@
 <p>Uniform sampling of a binary lens caustic.
 Note that calculations take some time for given (s, q).
 Keep that in mind, when optimizing your fitting routine.</p>
+<dl class="docutils">
+<dt>Arguments :</dt>
+<dd><dl class="first last docutils">
+<dt>s: <em>float</em></dt>
+<dd>Separation of the two lens components relative to
+the Einstein ring size.</dd>
+<dt>q: <em>float</em></dt>
+<dd>Mass ratio of the two lens components.</dd>
+<dt>n_points: <em>int</em></dt>
+<dd>Number of points used for internal integration.
+Default value should work find.</dd>
+</dl>
+</dd>
+</dl>
 <p>Instead of standard parameters (<em>t_0</em>, <em>u_0</em>, <em>t_E</em>, <em>alpha</em>), here
 we use four other parameters: two epochs of caustic crossing
 (<em>t_caustic_in</em>, <em>t_caustic_out</em>) and two curvelinear coordinates of
@@ -46,11 +60,11 @@ caustic crossing (<em>x_caustic_in</em>, <em>x_caustic_out</em>). The curvelinea
 coordinates are defined so that going from 0 to 1 draws all caustics
 for given separation and mass ratio (this is different convention than
 in papers cited below). For a wide topology (i.e., 2 caustics), there
-is a value between 0 and 1 which separates the caustics (<span class="math notranslate nohighlight">\(x_sep\)</span>)
+is a value between 0 and 1 which separates the caustics (<span class="math notranslate nohighlight">\({x_sep}\)</span>)
 and a trajectory
 exists only if <em>x_caustic_in</em> and <em>x_caustic_out</em> correspond to
-the same caustic, i.e., both are smaller than <span class="math notranslate nohighlight">\(x_sep\)</span> or
-both are larger than <span class="math notranslate nohighlight">\(x_sep\)</span>. For a close topology
+the same caustic, i.e., both are smaller than <span class="math notranslate nohighlight">\(x_{sep}\)</span> or
+both are larger than <span class="math notranslate nohighlight">\(x_{sep}\)</span>. For a close topology
 (i.e., 3 caustics), there are two such separating values.</p>
 <p>For description of the curvelinear coordinates, see:</p>
 <p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan A. 2008 A&amp;A 491, 587 “An alternative parameterisation for
@@ -85,10 +99,8 @@ in a very complicated way, however it is a smooth function of
 <dl class="method">
 <dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check">
 <code class="descname">orientation_check</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="Permalink to this definition">¶</a></dt>
-<dd><p>XXX - this function should have different name because we check other
-condition i.e., if the same caustics are hit; also update name of
-function below
-XXX trajectory_exists</p>
+<dd><p><strong>TO DO: this function should have different name because we check
+the other condition i.e., if the same caustics are hit</strong></p>
 <p>Check if given (x_caustic_in, x_caustic_out) define an existing
 trajectory. An obvious case, when they don’t is when both caustic
 points are on the same fold, but other cases exists.</p>
@@ -121,10 +133,13 @@ or <em>3</em> for close topology.</p>
 <dl class="method">
 <dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters">
 <code class="descname">get_standard_parameters</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em>, <em>t_caustic_in</em>, <em>t_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get standard binary lens parameters (i.e., t_0, u_0, t_E, alpha)
-based on provided parameters.</p>
-<p>Note that this function quite frequently raises ValueError exception.
-That is because not all (s, q, x_caustic_in and x_caustic_out)
+<dd><p>Get standard binary lens parameters (i.e., <code class="docutils literal notranslate"><span class="pre">t_0</span></code>, <code class="docutils literal notranslate"><span class="pre">u_0</span></code>, <code class="docutils literal notranslate"><span class="pre">t_E</span></code>,
+<code class="docutils literal notranslate"><span class="pre">alpha</span></code>; see
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a>)
+based on provided curvelinear parameters.</p>
+<p>Note that this function quite frequently raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>
+exception. This is because not all 
+(<code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">q</span></code>, <code class="docutils literal notranslate"><span class="pre">x_caustic_in</span></code>, and <code class="docutils literal notranslate"><span class="pre">x_caustic_out</span></code>)
 correspond to real trajectories. The returned values are in
 conventions used by <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>.</p>
 <dl class="docutils">
@@ -164,7 +179,9 @@ is defined by Eq. 23 of:</p>
 <p>and the above requirement is defined under Eq. 27 of that paper.</p>
 <p>Relative number of points per caustic is not yet specified.
 Points do not repeat. This function is useful for sampling starting
-distribution for model fitting.</p>
+distribution for model fitting. For example sampling see
+<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract">Cassan et al. (2010)</a>
+bottom panel of Fig. 1.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
@@ -215,10 +232,10 @@ the caustic. The length is between 0 and 6.</dd>
 <dl class="method">
 <dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges">
 <code class="descname">allowed_ranges</code><span class="sig-paren">(</span><em>x_caustic</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges" title="Permalink to this definition">¶</a></dt>
-<dd><p>For given value of x_caustic_in or _out get 1 or 2 ranges in
+<dd><p><strong>Not implemented yet. Not sure how useful it is</strong></p>
+<p>For given value of x_caustic_in or _out get 1 or 2 ranges in
 which the other parameter has to be (required condition, but not
 necessarily enough - see also <a class="reference internal" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check"><code class="xref py py-func docutils literal notranslate"><span class="pre">orientation_check()</span></code></a>).</p>
-<p>XXX</p>
 </dd></dl>
 
 <dl class="method">
