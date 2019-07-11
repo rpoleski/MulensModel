@@ -981,7 +981,10 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        Curvelinear coordinate (in `Cassan (2008) parameterization
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_)
+        of caustic entrance for a static binary lens model. See
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`.
         """
         return self.parameters['x_caustic_in']
 
@@ -998,7 +1001,10 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        Curvelinear coordinate (in `Cassan (2008) parameterization
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_)
+        of caustic exit for a static binary lens model. See
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`.
         """
         return self.parameters['x_caustic_out']
 
@@ -1015,7 +1021,11 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        Epoch of caustic entrance for a static binary lens model in
+        `Cassan (2008) parameterization
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_)
+        See
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`.
         """
         return self.parameters['t_caustic_in']
 
@@ -1029,7 +1039,11 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        Epoch of caustic exit for a static binary lens model in
+        `Cassan (2008) parameterization
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_)
+        See
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`.
         """
         return self.parameters['t_caustic_out']
 
