@@ -6,65 +6,65 @@ import MulensModel as MM
 
 
 class UniformCausticSampling(object):
+    """
+    Uniform sampling of a binary lens caustic.
+    Note that calculations take some time for given (s, q).
+    Keep that in mind, when optimizing your fitting routine.
+
+    Instead of standard parameters (*t_0*, *u_0*, *t_E*, *alpha*), here
+    we use four other parameters: two epochs of caustic crossing
+    (*t_caustic_in*, *t_caustic_out*) and two curvelinear coordinates of
+    caustic crossing (*x_caustic_in*, *x_caustic_out*). The curvelinear
+    coordinates are defined so that going from 0 to 1 draws all caustics
+    for given separation and mass ratio (this is different convention than
+    in papers cited below). For a wide topology (i.e., 2 caustics), there
+    is a value between 0 and 1 which separates the caustics (:math:`x_sep`)
+    and a trajectory
+    exists only if *x_caustic_in* and *x_caustic_out* correspond to
+    the same caustic, i.e., both are smaller than :math:`x_sep` or
+    both are larger than :math:`x_sep`. For a close topology
+    (i.e., 3 caustics), there are two such separating values.
+
+    For description of the curvelinear coordinates, see:
+
+    `Cassan A. 2008 A&A 491, 587 "An alternative parameterisation for
+    binary-lens caustic-crossing events"
+    <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_
+
+    `Cassan A. et al. 2010 A&A 515, 52
+    "Bayesian analysis of caustic-crossing microlensing events"
+    <https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract>`_
+
+    In order to visualize the curvelinear coordinates,
+    you can run a code like that:
+
+    .. code-block:: python
+
+      import matplotlib.pyplot as plt
+      sampling = UniformCausticSampling(s=1.1, q=0.3)
+      color = np.linspace(0., 1., 200)
+      points = [sampling.caustic_point(c) for c in color]
+      x = [p.real for p in points]
+      y = [p.imag for p in points]
+      plt.scatter(x, y, c=color)
+      plt.axis('equal')
+      plt.colorbar()
+      plt.show()
+
+    This will show an intermediate topology. Change *s=1.1* to *s=2.*
+    to plot a wide topology, or to *s=0.7* to plot a close topology.
+
+    To be specific, the central caustics are plotted counter-clockwise
+    and *x_caustic=0.* corresponds to right-hand point where the caustic
+    crosses the X-axis. For a wide topology, the planetary caustic is
+    plotted in a similar way. For a close topology, the lower planetary
+    caustic is plotted counter-clockwise and the upper planetary caustic
+    is symetric, thus plotted clockwise. For planetary caustics in
+    a close topology, the zero-point of *x_caustic* values is defined
+    in a very complicated way, however it is a smooth function of
+    *s* and *q*.
+    """
     def __init__(self, s, q, n_points=10000):
-        """
-        Uniform sampling of a binary lens caustic.
-        Note that calculations take some time for given (s, q).
-        Keep that in mind, when optimizing your fitting routine.
-
-        Instead of standard parameters (*t_0*, *u_0*, *t_E*, *alpha*), here
-        we use four other parameters: two epochs of caustic crossing
-        (*t_caustic_in*, *t_caustic_out*) and two curvelinear coordinates of
-        caustic crossing (*x_caustic_in*, *x_caustic_out*). The curvelinear
-        coordinates are defined so that going from 0 to 1 draws all caustics
-        for given separation and mass ratio (this is different convention than
-        in papers cited below). For a wide topology (i.e., 2 caustics), there
-        is a value between 0 and 1 which separates the caustics (:math:`x_sep`)
-        and a trajectory
-        exists only if *x_caustic_in* and *x_caustic_out* correspond to
-        the same caustic, i.e., both are smaller than :math:`x_sep` or
-        both are larger than :math:`x_sep`. For a close topology
-        (i.e., 3 caustics), there are two such separating values.
-
-        For description of the curvelinear coordinates, see:
-
-        `Cassan A. 2008 A&A 491, 587 "An alternative parameterisation for
-        binary-lens caustic-crossing events"
-        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_
-
-        `Cassan A. et al. 2010 A&A 515, 52
-        "Bayesian analysis of caustic-crossing microlensing events"
-        <https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract>`_
-
-        In order to visualize the curvelinear coordinates,
-        you can run a code like that:
-
-        .. code-block:: python
-
-          import matplotlib.pyplot as plt
-          sampling = UniformCausticSampling(s=1.1, q=0.3)
-          color = np.linspace(0., 1., 200)
-          points = [sampling.caustic_point(c) for c in color]
-          x = [p.real for p in points]
-          y = [p.imag for p in points]
-          plt.scatter(x, y, c=color)
-          plt.axis('equal')
-          plt.colorbar()
-          plt.show()
-
-        This will show an intermediate topology. Change *s=1.1* to *s=2.*
-        to plot a wide topology, or to *s=0.7* to plot a close topology.
-
-        To be specific, the central caustics are plotted counter-clockwise
-        and *x_caustic=0.* corresponds to right-hand point where the caustic
-        crosses the X-axis. For a wide topology, the planetary caustic is
-        plotted in a similar way. For a close topology, the lower planetary
-        caustic is plotted counter-clockwise and the upper planetary caustic
-        is symetric, thus plotted clockwise. For planetary caustics in
-        a close topology, the zero-point of *x_caustic* values is defined
-        in a very complicated way, however it is a smooth function of
-        *s* and *q*.
-        """
         self._s = s
         self._q = q
         self._n_points = n_points

@@ -36,6 +36,52 @@
 <dt id="MulensModel.uniformcausticsampling.UniformCausticSampling">
 <em class="property">class </em><code class="descclassname">MulensModel.uniformcausticsampling.</code><code class="descname">UniformCausticSampling</code><span class="sig-paren">(</span><em>s</em>, <em>q</em>, <em>n_points=10000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Uniform sampling of a binary lens caustic.
+Note that calculations take some time for given (s, q).
+Keep that in mind, when optimizing your fitting routine.</p>
+<p>Instead of standard parameters (<em>t_0</em>, <em>u_0</em>, <em>t_E</em>, <em>alpha</em>), here
+we use four other parameters: two epochs of caustic crossing
+(<em>t_caustic_in</em>, <em>t_caustic_out</em>) and two curvelinear coordinates of
+caustic crossing (<em>x_caustic_in</em>, <em>x_caustic_out</em>). The curvelinear
+coordinates are defined so that going from 0 to 1 draws all caustics
+for given separation and mass ratio (this is different convention than
+in papers cited below). For a wide topology (i.e., 2 caustics), there
+is a value between 0 and 1 which separates the caustics (<span class="math notranslate nohighlight">\(x_sep\)</span>)
+and a trajectory
+exists only if <em>x_caustic_in</em> and <em>x_caustic_out</em> correspond to
+the same caustic, i.e., both are smaller than <span class="math notranslate nohighlight">\(x_sep\)</span> or
+both are larger than <span class="math notranslate nohighlight">\(x_sep\)</span>. For a close topology
+(i.e., 3 caustics), there are two such separating values.</p>
+<p>For description of the curvelinear coordinates, see:</p>
+<p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan A. 2008 A&amp;A 491, 587 “An alternative parameterisation for
+binary-lens caustic-crossing events”</a></p>
+<p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract">Cassan A. et al. 2010 A&amp;A 515, 52
+“Bayesian analysis of caustic-crossing microlensing events”</a></p>
+<p>In order to visualize the curvelinear coordinates,
+you can run a code like that:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="n">sampling</span> <span class="o">=</span> <span class="n">UniformCausticSampling</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">sampling</span><span class="o">.</span><span class="n">caustic_point</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">color</span><span class="p">]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">real</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">imag</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will show an intermediate topology. Change <em>s=1.1</em> to <em>s=2.</em>
+to plot a wide topology, or to <em>s=0.7</em> to plot a close topology.</p>
+<p>To be specific, the central caustics are plotted counter-clockwise
+and <em>x_caustic=0.</em> corresponds to right-hand point where the caustic
+crosses the X-axis. For a wide topology, the planetary caustic is
+plotted in a similar way. For a close topology, the lower planetary
+caustic is plotted counter-clockwise and the upper planetary caustic
+is symetric, thus plotted clockwise. For planetary caustics in
+a close topology, the zero-point of <em>x_caustic</em> values is defined
+in a very complicated way, however it is a smooth function of
+<em>s</em> and <em>q</em>.</p>
 <dl class="method">
 <dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check">
 <code class="descname">orientation_check</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="Permalink to this definition">¶</a></dt>
