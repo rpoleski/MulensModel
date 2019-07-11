@@ -18,9 +18,6 @@ import MulensModel as MM
 model = MM.Model({'s': 1.01, 'q': 0.1, 'rho': 0.002,
                   'x_caustic_in': 0.15, 'x_caustic_out': 0.84,
                   't_caustic_in': 6543.123, 't_caustic_out': 6550.987})
-# For models with orbital motion, Cassan 2008 suggested using also:
-# s_in s_out
-# which are simply separation values at t_caustic_in and t_caustic_out.
 
 print("Number of lenses and sources:")
 print(model.n_lenses, model.n_sources)  # Returns "2 1".
