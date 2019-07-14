@@ -97,40 +97,6 @@ a close topology, the zero-point of <em>x_caustic</em> values is defined
 in a very complicated way, however it is a smooth function of
 <em>s</em> and <em>q</em>.</p>
 <dl class="method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check">
-<code class="descname">orientation_check</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TO DO: this function should have different name because we check
-the other condition i.e., if the same caustics are hit</strong></p>
-<p>Check if given (x_caustic_in, x_caustic_out) define an existing
-trajectory. An obvious case, when they don’t is when both caustic
-points are on the same fold, but other cases exists.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>x_caustic_in: <em>float</em></dt>
-<dd>Coordinate of putative caustic entrance.</dd>
-<dt>x_caustic_out: <em>float</em></dt>
-<dd>Coordinate of putative caustic exit.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>check: <em>bool</em></dt>
-<dd><em>True</em> if input defines a trajectory, <em>False</em> if it does not.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics">
-<code class="descname">n_caustics</code><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em></p>
-<p>Number of caustics: <em>1</em> for resonant topology, <em>2</em> for wide topology,
-or <em>3</em> for close topology.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters">
 <code class="descname">get_standard_parameters</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em>, <em>t_caustic_in</em>, <em>t_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get standard binary lens parameters (i.e., <code class="docutils literal notranslate"><span class="pre">t_0</span></code>, <code class="docutils literal notranslate"><span class="pre">u_0</span></code>, <code class="docutils literal notranslate"><span class="pre">t_E</span></code>,
@@ -138,7 +104,7 @@ or <em>3</em> for close topology.</p>
 <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a>)
 based on provided curvelinear parameters.</p>
 <p>Note that this function quite frequently raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>
-exception. This is because not all 
+exception. This is because not all
 (<code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">q</span></code>, <code class="docutils literal notranslate"><span class="pre">x_caustic_in</span></code>, and <code class="docutils literal notranslate"><span class="pre">x_caustic_out</span></code>)
 correspond to real trajectories. The returned values are in
 conventions used by <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>.</p>
@@ -162,6 +128,29 @@ Must be in (0, 1) range.</dd>
 <dt>parameters: <em>dict</em></dt>
 <dd>Dictionary with standard binary parameters, i.e, keys are
 <code class="docutils literal notranslate"><span class="pre">t_0</span></code>, <code class="docutils literal notranslate"><span class="pre">u_0</span></code>, <code class="docutils literal notranslate"><span class="pre">t_E</span></code>, and <code class="docutils literal notranslate"><span class="pre">alpha</span></code>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out">
+<code class="descname">get_x_in_x_out</code><span class="sig-paren">(</span><em>u_0</em>, <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate where given trajectory crosses the caustic.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>u_0: <em>float</em></dt>
+<dd>The parameter u_0 of source trajectory, i.e., impact parameter.</dd>
+<dt>alpha: <em>float</em></dt>
+<dd>Angle defining the source trajectory.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>x_caustic_points: <em>list</em> of <em>float</em></dt>
+<dd>Caustic coordinates of points where given trajectory crosses
+the caustic. The length is between 0 and 6.</dd>
 </dl>
 </dd>
 </dl>
@@ -207,35 +196,29 @@ caustics. Can be <em>1</em>, <em>2</em>, or <em>3</em> but has to be
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out">
-<code class="descname">get_x_in_x_out</code><span class="sig-paren">(</span><em>u_0</em>, <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate where given trajectory crosses the caustic.</p>
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check">
+<code class="descname">orientation_check</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>TO DO: this function should have different name because we check
+the other condition i.e., if the same caustics are hit</strong></p>
+<p>Check if given (x_caustic_in, x_caustic_out) define an existing
+trajectory. An obvious case, when they don’t is when both caustic
+points are on the same fold, but other cases exists.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>u_0: <em>float</em></dt>
-<dd>The parameter u_0 of source trajectory, i.e., impact parameter.</dd>
-<dt>alpha: <em>float</em></dt>
-<dd>Angle defining the source trajectory.</dd>
+<dt>x_caustic_in: <em>float</em></dt>
+<dd>Coordinate of putative caustic entrance.</dd>
+<dt>x_caustic_out: <em>float</em></dt>
+<dd>Coordinate of putative caustic exit.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
-<dt>x_caustic_points: <em>list</em> of <em>float</em></dt>
-<dd>Caustic coordinates of points where given trajectory crosses
-the caustic. The length is between 0 and 6.</dd>
+<dt>check: <em>bool</em></dt>
+<dd><em>True</em> if input defines a trajectory, <em>False</em> if it does not.</dd>
 </dl>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges">
-<code class="descname">allowed_ranges</code><span class="sig-paren">(</span><em>x_caustic</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Not implemented yet. Not sure how useful it is</strong></p>
-<p>For given value of x_caustic_in or _out get 1 or 2 ranges in
-which the other parameter has to be (required condition, but not
-necessarily enough - see also <a class="reference internal" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check"><code class="xref py py-func docutils literal notranslate"><span class="pre">orientation_check()</span></code></a>).</p>
 </dd></dl>
 
 <dl class="method">
@@ -282,6 +265,23 @@ the lower of the two planetary caustics,</p>
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges">
+<code class="descname">allowed_ranges</code><span class="sig-paren">(</span><em>x_caustic</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Not implemented yet. Not sure how useful it is</strong></p>
+<p>For given value of x_caustic_in or _out get 1 or 2 ranges in
+which the other parameter has to be (required condition, but not
+necessarily enough - see also <a class="reference internal" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check"><code class="xref py py-func docutils literal notranslate"><span class="pre">orientation_check()</span></code></a>).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics">
+<code class="descname">n_caustics</code><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>Number of caustics: <em>1</em> for resonant topology, <em>2</em> for wide topology,
+or <em>3</em> for close topology.</p>
 </dd></dl>
 
 <dl class="attribute">

@@ -88,20 +88,30 @@ class UniformCausticSampling(object):
         self._add_third_caustic()
         self._combine_parameterizations()
 
-    def _combine_parameterizations(self):
+    def _get_n_caustics(self):
         """
-        XXX
+        Get number of caustics: 1, 2, or 3.
         """
-        pass  # XXX
+        limit = (1. + self.q) / (1. + self.q**(1./3.))**3
+        if self.s > 1. / math.sqrt(limit):
+            self._n_caustics = 2
+        elif self.s < math.pow(limit, 0.25):
+            self._n_caustics = 3
+        else:
+            self._n_caustics = 1
 
-    def _add_third_caustic(self):
+    def _get_phi(self):
         """
-        XXX
+        Prepare internal variables:
+            self._phi - gives all phi values used for integration
+            self._d_phi - step between adjacent phi values
         """
-        # Previously we had:
-        #    caustic_zeta_sum3 = [
-        #        caustic_zeta_sum2[i].conjugate() for i in [0, 2, 1]]
-        pass  # XXX
+        phi_begin = 0.
+        phi_end = 2. * np.pi - 1e-14
+        if self._n_caustics == 1:
+            phi_end = 4. * np.pi - 1e-14
+        self._d_phi = (phi_end - phi_begin) / self._n_points
+        self._phi = np.linspace(phi_begin, phi_end, self._n_points)
 
     def _get_indexes_of_inflection_points(self, values):
         """
@@ -128,6 +138,151 @@ class UniformCausticSampling(object):
         zeta = -z_bar + (1./z + self.q/(z+self.s)) / (1. + self.q)
         zeta -= self.s * self.q / (1. + self.q)
         return zeta
+
+    def _find_nearest_index(self, array, value):
+        """
+        returns element of array that is closest to value
+        """
+        idx = (np.abs(array - value)).argmin()
+        return array[idx]
+
+    def _critical_curve(self, phi):
+        """
+        Calculate a point on critical curve - see eq. 6 in Cassan 2008.
+        """
+        coeffs = [0., 0., 0., 2.*self.s, 1.]
+        exp_i_phi = np.exp(1j * phi)
+        coeffs[0] = -self.s * self.s * exp_i_phi / (1. + self.q)
+        coeffs[1] = -2. * self.s * exp_i_phi / (1. + self.q)
+        coeffs[2] = self.s * self.s - exp_i_phi
+
+        roots = np.polynomial.polynomial.polyroots(np.array(coeffs))
+
+        if self._n_caustics == 3:
+            if self._critical_curve_previous is not None:
+                # This makes sure we're following right branch.
+                new_roots = np.array([0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j])
+                for (i, v) in enumerate(self._critical_curve_previous):
+                    new_roots[i] = self._find_nearest_index(roots, v)
+                roots = new_roots
+            self._critical_curve_previous = roots
+
+        return roots
+
+    def _dz_dphi(self, z):
+        """
+        Eq. 11 from Cassan (2008)
+        """
+        z_plus_d = z + self.s
+        z_plus_d_2 = z_plus_d**2
+        z_plus_d_3 = z_plus_d_2 * z_plus_d
+        q_z_2 = self.q * z * z
+        value = (z_plus_d_2 + q_z_2) * z_plus_d * z / (z_plus_d_3 + z * q_z_2)
+        return 0.5j * value
+
+    def _dz_bar_dphi(self, z_bar):
+        """
+        almost the same as eq. 11 from Cassan (2008)
+        """
+        return -self._dz_dphi(z_bar)
+
+    def _dzeta_dphi(self, z, phi):
+        """
+        Eq. (9) and (11) from Cassan (2008)
+        """
+        dz_dphi_ = self._dz_dphi(z)
+        dz_bar_dphi_ = self._dz_bar_dphi(np.conjugate(z))
+        return dz_dphi_ + np.exp(1j * phi) * dz_bar_dphi_
+
+    def _caustic_and_trajectory(self, zetas, u_0, alpha,
+                                sum_use, flip, caustic):
+        """
+        check if caustic crosses the line defined by 2 points
+        """
+        cos_a = math.cos(alpha * np.pi / 180.)
+        sin_a = math.sin(alpha * np.pi / 180.)
+
+        x_1 = zetas[:-1].real
+        y_1 = zetas[:-1].imag
+        x_2 = zetas[1:].real
+        y_2 = zetas[1:].imag
+        dx = x_2 - x_1
+        dy = y_2 - y_1
+        tau = (x_1 * y_2 - x_2 * y_1 + u_0 * (dy * sin_a + dx * cos_a))
+        tau /= dy * cos_a - dx * sin_a
+        x_cross = tau * cos_a - u_0 * sin_a
+
+        # Check if crossing point is between x_1 and x_2:
+        index = np.where((x_cross - x_1) * (x_cross - x_2) < 0.)[0]
+
+        fraction = (x_cross[index] - x_1[index]) / (x_2[index] - x_1[index])
+        sum_ = sum_use[index] * (1. - fraction) + sum_use[index+1] * fraction
+        in_caustic = sum_ / sum_use[-1]
+        if self._n_caustics == 3 and caustic > 1:
+            begin = self._which_caustic[caustic-1]
+            end = self._which_caustic[caustic]
+        else:
+            end = 0.5 * (self._which_caustic[caustic] +
+                         self._which_caustic[caustic-1])
+            if flip:
+                begin = self._which_caustic[caustic]
+            else:
+                begin = self._which_caustic[caustic-1]
+        x_caustic = begin + in_caustic * (end - begin)
+        return x_caustic.tolist()
+
+    def _integrate(self):
+        """
+        Main integration for Cassan (2008) parameterization.
+        It sets internal variables:
+        - self._z_all
+        - self._sum_1
+        - self._sum_2
+        - self._z_sum_1
+        - self._z_sum_2
+        - self._z_index_sum_1
+        - self._z_index_sum_2
+        """
+        size = (self._n_points, 4)
+        self._z_all = np.zeros(size, dtype=np.complex128)
+        self._sum_1 = np.zeros(self._n_points)
+        self._z_sum_1 = np.zeros(self._n_points, dtype=np.complex128)
+        self._z_index_sum_1 = np.zeros(self._n_points, dtype=int)
+        if self._n_caustics > 1:
+            self._sum_2 = np.zeros(self._n_points)
+            self._z_sum_2 = np.zeros(self._n_points, dtype=np.complex128)
+            self._z_index_sum_2 = np.zeros(self._n_points, dtype=int)
+        self._critical_curve_previous = None
+
+        for (i, phi) in enumerate(self._phi):
+            self._z_all[i] = self._critical_curve(phi)
+
+            if self._n_caustics == 1:
+                self._z_index_sum_1[i] = int(phi / np.pi)
+                self._z_sum_1[i] = self._z_all[i, self._z_index_sum_1[i]]
+                abs_1 = abs(self._dzeta_dphi(self._z_sum_1[i], phi))
+                self._sum_1[i] = self._sum_1[i-1] + abs_1 * self._d_phi
+            if self._n_caustics > 1:
+                if self._n_caustics == 2:
+                    self._z_index_sum_2[i] = int(phi / np.pi)
+                    self._z_index_sum_1[i] = self._z_index_sum_2[i] + 2
+                if self._n_caustics == 3:
+                    signs = 1. / np.conjugate(self._z_all[i])
+                    signs = (signs - self._z_all[i]).imag
+                    if signs[1] * signs[2] >= 0.:
+                        args = [
+                            self.s, self.q, self._n_points, i, self._z_all[i]]
+                        raise ValueError("Critical error: {:}".format(args))
+                    if signs[1] < 0.:
+                        self._z_index_sum_2[i] = 2
+                    else:
+                        self._z_index_sum_2[i] = 1
+                self._z_sum_1[i] = self._z_all[i, self._z_index_sum_1[i]]
+                self._z_sum_2[i] = self._z_all[i, self._z_index_sum_2[i]]
+                abs_1 = abs(self._dzeta_dphi(self._z_sum_1[i], phi))
+                abs_2 = abs(self._dzeta_dphi(self._z_sum_2[i], phi))
+                self._sum_1[i] = self._sum_1[i-1] + abs_1 * self._d_phi
+                self._sum_2[i] = self._sum_2[i-1] + abs_2 * self._d_phi
 
     def _find_inflections_and_correct(self):
         """
@@ -222,237 +377,20 @@ class UniformCausticSampling(object):
 # - cusps_z_
 # - cusps_zeta_
 
-    def _find_nearest_index(self, array, value):
+    def _combine_parameterizations(self):
         """
-        returns element of array that is closest to value
+        XXX
         """
-        idx = (np.abs(array - value)).argmin()
-        return array[idx]
+        pass  # XXX
 
-    def _critical_curve(self, phi):
+    def _add_third_caustic(self):
         """
-        Calculate a point on critical curve - see eq. 6 in Cassan 2008.
+        XXX
         """
-        coeffs = [0., 0., 0., 2.*self.s, 1.]
-        exp_i_phi = np.exp(1j * phi)
-        coeffs[0] = -self.s * self.s * exp_i_phi / (1. + self.q)
-        coeffs[1] = -2. * self.s * exp_i_phi / (1. + self.q)
-        coeffs[2] = self.s * self.s - exp_i_phi
-
-        roots = np.polynomial.polynomial.polyroots(np.array(coeffs))
-
-        if self._n_caustics == 3:
-            if self._critical_curve_previous is not None:
-                # This makes sure we're following right branch.
-                new_roots = np.array([0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j])
-                for (i, v) in enumerate(self._critical_curve_previous):
-                    new_roots[i] = self._find_nearest_index(roots, v)
-                roots = new_roots
-            self._critical_curve_previous = roots
-
-        return roots
-
-    def _dz_dphi(self, z):
-        """
-        Eq. 11 from Cassan (2008)
-        """
-        z_plus_d = z + self.s
-        z_plus_d_2 = z_plus_d**2
-        z_plus_d_3 = z_plus_d_2 * z_plus_d
-        q_z_2 = self.q * z * z
-        value = (z_plus_d_2 + q_z_2) * z_plus_d * z / (z_plus_d_3 + z * q_z_2)
-        return 0.5j * value
-
-    def _dz_bar_dphi(self, z_bar):
-        """
-        almost the same as eq. 11 from Cassan (2008)
-        """
-        return -self._dz_dphi(z_bar)
-
-    def _dzeta_dphi(self, z, phi):
-        """
-        Eq. (9) and (11) from Cassan (2008)
-        """
-        dz_dphi_ = self._dz_dphi(z)
-        dz_bar_dphi_ = self._dz_bar_dphi(np.conjugate(z))
-        return dz_dphi_ + np.exp(1j * phi) * dz_bar_dphi_
-
-    def orientation_check(self, x_caustic_in, x_caustic_out):  # XXX
-        """
-        **TO DO: this function should have different name because we check
-        the other condition i.e., if the same caustics are hit**
-
-        Check if given (x_caustic_in, x_caustic_out) define an existing
-        trajectory. An obvious case, when they don't is when both caustic
-        points are on the same fold, but other cases exists.
-
-        Parameters :
-            x_caustic_in: *float*
-                Coordinate of putative caustic entrance.
-
-            x_caustic_out: *float*
-                Coordinate of putative caustic exit.
-
-        Returns :
-            check: *bool*
-                *True* if input defines a trajectory, *False* if it does not.
-        """
-        return self._orientation_check(x_caustic_in, x_caustic_out)[0]
-
-    def _orientation_check(self, x_caustic_in, x_caustic_out):
-        """
-        Check if given parameters define real trajectory.
-
-        Returns a list with first element being True/False
-        """
-        if self._n_caustics > 1:
-            caustic_in = self.which_caustic(x_caustic_in)
-            caustic_out = self.which_caustic(x_caustic_out)
-            if caustic_in != caustic_out:
-                return [False]
-
-        zeta_in = self.caustic_point(x_caustic_in)
-        dzeta_dphi_in = self._last_dzeta_dphi
-        zeta_out = self.caustic_point(x_caustic_out)
-        dzeta_dphi_out = self._last_dzeta_dphi
-        # Eq. 27 from Cassan+2010:
-        n_t = (zeta_out - zeta_in) / np.abs(zeta_out - zeta_in)
-        # Eq. 26 from Cassan+2010:
-        n_c_in = 1j * dzeta_dphi_in / np.abs(dzeta_dphi_in)
-        n_c_out = 1j * dzeta_dphi_out / np.abs(dzeta_dphi_out)
-
-        condition_in = n_c_in.real * n_t.real + n_c_in.imag * n_t.imag
-        condition_out = n_c_out.real * n_t.real + n_c_out.imag * n_t.imag
-
-        if condition_in < 0. and condition_out > 0.:
-            return [True, zeta_in, zeta_out, dzeta_dphi_in, dzeta_dphi_out]
-        else:
-            return [False]
-
-    def _caustic_and_trajectory(self, zetas, u_0, alpha,
-                                sum_use, flip, caustic):
-        """
-        check if caustic crosses the line defined by 2 points
-        """
-        cos_a = math.cos(alpha * np.pi / 180.)
-        sin_a = math.sin(alpha * np.pi / 180.)
-
-        x_1 = zetas[:-1].real
-        y_1 = zetas[:-1].imag
-        x_2 = zetas[1:].real
-        y_2 = zetas[1:].imag
-        dx = x_2 - x_1
-        dy = y_2 - y_1
-        tau = (x_1 * y_2 - x_2 * y_1 + u_0 * (dy * sin_a + dx * cos_a))
-        tau /= dy * cos_a - dx * sin_a
-        x_cross = tau * cos_a - u_0 * sin_a
-
-        # Check if crossing point is between x_1 and x_2:
-        index = np.where((x_cross - x_1) * (x_cross - x_2) < 0.)[0]
-
-        fraction = (x_cross[index] - x_1[index]) / (x_2[index] - x_1[index])
-        sum_ = sum_use[index] * (1. - fraction) + sum_use[index+1] * fraction
-        in_caustic = sum_ / sum_use[-1]
-        if self._n_caustics == 3 and caustic > 1:
-            begin = self._which_caustic[caustic-1]
-            end = self._which_caustic[caustic]
-        else:
-            end = 0.5 * (self._which_caustic[caustic] +
-                         self._which_caustic[caustic-1])
-            if flip:
-                begin = self._which_caustic[caustic]
-            else:
-                begin = self._which_caustic[caustic-1]
-        x_caustic = begin + in_caustic * (end - begin)
-        return x_caustic.tolist()
-
-    def _integrate(self):
-        """
-        Main integration for Cassan (2008) parameterization.
-        It sets internal variables:
-        - self._z_all
-        - self._sum_1
-        - self._sum_2
-        - self._z_sum_1
-        - self._z_sum_2
-        - self._z_index_sum_1
-        - self._z_index_sum_2
-        """
-        size = (self._n_points, 4)
-        self._z_all = np.zeros(size, dtype=np.complex128)
-        self._sum_1 = np.zeros(self._n_points)
-        self._z_sum_1 = np.zeros(self._n_points, dtype=np.complex128)
-        self._z_index_sum_1 = np.zeros(self._n_points, dtype=int)
-        if self._n_caustics > 1:
-            self._sum_2 = np.zeros(self._n_points)
-            self._z_sum_2 = np.zeros(self._n_points, dtype=np.complex128)
-            self._z_index_sum_2 = np.zeros(self._n_points, dtype=int)
-        self._critical_curve_previous = None
-
-        for (i, phi) in enumerate(self._phi):
-            self._z_all[i] = self._critical_curve(phi)
-
-            if self._n_caustics == 1:
-                self._z_index_sum_1[i] = int(phi / np.pi)
-                self._z_sum_1[i] = self._z_all[i, self._z_index_sum_1[i]]
-                abs_1 = abs(self._dzeta_dphi(self._z_sum_1[i], phi))
-                self._sum_1[i] = self._sum_1[i-1] + abs_1 * self._d_phi
-            if self._n_caustics > 1:
-                if self._n_caustics == 2:
-                    self._z_index_sum_2[i] = int(phi / np.pi)
-                    self._z_index_sum_1[i] = self._z_index_sum_2[i] + 2
-                if self._n_caustics == 3:
-                    signs = 1. / np.conjugate(self._z_all[i])
-                    signs = (signs - self._z_all[i]).imag
-                    if signs[1] * signs[2] >= 0.:
-                        args = [
-                            self.s, self.q, self._n_points, i, self._z_all[i]]
-                        raise ValueError("Critical error: {:}".format(args))
-                    if signs[1] < 0.:
-                        self._z_index_sum_2[i] = 2
-                    else:
-                        self._z_index_sum_2[i] = 1
-                self._z_sum_1[i] = self._z_all[i, self._z_index_sum_1[i]]
-                self._z_sum_2[i] = self._z_all[i, self._z_index_sum_2[i]]
-                abs_1 = abs(self._dzeta_dphi(self._z_sum_1[i], phi))
-                abs_2 = abs(self._dzeta_dphi(self._z_sum_2[i], phi))
-                self._sum_1[i] = self._sum_1[i-1] + abs_1 * self._d_phi
-                self._sum_2[i] = self._sum_2[i-1] + abs_2 * self._d_phi
-
-    def _get_phi(self):
-        """
-        Prepare internal variables:
-            self._phi - gives all phi values used for integration
-            self._d_phi - step between adjacent phi values
-        """
-        phi_begin = 0.
-        phi_end = 2. * np.pi - 1e-14
-        if self._n_caustics == 1:
-            phi_end = 4. * np.pi - 1e-14
-        self._d_phi = (phi_end - phi_begin) / self._n_points
-        self._phi = np.linspace(phi_begin, phi_end, self._n_points)
-
-    @property
-    def n_caustics(self):
-        """
-        *int*
-
-        Number of caustics: *1* for resonant topology, *2* for wide topology,
-        or *3* for close topology.
-        """
-        return self._n_caustics
-
-    def _get_n_caustics(self):
-        """
-        Get number of caustics: 1, 2, or 3.
-        """
-        limit = (1. + self.q) / (1. + self.q**(1./3.))**3
-        if self.s > 1. / math.sqrt(limit):
-            self._n_caustics = 2
-        elif self.s < math.pow(limit, 0.25):
-            self._n_caustics = 3
-        else:
-            self._n_caustics = 1
+        # Previously we had:
+        #    caustic_zeta_sum3 = [
+        #        caustic_zeta_sum2[i].conjugate() for i in [0, 2, 1]]
+        pass  # XXX
 
     def get_standard_parameters(self, x_caustic_in, x_caustic_out,
                                 t_caustic_in, t_caustic_out):
@@ -527,6 +465,38 @@ class UniformCausticSampling(object):
         t_0 += 0.5 * (t_caustic_out + t_caustic_in)
 
         return {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha}
+
+    def get_x_in_x_out(self, u_0, alpha):  # XXX name of the function?
+        """
+        Calculate where given trajectory crosses the caustic.
+
+        Parameters :
+            u_0: *float*
+                The parameter u_0 of source trajectory, i.e., impact parameter.
+
+            alpha: *float*
+                Angle defining the source trajectory.
+
+        Returns :
+            x_caustic_points: *list* of *float*
+                Caustic coordinates of points where given trajectory crosses
+                the caustic. The length is between 0 and 6.
+        """
+        zetas_1 = self._zeta(self._z_sum_1)
+        if self._n_caustics > 1:
+            zetas_2 = self._zeta(self._z_sum_2)
+
+        points = self._caustic_and_trajectory(
+            zetas_1, u_0, alpha, self._sum_1, flip=False, caustic=1)
+        points += self._caustic_and_trajectory(
+            zetas_1.conjugate(), u_0, alpha, self._sum_1, flip=True, caustic=1)
+        if self._n_caustics > 1:
+            points += self._caustic_and_trajectory(
+                zetas_2, u_0, alpha, self._sum_2, flip=False, caustic=2)
+            points += self._caustic_and_trajectory(
+                zetas_2.conjugate(), u_0, alpha, self._sum_2, flip=True,
+                caustic=self._n_caustics)
+        return points
 
     def get_uniform_sampling(self, n_points, n_min_for_caustic=10,
                              caustic=None):
@@ -690,50 +660,57 @@ class UniformCausticSampling(object):
             raise ValueError('strange error: {:}'.format(self._n_caustics))
         return out
 
-    def get_x_in_x_out(self, u_0, alpha):  # XXX name of the function?
+    def orientation_check(self, x_caustic_in, x_caustic_out):  # XXX
         """
-        Calculate where given trajectory crosses the caustic.
+        **TO DO: this function should have different name because we check
+        the other condition i.e., if the same caustics are hit**
+
+        Check if given (x_caustic_in, x_caustic_out) define an existing
+        trajectory. An obvious case, when they don't is when both caustic
+        points are on the same fold, but other cases exists.
 
         Parameters :
-            u_0: *float*
-                The parameter u_0 of source trajectory, i.e., impact parameter.
+            x_caustic_in: *float*
+                Coordinate of putative caustic entrance.
 
-            alpha: *float*
-                Angle defining the source trajectory.
+            x_caustic_out: *float*
+                Coordinate of putative caustic exit.
 
         Returns :
-            x_caustic_points: *list* of *float*
-                Caustic coordinates of points where given trajectory crosses
-                the caustic. The length is between 0 and 6.
+            check: *bool*
+                *True* if input defines a trajectory, *False* if it does not.
         """
-        zetas_1 = self._zeta(self._z_sum_1)
+        return self._orientation_check(x_caustic_in, x_caustic_out)[0]
+
+    def _orientation_check(self, x_caustic_in, x_caustic_out):
+        """
+        Check if given parameters define real trajectory.
+
+        Returns a list with first element being True/False
+        """
         if self._n_caustics > 1:
-            zetas_2 = self._zeta(self._z_sum_2)
+            caustic_in = self.which_caustic(x_caustic_in)
+            caustic_out = self.which_caustic(x_caustic_out)
+            if caustic_in != caustic_out:
+                return [False]
 
-        points = self._caustic_and_trajectory(
-            zetas_1, u_0, alpha, self._sum_1, flip=False, caustic=1)
-        points += self._caustic_and_trajectory(
-            zetas_1.conjugate(), u_0, alpha, self._sum_1, flip=True, caustic=1)
-        if self._n_caustics > 1:
-            points += self._caustic_and_trajectory(
-                zetas_2, u_0, alpha, self._sum_2, flip=False, caustic=2)
-            points += self._caustic_and_trajectory(
-                zetas_2.conjugate(), u_0, alpha, self._sum_2, flip=True,
-                caustic=self._n_caustics)
-        return points
+        zeta_in = self.caustic_point(x_caustic_in)
+        dzeta_dphi_in = self._last_dzeta_dphi
+        zeta_out = self.caustic_point(x_caustic_out)
+        dzeta_dphi_out = self._last_dzeta_dphi
+        # Eq. 27 from Cassan+2010:
+        n_t = (zeta_out - zeta_in) / np.abs(zeta_out - zeta_in)
+        # Eq. 26 from Cassan+2010:
+        n_c_in = 1j * dzeta_dphi_in / np.abs(dzeta_dphi_in)
+        n_c_out = 1j * dzeta_dphi_out / np.abs(dzeta_dphi_out)
 
-    def allowed_ranges(self, x_caustic):  # XXX
-        """
-        **Not implemented yet. Not sure how useful it is**
+        condition_in = n_c_in.real * n_t.real + n_c_in.imag * n_t.imag
+        condition_out = n_c_out.real * n_t.real + n_c_out.imag * n_t.imag
 
-        For given value of x_caustic_in or _out get 1 or 2 ranges in
-        which the other parameter has to be (required condition, but not
-        necessarily enough - see also :py:func:`orientation_check()`).
-        """
-        caustic = self.which_caustic(x_caustic)
-        print(self._inflections_fractions)
-        print(self._which_caustic)
-        pass  # XXX
+        if condition_in < 0. and condition_out > 0.:
+            return [True, zeta_in, zeta_out, dzeta_dphi_in, dzeta_dphi_out]
+        else:
+            return [False]
 
     def _mirror_normalize_to_0_1(self, x, x_min=0., x_max=1.):
         """
@@ -836,6 +813,30 @@ class UniformCausticSampling(object):
                 fmt = 'which_caustic() got {:} and internally had {:}'
                 raise ValueError(fmt.format(x_caustic, self._which_caustic))
         return caustic
+
+    def allowed_ranges(self, x_caustic):  # XXX
+        """
+        **Not implemented yet. Not sure how useful it is**
+
+        For given value of x_caustic_in or _out get 1 or 2 ranges in
+        which the other parameter has to be (required condition, but not
+        necessarily enough - see also :py:func:`orientation_check()`).
+        """
+        caustic = self.which_caustic(x_caustic)
+        print(self._inflections_fractions)
+        print(self._which_caustic)
+        pass  # XXX
+
+
+    @property
+    def n_caustics(self):
+        """
+        *int*
+
+        Number of caustics: *1* for resonant topology, *2* for wide topology,
+        or *3* for close topology.
+        """
+        return self._n_caustics
 
     @property
     def s(self):
