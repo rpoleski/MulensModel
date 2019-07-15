@@ -26,12 +26,12 @@ def test_binary_lens_hexadecapole():
 
     bl = MulensModel.BinaryLens(m1, m2, s)
 
-    result_00 = bl.hexadecapole_magnification(x, y, rho=rho, 
-                                        gamma=0.0, all_approximations=True)
-    result_05 = bl.hexadecapole_magnification(x, y, rho=rho,
-                                        gamma=0.5, all_approximations=True)
-    result_10 = bl.hexadecapole_magnification(x, y, rho=rho,
-                                        gamma=1.0, all_approximations=True)
+    result_00 = bl.hexadecapole_magnification(
+        x, y, rho=rho, gamma=0.0, all_approximations=True)
+    result_05 = bl.hexadecapole_magnification(
+        x, y, rho=rho, gamma=0.5, all_approximations=True)
+    result_10 = bl.hexadecapole_magnification(
+        x, y, rho=rho, gamma=1.0, all_approximations=True)
 
     np.testing.assert_almost_equal(result_00, reference_00)
     np.testing.assert_almost_equal(result_05, reference_05)
@@ -51,12 +51,12 @@ def test_vbbl_1():
 def test_ac_1():
     s = 0.8
     q = 0.1
-    
+
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
     bl = MulensModel.BinaryLens(m_1, m_2, s)
-    
-    result = bl.adaptive_contouring_magnification(0.01, 0.01, 0.01, 
-            accuracy=0.019, ld_accuracy=1e-3)
+
+    result = bl.adaptive_contouring_magnification(
+        0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
- 
+

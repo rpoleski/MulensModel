@@ -11,7 +11,7 @@ SAMPLE_FILE_01 = os.path.join(
 
 def test_complex_fsum_1():
     z = [(0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1-1e+99j), (0.1+0.1j),
-        (0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1+1e+99j), (0.1+0.1j)]
+         (0.1+0.1j), (0.1+0.1j), (0.1+0.1j), (0.1+1e+99j), (0.1+0.1j)]
     assert MulensModel.utils.Utils.complex_fsum(z) == (1 + 0.8j)
 
 def do_mag2flux_conversions_test(mag, mag_err):
@@ -35,5 +35,5 @@ def test_mag_and_flux_conversions_1():
 def test_mag_and_flux_conversions_2():
     for mag in np.arange(22., 15., -1.):
         for mag_err in [0.01, 0.001, 0.1]:
-            do_mag2flux_conversions_test(mag,mag_err)
+            do_mag2flux_conversions_test(mag, mag_err)
 

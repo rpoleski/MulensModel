@@ -134,6 +134,7 @@ def test_t_E():
     np.testing.assert_almost_equal(model_1.parameters.t_E, t_E)
     np.testing.assert_almost_equal(model_2.parameters.t_E, t_E)
 
+
 # Binary Lens tests
 # Binary lens parameters:
 alpha = 229.58 * u.deg

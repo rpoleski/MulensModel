@@ -28,8 +28,8 @@ def test_data_list_1():
     m = np.array([21.0, 21.1])
     e = np.array([0.001, 1.000])
     data = MulensData(data_list=[t, m, e])
-    np.testing.assert_almost_equal(data.time, t, err_msg
-                                   ='problem with time vector in MulensData')
+    np.testing.assert_almost_equal(
+        data.time, t, err_msg='problem with time vector in MulensData')
 
 class test(unittest.TestCase):
     def test_wrong_length(self):

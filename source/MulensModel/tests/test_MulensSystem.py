@@ -9,11 +9,11 @@ from MulensModel.mulensobjects.source import Source
 def test_mulenssystem():
     kappa = 8.144183118384794 * u.mas / u.solMass
     lens = {'mass': 0.3 * u.solMass, 'dist': 4 * 10**3 * u.pc}
-    source = {'dist' : 8 * 10**3 * u.pc}
+    source = {'dist': 8 * 10**3 * u.pc}
     mu_rel = 3. * u.mas / u.yr
     pi_rel = (lens['dist'].to(u.mas, equivalencies=u.parallax()) 
               - source['dist'].to(u.mas, equivalencies=u.parallax()))
-    thetaE = np.sqrt( kappa * lens['mass'] * pi_rel)
+    thetaE = np.sqrt(kappa * lens['mass'] * pi_rel)
     tE = thetaE / mu_rel
     pi_E = pi_rel / thetaE
 

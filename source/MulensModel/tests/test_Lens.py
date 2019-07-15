@@ -5,7 +5,7 @@ from astropy import units as u
 from MulensModel.mulensobjects.lens import Lens
 
 
-### Test mass setters and getters
+# Test mass setters and getters
 def test_2_masses_success():
     lens = Lens()
     lens.mass_1 = 1.0*u.solMass
@@ -57,7 +57,7 @@ def test_init_success():
     np.testing.assert_almost_equal(lens_2.mass_1.value, 1.8)
     np.testing.assert_almost_equal(lens_2.distance.value, 3.*10.**3)
     
-    lens_3 = Lens(mass_1=1.0*u.solMass, q=0.1,s=0.9)
+    lens_3 = Lens(mass_1=1.0*u.solMass, q=0.1, s=0.9)
     np.testing.assert_almost_equal(lens_3.mass_1.value, 1.0)
     np.testing.assert_almost_equal(lens_3.mass_2.value, 0.1)
     assert lens_3.s == 0.9
@@ -66,14 +66,18 @@ def test_init_success():
     assert lens_4.q == 0.1
     assert lens_4.s == 1.0
 
+
 def test_a_proj_success():
-    lens = Lens(mass_1=1.0*u.solMass,mass_2=0.1*u.solMass,a_proj=1.0*u.au,
+    lens = Lens(mass_1=1.0*u.solMass, mass_2=0.1*u.solMass, a_proj=1.0*u.au,
                 distance=6.*u.kpc)
     assert lens.total_mass == 1.1*u.solMass
     assert lens.q == 0.1
 
 def test_3_body_success():
-    lens_1 = Lens(total_mass=1.3*u.solMass,q=[0.1,0.2],s=[0.1,0.3])
+    lens_1 = Lens(
+        total_mass=1.3*u.solMass,
+        q=[0.1, 0.2],
+        s=[0.1, 0.3])
     
     np.testing.assert_almost_equal(lens_1.mass_1.value, 1.)
     np.testing.assert_almost_equal(lens_1.mass_2.value, 0.1)
