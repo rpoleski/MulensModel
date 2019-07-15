@@ -99,6 +99,7 @@ class _ParallaxFile(object):
             parallax={'earth_orbital': True}, coords=self.coords)
         return trajectory
 
+
 def test_annual_parallax_calculation():
     """
     This is a high-level unit test for parallax. The "true" values were
@@ -133,6 +134,7 @@ def test_annual_parallax_calculation():
     np.testing.assert_almost_equal(
         model_with_par.data_magnification, true_with_par, decimal=4)
 
+
 def do_get_delta_annual_test(filename):
     """run a test on private method Trajectory._get_delta_annual()"""
     parallax_file = _ParallaxFile(filename)
@@ -145,25 +147,31 @@ def do_get_delta_annual_test(filename):
     np.testing.assert_almost_equal(result['E'], parallax_file.data['qe'],
                                    decimal=4)
 
+
 def test_get_delta_annual_1():
     """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)
+
 
 def test_get_delta_annual_2():
     """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_02)
 
+
 def test_get_delta_annual_3():
     """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
+
 
 def test_get_delta_annual_4():
     """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_04)
 
+
 def test_get_delta_annual_5():
     """test private method Trajectory._get_delta_annual()"""
     do_get_delta_annual_test(SAMPLE_ANNUAL_PARALLAX_FILE_05)
+
 
 def do_annual_parallax_test(filename):
     """testing functions called by a few unit tests"""
@@ -189,20 +197,26 @@ def do_annual_parallax_test(filename):
     return np.testing.assert_almost_equal(
         model.data_magnification[0] / data[:, 1], 1.0, decimal=4)
 
+
 def test_annual_parallax_calculation_2():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_01)
+
 
 def test_annual_parallax_calculation_3():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_02)
 
+
 def test_annual_parallax_calculation_4():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_03)
+
 
 def test_annual_parallax_calculation_5():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_04)
 
+
 def test_annual_parallax_calculation_6():
     do_annual_parallax_test(SAMPLE_ANNUAL_PARALLAX_FILE_05)
+
 
 def test_satellite_and_annual_parallax_calculation():
     """test parallax calculation with Spitzer data"""
@@ -226,6 +240,7 @@ def test_satellite_and_annual_parallax_calculation():
     ratio = model_with_par.data_magnification[1] / ref_Spitzer
     np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
 
+
 def test_satellite_parallax_magnification():
     """
     On a given date, the magnification should be different from the
@@ -248,6 +263,7 @@ def test_satellite_parallax_magnification():
 
     delta = ground_model.magnification(t_0) - space_model.magnification(t_0)
     assert np.abs(delta) > 0.01
+
 
 def test_horizons_3d():
     """

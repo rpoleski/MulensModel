@@ -24,6 +24,7 @@ def ln_like(theta, event, parameters_to_fit, print_models):
         print(chi2, *[t for t in theta], flush=True)
     return -0.5 * chi2
 
+
 def ln_prior(theta, parameters_to_fit):
     """
     Prior. Check if *theta* values for *parameters_to_fit* are within ranges
@@ -44,6 +45,7 @@ def ln_prior(theta, parameters_to_fit):
 
     return inside
 
+
 def ln_prob(
         theta, event, parameters_to_fit, print_models=False):
     """
@@ -58,6 +60,7 @@ def ln_prob(
         return -np.inf
 
     return ln_prior_ + ln_like_
+
 
 def generate_random_parameters(parameters, starting, n):
     """
@@ -87,7 +90,7 @@ if len(sys.argv) != 2:
 config_file = sys.argv[1]
 
 config = configparser.ConfigParser()
-config.optionxform = str # So that "t_E" is not changed to "t_e".
+config.optionxform = str  # So that "t_E" is not changed to "t_e".
 config.read(config_file)
 files = read.read_files_from_config(config)
 model_settings = read.read_model_settings(config)
@@ -102,10 +105,12 @@ other_settings = read.read_other(config)
 datasets = [MM.MulensData(file_name=f[0], phot_fmt=f[1]) for f in files]
 
 # Generate starting values of parameters.
-start = generate_random_parameters(parameters, starting, emcee_settings['n_walkers'])
+start = generate_random_parameters(parameters, starting,
+                                   emcee_settings['n_walkers'])
 
 # Setup Event instance that combines model and data.
-my_model = MM.Model(dict(zip(parameters, start[0])), coords=model_settings['coords'])
+my_model = MM.Model(
+    dict(zip(parameters, start[0])), coords=model_settings['coords'])
 if 'methods' in model_settings:
     my_model.set_magnification_methods(model_settings['methods'])
 if 'default_method' in model_settings:
@@ -116,7 +121,8 @@ my_event = MM.Event(datasets=datasets, model=my_model)
 n_dim = len(parameters)
 print_models = other_settings.get('print_models', False)
 args = (my_event, parameters, print_models)
-sampler = emcee.EnsembleSampler(emcee_settings['n_walkers'], n_dim, ln_prob, args=args)
+sampler = emcee.EnsembleSampler(emcee_settings['n_walkers'], n_dim, ln_prob,
+                                args=args)
 
 # Run sampler.
 sampler.run_mcmc(start, emcee_settings['n_steps'])
@@ -140,7 +146,8 @@ print(*[b if isinstance(b, float) else b.value for b in best])
 print(my_event.best_chi2)
 
 # Plot results.
-ln_like(best, my_event, parameters, False) # This allows plotting of the best model.
+ln_like(best, my_event, parameters, False)  # This allows plotting of
+# the best model.
 my_event.plot_data(subtract_2450000=True)
 my_event.plot_model(subtract_2450000=True)
 plt.xlim(*other_settings['plot_time'])

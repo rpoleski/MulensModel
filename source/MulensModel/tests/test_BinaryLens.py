@@ -7,13 +7,13 @@ import MulensModel
 
 def test_binary_lens_hexadecapole():
     """
-    tests hexadecapole and quadrupole calculation for planetary case 
+    tests hexadecapole and quadrupole calculation for planetary case
     with rho=0.001 and 3 values of gamma: 0, 0.5, and 1.0
     """
     s = 1.35
     q = 0.00578
     rho = 0.001
-    x = 0.7142010570568691 - s * q / (1. + q) 
+    x = 0.7142010570568691 - s * q / (1. + q)
     y = 0.00189679191923936
 
     pspl_mag = 4.691830779895085
@@ -37,17 +37,19 @@ def test_binary_lens_hexadecapole():
     np.testing.assert_almost_equal(result_05, reference_05)
     np.testing.assert_almost_equal(result_10, reference_10)
 
+
 def test_vbbl_1():
     s = 0.8
     q = 0.1
-    
+
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
     bl = MulensModel.BinaryLens(m_1, m_2, s)
-    
+
     result = bl.vbbl_magnification(0.01, 0.01, 0.01)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
-    
+
+
 def test_ac_1():
     s = 0.8
     q = 0.1

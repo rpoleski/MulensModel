@@ -13,6 +13,7 @@ def test_n_lenses():
     assert model_1.n_lenses == 1
     assert model_2.n_lenses == 2
 
+
 # Point Lens Tests
 def test_model_PSPL_1():
     """tests basic evaluation of Paczynski model"""
@@ -28,6 +29,7 @@ def test_model_PSPL_1():
     np.testing.assert_almost_equal(model.data_magnification, [
             np.array([1.028720763, 2.10290259, 1.26317278])],
             err_msg="PSPL model returns wrong values")
+
 
 def test_model_init_1():
     """tests if basic parameters of Model.__init__() are properly passed"""
@@ -45,10 +47,12 @@ def test_model_init_1():
     np.testing.assert_almost_equal(my_model.parameters.rho, rho,
                                    err_msg='rho not set properly')
 
+
 class TestModel(unittest.TestCase):
     def test_negative_t_E(self):
         with self.assertRaises(ValueError):
             my_model = Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
+
 
 def test_model_parallax_definition():
     # JCY: I don't think we should allow parameters
@@ -80,6 +84,7 @@ def test_model_parallax_definition():
     assert model_4.parameters.pi_E_N == 0.7
     assert model_4.parameters.pi_E_E == 0.8
 
+
 def test_coords_transformation():
     """
     this was tested using http://ned.ipac.caltech.edu/forms/calculator.html
@@ -109,6 +114,7 @@ def test_init_parameters():
     np.testing.assert_almost_equal(model.parameters.u_0, u_0)
     np.testing.assert_almost_equal(model.parameters.t_E, t_E.value)
 
+
 def test_limb_darkening():
     """check if limb_darkening coeffs are properly passed and converted"""
     gamma = 0.4555
@@ -119,6 +125,7 @@ def test_limb_darkening():
 
     np.testing.assert_almost_equal(model.get_limb_coeff_gamma('I'), gamma)
     np.testing.assert_almost_equal(model.get_limb_coeff_u('I'), u)
+
 
 def test_t_E():
     """make sure t_E can be accessed properly"""
@@ -151,6 +158,7 @@ delta_u_0 = -shift_x * np.sin(alpha).value
 t_0 = 2456141.593 + delta_t_0
 u_0 = 0.5425 + delta_u_0
 
+
 def test_BLPS_01():
     """simple binary lens with point source"""
     params = ModelParameters({
@@ -166,6 +174,7 @@ def test_BLPS_01():
 # This value comes from early version of this code.
 # np.testing.assert_almost_equal(m, 4.710563917)
 # This value comes from Andy's getbinp().
+
 
 def test_BLPS_02():
     """
@@ -198,6 +207,7 @@ def test_BLPS_02():
     # This is an absurd value but I needed something quick.
     result = model.data_magnification[0]
     np.testing.assert_almost_equal(result[5], 1.6366862)
+
 
 def test_BLPS_02_AC():
     """
@@ -235,6 +245,7 @@ def test_BLPS_02_AC():
     result = model.data_magnification[0]
     np.testing.assert_almost_equal(result[5], 1.6366862, decimal=3)
 
+
 def test_methods_parameters():
     """
     make sure additional parameters are properly passed to very inner functions
@@ -267,6 +278,7 @@ def test_methods_parameters():
     assert result_1[0] != result_3[0]
     assert result_2[0] != result_3[0]
 
+
 def test_caustic_for_orbital_motion():
     """
     check if caustics calculated for different epochs in orbital motion model
@@ -285,6 +297,7 @@ def test_caustic_for_orbital_motion():
     model.update_caustics(100.+365.25/2)
     np.testing.assert_almost_equal(model.caustics.get_caustics(),
                                    Caustics(q=q, s=1.55).get_caustics())
+
 
 def test_magnifications_for_orbital_motion():
     """
@@ -309,6 +322,7 @@ def test_magnifications_for_orbital_motion():
     np.testing.assert_almost_equal(
         static.magnification(t_2),
         motion.magnification(t_2))
+
 
 def test_model_binary_and_finite_sources():
     """
@@ -349,6 +363,7 @@ def test_model_binary_and_finite_sources():
     (mag_1_, mag_2_) = model.magnification(time, separate=True)
     np.testing.assert_almost_equal(mag_1, mag_1_)
     np.testing.assert_almost_equal(mag_2, mag_2_)
+
 
 def test_binary_source_and_fluxes_for_bands():
     """
@@ -391,6 +406,7 @@ def test_binary_source_and_fluxes_for_bands():
     result_V = model.get_data_magnification(data_V)
     np.testing.assert_almost_equal(result_I, effective_mag_I)
     np.testing.assert_almost_equal(result_V, effective_mag_V)
+
 
 def test_separate_method_for_each_source():
     """

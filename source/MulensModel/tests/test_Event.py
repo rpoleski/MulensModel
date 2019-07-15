@@ -19,6 +19,7 @@ SAMPLE_FILE_02 = os.path.join(
     MulensModel.MODULE_PATH, "data", "photometry_files", "OB140939",
     "ob140939_OGLE.dat")
 
+
 def test_model_event_coords():
     """
     Check if coordinates are properly passed from Model to Event.
@@ -28,6 +29,7 @@ def test_model_event_coords():
     event = Event(model=model)
     np.testing.assert_almost_equal(event.coords.ra.value, 273.144)
     np.testing.assert_almost_equal(event.coords.dec.value, -23.765430555555554)
+
 
 def test_event_get_chi2_1():
     """basic unit test on ob08092 OGLE-IV data"""
@@ -57,6 +59,7 @@ def test_event_get_chi2_1():
     ev.sum_function = 'numpy.sum'
     np.testing.assert_almost_equal(
         ev.get_chi2(), 427.20382, decimal=4, err_msg='problem with numpy.sum')
+
 
 def test_event_get_chi2_2():
     """
@@ -94,6 +97,7 @@ def test_event_get_chi2_2():
     chi2_3 = ev.get_chi2_for_dataset(1)
     np.testing.assert_almost_equal(chi2_3, answer)
 
+
 def test_event_get_chi2_3():
     """test on ob08092 OGLE-IV data - MulensData.good & MulensData.bad"""
     t_0 = 5379.57091
@@ -121,6 +125,7 @@ def test_event_get_chi2_3():
     np.testing.assert_almost_equal(float(chi2), 343.46567, decimal=4,
                                    err_msg='problem in resulting chi2')
 
+
 def test_event_get_chi2_double_source_simple():
     """
     basic test on ob08092 OGLE-IV data
@@ -144,6 +149,7 @@ def test_event_get_chi2_double_source_simple():
     message = 'problem in resulting chi2 for 2 exactly the same datasets'
     np.testing.assert_almost_equal(
         chi2, 854.407644, decimal=4, err_msg=message)
+
 
 def test_event_get_chi2_3():
     """
@@ -173,6 +179,7 @@ def test_event_get_chi2_3():
 
     assert event.get_chi2() != orig_chi2
 
+
 def test_event_get_chi2_4():
     """test if best chi2 is remembered correctly"""
     t_0 = 5379.57091
@@ -199,6 +206,7 @@ def test_event_get_chi2_4():
     assert ev.best_chi2 == chi2_1
     assert ev.best_chi2_parameters == params
 
+
 class TestEvent(unittest.TestCase):
     def test_event_init_1(self):
         with self.assertRaises(TypeError):
@@ -207,6 +215,7 @@ class TestEvent(unittest.TestCase):
     def test_event_init_2(self):
         with self.assertRaises(TypeError):
             ev = Event(datasets='some_string')
+
 
 def test_event_chi2_gradient():
     """test calculation of chi2 gradient"""
@@ -238,6 +247,7 @@ def test_event_chi2_gradient():
         reference = np.array([gradient[key] for key in params])
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
+
 def test_event_chi2_binary_source():
     """simple test if chi2 calculation for binary source works fine"""
     model = Model({
@@ -262,6 +272,7 @@ def test_event_chi2_binary_source():
     assert event.get_chi2() > 1.
     model.set_source_flux_ratio(3.)
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
+
 
 def test_event_chi2_binary_source_2datasets():
     """

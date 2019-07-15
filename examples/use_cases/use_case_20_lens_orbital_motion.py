@@ -20,10 +20,10 @@ alpha_0 = 12.345 * u.deg
 dalpha_dt = 50. * u.deg / u.year
 s_0 = 1.5
 ds_dt = 0.5 / u.year
-params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q, 
-        'alpha': alpha_0, 's': s_0}
+params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q,
+          'alpha': alpha_0, 's': s_0}
 
-#Generate models:
+# Generate models:
 model_static = Model(params)
 params['dalpha_dt'] = dalpha_dt
 params['ds_dt'] = ds_dt
@@ -35,7 +35,7 @@ orb_parameters = model_static.parameters.as_dict().copy()
 orb_parameters.update({'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt})
 model_orb_2 = Model(parameters=orb_parameters)
 
-dt = 36.525 # This is in days.
+dt = 36.525  # This is in days.
 
 # Get the values of parameters in both models:
 print('test orbital motion s')
@@ -45,7 +45,7 @@ print('{0} == {1}?'.format(model_orb.parameters.get_s(t_0+dt), 1.55))
 
 print('test static s')
 print('{0} == {1}?'.format(model_static.parameters.s, s_0))
-print('{0} == {1}?'.format(model_static.parameters.get_s(t_0), s_0)) 
+print('{0} == {1}?'.format(model_static.parameters.get_s(t_0), s_0))
 print('{0} == {1}?'.format(model_static.parameters.get_s(t_0+dt), s_0))
 
 print('test orbital motion alpha')
@@ -56,7 +56,7 @@ print(
 
 # Make sure that you know what kind of model you deal with:
 print('What kind of model?')
-print('Static: {0} == {1}?'.format(model_static.is_static(), True)) 
+print('Static: {0} == {1}?'.format(model_static.is_static(), True))
 print('Orb Mot: {0} == {1}?'.format(model_orb.is_static(), False))
 print('Orb Mot: {0} == {1}?'.format(model_orb_2.is_static(), False))
 
@@ -66,16 +66,16 @@ print(
     '{0} == {1}?'.format(
         model_orb.parameters.gamma_parallel, 0.3333333 / u.year))
 print(
-    '{0} == {1}?'.format(model_orb.parameters.gamma_perp, -50. / u.year)) 
-# or # -0.87266 u.rad/u.year (the minus sign comes from the definition in 
+    '{0} == {1}?'.format(model_orb.parameters.gamma_perp, -50. / u.year))
+# or # -0.87266 u.rad/u.year (the minus sign comes from the definition in
 # Skowron et al. 2011).
 print('{0} == {1}?'.format(model_orb.parameters.gamma, 0.9346 / u.year))
 
 # Make a nice plot:
 plt.figure()
 model_orb.plot_caustics(epoch=t_0)
-model_orb.plot_caustics(epoch=t_0+dt, c='g', lw=0) # second caustics are green
+model_orb.plot_caustics(epoch=t_0+dt, c='g', lw=0)  # second caustics are green
 model_orb.plot_trajectory()
-plt.title('This plot shows a nice curved trajectory and caustics for 2 ' + 
-        'different epochs')
+plt.title('This plot shows a nice curved trajectory and caustics for 2 ' +
+          'different epochs')
 plt.show()
