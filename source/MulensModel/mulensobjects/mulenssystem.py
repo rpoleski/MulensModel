@@ -135,9 +135,9 @@ class MulensSystem(object):
     @property
     def pi_E(self):
         """
-        float, read-only
+        *float*, read-only
 
-        The Einstein ring radius. It's equal to pi_rel / theta_E. 
+        The Einstein ring radius. It's equal to pi_rel / theta_E.
         Dimensionless.
         """
         return (self.pi_rel / self.theta_E).decompose().value
@@ -189,7 +189,7 @@ class MulensSystem(object):
                 fraction of the Einstein ring)
 
             alpha: *astropy.Quantity*, *float*
-                If float then degrees are assumed as a unit.
+                If *float* then degrees are assumed as a unit.
                 See :py:obj:`MulensModel.modelparameters.ModelParameters.alpha`
 
             ``**kwargs``:
