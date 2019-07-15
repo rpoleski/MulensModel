@@ -1,6 +1,6 @@
 """
-Some scipy.optimize.minimize methods require a Jacobian 
-(or gradient of chi^2) to run. Here is an example of how one would 
+Some scipy.optimize.minimize methods require a Jacobian
+(or gradient of chi^2) to run. Here is an example of how one would
 implement such a minimization method using MulensModel.
 
 Similar to example_02_fitting.py except using the 'Newton-CG" method to
@@ -17,6 +17,7 @@ from MulensModel import Event, Fit, Model, MulensData, Utils
 
 
 raise NotImplementedError('chi2_gradient not implemented for Event')
+
 
 class Minimizer(object):
     """
