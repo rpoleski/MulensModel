@@ -1,4 +1,4 @@
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 import numpy as np
 
 import MulensModel as mm
@@ -42,14 +42,14 @@ binary_source_model = mm.Model(dict(
     flux_ratio=f_source_2/f_source_1))
 
 # Plots
-pl.figure()
-pl.title('2 Point Source Models')
-pl.plot(times, combined_model_lc, color='blue')
-pl.gca().invert_yaxis()
+plt.figure()
+plt.title('2 Point Source Models')
+plt.plot(times, combined_model_lc, color='blue')
+plt.gca().invert_yaxis()
 
-pl.figure()
-pl.title('1 Binary Source Model')
+plt.figure()
+plt.title('1 Binary Source Model')
 binary_source_model.plot_lc(times, f_source=f_source_1, color='magenta')
 
-pl.show()
+plt.show()
 

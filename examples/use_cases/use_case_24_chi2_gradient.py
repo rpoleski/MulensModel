@@ -10,7 +10,7 @@ import sys
 import os
 import numpy as np
 import scipy.optimize as op
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 
 import MulensModel
 from MulensModel import Event, Fit, Model, MulensData, Utils
@@ -89,17 +89,17 @@ print(result)
 # Plot and compare the two models
 init_model = Model(dict(t_0=t_0, u_0=u_0, t_E=t_E))
 final_model = Model(dict(t_0=fit_t_0, u_0=fit_u_0, t_E=fit_t_E))
-pl.figure()
+plt.figure()
 init_model.plot_lc(data_ref=data, label='Initial Trial')
 final_model.plot_lc(data_ref=data, label='Final Model')
-pl.title('Difference b/w Input and Fitted Model')
-pl.legend(loc='best')
+plt.title('Difference b/w Input and Fitted Model')
+plt.legend(loc='best')
 
 # Plot the fitted model with the data
-pl.figure()
+plt.figure()
 ev.plot_model()
 ev.plot_data()
-pl.title('Data and Fitted Model')
+plt.title('Data and Fitted Model')
 
-pl.show()
+plt.show()
 
