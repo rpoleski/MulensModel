@@ -290,7 +290,7 @@ class MulensData(object):
     @bad.setter
     def bad(self, new_value):
         new_value = np.asarray(new_value)
-        if not ((new_value==False) | (new_value==True)).all():
+        if not ((new_value == False) | (new_value == True)).all():
             raise TypeError("MulensData.bad has to be a boolean numpy array")
         self._bad = new_value
         self._good = np.logical_not(self._bad)
@@ -307,7 +307,7 @@ class MulensData(object):
     @good.setter
     def good(self, new_value):
         new_value = np.asarray(new_value)
-        if not ((new_value==False) | (new_value==True)).all():
+        if not ((new_value == False) | (new_value == True)).all():
             raise TypeError("MulensData.good has to be a boolean numpy array")
         self._good = new_value
         self._bad = np.logical_not(self._good)

@@ -128,6 +128,7 @@ class Horizons(object):
         """
         return self._xyz
 
+
 """
 HORIZONS OUTPUT FILE:
   Prior to 1962, times are UT1. Dates thereafter are UTC. Any 'b' symbol in
