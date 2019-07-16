@@ -2,7 +2,7 @@
 Fits binary source model using EMCEE sampler.
 
 The code simulates binary source light curve and fits the model twice:
-with source flux ratio found via linear regression and 
+with source flux ratio found via linear regression and
 with source flux ratio as a chain parameter.
 """
 import os
@@ -32,6 +32,7 @@ def ln_like(theta, event, parameters_to_fit):
             setattr(event.model.parameters, param, theta_)
     return -0.5 * event.get_chi2()
 
+
 def ln_prior(theta, parameters_to_fit):
     """priors - we only reject obviously wrong models"""
     for param in ['t_E', 'u_0_1', 'u_0_2']:
@@ -39,6 +40,7 @@ def ln_prior(theta, parameters_to_fit):
             if theta[parameters_to_fit.index(param)] < 0.:
                 return -np.inf
     return 0.0
+
 
 def ln_prob(theta, event, parameters_to_fit):
     """ combines likelihood and priors"""
@@ -53,6 +55,7 @@ def ln_prob(theta, event, parameters_to_fit):
         return -np.inf
 
     return ln_prior_ + ln_like_
+
 
 def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
               n_walkers=20, n_steps=3000, n_burn=1500):
@@ -128,8 +131,8 @@ flux_err = 6. + 0. * time
 flux += flux_err * np.random.normal(size=n_a+n_b)
 my_dataset = MulensData([time, flux, flux_err], phot_fmt='flux')
 # If you want to plot, then just uncomment:
-#plt.plot(time, flux, 'ro')
-#plt.show()
+# plt.plot(time, flux, 'ro')
+# plt.show()
 
 # Starting parameters:
 params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,

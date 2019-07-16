@@ -23,10 +23,11 @@ def str_to_microsec(str_1, str_2):
         k = 1.e6
     else:
         raise ValueError('Unrecognized time format: {:}.'.format(str_2))
-    
+
     value = float(str_1) * k
     return value
-        
+
+
 def get_ratio(value_1, sigma_1, value_2, sigma_2):
     """calculates value_1/value_2 and its sigma"""
     value = value_1 / value_2
@@ -52,9 +53,9 @@ plot_kwargs = {
     2: {"fmt": 'ro', "ms": 10, "label": "MM parallax", **common_kwargs},
     3: {"fmt": 'bo', "ms": 10, "label": "pyLIMA parallax", **common_kwargs}
     }
-    
+
 results = None
-    
+
 with open(in_file) as in_data:
     for line_ in in_data.readlines():
         line = line_.split()
@@ -73,14 +74,15 @@ with open(in_file) as in_data:
             if results is None:
                 results = np.zeros((len(ids), len(n_all)))
                 results_sigma = np.zeros((len(ids), len(n_all)))
-            out = get_ratio(mean, std_dev, 
-                    numpy_mean[n_name], numpy_std_dev[n_name])
+            out = get_ratio(mean, std_dev,
+                            numpy_mean[n_name], numpy_std_dev[n_name])
             results[ids[name], n_all.index(n_name)] = out[0]
             results_sigma[ids[name], n_all.index(n_name)] = out[1]
-            
+
 x = np.array([float(n) for n in n_all]) * 0.9
 for i in range(len(ids)):
-    plt.errorbar(x, results[i], results_sigma[i], **{**plot_kwargs[i], 'lw': 3})
+    plt.errorbar(x, results[i], results_sigma[i],
+                 **{**plot_kwargs[i], 'lw': 3})
     x *= 1.07
     
 plt.xlim(50., 30000.)

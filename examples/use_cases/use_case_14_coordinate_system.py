@@ -18,6 +18,7 @@ import MulensModel
 
 raise NotImplementedError('frame_origin not implemented for Model')
 
+
 def convert_cof_mag2mass(t0, te, u0, alpha, s, q):
     """
     function to convert from center of magnification to center of mass
@@ -34,7 +35,8 @@ def convert_cof_mag2mass(t0, te, u0, alpha, s, q):
         u0_prime = u0 + delta_u0
         return t0_prime, u0_prime
 
-#Define model parameters in CoMAGN system
+
+# Define model parameters in CoMAGN system
 t0_center_of_mag = 7000.
 u0_center_of_mag = 0.1
 alpha_center_of_mag = 30.*u.deg
@@ -46,18 +48,18 @@ print('Center of magnification: {0}, {1}'.format(
 s = 1.1
 q = 0.001
 
-#Get parameters in CoMASS system
+# Get parameters in CoMASS system
 (t0_center_of_mass, u0_center_of_mass) = convert_cof_mag2mass(
         t0_center_of_mag, te, u0_center_of_mag, alpha_center_of_mag, s, q)
 
 print('Center of mass: {0}, {1}'.format(t0_center_of_mass, u0_center_of_mass))
 
-#How does this get passed to a minimizer?
+# How does this get passed to a minimizer?
 
-#Alternatively, 
+# Alternatively,
 model = MulensModel.Model(
-            {'t_0': 2457000., 'u_0': 0.1, 't_E': 30., 'rho': 0.001, 
-             'alpha': 30*u.deg, 's': 1.1, 'q': 0.001}, 
+            {'t_0': 2457000., 'u_0': 0.1, 't_E': 30., 'rho': 0.001,
+             'alpha': 30*u.deg, 's': 1.1, 'q': 0.001},
             frame_origin='magnification')
 
 print(model.parameters.t_0, model.parameters.u_0)

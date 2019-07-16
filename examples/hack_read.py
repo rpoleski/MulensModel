@@ -12,6 +12,7 @@ def read_files_from_config(config):
     files = [config.get(section, id_).split() for id_ in ids]
     return files
 
+
 def read_model_settings(config):
     """
     Read basic parameters of the microlensing models: methods used for
@@ -34,6 +35,7 @@ def read_model_settings(config):
         settings['coords'] = None
     return settings
 
+
 def read_parameters_start(config):
     """
     Read info on starting parameter values. The distributions can be
@@ -47,6 +49,7 @@ def read_parameters_start(config):
         starting[param] = [words[0]] + [float(word) for word in words[1:]]
     return (parameters_to_fit, starting)
 
+
 def read_fix_parameters(config):
     """
     Read parameters that will be kept fixed during fitting process.
@@ -58,6 +61,7 @@ def read_fix_parameters(config):
     for var in config[section]:
         fixed[var] = config.getfloat(section, var)
     return fixed
+
 
 def read_min_max(config):
     """
@@ -76,6 +80,7 @@ def read_min_max(config):
             max_values[var] = config.getfloat(section, var)
     return (min_values, max_values)
 
+
 def read_emcee_settings(config):
     """
     Read EMCEE parameters, i.e., number of walkers, steps, and burn-in steps.
@@ -85,6 +90,7 @@ def read_emcee_settings(config):
     for name in ['n_walkers', 'n_steps', 'n_burn']:
         emcee_settings[name] = config.getint(section, name)
     return emcee_settings
+
 
 def read_other(config):
     """

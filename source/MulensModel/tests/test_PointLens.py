@@ -15,9 +15,10 @@ def get_file_params(filename):
         ulens_params = lines[2].split()
     return (
         ModelParameters(
-            {'t_0': float(ulens_params[1]), 'u_0': float(ulens_params[2]), 
+            {'t_0': float(ulens_params[1]), 'u_0': float(ulens_params[2]),
              't_E': float(ulens_params[3]), 'rho': float(ulens_params[4])}),
         float(ulens_params[5]))
+
 
 def get_variables():
     """return a few variables used by 4 test functions below"""
@@ -42,11 +43,13 @@ def test_B_0_function():
     test_b_0 = point_lens._B_0_function(z)
     np.testing.assert_almost_equal(test_b_0, data['b_0'], decimal=5)
 
+
 def test_B_1_function():
     """test private _B_1_function"""
     (data, _, point_lens, _, z, _) = get_variables()
     test_b_1 = point_lens._B_1_function(z)
     np.testing.assert_almost_equal(test_b_1, data['b_1'], decimal=4)
+
 
 def test_get_point_lens_finite_source_magnification():
     """test PLFS"""
@@ -54,6 +57,7 @@ def test_get_point_lens_finite_source_magnification():
     test_FSPL = point_lens.get_point_lens_finite_source_magnification(
         u, pspl_magnification)
     np.testing.assert_almost_equal(test_FSPL, data['Mag_FS'], decimal=5)
+
 
 def test_get_point_lens_limb_darkening_magnification():
     """test PLFS+LD"""

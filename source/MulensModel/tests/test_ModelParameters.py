@@ -15,6 +15,7 @@ class TestModelParameters(unittest.TestCase):
             mp = ModelParameters(
                 {'pi_E': (1., 1.), 'pi_E_E': 1.})
 
+
 def test_init_parameters():
     t_0 = 6141.593
     u_0 = 0.5425
@@ -24,6 +25,7 @@ def test_init_parameters():
     np.testing.assert_almost_equal(params.t_0, t_0)
     np.testing.assert_almost_equal(params.u_0, u_0)
     np.testing.assert_almost_equal(params.t_E, t_E.value)
+
 
 def test_repr_parameters():
     t_0 = 2456141.593
@@ -35,6 +37,7 @@ def test_repr_parameters():
     out_2 = "2456141.59300  0.542500    62.6300 \n"
 
     assert (out_1 + out_2) == str(params)
+
 
 def test_rho_t_e_t_star():
     """check if conversions between rho, t_E, and t_star work ok"""
@@ -56,6 +59,7 @@ def test_rho_t_e_t_star():
         {'t_0': t_0, 'u_0': u_0, 't_star': t_star, 't_E': t_E})
     np.testing.assert_almost_equal(params_3.rho, rho)
 
+
 class test(unittest.TestCase):
     def test_too_much_rho_t_e_t_star(self):
         with self.assertRaises(KeyError):
@@ -68,6 +72,7 @@ class test(unittest.TestCase):
                 't_0': t_0, 'u_0': u_0, 't_E': t_E,
                 'rho': rho, 't_star': t_star})
 
+
 def test_update():
     t_0 = 2456141.593
     u_0 = 0.5425
@@ -76,6 +81,7 @@ def test_update():
     params.as_dict().update({'rho': 0.001})
 
     assert len(params.parameters.keys()) == 4
+
 
 def test_orbital_motion_1():
     """basic tests of orbital motion"""
@@ -131,6 +137,7 @@ def test_orbital_motion_1():
     assert motion.alpha == 30. * u.deg
     assert motion.s == 1.2345
 
+
 def test_t_0_kep():
     """test reference epoch for orbital motion"""
     dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
@@ -160,6 +167,7 @@ def test_t_0_kep():
     np.testing.assert_almost_equal(motion_2.get_s(epoch_1), 1.2345)
     np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
 
+
 def test_orbital_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
     dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00,
@@ -176,6 +184,7 @@ def test_orbital_motion_gammas():
     assert params.gamma_parallel.unit == 1. / u.year
     assert params.gamma_perp.unit == u.rad / u.year
     assert params.gamma.unit == 1. / u.year
+
 
 def test_binary_source():
     """
