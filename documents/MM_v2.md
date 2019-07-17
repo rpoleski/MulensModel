@@ -4,7 +4,7 @@ Once the changes are accepted to be made, **mark them in the code using warnings
 
 ### Major changes:
 
- * Remove datasets from Model - this moves all plotting functions (except plot\_model) to Event. This causes changes in:
+ * Remove datasets from Model - this moves all plotting functions (except plot\_model) to Event. Not sure if we really want that - it's currently used for initializing Fit. We have to somehow do lazy loading of magnifications. If so, then his causes changes in:
    * Model.data\_magnification()
    * Model.get\_residuals()
    * Model.get\_ref\_fluxes() - possibly
@@ -15,15 +15,15 @@ Once the changes are accepted to be made, **mark them in the code using warnings
 ### Minor changes:
  * Delete ModelParamters.pi\_E and leave pi\_E\_N and pi\_E\_E - it's not really used and just complicates the code inside
  * Remove ModelParameters.as\_dict() because it's the same as ModelParameters.parameters
- * ephemerides\_file -> ephemeris\_file
+ * ephemerides\_file -> ephemeris\_file - maybe
  * Model.plot\_\* - remove \_list parameters etc.
  * Model.get\_residuals should have keyword phot\_fmt, not type to be consistent with other functions
- * Model.set\_datasets and .datasets - make sure it's allways a list even if only single MulensData object is provided
+ * Model.set\_datasets and .datasets - make sure it's always a list even if only single MulensData object is provided
 
 ### Yet unsorted/undecided:
  * check all NotImplementedError and maybe remove some functions/options
  * new class for a collection of datasets to make looping over datasets easier; also there will be data\_ref defined
- * VBBL and AC in subdirs of source/MulensModel/ for easier install
+ * VBBL and AC in subdirs of source/MulensModel/ for easier install ?
  * stop updating data\_ref in Model
  * the same order of arguments in plotting functions (if possible)
  * Model.magnification has parameter gamma - shouldn't it be bandpass?
