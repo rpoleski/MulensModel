@@ -1,5 +1,5 @@
 import sys
-import os
+from os.path import join
 import unittest
 import numpy as np
 from astropy import units as u
@@ -12,12 +12,11 @@ from MulensModel.model import Model
 from MulensModel.utils import Utils
 
 
-SAMPLE_FILE_01 = os.path.join(
-    MulensModel.MODULE_PATH, "data", "photometry_files", "OB08092",
-    "phot_ob08092_O4.dat")
-SAMPLE_FILE_02 = os.path.join(
-    MulensModel.MODULE_PATH, "data", "photometry_files", "OB140939",
-    "ob140939_OGLE.dat")
+dir_ = join(MulensModel.MODULE_PATH, "data", "photometry_files")
+SAMPLE_FILE_01 = join(dir_, "OB08092", "phot_ob08092_O4.dat")
+SAMPLE_FILE_02 = join(dir_, "OB140939", "ob140939_OGLE.dat")
+SAMPLE_FILE_03 = join(dir_, "OB03235", "OB03235_OGLE.tbl.txt")
+SAMPLE_FILE_04 = join(dir_, "OB03235", "OB03235_MOA.tbl.txt")
 
 
 def test_model_event_coords():
@@ -205,6 +204,33 @@ def test_event_get_chi2_4():
     assert chi2_2 > chi2_1
     assert ev.best_chi2 == chi2_1
     assert ev.best_chi2_parameters == params
+
+
+def test_event_get_chi2_5():
+    """
+    De facto checks how information is passed between Event, Fit, and Model.
+    Also checks simple relations between different Event.get_chi2().
+    """
+    kwargs = {'comments': ["\\", "|"]}
+    data_1 = MulensData(file_name=SAMPLE_FILE_03, **kwargs)
+    data_2 = MulensData(file_name=SAMPLE_FILE_04, phot_fmt='flux', **kwargs)
+    params = {'t_0': 2452848.06, 'u_0': 0.1317, 't_E': 61.5}
+
+    model = Model(params)
+
+    event_1 = Event(data_1, model)
+    event_2 = Event(data_2, model)
+    event_1_2 = Event([data_1, data_2], model)
+    event_2_1 = Event([data_2, data_1], model)
+
+    chi2_1 = event_1.get_chi2()
+    chi2_2 = event_2.get_chi2()
+    # The line below was failing when the test was written:
+    chi2_1_2 = event_1_2.get_chi2()
+    chi2_2_1 = event_2_1.get_chi2()
+
+    np.testing.assert_almost_equal(chi2_1_2, chi2_1 + chi2_2)
+    np.testing.assert_almost_equal(chi2_1_2, chi2_2_1)
 
 
 class TestEvent(unittest.TestCase):

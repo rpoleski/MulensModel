@@ -259,6 +259,7 @@ class Event(object):
         if self.model.n_sources != 1 and dataset_in_fit:
             self.fit = self.model.fit
         else:
+            self._update_data_in_model()
             self.fit = Fit(data=dataset, magnification=[magnification])
             if fit_blending is not None:
                 self.fit.fit_fluxes(fit_blending=fit_blending)
@@ -277,6 +278,15 @@ class Event(object):
             err_data[mask] = dataset.err_flux[mask]
         chi2 = (diff / err_data)**2
         return self._sum(chi2[dataset.good])
+
+    def _update_data_in_model(self):
+        """
+        Make sure data here and in self.model are the same. If not, then update
+        the ones in self.model. This happens only when the same Model instance
+        is used by different instances of Event.
+        """
+        if self.model.datasets != self.datasets:
+            self.model.set_datasets(self.datasets)
 
     def get_chi2_per_point(self, fit_blending=None):
         """
@@ -315,6 +325,7 @@ class Event(object):
             self.model.data_magnification
             self.fit = self.model.fit
         else:
+            self._update_data_in_model()
             self.fit = Fit(data=self.datasets,
                            magnification=self.model.data_magnification)
             if fit_blending is not None:
@@ -391,6 +402,7 @@ class Event(object):
                 'for finite source models yet')
 
         # Define a Fit given the model and perform linear fit for fs and fb
+        self._update_data_in_model()
         self.fit = Fit(
             data=self.datasets, magnification=self.model.data_magnification)
         # For binary source cases, the above line would need to be replaced,
