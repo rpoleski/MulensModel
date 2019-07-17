@@ -392,7 +392,8 @@ class Model(object):
         """
         *list*
 
-        A list of magnifications calculated for every dataset time vector.
+        A list of magnifications calculated for every dataset in
+        :py:attr:`datasets`.
         """
         self._data_magnification = []
 
@@ -516,9 +517,12 @@ class Model(object):
     @property
     def datasets(self):
         """
-        *list*
+        *list* of :py:class:`~MulensModel.mulensdata.MulensData`
 
-        datasets linked to given model
+        Datasets linked to given model. Note that these can be changed by
+        :py:class:`~MulensModel.event.Event` instances. This happens when
+        the same model is linked to multiple
+        :py:class:`~MulensModel.event.Event` instances.
         """
         if len(self._datasets) == 0:
             raise ValueError('No datasets were linked to the model')
