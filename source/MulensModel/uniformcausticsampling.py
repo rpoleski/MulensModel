@@ -579,8 +579,7 @@ class UniformCausticSampling(object):
                                p=probabilities)
         return (True, x_1[out], x_2[out])
 
-# XXX the function below should be public
-    def _jacobian(self, x_caustic_in, x_caustic_out):
+    def jacobian(self, x_caustic_in, x_caustic_out):
         """
         Evaluates Eq. 23 from Cassan et al. (2010) with condition under Eq. 27.
 
