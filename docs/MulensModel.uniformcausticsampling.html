@@ -92,7 +92,7 @@ and <em>x_caustic=0.</em> corresponds to right-hand point where the caustic
 crosses the X-axis. For a wide topology, the planetary caustic is
 plotted in a similar way. For a close topology, the lower planetary
 caustic is plotted counter-clockwise and the upper planetary caustic
-is symetric, thus plotted clockwise. For planetary caustics in
+is symmetric, thus plotted clockwise. For planetary caustics in
 a close topology, the zero-point of <em>x_caustic</em> values is defined
 in a very complicated way, however it is a smooth function of
 <em>s</em> and <em>q</em>.</p>
@@ -196,10 +196,33 @@ caustics. Can be <em>1</em>, <em>2</em>, or <em>3</em> but has to be
 </dd></dl>
 
 <dl class="method">
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.jacobian">
+<code class="descname">jacobian</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.jacobian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates Eq. 23 from Cassan et al. (2010) with condition under Eq. 27.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>x_caustic_in: <em>float</em></dt>
+<dd>Point of caustic entrance.</dd>
+<dt>x_caustic_out: <em>float</em></dt>
+<dd>Point of caustic exit.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>jacobian: <em>float</em></dt>
+<dd>Value of Jacobian. Returns <em>0.</em> if trajectory does not exist.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check">
 <code class="descname">orientation_check</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>TO DO: this function should have different name because we check
-the other condition i.e., if the same caustics are hit</strong></p>
+the other condition i.e., if the same caustics are hit;
+maybe just name it check() or check_x_in_x_out()</strong></p>
 <p>Check if given (x_caustic_in, x_caustic_out) define an existing
 trajectory. An obvious case, when they don’t is when both caustic
 points are on the same fold, but other cases exists.</p>
@@ -265,15 +288,6 @@ the lower of the two planetary caustics,</p>
 </dl>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges">
-<code class="descname">allowed_ranges</code><span class="sig-paren">(</span><em>x_caustic</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.allowed_ranges" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Not implemented yet. Not sure how useful it is</strong></p>
-<p>For given value of x_caustic_in or _out get 1 or 2 ranges in
-which the other parameter has to be (required condition, but not
-necessarily enough - see also <a class="reference internal" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check"><code class="xref py py-func docutils literal notranslate"><span class="pre">orientation_check()</span></code></a>).</p>
 </dd></dl>
 
 <dl class="attribute">
