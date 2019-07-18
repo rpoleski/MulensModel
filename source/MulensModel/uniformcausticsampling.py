@@ -71,7 +71,7 @@ class UniformCausticSampling(object):
     crosses the X-axis. For a wide topology, the planetary caustic is
     plotted in a similar way. For a close topology, the lower planetary
     caustic is plotted counter-clockwise and the upper planetary caustic
-    is symetric, thus plotted clockwise. For planetary caustics in
+    is symmetric, thus plotted clockwise. For planetary caustics in
     a close topology, the zero-point of *x_caustic* values is defined
     in a very complicated way, however it is a smooth function of
     *s* and *q*.
@@ -85,8 +85,6 @@ class UniformCausticSampling(object):
         self._get_phi()
         self._integrate()
         self._find_inflections_and_correct()
-        self._add_third_caustic()
-        self._combine_parameterizations()
 
     def _get_n_caustics(self):
         """
@@ -377,21 +375,6 @@ class UniformCausticSampling(object):
 # - cusps_z_
 # - cusps_zeta_
 
-    def _combine_parameterizations(self):
-        """
-        XXX
-        """
-        pass  # XXX
-
-    def _add_third_caustic(self):
-        """
-        XXX
-        """
-        # Previously we had:
-        #    caustic_zeta_sum3 = [
-        #        caustic_zeta_sum2[i].conjugate() for i in [0, 2, 1]]
-        pass  # XXX
-
     def get_standard_parameters(self, x_caustic_in, x_caustic_out,
                                 t_caustic_in, t_caustic_out):
         """
@@ -663,7 +646,8 @@ class UniformCausticSampling(object):
     def orientation_check(self, x_caustic_in, x_caustic_out):  # XXX
         """
         **TO DO: this function should have different name because we check
-        the other condition i.e., if the same caustics are hit**
+        the other condition i.e., if the same caustics are hit;
+        maybe just name it check() or check_x_in_x_out()**
 
         Check if given (x_caustic_in, x_caustic_out) define an existing
         trajectory. An obvious case, when they don't is when both caustic
@@ -813,20 +797,6 @@ class UniformCausticSampling(object):
                 fmt = 'which_caustic() got {:} and internally had {:}'
                 raise ValueError(fmt.format(x_caustic, self._which_caustic))
         return caustic
-
-    def allowed_ranges(self, x_caustic):  # XXX
-        """
-        **Not implemented yet. Not sure how useful it is**
-
-        For given value of x_caustic_in or _out get 1 or 2 ranges in
-        which the other parameter has to be (required condition, but not
-        necessarily enough - see also :py:func:`orientation_check()`).
-        """
-        caustic = self.which_caustic(x_caustic)
-        print(self._inflections_fractions)
-        print(self._which_caustic)
-        pass  # XXX
-
 
     @property
     def n_caustics(self):
