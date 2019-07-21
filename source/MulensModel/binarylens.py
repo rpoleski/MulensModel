@@ -21,7 +21,7 @@ def _try_load(path):
         try:
             out = ctypes.cdll.LoadLibrary(path_)
         except OSError:
-            print("D")
+            print("OSError - File not loaded:", path_)
             pass
         else:
             return out

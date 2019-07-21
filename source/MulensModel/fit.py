@@ -61,6 +61,9 @@ class Fit(object):
                 be fixed at 0 (*False*)? Default is *True*
 
         """
+        if fit_blending not in {True, False}:
+            msg = 'Unrecognized format of fit_blending: {:}'
+            raise ValueError(msg.format(fit_blending))
         n_sources = self.get_n_sources()
 
         # Add parameters for blended light (if appropriate)
@@ -286,4 +289,3 @@ class Fit(object):
         self._magnification.extend(fit._magnification)
         self._flux_blending.update(fit._flux_blending)
         self._flux_sources.update(fit._flux_sources)
-
