@@ -25,6 +25,7 @@ def test_fit_get_input_format():
     err_msg = 'Fit.get_input_format() returns something wrong'
     almost(input_fmt, mag, err_msg=err_msg)
 
+
 def test_update():
     """
     check that Fit.update() works properly
@@ -57,4 +58,3 @@ def test_update():
     almost(fit_1.blending_flux(dataset_1), flux_0)
     almost(fit_1.blending_flux(dataset_2), flux_2)
     almost(fit_2.blending_flux(dataset_2), flux_2)
-
