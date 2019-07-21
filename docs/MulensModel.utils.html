@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.utils module &#8212; MulensModel 1.10.17 documentation</title>
+    <title>MulensModel.utils module &#8212; MulensModel 1.11.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -97,6 +97,30 @@ normalized</p>
 <dt id="MulensModel.utils.Utils.date_change">
 <em class="property">static </em><code class="descname">date_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
 <dd><p>changes format: ‘2015-Oct-30 12:00’ -&gt; ‘2015-10-30 12:00’</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.utils.Utils.velocity_of_Earth">
+<code class="descname">velocity_of_Earth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.velocity_of_Earth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate 3D velocity of Earth for given epoch.</p>
+<p>If you need velocity projected on the plane of the sky, then use
+<a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates.v_Earth_projected" title="MulensModel.coordinates.Coordinates.v_Earth_projected"><code class="xref py py-func docutils literal notranslate"><span class="pre">v_Earth_projected()</span></code></a></p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>full_BJD: <em>float</em></dt>
+<dd>Are we fitting for blending flux? If not then blending flux is
+fixed to 0.  Default is the same as
+<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>velocity: <em>np.ndarray</em> (<em>float</em>, size of (3,))</dt>
+<dd>3D velocity in km/s. The frame follows <em>Astropy</em> conventions.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">

@@ -1,5 +1,6 @@
 import numpy as np
 from math import log, fsum
+
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
@@ -504,12 +505,13 @@ class Event(object):
             out = np.array([gradient[p] for p in parameters])
         return out
 
-    def get_ref_fluxes(self, data_ref=None):
+    def get_ref_fluxes(self, data_ref=None, fit_blending=None):
         """
         Get source and blending fluxes for the reference dataset. See
         :py:func:`MulensModel.model.Model.get_ref_fluxes()` for details.
         """
-        return self.model.get_ref_fluxes(data_ref=data_ref)
+        return self.model.get_ref_fluxes(
+            data_ref=data_ref, fit_blending=fit_blending)
 
     def plot_model(self, **kwargs):
         """

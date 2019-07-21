@@ -1,8 +1,9 @@
-import numpy as np
 import warnings
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib.colors import ColorConverter
+
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
@@ -810,7 +811,7 @@ class Model(object):
             print(kwargs)
             raise
 
-    def get_ref_fluxes(self, data_ref=None):
+    def get_ref_fluxes(self, data_ref=None, fit_blending=None):
         """
         Get source and blending fluxes for the model by finding the
         best-fit values compared to data_ref.
@@ -820,6 +821,10 @@ class Model(object):
                 Reference dataset. If *int*, corresponds to the index of
                 the dataset in self.datasets. If None, than the first dataset
                 will be used.
+
+            fit_blending: *boolean*
+                *True* if blending flux is going to be fitted (default),
+                *False* if blending flux is fixed at 0.
 
         Returns :
             f_source: *np.ndarray*
@@ -840,7 +845,10 @@ class Model(object):
 
         mags = self.get_data_magnification(data)
         fit = Fit(data=data, magnification=mags)
-        fit.fit_fluxes()
+        if fit_blending is not None:
+            fit.fit_fluxes(fit_blending=fit_blending)
+        else:
+            fit.fit_fluxes()
         self._fit = fit
 
         f_source = fit.flux_of_sources(data)

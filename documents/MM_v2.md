@@ -10,10 +10,10 @@ Once the changes are accepted to be made, **mark them in the code using warnings
    * Model.get\_ref\_fluxes() - possibly
    * Model.reset\_plot\_properties() will be removed
    * Model.set\_source\_flux\_ratio\_for\_band
- * fit\_blending maybe should be class property, not an option, or maybe even it should be MulensData property! - This change should simplify Event and Fit functions where we see many "if fit\_blending:"
+ * fit\_blending maybe should be class property, not an option, or maybe even it should be MulensData property! - This change should simplify Event, Model, and Fit functions where we see many "if fit\_blending:" or passing fit\_blending to other functions.
 
 ### Minor changes:
- * Delete ModelParamters.pi\_E and leave pi\_E\_N and pi\_E\_E - it's not really used and just complicates the code inside
+ * Delete ModelParameters.pi\_E and leave pi\_E\_N and pi\_E\_E - it's not really used and just complicates the code inside
  * Remove ModelParameters.as\_dict() because it's the same as ModelParameters.parameters
  * ephemerides\_file -> ephemeris\_file - maybe
  * Model.plot\_\* - remove \_list parameters etc.
@@ -28,4 +28,4 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * the same order of arguments in plotting functions (if possible)
  * Model.magnification has parameter gamma - shouldn't it be bandpass?
  * Model.magnification has parameter flux\_ratio\_constraint but there is also Model.set\_source\_flux\_ratio() - probably there should be just one version of that - the latter seems more logical
-
+ * binary source models - currently, I think, the source flux is visible as a 1D array, but its size is (1,) even for binary source events - make sure what's the status and either add full support of (2,) size or just change it to float

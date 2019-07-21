@@ -3,6 +3,9 @@ from math import fsum
 import warnings
 
 from astropy import __version__ as astropy__version__
+from astropy.time import Time
+from astropy.coordinates.builtin_frames.utils import get_jd12
+from astropy import _erfa as erfa
 
 
 MAG_ZEROPOINT = 22.  # Defines magnitude at which flux = 1.
@@ -110,6 +113,37 @@ class Utils(object):
             str_components[0], month_3letter_to_2digit[str_components[1]],
             str_components[2]))
     date_change = staticmethod(date_change)
+
+    def velocity_of_Earth(full_BJD):
+        """
+        Calculate 3D velocity of Earth for given epoch.
+
+        If you need velocity projected on the plane of the sky, then use
+        :py:func:`~MulensModel.coordinates.Coordinates.v_Earth_projected`
+
+        Parameters :
+            full_BJD: *float*
+                Are we fitting for blending flux? If not then blending flux is
+                fixed to 0.  Default is the same as
+                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+
+        Returns :
+            velocity: *np.ndarray* (*float*, size of (3,))
+                3D velocity in km/s. The frame follows *Astropy* conventions.
+        """
+        # The 4 lines below, that calculate velocity for given epoch,
+        # are based on astropy 1.3 code:
+        # https://github.com/astropy/astropy/blob/master/astropy/
+        # coordinates/solar_system.py
+        time = Time(full_BJD, format='jd', scale='tdb')
+        (jd1, jd2) = get_jd12(time, 'tdb')
+        (earth_pv_helio, earth_pv_bary) = erfa.epv00(jd1, jd2)
+        factor = 1731.45683  # This scales AU/day to km/s.
+        # The returned values are of np.ndarray type in astropy v1 and v2,
+        # but np.void in v3. The np.asarray() works in both cases.
+        velocity = np.asarray(earth_pv_bary[1]) * factor
+        return velocity
+    velocity_of_Earth = staticmethod(velocity_of_Earth)
 
     def astropy_version_check(minimum):
         """

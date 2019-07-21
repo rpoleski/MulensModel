@@ -5,6 +5,7 @@
     * _example for using satellite data_
     * examples order change 01 <-> 02
     * clean-up after hack session
+    * utils.py
     * file with list of examples
     * note 1:1 scale for plotting trajectory
     * note conversion of parameters: Valerio's +/-180 deg in alpha
@@ -12,6 +13,7 @@
 7. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
 9. _0-sized arrays by Calen - search for float and np.ndarray in docstrings_
 5. finish branch bs3
+1. see below - files not yet well documented
 
 
 ## Specific tasks to be performed
@@ -42,7 +44,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Include full documentation via setup.py data\_files mechanism.
   * note that all plotting functions require plt.show() or plt.save()
   * try removing Attributes from docstrings - just make short @property functions
-  * add a note that pi_E is "geocentric" (and "heliocentric" has the same length of vector but is rotated)
+  * add a note that pi\_E is "geocentric" (and "heliocentric" has the same length of vector but is rotated)
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
   * make sure that website shows correct version of MM
   * note that we're not checking for negative source or blending flux
@@ -82,6 +84,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
   * fit\_blending for only some of the datasets
   * _wrapper for ESPLMag2 from VBBL_
+  * _blending flux fixed at user-specified value - requires use case_
 * Parameterization
   * Cassan 2008 binary lens parameters:
     * option to change scaling (from [0,1] to C08 params) to work well near topology change
@@ -121,10 +124,9 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * reduce calls to Fit.fit\_fluxes()
     * add finite source in chi2\_gradient()
     * chi2\_gradient() should cope NaN values in a way similar to get\_chi2()
-    * check all functions that should pass fit\_blending parameter
+    * **check all functions that should pass fit\_blending parameter - Event.plot\_model, what else??? ** Already done: Event.get\_ref\_fluxes()
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
     * get flux and its error in reference system
-    * get\_ref\_fluxes() - add fit\_blending=False option (also in Model)
     * change order to improve the website
     * gradient - fluxes as well? if so, then start using the second test in test\_event\_chi2\_gradient()
     * for consistency, it would be good to combine get\_chi2\_for\_dataset() and get\_chi2\_per\_point()
@@ -233,6 +235,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * in plotting trajectories and caustics note how to make X/Y scale 1:1 ===> plt.axis('equal') - ALSO suggest it in docstrings
     * magnification difference - new function that takes epochs in input, but if not provided, then takes shorter of t\_E for steps and wider limit for start and end
   * Examples:
+    * _Hamiltonian MCMC [link 1](http://arogozhnikov.github.io/2016/12/19/markov_chain_monte_carlo.html) and [link 2](https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/)_
     * _plot many models from posterior_
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**

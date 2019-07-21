@@ -274,6 +274,27 @@ def test_event_chi2_gradient():
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
 
+def test_get_ref_fluxes():
+    """Test Event.get_ref_fluxes()"""
+    t_0 = 5379.57091
+    u_0 = 0.52298
+    t_E = 17.94002
+    model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+    data = MulensData(file_name=SAMPLE_FILE_01)
+    event = Event(data, model)
+
+    (f_s_1, f_b_1) = event.get_ref_fluxes()
+    (f_s_2, f_b_2) = event.get_ref_fluxes(fit_blending=False)
+    (f_s_3, f_b_3) = event.get_ref_fluxes(fit_blending=True)
+
+    assert f_b_2 == 0.
+    assert f_s_1 == f_s_3
+    assert f_b_1 == f_b_3
+    np.testing.assert_almost_equal((f_s_1 + f_b_1)/f_s_2, 1., decimal=3)
+    # Table 1 of Poleski et al. 2014:
+    np.testing.assert_almost_equal(f_b_1 / f_s_1, 0.016, decimal=3)
+
+
 def test_event_chi2_binary_source():
     """simple test if chi2 calculation for binary source works fine"""
     model = Model({

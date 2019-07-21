@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.coordinates module &#8212; MulensModel 1.10.17 documentation</title>
+    <title>MulensModel.coordinates module &#8212; MulensModel 1.11.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -92,6 +92,31 @@ astropy.units as u”.</p>
 <code class="descname">east_projected</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.east_projected" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.array</em></p>
 <p>East projected on the plane of the sky.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.coordinates.Coordinates.v_Earth_projected">
+<code class="descname">v_Earth_projected</code><span class="sig-paren">(</span><em>full_BJD</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.coordinates.Coordinates.v_Earth_projected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Earth velocity at <em>full_BJD</em> projected on the plane of sky towards
+given coordinates.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>full_BJD: <em>float</em></dt>
+<dd>Epoch for which projected velocity is requested. In most cases
+it is
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.t_0_par" title="MulensModel.modelparameters.ModelParameters.t_0_par"><code class="xref py py-attr docutils literal notranslate"><span class="pre">t_0_par</span></code></a></dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>v_Earth_perp_N: <em>float</em></dt>
+<dd>North component of Earth projected velocity.</dd>
+<dt>v_Earth_perp_E: <em>float</em></dt>
+<dd>East component of Earth projected velocity.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

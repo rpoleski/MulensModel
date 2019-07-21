@@ -1,8 +1,7 @@
 import numpy as np
+
 from astropy import units as u
 from astropy.coordinates import get_body_barycentric
-from astropy.coordinates.builtin_frames.utils import get_jd12
-from astropy import _erfa as erfa
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 
@@ -203,24 +202,8 @@ class Trajectory(object):
             return Trajectory._get_delta_annual_results[index]
         time_ref = self.parameters.t_0_par
 
-        position_ref = get_body_barycentric(
-            body='earth', time=Time(time_ref, format='jd', scale='tdb'))
-        # seems that get_body_barycentric depends on time system, but there is
-        # no way to set BJD_TDB in astropy.Time()
-        # Likewise, get_jd12 depends on time system.
-
-        """
-        the 3 lines below, that calculate velocity for t_0_par, are
-        based on astropy 1.3
-        https://github.com/astropy/astropy/blob/master/astropy/coordinates/solar_system.py
-        """
-        (jd1, jd2) = get_jd12(Time(time_ref, format='jd', scale='tdb'), 'tdb')
-        (earth_pv_helio, earth_pv_bary) = erfa.epv00(jd1, jd2)
-        # The returned values are of np.ndarray type in astropy v1 and v2,
-        # but np.void in v3.
-        velocity = np.asarray(earth_pv_bary[1])  # This is in (u.au/u.day)
-        # but we don't multiply by unit here, because np.outer() (used later)
-        # destroys information of argument units.
+        velocity = utils.Utils.velocity_of_Earth(time_ref) / 1731.45683
+        # We change units from km/s to AU/d.
 
         if not np.all(np.isfinite(self.times)):
             msg = "Some times have incorrect values: {:}".format(
@@ -229,15 +212,18 @@ class Trajectory(object):
 
         position = get_body_barycentric(
             body='earth', time=Time(self.times, format='jd', scale='tdb'))
-        product = np.outer(self.times - time_ref, velocity) * u.au
-        delta_s = position.xyz.T - product - position_ref.xyz.T
+        position_ref = get_body_barycentric(
+            body='earth', time=Time(time_ref, format='jd', scale='tdb'))
+        # Seems that get_body_barycentric depends on time system, but there is
+        # no way to set BJD_TDB in astropy.Time().
+        # Likewise, get_jd12 depends on time system.
 
-        # Earth velocity at t_0_par projected on the plane of the sky is:
-        # v_Earth_perp_N = np.dot(velocity, self.coords.north_projected)
-        # v_Earth_perp_E = np.dot(velocity, self.coords.east_projected)
-        #  and times 1731.48 to convert to km/s.
-        out_n = -np.dot(delta_s.value, self.coords.north_projected)
-        out_e = -np.dot(delta_s.value, self.coords.east_projected)
+        # Main calculation is in 2 lines below:
+        delta_s = (position_ref.xyz.T - position.xyz.T).to(u.au).value
+        delta_s += np.outer(self.times - time_ref, velocity)
+        # and the results require projecting on the plane of the sky:
+        out_n = np.dot(delta_s, self.coords.north_projected)
+        out_e = np.dot(delta_s, self.coords.east_projected)
 
         out = {'N': out_n, 'E': out_e}
         Trajectory._get_delta_annual_results[index] = out

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.10.17 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.11.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -379,7 +379,7 @@ plot in flux units different than last value of <cite>data_ref</cite>
 
 <dl class="method">
 <dt id="MulensModel.model.Model.get_ref_fluxes">
-<code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_ref_fluxes</code><span class="sig-paren">(</span><em>data_ref=None</em>, <em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get source and blending fluxes for the model by finding the
 best-fit values compared to data_ref.</p>
 <dl class="docutils">
@@ -389,6 +389,9 @@ best-fit values compared to data_ref.</p>
 <dd>Reference dataset. If <em>int</em>, corresponds to the index of
 the dataset in self.datasets. If None, than the first dataset
 will be used.</dd>
+<dt>fit_blending: <em>boolean</em></dt>
+<dd><em>True</em> if blending flux is going to be fitted (default),
+<em>False</em> if blending flux is fixed at 0.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>

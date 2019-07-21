@@ -1,6 +1,9 @@
+import numpy as np
+
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-import numpy as np
+
+from MulensModel.utils import Utils
 
 
 class Coordinates(SkyCoord):
@@ -104,3 +107,27 @@ class Coordinates(SkyCoord):
         east_projected = np.cross(north, direction)
         self._east_projected = east_projected / np.linalg.norm(east_projected)
         self._north_projected = np.cross(direction, self._east_projected)
+
+    def v_Earth_projected(self, full_BJD):
+        """
+        Earth velocity at *full_BJD* projected on the plane of sky towards
+        given coordinates.
+
+        Parameters :
+            full_BJD: *float*
+                Epoch for which projected velocity is requested. In most cases
+                it is
+                :py:attr:`~MulensModel.modelparameters.ModelParameters.t_0_par`
+
+        Returns :
+            v_Earth_perp_N: *float*
+                North component of Earth projected velocity.
+            v_Earth_perp_E: *float*
+                East component of Earth projected velocity.
+        """
+        velocity = Utils.velocity_of_Earth(full_BJD)
+
+        v_Earth_perp_N = np.dot(velocity, self.north_projected)
+        v_Earth_perp_E = np.dot(velocity, self.east_projected)
+
+        return (v_Earth_perp_N, v_Earth_perp_E)
