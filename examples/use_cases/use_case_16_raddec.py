@@ -1,5 +1,6 @@
 """
 Use cases for passing RA, DEC to MulensData, Model, and Event.
+Also plots ground-based and satellite-based data, models, and trajectories.
 
 Based on OGLE-2014-BLG-0939 from Yee et al. 2015 ApJ 802, 76
 (satellite parallax measurement)
@@ -102,6 +103,6 @@ space_model.parameters.parameters['rho'] = 0.015
 space_model.plot_source_for_datasets()
 
 plt.title('Trajectory as Seen from Ground and Space')
+plt.axis('equal')
 plt.xlim(-1., 1.)
-plt.ylim(-1., 1.)
 plt.show()
