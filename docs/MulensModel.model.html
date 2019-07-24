@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.11.0 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.12.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -336,7 +336,7 @@ and <code class="docutils literal notranslate"><span class="pre">'topocentric'</
 
 <dl class="method">
 <dt id="MulensModel.model.Model.plot_lc">
-<code class="descname">plot_lc</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>flux_ratio_constraint=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_lc</code><span class="sig-paren">(</span><em>times=None</em>, <em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=None</em>, <em>data_ref=None</em>, <em>f_source=None</em>, <em>f_blend=None</em>, <em>subtract_2450000=False</em>, <em>subtract_2460000=False</em>, <em>flux_ratio_constraint=None</em>, <em>fit_blending=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the model light curve in magnitudes.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
@@ -367,6 +367,9 @@ plotting calls (e.g. <a class="reference internal" href="#MulensModel.model.Mode
 <div>Option for binary source models only.
 Data or bandpass to constrain the flux ratio of sources.</div></blockquote>
 <dl class="last docutils">
+<dt>fit_blending: <em>boolean</em></dt>
+<dd><em>True</em> if blending flux is going to be fitted (default),
+<em>False</em> if blending flux is fixed at 0.</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt>
 <dd>any arguments accepted by <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</dd>
 </dl>

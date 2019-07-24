@@ -690,6 +690,10 @@ class Model(object):
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
 
         """
+        if 'fit_blending' in kwargs:
+            raise ValueError(
+                'Keyword fit_blending is allowed in Model.plot_lc() ' +
+                'but not Model.plot_magnification()')
         if times is None:
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
@@ -722,7 +726,7 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None,
             subtract_2450000=False, subtract_2460000=False,
-            flux_ratio_constraint=None, **kwargs):
+            flux_ratio_constraint=None, fit_blending=None, **kwargs):
         """
         Plot the model light curve in magnitudes.
 
@@ -754,6 +758,10 @@ class Model(object):
                 Option for binary source models only.
                 Data or bandpass to constrain the flux ratio of sources.
 
+            fit_blending: *boolean*
+                *True* if blending flux is going to be fitted (default),
+                *False* if blending flux is fixed at 0.
+
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
 
@@ -762,13 +770,30 @@ class Model(object):
         (defaults to the first dataset).
 
         """
+        if data_ref is not None:
+            self.data_ref = data_ref
+        if f_source is None and f_blend is None:
+            if self.data_ref is None:
+                raise ValueError('No reference dataset of fluxes provided. ' +
+                                 "If you don't have a dataset, then try " +
+                                 "plot_magnification() instead of plot_lc().")
+        elif f_source is None or f_blend is None:
+            raise AttributeError(
+                'If f_source is set, f_blend must also be set and vice versa.')
+        else:
+            if fit_blending is not None:
+                raise ValueError(
+                    "Error in plot_lc(). Providing f_source, " +
+                    "f_blend, and fit_blending doesn't make sense.")
+
+        if f_source is None and f_blend is None:
+            (f_source, f_blend) = self.get_ref_fluxes(
+                data_ref=self.data_ref, fit_blending=fit_blending)
+
         if times is None:
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
-
-        if data_ref is not None:
-            self.data_ref = data_ref
 
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
@@ -776,22 +801,12 @@ class Model(object):
                 flux_ratio_constraint = (
                     self._flux_ratio_constraint_for_plotting())
 
-        if f_source is None and f_blend is None:
-            if self.data_ref is None:
-                raise ValueError('No reference dataset of fluxes provided. ' +
-                                 "If you don't have a dataset, then try " +
-                                 "plot_magnification() instead of plot_lc().")
-            (f_source, f_blend) = self.get_ref_fluxes(data_ref=self.data_ref)
-        elif f_source is None or f_blend is None:
-            raise AttributeError(
-                'If f_source is set, f_blend must also be set and vice versa.')
-
         magnification = self.magnification(
             times,
             flux_ratio_constraint=flux_ratio_constraint)
         flux = f_source * magnification + f_blend
-
         subtract = self._subtract(subtract_2450000, subtract_2460000)
+
         self._plt_plot(times-subtract, Utils.get_mag_from_flux(flux), kwargs)
         plt.ylabel('Magnitude')
         plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
