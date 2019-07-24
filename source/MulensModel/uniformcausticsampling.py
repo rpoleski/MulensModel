@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import warnings
 import matplotlib.pyplot as plt  # XXX probably remove that
 
 import MulensModel as MM
@@ -463,7 +464,9 @@ class UniformCausticSampling(object):
         Returns :
             x_caustic_points: *list* of *float*
                 Caustic coordinates of points where given trajectory crosses
-                the caustic. The length is between 0 and 6.
+                the caustic. The length is 0, 2, 4, or 6.
+                Note that if there are 4 or 6 points,
+                then only some pairs will produce real trajectories.
         """
         zetas_1 = self._zeta(self._z_sum_1)
         if self._n_caustics > 1:
@@ -479,6 +482,16 @@ class UniformCausticSampling(object):
             points += self._caustic_and_trajectory(
                 zetas_2.conjugate(), u_0, alpha, self._sum_2, flip=True,
                 caustic=self._n_caustics)
+
+        if len(points) not in [0, 2, 4, 6]:
+            warnings.warn(
+                'This is strange: there are {:} points '.format(len(points)) +
+                'in output of UniformCausticSampling.get_x_in_x_out() and ' +
+                'expected number is 0, 2, 4, or 6. You may contact code ' +
+                'authors and provide following numbers: \n' +
+                repr(self._s) + repr(self._q) + repr(self._n_points) +
+                repr(u_0) + repr(alpha), UserWarning)
+
         return points
 
     def get_uniform_sampling(self, n_points, n_min_for_caustic=10,
