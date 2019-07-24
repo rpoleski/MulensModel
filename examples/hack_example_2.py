@@ -87,7 +87,7 @@ def generate_random_parameters(parameters, starting, n):
 # Read config file.
 if len(sys.argv) != 2:
     raise ValueError('Exactly one argument needed - cfg file')
-config_file = sys.argv[1]
+config_file = sys.argv[1]  # e.g., ob05390_v1.cfg or ob05390_v2.cfg
 
 config = configparser.ConfigParser()
 config.optionxform = str  # So that "t_E" is not changed to "t_e".
