@@ -79,6 +79,7 @@ plt.legend(loc='best')
 plt.show()
 
 file_list = glob.glob(os.path.join(data_path, 'MB08310', '*'))
+file_list = [x for x in file_list if 'README.txt' not in x]
 datasets = []
 for file_ in file_list:
     plot_properties = set_plot_properties(file_)
@@ -117,4 +118,3 @@ t_stop = t_0 + 1.
 plt.ylim(17.5, 12.5)
 plt.xlim(t_start, t_stop)
 plt.show()
-
