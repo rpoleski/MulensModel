@@ -28,7 +28,8 @@ A few useful resources:
   * [Example 08](examples/example_08_planet_grid_fitting.ipynb) - shows how to fit simulated WFIRST light curve with planetary model,
   * [Example 09](examples/example_09_gradient_fitting.py) - fit point lens model using chi^2 gradient,
   * [Example 10](examples/example_10_fitting_and_fluxes.py) - fit model and extract posterior fluxes, **use config file [this one](examples/example_10.cfg) to pass all parameters**,
-  * [Example 11](examples/example_11_binary_source.py) - simulate and fit binary source event.
+  * [Example 11](examples/example_11_binary_source.py) - simulate and fit binary source event,
+  * [Example 12](examples/example_12_fit_satellite_parallax_EMCEE.py) - fit parallax model to ground and satellite data, plot models and trajectories at the end.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
 [Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
@@ -61,5 +62,5 @@ If you have **problems with installing or running MulensModel on MacOS**, please
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised May 2019
+file revised July 2019
 
