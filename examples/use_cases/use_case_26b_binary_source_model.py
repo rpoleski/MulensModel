@@ -38,7 +38,7 @@ combined_model_lc = mm.Utils.get_mag_from_flux(
 
 # Binary Source Model version
 binary_source_model = mm.Model(dict(
-    t_0_1=t_0_1, u_0_1=u_0_1, t_0_2=t_0_2, u_0_2=u_0_2, t_E=t_E, 
+    t_0_1=t_0_1, u_0_1=u_0_1, t_0_2=t_0_2, u_0_2=u_0_2, t_E=t_E,
     flux_ratio=f_source_2/f_source_1))
 
 # Plots
@@ -52,4 +52,3 @@ plt.title('1 Binary Source Model')
 binary_source_model.plot_lc(times, f_source=f_source_1, color='magenta')
 
 plt.show()
-

@@ -14,3 +14,5 @@ If the issue is reported by MulensModel function `_vbbl_SG12_5`, then you have t
 
 We are aware that this is an important problem and we try to address it.  You can let us know if you experience these issues.
 
+At some point, Calen Henderson solved the problem. For his explanation see [this website](https://github.com/orgs/ulens-hack/teams/testing-algorithms-on-mb07192/discussions/6) or ask me for copy if you don't have access to it.
+

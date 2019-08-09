@@ -8,6 +8,7 @@ import scipy.optimize as op
 
 raise NotImplementedError('This use case has not been implemented.')
 
+
 def chi2_fun(theta, event, parameters_to_fit):
     """
     for given event set attributes from parameters_to_fit (list of
@@ -16,6 +17,7 @@ def chi2_fun(theta, event, parameters_to_fit):
     for (key, val) in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
     return event.get_chi2()
+
 
 # Import Data
 data_site1_band1 = mm.MulensData(file_name='DATA_FILE_1.dat', bandpass='I')
@@ -48,4 +50,3 @@ result = op.minimize(
     chi2_fun, x0=initial_guess, args=(event, parameters_to_fit),
     method='Nelder-Mead')
 print(result.x)
-

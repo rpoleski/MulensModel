@@ -25,11 +25,13 @@ def ln_like(theta, event, parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
     return -0.5 * event.get_chi2()
 
+
 def ln_prior(theta, parameters_to_fit):
     """priors - we only reject obviously wrong models"""
     if theta[parameters_to_fit.index("t_E")] < 0.:
         return -np.inf
     return 0.0
+
 
 def ln_prob(theta, event, parameters_to_fit):
     """ combines likelihood and priors"""

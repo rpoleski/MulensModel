@@ -36,6 +36,7 @@ def ln_like(theta, event, parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
     return -0.5 * event.get_chi2()
 
+
 def ln_prior(theta, parameters_to_fit):
     """priors - we only reject obviously wrong models"""
     if theta[parameters_to_fit.index("t_E")] < 0.:
@@ -43,6 +44,7 @@ def ln_prior(theta, parameters_to_fit):
     if theta[parameters_to_fit.index("t_star")] < 0.:
         return -np.inf
     return 0.0
+
 
 def get_fluxes(event):
     """
@@ -56,6 +58,7 @@ def get_fluxes(event):
         fluxes.append(event.fit.flux_of_sources(dataset)[0])
         fluxes.append(event.fit.blending_flux(dataset))
     return fluxes
+
 
 def ln_prob(theta, event, parameters_to_fit):
     """
@@ -76,6 +79,7 @@ def ln_prob(theta, event, parameters_to_fit):
     ln_prob_ = ln_prior_ + ln_like_
     fluxes = get_fluxes(event)
     return (ln_prob_, fluxes)
+
 
 def uncertainties(x):
     """
@@ -195,4 +199,3 @@ plt.ylim(*ylim)
 plt.xlim(*xlim)
 plt.legend(loc='best')
 plt.show()
-

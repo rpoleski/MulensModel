@@ -21,6 +21,7 @@ def chi2_fun(theta, event, parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
     return event.get_chi2()
 
+
 def jacobian(theta, event, parameters_to_fit):
     """
     Calculate chi^2 gradient (also called Jacobian).
@@ -28,6 +29,7 @@ def jacobian(theta, event, parameters_to_fit):
     for (key, val) in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
     return event.chi2_gradient(parameters_to_fit)
+
 
 # Read in the data file
 file_ = os.path.join(MODULE_PATH, "data", "photometry_files", "OB08092",

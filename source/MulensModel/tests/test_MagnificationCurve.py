@@ -30,6 +30,7 @@ def test_fspl_noLD():
 
     np.testing.assert_almost_equal(expected, results, decimal=4)
 
+
 def test_fspl():
     """
     check if FSPL magnification is calculate properly
@@ -58,6 +59,7 @@ def test_fspl():
     expected *= pspl
 
     np.testing.assert_almost_equal(expected/results, 1., decimal=4)
+
 
 def test_Lee09():
     """
@@ -94,6 +96,7 @@ def test_Lee09():
     mag_curve_1.set_magnification_methods(methods_1, 'point_source')
     results_1 = mag_curve_1.get_point_lens_magnification()
     np.testing.assert_almost_equal(expected_1, results_1, decimal=3)
+
 
 def test_PSPL_for_binary():
     """

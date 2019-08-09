@@ -1240,6 +1240,19 @@ class Model(object):
                 Controls plotting features of the trajectory. It's passed to
                 :py:func:`pyplot.plot()`.
 
+        Note that in order to have equal scaling of both axis
+        (i.e., make circles look circular), you have to call appropriate
+        *pyplot* command. This can be one of these commands:
+
+        .. code-block:: python
+
+          pyplot.axis('equal')
+          pyplot.axis('scaled')
+          pyplot.axis('square')
+          pyplot.gca().set_aspect('equal')
+
+        They have slightly different behavior.
+
         """
         if not arrow and arrow_kwargs is not None:
             raise ValueError(
@@ -1362,6 +1375,11 @@ class Model(object):
                 Examples: ``color='red'``, ``fill=False``,
                 ``linewidth=3``, ``alpha=0.5``. When the rho is not defined,
                 then keyword arguments are passed to matplotlib.plot_.
+
+        Note that it is likely that with default axis scaling, the circles may
+        be plotted as ellipses. To mitigate it, use:
+        ``plt.gca().set_aspect('equal')`` or ``plt.axis('equal')``
+        (the other possible options are ``'scaled'`` or ``'square'``).
 
         .. _matplotlib.Circle:
           https://matplotlib.org/api/_as_gen/matplotlib.patches.Circle.html

@@ -45,6 +45,12 @@ class Caustics(object):
 
             ``**kwargs``:
                 keywords accepted by :py:func:`matplotlib.pyplot.scatter()`
+
+        Note that default scaling of axis may not be equal on both axis.
+        To mitigate this, use:
+        ``plt.gca().set_aspect('equal')`` or ``plt.axis('equal')``
+        (the other possible options are ``'scaled'`` or ``'square'``).
+
         """
         if "linewidths" not in kwargs and "lw" not in kwargs:
             kwargs["lw"] = 0.

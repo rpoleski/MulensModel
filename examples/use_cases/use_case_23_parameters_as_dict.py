@@ -14,7 +14,7 @@ MulensModel.modelparameters.which_parameters('BinaryLens')
 # Returns: 's', 'q', 'alpha'
 
 MulensModel.modelparameters.which_parameters('BinaryLensOrbitalMotion')
-# Returns: 
+# Returns:
 #    's', 'q', 'alpha', 'dsdt', 'dalphadt' (OPTIONAL: 'z', 'dzdt')
 
 MulensModel.modelparameters.which_parameters()
@@ -22,7 +22,8 @@ MulensModel.modelparameters.which_parameters()
 #    Some common model types:
 #        PSPL: 't_0', 'u_0', 't_E'
 #        FSPL: 't_0', 'u_0', 't_E', 'rho'
-#        PSPL w/ parallax: 't_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E' (OPTIONAL: 't_0_par')
+#        PSPL w/ parallax: 't_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E'
+#            (OPTIONAL: 't_0_par')
 #        FSBL: 't_0', 'u_0', 't_E', 'rho', 's', 'q', 'alpha'
 #        BSPL: 't_0_1', 'u_0_1', 't_0_2', 'u_0_2', 't_E'
 #    By Effect:
@@ -41,7 +42,7 @@ PSPL_params = MulensModel.ModelParameters(
 my_PSPL_model = MulensModel.Model({'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5})
 print(my_PSPL_model.parameters)
 print(my_PSPL_model.parameters.t_eff)
-print(my_PSPL_model.parameters.rho) 
+print(my_PSPL_model.parameters.rho)
 # Returns: AttributeError('rho is not defined for this model.')
 
 FSPL_params = dict(my_PSPL_model.parameters.parameters)

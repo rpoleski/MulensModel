@@ -23,6 +23,5 @@ plt.show()
 model.plot_trajectory(caustics=True)
 plt.show()
 
-# Previously we wanted to have Model.parameters.s which should return a list 
+# Previously we wanted to have Model.parameters.s which should return a list
 # (e.g., [1.2, 0.5]) but it doesn't seem to be a good idea now.
-

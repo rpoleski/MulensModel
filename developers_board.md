@@ -232,7 +232,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * add plt.xlim() and ylim in plotting functions (using t\_start) etc.; then also update (simplify) tutorials, examples etc.
     * rotate the trajectory, caustics, and critical curve plots so that the motion of the source is in general along X-axis - similar to Skowron+11 paper
     * caustics for trajectory plot with single lens models
-    * in plotting trajectories and caustics note how to make X/Y scale 1:1 ===> plt.axis('equal') - ALSO suggest it in docstrings
     * magnification difference - new function that takes epochs in input, but if not provided, then takes shorter of t\_E for steps and wider limit for start and end
   * Examples:
     * _Hamiltonian MCMC [link 1](http://arogozhnikov.github.io/2016/12/19/markov_chain_monte_carlo.html) and [link 2](https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/)_

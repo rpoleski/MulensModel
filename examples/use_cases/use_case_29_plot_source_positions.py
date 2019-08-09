@@ -31,7 +31,7 @@ times = params["t_0"] - 0.05 * params["t_E"]
 kwargs = {}  # You can add some kwargs here and they will be passed
 # to plt function.
 model.plot_source(times, **kwargs)
-plt.axis('equal') # So that circles don't look like ellipses.
+plt.axis('equal')  # So that circles don't look like ellipses.
 plt.show()
 
 # Repeat above, but also plot data:
@@ -51,7 +51,7 @@ model = MM.Model({
 times = np.linspace(4980., 5050.)
 model.plot_trajectory()
 model.plot_source(times)
-plt.show() # Circles are squished because of X-axis range.
+plt.show()  # Circles are squished because of X-axis range.
 
 # Same as above, but no source size provided:
 model = MM.Model({
@@ -60,4 +60,3 @@ model = MM.Model({
 model.plot_trajectory()
 model.plot_source(times)
 plt.show()
-
