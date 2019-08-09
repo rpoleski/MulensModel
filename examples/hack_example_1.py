@@ -43,7 +43,7 @@ print("{:.3f}".format(chi2))
 
 # Plot results.
 best = [event.best_chi2_parameters[p] for p in parameters]
-chi2_fun(best, event, parameters) # This allows plotting of the best model.
+chi2_fun(best, event, parameters)  # This allows plotting of the best model.
 grid = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 plt.subplot(grid[0])
 event.plot_data()
