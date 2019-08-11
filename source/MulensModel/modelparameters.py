@@ -569,6 +569,18 @@ class ModelParameters(object):
         if not isinstance(self.parameters[key], u.Quantity):
             self._set_time_quantity(key, self.parameters[key])
 
+    def _get_uniform_caustic_sampling(self):
+        """
+        Sets self._uniform_caustic if that is required.
+        Also resets self._standard_parameters.
+        """
+        recalculate = (self._uniform_caustic is None or
+                       self.s != self._uniform_caustic.s or
+                       self.q != self._uniform_caustic.q)
+        if recalculate:
+            self._uniform_caustic = UniformCausticSampling(s=self.s, q=self.q)
+            self._standard_parameters = None
+
     def _get_standard_parameters_from_Cassan08(self):
         """
         Calculate these parameters:
@@ -578,12 +590,8 @@ class ModelParameters(object):
         using transformation that depends on:
         s q
         """
-        recalculate = (self._uniform_caustic is None or
-                       self.s != self._uniform_caustic.s or
-                       self.q != self._uniform_caustic.q)
-        if recalculate:
-            self._uniform_caustic = UniformCausticSampling(s=self.s, q=self.q)
-            self._standard_parameters = None
+        self._get_uniform_caustic_sampling()
+
         if self._standard_parameters is None:
             keys = ['x_caustic_in', 'x_caustic_out',
                     't_caustic_in', 't_caustic_out']
@@ -1475,6 +1483,27 @@ class ModelParameters(object):
             raise ValueError('source_2_parameters cannot be accessed for ' +
                              'single source models')
         return self._source_2_parameters
+
+    @property
+    def uniform_caustic_sampling(self):
+        """
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`
+
+        An instance of the class
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`
+        that is used to calculate standard parameters based on
+        the curvelinear coordinates.
+        The main usage is access to *jacobian()* function.
+        In most cases, you do not need to access this property directly.
+        """
+        if not self._Cassan08:
+            raise ValueError(
+                'These parameters are not in curvelinear parameterisation. ' +
+                'Hence you cannot access uniform_caustic_sampling property.')
+
+        self._get_uniform_caustic_sampling()
+
+        return self._uniform_caustic
 
     def as_dict(self):
         """
