@@ -7,7 +7,6 @@
     * clean-up after hack session
     * utils.py
     * file with list of examples
-    * note 1:1 scale for plotting trajectory
     * note conversion of parameters: Valerio's +/-180 deg in alpha
     * README.md in AdaptiveContouring
 7. VBBL LoadESPLTable & ESPLMag2 comparison with MM Lee+09
@@ -25,8 +24,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
 
 * Install
   * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
-  * _setup.py - don't try to compile if .so file is there_ - now this seems to be bad idea and is coded in branch **install**
-  * _include data/ files for unit tests and examples - each subdir has to be added separately_
   * PIP install - the problem is that CustomInstall from setup.py is run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
   * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependencies first
@@ -155,7 +152,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Model class:
     * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
     * **plot\_lc() - add satellite option like in plot\_magnification(), other options as well - use keywords passed to self.magnification()**
-    * _data\_ref lacks docstring_
     * reorder functions so that it looks good on website
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
@@ -181,7 +177,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * check\_if\_caustic\_crossing() function can be added - for non-parallax, no-orbital motion it requires calculation of cusps positions for each caustic and checking if they are on the same side of the trajectory
   * ModelParameters class:
     * _values in dimensionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
-    * _LaTeX strings with parameters names (useful e.g. for corner plots)_
+    * _LaTeX strings with parameters names (useful e.g. for corner plots or tables with results)_
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
     * why .rho returns None if it's not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
