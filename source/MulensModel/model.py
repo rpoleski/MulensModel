@@ -61,6 +61,15 @@ class Model(object):
     to turn different parallax effects ON/OFF. If using satellite
     parallax, you may also specify an `ephemerides_file` (see
     :py:class:`~MulensModel.mulensdata.MulensData`).
+
+    Note that you can print an instance of Model, which shows you parameters
+    in a nice way, e.g.,
+
+    .. code-block:: python
+
+      model = Model(parameters={'t_0': 2456789.0, ....})
+      print(model)
+
     """
 
     def __init__(
