@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from os.path import basename
+from os.path import basename, exists
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
@@ -184,6 +184,8 @@ class MulensData(object):
         elif file_name is not None:
             # ...from a file
             usecols = kwargs.pop('usecols', (0, 1, 2))
+            if not exists(file_name):
+                raise FileNotFoundError(file_name)
             try:
                 (vector_1, vector_2, vector_3) = np.loadtxt(
                     fname=file_name, unpack=True, usecols=usecols, **kwargs)
@@ -191,6 +193,7 @@ class MulensData(object):
                 print("kwargs passed to np.loadtxt():")
                 print(kwargs)
                 print("usecols =", usecols)
+                print("File:", file_name)
                 raise
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
@@ -644,7 +647,7 @@ class MulensData(object):
         `py:plot_properties`. kwargs takes precedent.
 
         Keywords:
-            show_errobars: *boolean*
+            show_errorbars: *boolean*
                 `True` means plotting done with plt.errorbar. `False`
                 means plotting done with plt.scatter.
 
