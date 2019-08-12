@@ -16,9 +16,6 @@ import MulensModel
 from MulensModel import Event, Fit, Model, MulensData, Utils
 
 
-raise NotImplementedError('chi2_gradient not implemented for Event')
-
-
 class Minimizer(object):
     """
     An object to link an Event to the functions necessary to minimize chi2.
@@ -32,7 +29,7 @@ class Minimizer(object):
         """for given event set attributes from parameters_to_fit (list of str)
         to values from theta list"""
         for (key, val) in enumerate(self.parameters_to_fit):
-            setattr(self.event.model, val, theta[key])
+            setattr(self.event.model.parameters, val, theta[key])
 
     def chi2_fun(self, theta):
         """for a given set of parameters (theta), return the chi2"""
@@ -56,7 +53,7 @@ data = MulensData(file_name=SAMPLE_FILE_01)
 # Initialize the fit
 parameters_to_fit = ["t_0", "u_0", "t_E"]
 t_0 = 5380.
-u_0 = 0.5
+u_0 = 0.2
 t_E = 18.
 model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
@@ -71,7 +68,7 @@ minimizer = Minimizer(ev, parameters_to_fit)
 initial_guess = [t_0, u_0, t_E]
 result = op.minimize(
     minimizer.chi2_fun, x0=initial_guess, method='Newton-CG',
-    jac=minimizer.chi2_gradient)
+    jac=minimizer.chi2_gradient, tol=1e-3)
 
 print(result.x)
 (fit_t_0, fit_u_0, fit_t_E) = result.x
