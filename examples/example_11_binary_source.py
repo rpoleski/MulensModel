@@ -18,7 +18,7 @@ except ImportError as err:
     sys.exit(1)
 import matplotlib.pyplot as plt
 
-from MulensModel import Event, Model, MulensData, MODULE_PATH
+from MulensModel import Event, Model, MulensData
 
 
 # Define likelihood functions
@@ -158,4 +158,3 @@ parameters_to_fit = ["t_0_1", "u_0_1", "t_0_2", "u_0_2", "t_E", "flux_ratio"]
 sigmas = [0.1, 0.05, 1., 0.01, 1., 0.001]
 print("\nSecond fit. This can take some time...")
 fit_EMCEE(parameters_to_fit, params, sigmas, ln_prob, my_event)
-

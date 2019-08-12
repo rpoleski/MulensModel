@@ -12,7 +12,7 @@ from MulensModel.model import Model
 from MulensModel.utils import Utils
 
 
-dir_ = join(MulensModel.MODULE_PATH, "data", "photometry_files")
+dir_ = join(MulensModel.DATA_PATH, "photometry_files")
 SAMPLE_FILE_01 = join(dir_, "OB08092", "phot_ob08092_O4.dat")
 SAMPLE_FILE_02 = join(dir_, "OB140939", "ob140939_OGLE.dat")
 SAMPLE_FILE_03 = join(dir_, "OB03235", "OB03235_OGLE.tbl.txt")

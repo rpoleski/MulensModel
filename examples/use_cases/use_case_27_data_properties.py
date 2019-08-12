@@ -34,7 +34,7 @@ def set_plot_properties(filename):
     return plot_properties
 
 
-data_path = os.path.join(mm.MODULE_PATH, 'data', 'photometry_files')
+data_path = os.path.join(mm.DATA_PATH, 'photometry_files')
 comments = ['\\', '|']
 
 # Basic: Two datasets with specified data properties

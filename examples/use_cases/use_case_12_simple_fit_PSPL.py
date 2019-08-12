@@ -15,9 +15,8 @@ t_E = 130.
 model = MulensModel.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Import data
-file_name = os.path.join(
-    MulensModel.MODULE_PATH, 'data', 'photometry_files', 'OB08092',
-    'phot_ob08092_O4.dat')
+file_name = os.path.join(MulensModel.DATA_PATH, 'photometry_files',
+                         'OB08092', 'phot_ob08092_O4.dat')
 data = MulensModel.MulensData(file_name=file_name)
 
 # Create Event

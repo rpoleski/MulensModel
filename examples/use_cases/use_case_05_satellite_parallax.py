@@ -10,14 +10,13 @@ import MulensModel
 raise NotImplementedError('satellite keyword for MulensData not supported')
 
 # Import Data
-file_dir = os.path.join(MulensModel.MODULE_PATH, "data")
-file_name = os.path.join(file_dir, "photometry_files", "OB140939",
+file_name = os.path.join(MulensModel.DATA_PATH, "photometry_files", "OB140939",
                          "ob140939_Spitzer.dat")
 spitzer_data = MulensModel.MulensData(
     file_name=file_name,
     satellite="Spitzer",  # this keyword does not work.
     ephemerides_file=os.path.join(
-        file_dir, "ephemeris_files", "Spitzer_ephemeris_01.dat"))
+        MulensModel.DATA_PATH, "ephemeris_files", "Spitzer_ephemeris_01.dat"))
 
 # Create Model
 model = MulensModel.Model({'t_0': 0., 'u_0': 0.1, 't_E': 1.})
@@ -32,4 +31,3 @@ spitzer_event = MulensModel.Event(
     datasets=spitzer_data, model=model, coords="17:50:00 -29:00:05")
 print('Event Parallax Settings:')
 print(spitzer_event.model.parallax())
-

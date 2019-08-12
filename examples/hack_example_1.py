@@ -20,8 +20,7 @@ def chi2_fun(theta, event, parameters_to_fit):
 # Read in the data file.
 # Maybe you have to change the path to this file.
 SAMPLE_FILE_01 = os.path.join(
-    MM.MODULE_PATH, "data", "photometry_files", "OB08092",
-    "phot_ob08092_O4.dat")
+    MM.DATA_PATH, "photometry_files", "OB08092", "phot_ob08092_O4.dat")
 data = MM.MulensData(file_name=SAMPLE_FILE_01)
 
 # Initialize the fit.

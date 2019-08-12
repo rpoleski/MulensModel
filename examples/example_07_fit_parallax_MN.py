@@ -6,7 +6,7 @@ separate modes in automated way.
 import os
 import sys
 import numpy as np
-from MulensModel import Event, Model, MulensData, MODULE_PATH
+from MulensModel import Event, Model, MulensData, DATA_PATH
 try:
     from pymultinest.solve import solve
     from pymultinest.analyse import Analyzer
@@ -67,10 +67,9 @@ class Minimizer(object):
 
 
 # Read the data
-my_data = MulensData(
-    file_name=os.path.join(MODULE_PATH, "data", "photometry_files",
-                           "OB05086", "starBLG234.6.I.218982.dat"),
-    add_2450000=True)
+file_name = os.path.join(
+    DATA_PATH, "photometry_files", "OB05086", "starBLG234.6.I.218982.dat")
+my_data = MulensData(file_name=file_name, add_2450000=True)
 
 # Starting parameters:
 coords = "18:04:45.71 -26:59:15.2"

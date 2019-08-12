@@ -1,11 +1,10 @@
 import numpy as np
 import os
 
-from MulensModel import PointLens, ModelParameters, MODULE_PATH
+from MulensModel import PointLens, ModelParameters, DATA_PATH
 
 
-SAMPLE_FILE = os.path.join(
-    MODULE_PATH, 'data', 'unit_test_files', 'FSPL_test_1.dat')
+SAMPLE_FILE = os.path.join(DATA_PATH, 'unit_test_files', 'FSPL_test_1.dat')
 
 
 def get_file_params(filename):
@@ -65,4 +64,3 @@ def test_get_point_lens_limb_darkening_magnification():
     test_FSPL_LD = point_lens.get_point_lens_limb_darkening_magnification(
         u, pspl_magnification, gamma)
     np.testing.assert_almost_equal(test_FSPL_LD/data['Mag_LD'], 1., decimal=4)
-

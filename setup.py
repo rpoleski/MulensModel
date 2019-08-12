@@ -1,6 +1,5 @@
 import os
 import sys
-import subprocess
 import glob
 import warnings
 from setuptools import setup, Extension
@@ -11,11 +10,19 @@ source_AC = os.path.join('source', 'AdaptiveContouring')
 source_MM = os.path.join('source', 'MulensModel')
 source_MMmo = os.path.join(source_MM, 'mulensobjects')
 
-dir_ = os.path.join('lib', 'python' + sys.version[:3], 'site-packages',
-                    'MulensModel')
-dir_1 = os.path.join(dir_, 'data')
-file_1 = os.path.join('data', 'interpolation_table_b0b1_v1.dat')
-data_files = [(dir_1, [file_1])]
+# Read all files from data/ in format adequate for data_files option of setup.
+files = glob.glob(os.path.join("data", "**", "*"), recursive=True)
+files = [f for f in files if os.path.isfile(f)]
+dir_files = dict()
+for file_ in files:
+    dir_ = os.path.dirname(file_)
+    if dir_ in dir_files:
+        dir_files[dir_] += [file_]
+    else:
+        dir_files[dir_] = [file_]
+data_files = []
+for (key, value) in dir_files.items():
+    data_files += [(os.path.join('MulensModel', key), value)]
 
 version = "unknown"
 with open(os.path.join('source', 'MulensModel', 'version.py')) as in_put:
@@ -24,8 +31,9 @@ with open(os.path.join('source', 'MulensModel', 'version.py')) as in_put:
             version = line_.split()[2][1:-1]
 
 ext_AC = Extension('MulensModel.AdaptiveContouring',
-                   glob.glob(source_AC+"/*.c"))
-ext_VBBL = Extension('MulensModel.VBBL', glob.glob(source_VBBL+"/*.cpp"))
+                   glob.glob(os.path.join(source_AC, "*.c")))
+ext_VBBL = Extension('MulensModel.VBBL',
+                     glob.glob(os.path.join(source_VBBL, "*.cpp")))
 
 setup(
     name='MulensModel',
@@ -34,11 +42,11 @@ setup(
     ext_modules=[ext_AC, ext_VBBL],
     author='Radek Poleski',
     author_email='poleski.1@osu.edu',
-    description='packge for modeling gravitational microlensing events',
+    description='package for modeling gravitational microlensing events',
     packages=['MulensModel', 'MulensModel.mulensobjects'],
     package_dir={
         'MulensModel': source_MM,
         'MulensModel.mulensobjects': source_MMmo},
     data_files=data_files,
-    install_requires=['numpy', 'matplotlib', 'scipy', 'astropy>=1.2.0']
+    install_requires=['numpy', 'matplotlib', 'scipy>=0.18.0', 'astropy>=1.2.0']
 )

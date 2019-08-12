@@ -26,7 +26,7 @@ except ImportError as err:
 import matplotlib.pyplot as plt
 import configparser
 
-from MulensModel import Event, Model, MulensData, MODULE_PATH
+from MulensModel import Event, Model, MulensData
 
 
 # Define likelihood functions

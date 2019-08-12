@@ -22,7 +22,7 @@ except ImportError as err:
     sys.exit(1)
 import matplotlib.pyplot as plt
 
-from MulensModel import Event, Model, MulensData, MODULE_PATH
+from MulensModel import Event, Model, MulensData, DATA_PATH
 
 
 # Define likelihood functions
@@ -56,15 +56,15 @@ def ln_prob(theta, event, parameters_to_fit):
 
 
 # Read the data (note that we do not rescale errorbars here):
-dir_ = join(MODULE_PATH, "data", "photometry_files", "OB140939")
+dir_ = join(DATA_PATH, "photometry_files", "OB140939")
 file_ground = join(dir_, "ob140939_OGLE.dat")
 file_spitzer = join(dir_, "ob140939_Spitzer.dat")
 data_ground = MulensData(file_name=file_ground,
                          plot_properties={'label': 'OGLE'})
 
 # Here is the main difference - we provide the ephemeris for Spitzer:
-file_spitzer_eph = join(MODULE_PATH, "data", 'ephemeris_files',
-                        'Spitzer_ephemeris_01.dat')
+file_spitzer_eph = join(
+    DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat')
 data_spitzer = MulensData(file_name=file_spitzer,
                           ephemerides_file=file_spitzer_eph,
                           plot_properties={'label': 'Spitzer'})

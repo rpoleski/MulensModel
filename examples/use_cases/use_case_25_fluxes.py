@@ -47,8 +47,7 @@ datasets = []
 file_names = ['KCT01I.dat', 'KCT41I.dat', 'KCT42I.dat', 'KSA01I.dat',
               'KSA41I.dat', 'KSA42I.dat', 'KSS01I.dat', 'KSS41I.dat',
               'KSS42I.dat', 'spitzer_b12.dat']
-dir_ = os.path.join(MulensModel.MODULE_PATH, "data", "photometry_files",
-                    "OB161195")
+dir_ = os.path.join(MulensModel.DATA_PATH, "photometry_files", "OB161195")
 for file_name in file_names:
     file_ = os.path.join(dir_, file_name)
     datasets.append(MulensModel.MulensData(file_name=file_, add_2450000=True))
@@ -68,4 +67,3 @@ event = MulensModel.Event(datasets=datasets, model=model,
                           coords="17:55:23.50 -30:12:26.1")
 
 print(chi2_fun([], event, []))
-

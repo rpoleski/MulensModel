@@ -62,15 +62,9 @@ class PointLens(object):
     def _read_B0B1_file(self):
         """Read file with pre-computed function values"""
         file_ = os.path.join(
-            MulensModel.MODULE_PATH, 'data',
-            'interpolation_table_b0b1_v1.dat')
+            MulensModel.DATA_PATH, 'interpolation_table_b0b1_v1.dat')
         if not os.path.exists(file_):
-            file_ = os.path.join(
-                os.path.dirname(__file__), 'data',
-                'interpolation_table_b0b1_v1.dat')
-            if not os.path.exists(file_):
-                raise ValueError(
-                    'File with FSPL data does not exist.\n' + file_)
+            raise ValueError('File with FSPL data does not exist.\n' + file_)
         (z, B0, B0_minus_B1) = np.loadtxt(file_, unpack=True)
         PointLens._B0B1_file_read = True
         PointLens._B0_interpolation = interp1d(z, B0, kind='cubic')
@@ -428,4 +422,3 @@ class PointLens(object):
         out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
         out *= 2. / (np.pi * rho**2)
         return out
-

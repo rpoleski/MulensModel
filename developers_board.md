@@ -250,7 +250,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * plotting - sharex where possible
     * note in PSPL tutorial about plotting data in MulensData
     * add example that after calling Event.get\_chi2() use Event.fit to get e.g. magnifications so that the magnification is not calculated twice
-    * DATA\_PATH that is similar to MODULE\_PATH but works fine no matter which way of installing code was used
     * hack session examples to be renamed, unlinked in README.md
     * set matplotlib scales 1:1 so that circles are circles
     * **satellite data fitted and plotted - what is missing now?**
@@ -280,7 +279,8 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * plt.scatter -> plt.plot; after that we can start unit tests for plt calls
   * check for memory leaks by running long calculations and monitoring RAM usage
 * Style/Architecture:
-  * Are we consistent with PEP8? [check here](http://pep8online.com/) - last time fully checked on 28 Feb 2018 (but didn't include tests);
+  * _PEP8 and exceptions - use specific ones or "except Exception:"_
+  * Are we consistent with PEP8? [check here](http://pep8online.com/) or pycodestyle command
   * PEP8 for tests/ (test\_Event is already done: test\_Event test\_ModelParameters test\_Model\_Parallax
   * for examples/
   * try/except - give specific exception names

@@ -12,9 +12,14 @@ from MulensModel.pointlens import PointLens
 from MulensModel.mulensobjects import *
 
 
-__all__ = ['mulensobjects', 'MODULE_PATH']
+__all__ = ['mulensobjects', 'MODULE_PATH', 'DATA_PATH']
 
 MODULE_PATH = path.abspath(__file__)
 for i in range(3):
     MODULE_PATH = path.dirname(MODULE_PATH)
-# We do the same in binarylens.py.
+
+path_1 = path.join(MODULE_PATH, 'data')
+if path.isdir(path_1):
+    DATA_PATH = path_1
+else:
+    DATA_PATH = path.join(path.dirname(__file__), 'data')

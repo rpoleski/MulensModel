@@ -9,7 +9,7 @@ import numpy as np
 import scipy.optimize as op
 import matplotlib.pyplot as plt
 
-from MulensModel import Event, Model, MulensData, MODULE_PATH
+from MulensModel import Event, Model, MulensData, DATA_PATH
 
 
 def chi2_fun(theta, event, parameters_to_fit):
@@ -32,7 +32,7 @@ def jacobian(theta, event, parameters_to_fit):
 
 
 # Read in the data file
-file_ = os.path.join(MODULE_PATH, "data", "photometry_files", "OB08092",
+file_ = os.path.join(DATA_PATH, "photometry_files", "OB08092",
                      "phot_ob08092_O4.dat")
 data = MulensData(file_name=file_)
 

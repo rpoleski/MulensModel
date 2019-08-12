@@ -11,8 +11,7 @@ import MulensModel
 # Read in some data
 data = []
 file_name = os.path.join(
-    MulensModel.MODULE_PATH, 'data', 'photometry_files', 'OB140939',
-    'ob140939_OGLE.dat')
+    MulensModel.DATA_PATH, 'photometry_files', 'OB140939', 'ob140939_OGLE.dat')
 data.append(MulensModel.MulensData(file_name=file_name))
 
 plt.figure()
@@ -42,4 +41,3 @@ plt.subplot(2, 1, 2)
 event.plot_residuals(subtract_2450000=True)
 
 plt.show()
-
