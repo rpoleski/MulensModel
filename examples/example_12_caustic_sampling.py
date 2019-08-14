@@ -3,7 +3,10 @@ This example fits model to OGLE-2003-BLG-235/MOA-2003-BLG-53,
 the first microlensing planet. Here we fix *s* and *q* parameters for
 the sake of simplicity. Wide range of other binary lens parameters is explored.
 
-Specific settings are in file example_12.cfg.
+Note that for similicity, we're currently not using Jacobian in ln_prob().
+It would be good to make x_caustic_in and x_caustic_out periodic variables.
+
+Specific settings are in file example_13.cfg.
 
 Running this example takes 15-60 minutes on most modern machines.
 """

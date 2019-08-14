@@ -76,6 +76,16 @@ class UniformCausticSampling(object):
     a close topology, the zero-point of *x_caustic* values is defined
     in a very complicated way, however it is a smooth function of
     *s* and *q*.
+
+    For more advanced fitting of binary lens events see:
+
+    `Kains N. et al. 2009 MNRAS 395, 787
+    "A systematic fitting scheme for caustic-crossing microlensing events"
+    <https://ui.adsabs.harvard.edu/abs/2009MNRAS.395..787K/abstract>`_
+
+    `Kains N. et al. 2012 MNRAS 426, 2228 "A Bayesian algorithm for model
+    selection applied to caustic-crossing binary-lens microlensing events"
+    <https://ui.adsabs.harvard.edu/abs/2012MNRAS.426.2228K/abstract>`_
     """
     def __init__(self, s, q, n_points=10000):
         self._s = s
