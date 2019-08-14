@@ -92,22 +92,10 @@ class UniformCausticSampling(object):
         self._q = q
         self._n_points = n_points
 
-        self._get_n_caustics()
+        self._n_caustics = MM.utils.Utils.get_n_caustics(s=self.s, q=self.q)
         self._get_phi()
         self._integrate()
         self._find_inflections_and_correct()
-
-    def _get_n_caustics(self):
-        """
-        Get number of caustics: 1, 2, or 3.
-        """
-        limit = (1. + self.q) / (1. + self.q**(1./3.))**3
-        if self.s > 1. / math.sqrt(limit):
-            self._n_caustics = 2
-        elif self.s < math.pow(limit, 0.25):
-            self._n_caustics = 3
-        else:
-            self._n_caustics = 1
 
     def _get_phi(self):
         """

@@ -1,5 +1,5 @@
 import numpy as np
-from math import fsum
+from math import fsum, pow, sqrt
 import warnings
 
 from astropy import __version__ as astropy__version__
@@ -97,6 +97,29 @@ class Utils(object):
         """ transform u limb darkening coefficient to gamma """
         return (2. * u) / (3. - u)
     u_to_gamma = staticmethod(u_to_gamma)
+
+    def get_n_caustics(s, q):
+        """
+        Find number of caustics for binary lens.
+
+        Parameters :
+            s: *float*
+                Separation of binary lens relative to theta_E.
+
+            q: *float*
+                Mass ratio (<1).
+
+        Returns :
+            n_caustics: *int*
+                Number of caustics: 1, 2, or 3.
+        """
+        limit = (1. + q) / (1. + q**(1./3.))**3
+        if s > 1. / sqrt(limit):
+            return 2
+        elif s < pow(limit, 0.25):
+            return 3
+        else:
+            return 1
 
     def date_change(text):
         """
