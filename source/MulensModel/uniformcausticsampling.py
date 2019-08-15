@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import warnings
-import matplotlib.pyplot as plt  # XXX probably remove that
+import matplotlib.pyplot as plt  # XXXX probably remove that
 
 import MulensModel as MM
 
@@ -119,10 +119,11 @@ class UniformCausticSampling(object):
         out = []
         for i in range(1, len(diff)-1):
             if diff[i-1] > diff[i] and diff[i+1] > diff[i]:
-                parabola = np.polyfit([-1., 0., 1.], diff[i-1:i+2], 2)
-                shift = -0.5 * parabola[1] / parabola[0]  # XXX 1) use it
-                # XXX 2) if shift > 0.5 or < -0.5 than use other
-                # triple to calculate it
+                # parabola = np.polyfit([-1., 0., 1.], diff[i-1:i+2], 2)
+                # shift = -0.5 * parabola[1] / parabola[0]
+                # 1) use it
+                # 2) if shift > 0.5 or < -0.5 than use the other triple
+                #    to calculate it
                 out.append(i)
         return out
 
@@ -314,10 +315,10 @@ class UniformCausticSampling(object):
 
         cusps_zeta_2 = [self._zeta(z) for z in cusps_z_2]
 
+# XXXX - BEGIN
         #if self._n_caustics == 3:
             #arg = np.argmin([np.abs(z) for z in cusps_zeta_2])
             #self._shift = self._sum_2[indexes[arg] - 1]
-# HERE
 # XXX - currently we skip this part because it produces an artifact
 # in self.plot_caustic()
         if False:
@@ -353,6 +354,7 @@ class UniformCausticSampling(object):
             indexes = [indexes[i] for i in [0, 2, 1]]
             cusps_z_3 = [self._z_sum_2[i].conjugate() for i in indexes]
             cusps_zeta_3 = [self._zeta(z) for z in cusps_z_3]
+# XXXX - END
 
         length_1 = 2. * self._sum_1[-1]
         lengths_sum = length_1
@@ -448,7 +450,7 @@ class UniformCausticSampling(object):
 
         return {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha}
 
-    def get_x_in_x_out(self, u_0, alpha):  # XXX name of the function?
+    def get_x_in_x_out(self, u_0, alpha):
         """
         Calculate where given trajectory crosses the caustic.
 
@@ -836,6 +838,7 @@ class UniformCausticSampling(object):
         """
         return self._q
 
+# XXXX BEGIN
     def _plot_caustic(self, n_points=200):
         """
         Plot caustic using uniform sampling and color scale
@@ -913,4 +916,4 @@ if __name__ == "__main__":
                 continue
             directions = caustic.direction_check(x_in_, x_out_)
             print(x_in_, x_out_, directions[0], directions[1])
-
+# XXXX - END
