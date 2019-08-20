@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.12.0 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.13.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -76,6 +76,12 @@ in <a class="reference internal" href="#MulensModel.model.Model.datasets" title=
 to turn different parallax effects ON/OFF. If using satellite
 parallax, you may also specify an <cite>ephemerides_file</cite> (see
 <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>).</p>
+<p>Note that you can print an instance of Model, which shows you parameters
+in a nice way, e.g.,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="mf">2456789.0</span><span class="p">,</span> <span class="o">....</span><span class="p">})</span>
+<span class="k">print</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="attribute">
 <dt id="MulensModel.model.Model.parameters">
 <code class="descname">parameters</code><a class="headerlink" href="#MulensModel.model.Model.parameters" title="Permalink to this definition">¶</a></dt>
@@ -544,6 +550,16 @@ If those are not adequate, then change the size by specifying
 <code class="xref py py-func docutils literal notranslate"><span class="pre">pyplot.plot()</span></code>.</dd>
 </dl>
 </div></blockquote>
+<p>Note that in order to have equal scaling of both axis
+(i.e., make circles look circular), you have to call appropriate
+<em>pyplot</em> command. This can be one of these commands:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pyplot</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;scaled&#39;</span><span class="p">)</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;square&#39;</span><span class="p">)</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>They have slightly different behavior.</p>
 </dd></dl>
 
 <dl class="method">
@@ -598,6 +614,10 @@ then keyword arguments are passed to <a class="reference external" href="https:/
 </dl>
 </dd>
 </dl>
+<p>Note that it is likely that with default axis scaling, the circles may
+be plotted as ellipses. To mitigate it, use:
+<code class="docutils literal notranslate"><span class="pre">plt.gca().set_aspect('equal')</span></code> or <code class="docutils literal notranslate"><span class="pre">plt.axis('equal')</span></code>
+(the other possible options are <code class="docutils literal notranslate"><span class="pre">'scaled'</span></code> or <code class="docutils literal notranslate"><span class="pre">'square'</span></code>).</p>
 </dd></dl>
 
 <dl class="method">

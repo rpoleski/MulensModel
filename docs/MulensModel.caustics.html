@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.caustics module &#8212; MulensModel 1.12.0 documentation</title>
+    <title>MulensModel.caustics module &#8212; MulensModel 1.13.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -64,6 +64,10 @@ Defaults to 5000.</dd>
 </dl>
 </dd>
 </dl>
+<p>Note that default scaling of axis may not be equal on both axis.
+To mitigate this, use:
+<code class="docutils literal notranslate"><span class="pre">plt.gca().set_aspect('equal')</span></code> or <code class="docutils literal notranslate"><span class="pre">plt.axis('equal')</span></code>
+(the other possible options are <code class="docutils literal notranslate"><span class="pre">'scaled'</span></code> or <code class="docutils literal notranslate"><span class="pre">'square'</span></code>).</p>
 </dd></dl>
 
 <dl class="method">
