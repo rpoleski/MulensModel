@@ -41,6 +41,7 @@ def ln_like(theta, event, parameters_to_fit, print_models):
             print(chi2, *theta_, flush=True)
     return -0.5 * chi2
 
+
 def ln_prior(theta, parameters_to_fit):
     """
     Prior. Check if *theta* values for *parameters_to_fit* are within ranges
@@ -61,6 +62,7 @@ def ln_prior(theta, parameters_to_fit):
 
     return inside
 
+
 def ln_prob(
         theta, event, parameters_to_fit, print_models=False):
     """
@@ -75,6 +77,7 @@ def ln_prob(
         return -np.inf
 
     return ln_prior_ + ln_like_
+
 
 def generate_random_parameters(parameters, starting, n, s=None, q=None):
     """
@@ -104,7 +107,7 @@ def generate_random_parameters(parameters, starting, n, s=None, q=None):
 
 
 # Read config file.
-config_file = "example_12.cfg"
+config_file = "example_13.cfg"
 config = configparser.ConfigParser()
 config.optionxform = str  # So that "t_E" is not changed to "t_e".
 config.read(config_file)
@@ -181,4 +184,3 @@ if 'x_caustic_in' in parameters:
     print(' t_E = {:.3f}'.format(my_event.model.parameters.t_E))
     print(' alpha = {:.2f}\n'.format(my_event.model.parameters.alpha))
 print("chi2: ", my_event.best_chi2)  # Expected value: ~1655
-

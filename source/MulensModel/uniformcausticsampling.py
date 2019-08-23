@@ -22,20 +22,23 @@ class UniformCausticSampling(object):
 
         n_points: *int*
             Number of points used for internal integration.
-            Default value should work find.
+            Default value should work fine.
 
     Instead of standard parameters (*t_0*, *u_0*, *t_E*, *alpha*), here
     we use four other parameters: two epochs of caustic crossing
     (*t_caustic_in*, *t_caustic_out*) and two curvelinear coordinates of
-    caustic crossing (*x_caustic_in*, *x_caustic_out*). The curvelinear
-    coordinates are defined so that going from 0 to 1 draws all caustics
-    for given separation and mass ratio (this is different convention than
-    in papers cited below). For a wide topology (i.e., 2 caustics), there
-    is a value between 0 and 1 which separates the caustics (:math:`{x_sep}`)
-    and a trajectory
+    caustic crossing (*x_caustic_in*, *x_caustic_out*).
+
+    The curvelinear coordinate, *x_caustic*,
+    is defined so that going from 0 to 1 draws all caustics
+    for given separation and mass ratio. We use 0-1 range, which is
+    a different convention than
+    in the papers cited below). For a wide topology (i.e., 2 caustics), there
+    is a value between 0 and 1 (called ``x_caustic_sep``) which separates
+    the caustics and a trajectory
     exists only if *x_caustic_in* and *x_caustic_out* correspond to
-    the same caustic, i.e., both are smaller than :math:`x_{sep}` or
-    both are larger than :math:`x_{sep}`. For a close topology
+    the same caustic, i.e., both are smaller than ``x_caustic_sep`` or
+    both are larger than ``x_caustic_sep``. For a close topology
     (i.e., 3 caustics), there are two such separating values.
 
     For description of the curvelinear coordinates, see:
@@ -49,7 +52,7 @@ class UniformCausticSampling(object):
     <https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract>`_
 
     In order to visualize the curvelinear coordinates,
-    you can run a code like that:
+    you can run a code like:
 
     .. code-block:: python
 

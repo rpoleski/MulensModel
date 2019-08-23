@@ -35,7 +35,7 @@ nice_print(model)
 model.parameters.s = 1.2
 print("Change:")
 print("s -> 1.2")
-print("results in (these calculations can take some time):")
+print("results in ...(these calculations can take some time)...")
 nice_print(model)
 
 model.parameters.x_caustic_in = 0.25
@@ -43,4 +43,3 @@ print("Change:")
 print("x_caustic_in -> 0.25")
 print("results in:")
 nice_print(model)
-
