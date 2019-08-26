@@ -2,7 +2,6 @@
 1. Cassan 2008 parametrization
 2. small q calculations corrected
 1. improve documentation:
-    * _example for using satellite data_
     * examples order change 01 <-> 02
     * clean-up after hack session
     * utils.py
@@ -45,6 +44,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
   * make sure that website shows correct version of MM
   * note that we're not checking for negative source or blending flux
+  * add a list of public datasets: paper 1, MOA 9yr, VVV?, KMT releases, K2 (link to MCPM)
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * _extract flux ratio for binary source models when fluxes are fitted via regression_
@@ -98,7 +98,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * _are we using VBBL with improvements from 2018 paper?_
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
-    * topology of caustics based on (s,q) - already is inside the Cassan+08 calculations, mostly needs use case
     * central and planetary caustic properties: [Chung et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...630..535C/abstract) and [Han 2006](https://ui.adsabs.harvard.edu/abs/2006ApJ...638.1080H/abstract)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
     * faster hexadecapole using [Cassan 2017](https://ui.adsabs.harvard.edu/abs/2017MNRAS.468.3993C/abstract) ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
@@ -212,6 +211,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * annual parallax caching - if moved to MulensData, then would be faster because hashing of coords and time vector takes time
     * maybe Trajectory should be able to plot itself, and Model.plot\_trajectory() should call it - it would be easier for binary sources etc.
     * colorscale time or magnification (see Ranc+ paper on ob151670)
+    * plot in units of theta\_star (or even days) instead of theta\_E
   * Utils class:
     * in np.any() ifs give more information in warning e.g., "out of 1234 values provided, the fails are: 12, 345, 678 (0-based)"
     * add u(a) function: u = np.sqrt(2A/np.sqrt(A^2-1.) - 2.)
@@ -230,7 +230,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * caustics for trajectory plot with single lens models
     * magnification difference - new function that takes epochs in input, but if not provided, then takes shorter of t\_E for steps and wider limit for start and end
   * Examples:
-    * _Hamiltonian MCMC [link 1](http://arogozhnikov.github.io/2016/12/19/markov_chain_monte_carlo.html) and [link 2](https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/)_
+    * _Hamiltonian MCMC [link 1](http://arogozhnikov.github.io/2016/12/19/markov_chain_monte_carlo.html) and [link 2](https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/) and [link 3](https://colindcarroll.com/2019/04/11/hamiltonian-monte-carlo-from-scratch/)_
     * _plot many models from posterior_
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
@@ -249,11 +249,14 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * hack session examples to be renamed, unlinked in README.md
     * set matplotlib scales 1:1 so that circles are circles
     * **satellite data fitted and plotted - what is missing now?**
+    * use ast.literal\_eval() for .cfg files to read dict or list, e.g., for MulensData options.
+    * _high-level fitting example where we don't care how complicated it is, we just want to make it simple and useful for the user_
+    * some cfg files use "../data/..." - change it to MM.DATA\_PATH somehow
   * Miscellaneous:
     * _COVERAGE : "coverage run --source MulensModel -m py.test" and then "coverage report" or "coverage report -m" or "coverage html" (and then open htmlcov/index.html); https://coverage.readthedocs.io/en/v4.5.x/_
     * u\_0 sign for satellite or just parallax model - some way of following u(t) evolution
     * warnings - give type for each one of them
-    * Dave's idea on causticc-crossing epochs as parameters t_cc1 and t_cc2 - see david.p.bennettATnasa.gov e-mail on Feb 11, 2019
+    * Dave's idea on causticc-crossing epochs as parameters t\_cc1 and t\_cc2 - see david.p.bennettATnasa.gov e-mail on Feb 11, 2019
     * add function to get Earth's projected velocity
     * when checking units use Unit.physical\_type - search for physical\_type in mulensobjects/lens.py as an example; to find places to be changed search for "isinstance" (to find these places run grep isinstance \*py mulensobjects/\*py | grep Quantity
     * use lazy loading in MagnificationCurve.magnification and/or Model.magnification
@@ -261,6 +264,8 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * add calculation of Caustic Region of Influence (CROIN) - [Penny 2014](https://ui.adsabs.harvard.edu/abs/2014ApJ...790..142Y/abstract)
     * anything from use cases that does not work yet -- see TODO.md file
     * comments at begin of each use case and example
+    * use case 25 doesn't work
+    * OB161195 is used only in UC25 - change it and remove directory
     * interaction with fitting routines - see [list of them](https://arxiv.org/abs/1711.03329)
     * caching of results in trajectory.py should stop at some point - if the user changes t\_0\_par or coords, then there is no point in remembering huge indexes (whole self.times)
     * profile the code (python -m cProfile script.py - you only should check 2nd and 4th column)
@@ -275,7 +280,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * plt.scatter -> plt.plot; after that we can start unit tests for plt calls
   * check for memory leaks by running long calculations and monitoring RAM usage
 * Style/Architecture:
-  * _PEP8 and exceptions - use specific ones or "except Exception:"_
+  * _PEP8 and exceptions - use specific ones or "except Exception:" (i.e., no E722 in pycodestyle output)_
   * Are we consistent with PEP8? [check here](http://pep8online.com/) or pycodestyle command
   * PEP8 for tests/ (test\_Event is already done: test\_Event test\_ModelParameters test\_Model\_Parallax
   * for examples/

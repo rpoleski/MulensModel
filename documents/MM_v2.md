@@ -22,6 +22,7 @@ Once the changes are accepted to be made, **mark them in the code using warnings
 
 ### Yet unsorted/undecided:
  * check all NotImplementedError and maybe remove some functions/options
+ * somehow change which\_parameters() in modelparameters.py - maybe remove
  * new class for a collection of datasets to make looping over datasets easier; also there will be data\_ref defined
  * VBBL and AC in subdirs of source/MulensModel/ for easier install ?
  * stop updating data\_ref in Model
