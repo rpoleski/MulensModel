@@ -159,6 +159,10 @@ def which_parameters(*args):
         Effects: 'point lens', 'binary lens', 'finite source',
         'parallax', 'lens orbital motion'
     """
+    warnings.warn(
+        "Warning: function which_parameters() does not show binary source " +
+        "parameters!",
+        RuntimeWarning)
     if len(args) == 0:
         _print_all()
     else:
