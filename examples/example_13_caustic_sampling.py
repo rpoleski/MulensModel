@@ -42,12 +42,11 @@ def ln_like(theta, event, parameters_to_fit, print_models):
     return -0.5 * chi2
 
 
-def ln_prior(theta, parameters_to_fit):
+def ln_prior(theta, parameters_to_fit, event):
     """
     Prior. Check if *theta* values for *parameters_to_fit* are within ranges
     defined by *ln_prior.min* and *ln_prior.max*.
     """
-    inside = 0.
     outside = -np.inf
 
     for (parameter, value) in ln_prior.min.items():
@@ -60,7 +59,11 @@ def ln_prior(theta, parameters_to_fit):
         if theta[index] > value:
             return outside
 
-    return inside
+# Below we calculate prior probability based on x_caustic_in and x_caustic_out.
+    inside = event.model.parameters.uniform_caustic_sampling.jacobian(
+        x_caustic_in=theta[parameters_to_fit.index('x_caustic_in')],
+        x_caustic_out=theta[parameters_to_fit.index('x_caustic_out')])
+    return np.log(inside)
 
 
 def ln_prob(
@@ -68,7 +71,7 @@ def ln_prob(
     """
     Log probability of the model - combines ln_prior() and ln_like().
     """
-    ln_prior_ = ln_prior(theta, parameters_to_fit)
+    ln_prior_ = ln_prior(theta, parameters_to_fit, event)
     if not np.isfinite(ln_prior_):
         return -np.inf
 
