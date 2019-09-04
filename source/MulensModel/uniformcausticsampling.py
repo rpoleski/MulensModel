@@ -59,6 +59,7 @@ class UniformCausticSampling(object):
     .. code-block:: python
 
       import matplotlib.pyplot as plt
+      import numpy as np
       sampling = UniformCausticSampling(s=1.1, q=0.3)
       color = np.linspace(0., 1., 200)
       points = [sampling.caustic_point(c) for c in color]
@@ -587,7 +588,7 @@ class UniformCausticSampling(object):
         x_2 = np.random.rand(n_all) * scale + begin
         jacobian = np.zeros(n_all)
         for (i, (x_1_, x_2_)) in enumerate(zip(x_1, x_2)):
-            jacobian[i] = self._jacobian(x_1_, x_2_)
+            jacobian[i] = self.jacobian(x_1_, x_2_)
         index = np.where(jacobian > 0.)[0]
         if len(index) < n_points * min_factor:
             return (False, n_points * min_factor / len(index))
