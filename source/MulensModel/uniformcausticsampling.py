@@ -33,7 +33,9 @@ class UniformCausticSampling(object):
     is defined so that going from 0 to 1 draws all caustics
     for given separation and mass ratio. We use 0-1 range, which is
     a different convention than
-    in the papers cited below). For a wide topology (i.e., 2 caustics), there
+    in the papers cited below (we also use different symbols for
+    epochs of caustic crossing and curvelinear coordinates).
+    For a wide topology (i.e., 2 caustics), there
     is a value between 0 and 1 (called ``x_caustic_sep``) which separates
     the caustics and a trajectory
     exists only if *x_caustic_in* and *x_caustic_out* correspond to
