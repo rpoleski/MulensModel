@@ -52,7 +52,7 @@ for u_0 in [0.0, 0.01, 0.1]:
     t_0 = 2457215.
     t_E = 20.0
     model = MulensModel.Model(
-        {'t_0': t_0, 'u_0': u)0, 't_E': t_E})
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     event = MulensModel.Event(datasets=datasets, model=model)
     event.datasets[data_ref].fix_blending = fblend # Fix the blending = the known added value
 
