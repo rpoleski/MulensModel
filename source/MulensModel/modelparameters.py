@@ -15,9 +15,13 @@ _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
     'binary lens': ['s, q, alpha'],
+    'binary lens alt':
+        'alternate: ' +
+        '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
+        'may be substituted for (t_0, u_0, t_E, alpha)',
     'finite source': ['rho', '(for finite source effects)'],
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
-    'parallax': ['pi_E OR pi_E_N, pi_E_E', '(for parallax)'],
+    'parallax': ['(pi_E_N, pi_E_E) OR pi_E', '(for parallax)'],
     'parallax opt': [
         't_0_par',
         'may also be specified for parallax models. Defaults to t_0.'],
@@ -62,6 +66,7 @@ def _get_effect_strings(*args):
         basic = 'point lens'
         additional.append('binary lens')
         alternate.append('point lens alt')
+        alternate.append('binary lens alt')
 
     # Effects
     if args_0 == 'finitesource':
