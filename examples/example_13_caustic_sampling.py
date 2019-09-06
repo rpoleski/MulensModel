@@ -60,10 +60,16 @@ def ln_prior(theta, parameters_to_fit, event):
             return outside
 
 # Below we calculate prior probability based on x_caustic_in and x_caustic_out.
+# This calculation assumes flat prior in (t_0, u_0, t_E, alpha), not in
+# (x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out). If you want flat
+# prior in the latter, then just replace following lines by "return 0".
     inside = event.model.parameters.uniform_caustic_sampling.jacobian(
         x_caustic_in=theta[parameters_to_fit.index('x_caustic_in')],
         x_caustic_out=theta[parameters_to_fit.index('x_caustic_out')])
-    return np.log(inside)
+    if inside == 0.:
+        return outside
+    else:
+        return np.log(inside)
 
 
 def ln_prob(
