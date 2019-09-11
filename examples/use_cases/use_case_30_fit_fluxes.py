@@ -1,6 +1,11 @@
 """
+use_case_30_fit_fluxes.py
+
 Assume you want (some) of the fluxes to be freely fitted parameters, e.g.
 so you can measure the uncertainty in the color.
+
+Adapted from example_06_fit_parallax_EMCEE.py and use_case_25_flux_constraint.py
+New functionality marked by # *** NEW ***
 """
 import os
 import sys
@@ -24,6 +29,7 @@ def ln_like(theta, event, parameters_to_fit):
     KCT01 = 0
     Spitzer = 9
     for (key, val) in enumerate(parameters_to_fit):
+        # *** NEW ***
         # Some fluxes are MCMC parameters
         if val[0:] == 'f':
             if val == 'fsKCT01':
@@ -33,7 +39,7 @@ def ln_like(theta, event, parameters_to_fit):
 
         else:
             setattr(event.model.parameters, val, theta[key])
-
+        # *** END NEW ***
     return -0.5 * event.get_chi2()
 
 
@@ -119,6 +125,7 @@ best = [my_event.best_chi2_parameters[p] for p in parameters_to_fit]
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print(my_event.best_chi2)
 
+# *** NEW ***
 # Compare to the Color constraint for OB161195 (I_KMT - L_Spitzer)
 (source_color, sigma_color) = (0.78, 0.03)
 plt.hist(-2.5*np.log10(samples[:,0] / samples[:,9]), bins=25)
@@ -127,4 +134,5 @@ plt.axvline(source_color - sigma_color, linestyle=':', color='black')
 plt.axvline(source_color + sigma_color, linestyle=':', color='black')
 pl.xlabel('(I-L)')
 plt.show()
+# *** END NEW ***
 

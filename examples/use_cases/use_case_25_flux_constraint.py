@@ -6,6 +6,7 @@ import os
 
 import MulensModel
 
+raise NotImplementedError('This use case has not been implemented.')
 
 def chi2_fun(theta, event, parameters_to_fit):
     """

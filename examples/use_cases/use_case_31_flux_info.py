@@ -1,3 +1,9 @@
+"""
+use_case_31_flux_info.py
+
+Adapted from use_case_25_flux_constraint.py
+New functionality marked by # *** NEW ***
+"""
 import os
 import MulensModel
 
@@ -32,6 +38,7 @@ model.set_default_magnification_method('point_source_point_lens')
 event = MulensModel.Event(datasets=datasets, model=model,
                           coords="17:55:23.50 -30:12:26.1")
 
+# *** NEW ***
 print(event.get_ref_fluxes())
 print(event.fluxes)
 # should be a (n, m) array where n = the number of datasets, and m = n_sources + 1
@@ -44,3 +51,5 @@ for i in range(len(datasets)):
     print('{0:10} {1:8.2f} {2:8.2f}'.format(
         event.datasets[i].plot_properties['label'], event.datasets[i].source_flux,
         event.datasets[i].blend_flux))
+
+# *** END NEW ***
