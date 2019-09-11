@@ -1,7 +1,6 @@
 import numpy as np
 import math
 import warnings
-import matplotlib.pyplot as plt  # XXXX probably remove that
 
 import MulensModel as MM
 
@@ -321,47 +320,6 @@ class UniformCausticSampling(object):
 
         cusps_zeta_2 = [self._zeta(z) for z in cusps_z_2]
 
-# XXXX - BEGIN
-        #if self._n_caustics == 3:
-            #arg = np.argmin([np.abs(z) for z in cusps_zeta_2])
-            #self._shift = self._sum_2[indexes[arg] - 1]
-# XXX - currently we skip this part because it produces an artifact
-# in self.plot_caustic()
-        if False:
-# XXX - THE PART BELOW WAS NOT CHECKED FOR Y-AXIS CHANGE
-        # Only for close configuration there is a need to modify self._sum_2
-        # in order to make inflection point closer to 0.
-        #  if self._n_caustics == 3:
-            arg = np.argmin([np.abs(z) for z in cusps_zeta_2])
-            shift = indexes[arg] - 1
-            # shift = 0
-            # shift = indexes[arg]
-            # print("SHIFT", shift)
-            d_1 = self._sum_2[-1] - self._sum_2[-2]
-            d_2 = self._sum_2[1] - self._sum_2[0]
-            value_shift = self._sum_2[-1] + (d_1 + d_2) / 2.
-            self._sum_2 = np.roll(self._sum_2, -shift)
-            self._z_all_2 = np.roll(self._z_all, -shift, axis=0)
-            # XXX self._z_sum_2
-            self._z_index_sum_2 = np.roll(self._z_index_sum_2, shift)
-            self._sum_2[:-shift] -= value_shift
-            self._sum_2 -= self._sum_2[0]
-
-            indexes = self._get_indexes_of_inflection_points(self._sum_2)
-            value_2 = [float(i)/self._n_points for i in indexes]
-            self._inflections_fractions[2] = value_2
-            value_3 = [self._inflections_fractions[2][i] for i in [0, 2, 1]]
-            self._inflections_fractions[3] = value_3
-            cusps_z_2 = [self._z_sum_2[i] for i in indexes]
-            cusps_zeta_2 = [self._zeta(z) for z in cusps_z_2]
-
-        # XXX This seems unused
-        if self._n_caustics == 3:
-            indexes = [indexes[i] for i in [0, 2, 1]]
-            cusps_z_3 = [self._z_sum_2[i].conjugate() for i in indexes]
-            cusps_zeta_3 = [self._zeta(z) for z in cusps_z_3]
-# XXXX - END
-
         length_1 = 2. * self._sum_1[-1]
         lengths_sum = length_1
         lengths = [length_1]
@@ -376,11 +334,6 @@ class UniformCausticSampling(object):
                 lengths_sum += length_2
                 lengths += [lengths[-1] + length_3]
         self._which_caustic = np.array([0.] + lengths) / lengths_sum
-# XXX  what we want to remember from above:
-# - length_
-# - indexes
-# - cusps_z_
-# - cusps_zeta_
 
     def get_standard_parameters(self, x_caustic_in, x_caustic_out,
                                 t_caustic_in, t_caustic_out):
@@ -843,83 +796,3 @@ class UniformCausticSampling(object):
         Mass ratio.
         """
         return self._q
-
-# XXXX BEGIN
-    def _plot_caustic(self, n_points=200):
-        """
-        Plot caustic using uniform sampling and color scale
-        """
-        color = np.linspace(0, 1, n_points)
-        points = [self.caustic_point(c) for c in color]
-        x = [p.real for p in points]
-        y = [p.imag for p in points]
-        plt.scatter(x, y, c=color)
-        plt.axis('equal')
-        plt.colorbar()
-
-    def _plot_full(self, x_caustic_in, x_caustic_out, t_caustic_in,
-                   t_caustic_out, n_points=200):
-        """
-        Plot caustic and trajectory - useful for checks of model parameter
-        calculations.
-        """
-        self._plot_caustic(n_points=n_points)
-        params = self.get_standard_parameters(x_caustic_in, x_caustic_out,
-                                              t_caustic_in, t_caustic_out)
-        params['s'] = self.s
-        params['q'] = self.q
-        model = MM.Model(params)  # remove import, if you remove this line
-        model.plot_trajectory(t_start=t_caustic_in, t_stop=t_caustic_out)
-        model.plot_trajectory(np.array([params['t_0']]),
-                              marker='X', arrow=False)
-
-        c_in = self.caustic_point(x_caustic_in)
-        c_out = self.caustic_point(x_caustic_out)
-        plt.scatter(c_in.real, c_in.imag, marker='X', c='pink')
-        plt.scatter(c_out.real, c_out.imag, marker='X', c='red')
-
-        txt = "s = {:} q = {:} x_caustic_in = {:} x_caustic_out = {:}"
-        plt.title(txt.format(self.s, self.q, x_caustic_in, x_caustic_out))
-        plt.tight_layout()
-
-
-if __name__ == "__main__":
-    # caustic = UniformCausticSampling(s=1.1, q=0.1)
-    if False:  # Check basic calculation
-        params = caustic.get_standard_parameters(0.13, 0.04, 0., 1.)
-        caustic.get_x_in_x_out(u_0=params['u_0'], alpha=params['alpha'])
-
-    if True:  # Test get_uniform_sampling()
-        for s in [1.1, 2., 0.7]:
-            caustic = UniformCausticSampling(s=s, q=0.3)
-            caustic._plot_caustic()
-            # 1) Counter-clockwise; starting at largest X
-            # 2) Counter-clockwise Counter-clockwise; starting at largest X - BOTH
-            # 3) Counter-clockwise Counter-clockwise CLOCKWISE; starting at largest X - AND - two not specified
-            plt.show()
-
-    if False:  # Get x_caustic for many (u_0, alpha)
-        n_points = 10000
-        u_0_ = np.random.rand(n_points) * 3.4 - 1.7
-        alpha_ = np.random.rand(n_points) * 360.
-        for (u_0, alpha) in zip(u_0_, alpha_):
-            x_caustic = caustic.get_x_in_x_out(u_0=u_0, alpha=alpha)
-            for i in range(len(x_caustic)):
-                for j in range(i+1, len(x_caustic)):
-                    check = caustic.orientation_check(
-                        x_caustic[i], x_caustic[j])
-                    if not check:
-                        continue
-                    print(x_caustic[i], x_caustic[j], len(x_caustic))
-                    print(x_caustic[j], x_caustic[i], len(x_caustic))
-
-    if False:  # Test direction_check()
-        n_points = 100000
-        x_in = np.random.rand(n_points)
-        x_out = np.random.rand(n_points)
-        for (x_in_, x_out_) in zip(x_in, x_out):
-            if caustic.which_caustic(x_in_) != caustic.which_caustic(x_out_):
-                continue
-            directions = caustic.direction_check(x_in_, x_out_)
-            print(x_in_, x_out_, directions[0], directions[1])
-# XXXX - END
