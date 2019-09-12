@@ -1498,7 +1498,7 @@ class ModelParameters(object):
         :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`
         that is used to calculate standard parameters based on
         the curvelinear coordinates.
-        The main usage is access to *jacobian()* function.
+        The main usage is access to the *jacobian()* function.
         In most cases, you do not need to access this property directly.
         """
         if not self._Cassan08:
