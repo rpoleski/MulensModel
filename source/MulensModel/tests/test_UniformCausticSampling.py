@@ -18,7 +18,7 @@ def test_UniformCausticSampling():
     Test if the main functions of work correctly, namely:
     - get_standard_parameters(),
     - get_x_in_x_out(),
-    - orientation_check(),
+    - check_valid_trajectory(),
     - caustic_point(),
     - n_caustics,
     - which_caustic().
@@ -38,7 +38,7 @@ def test_UniformCausticSampling():
         x_list = sampling.get_x_in_x_out(standard['u_0'], standard['alpha'])
         assert np.min(np.abs(np.array(x_list) - 0.2)) < 1.e-6
         assert np.min(np.abs(np.array(x_list) - 0.5)) < 1.e-6
-        assert sampling.orientation_check(0.2, 0.5) == c
+        assert sampling.check_valid_trajectory(0.2, 0.5) == c
         np.testing.assert_almost_equal(sampling.caustic_point(0.3), p)
         assert sampling.n_caustics == nc
         assert sampling.which_caustic(0.95) == sampling.n_caustics

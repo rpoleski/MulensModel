@@ -565,7 +565,7 @@ class UniformCausticSampling(object):
             jacobian: *float*
                 Value of Jacobian. Returns *0.* if trajectory does not exist.
         """
-        check = self._orientation_check(x_caustic_in, x_caustic_out)
+        check = self._check_valid_trajectory(x_caustic_in, x_caustic_out)
         if not check[0]:
             return 0.
         (zeta_in, zeta_out, dzeta_dphi_in, dzeta_dphi_out) = check[1:]
@@ -614,12 +614,8 @@ class UniformCausticSampling(object):
             raise ValueError('strange error: {:}'.format(self._n_caustics))
         return out
 
-    def orientation_check(self, x_caustic_in, x_caustic_out):  # XXX
+    def check_valid_trajectory(self, x_caustic_in, x_caustic_out):
         """
-        **TO DO: this function should have different name because we check
-        the other condition i.e., if the same caustics are hit;
-        maybe just name it check() or check_x_in_x_out()**
-
         Check if given (x_caustic_in, x_caustic_out) define an existing
         trajectory. An obvious case, when they don't is when both caustic
         points are on the same fold, but other cases exists.
@@ -635,9 +631,9 @@ class UniformCausticSampling(object):
             check: *bool*
                 *True* if input defines a trajectory, *False* if it does not.
         """
-        return self._orientation_check(x_caustic_in, x_caustic_out)[0]
+        return self._check_valid_trajectory(x_caustic_in, x_caustic_out)[0]
 
-    def _orientation_check(self, x_caustic_in, x_caustic_out):
+    def _check_valid_trajectory(self, x_caustic_in, x_caustic_out):
         """
         Check if given parameters define real trajectory.
 
