@@ -2,6 +2,8 @@ from astropy import units as u
 import numpy as np
 import warnings
 
+from MulensModel.uniformcausticsampling import UniformCausticSampling
+
 
 # For definition of class ModelParameters see below.
 
@@ -13,9 +15,13 @@ _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
     'binary lens': ['s, q, alpha'],
+    'binary lens alt':
+        'alternate: ' +
+        '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
+        'may be substituted for (t_0, u_0, t_E, alpha)',
     'finite source': ['rho', '(for finite source effects)'],
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
-    'parallax': ['pi_E OR pi_E_N, pi_E_E', '(for parallax)'],
+    'parallax': ['(pi_E_N, pi_E_E) OR pi_E', '(for parallax)'],
     'parallax opt': [
         't_0_par',
         'may also be specified for parallax models. Defaults to t_0.'],
@@ -60,6 +66,7 @@ def _get_effect_strings(*args):
         basic = 'point lens'
         additional.append('binary lens')
         alternate.append('point lens alt')
+        alternate.append('binary lens alt')
 
     # Effects
     if args_0 == 'finitesource':
@@ -210,11 +217,16 @@ class ModelParameters(object):
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
+            if self._Cassan08:
+                self._uniform_caustic = None
+                self._standard_parameters = None
         elif self.n_sources == 2:
+            self._Cassan08 = False
             self._check_valid_combination_2_sources(parameters.keys())
             if 't_E' not in parameters.keys():
                 raise KeyError('Currently, the binary source calculations ' +
-                               'require t_E to be directly defined')
+                               'require t_E to be directly defined, i.e., ' +
+                               'has to be the same for both sources.')
             (params_1, params_2) = self._divide_parameters(parameters)
             self._source_1_parameters = ModelParameters(params_1)
             self._source_2_parameters = ModelParameters(params_2)
@@ -293,7 +305,11 @@ class ModelParameters(object):
                 'width': 11, 'precision': 5, 'unit': '/yr', 'name': 'ds/dt'},
             'dalpha_dt': {
                 'width': 18, 'precision': 5, 'unit': 'deg/yr',
-                'name': 'dalpha/dt'}
+                'name': 'dalpha/dt'},
+            'x_caustic_in': {'width': 13, 'precision': 7},
+            'x_caustic_out': {'width': 13, 'precision': 7},
+            't_caustic_in': {'width': 19, 'precision': 5, 'unit': 'HJD'},
+            't_caustic_out': {'width': 19, 'precision': 5, 'unit': 'HJD'},
         }
         # Add binary source parameters with the same settings.
         binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
@@ -309,7 +325,8 @@ class ModelParameters(object):
         formats_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'ds_dt', 'dalpha_dt'
+            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'ds_dt', 'dalpha_dt',
+            'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
         ]
 
         variables = ''
@@ -345,30 +362,12 @@ class ModelParameters(object):
                     raise ValueError('You cannot set {:} and {:}'.format(
                                         parameter, parameter[:-2]))
 
-    def _check_valid_combination_1_source(self, keys):
+    def _check_valid_combination_1_source_standard(self, keys):
         """
-        Check that the user hasn't over-defined the ModelParameters.
+        Here we check parameters for non-Cassan08 parameterization.
         """
-        # Make sure that there are no unwanted keys
-        allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
-            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
-            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-            't_star_1', 't_star_2'])
-        difference = set(keys) - allowed_keys
-        if len(difference) > 0:
-            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
-            if set(keys).intersection(derived_1):
-                msg = ('You cannot set gamma, gamma_perp, ' +
-                       'or gamma_parallel. These are derived parameters. ' +
-                       'You can set ds_dt and dalpha_dt instead.\n')
-            else:
-                msg = ""
-            msg += 'Unrecognized parameters: {:}'.format(difference)
-            raise KeyError(msg)
-
-        # Make sure that mimum set of parameters are defined - we need to know
-        # t_0, u_0, and t_E.
+        # Make sure that minimum set of parameters are defined - we need
+        # to know t_0, u_0, and t_E.
         if 't_0' not in keys:
             raise KeyError('t_0 must be defined')
         if ('u_0' not in keys) and ('t_eff' not in keys):
@@ -380,7 +379,8 @@ class ModelParameters(object):
 
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
-            if ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys):
+            if (('s' not in keys) or
+                    ('q' not in keys) or ('alpha' not in keys)):
                 raise KeyError(
                     'A binary model requires all three of (s, q, alpha).')
 
@@ -444,6 +444,73 @@ class ModelParameters(object):
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
 
+    def _check_valid_combination_1_source_Cassan08(self, keys):
+        """
+        Check parameters defined for Cassan 2008 parameterization.
+        Currently, only static models are accepted.
+        """
+        # Check that all required parameters are defined.
+        parameters = ['s', 'q', 'x_caustic_in', 'x_caustic_out',
+                      't_caustic_in', 't_caustic_out']
+        for parameter in parameters:
+            if parameter not in keys:
+                raise KeyError(
+                    'If you use Cassan 2008 parameterization, then all ' +
+                    'these parameters have to be defined:\n' +
+                    ' \n'.join(parameters))
+
+        # Make sure that there are no unwanted keys
+        allowed_keys = set(parameters + ['rho', 't_star'])
+        difference = set(keys) - allowed_keys
+        if len(difference) > 0:
+            msg = 'Parameters not allow in Cassan (2008) parameterization '
+            msg += '(at this point): {:}'.format(difference)
+            raise KeyError(msg)
+
+        # Source size cannot be over-defined.
+        if ('rho' in keys) and ('t_star' in keys):
+            raise KeyError('Both rho and t_star cannot be defined for ' +
+                           'Cassan 08 parametrization.')
+
+    def _check_valid_combination_1_source(self, keys):
+        """
+        Check that the user hasn't over-defined the ModelParameters.
+        This function sets self._Cassan08 property.
+        """
+        # Make sure that there are no unwanted keys
+        allowed_keys = set([
+            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
+            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
+            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
+            't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
+            't_caustic_in', 't_caustic_out'])
+        difference = set(keys) - allowed_keys
+        if len(difference) > 0:
+            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
+            if set(keys).intersection(derived_1):
+                msg = ('You cannot set gamma, gamma_perp, ' +
+                       'or gamma_parallel. These are derived parameters. ' +
+                       'You can set ds_dt and dalpha_dt instead.\n')
+            else:
+                msg = ""
+            msg += 'Unrecognized parameters: {:}'.format(difference)
+            raise KeyError(msg)
+
+        # There are 2 types of models:
+        # - standard
+        # - Cassan08 (no t_0, u_0, t_E, alpha)
+        self._Cassan08 = False
+        Cassan08_parameters = [
+            'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out']
+        for parameter in Cassan08_parameters:
+            if parameter in keys:
+                self._Cassan08 = True
+
+        if self._Cassan08:
+            self._check_valid_combination_1_source_Cassan08(keys)
+        else:
+            self._check_valid_combination_1_source_standard(keys)
+
     def _check_valid_parameter_values(self, parameters):
         """
         Prevent user from setting negative (unphysical) values for
@@ -470,9 +537,15 @@ class ModelParameters(object):
                 msg = "{:} must be a scalar: {:}, {:}"
                 raise TypeError(msg.format(key, value, type(value)))
 
+        for name in ['x_caustic_in', 'x_caustic_out']:
+            if name in parameters.keys():
+                if parameters[name] < 0. or parameters[name] > 1.:
+                    msg = "{:} has to be in (0, 1) range, not {:}"
+                    raise ValueError(msg.format(name, parameters[name]))
+
     def _set_parameters(self, parameters):
         """
-        check if patameter values make sense and remember the copy of the dict
+        check if parameter values make sense and remember the copy of the dict
         """
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
@@ -490,6 +563,53 @@ class ModelParameters(object):
         if parameter in self._source_2_parameters.parameters:
             setattr(self._source_2_parameters, parameter, value)
 
+    def _set_time_quantity(self, key, new_time):
+        """
+        Save a variable with units of time (e.g. t_E, t_star,
+        t_eff). If units are not given, assume days.
+        """
+        if isinstance(new_time, u.Quantity):
+            self.parameters[key] = new_time
+        else:
+            self.parameters[key] = new_time * u.day
+
+    def _check_time_quantity(self, key):
+        """
+        Make sure that value for give key has quantity, add it if missing.
+        """
+        if not isinstance(self.parameters[key], u.Quantity):
+            self._set_time_quantity(key, self.parameters[key])
+
+    def _get_uniform_caustic_sampling(self):
+        """
+        Sets self._uniform_caustic if that is required.
+        Also resets self._standard_parameters.
+        """
+        recalculate = (self._uniform_caustic is None or
+                       self.s != self._uniform_caustic.s or
+                       self.q != self._uniform_caustic.q)
+        if recalculate:
+            self._uniform_caustic = UniformCausticSampling(s=self.s, q=self.q)
+            self._standard_parameters = None
+
+    def _get_standard_parameters_from_Cassan08(self):
+        """
+        Calculate these parameters:
+        t_0 u_0 t_E alpha
+        based on:
+        x_caustic_in x_caustic_out t_caustic_in t_caustic_out
+        using transformation that depends on:
+        s q
+        """
+        self._get_uniform_caustic_sampling()
+
+        if self._standard_parameters is None:
+            keys = ['x_caustic_in', 'x_caustic_out',
+                    't_caustic_in', 't_caustic_out']
+            kwargs = {key: self.parameters[key] for key in keys}
+            self._standard_parameters = (
+                self._uniform_caustic.get_standard_parameters(**kwargs))
+
     @property
     def t_0(self):
         """
@@ -498,10 +618,16 @@ class ModelParameters(object):
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
+        if self._Cassan08:
+            self._get_standard_parameters_from_Cassan08()
+            return self._standard_parameters['t_0']
         return self.parameters['t_0']
 
     @t_0.setter
     def t_0(self, new_t_0):
+        if self._Cassan08:
+            raise ValueError('t_0 cannot be set for model using ' +
+                             'Cassan (2008) parameterization')
         self.parameters['t_0'] = new_t_0
         self._update_sources('t_0', new_t_0)
 
@@ -513,6 +639,9 @@ class ModelParameters(object):
         The minimum projected separation between the source
         and the lens center of mass.
         """
+        if self._Cassan08:
+            self._get_standard_parameters_from_Cassan08()
+            return self._standard_parameters['u_0']
         if 'u_0' in self.parameters.keys():
             return self.parameters['u_0']
         else:
@@ -525,6 +654,9 @@ class ModelParameters(object):
 
     @u_0.setter
     def u_0(self, new_u_0):
+        if self._Cassan08:
+            raise ValueError('u_0 cannot be set for model using ' +
+                             'Cassan (2008) parameterization')
         if 'u_0' in self.parameters.keys():
             self.parameters['u_0'] = new_u_0
             self._update_sources('u_0', new_u_0)
@@ -544,6 +676,8 @@ class ModelParameters(object):
         if 't_star' in self.parameters.keys():
             self._check_time_quantity('t_star')
             return self.parameters['t_star'].to(u.day).value
+        elif ('rho' in self.parameters.keys() and self._Cassan08):
+            return self.rho * self.t_E
         else:
             try:
                 return (self.parameters['t_E'].to(u.day).value *
@@ -604,6 +738,9 @@ class ModelParameters(object):
         *float* or *astropy.Quantity*, but always returns *float* in units of
         days.
         """
+        if self._Cassan08:
+            self._get_standard_parameters_from_Cassan08()
+            return self._standard_parameters['t_E']
         if 't_E' in self.parameters.keys():
             self._check_time_quantity('t_E')
             return self.parameters['t_E'].to(u.day).value
@@ -618,6 +755,10 @@ class ModelParameters(object):
 
     @t_E.setter
     def t_E(self, new_t_E):
+        if self._Cassan08:
+            raise ValueError('t_E cannot be set for model using ' +
+                             'Cassan (2008) parameterization')
+
         if new_t_E is None:
             raise ValueError('Must provide a value')
 
@@ -630,23 +771,6 @@ class ModelParameters(object):
         else:
             raise KeyError('t_E is not a parameter of this model.')
 
-    def _set_time_quantity(self, key, new_time):
-        """
-        Save a variable with units of time (e.g. t_E, t_star,
-        t_eff). If units are not given, assume days.
-        """
-        if isinstance(new_time, u.Quantity):
-            self.parameters[key] = new_time
-        else:
-            self.parameters[key] = new_time * u.day
-
-    def _check_time_quantity(self, key):
-        """
-        Make sure that value for give key has quantity, add it if missing.
-        """
-        if not isinstance(self.parameters[key], u.Quantity):
-            self._set_time_quantity(key, self.parameters[key])
-
     @property
     def rho(self):
         """
@@ -658,7 +782,9 @@ class ModelParameters(object):
             return self.parameters['rho']
         elif ('t_star' in self.parameters.keys() and
               't_E' in self.parameters.keys()):
-            return self.t_star/self.t_E
+            return self.t_star / self.t_E
+        elif ('t_star' in self.parameters.keys() and self._Cassan08):
+            return self.t_star / self.t_E
         else:
             return None
 
@@ -686,13 +812,20 @@ class ModelParameters(object):
         set as a *float* --> assumes "deg" is the default unit.
         Regardless of input value, returns value in degrees.
         """
+        if self._Cassan08:
+            self._get_standard_parameters_from_Cassan08()
+            return self._standard_parameters['alpha'] * u.deg
+
         if not isinstance(self.parameters['alpha'], u.Quantity):
             self.parameters['alpha'] = self.parameters['alpha'] * u.deg
-
         return self.parameters['alpha'].to(u.deg)
 
     @alpha.setter
     def alpha(self, new_alpha):
+        if self._Cassan08:
+            raise ValueError('alpha cannot be set for model using ' +
+                             'Cassan (2008) parameterization')
+
         if isinstance(new_alpha, u.Quantity):
             self.parameters['alpha'] = new_alpha
         else:
@@ -865,6 +998,82 @@ class ModelParameters(object):
         else:
             raise KeyError('pi_E not defined for this model')
         return np.sqrt(pi_E_N**2 + pi_E_E**2)
+
+    @property
+    def x_caustic_in(self):
+        """
+        *float*
+
+        Curvelinear coordinate (in `Cassan (2008) parameterization
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_)
+        of caustic entrance for a static binary lens model. See
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`.
+        """
+        return self.parameters['x_caustic_in']
+
+    @x_caustic_in.setter
+    def x_caustic_in(self, new_value):
+        if new_value < 0. or new_value > 1.:
+            msg = "x_caustic_in must be between 0 and 1, not {:}"
+            raise ValueError(msg.format(new_value))
+        self._standard_parameters = None
+        self.parameters['x_caustic_in'] = new_value
+
+    @property
+    def x_caustic_out(self):
+        """
+        *float*
+
+        Curvelinear coordinate (in `Cassan (2008) parameterization
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_)
+        of caustic exit for a static binary lens model. See
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`.
+        """
+        return self.parameters['x_caustic_out']
+
+    @x_caustic_out.setter
+    def x_caustic_out(self, new_value):
+        if new_value < 0. or new_value > 1.:
+            msg = "x_caustic_out must be between 0 and 1, not {:}"
+            raise ValueError(msg.format(new_value))
+        self._standard_parameters = None
+        self.parameters['x_caustic_out'] = new_value
+
+    @property
+    def t_caustic_in(self):
+        """
+        *float*
+
+        Epoch of caustic entrance for a static binary lens model in
+        `Cassan (2008) parameterization
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_)
+        See
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`.
+        """
+        return self.parameters['t_caustic_in']
+
+    @t_caustic_in.setter
+    def t_caustic_in(self, new_value):
+        self._standard_parameters = None
+        self.parameters['t_caustic_in'] = new_value
+
+    @property
+    def t_caustic_out(self):
+        """
+        *float*
+
+        Epoch of caustic exit for a static binary lens model in
+        `Cassan (2008) parameterization
+        <https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract>`_)
+        See
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`.
+        """
+        return self.parameters['t_caustic_out']
+
+    @t_caustic_out.setter
+    def t_caustic_out(self, new_value):
+        self._standard_parameters = None
+        self.parameters['t_caustic_out'] = new_value
 
     @property
     def ds_dt(self):
@@ -1309,6 +1518,27 @@ class ModelParameters(object):
             raise ValueError('source_2_parameters cannot be accessed for ' +
                              'single source models')
         return self._source_2_parameters
+
+    @property
+    def uniform_caustic_sampling(self):
+        """
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`
+
+        An instance of the class
+        :py:class:`~MulensModel.uniformcausticsampling.UniformCausticSampling`
+        that is used to calculate standard parameters based on
+        the curvelinear coordinates.
+        The main usage is access to the *jacobian()* function.
+        In most cases, you do not need to access this property directly.
+        """
+        if not self._Cassan08:
+            raise ValueError(
+                'These parameters are not in curvelinear parameterisation. ' +
+                'Hence you cannot access uniform_caustic_sampling property.')
+
+        self._get_uniform_caustic_sampling()
+
+        return self._uniform_caustic
 
     def as_dict(self):
         """

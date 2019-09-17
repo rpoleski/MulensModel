@@ -41,3 +41,15 @@ def test_mag_and_flux_conversions_2():
         for mag_err in [0.01, 0.001, 0.1]:
             do_mag2flux_conversions_test(mag, mag_err)
 
+def test_n_caustics():
+    """test calculation of number of caustics for binary lens"""
+    q = 0.123
+    s_1 = 0.7605174634
+    s_2 = 0.7605174635
+    s_3 = 1.7289467512
+    s_4 = 1.7289467513
+
+    assert MulensModel.utils.Utils.get_n_caustics(s=s_1, q=q) == 3
+    assert MulensModel.utils.Utils.get_n_caustics(s=s_2, q=q) == 1
+    assert MulensModel.utils.Utils.get_n_caustics(s=s_3, q=q) == 1
+    assert MulensModel.utils.Utils.get_n_caustics(s=s_4, q=q) == 2
