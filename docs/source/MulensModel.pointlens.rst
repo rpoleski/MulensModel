@@ -1,5 +1,5 @@
-MulensModel\.pointlens module
-=============================
+MulensModel.pointlens module
+============================
 
 .. automodule:: MulensModel.pointlens
     :members:

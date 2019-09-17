@@ -1,5 +1,5 @@
-MulensModel\.mulensobjects\.lens module
-=======================================
+MulensModel.mulensobjects.lens module
+=====================================
 
 .. automodule:: MulensModel.mulensobjects.lens
     :members:

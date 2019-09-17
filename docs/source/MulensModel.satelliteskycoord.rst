@@ -1,5 +1,5 @@
-MulensModel\.satelliteskycoord module
-=====================================
+MulensModel.satelliteskycoord module
+====================================
 
 .. automodule:: MulensModel.satelliteskycoord
     :members:

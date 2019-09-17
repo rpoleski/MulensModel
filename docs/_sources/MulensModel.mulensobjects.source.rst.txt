@@ -1,5 +1,5 @@
-MulensModel\.mulensobjects\.source module
-=========================================
+MulensModel.mulensobjects.source module
+=======================================
 
 .. automodule:: MulensModel.mulensobjects.source
     :members:

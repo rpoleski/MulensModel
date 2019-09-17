@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.uniformcausticsampling module &#8212; MulensModel 1.6.3 documentation</title>
+    <title>MulensModel.uniformcausticsampling module &#8212; MulensModel 1.14.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -49,22 +49,26 @@ the Einstein ring size.</dd>
 <dd>Mass ratio of the two lens components.</dd>
 <dt>n_points: <em>int</em></dt>
 <dd>Number of points used for internal integration.
-Default value should work find.</dd>
+Default value should work fine.</dd>
 </dl>
 </dd>
 </dl>
 <p>Instead of standard parameters (<em>t_0</em>, <em>u_0</em>, <em>t_E</em>, <em>alpha</em>), here
 we use four other parameters: two epochs of caustic crossing
 (<em>t_caustic_in</em>, <em>t_caustic_out</em>) and two curvelinear coordinates of
-caustic crossing (<em>x_caustic_in</em>, <em>x_caustic_out</em>). The curvelinear
-coordinates are defined so that going from 0 to 1 draws all caustics
-for given separation and mass ratio (this is different convention than
-in papers cited below). For a wide topology (i.e., 2 caustics), there
-is a value between 0 and 1 which separates the caustics (<span class="math notranslate nohighlight">\({x_sep}\)</span>)
-and a trajectory
+caustic crossing (<em>x_caustic_in</em>, <em>x_caustic_out</em>).</p>
+<p>The curvelinear coordinate, <em>x_caustic</em>,
+is defined so that going from 0 to 1 draws all caustics
+for given separation and mass ratio. We use 0-1 range, which is
+a different convention than
+in the papers cited below (we also use different symbols for
+epochs of caustic crossing and curvelinear coordinates).
+For a wide topology (i.e., 2 caustics), there
+is a value between 0 and 1 (called <code class="docutils literal notranslate"><span class="pre">x_caustic_sep</span></code>) which separates
+the caustics and a trajectory
 exists only if <em>x_caustic_in</em> and <em>x_caustic_out</em> correspond to
-the same caustic, i.e., both are smaller than <span class="math notranslate nohighlight">\(x_{sep}\)</span> or
-both are larger than <span class="math notranslate nohighlight">\(x_{sep}\)</span>. For a close topology
+the same caustic, i.e., both are smaller than <code class="docutils literal notranslate"><span class="pre">x_caustic_sep</span></code> or
+both are larger than <code class="docutils literal notranslate"><span class="pre">x_caustic_sep</span></code>. For a close topology
 (i.e., 3 caustics), there are two such separating values.</p>
 <p>For description of the curvelinear coordinates, see:</p>
 <p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan A. 2008 A&amp;A 491, 587 “An alternative parameterisation for
@@ -72,8 +76,9 @@ binary-lens caustic-crossing events”</a></p>
 <p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010A%26A...515A..52C/abstract">Cassan A. et al. 2010 A&amp;A 515, 52
 “Bayesian analysis of caustic-crossing microlensing events”</a></p>
 <p>In order to visualize the curvelinear coordinates,
-you can run a code like that:</p>
+you can run a code like:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="n">sampling</span> <span class="o">=</span> <span class="n">UniformCausticSampling</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
 <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
 <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">sampling</span><span class="o">.</span><span class="n">caustic_point</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">color</span><span class="p">]</span>
@@ -96,6 +101,11 @@ is symmetric, thus plotted clockwise. For planetary caustics in
 a close topology, the zero-point of <em>x_caustic</em> values is defined
 in a very complicated way, however it is a smooth function of
 <em>s</em> and <em>q</em>.</p>
+<p>For more advanced fitting of binary lens events see:</p>
+<p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2009MNRAS.395..787K/abstract">Kains N. et al. 2009 MNRAS 395, 787
+“A systematic fitting scheme for caustic-crossing microlensing events”</a></p>
+<p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2012MNRAS.426.2228K/abstract">Kains N. et al. 2012 MNRAS 426, 2228 “A Bayesian algorithm for model
+selection applied to caustic-crossing binary-lens microlensing events”</a></p>
 <dl class="method">
 <dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters">
 <code class="descname">get_standard_parameters</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em>, <em>t_caustic_in</em>, <em>t_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters" title="Permalink to this definition">¶</a></dt>
@@ -220,12 +230,9 @@ caustics. Can be <em>1</em>, <em>2</em>, or <em>3</em> but has to be
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check">
-<code class="descname">orientation_check</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.orientation_check" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>TO DO: this function should have different name because we check
-the other condition i.e., if the same caustics are hit;
-maybe just name it check() or check_x_in_x_out()</strong></p>
-<p>Check if given (x_caustic_in, x_caustic_out) define an existing
+<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.check_valid_trajectory">
+<code class="descname">check_valid_trajectory</code><span class="sig-paren">(</span><em>x_caustic_in</em>, <em>x_caustic_out</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.check_valid_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if given (x_caustic_in, x_caustic_out) define an existing
 trajectory. An obvious case, when they don’t is when both caustic
 points are on the same fold, but other cases exists.</p>
 <dl class="docutils">

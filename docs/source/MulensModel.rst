@@ -27,6 +27,7 @@ Submodules
    MulensModel.pointlens
    MulensModel.satelliteskycoord
    MulensModel.trajectory
+   MulensModel.uniformcausticsampling
    MulensModel.utils
    MulensModel.version
 

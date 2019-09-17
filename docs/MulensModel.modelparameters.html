@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.modelparameters module &#8212; MulensModel 1.13.0 documentation</title>
+    <title>MulensModel.modelparameters module &#8212; MulensModel 1.14.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -199,6 +199,44 @@ It is best to fix it at the begin of calculations.</p>
 <code class="descname">pi_E_mag</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_mag" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The magnitude of the microlensing parallax vector.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.x_caustic_in">
+<code class="descname">x_caustic_in</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.x_caustic_in" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Curvelinear coordinate (in <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
+of caustic entrance for a static binary lens model. See
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.x_caustic_out">
+<code class="descname">x_caustic_out</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.x_caustic_out" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Curvelinear coordinate (in <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
+of caustic exit for a static binary lens model. See
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.t_caustic_in">
+<code class="descname">t_caustic_in</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_caustic_in" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Epoch of caustic entrance for a static binary lens model in
+<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
+See
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.t_caustic_out">
+<code class="descname">t_caustic_out</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_caustic_out" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Epoch of caustic exit for a static binary lens model in
+<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
+See
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -424,6 +462,18 @@ source instance.</p>
 <p><strong>Do not change returned values.</strong> To change
 parameters of the source 1, simply change the parameters of double
 source instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling">
+<code class="descname">uniform_caustic_sampling</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a></p>
+<p>An instance of the class
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>
+that is used to calculate standard parameters based on
+the curvelinear coordinates.
+The main usage is access to the <em>jacobian()</em> function.
+In most cases, you do not need to access this property directly.</p>
 </dd></dl>
 
 <dl class="method">
