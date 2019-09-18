@@ -30,10 +30,15 @@ $\alpha$ & {\tt alpha} & deg. & The angle between the source trajectory and the 
 $ds/dt$ & {\tt ds\_dt} & yr$^{-1}$ & The rate of change of the separation. \\
 $d\alpha/dt$ & {\tt dalpha\_dt} & deg.~yr$^{-1}$ & The rate of change of $\alpha$. \\
 $t_{0,{\rm kep}}$ & {\tt t\_0\_kep} & & The reference time for lens orbital motion calculations.$^a$ \\
+$x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caustic entrance for a binary lens model.$^b$ \\
+$x_{\rm caustic, out}$ & {\tt x\_caustic\_out} & & Curvelinear coordinate of caustic exit for a binary lens model.$^b$ \\
+$t_{\rm caustic, in}$ & {\tt t\_caustic\_in} & & Epoch of caustic exit for a binary lens model.$^b$ \\
+$t_{\rm caustic, out}$ & {\tt t\_caustic\_out} & & Epoch of caustic exit for a binary lens model.$^b$ \\
 \hline
 \end{tabular}
-\caption{Notes: 
-$^a$ -- $t_{0,{\rm par}}$ and $t_{0,{\rm kep}}$ are reference parameters, hence, do not change these during fitting.
+\caption{Notes: \newline
+$^a$ -- $t_{0,{\rm par}}$ and $t_{0,{\rm kep}}$ are reference parameters, hence, do not change these during fitting. \newline
+$^b$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x_{\rm caustic, in}$, $x_{\rm caustic, out}$, $t_{\rm caustic, in}$, and $t_{\rm caustic, out}$) are used instead of ($t_0$, $u_0$, $t_{\rm E}$, and $\alpha$).
 %\label{}
 }
 \end{table*}
