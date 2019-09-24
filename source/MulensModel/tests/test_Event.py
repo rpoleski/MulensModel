@@ -304,7 +304,7 @@ def test_event_chi2_binary_source():
     model_2 = Model(model.parameters.source_2_parameters)
 
     # prepare fake data:
-    time = np.linspace(4900., 5200., 600.)
+    time = np.linspace(4900., 5200., 600)
     mag_1 = model_1.magnification(time)
     mag_2 = model_2.magnification(time)
     flux = 100. * mag_1 + 300. * mag_2 + 50.
@@ -333,7 +333,7 @@ def test_event_chi2_binary_source_2datasets():
     model_2 = Model(model.parameters.source_2_parameters)
 
     # prepare fake data:
-    time = np.linspace(4900., 5200., 600.)
+    time = np.linspace(4900., 5200., 600)
     mag_1 = model_1.magnification(time)
     mag_2 = model_2.magnification(time)
     flux = 100. * mag_1 + 300. * mag_2 + 50.

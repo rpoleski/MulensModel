@@ -345,7 +345,7 @@ def test_model_binary_and_finite_sources():
 
     # prepare fake data:
     (f_s_1, f_s_2, f_b) = (100., 300., 50.)
-    time = np.linspace(4900., 5200., 4200.)
+    time = np.linspace(4900., 5200., 4200)
     mag_1 = model_1.magnification(time)
     mag_2 = model_2.magnification(time)
     flux = f_s_1 * mag_1 + f_s_2 * mag_2 + f_b
