@@ -188,9 +188,9 @@ class BinaryLens(object):
         polynomial = self._get_polynomial_WM95(
             source_x=source_x, source_y=source_y)
 
+        np_polyroots = np.polynomial.polynomial.polyroots
         if self._solver == 'numpy':
-            self._polynomial_roots_WM95 = np.polynomial.polynomial.polyroots(
-                                                                    polynomial)
+            self._polynomial_roots_WM95 = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
             args = polynomial.real.tolist() + polynomial.imag.tolist()
             try:
@@ -199,6 +199,7 @@ class BinaryLens(object):
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
                 warnings.warn(str(err) + err2, UserWarning)
                 self._solver = 'numpy'
+                self._polynomial_roots_WM95 = np_polyroots(polynomial)
             else:
                 roots = [out[i] + out[i+5] * 1.j for i in range(5)]
                 self._polynomial_roots_WM95 = np.array(roots)

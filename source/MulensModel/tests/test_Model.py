@@ -345,7 +345,7 @@ def test_model_binary_and_finite_sources():
 
     # prepare fake data:
     (f_s_1, f_s_2, f_b) = (100., 300., 50.)
-    time = np.linspace(4900., 5200, 4200.)
+    time = np.linspace(4900., 5200., 4200.)
     mag_1 = model_1.magnification(time)
     mag_2 = model_2.magnification(time)
     flux = f_s_1 * mag_1 + f_s_2 * mag_2 + f_b
@@ -374,7 +374,7 @@ def test_binary_source_and_fluxes_for_bands():
     model = Model({'t_0_1': 5000., 'u_0_1': 0.05,
                    't_0_2': 5100., 'u_0_2': 0.003, 't_E': 30.})
 
-    times_I = np.linspace(4900., 5200, 3000)
+    times_I = np.linspace(4900., 5200., 3000)
     times_V = np.linspace(4800., 5300, 250)
     (f_s_1_I, f_s_2_I, f_b_I) = (10., 20., 3.)
     (f_s_1_V, f_s_2_V, f_b_V) = (15., 5., 30.)
