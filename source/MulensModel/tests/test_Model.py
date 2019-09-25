@@ -375,7 +375,7 @@ def test_binary_source_and_fluxes_for_bands():
                    't_0_2': 5100., 'u_0_2': 0.003, 't_E': 30.})
 
     times_I = np.linspace(4900., 5200., 3000)
-    times_V = np.linspace(4800., 5300, 250)
+    times_V = np.linspace(4800., 5300., 250)
     (f_s_1_I, f_s_2_I, f_b_I) = (10., 20., 3.)
     (f_s_1_V, f_s_2_V, f_b_V) = (15., 5., 30.)
     q_f_I = f_s_2_I / f_s_1_I

@@ -59,7 +59,7 @@ class Caustics(object):
 
         try:
             plt.scatter(self._x, self._y, **kwargs)
-        except:
+        except Exception:
             print("kwargs passed to plt.scatter():")
             print(kwargs)
             raise

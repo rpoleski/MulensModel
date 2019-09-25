@@ -31,7 +31,7 @@ def read_model_settings(config):
         ra = config.getfloat(section, 'RA')
         dec = config.getfloat(section, 'Dec')
         settings['coords'] = SkyCoord(ra, dec, unit=u.deg)
-    except:
+    except Exception:
         settings['coords'] = None
     return settings
 

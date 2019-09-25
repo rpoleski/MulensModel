@@ -189,7 +189,7 @@ class MulensData(object):
             try:
                 (vector_1, vector_2, vector_3) = np.loadtxt(
                     fname=file_name, unpack=True, usecols=usecols, **kwargs)
-            except:
+            except Exception:
                 print("kwargs passed to np.loadtxt():")
                 print(kwargs)
                 print("usecols =", usecols)
@@ -614,7 +614,7 @@ class MulensData(object):
         """
         try:
             container = plt.errorbar(time, y, yerr=yerr, **kwargs)
-        except:
+        except Exception:
             print("kwargs passed to plt.errorbar():")
             print(kwargs)
             raise
@@ -626,7 +626,7 @@ class MulensData(object):
         """
         try:
             collection = plt.scatter(time, y, **kwargs)
-        except:
+        except Exception:
             print("kwargs passed to plt.scatter():")
             print(kwargs)
             raise

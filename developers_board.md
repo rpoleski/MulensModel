@@ -7,7 +7,7 @@
 6. _binary lens in planet frame_
 7. hack session examples to be renamed, unlinked in README.md
 8. note public data in MM documentation after the paper was published
-9. try/except - give specific exception names
+9. try/except - give specific exception names - DONE
 10. _are we using VBBL with improvements from 2018 paper?_
 11. remove branches: install sat plot\_source C08
 
@@ -287,11 +287,9 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * plt.scatter -> plt.plot; after that we can start unit tests for plt calls
   * check for memory leaks by running long calculations and monitoring RAM usage
 * Style/Architecture:
-  * _PEP8 and exceptions - use specific ones or "except Exception:" (i.e., no E722 in pycodestyle output)_
   * Are we consistent with PEP8? [check here](http://pep8online.com/) or pycodestyle command
   * PEP8 for tests/ (test\_Event is already done: test\_Event test\_ModelParameters test\_Model\_Parallax
   * for examples/
-  * try/except - give specific exception names
   * better import of the module so that all main classes are accessible (use \_\_all\_\_ = [...] in all files?)
   * Utils - Make subpackage/submodules that group related functions (e.g. flux2mag conversions)?
 

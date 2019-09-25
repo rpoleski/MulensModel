@@ -830,7 +830,7 @@ class Model(object):
         """
         try:
             plt.plot(x, y, **kwargs)
-        except:
+        except Exception:
             print("kwargs passed to plt.plot():")
             print(kwargs)
             raise

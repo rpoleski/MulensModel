@@ -253,10 +253,13 @@ class Event(object):
         magnification = self.model.get_data_magnification(dataset)
 
         dataset_in_fit = True
-        try:
-            self.model.fit.flux_of_sources(dataset)
-        except:
+        if self.model.fit is None:
             dataset_in_fit = False
+        else:
+            try:
+                self.model.fit.flux_of_sources(dataset)
+            except KeyError:
+                dataset_in_fit = False
         if self.model.n_sources != 1 and dataset_in_fit:
             self.fit = self.model.fit
         else:
