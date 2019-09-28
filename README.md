@@ -15,9 +15,9 @@ A few useful resources:
 * [**Explanation of microlensing parameters**](documents/parameter_names.pdf)
 * [**Explanation of methods used for calculating magnification**](documents/magnification_methods.pdf)
 * [Examples on how to use the code](examples/):
-  * [**Hack session example 1**](examples/hack_example_1.py),
-  * [**Hack session example 2**](examples/hack_example_2.py), [config reading code](examples/hack_read.py), [first config file](examples/ob05390_v1.cfg), and [second config file](examples/ob05390_v2.cfg),
-  * [*Hack session  example 3*](examples/hack_example_3.py), [config file](examples/mb07192_v1.cfg)
+  * [Hack session example 1](examples/hack_example_1.py),
+  * [Hack session example 2](examples/hack_example_2.py), [config reading code](examples/hack_read.py), [first config file](examples/ob05390_v1.cfg), and [second config file](examples/ob05390_v2.cfg),
+  * [Hack session example 3](examples/hack_example_3.py), [config file](examples/mb07192_v1.cfg)
   * [Example 01](examples/example_01_models.py) - plot simple point-source/point-lens (PSPL) model and model with planetary lens,
   * [Example 02](examples/example_02_fitting.py) - fit PSPL model to the data using scipy.optimize.minimize(),
   * [Example 03](examples/example_03_mulenssystem.py) - define PSPL model using physical properties and plot the resulting magnification curve,
@@ -27,9 +27,11 @@ A few useful resources:
   * [Example 07](examples/example_07_fit_parallax_MN.py) - fit parallax model using MultiNest,
   * [Example 08](examples/example_08_planet_grid_fitting.ipynb) - shows how to fit simulated WFIRST light curve with planetary model,
   * [Example 09](examples/example_09_gradient_fitting.py) - fit point lens model using chi^2 gradient,
-  * [Example 10](examples/example_10_fitting_and_fluxes.py) - fit model and extract posterior fluxes, **use config file [this one](examples/example_10.cfg) to pass all parameters**,
+  * [Example 10](examples/example_10_fitting_and_fluxes.py) - fit model and extract posterior fluxes, **use [config file](examples/example_10.cfg) to pass all parameters**,
   * [Example 11](examples/example_11_binary_source.py) - simulate and fit binary source event,
-  * [Example 12](examples/example_12_fit_satellite_parallax_EMCEE.py) - fit parallax model to ground and satellite data, plot models and trajectories at the end.
+  * [Example 12](examples/example_12_fit_satellite_parallax_EMCEE.py) - fit parallax model to ground and satellite data, plot models and trajectories at the end,
+  * [Example 13](examples/example_13_caustic_sampling.py) - fit planetary event using caustic entrance and exit epochs as parameters (uses [config file](examples/example_13.cfg)),
+  * [Example 14](WFIRST/MulensModel/examples/example_14_caustic_plotting.py) - plot caustic using standard method and uniform sampling.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
 [Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 

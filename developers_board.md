@@ -1,7 +1,7 @@
 ## Sep/Oct goals:
 1. make plans for MM v2.0
 2. get pypi/pip website
-3. README - note 2 new examples
+3. README - note 2 new examples - DONE
 4. list of examples in a separate file, change order 01<->02
 5. utils.py docstrings
 6. _binary lens in planet frame_
