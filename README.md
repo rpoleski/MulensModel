@@ -31,7 +31,7 @@ A few useful resources:
   * [Example 11](examples/example_11_binary_source.py) - simulate and fit binary source event,
   * [Example 12](examples/example_12_fit_satellite_parallax_EMCEE.py) - fit parallax model to ground and satellite data, plot models and trajectories at the end,
   * [Example 13](examples/example_13_caustic_sampling.py) - fit planetary event using caustic entrance and exit epochs as parameters (uses [config file](examples/example_13.cfg)),
-  * [Example 14](WFIRST/MulensModel/examples/example_14_caustic_plotting.py) - plot caustic using standard method and uniform sampling.
+  * [Example 14](examples/example_14_caustic_plotting.py) - plot caustic using standard method and uniform sampling.
 * [Instructions on getting satellite positions](documents/Horizons_manual.md)
 
 [Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
