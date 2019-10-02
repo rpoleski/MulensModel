@@ -270,11 +270,11 @@ class MulensData(object):
         if phot_fmt == "mag":
             self._mag = self._brightness_input
             self._err_mag = self._brightness_input_err
-            (self.flux, self.err_flux) = Utils.get_flux_and_err_from_mag(
+            (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
                 mag=self.mag, err_mag=self.err_mag)
         elif phot_fmt == "flux":
-            self.flux = self._brightness_input
-            self.err_flux = self._brightness_input_err
+            self._flux = self._brightness_input
+            self._err_flux = self._brightness_input_err
             self._mag = None
             self._err_mag = None
         else:
