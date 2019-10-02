@@ -3,13 +3,13 @@
 2. get pypi/pip website
 3. README - note 2 new examples - DONE
 4. list of examples in a separate file, change order 01<->02
-5. utils.py docstrings
+5. utils.py docstrings - ALMOST DONE (2 left)
 6. _binary lens in planet frame_
 7. hack session examples to be renamed, unlinked in README.md
 8. note public data in MM documentation after the paper was published
 9. try/except - give specific exception names - DONE
 10. _are we using VBBL with improvements from 2018 paper?_
-11. remove branches: install sat plot\_source C08
+11. remove branches: install sat plot\_source C08 - DONE
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users

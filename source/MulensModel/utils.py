@@ -30,20 +30,69 @@ class Utils(object):
     """ A number of small functions used in different places """
 
     def get_flux_from_mag(mag, zeropoint=MAG_ZEROPOINT):
-        """ transform magnitudes into fluxes """
+        """
+        Transform magnitudes into fluxes.
+
+        Parameters :
+            mag: *np.ndarray* or *float*
+                Values to be transformed.
+
+            zeropoint: *float*
+                Zeropoint of magnitude scale.
+                Defaults to 22. - double check if you want to change this.
+
+        Returns :
+            flux: *np.ndarray* or *float*
+                Calculated fluxes. Type is the same as *mag* parameter.
+        """
         flux = 10. ** (0.4 * (zeropoint - mag))
         return flux
     get_flux_from_mag = staticmethod(get_flux_from_mag)
 
     def get_flux_and_err_from_mag(mag, err_mag, zeropoint=MAG_ZEROPOINT):
-        """ transform magnitudes into fluxes including errorbars """
+        """
+        Transform magnitudes and their uncertainties into flux space.
+
+        Parameters :
+            mag: *np.ndarray* or *float*
+                Magnitude values to be transformed.
+
+            err_mag: *np.ndarray* or *float*
+                Uncertainties of magnitudes to be transformed.
+
+            zeropoint: *float*
+                Zeropoint of magnitude scale.
+                Defaults to 22. - double check if you want to change this.
+
+        Returns :
+            flux: *np.ndarray* or *float*
+                Calculated fluxes. Type is the same as *mag* parameter.
+
+            err_flux: *np.ndarray* or *float*
+                Calculated flux uncertainties. Type is *float* if both *mag*
+                and *err_mag* are *floats* and *np.ndarray* otherwise.
+        """
         flux = 10. ** (0.4 * (zeropoint - mag))
         err_flux = err_mag * flux * np.log(10.) * 0.4
         return (flux, err_flux)
     get_flux_and_err_from_mag = staticmethod(get_flux_and_err_from_mag)
 
     def get_mag_from_flux(flux, zeropoint=MAG_ZEROPOINT):
-        """ transform fluxes into magnitudes """
+        """
+        Transform fluxes into magnitudes.
+
+        Parameters :
+            flux: *np.ndarray* or *float*
+                Values to be transformed.
+
+            zeropoint: *float*
+                Zeropoint of magnitude scale.
+                Defaults to 22. - double check if you want to change this.
+
+        Returns :
+            mag: *np.ndarray* or *float*
+                Calculated fluxes. Type is the same as *flux* parameter.
+        """
         if np.any(flux <= 0.):
             warnings.warn(
                 "Flux to magnitude conversion approached negative flux",
@@ -53,7 +102,28 @@ class Utils(object):
     get_mag_from_flux = staticmethod(get_mag_from_flux)
 
     def get_mag_and_err_from_flux(flux, err_flux, zeropoint=MAG_ZEROPOINT):
-        """ transform fluxes into magnitudes including errorbars """
+        """
+        Transform fluxes and their uncertainties into magnitude space.
+
+        Parameters :
+            flux: *np.ndarray* or *float*
+                Flux values to be transformed.
+
+            err_flux: *np.ndarray* or *float*
+                Uncertainties of fluxes to be transformed.
+
+            zeropoint: *float*
+                Zeropoint of magnitude scale.
+                Defaults to 22. - double check if you want to change this.
+
+        Returns :
+            mag: *np.ndarray* or *float*
+                Calculated fluxes. Type is the same as *mag* parameter.
+
+            err_mag: *np.ndarray* or *float*
+                Calculated magnitude uncertainties. Type is *float* if both
+                *flux* and *err_flux* are *floats* and *np.ndarray* otherwise.
+        """
         if np.any(flux <= 0.):
             warnings.warn(
                 "Flux to magnitude conversion approached negative flux",
@@ -65,8 +135,14 @@ class Utils(object):
 
     def complex_fsum(arguments):
         """
-        accurate floating points sum of complex numbers in iterable
-        arguments
+        Accurate floating points sum of complex numbers in iterable.
+
+        Parameters :
+            arguments: *iterable* (e.g., *list* or *np.ndarray*)
+
+        Returns :
+            sum: *complex*
+                Sum of *arguments*.
         """
         real = [arg.real for arg in arguments]
         imag = [arg.imag for arg in arguments]
@@ -74,15 +150,39 @@ class Utils(object):
     complex_fsum = staticmethod(complex_fsum)
 
     def dot(cartesian, vector):
-        """ dot product of Astropy CartersianRepresentation and np.ndarray """
+        """
+        Dot product of 2 vectors represented by
+        *astropy.CartesianRepresentation* and *np.ndarray*.
+
+        Parameters :
+            cartesian: *astropy.CartesianRepresentation*
+                First vector.
+
+            vector: *np.ndarray*
+                Second vector (length 3).
+
+        Returns :
+            dot_product: *astropy.Quantity*
+                Dot product of inputs.
+        """
         return (cartesian.x * vector[0] + cartesian.y * vector[1] +
                 cartesian.z * vector[2])
     dot = staticmethod(dot)
 
     def vector_product_normalized(vector_1, vector_2):
         """
-        get vector that is perpendicular to the 2 above and is
-        normalized
+        Get vector that is perpendicular to the 2 input ones and is normalized.
+
+        Parameters :
+            vector_1: *np.ndarray* (3,)
+                First vector.
+
+            vector_2: *np.ndarray* (3,)
+                Second vector.
+
+        Returns :
+            vector_product_norm: *np.ndarray* (3,)
+                Normalized vector product of the inputs.
         """
         vector_product = np.cross(vector_1, vector_2)
         return vector_product / np.linalg.norm(vector_product)
@@ -126,7 +226,16 @@ class Utils(object):
 
     def date_change(text):
         """
-        changes format: '2015-Oct-30 12:00' -> '2015-10-30 12:00'
+        Change format of month in date, e.g.
+        *'2015-Oct-30 12:00'* -> *'2015-10-30 12:00'*
+
+        Parameters :
+            text: *str*
+                Date to be changed.
+
+        Returns :
+            out_text: *str*
+                Changed text.
         """
         text = text.decode('UTF-8')
         str_components = text.split('-')
@@ -170,8 +279,15 @@ class Utils(object):
 
     def astropy_version_check(minimum):
         """
-        check if astropy is installed at given or later version (input
-        as a string)
+        Check if *astropy* package is installed at given or later version.
+
+        Parameters :
+            minimum: *str*
+                Minimum version, e.g., *'3.1.2'*.
+
+        Returns :
+            out: *bool*
+                Is the installed version later?
         """
         current = astropy__version__.split(".")
         required = minimum.split(".")

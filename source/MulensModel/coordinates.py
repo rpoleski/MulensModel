@@ -104,8 +104,8 @@ class Coordinates(SkyCoord):
         """
         direction = np.array(self.cartesian.xyz.value)
         north = np.array([0., 0., 1.])
-        east_projected = np.cross(north, direction)
-        self._east_projected = east_projected / np.linalg.norm(east_projected)
+        self._east_projected = Utils.vector_product_normalized(
+            north, direction)
         self._north_projected = np.cross(direction, self._east_projected)
 
     def v_Earth_projected(self, full_BJD):
