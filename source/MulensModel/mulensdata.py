@@ -281,206 +281,6 @@ class MulensData(object):
             msg = 'unknown brightness format in MulensData'
             raise ValueError(msg)
 
-    @property
-    def bad(self):
-        """
-        *np.ndarray boolean*
-
-        flags marking bad data
-        """
-        return self._bad
-
-    @bad.setter
-    def bad(self, new_value):
-        new_value = np.asarray(new_value)
-        if not ((new_value == False) | (new_value == True)).all():
-            raise TypeError("MulensData.bad has to be a boolean numpy array")
-        self._bad = new_value
-        self._good = np.logical_not(self._bad)
-
-    @property
-    def good(self):
-        """
-        *np.ndarray boolean*
-
-        flags marking good data i.e., opposite to :py:func:`bad`
-        """
-        return self._good
-
-    @good.setter
-    def good(self, new_value):
-        new_value = np.asarray(new_value)
-        if not ((new_value == False) | (new_value == True)).all():
-            raise TypeError("MulensData.good has to be a boolean numpy array")
-        self._good = new_value
-        self._bad = np.logical_not(self._good)
-
-    @property
-    def time(self):
-        """
-        *np.ndarray*
-
-        vector of dates
-        """
-        return self._time
-
-    @property
-    def mag(self):
-        """
-        *np.ndarray*
-
-        magnitude vector
-        """
-        if self._mag is None:
-            (self._mag, self._err_mag) = Utils.get_mag_and_err_from_flux(
-                flux=self.flux, err_flux=self.err_flux)
-        return self._mag
-
-    @property
-    def err_mag(self):
-        """
-        *np.ndarray*
-
-        vector of magnitude errors
-        """
-        if self._err_mag is None:
-            self.mag
-        return self._err_mag
-
-    @property
-    def coords(self):
-        """
-        see :py:class:`~MulensModel.coordinates.Coordinates`
-        """
-        return self._coords
-
-    @coords.setter
-    def coords(self, new_value):
-        self._coords = Coordinates(new_value)
-
-    @property
-    def n_epochs(self):
-        """
-        *int*
-
-        give total number of epochs (including bad data)
-        """
-        return self._n_epochs
-
-    def data_and_err_in_input_fmt(self):
-        """
-        Gives photometry in input format (mag or flux).
-
-        Returns :
-            data: *np.ndarray*
-                Magnitudes or fluxes
-
-            data_err: *np.ndarray*
-                Uncertainties of magnitudes or of fluxes
-
-        """
-        if self.input_fmt == "mag":
-            data = self.mag
-            err_data = self.err_mag
-        elif self.input_fmt == "flux":
-            data = self.flux
-            err_data = self.err_flux
-        else:
-            raise ValueError('Unrecognized data format: {:}'.format(
-                    self.input_fmt))
-
-        return (data, err_data)
-
-    def data_and_err_in_chi2_fmt(self):
-        """
-        Gives photometry in format used for chi2 calculation
-        (flux in most cases, but magnitude possible).
-
-        Returns :
-            data: *np.ndarray*
-                Magnitudes or fluxes
-
-            data_err: *np.ndarray*
-                Uncertainties of magnitudes or of fluxes
-
-        """
-        if self.chi2_fmt == "mag":
-            data = self.mag
-            err_data = self.err_mag
-        elif self.chi2_fmt == "flux":
-            data = self.flux
-            err_data = self.err_flux
-        else:
-            raise ValueError('Unrecognized data format: {:}'.format(
-                    self.chi2_fmt))
-
-        return (data, err_data)
-
-    @property
-    def satellite_skycoord(self):
-        """
-        *Astropy.SkyCoord* object for satellite
-        positions at epochs covered by the dataset
-
-        Returns :
-            skycoord: *astropy.coordinates.SkyCoord*
-                satellite positions at epochs covered by the dataset
-        """
-        if self.ephemerides_file is None:
-            raise ValueError('ephemerides_file is not defined.')
-
-        if self._satellite_skycoord is None:
-            satellite_skycoord = SatelliteSkyCoord(
-                ephemerides_file=self.ephemerides_file)
-            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(
-                self._time)
-
-        return self._satellite_skycoord
-
-    @property
-    def bandpass(self):
-        """
-        *String*
-
-        Bandpass of given dataset (primary usage is limb darkening), e.g. 'I'
-        or 'V'. Returns *None* if not set.
-        """
-        return self._bandpass
-
-    @bandpass.setter
-    def bandpass(self, value):
-        if self._limb_darkening_weights is not None:
-            raise ValueError(
-                "Limb darkening weights were already set - you" +
-                "cannot bandpass now.")
-        self._bandpass = value
-
-    def set_limb_darkening_weights(self, weights):
-        """
-        Save a dictionary of weights that will be used to evaluate the
-        limb darkening coefficient. See also
-        :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
-
-        Parameters :
-            weights: *dict*
-                A dictionary that specifies weight for each
-                bandpass. Keys are *str* and values are *float*, e.g.,
-                ``{'I': 1.5, 'V': 1.}`` if the I-band gamma
-                limb-darkening coefficient is 1.5-times larger than
-                the V-band.
-
-        """
-        if self.bandpass is not None:
-            raise ValueError(
-                "Don't try to run MMulensData.set_limb_darkening_weights() " +
-                "after bandpass was provided")
-        if not isinstance(weights, dict):
-            raise TypeError(
-                "MulensData.set_limb_darkening_weights() " +
-                "parameter has to be dict, not {:}".format(type(weights)))
-
-        self._limb_darkening_weights = weights
-
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False,
              model=None, plot_residuals=False, **kwargs):
@@ -608,39 +408,6 @@ class MulensData(object):
             if ymax > ymin:
                 plt.gca().invert_yaxis()
 
-    def _plt_errorbar(self, time, y, yerr, kwargs):
-        """
-        save run of matplotlib.pyplot.errorbar(); returns ErrorbarContainer
-        """
-        try:
-            container = plt.errorbar(time, y, yerr=yerr, **kwargs)
-        except Exception:
-            print("kwargs passed to plt.errorbar():")
-            print(kwargs)
-            raise
-        return container
-
-    def _plt_scatter(self, time, y, kwargs):
-        """
-        save run of matplotlib.pyplot.scatter(); returns PathCollection
-        """
-        try:
-            collection = plt.scatter(time, y, **kwargs)
-        except Exception:
-            print("kwargs passed to plt.scatter():")
-            print(kwargs)
-            raise
-        return collection
-
-    def _get_y_value_y_err(self, phot_fmt, flux, flux_err):
-        """
-        just calculate magnitudes if needed, or return input otherwise
-        """
-        if phot_fmt == 'mag':
-            return Utils.get_mag_and_err_from_flux(flux, flux_err)
-        else:
-            return (flux, flux_err)
-
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
         Set plot properties using ``**kwargs`` and
@@ -702,3 +469,261 @@ class MulensData(object):
             properties.pop(remove_key, None)
 
         return properties
+
+    def _plt_errorbar(self, time, y, yerr, kwargs):
+        """
+        save run of matplotlib.pyplot.errorbar(); returns ErrorbarContainer
+        """
+        try:
+            container = plt.errorbar(time, y, yerr=yerr, **kwargs)
+        except Exception:
+            print("kwargs passed to plt.errorbar():")
+            print(kwargs)
+            raise
+        return container
+
+    def _plt_scatter(self, time, y, kwargs):
+        """
+        save run of matplotlib.pyplot.scatter(); returns PathCollection
+        """
+        try:
+            collection = plt.scatter(time, y, **kwargs)
+        except Exception:
+            print("kwargs passed to plt.scatter():")
+            print(kwargs)
+            raise
+        return collection
+
+    def _get_y_value_y_err(self, phot_fmt, flux, flux_err):
+        """
+        just calculate magnitudes if needed, or return input otherwise
+        """
+        if phot_fmt == 'mag':
+            return Utils.get_mag_and_err_from_flux(flux, flux_err)
+        else:
+            return (flux, flux_err)
+
+    def set_limb_darkening_weights(self, weights):
+        """
+        Save a dictionary of weights that will be used to evaluate the
+        limb darkening coefficient. See also
+        :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+
+        Parameters :
+            weights: *dict*
+                A dictionary that specifies weight for each
+                bandpass. Keys are *str* and values are *float*, e.g.,
+                ``{'I': 1.5, 'V': 1.}`` if the I-band gamma
+                limb-darkening coefficient is 1.5-times larger than
+                the V-band.
+
+        """
+        if self.bandpass is not None:
+            raise ValueError(
+                "Don't try to run MMulensData.set_limb_darkening_weights() " +
+                "after bandpass was provided")
+        if not isinstance(weights, dict):
+            raise TypeError(
+                "MulensData.set_limb_darkening_weights() " +
+                "parameter has to be dict, not {:}".format(type(weights)))
+
+        self._limb_darkening_weights = weights
+
+    @property
+    def coords(self):
+        """
+        see :py:class:`~MulensModel.coordinates.Coordinates`
+        """
+        return self._coords
+
+    @coords.setter
+    def coords(self, new_value):
+        self._coords = Coordinates(new_value)
+
+
+    @property
+    def time(self):
+        """
+        *np.ndarray*
+
+        vector of dates
+        """
+        return self._time
+
+    @property
+    def mag(self):
+        """
+        *np.ndarray*
+
+        magnitude vector
+        """
+        if self._mag is None:
+            (self._mag, self._err_mag) = Utils.get_mag_and_err_from_flux(
+                flux=self.flux, err_flux=self.err_flux)
+        return self._mag
+
+    @property
+    def err_mag(self):
+        """
+        *np.ndarray*
+
+        vector of magnitude errors
+        """
+        if self._err_mag is None:
+            self.mag
+        return self._err_mag
+
+
+    @property
+    def flux(self):
+        """
+        *np.ndarray*
+
+        flux vector
+        """
+        if self._flux is None:
+            (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
+                mag=self.mag, err_mag=self.err_mag)
+        return self._flux
+
+    @property
+    def err_flux(self):
+        """
+        *np.ndarray*
+
+        vector of flux errors
+        """
+        if self._err_flux is None:
+            self.flux
+        return self._err_flux
+
+    @property
+    def bad(self):
+        """
+        *np.ndarray boolean*
+
+        flags marking bad data
+        """
+        return self._bad
+
+    @bad.setter
+    def bad(self, new_value):
+        new_value = np.asarray(new_value)
+        if not ((new_value == False) | (new_value == True)).all():
+            raise TypeError("MulensData.bad has to be a boolean numpy array")
+        self._bad = new_value
+        self._good = np.logical_not(self._bad)
+
+    @property
+    def good(self):
+        """
+        *np.ndarray boolean*
+
+        flags marking good data i.e., opposite to :py:func:`bad`
+        """
+        return self._good
+
+    @good.setter
+    def good(self, new_value):
+        new_value = np.asarray(new_value)
+        if not ((new_value == False) | (new_value == True)).all():
+            raise TypeError("MulensData.good has to be a boolean numpy array")
+        self._good = new_value
+        self._bad = np.logical_not(self._good)
+
+    @property
+    def n_epochs(self):
+        """
+        *int*
+
+        give total number of epochs (including bad data)
+        """
+        return self._n_epochs
+
+    def data_and_err_in_input_fmt(self):
+        """
+        Gives photometry in input format (mag or flux).
+
+        Returns :
+            data: *np.ndarray*
+                Magnitudes or fluxes
+
+            data_err: *np.ndarray*
+                Uncertainties of magnitudes or of fluxes
+
+        """
+        if self.input_fmt == "mag":
+            data = self.mag
+            err_data = self.err_mag
+        elif self.input_fmt == "flux":
+            data = self.flux
+            err_data = self.err_flux
+        else:
+            raise ValueError('Unrecognized data format: {:}'.format(
+                    self.input_fmt))
+
+        return (data, err_data)
+
+    def data_and_err_in_chi2_fmt(self):
+        """
+        Gives photometry in format used for chi2 calculation
+        (flux in most cases, but magnitude possible).
+
+        Returns :
+            data: *np.ndarray*
+                Magnitudes or fluxes
+
+            data_err: *np.ndarray*
+                Uncertainties of magnitudes or of fluxes
+
+        """
+        if self.chi2_fmt == "mag":
+            data = self.mag
+            err_data = self.err_mag
+        elif self.chi2_fmt == "flux":
+            data = self.flux
+            err_data = self.err_flux
+        else:
+            raise ValueError('Unrecognized data format: {:}'.format(
+                    self.chi2_fmt))
+
+        return (data, err_data)
+
+    @property
+    def bandpass(self):
+        """
+        *String*
+
+        Bandpass of given dataset (primary usage is limb darkening), e.g. 'I'
+        or 'V'. Returns *None* if not set.
+        """
+        return self._bandpass
+
+    @bandpass.setter
+    def bandpass(self, value):
+        if self._limb_darkening_weights is not None:
+            raise ValueError(
+                "Limb darkening weights were already set - you" +
+                "cannot bandpass now.")
+        self._bandpass = value
+
+    @property
+    def satellite_skycoord(self):
+        """
+        *Astropy.SkyCoord* object for satellite
+        positions at epochs covered by the dataset
+
+        Returns :
+            skycoord: *astropy.coordinates.SkyCoord*
+                satellite positions at epochs covered by the dataset
+        """
+        if self.ephemerides_file is None:
+            raise ValueError('ephemerides_file is not defined.')
+
+        if self._satellite_skycoord is None:
+            satellite_skycoord = SatelliteSkyCoord(
+                ephemerides_file=self.ephemerides_file)
+            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(
+                self._time)
+
+        return self._satellite_skycoord
