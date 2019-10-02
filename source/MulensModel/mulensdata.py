@@ -107,23 +107,6 @@ class MulensData(object):
                 show_bad: *boolean*, optional
                     Whether or not to plot data points flagged as bad.
 
-    Attributes :
-
-        flux: *numpy.ndarray*
-            The measured brightness in flux units.
-
-        err_flux: *numpy.ndarray*
-            Uncertainties of *flux* values.
-
-        input_fmt: *str* ('mag', 'flux')
-            Input format - same as *phot_fmt* keyword in __init__.
-
-        chi2_fmt: *str* ('mag', 'flux')
-            Photometry format used for chi^2 calculations. Default is 'flux'.
-
-        ephemerides_file: *str*
-            File with satellite ephemeris.
-
     .. _instructions:
         https://github.com/rpoleski/MulensModel/blob/master/documents/Horizons_manual.md
 
@@ -144,7 +127,7 @@ class MulensData(object):
         self._init_keys = {'add245': add_2450000, 'add246': add_2460000}
         self._limb_darkening_weights = None
         self.bandpass = bandpass
-        self.chi2_fmt = chi2_fmt
+        self._chi2_fmt = chi2_fmt
 
         # Set the coords (if applicable)...
         coords_msg = 'Must specify both or neither of ra and dec'
@@ -220,7 +203,7 @@ class MulensData(object):
             self.bad = self.n_epochs * [False]
 
         # Set up satellite properties (if applicable)
-        self.ephemerides_file = ephemerides_file
+        self._ephemerides_file = ephemerides_file
 
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
@@ -264,7 +247,7 @@ class MulensData(object):
         # Store the photometry
         self._brightness_input = brightness
         self._brightness_input_err = err_brightness
-        self.input_fmt = phot_fmt
+        self._input_fmt = phot_fmt
 
         # Create the complementary photometry (mag --> flux, flux --> mag)
         if phot_fmt == "mag":
@@ -577,9 +560,8 @@ class MulensData(object):
     @property
     def flux(self):
         """
-        *np.ndarray*
-
-        flux vector
+        *numpy.ndarray*
+        Vector of the measured brightness in flux units.
         """
         if self._flux is None:
             (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
@@ -590,8 +572,7 @@ class MulensData(object):
     def err_flux(self):
         """
         *np.ndarray*
-
-        vector of flux errors
+        Vector of uncertainties of *flux* values.
         """
         if self._err_flux is None:
             self.flux
@@ -727,3 +708,27 @@ class MulensData(object):
                 self._time)
 
         return self._satellite_skycoord
+
+    @property
+    def input_fmt(self):
+        """
+        *str * ('mag', 'flux')
+        Input format - same as *phot_fmt * keyword in __init__.
+        """
+        return self._input_fmt
+
+    @property
+    def chi2_fmt(self):
+        """
+        *str * ('mag', 'flux')
+        Photometry format used  for chi ^ 2 calculations.Default is 'flux'.
+        """
+        return self._chi2_fmt
+
+    @property
+    def ephemerides_file(self):
+        """
+        *str *
+        File with satellite ephemeris.
+        """
+        return self._ephemerides_file

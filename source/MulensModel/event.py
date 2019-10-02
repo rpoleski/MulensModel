@@ -37,15 +37,11 @@ class Event(object):
             Coordinates of the event. If *str*, then needs format accepted by
             astropy.SkyCoord_ e.g., ``'18:00:00 -30:00:00'``.
 
-    Attributes :
-
-
-
 
     The datasets can be in magnitude or flux spaces. When we calculate chi^2
-    we do it in the same space as the dataset considered. If dataset is in
-    magnitude space and model results in negative flux, then we calculate chi^2
-    in flux space but only for the epochs with negative model flux.
+    we do it in flux space. If dataset is in magnitude space and model results
+    in negative flux, then we calculate chi^2 in flux space but only for the
+    epochs with negative model flux.
 
     .. _astropy.SkyCoord:
       http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
