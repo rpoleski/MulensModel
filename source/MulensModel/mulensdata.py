@@ -523,7 +523,6 @@ class MulensData(object):
     def coords(self, new_value):
         self._coords = Coordinates(new_value)
 
-
     @property
     def time(self):
         """
@@ -555,7 +554,6 @@ class MulensData(object):
         if self._err_mag is None:
             self.mag
         return self._err_mag
-
 
     @property
     def flux(self):
@@ -712,15 +710,17 @@ class MulensData(object):
     @property
     def input_fmt(self):
         """
-        *str * ('mag', 'flux')
-        Input format - same as *phot_fmt * keyword in __init__.
+        *str* ('mag' or 'flux')
+
+        Input format - same as *phot_fmt* keyword in __init__.
         """
         return self._input_fmt
 
     @property
     def chi2_fmt(self):
         """
-        *str * ('mag', 'flux')
+        *str* ('mag' or 'flux')
+
         Photometry format used  for chi ^ 2 calculations.Default is 'flux'.
         """
         return self._chi2_fmt
@@ -728,7 +728,8 @@ class MulensData(object):
     @property
     def ephemerides_file(self):
         """
-        *str *
+        *str*
+
         File with satellite ephemeris.
         """
         return self._ephemerides_file

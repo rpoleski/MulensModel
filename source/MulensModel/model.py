@@ -765,7 +765,6 @@ class Model(object):
         if show_data:
             self.plot_source_for_datasets()
 
-
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):
         """
@@ -1080,7 +1079,6 @@ class Model(object):
             if self._methods is None:
                 self._methods = {}
             self._methods[source] = methods
-
 
     def get_magnification_methods(self):
         """
@@ -1456,7 +1454,6 @@ class Model(object):
             raise ValueError('strange number of sources: {:}'.format(
                     self.n_sources))
         return magnification
-
 
     def _magnification_1_source(self, time, satellite_skycoord, gamma):
         """
