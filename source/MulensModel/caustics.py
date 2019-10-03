@@ -54,7 +54,7 @@ class Caustics(object):
         """
         if "linewidths" not in kwargs and "lw" not in kwargs:
             kwargs["lw"] = 0.
-        if self._x is None:
+        if self._x is None or len(self._x) != n_points:
             self._calculate(n_points=n_points)
 
         try:
