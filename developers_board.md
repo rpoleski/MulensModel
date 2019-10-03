@@ -3,7 +3,7 @@
 2. get pypi/pip website
 3. README - note 2 new examples - DONE
 4. list of examples in a separate file, change order 01<->02
-5. utils.py docstrings - ALMOST DONE (2 left)
+5. utils.py docstrings - DONE
 6. _binary lens in planet frame_
 7. hack session examples to be renamed, unlinked in README.md
 8. note public data in MM documentation after the paper was published

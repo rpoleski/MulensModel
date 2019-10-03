@@ -192,12 +192,36 @@ class Utils(object):
     # An et al. 2002 (ApJ 572, 521)
     # https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract
     def gamma_to_u(gamma):
-        """ transform gamma limb darkening coefficient to u """
+        """
+        Transform gamma limb darkening coefficient to u in convention
+        introduced by `An et al. 2008 (ApJ 681, 1593)
+        <https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract>`_.
+
+        Parameters :
+            gamma: *float*
+                Limb darkening coefficient in gamma convention.
+
+        Returns :
+            u: *float*
+                Limb darkening coefficient in u convention.
+        """
         return 3. * gamma / (2. + gamma)
     gamma_to_u = staticmethod(gamma_to_u)
 
     def u_to_gamma(u):
-        """ transform u limb darkening coefficient to gamma """
+        """
+        Transform u limb darkening coefficient to gamma in convention
+        introduced by `An et al. 2008 (ApJ 681, 1593)
+        <https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract>`_.
+
+        Parameters :
+            u: *float*
+                Limb darkening coefficient in u convention.
+
+        Returns :
+            gamma: *float*
+                Limb darkening coefficient in gamma convention.
+        """
         return (2. * u) / (3. - u)
     u_to_gamma = staticmethod(u_to_gamma)
 
@@ -223,6 +247,7 @@ class Utils(object):
             return 3
         else:
             return 1
+    get_n_caustics = staticmethod(get_n_caustics)
 
     def date_change(text):
         """
@@ -295,3 +320,4 @@ class Utils(object):
             if int(current[i]) < int(required[i]):
                 return False
         return True
+    astropy_version_check = staticmethod(astropy_version_check)
