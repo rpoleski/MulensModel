@@ -803,6 +803,8 @@ class Model(object):
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
+        elif isinstance(times, list):
+            times = np.array(times)
 
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
@@ -1307,6 +1309,9 @@ class Model(object):
         """
         Plots trajectory of a single source.
         """
+        if len(times) < 2:
+            raise ValueError('Trajectory can be plotted when at least two ' +
+                             'epochs are provided.')
         trajectory = Trajectory(
             times, parameters=parameters, parallax=self._parallax,
             coords=self._coords, satellite_skycoord=satellite_skycoord)
@@ -1314,7 +1319,10 @@ class Model(object):
         self._plt_plot(trajectory.x, trajectory.y, kwargs)
 
         if arrow:
-            index = int(len(times)/2)
+            if len(times) > 2:
+                index = int(len(times)/2)
+            else:
+                index = 0
             x_0 = trajectory.x[index]
             y_0 = trajectory.y[index]
             d_x = trajectory.x[index+1] - x_0
