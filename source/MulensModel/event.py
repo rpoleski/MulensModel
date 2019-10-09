@@ -39,7 +39,9 @@ class Event(object):
 
 
     The datasets can be in magnitude or flux spaces. When we calculate chi^2
-    we do it in flux space. If dataset is in magnitude space and model results
+    we do it in magnitude or flux space depending on value of
+    :py:attr:`~MulensModel.mulensdata.MulensData.chi2_fmt` attribute.
+    If dataset is in magnitude space and model results
     in negative flux, then we calculate chi^2 in flux space but only for the
     epochs with negative model flux.
 
