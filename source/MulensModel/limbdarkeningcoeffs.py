@@ -34,20 +34,6 @@ class LimbDarkeningCoeffs(object):
         """
         self._gammas_for_band[bandpass] = gamma
 
-    def set_limb_coeff_u(self, bandpass, u):
-        """
-        Remembers limb darkening *u* coefficient for given band
-
-        Parameters :
-            bandpass: *str*
-                Name of the filter.
-
-            u: *float*
-                The value of *u* coefficient.
-
-        """
-        self._gammas_for_band[bandpass] = Utils.u_to_gamma(u)
-
     def get_limb_coeff_gamma(self, bandpass):
         """
         Gives limb darkening gamma coefficient for given band.
@@ -69,6 +55,21 @@ class LimbDarkeningCoeffs(object):
                    ' not set LD coeff for this filter')
             raise KeyError(msg.format(bandpass))
         return gamma
+
+    def set_limb_coeff_u(self, bandpass, u):
+        """
+        Remembers limb darkening *u* coefficient for given band
+
+        Parameters :
+            bandpass: *str*
+                Name of the filter.
+
+            u: *float*
+                The value of *u* coefficient.
+
+        """
+        self._gammas_for_band[bandpass] = Utils.u_to_gamma(u)
+
 
     def get_limb_coeff_u(self, bandpass):
         """
