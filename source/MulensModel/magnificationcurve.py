@@ -150,15 +150,6 @@ class MagnificationCurve(object):
         """
         self._methods_parameters = methods_parameters
 
-    @property
-    def magnification(self):
-        """
-        *np.ndarray*
-
-        provide vector of magnifications
-
-        """
-        return self.get_magnification()
 
     def get_magnification(self):
         """
@@ -426,3 +417,13 @@ class MagnificationCurve(object):
                if (value > 0 and value < n_max) else self._default_method
                for value in brackets]
         return out
+
+    @property
+    def magnification(self):
+        """
+        *np.ndarray*
+
+        provide vector of magnifications
+
+        """
+        return self.get_magnification()
