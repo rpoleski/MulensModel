@@ -1634,25 +1634,6 @@ class Model(object):
         """
         return self._caustics
 
-    @caustics.setter
-    def caustics(self, new_value):
-        self._caustics = new_value
-
-    @property
-    def trajectory(self):
-        raise NotImplementedError('trajectory is not implemented yet.')
-
-    @property
-    def coords(self):
-        """
-        see :py:class:`~MulensModel.coordinates.Coordinates`
-        """
-        return self._coords
-
-    @coords.setter
-    def coords(self, new_value):
-        self._coords = Coordinates(new_value)
-
     @property
     def parameters(self):
         """
@@ -1673,12 +1654,6 @@ class Model(object):
                 'Model.parameters must be a dictionary or ModelParameters ' +
                 'object.')
 
-    def is_static(self):
-        """
-        see :py:func:`MulensModel.modelparameters.ModelParameters.is_static()`
-        """
-        return self._parameters.is_static()
-
     @property
     def n_lenses(self):
         """
@@ -1696,6 +1671,31 @@ class Model(object):
         number of luminous sources; it's possible to be 1 for xallarap model
         """
         return self._parameters.n_sources
+
+    def is_static(self):
+        """
+        see :py:func:`MulensModel.modelparameters.ModelParameters.is_static()`
+        """
+        return self._parameters.is_static()
+
+    @caustics.setter
+    def caustics(self, new_value):
+        self._caustics = new_value
+
+    @property
+    def trajectory(self):
+        raise NotImplementedError('trajectory is not implemented yet.')
+
+    @property
+    def coords(self):
+        """
+        see :py:class:`~MulensModel.coordinates.Coordinates`
+        """
+        return self._coords
+
+    @coords.setter
+    def coords(self, new_value):
+        self._coords = Coordinates(new_value)
 
     @property
     def bandpasses(self):
