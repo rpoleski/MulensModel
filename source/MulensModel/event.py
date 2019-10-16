@@ -18,20 +18,20 @@ class Event(object):
     making a number of plots.
 
     Arguments :
-        datasets:  :py:class:`~MulensModel.mulensdata.MulensData` or
+        :py:attr:`~datasets`:  :py:class:`~MulensModel.mulensdata.MulensData` or
         *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects
 
             Datasets that will be linked to the event. These datasets will
             be used for chi^2 calculation, plotting etc.
 
-        model: :py:class:`~MulensModel.model.Model`
+        :py:attr:`~model:` :py:class:`~MulensModel.model.Model`
             Microlensing model that will be linked to the event. In order to
             get chi^2 for different sets of model parameters you should
             keep a single :py:class:`~MulensModel.model.Model` instance and
             change parameters for this model (i.e., do not provide separate
             :py:class:`~MulensModel.model.Model` instances).
 
-        coords: *str*, :py:class:`~MulensModel.coordinates.Coordinates`,
+        :py:attr:`~coords`: *str*, :py:class:`~MulensModel.coordinates.Coordinates`,
         or astropy.SkyCoord_
 
             Coordinates of the event. If *str*, then needs format accepted by
