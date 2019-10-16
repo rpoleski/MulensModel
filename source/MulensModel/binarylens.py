@@ -104,107 +104,85 @@ class BinaryLens(object):
 
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
         self._position_z1_WM95 = 0. + 0.j
-        self._position_z2_WM95 = self.separation + 0.j # XXX
-#        self._position_z1_WM95 = -0.5 * self.separation + 0.j
-#        self._position_z2_WM95 = 0.5 * self.separation + 0.j
-        self._zeta_WM95 = source_x - self.separation + source_y * 1.j # XXX
+        self._position_z2_WM95 = self.separation + 0.j
+        self._zeta_WM95 = source_x + source_y * 1.j
 
     def _get_polynomial_WM95(self, source_x, source_y):
         """calculate coefficients of the polynomial"""
         # Calculate constants
         self._calculate_variables(source_x=source_x, source_y=source_y)
         total_m = self._total_mass
-        total_m_pow2 = total_m * total_m
 
         m_diff = self._mass_difference
-        m_diff_pow2 = m_diff * m_diff
-
-        pos_z1 = self._position_z1_WM95
-
-        z1_pow2 = pos_z1 * pos_z1
-        z1_pow3 = z1_pow2 * pos_z1
-        z1_pow4 = z1_pow2 * z1_pow2
 
         zeta = self._zeta_WM95
         zeta_conj = np.conjugate(zeta)
-        zeta_conj_pow2 = zeta_conj * zeta_conj
 
-# XXX
-        pos_z2 = self._position_z2_WM95
-        z2_pow2 = pos_z2 * pos_z2
         c_sum = Utils.complex_fsum
 
-# https://github.com/ZoeySamples/ulens/blob/master/Source/BLGetCoeff.py
-# line 50
+        pos_z2 = self._position_z2_WM95
 
-# coeff5 = -(zeta_conj*(-z2 + zeta_conj))
+        #coeff_5 = -zeta_conj * c_sum([-pos_z2, zeta_conj])
+        #coeff_4 = (
+            #(m_diff + total_m) * pos_z2 +
+            #-(2. * total_m + pos_z2 * (2. * pos_z2 + zeta)) * zeta_conj +
+            #(2. * pos_z2 + zeta) * zeta_conj**2
+            #)
+        #temp = (2. * total_m + pos_z2**2) * (pos_z2 + 2. * zeta)
+        #temp += -2. * m_diff * pos_z2
+        #coeff_3 = (
+            #-pos_z2 * (m_diff * pos_z2 + total_m * (pos_z2 + 2. * zeta)) +
+            #temp * zeta_conj - pos_z2 * (pos_z2 + 2. * zeta) * zeta_conj**2
+            #)
+        #temp = total_m * (4. * zeta - 2. * pos_z2) + 3. * pos_z2**2 * zeta
+        #temp_2 = 2. * m_diff * (pos_z2 + zeta)
+        #temp_2 += -(6. * total_m + pos_z2**2) * zeta
+        #coeff_2 = (
+            #-m_diff * pos_z2 * (2. * total_m + pos_z2 * zeta) +
+            #total_m * temp + pos_z2 * zeta_conj * temp_2 +
+            #pos_z2**2 * zeta * zeta_conj**2
+            #)
+        #coeff_1 = (
+            #m_diff * pos_z2 + total_m * pos_z2 - 4. * total_m * zeta +
+            #-pos_z2**2 * zeta + 2. * pos_z2 * zeta * zeta_conj
+            #)
+        #coeff_1 *= -(m_diff - total_m) * pos_z2
+        #coeff_0 = (m_diff - total_m)**2 * pos_z2**2 * zeta
+
+        total_m_pow2 = total_m * total_m
+        z2_pow2 = pos_z2 * pos_z2
         coeff_5 = -zeta_conj * c_sum([zeta_conj, -pos_z2])
-# coeff4 = (dm*z2 + m*(z2 - 2*zeta_conj) - (2*z2 + zeta)*(z2 - zeta_conj)*zeta_conj)
         coeff_4 = c_sum([
             m_diff * pos_z2,
             total_m * c_sum([pos_z2, -2. * zeta_conj]),
-            -zeta_conj * c_sum([2. * pos_z2, zeta]) * c_sum([pos_z2, -zeta_conj])
-#            -m_diff * pos_z2 * c_sum([pos_z2, 2. * zeta_conj]),
-#            c_sum([pos_z2, 2. * zeta_conj]) * c_sum([-total_m * c_sum([pos_z2, -2. * zeta_conj]), pos_z2 * zeta_conj * c_sum([pos_z2, -zeta_conj])])
+            -zeta_conj * c_sum([2.*pos_z2, zeta]) * c_sum([pos_z2, -zeta_conj])
             ])
-# coeff3 = (-(dm*z2*(z2 + 2*zeta_conj)) + (z2 + 2*zeta)*(-(m*(z2 - 2*zeta_conj)) + z2*(z2 - zeta_conj)*zeta_conj))
         coeff_3 = c_sum([
-            -m_diff * pos_z2 * c_sum([pos_z2, 2. * zeta_conj]),
-            c_sum([pos_z2, 2. * zeta_conj]) * c_sum([-total_m * c_sum([pos_z2, -2. * zeta_conj]), pos_z2 * zeta_conj * c_sum([pos_z2, -zeta_conj])])
+            -pos_z2 * c_sum([
+                m_diff * pos_z2, total_m * c_sum([pos_z2, 2. * zeta])
+                ]),
+            zeta_conj * c_sum([
+                c_sum([2. * total_m, pos_z2**2]) * c_sum([pos_z2, 2. * zeta]),
+                -2. * m_diff * pos_z2
+                ]),
+            - pos_z2 * zeta_conj**2 * c_sum([pos_z2, 2. * zeta])
             ])
-# coeff2 = (-2*m**2*(z2 - 2*zeta) + 3*m*z2*zeta*(z2 - 2*zeta_conj) + z2**2*zeta*zeta_conj*(-z2 + zeta_conj) + dm*z2*(-2*m - z2*zeta + 2*z2*zeta_conj + 2*zeta*zeta_conj))
-#           -2*m**2*(z2 - 2*zeta)
-#           3*m*z2*zeta*(z2 - 2*zeta_conj)
-#           z2**2*zeta*zeta_conj*(-z2 + zeta_conj)
-#           dm*z2*(-2*m - z2*zeta + 2*z2*zeta_conj + 2*zeta*zeta_conj)
         coeff_2 = c_sum([
             -2. * total_m_pow2 * c_sum([pos_z2, -2. * zeta]),
             3. * total_m * pos_z2 * zeta * c_sum([pos_z2, -2. * zeta_conj]),
             z2_pow2 * zeta * zeta_conj * c_sum([-pos_z2, zeta_conj]),
-            m_diff * pos_z2 * c_sum([-2. * total_m, -pos_z2 * zeta, 2. * pos_z2 * zeta_conj, 2. * zeta * zeta_conj])
+            m_diff * pos_z2 * c_sum([
+                -2. * total_m, -pos_z2 * zeta, 2. * pos_z2 * zeta_conj,
+                2. * zeta * zeta_conj
+                ])
             ])
-# coeff1 = -((dm - m)*z2*(dm*z2 + m*(z2 - 4*zeta) - z2*zeta*(z2 - 2*zeta_conj)))
-        coeff_1 = c_sum([m_diff * pos_z2, total_m * c_sum([pos_z2, -4. * zeta]), -pos_z2 * zeta * c_sum([pos_z2, -2. * zeta_conj])])
+        coeff_1 = c_sum([
+            m_diff * pos_z2, total_m * c_sum([pos_z2, -4. * zeta]),
+            -pos_z2 * zeta * c_sum([pos_z2, -2. * zeta_conj])
+            ])
         coeff_1 *= -pos_z2 * (m_diff - total_m)
-# coeff0 = ((dm - m)**2*z2**2*zeta)
         coeff_0 = z2_pow2 * zeta * (m_diff - total_m)**2
-        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
-        return np.array(coeffs_list).reshape(6)
 
-
-        # Calculate the coefficients of the 5th order complex polynomial
-        coeff_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
-        coeff_4 = Utils.complex_fsum(
-            [-2. * total_m * zeta_conj,
-             zeta * zeta_conj_pow2, -2. * m_diff * pos_z1,
-             -zeta * z1_pow2])
-        coeff_3 = Utils.complex_fsum(
-            [4. * total_m * zeta * zeta_conj,
-             4. * m_diff * zeta_conj * pos_z1,
-             2. * zeta_conj_pow2 * z1_pow2, -2. * z1_pow4])
-        coeff_2 = Utils.complex_fsum(
-            [4. * total_m_pow2 * zeta,
-             4. * total_m * m_diff * pos_z1,
-             -4. * m_diff * zeta * zeta_conj * pos_z1,
-             -2. * zeta * zeta_conj_pow2 * z1_pow2,
-             4. * m_diff * z1_pow3, 2. * zeta * z1_pow4])
-        coeff_1 = Utils.complex_fsum(
-            [-8. * total_m * m_diff * zeta * pos_z1,
-             -4. * m_diff_pow2 * z1_pow2,
-             -4. * total_m_pow2 * z1_pow2,
-             -4. * total_m * zeta * zeta_conj * z1_pow2,
-             -4. * m_diff * zeta_conj * z1_pow3,
-             -zeta_conj_pow2 * z1_pow4, z1_pow3 * z1_pow3])
-        coeff_0 = Utils.complex_fsum(
-            [4. * m_diff_pow2 * zeta,
-             4. * total_m * m_diff * pos_z1,
-             4. * m_diff * zeta * zeta_conj * pos_z1,
-             2. * total_m * zeta_conj * z1_pow2,
-             zeta * zeta_conj_pow2 * z1_pow2,
-             -2. * m_diff * z1_pow3 - zeta * z1_pow4])
-        coeff_0 *= z1_pow2
-
-        # Return the coefficients of the polynomial
         coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
         return np.array(coeffs_list).reshape(6)
 
@@ -343,11 +321,7 @@ class BinaryLens(object):
             magnification: *float*
                 Point source magnification.
         """
-        x_shift = self.separation * (0.5 +
-                                     self.mass_2 / (self.mass_1 + self.mass_2))
-# XXX
-#        x_shift *= self.separation * (1. + self.mass_2 / (self.mass_1 + self.mass_2)) * -1.
-        x_shift -= self.separation / 2.
+        x_shift = self.separation * self.mass_2 / (self.mass_1 + self.mass_2)
         # We need to add this because WM95 use geometric center as an origin
         # of their coordinate system.
         return self._point_source_Witt_Mao_95(
