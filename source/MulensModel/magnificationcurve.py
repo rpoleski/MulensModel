@@ -423,7 +423,7 @@ class MagnificationCurve(object):
         """
         *np.ndarray*
 
-        provide vector of magnifications
+        provide vector of magnifications. Same as :py:func:`~get_magnification()`
 
         """
         return self.get_magnification()
