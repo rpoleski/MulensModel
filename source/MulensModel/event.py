@@ -278,14 +278,6 @@ class Event(object):
 
         return chi2_per_point
 
-    def reset_best_chi2(self):
-        """
-        Reset :py:attr:`~best_chi2` attribute and its parameters
-        (:py:attr:`~best_chi2_parameters`).
-        """
-        self.best_chi2 = None
-        self.best_chi2_parameters = {}
-
     def chi2_gradient(self, parameters, fit_blending=None):
         """
         Calculate chi^2 gradient (also called Jacobian), i.e.,
@@ -431,6 +423,14 @@ class Event(object):
         else:
             out = np.array([gradient[p] for p in parameters])
         return out
+
+    def reset_best_chi2(self):
+        """
+        Reset :py:attr:`~best_chi2` attribute and its parameters
+        (:py:attr:`~best_chi2_parameters`).
+        """
+        self.best_chi2 = None
+        self.best_chi2_parameters = {}
 
     def _sum(self, data):
         """calculate sum of the data"""
