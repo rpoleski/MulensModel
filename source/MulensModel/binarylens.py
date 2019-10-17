@@ -103,8 +103,8 @@ class BinaryLens(object):
         # This is total_mass in WM95 paper.
 
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
-        self._position_z1_WM95 = 0. + 0.j
-        self._position_z2_WM95 = self.separation + 0.j
+        self._position_z1_WM95 = -self.separation + 0.j
+        self._position_z2_WM95 = 0. + 0.j
         self._zeta_WM95 = source_x + source_y * 1.j
 
     def _get_polynomial_WM95(self, source_x, source_y):
@@ -120,68 +120,37 @@ class BinaryLens(object):
 
         c_sum = Utils.complex_fsum
 
-        pos_z2 = self._position_z2_WM95
+        z1 = self._position_z1_WM95
 
-        #coeff_5 = -zeta_conj * c_sum([-pos_z2, zeta_conj])
-        #coeff_4 = (
-            #(m_diff + total_m) * pos_z2 +
-            #-(2. * total_m + pos_z2 * (2. * pos_z2 + zeta)) * zeta_conj +
-            #(2. * pos_z2 + zeta) * zeta_conj**2
-            #)
-        #temp = (2. * total_m + pos_z2**2) * (pos_z2 + 2. * zeta)
-        #temp += -2. * m_diff * pos_z2
-        #coeff_3 = (
-            #-pos_z2 * (m_diff * pos_z2 + total_m * (pos_z2 + 2. * zeta)) +
-            #temp * zeta_conj - pos_z2 * (pos_z2 + 2. * zeta) * zeta_conj**2
-            #)
-        #temp = total_m * (4. * zeta - 2. * pos_z2) + 3. * pos_z2**2 * zeta
-        #temp_2 = 2. * m_diff * (pos_z2 + zeta)
-        #temp_2 += -(6. * total_m + pos_z2**2) * zeta
-        #coeff_2 = (
-            #-m_diff * pos_z2 * (2. * total_m + pos_z2 * zeta) +
-            #total_m * temp + pos_z2 * zeta_conj * temp_2 +
-            #pos_z2**2 * zeta * zeta_conj**2
-            #)
-        #coeff_1 = (
-            #m_diff * pos_z2 + total_m * pos_z2 - 4. * total_m * zeta +
-            #-pos_z2**2 * zeta + 2. * pos_z2 * zeta * zeta_conj
-            #)
-        #coeff_1 *= -(m_diff - total_m) * pos_z2
-        #coeff_0 = (m_diff - total_m)**2 * pos_z2**2 * zeta
-
-        total_m_pow2 = total_m * total_m
-        z2_pow2 = pos_z2 * pos_z2
-        coeff_5 = -zeta_conj * c_sum([zeta_conj, -pos_z2])
+        coeff_5 = c_sum([z1, -zeta_conj]) * zeta_conj
         coeff_4 = c_sum([
-            m_diff * pos_z2,
-            total_m * c_sum([pos_z2, -2. * zeta_conj]),
-            -zeta_conj * c_sum([2.*pos_z2, zeta]) * c_sum([pos_z2, -zeta_conj])
+            (-m_diff + total_m) * z1,
+            -c_sum([2. * total_m, z1 * c_sum([2. * z1, zeta])]) * zeta_conj,
+            c_sum([2. * z1 + zeta]) * zeta_conj**2
             ])
         coeff_3 = c_sum([
-            -pos_z2 * c_sum([
-                m_diff * pos_z2, total_m * c_sum([pos_z2, 2. * zeta])
-                ]),
+            z1 * c_sum([m_diff * z1, -total_m * c_sum([z1, 2. * zeta])]),
             zeta_conj * c_sum([
-                c_sum([2. * total_m, pos_z2**2]) * c_sum([pos_z2, 2. * zeta]),
-                -2. * m_diff * pos_z2
+                2. * m_diff * z1,
+                c_sum([2. * total_m, z1**2]) * c_sum([z1, 2. * zeta])
                 ]),
-            - pos_z2 * zeta_conj**2 * c_sum([pos_z2, 2. * zeta])
+            -z1 * c_sum([z1, 2. * zeta]) * zeta_conj**2
             ])
         coeff_2 = c_sum([
-            -2. * total_m_pow2 * c_sum([pos_z2, -2. * zeta]),
-            3. * total_m * pos_z2 * zeta * c_sum([pos_z2, -2. * zeta_conj]),
-            z2_pow2 * zeta * zeta_conj * c_sum([-pos_z2, zeta_conj]),
-            m_diff * pos_z2 * c_sum([
-                -2. * total_m, -pos_z2 * zeta, 2. * pos_z2 * zeta_conj,
-                2. * zeta * zeta_conj
-                ])
+            m_diff * z1 * c_sum([2. * total_m, z1 * zeta]),
+            total_m * c_sum([
+                -2. * total_m * z1, 4. * total_m * zeta, 3. * z1**2 * zeta]),
+            -z1 * zeta_conj * c_sum([
+                zeta * c_sum([6. * total_m, z1**2]),
+                2. * m_diff * c_sum([z1, zeta])
+                ]),
+            z1**2 * zeta * zeta_conj**2
             ])
-        coeff_1 = c_sum([
-            m_diff * pos_z2, total_m * c_sum([pos_z2, -4. * zeta]),
-            -pos_z2 * zeta * c_sum([pos_z2, -2. * zeta_conj])
+        coeff_1 = -z1 * (m_diff + total_m) * c_sum([
+            m_diff * z1, -total_m * z1, 4. * total_m * zeta, z1**2 * zeta,
+            -2. * z1 * zeta * zeta_conj
             ])
-        coeff_1 *= -pos_z2 * (m_diff - total_m)
-        coeff_0 = z2_pow2 * zeta * (m_diff - total_m)**2
+        coeff_0 = (m_diff + total_m)**2 * z1**2 * zeta
 
         coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
         return np.array(coeffs_list).reshape(6)
@@ -322,6 +291,7 @@ class BinaryLens(object):
                 Point source magnification.
         """
         x_shift = self.separation * self.mass_2 / (self.mass_1 + self.mass_2)
+        x_shift -= self.separation
         # We need to add this because WM95 use geometric center as an origin
         # of their coordinate system.
         return self._point_source_Witt_Mao_95(
