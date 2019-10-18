@@ -96,6 +96,7 @@ class BinaryLens(object):
         self._position_z1_WM95 = None
         self._position_z2_WM95 = None
         self._last_polynomial_input = None
+        self._use_planet_frame = True
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
@@ -103,12 +104,82 @@ class BinaryLens(object):
         # This is total_mass in WM95 paper.
 
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
-        self._position_z1_WM95 = -self.separation + 0.j
-        self._position_z2_WM95 = 0. + 0.j
         self._zeta_WM95 = source_x + source_y * 1.j
+        if self._use_planet_frame:
+            self._position_z1_WM95 = -self.separation + 0.j
+            self._position_z2_WM95 = 0. + 0.j
+        else:
+            self._position_z1_WM95 = -0.5 * self.separation + 0.j
+            self._position_z2_WM95 = 0.5 * self.separation + 0.j
+            self._zeta_WM95 -= self.separation
+
+    def _get_polynomial(self, source_x, source_y):
+        """get polynomial coefficients"""
+        if self._use_planet_frame:
+            return self._get_polynomial_planet_frame(source_x, source_y)
+        else:
+            return self._get_polynomial_WM95(source_x, source_y)
 
     def _get_polynomial_WM95(self, source_x, source_y):
-        """calculate coefficients of the polynomial"""
+        """
+        calculate coefficients of the polynomial in geometric center frame
+        """
+        # Calculate constants
+        self._calculate_variables(source_x=source_x, source_y=source_y)
+        total_m = self._total_mass
+        total_m_pow2 = total_m * total_m
+
+        m_diff = self._mass_difference
+        m_diff_pow2 = m_diff * m_diff
+
+        pos_z1 = self._position_z1_WM95
+
+        z1_pow2 = pos_z1 * pos_z1
+        z1_pow3 = z1_pow2 * pos_z1
+        z1_pow4 = z1_pow2 * z1_pow2
+
+        zeta = self._zeta_WM95
+        zeta_conj = np.conjugate(zeta)
+        zeta_conj_pow2 = zeta_conj * zeta_conj
+
+        # Calculate the coefficients of the 5th order complex polynomial
+        coeff_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
+        coeff_4 = Utils.complex_fsum(
+            [-2. * total_m * zeta_conj,
+             zeta * zeta_conj_pow2, -2. * m_diff * pos_z1,
+             -zeta * z1_pow2])
+        coeff_3 = Utils.complex_fsum(
+            [4. * total_m * zeta * zeta_conj,
+             4. * m_diff * zeta_conj * pos_z1,
+             2. * zeta_conj_pow2 * z1_pow2, -2. * z1_pow4])
+        coeff_2 = Utils.complex_fsum(
+            [4. * total_m_pow2 * zeta,
+             4. * total_m * m_diff * pos_z1,
+             -4. * m_diff * zeta * zeta_conj * pos_z1,
+             -2. * zeta * zeta_conj_pow2 * z1_pow2,
+             4. * m_diff * z1_pow3, 2. * zeta * z1_pow4])
+        coeff_1 = Utils.complex_fsum(
+            [-8. * total_m * m_diff * zeta * pos_z1,
+             -4. * m_diff_pow2 * z1_pow2,
+             -4. * total_m_pow2 * z1_pow2,
+             -4. * total_m * zeta * zeta_conj * z1_pow2,
+             -4. * m_diff * zeta_conj * z1_pow3,
+             -zeta_conj_pow2 * z1_pow4, z1_pow3 * z1_pow3])
+        coeff_0 = Utils.complex_fsum(
+            [4. * m_diff_pow2 * zeta,
+             4. * total_m * m_diff * pos_z1,
+             4. * m_diff * zeta * zeta_conj * pos_z1,
+             2. * total_m * zeta_conj * z1_pow2,
+             zeta * zeta_conj_pow2 * z1_pow2,
+             -2. * m_diff * z1_pow3 - zeta * z1_pow4])
+        coeff_0 *= z1_pow2
+
+        # Return the coefficients of the polynomial
+        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
+        return np.array(coeffs_list).reshape(6)
+
+    def _get_polynomial_planet_frame(self, source_x, source_y):
+        """calculate coefficients of the polynomial in planet frame"""
         # Calculate constants
         self._calculate_variables(source_x=source_x, source_y=source_y)
         total_m = self._total_mass
@@ -163,7 +234,7 @@ class BinaryLens(object):
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots_WM95
 
-        polynomial = self._get_polynomial_WM95(
+        polynomial = self._get_polynomial(
             source_x=source_x, source_y=source_y)
 
         if _solver == 'Skowron_and_Gould_12':
@@ -290,8 +361,11 @@ class BinaryLens(object):
             magnification: *float*
                 Point source magnification.
         """
-        x_shift = self.separation * self.mass_2 / (self.mass_1 + self.mass_2)
-        x_shift -= self.separation
+        if self._use_planet_frame:
+            x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
+        else:
+            x_shift = 0.5 + self.mass_2 / (self.mass_1 + self.mass_2)
+        x_shift *= self.separation
         # We need to add this because WM95 use geometric center as an origin
         # of their coordinate system.
         return self._point_source_Witt_Mao_95(
