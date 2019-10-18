@@ -106,10 +106,11 @@ class BinaryLens(object):
         self.separation = separation
         self._total_mass = None
         self._mass_difference = None
-        self._position_z1_WM95 = None
-        self._position_z2_WM95 = None
+        self._position_z1 = None
+        self._position_z2 = None
         self._last_polynomial_input = None
         self._solver = _solver
+        self._use_planet_frame = True
 
     def _calculate_variables(self, source_x, source_y):
         """calculates values of constants needed for polynomial coefficients"""
@@ -117,12 +118,25 @@ class BinaryLens(object):
         # This is total_mass in WM95 paper.
 
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
-        self._position_z1_WM95 = -0.5 * self.separation + 0.j
-        self._position_z2_WM95 = 0.5 * self.separation + 0.j
-        self._zeta_WM95 = source_x - self.separation + source_y * 1.j
+        self._zeta = source_x + source_y * 1.j
+        if self._use_planet_frame:
+            self._position_z1 = -self.separation + 0.j
+            self._position_z2 = 0. + 0.j
+        else:
+            self._position_z1 = -0.5 * self.separation + 0.j
+            self._position_z2 = 0.5 * self.separation + 0.j
+
+    def _get_polynomial(self, source_x, source_y):
+        """get polynomial coefficients"""
+        if self._use_planet_frame:
+            return self._get_polynomial_planet_frame(source_x, source_y)
+        else:
+            return self._get_polynomial_WM95(source_x, source_y)
 
     def _get_polynomial_WM95(self, source_x, source_y):
-        """calculate coefficients of the polynomial"""
+        """
+        calculate coefficients of the polynomial in geometric center frame
+        """
         # Calculate constants
         self._calculate_variables(source_x=source_x, source_y=source_y)
         total_m = self._total_mass
@@ -131,13 +145,13 @@ class BinaryLens(object):
         m_diff = self._mass_difference
         m_diff_pow2 = m_diff * m_diff
 
-        pos_z1 = self._position_z1_WM95
+        pos_z1 = self._position_z1
 
         z1_pow2 = pos_z1 * pos_z1
         z1_pow3 = z1_pow2 * pos_z1
         z1_pow4 = z1_pow2 * z1_pow2
 
-        zeta = self._zeta_WM95
+        zeta = self._zeta
         zeta_conj = np.conjugate(zeta)
         zeta_conj_pow2 = zeta_conj * zeta_conj
 
@@ -177,20 +191,68 @@ class BinaryLens(object):
         coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
         return np.array(coeffs_list).reshape(6)
 
-    def _get_polynomial_roots_WM95(self, source_x, source_y):
+    def _get_polynomial_planet_frame(self, source_x, source_y):
+        """calculate coefficients of the polynomial in planet frame"""
+        # Calculate constants
+        self._calculate_variables(source_x=source_x, source_y=source_y)
+        total_m = self._total_mass
+
+        m_diff = self._mass_difference
+
+        zeta = self._zeta
+        zeta_conj = np.conjugate(zeta)
+
+        c_sum = Utils.complex_fsum
+
+        z1 = self._position_z1
+
+        coeff_5 = c_sum([z1, -zeta_conj]) * zeta_conj
+        coeff_4 = c_sum([
+            (-m_diff + total_m) * z1,
+            -c_sum([2. * total_m, z1 * c_sum([2. * z1, zeta])]) * zeta_conj,
+            c_sum([2. * z1 + zeta]) * zeta_conj**2
+            ])
+        coeff_3 = c_sum([
+            z1 * c_sum([m_diff * z1, -total_m * c_sum([z1, 2. * zeta])]),
+            zeta_conj * c_sum([
+                2. * m_diff * z1,
+                c_sum([2. * total_m, z1**2]) * c_sum([z1, 2. * zeta])
+                ]),
+            -z1 * c_sum([z1, 2. * zeta]) * zeta_conj**2
+            ])
+        coeff_2 = c_sum([
+            m_diff * z1 * c_sum([2. * total_m, z1 * zeta]),
+            total_m * c_sum([
+                -2. * total_m * z1, 4. * total_m * zeta, 3. * z1**2 * zeta]),
+            -z1 * zeta_conj * c_sum([
+                zeta * c_sum([6. * total_m, z1**2]),
+                2. * m_diff * c_sum([z1, zeta])
+                ]),
+            z1**2 * zeta * zeta_conj**2
+            ])
+        coeff_1 = -z1 * (m_diff + total_m) * c_sum([
+            m_diff * z1, -total_m * z1, 4. * total_m * zeta, z1**2 * zeta,
+            -2. * z1 * zeta * zeta_conj
+            ])
+        coeff_0 = (m_diff + total_m)**2 * z1**2 * zeta
+
+        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
+        return np.array(coeffs_list).reshape(6)
+
+    def _get_polynomial_roots(self, source_x, source_y):
         """roots of the polynomial"""
         polynomial_input = [self.mass_1, self.mass_2, self.separation,
                             source_x, source_y]
 
         if polynomial_input == self._last_polynomial_input:
-            return self._polynomial_roots_WM95
+            return self._polynomial_roots
 
-        polynomial = self._get_polynomial_WM95(
+        polynomial = self._get_polynomial(
             source_x=source_x, source_y=source_y)
 
         np_polyroots = np.polynomial.polynomial.polyroots
         if self._solver == 'numpy':
-            self._polynomial_roots_WM95 = np_polyroots(polynomial)
+            self._polynomial_roots = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
             args = polynomial.real.tolist() + polynomial.imag.tolist()
             try:
@@ -199,27 +261,25 @@ class BinaryLens(object):
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
                 warnings.warn(str(err) + err2, UserWarning)
                 self._solver = 'numpy'
-                self._polynomial_roots_WM95 = np_polyroots(polynomial)
+                self._polynomial_roots = np_polyroots(polynomial)
             else:
                 roots = [out[i] + out[i+5] * 1.j for i in range(5)]
-                self._polynomial_roots_WM95 = np.array(roots)
+                self._polynomial_roots = np.array(roots)
         else:
-            raise ValueError('Unkown solver: {:}'.format(self._solver))
+            raise ValueError('Unknown solver: {:}'.format(self._solver))
         self._last_polynomial_input = polynomial_input
 
-        return self._polynomial_roots_WM95
+        return self._polynomial_roots
 
-    def _polynomial_roots_ok_WM95(
+    def _polynomial_roots_ok(
             self, source_x, source_y, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
-        roots = self._get_polynomial_roots_WM95(
+        roots = self._get_polynomial_roots(
             source_x=source_x, source_y=source_y)
 
-        component2 = self.mass_1 / np.conjugate(
-            roots - self._position_z1_WM95)
-        component3 = self.mass_2 / np.conjugate(
-            roots - self._position_z2_WM95)
-        solutions = self._zeta_WM95 + component2 + component3
+        component2 = self.mass_1 / np.conjugate(roots - self._position_z1)
+        component3 = self.mass_2 / np.conjugate(roots - self._position_z2)
+        solutions = self._zeta + component2 + component3
         # This backs-up the lens equation.
 
         out = []
@@ -272,34 +332,31 @@ class BinaryLens(object):
         else:
             return np.array(out)
 
-    def _jacobian_determinant_ok_WM95(self, source_x, source_y):
+    def _jacobian_determinant_ok(self, source_x, source_y):
         """determinants of lens equation Jacobian for verified roots"""
-        roots_ok_bar = np.conjugate(self._polynomial_roots_ok_WM95(
+        roots_ok_bar = np.conjugate(self._polynomial_roots_ok(
                                    source_x=source_x, source_y=source_y))
         # Variable X_bar is conjugate of variable X.
-        denominator_1 = self._position_z1_WM95 - roots_ok_bar
-        add_1 = self.mass_1 / denominator_1**2
-        denominator_2 = self._position_z2_WM95 - roots_ok_bar
-        add_2 = self.mass_2 / denominator_2**2
+        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
         derivative = add_1 + add_2
 
-        return 1.-derivative*np.conjugate(derivative)
+        return 1. - derivative * np.conjugate(derivative)
 
-    def _signed_magnification_WM95(self, source_x, source_y):
+    def _signed_magnification(self, source_x, source_y):
         """signed magnification for each image separately"""
-        return 1. / self._jacobian_determinant_ok_WM95(
+        return 1. / self._jacobian_determinant_ok(
                 source_x=source_x, source_y=source_y)
 
-    def _point_source_WM95(self, source_x, source_y):
-        """calculate point source magnification using Witt & Mao 1995"""
-        signed_magnification = self._signed_magnification_WM95(
+    def _point_source(self, source_x, source_y):
+        """calculate point source magnification"""
+        signed_magnification = self._signed_magnification(
             source_x=source_x, source_y=source_y)
         return fsum(abs(signed_magnification))
 
     def _point_source_Witt_Mao_95(self, source_x, source_y):
-        """calculate point source magnification using Witt & Mao 1995"""
-        return self._point_source_WM95(
-                source_x=source_x, source_y=source_y)
+        """calculate point source magnification"""
+        return self._point_source(source_x=source_x, source_y=source_y)
 
     def point_source_magnification(self, source_x, source_y):
         """
@@ -320,10 +377,12 @@ class BinaryLens(object):
             magnification: *float*
                 Point source magnification.
         """
-        x_shift = self.separation * (0.5 +
-                                     self.mass_2 / (self.mass_1 + self.mass_2))
-        # We need to add this because WM95 use geometric center as an origin
-        # of their coordinate system.
+        if self._use_planet_frame:
+            x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
+        else:
+            x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
+        x_shift *= self.separation
+        # We need to add this because in order to shift to correct frame.
         return self._point_source_Witt_Mao_95(
                 source_x=source_x+x_shift, source_y=source_y)
 
@@ -488,7 +547,7 @@ class BinaryLens(object):
                 states: *" Fractional uncertainty for the adaptive
                 Simpson integration of the limb-darkening
                 profile-related function during application of Green's
-                theorem."* It does not addect execution time so can be
+                theorem."* It does not add execution time so can be
                 set to very small value.
 
         Returns :

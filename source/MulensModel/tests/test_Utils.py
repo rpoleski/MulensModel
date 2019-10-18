@@ -41,6 +41,7 @@ def test_mag_and_flux_conversions_2():
         for mag_err in [0.01, 0.001, 0.1]:
             do_mag2flux_conversions_test(mag, mag_err)
 
+
 def test_n_caustics():
     """test calculation of number of caustics for binary lens"""
     q = 0.123

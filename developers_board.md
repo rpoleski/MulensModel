@@ -4,7 +4,7 @@
 3. README - note 2 new examples - DONE
 4. list of examples in a separate file, change order 01<->02
 5. utils.py docstrings - DONE
-6. _binary lens in planet frame_
+6. _binary lens in planet frame_ - DONE
 7. hack session examples to be renamed, unlinked in README.md
 8. note public data in MM documentation after the paper was published
 9. try/except - give specific exception names - DONE
@@ -96,7 +96,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
     * central and planetary caustic properties: [Chung et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...630..535C/abstract) and [Han 2006](https://ui.adsabs.harvard.edu/abs/2006ApJ...638.1080H/abstract)
-    * consider using Utils.complex\_fsum() in BinaryLens functions: \_polynomial\_roots\_ok\_WM95() and \_jacobian\_determinant\_ok\_WM95()
+    * consider using Utils.complex\_fsum() in BinaryLens functions: \_jacobian\_determinant\_ok\_WM95()
     * faster hexadecapole using [Cassan 2017](https://ui.adsabs.harvard.edu/abs/2017MNRAS.468.3993C/abstract) ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
     * _VBBL2.0 - are we using accuracy limit as default? If so then we should switch to relative accuracy_
     * there should be an option for the user to ignore "wrong number of solutions" error and replace it with a warning
@@ -183,7 +183,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * warning if t\_0\_par is changed too many times
     * add is\_Cassan08 or is\_standard\_binary?
     * \_\_repr\_\_ - if Cassan 2008 then should we print standard parameters as well?
-    * for Cassan 2008 parameters note that there are non-neglible calculations when s or q are changed
   * MulensData class:
     * **Errorbar scaling, in particular the two parameter.**
     * _quick look alignment for MulensData objects - just use interpolation_

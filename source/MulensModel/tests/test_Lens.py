@@ -99,4 +99,3 @@ def test_3_body_success():
     np.testing.assert_almost_equal(lens_2.mass_2.value, 0.1)
     np.testing.assert_almost_equal(lens_2.mass_3.value, 0.2)
     np.testing.assert_almost_equal(lens_2.total_mass.value, 1.)
-
