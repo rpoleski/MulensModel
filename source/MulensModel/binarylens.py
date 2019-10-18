@@ -111,7 +111,6 @@ class BinaryLens(object):
         else:
             self._position_z1 = -0.5 * self.separation + 0.j
             self._position_z2 = 0.5 * self.separation + 0.j
-            self._zeta -= self.separation
 
     def _get_polynomial(self, source_x, source_y):
         """get polynomial coefficients"""
@@ -316,13 +315,11 @@ class BinaryLens(object):
         roots_ok_bar = np.conjugate(self._polynomial_roots_ok(
                                    source_x=source_x, source_y=source_y))
         # Variable X_bar is conjugate of variable X.
-        denominator_1 = self._position_z1 - roots_ok_bar
-        add_1 = self.mass_1 / denominator_1**2
-        denominator_2 = self._position_z2 - roots_ok_bar
-        add_2 = self.mass_2 / denominator_2**2
+        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
         derivative = add_1 + add_2
 
-        return 1.-derivative*np.conjugate(derivative)
+        return 1. - derivative * np.conjugate(derivative)
 
     def _signed_magnification(self, source_x, source_y):
         """signed magnification for each image separately"""
@@ -337,8 +334,7 @@ class BinaryLens(object):
 
     def _point_source_Witt_Mao_95(self, source_x, source_y):
         """calculate point source magnification"""
-        return self._point_source(
-                source_x=source_x, source_y=source_y)
+        return self._point_source(source_x=source_x, source_y=source_y)
 
     def point_source_magnification(self, source_x, source_y):
         """
@@ -362,7 +358,7 @@ class BinaryLens(object):
         if self._use_planet_frame:
             x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
         else:
-            x_shift = 0.5 + self.mass_2 / (self.mass_1 + self.mass_2)
+            x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
         x_shift *= self.separation
         # We need to add this because in order to shift to correct frame.
         return self._point_source_Witt_Mao_95(
@@ -529,7 +525,7 @@ class BinaryLens(object):
                 states: *" Fractional uncertainty for the adaptive
                 Simpson integration of the limb-darkening
                 profile-related function during application of Green's
-                theorem."* It does not addect execution time so can be
+                theorem."* It does not add execution time so can be
                 set to very small value.
 
         Returns :
