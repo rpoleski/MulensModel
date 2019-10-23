@@ -18,7 +18,7 @@ import configparser
 
 import MulensModel as MM
 
-import hack_read as read
+import example_15_read as read
 
 
 def ln_like(theta, event, parameters_to_fit, print_models):
