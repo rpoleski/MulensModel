@@ -1,3 +1,6 @@
+"""
+Reading settings from config file. It is used in example_15_fitting.py.
+"""
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 

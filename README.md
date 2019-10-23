@@ -15,9 +15,6 @@ A few useful resources:
 * [**Explanation of microlensing parameters**](documents/parameter_names.pdf)
 * [**Explanation of methods used for calculating magnification**](documents/magnification_methods.pdf)
 * [Examples on how to use the code](examples/):
-  * [Hack session example 1](examples/hack_example_1.py),
-  * [Hack session example 2](examples/hack_example_2.py), [config reading code](examples/hack_read.py), [first config file](examples/ob05390_v1.cfg), and [second config file](examples/ob05390_v2.cfg),
-  * [Hack session example 3](examples/hack_example_3.py), [config file](examples/mb07192_v1.cfg)
   * [Example 01](examples/example_01_models.py) - plot simple point-source/point-lens (PSPL) model and model with planetary lens,
   * [Example 02](examples/example_02_fitting.py) - fit PSPL model to the data using scipy.optimize.minimize(),
   * [Example 03](examples/example_03_mulenssystem.py) - define PSPL model using physical properties and plot the resulting magnification curve,
@@ -31,8 +28,9 @@ A few useful resources:
   * [Example 11](examples/example_11_binary_source.py) - simulate and fit binary source event,
   * [Example 12](examples/example_12_fit_satellite_parallax_EMCEE.py) - fit parallax model to ground and satellite data, plot models and trajectories at the end,
   * [Example 13](examples/example_13_caustic_sampling.py) - fit planetary event using caustic entrance and exit epochs as parameters (uses [config file](examples/example_13.cfg)),
-  * [Example 14](examples/example_14_caustic_plotting.py) - plot caustic using standard method and uniform sampling.
-* [Instructions on getting satellite positions](documents/Horizons_manual.md)
+  * [Example 14](examples/example_14_caustic_plotting.py) - plot caustic using standard method and uniform sampling,
+  * [Example 15](examples/example_15_fitting.py) - fitting binary lens model with many options - use config file for [ob05390](examples/example_15_ob05390_v1.cfg) or [mb07192](examples/example_15_mb07192_v1.cfg); settings are read by [this file](examples/example_15_read.py).
+* [Instructions on getting satellite positions](documents/Horizons_manual.md).
 
 [Documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
 
@@ -64,5 +62,5 @@ If you have **problems with installing or running MulensModel on MacOS**, please
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Sep 2019
+file revised Oct 2019
 

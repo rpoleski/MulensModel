@@ -5,7 +5,7 @@
 4. list of examples in a separate file, change order 01<->02
 5. utils.py docstrings - DONE
 6. _binary lens in planet frame_ - DONE
-7. hack session examples to be renamed, unlinked in README.md
+7. hack session examples to be renamed, unlinked in README.md - DONE
 8. note public data in MM documentation after the paper was published
 9. try/except - give specific exception names - DONE
 10. _are we using VBBL with improvements from 2018 paper?_
@@ -249,7 +249,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * plotting - sharex where possible
     * note in PSPL tutorial about plotting data in MulensData
     * add example that after calling Event.get\_chi2() use Event.fit to get e.g. magnifications so that the magnification is not calculated twice
-    * hack session examples to be renamed, unlinked in README.md
     * **satellite data fitted and plotted - what is missing now?**
     * use ast.literal\_eval() for .cfg files to read dict or list, e.g., for MulensData options.
     * _high-level fitting example where we don't care how complicated it is, we just want to make it simple and useful for the user_
