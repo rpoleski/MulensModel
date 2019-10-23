@@ -1365,13 +1365,22 @@ class Model(object):
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
         Plot the caustic structure. See
-        :py:func:`MulensModel.caustics.Caustics.plot()`.
+        :py:func:`MulensModel.caustics.Caustics.plot()` for binary lenses.
+        For a single lens it just marks (0, 0) point and
+        the first two parameteres are ignored.
 
         Additional parameters :
+            n_points: *int*, optional
+                The number of points to calculate along the caustic.
+                Defaults to 5000.
+
             epoch: *float*, optional
                 Epoch for which separation *s* will be used. Important
                 for models with orbital motion. Defaults to *t_0_kep*,
                 which defaults to *t_0*.
+
+            ``**kwargs``:
+                keywords accepted by :py:func:`matplotlib.pyplot.scatter()`
         """
         if self.n_lenses == 1:
             plt.scatter([0], [0], **kwargs)
