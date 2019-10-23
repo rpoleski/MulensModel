@@ -713,7 +713,12 @@ class UniformCausticSampling(object):
             z_use = self._z_sum_2
         sum_ = fraction_in_caustic * sum_use[-1]
         phi_interp = np.interp([sum_], sum_use, self._phi)[0]
-        zeta = self._zeta(np.interp([phi_interp], self._phi, z_use)[0])
+        if tuple(map(int, (np.__version__.split(".")))) >= (1, 12, 0):
+            zeta = self._zeta(np.interp([phi_interp], self._phi, z_use)[0])
+        else:  # Older versions of numpy cannot interpolate complex array:
+            temp_real = np.interp([phi_interp], self._phi, z_use.real)[0]
+            temp_imag = np.interp([phi_interp], self._phi, z_use.imag)[0]
+            zeta = self._zeta(temp_real+1.j*temp_imag)
         # XXX the calculation of dzeta_dphi should not use index
         # XXX and should only be done if really needed
         index = np.argsort(np.abs(phi_interp-self._phi))[0]
