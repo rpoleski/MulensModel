@@ -1373,9 +1373,11 @@ class Model(object):
                 for models with orbital motion. Defaults to *t_0_kep*,
                 which defaults to *t_0*.
         """
-        self.update_caustics(epoch=epoch)
-
-        self.caustics.plot(n_points=n_points, **kwargs)
+        if self.n_lenses == 1:
+            plt.scatter([0], [0], **kwargs)
+        else:
+            self.update_caustics(epoch=epoch)
+            self.caustics.plot(n_points=n_points, **kwargs)
 
     def plot_source(self, times=None, **kwargs):
         """

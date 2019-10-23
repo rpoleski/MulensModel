@@ -161,7 +161,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * use pl.axhline() to plot 0 line in residuals plots at the end, using t\_min,t\_max
     * get\_residuals needs unit test
     * plot\_trajectory - mark data epochs (as pyplot kwargs use MulensData.plot\_properties)
-    * plot\_caustics() - check if model has > 1 lens? or just plot a point for single lens
     * plot\_data & plot\_residuals - if color is not set by the user and show\_bad is True, then X-s are plotted using different color
     * allow rotating plots, so that source travel "exactly" from left to right
     * when plotting residuals allow keywords to be passed for plotting 0-line
