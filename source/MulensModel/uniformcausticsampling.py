@@ -396,9 +396,10 @@ class UniformCausticSampling(object):
         if zeta_out.real == zeta_in.real:
             alpha = 0.5 * np.pi * np.sign(zeta_out.imag - zeta_in.imag)
         else:
-            diff = zeta_out.imag - zeta_in.imag
-            alpha = np.arctan(diff / (zeta_out.real - zeta_in.real))
-            alpha += np.pi * np.heaviside(zeta_in.real-zeta_out.real, .5)
+            diff_real = zeta_out.real - zeta_in.real
+            alpha = np.arctan((zeta_out.imag - zeta_in.imag) / diff_real)
+            if diff_real < 0.:
+                alpha += np.pi
         alpha *= 180. / np.pi
         if alpha < 0.:
             alpha += 360.

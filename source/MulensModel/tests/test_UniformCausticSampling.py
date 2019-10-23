@@ -47,6 +47,17 @@ def test_UniformCausticSampling():
     np.testing.assert_almost_equal(standard['t_E'], 142.0417601)
     np.testing.assert_almost_equal(standard['alpha'], 180.6508586)
 
+    # For the last (s, q) we also check alpha = 90 or 270:
+    x_1 = 0.1885475223517683
+    x_2 = 0.9504818975429649
+    u_0 = s - 1. / s + s * q / (1. + q)
+    standard = sampling.get_standard_parameters(x_1, x_2, -10., 0.)
+    np.testing.assert_almost_equal(standard['alpha'], 270.)
+    np.testing.assert_almost_equal(standard['u_0'], u_0)
+    standard = sampling.get_standard_parameters(x_2, x_1, -10., 0.)
+    np.testing.assert_almost_equal(standard['alpha'], 90.)
+    np.testing.assert_almost_equal(standard['u_0'], -u_0)
+
 
 def test_get_uniform_sampling():
     """
