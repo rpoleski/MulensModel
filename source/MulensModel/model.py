@@ -1367,7 +1367,7 @@ class Model(object):
         Plot the caustic structure. See
         :py:func:`MulensModel.caustics.Caustics.plot()` for binary lenses.
         For a single lens it just marks (0, 0) point and
-        the first two parameteres are ignored.
+        the first two parameters are ignored.
 
         Additional parameters :
             n_points: *int*, optional

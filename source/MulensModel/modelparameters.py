@@ -193,7 +193,7 @@ class ModelParameters(object):
     Attributes :
         parameters: *dictionary*
             A dictionary of parameters and their values. Do not use it to
-            change paramter values, instead use e.g.:
+            change parameter values, instead use e.g.:
             ``model_parameters.u_0 = 0.1`` or
             ``setattr(model_parameters, 'u_0', 0.1)``.
 
@@ -231,7 +231,7 @@ class ModelParameters(object):
             self._source_1_parameters = ModelParameters(params_1)
             self._source_2_parameters = ModelParameters(params_2)
             # This way we force checks from "== 1" above to be run on
-            # each source paramteres separately.
+            # each source parameters separately.
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)

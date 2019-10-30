@@ -153,7 +153,7 @@ class Trajectory(object):
 
             # Apply topocentric parallax effect
             if self.parallax['topocentric'] and self.earth_coords is not None:
-                # When you implement it, make sure the behaviour
+                # When you implement it, make sure the behavior
                 # depends on the access to the observatory location
                 # information as the satellite parallax depends on the
                 # access to satellite_skycoord.

@@ -63,13 +63,13 @@ class Event(object):
         self._model = None
         self._coords = None
 
-        # Initialise self._model (and check that model is defined).
+        # Initialize self._model (and check that model is defined).
         if isinstance(model, Model):
             self._model = model
         elif model is not None:
             raise TypeError('incorrect argument model of class Event()')
 
-        # Initialise self._datasets (and check that datasets is defined).
+        # Initialize self._datasets (and check that datasets is defined).
         if isinstance(datasets, (list, tuple, MulensData)) or datasets is None:
             self._set_datasets(datasets)
         else:
@@ -310,7 +310,7 @@ class Event(object):
                 from the *k*-th point of dataset *data_num*.
 
         Example :
-            Assumming ``event`` is instance of Event class to get chi2
+            Assuming ``event`` is instance of Event class to get chi2
             for 10-th point point of 0-th dataset.
 
             .. code-block:: python
