@@ -6,7 +6,7 @@
 5. utils.py docstrings - DONE
 6. _binary lens in planet frame_ - DONE
 7. hack session examples to be renamed, unlinked in README.md - DONE
-8. note public data in MM documentation after the paper was published
+8. note public data in MM documentation after the paper was published - DONE
 9. try/except - give specific exception names - DONE
 10. _are we using VBBL with improvements from 2018 paper?_
 11. remove branches: install sat plot\_source C08 - DONE
@@ -41,7 +41,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
   * make sure that website shows correct version of MM
   * note that we're not checking for negative source or blending flux
-  * add a list of public datasets: paper 1, MOA 9yr, VVV?, KMT releases, K2 (link to MCPM)
+  * add a list of public datasets: [VVV paper](https://ui.adsabs.harvard.edu/abs/2019arXiv190704339N/abstract) was published?, add link to K2/MCPM?; LINK the file [documents/public\_data\_list.md](documents/public_data_list.md) somewhere
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * _extract flux ratio for binary source models when fluxes are fitted via regression_
