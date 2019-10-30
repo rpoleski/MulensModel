@@ -52,12 +52,6 @@ class Trajectory(object):
             sky coordinates of the satellite specified by the
             ephemerides file. See
             :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
-
-    Attributes :
-        x: *np.ndarray*
-
-        y: *np.ndarray*
-            Dimensionless source trajectory.
     """
     _get_delta_annual_results = dict()
     _get_delta_annual_last = None
@@ -104,6 +98,24 @@ class Trajectory(object):
 
         # Calculate trajectory
         self.get_xy()
+
+    @property
+    def x(self):
+        """
+        *np.ndarray*
+
+        Dimensionless X coordinates of trajectory.
+        """
+        return self._x
+
+    @property
+    def y(self):
+        """
+        *np.ndarray*
+
+        Dimensionless Y coordinates of trajectory.
+        """
+        return self._y
 
     def get_xy(self):
         """
@@ -170,8 +182,8 @@ class Trajectory(object):
                 "trajectory for more than 2 lenses not handled yet")
 
         # Store trajectory
-        self.x = vector_x
-        self.y = vector_y
+        self._x = vector_x
+        self._y = vector_y
 
     def _project_delta(self, delta):
         """
