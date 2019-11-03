@@ -21,6 +21,7 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * Model.set\_datasets and .datasets - make sure it's always a list even if only single MulensData object is provided
 
 ### Yet unsorted/undecided:
+ * Caustics.get\_caustics() should return np.arrays, not lists
  * check all NotImplementedError and maybe remove some functions/options
  * somehow change which\_parameters() in modelparameters.py - maybe remove
  * new class for a collection of datasets to make looping over datasets easier; also there will be data\_ref defined

@@ -1,15 +1,18 @@
-## Sep/Oct goals:
+## Nov & Dec goals:
 1. make plans for MM v2.0
 2. get pypi/pip website
-3. README - note 2 new examples - DONE
 4. list of examples in a separate file, change order 01<->02
-5. utils.py docstrings - DONE
-6. _binary lens in planet frame_ - DONE
-7. hack session examples to be renamed, unlinked in README.md - DONE
-8. note public data in MM documentation after the paper was published - DONE
-9. try/except - give specific exception names - DONE
 10. _are we using VBBL with improvements from 2018 paper?_
-11. remove branches: install sat plot\_source C08 - DONE
+3. **code not yet well documented** - see below
+5. triple lens - test [ob07349](https://ui.adsabs.harvard.edu/#abs/2016AJ....152..125B/abstract) to see if center of mass can reference point for t0 and u0
+6. triple lens caustics
+7. triple lens - plan use cases and unit tests - note in [TRIPLE\_LENS.md](TRIPLE_LENS.md)
+8. "reset" triple\_lens branch? (i.e., copy code, remove branch, start new branch e.g. tripleLens, use the code copied at begin)
+9. [TRIPLE\_LENS.md](TRIPLE_LENS.md) - make notes in order there
+10. check triple lens use cases in master branch
+11. \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions
+12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it's != t\_0
+13. Event - not .fit after get\_chi2(), but there is one after get\_chi2\_for\_dataset()
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
@@ -20,7 +23,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
 
 * Install
   * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
-  * PIP install - the problem some time ago ws that CustomInstall from setup.py was run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html)
+  * PIP install - the problem some time ago ws that CustomInstall from setup.py was run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html), [link 3 - seems to be most official](https://packaging.python.org/)
   * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependencies first
   * more metadata in setup.py
@@ -30,10 +33,18 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Sagan workshop hands-on activity in MM
   * _examples as ipython notebooks_
   * Add \_\_repr\_\_ functions to Lens and Source
-  * files not yet well documented: 
+  * **code not yet well documented - some should changed to private in V2.0.0**: 
     * RA & Dec in coordinates.py (maybe also code it better)
-    * utils.py 
     * _Event.fit seems to be not documented_
+    * Horizons.file\_properties
+    * MagnificationCurve.trajectory
+    * MulensData.plot\_properties
+    * PointLens.parameters
+    * SatelliteSkyCoord.ephemerides\_file
+    * Trajectory.times
+    * Trajectory.parameters
+    * Trajectory.satellite\_skycoord
+    * Trajectory.earth\_coords - not implemented, so maybe remove?
   * Include full documentation via setup.py data\_files mechanism.
   * note that all plotting functions require plt.show() or plt.save()
   * try removing Attributes from docstrings - just make short @property functions
@@ -93,19 +104,24 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
 * Function Improvements/Expansion:
   * BinaryLens class:
     * _are we using VBBL with improvements from 2018 paper?_
+    * _VBBL2.0 - are we using accuracy limit as default? If so then we should switch to relative accuracy_
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
     * central and planetary caustic properties: [Chung et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...630..535C/abstract) and [Han 2006](https://ui.adsabs.harvard.edu/abs/2006ApJ...638.1080H/abstract)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_jacobian\_determinant\_ok\_WM95()
     * faster hexadecapole using [Cassan 2017](https://ui.adsabs.harvard.edu/abs/2017MNRAS.468.3993C/abstract) ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
-    * _VBBL2.0 - are we using accuracy limit as default? If so then we should switch to relative accuracy_
     * there should be an option for the user to ignore "wrong number of solutions" error and replace it with a warning
     * there should be a way to change the "wrong number of solutions" error into warning or dismiss it fully
+    * error message for not 3 or 5 images - give diagnostics first
+    * error message for not 3 or 5 images - This can be improved by checking the denominators in the equation (before polynomial is fully formed - see Zoey's Mathematica notes)
+    * error message for not 3 or 5 images - in "Consider ..." note that one must use Model.set\_magnification\_methods() for epochs far from peak
+    * VBBL additional parameter so that it works for huge source and tiny caustic
   * Caustics class:
     * Caustics.\_calculate - optimize using vectors instead of a loop
     * _Caustics calculations using [Erdl & Schneider 1993](https://ui.adsabs.harvard.edu/abs/1993A%26A...268..453E/abstract) approach; there is also [Asada 2002](https://ui.adsabs.harvard.edu/abs/2002A%26A...390L..11A/abstract) and I don't know if it makes sense to code that one as well_
     * root solver can be used the same as in binarylens.py - not needed for binary lens and Erdl & Schneider 1993
     * smaller points
+    * correct conditions in get\_caustics()
   * Event class:
     * **Allow fluxes to be fixed in chi^2 calculation (e.g. given a particular fs, fb, which you might want to do if you want fs as a chain parameter); also think how it will work for binary sources**
     * **give access to all fluxes without changing data\_ref**
@@ -117,7 +133,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * reduce calls to Fit.fit\_fluxes()
     * add finite source in chi2\_gradient()
     * chi2\_gradient() should cope NaN values in a way similar to get\_chi2()
-    * **check all functions that should pass fit\_blending parameter - Event.plot\_model, what else??? ** Already done: Event.get\_ref\_fluxes()
+    * **check all functions that should pass** fit\_blending parameter - Event.plot\_model, what else??? Already done: Event.get\_ref\_fluxes()
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
     * get flux and its error in reference system
     * change order to improve the website
@@ -155,10 +171,9 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * plot\_trajectory() - mark epochs using colorscale? Maybe it should be passed by kwargs (if so, then add example)
     * Should get\_satellite\_coords() use caching?
     * we should have versions of all plot functions to use magnifications instead of magnitudes; also add access via Event
-    * set\_datasets() - check input
     * add option to use random zorder when plotting multiple datasets (e.g. gaussian with sigma depending on number of plotted datapoints)
     * does Model.plot\_lc() give docstring for flux\_ratio\_constraint option? If not, then present it in plot\_magnification() docstring
-    * use pl.axhline() to plot 0 line in residuals plots at the end, using t\_min,t\_max
+    * use plt.axhline() to plot 0 line in residuals plots at the end, using t\_min,t\_max
     * get\_residuals needs unit test
     * plot\_trajectory - mark data epochs (as pyplot kwargs use MulensData.plot\_properties)
     * plot\_data & plot\_residuals - if color is not set by the user and show\_bad is True, then X-s are plotted using different color
@@ -172,6 +187,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * ModelParameters class:
     * _values in dimensionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
     * _LaTeX strings with parameters names (useful e.g. for corner plots or tables with results)_
+    * \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
     * why .rho returns None if it's not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
@@ -185,6 +201,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * MulensData class:
     * **Errorbar scaling, in particular the two parameter.**
     * _quick look alignment for MulensData objects - just use interpolation_
+    * make \_\_init\_\_() shorter
     * add version of n\_epochs that uses only good epochs
     * read settings from file header: flux vs. mag, filter, satellite info
     * change order to improve the website
@@ -207,11 +224,11 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * _\_get\_delta\_satellite() should be using self.times_
     * annual parallax caching - if moved to MulensData, then would be faster because hashing of coords and time vector takes time
     * maybe Trajectory should be able to plot itself, and Model.plot\_trajectory() should call it - it would be easier for binary sources etc.
-    * colorscale time or magnification (see Ranc+ paper on ob151670)
+    * colorscale time or magnification (see Fig 2 in [Ranc+19](https://arxiv.org/abs/1810.00014))
     * plot in units of theta\_star (or even days) instead of theta\_E
   * UniformCausticSampling class:
     * add function that calculated t\_in & t\_out in analogy to get\_x\_in\_x\_out() - the problem is that for given (u\_0, alpha) - there are 2, 4, or 6 caustic crossing points
-    * prior probability (in get\_uniform\_sampling()) of hitting given caustic based on (d, q, alpha) - see Kains+12
+    * prior probability (in get\_uniform\_sampling()) of hitting given caustic based on (d, q, alpha) - see [Kains+12](https://ui.adsabs.harvard.edu/abs/2012MNRAS.426.2228K/abstract)
     * prior only in given box (in get\_uniform\_sampling())
     * prior includes t\_E prior provided by user (also add option to use Mroz+19 etc) in get\_uniform\_sampling()
     * trajectories that cross 2 different caustics
@@ -222,6 +239,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * utils.py:57 - code produces 2 warnings, should produce just one; use masking
     * documentation - use ITALICS
     * uses masks there if warnings and apply None etc. - check examples after change!
+    * add a function that calculates mag/flux in a different flux space - we currently do it in MulensData.plot() and Model.get\_residuals()
   * MulensObjects submodule:
   * Plotting:
     * _plt.plot() .scatter() and .errorbar() should share default colors, so that when you plot one dataset and one model and don't set colors, then they are of different colors_
@@ -241,7 +259,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * _F\_s for MOA data for MB08310 differs from Janczak paper - is it caused by FSPL vs. FSBL models?_
     * add example that shows 'log\_' in the name of the parameter; central caustic anomaly planet would be best,
     * _example 08: PSBL, not PSPL_
-    * gaussian process - see Li+19 https://ui.adsabs.harvard.edu/abs/2019arXiv190407718L/abstract (maybe it requires input in Fit class, hence would not be just an example)
+    * gaussian process - see [Li+19](https://ui.adsabs.harvard.edu/abs/2019arXiv190407718L/abstract) (maybe it requires input in Fit class, hence would not be just an example)
     * Dan FM approach for periodic variables - two variables instead of one (identified by some postfix) - make it for alpha or x\_caustic\_in/out
     * add illustration on how to remove airmass trends
     * add example of fitting PSPL model using [Albrow (2004)](https://ui.adsabs.harvard.edu/abs/2004ApJ...607..821A/abstract) method [link](https://github.com/MichaelDAlbrow/SingleLensFitter/blob/master/SingleLensFitter.py)
@@ -256,6 +274,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * check if MM correctly interacts with scipy.optimize.leastsq and maybe add an example
     * add Coordinates.velocity\_of\_Earth() example
     * Example 13 - make x\_caustic\_in/\_out periodic variables
+    * add example with well-known code like [https://mc-stan.org/](https://mc-stan.org/)
   * Miscellaneous:
     * _COVERAGE : "coverage run --source MulensModel -m py.test" and then "coverage report" or "coverage report -m" or "coverage html" (and then open htmlcov/index.html); https://coverage.readthedocs.io/en/v4.5.x/_
     * u\_0 sign for satellite or just parallax model - some way of following u(t) evolution
