@@ -855,8 +855,6 @@ class ModelParameters(object):
 
         mass ratio of the two lens components. Only 2 bodies allowed.
         """
-        if isinstance(self.parameters['q'], (list, np.ndarray)):
-            self.parameters['q'] = self.parameters['q'][0]
         return self.parameters['q']
 
     @q.setter
@@ -871,8 +869,6 @@ class ModelParameters(object):
 
         separation of the two lens components relative to Einstein ring size
         """
-        if isinstance(self.parameters['s'], (list, np.ndarray)):
-            self.parameters['s'] = self.parameters['s'][0]
         return self.parameters['s']
 
     @s.setter
