@@ -10,7 +10,7 @@
 8. "reset" triple\_lens branch? (i.e., copy code, remove branch, start new branch e.g. tripleLens, use the code copied at begin)
 9. [TRIPLE\_LENS.md](TRIPLE_LENS.md) - make notes in order there
 10. check triple lens use cases in master branch
-11. \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions
+11. \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions - _DONE_
 12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it's != t\_0
 13. Event - not .fit after get\_chi2(), but there is one after get\_chi2\_for\_dataset()
 
@@ -187,11 +187,10 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * ModelParameters class:
     * _values in dimensionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
     * _LaTeX strings with parameters names (useful e.g. for corner plots or tables with results)_
-    * \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
     * why .rho returns None if it's not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
-    * to make \_check\_valid\_combination\_1\_source shorter, make a boolean dict that says if given parameter is defined or not
+    * to make \_check\_valid\_combination\_1\_source\_...() shorter, make a boolean dict that says if given parameter is defined or not
     * change order to improve the website
     * check if t\_eff and t\_star can be used as input simultaneously
     * check if input values are floats (or something else accepted)

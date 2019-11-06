@@ -366,6 +366,14 @@ class ModelParameters(object):
         """
         Here we check parameters for non-Cassan08 parameterization.
         """
+        self._check_valid_combination_1_source_1_lens(keys)
+        self._check_valid_combination_1_source_parallax(keys)
+        self._check_valid_combination_1_source_binary_lens(keys)
+
+    def _check_valid_combination_1_source_1_lens(self, keys):
+        """
+        Here we check non-parallax single lens parameters.
+        """
         # Make sure that minimum set of parameters are defined - we need
         # to know t_0, u_0, and t_E.
         if 't_0' not in keys:
@@ -376,13 +384,6 @@ class ModelParameters(object):
                 (('u_0' not in keys) or ('t_eff' not in keys)) and
                 (('rho' not in keys) or ('t_star' not in keys))):
             raise KeyError('not enough information to calculate t_E')
-
-        # If s, q, and alpha must all be defined if one is defined
-        if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
-            if (('s' not in keys) or
-                    ('q' not in keys) or ('alpha' not in keys)):
-                raise KeyError(
-                    'A binary model requires all three of (s, q, alpha).')
 
         # Cannot define all 3 parameters for 2 observables
         if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
@@ -396,6 +397,10 @@ class ModelParameters(object):
                 ('t_eff' in keys)):
             raise KeyError('You cannot define rho, t_star, u_0, and t_eff')
 
+    def _check_valid_combination_1_source_parallax(self, keys):
+        """
+        Here we check parallax parameters for non-Cassan08 parameterization.
+        """
         # Parallax is either pi_E or (pi_E_N, pi_E_E)
         if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
             raise KeyError(
@@ -419,6 +424,17 @@ class ModelParameters(object):
                 raise KeyError(
                     'Parallax is defined, hence either t_0 or t_0_par has ' +
                     'to be set.')
+
+    def _check_valid_combination_1_source_binary_lens(self, keys):
+        """
+        Here we check binary lens parameters for non-Cassan08 parameterization.
+        """
+        # If s, q, and alpha must all be defined if one is defined
+        if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
+            if (('s' not in keys) or
+                    ('q' not in keys) or ('alpha' not in keys)):
+                raise KeyError(
+                    'A binary model requires all three of (s, q, alpha).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
