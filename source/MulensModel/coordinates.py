@@ -121,9 +121,10 @@ class Coordinates(SkyCoord):
 
         Returns :
             v_Earth_perp_N: *float*
-                North component of Earth projected velocity.
+                North component of Earth's projected velocity in km/s.
+
             v_Earth_perp_E: *float*
-                East component of Earth projected velocity.
+                East component of Earth's projected velocity in km/s.
         """
         velocity = Utils.velocity_of_Earth(full_BJD)
 
