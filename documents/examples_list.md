@@ -3,11 +3,11 @@ Tutorials MulensModel:
 * [Basic usage tutorial](https://rpoleski.github.io/MulensModel/tutorial.html),
 * [Fitting tutorial](https://rpoleski.github.io/MulensModel/tutorial_fit_pspl.html),
 * [Microlensing parallax fitting tutorial](https://rpoleski.github.io/MulensModel/tutorial_fit_pi_E.html),
-* [**Explanation of microlensing parameters**](documents/parameter_names.pdf),
-* [**Explanation of methods used for calculating magnification**](documents/magnification_methods.pdf),
-* [Instructions on getting satellite positions](documents/Horizons_manual.md) - useful only if you have satellite data.
+* [**Explanation of microlensing parameters**](parameter_names.pdf),
+* [**Explanation of methods used for calculating magnification**](magnification_methods.pdf),
+* [Instructions on getting satellite positions](Horizons_manual.md) - useful only if you have satellite data.
 
-[Examples on how to use the code](examples/):
+[Examples on how to use the code](../examples/):
 * [Example 01](examples/example_01_models.py) - plot simple point-source/point-lens (PSPL) model and model with planetary lens,
 * [Example 02](examples/example_02_fitting.py) - fit PSPL model to the data using scipy.optimize.minimize(),
 * [Example 03](examples/example_03_mulenssystem.py) - define PSPL model using physical properties and plot the resulting magnification curve,

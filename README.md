@@ -21,7 +21,7 @@ Are you using MulensModel for scientific research? Please give us credit by citi
 
 ## Examples and tutorials
 
-We have more than a dozen of examples - starting from very simple ones (like plotting a model) to very advanced (like fitting a binary lens model with finite source effect). See [this file](documents/examples_list.md) for a list of examples and a few tutorials. Most importantly, we have file describing all microlensing parameters used in MulensModel [here](documents/parameter_names.pdf).
+We have more than a dozen of examples - starting from very simple ones (like plotting a model) to very advanced (like fitting a binary lens model with finite source effect). See [**this file**](documents/examples_list.md) for **a list of examples** and a few tutorials. Most importantly, we have file describing all microlensing parameters used in MulensModel [here](documents/parameter_names.pdf).
 
 
 ## How to install?
