@@ -35,7 +35,7 @@
 <dl class="class">
 <dt id="MulensModel.model.Model">
 <em class="property">class </em><code class="descclassname">MulensModel.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>parameters=None</em>, <em>coords=None</em>, <em>ra=None</em>, <em>dec=None</em>, <em>ephemerides_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A Model for a microlensing event with the specified parameters.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
@@ -765,6 +765,33 @@ account.</dd>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="MulensModel.model.Model.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#MulensModel.model.Model.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></p>
+<p>Model parameters.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.n_lenses">
+<code class="descname">n_lenses</code><a class="headerlink" href="#MulensModel.model.Model.n_lenses" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>number of objects in the lens system</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.model.Model.n_sources">
+<code class="descname">n_sources</code><a class="headerlink" href="#MulensModel.model.Model.n_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>number of luminous sources; it’s possible to be 1 for xallarap model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.model.Model.is_static">
+<code class="descname">is_static</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.is_static" title="Permalink to this definition">¶</a></dt>
+<dd><p>see <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.is_static" title="MulensModel.modelparameters.ModelParameters.is_static"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.modelparameters.ModelParameters.is_static()</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="MulensModel.model.Model.caustics">
 <code class="descname">caustics</code><a class="headerlink" href="#MulensModel.model.Model.caustics" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
@@ -782,33 +809,6 @@ account.</dd>
 <dt id="MulensModel.model.Model.coords">
 <code class="descname">coords</code><a class="headerlink" href="#MulensModel.model.Model.coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>see <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></a></p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.parameters">
-<code class="descname">parameters</code><a class="headerlink" href="#MulensModel.model.Model.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></p>
-<p>Model parameters.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.model.Model.is_static">
-<code class="descname">is_static</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.is_static" title="Permalink to this definition">¶</a></dt>
-<dd><p>see <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.is_static" title="MulensModel.modelparameters.ModelParameters.is_static"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.modelparameters.ModelParameters.is_static()</span></code></a></p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.n_lenses">
-<code class="descname">n_lenses</code><a class="headerlink" href="#MulensModel.model.Model.n_lenses" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em></p>
-<p>number of objects in the lens system</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.model.Model.n_sources">
-<code class="descname">n_sources</code><a class="headerlink" href="#MulensModel.model.Model.n_sources" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em></p>
-<p>number of luminous sources; it’s possible to be 1 for xallarap model</p>
 </dd></dl>
 
 <dl class="attribute">

@@ -35,25 +35,25 @@
 <dl class="class">
 <dt id="MulensModel.event.Event">
 <em class="property">class </em><code class="descclassname">MulensModel.event.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>datasets=None</em>, <em>model=None</em>, <em>coords=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Combines a microlensing model with data. Allows calculating chi^2 and
 making a number of plots.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
-<dd><p class="first">datasets:  <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> or
+<dd><p class="first"><a class="reference internal" href="#MulensModel.event.Event.datasets" title="MulensModel.event.Event.datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datasets</span></code></a> :  <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> or
 <em>list</em> of <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> objects</p>
 <blockquote>
 <div>Datasets that will be linked to the event. These datasets will
 be used for chi^2 calculation, plotting etc.</div></blockquote>
 <dl class="docutils">
-<dt>model: <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></dt>
+<dt><a class="reference internal" href="#MulensModel.event.Event.model" title="MulensModel.event.Event.model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code></a> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></span></dt>
 <dd>Microlensing model that will be linked to the event. In order to
 get chi^2 for different sets of model parameters you should
 keep a single <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a> instance and
 change parameters for this model (i.e., do not provide separate
 <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a> instances).</dd>
 </dl>
-<p>coords: <em>str</em>, <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></a>,
+<p><a class="reference internal" href="#MulensModel.event.Event.coords" title="MulensModel.event.Event.coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coords</span></code></a> : <em>str</em>, <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></a>,
 or <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html">astropy.SkyCoord</a></p>
 <blockquote class="last">
 <div>Coordinates of the event. If <em>str</em>, then needs format accepted by
@@ -61,7 +61,9 @@ or <a class="reference external" href="http://docs.astropy.org/en/stable/api/ast
 </dd>
 </dl>
 <p>The datasets can be in magnitude or flux spaces. When we calculate chi^2
-we do it in flux space. If dataset is in magnitude space and model results
+we do it in magnitude or flux space depending on value of
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.chi2_fmt" title="MulensModel.mulensdata.MulensData.chi2_fmt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">chi2_fmt</span></code></a> attribute.
+If dataset is in magnitude space and model results
 in negative flux, then we calculate chi^2 in flux space but only for the
 epochs with negative model flux.</p>
 <dl class="method">
@@ -188,13 +190,6 @@ for 10-th point point of 0-th dataset.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="MulensModel.event.Event.reset_best_chi2">
-<code class="descname">reset_best_chi2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.reset_best_chi2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset <a class="reference internal" href="#MulensModel.event.Event.best_chi2" title="MulensModel.event.Event.best_chi2"><code class="xref py py-attr docutils literal notranslate"><span class="pre">best_chi2</span></code></a> attribute and its parameters
-(<a class="reference internal" href="#MulensModel.event.Event.best_chi2_parameters" title="MulensModel.event.Event.best_chi2_parameters"><code class="xref py py-attr docutils literal notranslate"><span class="pre">best_chi2_parameters</span></code></a>).</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="MulensModel.event.Event.chi2_gradient">
 <code class="descname">chi2_gradient</code><span class="sig-paren">(</span><em>parameters</em>, <em>fit_blending=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.chi2_gradient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate chi^2 gradient (also called Jacobian), i.e.,
@@ -220,6 +215,13 @@ fixed to 0.  Default is the same as
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.event.Event.reset_best_chi2">
+<code class="descname">reset_best_chi2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.reset_best_chi2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset <a class="reference internal" href="#MulensModel.event.Event.best_chi2" title="MulensModel.event.Event.best_chi2"><code class="xref py py-attr docutils literal notranslate"><span class="pre">best_chi2</span></code></a> attribute and its parameters
+(<a class="reference internal" href="#MulensModel.event.Event.best_chi2_parameters" title="MulensModel.event.Event.best_chi2_parameters"><code class="xref py py-attr docutils literal notranslate"><span class="pre">best_chi2_parameters</span></code></a>).</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -269,7 +271,7 @@ Parameters that gave smallest chi2.</p>
 <code class="descname">sum_function</code><a class="headerlink" href="#MulensModel.event.Event.sum_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>sum_function: <em>str</em></p>
 <p>Function used for adding chi^2 contributions. Can be either
-<a class="reference external" href="https://docs.python.org/3/library/math.html#math.fsum" title="(in Python v3.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">math.fsum()</span></code></a> (default value) or <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.sum()</span></code>.
+<a class="reference external" href="https://docs.python.org/3/library/math.html#math.fsum" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">math.fsum()</span></code></a> (default value) or <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.sum()</span></code>.
 The former is slightly slower and more accurate,
 which may be important for large datasets.</p>
 </dd></dl>
