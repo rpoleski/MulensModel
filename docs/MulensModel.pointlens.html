@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.pointlens module &#8212; MulensModel 1.14.0 documentation</title>
+    <title>MulensModel.pointlens module &#8212; MulensModel 1.14.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -40,11 +49,11 @@ magnification.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
 <dd><p class="first">trajectory: <em>float</em>, <em>np.ndarray</em>, or
-<a class="reference internal" href="MulensModel.trajectory.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trajectory</span></code></a> object</p>
+<a class="reference internal" href="MulensModel.trajectory.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal"><span class="pre">Trajectory</span></code></a> object</p>
 <blockquote class="last">
 <div>The source-lens relative position. If _not_ a
-<a class="reference internal" href="MulensModel.trajectory.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trajectory</span></code></a> object,
-then trajectory is assumed to be value(s) of <span class="math notranslate nohighlight">\(u\)</span>.</div></blockquote>
+<a class="reference internal" href="MulensModel.trajectory.html#MulensModel.trajectory.Trajectory" title="MulensModel.trajectory.Trajectory"><code class="xref py py-class docutils literal"><span class="pre">Trajectory</span></code></a> object,
+then trajectory is assumed to be value(s) of <span class="math">\(u\)</span>.</div></blockquote>
 </dd>
 <dt>Returns :</dt>
 <dd><dl class="first last docutils">
@@ -59,14 +68,14 @@ specified by <cite>trajectory</cite>.</dd>
 <dl class="class">
 <dt id="MulensModel.pointlens.PointLens">
 <em class="property">class </em><code class="descclassname">MulensModel.pointlens.</code><code class="descname">PointLens</code><span class="sig-paren">(</span><em>parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Equations for calculating finite source effects for a point lens.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
 <dd><dl class="first last docutils">
-<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></dt>
+<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></dt>
 <dd>Parameters of the model. Currently, only
-<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.rho" title="MulensModel.modelparameters.ModelParameters.rho"><code class="xref py py-attr docutils literal notranslate"><span class="pre">rho</span></code></a>
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.rho" title="MulensModel.modelparameters.ModelParameters.rho"><code class="xref py py-attr docutils literal"><span class="pre">rho</span></code></a>
 attribute is used.</dd>
 </dl>
 </dd>
@@ -81,7 +90,7 @@ a <em>uniform</em> source).  The approximation was proposed by:</p>
 <p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract">Yoo J. et al. 2004 ApJ 603, 139 “OGLE-2003-BLG-262: Finite-Source
 Effects from a Point-Mass Lens”</a></p>
 <p>This approach assumes rho is small (rho &lt; 0.1). For larger sources
-use <a class="reference internal" href="#MulensModel.pointlens.PointLens.get_point_lens_uniform_integrated_magnification" title="MulensModel.pointlens.PointLens.get_point_lens_uniform_integrated_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_point_lens_uniform_integrated_magnification()</span></code></a>.</p>
+use <a class="reference internal" href="#MulensModel.pointlens.PointLens.get_point_lens_uniform_integrated_magnification" title="MulensModel.pointlens.PointLens.get_point_lens_uniform_integrated_magnification"><code class="xref py py-func docutils literal"><span class="pre">get_point_lens_uniform_integrated_magnification()</span></code></a>.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
@@ -123,7 +132,7 @@ can be provided.</dd>
 <dd>The point source, point lens magnification at each value of u.</dd>
 <dt>gamma: <em>float</em></dt>
 <dd>The limb-darkening coefficient. See also
-<a class="reference internal" href="MulensModel.limbdarkeningcoeffs.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal notranslate"><span class="pre">LimbDarkeningCoeffs</span></code></a></dd>
+<a class="reference internal" href="MulensModel.limbdarkeningcoeffs.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal"><span class="pre">LimbDarkeningCoeffs</span></code></a></dd>
 <dt>direct: <em>boolean</em></dt>
 <dd>Use direct calculation (very slow) instead of interpolation.</dd>
 </dl>
@@ -185,14 +194,12 @@ Stable Formalism”</a></p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -203,7 +210,7 @@ Stable Formalism”</a></p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

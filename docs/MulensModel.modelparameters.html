@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.modelparameters module &#8212; MulensModel 1.14.0 documentation</title>
+    <title>MulensModel.modelparameters module &#8212; MulensModel 1.14.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -52,7 +61,7 @@ one argument referring to a specific model (e.g. PSPL) or effect
 <dl class="class">
 <dt id="MulensModel.modelparameters.ModelParameters">
 <em class="property">class </em><code class="descclassname">MulensModel.modelparameters.</code><code class="descname">ModelParameters</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A class for the basic microlensing model parameters (t_0, u_0,
 t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
 lens. The pi_E assumes NE coordinates (Parallel, Perpendicular
@@ -62,7 +71,7 @@ coordinates are not supported).</p>
 <dd><dl class="first last docutils">
 <dt>parameters: <em>dictionary</em></dt>
 <dd>A dictionary of parameters and their values. See
-<a class="reference internal" href="#MulensModel.modelparameters.which_parameters" title="MulensModel.modelparameters.which_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">which_parameters()</span></code></a> for valid parameter combinations.</dd>
+<a class="reference internal" href="#MulensModel.modelparameters.which_parameters" title="MulensModel.modelparameters.which_parameters"><code class="xref py py-func docutils literal"><span class="pre">which_parameters()</span></code></a> for valid parameter combinations.</dd>
 </dl>
 </dd>
 <dt>Attributes :</dt>
@@ -70,17 +79,17 @@ coordinates are not supported).</p>
 <dt>parameters: <em>dictionary</em></dt>
 <dd>A dictionary of parameters and their values. Do not use it to
 change paramter values, instead use e.g.:
-<code class="docutils literal notranslate"><span class="pre">model_parameters.u_0</span> <span class="pre">=</span> <span class="pre">0.1</span></code> or
-<code class="docutils literal notranslate"><span class="pre">setattr(model_parameters,</span> <span class="pre">'u_0',</span> <span class="pre">0.1)</span></code>.</dd>
+<code class="docutils literal"><span class="pre">model_parameters.u_0</span> <span class="pre">=</span> <span class="pre">0.1</span></code> or
+<code class="docutils literal"><span class="pre">setattr(model_parameters,</span> <span class="pre">'u_0',</span> <span class="pre">0.1)</span></code>.</dd>
 </dl>
 </dd>
 <dt>Example:</dt>
 <dd><dl class="first last docutils">
 <dt>Define a point lens model:</dt>
-<dd><code class="docutils literal notranslate"><span class="pre">params</span> <span class="pre">=</span> <span class="pre">ModelParameters({'t_0':</span> <span class="pre">2450000.,</span> <span class="pre">'u_0':</span> <span class="pre">0.3,</span>
+<dd><code class="docutils literal"><span class="pre">params</span> <span class="pre">=</span> <span class="pre">ModelParameters({'t_0':</span> <span class="pre">2450000.,</span> <span class="pre">'u_0':</span> <span class="pre">0.3,</span>
 <span class="pre">'t_E':</span> <span class="pre">35.})</span></code></dd>
 <dt>Then you can print the parameters:</dt>
-<dd><code class="docutils literal notranslate"><span class="pre">print(params)</span></code></dd>
+<dd><code class="docutils literal"><span class="pre">print(params)</span></code></dd>
 </dl>
 </dd>
 </dl>
@@ -207,7 +216,7 @@ It is best to fix it at the begin of calculations.</p>
 <dd><p><em>float</em></p>
 <p>Curvelinear coordinate (in <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
 of caustic entrance for a static binary lens model. See
-<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -216,7 +225,7 @@ of caustic entrance for a static binary lens model. See
 <dd><p><em>float</em></p>
 <p>Curvelinear coordinate (in <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
 of caustic exit for a static binary lens model. See
-<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -226,7 +235,7 @@ of caustic exit for a static binary lens model. See
 <p>Epoch of caustic entrance for a static binary lens model in
 <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
 See
-<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -236,14 +245,14 @@ See
 <p>Epoch of caustic exit for a static binary lens model in
 <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
 See
-<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.ds_dt">
 <code class="descname">ds_dt</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>Change rate of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a> in 1/year. Can be set as
+<p>Change rate of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal"><span class="pre">s</span></code></a> in 1/year. Can be set as
 <em>AstroPy.Quantity</em> or as <em>float</em> (1/year is assumed default unit).
 Regardless of input value, returns value in 1/year.</p>
 </dd></dl>
@@ -252,7 +261,7 @@ Regardless of input value, returns value in 1/year.</p>
 <dt id="MulensModel.modelparameters.ModelParameters.dalpha_dt">
 <code class="descname">dalpha_dt</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
-<p>Change rate of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code></a> in deg/year. Can be set as
+<p>Change rate of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal"><span class="pre">alpha</span></code></a> in deg/year. Can be set as
 <em>AstroPy.Quantity</em> or as <em>float</em> (deg/year is assumed default unit).
 Regardless of input value, returns value in deg/year.</p>
 </dd></dl>
@@ -334,13 +343,13 @@ and the lens center of mass.</p>
 <dl class="method">
 <dt id="MulensModel.modelparameters.ModelParameters.get_s">
 <code class="descname">get_s</code><span class="sig-paren">(</span><em>epoch</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_s" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a> at a given epoch or
+<dd><p>Returns the value of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal"><span class="pre">s</span></code></a> at a given epoch or
 epochs (if orbital motion parameters are set).</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
 <dd><dl class="first last docutils">
 <dt>epoch: <em>float</em>, <em>list</em>, <em>np.ndarray</em></dt>
-<dd>The time(s) at which to calculate <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a>.</dd>
+<dd>The time(s) at which to calculate <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal"><span class="pre">s</span></code></a>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
@@ -355,13 +364,13 @@ epochs (if orbital motion parameters are set).</p>
 <dl class="method">
 <dt id="MulensModel.modelparameters.ModelParameters.get_alpha">
 <code class="descname">get_alpha</code><span class="sig-paren">(</span><em>epoch</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_alpha" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code></a> at a given epoch or
+<dd><p>Returns the value of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal"><span class="pre">alpha</span></code></a> at a given epoch or
 epochs (if orbital motion parameters are set).</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
 <dd><dl class="first last docutils">
 <dt>epoch: <em>float</em>, <em>list</em>, <em>np.ndarray</em></dt>
-<dd>The time(s) at which to calculate <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code></a>.</dd>
+<dd>The time(s) at which to calculate <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal"><span class="pre">alpha</span></code></a>.</dd>
 </dl>
 </dd>
 <dt>Returns :</dt>
@@ -380,7 +389,7 @@ epochs (if orbital motion parameters are set).</p>
 <p>Parallel component of instantaneous velocity of the secondary
 relative to the primary in 1/year.
 It is parallel to the primary-secondary axis.
-Equals <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="MulensModel.modelparameters.ModelParameters.ds_dt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ds_dt</span></code></a>/<a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a>. Cannot be set.</p>
+Equals <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="MulensModel.modelparameters.ModelParameters.ds_dt"><code class="xref py py-attr docutils literal"><span class="pre">ds_dt</span></code></a>/<a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal"><span class="pre">s</span></code></a>. Cannot be set.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -389,7 +398,7 @@ Equals <a class="reference internal" href="#MulensModel.modelparameters.ModelPar
 <dd><p><em>astropy.Quantity</em></p>
 <p>Perpendicular component of instantaneous velocity of the secondary
 relative to the primary. It is perpendicular to the primary-secondary
-axis. It has sign opposite to <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="MulensModel.modelparameters.ModelParameters.dalpha_dt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dalpha_dt</span></code></a>
+axis. It has sign opposite to <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="MulensModel.modelparameters.ModelParameters.dalpha_dt"><code class="xref py py-attr docutils literal"><span class="pre">dalpha_dt</span></code></a>
 and is in rad/yr, not deg/yr. Cannot be set.</p>
 </dd></dl>
 
@@ -447,7 +456,7 @@ if either of the sources is finite.</p>
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.source_1_parameters">
 <code class="descname">source_1_parameters</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.source_1_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></p>
+<dd><p><a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></p>
 <p>Parameters of source 1 in multi-source model.</p>
 <p><strong>Do not change returned values.</strong> To change
 parameters of the source 1, simply change the parameters of double
@@ -457,7 +466,7 @@ source instance.</p>
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.source_2_parameters">
 <code class="descname">source_2_parameters</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.source_2_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></p>
+<dd><p><a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></p>
 <p>Parameters of source 2 in multi-source model.</p>
 <p><strong>Do not change returned values.</strong> To change
 parameters of the source 1, simply change the parameters of double
@@ -467,9 +476,9 @@ source instance.</p>
 <dl class="attribute">
 <dt id="MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling">
 <code class="descname">uniform_caustic_sampling</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a></p>
+<dd><p><a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal"><span class="pre">UniformCausticSampling</span></code></a></p>
 <p>An instance of the class
-<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>
+<a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal"><span class="pre">UniformCausticSampling</span></code></a>
 that is used to calculate standard parameters based on
 the curvelinear coordinates.
 The main usage is access to the <em>jacobian()</em> function.
@@ -515,14 +524,12 @@ In most cases, you do not need to access this property directly.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -533,7 +540,7 @@ In most cases, you do not need to access this property directly.</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

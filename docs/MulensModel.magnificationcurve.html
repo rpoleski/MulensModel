@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>MulensModel.magnificationcurve module &#8212; MulensModel 1.14.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -35,9 +44,9 @@
 <dl class="class">
 <dt id="MulensModel.magnificationcurve.MagnificationCurve">
 <em class="property">class </em><code class="descclassname">MulensModel.magnificationcurve.</code><code class="descname">MagnificationCurve</code><span class="sig-paren">(</span><em>times</em>, <em>parameters</em>, <em>parallax=None</em>, <em>coords=None</em>, <em>satellite_skycoord=None</em>, <em>gamma=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The magnification curve calculated from the model light curve.</p>
-<p>The key function is <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_magnification_methods()</span></code></a>, which
+<p>The key function is <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods"><code class="xref py py-func docutils literal"><span class="pre">set_magnification_methods()</span></code></a>, which
 specifies the method used to calculate the finite source
 magnification and when to use it..</p>
 <dl class="docutils">
@@ -45,18 +54,18 @@ magnification and when to use it..</p>
 <dd><dl class="first last docutils">
 <dt>times: iterable of <em>floats</em></dt>
 <dd>the times at which to generate the magnification curve</dd>
-<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></dt>
+<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></dt>
 <dd>specifies the microlensing parameters</dd>
 <dt>parallax: <em>dict</em>, optional</dt>
 <dd>dictionary specifying what parallax effects should be
-used, e.g., <code class="docutils literal notranslate"><span class="pre">{'earth_orbital':</span> <span class="pre">True,</span> <span class="pre">'satellite':</span> <span class="pre">False,</span>
+used, e.g., <code class="docutils literal"><span class="pre">{'earth_orbital':</span> <span class="pre">True,</span> <span class="pre">'satellite':</span> <span class="pre">False,</span>
 <span class="pre">'topocentric':</span> <span class="pre">False}</span></code></dd>
-<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.coordinates.Coordinates</span></code></a>, optional</dt>
+<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">MulensModel.coordinates.Coordinates</span></code></a>, optional</dt>
 <dd>sky coordinates of the event</dd>
 <dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the satellite specified by the
 ephemerides file. see
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
+<code class="xref py py-obj docutils literal"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
 <dt>gamma: <em>float</em>, optional</dt>
 <dd>limb darkening coefficient in gamma convention; defaults to 0</dd>
 </dl>
@@ -68,9 +77,9 @@ ephemerides file. see
 <dd><p>Sets methods used for magnification calculation.</p>
 <dl class="docutils">
 <dt>For available methods, see:</dt>
-<dd><p class="first"><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_point_lens_magnification()</span></code></a></p>
+<dd><p class="first"><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification"><code class="xref py py-func docutils literal"><span class="pre">get_point_lens_magnification()</span></code></a></p>
 <p>and</p>
-<p class="last"><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_binary_lens_magnification()</span></code></a></p>
+<p class="last"><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification"><code class="xref py py-func docutils literal"><span class="pre">get_binary_lens_magnification()</span></code></a></p>
 </dd>
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
@@ -79,7 +88,7 @@ ephemerides file. see
 used when (<em>float</em> values for Julian dates). Given
 method will be used for times between the times
 between which it is on the list, e.g.,</p>
-<div class="last highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">methods</span> <span class="o">=</span> <span class="p">[</span>
+<div class="last highlight-python"><div class="highlight"><pre><span></span><span class="n">methods</span> <span class="o">=</span> <span class="p">[</span>
     <span class="mf">2455746.</span><span class="p">,</span> <span class="s1">&#39;Quadrupole&#39;</span><span class="p">,</span> <span class="mf">2455746.6</span><span class="p">,</span> <span class="s1">&#39;Hexadecapole&#39;</span><span class="p">,</span>
     <span class="mf">2455746.7</span><span class="p">,</span> <span class="s1">&#39;VBBL&#39;</span><span class="p">,</span> <span class="mf">2455747.</span><span class="p">,</span> <span class="s1">&#39;Hexadecapole&#39;</span><span class="p">,</span>
     <span class="mf">2455747.15</span><span class="p">,</span> <span class="s1">&#39;Quadrupole&#39;</span><span class="p">,</span> <span class="mf">2455748.</span><span class="p">]</span>
@@ -93,10 +102,10 @@ specified in <em>methods</em>.</dd>
 </dd>
 </dl>
 <p>For point-lens with finite source, the methods named
-<code class="docutils literal notranslate"><span class="pre">finite_source_uniform_Gould94</span></code> and <code class="docutils literal notranslate"><span class="pre">finite_source_LD_Yoo04</span></code>
+<code class="docutils literal"><span class="pre">finite_source_uniform_Gould94</span></code> and <code class="docutils literal"><span class="pre">finite_source_LD_Yoo04</span></code>
 implement the algorithms presented by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract">Gould 1994 ApJ, 421L, 71</a> and
 <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract">Yoo et al. 2004 ApJ, 603, 139</a> and
-interpolate pre-computed tables when possible. Add <code class="docutils literal notranslate"><span class="pre">_direct</span></code> to
+interpolate pre-computed tables when possible. Add <code class="docutils literal"><span class="pre">_direct</span></code> to
 these names to force direct integration.</p>
 </dd></dl>
 
@@ -109,8 +118,8 @@ these names to force direct integration.</p>
 <dd><dl class="first last docutils">
 <dt>methods_parameters: <em>dict</em></dt>
 <dd>Dictionary that for method names (keys) returns dictionary
-in the form of <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> that are passed to given method,
-e.g., <code class="docutils literal notranslate"><span class="pre">{'VBBL':</span> <span class="pre">{'accuracy':</span> <span class="pre">0.005}}</span></code>.</dd>
+in the form of <code class="docutils literal"><span class="pre">**kwargs</span></code> that are passed to given method,
+e.g., <code class="docutils literal"><span class="pre">{'VBBL':</span> <span class="pre">{'accuracy':</span> <span class="pre">0.005}}</span></code>.</dd>
 </dl>
 </dd>
 </dl>
@@ -137,31 +146,31 @@ e.g., <code class="docutils literal notranslate"><span class="pre">{'VBBL':</spa
 <dl class="docutils">
 <dt>Allowed magnification methods :</dt>
 <dd><dl class="first last docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">point_source</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">point_source</span></code>:</dt>
 <dd>standard Paczynski equation for a point source/point lens.</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">finite_source_uniform_Gould94</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">finite_source_uniform_Gould94</span></code>:</dt>
 <dd>Uses the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract">Gould 1994 ApJ, 421L, 71</a> prescription assuming a
 <em>uniform</em> (and circular) source. This method interpolates
 pre-computed tables. The relative interpolation
 errors are smaller than 10^-4.</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">finite_source_LD_Yoo04</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">finite_source_LD_Yoo04</span></code>:</dt>
 <dd>Uses the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract">Yoo et al. 2004 ApJ, 603, 139</a> prescription for
 a circular source <em>including limb-darkening</em>. This method
 interpolates pre-computed tables. The relative interpolation
 errors are smaller than 10^-4.</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">finite_source_uniform_Gould94_direct</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">finite_source_uniform_Gould94_direct</span></code>:</dt>
 <dd>Uses the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract">Gould 1994 ApJ, 421L, 71</a> prescription assuming a
 <em>uniform</em> (and circular) source. This method calculates
 the underlying functions directly.</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">finite_source_LD_Yoo04_direct</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">finite_source_LD_Yoo04_direct</span></code>:</dt>
 <dd>Uses the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract">Yoo et al. 2004 ApJ, 603, 139</a> prescription for
 a circular source <em>including limb-darkening</em>. This method
 calculates 2D integral directly (hence can be slow).</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">finite_source_uniform_Lee09</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">finite_source_uniform_Lee09</span></code>:</dt>
 <dd>Uses the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract">Lee et al. 2009 ApJ, 695, 200</a>
 method for a circular and <em>uniform</em> source. This method
 works well for large sources (rho ~ 1).</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">finite_source_LD_Lee09</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">finite_source_LD_Lee09</span></code>:</dt>
 <dd>Uses the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract">Lee et al. 2009 ApJ, 695, 200</a> method for
 a circular source <em>including limb-darkening</em>. This method
 works well for large sources (rho ~ 1) but can be slow
@@ -184,28 +193,28 @@ compared to other methods.</dd>
 <dl class="docutils">
 <dt>Allowed magnification methods :</dt>
 <dd><dl class="first last docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">point_source</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">point_source</span></code>:</dt>
 <dd>standard point source magnification calculation.</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">quadrupole</span></code>:</dt>
+<dt><code class="docutils literal"><span class="pre">quadrupole</span></code>:</dt>
 <dd>From <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract">Gould 2008 ApJ, 681, 1593</a>.
 See
-<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">hexadecapole_magnification()</span></code></a></dd>
-<dt><code class="docutils literal notranslate"><span class="pre">hexadecapole</span></code>:</dt>
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal"><span class="pre">hexadecapole_magnification()</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">hexadecapole</span></code>:</dt>
 <dd>From <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract">Gould 2008 ApJ, 681, 1593</a> See
-<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">hexadecapole_magnification()</span></code></a></dd>
-<dt><code class="docutils literal notranslate"><span class="pre">VBBL</span></code>:</dt>
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="MulensModel.binarylens.BinaryLens.hexadecapole_magnification"><code class="xref py py-func docutils literal"><span class="pre">hexadecapole_magnification()</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">VBBL</span></code>:</dt>
 <dd>Uses VBBinaryLensing (a Stokes theorem/contour
 integration code) by Valerio Bozza
 (<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract">Bozza 2010 MNRAS, 408, 2188</a>).
 See
-<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="MulensModel.binarylens.BinaryLens.vbbl_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">vbbl_magnification()</span></code></a></dd>
-<dt><code class="docutils literal notranslate"><span class="pre">Adaptive_Contouring</span></code>:</dt>
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="MulensModel.binarylens.BinaryLens.vbbl_magnification"><code class="xref py py-func docutils literal"><span class="pre">vbbl_magnification()</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">Adaptive_Contouring</span></code>:</dt>
 <dd>Uses AdaptiveContouring (a Stokes theorem/contour
 integration code) by Martin Dominik
 (<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract">Dominik 2007 MNRAS, 377, 1679</a>).
 See
-<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">adaptive_contouring_magnification()</span></code></a></dd>
-<dt><code class="docutils literal notranslate"><span class="pre">point_source_point_lens</span></code>:</dt>
+<a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification"><code class="xref py py-func docutils literal"><span class="pre">adaptive_contouring_magnification()</span></code></a></dd>
+<dt><code class="docutils literal"><span class="pre">point_source_point_lens</span></code>:</dt>
 <dd>Uses point-source _point_-_lens_ approximation; useful when you
 consider binary lens but need magnification very far from
 the lens (e.g. at separation u = 100).</dd>
@@ -224,7 +233,7 @@ the lens (e.g. at separation u = 100).</dd>
 <dt id="MulensModel.magnificationcurve.MagnificationCurve.magnification">
 <code class="descname">magnification</code><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.ndarray</em></p>
-<p>provide vector of magnifications. Same as <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_magnification()</span></code></a></p>
+<p>provide vector of magnifications. Same as <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_magnification"><code class="xref py py-func docutils literal"><span class="pre">get_magnification()</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -252,14 +261,12 @@ the lens (e.g. at separation u = 100).</dd>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -270,7 +277,7 @@ the lens (e.g. at separation u = 100).</dd>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
