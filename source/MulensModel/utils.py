@@ -63,31 +63,6 @@ class Utils(object):
         return (mag, err_mag)
     get_mag_and_err_from_flux = staticmethod(get_mag_and_err_from_flux)
 
-    def complex_fsum(arguments):
-        """
-        accurate floating points sum of complex numbers in iterable
-        arguments
-        """
-        real = [arg.real for arg in arguments]
-        imag = [arg.imag for arg in arguments]
-        return fsum(real) + fsum(imag) * 1j
-    complex_fsum = staticmethod(complex_fsum)
-
-    def dot(cartesian, vector):
-        """ dot product of Astropy CartersianRepresentation and np.ndarray """
-        return (cartesian.x * vector[0] + cartesian.y * vector[1] +
-                cartesian.z * vector[2])
-    dot = staticmethod(dot)
-
-    def vector_product_normalized(vector_1, vector_2):
-        """
-        get vector that is perpendicular to the 2 above and is
-        normalized
-        """
-        vector_product = np.cross(vector_1, vector_2)
-        return vector_product / np.linalg.norm(vector_product)
-    vector_product_normalized = staticmethod(vector_product_normalized)
-
     # The two functions below implement convention introduced by:
     # An et al. 2002 (ApJ 572, 521)
     # https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract
@@ -124,19 +99,6 @@ class Utils(object):
         else:
             return 1
 
-    def date_change(text):
-        """
-        changes format: '2015-Oct-30 12:00' -> '2015-10-30 12:00'
-        """
-        text = text.decode('UTF-8')
-        str_components = text.split('-')
-        if len(str_components) == 1:
-            raise ValueError("Can't run date_change() for {:}".format(text))
-        return '-'.join((
-            str_components[0], month_3letter_to_2digit[str_components[1]],
-            str_components[2]))
-    date_change = staticmethod(date_change)
-
     def velocity_of_Earth(full_BJD):
         """
         Calculate 3D velocity of Earth for given epoch.
@@ -167,6 +129,44 @@ class Utils(object):
         velocity = np.asarray(earth_pv_bary[1]) * factor
         return velocity
     velocity_of_Earth = staticmethod(velocity_of_Earth)
+
+    def complex_fsum(arguments):
+        """
+        accurate floating points sum of complex numbers in iterable
+        arguments
+        """
+        real = [arg.real for arg in arguments]
+        imag = [arg.imag for arg in arguments]
+        return fsum(real) + fsum(imag) * 1j
+    complex_fsum = staticmethod(complex_fsum)
+
+    def vector_product_normalized(vector_1, vector_2):
+        """
+        get vector that is perpendicular to the 2 above and is
+        normalized
+        """
+        vector_product = np.cross(vector_1, vector_2)
+        return vector_product / np.linalg.norm(vector_product)
+    vector_product_normalized = staticmethod(vector_product_normalized)
+
+    def dot(cartesian, vector):
+        """ dot product of Astropy CartersianRepresentation and np.ndarray """
+        return (cartesian.x * vector[0] + cartesian.y * vector[1] +
+                cartesian.z * vector[2])
+    dot = staticmethod(dot)
+    
+    def date_change(text):
+        """
+        changes format: '2015-Oct-30 12:00' -> '2015-10-30 12:00'
+        """
+        text = text.decode('UTF-8')
+        str_components = text.split('-')
+        if len(str_components) == 1:
+            raise ValueError("Can't run date_change() for {:}".format(text))
+        return '-'.join((
+            str_components[0], month_3letter_to_2digit[str_components[1]],
+            str_components[2]))
+    date_change = staticmethod(date_change)
 
     def astropy_version_check(minimum):
         """
