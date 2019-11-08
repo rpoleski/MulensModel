@@ -205,7 +205,7 @@ class Model(object):
                 plotting calls (e.g. :py:func:`plot_data()`)
 
             flux_ratio_constraint: instance of
-            :py:class:`~MulensModel.mulensdata.MulensData` or *str*, optional
+                :py:class:`~MulensModel.mulensdata.MulensData` or *str*, optional
                 Option for binary source models only.
                 Data or bandpass to constrain the flux ratio of sources.
 
@@ -1365,7 +1365,7 @@ class Model(object):
                 0 which means no limb darkening effect.
 
             flux_ratio_constraint:
-            :py:class:`~MulensModel.mulensdata.MulensData` or *str*, optional
+                :py:class:`~MulensModel.mulensdata.MulensData` or *str*, optional
                 Data to constrain the flux ratio of sources in binary source
                 models. Can be :py:class:`~MulensModel.mulensdata.MulensData`
                 instance and in that case this dataset is used to find flux
