@@ -3,7 +3,7 @@
 <dl>MulensModel is package for modeling microlensing (or &mu;-lensing) 
 events. </dl>
 
-[Latest release: 1.14.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 1.14.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code. The documentations is at [**https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/).
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
@@ -21,8 +21,9 @@ Are you using MulensModel for scientific research? Please give us credit by citi
 
 ## Examples and tutorials
 
-We have more than a dozen of examples - starting from very simple ones (like plotting a model) to very advanced (like fitting a binary lens model with finite source effect). See [**this file**](documents/examples_list.md) for **a list of examples** and a few tutorials. Most importantly, we have file describing all microlensing parameters used in MulensModel [here](documents/parameter_names.pdf).
+We have more than a dozen of examples - starting from very simple ones (like plotting a model) to very advanced (like fitting a binary lens model with finite source effect). See [**this file**](documents/examples_list.md) for **a list of examples** and a few tutorials. Most importantly, we have file describing **all microlensing parameters used in MulensModel** [**here**](documents/parameter_names.pdf). Also we have a file describing **methods used to calculate magnification in MulensModel** [**here**](documents/magnification_methods.pdf).
 
+The full documentation of API is at [https://rpoleski.github.io/MulensModel/](https://rpoleski.github.io/MulensModel/).
 
 ## How to install?
 

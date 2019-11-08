@@ -30,7 +30,7 @@ class MulensData(object):
         data_list: [*list* of *lists*, *numpy.ndarray*], optional
             The list that contains three *lists* or *numpy.ndarrays*
             that specify: time, magnitude or flux, and its uncertainty
-            (in that order0. The lengths of these three objects must be
+            (in that order). The lengths of these three objects must be
             the same.
 
         file_name: *str*, optional
@@ -176,6 +176,16 @@ class MulensData(object):
             # ...from an array
             if len(kwargs) > 0:
                 raise ValueError('data_list and kwargs cannot be both set')
+            if len(data_list) != 3:
+                try:
+                    msg0 = "\n" + str(data_list) + "\n"
+                except:
+                    msg0 = ""
+                msg = (msg0 + "\n" +
+                       'MulensData was initiated with data_list of length ' +
+                       '{:}, while length of 3 is expected (i.e. time, mag ' +
+                       'or flux, and uncertainty).')
+                raise ValueError(msg.format(len(data_list)))
             (vector_1, vector_2, vector_3) = list(data_list)
             self._initialize(
                 phot_fmt, time=np.array(vector_1),
