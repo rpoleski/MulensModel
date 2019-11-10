@@ -384,6 +384,9 @@ class PointLens(object):
         values[:, -1] = 0.
         if values[-1, 0] < 0.:
             values[-1, 0] = 0.
+            if values[-1, 1] < 0.:  # This sometimes happens due to rounding
+                values[-1, 1] = .5 * values[-1, 2]  # errors above. Using
+                # math.fsum in "values = ..." doesn't help in all cases.
         out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
         return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
 
