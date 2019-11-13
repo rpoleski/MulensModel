@@ -84,6 +84,7 @@ class Event(object):
 
         self.reset_best_chi2()
         self.sum_function = 'math.fsum'
+        self.fit = None  # This should be changed to @property w/ lazy loading
 
     @property
     def datasets(self):

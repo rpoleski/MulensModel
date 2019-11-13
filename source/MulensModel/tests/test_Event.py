@@ -44,6 +44,9 @@ def test_event_get_chi2_1():
     ev.model = mod
     ev.datasets = [data]
 
+    # Make sure Event.fit is defined (can be None):
+    assert ev.fit is None or isinstance(ev.fit, Fit)
+
     chi2 = ev.get_chi2()
     assert isinstance(chi2, float), 'wrong type of chi2'
     np.testing.assert_almost_equal(float(chi2), 427.20382, decimal=4,
