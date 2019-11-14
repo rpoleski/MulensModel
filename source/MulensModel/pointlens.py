@@ -419,7 +419,7 @@ class PointLens(object):
         for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
             temp[i] = np.linspace(u_1_, u_2_, n_u)
         integrand = self._integrand_Lee09_v2(temp, u, temp2, rho, gamma)
-        dx = temp[:,1] - temp[:,0]
+        dx = temp[:, 1] - temp[:, 0]
         for (i, dx_) in enumerate(dx):
             integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
         out = integrate.simps(integrand_values, dx=theta[1]-theta[0])

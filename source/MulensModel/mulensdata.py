@@ -179,7 +179,7 @@ class MulensData(object):
             if len(data_list) != 3:
                 try:
                     msg0 = "\n" + str(data_list) + "\n"
-                except:
+                except Exception:
                     msg0 = ""
                 msg = (msg0 + "\n" +
                        'MulensData was initiated with data_list of length ' +
