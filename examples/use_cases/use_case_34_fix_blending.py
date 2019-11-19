@@ -2,7 +2,7 @@ import os
 import MulensModel
 
 """
-use_case_32_fix_blending.py
+use_case_34_fix_blending.py
 
 Fix the blending for one observatory to a non-zero value.
 
