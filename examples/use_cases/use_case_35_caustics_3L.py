@@ -1,0 +1,46 @@
+"""
+Show how to plot triple lens caustics.
+"""
+import matplotlib.pyplot as plt
+
+import MulensModel as mm
+
+
+raise NotImplementedError('Triple Lenses are Not Supported')
+
+parameters = {
+    't_0': 2456789.12, 'u_0': 0.01, 't_E': 34.56, 'rho': 0.0012, 'alpha': 45.,
+    's_21': 1.1, 's_31': 0.5, 'q_21': 0.2, 'q_31': 0.01234, 'psi': 90.}
+
+model = mm.Model(parameters)
+model_parameters = mm.ModelParameters(parameters)
+
+# Basic plotting:
+model.plot_trajectory(caustics=True)
+plt.show()
+
+# Plot using mm.Caustics:
+keys = {'s_21', 's_31', 'psi', 'q_21', 'q_31'}  # We need only these keys
+caustic_parameters = {key: parameters[key] for key in keys}
+# New initialization of Caustics:
+caustics_1 = mm.Caustics(parameters_3L=caustic_parameters)
+caustics_1.plot()
+plt.show()
+
+# Find positions of the components and use them to plot the caustic:
+positions = model_parameters.lens_components_positions  # This is new property.
+print(positions)  # Prints a list of 3 complex numbers
+caustics_2 = mm.Caustics(
+    q_21=parameters['q_21'], q_31=parameters['q_31'],
+    lens_components_positions=positions)
+caustics_2.plot()
+plt.show()
+
+# Change position of one of the components and then plot the caustic:
+# (this is why we want two ways to init Caustics for 3L events)
+positions[1] += 0.1 + 0.2j
+caustics_3 = mm.Caustics(
+    q_21=parameters['q_21'], q_31=parameters['q_31'],
+    lens_components_positions=positions)
+caustics_3.plot()
+plt.show()
