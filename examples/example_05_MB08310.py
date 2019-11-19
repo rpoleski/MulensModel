@@ -10,16 +10,17 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
-from MulensModel import Event, Model, MulensData, DATA_PATH
+import MulensModel as mm
+
 
 # Read in MB08310 data files (see data/MB08310) as MulensData objects.
 # Grabbing all data files in the MB08310 folder
-files = glob.glob(os.path.join(DATA_PATH, "photometry_files",
+files = glob.glob(os.path.join(mm.DATA_PATH, "photometry_files",
                                "MB08310", "*.tbl"))
 
 datasets_default = []
 for file_ in sorted(files):
-    data = MulensData(file_name=file_, comments=["\\", "|"])
+    data = mm.MulensData(file_name=file_, comments=["\\", "|"])
     datasets_default.append(data)
 
 # Define basic point lens model
@@ -27,12 +28,12 @@ t_0 = 2454656.39975
 u_0 = 0.00300
 t_E = 11.14
 t_star = 0.05487
-plens_model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 't_star': t_star})
+plens_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 't_star': t_star})
 method = 'finite_source_uniform_Gould94'
 plens_model.set_magnification_methods([t_0-.05, method, t_0+.05])
 
 # Combine the data and model into an event
-event_default = Event(datasets=datasets_default, model=plens_model)
+event_default = mm.Event(datasets=datasets_default, model=plens_model)
 event_default.data_ref = 6
 
 gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
@@ -52,14 +53,14 @@ event_default.plot_residuals(subtract_2450000=True)
 datasets_custom = []
 color_list = ['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
 for (i, file_) in enumerate(sorted(files)):
-    data = MulensData(
+    data = mm.MulensData(
         file_name=file_, comments=["\\", "|"],
         plot_properties={
             'color': color_list[i],
             'label': os.path.basename(file_).split('_', maxsplit=2)[0]})
     datasets_custom.append(data)
 
-event_custom = Event(datasets=datasets_custom, model=plens_model)
+event_custom = mm.Event(datasets=datasets_custom, model=plens_model)
 
 plt.figure()
 plt.subplot(gs[0])

@@ -9,7 +9,7 @@ import numpy as np
 import scipy.optimize as op
 import matplotlib.pyplot as plt
 
-from MulensModel import Event, Model, MulensData, DATA_PATH
+import MulensModel as mm
 
 
 def chi2_fun(theta, event, parameters_to_fit):
@@ -32,19 +32,19 @@ def jacobian(theta, event, parameters_to_fit):
 
 
 # Read in the data file
-file_ = os.path.join(DATA_PATH, "photometry_files", "OB08092",
+file_ = os.path.join(mm.DATA_PATH, "photometry_files", "OB08092",
                      "phot_ob08092_O4.dat")
-data = MulensData(file_name=file_)
+data = mm.MulensData(file_name=file_)
 
 # Initialize the fit
 parameters_to_fit = ["t_0", "u_0", "t_E"]
 t_0 = 5380.
 u_0 = 0.1
 t_E = 18.
-model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Link the data and the model
-ev = Event(datasets=data, model=model)
+ev = mm.Event(datasets=data, model=model)
 print('Initial Trial\n{0}'.format(ev.model.parameters))
 
 # Find the best-fit parameters
@@ -66,8 +66,8 @@ print('\nscipy.optimize.minimize result:')
 print(result)
 
 # Plot and compare the two models
-init_model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-final_model = Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
+init_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+final_model = mm.Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
 plt.figure()
 init_model.plot_lc(data_ref=data, label='Initial Trial')
 final_model.plot_lc(data_ref=data, label='Final Model')

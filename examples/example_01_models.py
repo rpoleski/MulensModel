@@ -10,8 +10,7 @@ plotted).
 import matplotlib.pyplot as plt
 import numpy as np
 
-import MulensModel
-from MulensModel.model import Model
+import MulensModel as mm
 
 
 # Create a PSPL model
@@ -19,7 +18,7 @@ t_0 = 3583.
 u_0 = 0.3
 t_E = 12.
 
-pspl = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Create a planet model with same PSPL parameters
 s = 1.5
@@ -27,7 +26,7 @@ q = 0.001
 alpha = 339.0
 rho = 0.001
 
-planet = Model(
+planet = mm.Model(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
      'rho': rho})
 planet.set_magnification_methods([3589., 'VBBL', 3595.])

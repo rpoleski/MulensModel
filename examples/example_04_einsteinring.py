@@ -14,6 +14,7 @@ Output:
 """
 import numpy as np
 import astropy.units as u
+
 import MulensModel as mm
 
 # Define the source and lens parameters

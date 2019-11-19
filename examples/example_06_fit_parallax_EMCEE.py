@@ -15,7 +15,7 @@ except ImportError as err:
     sys.exit(1)
 import matplotlib.pyplot as plt
 
-from MulensModel import Event, Model, MulensData, DATA_PATH
+import MulensModel as mm
 
 
 # Define likelihood functions
@@ -50,9 +50,9 @@ def ln_prob(theta, event, parameters_to_fit):
 
 # Read the data
 file_name = os.path.join(
-    DATA_PATH, "photometry_files", "OB05086",
+    mm.DATA_PATH, "photometry_files", "OB05086",
     "starBLG234.6.I.218982.dat")
-my_data = MulensData(file_name=file_name, add_2450000=True)
+my_data = mm.MulensData(file_name=file_name, add_2450000=True)
 
 coords = "18:04:45.71 -26:59:15.2"
 
@@ -65,7 +65,7 @@ params['t_E'] = 100.
 params['pi_E_N'] = 0.
 params['pi_E_E'] = 0.
 my_model = Model(params, coords=coords)
-my_event = Event(datasets=my_data, model=my_model)
+my_event = mm.Event(datasets=my_data, model=my_model)
 
 # Which parameters we want to fit?
 parameters_to_fit = ["t_0", "u_0", "t_E", "pi_E_N", "pi_E_E"]

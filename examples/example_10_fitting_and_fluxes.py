@@ -26,7 +26,7 @@ except ImportError as err:
 import matplotlib.pyplot as plt
 import configparser
 
-from MulensModel import Event, Model, MulensData
+import MulensModel as mm
 
 
 # Define likelihood functions
@@ -105,7 +105,7 @@ if section not in config:
     raise KeyError('Sorry, no photometry files specified in config.')
 file_names = [config.get(section, var) for var in config[section]]
 kwargs = {'comments': ["\\", "|"]}
-data = [MulensData(file_name=name, **kwargs) for name in file_names]
+data = [mm.MulensData(file_name=name, **kwargs) for name in file_names]
 
 # Read parameters
 section = "parameters to fit"
@@ -120,8 +120,8 @@ starting_sigma = [float(x[1][1]) for x in info]
 parameters = {key: va for (key, va) in zip(parameters_to_fit, starting_mean)}
 n_parameters = len(parameters)
 
-model = Model(parameters)
-event = Event(datasets=data, model=model)
+model = mm.Model(parameters)
+event = mm.Event(datasets=data, model=model)
 
 # Read methods
 section = "methods"

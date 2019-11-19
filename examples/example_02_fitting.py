@@ -10,8 +10,7 @@ import numpy as np
 import scipy.optimize as op
 import matplotlib.pyplot as plt
 
-import MulensModel
-from MulensModel import Event, Model, MulensData
+import MulensModel as mm
 
 
 def chi2_fun(theta, event, parameters_to_fit):
@@ -26,19 +25,19 @@ def chi2_fun(theta, event, parameters_to_fit):
 
 # Read in the data file
 SAMPLE_FILE_01 = os.path.join(
-    MulensModel.DATA_PATH, "photometry_files", "OB08092",
+    mm.DATA_PATH, "photometry_files", "OB08092",
     "phot_ob08092_O4.dat")
-data = MulensData(file_name=SAMPLE_FILE_01)
+data = mm.MulensData(file_name=SAMPLE_FILE_01)
 
 # Initialize the fit
 parameters_to_fit = ["t_0", "u_0", "t_E"]
 t_0 = 5380.
 u_0 = 0.5
 t_E = 18.
-model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Link the data and the model
-ev = Event(datasets=data, model=model)
+ev = mm.Event(datasets=data, model=model)
 print('Initial Trial\n{0}'.format(ev.model.parameters))
 
 # Find the best-fit parameters
@@ -60,8 +59,8 @@ print('scipy.optimize.minimize result:')
 print(result)
 
 # Plot and compare the two models
-init_model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-final_model = Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
+init_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+final_model = mm.Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
 plt.figure()
 init_model.plot_lc(data_ref=data, label='Initial Trial')
 final_model.plot_lc(data_ref=data, label='Final Model')
