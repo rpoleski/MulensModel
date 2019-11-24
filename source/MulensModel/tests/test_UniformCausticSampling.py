@@ -1,13 +1,13 @@
 import numpy as np
 
-from MulensModel import UniformCausticSampling
+import MulensModel as mm
 
 
 def test_UniformCausticSampling_simple():
     """
     Tests only very basic usage of UniformCausticSampling.
     """
-    sampling = UniformCausticSampling(s=1.5, q=0.9, n_points=10)
+    sampling = mm.UniformCausticSampling(s=1.5, q=0.9, n_points=10)
     assert sampling.s == 1.5
     assert sampling.q == 0.9
     assert sampling.n_caustics == 1
@@ -33,7 +33,7 @@ def test_UniformCausticSampling():
     checks = [False, False, True]
 
     for (s, q, nc, p, c) in zip(s_, q_, n_c, p_, checks):
-        sampling = UniformCausticSampling(s=s, q=q, n_points=n_points)
+        sampling = mm.UniformCausticSampling(s=s, q=q, n_points=n_points)
         standard = sampling.get_standard_parameters(0.2, 0.5, 0., 10.)
         x_list = sampling.get_x_in_x_out(standard['u_0'], standard['alpha'])
         assert np.min(np.abs(np.array(x_list) - 0.2)) < 1.e-6
@@ -66,7 +66,7 @@ def test_get_uniform_sampling():
     """
     n = 50
 
-    sampling = UniformCausticSampling(s=1.1, q=0.5, n_points=100)
+    sampling = mm.UniformCausticSampling(s=1.1, q=0.5, n_points=100)
     (x_caustic_in, x_caustic_out) = sampling.get_uniform_sampling(n_points=n)
     assert x_caustic_in.shape == (n,)
     assert x_caustic_out.shape == (n,)

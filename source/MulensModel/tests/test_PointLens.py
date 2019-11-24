@@ -1,10 +1,10 @@
 import numpy as np
 import os
 
-from MulensModel import PointLens, ModelParameters, DATA_PATH
+import MulensModel as mm 
 
 
-SAMPLE_FILE = os.path.join(DATA_PATH, 'unit_test_files', 'FSPL_test_1.dat')
+SAMPLE_FILE = os.path.join(mm.DATA_PATH, 'unit_test_files', 'FSPL_test_1.dat')
 
 
 def get_file_params(filename):
@@ -13,7 +13,7 @@ def get_file_params(filename):
         lines = data_file.readlines()
         ulens_params = lines[2].split()
     return (
-        ModelParameters(
+        mm.ModelParameters(
             {'t_0': float(ulens_params[1]), 'u_0': float(ulens_params[2]),
              't_E': float(ulens_params[3]), 'rho': float(ulens_params[4])}),
         float(ulens_params[5]))
@@ -26,7 +26,7 @@ def get_variables():
         data = np.genfromtxt(SAMPLE_FILE, names=names)
         (parameters, gamma) = get_file_params(SAMPLE_FILE)
 
-        point_lens = PointLens(parameters=parameters)
+        point_lens = mm.PointLens(parameters=parameters)
         tau = (data['Time'] - parameters.t_0) / parameters.t_E
         u = np.sqrt(parameters.u_0**2 + tau**2)
         z = u / parameters.rho

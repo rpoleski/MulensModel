@@ -1,9 +1,7 @@
 import numpy as np
 from astropy import units as u
 
-from MulensModel.mulensobjects.mulenssystem import MulensSystem
-from MulensModel.mulensobjects.lens import Lens
-from MulensModel.mulensobjects.source import Source
+import MulensModel as mm
 
 
 def test_mulenssystem():
@@ -18,9 +16,9 @@ def test_mulenssystem():
     tE = thetaE / mu_rel
     pi_E = pi_rel / thetaE
 
-    test_system = MulensSystem(
-        lens=Lens(mass=lens['mass'], distance=lens['dist']),
-        source=Source(distance=source['dist']),
+    test_system = mm.MulensSystem(
+        lens=mm.Lens(mass=lens['mass'], distance=lens['dist']),
+        source=mm.Source(distance=source['dist']),
         mu_rel=mu_rel)
 
     assert test_system.pi_rel == pi_rel
@@ -32,9 +30,9 @@ def test_mulenssystem():
 
 def test_mulenssystem():
     """test basic calculations of theta_E etc."""
-    lens = Lens(mass=0.64, distance=4.0)
-    source = Source(distance=8.0)
-    system = MulensSystem(lens=lens, source=source)
+    lens = mm.Lens(mass=0.64, distance=4.0)
+    source = mm.Source(distance=8.0)
+    system = mm.MulensSystem(lens=lens, source=source)
 
     assert abs(system.theta_E.value / 0.807177 - 1.) < 1.2e-4
     assert abs(system.r_E.value / 3.228708 - 1.) < 1.2e-4

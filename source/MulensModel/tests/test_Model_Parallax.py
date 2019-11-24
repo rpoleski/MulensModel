@@ -3,18 +3,12 @@ import numpy as np
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
-import MulensModel
-from MulensModel.model import Model
-from MulensModel.modelparameters import ModelParameters
-from MulensModel.mulensdata import MulensData
-from MulensModel.trajectory import Trajectory
-from MulensModel.satelliteskycoord import SatelliteSkyCoord
-from MulensModel.coordinates import Coordinates
+import MulensModel as mm
 
 
-dir_1 = os.path.join(MulensModel.DATA_PATH, 'photometry_files', 'OB140939')
-dir_2 = os.path.join(MulensModel.DATA_PATH, 'unit_test_files')
-dir_3 = os.path.join(MulensModel.DATA_PATH, 'ephemeris_files')
+dir_1 = os.path.join(mm.DATA_PATH, 'photometry_files', 'OB140939')
+dir_2 = os.path.join(mm.DATA_PATH, 'unit_test_files')
+dir_3 = os.path.join(mm.DATA_PATH, 'ephemeris_files')
 
 SAMPLE_FILE_02 = os.path.join(dir_1, 'ob140939_OGLE.dat')  # HJD'
 SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
@@ -57,7 +51,7 @@ class _ParallaxFile(object):
     @property
     def parameters(self):
         """Model parameters"""
-        model_parameters = ModelParameters({
+        model_parameters = mm.ModelParameters({
             't_0': float(self.ulens_params[1])+2450000.,
             'u_0': float(self.ulens_params[3]),
             't_E': float(self.ulens_params[4]),
@@ -81,13 +75,13 @@ class _ParallaxFile(object):
 
     def setup_model(self):
         """Return a model using the parameters of this file"""
-        model = Model(parameters=self.parameters,
-                      coords=self.coords)
+        model = mm.Model(parameters=self.parameters,
+                         coords=self.coords)
         return model
 
     def setup_trajectory(self):
         """Return a trajectory using the parameters of this file"""
-        trajectory = Trajectory(
+        trajectory = mm.Trajectory(
             self.data['Time']+2450000., parameters=self.parameters,
             parallax={'earth_orbital': True}, coords=self.coords)
         return trajectory
@@ -104,18 +98,18 @@ def test_annual_parallax_calculation():
     true_with_par = [
         np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])]
 
-    model_with_par = Model(
+    model_with_par = mm.Model(
         {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
         coords='17:57:05 -30:22:59')
     model_with_par.parallax(satellite=False, earth_orbital=True,
                             topocentric=False)
     ones = np.ones(len(times))
-    data = MulensData(data_list=[times, ones, ones])
+    data = mm.MulensData(data_list=[times, ones, ones])
     model_with_par.set_datasets([data])
 
     model_with_par.parameters.t_0_par = 2457479.
 
-    model_no_par = Model(
+    model_no_par = mm.Model(
         {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
         coords='17:57:05 -30:22:59')
     model_no_par.set_datasets([data])
@@ -173,7 +167,7 @@ def do_annual_parallax_test(filename):
     ulens_params = lines[3].split()
     event_params = lines[4].split()
     data = np.loadtxt(filename, dtype=None)
-    model = Model({
+    model = mm.Model({
         't_0': float(ulens_params[1])+2450000.,
         'u_0': float(ulens_params[3]),
         't_E': float(ulens_params[4]),
@@ -184,7 +178,7 @@ def do_annual_parallax_test(filename):
     model.parameters.t_0_par = float(ulens_params[2])+2450000.
 
     time = data[:, 0]
-    dataset = MulensData([time, 20.+time*0., 0.1+time*0.], add_2450000=True)
+    dataset = mm.MulensData([time, 20.+time*0., 0.1+time*0.], add_2450000=True)
     model.set_datasets([dataset])
     model.parallax(satellite=False, earth_orbital=True, topocentric=False)
     return np.testing.assert_almost_equal(
@@ -213,15 +207,15 @@ def test_annual_parallax_calculation_6():
 
 def test_satellite_and_annual_parallax_calculation():
     """test parallax calculation with Spitzer data"""
-    model_with_par = Model({'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
-                            'pi_E_N': -0.248, 'pi_E_E': 0.234},
-                           coords="17:47:12.25 -21:22:58.2")
+    model_with_par = mm.Model({'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                               'pi_E_N': -0.248, 'pi_E_E': 0.234},
+                              coords="17:47:12.25 -21:22:58.2")
     model_with_par.parallax(satellite=True, earth_orbital=True,
                             topocentric=False)
     model_with_par.parameters.t_0_par = 2456836.2
 
-    data_OGLE = MulensData(file_name=SAMPLE_FILE_02)
-    data_Spitzer = MulensData(
+    data_OGLE = mm.MulensData(file_name=SAMPLE_FILE_02)
+    data_Spitzer = mm.MulensData(
         file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
     model_with_par.set_datasets([data_OGLE, data_Spitzer])
 
@@ -246,10 +240,10 @@ def test_satellite_parallax_magnification():
     pi_E_N = -0.248
     pi_E_E = 0.234
 
-    ground_model = Model(
+    ground_model = mm.Model(
         {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
         coords='17:47:12.25 -21:22:58.2')
-    space_model = Model(
+    space_model = mm.Model(
         {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
         ra='17:47:12.25', dec='-21:22:58.2',
         ephemerides_file=SAMPLE_FILE_03_EPH)
@@ -266,7 +260,7 @@ def test_horizons_3d():
     file_in = os.path.join(dir_2, "earth_position_1.dat")
     file_out = os.path.join(dir_2, "earth_position_2.dat")
 
-    satellite = SatelliteSkyCoord(file_in)
+    satellite = mm.SatelliteSkyCoord(file_in)
     (times, vec_x, vec_y, vec_z) = np.loadtxt(file_out, unpack=True)
     output = satellite.get_satellite_coords(times).cartesian
 

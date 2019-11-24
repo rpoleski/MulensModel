@@ -3,16 +3,16 @@ import numpy as np
 
 from astropy import units as u
 
-from MulensModel.modelparameters import ModelParameters
+import MulensModel as mm
 
 
 class TestModelParameters(unittest.TestCase):
     def test_too_many_parameters_for_init(self):
         with self.assertRaises(KeyError):
-            mp = ModelParameters(
+            mp = mm.ModelParameters(
                 {'pi_E': (1., 1.), 'pi_E_N': 1.})
         with self.assertRaises(KeyError):
-            mp = ModelParameters(
+            mp = mm.ModelParameters(
                 {'pi_E': (1., 1.), 'pi_E_E': 1.})
 
 
@@ -20,7 +20,7 @@ def test_init_parameters():
     t_0 = 6141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
-    params = ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     np.testing.assert_almost_equal(params.t_0, t_0)
     np.testing.assert_almost_equal(params.u_0, u_0)
@@ -31,7 +31,7 @@ def test_repr_parameters():
     t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
-    params = ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     out_1 = "    t_0 (HJD)       u_0    t_E (d) \n"
     out_2 = "2456141.59300  0.542500    62.6300 \n"
@@ -47,15 +47,15 @@ def test_rho_t_e_t_star():
     rho = 0.001
     t_star = t_E * rho
 
-    params_1 = ModelParameters(
+    params_1 = mm.ModelParameters(
         {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
     np.testing.assert_almost_equal(params_1.t_star, t_star.value)
 
-    params_2 = ModelParameters(
+    params_2 = mm.ModelParameters(
         {'t_0': t_0, 'u_0': u_0, 't_star': t_star, 'rho': rho})
     np.testing.assert_almost_equal(params_2.t_E, t_E.value)
 
-    params_3 = ModelParameters(
+    params_3 = mm.ModelParameters(
         {'t_0': t_0, 'u_0': u_0, 't_star': t_star, 't_E': t_E})
     np.testing.assert_almost_equal(params_3.rho, rho)
 
@@ -68,7 +68,7 @@ class test(unittest.TestCase):
             t_E = 20. * u.day
             rho = 0.001
             t_star = t_E * rho
-            ModelParameters({
+            mm.ModelParameters({
                 't_0': t_0, 'u_0': u_0, 't_E': t_E,
                 'rho': rho, 't_star': t_star})
 
@@ -77,7 +77,7 @@ def test_update():
     t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
-    params = ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     params.as_dict().update({'rho': 0.001})
 
     assert len(params.parameters.keys()) == 4
@@ -89,8 +89,8 @@ def test_orbital_motion_1():
                    's': 1.2345, 'q': 0.01234, 'alpha': 30.}
     dict_motion = dict_static.copy()
     dict_motion.update({'dalpha_dt': 10., 'ds_dt': 0.1})
-    static = ModelParameters(dict_static)
-    motion = ModelParameters(dict_motion)
+    static = mm.ModelParameters(dict_static)
+    motion = mm.ModelParameters(dict_motion)
 
     assert static.is_static()
     assert not motion.is_static()
@@ -146,8 +146,8 @@ def test_t_0_kep():
     dict_motion.update({'dalpha_dt': 10., 'ds_dt': 0.1})
     dict_motion_2 = dict_motion.copy()
     dict_motion_2.update({'t_0_kep': 2456789.01234-18.2625})
-    motion = ModelParameters(dict_motion)
-    motion_2 = ModelParameters(dict_motion_2)
+    motion = mm.ModelParameters(dict_motion)
+    motion_2 = mm.ModelParameters(dict_motion_2)
 
     assert motion.t_0_kep == motion.t_0
     assert motion_2.t_0_kep == dict_motion_2['t_0_kep']
@@ -173,7 +173,7 @@ def test_orbital_motion_gammas():
     dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00,
                    's': 1.5, 'ds_dt': 0.5, 'q': 0.987,
                    'alpha': 12.345, 'dalpha_dt': 50.}
-    params = ModelParameters(dict_params)
+    params = mm.ModelParameters(dict_params)
 
     # Test values.
     np.testing.assert_almost_equal(params.gamma_parallel.value, 0.333333333)
@@ -190,7 +190,7 @@ def test_binary_source():
     """
     Test if binary source parameters are properly set and changed
     """
-    params = ModelParameters({
+    params = mm.ModelParameters({
         't_0_1': 2455000.1, 'u_0_1': 0.05, 't_star_1': 0.025,
         't_0_2': 2455123.4, 'u_0_2': 0.15, 't_star_2': 0.050,
         't_E': 25.})

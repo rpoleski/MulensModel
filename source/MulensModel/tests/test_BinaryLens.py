@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import unittest
 
-import MulensModel
+import MulensModel as mm
 
 
 def test_small_q():
@@ -17,7 +17,7 @@ def test_small_q():
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
 
-    lens = MulensModel.BinaryLens(m_1, m_2, s)
+    lens = mm.BinaryLens(m_1, m_2, s)
     result = lens.point_source_magnification(x, y)
     np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
@@ -41,7 +41,7 @@ def test_binary_lens_hexadecapole():
     m1 = 1. / (1. + q)
     m2 = q / (1. + q)
 
-    bl = MulensModel.BinaryLens(m1, m2, s)
+    bl = mm.BinaryLens(m1, m2, s)
 
     result_00 = bl.hexadecapole_magnification(
         x, y, rho=rho, gamma=0.0, all_approximations=True)
@@ -61,7 +61,7 @@ def test_vbbl_1():
 
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
-    bl = MulensModel.BinaryLens(m_1, m_2, s)
+    bl = mm.BinaryLens(m_1, m_2, s)
 
     result = bl.vbbl_magnification(0.01, 0.01, 0.01)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
@@ -73,7 +73,7 @@ def test_ac_1():
 
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
-    bl = MulensModel.BinaryLens(m_1, m_2, s)
+    bl = mm.BinaryLens(m_1, m_2, s)
 
     result = bl.adaptive_contouring_magnification(
         0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
