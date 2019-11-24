@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.testing import assert_almost_equal as almost
 import unittest
 from astropy import units as u
 
@@ -26,9 +27,9 @@ def test_model_PSPL_1():
     model.parameters.u_0 = u_0
     model.parameters.t_E = t_E
     model.set_datasets([data])
-    np.testing.assert_almost_equal(model.data_magnification, [
-            np.array([1.028720763, 2.10290259, 1.26317278])],
-            err_msg="PSPL model returns wrong values")
+    almost(model.data_magnification,
+        [np.array([1.028720763, 2.10290259, 1.26317278])],
+        err_msg="PSPL model returns wrong values")
 
 
 def test_model_init_1():
@@ -38,14 +39,10 @@ def test_model_init_1():
     t_E = 123.456
     rho = 0.0123
     my_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
-    np.testing.assert_almost_equal(my_model.parameters.t_0, t_0,
-                                   err_msg='t_0 not set properly')
-    np.testing.assert_almost_equal(my_model.parameters.u_0, u_0,
-                                   err_msg='u_0 not set properly')
-    np.testing.assert_almost_equal(my_model.parameters.t_E, t_E,
-                                   err_msg='t_E not set properly')
-    np.testing.assert_almost_equal(my_model.parameters.rho, rho,
-                                   err_msg='rho not set properly')
+    almost(my_model.parameters.t_0, t_0, err_msg='t_0 not set properly')
+    almost(my_model.parameters.u_0, u_0, err_msg='u_0 not set properly')
+    almost(my_model.parameters.t_E, t_E, err_msg='t_E not set properly')
+    almost(my_model.parameters.rho, rho, err_msg='rho not set properly')
 
 
 class TestModel(unittest.TestCase):
@@ -92,15 +89,11 @@ def test_coords_transformation():
     coords = "17:54:32.1 -30:12:34.0"
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.}, coords=coords)
 
-    np.testing.assert_almost_equal(model.coords.galactic_l.value,
-                                   359.90100049-360., decimal=4)
-    np.testing.assert_almost_equal(model.coords.galactic_b.value,
-                                   -2.31694073, decimal=3)
+    almost(model.coords.galactic_l.value, 359.90100049-360., decimal=4)
+    almost(model.coords.galactic_b.value, -2.31694073, decimal=3)
 
-    np.testing.assert_almost_equal(model.coords.ecliptic_lon.value,
-                                   268.81102051, decimal=1)
-    np.testing.assert_almost_equal(model.coords.ecliptic_lat.value,
-                                   -6.77579203, decimal=2)
+    almost(model.coords.ecliptic_lon.value, 268.81102051, decimal=1)
+    almost(model.coords.ecliptic_lat.value, -6.77579203, decimal=2)
 
 
 def test_init_parameters():
@@ -110,9 +103,9 @@ def test_init_parameters():
     t_E = 62.63*u.day
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     model = mm.Model(parameters=params)
-    np.testing.assert_almost_equal(model.parameters.t_0, t_0)
-    np.testing.assert_almost_equal(model.parameters.u_0, u_0)
-    np.testing.assert_almost_equal(model.parameters.t_E, t_E.value)
+    almost(model.parameters.t_0, t_0)
+    almost(model.parameters.u_0, u_0)
+    almost(model.parameters.t_E, t_E.value)
 
 
 def test_limb_darkening():
@@ -123,8 +116,8 @@ def test_limb_darkening():
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
     model.set_limb_coeff_gamma('I', gamma)
 
-    np.testing.assert_almost_equal(model.get_limb_coeff_gamma('I'), gamma)
-    np.testing.assert_almost_equal(model.get_limb_coeff_u('I'), u)
+    almost(model.get_limb_coeff_gamma('I'), gamma)
+    almost(model.get_limb_coeff_u('I'), u)
 
 
 def test_t_E():
@@ -138,8 +131,8 @@ def test_t_E():
     params['t_star'] = t_star
     model_2 = mm.Model(params)
 
-    np.testing.assert_almost_equal(model_1.parameters.t_E, t_E)
-    np.testing.assert_almost_equal(model_2.parameters.t_E, t_E)
+    almost(model_1.parameters.t_E, t_E)
+    almost(model_2.parameters.t_E, t_E)
 
 
 # Binary Lens tests
@@ -170,9 +163,9 @@ def test_BLPS_01():
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     model.set_datasets([data])
     magnification = model.data_magnification[0][0]
-    np.testing.assert_almost_equal(magnification, 4.691830781584699)
+    almost(magnification, 4.691830781584699)
 # This value comes from early version of this code.
-# np.testing.assert_almost_equal(m, 4.710563917)
+# almost(m, 4.710563917)
 # This value comes from Andy's getbinp().
 
 
@@ -199,14 +192,14 @@ def test_BLPS_02():
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
                          1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    np.testing.assert_almost_equal(result, expected)
+    almost(result, expected)
 
     # Below we test passing the limb coeff to VBBL function.
     data.bandpass = 'I'
     model.set_limb_coeff_u('I', 10.)
     # This is an absurd value but I needed something quick.
     result = model.data_magnification[0]
-    np.testing.assert_almost_equal(result[5], 1.6366862)
+    almost(result[5], 1.6366862)
 
 
 def test_BLPS_02_AC():
@@ -235,7 +228,7 @@ def test_BLPS_02_AC():
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
                          1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    np.testing.assert_almost_equal(result, expected, decimal=3)
+    almost(result, expected, decimal=3)
 
     # Below we test passing the limb coeff to VBBL function.
     data.bandpass = 'I'
@@ -243,7 +236,7 @@ def test_BLPS_02_AC():
     # This is an absurd value but I needed something quick.
     model.set_magnification_methods_parameters({ac_name: accuracy_2})
     result = model.data_magnification[0]
-    np.testing.assert_almost_equal(result[5], 1.6366862, decimal=3)
+    almost(result[5], 1.6366862, decimal=3)
 
 
 def test_methods_parameters():
@@ -291,12 +284,12 @@ def test_caustic_for_orbital_motion():
     model = mm.Model(parameters=params)
 
     model.update_caustics()
-    np.testing.assert_almost_equal(model.caustics.get_caustics(),
-                                   mm.Caustics(q=q, s=s).get_caustics())
+    almost(model.caustics.get_caustics(),
+           mm.Caustics(q=q, s=s).get_caustics())
 
     model.update_caustics(100.+365.25/2)
-    np.testing.assert_almost_equal(model.caustics.get_caustics(),
-                                   mm.Caustics(q=q, s=1.55).get_caustics())
+    almost(model.caustics.get_caustics(),
+           mm.Caustics(q=q, s=1.55).get_caustics())
 
 
 def test_magnifications_for_orbital_motion():
@@ -312,16 +305,12 @@ def test_magnifications_for_orbital_motion():
     motion = mm.Model(dict_motion)
 
     t_1 = 100.
-    np.testing.assert_almost_equal(
-        static.magnification(t_1),
-        motion.magnification(t_1))
+    almost(static.magnification(t_1), motion.magnification(t_1))
 
     t_2 = 130.
     static.parameters.s = 0.93572895
     static.parameters.alpha = 345.359342916
-    np.testing.assert_almost_equal(
-        static.magnification(t_2),
-        motion.magnification(t_2))
+    almost(static.magnification(t_2), motion.magnification(t_2))
 
 
 def test_model_binary_and_finite_sources():
@@ -357,12 +346,12 @@ def test_model_binary_and_finite_sources():
     # test:
     fitted = model.get_data_magnification(data)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
-    np.testing.assert_almost_equal(fitted, expected)
+    almost(fitted, expected)
 
     # test separate=True option:
     (mag_1_, mag_2_) = model.magnification(time, separate=True)
-    np.testing.assert_almost_equal(mag_1, mag_1_)
-    np.testing.assert_almost_equal(mag_2, mag_2_)
+    almost(mag_1, mag_1_)
+    almost(mag_2, mag_2_)
 
 
 def test_binary_source_and_fluxes_for_bands():
@@ -398,14 +387,14 @@ def test_binary_source_and_fluxes_for_bands():
     # Test Model.magnification()
     result_I = model.magnification(times_I, flux_ratio_constraint='I')
     result_V = model.magnification(times_V, flux_ratio_constraint='V')
-    np.testing.assert_almost_equal(result_I, effective_mag_I)
-    np.testing.assert_almost_equal(result_V, effective_mag_V)
+    almost(result_I, effective_mag_I)
+    almost(result_V, effective_mag_V)
 
     # Test Model.get_data_magnification()
     result_I = model.get_data_magnification(data_I)
     result_V = model.get_data_magnification(data_V)
-    np.testing.assert_almost_equal(result_I, effective_mag_I)
-    np.testing.assert_almost_equal(result_V, effective_mag_V)
+    almost(result_I, effective_mag_I)
+    almost(result_V, effective_mag_V)
 
 
 def test_separate_method_for_each_source():
@@ -423,13 +412,11 @@ def test_separate_method_for_each_source():
     model.set_magnification_methods(
         [0., 'finite_source_uniform_Gould94', 1.], source=2)
     out = model.magnification(5000., separate=True)
-    np.testing.assert_almost_equal([out[0][0], out[1][0]],
-                                   [103.46704167, 10.03696291])
+    almost([out[0][0], out[1][0]], [103.46704167, 10.03696291])
 
     model.set_magnification_methods(
         [4999., 'finite_source_uniform_Gould94', 5001.], source=1)
     model.set_magnification_methods(
         [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
     out = model.magnification(5100., separate=True)
-    np.testing.assert_almost_equal([out[0][0], out[1][0]],
-                                   [9.98801936, 395.96963727])
+    almost([out[0][0], out[1][0]], [9.98801936, 395.96963727])
