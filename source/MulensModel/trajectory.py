@@ -51,7 +51,18 @@ class Trajectory(object):
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
             sky coordinates of the satellite specified by the
             ephemerides file. See
-            :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
+            :py:obj:`~MulensModel.mulensdata.MulensData.satellite_skycoord`.
+
+    Attributes :
+        times: *np.ndarray*
+            input epochs
+
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
+            input :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+        satellite_skycoord: *Astropy.coordinates.SkyCoord*
+            input
+            :py:attr:`~MulensModel.mulensdata.MulensData.satellite_skycoord`
     """
     _get_delta_annual_results = dict()
     _get_delta_annual_last = None

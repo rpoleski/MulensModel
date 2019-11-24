@@ -27,17 +27,21 @@ class MagnificationCurve(object):
             used, e.g., ``{'earth_orbital': True, 'satellite': False,
             'topocentric': False}``
 
-        coords: :py:class:`MulensModel.coordinates.Coordinates`, optional
+        coords: :py:class:`~MulensModel.coordinates.Coordinates`, optional
             sky coordinates of the event
 
         satellite_skycoord: *Astropy.coordinates.SkyCoord*, optional
             sky coordinates of the satellite specified by the
-            ephemerides file. see
-            :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord.`
+            ephemerides file. See
+            :py:obj:`MulensModel.mulensdata.MulensData.satellite_skycoord`.
 
         gamma: *float*, optional
             limb darkening coefficient in gamma convention; defaults to 0
 
+    Attributes :
+        trajectory: :py:class:`~MulensModel.Trajectory.trajectory`
+            Trajectory used to calculate positions of
+            the source that are used to calculate magnification values.
     """
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, gamma=0.):

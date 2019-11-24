@@ -50,6 +50,12 @@ class Event(object):
             The former is slightly slower and more accurate,
             which may be important for large datasets.
 
+        fit: :py:class:`~MulensModel.fit.Fit` or *None*
+            Instance of :py:class:`~MulensModel.fit.Fit` class used in
+            the last calculation of chi^2 or its gradient. In can be used to
+            extract source and bleding fluxes. If no chi^2 calculation was
+            performed, then it is *None*.
+
     The datasets can be in magnitude or flux spaces. When we calculate chi^2
     we do it in the same space as the dataset considered. If dataset is in
     magnitude space and model results in negative flux, then we calculate chi^2

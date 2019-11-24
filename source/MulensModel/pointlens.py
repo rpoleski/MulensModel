@@ -52,6 +52,9 @@ class PointLens(object):
             :py:attr:`~MulensModel.modelparameters.ModelParameters.rho`
             attribute is used.
 
+    Attributes :
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
+            input parameters
     """
 
     _B0B1_file_read = False

@@ -3,7 +3,7 @@
 2. get pypi/pip website
 4. list of examples in a separate file, change order 01<->02 - _DONE_
 10. _are we using VBBL with improvements from 2018 paper?_
-3. **code not yet well documented** - see below
+3. **code not yet well documented** - see below; DONE ALREADY: Event.fit, MagnificationCurve, PointLens, and 3 Trajectory ones
 5. triple lens - test [ob07349](https://ui.adsabs.harvard.edu/#abs/2016AJ....152..125B/abstract) to see if center of mass can reference point for t0 and u0
 6. triple lens caustics
 7. triple lens - plan use cases and unit tests - note in [TRIPLE\_LENS.md](TRIPLE_LENS.md)

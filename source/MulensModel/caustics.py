@@ -150,7 +150,7 @@ class Caustics(object):
         curve (in the lens plane). Origin is center of mass with
         larger mass on the left (*q* < 1).
 
-        Attributes:
+        Attributes :
             x, y : *list*
                 Two lists of length *n_points* giving the x, y
                 coordinates of the caustic points.
