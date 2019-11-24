@@ -1,19 +1,19 @@
-import MulensModel
+import MulensModel as mm
 
 
 raise NotImplementedError('input data for this use case do not exist.')
 
 # Prepare a list of 3 MulensData objects. Two of them have bandpass specified:
-data_1 = MulensModel.MulensData(file_name="ogle_data_phot.dat", bandpass='I')
-data_2 = MulensModel.MulensData(file_name="kmt_V_phot.dat", bandpass='V')
+data_1 = mm.MulensData(file_name="ogle_data_phot.dat", bandpass='I')
+data_2 = mm.MulensData(file_name="kmt_V_phot.dat", bandpass='V')
 
 # and one has only relative weights of limb darkening coefficients:
-data_3 = MulensModel.MulensData(file_name="moa_phot.dat")
+data_3 = mm.MulensData(file_name="moa_phot.dat")
 moa_LD_weights = {'I': 2., 'V': 1.}
 data_3.set_limb_darkening_weights(moa_LD_weights)
 
 # Initialize instance of Model.
-model = MulensModel.Model({'t_0': 2457600., 'u_0': 0.01, 't_E': 3.14})
+model = mm.Model({'t_0': 2457600., 'u_0': 0.01, 't_E': 3.14})
 model.set_datasets([data_1, data_2, data_3])
 
 # Set finite source method (no limb darkening).

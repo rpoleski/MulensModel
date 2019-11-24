@@ -5,7 +5,7 @@ import numpy as np
 import emcee
 import os
 
-import MulensModel
+import MulensModel as mm
 
 
 def lnlike(theta, event, parameters_to_fit):
@@ -38,18 +38,18 @@ parameters_to_fit = ["t_0", "u_0", "t_E"]
 parameters_values = [2457500., 0.5, 100.]
 parameters_steps = [1., 0.01, 1.]
 
-model = MulensModel.Model(
+model = mm.Model(
     {'t_0': parameters_values[0], 'u_0': parameters_values[1],
      't_E': parameters_values[2]})
 print("Initial", model.parameters)
 
 # Read in the data
-file_ = os.path.join(MulensModel.DATA_PATH, "photometry_files",
+file_ = os.path.join(mm.DATA_PATH, "photometry_files",
                      "OB08092", "phot_ob08092_O4.dat")
-data = MulensModel.MulensData(file_name=file_)
+data = mm.MulensData(file_name=file_)
 
 # Set up the Event
-event = MulensModel.Event(datasets=data, model=model)
+event = mm.Event(datasets=data, model=model)
 
 # Baseline chi2 = # of data points
 chi2_0 = len(data.time) * 1.

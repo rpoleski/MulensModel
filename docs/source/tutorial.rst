@@ -28,15 +28,14 @@ The most basic thing to do is to define a microlensing model. For example, you c
 
 .. code-block:: python
 
-   import MulensModel
-   my_pspl_model = MulensModel.Model({'t_0': 2452848.06, 
-       'u_0': 0.133, 't_E': 61.5})
+   import MulensModel as mm
+   my_pspl_model = mm.Model({'t_0': 2452848.06, 'u_0': 0.133, 't_E': 61.5})
 
 Or a model with 2-bodies:
 
 .. code-block:: python
    
-   my_1S2L_model = MulensModel.Model({'t_0': 2452848.06, 'u_0': 0.133, 
+   my_1S2L_model = mm.Model({'t_0': 2452848.06, 'u_0': 0.133, 
         't_E': 61.5, 'rho': 0.00096, 'q': 0.0039, 's': 1.120, 
         'alpha': 223.8})
 
@@ -53,13 +52,13 @@ Then, you might plot those models:
 
 .. code-block:: python
    
-   import matplotlib.pyplot as pl
-   pl.figure()
+   import matplotlib.pyplot as plt
+   plt.figure()
    my_pspl_model.plot_magnification(t_range=[2452810, 2452890], 
        subtract_2450000=True, color='red', linestyle=':')
    my_1S2L_model.plot_magnification(t_range=[2452810, 2452890], 
        subtract_2450000=True, color='black')
-   pl.show()
+   plt.show()
 
 Introducing Data
 ----------------
@@ -69,12 +68,11 @@ Suppose you also had some data you want to import:
 .. code-block:: python
 
    import os
-   path = os.path.join(MulensModel.MODULE_PATH, 'data',
-        'photometry_files', 'OB03235')
-   OGLE_data = MulensModel.MulensData(
+   path = os.path.join(mm.DATA_PATH, 'photometry_files', 'OB03235')
+   OGLE_data = mm.MulensData(
         file_name=os.path.join(path, 'OB03235_OGLE.tbl.txt'),
         comments=['\\', '|'])
-   MOA_data = MulensModel.MulensData(
+   MOA_data = mm.MulensData(
         file_name=os.path.join(path, 'OB03235_MOA.tbl.txt'),
         comments=['\\', '|'])
 
@@ -85,7 +83,7 @@ Now suppose you wanted to combine the two together:
 
 .. code-block:: python
 
-   my_event = MulensModel.Event(datasets=[OGLE_data, MOA_data], 
+   my_event = mm.Event(datasets=[OGLE_data, MOA_data], 
        model=my_1S2L_model)
 
 And you wanted to plot the result:
@@ -95,7 +93,7 @@ And you wanted to plot the result:
    my_event.plot_model(t_range=[2452810, 2452890], subtract_2450000=True, 
        color='black')
    my_event.plot_data(subtract_2450000=True)
-   pl.show()
+   plt.show()
 
 This fits for the fluxes so that the model and data are all on the
 flux scale set by the first dataset. It does NOT fit for the best

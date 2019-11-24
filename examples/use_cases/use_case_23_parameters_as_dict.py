@@ -1,23 +1,23 @@
 """
 Shows how a dictionary implementation of ModelParameters would work.
 """
-import MulensModel
+import MulensModel as mm
 
 
-MulensModel.modelparameters.which_parameters('PSPL')
+mm.modelparameters.which_parameters('PSPL')
 # Returns: 't_0', 'u_0', 't_E'
 
-MulensModel.modelparameters.which_parameters('FSBL')
+mm.modelparameters.which_parameters('FSBL')
 # Returns: 't_0', 'u_0', 't_E', 'rho', 's', 'q', 'alpha'
 
-MulensModel.modelparameters.which_parameters('BinaryLens')
+mm.modelparameters.which_parameters('BinaryLens')
 # Returns: 's', 'q', 'alpha'
 
-MulensModel.modelparameters.which_parameters('BinaryLensOrbitalMotion')
+mm.modelparameters.which_parameters('BinaryLensOrbitalMotion')
 # Returns:
 #    's', 'q', 'alpha', 'dsdt', 'dalphadt' (OPTIONAL: 'z', 'dzdt')
 
-MulensModel.modelparameters.which_parameters()
+mm.modelparameters.which_parameters()
 # Returns: (a more verbose listing)
 #    Some common model types:
 #        PSPL: 't_0', 'u_0', 't_E'
@@ -36,10 +36,10 @@ MulensModel.modelparameters.which_parameters()
 #        any two of 't_E', 'rho', 't_star' (t_star = rho * t_E)
 #        FSBL: 't_1', 'u_0', 't_2', 'rho', 's', 'q', 'alpha' (Cassan)
 
-PSPL_params = MulensModel.ModelParameters(
+PSPL_params = mm.ModelParameters(
     {'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5})
 
-my_PSPL_model = MulensModel.Model({'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5})
+my_PSPL_model = mm.Model({'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5})
 print(my_PSPL_model.parameters)
 print(my_PSPL_model.parameters.t_eff)
 print(my_PSPL_model.parameters.rho)
@@ -48,9 +48,9 @@ print(my_PSPL_model.parameters.rho)
 FSPL_params = dict(my_PSPL_model.parameters.parameters)
 FSPL_params['rho'] = 0.001
 
-my_FSPL_model = MulensModel.Model(FSPL_params)
+my_FSPL_model = mm.Model(FSPL_params)
 
-my_PSPL_model = MulensModel.Model(
+my_PSPL_model = mm.Model(
     parameters={'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5, 't_0_1': 2458062.})
 # Returns: AttributeError('Not a valid combination of parameters. See
 #    which_parameters()')

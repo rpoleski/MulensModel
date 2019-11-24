@@ -13,7 +13,7 @@ coordinate system needed for the magnification calculation.
 import astropy.units as u
 import numpy as np
 
-import MulensModel
+import MulensModel as mm
 
 
 raise NotImplementedError('frame_origin not implemented for Model')
@@ -57,7 +57,7 @@ print('Center of mass: {0}, {1}'.format(t0_center_of_mass, u0_center_of_mass))
 # How does this get passed to a minimizer?
 
 # Alternatively,
-model = MulensModel.Model(
+model = mm.Model(
             {'t_0': 2457000., 'u_0': 0.1, 't_E': 30., 'rho': 0.001,
              'alpha': 30*u.deg, 's': 1.1, 'q': 0.001},
             frame_origin='magnification')

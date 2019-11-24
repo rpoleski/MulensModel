@@ -3,12 +3,12 @@ Triple lens definition.
 """
 from matplotlib import pyplot as plt
 
-import MulensModel
+import MulensModel as mm
 
 
 raise NotImplementedError('Triple Lenses are Not Supported')
 
-model = MulensModel.Model({
+model = mm.Model({
     't_0': 2456789.12, 'u_0': 0.01, 't_E': 34.56, 'rho': 0.0012, 'alpha': 45.,
     's_21': 1.1, 's_31': 0.5, 'q_21': 0.2, 'q_31': 0.01234, 'psi': 90.})
 # The line above is shows the names of triple lens parameters.

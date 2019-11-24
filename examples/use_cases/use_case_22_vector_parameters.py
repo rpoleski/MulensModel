@@ -1,7 +1,7 @@
 """
 Model parameters accessed as a vector
 """
-import MulensModel
+import MulensModel as mm
 
 
 raise NotImplementedError('ModelParameters.vector not implemented')
@@ -18,7 +18,7 @@ rho = 0.001
 pi_E_N = 0.1
 pi_E_E = 0.2
 
-parameters = MulensModel.ModelParameters(
+parameters = mm.ModelParameters(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E,
      'pi_E_N': pi_E_N, 'pi_E_E': pi_E_E})
 print(parameters.vector)

@@ -1,13 +1,13 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-import MulensModel as MM
+import MulensModel as mm
 
 
 # Define Model object
 params = {"t_0": 0.0, "u_0": 0.1, "t_E": 25.0, "rho": 1e-2, "s": 1.0,
           "q": 1e-3, "alpha": 90.}
-model = MM.Model(parameters=params)
+model = mm.Model(parameters=params)
 
 # Create figure environment
 fig = plt.figure(figsize=(10, 8), constrained_layout=False)
@@ -36,7 +36,7 @@ plt.show()
 
 # Repeat above, but also plot data:
 epochs = np.array([-3.5, -1., 0.5, 0.6, 0.75, 0.95, 2.])
-dataset = MM.MulensData([epochs, epochs*0.+20., epochs*0.+.1])
+dataset = mm.MulensData([epochs, epochs*0.+20., epochs*0.+.1])
 model.set_datasets([dataset])
 model.plot_caustics(color="black")
 model.plot_trajectory(show_data=True, **trajectory_kwargs)
@@ -45,7 +45,7 @@ plt.axis('equal')
 plt.show()
 
 # Plotting for binary source model:
-model = MM.Model({
+model = mm.Model({
     't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001,
     't_0_2': 5030., 'u_0_2': 0.0003, 't_star_2': 0.03, 't_E': 25.})
 times = np.linspace(4980., 5050.)
@@ -54,7 +54,7 @@ model.plot_source(times)
 plt.show()  # Circles are squished because of X-axis range.
 
 # Same as above, but no source size provided:
-model = MM.Model({
+model = mm.Model({
     't_0_1': 5000., 'u_0_1': 0.005,
     't_0_2': 5030., 'u_0_2': 0.0003, 't_E': 25.})
 model.plot_trajectory()

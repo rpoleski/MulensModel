@@ -8,13 +8,13 @@ Use case for binary source modeling. Three types:
 """
 import matplotlib.pyplot as plt
 
-from MulensModel.model import Model
+import MulensModel as mm
 
 
 raise NotImplementedError('Binary sources are not supported')
 
 # Create a binary source model.
-two_source_model = Model({
+two_source_model = mm.Model({
     't_0_1': 2457501.374, 'u_0_1': 0.015, 't_0_2': 2457507.804,
     'u_0_2': 0.365, 't_E': 14.428, 'source_flux_ratio': {'I': 1.853}})
 
@@ -30,10 +30,10 @@ plt.legend()  # should automatically label the trajectories for the 2 sources.
 plt.title('2-source caustics and trajectory')
 
 # Xallarap Model
-xallarap_model = Model(
+xallarap_model = mm.Model(
     {'t_0': 2457800, 'u_0': 0.001, 't_E': 32., 'xsi': [0.1, 0.2],
      'period': 3.})
-xallarap_model_2 = Model(
+xallarap_model_2 = mm.Model(
     {'t_0': 2457800, 'u_0': 0.001, 't_E': 32., 'xsi_N': 0.1, 'xsi_E': 0.2,
      'period': 3.})
 
@@ -50,7 +50,7 @@ plt.title('Xallarap trajectory')
 
 # Two-sources with linear orbital motion see p.5 of Jung et al. 2017
 # AJ 153, 129 for parameterization.
-two_source_motion = Model({
+two_source_motion = mm.Model({
     't_0': 2457800, 'u_0': 0.3, 't_E': 32, 's_source': 0.2, 'q_source': 0.5,
     'alpha_source': 0.1, 'ds_dt_source': 1.0, 'dalpha_dt_source': 0.7,
     'source_flux_ratio': {'I': 0.1, 'V': 0.15}})

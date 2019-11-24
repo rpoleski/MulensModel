@@ -1,26 +1,25 @@
+"""
+Calculate the chi2 between a model and some data.
+"""
 import matplotlib.pyplot as pl
 from astropy import units as u
 import os
 import numpy as np
 
-import MulensModel
+import MulensModel as mm
 
-"""
-Calculate the chi2 between a model and some data.
-"""
 
 # Load the data
-data = MulensModel.MulensData(
+data = mm.MulensData(
     file_name=os.path.join(
-        MulensModel.DATA_PATH, 'photometry_files', 'OB08092',
-        'phot_ob08092_O4.dat'))
+        mm.DATA_PATH, 'photometry_files', 'OB08092', 'phot_ob08092_O4.dat'))
 
 # Define the model
-model = MulensModel.Model(
+model = mm.Model(
     {'t_0': 2457518.902, 'u_0': 0.590, 't_E': 133.34*u.day})
 
 # Combine the model and the data
-event = MulensModel.Event(datasets=data, model=model)
+event = mm.Event(datasets=data, model=model)
 print(event.get_chi2())
 
 # Get magnifications for selected dates

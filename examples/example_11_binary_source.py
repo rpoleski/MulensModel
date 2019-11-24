@@ -18,7 +18,7 @@ except ImportError as err:
     sys.exit(1)
 import matplotlib.pyplot as plt
 
-from MulensModel import Event, Model, MulensData
+import MulensModel as mm
 
 
 # Define likelihood functions
@@ -122,14 +122,14 @@ n_b = 600
 time_a = np.linspace(6000., 6300., n_a)
 time_b = np.linspace(6139., 6141., n_b)
 time = np.sort(np.concatenate((time_a, time_b)))
-model_1 = Model({'t_0': t_0_1, 'u_0': u_0_1, 't_E': t_E})
+model_1 = mm.Model({'t_0': t_0_1, 'u_0': u_0_1, 't_E': t_E})
 A_1 = model_1.magnification(time)
-model_2 = Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
+model_2 = mm.Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
 A_2 = model_2.magnification(time)
 flux = A_1 * assumed_flux_1 + A_2 * assumed_flux_2 + assumed_flux_blend
 flux_err = 6. + 0. * time
 flux += flux_err * np.random.normal(size=n_a+n_b)
-my_dataset = MulensData([time, flux, flux_err], phot_fmt='flux')
+my_dataset = mm.MulensData([time, flux, flux_err], phot_fmt='flux')
 # If you want to plot, then just uncomment:
 # plt.plot(time, flux, 'ro')
 # plt.show()
@@ -137,8 +137,8 @@ my_dataset = MulensData([time, flux, flux_err], phot_fmt='flux')
 # Starting parameters:
 params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,
           't_E': 20.}
-my_model = Model(params)
-my_event = Event(datasets=my_dataset, model=my_model)
+my_model = mm.Model(params)
+my_event = mm.Event(datasets=my_dataset, model=my_model)
 
 # First fit - source flux ratio not set, hence found by regression:
 parameters_to_fit = ["t_0_1", "u_0_1", "t_0_2", "u_0_2", "t_E"]
@@ -149,8 +149,8 @@ fit_EMCEE(parameters_to_fit, params, sigmas, ln_prob, my_event)
 # Starting parameters for second fit:
 params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,
           't_E': 25.987}
-my_model = Model(params)
-my_event = Event(datasets=my_dataset, model=my_model)
+my_model = mm.Model(params)
+my_event = mm.Event(datasets=my_dataset, model=my_model)
 params['flux_ratio'] = 0.02
 
 # Second fit - source flux ratio as one of the chain parameters:

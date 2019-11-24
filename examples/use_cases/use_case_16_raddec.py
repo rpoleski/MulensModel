@@ -10,28 +10,27 @@ from astropy import units as u
 import matplotlib.pyplot as plt
 import os
 
-import MulensModel
+import MulensModel as mm
 
 
-data_dir = os.path.join(
-    MulensModel.DATA_PATH, 'photometry_files', 'OB140939')
-ephemeris_dir = os.path.join(MulensModel.DATA_PATH, 'ephemeris_files')
+data_dir = os.path.join(mm.DATA_PATH, 'photometry_files', 'OB140939')
+ephemeris_dir = os.path.join(mm.DATA_PATH, 'ephemeris_files')
 
 ra = '17:47:12.25'
 dec = '-21:22:58.2'
 ra_dec = ra + " " + dec
 
 # Specifying coordinates to calculate HJD from JD
-data_1 = MulensModel.MulensData(
+data_1 = mm.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'),
     coords=ra_dec)
 
-data_2 = MulensModel.MulensData(
+data_2 = mm.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'),
     ra=ra, dec=dec)
 
 coords = SkyCoord(ra_dec, unit=(u.hourangle, u.deg))
-data_3 = MulensModel.MulensData(
+data_3 = mm.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), coords=coords)
 
 # Specifying coordinates to calculate a model with parallax
@@ -41,10 +40,10 @@ t_E = 22.87
 pi_E_N = -0.248
 pi_E_E = 0.234
 
-ground_model = MulensModel.Model(
+ground_model = mm.Model(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]})
 ground_model.coords = '17:47:12.25 -21:22:58.2'
-space_model = MulensModel.Model(
+space_model = mm.Model(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
     ra=ra, dec=dec,
     ephemerides_file=os.path.join(
@@ -63,19 +62,19 @@ plt.title('OB140939 Models with Parallax')
 plt.legend()
 
 # Specifying coordinates for an event
-ground_data = MulensModel.MulensData(
+ground_data = mm.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'))
-space_data = MulensModel.MulensData(
+space_data = mm.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_Spitzer.dat'),
     ephemerides_file=os.path.join(
         ephemeris_dir, 'Spitzer_ephemeris_01.dat'))
 
-model_params = MulensModel.ModelParameters(
+model_params = mm.ModelParameters(
         {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E_N': pi_E_N,
          'pi_E_E': pi_E_E})
-event = MulensModel.Event(datasets=[ground_data, space_data],
-                          model=MulensModel.Model(parameters=model_params),
-                          coords=ra_dec)
+event = mm.Event(datasets=[ground_data, space_data],
+                 model=mm.Model(parameters=model_params),
+                 coords=ra_dec)
 
 plt.figure()
 event.plot_model()

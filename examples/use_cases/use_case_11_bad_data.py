@@ -1,5 +1,7 @@
-import MulensModel
 import matplotlib.pyplot as plt
+
+import MulensModel as mm
+
 
 # Needs commentary
 
@@ -7,12 +9,12 @@ raise NotImplementedError(
     'Most of this use case is not implemented. Need to reconsider ' +
     'estimate_model_params() given that Model cannot be defined this way.')
 
-data = MulensModel.MulensData(file_name="my_data.dat")
-model = MulensModel.Model(n_components=1)  # This is not allowed
+data = mm.MulensData(file_name="my_data.dat")
+model = mm.Model(n_components=1)  # This is not allowed
 
 data.bad[np.isnan(data.err)] = True
 
-event = MulensModel.Event(datasets=data, model=model)
+event = mm.Event(datasets=data, model=model)
 event.estimate_model_params()  # aspirational
 event.get_chi2()
 event.clean_data()

@@ -4,7 +4,7 @@ Use Case 12: Fit a point lens to some data.
 import os
 import scipy.optimize as op
 
-import MulensModel
+import MulensModel as mm
 
 
 # Initial Model
@@ -12,15 +12,15 @@ t_0 = 2457520.
 u_0 = 0.6
 t_E = 130.
 
-model = MulensModel.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Import data
-file_name = os.path.join(MulensModel.DATA_PATH, 'photometry_files',
+file_name = os.path.join(mm.DATA_PATH, 'photometry_files',
                          'OB08092', 'phot_ob08092_O4.dat')
-data = MulensModel.MulensData(file_name=file_name)
+data = mm.MulensData(file_name=file_name)
 
 # Create Event
-event = MulensModel.Event(datasets=data, model=model)
+event = mm.Event(datasets=data, model=model)
 print('Initial Model')
 print(event.model.parameters)
 

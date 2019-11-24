@@ -29,8 +29,7 @@ We start by importing python modules:
    import numpy as np
    import emcee
    import matplotlib.pyplot as plt
-   import MulensModel
-   from MulensModel import Event, Model, MulensData
+   import MulensModel as mm
 
 We're using EMCEE package for fitting. You can download it from
 `<http://dfm.io/emcee/current/>`_ in case you don't have it yet. Then we
@@ -38,9 +37,9 @@ import the data and set the event coordinates:
 
 .. code-block:: python
 
-   file_name = os.path.join(MulensModel.MODULE_PATH, "data", 
+   file_name = os.path.join(mm.DATA_PATH,
        "photometry_files", "OB05086", "starBLG234.6.I.218982.dat")
-   my_data = MulensData(file_name=file_name, add_2450000=True)
+   my_data = mm.MulensData(file_name=file_name, add_2450000=True)
    coords = "18:04:45.71 -26:59:15.2"
 
 Note that *add_2450000=True* is very important. The file has time vector 
@@ -60,8 +59,8 @@ We set the starting values of the parameters:
    params['t_E'] = 100.
    params['pi_E_N'] = 0.
    params['pi_E_E'] = 0.
-   my_model = Model(params, coords=coords)
-   my_event = Event(datasets=my_data, model=my_model)
+   my_model = mm.Model(params, coords=coords)
+   my_event = mm.Event(datasets=my_data, model=my_model)
 
 We set the parameter reference time (*t_0_par*) for rounded value of *t_0*.
 This is common approach. If you don't set *t_0_par*, then fitting will be 
@@ -173,12 +172,12 @@ I provide model parameters below. Here is how it goes:
 .. code-block:: python
 
    plt.figure()
-   model_0 = Model({'t_0': 2453628.29062, 'u_0': 0.37263,
+   model_0 = mm.Model({'t_0': 2453628.29062, 'u_0': 0.37263,
            't_E': 102.387105})
-   model_1 = Model({'t_0': 2453630.35507, 'u_0': 0.488817,
+   model_1 = mm.Model({'t_0': 2453630.35507, 'u_0': 0.488817,
            't_E': 93.611301, 'pi_E_N': 0.2719, 'pi_E_E': 0.1025,
            't_0_par': params['t_0_par']}, coords=coords)
-   model_2 = Model({'t_0': 2453630.67778, 'u_0': -0.415677,
+   model_2 = mm.Model({'t_0': 2453630.67778, 'u_0': -0.415677,
            't_E': 110.120755, 'pi_E_N': -0.2972, 'pi_E_E': 0.1103,
            't_0_par': params['t_0_par']}, coords=coords)
    model_0.set_datasets([my_data])        

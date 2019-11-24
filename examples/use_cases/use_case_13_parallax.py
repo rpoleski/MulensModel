@@ -3,7 +3,7 @@ Use Case 13: Set the parallax parameters of a model.
 """
 from astropy import units as u
 
-from MulensModel.model import Model
+import MulensModel as mm
 
 
 model = Model(

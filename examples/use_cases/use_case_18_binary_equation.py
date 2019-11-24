@@ -9,13 +9,13 @@ from astropy import units as u
 import numpy as np
 import matplotlib.pyplot as plt
 
-from MulensModel import Model
+import MulensModel as mm
 
 
 # Initialize the model
 t_0 = 2455747.049357
 t_E = 21.6796
-model = Model(
+model = mm.Model(
     {'t_0': t_0, 'u_0': 0.00352, 't_E': t_E, 'rho': 0.001647,
      'alpha': 41.35*u.deg, 's': 0.5486, 'q': 0.00532})
 

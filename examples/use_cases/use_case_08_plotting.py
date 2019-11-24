@@ -5,14 +5,14 @@ import os
 import matplotlib.pyplot as plt
 from astropy import units as u
 
-import MulensModel
+import MulensModel as mm
 
 
 # Read in some data
 data = []
 file_name = os.path.join(
-    MulensModel.DATA_PATH, 'photometry_files', 'OB140939', 'ob140939_OGLE.dat')
-data.append(MulensModel.MulensData(file_name=file_name))
+    mm.DATA_PATH, 'photometry_files', 'OB140939', 'ob140939_OGLE.dat')
+data.append(mm.MulensData(file_name=file_name))
 
 plt.figure()
 plt.errorbar(data[0].time-2450000., data[0].mag, yerr=data[0].err_mag, fmt='o')
@@ -20,15 +20,14 @@ plt.title('Raw Data (MulensData)')
 plt.gca().invert_yaxis()
 
 # Generate a model
-model = MulensModel.Model({
-            't_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87*u.day})
+model = mm.Model({'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87*u.day})
 
 plt.figure()
 model.plot_lc(f_source=1.0, f_blend=0.0, subtract_2450000=True)
 plt.title('Base Model')
 
 # Combine Model and Data and plot
-event = MulensModel.Event(datasets=data, model=model)
+event = mm.Event(datasets=data, model=model)
 
 # Plot the data
 plt.figure()

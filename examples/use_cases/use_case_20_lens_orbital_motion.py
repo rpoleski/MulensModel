@@ -5,7 +5,7 @@ with static binary model is provided.
 from astropy import units as u
 import matplotlib.pyplot as plt
 
-from MulensModel import Model
+import MulensModel as mm
 
 
 # point lens parameters:
@@ -24,16 +24,16 @@ params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q,
           'alpha': alpha_0, 's': s_0}
 
 # Generate models:
-model_static = Model(params)
+model_static = mm.Model(params)
 params['dalpha_dt'] = dalpha_dt
 params['ds_dt'] = ds_dt
-model_orb = Model(params)
+model_orb = mm.Model(params)
 # t_0_kep is not provided hence defaults to t_0
 
 # We can get model exactly the same as model_orb this way:
 orb_parameters = model_static.parameters.as_dict().copy()
 orb_parameters.update({'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt})
-model_orb_2 = Model(parameters=orb_parameters)
+model_orb_2 = mm.Model(parameters=orb_parameters)
 
 dt = 36.525  # This is in days.
 

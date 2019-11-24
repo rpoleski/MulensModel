@@ -22,7 +22,7 @@ except ImportError as err:
     sys.exit(1)
 import matplotlib.pyplot as plt
 
-from MulensModel import Event, Model, MulensData, DATA_PATH
+import MulensModel as mm
 
 
 # Define likelihood functions
@@ -56,16 +56,16 @@ def ln_prob(theta, event, parameters_to_fit):
 
 
 # Read the data (note that we do not rescale errorbars here):
-dir_ = join(DATA_PATH, "photometry_files", "OB140939")
+dir_ = join(mm.DATA_PATH, "photometry_files", "OB140939")
 file_ground = join(dir_, "ob140939_OGLE.dat")
 file_spitzer = join(dir_, "ob140939_Spitzer.dat")
-data_ground = MulensData(file_name=file_ground,
+data_ground = mm.MulensData(file_name=file_ground,
                          plot_properties={'label': 'OGLE'})
 
 # Here is the main difference - we provide the ephemeris for Spitzer:
 file_spitzer_eph = join(
-    DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat')
-data_spitzer = MulensData(file_name=file_spitzer,
+    mm.DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat')
+data_spitzer = mm.MulensData(file_name=file_spitzer,
                           ephemerides_file=file_spitzer_eph,
                           plot_properties={'label': 'Spitzer'})
 
@@ -77,8 +77,8 @@ params = {
     't_0': 2456830., 'u_0': 0.8, 't_E': 25.,
     'pi_E_N': 0., 'pi_E_E': 0.,
     't_0_par': 2456836.06}
-my_model = Model(params, coords=coords)
-my_event = Event(datasets=[data_ground, data_spitzer], model=my_model)
+my_model = mm.Model(params, coords=coords)
+my_event = mm.Event(datasets=[data_ground, data_spitzer], model=my_model)
 
 # Which parameters we want to fit?
 parameters_to_fit = ["t_0", "u_0", "t_E", "pi_E_N", "pi_E_E"]
@@ -122,8 +122,8 @@ for (i, parameter) in enumerate(parameters_to_fit):
 # In order to make plots, we need a Model instance
 # that has satellite ephemeris:
 params = my_event.model.parameters.parameters
-space_model = Model({**params}, coords=coords,
-                    ephemerides_file=file_spitzer_eph)
+space_model = mm.Model({**params}, coords=coords,
+                       ephemerides_file=file_spitzer_eph)
 
 # Prepare plots:
 my_event.plot_model(subtract_2450000=True)
