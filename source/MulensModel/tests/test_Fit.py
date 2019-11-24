@@ -15,7 +15,7 @@ def test_fit_get_input_format():
     mag = 15.
     time = np.ones(n) * 2456789.
     dataset = mm.MulensData(data_list=[time, time*0.+mag, time*0.+0.01],
-                         phot_fmt='flux')
+                            phot_fmt='flux')
     fit = mm.Fit(data=[dataset], magnification=[np.ones(n)])
     fit.fit_fluxes()
 

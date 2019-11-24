@@ -14,7 +14,8 @@ def test_fspl_noLD():
     t_vec = np.array([-(rho**2-u_0**2)**0.5, 0., ((0.5*rho)**2-u_0**2)**0.5])
     t_vec = t_vec * t_E + t_0
 
-    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
 
     mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
     methods = [t_0-t_E, 'finite_source_uniform_Gould94', t_0+t_E]
@@ -42,9 +43,11 @@ def test_fspl():
     t_vec = np.array([-(rho**2-u_0**2)**0.5, 0., ((0.5*rho)**2-u_0**2)**0.5])
     t_vec = t_vec * t_E + t_0
 
-    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
 
-    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params, gamma=gamma)
+    mag_curve = mm.MagnificationCurve(
+        times=t_vec, parameters=params, gamma=gamma)
     methods = [t_0-t_E, 'finite_source_LD_Yoo04', t_0+t_E]
     mag_curve.set_magnification_methods(methods, 'point_source')
     results = mag_curve.get_point_lens_magnification()
@@ -80,7 +83,8 @@ def test_Lee09():
 #  1-gamma*(1-1.5*costh)
 
     # Test uniform source first.
-    params_0 = mm.ModelParameters({'t_0': 0., 'u_0': 0.5, 't_E': 1., 'rho': 1.})
+    params_0 = mm.ModelParameters(
+        {'t_0': 0., 'u_0': 0.5, 't_E': 1., 'rho': 1.})
     mag_curve_0 = mm.MagnificationCurve(times=t_vec, parameters=params_0)
     methods_0 = [-5., 'finite_source_uniform_Lee09', 5.]
     mag_curve_0.set_magnification_methods(methods_0, 'point_source')
@@ -88,9 +92,10 @@ def test_Lee09():
     np.testing.assert_almost_equal(expected_0, results_0, decimal=4)
 
     # Then test 1-parameter limb-darkening.
-    params_1 = mm.ModelParameters({'t_0': 0., 'u_0': 0.1, 't_E': 1., 'rho': 1.})
+    params_1 = mm.ModelParameters(
+        {'t_0': 0., 'u_0': 0.1, 't_E': 1., 'rho': 1.})
     mag_curve_1 = mm.MagnificationCurve(times=t_vec, parameters=params_1,
-                                     gamma=0.5)
+                                        gamma=0.5)
     methods_1 = [-5., 'finite_source_LD_Lee09', 5.]
     mag_curve_1.set_magnification_methods(methods_1, 'point_source')
     results_1 = mag_curve_1.get_point_lens_magnification()

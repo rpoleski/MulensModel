@@ -10,7 +10,7 @@ def test_n_lenses():
     """check n_lenses property"""
     model_1 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.})
     model_2 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
-                     "s": 1.1234, "q": 0.123, 'alpha': 12.34})
+                        "s": 1.1234, "q": 0.123, 'alpha': 12.34})
     assert model_1.n_lenses == 1
     assert model_2.n_lenses == 2
 
@@ -28,8 +28,8 @@ def test_model_PSPL_1():
     model.parameters.t_E = t_E
     model.set_datasets([data])
     almost(model.data_magnification,
-        [np.array([1.028720763, 2.10290259, 1.26317278])],
-        err_msg="PSPL model returns wrong values")
+           [np.array([1.028720763, 2.10290259, 1.26317278])],
+           err_msg="PSPL model returns wrong values")
 
 
 def test_model_init_1():
@@ -77,7 +77,7 @@ def test_model_parallax_definition():
     assert model_3.parameters.pi_E_E == 0.6
 
     model_4 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
-                     'pi_E_N': 0.7, 'pi_E_E': 0.8})
+                        'pi_E_N': 0.7, 'pi_E_E': 0.8})
     assert model_4.parameters.pi_E_N == 0.7
     assert model_4.parameters.pi_E_E == 0.8
 
@@ -404,7 +404,7 @@ def test_separate_method_for_each_source():
     """
     model = mm.Model({'t_0_1': 5000., 'u_0_1': 0.01, 'rho_1': 0.005,
                       't_0_2': 5100., 'u_0_2': 0.001, 'rho_2': 0.005,
-                   't_E': 1000.})
+                      't_E': 1000.})
 
     model.set_magnification_methods(
         [4999., 'finite_source_uniform_Gould94', 5101.], source=1)

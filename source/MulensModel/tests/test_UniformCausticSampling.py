@@ -29,7 +29,8 @@ def test_UniformCausticSampling():
     n_points = 1000
     # Expected results:
     n_c = [1, 3, 2]
-    p_ = [0.01401270+0.22985537j, -1.49730846-0.11183662j, 1.49051495+0.03108463j]
+    p_ = [0.01401270+0.22985537j, -1.49730846-0.11183662j,
+          1.49051495+0.03108463j]
     checks = [False, False, True]
 
     for (s, q, nc, p, c) in zip(s_, q_, n_c, p_, checks):

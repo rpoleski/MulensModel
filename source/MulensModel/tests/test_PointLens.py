@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-import MulensModel as mm 
+import MulensModel as mm
 
 
 SAMPLE_FILE = os.path.join(mm.DATA_PATH, 'unit_test_files', 'FSPL_test_1.dat')

@@ -75,7 +75,7 @@ def test_init_success():
 
 def test_a_proj_success():
     lens = mm.Lens(mass_1=1.0*u.solMass, mass_2=0.1*u.solMass, a_proj=1.0*u.au,
-                distance=6.*u.kpc)
+                   distance=6.*u.kpc)
     assert lens.total_mass == 1.1*u.solMass
     assert lens.q == 0.1
 
