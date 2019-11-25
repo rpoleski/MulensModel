@@ -270,7 +270,10 @@ class Model(object):
             self._fit = None
         else:
             if same_dataset:
-                assert (flux_ratio_constraint.time == time).all()
+                if not (flux_ratio_constraint.time == time).all():
+                    raise ValueError(
+                        'internal problem with time vectors:\n' +
+                        str(flux_ratio_constraint.time) + '\n' + str(time))
                 mags = np.array([mag_1, mag_2])
             elif not same_dataset:
                 (mag_1_data, mag_2_data) = self._separate_magnifications(

@@ -282,8 +282,10 @@ class Fit(object):
             fit: :py:class:`~MulensModel.fit.Fit`
                 A different instance of this class.
         """
-        assert isinstance(fit, Fit)
-        assert self.get_n_sources() == fit.get_n_sources()
+        if not isinstance(fit, Fit):
+            raise TypeError('fit parameter must be of MulensModel.Fit type')
+        if self.get_n_sources() != fit.get_n_sources():
+            raise ValueError('internal erro with number of sources')
 
         self._datasets.extend(fit._datasets)
         self._magnification.extend(fit._magnification)

@@ -556,6 +556,11 @@ class BinaryLens(object):
 
 
         """
+        if accuracy <= 0.:
+            raise ValueError('adaptive_contouring requires accuracy > 0')
+        if ld_accuracy <= 0.:
+            raise ValueError('adaptive_contouring requires ld_accuracy > 0')
+        # Note that this accuracy is not guaranteed.
 
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
@@ -577,10 +582,6 @@ class BinaryLens(object):
         # so we have to transform the coordinates below.
         x = float(-source_x)
         y = float(-source_y)
-
-        assert accuracy > 0., "adaptive_contouring requires accuracy > 0"
-        assert ld_accuracy > 0., "adaptive_contouring requires ld_accuracy > 0"
-        # Note that this accuracy is not guaranteed.
 
         magnification = _adaptive_contouring_linear(
             s, q, x, y, rho, gamma, accuracy, ld_accuracy)
@@ -628,6 +629,11 @@ class BinaryLens(object):
                 Magnification.
 
         """
+        if accuracy <= 0.:
+            raise ValueError(
+                "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
+                "\n{:} was  provided".format(accuracy))
+
         if not _vbbl_wrapped:
             raise ValueError('VBBL was not imported properly')
 
@@ -645,10 +651,6 @@ class BinaryLens(object):
         q = float(self.mass_2 / self.mass_1)
         x = float(source_x)
         y = float(source_y)
-        assert accuracy > 0., (
-            "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
-            "\n{:} was  provided".format(accuracy))
-        # Note that this accuracy is not guaranteed.
 
         magnification = _vbbl_binary_mag_dark(
             s, q, x, y, rho, u_limb_darkening, accuracy)
