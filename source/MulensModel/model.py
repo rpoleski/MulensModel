@@ -1629,8 +1629,9 @@ class Model(object):
     @property
     def caustics(self):
         """
-        caustics: :py:class:`~MulensModel.caustics.Caustics`
-            Caustics for given model
+        :py:class:`~MulensModel.caustics.Caustics`
+
+        Caustics for given model
         """
         return self._caustics
 

@@ -154,7 +154,7 @@ class Utils(object):
         return (cartesian.x * vector[0] + cartesian.y * vector[1] +
                 cartesian.z * vector[2])
     dot = staticmethod(dot)
-    
+
     def date_change(text):
         """
         changes format: '2015-Oct-30 12:00' -> '2015-10-30 12:00'

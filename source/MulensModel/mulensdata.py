@@ -516,7 +516,10 @@ class MulensData(object):
     @property
     def coords(self):
         """
-        see :py:class:`~MulensModel.coordinates.Coordinates`
+        :py:class:`~MulensModel.coordinates.Coordinates`
+
+        Sky coordinates of data.
+        See :py:class:`~MulensModel.coordinates.Coordinates`.
         """
         return self._coords
 
@@ -560,6 +563,7 @@ class MulensData(object):
     def flux(self):
         """
         *numpy.ndarray*
+
         Vector of the measured brightness in flux units.
         """
         if self._flux is None:
@@ -571,6 +575,7 @@ class MulensData(object):
     def err_flux(self):
         """
         *np.ndarray*
+
         Vector of uncertainties of *flux* values.
         """
         if self._err_flux is None:
@@ -713,7 +718,7 @@ class MulensData(object):
         """
         *str* ('mag' or 'flux')
 
-        Input format - same as *phot_fmt* keyword in __init__.
+        Input format - same as *phot_fmt* keyword in __init__().
         """
         return self._input_fmt
 
@@ -722,7 +727,7 @@ class MulensData(object):
         """
         *str* ('mag' or 'flux')
 
-        Photometry format used  for chi ^ 2 calculations.Default is 'flux'.
+        Photometry format used  for chi^2 calculations. Default is 'flux'.
         """
         return self._chi2_fmt
 

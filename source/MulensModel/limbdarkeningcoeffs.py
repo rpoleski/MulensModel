@@ -70,7 +70,6 @@ class LimbDarkeningCoeffs(object):
         """
         self._gammas_for_band[bandpass] = Utils.u_to_gamma(u)
 
-
     def get_limb_coeff_u(self, bandpass):
         """
         Gives limb darkening *u* coefficient for given band.

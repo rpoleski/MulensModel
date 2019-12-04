@@ -150,7 +150,6 @@ class MagnificationCurve(object):
         """
         self._methods_parameters = methods_parameters
 
-
     def get_magnification(self):
         """
         Calculate magnification.
@@ -423,7 +422,7 @@ class MagnificationCurve(object):
         """
         *np.ndarray*
 
-        provide vector of magnifications. Same as :py:func:`~get_magnification()`
-
+        provide vector of magnifications.
+        Same as :py:func:`~get_magnification()`
         """
         return self.get_magnification()

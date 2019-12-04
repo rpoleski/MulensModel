@@ -18,9 +18,8 @@ class Event(object):
     making a number of plots.
 
     Arguments :
-        :py:obj:`~datasets` :  :py:class:`~MulensModel.mulensdata.MulensData` or
-        *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects
-
+        :py:obj:`~datasets` :  :py:class:`~MulensModel.mulensdata.MulensData`
+        or *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects
             Datasets that will be linked to the event. These datasets will
             be used for chi^2 calculation, plotting etc.
 
@@ -31,9 +30,8 @@ class Event(object):
             change parameters for this model (i.e., do not provide separate
             :py:class:`~MulensModel.model.Model` instances).
 
-        :py:obj:`~coords` : *str*, :py:class:`~MulensModel.coordinates.Coordinates`,
-        or astropy.SkyCoord_
-
+        :py:obj:`~coords` : *str*,
+        :py:class:`~MulensModel.coordinates.Coordinates`, or astropy.SkyCoord_
             Coordinates of the event. If *str*, then needs format accepted by
             astropy.SkyCoord_ e.g., ``'18:00:00 -30:00:00'``.
 
@@ -545,8 +543,9 @@ class Event(object):
     @property
     def best_chi2(self):
         """
-        best_chi2: *float*
-        Smallest value returned by :py:func:`get_chi2()`.
+        *float*
+
+        The smallest value returned by :py:func:`get_chi2()`.
         """
         return self._best_chi2
 
@@ -557,8 +556,9 @@ class Event(object):
     @property
     def best_chi2_parameters(self):
         """
-        best_chi2_parameters: *dict*
-        Parameters that gave smallest chi2.
+        *dict*
+
+        Parameters that gave the smallest chi2.
         """
         return self._best_chi2_parameters
 
@@ -569,10 +569,10 @@ class Event(object):
     @property
     def sum_function(self):
         """
-        sum_function: *str*
+        *str*
 
         Function used for adding chi^2 contributions. Can be either
-        :py:func:`math.fsum()` (default value) or :py:func:`numpy.sum`.
+        'math.fsum' (default value) or 'numpy.sum'.
         The former is slightly slower and more accurate,
         which may be important for large datasets.
         """
