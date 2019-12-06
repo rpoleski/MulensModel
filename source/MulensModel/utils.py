@@ -157,7 +157,6 @@ class Utils(object):
         """
         Transform u limb darkening coefficient to gamma in convention
         introduced by `An et al. 2008 (ApJ 681, 1593)
-
         <https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract>`_.
 
         Parameters :

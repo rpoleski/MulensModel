@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Basic Fitting Tutorial &#8212; MulensModel 1.14.12 documentation</title>
+    <title>Basic Fitting Tutorial &#8212; MulensModel 1.14.25 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -43,15 +43,14 @@ the data. Similar material can be found in
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">MulensModel</span>
-<span class="kn">from</span> <span class="nn">MulensModel</span> <span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Fit</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">MulensData</span><span class="p">,</span> <span class="n">Utils</span>
+<span class="kn">import</span> <span class="nn">MulensModel</span> <span class="kn">as</span> <span class="nn">mm</span>
 </pre></div>
 </div>
 <p>Then we import the data (downloaded together with the code) to
 the <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html">MulensData class</a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MulensModel</span><span class="o">.</span><span class="n">MODULE_PATH</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">DATA_PATH</span><span class="p">,</span>
     <span class="s2">&quot;photometry_files&quot;</span><span class="p">,</span> <span class="s2">&quot;OB08092&quot;</span><span class="p">,</span> <span class="s2">&quot;phot_ob08092_O4.dat&quot;</span><span class="p">)</span>
-<span class="n">my_data</span> <span class="o">=</span> <span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
+<span class="n">my_data</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{:} file was imported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -86,7 +85,7 @@ so <em>u_0 = 0.5</em> should be a good choice.</p>
 a <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>
 and plot it
 together with data:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pspl_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="n">t_0</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="n">u_0</span><span class="p">,</span> <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="n">t_E</span><span class="p">})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pspl_model</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="n">t_0</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="n">u_0</span><span class="p">,</span> <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="n">t_E</span><span class="p">})</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">set_datasets</span><span class="p">([</span><span class="n">my_data</span><span class="p">])</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_data</span><span class="p">()</span>
 <span class="n">pspl_model</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">()</span>
@@ -108,7 +107,7 @@ calculation requires an instance of the
 <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.event.htl">Event Class</a>
 that combines the Model and
 the MulensData:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">my_data</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">pspl_model</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_event</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">my_data</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">pspl_model</span><span class="p">)</span>
 <span class="n">chi2_initial</span> <span class="o">=</span> <span class="n">my_event</span><span class="o">.</span><span class="n">get_chi2</span><span class="p">()</span>
 <span class="k">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;give chi^2 of {:.2f}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chi2_initial</span><span class="p">))</span>

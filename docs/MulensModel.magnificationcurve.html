@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.magnificationcurve module &#8212; MulensModel 1.14.12 documentation</title>
+    <title>MulensModel.magnificationcurve module &#8212; MulensModel 1.14.25 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -51,14 +51,21 @@ magnification and when to use it..</p>
 <dd>dictionary specifying what parallax effects should be
 used, e.g., <code class="docutils literal notranslate"><span class="pre">{'earth_orbital':</span> <span class="pre">True,</span> <span class="pre">'satellite':</span> <span class="pre">False,</span>
 <span class="pre">'topocentric':</span> <span class="pre">False}</span></code></dd>
-<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.coordinates.Coordinates</span></code></a>, optional</dt>
+<dt>coords: <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></a>, optional</dt>
 <dd>sky coordinates of the event</dd>
 <dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the satellite specified by the
-ephemerides file. see
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord.</span></code></dd>
+ephemerides file. See
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.satellite_skycoord" title="MulensModel.mulensdata.MulensData.satellite_skycoord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MulensModel.mulensdata.MulensData.satellite_skycoord</span></code></a>.</dd>
 <dt>gamma: <em>float</em>, optional</dt>
 <dd>limb darkening coefficient in gamma convention; defaults to 0</dd>
+</dl>
+</dd>
+<dt>Attributes :</dt>
+<dd><dl class="first last docutils">
+<dt>trajectory: <code class="xref py py-class docutils literal notranslate"><span class="pre">trajectory</span></code></dt>
+<dd>Trajectory used to calculate positions of
+the source that are used to calculate magnification values.</dd>
 </dl>
 </dd>
 </dl>
@@ -114,13 +121,6 @@ e.g., <code class="docutils literal notranslate"><span class="pre">{'VBBL':</spa
 </dl>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.magnification">
-<code class="descname">magnification</code><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>np.ndarray</em></p>
-<p>provide vector of magnifications</p>
 </dd></dl>
 
 <dl class="method">
@@ -225,6 +225,14 @@ the lens (e.g. at separation u = 100).</dd>
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.magnificationcurve.MagnificationCurve.magnification">
+<code class="descname">magnification</code><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>np.ndarray</em></p>
+<p>provide vector of magnifications.
+Same as <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_magnification()</span></code></a></p>
 </dd></dl>
 
 </dd></dl>

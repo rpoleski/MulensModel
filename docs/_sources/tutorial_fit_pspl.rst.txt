@@ -15,17 +15,16 @@ First things first - we need to import some modules:
    import os
    import numpy as np
    import matplotlib.pyplot as plt
-   import MulensModel
-   from MulensModel import Event, Fit, Model, MulensData, Utils
+   import MulensModel as mm
 
 Then we import the data (downloaded together with the code) to 
 the `MulensData class <https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html>`_:
 
 .. code-block:: python
 
-   file_name = os.path.join(MulensModel.MODULE_PATH, "data",
+   file_name = os.path.join(mm.DATA_PATH,
        "photometry_files", "OB08092", "phot_ob08092_O4.dat")
-   my_data = MulensData(file_name=file_name)
+   my_data = mm.MulensData(file_name=file_name)
    print("{:} file was imported".format(file_name))
 
 Plotting data
@@ -67,7 +66,7 @@ together with data:
 
 .. code-block:: python
    
-   pspl_model = Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+   pspl_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
    pspl_model.set_datasets([my_data])
    pspl_model.plot_data()
    pspl_model.plot_lc()
@@ -94,7 +93,7 @@ the MulensData:
 
 .. code-block:: python
    
-   my_event = Event(datasets=my_data, model=pspl_model)
+   my_event = mm.Event(datasets=my_data, model=pspl_model)
    chi2_initial = my_event.get_chi2()
    print(my_event.model.parameters)
    print("give chi^2 of {:.2f}.".format(chi2_initial))

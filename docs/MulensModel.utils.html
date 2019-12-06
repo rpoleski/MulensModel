@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.utils module &#8212; MulensModel 1.14.12 documentation</title>
+    <title>MulensModel.utils module &#8212; MulensModel 1.14.25 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -140,67 +140,6 @@ Defaults to 22. - double check if you want to change this.</dd>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.complex_fsum">
-<em class="property">static </em><code class="descname">complex_fsum</code><span class="sig-paren">(</span><em>arguments</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.complex_fsum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Accurate floating points sum of complex numbers in iterable.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd>arguments: <em>iterable</em> (e.g., <em>list</em> or <em>np.ndarray</em>)</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>sum: <em>complex</em></dt>
-<dd>Sum of <em>arguments</em>.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.dot">
-<em class="property">static </em><code class="descname">dot</code><span class="sig-paren">(</span><em>cartesian</em>, <em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.dot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dot product of 2 vectors represented by
-<em>astropy.CartesianRepresentation</em> and <em>np.ndarray</em>.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>cartesian: <em>astropy.CartesianRepresentation</em></dt>
-<dd>First vector.</dd>
-<dt>vector: <em>np.ndarray</em></dt>
-<dd>Second vector (length 3).</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>dot_product: <em>astropy.Quantity</em></dt>
-<dd>Dot product of inputs.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.vector_product_normalized">
-<em class="property">static </em><code class="descname">vector_product_normalized</code><span class="sig-paren">(</span><em>vector_1</em>, <em>vector_2</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.vector_product_normalized" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get vector that is perpendicular to the 2 input ones and is normalized.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>vector_1: <em>np.ndarray</em> (3,)</dt>
-<dd>First vector.</dd>
-<dt>vector_2: <em>np.ndarray</em> (3,)</dt>
-<dd>Second vector.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>vector_product_norm: <em>np.ndarray</em> (3,)</dt>
-<dd>Normalized vector product of the inputs.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="staticmethod">
 <dt id="MulensModel.utils.Utils.gamma_to_u">
 <em class="property">static </em><code class="descname">gamma_to_u</code><span class="sig-paren">(</span><em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.gamma_to_u" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform gamma limb darkening coefficient to u in convention
@@ -265,27 +204,6 @@ introduced by <a class="reference external" href="https://ui.adsabs.harvard.edu/
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="MulensModel.utils.Utils.date_change">
-<em class="property">static </em><code class="descname">date_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change format of month in date, e.g.
-<em>‘2015-Oct-30 12:00’</em> -&gt; <em>‘2015-10-30 12:00’</em></p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>text: <em>str</em></dt>
-<dd>Date to be changed.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>out_text: <em>str</em></dt>
-<dd>Changed text.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="staticmethod">
 <dt id="MulensModel.utils.Utils.velocity_of_Earth">
 <em class="property">static </em><code class="descname">velocity_of_Earth</code><span class="sig-paren">(</span><em>full_BJD</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.velocity_of_Earth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate 3D velocity of Earth for given epoch.</p>
@@ -304,6 +222,88 @@ fixed to 0.  Default is the same as
 <dd><dl class="first last docutils">
 <dt>velocity: <em>np.ndarray</em> (<em>float</em>, size of (3,))</dt>
 <dd>3D velocity in km/s. The frame follows <em>Astropy</em> conventions.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.complex_fsum">
+<em class="property">static </em><code class="descname">complex_fsum</code><span class="sig-paren">(</span><em>arguments</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.complex_fsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accurate floating points sum of complex numbers in iterable.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd>arguments: <em>iterable</em> (e.g., <em>list</em> or <em>np.ndarray</em>)</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>sum: <em>complex</em></dt>
+<dd>Sum of <em>arguments</em>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.vector_product_normalized">
+<em class="property">static </em><code class="descname">vector_product_normalized</code><span class="sig-paren">(</span><em>vector_1</em>, <em>vector_2</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.vector_product_normalized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get vector that is perpendicular to the 2 input ones and is normalized.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>vector_1: <em>np.ndarray</em> (3,)</dt>
+<dd>First vector.</dd>
+<dt>vector_2: <em>np.ndarray</em> (3,)</dt>
+<dd>Second vector.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>vector_product_norm: <em>np.ndarray</em> (3,)</dt>
+<dd>Normalized vector product of the inputs.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.dot">
+<em class="property">static </em><code class="descname">dot</code><span class="sig-paren">(</span><em>cartesian</em>, <em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dot product of 2 vectors represented by
+<em>astropy.CartesianRepresentation</em> and <em>np.ndarray</em>.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>cartesian: <em>astropy.CartesianRepresentation</em></dt>
+<dd>First vector.</dd>
+<dt>vector: <em>np.ndarray</em></dt>
+<dd>Second vector (length 3).</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>dot_product: <em>astropy.Quantity</em></dt>
+<dd>Dot product of inputs.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.date_change">
+<em class="property">static </em><code class="descname">date_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change format of month in date, e.g.
+<em>‘2015-Oct-30 12:00’</em> -&gt; <em>‘2015-10-30 12:00’</em></p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>text: <em>str</em></dt>
+<dd>Date to be changed.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>out_text: <em>str</em></dt>
+<dd>Changed text.</dd>
 </dl>
 </dd>
 </dl>
