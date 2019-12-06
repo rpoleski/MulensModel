@@ -1080,17 +1080,6 @@ class Model(object):
                 self._methods = {}
             self._methods[source] = methods
 
-    def get_magnification_methods(self):
-        """
-        Get list that specifies which methods (*str*) should be
-        used when (*float* values for Julian dates). Given
-        method will be used for times between the times
-        between which it is on the list.
-
-        :return: *list*
-        """
-        return self._methods
-
     def set_default_magnification_method(self, method):
         """
         Stores information on method to be used, when no method is
@@ -1104,13 +1093,6 @@ class Model(object):
 
         """
         self._default_magnification_method = method
-
-    def get_default_magnification_method(self):
-        """
-        Get name of the method to be used.
-        :return: *str*
-        """
-        return self._default_magnification_method
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
@@ -1148,13 +1130,6 @@ class Model(object):
             raise KeyError('Unknown methods provided: {:}'.format(methods))
 
         self._methods_parameters = parameters
-
-    def get_magnification_methods_parameters(self):
-        """
-        Get additional parameters for magnification calculation methods.
-        :return: *dict*
-        """
-        return self._methods_parameters
 
     def set_limb_coeff_gamma(self, bandpass, coeff):
         """
