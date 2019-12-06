@@ -105,7 +105,6 @@ class Model(object):
         self._methods = None
         self._methods_parameters = {}
         self._caustics = None
-        self._trajectory = None
         self.data_ref = None
         self._fit = None
 
