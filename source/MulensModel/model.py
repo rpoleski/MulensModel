@@ -104,7 +104,7 @@ class Model(object):
         self._default_magnification_method = 'point_source'
         self._methods = None
         self._methods_parameters = {}
-        self.caustics = None
+        self._caustics = None
         self._trajectory = None
         self.data_ref = None
         self._fit = None
@@ -657,11 +657,11 @@ class Model(object):
         else:
             s = self.parameters.get_s(epoch)
 
-        if self.caustics is not None:
-            if s == self.caustics.s and self.parameters.q == self.caustics.q:
+        if self._caustics is not None:
+            if s == self._caustics.s and self.parameters.q == self._caustics.q:
                 return
 
-        self.caustics = Caustics(q=self.parameters.q, s=s)
+        self._caustics = Caustics(q=self.parameters.q, s=s)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -1678,14 +1678,6 @@ class Model(object):
         see :py:func:`MulensModel.modelparameters.ModelParameters.is_static()`
         """
         return self._parameters.is_static()
-
-    @caustics.setter
-    def caustics(self, new_value):
-        self._caustics = new_value
-
-    @property
-    def trajectory(self):
-        raise NotImplementedError('trajectory is not implemented yet.')
 
     @property
     def coords(self):

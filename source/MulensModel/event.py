@@ -143,8 +143,8 @@ class Event(object):
 
         self.chi2 = self._sum(chi2)
         if self.best_chi2 is None or self.best_chi2 > self.chi2:
-            self.best_chi2 = self.chi2
-            self.best_chi2_parameters = dict(self.model.parameters.parameters)
+            self._best_chi2 = self.chi2
+            self._best_chi2_parameters = dict(self.model.parameters.parameters)
         return self.chi2
 
     def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
@@ -427,8 +427,8 @@ class Event(object):
         Reset :py:attr:`~best_chi2` attribute and its parameters
         (:py:attr:`~best_chi2_parameters`).
         """
-        self.best_chi2 = None
-        self.best_chi2_parameters = {}
+        self._best_chi2 = None
+        self._best_chi2_parameters = {}
 
     def _sum(self, data):
         """calculate sum of the data"""
@@ -549,10 +549,6 @@ class Event(object):
         """
         return self._best_chi2
 
-    @best_chi2.setter
-    def best_chi2(self, new_value):
-        self._best_chi2 = new_value
-
     @property
     def best_chi2_parameters(self):
         """
@@ -561,10 +557,6 @@ class Event(object):
         Parameters that gave the smallest chi2.
         """
         return self._best_chi2_parameters
-
-    @best_chi2_parameters.setter
-    def best_chi2_parameters(self, new_value):
-        self._best_chi2_parameters = new_value
 
     @property
     def sum_function(self):
