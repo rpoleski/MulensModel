@@ -18,37 +18,23 @@ class Event(object):
     making a number of plots.
 
     Arguments :
-        datasets:  :py:class:`~MulensModel.mulensdata.MulensData` or
-        *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects
-
+        :py:obj:`~datasets` :  :py:class:`~MulensModel.mulensdata.MulensData`
+        or *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects
             Datasets that will be linked to the event. These datasets will
             be used for chi^2 calculation, plotting etc.
 
-        model: :py:class:`~MulensModel.model.Model`
+        :py:obj:`~model` : :py:class:`~MulensModel.model.Model`
             Microlensing model that will be linked to the event. In order to
             get chi^2 for different sets of model parameters you should
             keep a single :py:class:`~MulensModel.model.Model` instance and
             change parameters for this model (i.e., do not provide separate
             :py:class:`~MulensModel.model.Model` instances).
 
-        coords: *str*, :py:class:`~MulensModel.coordinates.Coordinates`,
-        or astropy.SkyCoord_
-
+        :py:obj:`~coords` : *str*,
+        :py:class:`~MulensModel.coordinates.Coordinates`, or astropy.SkyCoord_
             Coordinates of the event. If *str*, then needs format accepted by
             astropy.SkyCoord_ e.g., ``'18:00:00 -30:00:00'``.
 
-    Attributes :
-        best_chi2: *float*
-            Smallest value returned by :py:func:`get_chi2()`.
-
-        best_chi2_parameters: *dict*
-            Parameters that gave smallest chi2.
-
-        sum_function: *str*
-            Function used for adding chi^2 contributions. Can be either
-            :py:func:`math.fsum()` (default value) or :py:func:`numpy.sum`.
-            The former is slightly slower and more accurate,
-            which may be important for large datasets.
 
         fit: :py:class:`~MulensModel.fit.Fit` or *None*
             Instance of :py:class:`~MulensModel.fit.Fit` class used in
@@ -57,9 +43,11 @@ class Event(object):
             performed, then it is *None*.
 
     The datasets can be in magnitude or flux spaces. When we calculate chi^2
-    we do it in the same space as the dataset considered. If dataset is in
-    magnitude space and model results in negative flux, then we calculate chi^2
-    in flux space but only for the epochs with negative model flux.
+    we do it in magnitude or flux space depending on value of
+    :py:attr:`~MulensModel.mulensdata.MulensData.chi2_fmt` attribute.
+    If dataset is in magnitude space and model results
+    in negative flux, then we calculate chi^2 in flux space but only for the
+    epochs with negative model flux.
 
     .. _astropy.SkyCoord:
       http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
@@ -92,114 +80,49 @@ class Event(object):
         self.sum_function = 'math.fsum'
         self.fit = None  # This should be changed to @property w/ lazy loading
 
-    @property
-    def datasets(self):
+    def plot_model(self, **kwargs):
         """
-        a *list* of :py:class:`~MulensModel.mulensdata.MulensData`
-        instances.
+        Plot the model light curve in magnitudes. See
+        :py:func:`MulensModel.model.Model.plot_lc()` for details.
         """
-        return self._datasets
+        self.model.plot_lc(**kwargs)
 
-    @datasets.setter
-    def datasets(self, new_value):
-        self._set_datasets(new_value)
-
-    @property
-    def data_ref(self):
+    def plot_data(self, **kwargs):
         """
-        Reference data set for scaling the model fluxes to (for
-        plotting). May be set as a
-        :py:class:`~MulensModel.mulensdata.MulensData` object or an
-        index (*int*). Default is the first data set.
+        Plot the data scaled to the model. See
+        :py:func:`MulensModel.model.Model.plot_data()` for details.
         """
-        return self.model.data_ref
+        self.model.plot_data(**kwargs)
 
-    @data_ref.setter
-    def data_ref(self, new_value):
-        self.model.data_ref = new_value
-
-    def _set_datasets(self, new_value):
+    def plot_residuals(self, **kwargs):
         """
-        sets the value of self._datasets
-        can be called by __init__ or @datasets.setter
-        passes datasets to property self._model
+        Plot the residuals (in magnitudes) of the model.
+        See :py:func:`MulensModel.model.Model.plot_residuals()` for details.
         """
-        if isinstance(new_value, list):
-            for dataset in new_value:
-                if dataset.coords is not None:
-                    self._update_coords(coords=dataset.coords)
-        if isinstance(new_value, MulensData):
-            if new_value.coords is not None:
-                self._update_coords(coords=new_value.coords)
-            new_value = [new_value]
-        if new_value is None:
-            self._datasets = None
-            return
-        self._datasets = new_value
-        if isinstance(self._model, Model):
-            self._model.set_datasets(self._datasets)
+        self.model.plot_residuals(**kwargs)
 
-    @property
-    def model(self):
-        """an instance of :py:class:`~MulensModel.model.Model`"""
-        return self._model
-
-    @model.setter
-    def model(self, new_value):
-        if not isinstance(new_value, Model):
-            raise TypeError((
-                    'wrong type of Event.model: {:} instead of ' +
-                    'MulensModel').format(type(new_value)))
-        self._model = new_value
-        if self._datasets is not None:
-            self._model.set_datasets(self._datasets)
-
-        if new_value.coords is not None:
-            self._update_coords(coords=new_value.coords)
-
-    @property
-    def coords(self):
+    def plot_trajectory(self, **kwargs):
         """
-        see :py:class:`~MulensModel.coordinates.Coordinates`
+        Plot the trajectory of the source. See :
+        py:func:`MulensModel.model.Model.plot_trajectory()` for details.
         """
-        return self._coords
+        self.model.plot_trajectory(**kwargs)
 
-    @coords.setter
-    def coords(self, new_value):
-        self._update_coords(coords=new_value)
-
-    def _update_coords(self, coords=None):
-        """Set the coordinates as a SkyCoord object"""
-        self._coords = Coordinates(coords)
-
-        if self._model is not None:
-            self._model.coords = self._coords
-
-        # We run the command below with try, because _update_coords() is called
-        # by _set_datasets before self._datasets is set.
-        try:
-            for dataset in self._datasets:
-                dataset.coords = self._coords
-        except Exception:
-            pass
-
-    def reset_best_chi2(self):
+    def plot_source_for_datasets(self, **kwargs):
         """
-        Reset :py:attr:`~best_chi2` attribute and its parameters
-        (:py:attr:`~best_chi2_parameters`).
+        Plot source positions for all linked datasets.
+        See :py:func:`MulensModel.model.Model.plot_source_for_datasets()` for
+        details.
         """
-        self.best_chi2 = None
-        self.best_chi2_parameters = {}
+        self.model.plot_source_for_datasets(**kwargs)
 
-    def _sum(self, data):
-        """calculate sum of the data"""
-        if self.sum_function == 'numpy.sum':
-            return np.sum(data)
-        elif self.sum_function == 'math.fsum':
-            return fsum(data)
-        else:
-            raise ValueError(
-                'Event.sum_function unrecognized: ' + self.sum_function)
+    def get_ref_fluxes(self, data_ref=None, fit_blending=None):
+        """
+        Get source and blending fluxes for the reference dataset. See
+        :py:func:`MulensModel.model.Model.get_ref_fluxes()` for details.
+        """
+        return self.model.get_ref_fluxes(
+            data_ref=data_ref, fit_blending=fit_blending)
 
     def get_chi2(self, fit_blending=None):
         """
@@ -227,8 +150,8 @@ class Event(object):
 
         self.chi2 = self._sum(chi2)
         if self.best_chi2 is None or self.best_chi2 > self.chi2:
-            self.best_chi2 = self.chi2
-            self.best_chi2_parameters = dict(self.model.parameters.parameters)
+            self._best_chi2 = self.chi2
+            self._best_chi2_parameters = dict(self.model.parameters.parameters)
         return self.chi2
 
     def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
@@ -282,22 +205,13 @@ class Event(object):
         model = self.fit.get_chi2_format(data=dataset)
         diff = data - model
         if np.any(np.isnan(model[dataset.good])):  # This can happen only for
-                                        # input_fmt = 'mag' and model flux < 0.
+            # input_fmt = 'mag' and model flux < 0.
             mask = np.isnan(model)
             masked_model = self.fit.get_flux(data=dataset)[mask]
             diff[mask] = dataset.flux[mask] - masked_model
             err_data[mask] = dataset.err_flux[mask]
-        chi2 = (diff / err_data)**2
+        chi2 = (diff / err_data) ** 2
         return self._sum(chi2[dataset.good])
-
-    def _update_data_in_model(self):
-        """
-        Make sure data here and in self.model are the same. If not, then update
-        the ones in self.model. This happens only when the same Model instance
-        is used by different instances of Event.
-        """
-        if self.model.datasets != self.datasets:
-            self.model.set_datasets(self.datasets)
 
     def get_chi2_per_point(self, fit_blending=None):
         """
@@ -355,17 +269,17 @@ class Event(object):
                 err_data = dataset.err_flux
             else:
                 raise ValueError('Unrecognized data format: {:}'.format(
-                        dataset.chi2_fmt))
+                    dataset.chi2_fmt))
             model = self.fit.get_chi2_format(data=dataset)
             diff = data - model
             if np.any(np.isnan(model)):  # This can happen only for
-                                        # input_fmt = 'mag' and model flux < 0.
+                # input_fmt = 'mag' and model flux < 0.
                 mask = np.isnan(model)
                 masked_model = self.fit.get_flux(data=dataset)[mask]
                 diff[mask] = dataset.flux[mask] - masked_model
                 err_data[mask] = dataset.err_flux[mask]
 
-            chi2_per_point.append((diff/err_data)**2)
+            chi2_per_point.append((diff / err_data) ** 2)
 
         return chi2_per_point
 
@@ -515,42 +429,157 @@ class Event(object):
             out = np.array([gradient[p] for p in parameters])
         return out
 
-    def get_ref_fluxes(self, data_ref=None, fit_blending=None):
+    def reset_best_chi2(self):
         """
-        Get source and blending fluxes for the reference dataset. See
-        :py:func:`MulensModel.model.Model.get_ref_fluxes()` for details.
+        Reset :py:attr:`~best_chi2` attribute and its parameters
+        (:py:attr:`~best_chi2_parameters`).
         """
-        return self.model.get_ref_fluxes(
-            data_ref=data_ref, fit_blending=fit_blending)
+        self._best_chi2 = None
+        self._best_chi2_parameters = {}
 
-    def plot_model(self, **kwargs):
-        """
-        Plot the model light curve in magnitudes. See
-        :py:func:`MulensModel.model.Model.plot_lc()` for details.
-        """
-        self.model.plot_lc(**kwargs)
+    def _sum(self, data):
+        """calculate sum of the data"""
+        if self.sum_function == 'numpy.sum':
+            return np.sum(data)
+        elif self.sum_function == 'math.fsum':
+            return fsum(data)
+        else:
+            raise ValueError(
+                'Event.sum_function unrecognized: ' + self.sum_function)
 
-    def plot_data(self, **kwargs):
+    def _update_data_in_model(self):
         """
-        Plot the data scaled to the model. See
-        :py:func:`MulensModel.model.Model.plot_data()` for details.
+        Make sure data here and in self.model are the same. If not, then update
+        the ones in self.model. This happens only when the same Model instance
+        is used by different instances of Event.
         """
-        self.model.plot_data(**kwargs)
+        if self.model.datasets != self.datasets:
+            self.model.set_datasets(self.datasets)
 
-    def plot_residuals(self, **kwargs):
+    @property
+    def coords(self):
         """
-        Plot the residuals (in magnitudes) of the model.
-        See :py:func:`MulensModel.model.Model.plot_residuals()` for details.
+        see :py:class:`~MulensModel.coordinates.Coordinates`
         """
-        self.model.plot_residuals(**kwargs)
+        return self._coords
 
-    def plot_source_for_datasets(self, **kwargs):
+    @coords.setter
+    def coords(self, new_value):
+        self._update_coords(coords=new_value)
+
+    def _update_coords(self, coords=None):
+        """Set the coordinates as a SkyCoord object"""
+        self._coords = Coordinates(coords)
+
+        if self._model is not None:
+            self._model.coords = self._coords
+
+        # We run the command below with try, because _update_coords() is called
+        # by _set_datasets before self._datasets is set.
+        try:
+            for dataset in self._datasets:
+                dataset.coords = self._coords
+        except Exception:
+            pass
+
+    @property
+    def model(self):
+        """an instance of :py:class:`~MulensModel.model.Model`"""
+        return self._model
+
+    @model.setter
+    def model(self, new_value):
+        if not isinstance(new_value, Model):
+            raise TypeError((
+                    'wrong type of Event.model: {:} instead of ' +
+                    'MulensModel').format(type(new_value)))
+        self._model = new_value
+        if self._datasets is not None:
+            self._model.set_datasets(self._datasets)
+
+        if new_value.coords is not None:
+            self._update_coords(coords=new_value.coords)
+
+    @property
+    def datasets(self):
         """
-        Plot source positions for all linked datasets.
-        See :py:func:`MulensModel.model.Model.plot_source_for_datasets()` for
-        details.
+        a *list* of :py:class:`~MulensModel.mulensdata.MulensData`
+        instances.
         """
-        self.model.plot_source_for_datasets(**kwargs)
+        return self._datasets
+
+    @datasets.setter
+    def datasets(self, new_value):
+        self._set_datasets(new_value)
+
+    def _set_datasets(self, new_value):
+        """
+        sets the value of self._datasets
+        can be called by __init__ or @datasets.setter
+        passes datasets to property self._model
+        """
+        if isinstance(new_value, list):
+            for dataset in new_value:
+                if dataset.coords is not None:
+                    self._update_coords(coords=dataset.coords)
+        if isinstance(new_value, MulensData):
+            if new_value.coords is not None:
+                self._update_coords(coords=new_value.coords)
+            new_value = [new_value]
+        if new_value is None:
+            self._datasets = None
+            return
+        self._datasets = new_value
+        if isinstance(self._model, Model):
+            self._model.set_datasets(self._datasets)
+
+    @property
+    def data_ref(self):
+        """
+        Reference data set for scaling the model fluxes to (for
+        plotting). May be set as a
+        :py:class:`~MulensModel.mulensdata.MulensData` object or an
+        index (*int*). Default is the first data set.
+        """
+        return self.model.data_ref
+
+    @data_ref.setter
+    def data_ref(self, new_value):
+        self.model.data_ref = new_value
+
+    @property
+    def best_chi2(self):
+        """
+        *float*
+
+        The smallest value returned by :py:func:`get_chi2()`.
+        """
+        return self._best_chi2
+
+    @property
+    def best_chi2_parameters(self):
+        """
+        *dict*
+
+        Parameters that gave the smallest chi2.
+        """
+        return self._best_chi2_parameters
+
+    @property
+    def sum_function(self):
+        """
+        *str*
+
+        Function used for adding chi^2 contributions. Can be either
+        'math.fsum' (default value) or 'numpy.sum'.
+        The former is slightly slower and more accurate,
+        which may be important for large datasets.
+        """
+        return self._sum_function
+
+    @sum_function.setter
+    def sum_function(self, new_value):
+        self._sum_function = new_value
 
     def clean_data(self):
         """masks outlying datapoints. **Not Implemented.**"""

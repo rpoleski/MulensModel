@@ -133,61 +133,6 @@ class Utils(object):
         return (mag, err_mag)
     get_mag_and_err_from_flux = staticmethod(get_mag_and_err_from_flux)
 
-    def complex_fsum(arguments):
-        """
-        Accurate floating points sum of complex numbers in iterable.
-
-        Parameters :
-            arguments: *iterable* (e.g., *list* or *np.ndarray*)
-
-        Returns :
-            sum: *complex*
-                Sum of *arguments*.
-        """
-        real = [arg.real for arg in arguments]
-        imag = [arg.imag for arg in arguments]
-        return fsum(real) + fsum(imag) * 1j
-    complex_fsum = staticmethod(complex_fsum)
-
-    def dot(cartesian, vector):
-        """
-        Dot product of 2 vectors represented by
-        *astropy.CartesianRepresentation* and *np.ndarray*.
-
-        Parameters :
-            cartesian: *astropy.CartesianRepresentation*
-                First vector.
-
-            vector: *np.ndarray*
-                Second vector (length 3).
-
-        Returns :
-            dot_product: *astropy.Quantity*
-                Dot product of inputs.
-        """
-        return (cartesian.x * vector[0] + cartesian.y * vector[1] +
-                cartesian.z * vector[2])
-    dot = staticmethod(dot)
-
-    def vector_product_normalized(vector_1, vector_2):
-        """
-        Get vector that is perpendicular to the 2 input ones and is normalized.
-
-        Parameters :
-            vector_1: *np.ndarray* (3,)
-                First vector.
-
-            vector_2: *np.ndarray* (3,)
-                Second vector.
-
-        Returns :
-            vector_product_norm: *np.ndarray* (3,)
-                Normalized vector product of the inputs.
-        """
-        vector_product = np.cross(vector_1, vector_2)
-        return vector_product / np.linalg.norm(vector_product)
-    vector_product_normalized = staticmethod(vector_product_normalized)
-
     # The two functions below implement convention introduced by:
     # An et al. 2002 (ApJ 572, 521)
     # https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract
@@ -212,6 +157,7 @@ class Utils(object):
         """
         Transform u limb darkening coefficient to gamma in convention
         introduced by `An et al. 2008 (ApJ 681, 1593)
+
         <https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract>`_.
 
         Parameters :
@@ -249,28 +195,6 @@ class Utils(object):
             return 1
     get_n_caustics = staticmethod(get_n_caustics)
 
-    def date_change(text):
-        """
-        Change format of month in date, e.g.
-        *'2015-Oct-30 12:00'* -> *'2015-10-30 12:00'*
-
-        Parameters :
-            text: *str*
-                Date to be changed.
-
-        Returns :
-            out_text: *str*
-                Changed text.
-        """
-        text = text.decode('UTF-8')
-        str_components = text.split('-')
-        if len(str_components) == 1:
-            raise ValueError("Can't run date_change() for {:}".format(text))
-        return '-'.join((
-            str_components[0], month_3letter_to_2digit[str_components[1]],
-            str_components[2]))
-    date_change = staticmethod(date_change)
-
     def velocity_of_Earth(full_BJD):
         """
         Calculate 3D velocity of Earth for given epoch.
@@ -301,6 +225,83 @@ class Utils(object):
         velocity = np.asarray(earth_pv_bary[1]) * factor
         return velocity
     velocity_of_Earth = staticmethod(velocity_of_Earth)
+
+    def complex_fsum(arguments):
+        """
+        Accurate floating points sum of complex numbers in iterable.
+
+        Parameters :
+            arguments: *iterable* (e.g., *list* or *np.ndarray*)
+
+        Returns :
+            sum: *complex*
+                Sum of *arguments*.
+        """
+        real = [arg.real for arg in arguments]
+        imag = [arg.imag for arg in arguments]
+        return fsum(real) + fsum(imag) * 1j
+    complex_fsum = staticmethod(complex_fsum)
+
+    def vector_product_normalized(vector_1, vector_2):
+        """
+        Get vector that is perpendicular to the 2 input ones and is normalized.
+
+        Parameters :
+            vector_1: *np.ndarray* (3,)
+                First vector.
+
+            vector_2: *np.ndarray* (3,)
+                Second vector.
+
+        Returns :
+            vector_product_norm: *np.ndarray* (3,)
+                Normalized vector product of the inputs.
+        """
+        vector_product = np.cross(vector_1, vector_2)
+        return vector_product / np.linalg.norm(vector_product)
+    vector_product_normalized = staticmethod(vector_product_normalized)
+
+    def dot(cartesian, vector):
+        """
+        Dot product of 2 vectors represented by
+        *astropy.CartesianRepresentation* and *np.ndarray*.
+
+        Parameters :
+            cartesian: *astropy.CartesianRepresentation*
+                First vector.
+
+            vector: *np.ndarray*
+                Second vector (length 3).
+
+        Returns :
+            dot_product: *astropy.Quantity*
+                Dot product of inputs.
+        """
+        return (cartesian.x * vector[0] + cartesian.y * vector[1] +
+                cartesian.z * vector[2])
+    dot = staticmethod(dot)
+
+    def date_change(text):
+        """
+        Change format of month in date, e.g.
+        *'2015-Oct-30 12:00'* -> *'2015-10-30 12:00'*
+
+        Parameters :
+            text: *str*
+                Date to be changed.
+
+        Returns :
+            out_text: *str*
+                Changed text.
+        """
+        text = text.decode('UTF-8')
+        str_components = text.split('-')
+        if len(str_components) == 1:
+            raise ValueError("Can't run date_change() for {:}".format(text))
+        return '-'.join((
+            str_components[0], month_3letter_to_2digit[str_components[1]],
+            str_components[2]))
+    date_change = staticmethod(date_change)
 
     def astropy_version_check(minimum):
         """
