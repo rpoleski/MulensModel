@@ -17,16 +17,32 @@ coords = "18:04:45.71 -26:59:15.2"
 
 model_1 = mm.Model(parameters, coords=coords)
 
-# There are 2 approaches: first - a separate function for each degeneracy:
-model_2 = model_1.find_degenerate_jerk_model()
-model_3 = model_2.find_degenerate_u_0_model()
-# second - have a single function that deals with all degeneracies:
-model_2 = model_1.find_degenerate_model(jerk=True)
+# There are 3 approaches:
+# First approach - a separate function for each degeneracy:
+model_2 = model_1.predict_degenerate_jerk_model()
+model_3 = model_2.predict_degenerate_u_0_model()
+
+# Second approach - have a single function that deals with all degeneracies:
+model_2 = model_1.predict_degenerate_model(jerk=True)
 # and this allows combining multiple degeneracies:
-model_3 = model_1.find_degenerate_model(jerk=True, u_0_sign=True)
+model_3 = model_1.predict_degenerate_model(jerk=True, u_0_sign=True)
 # other parameters we could have here are e.g.,
 # "close_wide" (would work only for binary lens events),
 # "ecliptic"...
+
+# Third approach - functions predicting degeneracies return a dict with
+# parameters to be changed and if the user wants to use them in
+# a Model instance, then they should copy the Model instance (which is not
+# implemented at this point) and change specific parameters.
+parameters_2 = model_1.predict_degenerate_jerk_model()
+parameters_3 = {'u_0': -model_1.parameters.u_0}
+model_2 = model_1.copy()
+# This copies not only parameters but coordinates etc.
+model_3 = model_1.copy()
+for (key, value) in parameters_2:
+    setattr(model_2.parameters, key, value)
+for (key, value) in parameters_3:
+    setattr(model_3.parameters, key, value)
 
 print("the 3 models are:")
 print(model_1)
