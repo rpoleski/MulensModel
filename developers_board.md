@@ -6,9 +6,9 @@
 3. **code not yet well documented** - see below; DONE ALREADY: Event.fit, MagnificationCurve, PointLens, and 3 Trajectory ones
 5. triple lens - test [ob07349](https://ui.adsabs.harvard.edu/#abs/2016AJ....152..125B/abstract) to see if center of mass can reference point for t0 and u0
 6. triple lens caustics
-7. triple lens - plan use cases and unit tests - note in [TRIPLE\_LENS.md](TRIPLE_LENS.md)
+7. triple lens - plan use cases and unit tests - note in [documents/TRIPLE\_LENS.md](documents/TRIPLE_LENS.md)
 8. "reset" triple\_lens branch? (i.e., copy code, remove branch, start new branch e.g. tripleLens, use the code copied at begin)
-9. [TRIPLE\_LENS.md](TRIPLE_LENS.md) - make notes in order there
+9. [documents/TRIPLE\_LENS.md](documents/TRIPLE_LENS.md) - make notes in order there
 10. check triple lens use cases in master branch
 11. \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions - _DONE_
 12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it's != t\_0
