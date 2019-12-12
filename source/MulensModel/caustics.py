@@ -7,26 +7,22 @@ from MulensModel.utils import Utils
 
 class Caustics(object):
     """
-    Class for the caustic structure corresponding to a given (*q*, *s*),
-    i.e. mass ratio and separation. Implemented for 2-body lenses only.
+    Class for the caustic structure corresponding to a given parameters of
+    binary lens (*q*, *s*) or
+    triple lens (*q_21*, *q_31*, *s_21*, *s_31*, *psi*).
 
-    Attributes :
+    Arguments :
         q: *float*
             mass ratio between the 2 bodies; always <= 1
+
         s: *float*
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
     """
 
     def __init__(self, q, s):
-        # Set s, q
-        if isinstance(q, (list, np.ndarray)):
-            if len(q) > 1:
-                raise NotImplementedError(
-                    'Too many q. Does not support more than 2 bodies.')
-            else:
-                q = q[0]
-        self.q = q
+        self._n_lenses = 2
+        self.q = q  # XXX NEEDS DOCSTRING?
         self.s = s
 
         # Set place holder variables
@@ -93,6 +89,16 @@ class Caustics(object):
         return self._critical_curve
 
     def _calculate(self, n_points=5000):
+        """
+        calculate critical curve and caustic curve
+        """
+        if self._n_lenses == 2:
+            self._calculate_binary_lens(n_points)
+        else:
+            raise ValueError(
+                'Wrong number of lenses: {:}'.format(self._n_lenses))
+
+    def _calculate_binary_lens(self, n_points):
         """
         Solve the caustics polynomial to calculate the critical curve
         and caustic structure.
