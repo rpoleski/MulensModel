@@ -1,5 +1,5 @@
 import numpy as np
-from math import fsum, pow, sqrt
+from math import cos, fsum, pi, pow, sin, sqrt
 import warnings
 
 from astropy import __version__ as astropy__version__
@@ -193,6 +193,36 @@ class Utils(object):
         else:
             return 1
     get_n_caustics = staticmethod(get_n_caustics)
+
+    def _parameters_to_center_of_mass_coords_3L(q_21, q_31, s_21, s_31, psi):
+        """
+        Take triple lens parameters and transform them to 3x2 numpy array
+        that gives (x, y) positions of lenses.
+        """
+        xy = np.zeros((3, 2))
+        psi_rad = psi * pi / 180.
+        sin_psi = sin(psi_rad)
+        cos_psi = cos(psi_rad)
+
+        eps_1 = 1. / (1. + q_21 + q_31)
+        eps_2 = eps_1 * q_21
+        eps_3 = eps_1 * q_31
+
+        sin_psi_2 = sin_psi / sqrt(
+            sin_psi**2 + (cos_psi + eps_2*s_21/(eps_3*s_31))**2)
+        cos_psi_2 = sqrt(1. - sin_psi_2**2)
+        xy[1, 1] = s_21 * sin_psi_2
+        xy[1, 0] = s_21 * cos_psi_2
+
+        sin_psi_3 = sin_psi * cos_psi_2 - cos_psi * sin_psi_2
+        xy[2, 1] = -s_31 * sin_psi_3
+        xy[2, 0] = s_31 * sqrt(1. - sin_psi_3**2)
+
+        xy[:, 0] -= eps_2 * xy[1, 0] + eps_3 * xy[2, 0]
+
+        return xy
+    _parameters_to_center_of_mass_coords_3L = staticmethod(
+        _parameters_to_center_of_mass_coords_3L)
 
     def velocity_of_Earth(full_BJD):
         """
