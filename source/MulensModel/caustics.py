@@ -7,7 +7,7 @@ from MulensModel.utils import Utils
 
 class Caustics(object):
     """
-    Class for the caustic structure corresponding to a given parameters of
+    Class for the caustic structure corresponding to parameters of either
     binary lens (*q*, *s*) or
     triple lens (*q_21*, *q_31*, *s_21*, *s_31*, *psi*).
 
@@ -19,7 +19,20 @@ class Caustics(object):
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
 
-        XXX - OTHER PARAMETERS
+        q_21: *float*
+            mass 2 divided by mass 1
+
+        q_31: *float*
+            mass 3 divided by mass 1
+
+        s_21: *float*
+            separation between body 2 and body 1
+
+        s_31: *float*
+            separation between body 3 and body 1
+
+        psi: *float*
+            angle between *s_21* and *s_31*
     """
 
     def __init__(self,
@@ -32,13 +45,19 @@ class Caustics(object):
         keys_3L = ['q_21', 'q_31', 's_21', 's_31', 'psi']
         if key['q'] and key['s']:
             if np.any([key[k] for k in keys_3L]):
-                raise ValueError('XXX')
+                raise ValueError(
+                    'If you provide binary lens parameters (s, q), then do ' +
+                    'not provide triple lens parameters: ' +
+                    str([k for k in key if key[k] and k in keys_3L]))
             self._n_lenses = 2
             self.q = q  # XXX NEEDS DOCSTRING?
             self.s = s
         elif np.all([key[k] for k in keys_3L]):
             if key['q'] or key['s']:
-                raise ValueError('XXX')
+                raise ValueError(
+                    'If you provide triple lens parameters ' +
+                    '(q_21, q_31, s_21, s_31, psi) then do not provide ' +
+                    'binary lens parameters (s and q).')
             self._n_lenses = 3
             self._q_21 = q_21
             self._q_31 = q_31
@@ -46,7 +65,10 @@ class Caustics(object):
             self._s_31 = s_31
             self._psi = psi
         else:
-            raise ValueError('XXX')
+            raise ValueError(
+                'Not enough information to define binary or triple lens.' +
+                'Provided parameters: ' +
+                str([k for k in key if key[k] and k]))
 
         # Set place holder variables
         self._x = None
@@ -196,14 +218,15 @@ class Caustics(object):
     def _calculate_triple_lens_complex(
             self, z_1, z_2, z_3, epsilon_1, epsilon_2, epsilon_3, n_points):
         """
-        XXX
+        Calculate triple lens caustic and critical curve using complex
+        coordinates as input.
         """
         n_angles = int(n_points/6.+.5)
 
         # Initialize variables
         self._x = []
         self._y = []
-        # XXX self._critical_curve = self.CriticalCurve()
+        self._critical_curve = self.CriticalCurve()
 
         z_1_bar = np.conjugate(z_1)
         z_2_bar = np.conjugate(z_2)
@@ -214,7 +237,8 @@ class Caustics(object):
                 z_1, z_2, z_3, epsilon_1, epsilon_2, epsilon_3, self._phi)
             roots = np.polynomial.polynomial.polyroots(polynomial)
             for root in roots:
-                # XXX critical curve: (root.real, root.imag)
+                self._critical_curve.x.append(root.real)
+                self._critical_curve.y.append(root.imag)
                 root_bar = np.conjugate(root)
                 z = (root + epsilon_1 / (z_1_bar - root_bar) +
                      epsilon_2 / (z_2_bar - root_bar) +
