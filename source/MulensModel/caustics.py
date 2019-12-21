@@ -63,7 +63,7 @@ class Caustics(object):
             self._q_31 = q_31
             self._s_21 = s_21
             self._s_31 = s_31
-            self._psi = psi
+            self._psi = psi * np.pi / 180.
         else:
             raise ValueError(
                 'Not enough information to define binary or triple lens.' +
@@ -204,9 +204,9 @@ class Caustics(object):
         """
         xy = Utils._parameters_to_center_of_mass_coords_3L(
             self._q_21, self._q_31, self._s_21, self._s_31, self._psi)
-        z_1 = np.complex(xy[0, 0], x[0, 1])
-        z_2 = np.complex(xy[1, 0], x[1, 1])
-        z_3 = np.complex(xy[2, 0], x[2, 1])
+        z_1 = np.complex(xy[0, 0], xy[0, 1])
+        z_2 = np.complex(xy[1, 0], xy[1, 1])
+        z_3 = np.complex(xy[2, 0], xy[2, 1])
 
         epsilon_1 = 1. / (1. + self._q_21 + self._q_31)
         epsilon_2 = epsilon_1 * self._q_21
@@ -234,7 +234,7 @@ class Caustics(object):
 
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
             polynomial = self._polynomial_3L(
-                z_1, z_2, z_3, epsilon_1, epsilon_2, epsilon_3, self._phi)
+                z_1, z_2, z_3, epsilon_1, epsilon_2, epsilon_3, phi)
             roots = np.polynomial.polynomial.polyroots(polynomial)
             for root in roots:
                 self._critical_curve.x.append(root.real)
@@ -245,6 +245,36 @@ class Caustics(object):
                      epsilon_3 / (z_3_bar - root_bar))
                 self._x.append(z.real)
                 self._y.append(z.imag)
+
+    def _polynomial_3L(self, z_1, z_2, z_3,
+                       epsilon_1, epsilon_2, epsilon_3, phi):
+        """
+        XXX
+        """
+        eiphi = np.complex(cos(phi), sin(phi))
+
+        z_1_2 = z_1**2
+        z_2_2 = z_2**2
+        z_3_2 = z_3**2
+
+        a = z_1 + z_2 + z_3
+        b = z_2*z_3 + z_1*z_3 + z_1*z_2
+        c = z_1*z_2*z_3
+        d = epsilon_1*(z_2+z_3) + epsilon_2*(z_1+z_3) + epsilon_3*(z_1+z_2)
+        e = epsilon_1*(z_2_2+z_3_2) + epsilon_2*(z_1_2+z_3_2) + epsilon_3*(z_1_2+z_2_2)
+        f = epsilon_1*z_2*z_3 + epsilon_2*z_1*z_3 + epsilon_3*z_1*z_2
+        g = epsilon_1*(z_2_2*z_3+z_2*z_3_2) + epsilon_2*(z_1_2*z_3+z_1*z_3_2) + epsilon_3*(z_1_2*z_2+z_1*z_2_2)
+        h = epsilon_1*z_2_2*z_3_2 + epsilon_2*z_1_2*z_3_2 + epsilon_3*z_1_2*z_2_2
+
+        c_6 = eiphi
+        c_5 = -2.*a*eiphi
+        c_4 = eiphi*(a**2+2.*b) + 1.
+        c_3 = -2.*eiphi*(a*b+c) - 2.*d
+        c_2 = eiphi*(b**2+2.*a*c) + e + 4.*f
+        c_1 = -2.*eiphi*b*c - 2.*g
+        c_0 = eiphi*c**2 + h
+
+        return [c_0, c_1, c_2, c_3, c_4, c_5, c_6]
 
     class CriticalCurve(object):
         """
