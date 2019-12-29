@@ -2,7 +2,7 @@
 Use Cassan 2008 parameters for binary lens model.
 Translate these parameters to standard ones for a few sets of parameters.
 """
-import MulensModel as MM
+import MulensModel as mm
 
 
 def nice_print(model):
@@ -18,7 +18,7 @@ parameters = {
     'x_caustic_in': 0.4, 'x_caustic_out': 0.65,
     't_caustic_in': 10., 't_caustic_out': 20.}
 
-model = MM.Model(parameters)
+model = mm.Model(parameters)
 
 print("Original model:")
 print(model)
