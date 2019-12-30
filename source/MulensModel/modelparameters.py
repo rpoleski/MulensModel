@@ -368,7 +368,8 @@ class ModelParameters(object):
         """
         self._check_valid_combination_1_source_1_lens(keys)
         self._check_valid_combination_1_source_parallax(keys)
-        self._check_valid_combination_1_source_binary_lens(keys)
+        self._check_valid_combination_1_source_2_lenses(keys)
+        self._check_valid_combination_1_source_3_lenses(keys)
 
     def _check_valid_combination_1_source_1_lens(self, keys):
         """
@@ -425,7 +426,8 @@ class ModelParameters(object):
                     'Parallax is defined, hence either t_0 or t_0_par has ' +
                     'to be set.')
 
-    def _check_valid_combination_1_source_binary_lens(self, keys):
+    def _check_valid_combination_1_source_2_lenses(self, keys):
+# XXX - this requires modifications because triple lens can have alpha as well
         """
         Here we check binary lens parameters for non-Cassan08 parameterization.
         """
@@ -459,6 +461,14 @@ class ModelParameters(object):
             if 'ds_dt' not in keys or 'dalpha_dt' not in keys:
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
+
+
+    def _check_valid_combination_1_source_3_lenses(self, keys):
+         """
+         Here we check triple lens parameters.
+         """
+         # XXX
+         pass
 
     def _check_valid_combination_1_source_Cassan08(self, keys):
         """
