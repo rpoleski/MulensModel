@@ -38,6 +38,18 @@ class Caustics(object):
     def __init__(self,
                  q=None, s=None,
                  q_21=None, q_31=None, s_21=None, s_31=None, psi=None):
+        # Check which variabls are provided and set self._n_lenses:
+        self._check_input_(q, s, q_21, q_31, s_21, s_31, psi)
+
+        # Set place holder variables
+        self._x = None
+        self._y = None
+        self._critical_curve = None
+
+    def _check_input_(self, q, s, q_21, q_31, s_21, s_31, psi):
+        """
+        Check if parameters provided make sense. Also set self._n_lenses.
+        """
         key = {
             'q': q is not None, 's': s is not None, 'q_21': q_21 is not None,
             'q_31': q_31 is not None, 's_21': s_21 is not None,
@@ -69,11 +81,6 @@ class Caustics(object):
                 'Not enough information to define binary or triple lens.' +
                 'Provided parameters: ' +
                 str([k for k in key if key[k] and k]))
-
-        # Set place holder variables
-        self._x = None
-        self._y = None
-        self._critical_curve = None
 
     def plot(self, n_points=5000, **kwargs):
         """
@@ -249,7 +256,8 @@ class Caustics(object):
     def _polynomial_3L(self, z_1, z_2, z_3,
                        epsilon_1, epsilon_2, epsilon_3, phi):
         """
-        XXX
+        Calculate triple lens caustic polynomial for given lens positions and
+        mass fractions.
         """
         eiphi = np.complex(cos(phi), sin(phi))
 
@@ -261,10 +269,14 @@ class Caustics(object):
         b = z_2*z_3 + z_1*z_3 + z_1*z_2
         c = z_1*z_2*z_3
         d = epsilon_1*(z_2+z_3) + epsilon_2*(z_1+z_3) + epsilon_3*(z_1+z_2)
-        e = epsilon_1*(z_2_2+z_3_2) + epsilon_2*(z_1_2+z_3_2) + epsilon_3*(z_1_2+z_2_2)
+        e = (epsilon_1*(z_2_2+z_3_2) + epsilon_2*(z_1_2+z_3_2) +
+             epsilon_3*(z_1_2+z_2_2))
         f = epsilon_1*z_2*z_3 + epsilon_2*z_1*z_3 + epsilon_3*z_1*z_2
-        g = epsilon_1*(z_2_2*z_3+z_2*z_3_2) + epsilon_2*(z_1_2*z_3+z_1*z_3_2) + epsilon_3*(z_1_2*z_2+z_1*z_2_2)
-        h = epsilon_1*z_2_2*z_3_2 + epsilon_2*z_1_2*z_3_2 + epsilon_3*z_1_2*z_2_2
+        g = epsilon_1*(z_2_2*z_3+z_2*z_3_2)
+        g += epsilon_2*(z_1_2*z_3+z_1*z_3_2)
+        g += epsilon_3*(z_1_2*z_2+z_1*z_2_2)
+        h = (epsilon_1*z_2_2*z_3_2 + epsilon_2*z_1_2*z_3_2 +
+             epsilon_3*z_1_2*z_2_2)
 
         c_6 = eiphi
         c_5 = -2.*a*eiphi
