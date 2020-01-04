@@ -393,8 +393,6 @@ class ModelParameters(object):
         self._check_valid_combination_1_source_parallax(keys)
         self._check_valid_combination_1_source_2_lenses(keys)
         self._check_valid_combination_1_source_3_lenses(keys)
-# XXX we need _count_lenses() here or before
-# XXX then we need to check if alpha is defined then _n_lenses > 1
 
     def _check_valid_combination_1_source_1_lens(self, keys):
         """
@@ -491,10 +489,15 @@ class ModelParameters(object):
          """
          Here we check triple lens parameters.
          """
-         # XXX If s, q, and alpha must all be defined if one is defined
-
-         # XXX
-         pass
+         keys_3L = set(['q_21', 'q_31', 's_21', 's_31', 'psi'])
+         keys_3L_used = keys_3L.intersection(set(keys))
+         if len(keys_3L_used) > 0:
+            if len(keys_3L_used) != len(keys_3L):
+                raise KeyError(
+                    'Some of triple lens parameters are missing: ' +
+                    str(keys_3L - set(keys)))
+            if 'alpha' not in keys:
+                raise KeyError('Parameter alpha is missing')
 
     def _check_valid_combination_1_source_Cassan08(self, keys):
         """
