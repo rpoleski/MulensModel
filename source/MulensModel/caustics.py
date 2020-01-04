@@ -155,7 +155,7 @@ class Caustics(object):
     def _calculate_binary_lens(self, n_points):
         """
         Solve the caustics polynomial to calculate the critical curve
-        and caustic structure for triple lens.
+        and caustic structure for binary lens.
 
         Based on Eq. 6 Cassan 2008 modified so origin is center of
         mass and larger mass is on the left. Uses complex coordinates.

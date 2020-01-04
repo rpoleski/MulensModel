@@ -214,6 +214,7 @@ class ModelParameters(object):
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
         self._count_sources(parameters.keys())
+        self._count_lenses(parameters.keys())
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
@@ -256,6 +257,28 @@ class ModelParameters(object):
                     'Given binary source parameters do not allow defining ' +
                     'the Model: {:}'.format(common))
             self._n_sources = 2
+
+    def _count_lenses(self, keys):
+        """How many lenses there are?"""
+        self._n_lenses = 1
+
+        keys_2L = set(['s', 'q'])
+        keys_2L_used = keys_2L.intersection(set(keys))
+        keys_3L = set(['q_21', 'q_31', 's_21', 's_31', 'psi'])
+        keys_3L_used = keys_3L.intersection(set(keys))
+        if len(keys_2L_used) > 0 and len(keys_3L_used) > 0:
+            raise KeyError(
+                'Both binary lens and triple lens keys are provided: ' +
+                str(keys_2L_used) + ' and ' + str(keys_3L_used))
+        if len(keys_2L_used) > 0:
+            self._n_lenses = 2
+        elif len(keys_3L_used) > 0:
+            self._n_lenses = 3
+
+        if 'alpha' in keys and self._n_lenses == 1:
+            raise KeyError(
+                'alpha is defined, but no other multi-lens parameters ' +
+                'are defined' + str(keys_2L_used) + str(keys_3L_used))
 
     def _divide_parameters(self, parameters):
         """
@@ -1496,12 +1519,7 @@ class ModelParameters(object):
 
         number of objects in the lens system
         """
-        if (('s' not in self.parameters.keys()) and
-                ('q' not in self.parameters.keys()) and
-                ('alpha' not in self.parameters.keys())):
-            return 1
-        else:
-            return 2
+        return self._n_lenses
 
     @property
     def n_sources(self):
