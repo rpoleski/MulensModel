@@ -180,15 +180,21 @@ def which_parameters(*args):
 
 class ModelParameters(object):
     """
-    A class for the basic microlensing model parameters (t_0, u_0,
-    t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
-    lens. The pi_E assumes NE coordinates (Parallel, Perpendicular
+    A class for the microlensing model parameters
+    (t_0, u_0, t_E, rho, s, q, alpha, pi_E_N/E etc.).
+    Can handle point, binary, and triple lenses.
+    Source can be single or binary.
+    The pi_E assumes NE coordinates (Parallel, Perpendicular
     coordinates are not supported).
 
     Arguments :
         parameters: *dictionary*
             A dictionary of parameters and their values. See
-            :py:func:`which_parameters()` for valid parameter combinations.
+            `this PDF file
+            <https://github.com/rpoleski/MulensModel/blob/master/documents/parameter_names.pdf>`_
+            for a list and decription of all parameters. One can also check
+            :py:func:`which_parameters()` for valid parameter combinations,
+            but that function is not supported right now.
 
     Attributes :
         parameters: *dictionary*
@@ -858,13 +864,14 @@ class ModelParameters(object):
         """
         *astropy.Quantity*
 
-        The angle of the source trajectory relative to the binary lens
-        axis (or primary-secondary axis). Measured counterclockwise,
-        i.e., according to convention advocated by
+        For binary or triple lens, the angle of the source trajectory relative
+        to the line connecting primary lens and lens center of mass.
+        In the case of binary lens, this is the same as primary-secondary axis
+        and it follows convention advocated by
         `Skowron et al. 2011 (ApJ, 738, 87)
         <https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract>`_,
-        but shifted by 180 deg.  May be
-        set as a *float* --> assumes "deg" is the default unit.
+        but shifted by 180 deg.
+        May be set as a *float* --> assumes "deg" is the default unit.
         Regardless of input value, returns value in degrees.
         """
         if self._Cassan08:
