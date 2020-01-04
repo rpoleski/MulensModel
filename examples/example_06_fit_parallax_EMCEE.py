@@ -64,7 +64,7 @@ params['u_0'] = 0.37  # Change sign of u_0 to find the other solution.
 params['t_E'] = 100.
 params['pi_E_N'] = 0.
 params['pi_E_E'] = 0.
-my_model = Model(params, coords=coords)
+my_model = mm.Model(params, coords=coords)
 my_event = mm.Event(datasets=my_data, model=my_model)
 
 # Which parameters we want to fit?
@@ -105,12 +105,12 @@ print(my_event.best_chi2)
 
 # Now let's plot 3 models
 plt.figure()
-model_0 = Model({'t_0': 2453628.29062, 'u_0': 0.37263, 't_E': 102.387105})
-model_1 = Model(
+model_0 = mm.Model({'t_0': 2453628.29062, 'u_0': 0.37263, 't_E': 102.387105})
+model_1 = mm.Model(
     {'t_0': 2453630.35507, 'u_0': 0.488817, 't_E': 93.611301,
      'pi_E_N': 0.2719, 'pi_E_E': 0.1025, 't_0_par': params['t_0_par']},
     coords=coords)
-model_2 = Model(
+model_2 = mm.Model(
     {'t_0': 2453630.67778, 'u_0': -0.415677, 't_E': 110.120755,
      'pi_E_N': -0.2972, 'pi_E_E': 0.1103, 't_0_par': params['t_0_par']},
     coords=coords)

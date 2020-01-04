@@ -16,7 +16,7 @@ import numpy as np
 import emcee
 import configparser
 
-import MulensModel as MM
+import MulensModel as mm
 
 import example_15_read as read
 
@@ -108,7 +108,7 @@ def generate_random_parameters(parameters, starting, n, s=None, q=None):
             v = np.exp(np.random.uniform(beg, end, n))
         values.append(v)
     if 'x_caustic_in' in parameters and 'x_caustic_out' in parameters:
-        sampling = MM.UniformCausticSampling(s=s, q=q)
+        sampling = mm.UniformCausticSampling(s=s, q=q)
         (x_in, x_out) = sampling.get_uniform_sampling(n)
         values[parameters.index('x_caustic_in')] = x_in
         values[parameters.index('x_caustic_out')] = x_out
@@ -132,7 +132,7 @@ other_settings = read.read_other(config)
 
 # Read photometric data.
 k = {'comments': ['\\', '|']}
-datasets = [MM.MulensData(file_name=f[0], phot_fmt=f[1], **k) for f in files]
+datasets = [mm.MulensData(file_name=f[0], phot_fmt=f[1], **k) for f in files]
 
 # Generate starting values of parameters.
 s = fixed_parameters.get('s', None)
@@ -143,12 +143,12 @@ start = generate_random_parameters(
 # Setup Event instance that combines model and data.
 par = dict(zip(parameters, start[0]))
 par = {**par, **fixed_parameters}
-my_model = MM.Model(par, coords=model_settings['coords'])
+my_model = mm.Model(par, coords=model_settings['coords'])
 if 'methods' in model_settings:
     my_model.set_magnification_methods(model_settings['methods'])
 if 'default_method' in model_settings:
     my_model.set_default_magnification_method(model_settings['default_method'])
-my_event = MM.Event(datasets=datasets, model=my_model)
+my_event = mm.Event(datasets=datasets, model=my_model)
 
 # Prepare sampler.
 n_dim = len(parameters)

@@ -11,7 +11,7 @@ import emcee
 from matplotlib import pyplot as plt
 import configparser
 
-import MulensModel as MM
+import MulensModel as mm
 
 import example_15_read as read
 
@@ -109,7 +109,7 @@ emcee_settings = read.read_emcee_settings(config)
 other_settings = read.read_other(config)
 
 # Read photometric data.
-datasets = [MM.MulensData(file_name=f[0], phot_fmt=f[1]) for f in files]
+datasets = [mm.MulensData(file_name=f[0], phot_fmt=f[1]) for f in files]
 
 # Generate starting values of parameters.
 start = generate_random_parameters(parameters, starting,
@@ -118,12 +118,12 @@ start = generate_random_parameters(parameters, starting,
 # Setup Event instance that combines model and data.
 par = dict(zip(parameters, start[0]))
 par = {**par, **fixed_parameters}
-my_model = MM.Model(par, coords=model_settings['coords'])
+my_model = mm.Model(par, coords=model_settings['coords'])
 if 'methods' in model_settings:
     my_model.set_magnification_methods(model_settings['methods'])
 if 'default_method' in model_settings:
     my_model.set_default_magnification_method(model_settings['default_method'])
-my_event = MM.Event(datasets=datasets, model=my_model)
+my_event = mm.Event(datasets=datasets, model=my_model)
 
 # Prepare sampler.
 n_dim = len(parameters)
