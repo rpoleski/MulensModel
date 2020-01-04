@@ -370,6 +370,8 @@ class ModelParameters(object):
         self._check_valid_combination_1_source_parallax(keys)
         self._check_valid_combination_1_source_2_lenses(keys)
         self._check_valid_combination_1_source_3_lenses(keys)
+# XXX we need _count_lenses() here or before
+# XXX then we need to check if alpha is defined then _n_lenses > 1
 
     def _check_valid_combination_1_source_1_lens(self, keys):
         """
@@ -427,12 +429,11 @@ class ModelParameters(object):
                     'to be set.')
 
     def _check_valid_combination_1_source_2_lenses(self, keys):
-# XXX - this requires modifications because triple lens can have alpha as well
         """
         Here we check binary lens parameters for non-Cassan08 parameterization.
         """
-        # If s, q, and alpha must all be defined if one is defined
-        if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
+        # If s or q are defined, then all (s, q, alpha) must be defined
+        if ('s' in keys) or ('q' in keys):
             if (('s' not in keys) or
                     ('q' not in keys) or ('alpha' not in keys)):
                 raise KeyError(
@@ -467,6 +468,8 @@ class ModelParameters(object):
          """
          Here we check triple lens parameters.
          """
+         # XXX If s, q, and alpha must all be defined if one is defined
+
          # XXX
          pass
 
