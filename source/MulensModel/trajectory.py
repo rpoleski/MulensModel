@@ -175,7 +175,7 @@ class Trajectory(object):
         if self.parameters.n_lenses == 1:
             vector_x = vector_tau
             vector_y = vector_u
-        elif self.parameters.n_lenses == 2:
+        elif self.parameters.n_lenses in [2, 3]:
             if self.parameters.is_static():
                 sin_alpha = np.sin(self.parameters.alpha).value
                 cos_alpha = np.cos(self.parameters.alpha).value
@@ -190,7 +190,7 @@ class Trajectory(object):
             # al. (2011), but shifted by 180 deg.
         else:
             raise NotImplementedError(
-                "trajectory for more than 2 lenses not handled yet")
+                "trajectory for more than 3 lenses not handled yet")
 
         # Store trajectory
         self._x = vector_x

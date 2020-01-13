@@ -23,7 +23,7 @@ My main idea - center of mass as origin and first object on X axis.
 * unit tests
 * Caustics - use the same class for triple lenses?
 * MagnificationCurve.get\_triple\_lens\_magnification (include hooks to hexa, quad and PSPL)
-* Trajectory.get\_xy
+* Trajectory.get\_xy - seems alread done
 * TripleLens.point\_source\_magnification
 * TripleLens.hexadecapole\_magnification
 
