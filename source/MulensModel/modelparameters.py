@@ -329,6 +329,13 @@ class ModelParameters(object):
             'pi_E_E': {'width': 9, 'precision': 5},
             's': {'width': 9, 'precision': 5},
             'q': {'width': 12, 'precision': 8},
+            's_21': {'width': 9, 'precision': 5},
+            's_31': {'width': 9, 'precision': 5},
+            'q_21': {'width': 12, 'precision': 8},
+            'q_31': {'width': 12, 'precision': 8},
+            'psi': {'width': 11, 'precision': 5},  # XXX should we add
+# "'unit': 'deg'" here? It will be consistents with current implementation
+# of alpha, but we plan to change this approach in v2.
             'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
             'ds_dt': {
                 'width': 11, 'precision': 5, 'unit': '/yr', 'name': 'ds/dt'},
@@ -354,7 +361,8 @@ class ModelParameters(object):
         formats_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'ds_dt', 'dalpha_dt',
+            'pi_E_N', 'pi_E_E', 's', 'q', 's_21', 's_31', 'q_21', 'q_31', 'psi',
+            'alpha', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
         ]
 
@@ -540,11 +548,13 @@ class ModelParameters(object):
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
+            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 's_21', 's_31', 'q_21',
+            'q_31', 'psi', 'alpha', 'rho', 't_star',
             'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
             't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
             't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
-            't_caustic_in', 't_caustic_out'])
+            't_caustic_in', 't_caustic_out',
+            ])
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
