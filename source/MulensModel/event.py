@@ -79,6 +79,10 @@ class Event(object):
         self.reset_best_chi2()
         self.sum_function = 'math.fsum'
         self.fit = None  # This should be changed to @property w/ lazy loading
+        
+        self.fix_blend = None # dictionary with indices mapping to blend fluxes
+        self.fix_source = None # dictionary with indices mapping to source fluxes
+        self.q_flux = None # dictionary mapping band to ratio between fs1 and fs2
 
     def plot_model(self, **kwargs):
         """
