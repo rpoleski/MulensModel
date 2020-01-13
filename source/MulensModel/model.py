@@ -680,7 +680,7 @@ class Model(object):
 
 # XXX below we have to update for triple lenses
 #        if self._caustics is not None:
-#            if s == self._caustics.s and self.parameters.q == self._caustics.q:
+#           if s == self._caustics.s and self.parameters.q == self._caustics.q:
 #                return
 
         self._caustics = Caustics(**parameters)

@@ -334,8 +334,9 @@ class ModelParameters(object):
             'q_21': {'width': 12, 'precision': 8},
             'q_31': {'width': 12, 'precision': 8},
             'psi': {'width': 11, 'precision': 5},  # XXX should we add
-# "'unit': 'deg'" here? It will be consistents with current implementation
-# of alpha, but we plan to change this approach in v2.
+            # "'unit': 'deg'" here? It will be consistents with current
+            # implementation of alpha, but we plan to change this approach
+            # in v2.
             'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
             'ds_dt': {
                 'width': 11, 'precision': 5, 'unit': '/yr', 'name': 'ds/dt'},
@@ -361,8 +362,8 @@ class ModelParameters(object):
         formats_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 's_21', 's_31', 'q_21', 'q_31', 'psi',
-            'alpha', 'ds_dt', 'dalpha_dt',
+            'pi_E_N', 'pi_E_E', 's', 'q', 's_21', 's_31', 'q_21', 'q_31',
+            'psi', 'alpha', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
         ]
 
@@ -498,14 +499,13 @@ class ModelParameters(object):
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
 
-
     def _check_valid_combination_1_source_3_lenses(self, keys):
-         """
-         Here we check triple lens parameters.
-         """
-         keys_3L = set(['q_21', 'q_31', 's_21', 's_31', 'psi'])
-         keys_3L_used = keys_3L.intersection(set(keys))
-         if len(keys_3L_used) > 0:
+        """
+        Here we check triple lens parameters.
+        """
+        keys_3L = set(['q_21', 'q_31', 's_21', 's_31', 'psi'])
+        keys_3L_used = keys_3L.intersection(set(keys))
+        if len(keys_3L_used) > 0:
             if len(keys_3L_used) != len(keys_3L):
                 raise KeyError(
                     'Some of triple lens parameters are missing: ' +
