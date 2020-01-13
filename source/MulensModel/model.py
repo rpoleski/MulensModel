@@ -676,7 +676,7 @@ class Model(object):
         if epoch is not None:
             if self.n_lenses != 2:
                 raise ValueError('epoch can be != None only for binary lenses')
-            s = self.parameters.get_s(epoch)
+            parameters['s'] = self.parameters.get_s(epoch)
 
 # XXX below we have to update for triple lenses
 #        if self._caustics is not None:
