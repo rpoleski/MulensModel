@@ -664,16 +664,26 @@ class Model(object):
                 is calculated to calculate :py:attr:`~caustics`. Defaults
                 to *t_0_kep*, which defaults to *t_0*.
         """
-        if epoch is None:
-            s = self.parameters.s
+        if self.n_lenses == 2:
+            parameters = {'s': self.parameters.s, 'q': self.parameters.q}
+        elif self.n_lenses == 3:
+            select = ['s_21', 's_31', 'q_21', 'q_31', 'psi']
+            parameters = {p: self.parameters.parameters[p] for p in select}
         else:
+            raise ValueError('Model.update_caustics() works only for 2 or 3 ' +
+                             'lenses, got: {:}'.format(self.n_lenses))
+
+        if epoch is not None:
+            if self.n_lenses != 2:
+                raise ValueError('epoch can be != None only for binary lenses')
             s = self.parameters.get_s(epoch)
 
-        if self._caustics is not None:
-            if s == self._caustics.s and self.parameters.q == self._caustics.q:
-                return
+# XXX below we have to update for triple lenses
+#        if self._caustics is not None:
+#            if s == self._caustics.s and self.parameters.q == self._caustics.q:
+#                return
 
-        self._caustics = Caustics(q=self.parameters.q, s=s)
+        self._caustics = Caustics(**parameters)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
