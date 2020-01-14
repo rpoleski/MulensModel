@@ -291,3 +291,9 @@ class Fit(object):
         self._magnification.extend(fit._magnification)
         self._flux_blending.update(fit._flux_blending)
         self._flux_sources.update(fit._flux_sources)
+
+'''
+Some notes:
+- In Fit, the constructor must get all the functionality of Fit.fit_fluxes()
+- we must get rid of the references to dataset
+'''
