@@ -4,6 +4,7 @@ from MulensModel.mulensdata import MulensData
 from MulensModel.fit import Fit
 from numpy.testing import assert_almost_equal as almost
 
+
 def generate_model():
     # returns a model, time array, and magnification
 
@@ -14,11 +15,12 @@ def generate_model():
 
     pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
-    t = np.linspace(3576, 3590, 1000)  
+    t = np.linspace(3576, 3590, 1000) 
 
     A = pspl.magnification(t)
 
     return pspl, t, A
+
 
 def generate_binary_model():
     # returns a binary source model, time array, and the magnification of both sources

@@ -2,6 +2,7 @@
 Use cases for the new FitData class
 """
 import MulensModel as mm
+import os
 
 #############
 # Define a basic PSPL fit
@@ -19,11 +20,18 @@ data = mm.MulensData(file_name=file_name)
 
 # Freely fit the fluxes
 free_fit = mm.FitData(model=pspl_model, dataset=data)
+free_fit.fit_fluxes()
 
 # Access different properties of that fit
+print(free_fit.source_fluxes, free_fit.blend_flux)
+#commented out since not implemented
+'''
 print(free_fit.chi2_per_datapoint)
 print(free_fit.chi2)
-print(free_fit.source_flux, free_fit.blend_flux)
+'''
+
+# since the rest hasn't been implemented, quitting early
+quit()
 
 # Constrain various aspects of the fit
 fit_1 = mm.FitData(model=pspl_model, dataset=data, fix_source_flux=False, fix_blend_flux=0.)
@@ -41,7 +49,7 @@ binary_source_model = mm.Model(
     {'t_0_1': 2454727.39, 'u_0_1': 1.5502, 't_0_2': 2454541.208, 'u_0_2': 0.062, 't_E': 38.56})
 
 # Freely fit the fluxes
-free_1L2S_fit = mm.FitData(model=binary_source_model, datasets=data)
+free_1L2S_fit = mm.FitData(model=binary_source_model, dataset=data)
 
 # Fix the flux ratio
-free_1L2S_fit = mm.FitData(model=binary_source_model, datasets=data, fix_q_flux=0.629/38.56)
+free_1L2S_fit = mm.FitData(model=binary_source_model, dataset=data, fix_q_flux=0.629/38.56)
