@@ -72,7 +72,8 @@ for u_0 in [0.0, 0.01, 0.1]:
         {'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     event = MulensModel.Event(datasets=datasets, model=model)
     # *** NEW ***
-    event.fix_blend_flux[ datasets[data_ref] ] = fblend # Fix the blending = the known added value
+    event.fix_blend_flux[datasets[data_ref]] = fblend  # Fix the blending =
+    # the known added value
     # *** END NEW ***
 
     initial_guess = [t_0, u_0, t_E]

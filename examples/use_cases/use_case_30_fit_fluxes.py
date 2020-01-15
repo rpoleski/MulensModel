@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 
 import MulensModel
 
+
 raise NotImplementedError('This use case has not been implemented.')
 
 def ln_like(theta, event, parameters_to_fit):
@@ -31,11 +32,11 @@ def ln_like(theta, event, parameters_to_fit):
     for (key, val) in enumerate(parameters_to_fit):
         # *** NEW ***
         # Some fluxes are MCMC parameters
-        if val[0:] == 'f':
+        if val[0] == 'f':
             if val == 'fsKCT01':
-                event.fix_source_fluxes[ datasets[KTC01] ] = theta[key]
+                event.fix_source_fluxes[datasets[KTC01]] = theta[key]
             elif val == 'fsSpitzer':
-                event.fix_source_fluxes[ datasets[KTC01] ] = theta[key]
+                event.fix_source_fluxes[datasets[KTC01]] = theta[key]
 
         else:
             setattr(event.model.parameters, val, theta[key])

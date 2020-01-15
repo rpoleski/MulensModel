@@ -8,14 +8,12 @@ down an event with appropriate data.
 import MulensModel as mm
 
 # define some fake data
-ogle_data = mm.MulensData(file_name='phot.dat', phot_fmt='mag', usecols=range(3), bandpass='I')
-kmtc_i_data = mm.MulensData(file_name='KMTC_I.pysis', phot_fmt='mag', usecols=range(3), bandpass='I')
-kmta_i_data = mm.MulensData(file_name='KMTA_I.pysis', phot_fmt='mag', usecols=range(3), bandpass='I')
-kmts_i_data = mm.MulensData(file_name='KMTS_I.pysis', phot_fmt='mag', usecols=range(3), bandpass='I')
-kmtc_v_data = mm.MulensData(file_name='KMTC_V.pysis', phot_fmt='mag', usecols=range(3), bandpass='V')
-kmta_v_data = mm.MulensData(file_name='KMTA_V.pysis', phot_fmt='mag', usecols=range(3), bandpass='V')
-kmts_v_data = mm.MulensData(file_name='KMTS_V.pysis', phot_fmt='mag', usecols=range(3), bandpass='V')
-datasets = [ogle_data, kmtc_i_data, kmta_i_data, kmts_i_data, kmtc_v_data, kmta_v_data, kmts_v_data]
+files = ['phot.dat', 'KMTC_I.pysis', 'KMTA_I.pysis', 'KMTS_I.pysis',
+         'KMTC_V.pysis', 'KMTA_V.pysis', 'KMTS_V.pysis']
+bandpasses = ['I'] * 4 + ['V'] * 3
+kwargs = {'phot_fmt': 'mag', 'usecols': range(3)}
+datasets = [mm.MulensData(file_name=file_, bandpass=bandpass, **kwargs)
+            for (file_, bandpass) in zip(files, bandpasses)]
 
 # define the model
 binary_source_model = mm.Model(
@@ -26,8 +24,9 @@ class MyEvent(mm.Event):
 
     def fit_fluxes(self):
         """
-        Allow the two source fluxes to be freely fit for some reference dataset,
-        but then constrain the fluxes for all other datasets in the same bandpass.
+        Allow the two source fluxes to be freely fit for some reference
+        dataset, but then constrain the fluxes for all other datasets in
+        the same bandpass.
         """
         self.fits = []
         kmtc_i_fit = mm.FitData(model=self.model, dataset=self.datasets[1])
@@ -39,16 +38,20 @@ class MyEvent(mm.Event):
                 self.fits.append(kmtc_v_fit)
             else:
                 if dataset.bandpass == 'I':
-                    q_flux = kmtc_i_fit.source_fluxes[1] / kmtc_i_fit.source_fluxes[0]
+                    q_flux = (kmtc_i_fit.source_fluxes[1] /
+                              kmtc_i_fit.source_fluxes[0])
                 elif dataset.bandpass == 'V':
-                    q_flux = kmtc_v_fit.source_fluxes[1] / kmtc_v_fit.source_fluxes[0]
+                    q_flux = (kmtc_v_fit.source_fluxes[1] /
+                              kmtc_v_fit.source_fluxes[0])
                 else:
                     raise Exception(
-                        'Unknown bandpass: {0}. Fitting is only defined for I and V.'.format(
-                            dataset.bandpass))
+                        'Unknown bandpass: {0}. '.format(dataset.bandpass) +
+                        'Fitting is only defined for I and V.')
 
-                self.fits.append(mm.FitData(model=self.model, dataset=dataset, fix_q_flux=q_flux))
-
+                self.fits.append(
+                    mm.FitData(model=self.model, dataset=dataset,
+                               fix_q_flux=q_flux))
+# RP - I haven't thought deeply about it, but this seems very complicated.
 
 # Fit the fluxes
 event = MyEvent(model=binary_source_model, datasets=datasets)

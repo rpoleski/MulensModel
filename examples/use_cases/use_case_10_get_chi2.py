@@ -30,5 +30,6 @@ print(event.model.magnification(model_times))
 # Get fluxes for all datasets
 fmt = "dataset {:}: F_s = {:.3f} F_b = {:.3f}"
 for (i, dataset) in enumerate(event.datasets):
-    (f_source, f_blend) = event.fits[dataset].source_flux, event.fits[datasets].blend_flux
+    f_source = event.fits[dataset].source_flux
+    f_blend = event.fits[datasets].blend_flux
     print(fmt.format(i, f_source[0], f_blend))
