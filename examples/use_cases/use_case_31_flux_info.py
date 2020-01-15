@@ -9,6 +9,7 @@ Shows different ways to access fitted fluxes.
 import os
 import MulensModel
 
+
 raise NotImplementedError('This use case has not been implemented.')
 
 # Function to set the default zeropoint to 18
@@ -53,7 +54,8 @@ print(event.blend_fluxes)
 print('Observatory, Source Flux, Blend Flux')
 for i in range(len(datasets)):
     print('{0:10} {1:8.2f} {2:8.2f}'.format(
-        event.datasets[i].plot_properties['label'], event.fits[ datasets[i] ].source_flux,
-        event.fits[ datasets[i] ].blend_flux))
+        event.datasets[i].plot_properties['label'],
+        event.fits[datasets[i]].source_flux,
+        event.fits[datasets[i]].blend_flux))
 
 # *** END NEW ***
