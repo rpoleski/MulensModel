@@ -33,13 +33,14 @@ def ln_like(theta, event, parameters_to_fit):
         # Some fluxes are MCMC parameters
         if val[0:] == 'f':
             if val == 'fsKCT01':
-                event.datasets[KCT01].source_flux = theta[key]
+                event.fix_source_fluxes[ datasets[KTC01] ] = theta[key]
             elif val == 'fsSpitzer':
-                event.datasets[Spitzer].source_flux = theta[key]
+                event.fix_source_fluxes[ datasets[KTC01] ] = theta[key]
 
         else:
             setattr(event.model.parameters, val, theta[key])
         # *** END NEW ***
+
     return -0.5 * event.get_chi2()
 
 

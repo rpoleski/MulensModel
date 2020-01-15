@@ -80,7 +80,11 @@ plt.figure()
 event.plot_model()
 event.plot_data(label_list=['OGLE', 'Spitzer'])
 
-(fs_ogle, fb_ogle) = event.get_ref_fluxes(data_ref=event.datasets[0])
+(fs_ogle, fb_ogle) = event.get_ref_fluxes()
+# JCY: IMO, data_ref should be a fixed property of event. Otherwise, the user could forget
+# which dataset was set as the reference and request values for the wrong dataset.
+# Now that there are ways to access fluxes for an arbitrary dataset, ref_fluxes should *only*
+# refer to the actual reference dataset.
 space_model.plot_lc(f_source=fs_ogle, f_blend=fb_ogle)
 
 plt.title('OB140939 Models with Data')

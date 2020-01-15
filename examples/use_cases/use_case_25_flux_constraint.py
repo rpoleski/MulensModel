@@ -1,5 +1,9 @@
 """
 Use cases showing how to implement a flux constraint.
+
+Shows how to access fitted fluxes using event.source_fluxes in contrast to use_case_32,
+which shows how to access fitted fluxes using event.fits .
+
 """
 import numpy as np
 import os
@@ -36,8 +40,8 @@ def get_color_constraint(event):
     # Color constraint for OB161195 (I_KMT - L_Spitzer)
     (source_color, sigma) = (0.78, 0.03)
 
-    f_s_ogle = event.get_source_flux(dataset=KMT)
-    f_s_spitzer = event.get_source_flux(dataset=Spitzer)
+    f_s_ogle = event.source_fluxes[ datasets[KMT] ]
+    f_s_spitzer = event.source_fluxes[ dataset[Spitzer] ]
 
     color = -2.5 * np.log10(f_s_ogle / f_s_spitzer)
 
