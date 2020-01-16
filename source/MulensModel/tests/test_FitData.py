@@ -77,7 +77,10 @@ def test_default():
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = mm.Fit(model = pspl, dataset = my_dataset, f_blend = True, f_source = True)
+    my_fit = mm.FitData(model = pspl, dataset = my_dataset,
+        fix_blend_flux=False, fix_source_flux=False)
+    
+    my_fit.fit_fluxes()
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_flux, f_s)
@@ -98,7 +101,7 @@ def test_blend_fixed(f_b = 0.5):
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = mm.Fit(model = pspl, dataset = my_dataset, f_blend = f_b, f_source = True)
+    my_fit = mm.FitData(model = pspl, dataset = my_dataset, f_blend = f_b, f_source = True)
 
     almost(my_fit.source_flux, f_s)
 
@@ -115,7 +118,7 @@ def test_source_fixed():
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = mm.Fit(model = pspl, dataset = my_dataset, f_blend = True, f_source = f_s)
+    my_fit = mm.FitData(model = pspl, dataset = my_dataset, f_blend = True, f_source = f_s)
 
     almost(my_fit.blend_flux, f_b)
 
@@ -133,7 +136,7 @@ def test_binary(q_flux):
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = mm.Fit(model = model, dataset = my_dataset, f_blend = True, f_source = True)
+    my_fit = mm.FitData(model = model, dataset = my_dataset, fix_blend_flux=True, fix_source_flux=True)
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_fluxes[0], f_s_1)
@@ -154,7 +157,7 @@ def test_binary_qflux():
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = mm.Fit(model = model, dataset = my_dataset, f_blend = True, f_source = True, q_flux = f_s_2/f_s_1)
+    my_fit = mm.FitData(model = model, dataset = my_dataset, f_blend = True, f_source = True, q_flux = f_s_2/f_s_1)
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_fluxes[0], f_s_1)
