@@ -80,6 +80,12 @@ class Event(object):
         self.sum_function = 'math.fsum'
         self.fit = None  # This should be changed to @property w/ lazy loading
 
+        # New Stuff related to Fit Data
+        self.fits = None  # New property
+        self.fix_blend_flux = {}
+        self.fix_source_flux = {}
+        self.fix_q_flux = {}
+
     def plot_model(self, **kwargs):
         """
         Plot the model light curve in magnitudes. See
@@ -429,6 +435,38 @@ class Event(object):
             out = np.array([gradient[p] for p in parameters])
         return out
 
+    def fit_fluxes(self):
+        """
+        Fit for the optimal fluxes for each dataset (and its chi2)
+        """
+        # JCY - I tried, but I could not envision an instance in which
+        # you it was simpler not to redefine fits every time.
+        # Actually, I also could not think of an instance in which you
+        # would want to rerun the fits if nothing changes.
+        self.fits = []
+        for dataset in self.datasets:
+            if dataset in self.fix_blend_flux.keys():
+                fix_blend_flux = self.fix_blend_flux[dataset]
+            else:
+                fix_blend_flux = False
+
+            if dataset in self.fix_source_flux.keys():
+                fix_source_flux = self.fix_source_flux[dataset]
+            else:
+                fix_source_flux = False
+
+            if dataset in self.fix_q_flux.keys():
+                fix_q_flux = self.fix_q_flux[dataset]
+            else:
+                fix_q_flux = False
+
+            fit = FitData(
+                model=self.model, dataset=self.datasets,
+                fix_blend_flux=fix_blend_flux, fix_source_flux=fix_source_flux,
+                fix_q_flux=fix_q_flux)
+            fit.fit_fluxes()
+            self.fits.append(fit)
+
     def reset_best_chi2(self):
         """
         Reset :py:attr:`~best_chi2` attribute and its parameters
@@ -500,6 +538,8 @@ class Event(object):
         if new_value.coords is not None:
             self._update_coords(coords=new_value.coords)
 
+        self.fits = None  # reset the fits if the model changed.
+
     @property
     def datasets(self):
         """
@@ -532,6 +572,8 @@ class Event(object):
         self._datasets = new_value
         if isinstance(self._model, Model):
             self._model.set_datasets(self._datasets)
+
+        self.fits = None  # reset the fits if the data changed
 
     @property
     def data_ref(self):
