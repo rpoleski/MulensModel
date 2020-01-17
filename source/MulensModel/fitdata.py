@@ -53,38 +53,32 @@ class FitData:
         n_epochs = np.sum(select)
 
         # Set up the x vector for the linear fit
-
         x = np.empty(shape=(n_fluxes, n_epochs))
 
+        # currently, model.magnification is good for up to two
+        # sources
+        if n_sources == 1:
+            mag_matrix = self._model.magnification(
+                time=dataset.time[select])
+        elif n_sources == 2:
+            mag_matrix = self._model.magnification(
+                time=dataset.time[select], separate=True)
+        else:
+            msg = ("{0}".format(n_sources) +
+                   " sources used. model.magnification can only" +
+                   " handle <=2 sources")
+            raise NotImplementedError(msg)
+
+        # Only deal with good data
+        good_mag_matrix = mag_matrix[select]
+
         if self.fix_blend_flux is False:
-            # assumes model.magnification returns magnifications for
-            # multiple sources
-
-            # currently, model.magnification is good for up to two
-            # sources
-            if n_sources == 1:
-                mag_matrix = self._model.magnification(
-                    time=dataset.time[select])
-            elif n_sources == 2:
-                mag_matrix = self._model.magnification(
-                    time=dataset.time[select], separate=True)
-            else:
-                msg = ("{0}".format(n_sources) +
-                       " sources used. model.magnification can only" +
-                       " handle <=2 sources")
-                raise NotImplementedError(msg)
-
-            # Only deal with good data
-            good_mag_matrix = mag_matrix[select]
             x[0:n_sources, ] = good_mag_matrix
-
             # Row corresponding to blend flux
             x[n_sources] = 1.
-
         else:
-            # fixed blend flux case not implemented yet
-            raise NotImplementedError("fixed blend flux case not" +
-                                      "implemented")
+            # Will not fit for blend flux
+            x = good_mag_matrix
 
         # Take the transpose of x and define y
         xT = np.copy(x).T
@@ -94,6 +88,12 @@ class FitData:
 
         y *= sigma_inverse
         xT *= np.array([sigma_inverse] * n_fluxes).T
+
+        # subtract self.fix_blend_flux from y to make the math work out
+        # if we're not fitting for blend flux
+
+        if self.fix_blend_flux is not False:
+            y -= self.fix_blend_flux
 
         # Solve for the coefficients in y = fs * x + fb (point source)
         # These values are: F_s1, F_s2,..., F_b.
@@ -113,12 +113,8 @@ class FitData:
             self.blend_flux = results[-1]
             self.source_fluxes = results[:-1]
         else:
-            '''
-            self._flux_blending[dataset] = 0.
-            self._flux_sources[dataset] = results
-            '''
-            # fixed blend flux case not implemented yet
-            raise NotImplementedError("fixed blend flux case not implemented")
+            self.blend_flux = self.fix_blend_flux
+            self.source_fluxes = results
 
     @property
     def source_flux(self):
