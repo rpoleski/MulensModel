@@ -63,75 +63,29 @@ def generate_dataset(f_mod, t):
 
     return my_dataset
 
-def test_default():
-    # test for when blend flux and source flux are to be determined
-    
-    pspl, t, A = generate_model()
-
-    # secrets
-    f_s = 1
-    f_b = 0.5
-
-    # generate f_mod
-    f_mod = f_s * A + f_b 
-
-    my_dataset = generate_dataset(f_mod, t)
-
-    my_fit = mm.FitData(model = pspl, dataset = my_dataset,
-        fix_blend_flux=False, fix_source_flux=False)
-    
-    my_fit.fit_fluxes()
-
-    almost(my_fit.blend_flux, f_b)
-    almost(my_fit.source_flux, f_s)
-
-def test_blend_zero():
-    # test for when source flux is to be determined, but blend flux is
-    # zero
-    test_blend_fixed(f_b = 0)
-
-def test_blend_fixed(f_b = 0.5):
+def execute_test_blend_fixed(f_b):
     # test for when source flux is to be determined, but blend flux is a
     # fixed value
 
     pspl, t, A = generate_model()
 
     # secret source flux
-    f_s = 1
+    f_s = 1.0
 
-    f_mod = f_s * A + f_b 
+    f_mod = f_s * A + f_b
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = mm.FitData(model=pspl, dataset=my_dataset, 
+    my_fit = mm.FitData(model=pspl, dataset=my_dataset,
                         fix_blend_flux=f_b, fix_source_flux=False)
 
     my_fit.fit_fluxes()
 
     almost(my_fit.source_flux, f_s)
 
-def test_source_fixed():
-    # test for when blend flux is to be determined, but source flux is a fixed value
-
-    pspl, t, A = generate_model()
-
-    # secret blend flux, set source flux
-    f_s = 1
-    f_b = 0.5
-
-    f_mod = f_s * A + f_b 
-
-    my_dataset = generate_dataset(f_mod, t)
-
-    my_fit = mm.FitData(model=pspl, dataset=my_dataset,
-                        fix_blend_flux=False, f_source=f_s)
-
-    my_fit.fit_fluxes()
-
-    almost(my_fit.blend_flux, f_b)
-
-def test_binary(q_flux):
-    # test for when blend flux and source flux are to be determined for binary sources
+def execute_test_binary_source(q_flux):
+    # test for when blend flux and source flux are to be determined for binary
+    # sources
 
     model, t, A_1, A_2 = generate_binary_model()
 
@@ -153,9 +107,64 @@ def test_binary(q_flux):
     almost(my_fit.source_fluxes[0], f_s_1)
     almost(my_fit.source_fluxes[1], f_s_2)
 
+####### Actual tests below #######
+
+def test_default():
+    # test for when blend flux and source flux are to be determined
+    
+    pspl, t, A = generate_model()
+
+    # secrets
+    f_s = 1.0
+    f_b = 0.5
+
+    # generate f_mod
+    f_mod = f_s * A + f_b 
+
+    my_dataset = generate_dataset(f_mod, t)
+
+    my_fit = mm.FitData(model = pspl, dataset = my_dataset,
+        fix_blend_flux=False, fix_source_flux=False)
+    
+    my_fit.fit_fluxes()
+
+    almost(my_fit.blend_flux, f_b)
+    almost(my_fit.source_flux, f_s)
+
+def test_blend_zero():
+    # test for when source flux is to be determined, but blend flux is
+    # zero
+    execute_test_blend_fixed(f_b=0.)
+
+def test_blend_fixed():
+    # test for when source flux is to be determined, but blend flux is
+    # zero
+    execute_test_blend_fixed(f_b=0.5)
+
+def test_source_fixed():
+    # test for when blend flux is to be determined, but source flux is a fixed
+    # value
+
+    pspl, t, A = generate_model()
+
+    # secret blend flux, set source flux
+    f_s = 1.0
+    f_b = 0.5
+
+    f_mod = f_s * A + f_b 
+
+    my_dataset = generate_dataset(f_mod, t)
+
+    my_fit = mm.FitData(model=pspl, dataset=my_dataset,
+                        fix_blend_flux=False, fix_source_flux=f_s)
+
+    my_fit.fit_fluxes()
+
+    almost(my_fit.blend_flux, f_b)
 
 def test_binary_qflux():
-    # test for when blend flux and source flux are to be determined for binary sources with q-flux
+    # test for when blend flux and source flux are to be determined for binary
+    # sources with q-flux
 
     model, t, A_1, A_2 = generate_binary_model()
 
@@ -169,7 +178,7 @@ def test_binary_qflux():
     my_dataset = generate_dataset(f_mod, t)
 
     my_fit = mm.FitData(model=model, dataset=my_dataset,
-                        fix_blend_flux=False, fix_source_flix=Fals,
+                        fix_blend_flux=False, fix_source_flux=False,
                         fix_q_flux = f_s_2/f_s_1)
 
     my_fit.fit_fluxes()
