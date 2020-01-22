@@ -19,10 +19,13 @@ class FitData:
             parameter. If set to a float, it will fix the blend value to that
             value.
 
-        fix_source_flux: *False* or *float*
+        fix_source_flux: *False*, *float*, or *list*
             Default is *False*, i.e. allow the source flux to be a free
             parameter. If set to a float, it will fix the source value to that
-            value. (Not Implemented)
+            value. For binary source models, a list should be used to set the
+            fluxes of the individual sources or fix one and not the other, e.g.
+            [2.3, False] would fix f_source_1 to 2.3 but allow a free fit to
+            f_source_2. (Not Implemented)
 
         fix_q_flux: *False* or *float*
             For binary source models, q_flux is the flux ratio between two
