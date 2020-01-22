@@ -355,11 +355,11 @@ class MulensData(object):
                 y_value = residuals[0][0]
                 y_err = residuals[1][0]
             else:
-                data_ref = model.datasets[model.data_ref]
-                f_source_0 = model.fit.flux_of_sources(data_ref)
-                f_blend_0 = model.fit.blending_flux(data_ref)
-                f_source = model.fit.flux_of_sources(self)
-                f_blend = model.fit.blending_flux(self)
+                i_data_ref = model.data_ref
+                (f_source_0, f_blend_0) = model.get_ref_fluxes(
+                    data_ref=model.datasets[i_data_ref])
+                (f_source, f_blend) = model.get_ref_fluxes(data_ref=self)
+                model.data_ref = i_data_ref
                 flux = f_source_0 * (self.flux - f_blend) / f_source
                 flux += f_blend_0
                 err_flux = f_source_0 * self.err_flux / f_source
