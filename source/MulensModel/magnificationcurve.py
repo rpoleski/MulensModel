@@ -341,7 +341,7 @@ class MagnificationCurve(object):
             ``point_source_point_lens``:
                 Uses point-source _point_-_lens_ approximation; useful when you
                 consider binary lens but need magnification very far from
-                the lens (e.g. at separation u = 100).
+                the lens (e.g., at a separation u = 100).
 
         Returns :
             magnification: *np.ndarray*
@@ -403,6 +403,23 @@ class MagnificationCurve(object):
             magnification.append(m)
 
         return np.array(magnification)
+
+    def get_triple_lens_magnification(self):
+        """
+        Calculate magnification for triple lens model.
+
+        Allowed magnification methods :
+            ``point_source``:
+                standard point source magnification calculation.
+
+            XXX:
+                XXX - add quadrupole, hexadecapole, point_source_point_lens
+
+        Returns :
+            magnification: *np.ndarray*
+                Vector of magnifications.
+        """
+        pass  # XXX
 
     def _methods_for_epochs(self):
         """

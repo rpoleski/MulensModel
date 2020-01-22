@@ -12,8 +12,8 @@ My main idea - center of mass as origin and first object on X axis.
 
 * ModelParameters.\_\_repr\_\_ - __done, but needs unit test__
 * ModelParameters.\_check\_valid\_combination\_1\_source - __done__
-* __ModelParameters - all the new parameters starting at s\_21 - add them after t\_0\_kep__
-* __"reset" triple\_lens branch__
+* __ModelParameters - all the new parameters starting at s\_21 - add them after t\_0\_kep__ - __started__
+* "reset" triple\_lens branch - __done__
 * Binary lens positions - calculation and plotting (UC35)
 * documents/parameter\_names.tex
 * Use cases - we have 07 already, which does basic LC plotting
@@ -22,8 +22,8 @@ My main idea - center of mass as origin and first object on X axis.
 * Utils: - (q\_21, q\_31) <=> (eps\_1, eps\_2, eps\_3) - easy
 * unit tests
 * Caustics - __done, but needs unit tests__
-* MagnificationCurve.get\_triple\_lens\_magnification (include hooks to hexa, quad and PSPL)
-* Trajectory.get\_xy - seems alread done
+* MagnificationCurve.get\_triple\_lens\_magnification (include hooks to hexa, quad and PSPL) - __started__
+* Trajectory.get\_xy - __seems already done__
 * TripleLens.point\_source\_magnification
 * TripleLens.hexadecapole\_magnification
 

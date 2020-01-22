@@ -15,7 +15,7 @@ class TripleLens(object):
 
         mass_3: *float*
             Mass of the tertiary as a fraction of the total mass.
-            NOTE - add conventions
+            XXX NOTE - add conventions
 
         separation_21: *float*
             Separation between bodies 2 and 1 as a fraction of
@@ -62,5 +62,4 @@ class TripleLens(object):
 
 # XXX :
 #    def get_hexadecapole_magnification(self, source_x, source_y, rho, gamma,
-#                                       quadrupole=False, all_approximations=False):
-
+#                               quadrupole=False, all_approximations=False):
