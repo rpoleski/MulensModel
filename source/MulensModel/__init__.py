@@ -10,7 +10,7 @@ from MulensModel.binarylens import BinaryLens
 from MulensModel.pointlens import PointLens
 
 from MulensModel.mulensobjects import *
-
+from MulensModel.fitdata import FitData
 
 __all__ = ['mulensobjects', 'MODULE_PATH', 'DATA_PATH']
 

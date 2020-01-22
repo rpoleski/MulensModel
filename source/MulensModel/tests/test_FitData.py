@@ -1,11 +1,13 @@
-import MulensModel as mm
 import numpy as np
-from MulensModel.mulensdata import MulensData
-from MulensModel.fit import Fit
 from numpy.testing import assert_almost_equal as almost
 
+import MulensModel as mm
+
+
 def generate_model():
-    # returns a model, time array, and magnification
+    """
+    returns a model, time array, and magnification
+    """
 
     # Create a PSPL model
     t_0 = 3583.
@@ -14,22 +16,25 @@ def generate_model():
 
     pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
-    t = np.linspace(3576, 3590, 1000)  
+    t = np.linspace(3576, 3590, 1000)
 
     A = pspl.magnification(t)
 
-    return pspl, t, A
+    return (pspl, t, A)
+
 
 def generate_binary_model():
-    # returns a binary source model, time array, and the magnification of both sources
+    """
+    returns a binary source model, time array, and the magnification of
+    both sources
+    """
 
     # retrieve model 1
-    model_1, t, A_1 = generate_model()
+    (model_1, t, A_1) = generate_model()
     t_0_1 = model_1.parameters.t_0
     u_0_1 = model_1.parameters.u_0
 
     # create second model
-
     t_0_2 = 3570.
     u_0_2 = 0.25
     t_E = model_1.parameters.t_E
@@ -40,18 +45,21 @@ def generate_binary_model():
 
     # create separate binary model
     params = {'t_0_1': t_0_1, 'u_0_1': u_0_1, 't_0_2': t_0_2, 'u_0_2': u_0_2,
-          't_E': t_E}
+              't_E': t_E}
     binary_model = mm.Model(params)
 
-    return binary_model, t, A_1, A_2
+    return (binary_model, t, A_1, A_2)
+
 
 def generate_dataset(f_mod, t):
-    # pass in f_mod and t, returns a MulensData 
+    """
+    pass in f_mod and t, returns a MulensData
+    """
 
     # error in measurement
-    err = f_mod * 0.01 
+    err = f_mod * 0.01
 
-    my_dataset = MulensData(data_list = [t, f_mod, err], phot_fmt='flux')
+    my_dataset = mm.MulensData(data_list = [t, f_mod, err], phot_fmt='flux')
 
     return my_dataset
 
@@ -69,17 +77,22 @@ def test_default():
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = Fit(model = pspl, dataset = my_dataset, f_blend = True, f_source = True)
+    my_fit = mm.FitData(model = pspl, dataset = my_dataset,
+        fix_blend_flux=False, fix_source_flux=False)
+    
+    my_fit.fit_fluxes()
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_flux, f_s)
 
 def test_blend_zero():
-    # test for when source flux is to be determined, but blend flux is zero
+    # test for when source flux is to be determined, but blend flux is
+    # zero
     test_blend_fixed(f_b = 0)
 
 def test_blend_fixed(f_b = 0.5):
-    # test for when source flux is to be determined, but blend flux is a fixed value
+    # test for when source flux is to be determined, but blend flux is a
+    # fixed value
 
     pspl, t, A = generate_model()
 
@@ -90,7 +103,10 @@ def test_blend_fixed(f_b = 0.5):
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = Fit(model = pspl, dataset = my_dataset, f_blend = f_b, f_source = True)
+    my_fit = mm.FitData(model=pspl, dataset=my_dataset, 
+                        fix_blend_flux=f_b, fix_source_flux=False)
+
+    my_fit.fit_fluxes()
 
     almost(my_fit.source_flux, f_s)
 
@@ -107,7 +123,10 @@ def test_source_fixed():
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = Fit(model = pspl, dataset = my_dataset, f_blend = True, f_source = f_s)
+    my_fit = mm.FitData(model=pspl, dataset=my_dataset,
+                        fix_blend_flux=False, f_source=f_s)
+
+    my_fit.fit_fluxes()
 
     almost(my_fit.blend_flux, f_b)
 
@@ -125,7 +144,10 @@ def test_binary(q_flux):
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = Fit(model = model, dataset = my_dataset, f_blend = True, f_source = True)
+    my_fit = mm.FitData(model=model, dataset=my_dataset,
+                        fix_blend_flux=False, fix_source_flux=False)
+
+    my_fit.fit_fluxes()
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_fluxes[0], f_s_1)
@@ -146,7 +168,11 @@ def test_binary_qflux():
 
     my_dataset = generate_dataset(f_mod, t)
 
-    my_fit = Fit(model = model, dataset = my_dataset, f_blend = True, f_source = True, q_flux = f_s_2/f_s_1)
+    my_fit = mm.FitData(model=model, dataset=my_dataset,
+                        fix_blend_flux=False, fix_source_flix=Fals,
+                        fix_q_flux = f_s_2/f_s_1)
+
+    my_fit.fit_fluxes()
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_fluxes[0], f_s_1)
