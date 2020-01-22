@@ -204,6 +204,7 @@ class Utils(object):
         sin_psi = sin(psi_rad)
         cos_psi = cos(psi_rad)
 
+        # XXX code new function for that:
         eps_1 = 1. / (1. + q_21 + q_31)
         eps_2 = eps_1 * q_21
         eps_3 = eps_1 * q_31

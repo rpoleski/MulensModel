@@ -375,7 +375,7 @@ class BinaryLens(object):
 
         Returns :
             magnification: *float*
-                Point source magnification.
+                Point-source binary-lens magnification.
         """
         if self._use_planet_frame:
             x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
