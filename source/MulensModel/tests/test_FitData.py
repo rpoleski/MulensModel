@@ -14,10 +14,8 @@ def generate_model():
     u_0 = 0.3
     t_E = 12.
 
-    pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-
     t = np.linspace(t_0 - 2. * t_E, t_0 + 2. * t_E, 1000)
-
+    pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     A = pspl.magnification(t)
 
     return (pspl, t, A)
@@ -59,9 +57,10 @@ def generate_dataset(f_mod, t):
     # error in measurement
     err = f_mod * 0.01
 
-    my_dataset = mm.MulensData(data_list = [t, f_mod, err], phot_fmt='flux')
+    my_dataset = mm.MulensData(data_list=[t, f_mod, err], phot_fmt='flux')
 
     return my_dataset
+
 
 def execute_test_blend_fixed(f_b):
     # test for when source flux is to be determined, but blend flux is a
@@ -71,19 +70,16 @@ def execute_test_blend_fixed(f_b):
 
     # secret source flux
     f_s = 1.0
-
     f_mod = f_s * A + f_b
 
     my_dataset = generate_dataset(f_mod, t)
-
-    my_fit = mm.FitData(model=pspl, dataset=my_dataset,
-                        fix_blend_flux=f_b, fix_source_flux=False)
-
+    my_fit = mm.FitData(
+        model=pspl, dataset=my_dataset, fix_blend_flux=f_b,
+        fix_source_flux=False)
     my_fit.fit_fluxes()
 
-    print(f_s, f_b, my_fit.source_flux, my_fit.blend_flux)
-    print(f_mod[0], f_mod[-1], A[0], A[-1])
     almost(my_fit.source_flux, f_s)
+
 
 def execute_test_binary_source(q_flux=False):
     # test for when blend flux and source flux are to be determined for binary
@@ -95,7 +91,6 @@ def execute_test_binary_source(q_flux=False):
     f_s_1 = 1
     f_s_2 = 1.2
     f_b = 0.5
-
     f_mod = f_s_1 * A_1 + f_s_2 * A_2 + f_b
 
     if q_flux:
@@ -104,50 +99,48 @@ def execute_test_binary_source(q_flux=False):
         fix_q_flux = False
 
     my_dataset = generate_dataset(f_mod, t)
-
-    my_fit = mm.FitData(model=model, dataset=my_dataset,
-                        fix_blend_flux=False, fix_source_flux=False,
-                        fix_q_flux=fix_q_flux)
-
+    my_fit = mm.FitData(
+        model=model, dataset=my_dataset, fix_blend_flux=False,
+        fix_source_flux=False, fix_q_flux=fix_q_flux)
     my_fit.fit_fluxes()
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_fluxes[0], f_s_1)
     almost(my_fit.source_fluxes[1], f_s_2)
 
-####### Actual tests below #######
 
+# *** Actual tests below ***
 def test_default():
     # test for when blend flux and source flux are to be determined
-    
     pspl, t, A = generate_model()
 
     # secrets
     f_s = 1.0
     f_b = 0.5
-
     # generate f_mod
-    f_mod = f_s * A + f_b 
+    f_mod = f_s * A + f_b
 
     my_dataset = generate_dataset(f_mod, t)
-
-    my_fit = mm.FitData(model = pspl, dataset = my_dataset,
-        fix_blend_flux=False, fix_source_flux=False)
-    
+    my_fit = mm.FitData(
+        model=pspl, dataset=my_dataset, fix_blend_flux=False,
+        fix_source_flux=False)
     my_fit.fit_fluxes()
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_flux, f_s)
+
 
 def test_blend_zero():
     # test for when source flux is to be determined, but blend flux is
     # zero
     execute_test_blend_fixed(f_b=0.)
 
+
 def test_blend_fixed():
     # test for when source flux is to be determined, but blend flux is
     # zero
     execute_test_blend_fixed(f_b=0.5)
+
 
 def test_source_fixed():
     # test for when blend flux is to be determined, but source flux is a fixed
@@ -158,21 +151,21 @@ def test_source_fixed():
     # secret blend flux, set source flux
     f_s = 1.0
     f_b = 0.5
-
-    f_mod = f_s * A + f_b 
+    f_mod = f_s * A + f_b
 
     my_dataset = generate_dataset(f_mod, t)
-
-    my_fit = mm.FitData(model=pspl, dataset=my_dataset,
-                        fix_blend_flux=False, fix_source_flux=f_s)
-
+    my_fit = mm.FitData(
+        model=pspl, dataset=my_dataset, fix_blend_flux=False,
+        fix_source_flux=f_s)
     my_fit.fit_fluxes()
 
     almost(my_fit.blend_flux, f_b)
 
+
 def test_binary_source():
     # Test a binary source model with all free parameters.
     execute_test_binary_source(q_flux=False)
+
 
 def test_binary_qflux():
     # test for when blend flux and source flux are to be determined for binary
