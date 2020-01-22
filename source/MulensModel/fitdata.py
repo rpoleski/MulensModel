@@ -66,16 +66,16 @@ class FitData:
         """
         Calculate the model magnifications for the good epochs of the dataset.
         """
-        select = self._dataset.good
+        # select = self._dataset.good # Is this faster?
 
         # currently, model.magnification is good for up to two
         # sources
         if self._model.n_sources == 1:
             mag_matrix = self._model.magnification(
-                time=self._dataset.time[select])
+                time=self._dataset.time[self._dataset.good])
         elif self._model.n_sources == 2:
             mag_matrix = self._model.magnification(
-                time=self._dataset.time[select], separate=True)
+                time=self._dataset.time[self._dataset.good], separate=True)
         else:
             msg = ("{0}".format(self._model.n_sources) +
                    " sources used. model.magnification can only" +
@@ -95,6 +95,7 @@ class FitData:
         x = self._get_magnifications()
 
         # Account for free or fixed blending
+        # Should do a runtime test to compare with lines 83-94
         if self.fix_blend_flux is False:
             x = np.vstack((x, np.ones(n_epochs)))
             n_fluxes += 1
