@@ -47,13 +47,10 @@ class FitData:
         self._source_fluxes = None
         self._blend_flux = None
 
-    def fit_fluxes(self):
+    def _check_for_implementation_errors(self):
         """
-        Execute the linear least squares fit to determine the fitted fluxes.
-        Sets the values of :py:obj:`~source_fluxes`, :py:obj:`~blend_flux`,
-        and (if applicable):py:obj:`~source_flux`.
+        If a setting is not implemented, raise an exception.
         """
-
         if self.fix_source_flux is not False:
             msg = 'Only fix_source_flux=False is implemented.'
             raise NotImplementedError(msg)
@@ -62,63 +59,70 @@ class FitData:
             msg = 'Only fix_q_flux=False is implemented.'
             raise NotImplementedError(msg)
 
-        n_sources = self._model.n_sources
-
-        # Find number of fluxes to calculate
-        n_fluxes = n_sources
-        if self.fix_blend_flux is False:
-            n_fluxes += 1
-
-        # For dataset, perform a least-squares linear fit for the flux
-        # parameters
-        dataset = self._dataset
-        # suppress bad data
-        select = dataset.good
-        n_epochs = np.sum(select)
-
-        # Set up the x vector for the linear fit
-        x = np.empty(shape=(n_fluxes, n_epochs))
+    def _get_magnifications(self):
+        """
+        Calculate the model magnifications for the good epochs of the dataset.
+        """
+        select = self._dataset.good
 
         # currently, model.magnification is good for up to two
         # sources
-        if n_sources == 1:
+        if self._model.n_sources == 1:
             mag_matrix = self._model.magnification(
-                time=dataset.time[select])
-        elif n_sources == 2:
+                time=self._dataset.time[select])
+        elif self._model.n_sources == 2:
             mag_matrix = self._model.magnification(
-                time=dataset.time[select], separate=True)
+                time=self._dataset.time[select], separate=True)
         else:
-            msg = ("{0}".format(n_sources) +
+            msg = ("{0}".format(self._model.n_sources) +
                    " sources used. model.magnification can only" +
                    " handle <=2 sources")
             raise NotImplementedError(msg)
 
-        # Only deal with good data
-        good_mag_matrix = mag_matrix[select]
+        return mag_matrix
 
-        # Can't this be rewritten to use vstack or hstack?
+    def _setup_linalg_arrays(self):
+        """
+        :return: xT and y arrays
+        """
+        # Find number of fluxes to calculate
+        n_fluxes = self._model.n_sources
+        n_epochs = np.sum(self._dataset.good)
+        y = self._dataset.flux[self._dataset.good]
+        x = self._get_magnifications()
+
+        # Account for free or fixed blending
         if self.fix_blend_flux is False:
-            x[0:n_sources, ] = good_mag_matrix
-            # Row corresponding to blend flux
-            x[n_sources] = 1.
+            print(x.shape, np.ones(n_epochs).shape)
+            x = np.vstack((x, np.ones(n_epochs)))
+            n_fluxes += 1
+        elif self.fix_blend_flux == 0.:
+            pass
         else:
-            # Will not fit for blend flux
-            x = good_mag_matrix
+            y -= self.fix_blend_flux
+
+        print(x.shape)
 
         # Take the transpose of x and define y
         xT = np.copy(x).T
         xT.shape = (n_epochs, n_fluxes)
-        y = dataset.flux[select]
-        sigma_inverse = 1. / dataset.err_flux[select]
 
+        # Take into account uncertainties
+        sigma_inverse = 1. / self._dataset.err_flux[self._dataset.good]
         y *= sigma_inverse
         xT *= np.array([sigma_inverse] * n_fluxes).T
 
-        # subtract self.fix_blend_flux from y to make the math work out
-        # if we're not fitting for blend flux
+        return (xT, y)
 
-        if self.fix_blend_flux is not False:
-            y -= self.fix_blend_flux
+    def fit_fluxes(self):
+        """
+        Execute the linear least squares fit to determine the fitted fluxes.
+        Sets the values of :py:obj:`~source_fluxes`, :py:obj:`~blend_flux`,
+        and (if applicable):py:obj:`~source_flux`.
+        """
+
+        self._check_for_implementation_errors()
+        (xT, y) = self._setup_linalg_arrays()
 
         # Solve for the coefficients in y = fs * x + fb (point source)
         # These values are: F_s1, F_s2,..., F_b.
@@ -133,7 +137,6 @@ class FitData:
                 ' probably in the data.')
 
         # Record the results
-
         if self.fix_blend_flux is False:
             self._blend_flux = results[-1]
             self._source_fluxes = results[:-1]
