@@ -15,6 +15,7 @@ _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
     'binary lens': ['s, q, alpha'],
+    'triple lens': ['s_21, s_31, q_21, q_31, psi, alpha'],
     'binary lens alt':
         'alternate: ' +
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
@@ -284,7 +285,7 @@ class ModelParameters(object):
         if 'alpha' in keys and self._n_lenses == 1:
             raise KeyError(
                 'alpha is defined, but no other multi-lens parameters ' +
-                'are defined' + str(keys_2L_used) + str(keys_3L_used))
+                'are defined ' + str(keys_2L_used) + str(keys_3L_used))
 
     def _divide_parameters(self, parameters):
         """
@@ -935,6 +936,67 @@ class ModelParameters(object):
 
         self.parameters['s'] = new_s
         self._update_sources('s', new_s)
+
+    @property
+    def s_21(self):
+        """
+        XXX
+        """
+        return self.parameters['s_21']
+
+    @s_21.setter
+    def s_21(self, new_s_21):
+        self.parameters['s_21'] = new_s_21
+        self._update_sources('s_21', new_s_21)
+
+    @property
+    def s_31(self):
+        """
+        XXX
+        """
+        return self.parameters['s_31']
+
+    @s_31.setter
+    def s_31(self, new_s_31):
+        self.parameters['s_31'] = new_s_31
+        self._update_sources('s_31', new_s_31)
+
+    @property
+    def q_21(self):
+        """
+        XXX
+        """
+        return self.parameters['q_21']
+
+    @q_21.setter
+    def q_21(self, new_q_21):
+        self.parameters['q_21'] = new_q_21
+        self._update_sources('q_21', new_q_21)
+
+    @property
+    def q_31(self):
+        """
+        XXX
+        """
+        return self.parameters['q_31']
+
+    @q_31.setter
+    def q_31(self, new_q_31):
+        self.parameters['q_31'] = new_q_31
+        self._update_sources('q_31', new_q_31)
+
+    @property
+    def psi(self):
+        """
+        XXX - make sure it's a float and in deg (alpha is astropy quantity,
+        but we want to change that one day)
+        """
+        return self.parameters['psi']
+
+    @psi.setter
+    def psi(self, new_psi):
+        self.parameters['psi'] = new_psi
+        self._update_sources('psi', new_psi)
 
     @property
     def pi_E(self):
