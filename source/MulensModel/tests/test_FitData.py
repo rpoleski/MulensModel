@@ -16,7 +16,7 @@ def generate_model():
 
     pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
-    t = np.linspace(3576, 3590, 1000)
+    t = np.linspace(t_0 - 2. * t_E, t_0 + 2. * t_E, 1000)
 
     A = pspl.magnification(t)
 
@@ -81,11 +81,13 @@ def execute_test_blend_fixed(f_b):
 
     my_fit.fit_fluxes()
 
+    print(f_s, f_b, my_fit.source_flux, my_fit.blend_flux)
+    print(f_mod[0], f_mod[-1], A[0], A[-1])
     almost(my_fit.source_flux, f_s)
 
-def execute_test_binary_source(q_flux):
+def execute_test_binary_source(q_flux=False):
     # test for when blend flux and source flux are to be determined for binary
-    # sources
+    # sources with q-flux
 
     model, t, A_1, A_2 = generate_binary_model()
 
@@ -96,10 +98,16 @@ def execute_test_binary_source(q_flux):
 
     f_mod = f_s_1 * A_1 + f_s_2 * A_2 + f_b
 
+    if q_flux:
+        fix_q_flux = f_s_2 / f_s_1
+    else:
+        fix_q_flux = False
+
     my_dataset = generate_dataset(f_mod, t)
 
     my_fit = mm.FitData(model=model, dataset=my_dataset,
-                        fix_blend_flux=False, fix_source_flux=False)
+                        fix_blend_flux=False, fix_source_flux=False,
+                        fix_q_flux=fix_q_flux)
 
     my_fit.fit_fluxes()
 
@@ -162,27 +170,12 @@ def test_source_fixed():
 
     almost(my_fit.blend_flux, f_b)
 
+def test_binary_source():
+    # Test a binary source model with all free parameters.
+    execute_test_binary_source(q_flux=False)
+
 def test_binary_qflux():
     # test for when blend flux and source flux are to be determined for binary
     # sources with q-flux
 
-    model, t, A_1, A_2 = generate_binary_model()
-
-    # secrets
-    f_s_1 = 1
-    f_s_2 = 1.2
-    f_b = 0.5
-
-    f_mod = f_s_1 * A_1 + f_s_2 * A_2 + f_b
-
-    my_dataset = generate_dataset(f_mod, t)
-
-    my_fit = mm.FitData(model=model, dataset=my_dataset,
-                        fix_blend_flux=False, fix_source_flux=False,
-                        fix_q_flux = f_s_2/f_s_1)
-
-    my_fit.fit_fluxes()
-
-    almost(my_fit.blend_flux, f_b)
-    almost(my_fit.source_fluxes[0], f_s_1)
-    almost(my_fit.source_fluxes[1], f_s_2)
+    execute_test_binary_source(q_flux=True)

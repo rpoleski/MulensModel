@@ -93,15 +93,12 @@ class FitData:
 
         # Account for free or fixed blending
         if self.fix_blend_flux is False:
-            print(x.shape, np.ones(n_epochs).shape)
             x = np.vstack((x, np.ones(n_epochs)))
             n_fluxes += 1
         elif self.fix_blend_flux == 0.:
             pass
         else:
             y -= self.fix_blend_flux
-
-        print(x.shape)
 
         # Take the transpose of x and define y
         xT = np.copy(x).T
