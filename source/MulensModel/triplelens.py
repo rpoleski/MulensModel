@@ -38,6 +38,7 @@ class TripleLens(object):
         self._mass_1 = mass_1
         self._mass_2 = mass_2
         self._mass_3 = mass_3
+        # XXX warning if sum doesn't ~1
         self._separation_21 = separation_21
         self._separation_31 = separation_31
         self._psi = psi
@@ -58,16 +59,20 @@ class TripleLens(object):
                 Point-source triple-lens magnification.
         """
         pass
-        # use https://arxiv.org/abs/astro-ph/0202294
+        # use Rhie 2002 https://arxiv.org/abs/astro-ph/0202294
 
-    def _R02_polynomial(self):
+    def _R02_polynomial(self, source_x, source_y):
         """
         Calculate polynomial coefficients using Rhie (2002).
         """
 # XXX we need:
-#  epsilon_1 epsilon_2 epsilon_3
 #  x_1 x_2 x_3
-#  omega
+        omega = source_x + source_y * 1.j
+
+        epsilon_1 = self._mass_1
+        epsilon_2 = self._mass_2
+        epsilon_3 = self._mass_3
+
         a = -x_1 - x_2 - x_3
         b = x_1 * x_2 + x_1 * x_3 + x_2 * x_3
         c = -x_1 * x_2 * x_3

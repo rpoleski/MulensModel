@@ -24,6 +24,6 @@ My main idea - center of mass as origin and first object on X axis.
 * Caustics - __done, but needs unit tests__
 * MagnificationCurve.get\_triple\_lens\_magnification (include hooks to hexa, quad and PSPL) - __started__
 * Trajectory.get\_xy - __seems already done__
-* TripleLens.point\_source\_magnification
+* __TripleLens.point\_source\_magnification - started__
 * TripleLens.hexadecapole\_magnification
 
