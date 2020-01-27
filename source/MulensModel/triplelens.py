@@ -1,4 +1,7 @@
 import numpy as np
+from math import fsum
+
+from MulensModel.utils import Utils
 
 
 class TripleLens(object):
@@ -50,6 +53,8 @@ class TripleLens(object):
         self._position_z2 = positions[1, 0] + positions[1, 1] * 1.j
         self._position_z3 = positions[2, 0] + positions[2, 1] * 1.j
 
+        self._solver = 'numpy'  # XXX
+
     def get_point_source_magnification(self, source_x, source_y):
         """
         XXX
@@ -74,9 +79,10 @@ class TripleLens(object):
         """roots of the polynomial"""
         # XXX - lazy loading like in binarylens.py?
 
-        polynomial = self._get_polynomial(
+        polynomial = self._get_R02_polynomial(
             source_x=source_x, source_y=source_y)
 
+        np_polyroots = np.polynomial.polynomial.polyroots
         if self._solver == 'numpy':
             polynomial_roots = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
@@ -119,14 +125,14 @@ class TripleLens(object):
         roots_ok_bar = np.conjugate(self._polynomial_roots_ok(
                                     source_x=source_x, source_y=source_y))
         # Variable X_bar is conjugate of variable X.
-        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
-        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
-        add_3 = self.mass_3 / (self._position_z3 - roots_ok_bar)**2
+        add_1 = self._mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self._mass_2 / (self._position_z2 - roots_ok_bar)**2
+        add_3 = self._mass_3 / (self._position_z3 - roots_ok_bar)**2
         derivative = add_1 + add_2 + add_3
 
         return 1. - derivative * np.conjugate(derivative)
 
-    def _R02_polynomial(self, source_x, source_y):
+    def _get_R02_polynomial(self, source_x, source_y):
         """
         Calculate polynomial coefficients using Rhie (2002).
         """
@@ -146,10 +152,10 @@ class TripleLens(object):
         d = (epsilon_1 * x_2 * x_3 + epsilon_2 * x_1 * x_3 +
              epsilon_3 * x_1 * x_2)
 
-        H_1 = np.zeros(11)
-        H_1 = np.zeros(11)
-        H_2 = np.zeros(11)
-        H_3 = np.zeros(11)
+        H_0 = np.zeros(11, dtype=np.complex_)
+        H_1 = np.zeros(11, dtype=np.complex_)
+        H_2 = np.zeros(11, dtype=np.complex_)
+        H_3 = np.zeros(11, dtype=np.complex_)
         # We define these up to H_x[10] so that equation for cff[10] is
         # the same as for other indexes.
 
@@ -199,7 +205,7 @@ class TripleLens(object):
                    omega_3_bar * omega_1_bar)
         c_omega = omega_1_bar * omega_2_bar * omega_3_bar
 
-        cff = np.zeros(11)  # XXX polynomial convention: cff[i] * z**i
+        cff = np.zeros(11, dtype=np.complex_)  # XXX polynomial convention: cff[i] * z**i
         for k in range(1, 10+1):
             cff[k] = (
                 H_0[k-1] + H_1[k-1] * a_omega + H_2[k-1] * b_omega +
