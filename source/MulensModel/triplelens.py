@@ -43,6 +43,13 @@ class TripleLens(object):
         self._separation_31 = separation_31
         self._psi = psi
 
+        positions = Utils._parameters_to_center_of_mass_coords_3L(
+            q_21=self._mass_2/self._mass_1, q_31=self._mass_3/self._mass_1,
+            s_21=self._separation_21, s_31=self._separation_31, psi=self._psi)
+        self._position_z1 = positions[0, 0] + positions[0, 1] * 1.j
+        self._position_z2 = positions[1, 0] + positions[1, 1] * 1.j
+        self._position_z3 = positions[2, 0] + positions[2, 1] * 1.j
+
     def get_point_source_magnification(self, source_x, source_y):
         """
         XXX
@@ -58,16 +65,76 @@ class TripleLens(object):
             magnification: *float*
                 Point-source triple-lens magnification.
         """
-        pass
         # use Rhie 2002 https://arxiv.org/abs/astro-ph/0202294
+        signed_magnification = 1. / self._jacobian_determinant_ok(
+            source_x=source_x, source_y=source_y)
+        return fsum(abs(signed_magnification))
+
+    def _get_polynomial_roots(self, source_x, source_y):
+        """roots of the polynomial"""
+        # XXX - lazy loading like in binarylens.py?
+
+        polynomial = self._get_polynomial(
+            source_x=source_x, source_y=source_y)
+
+        if self._solver == 'numpy':
+            polynomial_roots = np_polyroots(polynomial)
+        elif self._solver == 'Skowron_and_Gould_12':
+            raise NotImplementedError('We have not yet implemented loading ' +
+                                      'SG12 from binarylens.py')  # XXX
+        else:
+            raise ValueError('Unknown solver: {:}'.format(self._solver))
+
+        return polynomial_roots
+
+    def _polynomial_roots_ok(self, source_x, source_y):
+        """verified roots of polynomial i.e. roots of lens equation"""
+        roots = self._get_polynomial_roots(
+            source_x=source_x, source_y=source_y)
+
+        add_1 = self._mass_1 / np.conjugate(roots - self._position_z1)
+        add_2 = self._mass_2 / np.conjugate(roots - self._position_z2)
+        add_3 = self._mass_3 / np.conjugate(roots - self._position_z3)
+        solutions = source_x + source_y * 1.j + add_1 + add_2 + add_3
+
+        out = []
+        distances = []
+        for (i, root) in enumerate(roots):
+            distances_from_root = abs((solutions-root)**2)
+            min_distance_arg = np.argmin(distances_from_root)
+
+            if i == min_distance_arg:
+                out.append(root)
+                distances.append(distances_from_root[min_distance_arg])
+            # The values in distances[] are a diagnostic on how good the
+            # numerical accuracy is.
+
+        if len(out) not in [4, 6, 8, 10]:
+            pass  # XXX - warning here
+
+        return np.array(out)
+
+    def _jacobian_determinant_ok(self, source_x, source_y):
+        """determinants of lens equation Jacobian for verified roots"""
+        roots_ok_bar = np.conjugate(self._polynomial_roots_ok(
+                                    source_x=source_x, source_y=source_y))
+        # Variable X_bar is conjugate of variable X.
+        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
+        add_3 = self.mass_3 / (self._position_z3 - roots_ok_bar)**2
+        derivative = add_1 + add_2 + add_3
+
+        return 1. - derivative * np.conjugate(derivative)
 
     def _R02_polynomial(self, source_x, source_y):
         """
         Calculate polynomial coefficients using Rhie (2002).
         """
-# XXX we need:
-#  x_1 x_2 x_3
         omega = source_x + source_y * 1.j
+
+        x_1 = self._position_z1
+        x_2 = self._position_z2
+        x_3 = self._position_z3
 
         epsilon_1 = self._mass_1
         epsilon_2 = self._mass_2
@@ -125,7 +192,7 @@ class TripleLens(object):
         omega_bar = np.conjugate(omega)
         omega_1_bar = omega_bar - np.conjugate(x_1)
         omega_2_bar = omega_bar - np.conjugate(x_2)
-        omega_3_bar = omage_bar - np.conjugate(x_3)
+        omega_3_bar = omega_bar - np.conjugate(x_3)
         a_omega = omega_1_bar + omega_2_bar + omega_3_bar
         b_omega = (omega_1_bar * omega_2_bar +
                    omega_2_bar * omega_3_bar +
@@ -137,9 +204,15 @@ class TripleLens(object):
             cff[k] = (
                 H_0[k-1] + H_1[k-1] * a_omega + H_2[k-1] * b_omega +
                 H_3[k-1] * c_omega -
-                H_0[k] * omega - H_1[k] * (omage * a_omega - 1) -
+                H_0[k] * omega - H_1[k] * (omega * a_omega - 1) -
                 H_2[k] * (omega * b_omega + a_omega - omega_bar) -
                 H_3[k] * (omega * c_omega + b_omega))
+        cff[0] = (  # XXX - it's not totally clear if that what Eq. 7 means:
+            -H_0[k] * omega - H_1[k] * (omega * a_omega - 1) +
+            -H_2[k] * (omega * b_omega + a_omega - omega_bar) +
+            -H_3[k] * (omega * c_omega + b_omega))
+
+        return cff
 
 # XXX :
 #    def get_hexadecapole_magnification(self, source_x, source_y, rho, gamma,
