@@ -15,7 +15,7 @@ def generate_model():
     u_0 = 0.3
     t_E = 12.
 
-    t = np.linspace(t_0 - 2. * t_E, t_0 + 2. * t_E, 1000)
+    t = np.linspace(t_0 - 3. * t_E, t_0 + 3. * t_E, 1000)
     pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     A = pspl.magnification(t)
 

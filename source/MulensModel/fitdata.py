@@ -43,8 +43,19 @@ class FitData:
 
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
-        self.fix_source_flux = fix_source_flux
         self.fix_q_flux = fix_q_flux
+        if isinstance(fix_source_flux, list) or (fix_source_flux is False):
+            self.fix_source_flux = fix_source_flux
+        else:
+            if self._model.n_sources == 1:
+                self.fix_source_flux = [fix_source_flux]
+            else:
+                msg = ("you have {0}".format(self._model.n_sources) +
+                       " sources. Thus, fix_source_flux should be a list of"+
+                       "length {0}".format(self._model.n_sources) +
+                       "(or False).")
+                raise ValueError(msg)
+
 
         # list containing fluxes of various sources
         self._source_fluxes = None
@@ -55,9 +66,9 @@ class FitData:
         """
         If a setting is not implemented, raise an exception.
         """
-        if self.fix_source_flux is not False:
-            msg = 'Only fix_source_flux=False is implemented.'
-            raise NotImplementedError(msg)
+        # if self.fix_source_flux is not False:
+        #     msg = 'Only fix_source_flux=False is implemented.'
+        #     raise NotImplementedError(msg)
 
         if self.fix_q_flux is not False:
             msg = 'Only fix_q_flux=False is implemented.'
@@ -90,16 +101,40 @@ class FitData:
         :return: xT and y arrays
         """
         # Find number of fluxes to calculate
-        n_fluxes = self._model.n_sources
         n_epochs = np.sum(self._dataset.good)
         y = self._dataset.flux[self._dataset.good]
-        x = self._get_magnifications()
+        magnifications = self._get_magnifications()
+        if self.fix_source_flux is False:
+            x = magnifications
+            n_fluxes = self._model.n_sources
+        else:
+            x = None
+            n_fluxes = 0
+            for i in range(self._model.n_sources):
+                if self.fix_source_flux[i] is False:
+                    n_fluxes += 1
+                    if x is None:
+                        if self._model.n_sources == 1:
+                            x = magnifications
+                        else:
+                            x = magnifications[i]
+
+                    else:
+                        x = np.vstack((x, magnifications[i]))
+
+                else:
+                    y -= self.fix_source_flux[i] * magnifications[i]
 
         # Account for free or fixed blending
         # Should do a runtime test to compare with lines 83-94
         if self.fix_blend_flux is False:
-            x = np.vstack((x, np.ones(n_epochs)))
-            n_fluxes += 1
+            if x is None:
+                x = np.ones((n_epochs, 1))
+                n_fluxes = 1
+            else:
+                x = np.vstack((x, np.ones(n_epochs)))
+                n_fluxes += 1
+
         elif self.fix_blend_flux == 0.:
             pass
         else:
@@ -139,12 +174,25 @@ class FitData:
                 ' probably in the data.')
 
         # Record the results
+        if self.fix_source_flux is False:
+            self._source_fluxes = results[0:self._model.n_sources]
+        else:
+            self._source_fluxes = []
+            index = 0
+            for i in range(self._model.n_sources):
+                if self.fix_source_flux[i] is False:
+                    self._source_fluxes.append(results[index])
+                    index += 1
+                else:
+                    self._source_fluxes.append(self.fix_source_flux[i])
+
         if self.fix_blend_flux is False:
             self._blend_flux = results[-1]
-            self._source_fluxes = results[:-1]
         else:
             self._blend_flux = self.fix_blend_flux
-            self._source_fluxes = results
+
+        print(results)
+        print(self._blend_flux, self._source_fluxes)
 
     @property
     def source_flux(self):
