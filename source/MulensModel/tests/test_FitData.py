@@ -110,6 +110,7 @@ class BinarySourceTest():
         almost(my_fit.source_fluxes[0], self.f_s_1)
         almost(my_fit.source_fluxes[1], self.f_s_2)
 
+
 def execute_test_binary_source(q_flux=False):
     # test for when blend flux and source flux are to be determined for binary
     # sources with q-flux
@@ -121,29 +122,6 @@ def execute_test_binary_source(q_flux=False):
         fix_q_flux = False
 
     test.run_test(fix_q_flux=fix_q_flux)
-
-    # model, t, A_1, A_2 = generate_binary_model()
-    #
-    # # secrets
-    # f_s_1 = 1
-    # f_s_2 = 1.2
-    # f_b = 0.5
-    # f_mod = f_s_1 * A_1 + f_s_2 * A_2 + f_b
-    #
-    # if q_flux:
-    #     fix_q_flux = f_s_2 / f_s_1
-    # else:
-    #     fix_q_flux = False
-    #
-    # my_dataset = generate_dataset(f_mod, t)
-    # my_fit = mm.FitData(
-    #     model=model, dataset=my_dataset, fix_blend_flux=False,
-    #     fix_source_flux=False, fix_q_flux=fix_q_flux)
-    # my_fit.fit_fluxes()
-    #
-    # almost(my_fit.blend_flux, f_b)
-    # almost(my_fit.source_fluxes[0], f_s_1)
-    # almost(my_fit.source_fluxes[1], f_s_2)
 
 
 # *** Actual tests below ***
@@ -210,6 +188,7 @@ def test_binary_source():
     """Test a binary source model with all free parameters."""
     execute_test_binary_source(q_flux=False)
 
+
 def test_binary_source_fixed():
     """
     Test the three cases for fixing each of the three components of a binary
@@ -226,6 +205,7 @@ class TestFitData(unittest.TestCase):
         with self.assertRaises(ValueError):
             test = BinarySourceTest()
             test.run_test(fix_source_flux=1.0)
+
 
 def test_binary_qflux():
     """
