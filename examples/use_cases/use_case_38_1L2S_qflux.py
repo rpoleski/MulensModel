@@ -25,7 +25,9 @@ datasets = [mm.MulensData(file_name=file_, bandpass=bandpass, **kwargs)
 
 # define the model
 binary_source_model = mm.Model(
-    {'t_0_1': 2459000.0, 'u_0_1': 1.5, 't_0_2': 2459007.0, 'u_0_2': 0.01, 't_E': 30.})
+    {'t_0_1': 2459000.0, 'u_0_1': 1.5, 't_0_2': 2459007.0, 'u_0_2': 0.01,
+     't_E': 30.})
+
 
 # Create my own event class
 class MyEvent(mm.Event):
@@ -58,6 +60,7 @@ class MyEvent(mm.Event):
                     mm.FitData(model=self.model, dataset=dataset,
                                fix_q_flux=q_flux))
 # RP - I haven't thought deeply about it, but this seems very complicated.
+
 
 # Fit the fluxes
 event = MyEvent(model=binary_source_model, datasets=datasets)
