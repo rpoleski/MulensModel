@@ -2,6 +2,14 @@
 Fit a binary source event. Allow the flux ratio to be freely fit for KMTC data,
 but then constrained for other datasets in the same band.
 
+For example, suppose there is a short-term anomaly that is only covered by KMTC
+data. Then, for a binary source fit, the KMTC data constrain q_flux but the
+other datasets do not. However, for a self-consistent fit, fits to KMTA and
+KMTS data must still track the contribution from the second source because even
+if it doesn't *appear* to contribute to the other datasets, it might. Possibly
+this is not something you would ever want to do In Real Life, but the point is,
+you could if you wanted to.
+
 This use case is not functional. To make it functional, someone needs to track
 down an event with appropriate data.
 """
@@ -38,11 +46,9 @@ class MyEvent(mm.Event):
                 self.fits.append(kmtc_v_fit)
             else:
                 if dataset.bandpass == 'I':
-                    q_flux = (kmtc_i_fit.source_fluxes[1] /
-                              kmtc_i_fit.source_fluxes[0])
+                    q_flux = kmtc_i_fit.q_flux
                 elif dataset.bandpass == 'V':
-                    q_flux = (kmtc_v_fit.source_fluxes[1] /
-                              kmtc_v_fit.source_fluxes[0])
+                    q_flux = kmtc_v_fit.q_flux
                 else:
                     raise Exception(
                         'Unknown bandpass: {0}. '.format(dataset.bandpass) +
