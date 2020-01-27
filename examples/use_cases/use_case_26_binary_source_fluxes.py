@@ -15,7 +15,15 @@ def chi2_fun(theta, event, parameters_to_fit):
     str) to values from theta list
     """
     for (key, val) in enumerate(parameters_to_fit):
-        setattr(event.model.parameters, val, theta[key])
+        if val[0:1] == 'q':
+            if val == 'q_I':
+                setattr(event.fix_q_flux, 'I', theta[key])
+            elif val == 'q_V':
+                setattr(event.fix_q_flux, 'V', theta[key])
+
+        else:
+            setattr(event.model.parameters, val, theta[key])
+
     return event.get_chi2()
 
 
