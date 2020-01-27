@@ -197,6 +197,7 @@ def test_binary_source_fixed():
     test = BinarySourceTest()
     test.run_test(fix_source_flux=[1.0, False])
     test.run_test(fix_source_flux=[False, 1.2])
+    test.run_test(fix_source_flux=[1.0, 1.2])
     test.run_test(fix_blend_flux=0.5)
 
 
