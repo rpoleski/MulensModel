@@ -24,12 +24,12 @@ class FitData:
             parameter. If set to a float, it will fix the source value to that
             value. For binary source models, a list should be used to set the
             fluxes of the individual sources or fix one and not the other, e.g.
-            [2.3, False] would fix f_source_1 to 2.3 but allow a free fit to
-            f_source_2. (Not Implemented)
+            [2.3, False] would fix f_source_0 to 2.3 but allow a free fit to
+            f_source_1. (Not Implemented)
 
         fix_q_flux: *False* or *float*
             For binary source models, q_flux is the flux ratio between two
-            components, i.e. q_flux = f_source_2 / f_source_1
+            components, i.e. q_flux = f_source_1 / f_source_0
             Default is *False*, i.e. allow the source flux to be a free
             parameter. If set to a float, it will fix the source value to that
             value. (Not Implemented)
@@ -49,6 +49,7 @@ class FitData:
         # list containing fluxes of various sources
         self._source_fluxes = None
         self._blend_flux = None
+        self._q_flux = None
 
     def _check_for_implementation_errors(self):
         """
@@ -161,7 +162,7 @@ class FitData:
             return self.source_fluxes[0]
         else:
             msg = ("source_flux is defined only for models" +
-                   " with one source, you have" +
+                   " with ONE source, you have" +
                    " {0}".format(self._model.n_sources) +
                    " sources. Try FitData.source_fluxes instead")
 
@@ -190,3 +191,26 @@ class FitData:
             linear fit.
         """
         return self._blend_flux
+
+    @property
+    def q_flux(self):
+        """
+        q_flux = f_source_1 / f_source_0
+
+        :return: the ratio of the fitted source fluxes or the value set by
+            fix_q_flux (see :ref:`keywords`).
+
+            If None, you need to run :py:func:`~fit_fluxes()` to execute the
+            linear fit.
+        """
+        if self._model.n_sources != 2:
+            msg = ("source_flux is defined only for models" +
+                   " with TWO sources, you have" +
+                   " {0}".format(self._model.n_sources) +
+                   " sources.")
+            raise NameError(msg)
+
+        if self.fix_q_flux:
+            return self.fix_q_flux
+        else:
+            return self.source_fluxes[1] / self.source_fluxes[0]
