@@ -4,6 +4,7 @@ import warnings
 from MulensModel.trajectory import Trajectory
 from MulensModel.pointlens import PointLens, get_pspl_magnification
 from MulensModel.binarylens import BinaryLens
+from MulensModel.triplelens import TripleLens
 from MulensModel.modelparameters import ModelParameters
 
 
@@ -170,9 +171,11 @@ class MagnificationCurve(object):
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
             magnification = self.get_binary_lens_magnification()
+        elif self.parameters.n_lenses == 3:
+            magnification = self.get_triple_lens_magnification()
         else:
             raise NotImplementedError(
-                "magnification for more than 2 lenses not handled yet")
+                "magnification for more than 3 lenses not handled yet")
         self._magnification = magnification
         return self._magnification
 
@@ -419,7 +422,36 @@ class MagnificationCurve(object):
             magnification: *np.ndarray*
                 Vector of magnifications.
         """
-        pass  # XXX
+        q_21 = self.parameters.q_21
+        q_31 = self.parameters.q_31
+        m_1 = 1. / (1. + q_21 + q_31)  # XXX - there should be Utils function for that
+        m_2 = q_21 * m_1
+        m_3 = q_31 * m_1
+
+        triple_lens = TripleLens(
+            mass_1=m_1, mass_2=m_2, mass_3=m_3, psi=self.parameters.psi,
+            separation_21=self.parameters.s_21,
+            separation_31=self.parameters.s_31)
+        methods = self._methods_for_epochs()
+
+        # Calculate the magnification
+        magnification = []
+        for index in range(len(self.times)):
+            x = self.trajectory.x[index]
+            y = self.trajectory.y[index]
+            method = methods[index].lower()
+
+            kwargs = {}
+
+            if method == 'point_source':
+                m = triple_lens.get_point_source_magnification(x, y)
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
+
+            magnification.append(m)
+
+        return np.array(magnification)
 
     def _methods_for_epochs(self):
         """
