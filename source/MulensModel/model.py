@@ -177,7 +177,7 @@ class Model(object):
             dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None,
             subtract_2450000=False, subtract_2460000=False,
             flux_ratio_constraint=None, fit_blending=None, 
-            gamma=0., **kwargs):
+            gamma=None, bandpass=None, **kwargs):
         """
         Plot the model light curve in magnitudes.
 
@@ -216,6 +216,12 @@ class Model(object):
             gamma:
                 see :py:func:`magnification()`
 
+            bandpass: *str*
+                bandpass for defining the limb-darkening coefficient gamma.
+                Requires that the limb_darkenging coefficients have been set 
+                using :py:func:`set_limb_coeff_u()` or 
+                :py:func:`set_lim_coeff_gamma()`.
+
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
 
@@ -250,6 +256,21 @@ class Model(object):
                 n_epochs=n_epochs)
         elif isinstance(times, list):
             times = np.array(times)
+
+        if (bandpass is not None) and (gamma is not None):
+            raise ValueError('Only one of bandpass and gamma can be set')
+        elif (bandpass is None) and (gamma is None):
+            gamma = 0.
+        elif bandpass is not None:
+            if bandpass not in self._bandpasses:
+                raise KeyError(
+                    'No limb-darkening coefficient set for {0}'.format(
+                        bandpass))
+            else:
+                gamma = self.get_limb_coeff_gamma(bandpass)
+
+        else:
+            pass
 
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
