@@ -176,7 +176,8 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None,
             subtract_2450000=False, subtract_2460000=False,
-            flux_ratio_constraint=None, fit_blending=None, **kwargs):
+            flux_ratio_constraint=None, fit_blending=None, 
+            gamma=0., **kwargs):
         """
         Plot the model light curve in magnitudes.
 
@@ -211,6 +212,9 @@ class Model(object):
             fit_blending: *boolean*
                 *True* if blending flux is going to be fitted (default),
                 *False* if blending flux is fixed at 0.
+
+            gamma:
+                see :py:func:`magnification()`
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
@@ -254,7 +258,7 @@ class Model(object):
                     self._flux_ratio_constraint_for_plotting())
 
         magnification = self.magnification(
-            times,
+            times, gamma=gamma,
             flux_ratio_constraint=flux_ratio_constraint)
         flux = f_source * magnification + f_blend
         subtract = self._subtract(subtract_2450000, subtract_2460000)
