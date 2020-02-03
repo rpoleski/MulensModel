@@ -118,16 +118,18 @@ class FitData:
         """
         :return: xT and y arrays
         """
-        # Find number of fluxes to calculate
+        # Initializations
+        n_fluxes = 0
         n_epochs = np.sum(self._dataset.good)
         y = self._dataset.flux[self._dataset.good]
         self._calc_magnifications()
+
+        # Account for source fluxes
         if self.fix_source_flux is False:
             x = np.array(self._data_magnification)
             n_fluxes = self._model.n_sources
         else:
             x = None
-            n_fluxes = 0
             if self._model.n_sources == 1:
                 y -= self.fix_source_flux[0] * self._data_magnification
             else:
@@ -150,12 +152,11 @@ class FitData:
         # Account for free or fixed blending
         # Should do a runtime test to compare with lines 83-94
         if self.fix_blend_flux is False:
+            n_fluxes += 1
             if x is None:
                 x = np.ones((1, n_epochs))
-                n_fluxes = 1
             else:
                 x = np.vstack((x, np.ones(n_epochs)))
-                n_fluxes += 1
 
         elif self.fix_blend_flux == 0.:
             pass

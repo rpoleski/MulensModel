@@ -251,3 +251,12 @@ def test_fit_fluxes():
     my_fit.update()
     assert(chi2_1 != my_fit.chi2)
 
+def test_chi2_per_point():
+    """Test that the chi2 shape is correct for multiple sources, i.e. = number
+    of epochs, rather than epochs * sources."""
+    test_object = BinarySourceTest()
+    my_fit = mm.FitData(model=test_object.model, dataset=test_object.dataset)
+    my_fit.update()
+
+    assert(my_fit.chi2_per_point.shape == (test_object.dataset.n_epochs,))
+
