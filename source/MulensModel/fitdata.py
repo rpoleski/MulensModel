@@ -4,7 +4,12 @@ import numpy as np
 class FitData:
     """
     Performs a least squares linear fit for given dataset and model to
-    determine the source flux(es) and (optionally) blend flux.
+    determine the source flux(es) and (optionally) blend flux. After creating
+    the object, you must run :py:func:`~update()` to perform the linear fit for
+    the fluxes and calculate the chi2. To perform the linear fit without
+    calculating chi2, you can run :py:func:`fit_fluxes()`. If you change
+    anything in the object, e.g. the model parameters, you *must* re-run
+    :py:func:`~update()` or :py:func:`~fit_fluxes()`.
 
     Arguments :
         model: :py:class:`~MulensModel.model.Model` object
@@ -50,16 +55,19 @@ class FitData:
                 self.fix_source_flux = [fix_source_flux]
             else:
                 msg = ("you have {0}".format(self._model.n_sources) +
-                       " sources. Thus, fix_source_flux should be a list of"+
+                       " sources. Thus, fix_source_flux should be a list of" +
                        "length {0}".format(self._model.n_sources) +
                        "(or False).")
                 raise ValueError(msg)
 
-
-        # list containing fluxes of various sources
+        # parameters fluxes of various sources
         self._source_fluxes = None
         self._blend_flux = None
         self._q_flux = None
+
+        # chi2 parameters
+        self._chi2_per_point = None
+        self._chi2 = None
 
     def _check_for_implementation_errors(self):
         """
@@ -73,7 +81,17 @@ class FitData:
             msg = 'Only fix_q_flux=False is implemented.'
             raise NotImplementedError(msg)
 
-    def _get_magnifications(self):
+    def update(self):
+        """
+        Calculate the source and blend fluxes as well as the chi2.
+        """
+
+        self.fit_fluxes()
+        model_flux = self.get_model_fluxes()
+        diff = self._dataset.flux - model_flux
+        self._chi2_per_point = (diff / self._dataset.err_flux)**2
+
+    def _calc_magnifications(self):
         """
         Calculate the model magnifications for the good epochs of the dataset.
         """
@@ -93,7 +111,7 @@ class FitData:
                    " handle <=2 sources")
             raise NotImplementedError(msg)
 
-        return mag_matrix
+        self._data_magnification = mag_matrix
 
     def _setup_linalg_arrays(self):
         """
@@ -102,9 +120,9 @@ class FitData:
         # Find number of fluxes to calculate
         n_epochs = np.sum(self._dataset.good)
         y = self._dataset.flux[self._dataset.good]
-        magnifications = self._get_magnifications()
+        self._calc_magnifications()
         if self.fix_source_flux is False:
-            x = magnifications
+            x = self._data_magnification
             n_fluxes = self._model.n_sources
         else:
             x = None
@@ -114,15 +132,15 @@ class FitData:
                     n_fluxes += 1
                     if x is None:
                         if self._model.n_sources == 1:
-                            x = magnifications
+                            x = self._data_magnification
                         else:
-                            x = magnifications[i]
+                            x = self._data_magnification[i]
 
                     else:
-                        x = np.vstack((x, magnifications[i]))
+                        x = np.vstack((x, self._data_magnification[i]))
 
                 else:
-                    y -= self.fix_source_flux[i] * magnifications[i]
+                    y -= self.fix_source_flux[i] * self._data_magnification[i]
 
         # Account for free or fixed blending
         # Should do a runtime test to compare with lines 83-94
@@ -155,6 +173,9 @@ class FitData:
         Execute the linear least squares fit to determine the fitted fluxes.
         Sets the values of :py:obj:`~source_fluxes`, :py:obj:`~blend_flux`,
         and (if applicable):py:obj:`~source_flux`.
+
+        Does *not* calculate chi2. To fit for the fluxes and calculate chi2,
+        run :py:func:`~update()`.
         """
 
         self._check_for_implementation_errors()
@@ -192,6 +213,53 @@ class FitData:
 
         print(results)
         print(self._blend_flux, self._source_fluxes)
+
+    def get_model_fluxes(self):
+        """
+        The model flux evaluated for each datapoint.
+
+        :return:
+            model_flux: *np.ndarray* with the same length as the data.
+        """
+        if self.source_fluxes is None:
+            raise AttributeError(
+                'you need to run FitData.fit_fluxes() first to execute the' +
+                'linear fit.')
+
+        model_flux = np.ones(self._dataset.n_epochs) * self.blend_flux
+        if self._model.n_sources == 1:
+            model_flux += self.source_flux * self._data_magnification
+        else:
+            for i in range(self._model.n_sources):
+                model_flux += self.source_fluxes[i] \
+                        * self._data_magnification[i]
+
+        return model_flux
+
+    @property
+    def chi2(self):
+        """
+
+        :return: *float*
+            the total chi2 for the fitted dataset. Good points only.
+
+            If None, you need to run :py:func:`~update()` to execute the
+            linear fit and calculate the chi2.
+        """
+        return np.sum(self.chi2_per_point[self._dataset.good])
+
+    @property
+    def chi2_per_point(self):
+        """
+        :return: *list* of *np.ndarray*
+            Chi^2 contribution from each data point,
+            e.g. ``chi2[k]`` returns the chi2 contribution
+            from the *k*-th point of :py:obj:`dataset`.
+
+            If None, you need to run :py:func:`~update()` to execute the
+            linear fit and calculate the chi2.
+        """
+        return self._chi2_per_point
 
     @property
     def source_flux(self):

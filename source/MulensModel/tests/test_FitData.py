@@ -215,3 +215,39 @@ def test_binary_qflux():
     """
 
     execute_test_binary_source(q_flux=True)
+
+def test_fit_fluxes():
+    """
+    test that when the model is updated, and fit fluxes is re-run, the fluxes
+    actually change.
+    """
+
+    pspl, t, A = generate_model()
+
+    # secret blend flux, set source flux
+    f_s = 1.0
+    f_b = 0.5
+    f_mod = f_s * A + f_b
+
+    my_dataset = generate_dataset(f_mod, t)
+    my_fit = mm.FitData(
+        model=pspl, dataset=my_dataset, fix_blend_flux=False,
+        fix_source_flux=False)
+    my_fit.update()
+    f_s_1 = my_fit.source_flux
+    chi2_1 = my_fit.chi2
+
+    t_E_2 = pspl.parameters.t_E / (f_s + f_b)
+    u_0_2 = pspl.parameters.u_0 / (f_s + f_b)
+    new_model = mm.Model(
+        {'t_0': pspl.parameters.t_0, 'u_0': u_0_2, 't_E': t_E_2})
+    my_fit.model = new_model
+    my_fit.fix_blend_flux = 0.
+    my_fit.fit_fluxes()
+
+    assert(f_s_1 != my_fit.source_flux)
+    assert(chi2_1 == my_fit.chi2)
+
+    my_fit.update()
+    assert(chi2_1 != my_fit.chi2)
+
