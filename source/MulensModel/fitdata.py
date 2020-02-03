@@ -241,7 +241,8 @@ class FitData:
         """
 
         :return: *float*
-            the total chi2 for the fitted dataset. Good points only.
+            the total chi2 for the fitted dataset. Good points only. See
+            :py:obj:`~MulensModel.mulensdata.MulensData.good`.
 
             If None, you need to run :py:func:`~update()` to execute the
             linear fit and calculate the chi2.
