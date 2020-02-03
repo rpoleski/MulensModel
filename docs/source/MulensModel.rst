@@ -18,6 +18,7 @@ Submodules
    MulensModel.coordinates
    MulensModel.event
    MulensModel.fit
+   MulensModel.fitdata
    MulensModel.horizons
    MulensModel.limbdarkeningcoeffs
    MulensModel.magnificationcurve

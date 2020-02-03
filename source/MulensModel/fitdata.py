@@ -6,13 +6,12 @@ class FitData:
     Performs a least squares linear fit for given dataset and model to
     determine the source flux(es) and (optionally) blend flux.
 
-    .. _keywords:
-    Keywords :
-        dataset: :py:class:`~MulensModel.mulensdata.MulensData` object
-            A single photometric dataset to be fitted.
-
+    Arguments :
         model: :py:class:`~MulensModel.model.Model` object
             The model to fit to the data.
+
+        dataset: :py:class:`~MulensModel.mulensdata.MulensData` object
+            A single photometric dataset to be fitted.
 
         fix_blend_flux: *False* or *float*
             Default is *False*, i.e. allow the blend flux to be a free
