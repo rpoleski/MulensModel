@@ -85,8 +85,9 @@ class FitData:
         """
         Calculate the source and blend fluxes as well as the chi2.
         """
-
         self.fit_fluxes()
+
+        # Calculate chi2
         model_flux = self.get_model_fluxes()
         diff = self._dataset.flux - model_flux
         self._chi2_per_point = (diff / self._dataset.err_flux)**2
@@ -122,31 +123,35 @@ class FitData:
         y = self._dataset.flux[self._dataset.good]
         self._calc_magnifications()
         if self.fix_source_flux is False:
-            x = self._data_magnification
+            x = np.array(self._data_magnification)
             n_fluxes = self._model.n_sources
         else:
             x = None
             n_fluxes = 0
-            for i in range(self._model.n_sources):
-                if self.fix_source_flux[i] is False:
-                    n_fluxes += 1
-                    if x is None:
-                        if self._model.n_sources == 1:
-                            x = self._data_magnification
+            if self._model.n_sources == 1:
+                y -= self.fix_source_flux[0] * self._data_magnification
+            else:
+                for i in range(self._model.n_sources):
+                    if self.fix_source_flux[i] is False:
+                        n_fluxes += 1
+                        if x is None:
+                            if self._model.n_sources == 1:
+                                x = np.array(self._data_magnification)
+                            else:
+                                x = np.array(self._data_magnification[i])
+
                         else:
-                            x = self._data_magnification[i]
-
+                            x = np.vstack((x, self._data_magnification[i]))
+                
                     else:
-                        x = np.vstack((x, self._data_magnification[i]))
-
-                else:
-                    y -= self.fix_source_flux[i] * self._data_magnification[i]
+                        y -= (self.fix_source_flux[i] *
+                              self._data_magnification[i])
 
         # Account for free or fixed blending
         # Should do a runtime test to compare with lines 83-94
         if self.fix_blend_flux is False:
             if x is None:
-                x = np.ones((n_epochs, 1))
+                x = np.ones((1, n_epochs))
                 n_fluxes = 1
             else:
                 x = np.vstack((x, np.ones(n_epochs)))
@@ -210,9 +215,6 @@ class FitData:
             self._blend_flux = results[-1]
         else:
             self._blend_flux = self.fix_blend_flux
-
-        print(results)
-        print(self._blend_flux, self._source_fluxes)
 
     def get_model_fluxes(self):
         """
