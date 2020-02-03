@@ -176,7 +176,8 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None,
             subtract_2450000=False, subtract_2460000=False,
-            flux_ratio_constraint=None, fit_blending=None, **kwargs):
+            flux_ratio_constraint=None, fit_blending=None, 
+            gamma=None, bandpass=None, **kwargs):
         """
         Plot the model light curve in magnitudes.
 
@@ -211,6 +212,15 @@ class Model(object):
             fit_blending: *boolean*
                 *True* if blending flux is going to be fitted (default),
                 *False* if blending flux is fixed at 0.
+
+            gamma:
+                see :py:func:`magnification()`
+
+            bandpass: *str*
+                bandpass for defining the limb-darkening coefficient gamma.
+                Requires that the limb_darkenging coefficients have been set 
+                using :py:func:`set_limb_coeff_u()` or 
+                :py:func:`set_lim_coeff_gamma()`.
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
@@ -247,6 +257,21 @@ class Model(object):
         elif isinstance(times, list):
             times = np.array(times)
 
+        if (bandpass is not None) and (gamma is not None):
+            raise ValueError('Only one of bandpass and gamma can be set')
+        elif (bandpass is None) and (gamma is None):
+            gamma = 0.
+        elif bandpass is not None:
+            if bandpass not in self._bandpasses:
+                raise KeyError(
+                    'No limb-darkening coefficient set for {0}'.format(
+                        bandpass))
+            else:
+                gamma = self.get_limb_coeff_gamma(bandpass)
+
+        else:
+            pass
+
         if self.n_sources == 2:
             if (flux_ratio_constraint is None and
                     None not in self._source_flux_ratio_constraint):
@@ -254,7 +279,7 @@ class Model(object):
                     self._flux_ratio_constraint_for_plotting())
 
         magnification = self.magnification(
-            times,
+            times, gamma=gamma,
             flux_ratio_constraint=flux_ratio_constraint)
         flux = f_source * magnification + f_blend
         subtract = self._subtract(subtract_2450000, subtract_2460000)
