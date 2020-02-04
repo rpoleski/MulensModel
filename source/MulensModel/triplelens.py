@@ -28,6 +28,7 @@ class TripleLens(object):
             Separation between bodies 2 and 1 as a fraction of
             the Einstein ring of the whole system.
 
+# DECIDE IF IT'S psi OR phi AND APPLY TO WHOLE CODE
         psi: *float*
             XXX NOTE - description
 

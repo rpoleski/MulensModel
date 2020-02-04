@@ -198,6 +198,8 @@ class Utils(object):
         """
         Take triple lens parameters and transform them to 3x2 numpy array
         that gives (x, y) positions of lenses.
+
+        *psi* is in deg
         """
         xy = np.zeros((3, 2))
         psi_rad = psi * pi / 180.

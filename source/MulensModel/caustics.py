@@ -33,6 +33,7 @@ class Caustics(object):
 
         psi: *float*
             angle between *s_21* and *s_31*
+# XXX - in deg or rad?
     """
 
     def __init__(self,
@@ -210,7 +211,8 @@ class Caustics(object):
         and caustic structure for triple lens.
         """
         xy = Utils._parameters_to_center_of_mass_coords_3L(
-            self._q_21, self._q_31, self._s_21, self._s_31, self._psi)
+            q_21=self._q_21, q_31=self._q_31,
+            s_21=self._s_21, s_31=self._s_31, psi=self._psi*180./np.pi)
         z_1 = np.complex(xy[0, 0], xy[0, 1])
         z_2 = np.complex(xy[1, 0], xy[1, 1])
         z_3 = np.complex(xy[2, 0], xy[2, 1])
