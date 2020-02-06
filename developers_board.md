@@ -13,6 +13,7 @@
 11. \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions - _DONE_
 12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it's != t\_0
 13. Event - not .fit after get\_chi2(), but there is one after get\_chi2\_for\_dataset() - _DONE_
+14. **chi2 gradient for finite source effects.** (requested by JCY)
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
