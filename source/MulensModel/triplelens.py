@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from math import fsum
 
@@ -117,7 +118,8 @@ class TripleLens(object):
             # numerical accuracy is.
 
         if len(out) not in [4, 6, 8, 10]:
-            pass  # XXX - warning here
+            warnings.warn(str(len(out)) +  # XXX - warning here
+                          " solustions for triple lens equation", UserWarning)
 
         return np.array(out)
 
@@ -215,9 +217,9 @@ class TripleLens(object):
                 H_2[k] * (omega * b_omega + a_omega - omega_bar) -
                 H_3[k] * (omega * c_omega + b_omega))
         cff[0] = (  # XXX - it's not totally clear if that what Eq. 7 means:
-            -H_0[k] * omega - H_1[k] * (omega * a_omega - 1) +
-            -H_2[k] * (omega * b_omega + a_omega - omega_bar) +
-            -H_3[k] * (omega * c_omega + b_omega))
+            -H_0[0] * omega - H_1[0] * (omega * a_omega - 1) +
+            -H_2[0] * (omega * b_omega + a_omega - omega_bar) +
+            -H_3[0] * (omega * c_omega + b_omega))
 
         return cff
 
