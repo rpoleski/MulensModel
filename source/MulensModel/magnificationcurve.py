@@ -6,6 +6,7 @@ from MulensModel.pointlens import PointLens, get_pspl_magnification
 from MulensModel.binarylens import BinaryLens
 from MulensModel.triplelens import TripleLens
 from MulensModel.modelparameters import ModelParameters
+from MulensModel.utils import Utils
 
 
 class MagnificationCurve(object):
@@ -422,14 +423,11 @@ class MagnificationCurve(object):
             magnification: *np.ndarray*
                 Vector of magnifications.
         """
-        q_21 = self.parameters.q_21
-        q_31 = self.parameters.q_31
-        m_1 = 1. / (1. + q_21 + q_31)  # XXX - there should be Utils function for that
-        m_2 = q_21 * m_1
-        m_3 = q_31 * m_1
+        (eps_1, eps_2, eps_3) = Utils._mass_fractions_from_mass_ratios(
+            q_21=self.parameters.q_21, q_31=self.parameters.q_31)
 
         triple_lens = TripleLens(
-            mass_1=m_1, mass_2=m_2, mass_3=m_3, psi=self.parameters.psi,
+            mass_1=eps_1, mass_2=eps_2, mass_3=eps_3, psi=self.parameters.psi,
             separation_21=self.parameters.s_21,
             separation_31=self.parameters.s_31)
         methods = self._methods_for_epochs()

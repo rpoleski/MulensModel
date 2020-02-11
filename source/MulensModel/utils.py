@@ -194,6 +194,18 @@ class Utils(object):
             return 1
     get_n_caustics = staticmethod(get_n_caustics)
 
+    def _mass_fractions_from_mass_ratios(q_21, q_31):
+        """
+        For triple lens change two mass ratios relative to mass_1 into three
+        mass fractions.
+        """
+        eps_1 = 1. / (1. + q_21 + q_31)
+        eps_2 = eps_1 * q_21
+        eps_3 = eps_1 * q_31
+        return (eps_1, eps_2, eps_3)
+    _mass_fractions_from_mass_ratios = staticmethod(
+        _mass_fractions_from_mass_ratios)
+
     def _parameters_to_center_of_mass_coords_3L(q_21, q_31, s_21, s_31, psi):
         """
         Take triple lens parameters and transform them to 3x2 numpy array
@@ -206,10 +218,12 @@ class Utils(object):
         sin_psi = sin(psi_rad)
         cos_psi = cos(psi_rad)
 
-        # XXX code new function for that:
-        eps_1 = 1. / (1. + q_21 + q_31)
-        eps_2 = eps_1 * q_21
-        eps_3 = eps_1 * q_31
+        (eps_1, eps_2, eps_3) = self._mass_fractions_from_mass_ratios(
+            q_21=q_21, q_31=q_31)
+        # XXX cleanup
+        #eps_1 = 1. / (1. + q_21 + q_31)
+        #eps_2 = eps_1 * q_21
+        #eps_3 = eps_1 * q_31
 
         sin_psi_2 = sin_psi / sqrt(
             sin_psi**2 + (cos_psi + eps_2*s_21/(eps_3*s_31))**2)

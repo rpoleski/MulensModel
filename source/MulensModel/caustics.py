@@ -217,12 +217,15 @@ class Caustics(object):
         z_2 = np.complex(xy[1, 0], xy[1, 1])
         z_3 = np.complex(xy[2, 0], xy[2, 1])
 
-        epsilon_1 = 1. / (1. + self._q_21 + self._q_31)
-        epsilon_2 = epsilon_1 * self._q_21
-        epsilon_3 = epsilon_1 * self._q_31
+        epsilons = Utils._mass_fractions_from_mass_ratios(
+            q_21=self._q_21, q_31=self._q_31)
+        # XXX - cleanup
+        #epsilon_1 = 1. / (1. + self._q_21 + self._q_31)
+        #epsilon_2 = epsilon_1 * self._q_21
+        #epsilon_3 = epsilon_1 * self._q_31
 
         self._calculate_triple_lens_complex(
-            z_1, z_2, z_3, epsilon_1, epsilon_2, epsilon_3, n_points)
+            z_1, z_2, z_3, epsilons[0], epsilons[1], epsilons[2], n_points)
 
     def _calculate_triple_lens_complex(
             self, z_1, z_2, z_3, epsilon_1, epsilon_2, epsilon_3, n_points):
