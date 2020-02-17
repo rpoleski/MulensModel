@@ -218,7 +218,7 @@ class Utils(object):
         sin_psi = sin(psi_rad)
         cos_psi = cos(psi_rad)
 
-        (eps_1, eps_2, eps_3) = self._mass_fractions_from_mass_ratios(
+        (eps_1, eps_2, eps_3) = Utils._mass_fractions_from_mass_ratios(
             q_21=q_21, q_31=q_31)
         # XXX cleanup
         #eps_1 = 1. / (1. + q_21 + q_31)

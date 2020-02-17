@@ -208,7 +208,8 @@ class TripleLens(object):
                    omega_3_bar * omega_1_bar)
         c_omega = omega_1_bar * omega_2_bar * omega_3_bar
 
-        cff = np.zeros(11, dtype=np.complex_)  # XXX polynomial convention: cff[i] * z**i
+        cff = np.zeros(11, dtype=np.complex_)
+        # XXX polynomial convention: cff[i] * z**i
         for k in range(1, 10+1):
             cff[k] = (
                 H_0[k-1] + H_1[k-1] * a_omega + H_2[k-1] * b_omega +
