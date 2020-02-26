@@ -42,8 +42,8 @@ class FitData:
 
     def __init__(self, model=None, dataset=None, fix_blend_flux=False,
                  fix_source_flux=False, fix_q_flux=False):
-        self._model = model
-        self._dataset = dataset
+        self.model = model
+        self.dataset = dataset
 
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
@@ -268,7 +268,7 @@ class FitData:
     @property
     def chi2(self):
         """
-        Returns:
+        Returns :
             chi2: *float*
                 the total chi2 for the fitted dataset. Good points only. See
                 :py:obj:`~MulensModel.mulensdata.MulensData.good`.
@@ -302,7 +302,7 @@ class FitData:
             source. See also :py:obj:`~source_fluxes`
 
         If None, you need to run :py:func:`~fit_fluxes()` or
-        :py:func:`~update()`to execute the linear fit.
+        :py:func:`~update()` to execute the linear fit.
         """
         if self._model.n_sources == 1:
             return self.source_fluxes[0]
@@ -322,7 +322,7 @@ class FitData:
                 the fitted source flux(es).
 
         If None, you need to run :py:func:`~fit_fluxes()` or
-        :py:func:`~update()`to execute the linear fit.
+        :py:func:`~update()` to execute the linear fit.
         """
         return self._source_fluxes
 
@@ -335,7 +335,7 @@ class FitData:
                 fix_blend_flux (see :ref:`keywords`).
 
         If None, you need to run :py:func:`~fit_fluxes()` or
-        :py:func:`~update()`to execute the linear fit.
+        :py:func:`~update()` to execute the linear fit.
         """
         return self._blend_flux
 
@@ -350,7 +350,7 @@ class FitData:
                 fix_q_flux (see :ref:`keywords`).
 
         If None, you need to run :py:func:`~fit_fluxes()` or
-        :py:func:`~update()`to execute the linear fit.
+        :py:func:`~update()` to execute the linear fit.
         """
         if self._model.n_sources != 2:
             msg = ("source_flux is defined only for models" +
@@ -363,3 +363,29 @@ class FitData:
             return self.fix_q_flux
         else:
             return self.source_fluxes[1] / self.source_fluxes[0]
+
+    @property
+    def dataset(self):
+        """
+        :py:class:`~MulensModel.mulensdata.MulensData` object
+
+        A single photometric dataset to be fitted.
+        """
+        return self._dataset
+
+    @dataset.setter
+    def dataset(self, new_value):
+        self._dataset = new_value
+
+    @property
+    def model(self):
+        """
+        :py:class:`~MulensModel.model.Model` object
+
+        The model to fit to the data.
+        """
+        return self._model
+
+    @model.setter
+    def model(self, new_value):
+        self._model = new_value
