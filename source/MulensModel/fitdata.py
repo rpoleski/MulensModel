@@ -81,6 +81,21 @@ class FitData:
             msg = 'Only fix_q_flux=False is implemented.'
             raise NotImplementedError(msg)
 
+    def _check_for_errors(self):
+        """
+        If combination of settings and models are invalid, raise exceptions.
+        """
+
+        if self.fix_q_flux is not False:
+            if self._model.n_sources != 2:
+                msg = ('fix_q_flux only valid for models with 2 sources.' +
+                       'n_sources = {0}'.format(self._model.n_sources))
+                raise ValueError(msg)
+            elif self.fix_source_flux is not False:
+                msg = ('fix_q_flux + fixed_source_flux not implemented.' +
+                       'Fix the fluxes for each source individually instead.')
+                raise NotImplementedError(msg)
+
     def update(self):
         """
         Calculate the source and blend fluxes as well as the chi2.
@@ -114,20 +129,23 @@ class FitData:
 
         self._data_magnification = mag_matrix
 
-    def _setup_linalg_arrays(self):
-        """
-        :return: xT and y arrays
-        """
-        # Initializations
-        n_fluxes = 0
-        n_epochs = np.sum(self._dataset.good)
+    def _get_xy_qflux(self):
+        """Use a flux ratio constraint"""
         y = self._dataset.flux[self._dataset.good]
-        self._calc_magnifications()
+        x = np.array(
+            self._data_magnification[0] +
+            self.fix_q_flux * self._data_magnification[1])
+        self.n_fluxes = 1
 
-        # Account for source fluxes
+        return (x, y)
+
+    def _get_xy_individual_fluxes(self):
+        """ Account for source fluxes individually """
+        y = self._dataset.flux[self._dataset.good]
+
         if self.fix_source_flux is False:
             x = np.array(self._data_magnification)
-            n_fluxes = self._model.n_sources
+            self.n_fluxes = self._model.n_sources
         else:
             x = None
             if self._model.n_sources == 1:
@@ -135,7 +153,7 @@ class FitData:
             else:
                 for i in range(self._model.n_sources):
                     if self.fix_source_flux[i] is False:
-                        n_fluxes += 1
+                        self.n_fluxes += 1
                         if x is None:
                             if self._model.n_sources == 1:
                                 x = np.array(self._data_magnification)
@@ -144,15 +162,32 @@ class FitData:
 
                         else:
                             x = np.vstack((x, self._data_magnification[i]))
-                
+
                     else:
                         y -= (self.fix_source_flux[i] *
                               self._data_magnification[i])
 
+        return (x,y)
+
+    def _setup_linalg_arrays(self):
+        """
+        :return: xT and y arrays
+        """
+        # Initializations
+        self.n_fluxes = 0
+        n_epochs = np.sum(self._dataset.good)
+        self._calc_magnifications()
+
+        # Account for source fluxes
+        if self.fix_q_flux is not False:
+            (x, y) = self._get_xy_qflux()
+        else:
+            (x, y) = self._get_xy_individual_fluxes()
+
         # Account for free or fixed blending
         # Should do a runtime test to compare with lines 83-94
         if self.fix_blend_flux is False:
-            n_fluxes += 1
+            self.n_fluxes += 1
             if x is None:
                 x = np.ones((1, n_epochs))
             else:
@@ -163,14 +198,14 @@ class FitData:
         else:
             y -= self.fix_blend_flux
 
-        # Take the transpose of x and define y
+        # Take the transpose of x and weight by data uncertainties
         xT = np.copy(x).T
-        xT.shape = (n_epochs, n_fluxes)
+        xT.shape = (n_epochs, self.n_fluxes)
 
         # Take into account uncertainties
         sigma_inverse = 1. / self._dataset.err_flux[self._dataset.good]
         y *= sigma_inverse
-        xT *= np.array([sigma_inverse] * n_fluxes).T
+        xT *= np.array([sigma_inverse] * self.n_fluxes).T
 
         return (xT, y)
 
@@ -184,7 +219,8 @@ class FitData:
         run :py:func:`~update()`.
         """
 
-        self._check_for_implementation_errors()
+        # self._check_for_implementation_errors()
+        self._check_for_errors()
         (xT, y) = self._setup_linalg_arrays()
 
         # Solve for the coefficients in y = fs * x + fb (point source)
@@ -200,17 +236,21 @@ class FitData:
                 ' probably in the data.')
 
         # Record the results
-        if self.fix_source_flux is False:
-            self._source_fluxes = results[0:self._model.n_sources]
+        if self.fix_q_flux is False:
+            if self.fix_source_flux is False:
+                self._source_fluxes = results[0:self._model.n_sources]
+            else:
+                self._source_fluxes = []
+                index = 0
+                for i in range(self._model.n_sources):
+                    if self.fix_source_flux[i] is False:
+                        self._source_fluxes.append(results[index])
+                        index += 1
+                    else:
+                        self._source_fluxes.append(self.fix_source_flux[i])
+
         else:
-            self._source_fluxes = []
-            index = 0
-            for i in range(self._model.n_sources):
-                if self.fix_source_flux[i] is False:
-                    self._source_fluxes.append(results[index])
-                    index += 1
-                else:
-                    self._source_fluxes.append(self.fix_source_flux[i])
+            self._source_fluxes = [results[0], results[0] * self.fix_q_flux]
 
         if self.fix_blend_flux is False:
             self._blend_flux = results[-1]
