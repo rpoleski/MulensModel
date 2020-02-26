@@ -69,18 +69,6 @@ class FitData:
         self._chi2_per_point = None
         self._chi2 = None
 
-    def _check_for_implementation_errors(self):
-        """
-        If a setting is not implemented, raise an exception.
-        """
-        # if self.fix_source_flux is not False:
-        #     msg = 'Only fix_source_flux=False is implemented.'
-        #     raise NotImplementedError(msg)
-
-        if self.fix_q_flux is not False:
-            msg = 'Only fix_q_flux=False is implemented.'
-            raise NotImplementedError(msg)
-
     def _check_for_errors(self):
         """
         If combination of settings and models are invalid, raise exceptions.
@@ -167,7 +155,7 @@ class FitData:
                         y -= (self.fix_source_flux[i] *
                               self._data_magnification[i])
 
-        return (x,y)
+        return (x, y)
 
     def _setup_linalg_arrays(self):
         """
@@ -219,7 +207,6 @@ class FitData:
         run :py:func:`~update()`.
         """
 
-        # self._check_for_implementation_errors()
         self._check_for_errors()
         (xT, y) = self._setup_linalg_arrays()
 
