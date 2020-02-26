@@ -5,12 +5,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Index &#8212; MulensModel 1.14.26 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.26',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -23,7 +31,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -121,11 +130,15 @@
 </li>
       <li><a href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling.check_valid_trajectory">check_valid_trajectory() (MulensModel.uniformcausticsampling.UniformCausticSampling method)</a>
 </li>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.chi2">chi2 (MulensModel.fitdata.FitData attribute)</a>
+</li>
       <li><a href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.chi2_fmt">chi2_fmt (MulensModel.mulensdata.MulensData attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.chi2_gradient">chi2_gradient() (MulensModel.event.Event method)</a>
+</li>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.chi2_per_point">chi2_per_point (MulensModel.fitdata.FitData attribute)</a>
 </li>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.clean_data">clean_data() (MulensModel.event.Event method)</a>
 </li>
@@ -159,14 +172,16 @@
 </li>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.data_ref">data_ref (MulensModel.event.Event attribute)</a>
 </li>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.dataset">dataset (MulensModel.fitdata.FitData attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.datasets">datasets (MulensModel.event.Event attribute)</a>
 
       <ul>
         <li><a href="MulensModel.model.html#MulensModel.model.Model.datasets">(MulensModel.model.Model attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.date_change">date_change() (MulensModel.utils.Utils static method)</a>
 </li>
       <li><a href="MulensModel.mulensobjects.lens.html#MulensModel.mulensobjects.lens.Lens.distance">distance (MulensModel.mulensobjects.lens.Lens attribute)</a>
@@ -293,6 +308,8 @@
 </li>
       <li><a href="MulensModel.magnificationcurve.html#MulensModel.magnificationcurve.MagnificationCurve.get_magnification">get_magnification() (MulensModel.magnificationcurve.MagnificationCurve method)</a>
 </li>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.get_model_fluxes">get_model_fluxes() (MulensModel.fitdata.FitData method)</a>
+</li>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.get_n_caustics">get_n_caustics() (MulensModel.utils.Utils static method)</a>
 </li>
       <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.get_n_sources">get_n_sources() (MulensModel.fit.Fit method)</a>
@@ -416,7 +433,11 @@
       <li><a href="MulensModel.model.html#MulensModel.model.Model">Model (class in MulensModel.model)</a>
 </li>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.model">model (MulensModel.event.Event attribute)</a>
+
+      <ul>
+        <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.model">(MulensModel.fitdata.FitData attribute)</a>
 </li>
+      </ul></li>
       <li><a href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters">ModelParameters (class in MulensModel.modelparameters)</a>
 </li>
       <li><a href="MulensModel.mulensobjects.mulenssystem.html#MulensModel.mulensobjects.mulenssystem.MulensSystem.mu_rel">mu_rel (MulensModel.mulensobjects.mulenssystem.MulensSystem attribute)</a>
@@ -757,14 +778,18 @@
 </li>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.u_to_gamma">u_to_gamma() (MulensModel.utils.Utils static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling">uniform_caustic_sampling (MulensModel.modelparameters.ModelParameters attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling">UniformCausticSampling (class in MulensModel.uniformcausticsampling)</a>
 </li>
       <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.update">update() (MulensModel.fit.Fit method)</a>
+
+      <ul>
+        <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.update">(MulensModel.fitdata.FitData method)</a>
 </li>
+      </ul></li>
       <li><a href="MulensModel.model.html#MulensModel.model.Model.update_caustics">update_caustics() (MulensModel.model.Model method)</a>
 </li>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils">Utils (class in MulensModel.utils)</a>
@@ -830,23 +855,24 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+
+   <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>
 </ul>
 </div>
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -857,7 +883,7 @@
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.fit module &#8212; MulensModel 1.14.25 documentation</title>
+    <title>MulensModel.fit module &#8212; MulensModel 1.14.26 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.26',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -35,12 +44,12 @@
 <dl class="class">
 <dt id="MulensModel.fit.Fit">
 <em class="property">class </em><code class="descclassname">MulensModel.fit.</code><code class="descname">Fit</code><span class="sig-paren">(</span><em>data=None</em>, <em>magnification=None</em>, <em>n_sources=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Fits source and blending fluxes for given data and model magnification.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
 <dd><dl class="first last docutils">
-<dt>data: <code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code> or <em>list</em> of <code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></dt>
+<dt>data: <code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code> or <em>list</em> of <code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></dt>
 <dd>Photometric data to be fitted.</dd>
 <dt>magnification: <em>np.ndarray</em> or <em>list of np.ndarrays</em></dt>
 <dd>Model magnification.</dd>
@@ -55,10 +64,10 @@ this option now.</em></dd>
 <code class="descname">fit_fluxes</code><span class="sig-paren">(</span><em>fit_blending=True</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.fit_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit source(s) and blending fluxes. Performs a least squares
 linear fit (<em>np.linalg.lstsq()</em>) to the data for the flux
-parameters. I.e., given the data <span class="math notranslate nohighlight">\(y\)</span> and magnification
-<span class="math notranslate nohighlight">\(A\)</span>, solves for <span class="math notranslate nohighlight">\(f_{source}\)</span> and
-<span class="math notranslate nohighlight">\(f_{blend}\)</span>:</p>
-<div class="math notranslate nohighlight">
+parameters. I.e., given the data <span class="math">\(y\)</span> and magnification
+<span class="math">\(A\)</span>, solves for <span class="math">\(f_{source}\)</span> and
+<span class="math">\(f_{blend}\)</span>:</p>
+<div class="math">
 \[y = f_{source} * A + f_{blend}\]</div>
 <dl class="docutils">
 <dt>Parameters :</dt>
@@ -78,7 +87,7 @@ be fixed at 0 (<em>False</em>)? Default is <em>True</em></dd>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a></dt>
+<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
 <dd>A dataset for which source fluxes will be given.</dd>
 </dl>
 </dd>
@@ -99,7 +108,7 @@ The number of array elements is the same as number of sources.</dd>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a></dt>
+<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
 <dd>A dataset for which blending flux will be given.</dd>
 </dl>
 </dd>
@@ -119,7 +128,7 @@ The number of array elements is the same as number of sources.</dd>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a></dt>
+<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
 <dd>A dataset for which model will be returned.</dd>
 </dl>
 </dd>
@@ -141,7 +150,7 @@ format of the input data.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a></dt>
+<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
 <dd>A dataset for which model will be returned.</dd>
 </dl>
 </dd>
@@ -164,7 +173,7 @@ magnitudes depending on dataset format.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a></dt>
+<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
 <dd>A dataset for which model will be returned.</dd>
 </dl>
 </dd>
@@ -200,7 +209,7 @@ instance of the same class.</p>
 <dl class="docutils">
 <dt>Parameters :</dt>
 <dd><dl class="first last docutils">
-<dt>fit: <a class="reference internal" href="#MulensModel.fit.Fit" title="MulensModel.fit.Fit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fit</span></code></a></dt>
+<dt>fit: <a class="reference internal" href="#MulensModel.fit.Fit" title="MulensModel.fit.Fit"><code class="xref py py-class docutils literal"><span class="pre">Fit</span></code></a></dt>
 <dd>A different instance of this class.</dd>
 </dl>
 </dd>
@@ -232,14 +241,12 @@ instance of the same class.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -250,7 +257,7 @@ instance of the same class.</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>MulensModel.fitdata module &#8212; MulensModel 1.14.26 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.26',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -35,108 +44,177 @@
 <dl class="class">
 <dt id="MulensModel.fitdata.FitData">
 <em class="property">class </em><code class="descclassname">MulensModel.fitdata.</code><code class="descname">FitData</code><span class="sig-paren">(</span><em>model=None</em>, <em>dataset=None</em>, <em>fix_blend_flux=False</em>, <em>fix_source_flux=False</em>, <em>fix_q_flux=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Performs a least squares linear fit for given dataset and model to
-determine the source flux(es) and (optionally) blend flux.</p>
+determine the source flux(es) and (optionally) blend flux. After creating
+the object, you must run <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a> to perform the linear fit for
+the fluxes and calculate the chi2. To perform the linear fit without
+calculating chi2, you can run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">fit_fluxes()</span></code></a>. If you change
+anything in the object, e.g. the model parameters, you <em>must</em> re-run
+<a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a> or <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">fit_fluxes()</span></code></a>.</p>
 <dl class="docutils">
 <dt>Arguments :</dt>
 <dd><dl class="first last docutils">
-<dt>model: <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a> object</dt>
+<dt>model: <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> object</dt>
 <dd>The model to fit to the data.</dd>
-<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> object</dt>
+<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> object</dt>
 <dd>A single photometric dataset to be fitted.</dd>
-<dt>fix_blend_flux: <em>False</em> or <em>float</em></dt>
+<dt>fix_blend_flux: <em>False</em> or <em>float</em>, optional</dt>
 <dd>Default is <em>False</em>, i.e. allow the blend flux to be a free
 parameter. If set to a float, it will fix the blend value to that
 value.</dd>
-<dt>fix_source_flux: <em>False</em>, <em>float</em>, or <em>list</em></dt>
+<dt>fix_source_flux: <em>False</em>, <em>float</em>, or <em>list</em>, optional</dt>
 <dd>Default is <em>False</em>, i.e. allow the source flux to be a free
 parameter. If set to a float, it will fix the source value to that
 value. For binary source models, a list should be used to set the
 fluxes of the individual sources or fix one and not the other, e.g.
 [2.3, False] would fix f_source_0 to 2.3 but allow a free fit to
-f_source_1. (Not Implemented)</dd>
-<dt>fix_q_flux: <em>False</em> or <em>float</em></dt>
+f_source_1.</dd>
+<dt>fix_q_flux: <em>False</em> or <em>float</em>, optional</dt>
 <dd>For binary source models, q_flux is the flux ratio between two
 components, i.e. q_flux = f_source_1 / f_source_0
 Default is <em>False</em>, i.e. allow the source flux to be a free
 parameter. If set to a float, it will fix the source value to that
-value. (Not Implemented)</dd>
+value.</dd>
 </dl>
 </dd>
 </dl>
 <dl class="method">
+<dt id="MulensModel.fitdata.FitData.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the best-fit source and blend fluxes as well as the chi2.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="MulensModel.fitdata.FitData.fit_fluxes">
 <code class="descname">fit_fluxes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.fit_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the linear least squares fit to determine the fitted fluxes.
-Sets the values of <a class="reference internal" href="#MulensModel.fitdata.FitData.source_fluxes" title="MulensModel.fitdata.FitData.source_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_fluxes</span></code></a>, <a class="reference internal" href="#MulensModel.fitdata.FitData.blend_flux" title="MulensModel.fitdata.FitData.blend_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blend_flux</span></code></a>,
-and (if applicable):py:obj:<cite>~source_flux</cite>.</p>
+Sets the values of <a class="reference internal" href="#MulensModel.fitdata.FitData.source_fluxes" title="MulensModel.fitdata.FitData.source_fluxes"><code class="xref py py-obj docutils literal"><span class="pre">source_fluxes</span></code></a>, <a class="reference internal" href="#MulensModel.fitdata.FitData.blend_flux" title="MulensModel.fitdata.FitData.blend_flux"><code class="xref py py-obj docutils literal"><span class="pre">blend_flux</span></code></a>,
+and (if applicable) <a class="reference internal" href="#MulensModel.fitdata.FitData.source_flux" title="MulensModel.fitdata.FitData.source_flux"><code class="xref py py-obj docutils literal"><span class="pre">source_flux</span></code></a>.</p>
+<p>Does <em>not</em> calculate chi2. To fit for the fluxes and calculate chi2,
+run <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.fitdata.FitData.get_model_fluxes">
+<code class="descname">get_model_fluxes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_model_fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>model_flux: <em>np.ndarray</em></dt>
+<dd>The model flux evaluated for each datapoint.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.fitdata.FitData.chi2">
+<code class="descname">chi2</code><a class="headerlink" href="#MulensModel.fitdata.FitData.chi2" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>chi2: <em>float</em></dt>
+<dd>the total chi2 for the fitted dataset. Good points only. See
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.good" title="MulensModel.mulensdata.MulensData.good"><code class="xref py py-obj docutils literal"><span class="pre">good</span></code></a>.</dd>
+</dl>
+</dd>
+</dl>
+<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a> to execute the
+linear fit and calculate the chi2.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.fitdata.FitData.chi2_per_point">
+<code class="descname">chi2_per_point</code><a class="headerlink" href="#MulensModel.fitdata.FitData.chi2_per_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>chi2_per_point: <em>np.ndarray</em></dt>
+<dd>Chi^2 contribution from each data point,
+e.g. <code class="docutils literal"><span class="pre">chi2_per_point[k]</span></code> returns the chi2 contribution
+from the <em>k</em>-th point of <a class="reference internal" href="#MulensModel.fitdata.FitData.dataset" title="MulensModel.fitdata.FitData.dataset"><code class="xref py py-obj docutils literal"><span class="pre">dataset</span></code></a>. Includes bad
+datapoints.</dd>
+</dl>
+</dd>
+</dl>
+<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a> to execute the
+linear fit and calculate the chi2.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.fitdata.FitData.source_flux">
 <code class="descname">source_flux</code><a class="headerlink" href="#MulensModel.fitdata.FitData.source_flux" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>float</em>
+<dd><dl class="docutils">
+<dt>Returns :</dt>
+<dd>source_flux: <em>float</em>
 the fitted source flux. Only defined for models with a single
-source. See also <a class="reference internal" href="#MulensModel.fitdata.FitData.source_fluxes" title="MulensModel.fitdata.FitData.source_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_fluxes</span></code></a><p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_fluxes()</span></code></a> to execute the
-linear fit.</p>
-</td>
-</tr>
-</tbody>
-</table>
+source. See also <a class="reference internal" href="#MulensModel.fitdata.FitData.source_fluxes" title="MulensModel.fitdata.FitData.source_fluxes"><code class="xref py py-obj docutils literal"><span class="pre">source_fluxes</span></code></a></dd>
+</dl>
+<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">fit_fluxes()</span></code></a> or
+<a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a> to execute the linear fit.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.fitdata.FitData.source_fluxes">
 <code class="descname">source_fluxes</code><a class="headerlink" href="#MulensModel.fitdata.FitData.source_fluxes" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>np.array</em>
-the fitted source flux(es).<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_fluxes()</span></code></a> to execute the
-linear fit.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>source_fluxes: <em>np.array</em></dt>
+<dd>the fitted source flux(es).</dd>
+</dl>
+</dd>
+</dl>
+<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">fit_fluxes()</span></code></a> or
+<a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a> to execute the linear fit.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.fitdata.FitData.blend_flux">
 <code class="descname">blend_flux</code><a class="headerlink" href="#MulensModel.fitdata.FitData.blend_flux" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the fitted blend flux or the value set by
-fix_blend_flux (see <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#keywords" title="(in Python v3.8)"><span>Keywords</span></a>).<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_fluxes()</span></code></a> to execute the
-linear fit.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>blend_flux: <em>float</em></dt>
+<dd>the fitted blend flux or the value set by
+fix_blend_flux (see <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#keywords" title="(in Python v3.8)"><span>Keywords</span></a>).</dd>
+</dl>
+</dd>
+</dl>
+<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">fit_fluxes()</span></code></a> or
+<a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a> to execute the linear fit.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="MulensModel.fitdata.FitData.q_flux">
 <code class="descname">q_flux</code><a class="headerlink" href="#MulensModel.fitdata.FitData.q_flux" title="Permalink to this definition">¶</a></dt>
 <dd><p>q_flux = f_source_1 / f_source_0</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the ratio of the fitted source fluxes or the value set by
-fix_q_flux (see <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#keywords" title="(in Python v3.8)"><span>Keywords</span></a>).<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_fluxes()</span></code></a> to execute the
-linear fit.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>q_flux: <em>float</em></dt>
+<dd>the ratio of the fitted source fluxes or the value set by
+fix_q_flux (see <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#keywords" title="(in Python v3.8)"><span>Keywords</span></a>).</dd>
+</dl>
+</dd>
+</dl>
+<p>If None, you need to run <a class="reference internal" href="#MulensModel.fitdata.FitData.fit_fluxes" title="MulensModel.fitdata.FitData.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">fit_fluxes()</span></code></a> or
+<a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal"><span class="pre">update()</span></code></a> to execute the linear fit.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.fitdata.FitData.dataset">
+<code class="descname">dataset</code><a class="headerlink" href="#MulensModel.fitdata.FitData.dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a> object</p>
+<p>A single photometric dataset to be fitted.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.fitdata.FitData.model">
+<code class="descname">model</code><a class="headerlink" href="#MulensModel.fitdata.FitData.model" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> object</p>
+<p>The model to fit to the data.</p>
 </dd></dl>
 
 </dd></dl>
@@ -164,14 +242,12 @@ linear fit.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -182,7 +258,7 @@ linear fit.</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

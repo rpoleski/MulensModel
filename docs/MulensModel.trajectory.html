@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.trajectory module &#8212; MulensModel 1.14.25 documentation</title>
+    <title>MulensModel.trajectory module &#8212; MulensModel 1.14.26 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.26',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -35,7 +44,7 @@
 <dl class="class">
 <dt id="MulensModel.trajectory.Trajectory">
 <em class="property">class </em><code class="descclassname">MulensModel.trajectory.</code><code class="descname">Trajectory</code><span class="sig-paren">(</span><em>times</em>, <em>parameters</em>, <em>parallax=None</em>, <em>coords=None</em>, <em>satellite_skycoord=None</em>, <em>earth_coords=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The (dimensionless) X, Y trajectory of the source in the source
 plane. This class includes internal functions that calculate how
 microlensing parallax affects the trajectory.</p>
@@ -53,7 +62,7 @@ except the definition of <em>alpha</em>, which is shifted by 180 deg.</p>
 e.g. a vector.</dd>
 </dl>
 <p>parameters: instance of
-<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a>, required</p>
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a>, required</p>
 <blockquote>
 <div>a ModelParameters object specifying the microlensing parameters</div></blockquote>
 <dl class="docutils">
@@ -61,11 +70,11 @@ e.g. a vector.</dd>
 <dd>specifies what parallax effects should be used. Default is
 <em>False</em> for each of <em>‘earth_orbital’</em>, <em>‘satellite’</em>, and
 <em>‘topocentric’</em>. (differs from
-<a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a> which defaults to
+<a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> which defaults to
 <em>True</em>)</dd>
 </dl>
 <p>coords: <em>str</em>, or
-<a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></a>,
+<a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal"><span class="pre">Coordinates</span></code></a>,
 <em>Astropy.coordinates.SkyCoord</em>, optional</p>
 <blockquote>
 <div>sky coordinates of the event; required for parallax calculations</div></blockquote>
@@ -73,18 +82,18 @@ e.g. a vector.</dd>
 <dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em>, optional</dt>
 <dd>sky coordinates of the satellite specified by the
 ephemerides file. See
-<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.satellite_skycoord" title="MulensModel.mulensdata.MulensData.satellite_skycoord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">satellite_skycoord</span></code></a>.</dd>
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.satellite_skycoord" title="MulensModel.mulensdata.MulensData.satellite_skycoord"><code class="xref py py-obj docutils literal"><span class="pre">satellite_skycoord</span></code></a>.</dd>
 </dl>
 </dd>
 <dt>Attributes :</dt>
 <dd><dl class="first last docutils">
 <dt>times: <em>np.ndarray</em></dt>
 <dd>input epochs</dd>
-<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></dt>
-<dd>input <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></dd>
+<dt>parameters: <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></dt>
+<dd>input <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a></dd>
 <dt>satellite_skycoord: <em>Astropy.coordinates.SkyCoord</em></dt>
 <dd>input
-<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.satellite_skycoord" title="MulensModel.mulensdata.MulensData.satellite_skycoord"><code class="xref py py-attr docutils literal notranslate"><span class="pre">satellite_skycoord</span></code></a></dd>
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.satellite_skycoord" title="MulensModel.mulensdata.MulensData.satellite_skycoord"><code class="xref py py-attr docutils literal"><span class="pre">satellite_skycoord</span></code></a></dd>
 </dl>
 </dd>
 </dl>
@@ -106,10 +115,10 @@ ephemerides file. See
 <dt id="MulensModel.trajectory.Trajectory.get_xy">
 <code class="descname">get_xy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.trajectory.Trajectory.get_xy" title="Permalink to this definition">¶</a></dt>
 <dd><p>For a given set of parameters
-(a <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a> object),
+(a <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal"><span class="pre">ModelParameters</span></code></a> object),
 calculate the xy position of the source.</p>
-<p>This function has no input and no output. It sets <a class="reference internal" href="#MulensModel.trajectory.Trajectory.x" title="MulensModel.trajectory.Trajectory.x"><code class="xref py py-attr docutils literal notranslate"><span class="pre">x</span></code></a> and
-<a class="reference internal" href="#MulensModel.trajectory.Trajectory.y" title="MulensModel.trajectory.Trajectory.y"><code class="xref py py-attr docutils literal notranslate"><span class="pre">y</span></code></a> attributes.</p>
+<p>This function has no input and no output. It sets <a class="reference internal" href="#MulensModel.trajectory.Trajectory.x" title="MulensModel.trajectory.Trajectory.x"><code class="xref py py-attr docutils literal"><span class="pre">x</span></code></a> and
+<a class="reference internal" href="#MulensModel.trajectory.Trajectory.y" title="MulensModel.trajectory.Trajectory.y"><code class="xref py py-attr docutils literal"><span class="pre">y</span></code></a> attributes.</p>
 </dd></dl>
 
 </dd></dl>
@@ -137,14 +146,12 @@ calculate the xy position of the source.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -155,7 +162,7 @@ calculate the xy position of the source.</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
