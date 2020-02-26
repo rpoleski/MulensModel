@@ -18,25 +18,25 @@ class FitData:
         dataset: :py:class:`~MulensModel.mulensdata.MulensData` object
             A single photometric dataset to be fitted.
 
-        fix_blend_flux: *False* or *float*
+        fix_blend_flux: *False* or *float*, optional
             Default is *False*, i.e. allow the blend flux to be a free
             parameter. If set to a float, it will fix the blend value to that
             value.
 
-        fix_source_flux: *False*, *float*, or *list*
+        fix_source_flux: *False*, *float*, or *list*, optional
             Default is *False*, i.e. allow the source flux to be a free
             parameter. If set to a float, it will fix the source value to that
             value. For binary source models, a list should be used to set the
             fluxes of the individual sources or fix one and not the other, e.g.
             [2.3, False] would fix f_source_0 to 2.3 but allow a free fit to
-            f_source_1. (Not Implemented)
+            f_source_1.
 
-        fix_q_flux: *False* or *float*
+        fix_q_flux: *False* or *float*, optional
             For binary source models, q_flux is the flux ratio between two
             components, i.e. q_flux = f_source_1 / f_source_0
             Default is *False*, i.e. allow the source flux to be a free
             parameter. If set to a float, it will fix the source value to that
-            value. (Not Implemented)
+            value.
 
     """
 
@@ -69,7 +69,7 @@ class FitData:
         self._chi2_per_point = None
         self._chi2 = None
 
-    def _check_for_errors(self):
+    def _check_for_q_flux_errors(self):
         """
         If combination of settings and models are invalid, raise exceptions.
         """
@@ -86,7 +86,7 @@ class FitData:
 
     def update(self):
         """
-        Calculate the source and blend fluxes as well as the chi2.
+        Calculate the best-fit source and blend fluxes as well as the chi2.
         """
         self.fit_fluxes()
 
@@ -159,7 +159,7 @@ class FitData:
 
     def _setup_linalg_arrays(self):
         """
-        :return: xT and y arrays
+        Create xT and y arrays
         """
         # Initializations
         self.n_fluxes = 0
@@ -168,6 +168,7 @@ class FitData:
 
         # Account for source fluxes
         if self.fix_q_flux is not False:
+            self._check_for_q_flux_errors()
             (x, y) = self._get_xy_qflux()
         else:
             (x, y) = self._get_xy_individual_fluxes()
@@ -201,13 +202,12 @@ class FitData:
         """
         Execute the linear least squares fit to determine the fitted fluxes.
         Sets the values of :py:obj:`~source_fluxes`, :py:obj:`~blend_flux`,
-        and (if applicable):py:obj:`~source_flux`.
+        and (if applicable) :py:obj:`~source_flux`.
 
         Does *not* calculate chi2. To fit for the fluxes and calculate chi2,
         run :py:func:`~update()`.
         """
 
-        self._check_for_errors()
         (xT, y) = self._setup_linalg_arrays()
 
         # Solve for the coefficients in y = fs * x + fb (point source)
@@ -246,10 +246,9 @@ class FitData:
 
     def get_model_fluxes(self):
         """
-        The model flux evaluated for each datapoint.
-
-        :return:
-            model_flux: *np.ndarray* with the same length as the data.
+        Returns :
+            model_flux: *np.ndarray*
+                The model flux evaluated for each datapoint.
         """
         if self.source_fluxes is None:
             raise AttributeError(
@@ -269,40 +268,41 @@ class FitData:
     @property
     def chi2(self):
         """
+        Returns:
+            chi2: *float*
+                the total chi2 for the fitted dataset. Good points only. See
+                :py:obj:`~MulensModel.mulensdata.MulensData.good`.
 
-        :return: *float*
-            the total chi2 for the fitted dataset. Good points only. See
-            :py:obj:`~MulensModel.mulensdata.MulensData.good`.
-
-            If None, you need to run :py:func:`~update()` to execute the
-            linear fit and calculate the chi2.
+        If None, you need to run :py:func:`~update()` to execute the
+        linear fit and calculate the chi2.
         """
         return np.sum(self.chi2_per_point[self._dataset.good])
 
     @property
     def chi2_per_point(self):
         """
-        :return: *list* of *np.ndarray*
-            Chi^2 contribution from each data point,
-            e.g. ``chi2[k]`` returns the chi2 contribution
-            from the *k*-th point of :py:obj:`dataset`.
+        Returns :
+            chi2_per_point: *np.ndarray*
+                Chi^2 contribution from each data point,
+                e.g. ``chi2_per_point[k]`` returns the chi2 contribution
+                from the *k*-th point of :py:obj:`dataset`. Includes bad
+                datapoints.
 
-            If None, you need to run :py:func:`~update()` to execute the
-            linear fit and calculate the chi2.
+        If None, you need to run :py:func:`~update()` to execute the
+        linear fit and calculate the chi2.
         """
         return self._chi2_per_point
 
     @property
     def source_flux(self):
         """
-
-        :return: *float*
+        Returns :
+            source_flux: *float*
             the fitted source flux. Only defined for models with a single
             source. See also :py:obj:`~source_fluxes`
 
-            If None, you need to run :py:func:`~fit_fluxes()` to execute the
-            linear fit.
-
+        If None, you need to run :py:func:`~fit_fluxes()` or
+        :py:func:`~update()`to execute the linear fit.
         """
         if self._model.n_sources == 1:
             return self.source_fluxes[0]
@@ -317,24 +317,25 @@ class FitData:
     @property
     def source_fluxes(self):
         """
+        Returns:
+            source_fluxes: *np.array*
+                the fitted source flux(es).
 
-        :return: *np.array*
-            the fitted source flux(es).
-
-            If None, you need to run :py:func:`~fit_fluxes()` to execute the
-            linear fit.
+        If None, you need to run :py:func:`~fit_fluxes()` or
+        :py:func:`~update()`to execute the linear fit.
         """
         return self._source_fluxes
 
     @property
     def blend_flux(self):
         """
+        Returns:
+            blend_flux: *float*
+                the fitted blend flux or the value set by
+                fix_blend_flux (see :ref:`keywords`).
 
-        :return: the fitted blend flux or the value set by
-            fix_blend_flux (see :ref:`keywords`).
-
-            If None, you need to run :py:func:`~fit_fluxes()` to execute the
-            linear fit.
+        If None, you need to run :py:func:`~fit_fluxes()` or
+        :py:func:`~update()`to execute the linear fit.
         """
         return self._blend_flux
 
@@ -343,11 +344,13 @@ class FitData:
         """
         q_flux = f_source_1 / f_source_0
 
-        :return: the ratio of the fitted source fluxes or the value set by
-            fix_q_flux (see :ref:`keywords`).
+        Returns :
+            q_flux: *float*
+                the ratio of the fitted source fluxes or the value set by
+                fix_q_flux (see :ref:`keywords`).
 
-            If None, you need to run :py:func:`~fit_fluxes()` to execute the
-            linear fit.
+        If None, you need to run :py:func:`~fit_fluxes()` or
+        :py:func:`~update()`to execute the linear fit.
         """
         if self._model.n_sources != 2:
             msg = ("source_flux is defined only for models" +
