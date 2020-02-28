@@ -92,7 +92,7 @@ class Horizons(object):
             self.file_properties['file_name'],
             dtype=[('date', 'S17'), ('ra_dec', 'S23'), ('distance', 'f8'),
                    ('foo', 'S23')],
-            delimiter=[18, 29, 18, 24], autostrip=True,
+            delimiter=[18, 29, 17, 24], autostrip=True,
             skip_header=self.file_properties['start_ind'] + 1,
             skip_footer=(self.file_properties['line_count'] -
                          self.file_properties['stop_ind']))
