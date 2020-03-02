@@ -42,9 +42,7 @@ class Event(object):
             the key, and the value to be fixed is the value. For example, to
             fix the blending of some dataset *my_data* to zero set
             *fix_blend_flux={my_data: 0.}*. See also
-            :py:class:`~MulensModel.fitdata.FitData` . NOTE: if you update one
-            of these dictionaries by directly accessing it, YOU MUST RUN
-            :py:func:`~fit_fluxes()` to update the fits and chi2(s).
+            :py:class:`~MulensModel.fitdata.FitData` .
 
         fit: :py:class:`~MulensModel.fit.Fit` or *None*
             Instance of :py:class:`~MulensModel.fit.Fit` class used in
@@ -88,12 +86,13 @@ class Event(object):
             if self._model.coords is not None:
                 self._update_coords(coords=self._model.coords)
 
-        self.reset_best_chi2()
+        self.reset_best_chi2() # To be deprecated
         self.sum_function = 'math.fsum'
         self.fit = None  # This should be changed to @property w/ lazy loading
 
         # New Stuff related to Fit Data
         self.fits = None  # New property
+        self.chi2 = None
         self.fix_blend_flux = fix_blend_flux
         self.fix_source_flux = fix_source_flux
         self.fix_q_flux = fix_q_flux
@@ -173,15 +172,19 @@ class Event(object):
                 for dataset in self.datasets:
                     self.fix_blend_flux[dataset] = 0.
 
-        if self.fits is None:
-            self.fit_fluxes()
-
+        self.fit_fluxes()
         chi2 = []
         for (i, dataset) in enumerate(self.datasets):
             # Calculate chi2 for the dataset excluding bad data
             chi2.append(self.fits[i].chi2)
 
         self.chi2 = self._sum(chi2)
+
+        # To be deprecated
+        if self.best_chi2 is None or self.best_chi2 > self.chi2:
+            self._best_chi2 = self.chi2
+            self._best_chi2_parameters = dict(self.model.parameters.parameters)
+
         return self.chi2
 
         # chi2_per_point = self.get_chi2_per_point(
@@ -216,10 +219,9 @@ class Event(object):
                 chi2 for dataset[index_dataset].
 
         """
-        if self.fits is None:
-            self.fit_fluxes()
+        self.fit_fluxes()
 
-        return self.fits[index_dataset].chi2()
+        return self.fits[index_dataset].chi2
 
         # if self.model.n_sources > 1 and fit_blending is False:
         #     raise NotImplementedError("Sorry, chi2 for binary sources with " +
@@ -290,8 +292,7 @@ class Event(object):
 
         """
         # JCY - This function does not seem to be covered by unit tests.
-        if self.fits is None:
-            self.fit_fluxes()
+        self.fit_fluxes()
 
         # Calculate chi^2 given the fit
         chi2_per_point = []
@@ -527,9 +528,9 @@ class Event(object):
         Reset :py:attr:`~best_chi2` attribute and its parameters
         (:py:attr:`~best_chi2_parameters`).
         """
-        pass
-        # self._best_chi2 = None
-        # self._best_chi2_parameters = {}
+        # To be deprecated
+        self._best_chi2 = None
+        self._best_chi2_parameters = {}
 
     def _sum(self, data):
         """calculate sum of the data"""
@@ -648,6 +649,21 @@ class Event(object):
         pass
         # self.model.data_ref = new_value
 
+    @property
+    def chi2(self):
+        """
+        *float*
+
+        Chi^2 value. Note this is a static property. It is only updated when
+        :py:func:`~fit_fluxes()` or :py:func:`~get_chi2()` is run. So, if you
+        change one of the settings be sure to run one of those functions to
+        update the chi2.
+        """
+        return self._chi2
+
+    @chi2.setter
+    def chi2(self, new_value):
+        self._chi2 = new_value
 
     @property
     def best_chi2(self):
@@ -656,8 +672,8 @@ class Event(object):
 
         The smallest value returned by :py:func:`get_chi2()`.
         """
-        pass
-        # return self._best_chi2
+        warnings.warn('best_chi2 will be deprecated in future', FutureWarning)
+        return self._best_chi2
 
     @property
     def best_chi2_parameters(self):
@@ -666,8 +682,9 @@ class Event(object):
 
         Parameters that gave the smallest chi2.
         """
-        pass
-        # return self._best_chi2_parameters
+        warnings.warn('best_chi2_parameters will be deprecated in future',
+                      FutureWarning)
+        return self._best_chi2_parameters
 
     @property
     def sum_function(self):

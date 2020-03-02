@@ -48,7 +48,6 @@ def test_event_get_chi2_1():
                                    err_msg='problem in resulting chi2')
 
     ev.sum_function = 'numpy.sum' # JCY what is the purpose of this test?
-    ev.fit_fluxes()
     np.testing.assert_almost_equal(
         ev.get_chi2(), 427.20382, decimal=4, err_msg='problem with numpy.sum')
 
@@ -61,7 +60,6 @@ def test_event_get_chi2_1():
 
     # New method of fixing the blending
     ev.fix_blend_flux = {}
-    ev.fit_fluxes()
     np.testing.assert_almost_equal(ev.get_chi2(), 427.20382, decimal=4)
 
     fix_blend_flux = {}
@@ -69,7 +67,6 @@ def test_event_get_chi2_1():
         fix_blend_flux[dataset] = 0.
 
     ev.fix_blend_flux = fix_blend_flux
-    ev.fit_fluxes()
     np.testing.assert_almost_equal(ev.get_chi2(), 459.09826, decimal=4)
 
 
@@ -84,13 +81,14 @@ def test_event_get_chi2_2():
     t_E = 17.94002
     answer = 427.20382201
 
-    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data_2 = mm.MulensData(file_name=SAMPLE_FILE_01)
 
     ev = mm.Event()
     mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    mod.set_datasets([data, data])
+    mod.set_datasets([data_1, data_2])
     ev.model = mod
-    ev.datasets = [data, data]
+    ev.datasets = [data_1, data_2]
 
     chi2 = ev.get_chi2()
     assert isinstance(chi2, float), 'wrong type of chi2'
@@ -111,14 +109,13 @@ def test_event_get_chi2_2():
         err_msg='problem in resulting chi2 for fixed no blending')
 
     # New method of fixing the blending
-    ev.fix_blend_flux = {data: 0.}
-    ev.fit_fluxes()
-    chi2_no_blend = ev.get_chi2()
-    assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
+    # Both datasets have zero blending
+    ev.fix_blend_flux = {data_1: 0., data_2: 0.}
+    chi2_no_blend_2 = ev.get_chi2()
+    assert isinstance(chi2_no_blend_2, float), 'wrong type of chi2'
     np.testing.assert_almost_equal(
         float(chi2_no_blend), 2.*459.09826, decimal=4,
         err_msg='problem in resulting chi2 for fixed no blending')
-
 
 def test_event_get_chi2_3():
     """test on ob08092 OGLE-IV data - MulensData.good & MulensData.bad"""
@@ -331,10 +328,8 @@ def test_get_ref_fluxes():
     # New method for fixing the blending
     (f_s_1, f_b_1) = event.get_ref_fluxes()
     event.fix_blend_flux[data] = 0.
-    event.fit_fluxes()
     (f_s_2, f_b_2) = event.get_ref_fluxes()
     event.fix_blend_flux = {}
-    event.fit_fluxes()
     (f_s_3, f_b_3) = event.get_ref_fluxes()
 
     assert f_b_2 == 0.

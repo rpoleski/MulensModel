@@ -44,7 +44,7 @@ class FitData:
                  fix_source_flux=False, fix_q_flux=False):
         self.model = model
         self.dataset = dataset
-        if dataset.bandpass is None:
+        if self.dataset.bandpass is None:
             self.gamma = 0.
         else:
             self.gamma = self.model.get_limb_coeff_gamma(dataset.bandpass)
