@@ -44,6 +44,10 @@ class FitData:
                  fix_source_flux=False, fix_q_flux=False):
         self.model = model
         self.dataset = dataset
+        if dataset.bandpass is None:
+            self.gamma = 0.
+        else:
+            self.gamma = self.model.get_limb_coeff_gamma(dataset.bandpass)
 
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
@@ -105,10 +109,11 @@ class FitData:
         # sources
         if self._model.n_sources == 1:
             mag_matrix = self._model.magnification(
-                time=self._dataset.time[self._dataset.good])
+                time=self._dataset.time[self._dataset.good], gamma=self.gamma)
         elif self._model.n_sources == 2:
             mag_matrix = self._model.magnification(
-                time=self._dataset.time[self._dataset.good], separate=True)
+                time=self._dataset.time[self._dataset.good], gamma=self.gamma,
+                separate=True)
         else:
             msg = ("{0}".format(self._model.n_sources) +
                    " sources used. model.magnification can only" +
