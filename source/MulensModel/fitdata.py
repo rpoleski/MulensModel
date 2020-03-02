@@ -317,7 +317,7 @@ class FitData:
     @property
     def source_fluxes(self):
         """
-        Returns:
+        Returns :
             source_fluxes: *np.array*
                 the fitted source flux(es).
 
@@ -329,7 +329,7 @@ class FitData:
     @property
     def blend_flux(self):
         """
-        Returns:
+        Returns :
             blend_flux: *float*
                 the fitted blend flux or the value set by
                 fix_blend_flux (see :ref:`keywords`).
