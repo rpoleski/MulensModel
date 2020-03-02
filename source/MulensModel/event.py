@@ -91,21 +91,24 @@ class Event(object):
         Plot the model light curve in magnitudes. See
         :py:func:`MulensModel.model.Model.plot_lc()` for details.
         """
-        self.model.plot_lc(**kwargs)
+        pass
+        # self.model.plot_lc(**kwargs)
 
     def plot_data(self, **kwargs):
         """
         Plot the data scaled to the model. See
         :py:func:`MulensModel.model.Model.plot_data()` for details.
         """
-        self.model.plot_data(**kwargs)
+        pass
+        # self.model.plot_data(**kwargs)
 
     def plot_residuals(self, **kwargs):
         """
         Plot the residuals (in magnitudes) of the model.
         See :py:func:`MulensModel.model.Model.plot_residuals()` for details.
         """
-        self.model.plot_residuals(**kwargs)
+        pass
+        # self.model.plot_residuals(**kwargs)
 
     def plot_trajectory(self, **kwargs):
         """
@@ -120,15 +123,17 @@ class Event(object):
         See :py:func:`MulensModel.model.Model.plot_source_for_datasets()` for
         details.
         """
-        self.model.plot_source_for_datasets(**kwargs)
+        pass
+        #self.model.plot_source_for_datasets(**kwargs)
 
     def get_ref_fluxes(self, data_ref=None, fit_blending=None):
         """
         Get source and blending fluxes for the reference dataset. See
         :py:func:`MulensModel.model.Model.get_ref_fluxes()` for details.
         """
-        return self.model.get_ref_fluxes(
-            data_ref=data_ref, fit_blending=fit_blending)
+        pass
+        # return self.model.get_ref_fluxes(
+        #    data_ref=data_ref, fit_blending=fit_blending)
 
     def get_chi2(self, fit_blending=None):
         """
@@ -146,19 +151,20 @@ class Event(object):
                 Chi^2 value
 
         """
-        chi2_per_point = self.get_chi2_per_point(
-            fit_blending=fit_blending)
-        # Calculate chi^2 given the fit
-        chi2 = []
-        for (i, dataset) in enumerate(self.datasets):
-            # Calculate chi2 for the dataset excluding bad data
-            chi2.append(self._sum(chi2_per_point[i][dataset.good]))
-
-        self.chi2 = self._sum(chi2)
-        if self.best_chi2 is None or self.best_chi2 > self.chi2:
-            self._best_chi2 = self.chi2
-            self._best_chi2_parameters = dict(self.model.parameters.parameters)
-        return self.chi2
+        pass
+        # chi2_per_point = self.get_chi2_per_point(
+        #     fit_blending=fit_blending)
+        # # Calculate chi^2 given the fit
+        # chi2 = []
+        # for (i, dataset) in enumerate(self.datasets):
+        #     # Calculate chi2 for the dataset excluding bad data
+        #     chi2.append(self._sum(chi2_per_point[i][dataset.good]))
+        #
+        # self.chi2 = self._sum(chi2)
+        # if self.best_chi2 is None or self.best_chi2 > self.chi2:
+        #     self._best_chi2 = self.chi2
+        #     self._best_chi2_parameters = dict(self.model.parameters.parameters)
+        # return self.chi2
 
     def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
         """
@@ -178,46 +184,47 @@ class Event(object):
                 chi2 for dataset[index_dataset].
 
         """
-        if self.model.n_sources > 1 and fit_blending is False:
-            raise NotImplementedError("Sorry, chi2 for binary sources with " +
-                                      "no blending is not yet coded.")
-        if not isinstance(index_dataset, int):
-            msg = 'index_dataset has to be int type, not {:}'
-            raise TypeError(msg.format(type(index_dataset)))
-
-        dataset = self.datasets[index_dataset]
-        magnification = self.model.get_data_magnification(dataset)
-
-        dataset_in_fit = True
-        if self.model.fit is None:
-            dataset_in_fit = False
-        else:
-            try:
-                self.model.fit.flux_of_sources(dataset)
-            except KeyError:
-                dataset_in_fit = False
-        if self.model.n_sources != 1 and dataset_in_fit:
-            self.fit = self.model.fit
-        else:
-            self._update_data_in_model()
-            self.fit = Fit(data=dataset, magnification=[magnification])
-            if fit_blending is not None:
-                self.fit.fit_fluxes(fit_blending=fit_blending)
-            else:
-                self.fit.fit_fluxes()
-
-        (data, err_data) = dataset.data_and_err_in_chi2_fmt()
-
-        model = self.fit.get_chi2_format(data=dataset)
-        diff = data - model
-        if np.any(np.isnan(model[dataset.good])):  # This can happen only for
-            # input_fmt = 'mag' and model flux < 0.
-            mask = np.isnan(model)
-            masked_model = self.fit.get_flux(data=dataset)[mask]
-            diff[mask] = dataset.flux[mask] - masked_model
-            err_data[mask] = dataset.err_flux[mask]
-        chi2 = (diff / err_data) ** 2
-        return self._sum(chi2[dataset.good])
+        pass
+        # if self.model.n_sources > 1 and fit_blending is False:
+        #     raise NotImplementedError("Sorry, chi2 for binary sources with " +
+        #                               "no blending is not yet coded.")
+        # if not isinstance(index_dataset, int):
+        #     msg = 'index_dataset has to be int type, not {:}'
+        #     raise TypeError(msg.format(type(index_dataset)))
+        #
+        # dataset = self.datasets[index_dataset]
+        # magnification = self.model.get_data_magnification(dataset)
+        #
+        # dataset_in_fit = True
+        # if self.model.fit is None:
+        #     dataset_in_fit = False
+        # else:
+        #     try:
+        #         self.model.fit.flux_of_sources(dataset)
+        #     except KeyError:
+        #         dataset_in_fit = False
+        # if self.model.n_sources != 1 and dataset_in_fit:
+        #     self.fit = self.model.fit
+        # else:
+        #     self._update_data_in_model()
+        #     self.fit = Fit(data=dataset, magnification=[magnification])
+        #     if fit_blending is not None:
+        #         self.fit.fit_fluxes(fit_blending=fit_blending)
+        #     else:
+        #         self.fit.fit_fluxes()
+        #
+        # (data, err_data) = dataset.data_and_err_in_chi2_fmt()
+        #
+        # model = self.fit.get_chi2_format(data=dataset)
+        # diff = data - model
+        # if np.any(np.isnan(model[dataset.good])):  # This can happen only for
+        #     # input_fmt = 'mag' and model flux < 0.
+        #     mask = np.isnan(model)
+        #     masked_model = self.fit.get_flux(data=dataset)[mask]
+        #     diff[mask] = dataset.flux[mask] - masked_model
+        #     err_data[mask] = dataset.err_flux[mask]
+        # chi2 = (diff / err_data) ** 2
+        # return self._sum(chi2[dataset.good])
 
     def get_chi2_per_point(self, fit_blending=None):
         """
@@ -246,48 +253,49 @@ class Event(object):
                print(chi2[0][10])
 
         """
-        if self.model.n_sources > 1 and fit_blending is False:
-            raise NotImplementedError("Sorry, chi2 for binary sources with " +
-                                      "no blending is not yet coded.")
-
-        # Define a Fit given the model and perform linear fit for fs and fb
-        if (self.model.n_sources != 1 and
-                self.model._source_flux_ratio_constraint is None):
-            self.model.data_magnification
-            self.fit = self.model.fit
-        else:
-            self._update_data_in_model()
-            self.fit = Fit(data=self.datasets,
-                           magnification=self.model.data_magnification)
-            if fit_blending is not None:
-                self.fit.fit_fluxes(fit_blending=fit_blending)
-            else:
-                self.fit.fit_fluxes()
-
-        # Calculate chi^2 given the fit
-        chi2_per_point = []
-        for (i, dataset) in enumerate(self.datasets):
-            if dataset.chi2_fmt == "mag":
-                data = dataset.mag
-                err_data = dataset.err_mag
-            elif dataset.chi2_fmt == "flux":
-                data = dataset.flux
-                err_data = dataset.err_flux
-            else:
-                raise ValueError('Unrecognized data format: {:}'.format(
-                    dataset.chi2_fmt))
-            model = self.fit.get_chi2_format(data=dataset)
-            diff = data - model
-            if np.any(np.isnan(model)):  # This can happen only for
-                # input_fmt = 'mag' and model flux < 0.
-                mask = np.isnan(model)
-                masked_model = self.fit.get_flux(data=dataset)[mask]
-                diff[mask] = dataset.flux[mask] - masked_model
-                err_data[mask] = dataset.err_flux[mask]
-
-            chi2_per_point.append((diff / err_data) ** 2)
-
-        return chi2_per_point
+        pass
+        # if self.model.n_sources > 1 and fit_blending is False:
+        #     raise NotImplementedError("Sorry, chi2 for binary sources with " +
+        #                               "no blending is not yet coded.")
+        #
+        # # Define a Fit given the model and perform linear fit for fs and fb
+        # if (self.model.n_sources != 1 and
+        #         self.model._source_flux_ratio_constraint is None):
+        #     self.model.data_magnification
+        #     self.fit = self.model.fit
+        # else:
+        #     self._update_data_in_model()
+        #     self.fit = Fit(data=self.datasets,
+        #                    magnification=self.model.data_magnification)
+        #     if fit_blending is not None:
+        #         self.fit.fit_fluxes(fit_blending=fit_blending)
+        #     else:
+        #         self.fit.fit_fluxes()
+        #
+        # # Calculate chi^2 given the fit
+        # chi2_per_point = []
+        # for (i, dataset) in enumerate(self.datasets):
+        #     if dataset.chi2_fmt == "mag":
+        #         data = dataset.mag
+        #         err_data = dataset.err_mag
+        #     elif dataset.chi2_fmt == "flux":
+        #         data = dataset.flux
+        #         err_data = dataset.err_flux
+        #     else:
+        #         raise ValueError('Unrecognized data format: {:}'.format(
+        #             dataset.chi2_fmt))
+        #     model = self.fit.get_chi2_format(data=dataset)
+        #     diff = data - model
+        #     if np.any(np.isnan(model)):  # This can happen only for
+        #         # input_fmt = 'mag' and model flux < 0.
+        #         mask = np.isnan(model)
+        #         masked_model = self.fit.get_flux(data=dataset)[mask]
+        #         diff[mask] = dataset.flux[mask] - masked_model
+        #         err_data[mask] = dataset.err_flux[mask]
+        #
+        #     chi2_per_point.append((diff / err_data) ** 2)
+        #
+        # return chi2_per_point
 
     def chi2_gradient(self, parameters, fit_blending=None):
         """
@@ -310,137 +318,139 @@ class Event(object):
             gradient: *float* or *np.ndarray*
                 chi^2 gradient
         """
-        if not isinstance(parameters, list):
-            parameters = [parameters]
-        implemented = {'t_0', 't_E', 'u_0', 't_eff', 'pi_E_N', 'pi_E_E'}
-        if len(set(parameters) - implemented) > 0:
-            raise NotImplementedError((
-                "chi^2 gradient is implemented only for {:}\nCannot work " +
-                "with {:}").format(implemented, parameters))
-        gradient = {param: 0 for param in parameters}
+        pass
 
-        if self.model.n_sources != 1:
-            raise NotImplementedError("Sorry, chi2 for binary sources is " +
-                                      "not implemented yet")
-        if self.model.n_lenses != 1:
-            raise NotImplementedError(
-                'Event.chi2_gradient() works only ' +
-                'single lens models currently')
-        as_dict = self.model.parameters.as_dict()
-        if 'rho' in as_dict or 't_star' in as_dict:
-            raise NotImplementedError(
-                'Event.chi2_gradient() is not working ' +
-                'for finite source models yet')
-
-        # Define a Fit given the model and perform linear fit for fs and fb
-        self._update_data_in_model()
-        self.fit = Fit(
-            data=self.datasets, magnification=self.model.data_magnification)
-        # For binary source cases, the above line would need to be replaced,
-        # so that it uses self.model.fit.
-        if fit_blending is not None:
-            self.fit.fit_fluxes(fit_blending=fit_blending)
-        else:
-            self.fit.fit_fluxes()
-
-        for (i, dataset) in enumerate(self.datasets):
-            (data, err_data) = dataset.data_and_err_in_chi2_fmt()
-            factor = data - self.fit.get_chi2_format(data=dataset)
-            factor *= -2. / err_data**2
-            if dataset.chi2_fmt == 'mag':
-                factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
-            factor *= self.fit.flux_of_sources(dataset)[0]
-
-            kwargs = {}
-            if dataset.ephemerides_file is not None:
-                kwargs['satellite_skycoord'] = dataset.satellite_skycoord
-            trajectory = Trajectory(
-                    dataset.time, self.model.parameters,
-                    self.model.get_parallax(), self.coords, **kwargs)
-            u_2 = trajectory.x**2 + trajectory.y**2
-            u_ = np.sqrt(u_2)
-            d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
-            factor *= d_A_d_u
-
-            factor_d_x_d_u = (factor * trajectory.x / u_)[dataset.good]
-            sum_d_x_d_u = np.sum(factor_d_x_d_u)
-            factor_d_y_d_u = (factor * trajectory.y / u_)[dataset.good]
-            sum_d_y_d_u = np.sum(factor_d_y_d_u)
-            dt = dataset.time[dataset.good] - as_dict['t_0']
-
-            # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
-            # gradient depends on which ones are defined.
-            if 't_eff' not in as_dict:
-                t_E = as_dict['t_E'].to(u.day).value
-                if 't_0' in parameters:
-                    gradient['t_0'] += -sum_d_x_d_u / t_E
-                if 'u_0' in parameters:
-                    gradient['u_0'] += sum_d_y_d_u
-                if 't_E' in parameters:
-                    gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E**2)
-            elif 't_E' not in as_dict:
-                t_eff = as_dict['t_eff'].to(u.day).value
-                if 't_0' in parameters:
-                    gradient['t_0'] += -sum_d_x_d_u * as_dict['u_0'] / t_eff
-                if 'u_0' in parameters:
-                    gradient['u_0'] += sum_d_y_d_u + np.sum(
-                            factor_d_x_d_u * dt / t_eff)
-                if 't_eff' in parameters:
-                    gradient['t_eff'] += np.sum(
-                            factor_d_x_d_u * -dt *
-                            as_dict['u_0'] / t_eff**2)
-            elif 'u_0' not in as_dict:
-                t_E = as_dict['t_E'].to(u.day).value
-                t_eff = as_dict['t_eff'].to(u.day).value
-                if 't_0' in parameters:
-                    gradient['t_0'] += -sum_d_x_d_u / t_E
-                if 't_E' in parameters:
-                    gradient['t_E'] += (
-                            np.sum(factor_d_x_d_u * dt) -
-                            sum_d_y_d_u * t_eff) / t_E**2
-                if 't_eff' in parameters:
-                    gradient['t_eff'] += sum_d_y_d_u / t_E
-            else:
-                raise KeyError(
-                    'Something is wrong with ModelParameters in ' +
-                    'Event.chi2_gradient():\n', as_dict)
-
-            # Below we deal with parallax only.
-            if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-                parallax = {
-                    'earth_orbital': False,
-                    'satellite': False,
-                    'topocentric': False}
-                trajectory_no_piE = Trajectory(
-                    dataset.time, self.model.parameters, parallax, self.coords,
-                    **kwargs)
-                dx = (trajectory.x - trajectory_no_piE.x)[dataset.good]
-                dy = (trajectory.y - trajectory_no_piE.y)[dataset.good]
-                delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
-                delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
-                det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
-
-                if 'pi_E_N' in parameters:
-                    gradient['pi_E_N'] += np.sum(
-                        factor_d_x_d_u * delta_N + factor_d_y_d_u * delta_E)
-                    gradient['pi_E_N'] /= det
-                if 'pi_E_E' in parameters:
-                    gradient['pi_E_E'] += np.sum(
-                        factor_d_x_d_u * delta_E - factor_d_y_d_u * delta_N)
-                    gradient['pi_E_E'] /= det
-
-        if len(parameters) == 1:
-            out = gradient[parameters[0]]
-        else:
-            out = np.array([gradient[p] for p in parameters])
-        return out
+        # if not isinstance(parameters, list):
+        #     parameters = [parameters]
+        # implemented = {'t_0', 't_E', 'u_0', 't_eff', 'pi_E_N', 'pi_E_E'}
+        # if len(set(parameters) - implemented) > 0:
+        #     raise NotImplementedError((
+        #         "chi^2 gradient is implemented only for {:}\nCannot work " +
+        #         "with {:}").format(implemented, parameters))
+        # gradient = {param: 0 for param in parameters}
+        #
+        # if self.model.n_sources != 1:
+        #     raise NotImplementedError("Sorry, chi2 for binary sources is " +
+        #                               "not implemented yet")
+        # if self.model.n_lenses != 1:
+        #     raise NotImplementedError(
+        #         'Event.chi2_gradient() works only ' +
+        #         'single lens models currently')
+        # as_dict = self.model.parameters.as_dict()
+        # if 'rho' in as_dict or 't_star' in as_dict:
+        #     raise NotImplementedError(
+        #         'Event.chi2_gradient() is not working ' +
+        #         'for finite source models yet')
+        #
+        # # Define a Fit given the model and perform linear fit for fs and fb
+        # self._update_data_in_model()
+        # self.fit = Fit(
+        #     data=self.datasets, magnification=self.model.data_magnification)
+        # # For binary source cases, the above line would need to be replaced,
+        # # so that it uses self.model.fit.
+        # if fit_blending is not None:
+        #     self.fit.fit_fluxes(fit_blending=fit_blending)
+        # else:
+        #     self.fit.fit_fluxes()
+        #
+        # for (i, dataset) in enumerate(self.datasets):
+        #     (data, err_data) = dataset.data_and_err_in_chi2_fmt()
+        #     factor = data - self.fit.get_chi2_format(data=dataset)
+        #     factor *= -2. / err_data**2
+        #     if dataset.chi2_fmt == 'mag':
+        #         factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
+        #     factor *= self.fit.flux_of_sources(dataset)[0]
+        #
+        #     kwargs = {}
+        #     if dataset.ephemerides_file is not None:
+        #         kwargs['satellite_skycoord'] = dataset.satellite_skycoord
+        #     trajectory = Trajectory(
+        #             dataset.time, self.model.parameters,
+        #             self.model.get_parallax(), self.coords, **kwargs)
+        #     u_2 = trajectory.x**2 + trajectory.y**2
+        #     u_ = np.sqrt(u_2)
+        #     d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
+        #     factor *= d_A_d_u
+        #
+        #     factor_d_x_d_u = (factor * trajectory.x / u_)[dataset.good]
+        #     sum_d_x_d_u = np.sum(factor_d_x_d_u)
+        #     factor_d_y_d_u = (factor * trajectory.y / u_)[dataset.good]
+        #     sum_d_y_d_u = np.sum(factor_d_y_d_u)
+        #     dt = dataset.time[dataset.good] - as_dict['t_0']
+        #
+        #     # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
+        #     # gradient depends on which ones are defined.
+        #     if 't_eff' not in as_dict:
+        #         t_E = as_dict['t_E'].to(u.day).value
+        #         if 't_0' in parameters:
+        #             gradient['t_0'] += -sum_d_x_d_u / t_E
+        #         if 'u_0' in parameters:
+        #             gradient['u_0'] += sum_d_y_d_u
+        #         if 't_E' in parameters:
+        #             gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E**2)
+        #     elif 't_E' not in as_dict:
+        #         t_eff = as_dict['t_eff'].to(u.day).value
+        #         if 't_0' in parameters:
+        #             gradient['t_0'] += -sum_d_x_d_u * as_dict['u_0'] / t_eff
+        #         if 'u_0' in parameters:
+        #             gradient['u_0'] += sum_d_y_d_u + np.sum(
+        #                     factor_d_x_d_u * dt / t_eff)
+        #         if 't_eff' in parameters:
+        #             gradient['t_eff'] += np.sum(
+        #                     factor_d_x_d_u * -dt *
+        #                     as_dict['u_0'] / t_eff**2)
+        #     elif 'u_0' not in as_dict:
+        #         t_E = as_dict['t_E'].to(u.day).value
+        #         t_eff = as_dict['t_eff'].to(u.day).value
+        #         if 't_0' in parameters:
+        #             gradient['t_0'] += -sum_d_x_d_u / t_E
+        #         if 't_E' in parameters:
+        #             gradient['t_E'] += (
+        #                     np.sum(factor_d_x_d_u * dt) -
+        #                     sum_d_y_d_u * t_eff) / t_E**2
+        #         if 't_eff' in parameters:
+        #             gradient['t_eff'] += sum_d_y_d_u / t_E
+        #     else:
+        #         raise KeyError(
+        #             'Something is wrong with ModelParameters in ' +
+        #             'Event.chi2_gradient():\n', as_dict)
+        #
+        #     # Below we deal with parallax only.
+        #     if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
+        #         parallax = {
+        #             'earth_orbital': False,
+        #             'satellite': False,
+        #             'topocentric': False}
+        #         trajectory_no_piE = Trajectory(
+        #             dataset.time, self.model.parameters, parallax, self.coords,
+        #             **kwargs)
+        #         dx = (trajectory.x - trajectory_no_piE.x)[dataset.good]
+        #         dy = (trajectory.y - trajectory_no_piE.y)[dataset.good]
+        #         delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
+        #         delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
+        #         det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
+        #
+        #         if 'pi_E_N' in parameters:
+        #             gradient['pi_E_N'] += np.sum(
+        #                 factor_d_x_d_u * delta_N + factor_d_y_d_u * delta_E)
+        #             gradient['pi_E_N'] /= det
+        #         if 'pi_E_E' in parameters:
+        #             gradient['pi_E_E'] += np.sum(
+        #                 factor_d_x_d_u * delta_E - factor_d_y_d_u * delta_N)
+        #             gradient['pi_E_E'] /= det
+        #
+        # if len(parameters) == 1:
+        #     out = gradient[parameters[0]]
+        # else:
+        #     out = np.array([gradient[p] for p in parameters])
+        # return out
 
     def fit_fluxes(self):
         """
         Fit for the optimal fluxes for each dataset (and its chi2)
         """
-        # JCY - I tried, but I could not envision an instance in which
-        # you it was simpler not to redefine fits every time.
+        # JCY - I tried, but I could not think of an instance in which
+        # it was simpler not to redefine fits every time.
         # Actually, I also could not think of an instance in which you
         # would want to rerun the fits if nothing changes.
         self.fits = []
@@ -464,7 +474,7 @@ class Event(object):
                 model=self.model, dataset=self.datasets,
                 fix_blend_flux=fix_blend_flux, fix_source_flux=fix_source_flux,
                 fix_q_flux=fix_q_flux)
-            fit.fit_fluxes()
+            fit.update() # Fit the fluxes and calculate chi2.
             self.fits.append(fit)
 
     def reset_best_chi2(self):
@@ -472,8 +482,9 @@ class Event(object):
         Reset :py:attr:`~best_chi2` attribute and its parameters
         (:py:attr:`~best_chi2_parameters`).
         """
-        self._best_chi2 = None
-        self._best_chi2_parameters = {}
+        pass
+        # self._best_chi2 = None
+        # self._best_chi2_parameters = {}
 
     def _sum(self, data):
         """calculate sum of the data"""
@@ -491,8 +502,9 @@ class Event(object):
         the ones in self.model. This happens only when the same Model instance
         is used by different instances of Event.
         """
-        if self.model.datasets != self.datasets:
-            self.model.set_datasets(self.datasets)
+        pass
+        # if self.model.datasets != self.datasets:
+        #     self.model.set_datasets(self.datasets)
 
     @property
     def coords(self):
@@ -532,8 +544,8 @@ class Event(object):
                     'wrong type of Event.model: {:} instead of ' +
                     'MulensModel').format(type(new_value)))
         self._model = new_value
-        if self._datasets is not None:
-            self._model.set_datasets(self._datasets)
+        # if self._datasets is not None:
+        #     self._model.set_datasets(self._datasets)
 
         if new_value.coords is not None:
             self._update_coords(coords=new_value.coords)
@@ -570,8 +582,8 @@ class Event(object):
             self._datasets = None
             return
         self._datasets = new_value
-        if isinstance(self._model, Model):
-            self._model.set_datasets(self._datasets)
+        # if isinstance(self._model, Model):
+        #     self._model.set_datasets(self._datasets)
 
         self.fits = None  # reset the fits if the data changed
 
@@ -583,11 +595,13 @@ class Event(object):
         :py:class:`~MulensModel.mulensdata.MulensData` object or an
         index (*int*). Default is the first data set.
         """
-        return self.model.data_ref
+        pass
+        # return self.model.data_ref
 
     @data_ref.setter
     def data_ref(self, new_value):
-        self.model.data_ref = new_value
+        pass
+        # self.model.data_ref = new_value
 
     @property
     def best_chi2(self):
@@ -596,7 +610,8 @@ class Event(object):
 
         The smallest value returned by :py:func:`get_chi2()`.
         """
-        return self._best_chi2
+        pass
+        # return self._best_chi2
 
     @property
     def best_chi2_parameters(self):
@@ -605,7 +620,8 @@ class Event(object):
 
         Parameters that gave the smallest chi2.
         """
-        return self._best_chi2_parameters
+        pass
+        # return self._best_chi2_parameters
 
     @property
     def sum_function(self):

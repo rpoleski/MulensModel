@@ -111,10 +111,12 @@ class Model(object):
         self._limb_darkening_coeffs = LimbDarkeningCoeffs()
         self._bandpasses = []
 
+        # JCY - This terminology is not consistent with fitdata.py. Also,
+        # haven't checked if the usage matches.
         self._source_flux_ratio_constraint = dict()
 
-        self._datasets = []
-        self._datasets_set_single = False
+        # self._datasets = []
+        # self._datasets_set_single = False
 
     def __repr__(self):
         return '{0}'.format(self.parameters)
@@ -196,6 +198,7 @@ class Model(object):
                 Explicitly specify the source and blend fluxes in a
                 system where flux = 1 corresponds to
                 :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag).
+            JCY - For multiple sources, shouldn't f_source be a list?
 
             subtract_2450000, subtract_2460000: *boolean*, optional
                 If True, subtracts 2450000 or 2460000 from the time
@@ -219,26 +222,39 @@ class Model(object):
         plot in flux units different than last value of `data_ref`
         (defaults to the first dataset).
 
-        """
-        if data_ref is not None:
-            self.data_ref = data_ref
-        if f_source is None and f_blend is None:
-            if self.data_ref is None:
-                raise ValueError('No reference dataset of fluxes provided. ' +
-                                 "If you don't have a dataset, then try " +
-                                 "plot_magnification() instead of plot_lc().")
-        elif f_source is None or f_blend is None:
-            raise AttributeError(
-                'If f_source is set, f_blend must also be set and vice versa.')
-        else:
-            if fit_blending is not None:
-                raise ValueError(
-                    "Error in plot_lc(). Providing f_source, " +
-                    "f_blend, and fit_blending doesn't make sense.")
+        # """
+        # if data_ref is not None:
+        #     self.data_ref = data_ref
+        # if f_source is None and f_blend is None:
+        #     if self.data_ref is None:
+        #         raise ValueError('No reference dataset of fluxes provided. ' +
+        #                          "If you don't have a dataset, then try " +
+        #                          "plot_magnification() instead of plot_lc().")
+        # elif f_source is None or f_blend is None:
+        #     raise AttributeError(
+        #         'If f_source is set, f_blend must also be set and vice versa.')
+        # else:
+        #     if fit_blending is not None:
+        #         raise ValueError(
+        #             "Error in plot_lc(). Providing f_source, " +
+        #             "f_blend, and fit_blending doesn't make sense.")
 
-        if f_source is None and f_blend is None:
-            (f_source, f_blend) = self.get_ref_fluxes(
-                data_ref=self.data_ref, fit_blending=fit_blending)
+        # if f_source is None and f_blend is None:
+        #     (f_source, f_blend) = self.get_ref_fluxes(
+        #         data_ref=self.data_ref, fit_blending=fit_blending)
+
+        if f_source is None:
+            raise ValueError("You must provide a value for f_source.")
+        elif len(f_source) != self.n_sources:
+            raise ValueError(
+                "One value of f_source should be provided for each source." +
+                "f_source = {0}".format(f_source) +
+                "n_sources = {0}".format(self.n_sources))
+
+        # JCY - Good idea?
+        if f_blend is None:
+            warnings.warn('No f_blend not specified. Assuming f_blend = zero.')
+            f_blend = 0.
 
         if times is None:
             times = self.set_times(
@@ -247,16 +263,30 @@ class Model(object):
         elif isinstance(times, list):
             times = np.array(times)
 
-        if self.n_sources == 2:
-            if (flux_ratio_constraint is None and
-                    None not in self._source_flux_ratio_constraint):
-                flux_ratio_constraint = (
-                    self._flux_ratio_constraint_for_plotting())
+        # JCY - Too complicated. User should provide f_source 1 and 2.
+        # if self.n_sources == 2:
+        #     if (flux_ratio_constraint is None and
+        #             None not in self._source_flux_ratio_constraint):
+        #         flux_ratio_constraint = (
+        #             self._flux_ratio_constraint_for_plotting())
 
-        magnification = self.magnification(
-            times,
-            flux_ratio_constraint=flux_ratio_constraint)
-        flux = f_source * magnification + f_blend
+        # magnification = self.magnification(
+        #     times,
+        #     flux_ratio_constraint=flux_ratio_constraint)
+        if self.n_sources == 1:
+            magnification = self.magnification(times)
+            flux = f_source * magnification + f_blend
+        else:
+            magnification = self.magnification(times, separate=True)
+            flux = None
+            for i in range(self.n_sources):
+                if flux is None:
+                    flux = f_source[i] + magnification[i]
+                else:
+                    flux += f_source[i] + magnification[i]
+
+            flux += f_blend
+
         subtract = self._subtract(subtract_2450000, subtract_2460000)
 
         self._plt_plot(times-subtract, Utils.get_mag_from_flux(flux), kwargs)
@@ -271,29 +301,31 @@ class Model(object):
         """
         Warning or error message for lack of source flux ratio information.
         """
-        msg = (
-                '\n\nTo plot magnification for binary source model you have ' +
-                'to set the flux ratio (using set_source_flux_ratio()) ' +
-                'or provide dataset which will be used to find flux ' +
-                'ratio (keyword flux_ratio_constraint).\n\n')
-        if len(self._datasets) == 1:
-            warnings.warn(msg + 'You have provided only one dataset, so ' +
-                          "for now we will use that one.", RuntimeWarning)
-            return self._datasets[0]
-        elif len(self._datasets) > 1:
-            warnings.warn(msg + 'You have provided only some datasets and ' +
-                          "for now we will use the first one.", RuntimeWarning)
-            return self._datasets[0]
-        else:
-            raise ValueError(
-                'Not enough information to plot the model magnification. ' +
-                'Use set_source_flux_ratio() function ' +
-                'or flux_ratio_constraint keyword.')
+        pass
+        # msg = (
+        #         '\n\nTo plot magnification for binary source model you have ' +
+        #         'to set the flux ratio (using set_source_flux_ratio()) ' +
+        #         'or provide dataset which will be used to find flux ' +
+        #         'ratio (keyword flux_ratio_constraint).\n\n')
+        # if len(self._datasets) == 1:
+        #     warnings.warn(msg + 'You have provided only one dataset, so ' +
+        #                   "for now we will use that one.", RuntimeWarning)
+        #     return self._datasets[0]
+        # elif len(self._datasets) > 1:
+        #     warnings.warn(msg + 'You have provided only some datasets and ' +
+        #                   "for now we will use the first one.", RuntimeWarning)
+        #     return self._datasets[0]
+        # else:
+        #     raise ValueError(
+        #         'Not enough information to plot the model magnification. ' +
+        #         'Use set_source_flux_ratio() function ' +
+        #         'or flux_ratio_constraint keyword.')
 
     def _plt_plot(self, x, y, kwargs):
         """
         safe run of matplotlib.pyplot.plot()
         """
+        # JCY --> plot_functions.py?
         try:
             plt.plot(x, y, **kwargs)
         except Exception:
@@ -305,6 +337,7 @@ class Model(object):
         """
         find value of HJD to be subtracted
         """
+        # JCY --> plot_functions.py?
         if subtract_2450000:
             if subtract_2460000:
                 raise ValueError('subtract_2450000 and subtract_2460000 ' +
@@ -320,6 +353,7 @@ class Model(object):
         """
         string that would be past to plt.xlabel()
         """
+        # JCY --> plot_functions.py?
         if subtract_2450000:
             if subtract_2460000:
                 raise ValueError('subtract_2450000 and subtract_2460000 ' +
@@ -337,51 +371,53 @@ class Model(object):
 
         Resets internal plotting properties of all attached datasets.
         """
+        # JCY --> plot_functions.py?
         warnings.warn('reset_plot_properties() will be deprecated in future',
                       FutureWarning)
-        for data in self._datasets:
-            data.plot_properties = {}
+        # for data in self._datasets:
+        #     data.plot_properties = {}
 
     def _set_default_colors(self):
         """
         If the user has not specified a color for a dataset, assign
         one.
         """
+        # JCY --> plot_functions.py?
         colors = [cycle['color'] for cycle in rcParams['axes.prop_cycle']]
 
         # Below we change the order of colors to most distinct first.
-        used_colors = []
-        for data in self._datasets:
-            if 'color' in data.plot_properties.keys():
-                used_colors.append(data.plot_properties['color'])
-        if len(used_colors) == len(self._datasets):
-            return
-        if len(used_colors) == 0:
-            differences = None
-        else:
-            d_col = self._color_differences
-            diffs = np.array([np.min(d_col(used_colors, c)) for c in colors])
-            indexes = np.argsort(diffs)[::-1]
-            colors = [colors[i] for i in indexes]
-            differences = diffs[indexes]
-
-        # Assign colors when needed.
-        color_index = 0
-        for data in self._datasets:
-            if 'color' not in data.plot_properties.keys():
-                if differences is not None:
-                    if differences[color_index] < 0.35:
-                        msg = ('The color assign to one of the datasets in ' +
-                               'automated way (' + colors[color_index] +
-                               ') is very similar to already used color')
-                        warnings.warn(msg, UserWarning)
-                data.plot_properties['color'] = colors[color_index]
-                color_index += 1
-                if color_index == len(colors):
-                    color_index = 0
-                    msg = ('Too many datasets without colors assigned - ' +
-                           'same color will be used for different datasets')
-                    warnings.warn(msg, UserWarning)
+        # used_colors = []
+        # for data in self._datasets:
+        #     if 'color' in data.plot_properties.keys():
+        #         used_colors.append(data.plot_properties['color'])
+        # if len(used_colors) == len(self._datasets):
+        #     return
+        # if len(used_colors) == 0:
+        #     differences = None
+        # else:
+        #     d_col = self._color_differences
+        #     diffs = np.array([np.min(d_col(used_colors, c)) for c in colors])
+        #     indexes = np.argsort(diffs)[::-1]
+        #     colors = [colors[i] for i in indexes]
+        #     differences = diffs[indexes]
+        #
+        # # Assign colors when needed.
+        # color_index = 0
+        # for data in self._datasets:
+        #     if 'color' not in data.plot_properties.keys():
+        #         if differences is not None:
+        #             if differences[color_index] < 0.35:
+        #                 msg = ('The color assign to one of the datasets in ' +
+        #                        'automated way (' + colors[color_index] +
+        #                        ') is very similar to already used color')
+        #                 warnings.warn(msg, UserWarning)
+        #         data.plot_properties['color'] = colors[color_index]
+        #         color_index += 1
+        #         if color_index == len(colors):
+        #             color_index = 0
+        #             msg = ('Too many datasets without colors assigned - ' +
+        #                    'same color will be used for different datasets')
+        #             warnings.warn(msg, UserWarning)
 
     def _color_differences(self, color_list, color):
         """
@@ -397,6 +433,7 @@ class Model(object):
             differences: *np.ndarray*
                 differences of colors, values < 0.3 are very similar
         """
+        # JCY --> plot_functions.py?
         rgba = ColorConverter.to_rgba
         array = np.array(
             [[float(x) for x in list(rgba(c))[:3]] for c in color_list])
@@ -415,6 +452,7 @@ class Model(object):
         transfer the properties to the new
         :py:attr:`mulensdata.MulensData.plot_properties` system.
         """
+        # JCY --> plot_functions.py?
         old_plot_keywords = [
             'color_list', 'marker_list', 'size_list',
             'label_list', 'alpha_list', 'zorder_list']
@@ -466,44 +504,45 @@ class Model(object):
                 previous behavior, ``**kwargs`` are no longer remembered.
 
         """
+        pass
 
-        self._check_old_plot_kwargs(
-            color_list=color_list, marker_list=marker_list,
-            size_list=size_list, label_list=label_list,
-            alpha_list=alpha_list, zorder_list=zorder_list)
-        self._set_default_colors()
-
-        if data_ref is not None:
-            self.data_ref = data_ref
-
-        # Set plot limits
-        t_min = 3000000.
-        t_max = 0.
-        subtract = self._subtract(subtract_2450000, subtract_2460000)
-
-        # Get fluxes for all datasets
-        fit = Fit(data=self._datasets, magnification=self.data_magnification)
-        fit.fit_fluxes()
-        self._fit = fit
-
-        for (i, data) in enumerate(self._datasets):
-            data.plot(
-                phot_fmt='mag', show_errorbars=show_errorbars,
-                show_bad=show_bad, subtract_2450000=subtract_2450000,
-                subtract_2460000=subtract_2460000, model=self,
-                **kwargs)
-
-            t_min = min(t_min, np.min(data.time))
-            t_max = max(t_max, np.max(data.time))
-
-        # Plot properties
-        plt.ylabel('Magnitude')
-        plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
-        plt.xlim(t_min-subtract, t_max-subtract)
-
-        (ymin, ymax) = plt.gca().get_ylim()
-        if ymax > ymin:
-            plt.gca().invert_yaxis()
+        # self._check_old_plot_kwargs(
+        #     color_list=color_list, marker_list=marker_list,
+        #     size_list=size_list, label_list=label_list,
+        #     alpha_list=alpha_list, zorder_list=zorder_list)
+        # self._set_default_colors()
+        #
+        # if data_ref is not None:
+        #     self.data_ref = data_ref
+        #
+        # # Set plot limits
+        # t_min = 3000000.
+        # t_max = 0.
+        # subtract = self._subtract(subtract_2450000, subtract_2460000)
+        #
+        # # Get fluxes for all datasets
+        # fit = Fit(data=self._datasets, magnification=self.data_magnification)
+        # fit.fit_fluxes()
+        # self._fit = fit
+        #
+        # for (i, data) in enumerate(self._datasets):
+        #     data.plot(
+        #         phot_fmt='mag', show_errorbars=show_errorbars,
+        #         show_bad=show_bad, subtract_2450000=subtract_2450000,
+        #         subtract_2460000=subtract_2460000, model=self,
+        #         **kwargs)
+        #
+        #     t_min = min(t_min, np.min(data.time))
+        #     t_max = max(t_max, np.max(data.time))
+        #
+        # # Plot properties
+        # plt.ylabel('Magnitude')
+        # plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
+        # plt.xlim(t_min-subtract, t_max-subtract)
+        #
+        # (ymin, ymax) = plt.gca().get_ylim()
+        # if ymax > ymin:
+        #     plt.gca().invert_yaxis()
 
     def plot_residuals(
             self, show_errorbars=None,
@@ -517,42 +556,43 @@ class Model(object):
         For explanation of keywords, see doctrings in
         :py:func:`plot_data()`. Note different order of keywords.
         """
+        pass
 
-        self._check_old_plot_kwargs(
-            color_list=color_list, marker_list=marker_list,
-            size_list=size_list, label_list=label_list,
-            alpha_list=alpha_list, zorder_list=zorder_list)
-        self._set_default_colors()
-
-        if data_ref is not None:
-            self.data_ref = data_ref
-
-        # Plot limit parameters
-        t_min = 3000000.
-        t_max = 0.
-        subtract = self._subtract(subtract_2450000, subtract_2460000)
-
-        # Plot zeropoint line
-        plt.plot([0., 3000000.], [0., 0.], color='black')
-
-        # Plot residuals
-        for data in self._datasets:
-            data.plot(
-                phot_fmt='mag', show_errorbars=show_errorbars,
-                show_bad=show_bad, subtract_2450000=subtract_2450000,
-                subtract_2460000=subtract_2460000, model=self,
-                plot_residuals=True, **kwargs)
-            t_min = min(t_min, np.min(data.time))
-            t_max = max(t_max, np.max(data.time))
-
-        # Plot properties
-        y_lim = np.max([np.abs(y_lim) for y_lim in plt.gca().get_ylim()])
-        if y_lim > 1.:
-            y_lim = 0.5
-        plt.ylim(y_lim, -y_lim)
-        plt.xlim(t_min-subtract, t_max-subtract)
-        plt.ylabel('Residuals')
-        plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
+        # self._check_old_plot_kwargs(
+        #     color_list=color_list, marker_list=marker_list,
+        #     size_list=size_list, label_list=label_list,
+        #     alpha_list=alpha_list, zorder_list=zorder_list)
+        # self._set_default_colors()
+        #
+        # if data_ref is not None:
+        #     self.data_ref = data_ref
+        #
+        # # Plot limit parameters
+        # t_min = 3000000.
+        # t_max = 0.
+        # subtract = self._subtract(subtract_2450000, subtract_2460000)
+        #
+        # # Plot zeropoint line
+        # plt.plot([0., 3000000.], [0., 0.], color='black')
+        #
+        # # Plot residuals
+        # for data in self._datasets:
+        #     data.plot(
+        #         phot_fmt='mag', show_errorbars=show_errorbars,
+        #         show_bad=show_bad, subtract_2450000=subtract_2450000,
+        #         subtract_2460000=subtract_2460000, model=self,
+        #         plot_residuals=True, **kwargs)
+        #     t_min = min(t_min, np.min(data.time))
+        #     t_max = max(t_max, np.max(data.time))
+        #
+        # # Plot properties
+        # y_lim = np.max([np.abs(y_lim) for y_lim in plt.gca().get_ylim()])
+        # if y_lim > 1.:
+        #     y_lim = 0.5
+        # plt.ylim(y_lim, -y_lim)
+        # plt.xlim(t_min-subtract, t_max-subtract)
+        # plt.ylabel('Residuals')
+        # plt.xlabel(self._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def get_residuals(self, data_ref=None, type='mag', data=None):
         """
@@ -585,48 +625,50 @@ class Model(object):
                 the scaled errorbars for each point. For plotting
                 errorbars for the residuals.
         """
-        if data_ref is not None:
-            self.data_ref = data_ref
-        data_ref_ = self._get_data_ref(data_ref)
+        pass
 
-        if data is not None:
-            data_list = [data]
-            fit_data = list(set([data, data_ref_]))
-            magnifications = [self.get_data_magnification(d) for d in fit_data]
-            fit = Fit(data=fit_data, magnification=magnifications)
-        else:
-            data_list = self._datasets
-            fit = Fit(data=data_list, magnification=self.data_magnification)
-        fit.fit_fluxes()
-        self._fit = fit
-
-        residuals = []
-        errorbars = []
-        # Calculate residuals.
-        for data_ in data_list:
-            f_source = self.fit.flux_of_sources(data_)
-            f_blend = self.fit.blending_flux(data_)
-            if type == 'mag':
-                f_source_0 = self.fit.flux_of_sources(data_ref_)
-                f_blend_0 = self.fit.blending_flux(data_ref_)
-                magnification = self.get_data_magnification(data_)
-                model_mag = Utils.get_mag_from_flux(
-                    f_blend_0 + f_source_0 * magnification)
-                flux = (f_source_0 * (data_.flux - f_blend) /
-                        f_source + f_blend_0)
-                err_flux = f_source_0 * data_.err_flux / f_source
-                (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
-                residuals.append(mag - model_mag)
-                errorbars.append(err)
-            elif type == 'flux':
-                magnification = self.get_data_magnification(data_)
-                model_flux = f_blend + f_source * magnification
-                residuals.append(data_.flux - model_flux)
-                errorbars.append(data_.err_flux)
-            else:
-                raise ValueError("type keyword must be either 'mag' or 'flux'")
-
-        return (residuals, errorbars)
+        # if data_ref is not None:
+        #     self.data_ref = data_ref
+        # data_ref_ = self._get_data_ref(data_ref)
+        #
+        # if data is not None:
+        #     data_list = [data]
+        #     fit_data = list(set([data, data_ref_]))
+        #     magnifications = [self.get_data_magnification(d) for d in fit_data]
+        #     fit = Fit(data=fit_data, magnification=magnifications)
+        # else:
+        #     data_list = self._datasets
+        #     fit = Fit(data=data_list, magnification=self.data_magnification)
+        # fit.fit_fluxes()
+        # self._fit = fit
+        #
+        # residuals = []
+        # errorbars = []
+        # # Calculate residuals.
+        # for data_ in data_list:
+        #     f_source = self.fit.flux_of_sources(data_)
+        #     f_blend = self.fit.blending_flux(data_)
+        #     if type == 'mag':
+        #         f_source_0 = self.fit.flux_of_sources(data_ref_)
+        #         f_blend_0 = self.fit.blending_flux(data_ref_)
+        #         magnification = self.get_data_magnification(data_)
+        #         model_mag = Utils.get_mag_from_flux(
+        #             f_blend_0 + f_source_0 * magnification)
+        #         flux = (f_source_0 * (data_.flux - f_blend) /
+        #                 f_source + f_blend_0)
+        #         err_flux = f_source_0 * data_.err_flux / f_source
+        #         (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+        #         residuals.append(mag - model_mag)
+        #         errorbars.append(err)
+        #     elif type == 'flux':
+        #         magnification = self.get_data_magnification(data_)
+        #         model_flux = f_blend + f_source * magnification
+        #         residuals.append(data_.flux - model_flux)
+        #         errorbars.append(data_.err_flux)
+        #     else:
+        #         raise ValueError("type keyword must be either 'mag' or 'flux'")
+        #
+        # return (residuals, errorbars)
 
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
@@ -774,8 +816,8 @@ class Model(object):
         if caustics:
             self.plot_caustics(marker='.', color='red')
 
-        if show_data:
-            self.plot_source_for_datasets()
+        # if show_data:
+        #     self.plot_source_for_datasets()
 
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):
@@ -871,28 +913,30 @@ class Model(object):
             ``**kwargs``:
                 see :py:func:`plot_source`
         """
-        if 'color' in kwargs:
-            raise ValueError(
-                'Color cannot be passed to plot_source_for_datasets(). To ' +
-                'change color, just change color for given MulensData object')
-        if self.datasets is None:
-            raise ValueError(
-                'No data linked to Model, so calling ' +
-                'plot_source_for_datasets() makes no sense.')
+        pass
 
-        self._set_default_colors()
-        if isinstance(self.datasets, MulensData):
-            datasets = [self.datasets]
-        else:
-            datasets = self.datasets
-
-        kwargs_ = dict(kwargs)
-        if 'fill' not in kwargs_:
-            kwargs_['fill'] = False
-
-        for data in datasets:
-            kwargs_['color'] = data.plot_properties['color']
-            self.plot_source(times=data.time, **kwargs_)
+        # if 'color' in kwargs:
+        #     raise ValueError(
+        #         'Color cannot be passed to plot_source_for_datasets(). To ' +
+        #         'change color, just change color for given MulensData object')
+        # if self.datasets is None:
+        #     raise ValueError(
+        #         'No data linked to Model, so calling ' +
+        #         'plot_source_for_datasets() makes no sense.')
+        #
+        # self._set_default_colors()
+        # if isinstance(self.datasets, MulensData):
+        #     datasets = [self.datasets]
+        # else:
+        #     datasets = self.datasets
+        #
+        # kwargs_ = dict(kwargs)
+        # if 'fill' not in kwargs_:
+        #     kwargs_['fill'] = False
+        #
+        # for data in datasets:
+        #     kwargs_['color'] = data.plot_properties['color']
+        #     self.plot_source(times=data.time, **kwargs_)
 
     def _plot_source_for_trajectory(self, trajectory, **kwargs):
         """
@@ -962,43 +1006,46 @@ class Model(object):
         call this without calling :py:func:`set_datasets()` first,
         there will be an exception and that's on you.
         """
-        data = self._get_data_ref(data_ref)
+        pass
 
-        mags = self.get_data_magnification(data)
-        fit = Fit(data=data, magnification=mags)
-        if fit_blending is not None:
-            fit.fit_fluxes(fit_blending=fit_blending)
-        else:
-            fit.fit_fluxes()
-        self._fit = fit
-
-        f_source = fit.flux_of_sources(data)
-        f_blend = fit.blending_flux(data)
-
-        return (f_source, f_blend)
+        # data = self._get_data_ref(data_ref)
+        #
+        # mags = self.get_data_magnification(data)
+        # fit = Fit(data=data, magnification=mags)
+        # if fit_blending is not None:
+        #     fit.fit_fluxes(fit_blending=fit_blending)
+        # else:
+        #     fit.fit_fluxes()
+        # self._fit = fit
+        #
+        # f_source = fit.flux_of_sources(data)
+        # f_blend = fit.blending_flux(data)
+        #
+        # return (f_source, f_blend)
 
     def _get_data_ref(self, data_ref):
         """
         Guess which reference dataset is talked about. Returns MulensData
         instance.
         """
-        if data_ref is None:
-            if len(self._datasets) == 0:
-                raise ValueError(
-                    'You cannot get reference flux for Model if' +
-                    ' you have not linked data first.')
-            if isinstance(self.data_ref, MulensData):
-                data = self.data_ref
-            else:
-                data = self._datasets[self.data_ref]
-        elif isinstance(data_ref, MulensData):
-            data = data_ref
-            self.data_ref = data_ref
-        else:
-            data = self._datasets[data_ref]
-            self.data_ref = data_ref
-
-        return data
+        pass
+        # if data_ref is None:
+        #     if len(self._datasets) == 0:
+        #         raise ValueError(
+        #             'You cannot get reference flux for Model if' +
+        #             ' you have not linked data first.')
+        #     if isinstance(self.data_ref, MulensData):
+        #         data = self.data_ref
+        #     else:
+        #         data = self._datasets[self.data_ref]
+        # elif isinstance(data_ref, MulensData):
+        #     data = data_ref
+        #     self.data_ref = data_ref
+        # else:
+        #     data = self._datasets[data_ref]
+        #     self.data_ref = data_ref
+        #
+        # return data
 
     def set_times(
             self, t_range=None, t_start=None, t_stop=None, dt=None,
@@ -1229,14 +1276,15 @@ class Model(object):
                 via regression (unless specific value is provided for
                 bandpass).
         """
-        if not isinstance(ratio, (np.float, float, type(None))):
-            raise TypeError(
-                'wrong type of input in Model.set_source_flux_ratio(): ' +
-                'got {:}, expected float or None'.format(type(ratio)))
-        if ratio is None:
-            del self._source_flux_ratio_constraint[None]
-        else:
-            self._source_flux_ratio_constraint[None] = ratio
+        pass
+        # if not isinstance(ratio, (np.float, float, type(None))):
+        #     raise TypeError(
+        #         'wrong type of input in Model.set_source_flux_ratio(): ' +
+        #         'got {:}, expected float or None'.format(type(ratio)))
+        # if ratio is None:
+        #     del self._source_flux_ratio_constraint[None]
+        # else:
+        #     self._source_flux_ratio_constraint[None] = ratio
 
     def set_source_flux_ratio_for_band(self, band, ratio):
         """
@@ -1250,23 +1298,24 @@ class Model(object):
                 ratio of fluxes of source no. 2 to source no. 1, i.e.,
                 flux_source_band_2/flux_source_band_1
         """
-        if not isinstance(band, str):
-            raise TypeError((
-                'wrong type of input in ' +
-                'Model.set_source_flux_ratio_for_band(): got {:}, ' +
-                'expected string').format(type(band)))
-        if not isinstance(ratio, (np.float, float)):
-            raise TypeError((
-                'wrong type of input in ' +
-                'Model.set_source_flux_ratio_for_band(): got {:}, ' +
-                'expected float').format(type(ratio)))
-        if len(self._datasets) > 0:
-            bands = [d.bandpass for d in self._datasets]
-            if band not in bands:
-                warnings.warn("No datasets with bandpass {:}".format(band),
-                              UserWarning)
-
-        self._source_flux_ratio_constraint[band] = ratio
+        pass
+        # if not isinstance(band, str):
+        #     raise TypeError((
+        #         'wrong type of input in ' +
+        #         'Model.set_source_flux_ratio_for_band(): got {:}, ' +
+        #         'expected string').format(type(band)))
+        # if not isinstance(ratio, (np.float, float)):
+        #     raise TypeError((
+        #         'wrong type of input in ' +
+        #         'Model.set_source_flux_ratio_for_band(): got {:}, ' +
+        #         'expected float').format(type(ratio)))
+        # if len(self._datasets) > 0:
+        #     bands = [d.bandpass for d in self._datasets]
+        #     if band not in bands:
+        #         warnings.warn("No datasets with bandpass {:}".format(band),
+        #                       UserWarning)
+        #
+        # self._source_flux_ratio_constraint[band] = ratio
 
     def parallax(
             self, earth_orbital=None, satellite=None, topocentric=None):
@@ -1557,22 +1606,23 @@ class Model(object):
         A list of magnifications calculated for every dataset in
         :py:attr:`datasets`.
         """
-        self._data_magnification = []
-
-        fit = None
-        for dataset in self._datasets:
-            magnification = self.get_data_magnification(dataset)
-            self._data_magnification.append(magnification)
-            if (self._fit is not None and self.n_sources > 1 and
-                    None not in self._source_flux_ratio_constraint):
-                if fit is None:
-                    fit = self._fit
-                else:
-                    fit.update(self._fit)
-        if self.n_sources > 1:
-            self._fit = fit
-
-        return self._data_magnification
+        pass
+        # self._data_magnification = []
+        #
+        # fit = None
+        # for dataset in self._datasets:
+        #     magnification = self.get_data_magnification(dataset)
+        #     self._data_magnification.append(magnification)
+        #     if (self._fit is not None and self.n_sources > 1 and
+        #             None not in self._source_flux_ratio_constraint):
+        #         if fit is None:
+        #             fit = self._fit
+        #         else:
+        #             fit.update(self._fit)
+        # if self.n_sources > 1:
+        #     self._fit = fit
+        #
+        # return self._data_magnification
 
     def get_data_magnification(self, dataset):
         """
@@ -1589,38 +1639,39 @@ class Model(object):
                 Values on magnification.
 
         """
-        if dataset.ephemerides_file is not None:
-            dataset_satellite_skycoord = dataset.satellite_skycoord
-        else:
-            dataset_satellite_skycoord = None
-
-        if not self.parameters.is_finite_source():
-            gamma = 0.
-        else:
-            if dataset.bandpass is None:
-                gamma = 0.
-            elif dataset.bandpass not in self.bandpasses:
-                message = (
-                    "Limb darkening coefficient requested for bandpass {:}, " +
-                    "but not set before. We're assuming gamma=0. Use " +
-                    "set_limb_coeff_gamma() or set_limb_coeff_u().")
-                warnings.warn(message.format(dataset.bandpass), RuntimeWarning)
-                gamma = 0.
-            else:
-                gamma = self._limb_darkening_coeffs.get_limb_coeff_gamma(
-                    dataset.bandpass)
-
-        if self.parameters.n_sources == 1:
-            flux_ratio_constraint = None
-        elif self.parameters.n_sources == 2:
-            flux_ratio_constraint = dataset
-        else:
-            raise ValueError('Wrong number of sources')
-        magnification = self._magnification(
-                dataset.time, satellite_skycoord=dataset_satellite_skycoord,
-                gamma=gamma, flux_ratio_constraint=flux_ratio_constraint,
-                separate=False, same_dataset=True)
-        return magnification
+        pass
+        # if dataset.ephemerides_file is not None:
+        #     dataset_satellite_skycoord = dataset.satellite_skycoord
+        # else:
+        #     dataset_satellite_skycoord = None
+        #
+        # if not self.parameters.is_finite_source():
+        #     gamma = 0.
+        # else:
+        #     if dataset.bandpass is None:
+        #         gamma = 0.
+        #     elif dataset.bandpass not in self.bandpasses:
+        #         message = (
+        #             "Limb darkening coefficient requested for bandpass {:}, " +
+        #             "but not set before. We're assuming gamma=0. Use " +
+        #             "set_limb_coeff_gamma() or set_limb_coeff_u().")
+        #         warnings.warn(message.format(dataset.bandpass), RuntimeWarning)
+        #         gamma = 0.
+        #     else:
+        #         gamma = self._limb_darkening_coeffs.get_limb_coeff_gamma(
+        #             dataset.bandpass)
+        #
+        # if self.parameters.n_sources == 1:
+        #     flux_ratio_constraint = None
+        # elif self.parameters.n_sources == 2:
+        #     flux_ratio_constraint = dataset
+        # else:
+        #     raise ValueError('Wrong number of sources')
+        # magnification = self._magnification(
+        #         dataset.time, satellite_skycoord=dataset_satellite_skycoord,
+        #         gamma=gamma, flux_ratio_constraint=flux_ratio_constraint,
+        #         separate=False, same_dataset=True)
+        # return magnification
 
     @property
     def caustics(self):
@@ -1705,16 +1756,17 @@ class Model(object):
         the same model is linked to multiple
         :py:class:`~MulensModel.event.Event` instances.
         """
-        if len(self._datasets) == 0:
-            raise ValueError('No datasets were linked to the model')
-        # The condition below should be removed, but we keep it for backward
-        # compatibility, i.e., at some point if user called
-        # Model.set_datasets(dataset) then Model.datasets was dataset, but for
-        # Model.set_datasets([dataset]) then Model.datasets was [dataset].
-        # Note that always self._datasets is of list type.
-        if len(self._datasets) == 1 and self._datasets_set_single:
-            return self._datasets[0]
-        return self._datasets
+        pass
+        # if len(self._datasets) == 0:
+        #     raise ValueError('No datasets were linked to the model')
+        # # The condition below should be removed, but we keep it for backward
+        # # compatibility, i.e., at some point if user called
+        # # Model.set_datasets(dataset) then Model.datasets was dataset, but for
+        # # Model.set_datasets([dataset]) then Model.datasets was [dataset].
+        # # Note that always self._datasets is of list type.
+        # if len(self._datasets) == 1 and self._datasets_set_single:
+        #     return self._datasets[0]
+        # return self._datasets
 
     def set_datasets(self, datasets, data_ref=0):
         """
@@ -1729,14 +1781,15 @@ class Model(object):
 
                 Reference dataset.
         """
-        if isinstance(datasets, MulensData):
-            self._datasets_set_single = True
-            self._datasets = [datasets]
-        else:
-            self._datasets_set_single = False
-            self._datasets = datasets
-        self._data_magnification = None
-        self.data_ref = data_ref
+        pass
+        # if isinstance(datasets, MulensData):
+        #     self._datasets_set_single = True
+        #     self._datasets = [datasets]
+        # else:
+        #     self._datasets_set_single = False
+        #     self._datasets = datasets
+        # self._data_magnification = None
+        # self.data_ref = data_ref
 
     @property
     def fit(self):
@@ -1746,4 +1799,5 @@ class Model(object):
         :py:class:`MulensModel.fit.Fit` instance recently used. It gives
         access to source and blending fluxes.
         """
-        return self._fit
+        pass
+        #return self._fit
