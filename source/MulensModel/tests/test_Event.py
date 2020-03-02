@@ -40,22 +40,37 @@ def test_event_get_chi2_1():
     ev.datasets = [data]
 
     # Make sure Event.fit is defined (can be None):
-    assert ev.fit is None or isinstance(ev.fit, mm.Fit)
+    # assert ev.fit is None or isinstance(ev.fit, mm.Fit)
 
     chi2 = ev.get_chi2()
     assert isinstance(chi2, float), 'wrong type of chi2'
     np.testing.assert_almost_equal(float(chi2), 427.20382, decimal=4,
                                    err_msg='problem in resulting chi2')
 
+    ev.sum_function = 'numpy.sum' # JCY what is the purpose of this test?
+    ev.fit_fluxes()
+    np.testing.assert_almost_equal(
+        ev.get_chi2(), 427.20382, decimal=4, err_msg='problem with numpy.sum')
+
+    # Old method of fixing the blending
     chi2_no_blend = ev.get_chi2(fit_blending=False)
     assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
     np.testing.assert_almost_equal(
         float(chi2_no_blend), 459.09826, decimal=4,
         err_msg='problem in resulting chi2 for fixed no blending')
 
-    ev.sum_function = 'numpy.sum'
-    np.testing.assert_almost_equal(
-        ev.get_chi2(), 427.20382, decimal=4, err_msg='problem with numpy.sum')
+    # New method of fixing the blending
+    ev.fix_blend_flux = {}
+    ev.fit_fluxes()
+    np.testing.assert_almost_equal(ev.get_chi2(), 427.20382, decimal=4)
+
+    fix_blend_flux = {}
+    for dataset in ev.datasets:
+        fix_blend_flux[dataset] = 0.
+
+    ev.fix_blend_flux = fix_blend_flux
+    ev.fit_fluxes()
+    np.testing.assert_almost_equal(ev.get_chi2(), 459.09826, decimal=4)
 
 
 def test_event_get_chi2_2():
