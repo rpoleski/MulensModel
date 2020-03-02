@@ -10,7 +10,7 @@ import MulensModel
 from MulensModel.utils import Utils
 
 
-def _try_load(path):
+def _try_load(path, name):
     """
     Try loading compiled C library.
     Input is *str* or *list* of *str*.
@@ -21,7 +21,8 @@ def _try_load(path):
         try:
             out = ctypes.cdll.LoadLibrary(path_)
         except OSError:
-            print("OSError - File not loaded:", path_)
+            print("WARNING - File not loaded:", path_)
+            print("Everything should work except:", name)
             pass
         else:
             return out
@@ -41,15 +42,16 @@ def _get_path_2(name_1, name_2):
     return os.path.join(module_path, 'source', name_1, name_2)
 
 
-vbbl = _try_load(glob.glob(_get_path_1("VBBL")))
+vbbl = _try_load(glob.glob(_get_path_1("VBBL")), "VBBL")
 if vbbl is None:
-    vbbl = _try_load(_get_path_2('VBBL', "VBBinaryLensingLibrary_wrapper.so"))
+    vbbl = _try_load(_get_path_2('VBBL', "VBBinaryLensingLibrary_wrapper.so"),
+                     "VBBL")
 _vbbl_wrapped = (vbbl is not None)
 
 ac = "AdaptiveContouring"
-adaptive_contour = _try_load(glob.glob(_get_path_1(ac)))
+adaptive_contour = _try_load(glob.glob(_get_path_1(ac)), ac)
 if adaptive_contour is None:
-    adaptive_contour = _try_load(_get_path_2(ac, ac + "_wrapper.so"))
+    adaptive_contour = _try_load(_get_path_2(ac, ac + "_wrapper.so"), ac)
 _adaptive_contouring_wrapped = (adaptive_contour is not None)
 
 if _vbbl_wrapped:
