@@ -47,7 +47,7 @@ def test_event_get_chi2_1():
     np.testing.assert_almost_equal(float(chi2), 427.20382, decimal=4,
                                    err_msg='problem in resulting chi2')
 
-    ev.sum_function = 'numpy.sum' # JCY what is the purpose of this test?
+    ev.sum_function = 'numpy.sum'  # JCY what is the purpose of this test?
     np.testing.assert_almost_equal(
         ev.get_chi2(), 427.20382, decimal=4, err_msg='problem with numpy.sum')
 
@@ -116,6 +116,7 @@ def test_event_get_chi2_2():
     np.testing.assert_almost_equal(
         float(chi2_no_blend), 2.*459.09826, decimal=4,
         err_msg='problem in resulting chi2 for fixed no blending')
+
 
 def test_event_get_chi2_3():
     """test on ob08092 OGLE-IV data - MulensData.good & MulensData.bad"""
@@ -298,11 +299,12 @@ def test_event_chi2_gradient():
     for test in [test_1]:  # , test_2]:
         (parameters, params, gradient) = test
         event = mm.Event(
-            model=mm.Model(parameters), fix_blend_flux={data:0.}, **kwargs)
+            model=mm.Model(parameters), fix_blend_flux={data: 0.}, **kwargs)
         result = event.chi2_gradient(params)
 
         reference = np.array([gradient[key] for key in params])
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
+
 
 def test_get_ref_fluxes():
     """Test Event.get_ref_fluxes()"""
@@ -317,7 +319,7 @@ def test_get_ref_fluxes():
     (f_s_1, f_b_1) = event.get_ref_fluxes()
     (f_s_2, f_b_2) = event.get_ref_fluxes(fit_blending=False)
     (f_s_3, f_b_3) = event.get_ref_fluxes(fit_blending=True)
-    
+
     assert f_b_2 == 0.
     assert f_s_1 == f_s_3
     assert f_b_1 == f_b_3
@@ -328,8 +330,10 @@ def test_get_ref_fluxes():
     # New method for fixing the blending
     (f_s_1, f_b_1) = event.get_ref_fluxes()
     event.fix_blend_flux[data] = 0.
+    event.fit_fluxes()
     (f_s_2, f_b_2) = event.get_ref_fluxes()
     event.fix_blend_flux = {}
+    event.fit_fluxes()
     (f_s_3, f_b_3) = event.get_ref_fluxes()
 
     assert f_b_2 == 0.

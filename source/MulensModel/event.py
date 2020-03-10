@@ -79,6 +79,8 @@ class Event(object):
         else:
             raise TypeError('incorrect argument datasets of class Event()')
 
+        self._data_ref = None
+
         # Set event coordinates
         if coords is not None:
             self._update_coords(coords=coords)
@@ -86,7 +88,7 @@ class Event(object):
             if self._model.coords is not None:
                 self._update_coords(coords=self._model.coords)
 
-        self.reset_best_chi2() # To be deprecated
+        self.reset_best_chi2()  # To be deprecated
         self.sum_function = 'math.fsum'
         self.fit = None  # This should be changed to @property w/ lazy loading
 
@@ -135,16 +137,63 @@ class Event(object):
         details.
         """
         pass
-        #self.model.plot_source_for_datasets(**kwargs)
+        # self.model.plot_source_for_datasets(**kwargs)
+
+    def get_flux_for_dataset(self, dataset):
+        """
+        Get the source and blend flux for a given dataset.
+
+        Parameters :
+            dataset: :py:class:`~MulensModel.mulensdata.MulensData` or *int*
+            If *int* should be the index (starting at 0) of the appropriate
+            dataset in the :py:obj:`~datasets` list.
+
+        Returns :
+            f_source: *np.ndarray*
+                Sources' flux; normally of size (1). If it is of size (1)
+                for a double source model, then it is a sum of fluxes
+                of both sources.
+            f_blend: *float*
+                blending flux
+
+        NOTE: This function does not recalculate fits or fluxes. If the data
+        haven't yet been fit to the model (i.e. self.fits = None),
+        it will run :py:func:`~fit_fluxes()`. Otherwise, it just accesses the
+        existing values. So if you change something in :py:obj:`~model` or
+        some fit parameter (e.g., :py:obj:`~fix_blending`), be sure to run
+        :py:func:`~fit_fluxes()` first.
+
+        """
+        # JCY - This entire method is new and does *not* have unit tests.
+        if self.fits is None:
+            self.fit_fluxes()
+
+        if isinstance(dataset, MulensData):
+            i = np.where(self.datasets == dataset)
+        else:
+            i = dataset
+
+        f_source = self.fits[i].source_fluxes
+        f_blend = self.fits[i].blend_flux
+
+        return (f_source, f_blend)
 
     def get_ref_fluxes(self, data_ref=None, fit_blending=None):
         """
         Get source and blending fluxes for the reference dataset. See
-        :py:func:`MulensModel.model.Model.get_ref_fluxes()` for details.
+        :py:func:`~get_flux_for_dataset()`. If the reference dataset is not
+        set, uses the first dataset as default. See :py:obj:`~data_ref`.
         """
-        pass
-        # return self.model.get_ref_fluxes(
-        #    data_ref=data_ref, fit_blending=fit_blending)
+        if data_ref is not None:
+            warnings.warn(
+                'data_ref will be deprecated. It is redundant for getting '+
+                'the flux of the reference dataset. For the flux of an '+
+                'arbitrary dataset, use get_flux_for_dataset')
+
+        if fit_blending is not None:
+            self._apply_fit_blending(fit_blending)
+
+        return self.get_flux_for_dataset(self.data_ref)
 
     def get_chi2(self, fit_blending=None):
         """
@@ -163,14 +212,7 @@ class Event(object):
 
         """
         if fit_blending is not None:
-            warnings.warn('fit_blending option will be deprecated in future',
-                          FutureWarning)
-            self.fits = None
-            if fit_blending is True:
-                self.fix_blend_flux = {}
-            else:
-                for dataset in self.datasets:
-                    self.fix_blend_flux[dataset] = 0.
+            self._apply_fit_blending(fit_blending)
 
         self.fit_fluxes()
         chi2 = []
@@ -219,6 +261,9 @@ class Event(object):
                 chi2 for dataset[index_dataset].
 
         """
+        if fit_blending is not None:
+            self._apply_fit_blending(fit_blending)
+
         self.fit_fluxes()
 
         return self.fits[index_dataset].chi2
@@ -292,6 +337,9 @@ class Event(object):
 
         """
         # JCY - This function does not seem to be covered by unit tests.
+        if fit_blending is not None:
+            self._apply_fit_blending(fit_blending)
+
         self.fit_fluxes()
 
         # Calculate chi^2 given the fit
@@ -364,6 +412,9 @@ class Event(object):
             gradient: *float* or *np.ndarray*
                 chi^2 gradient
         """
+        if fit_blending is not None:
+            self._apply_fit_blending(fit_blending)
+
         pass
 
         # if not isinstance(parameters, list):
@@ -520,7 +571,7 @@ class Event(object):
                 model=self.model, dataset=dataset,
                 fix_blend_flux=fix_blend_flux, fix_source_flux=fix_source_flux,
                 fix_q_flux=fix_q_flux)
-            fit.update() # Fit the fluxes and calculate chi2.
+            fit.update()  # Fit the fluxes and calculate chi2.
             self.fits.append(fit)
 
     def reset_best_chi2(self):
@@ -641,13 +692,14 @@ class Event(object):
         :py:class:`~MulensModel.mulensdata.MulensData` object or an
         index (*int*). Default is the first data set.
         """
-        pass
-        # return self.model.data_ref
+        if self._data_ref is None:
+            return 0
+        else:
+            return self._data_ref
 
     @data_ref.setter
     def data_ref(self, new_value):
-        pass
-        # self.model.data_ref = new_value
+        self._data_ref = new_value
 
     @property
     def chi2(self):
@@ -672,7 +724,7 @@ class Event(object):
 
         The smallest value returned by :py:func:`get_chi2()`.
         """
-        warnings.warn('best_chi2 will be deprecated in future', FutureWarning)
+        warnings.warn('best_chi2 will be deprecated in future.', FutureWarning)
         return self._best_chi2
 
     @property
@@ -682,7 +734,7 @@ class Event(object):
 
         Parameters that gave the smallest chi2.
         """
-        warnings.warn('best_chi2_parameters will be deprecated in future',
+        warnings.warn('best_chi2_parameters will be deprecated in future.',
                       FutureWarning)
         return self._best_chi2_parameters
 
@@ -712,3 +764,15 @@ class Event(object):
         **Not Implemented.**
         """
         raise NotImplementedError("This feature has not been implemented yet")
+
+    def _apply_fit_blending(self, fit_blending):
+        warnings.warn(
+            'fit_blending option will be deprecated in future.' +
+            'To fix the blending, set Event.fix_blend_flux instead.',
+            FutureWarning)
+        self.fits = None
+        if fit_blending is True:
+            self.fix_blend_flux = {}
+        else:
+            for dataset in self.datasets:
+                self.fix_blend_flux[dataset] = 0.
