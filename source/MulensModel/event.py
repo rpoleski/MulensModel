@@ -36,13 +36,20 @@ class Event(object):
             Coordinates of the event. If *str*, then needs format accepted by
             astropy.SkyCoord_ e.g., ``'18:00:00 -30:00:00'``.
 
-        fix_blend_flux, fix_source_flux, fix_q_flux : *dict*
-            Used to fix the source flux(es), blend flux, or flux ratio
+        fix_blend_flux, fix_source_flux: *dict*
+            Used to fix the source flux(es) or blend flux
             (q_flux for 1L2S models) for a particular dataset. The dataset is
             the key, and the value to be fixed is the value. For example, to
             fix the blending of some dataset *my_data* to zero set
             *fix_blend_flux={my_data: 0.}*. See also
             :py:class:`~MulensModel.fitdata.FitData` .
+
+        fix_q_flux: *dict*
+            Used to fix the flux ratio for a given band or dataset. The keys
+            should be either :py:class:`~MulensModel.mulensdata.MulensData`
+            objects or *str*. If a
+            :py:class:`~MulensModel.mulensdata.MulensData` object is specified,
+            it will take precedence over a band.
 
         fit: :py:class:`~MulensModel.fit.Fit` or *None*
             Instance of :py:class:`~MulensModel.fit.Fit` class used in
@@ -186,8 +193,8 @@ class Event(object):
         """
         if data_ref is not None:
             warnings.warn(
-                'data_ref will be deprecated. It is redundant for getting '+
-                'the flux of the reference dataset. For the flux of an '+
+                'data_ref will be deprecated. It is redundant for getting ' +
+                'the flux of the reference dataset. For the flux of an ' +
                 'arbitrary dataset, use get_flux_for_dataset')
 
         if fit_blending is not None:
@@ -345,9 +352,9 @@ class Event(object):
         # Calculate chi^2 given the fit
         chi2_per_point = []
         for (i, dataset) in enumerate(self.datasets):
-           chi2_per_point.append(self.fits[i].chi2_per_point)
+            chi2_per_point.append(self.fits[i].chi2_per_point)
 
-        return  chi2_per_point
+        return chi2_per_point
         # if self.model.n_sources > 1 and fit_blending is False:
         #     raise NotImplementedError("Sorry, chi2 for binary sources with " +
         #                               "no blending is not yet coded.")
@@ -562,10 +569,14 @@ class Event(object):
             else:
                 fix_source_flux = False
 
+            # JCY - This needs a unit test.
             if dataset in self.fix_q_flux.keys():
                 fix_q_flux = self.fix_q_flux[dataset]
             else:
-                fix_q_flux = False
+                if dataset.bandpass in self.fix_q_flux.keys():
+                    fix_q_flux = self.fix_q_flux[dataset.bandpass]
+                else:
+                    fix_q_flux = False
 
             fit = FitData(
                 model=self.model, dataset=dataset,

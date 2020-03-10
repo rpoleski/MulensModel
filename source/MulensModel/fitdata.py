@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 
 class FitData:
@@ -47,7 +48,15 @@ class FitData:
         if self.dataset.bandpass is None:
             self.gamma = 0.
         else:
-            self.gamma = self.model.get_limb_coeff_gamma(dataset.bandpass)
+            try:
+                self.gamma = self.model.get_limb_coeff_gamma(
+                    self.dataset.bandpass)
+            except KeyError:
+                warnings.warn(
+                    'Dataset bandpass is {0} '.format(self.dataset.bandpass) +
+                    'but model does not have a limb-darkening coefficient ' +
+                    'for {0}. Assuming zero.'.format(self.dataset.bandpass))
+                self.gamma = 0.
 
         # fit parameters
         self.fix_blend_flux = fix_blend_flux

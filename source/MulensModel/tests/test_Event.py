@@ -363,10 +363,18 @@ def test_event_chi2_binary_source():
     event = mm.Event([data], model)
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
     # Make sure Model.set_source_flux_ratio() is taken into account.
-    model.set_source_flux_ratio(1.)
-    np.testing.assert_almost_equal(model.magnification(time), (mag_1+mag_2)/2.)
+
+    # Old method of setting flux ratios
+    # model.set_source_flux_ratio(1.)
+    # np.testing.assert_almost_equal(model.magnification(time), (mag_1+mag_2)/2.)
+    # assert event.get_chi2() > 1.
+    # model.set_source_flux_ratio(3.)
+    # np.testing.assert_almost_equal(event.get_chi2(), 0.)
+
+    # New method of setting flux ratios
+    event.fix_q_flux = {data: 1.}
     assert event.get_chi2() > 1.
-    model.set_source_flux_ratio(3.)
+    event.fix_q_flux = {data: 3.}
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
 
 
@@ -406,6 +414,14 @@ def test_event_chi2_binary_source_2datasets():
 
     # Test combination of Model.set_source_flux_ratio_for_band() and
     # Event.get_chi2_for_dataset().
+
+    # Old method of fixing flux ratios
+    # data_1.bandpass = 'some'
+    # event.model.set_source_flux_ratio_for_band('some', 3.)
+    # np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
+
+    # New method of fixing flux ratios
     data_1.bandpass = 'some'
-    event.model.set_source_flux_ratio_for_band('some', 3.)
+    event.fix_q_flux['some'] = 3.
+    event.fit_fluxes()
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
