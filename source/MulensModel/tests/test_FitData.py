@@ -259,4 +259,3 @@ def test_chi2_per_point():
     my_fit.update()
 
     assert(my_fit.chi2_per_point.shape == (test_object.dataset.n_epochs,))
-

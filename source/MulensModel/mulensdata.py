@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from os.path import basename, exists
+import warnings
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
@@ -530,6 +531,9 @@ class MulensData(object):
         Sky coordinates of data.
         See :py:class:`~MulensModel.coordinates.Coordinates`.
         """
+        warnings.warn(
+            'coords will be deprecated in future. There is no reason to tie ' +
+            'this to a given dataset', FutureWarning)
         return self._coords
 
     @coords.setter
