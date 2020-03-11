@@ -363,6 +363,7 @@ class FitData:
         #     factor *= self.fit.flux_of_sources(dataset)[0]
 
         # Calculate factor
+        # JCY - Everything below here should be refactored into smaller bits.
         factor = self.dataset.flux - self.get_model_fluxes()
         factor *= -2. / self.dataset.err_flux**2
         factor *= self.source_flux
