@@ -976,6 +976,22 @@ class Model(object):
             for (x, y) in zip(trajectory.x, trajectory.y):
                 axis.add_artist(plt.Circle((x, y), **kwargs))
 
+    def get_trajectory(self, times):
+        """
+        Get the source trajectory for the given set of times.
+
+        Parameters :
+            times:  *np.ndarray*, *list of floats*, or *float*
+                Times for which magnification values are requested.
+
+        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object.
+
+        """
+        kwargs_ = {
+            'times': times, 'parallax': self._parallax, 'coords': self._coords,
+            'satellite_skycoord': self.get_satellite_coords(times)}
+        return Trajectory(parameters=self.parameters, **kwargs_)
+
     def get_ref_fluxes(self, data_ref=None, fit_blending=None):
         """
         Get source and blending fluxes for the model by finding the

@@ -1,5 +1,7 @@
 import numpy as np
 import warnings
+from MulensModel.trajectory import Trajectory
+import astropy.units as u
 
 
 class FitData:
@@ -45,6 +47,8 @@ class FitData:
                  fix_source_flux=False, fix_q_flux=False):
         self.model = model
         self.dataset = dataset
+
+        # Setup limb-darkening
         if self.dataset.bandpass is None:
             self.gamma = 0.
         else:
@@ -278,6 +282,179 @@ class FitData:
                         * self._data_magnification[i]
 
         return model_flux
+
+    def _check_for_gradient_implementation(self, parameters):
+        """ Check that the gradient methods are implemented for the requested
+        values. """
+
+        # Implemented for the requested parameters?
+        if not isinstance(parameters, list):
+            parameters = [parameters]
+        implemented = {'t_0', 't_E', 'u_0', 't_eff', 'pi_E_N', 'pi_E_E'}
+        if len(set(parameters) - implemented) > 0:
+            raise NotImplementedError((
+                "chi^2 gradient is implemented only for {:}\nCannot work " +
+                "with {:}").format(implemented, parameters))
+        gradient = {param: 0 for param in parameters}
+
+        # Implemented for the number of sources in the model?
+        if self.model.n_lenses != 1:
+            raise NotImplementedError(
+                'chi2_gradient() works only single lens models currently')
+
+        # Implemented for finite source effects?
+        if 'rho' in parameters or 't_star' in parameters:
+            as_dict = self.model.parameters.as_dict()
+            if 'rho' in as_dict or 't_star' in as_dict:
+                raise NotImplementedError(
+                    'Event.chi2_gradient() is not working ' +
+                    'for finite source models yet')
+
+    def get_chi2_gradient(self, parameters):
+        """ Same as :py:func:`~chi2_gradient`, but fits for the fluxes first."""
+        self.fit_fluxes()
+        return self.chi2_gradient()
+
+    def chi2_gradient(self, parameters):
+        """
+        Calculate chi^2 gradient (also called Jacobian), i.e.,
+        :math:`d chi^2/d parameter`.
+
+        Parameters :
+            parameters: *str* or *list*, required
+                Parameters with respect to which gradient is calculated.
+                Currently accepted parameters are: ``t_0``, ``u_0``, ``t_eff``,
+                ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
+                which you request gradient must be defined in py:attr:`~model`.
+
+        Returns :
+            gradient: *float* or *np.ndarray*
+                chi^2 gradient
+        """
+        self._check_for_gradient_implementation(parameters)
+
+        # Setup
+        gradient = {param: 0 for param in parameters}
+        as_dict = self.model.parameters.as_dict()
+
+        # ***seems unnecessary
+        # # Define a Fit given the model and perform linear fit for fs and fb
+        # self._update_data_in_model()
+        # self.fit = Fit(
+        #     data=self.datasets, magnification=self.model.data_magnification)
+        # # For binary source cases, the above line would need to be replaced,
+        # # so that it uses self.model.fit.
+        # if fit_blending is not None:
+        #     self.fit.fit_fluxes(fit_blending=fit_blending)
+        # else:
+        #     self.fit.fit_fluxes()
+        #
+
+        # ***
+        # JCY - Originally implemented for arbitrary chi2 fmt, but this should
+        # always be fluxes, right?
+
+        # for (i, dataset) in enumerate(self.datasets):
+        #     (data, err_data) = dataset.data_and_err_in_chi2_fmt()
+        #     factor = data - self.fit.get_chi2_format(data=dataset)
+        #     factor *= -2. / err_data**2
+        #     if dataset.chi2_fmt == 'mag':
+        #         factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
+        #     factor *= self.fit.flux_of_sources(dataset)[0]
+
+        # Calculate factor
+        factor = self.dataset.flux - self.get_model_fluxes()
+        factor *= -2. / self.dataset.err_flux**2
+        factor *= self.source_flux
+
+        # Get source location
+        trajectory = self.model.get_trajectory(self.dataset.time)
+        u_2 = trajectory.x**2 + trajectory.y**2
+        u_ = np.sqrt(u_2)
+
+        # Calculate derivatives
+        d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
+        factor *= d_A_d_u
+        factor_d_x_d_u = (factor * trajectory.x / u_)[self.dataset.good]
+        sum_d_x_d_u = np.sum(factor_d_x_d_u)
+        factor_d_y_d_u = (factor * trajectory.y / u_)[self.dataset.good]
+        sum_d_y_d_u = np.sum(factor_d_y_d_u)
+        dt = self.dataset.time[self.dataset.good] - as_dict['t_0']
+
+        # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
+        # gradient depends on which ones are defined.
+        if 't_eff' not in as_dict:
+            t_E = as_dict['t_E'].to(u.day).value
+            if 't_0' in parameters:
+                gradient['t_0'] += -sum_d_x_d_u / t_E
+            if 'u_0' in parameters:
+                gradient['u_0'] += sum_d_y_d_u
+            if 't_E' in parameters:
+                gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E**2)
+        elif 't_E' not in as_dict:
+            t_eff = as_dict['t_eff'].to(u.day).value
+            if 't_0' in parameters:
+                gradient['t_0'] += -sum_d_x_d_u * as_dict['u_0'] / t_eff
+            if 'u_0' in parameters:
+                gradient['u_0'] += sum_d_y_d_u + np.sum(
+                        factor_d_x_d_u * dt / t_eff)
+            if 't_eff' in parameters:
+                gradient['t_eff'] += np.sum(
+                        factor_d_x_d_u * -dt *
+                        as_dict['u_0'] / t_eff**2)
+        elif 'u_0' not in as_dict:
+            t_E = as_dict['t_E'].to(u.day).value
+            t_eff = as_dict['t_eff'].to(u.day).value
+            if 't_0' in parameters:
+                gradient['t_0'] += -sum_d_x_d_u / t_E
+            if 't_E' in parameters:
+                gradient['t_E'] += (
+                        np.sum(factor_d_x_d_u * dt) -
+                        sum_d_y_d_u * t_eff) / t_E**2
+            if 't_eff' in parameters:
+                gradient['t_eff'] += sum_d_y_d_u / t_E
+        else:
+            raise KeyError(
+                'Something is wrong with ModelParameters in ' +
+                'Event.chi2_gradient():\n', as_dict)
+
+        # Below we deal with parallax only.
+        if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
+            parallax = {
+                'earth_orbital': False,
+                'satellite': False,
+                'topocentric': False}
+            # JCY Not happy about this as it requires importing from other
+            # modules. It is inelegant, which in my experience often means it
+            # needs to be refactored.
+            kwargs = {}
+            if self.dataset.ephemerides_file is not None:
+                kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
+                
+            trajectory_no_piE = Trajectory(
+                self.dataset.time, self.model.parameters, parallax,
+                self.model.coords, **kwargs)
+            dx = (trajectory.x - trajectory_no_piE.x)[self.dataset.good]
+            dy = (trajectory.y - trajectory_no_piE.y)[self.dataset.good]
+            delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
+            delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
+            det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
+
+            if 'pi_E_N' in parameters:
+                gradient['pi_E_N'] += np.sum(
+                    factor_d_x_d_u * delta_N + factor_d_y_d_u * delta_E)
+                gradient['pi_E_N'] /= det
+            if 'pi_E_E' in parameters:
+                gradient['pi_E_E'] += np.sum(
+                    factor_d_x_d_u * delta_E - factor_d_y_d_u * delta_N)
+                gradient['pi_E_E'] /= det
+
+        if len(parameters) == 1:
+            out = gradient[parameters[0]]
+        else:
+            out = np.array([gradient[p] for p in parameters])
+            
+        return out
 
     @property
     def chi2(self):

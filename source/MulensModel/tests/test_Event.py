@@ -287,22 +287,24 @@ def test_event_chi2_gradient():
     kwargs = {'datasets': [data], 'coords': '17:47:12.25 -21:22:58.7'}
 
     # Old method for fixing blending
-    for test in [test_1]:  # , test_2]:
-        (parameters, params, gradient) = test
-        event = mm.Event(model=mm.Model(parameters), **kwargs)
-        result = event.chi2_gradient(params, fit_blending=False)
-
-        reference = np.array([gradient[key] for key in params])
-        np.testing.assert_almost_equal(reference/result, 1., decimal=1)
+    # for test in [test_1]:  # , test_2]:
+    #     (parameters, params, gradient) = test
+    #     event = mm.Event(model=mm.Model(parameters), **kwargs)
+    #     event.fit_fluxes()
+    #     result = event.chi2_gradient(params, fit_blending=False)
+    #
+    #     reference = np.array([gradient[key] for key in params])
+    #     np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
     # New method for fixing blending
     for test in [test_1]:  # , test_2]:
         (parameters, params, gradient) = test
         event = mm.Event(
             model=mm.Model(parameters), fix_blend_flux={data: 0.}, **kwargs)
-        result = event.chi2_gradient(params)
-
+        result = event.get_chi2_gradient(params)
         reference = np.array([gradient[key] for key in params])
+        np.testing.assert_almost_equal(reference/result, 1., decimal=1)
+        result = event.chi2_gradient(params)
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
 

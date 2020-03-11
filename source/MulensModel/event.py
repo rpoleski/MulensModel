@@ -398,6 +398,12 @@ class Event(object):
         #
         # return chi2_per_point
 
+    def get_chi2_gradient(self, parameters):
+        """ Same as :py:func:`~chi2_gradient except it fits for the fluxes
+        first."""
+        self.fit_fluxes()
+        return self. chi2_gradient(parameters)
+
     def chi2_gradient(self, parameters, fit_blending=None):
         """
         Calculate chi^2 gradient (also called Jacobian), i.e.,
@@ -418,11 +424,18 @@ class Event(object):
         Returns :
             gradient: *float* or *np.ndarray*
                 chi^2 gradient
+
+        NOTE: Because this is not a 'get' function, it ASSUMES you have ALREADY
+        fit for the fluxes, e.g. by calling get_chi2().
         """
         if fit_blending is not None:
             self._apply_fit_blending(fit_blending)
 
-        pass
+        gradient = {param: 0 for param in parameters}
+        for i, dataset in enumerate(self.datasets):
+            data_gradient = self.fits[i].chi2_gradient(parameters)
+            for i, p in enumerate(parameters):
+                gradient[p] += data_gradient[i]
 
         # if not isinstance(parameters, list):
         #     parameters = [parameters]
@@ -543,11 +556,11 @@ class Event(object):
         #                 factor_d_x_d_u * delta_E - factor_d_y_d_u * delta_N)
         #             gradient['pi_E_E'] /= det
         #
-        # if len(parameters) == 1:
-        #     out = gradient[parameters[0]]
-        # else:
-        #     out = np.array([gradient[p] for p in parameters])
-        # return out
+        if len(parameters) == 1:
+            out = gradient[parameters[0]]
+        else:
+            out = np.array([gradient[p] for p in parameters])
+        return out
 
     def fit_fluxes(self):
         """
