@@ -1486,18 +1486,21 @@ class Model(object):
                     'Model.magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
                     'models, not {:}'.format(type(flux_ratio_constraint)))
+            
             if separate:
                 raise ValueError(
                     'Model.magnification() parameter separate ' +
                     'cannot be True for single source models')
             magnification = self._magnification_1_source(
                                 time, satellite_skycoord, gamma)
+
         elif self.n_sources == 2 and separate:
             if flux_ratio_constraint is not None:
                 raise ValueError(
                     'You cannot set both flux_ratio_constraint and separate' +
                     " parameters in Model.magnification(). This doesn't make" +
                     'sense')
+
             magnification = self._magnification_2_sources(
                 time, satellite_skycoord, gamma, flux_ratio_constraint,
                 separate, same_dataset)
@@ -1509,16 +1512,19 @@ class Model(object):
                     flux_ratio_constraint = dict_constraint[band]
                 elif None in dict_constraint:
                     flux_ratio_constraint = dict_constraint[None]
+
             elif isinstance(flux_ratio_constraint, str):
                 flux_ratio_constraint = dict_constraint[flux_ratio_constraint]
             elif None in dict_constraint:
                 flux_ratio_constraint = dict_constraint[None]
+
             magnification = self._magnification_2_sources(
                                 time, satellite_skycoord, gamma,
                                 flux_ratio_constraint, separate, same_dataset)
         else:
             raise ValueError('strange number of sources: {:}'.format(
                     self.n_sources))
+
         return magnification
 
     def _magnification_1_source(self, time, satellite_skycoord, gamma):
