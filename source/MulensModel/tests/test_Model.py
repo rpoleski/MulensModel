@@ -346,19 +346,32 @@ def test_model_binary_and_finite_sources():
     model_1.set_magnification_methods([t1, finite, t2])
     model_2.set_magnification_methods([t3, finite, t4])
 
-    # prepare fake data:
     (f_s_1, f_s_2, f_b) = (100., 300., 50.)
     time = np.linspace(4900., 5200., 4200)
     mag_1 = model_1.magnification(time)
     mag_2 = model_2.magnification(time)
-    flux = f_s_1 * mag_1 + f_s_2 * mag_2 + f_b
-    data = mm.MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
-    model.set_datasets([data])
-    model_1.set_datasets([data])
-    model_2.set_datasets([data])
+    # Old method
+    # prepare fake data:
+    # flux = f_s_1 * mag_1 + f_s_2 * mag_2 + f_b
+    # data = mm.MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
+    # model.set_datasets([data])
+    # model_1.set_datasets([data])
+    # model_2.set_datasets([data])
+    #
+    # # test:
+    # fitted = model.get_data_magnification(data)
+    # expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
+    # almost(fitted, expected)
+    #
+    # # test separate=True option:
+    # (mag_1_, mag_2_) = model.magnification(time, separate=True)
+    # almost(mag_1, mag_1_)
+    # almost(mag_2, mag_2_)
 
+    # New method
     # test:
-    fitted = model.get_data_magnification(data)
+    model.set_source_flux_ratio(f_s_2/f_s_1)
+    fitted = model.magnification(time)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
     almost(fitted, expected)
 
