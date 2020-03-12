@@ -1331,7 +1331,7 @@ class Model(object):
                 'wrong type of input in ' +
                 'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 'expected string').format(type(band)))
-        
+
         if not isinstance(ratio, (np.float, float)):
             raise TypeError((
                 'wrong type of input in ' +
