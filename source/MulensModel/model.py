@@ -1451,6 +1451,16 @@ class Model(object):
                 models, the effective magnification is returned (unless
                 *separate=True*).
         """
+        # JCY - Several comments on flux_ratio_constraint
+        # 1. This implementation is overly complicated. It should just be a
+        #    single float value.
+        # 2. It should be called source_flux_ratio, because it is an exact
+        #    value rather than a constraint (constraint implies some variation
+        #    is allowed).
+        if isinstance(flux_ratio_constraint, MulensData):
+            warnings.warn('The ability to set flux_ratio_constraint with a ' +
+                          'MulensData object will be deprecated.', FutureWarning)
+
         allowed = (MulensData, str, type(None))
         if not isinstance(flux_ratio_constraint, allowed):
             raise TypeError(
@@ -1486,24 +1496,32 @@ class Model(object):
                     'Model.magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
                     'models, not {:}'.format(type(flux_ratio_constraint)))
-            
-            if separate:
+            elif separate:
                 raise ValueError(
                     'Model.magnification() parameter separate ' +
                     'cannot be True for single source models')
-            magnification = self._magnification_1_source(
-                                time, satellite_skycoord, gamma)
+            else:
+                magnification = self._magnification_1_source(
+                    time, satellite_skycoord, gamma)
 
+        # If flux_ratio_constraint = MulensData is deprecated, this if
+        # statement (1514--1541) can be greatly simplified:
+        # elif self.n_sources == 2:
+        #     if source_flux_ratio is not None and separate:
+        #         raise ValueError
+        #     else:
+        #         magnification = self._magnification_2_sources(**kwargs)
         elif self.n_sources == 2 and separate:
             if flux_ratio_constraint is not None:
                 raise ValueError(
                     'You cannot set both flux_ratio_constraint and separate' +
                     " parameters in Model.magnification(). This doesn't make" +
                     'sense')
+            else:
+                magnification = self._magnification_2_sources(
+                    time, satellite_skycoord, gamma, flux_ratio_constraint,
+                    separate, same_dataset)
 
-            magnification = self._magnification_2_sources(
-                time, satellite_skycoord, gamma, flux_ratio_constraint,
-                separate, same_dataset)
         elif self.n_sources == 2:
             dict_constraint = self._source_flux_ratio_constraint
             if isinstance(flux_ratio_constraint, MulensData):
@@ -1517,13 +1535,14 @@ class Model(object):
                 flux_ratio_constraint = dict_constraint[flux_ratio_constraint]
             elif None in dict_constraint:
                 flux_ratio_constraint = dict_constraint[None]
-
+            
             magnification = self._magnification_2_sources(
                                 time, satellite_skycoord, gamma,
                                 flux_ratio_constraint, separate, same_dataset)
         else:
-            raise ValueError('strange number of sources: {:}'.format(
-                    self.n_sources))
+            raise ValueError(
+                'Only 1 or 2 sources is implemented. Number of sources: ' +
+                '{:}'.format(self.n_sources))
 
         return magnification
 
