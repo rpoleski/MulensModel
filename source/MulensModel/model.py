@@ -1322,7 +1322,7 @@ class Model(object):
         # JCY - In retrospect, maybe it is okay to have source_flux_ratios for
         # bands.
         warnings.warn(
-            'set_source_flux_ratio_for_band will be deprecated in future? ' +
+            'set_source_flux_ratio_for_band might be deprecated in future? ' +
             'Fluxes are not intrinsic to Models.',
             FutureWarning)
 
@@ -1331,16 +1331,17 @@ class Model(object):
                 'wrong type of input in ' +
                 'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 'expected string').format(type(band)))
+        
         if not isinstance(ratio, (np.float, float)):
             raise TypeError((
                 'wrong type of input in ' +
                 'Model.set_source_flux_ratio_for_band(): got {:}, ' +
                 'expected float').format(type(ratio)))
-        if len(self._datasets) > 0:
-            bands = [d.bandpass for d in self._datasets]
-            if band not in bands:
-                warnings.warn("No datasets with bandpass {:}".format(band),
-                              UserWarning)
+        # if len(self._datasets) > 0:
+        #     bands = [d.bandpass for d in self._datasets]
+        #     if band not in bands:
+        #         warnings.warn("No datasets with bandpass {:}".format(band),
+        #                       UserWarning)
 
         self._source_flux_ratio_constraint[band] = ratio
 

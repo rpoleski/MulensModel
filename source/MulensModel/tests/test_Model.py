@@ -402,11 +402,12 @@ def test_binary_source_and_fluxes_for_bands():
     effective_mag_V = (mag_1_V + mag_2_V * q_f_V) / (1. + q_f_V)
     flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
     flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
-    data_I = mm.MulensData(data_list=[times_I, flux_I, flux_I/100.],
-                           phot_fmt='flux', bandpass='I')
-    data_V = mm.MulensData(data_list=[times_V, flux_V, flux_V/1000.],
-                           phot_fmt='flux', bandpass='V')
-    model.set_datasets([data_V, data_I])
+    # Old method
+    # data_I = mm.MulensData(data_list=[times_I, flux_I, flux_I/100.],
+    #                        phot_fmt='flux', bandpass='I')
+    # data_V = mm.MulensData(data_list=[times_V, flux_V, flux_V/1000.],
+    #                        phot_fmt='flux', bandpass='V')
+    # model.set_datasets([data_V, data_I])
 
     model.set_source_flux_ratio_for_band('I', q_f_I)
     model.set_source_flux_ratio_for_band('V', q_f_V)
@@ -417,11 +418,12 @@ def test_binary_source_and_fluxes_for_bands():
     almost(result_I, effective_mag_I)
     almost(result_V, effective_mag_V)
 
+    # Old method (irrelevant for new method)
     # Test Model.get_data_magnification()
-    result_I = model.get_data_magnification(data_I)
-    result_V = model.get_data_magnification(data_V)
-    almost(result_I, effective_mag_I)
-    almost(result_V, effective_mag_V)
+    # result_I = model.get_data_magnification(data_I)
+    # result_V = model.get_data_magnification(data_V)
+    # almost(result_I, effective_mag_I)
+    # almost(result_V, effective_mag_V)
 
 
 def test_separate_method_for_each_source():
