@@ -1318,8 +1318,11 @@ class Model(object):
                 ratio of fluxes of source no. 2 to source no. 1, i.e.,
                 flux_source_band_2/flux_source_band_1
         """
+
+        # JCY - In retrospect, maybe it is okay to have source_flux_ratios for
+        # bands.
         warnings.warn(
-            'set_source_flux_ratio_for_band will be deprecated in future. ' +
+            'set_source_flux_ratio_for_band will be deprecated in future? ' +
             'Fluxes are not intrinsic to Models.',
             FutureWarning)
 
@@ -1457,6 +1460,9 @@ class Model(object):
         # 2. It should be called source_flux_ratio, because it is an exact
         #    value rather than a constraint (constraint implies some variation
         #    is allowed).
+        # 3. In addition, there should be a bandpass option. This could
+        #    simultaneously account for limb-darkening and q_flux for a given
+        #    band.
         if isinstance(flux_ratio_constraint, MulensData):
             warnings.warn('The ability to set flux_ratio_constraint with a ' +
                           'MulensData object will be deprecated.', FutureWarning)
@@ -1535,7 +1541,7 @@ class Model(object):
                 flux_ratio_constraint = dict_constraint[flux_ratio_constraint]
             elif None in dict_constraint:
                 flux_ratio_constraint = dict_constraint[None]
-            
+
             magnification = self._magnification_2_sources(
                                 time, satellite_skycoord, gamma,
                                 flux_ratio_constraint, separate, same_dataset)
