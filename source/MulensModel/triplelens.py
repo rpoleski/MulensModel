@@ -159,8 +159,8 @@ class TripleLens(object):
         H_1 = np.zeros(11, dtype=np.complex_)
         H_2 = np.zeros(11, dtype=np.complex_)
         H_3 = np.zeros(11, dtype=np.complex_)
-        # We define these up to H_x[10] so that equation for cff[10] is
-        # the same as for other indexes.
+        # We define these up to H_x[10] so that equations for cff[0] and
+        # and cff[10] are the same as for other indexes.
 
         H_3[9] = 1
         H_3[8] = 3 * a
@@ -194,7 +194,9 @@ class TripleLens(object):
         H_0[5] = 3 * a
         H_0[4] = 3 * d + 3 * a**2
         H_0[3] = 6 * a * d + a**3
-        H_0[2] = 3 * d**2 + 3 * a**2 * d**2
+        H_0[2] = 3 * d**2 + 3 * a**2 * d  # R02 gives 3a^2d^2, this was
+        # corrected thanks to work by Zoey Samples
+        # (https://github.com/ZoeySamples/ulens) and checked with Jan Skowron.
         H_0[1] = 3 * a * d**2
         H_0[0] = d**3
 
@@ -207,23 +209,24 @@ class TripleLens(object):
                    omega_2_bar * omega_3_bar +
                    omega_3_bar * omega_1_bar)
         c_omega = omega_1_bar * omega_2_bar * omega_3_bar
+        d_omega = (
+            epsilon_1 * omega_2_bar * omega_3_bar +
+            epsilon_2 * omega_1_bar * omega_3_bar +
+            epsilon_3 * omega_1_bar * omega_2_bar)
 
         cff = np.zeros(11, dtype=np.complex_)
-        # XXX polynomial convention: cff[i] * z**i
-        for k in range(1, 10+1):
+        # polynomial convention: cff[i] * z**i
+        for k in range(10+1):
             cff[k] = (
                 H_0[k-1] + H_1[k-1] * a_omega + H_2[k-1] * b_omega +
-                H_3[k-1] * c_omega -
-                H_0[k] * omega - H_1[k] * (omega * a_omega - 1) -
-                H_2[k] * (omega * b_omega + a_omega - omega_bar) -
-                H_3[k] * (omega * c_omega + b_omega))
-        cff[0] = (  # XXX - it's not totally clear if that what Eq. 7 means:
-            -H_0[0] * omega - H_1[0] * (omega * a_omega - 1) +
-            -H_2[0] * (omega * b_omega + a_omega - omega_bar) +
-            -H_3[0] * (omega * c_omega + b_omega))
+                H_3[k-1] * c_omega +
+                -H_0[k] * omega - H_1[k] * (omega * a_omega + 1) +  # R02 gives
+                # -1; corrected thanks to work by Zoey Samples and checked
+                # with Jan Skowron.
+                -H_2[k] * (omega * b_omega + a_omega - omega_bar) +
+                -H_3[k] * (omega * c_omega + d_omega)  # R02 gives + b_omega;
+                # corrected thanks to work by Zoey Samples and checked with
+                # Jan Skowron.
+                )
 
         return cff
-
-# XXX :
-#    def get_hexadecapole_magnification(self, source_x, source_y, rho, gamma,
-#                               quadrupole=False, all_approximations=False):
