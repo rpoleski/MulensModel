@@ -86,6 +86,8 @@ def generate_random_parameters(parameters, starting, n):
             beg = np.log(settings[1])
             end = np.log(settings[2])
             v = np.exp(np.random.uniform(beg, end, n))
+        else:
+            raise ValueError('Unrecognized keyword: ' + settings[0])
         values.append(v)
     return np.array(values).T.tolist()
 

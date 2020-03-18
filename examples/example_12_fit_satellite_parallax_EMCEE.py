@@ -60,14 +60,14 @@ dir_ = join(mm.DATA_PATH, "photometry_files", "OB140939")
 file_ground = join(dir_, "ob140939_OGLE.dat")
 file_spitzer = join(dir_, "ob140939_Spitzer.dat")
 data_ground = mm.MulensData(file_name=file_ground,
-                         plot_properties={'label': 'OGLE'})
+                            plot_properties={'label': 'OGLE'})
 
 # Here is the main difference - we provide the ephemeris for Spitzer:
 file_spitzer_eph = join(
     mm.DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat')
 data_spitzer = mm.MulensData(file_name=file_spitzer,
-                          ephemerides_file=file_spitzer_eph,
-                          plot_properties={'label': 'Spitzer'})
+                             ephemerides_file=file_spitzer_eph,
+                             plot_properties={'label': 'Spitzer'})
 
 # For parallax calculations we need event coordinates:
 coords = "17:47:12.25 -21:22:58.7"
