@@ -245,7 +245,8 @@ class Model(object):
 
         if f_source is None:
             raise ValueError("You must provide a value for f_source.")
-        elif len(f_source) != self.n_sources:
+        elif (isinstance(f_source, float) and self.n_sources > 1):
+            # This condition will need to be modified for > 2 sources.
             raise ValueError(
                 "One value of f_source should be provided for each source." +
                 "f_source = {0}".format(f_source) +
