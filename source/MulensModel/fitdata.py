@@ -1,6 +1,7 @@
 import numpy as np
 import warnings
 from MulensModel.trajectory import Trajectory
+from MulensModel.satelliteskycoord import SatelliteSkyCoord
 import astropy.units as u
 
 
@@ -118,15 +119,27 @@ class FitData:
         """
         # select = self._dataset.good # Is this faster?
 
+        if self.dataset.ephemerides_file is None:
+            satellite_skycoord = None
+        else:
+            satellite_skycoords = SatelliteSkyCoord(
+                 ephemerides_file=self.dataset.ephemerides_file)
+            satellite_skycoord = satellite_skycoords.get_satellite_coords(
+                self.dataset.time)
+
+        magnification_kwargs = {
+            'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
+
         # currently, model.magnification is good for up to two
         # sources
         if self._model.n_sources == 1:
             mag_matrix = self._model.magnification(
-                time=self._dataset.time[self._dataset.good], gamma=self.gamma)
+                time=self._dataset.time[self._dataset.good],
+                **magnification_kwargs)
         elif self._model.n_sources == 2:
             mag_matrix = self._model.magnification(
-                time=self._dataset.time[self._dataset.good], gamma=self.gamma,
-                separate=True)
+                time=self._dataset.time[self._dataset.good], separate=True,
+                **magnification_kwargs)
         else:
             msg = ("{0}".format(self._model.n_sources) +
                    " sources used. model.magnification can only" +
@@ -261,6 +274,20 @@ class FitData:
             self._blend_flux = results[-1]
         else:
             self._blend_flux = self.fix_blend_flux
+
+    def get_data_magnification(self):
+        """
+        Calculates the model magnification for each data point.
+
+        Returns :
+            data_magnification: *np.ndarray*
+                The model magnification evaluated for each datapoint. If there
+                is more than one source, the magnification of each source is
+                reported separately.
+        """
+
+        self._calc_magnifications()
+        return self._data_magnification
 
     def get_model_fluxes(self):
         """
