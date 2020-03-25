@@ -1,9 +1,19 @@
 import numpy as np
 from numpy.testing import assert_almost_equal as almost
 import unittest
+import os.path
 
 import MulensModel as mm
 
+dir_1 = os.path.join(mm.DATA_PATH, 'photometry_files', 'OB140939')
+dir_2 = os.path.join(mm.DATA_PATH, 'unit_test_files')
+dir_3 = os.path.join(mm.DATA_PATH, 'ephemeris_files')
+
+SAMPLE_FILE_02 = os.path.join(dir_1, 'ob140939_OGLE.dat')  # HJD'
+SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
+SAMPLE_FILE_03 = os.path.join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
+SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
+SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
 
 def generate_model():
     """
@@ -259,3 +269,24 @@ def test_chi2_per_point():
     my_fit.update()
 
     assert(my_fit.chi2_per_point.shape == (test_object.dataset.n_epochs,))
+
+def test_satellite_and_annual_parallax_calculation():
+    """test that data magnifications are correctly retrieved for Spitzer data."""
+
+    # Create Model
+    model_parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                        'pi_E_N': -0.248, 'pi_E_E': 0.234, 't_0_par': 2456836.2}
+    coords = "17:47:12.25 -21:22:58.2"
+    model_with_par = mm.Model(model_parameters, coords=coords)
+    model_with_par.parallax(satellite=True, earth_orbital=True,
+                            topocentric=False)
+
+    # Load Spitzer data and answers
+    data_Spitzer = mm.MulensData(
+        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
+    ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True, usecols=[5])
+
+    # Test FitData.data_magnification()
+    my_fit = mm.FitData(dataset=data_Spitzer, model=model_with_par)
+    ratio = my_fit.get_data_magnification() / ref_Spitzer
+    np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
