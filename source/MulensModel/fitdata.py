@@ -192,6 +192,12 @@ class FitData:
         """
         Create xT and y arrays
         """
+        (x, y) = self._create_arrays()
+        xT = self._invert_x_array(x)
+        (xT, y) = self._weight_linalg_arrays(xT, y)
+        return (xT, y)
+
+    def _create_arrays(self):
         # Initializations
         self.n_fluxes = 0
         n_epochs = np.sum(self._dataset.good)
@@ -218,10 +224,18 @@ class FitData:
         else:
             y -= self.fix_blend_flux
 
-        # Take the transpose of x and weight by data uncertainties
+        return (x, y)
+
+    def _invert_x_array(self, x):
+        """ Take the transpose of x """
+        n_epochs = np.sum(self._dataset.good)
         xT = np.copy(x).T
         xT.shape = (n_epochs, self.n_fluxes)
 
+        return xT
+
+    def _weight_linalg_arrays(self, xT, y):
+        """weight by data uncertainties"""
         # Take into account uncertainties
         sigma_inverse = 1. / self._dataset.err_flux[self._dataset.good]
         y *= sigma_inverse
