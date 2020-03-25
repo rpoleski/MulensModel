@@ -131,20 +131,7 @@ class MulensData(object):
         self._chi2_fmt = chi2_fmt
 
         # Set the coords (if applicable)...
-        coords_msg = 'Must specify both or neither of ra and dec'
-        self._coords = None
-        # ...using coords keyword
-        if coords is not None:
-            self._coords = Coordinates(coords)
-        # ...using ra, dec keywords
-        if ra is not None:
-            if dec is not None:
-                self._coords = Coordinates(ra, dec)
-            else:
-                raise AttributeError(coords_msg)
-        else:
-            if ra is not None:
-                raise AttributeError(coords_msg)
+        self._set_coords(coords=coords, ra=ra, dec=dec)
 
         # Plot properties
         if plot_properties is None:
@@ -274,6 +261,28 @@ class MulensData(object):
         else:
             msg = 'unknown brightness format in MulensData'
             raise ValueError(msg)
+
+    def _set_coords(self, coords=None, ra=None, dec=None):
+        """Set the coordinates and raise errors if applicable."""
+        self._coords = None
+        if (coords is not None) or (ra is not None) or (dec is not None):
+            # Check for errors and if none, set the coordinates
+            warnings.warn(
+                'coords will be deprecated in future. There is no reason to' +
+                'tie this to a given dataset', FutureWarning)
+            coords_msg = 'Must specify both or neither of ra and dec'
+            # ...using coords keyword
+            if coords is not None:
+                self._coords = Coordinates(coords)
+            # ...using ra, dec keywords
+            if ra is not None:
+                if dec is not None:
+                    self._coords = Coordinates(ra, dec)
+                else:
+                    raise AttributeError(coords_msg)
+            else:
+                if ra is not None:
+                    raise AttributeError(coords_msg)
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False,
@@ -531,9 +540,6 @@ class MulensData(object):
         Sky coordinates of data.
         See :py:class:`~MulensModel.coordinates.Coordinates`.
         """
-        warnings.warn(
-            'coords will be deprecated in future. There is no reason to tie ' +
-            'this to a given dataset', FutureWarning)
         return self._coords
 
     @coords.setter
