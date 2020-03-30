@@ -383,7 +383,7 @@ class Event(object):
         self.chi2 = self._sum(chi2)
 
         # To be deprecated
-        if self.best_chi2 is None or self.best_chi2 > self.chi2:
+        if self._best_chi2 is None or self._best_chi2 > self.chi2:
             self._best_chi2 = self.chi2
             self._best_chi2_parameters = dict(self.model.parameters.parameters)
 
