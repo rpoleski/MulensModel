@@ -114,13 +114,21 @@ class Event(object):
         self.fix_source_flux = fix_source_flux
         self.fix_q_flux = fix_q_flux
 
-    def plot_model(self, **kwargs):
+    def plot_model(self, data_ref=None, **kwargs):
         """
         Plot the model light curve in magnitudes. See
         :py:func:`MulensModel.model.Model.plot_lc()` for details.
+
+        Keywords :
+            data_ref: *int* or *MulensData*
+                If data_ref is not specified, uses :py:obj:`~data_ref`.
+
         """
-        pass
-        # self.model.plot_lc(**kwargs)
+        if data_ref is None:
+            data_ref = self.data_ref
+
+        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
+        self.model.plot_lc(f_source=f_source_0, f_blend=f_blend_0, **kwargs)
 
     def plot_data(
             self, phot_fmt='mag', data_ref=None, show_errorbars=None,
@@ -189,10 +197,11 @@ class Event(object):
             raise NotImplementedError(
                 'Scaling data to model not implemented for multiple sources.')
 
+
+
+        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         for (i, data) in enumerate(self._datasets):
             # Get the fitted fluxes
-            f_source_0 = self.fits[data_ref].source_fluxes
-            f_blend_0 = self.fits[data_ref].blend_flux
             f_source = self.fits[i].source_fluxes
             f_blend = self.fits[i].blend_flux
 
