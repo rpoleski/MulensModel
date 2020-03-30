@@ -9,6 +9,7 @@ from astropy import units as u
 from MulensModel.utils import Utils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.coordinates import Coordinates
+from MulensModel import mm_plot
 
 
 class MulensData(object):
@@ -331,6 +332,10 @@ class MulensData(object):
             ``**kwargs``: passed to matplotlib plotting functions.
         """
 
+        # JCY - This needs to be sub-divided into many smaller functions
+        # keeping in mind that the final plotting bit needs to be accessible by
+        # Event.plot_data().
+
         if phot_fmt is None:
             phot_fmt = self.input_fmt
         if phot_fmt not in ['mag', 'flux']:
@@ -339,26 +344,22 @@ class MulensData(object):
             raise ValueError(
                     'MulensData.plot() requires model to plot residuals')
 
-        subtract = 0.
-        if subtract_2450000:
-            if subtract_2460000:
-                raise ValueError("subtract_2450000 and subtract_2460000 " +
-                                 "cannot be both True")
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
 
-        if show_errorbars is None:
-            show_errorbars = self.plot_properties.get('show_errorbars', True)
-
-        if show_bad is None:
-            show_bad = self.plot_properties.get('show_bad', False)
+        # if show_errorbars is None:
+        #     show_errorbars = self.plot_properties.get('show_errorbars', True)
+        #
+        # if show_bad is None:
+        #     show_bad = self.plot_properties.get('show_bad', False)
 
         if model is None:
             (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
                                                        self.flux,
                                                        self.err_flux)
         else:
+            warnings.warn(
+                'Passing a model to MulensData.plot will be depracated. Use ' +
+                'Event.plot_data() instead.', FutureWarning)
+
             if plot_residuals:
                 residuals = model.get_residuals(data_ref=model.data_ref,
                                                 type=phot_fmt, data=self)
@@ -376,10 +377,68 @@ class MulensData(object):
                 (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
                                                            flux, err_flux)
 
+        self._plot_datapoints(
+            (y_value, y_err), subtract_2450000=subtract_2450000,
+            subtract_2460000=subtract_2460000, show_errorbars=show_errorbars,
+            show_bad=show_bad, **kwargs)
+        # properties = self._set_plot_properties(
+        #         show_errorbars=show_errorbars, **kwargs)
+        # properties_bad = self._set_plot_properties(
+        #         show_errorbars=show_errorbars, bad=True, **kwargs)
+        #
+        # time_good = self.time[self.good] - subtract
+        # time_bad = self.time[self.bad] - subtract
+        #
+        # if show_errorbars:
+        #     container = self._plt_errorbar(time_good, y_value[self.good],
+        #                                    y_err[self.good], properties)
+        #     if show_bad:
+        #         if 'color' in properties_bad or 'c' in properties_bad:
+        #             pass
+        #         else:
+        #             properties_bad['color'] = container[0].get_color()
+        #
+        #         self._plt_errorbar(time_bad, y_value[self.bad],
+        #                            y_err[self.bad], properties_bad)
+        # else:
+        #     collection = self._plt_scatter(time_good, y_value[self.good],
+        #                                    properties)
+        #     if show_bad:
+        #         change = True
+        #         keys = ['c', 'color', 'facecolor', 'facecolors', 'edgecolors']
+        #         for key in keys:
+        #             change &= key not in properties_bad
+        #         if change:
+        #             properties_bad['color'] = collection.get_edgecolor()
+        #         self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
+
+        if phot_fmt == 'mag':
+            (ymin, ymax) = plt.gca().get_ylim()
+            if ymax > ymin:
+                plt.gca().invert_yaxis()
+
+    def _plot_datapoints(
+            self, y, subtract_2450000=False,
+            subtract_2460000=False, show_errorbars=None, show_bad=None,
+            **kwargs):
+        """
+        plot datapoints while evaluating various contingencies
+        """
+        (y_value, y_err) = y
+        subtract = mm_plot.subtract(
+            subtract_2450000=subtract_2450000,
+            subtract_2460000=subtract_2460000)
+
+        if show_errorbars is None:
+            show_errorbars = self.plot_properties.get('show_errorbars', True)
+
+        if show_bad is None:
+            show_bad = self.plot_properties.get('show_bad', False)
+
         properties = self._set_plot_properties(
-                show_errorbars=show_errorbars, **kwargs)
+            show_errorbars=show_errorbars, **kwargs)
         properties_bad = self._set_plot_properties(
-                show_errorbars=show_errorbars, bad=True, **kwargs)
+            show_errorbars=show_errorbars, bad=True, **kwargs)
 
         time_good = self.time[self.good] - subtract
         time_bad = self.time[self.bad] - subtract
@@ -392,6 +451,7 @@ class MulensData(object):
                     pass
                 else:
                     properties_bad['color'] = container[0].get_color()
+
                 self._plt_errorbar(time_bad, y_value[self.bad],
                                    y_err[self.bad], properties_bad)
         else:
@@ -406,10 +466,6 @@ class MulensData(object):
                     properties_bad['color'] = collection.get_edgecolor()
                 self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
 
-        if phot_fmt == 'mag':
-            (ymin, ymax) = plt.gca().get_ylim()
-            if ymax > ymin:
-                plt.gca().invert_yaxis()
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """

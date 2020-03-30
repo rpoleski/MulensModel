@@ -2,6 +2,9 @@ import warnings
 import numpy as np
 from math import log, fsum
 
+from matplotlib import rcParams
+import matplotlib.pyplot as plt
+
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
@@ -11,6 +14,7 @@ from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
 from MulensModel.trajectory import Trajectory
+from MulensModel import mm_plot
 
 
 class Event(object):
@@ -57,6 +61,10 @@ class Event(object):
             extract source and bleding fluxes. If no chi^2 calculation was
             performed, then it is *None*.
 
+        data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`
+            Reference dataset. If *int* then gives index of reference dataset
+            in :py:attr:`~datasets`. Default is the first dataset.
+
     The datasets can be in magnitude or flux spaces. When we calculate chi^2
     we do it in magnitude or flux space depending on value of
     :py:attr:`~MulensModel.mulensdata.MulensData.chi2_fmt` attribute.
@@ -70,7 +78,7 @@ class Event(object):
 
     def __init__(
             self, datasets=None, model=None, coords=None, fix_blend_flux={},
-            fix_source_flux={}, fix_q_flux={}):
+            fix_source_flux={}, fix_q_flux={}, data_ref=0):
         self._model = None
         self._coords = None
 
@@ -86,7 +94,7 @@ class Event(object):
         else:
             raise TypeError('incorrect argument datasets of class Event()')
 
-        self._data_ref = None
+        self._data_ref = self._set_data_ref(data_ref)
 
         # Set event coordinates
         if coords is not None:
@@ -114,13 +122,104 @@ class Event(object):
         pass
         # self.model.plot_lc(**kwargs)
 
-    def plot_data(self, **kwargs):
+    def plot_data(
+            self, phot_fmt='mag', data_ref=None, show_errorbars=None,
+            show_bad=None,
+            color_list=None, marker_list=None, size_list=None,
+            label_list=None, alpha_list=None, zorder_list=None,
+            subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
-        Plot the data scaled to the model. See
-        :py:func:`MulensModel.model.Model.plot_data()` for details.
+        Plot the data scaled to the model.
+
+        Keywords (all optional):
+            phot_fmt: *string* ('mag', 'flux')
+                Whether to plot the data in magnitudes or in flux. Default
+                is 'mag'.
+
+            data_ref: *int* or *MulensData*
+                If data_ref is not specified, uses :py:obj:`~data_ref`.
+
+            show_errorbars: *boolean* or *None*
+                Do you want errorbars to be shown for all datasets?
+                Default is *None*, which means the option is taken from each
+                dataset plotting properties (for which default is *True*).
+                If *True*, then data are plotted using matplotlib.errorbar().
+                If *False*, then data are plotted using matplotlib.scatter().
+
+            show_bad: *boolean* or *None*
+                Do you want data marked as bad to be shown?
+                Default is *None*, which means the option is taken from each
+                dataset plotting properties (for which default is *False*).
+                If bad data are shown, then they are plotted with 'x' marker.
+
+            subtract_2450000, subtract_2460000: *boolean*
+                If True, subtracts 2450000 or 2460000 from the time
+                axis to get more human-scale numbers. If using, make
+                sure to also set the same settings for all other
+                plotting calls (e.g. :py:func:`plot_lc()`).
+
+            ``**kwargs``:
+                Passed to matplotlib plotting functions. Contrary to
+                previous behavior, ``**kwargs`` are no longer remembered.
+
         """
-        pass
-        # self.model.plot_data(**kwargs)
+        # Officially deprecating
+        # self._check_old_plot_kwargs(
+        #     color_list=color_list, marker_list=marker_list,
+        #     size_list=size_list, label_list=label_list,
+        #     alpha_list=alpha_list, zorder_list=zorder_list)
+
+        self._set_default_colors()  # For each dataset
+        if self.fits is None:
+            self.get_chi2()
+
+        if data_ref is None:
+            data_ref = self.data_ref
+
+        # JCY want to implement show_errobars, show_bad as list option, so it
+        # can be different for different datasets. DO LATER.
+
+        # Set plot limits
+        t_min = 3000000.
+        t_max = 0.
+        subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
+
+        # Get fluxes for all datasets
+        if self.model.n_sources > 1:
+            raise NotImplementedError(
+                'Scaling data to model not implemented for multiple sources.')
+
+        for (i, data) in enumerate(self._datasets):
+            # Get the fitted fluxes
+            f_source_0 = self.fits[data_ref].source_fluxes
+            f_blend_0 = self.fits[data_ref].blend_flux
+            f_source = self.fits[i].source_fluxes
+            f_blend = self.fits[i].blend_flux
+
+            # Scale the data flux
+            flux = f_source_0 * (data.flux - f_blend) / f_source
+            flux += f_blend_0
+            err_flux = f_source_0 * data.err_flux / f_source
+            (y_value, y_err) = mm_plot._get_y_value_y_err(
+                phot_fmt, flux, err_flux)
+
+            data._plot_datapoints(
+                (y_value, y_err), subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000,
+                show_errorbars=show_errorbars, show_bad=show_bad, **kwargs)
+
+            t_min = min(t_min, np.min(data.time))
+            t_max = max(t_max, np.max(data.time))
+
+        # Plot properties
+        plt.ylabel('Magnitude')
+        plt.xlabel(
+            mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.xlim(t_min-subtract, t_max-subtract)
+
+        (ymin, ymax) = plt.gca().get_ylim()
+        if ymax > ymin:
+            plt.gca().invert_yaxis()
 
     def plot_residuals(self, **kwargs):
         """
@@ -145,6 +244,51 @@ class Event(object):
         """
         pass
         # self.model.plot_source_for_datasets(**kwargs)
+
+    def _set_default_colors(self):
+        """
+        If the user has not specified a color for a dataset, assign
+        one.
+        """
+        # JCY --> plot_functions.py?
+        colors = [cycle['color'] for cycle in rcParams['axes.prop_cycle']]
+
+        # Below we change the order of colors to most distinct first.
+        used_colors = []
+        for data in self._datasets:
+            if 'color' in data.plot_properties.keys():
+                used_colors.append(data.plot_properties['color'])
+
+        if len(used_colors) == len(self._datasets):
+            return
+
+        if len(used_colors) == 0:
+            differences = None
+        else:
+            d_col = self._color_differences
+            diffs = np.array([np.min(d_col(used_colors, c)) for c in colors])
+            indexes = np.argsort(diffs)[::-1]
+            colors = [colors[i] for i in indexes]
+            differences = diffs[indexes]
+
+        # Assign colors when needed.
+        color_index = 0
+        for data in self._datasets:
+            if 'color' not in data.plot_properties.keys():
+                if differences is not None:
+                    if differences[color_index] < 0.35:
+                        msg = ('The color assign to one of the datasets in ' +
+                               'automated way (' + colors[color_index] +
+                               ') is very similar to already used color')
+                        warnings.warn(msg, UserWarning)
+
+                data.plot_properties['color'] = colors[color_index]
+                color_index += 1
+                if color_index == len(colors):
+                    color_index = 0
+                    msg = ('Too many datasets without colors assigned - ' +
+                           'same color will be used for different datasets')
+                    warnings.warn(msg, UserWarning)
 
     def get_flux_for_dataset(self, dataset):
         """
@@ -715,6 +859,9 @@ class Event(object):
         plotting). May be set as a
         :py:class:`~MulensModel.mulensdata.MulensData` object or an
         index (*int*). Default is the first data set.
+
+        Returns :
+            index (*int*) of the relevant dataset.
         """
         if self._data_ref is None:
             return 0
@@ -723,7 +870,25 @@ class Event(object):
 
     @data_ref.setter
     def data_ref(self, new_value):
-        self._data_ref = new_value
+        self._data_ref = self._set_data_ref(new_value)
+
+    def _set_data_ref(self, new_value):
+        """
+        Set reference dataset. Not covered by unit tests.
+        """
+        if isinstance(new_value, MulensData):
+            index = np.where(self.datasets == new_value)
+            if len(index[0]) > 1:
+                raise ValueError(
+                    'Dataset is included in Event.datasets more than once.')
+
+            self._data_ref = index[0]
+        elif isinstance(new_value, (int, np.int)):
+            self._data_ref = new_value
+        else:
+            raise TypeError(
+                'data_ref must be set using either *int* or *MulensData*: ' +
+                '{0}'.format(type(new_value)))
 
     @property
     def chi2(self):
