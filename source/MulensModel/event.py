@@ -197,8 +197,6 @@ class Event(object):
             raise NotImplementedError(
                 'Scaling data to model not implemented for multiple sources.')
 
-
-
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         for (i, data) in enumerate(self._datasets):
             # Get the fitted fluxes

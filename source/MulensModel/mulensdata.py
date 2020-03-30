@@ -344,7 +344,6 @@ class MulensData(object):
             raise ValueError(
                     'MulensData.plot() requires model to plot residuals')
 
-
         # if show_errorbars is None:
         #     show_errorbars = self.plot_properties.get('show_errorbars', True)
         #
@@ -465,7 +464,6 @@ class MulensData(object):
                 if change:
                     properties_bad['color'] = collection.get_edgecolor()
                 self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
-
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
