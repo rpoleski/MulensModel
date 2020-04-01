@@ -193,20 +193,20 @@ class Event(object):
         subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
 
         # Get fluxes for all datasets
-        if self.model.n_sources > 1:
-            raise NotImplementedError(
-                'Scaling data to model not implemented for multiple sources.')
+        # if self.model.n_sources > 1:
+        #     raise NotImplementedError(
+        #         'Scaling data to model not implemented for multiple sources.')
 
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         for (i, data) in enumerate(self._datasets):
             # Get the fitted fluxes
-            f_source = self.fits[i].source_fluxes
-            f_blend = self.fits[i].blend_flux
+            # (f_source, f_blend) = self.get_flux_for_dataset(i)
 
             # Scale the data flux
-            flux = f_source_0 * (data.flux - f_blend) / f_source
-            flux += f_blend_0
-            err_flux = f_source_0 * data.err_flux / f_source
+            # flux = f_source_0 * (data.flux - f_blend) / f_source
+            # flux += f_blend_0
+            # err_flux = f_source_0 * data.err_flux / f_source
+            (flux, err_flux) = self.fits[i].scale_fluxes(f_source_0, f_blend_0)
             (y_value, y_err) = mm_plot._get_y_value_y_err(
                 phot_fmt, flux, err_flux)
 
@@ -228,13 +228,52 @@ class Event(object):
         if ymax > ymin:
             plt.gca().invert_yaxis()
 
-    def plot_residuals(self, **kwargs):
+    def plot_residuals(self, show_errorbars=None,
+            data_ref=None, subtract_2450000=False, subtract_2460000=False,
+            show_bad=None, **kwargs):
         """
-        Plot the residuals (in magnitudes) of the model.
-        See :py:func:`MulensModel.model.Model.plot_residuals()` for details.
+        Plot the residuals (in magnitudes) to the model.
+
+                For explanation of keywords, see doctrings in
+        :py:func:`plot_data()`. Note different order of keywords.
         """
-        pass
-        # self.model.plot_residuals(**kwargs)
+        self._set_default_colors()
+
+        if data_ref is None:
+            data_ref = self.data_ref
+
+        # Plot limit parameters
+        t_min = 3000000.
+        t_max = 0.
+        subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
+
+        # Plot zeropoint line
+        plt.plot([0., 3000000.], [0., 0.], color='black')
+
+        # Plot residuals
+        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
+        for i, data in enumerate(self._datasets):
+            (residuals, errorbars)  = self.fits[i].get_residuals(
+                phot_fmt='scaled', source_flux=f_source_0, blend_flux=f_blend_0)
+            y_value = residuals
+            y_err = errorbars
+            data._plot_datapoints(
+                (y_value, y_err), subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000,
+                show_errorbars=show_errorbars, show_bad=show_bad, **kwargs)
+
+            t_min = min(t_min, np.min(data.time))
+            t_max = max(t_max, np.max(data.time))
+
+        # Plot properties
+        y_lim = np.max([np.abs(y_lim) for y_lim in plt.gca().get_ylim()])
+        if y_lim > 1.:
+            y_lim = 0.5
+
+        plt.ylim(y_lim, -y_lim)
+        plt.xlim(t_min-subtract, t_max-subtract)
+        plt.ylabel('Residuals')
+        plt.xlabel(mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_trajectory(self, **kwargs):
         """

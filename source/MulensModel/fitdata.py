@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 from MulensModel.trajectory import Trajectory
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
+from MulensModel.utils import Utils
 import astropy.units as u
 
 
@@ -323,6 +324,108 @@ class FitData:
                         * self._data_magnification[i]
 
         return model_flux
+
+    def get_model_magnitudes(self):
+        """
+        Returns :
+            model_mag: *np.ndarray*
+                The model magnitude evaluated for each datapoint.
+        """
+        model_flux = self.get_model_fluxes()
+        model_mag = Utils.get_mag_from_flux(model_flux)
+
+        return model_mag
+
+    def scale_fluxes(self, source_flux, blend_flux):
+        """
+        Rescale the data fluxes to an arbitrary flux scale.
+
+        Arguments :
+            source_flux: *float*
+                Flux of the source in the desired system
+
+            blend_flux: *float*
+                Flux of the blend in the desired system
+
+        Returns :
+            (flux, err): the fluxes and flux errors of the dataset rescaled
+            to the desired system
+        """
+        if self.model.n_sources > 1:
+            raise NotImplementedError(
+                'Scaling data to model not implemented for multiple sources.')
+
+        flux = source_flux * (self._dataset.flux - self.blend_flux)
+        flux /= self.source_flux
+        flux += blend_flux
+        err_flux = source_flux * self._dataset.err_flux / self.source_flux
+
+        return (flux, err_flux)
+
+    def get_residuals(
+            self, phot_fmt=None, source_flux=None, blend_flux=None, type=None):
+        """
+        Calculate the residuals for each datapoint relative to the model.
+
+        Keywords :
+            phot_fmt: *str*, optional
+                specify whether the residuals should be returned in
+                magnitudes ('mag') or in flux ('flux'). Default is
+                'mag'. If 'scaled', will return the residuals in magnitudes
+                scaled to f_source_0, f_blend_0.
+
+            source_flux, blend_flux: *float*
+                reference source and blend fluxes for scaling the residuals
+
+            type: deprecated, see "phot_fmt".
+
+        Returns :
+             residuals: *np.ndarray*
+                the residuals for the corresponding dataset.
+
+            errorbars: *np.ndarray*
+                the scaled errorbars for each point. For plotting
+                errorbars for the residuals.
+        """
+
+        if type is not None:
+            if type == 'mag':
+                warnings.warn(
+                    '"mag" returns residuals in the original data flux' +
+                    'system. To scale the residuals, use "scaled".')
+
+            warnings.warn(
+                'type keyword will be deprecated. Use "phot_fmt" instead.',
+                FutureWarning)
+            phot_fmt = type
+
+        if phot_fmt == 'scaled':
+            if source_flux is None or blend_flux is None:
+                raise ValueError(
+                    'If phot_fmt=scaled, source_flux and blend_flux must also' +
+                    'be specified.')
+
+            magnification = self.get_data_magnification()
+            model_mag = Utils.get_mag_from_flux(
+                blend_flux + source_flux * magnification)
+            (flux, err_flux) = self.scale_fluxes(source_flux, blend_flux)
+            (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+            residuals = mag - model_mag
+            errorbars = err
+        elif phot_fmt == 'mag':
+            model_mag = self.get_model_mag()
+            residuals = self._dataset.mag - model_mag
+            errorbars = self._dataset.err_mag
+        elif phot_fmt == 'flux':
+            model_flux = self.get_model_fluxes()
+            residuals = self._dataset.flux - model_flux
+            errorbars = self._dataset.err_flux
+        else:
+            raise ValueError(
+                'phot_fmt must be one of "mag", "flux", or "scalled". Your' +
+                'value: {0}'.format(phot_fmt))
+
+        return (residuals, errorbars)
 
     def _check_for_gradient_implementation(self, parameters):
         """ Check that the gradient methods are implemented for the requested
