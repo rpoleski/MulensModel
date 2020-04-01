@@ -338,7 +338,10 @@ class FitData:
 
     def scale_fluxes(self, source_flux, blend_flux):
         """
-        Rescale the data fluxes to an arbitrary flux scale.
+        Rescale the data fluxes to an arbitrary flux scale:
+            flux = f_source_0 * (data.flux - f_blend) / f_source
+            flux += f_blend_0
+            err_flux = f_source_0 * data.err_flux / f_source
 
         Arguments :
             source_flux: *float*
@@ -402,8 +405,8 @@ class FitData:
         if phot_fmt == 'scaled':
             if source_flux is None or blend_flux is None:
                 raise ValueError(
-                    'If phot_fmt=scaled, source_flux and blend_flux must also' +
-                    'be specified.')
+                    'If phot_fmt=scaled, source_flux and blend_flux must' +
+                    'also be specified.')
 
             magnification = self.get_data_magnification()
             model_mag = Utils.get_mag_from_flux(
@@ -455,7 +458,9 @@ class FitData:
                     'for finite source models yet')
 
     def get_chi2_gradient(self, parameters):
-        """ Same as :py:func:`~chi2_gradient`, but fits for the fluxes first."""
+        """
+        Same as :py:func:`~chi2_gradient`, but fits for the fluxes first.
+        """
         self.fit_fluxes()
         return self.chi2_gradient()
 
@@ -575,7 +580,7 @@ class FitData:
             kwargs = {}
             if self.dataset.ephemerides_file is not None:
                 kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
-                
+
             trajectory_no_piE = Trajectory(
                 self.dataset.time, self.model.parameters, parallax,
                 self.model.coords, **kwargs)
@@ -598,7 +603,7 @@ class FitData:
             out = gradient[parameters[0]]
         else:
             out = np.array([gradient[p] for p in parameters])
-            
+
         return out
 
     @property
