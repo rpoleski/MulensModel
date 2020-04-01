@@ -447,27 +447,6 @@ class Model(object):
         add_3 = (3. + mean_red) * diffs[:, 2]
         return np.sqrt(add_1 + add_2 + add_3)
 
-    def _check_old_plot_kwargs(self, **kwargs):
-        """
-        Check for deprecated "_list" keywords. Issue a warning, then
-        transfer the properties to the new
-        :py:attr:`mulensdata.MulensData.plot_properties` system.
-        """
-        # JCY --> plot_functions.py?
-        old_plot_keywords = [
-            'color_list', 'marker_list', 'size_list',
-            'label_list', 'alpha_list', 'zorder_list']
-
-        for old_keyword in old_plot_keywords:
-            if kwargs[old_keyword] is not None:
-                warnings.warn('Keyword "' + old_keyword + '" is deprecated.' +
-                              ' Use MulensData.plot_properties instead.',
-                              FutureWarning)
-                values = kwargs[old_keyword]
-                key = old_keyword[:-5]
-                for (dataset, value) in zip(self._datasets, values):
-                    dataset.plot_properties[key] = value
-
     def plot_data(
             self, data_ref=None, show_errorbars=None, show_bad=None,
             color_list=None, marker_list=None, size_list=None,
