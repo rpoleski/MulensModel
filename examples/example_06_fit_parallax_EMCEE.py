@@ -18,11 +18,14 @@ import matplotlib.pyplot as plt
 import MulensModel as mm
 
 
+# JCY - Have not figured out how to store best chi2 information using EMCEE.
+
 # Define likelihood functions
 def ln_like(theta, event, parameters_to_fit):
     """ likelihood function """
     for key, val in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
+
     return -0.5 * event.get_chi2()
 
 
@@ -97,11 +100,15 @@ for i in range(n_dim):
     r = results[1, i]
     print("{:.5f} {:.5f} {:.5f}".format(r, results[2, i]-r, r-results[0, i]))
 
-# We extract best model parameters and chi2 from my_event:
+# We extract best model parameters and chi2 from the chain:
+prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
 print("\nSmallest chi2 model:")
-best = [my_event.best_chi2_parameters[p] for p in parameters_to_fit]
+#best = [best_params[p] for p in parameters_to_fit]
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
-print(my_event.best_chi2)
+print(best_chi2)
 
 # Now let's plot 3 models
 plt.figure()
@@ -114,9 +121,9 @@ model_2 = mm.Model(
     {'t_0': 2453630.67778, 'u_0': -0.415677, 't_E': 110.120755,
      'pi_E_N': -0.2972, 'pi_E_E': 0.1103, 't_0_par': params['t_0_par']},
     coords=coords)
-model_0.set_datasets([my_data])
-model_1.set_datasets([my_data])
-model_2.set_datasets([my_data])
+event_0 = mm.Event(model=model_0, datasets=[my_data])
+event_1 = mm.Event(model=model_1, datasets=[my_data])
+event_2 = mm.Event(model=model_2, datasets=[my_data])
 
 t_1 = 2453200.
 t_2 = 2453950.
@@ -124,9 +131,9 @@ plot_params = {'lw': 2.5, 'alpha': 0.3, 'subtract_2450000': True,
                't_start': t_1, 't_stop': t_2}
 
 my_event.plot_data(subtract_2450000=True)
-model_0.plot_lc(label='no pi_E', **plot_params)
-model_1.plot_lc(label='pi_E, u_0>0', **plot_params)
-model_2.plot_lc(label='pi_E, u_0<0', color='black', ls='dashed', **plot_params)
+event_0.plot_model(label='no pi_E', **plot_params)
+event_1.plot_model(label='pi_E, u_0>0', **plot_params)
+event_2.plot_model(label='pi_E, u_0<0', color='black', ls='dashed', **plot_params)
 
 plt.xlim(t_1-2450000., t_2-2450000.)
 plt.legend(loc='best')
