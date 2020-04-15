@@ -220,10 +220,6 @@ class Utils(object):
 
         (eps_1, eps_2, eps_3) = Utils._mass_fractions_from_mass_ratios(
             q_21=q_21, q_31=q_31)
-        # XXX cleanup
-        #eps_1 = 1. / (1. + q_21 + q_31)
-        #eps_2 = eps_1 * q_21
-        #eps_3 = eps_1 * q_31
 
         sin_psi_2 = sin_psi / sqrt(
             sin_psi**2 + (cos_psi + eps_2*s_21/(eps_3*s_31))**2)

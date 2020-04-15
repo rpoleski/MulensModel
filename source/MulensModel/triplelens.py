@@ -118,7 +118,7 @@ class TripleLens(object):
             # numerical accuracy is.
 
         if len(out) not in [4, 6, 8, 10]:
-            warnings.warn(str(len(out)) +  # XXX - warning here
+            warnings.warn(str(len(out)) +
                           " solustions for triple lens equation", UserWarning)
 
         return np.array(out)
