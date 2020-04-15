@@ -294,10 +294,7 @@ class MulensData(object):
         Uses plot_properties_ for label, color, etc.
         This settings can be changed by setting ``**kwargs``.
 
-        You can plot in either flux or magnitude space. You can plot
-        data in a scale defined by other dataset -- pass *model* argument
-        and *model.data_ref* will be used as reference. Instead of plotting
-        data themselves, you can also plot the residuals of a *model*.
+        You can plot in either flux or magnitude space.
 
         Keywords:
             phot_fmt: *string* ('mag', 'flux')
@@ -360,6 +357,10 @@ class MulensData(object):
                 'Event.plot_data() instead.', FutureWarning)
 
             if plot_residuals:
+                warnings.warn(
+                    'The plot_residuals option will be deprecated because it '
+                    'requires a model. Use Event.plot_residuals() instead.'
+                )
                 residuals = model.get_residuals(data_ref=model.data_ref,
                                                 type=phot_fmt, data=self)
                 y_value = residuals[0][0]
