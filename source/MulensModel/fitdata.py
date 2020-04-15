@@ -114,11 +114,14 @@ class FitData:
         diff = self._dataset.flux - model_flux
         self._chi2_per_point = (diff / self._dataset.err_flux)**2
 
-    def _calc_magnifications(self):
+    def _calc_magnifications(self, bad=True):
         """
-        Calculate the model magnifications for the good epochs of the dataset.
+        Calculate the model magnifications for the epochs of the dataset.
         """
-        # select = self._dataset.good # Is this faster?
+        if bad:
+            select = np.ones(self._dataset.n_epochs, dtype=bool)
+        else:
+            select = self._dataset.good
 
         if self.dataset.ephemerides_file is None:
             satellite_skycoord = None
@@ -135,11 +138,11 @@ class FitData:
         # sources
         if self._model.n_sources == 1:
             mag_matrix = self._model.magnification(
-                time=self._dataset.time[self._dataset.good],
+                time=self._dataset.time[select],
                 **magnification_kwargs)
         elif self._model.n_sources == 2:
             mag_matrix = self._model.magnification(
-                time=self._dataset.time[self._dataset.good], separate=True,
+                time=self._dataset.time[select], separate=True,
                 **magnification_kwargs)
         else:
             msg = ("{0}".format(self._model.n_sources) +
@@ -147,14 +150,28 @@ class FitData:
                    " handle <=2 sources")
             raise NotImplementedError(msg)
 
-        self._data_magnification = mag_matrix
+        if bad:
+            self._data_magnification = mag_matrix
+        else:
+            if self._model.n_sources == 1:
+                self._data_magnification = np.zeros(
+                    self._dataset.n_epochs)
+                self._data_magnification[self._dataset.good] = mag_matrix
+            else:
+                self._data_magnification = [np.zeros(self._dataset.n_epochs)]
+                self._data_magnification[0][self._dataset.good] = mag_matrix[0]
+                for source in range(1, self.model.n_sources):
+                    self._data_magnification.append(
+                        np.zeros(self._dataset.n_epochs))
+                    self._data_magnification[
+                        source][self._dataset.good] = mag_matrix[source]
 
     def _get_xy_qflux(self):
         """Use a flux ratio constraint"""
         y = self._dataset.flux[self._dataset.good]
         x = np.array(
-            self._data_magnification[0] +
-            self.fix_q_flux * self._data_magnification[1])
+            self._data_magnification[0][self._dataset.good] +
+            self.fix_q_flux * self._data_magnification[1][self._dataset.good])
         self.n_fluxes = 1
 
         return (x, y)
@@ -165,27 +182,39 @@ class FitData:
 
         if self.fix_source_flux is False:
             x = np.array(self._data_magnification)
+            if self.model.n_sources == 1:
+                x = x[self._dataset.good]
+            else:
+                x = x[:, self._dataset.good]
+
             self.n_fluxes = self._model.n_sources
         else:
             x = None
             if self._model.n_sources == 1:
-                y -= self.fix_source_flux[0] * self._data_magnification
+                y -= (self.fix_source_flux[0] *
+                    self._data_magnification[self._dataset.good])
             else:
                 for i in range(self._model.n_sources):
                     if self.fix_source_flux[i] is False:
                         self.n_fluxes += 1
                         if x is None:
                             if self._model.n_sources == 1:
-                                x = np.array(self._data_magnification)
+                                x = np.array(
+                                    self._data_magnification[
+                                        self._dataset.good])
                             else:
-                                x = np.array(self._data_magnification[i])
+                                x = np.array(
+                                    self._data_magnification[i][
+                                        self._dataset.good])
 
                         else:
-                            x = np.vstack((x, self._data_magnification[i]))
+                            x = np.vstack(
+                                (x, self._data_magnification[i][
+                                    self._dataset.good]))
 
                     else:
                         y -= (self.fix_source_flux[i] *
-                              self._data_magnification[i])
+                              self._data_magnification[i][self._dataset.good])
 
         return (x, y)
 
@@ -202,7 +231,7 @@ class FitData:
         # Initializations
         self.n_fluxes = 0
         n_epochs = np.sum(self._dataset.good)
-        self._calc_magnifications()
+        self._calc_magnifications(bad=False)
 
         # Account for source fluxes
         if self.fix_q_flux is not False:
@@ -290,9 +319,15 @@ class FitData:
         else:
             self._blend_flux = self.fix_blend_flux
 
-    def get_data_magnification(self):
+    def get_data_magnification(self, bad=True):
         """
         Calculates the model magnification for each data point.
+
+        Arguments :
+            bad: *boolean*
+                If *True*, calculates the magnification for all points.
+                If *False*, only calculates the magnification for good data
+                points.
 
         Returns :
             data_magnification: *np.ndarray*
@@ -301,7 +336,7 @@ class FitData:
                 reported separately.
         """
 
-        self._calc_magnifications()
+        self._calc_magnifications(bad=bad)
         return self._data_magnification
 
     def get_model_fluxes(self):
@@ -425,7 +460,7 @@ class FitData:
             errorbars = self._dataset.err_flux
         else:
             raise ValueError(
-                'phot_fmt must be one of "mag", "flux", or "scalled". Your' +
+                'phot_fmt must be one of "mag", "flux", or "scaled". Your' +
                 'value: {0}'.format(phot_fmt))
 
         return (residuals, errorbars)
