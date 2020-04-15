@@ -246,9 +246,16 @@ class Event(object):
         # Plot residuals
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         for i, data in enumerate(self._datasets):
+            # Evaluate whether or nor it is necessary to calculate the model
+            # for bad datapoints.
+            if show_bad:
+                bad = True
+            else:
+                bad = False
+
             (residuals, errorbars) = self.fits[i].get_residuals(
                 phot_fmt='scaled', source_flux=f_source_0,
-                blend_flux=f_blend_0)
+                blend_flux=f_blend_0, bad=bad)
             y_value = residuals
             y_err = errorbars
             data._plot_datapoints(

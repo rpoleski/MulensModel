@@ -423,7 +423,7 @@ class FitData:
 
     def get_residuals(
             self, phot_fmt=None, source_flux=None, blend_flux=None, bad=False,
-            type=None,):
+            type=None):
         """
         Calculate the residuals for each datapoint relative to the model.
 
