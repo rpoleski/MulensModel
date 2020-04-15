@@ -169,7 +169,16 @@ class PointLens(object):
                 Type is the same as of u parameter.
 
         """
-        z = u / self.parameters.rho
+        return self._get_point_lens_finite_source_magnification(
+            u, pspl_magnification, rho=self.parameters.rho, direct=direct)
+
+    def _get_point_lens_finite_source_magnification(
+                self, u, pspl_magnification, rho, direct=False):
+        """
+        Calculate large source magnification assuming rho provided directly,
+        not as self.parameters.rho
+        """
+        z = u / rho
         try:
             _ = iter(z)
         except TypeError:
@@ -443,3 +452,44 @@ class PointLens(object):
                 values[values < 0.] = 0.
         out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
         return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
+
+    def get_point_lens_LD_NEW(self, u, rho, gamma):
+        """XXX"""
+        out = [self._temp(u_, rho, gamma) for u_ in u]
+        return np.array(out)
+
+    def _temp(self, u, rho, gamma):
+        """
+        XXX
+        Bozza+18 Eq. 16-19
+        """
+        n_annuli = 100
+        n_annuli += 1  # It's easier to have r=0 ring as well.
+
+        pspl_magnification = get_pspl_magnification(u)
+
+        annuli = np.linspace(0, 1., n_annuli)
+        r2 = annuli**2
+
+        magnification = np.zeros(n_annuli)
+        for (i, a) in enumerate(annuli):
+            if i == 0:
+                continue
+            # XXX - should we use Lee method here? Or Witt & Mao 1994?
+            magnification[i] = self._get_point_lens_finite_source_magnification(
+                u, pspl_magnification, rho=a*self.parameters.rho)
+
+        cumulative_profile = gamma + (1. - gamma) * r2 - gamma * (1. - r2)**1.5
+        d_cumulative_profile = cumulative_profile[1:] - cumulative_profile[:-1]
+        d_r2 = r2[1:] - r2[:-1]
+        temp = magnification * r2
+        d_mag_r2 = temp[1:] - temp[:-1]
+        out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
+        return out
+
+# TODO:
+#  - XXX above
+#  - unit test
+#  - latex file
+#  - get_point_lens_uniform_integrated_magnification - DOCSTRING in master
+#  - get_point_lens_LD_integrated_magnification - DOCSTRING in master
