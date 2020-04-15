@@ -103,14 +103,21 @@ class FitData:
                        'Fix the fluxes for each source individually instead.')
                 raise NotImplementedError(msg)
 
-    def update(self):
+    def update(self, bad=False):
         """
         Calculate the best-fit source and blend fluxes as well as the chi2.
+
+        Keywords :
+            bad: *bool*
+                Default is *False*. If *True* recalculates the data
+                magnification for each point to ensure that there are values
+                even for bad datapoints.
+
         """
         self.fit_fluxes()
 
         # Calculate chi2
-        model_flux = self.get_model_fluxes()
+        model_flux = self.get_model_fluxes(bad=bad)
         diff = self._dataset.flux - model_flux
         self._chi2_per_point = (diff / self._dataset.err_flux)**2
 
@@ -319,7 +326,7 @@ class FitData:
         else:
             self._blend_flux = self.fix_blend_flux
 
-    def get_data_magnification(self, bad=True):
+    def get_data_magnification(self, bad=False):
         """
         Calculates the model magnification for each data point.
 
@@ -327,7 +334,8 @@ class FitData:
             bad: *boolean*
                 If *True*, calculates the magnification for all points.
                 If *False*, only calculates the magnification for good data
-                points.
+                points. Values for bad data points are set to 0. Default is
+                *False*.
 
         Returns :
             data_magnification: *np.ndarray*
@@ -339,8 +347,15 @@ class FitData:
         self._calc_magnifications(bad=bad)
         return self._data_magnification
 
-    def get_model_fluxes(self):
+    def get_model_fluxes(self, bad=False):
         """
+
+        Keywords :
+            bad: *bool*
+                Default is *False*. If *True* recalculates the data
+                magnification for each point to ensure that there are values
+                even for bad datapoints.
+
         Returns :
             model_flux: *np.ndarray*
                 The model flux evaluated for each datapoint.
@@ -349,6 +364,9 @@ class FitData:
             raise AttributeError(
                 'you need to run FitData.fit_fluxes() first to execute the' +
                 'linear fit.')
+
+        if bad:
+            self._calc_magnifications(bad=True)
 
         model_flux = np.ones(self._dataset.n_epochs) * self.blend_flux
         if self._model.n_sources == 1:
@@ -360,13 +378,16 @@ class FitData:
 
         return model_flux
 
-    def get_model_magnitudes(self):
+    def get_model_magnitudes(self, **kwargs):
         """
+        Arguments:
+            **kwargs: see :py:func:`~get_model_fluxes'
+
         Returns :
             model_mag: *np.ndarray*
                 The model magnitude evaluated for each datapoint.
         """
-        model_flux = self.get_model_fluxes()
+        model_flux = self.get_model_fluxes(**kwargs)
         model_mag = Utils.get_mag_from_flux(model_flux)
 
         return model_mag
@@ -401,7 +422,8 @@ class FitData:
         return (flux, err_flux)
 
     def get_residuals(
-            self, phot_fmt=None, source_flux=None, blend_flux=None, type=None):
+            self, phot_fmt=None, source_flux=None, blend_flux=None, bad=False,
+            type=None,):
         """
         Calculate the residuals for each datapoint relative to the model.
 
@@ -410,22 +432,26 @@ class FitData:
                 specify whether the residuals should be returned in
                 magnitudes ('mag') or in flux ('flux'). Default is
                 'mag'. If 'scaled', will return the residuals in magnitudes
-                scaled to f_source_0, f_blend_0.
+                scaled to source_flux, blend_flux.
 
             source_flux, blend_flux: *float*
                 reference source and blend fluxes for scaling the residuals
 
+            bad: *bool*
+                Default is *False*. If *True* recalculates the data
+                magnification for each point to ensure that there are values
+                even for bad datapoints.
+
             type: deprecated, see "phot_fmt".
 
         Returns :
-             residuals: *np.ndarray*
+            residuals: *np.ndarray*
                 the residuals for the corresponding dataset.
 
             errorbars: *np.ndarray*
                 the scaled errorbars for each point. For plotting
                 errorbars for the residuals.
         """
-
         if type is not None:
             if type == 'mag':
                 warnings.warn(
@@ -436,6 +462,9 @@ class FitData:
                 'type keyword will be deprecated. Use "phot_fmt" instead.',
                 FutureWarning)
             phot_fmt = type
+
+        if bad:
+            self._calc_magnifications(bad=True)
 
         if phot_fmt == 'scaled':
             if source_flux is None or blend_flux is None:
@@ -482,7 +511,7 @@ class FitData:
         # Implemented for the number of sources in the model?
         if self.model.n_lenses != 1:
             raise NotImplementedError(
-                'chi2_gradient() works only single lens models currently')
+                'chi2_gradient() only implemented for single lens models')
 
         # Implemented for finite source effects?
         if 'rho' in parameters or 't_star' in parameters:
