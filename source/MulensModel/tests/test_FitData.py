@@ -14,6 +14,7 @@ SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
 SAMPLE_FILE_03 = os.path.join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
 SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
 SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
+SAMPLE_FILE_04_WF = os.path.join(mm.MODULE_PATH, 'data', 'WFIRST_1827.dat')
 
 def generate_model():
     """
@@ -243,7 +244,11 @@ def test_fit_fluxes():
     my_fit = mm.FitData(
         model=pspl, dataset=my_dataset, fix_blend_flux=False,
         fix_source_flux=False)
+    #   Before update or fit_fluxes is run, chi2_per_point should be None
+    assert(my_fit.chi2_per_point is None)
     my_fit.update()
+    #   After update is run, chi2_per_point should have some values
+    assert (len(my_fit.chi2_per_point) == 1000)
     f_s_1 = my_fit.source_flux
     chi2_1 = my_fit.chi2
 
@@ -291,13 +296,49 @@ def test_satellite_and_annual_parallax_calculation():
     ratio = my_fit.get_data_magnification() / ref_Spitzer
     np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
 
+def test_bad_data():
+    """test how chi2 and chi2_per_point are affected if some datapoints are set
+    to bad."""
+
+    # test that chi2 changes when using all data points vs. eliminating the
+    # planet.
+    (t_planet_start, t_planet_stop) = (2460982., 2460985.)
+    data = mm.MulensData(file_name=SAMPLE_FILE_04_WF)
+    flag_planet = (data.time > t_planet_start) & (
+                data.time < t_planet_stop) | np.isnan(data.err_mag)
+    data_bad = mm.MulensData(file_name=SAMPLE_FILE_04_WF, bad=flag_planet)
+
+    (t_0, u_0, t_E) = (2460962.36458, 0.411823, 22.8092)
+    point_lens_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+    fit_all = mm.FitData(dataset=data, model=point_lens_model)
+    fit_bad = mm.FitData(dataset=data_bad, model=point_lens_model)
+    assert(fit_all.chi2 is None)
+    fit_all.update()
+    fit_bad.update()
+    chi2_all = fit_all.chi2
+    chi2_bad = fit_bad.chi2
+    assert(chi2_all > chi2_bad)
+
+    # test whether or not chi2_per_point is calculated for bad points.
+    # not calculated --> magnification = 0, model_flux --> f_blend, dchi2=large
+    # update: bad not specified --> not calculated
+    # points:
+    #   during anomaly 13055
+    #   before anomaly, but excluded: 12915
+    #   before anomaly, but included: 12900
+    good_pt = 12900
+    bad_pt = 12915
+    assert( fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] > 100.)
+
+    # update: bad=True --> calculated
+    fit_bad.update(bad=True)
+    assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] < 10.)
+
+    # update: bad=False --> not calculated
+    fit_bad.update(bad=False)
+    assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] > 100.)
+
 # Tests to add:
-#
-# test update():
-#   Before it is run, chi2_per_point should be None
-#   After it is run, it should have some values
-#   Check whether Dchi2 is calculated for bad points:
-#       bad not specified, bad=True, bad=False
 #
 # test fit_fluxes():
 #   Test results for datasets with and without bad data points.

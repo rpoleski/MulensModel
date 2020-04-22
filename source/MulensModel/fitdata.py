@@ -681,7 +681,10 @@ class FitData:
         If None, you need to run :py:func:`~update()` to execute the
         linear fit and calculate the chi2.
         """
-        return np.sum(self.chi2_per_point[self._dataset.good])
+        if self.chi2_per_point is None:
+            return None
+        else:
+            return np.sum(self.chi2_per_point[self._dataset.good])
 
     @property
     def chi2_per_point(self):
