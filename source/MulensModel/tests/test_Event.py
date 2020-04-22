@@ -412,7 +412,7 @@ def test_event_chi2_binary_source_2datasets():
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
     model.parameters.t_0_1 = 5010.
     assert event.get_chi2() > 1., 'wrong chi2'
-    model.parameters.t_0_1 = 5000.bad
+    model.parameters.t_0_1 = 5000.
 
     # Test combination of Model.set_source_flux_ratio_for_band() and
     # Event.get_chi2_for_dataset().
