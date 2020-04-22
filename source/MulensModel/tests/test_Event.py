@@ -412,7 +412,7 @@ def test_event_chi2_binary_source_2datasets():
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
     model.parameters.t_0_1 = 5010.
     assert event.get_chi2() > 1., 'wrong chi2'
-    model.parameters.t_0_1 = 5000.
+    model.parameters.t_0_1 = 5000.bad
 
     # Test combination of Model.set_source_flux_ratio_for_band() and
     # Event.get_chi2_for_dataset().
@@ -427,3 +427,43 @@ def test_event_chi2_binary_source_2datasets():
     event.fix_q_flux['some'] = 3.
     event.fit_fluxes()
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
+
+
+# Tests to add:
+#
+# test get_flux_for_dataset (could derive from test_FitData?):
+#     first run: works
+#     change model parameters w/o updating: gives old values
+#     run fit_fluxes(): gives new values
+#     change fit_blend w/o updating: gives old values
+#     run fit_fluxes(): gives new values
+#
+# test get_ref_fluxes:
+#     test for case with multiple datasets:
+#          default: ref = dataset 0
+#          set data_ref != dataset 0
+#
+# test get_chi2_per_point:
+#     test format of output: access a specific point in an events with multiple
+#       datasets
+#
+# test get_chi2_gradient:
+#     derive tests from test_FitData?
+#
+# test chi2_gradient:
+#     test that fit_fluxes/update must be run in order to update the gradient:
+#        before fit_fluxes --> error
+#        changing something w/o updating: gives old values
+#        run fit_fluxes: gives new values
+#
+# test fit_fluxes (double-check that other unit tests cover the cases):
+#     fixed_blend_fluxes, fix_source_flux: especially for fixing for only one
+#       dataset in the presence of multiple datasets
+#     fix_q_flux: in the case that q_I is fixed, e.g. for two datasets with
+#       band=I and one with band=V
+#
+# test chi2 vs get_chi2:
+#      get_chi2 always updates after something changes in the model, chi2 does
+#        not.
+#
+# properties: coords, model, datasets, data_ref, sum_function?

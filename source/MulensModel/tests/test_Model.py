@@ -449,3 +449,24 @@ def test_separate_method_for_each_source():
         [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
     out = model.magnification(5100., separate=True)
     almost([out[0][0], out[1][0]], [9.98801936, 395.96963727])
+
+# Tests to Add:
+#
+# test get_trajectory:
+#   straight-up trajectory
+#   case with annual parallax
+#   case with satellite parallax
+#   coords is propagating correctly
+#
+# test set_times:
+#   keywords to test:
+#     t_range=None, t_start=None, t_stop=None, dt=None, n_epochs=1000
+#
+# test set_default_magnification_method:
+#   change from default value
+#
+# test get_satellite_coords:
+#   returns None if no ephemerides file set
+#   other condidtions probably covered by other unit tests
+#
+# properties: parallax, caustics, parameters, n_lenses, n_source, is_static, coords, bandpasses,

@@ -290,3 +290,42 @@ def test_satellite_and_annual_parallax_calculation():
     my_fit = mm.FitData(dataset=data_Spitzer, model=model_with_par)
     ratio = my_fit.get_data_magnification() / ref_Spitzer
     np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
+
+# Tests to add:
+#
+# test update():
+#   Before it is run, chi2_per_point should be None
+#   After it is run, it should have some values
+#   Check whether Dchi2 is calculated for bad points:
+#       bad not specified, bad=True, bad=False
+#
+# test fit_fluxes():
+#   Test results for datasets with and without bad data points.
+#   Check that existing unit tests cover all combinations of fixed/free source
+#       and blend fluxes and fix_q_flux.
+#
+# test get_data_magnification():
+#   Test results for bad not specified, bad=True, bad=False
+#
+# test get_model_fluxes():
+#   Test results for bad not specified, bad=True, bad=False
+#   Test results for models different numbers of sources: 1, 2.
+#
+# test get_model_magnitudes():
+#   Test results for bad not specified, bad=True, bad=False
+#
+# test scale_fluxes():
+#   Specify a source_flux, blend_flux and make sure it works
+#
+# test get_residuals():
+#   Test all keywords:
+#       phot_fmt: 'mag', 'flux'
+#       phot_fmt: 'scaled' and source_flux, blend_flux specified
+#       bad: True, False
+#
+# test get_chi2_gradient(), chi2_gradient:
+#   might be covered by unit tests in event.py
+#
+# properties:
+#   chi2, chi2_per_point, source_flux, source_fluxes, blend_flux, q_flux,
+#   dataset, model
