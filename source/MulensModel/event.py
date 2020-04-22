@@ -594,7 +594,7 @@ class Event(object):
         """ Same as :py:func:`~chi2_gradient except it fits for the fluxes
         first."""
         self.fit_fluxes()
-        return self. chi2_gradient(parameters)
+        return self.chi2_gradient(parameters)
 
     def chi2_gradient(self, parameters, fit_blending=None):
         """
