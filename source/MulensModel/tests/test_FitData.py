@@ -276,11 +276,14 @@ def test_chi2_per_point():
     assert(my_fit.chi2_per_point.shape == (test_object.dataset.n_epochs,))
 
 def test_satellite_and_annual_parallax_calculation():
-    """test that data magnifications are correctly retrieved for Spitzer data."""
+    """
+    test that data magnifications are correctly retrieved for Spitzer data.
+    """
 
     # Create Model
-    model_parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
-                        'pi_E_N': -0.248, 'pi_E_E': 0.234, 't_0_par': 2456836.2}
+    model_parameters = {
+        't_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+        'pi_E_N': -0.248, 'pi_E_E': 0.234, 't_0_par': 2456836.2}
     coords = "17:47:12.25 -21:22:58.2"
     model_with_par = mm.Model(model_parameters, coords=coords)
     model_with_par.parallax(satellite=True, earth_orbital=True,
