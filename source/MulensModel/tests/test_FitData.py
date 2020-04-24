@@ -344,12 +344,10 @@ def test_bad_data():
     assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] >
             100.)
 
+    # Test fitted fluxes are different with and without bad data points.
+    assert (fit_all.source_flux > fit_bad.source_flux)
+
 # Tests to add:
-#
-# test fit_fluxes():
-#   Test results for datasets with and without bad data points.
-#   Check that existing unit tests cover all combinations of fixed/free source
-#       and blend fluxes and fix_q_flux.
 #
 # test get_data_magnification():
 #   Test results for bad not specified, bad=True, bad=False
