@@ -300,8 +300,19 @@ def test_satellite_and_annual_parallax_calculation():
     np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
 
 def test_bad_data():
-    """test how chi2 and chi2_per_point are affected if some datapoints are set
-    to bad."""
+    """
+    test how chi2 and chi2_per_point are affected if some datapoints are set
+    to bad.
+
+    Effectively tests
+        update()
+        fit_fluxes()
+        get_data_magnification()
+        get_model_fluxes()
+        chi2
+        chi2_per_point
+
+    """
 
     # test that chi2 changes when using all data points vs. eliminating the
     # planet.
@@ -349,11 +360,7 @@ def test_bad_data():
 
 # Tests to add:
 #
-# test get_data_magnification():
-#   Test results for bad not specified, bad=True, bad=False
-#
 # test get_model_fluxes():
-#   Test results for bad not specified, bad=True, bad=False
 #   Test results for models different numbers of sources: 1, 2.
 #
 # test get_model_magnitudes():
