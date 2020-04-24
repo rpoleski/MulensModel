@@ -328,15 +328,18 @@ def test_bad_data():
     #   before anomaly, but included: 12900
     good_pt = 12900
     bad_pt = 12915
-    assert( fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] > 100.)
+    assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] >
+            100.)
 
     # update: bad=True --> calculated
     fit_bad.update(bad=True)
-    assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] < 10.)
+    assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] <
+            10.)
 
     # update: bad=False --> not calculated
     fit_bad.update(bad=False)
-    assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] > 100.)
+    assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] >
+            100.)
 
 # Tests to add:
 #
