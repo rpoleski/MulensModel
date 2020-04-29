@@ -7,6 +7,7 @@ From `Janczak et al. 2010, ApJ 711, 731
 """
 import glob
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
@@ -30,7 +31,7 @@ t_E = 11.14
 t_star = 0.05487
 plens_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 't_star': t_star})
 method = 'finite_source_uniform_Gould94'
-plens_model.set_magnification_methods([t_0-.05, method, t_0+.05])
+plens_model.set_magnification_methods([t_0-2.*t_star, method, t_0+2.*t_star])
 
 # Combine the data and model into an event
 event_default = mm.Event(datasets=datasets_default, model=plens_model)
@@ -66,8 +67,14 @@ plt.figure()
 plt.subplot(gs[0])
 t_start = t_0 - 3.
 t_stop = t_0 + 1.
+n_star = 2.
+t_star_start = t_0 - n_star * t_star
+t_star_stop = t_0 + n_star * t_star
+times = np.arange(t_start, t_star_start, 0.01)
+times = np.concatenate((times, np.arange(t_star_start, t_star_stop, 0.0001)))
+times = np.concatenate((times, np.arange(t_star_stop, t_stop, 0.01)))
 event_custom.plot_model(
-    color='black', t_start=t_start, t_stop=t_stop, subtract_2450000=True)
+    times=times, color='black', subtract_2450000=True)
 event_custom.plot_data(marker='s', markersize=3, subtract_2450000=True)
 plt.ylim(17.5, 12.5)
 plt.xlim(t_start-2450000., t_stop-2450000.)
