@@ -111,15 +111,20 @@ class BinarySourceTest():
             self, fix_blend_flux=False, fix_source_flux=False,
             fix_q_flux=False):
 
-        my_fit = mm.FitData(
+        self.my_fit = mm.FitData(
             model=self.model, dataset=self.dataset,
             fix_blend_flux=fix_blend_flux,
             fix_source_flux=fix_source_flux, fix_q_flux=fix_q_flux)
-        my_fit.fit_fluxes()
+        self.my_fit.fit_fluxes()
 
-        almost(my_fit.blend_flux, self.f_b)
-        almost(my_fit.source_fluxes[0], self.f_s_1)
-        almost(my_fit.source_fluxes[1], self.f_s_2)
+        almost(self.my_fit.blend_flux, self.f_b)
+        almost(self.my_fit.source_fluxes[0], self.f_s_1)
+        almost(self.my_fit.source_fluxes[1], self.f_s_2)
+
+        # Test get_model_fluxes() for 2 sources
+        peak_index = 500
+        mod_fluxes = self.my_fit.get_model_fluxes()
+        almost(mod_fluxes[peak_index], self.dataset.flux[peak_index])
 
 
 def execute_test_binary_source(q_flux=False):
@@ -156,6 +161,11 @@ def test_default():
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_flux, f_s)
+
+    # Test get_model_fluxes() for 1 source
+    peak_index = 500
+    mod_fluxes = my_fit.get_model_fluxes()
+    almost(mod_fluxes[peak_index], my_dataset.flux[peak_index])
 
 
 def test_blend_zero():
@@ -359,9 +369,6 @@ def test_bad_data():
     assert (fit_all.source_flux > fit_bad.source_flux)
 
 # Tests to add:
-#
-# test get_model_fluxes():
-#   Test results for models different numbers of sources: 1, 2.
 #
 # test get_model_magnitudes():
 #   Test results for bad not specified, bad=True, bad=False
