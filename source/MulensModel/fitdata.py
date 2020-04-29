@@ -205,10 +205,7 @@ class FitData:
                     if self.fix_source_flux[i] is False:
                         self.n_fluxes += 1
                         if x is None:
-                            x = np.array(
-                                self._data_magnification[i][
-                                    self._dataset.good])
-
+                            x = self._data_magnification[i][self._dataset.good]
                         else:
                             x = np.vstack(
                                 (x, self._data_magnification[i][
