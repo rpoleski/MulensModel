@@ -83,8 +83,7 @@ class MulensData(object):
             Flags for good data, should be the same length as the
             number of data points.
 
-        .. _plot_properties:
-          plot_properties: *dict*, optional
+        plot_properties: *dict*, optional
             Specify properties for plotting, e.g. ``color``, ``marker``,
             ``label``, ``alpha``, ``zorder``, ``markersize``, ``visible``,
             and also the ``show_bad`` and ``show_errorbars``

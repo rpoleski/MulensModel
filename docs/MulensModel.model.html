@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.model module &#8212; MulensModel 1.15.0 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 1.15.6 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -139,8 +139,8 @@ Data or bandpass to constrain the flux ratio of sources.</div></blockquote>
 <dd>see <a class="reference internal" href="#MulensModel.model.Model.magnification" title="MulensModel.model.Model.magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">magnification()</span></code></a></dd>
 <dt>bandpass: <em>str</em></dt>
 <dd>bandpass for defining the limb-darkening coefficient gamma.
-Requires that the limb_darkenging coefficients have been set 
-using <a class="reference internal" href="#MulensModel.model.Model.set_limb_coeff_u" title="MulensModel.model.Model.set_limb_coeff_u"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_limb_coeff_u()</span></code></a> or 
+Requires that the limb_darkenging coefficients have been set
+using <a class="reference internal" href="#MulensModel.model.Model.set_limb_coeff_u" title="MulensModel.model.Model.set_limb_coeff_u"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_limb_coeff_u()</span></code></a> or
 <code class="xref py py-func docutils literal notranslate"><span class="pre">set_lim_coeff_gamma()</span></code>.</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt>
 <dd>any arguments accepted by <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</dd>
@@ -412,10 +412,10 @@ there will be an exception and that’s on you.</p>
 <dt id="MulensModel.model.Model.set_times">
 <code class="descname">set_times</code><span class="sig-paren">(</span><em>t_range=None</em>, <em>t_start=None</em>, <em>t_stop=None</em>, <em>dt=None</em>, <em>n_epochs=1000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_times" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of times. If no keywords are specified, default
-is 1000 epochs from [<span class="math notranslate nohighlight">\(t_0 - 1.5 * t_E\)</span>,
-<span class="math notranslate nohighlight">\(t_0 + 1.5 * t_E\)</span>].
+is 1000 epochs from [<span class="math notranslate nohighlight">\(t_0 - 1.5 * t_E\)</span>, <span class="math notranslate nohighlight">\(t_0 + 1.5 * t_E\)</span>]
+range.
 For binary source models, respectively, smaller and larger of
-<cite>t_0_1/2</cite> values are used.</p>
+<cite>t_0_1</cite>/<cite>t_0_2</cite> values are used.</p>
 <dl class="docutils">
 <dt>Parameters (all optional):</dt>
 <dd><dl class="first last docutils">
@@ -427,6 +427,12 @@ For binary source models, respectively, smaller and larger of
 <dd>the interval spacing between successive points</dd>
 <dt>n_epochs: <em>int</em></dt>
 <dd>the number of epochs (evenly spaced)</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>times: <em>np.ndarray</em></dt>
+<dd>Vector of epochs.</dd>
 </dl>
 </dd>
 </dl>
