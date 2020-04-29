@@ -17,7 +17,7 @@ More complicated example that also produced plot of the best model with residual
 python ulens_model_fit.py ob08092-o4.yaml
 ```
 
-There are many more features to be added - _please let authors now what specific needs you have_.
+There are many more features to be added - _please let authors know what specific needs you have_.
 
 Please note that this code is a high-level example for MulensModel, but it uses fitting algorithms that are not part of MulensModel. The latter allows many microlensing calculations including chi^2 for given data and model parameters, but does not have built-in fitting capabilities.
 

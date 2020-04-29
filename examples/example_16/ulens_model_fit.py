@@ -163,7 +163,7 @@ class UlensModelFit(object):
         self._check_fixed_parameters()
         self._make_model_and_event()
         self._generate_random_parameters()
-        self._prepare_fit()
+        self._setup_fit()
         self._run_fit()
         self._parse_results()
         self._make_plots()
@@ -602,15 +602,15 @@ class UlensModelFit(object):
         self._best_model_theta = theta
         self._best_model_fluxes = fluxes
 
-    def _prepare_fit(self):
+    def _setup_fit(self):
         """
-        Prepare what is needed for fitting after MulensModel.Event is set up.
+        Setup what is needed for fitting after MulensModel.Event is set up.
         """
-        self._prepare_fit_EMCEE()
+        self._setup_fit_EMCEE()
 
-    def _prepare_fit_EMCEE(self):
+    def _setup_fit_EMCEE(self):
         """
-        Prepare fit using EMCEE
+        Setup fit using EMCEE
         """
         n_fit = len(self._fit_parameters)
         self._sampler = emcee.EnsembleSampler(
