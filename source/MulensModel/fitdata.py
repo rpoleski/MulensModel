@@ -348,8 +348,9 @@ class FitData:
         Keywords :
             bad: *bool*
                 Default is *False*. If *True* recalculates the data
-                magnification for each point to ensure that there are values
-                even for bad datapoints.
+                magnification for each point to ensure that the values
+                for bad datapoints are calculated (otherwise, they are set to
+                the magnitude of the blend).
 
         Returns :
             model_flux: *np.ndarray*

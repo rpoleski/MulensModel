@@ -16,6 +16,8 @@ SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
 SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
 SAMPLE_FILE_04_WF = os.path.join(mm.MODULE_PATH, 'data', 'WFIRST_1827.dat')
 
+# Note: default precision for assert_almost_equal (aka almost) is decimal = 7
+
 def generate_model():
     """
     returns a model, time array, and magnification
@@ -347,6 +349,7 @@ def test_bad_data():
     # test whether or not chi2_per_point is calculated for bad points.
     # not calculated --> magnification = 0, model_flux --> f_blend, dchi2=large
     # update: bad not specified --> not calculated
+    # Likewise, do these tests for get_model_magnitudes
     # points:
     #   during anomaly 13055
     #   before anomaly, but excluded: 12915
@@ -355,16 +358,20 @@ def test_bad_data():
     bad_pt = 12915
     assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] >
             100.)
+    expected_mag = mm.Utils.get_mag_from_flux(fit_bad.blend_flux)
+    almost( fit_bad.get_model_magnitudes()[bad_pt], expected_mag)
 
     # update: bad=True --> calculated
     fit_bad.update(bad=True)
     assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] <
             10.)
+    almost( fit_bad.get_model_magnitudes()[bad_pt], 19.27, decimal=1)
 
     # update: bad=False --> not calculated
     fit_bad.update(bad=False)
     assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] >
             100.)
+    almost( fit_bad.get_model_magnitudes()[bad_pt], expected_mag)
 
     # Test fitted fluxes are different with and without bad data points.
     assert (fit_all.source_flux > fit_bad.source_flux)
