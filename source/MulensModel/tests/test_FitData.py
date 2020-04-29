@@ -216,6 +216,7 @@ def test_binary_source_fixed():
     source model
     """
     test = BinarySourceTest()
+    test.run_test(fix_source_flux=[False, False])
     test.run_test(fix_source_flux=[1.0, False])
     test.run_test(fix_source_flux=[False, 1.2])
     test.run_test(fix_source_flux=[1.0, 1.2])
@@ -367,6 +368,8 @@ def test_bad_data():
 
     # Test fitted fluxes are different with and without bad data points.
     assert (fit_all.source_flux > fit_bad.source_flux)
+
+# Test False, False
 
 # Tests to add:
 #
