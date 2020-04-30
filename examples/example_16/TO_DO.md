@@ -3,6 +3,7 @@
 - for plots: t_0, \Delta t_0, or t_0 - 2456780 ???
 - should version be printed on output?
 - settings for making plot without a fit - how input should look like for best_model?
+- how the output should look like?
 
 
 ## List of task to be done:
@@ -25,13 +26,22 @@
 - allow making plots without a fit
 - self._plots - check what is there
 - Fitting method to be added: scipy.optimize, pymultinest, ???
-- allow plotting many models from posterior
+- allow plotting many random models from posterior
 - MulensData() - use try/except with meaningful error message
 - plot title
-- make plots tighter
+- make plots tighter, i.e., reduce white space
 - Add ln_prior values to blob? At some point we will want to save that information in output files
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
 - check if output files (including plots) exists at the begin
 - add check if 't_0' is covered by data and give warning if not
 - in _get_ylim_for_best_model_plot() handle the case when no data are plotted - this can happen when user plots e.g. the anomaly - then we should take the range from model and show warning
-
+- print number of models calculated
+- full support of satellite data
+- periodic variables - suggest it for alpha, x_caustic_X
+- check if data files exist
+- allow log10() of parameter
+- prior of t_E motivated by Mroz+ papers
+- allow turning off flux printing
+- warnings on time plotting and data limits - checks for add/subtract 245/246
+- example how to run fits on a grid of (s,q)
+- allow periodic print of best model etc.

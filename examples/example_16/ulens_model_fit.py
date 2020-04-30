@@ -22,7 +22,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 
 class UlensModelFit(object):
@@ -581,7 +581,7 @@ class UlensModelFit(object):
         outside = -np.inf
 
         if self._constraints["no_negative_blending_flux"]:
-            blend_index = self._model.n_sources + 1
+            blend_index = self._model.n_sources
             if self._model.n_sources > 1:
                 raise ValueError(
                     "I'm not sure - for binary source models are there 2 " +
