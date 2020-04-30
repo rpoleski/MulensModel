@@ -1,3 +1,10 @@
+### To be discussed:
+
+- for plots: t_0, \Delta t_0, or t_0 - 2456780 ???
+- should version be printed on output?
+- settings for making plot without a fit - how input should look like for best_model?
+
+
 ## List of task to be done:
 
 ( **boldface** - do this before sending e-mail around)
@@ -15,14 +22,16 @@
 - **limit Y axis in "best model" plot**
 - trace plot
 - **methods for Model**
+- allow making plots without a fit
 - self._plots - check what is there
 - Fitting method to be added: scipy.optimize, pymultinest, ???
-- for plots: t_0, \Delta t_0, or t_0 - 2456780 ???
-- should version be printed on output?
 - allow plotting many models from posterior
 - MulensData() - use try/except with meaningful error message
+- plot title
+- make plots tighter
 - Add ln_prior values to blob? At some point we will want to save that information in output files
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
 - check if output files (including plots) exists at the begin
 - add check if 't_0' is covered by data and give warning if not
+- in _get_ylim_for_best_model_plot() handle the case when no data are plotted - this can happen when user plots e.g. the anomaly - then we should take the range from model and show warning
 

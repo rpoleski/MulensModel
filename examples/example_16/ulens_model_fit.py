@@ -22,7 +22,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 
 class UlensModelFit(object):
@@ -728,18 +728,54 @@ class UlensModelFit(object):
         """
         plot best model and residuals
         """
+        dpi = 300
+        kwargs_all = self._get_kwargs_for_best_model_plot()
+        (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
+        (kwargs_axes_1, kwargs_axes_2) = kwargs_all[6:]
+
+        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(t_1, t_2)
+
+        grid = gridspec.GridSpec(**kwargs_grid)
+
+        axes = plt.subplot(grid[0])
+        self._event.plot_data(**kwargs)
+        self._event.plot_model(**kwargs_model)
+        if len(self._datasets) > 1:
+            plt.legend()
+        plt.xlim(*xlim)
+        plt.ylim(*ylim)
+        axes.tick_params(**kwargs_axes_1)
+
+        axes = plt.subplot(grid[1])
+        self._event.plot_residuals(**kwargs)
+        plt.xlim(*xlim)
+        plt.ylim(*ylim_residuals)
+        axes.tick_params(**kwargs_axes_2)
+
+        if 'file' in self._plots['best model']:
+            plt.savefig(self._plots['best model']['file'], dpi=dpi)
+        else:
+            plt.show()
+        plt.close()
+
+    def _get_kwargs_for_best_model_plot(self):
+        """
+        prepare kwargs/settings for best plot model
+        """
         plot_size_ratio = 5
         hspace = 0
         tau = 1.5
         remove_245 = True
         model_color = 'black'
-        dpi = 300
 
-        grid = gridspec.GridSpec(2, 1, height_ratios=[plot_size_ratio, 1],
-                                 hspace=hspace)
+        kwargs_grid = {
+            'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1],
+            'hspace': hspace}
+        kwargs = {'subtract_2450000': remove_245}
+
         t_1 = self._model.parameters.t_0 - tau * self._model.parameters.t_E
         t_2 = self._model.parameters.t_0 + tau * self._model.parameters.t_E
-        kwargs = {'subtract_2450000': remove_245}
+
         kwargs_model = {
             'color': model_color, 't_start': t_1, 't_stop': t_2, **kwargs}
         if kwargs['subtract_2450000']:
@@ -752,25 +788,44 @@ class UlensModelFit(object):
             right=True, labelbottom=False)
         kwargs_axes_2 = {**kwargs_axes_1, 'labelbottom': True}
 
-        axes = plt.subplot(grid[0])
-        axes.set_ylim(auto=True)
-        self._event.plot_model(**kwargs_model)
-        self._event.plot_data(**kwargs)
-        if len(self._datasets) > 1:
-            plt.legend()
-        plt.xlim(*xlim)
-        axes.tick_params(**kwargs_axes_1)
+        return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
+                kwargs_axes_1, kwargs_axes_2)
 
-        axes = plt.subplot(grid[1])
-        self._event.plot_residuals(**kwargs)
-        plt.xlim(*xlim)
-        axes.tick_params(**kwargs_axes_2)
+    def _get_ylim_for_best_model_plot(self, t_1, t_2):
+        """
+        Find Y axis ranges for plots of data and their residuals.
+        Use t_1 and t_2 to limit the data considered.
+        """
+        padding = 0.05
+        phot_fmt = 'mag'
 
-        if 'file' in self._plots['best model']:
-            plt.savefig(self._plots['best model']['file'], dpi=dpi)
-        else:
-            plt.show()
-        plt.close()
+        y_1 = y_3 = np.inf
+        y_2 = y_4 = -np.inf
+
+        for data in self._datasets:
+            mask = (data.time >= t_1) & (data.time <= t_2)
+            err_mag = data.err_mag[mask]
+            y_1 = min(y_1, np.min(data.mag[mask] - err_mag))
+            y_2 = max(y_2, np.max(data.mag[mask] + err_mag))
+
+            residuals = self._model.get_residuals(
+                data=data, type=phot_fmt)[0][0][mask]
+            y_3 = min(y_3, np.min(residuals - err_mag))
+            y_4 = max(y_4, np.max(residuals + err_mag))
+
+        dy = padding * (y_2 - y_1)
+        dres = padding * (y_4 - y_3)
+        ylim = [y_2 + dy, y_1 - dy]
+        ylim_r = [y_4 + dres, y_3 - dres]
+
+        # Block below is the same in MulensModel.Model.plot_residuals() in
+        # its version 1.15.6.
+        ylim_r_max = np.max(np.abs(ylim_r))
+        if ylim_r_max > 1.:
+            ylim_r_max = 0.5
+        ylim_residuals = [ylim_r_max, -ylim_r_max]
+
+        return (ylim, ylim_residuals)
 
 
 if __name__ == '__main__':
