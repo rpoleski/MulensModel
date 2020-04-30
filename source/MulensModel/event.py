@@ -754,7 +754,7 @@ class Event(object):
             out = np.array([gradient[p] for p in parameters])
         return out
 
-    def fit_fluxes(self):
+    def fit_fluxes(self, bad=False):
         """
         Fit for the optimal fluxes for each dataset (and its chi2)
         """
@@ -787,7 +787,7 @@ class Event(object):
                 model=self.model, dataset=dataset,
                 fix_blend_flux=fix_blend_flux, fix_source_flux=fix_source_flux,
                 fix_q_flux=fix_q_flux)
-            fit.update()  # Fit the fluxes and calculate chi2.
+            fit.update(bad=bad)  # Fit the fluxes and calculate chi2.
             self.fits.append(fit)
 
     def reset_best_chi2(self):
