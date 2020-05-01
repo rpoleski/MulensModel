@@ -45,3 +45,5 @@
 - warnings on time plotting and data limits - checks for add/subtract 245/246
 - example how to run fits on a grid of (s,q)
 - allow periodic print of best model etc.
+- fits with 0 blending flux for first dataset
+- when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data

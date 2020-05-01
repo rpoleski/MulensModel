@@ -22,7 +22,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 
 
 class UlensModelFit(object):
@@ -475,7 +475,7 @@ class UlensModelFit(object):
                 "Couldn't generate required starting points in a prior. " +
                 "Most probably you have to correct at least one of: " +
                 "starting_parameters, min_values, max_values, or " +
-                "fit_constraints.")
+                "fit_constraints.\nGot " + str(len(out)))
         self._starting_points = out
 
     def _ln_prob(self, theta):
@@ -729,10 +729,13 @@ class UlensModelFit(object):
         plot best model and residuals
         """
         dpi = 300
+
+        self._ln_like(self._best_model_theta)  # Sets all parameters to
+        # the best model.
+
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
         (kwargs_axes_1, kwargs_axes_2) = kwargs_all[6:]
-
         (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(t_1, t_2)
 
         grid = gridspec.GridSpec(**kwargs_grid)
