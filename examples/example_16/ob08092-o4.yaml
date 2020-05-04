@@ -12,6 +12,8 @@ max_values:
     t_0: 2460000.
     u_0: 1.5
     t_E: 200.
+
+    no_negative_blending_flux
 fitting_parameters:
     n_walkers: 20
     n_steps: 2000

@@ -27,18 +27,20 @@
 - self._plots - check what is there
 - Fitting method to be added: scipy.optimize, pymultinest, ???
 - allow plotting many random models from posterior
+- document plotting to screen
 - MulensData() - use try/except with meaningful error message
 - plot title
 - make plots tighter, i.e., reduce white space
 - Add ln_prior values to blob? At some point we will want to save that information in output files
+- extend documentation
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
 - check if output files (including plots) exists at the begin
 - add check if 't_0' is covered by data and give warning if not
-- in _get_ylim_for_best_model_plot() handle the case when no data are plotted - this can happen when user plots e.g. the anomaly - then we should take the range from model and show warning
 - print number of models calculated
 - full support of satellite data
 - periodic variables - suggest it for alpha, x_caustic_X
 - check if data files exist
+- explain Delta t_0 in documentation
 - allow log10() of parameter
 - prior of t_E motivated by Mroz+ papers
 - allow turning off flux printing

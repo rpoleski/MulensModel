@@ -22,7 +22,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.3.4'
+__version__ = '0.3.5'
 
 
 class UlensModelFit(object):
@@ -182,6 +182,10 @@ class UlensModelFit(object):
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown plot types: {:}'.format(unknown))
+
+        for (key, value) in self._plots.items():
+            if value is None:
+                self._plots[key] = dict()
 
     def _get_datasets(self):
         """
@@ -433,6 +437,8 @@ class UlensModelFit(object):
         It is checked if parameters are within the prior.
         """
         max_iteration = 20 * self._n_walkers
+        if self._constraints["no_negative_blending_flux"]:
+            max_iteration *= 5
 
         starting = []
         for parameter in self._fit_parameters:
@@ -746,7 +752,8 @@ class UlensModelFit(object):
         if len(self._datasets) > 1:
             plt.legend()
         plt.xlim(*xlim)
-        plt.ylim(*ylim)
+        if ylim is not None:
+            plt.ylim(*ylim)
         axes.tick_params(**kwargs_axes_1)
 
         axes = plt.subplot(grid[1])
@@ -807,6 +814,8 @@ class UlensModelFit(object):
 
         for data in self._datasets:
             mask = (data.time >= t_1) & (data.time <= t_2)
+            if np.sum(mask) == 0:
+                continue
             err_mag = data.err_mag[mask]
             y_1 = min(y_1, np.min(data.mag[mask] - err_mag))
             y_2 = max(y_2, np.max(data.mag[mask] + err_mag))
@@ -815,6 +824,9 @@ class UlensModelFit(object):
                 data=data, type=phot_fmt)[0][0][mask]
             y_3 = min(y_3, np.min(residuals - err_mag))
             y_4 = max(y_4, np.max(residuals + err_mag))
+
+        if y_1 == np.inf:  #  There are no data points in the plot.
+            return (None, [0.1, -0.1])
 
         dy = padding * (y_2 - y_1)
         dres = padding * (y_4 - y_3)
