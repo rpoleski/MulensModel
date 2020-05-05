@@ -22,7 +22,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.3.5'
+__version__ = '0.4.0'
 
 
 class UlensModelFit(object):
@@ -62,6 +62,11 @@ class UlensModelFit(object):
                   'u_0': 'uniform 0.001 1.',
                   't_E': 'gauss 20. 5.'
               }
+
+        model: *dict*
+            Additional settings for *MulensModel.Model*. Currently,
+            the only accepted key in this dict is `'coords'`, which
+            specifies event coordinates.
 
         fixed_parameters: *dict*
             Provide parameters that will be kept fixed during the fitting
@@ -104,13 +109,14 @@ class UlensModelFit(object):
               }
     """
     def __init__(
-            self, photometry_files, starting_parameters=None,
+            self, photometry_files, starting_parameters=None, model=None,
             fixed_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
             fit_constraints=None, plots=None,
             ):
         self._photometry_files = photometry_files
         self._starting_parameters = starting_parameters
+        self._model_parameters = model
         self._fixed_parameters = fixed_parameters
         self._min_values = min_values
         self._max_values = max_values
@@ -152,6 +158,7 @@ class UlensModelFit(object):
         are passed via __init__().
         """
         self._check_plots_parameters()
+        self._check_model_parameters()
         self._get_datasets()
         self._get_parameters_ordered()
         self._get_parameters_latex()
@@ -186,6 +193,27 @@ class UlensModelFit(object):
         for (key, value) in self._plots.items():
             if value is None:
                 self._plots[key] = dict()
+
+    def _check_model_parameters(self):
+        """
+        Check parameters of the MulensModel.Model provided by the user
+        directly.
+        """
+        if self._model_parameters is None:
+            self._model_parameters = dict()
+
+        allowed = {'coords'}
+        not_allowed = set(self._model_parameters.keys()) - allowed
+        if len(not_allowed) > 0:
+            raise ValueError(
+                'model keyword is a dict with keys not allowed: ' +
+                not_allowed)
+
+        condition_1 = ('pi_E_E' in self._starting_parameters)
+        condition_2 = ('pi_E_N' in self._starting_parameters)
+        if condition_1 or condition_2:
+            if 'coords' not in self._model_parameters:
+                raise ValueError("Parallax model requires model['coords'].")
 
     def _get_datasets(self):
         """
@@ -421,8 +449,12 @@ class UlensModelFit(object):
             for (key, value) in self._fixed_parameters.items():
                 parameters[key] = value
 
+        kwargs = dict()
+        if 'coords' in self._model_parameters:
+            kwargs['coords'] = self._model_parameters['coords']
+
         try:
-            self._model = mm.Model(parameters)
+            self._model = mm.Model(parameters, **kwargs)
         except Exception:
             print("Initializer of MulensModel.Model failed.")
             print("Parameters passed: {:}".format(parameters))
@@ -825,7 +857,7 @@ class UlensModelFit(object):
             y_3 = min(y_3, np.min(residuals - err_mag))
             y_4 = max(y_4, np.max(residuals + err_mag))
 
-        if y_1 == np.inf:  #  There are no data points in the plot.
+        if y_1 == np.inf:  # There are no data points in the plot.
             return (None, [0.1, -0.1])
 
         dy = padding * (y_2 - y_1)
