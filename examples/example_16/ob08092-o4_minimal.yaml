@@ -7,6 +7,7 @@ starting_parameters:
 min_values:
     u_0: 0.
     t_E: 0.
+# Values below are EMCEE settings:
 fitting_parameters:
     n_walkers: 10
     n_steps: 1000
