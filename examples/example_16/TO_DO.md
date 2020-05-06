@@ -23,6 +23,7 @@
 - **some documentation - see above**
 - **add one more fitting method?**
 - MulensData - just provide *str*
+- n_walkers for EMCEE - default is x4 and remove from minimal yaml file
 - remove _update_best_model() and extract it from fitting results
 - binary source and number of fluxes returned - see _return_ln_prob()
 - all_parameters in _get_parameters_ordered() and _check_fixed_parameters() - combine in a single one
