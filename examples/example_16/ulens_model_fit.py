@@ -22,7 +22,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 class UlensModelFit(object):
@@ -808,7 +808,7 @@ class UlensModelFit(object):
         hspace = 0
         tau = 1.5
         remove_245 = True
-        model_color = 'black'
+        default_model = {'color': 'black', 'linewidth': 1.0, 'zorder': np.inf}
 
         kwargs_grid = {
             'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1],
@@ -819,7 +819,7 @@ class UlensModelFit(object):
         t_2 = self._model.parameters.t_0 + tau * self._model.parameters.t_E
 
         kwargs_model = {
-            'color': model_color, 't_start': t_1, 't_stop': t_2, **kwargs}
+            't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
         if kwargs['subtract_2450000']:
             xlim = [t_1-2450000., t_2-2450000.]
         else:

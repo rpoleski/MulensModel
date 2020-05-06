@@ -19,6 +19,8 @@
 - **limit epochs in "best model" plot**
 - **data here for tests, so that PATH doesnt change**
 - **methods for Model**
+- **some documentation - see above**
+- **add one more fitting method?**
 - MulensData - just provide *str*
 - remove _update_best_model() and extract it from fitting results
 - binary source and number of fluxes returned - see _return_ln_prob()
