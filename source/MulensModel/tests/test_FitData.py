@@ -376,15 +376,13 @@ def test_bad_data():
     # Test fitted fluxes are different with and without bad data points.
     assert (fit_all.source_flux > fit_bad.source_flux)
 
-# Test False, False
-
 # Tests to add:
-#
-# test get_model_magnitudes():
-#   Test results for bad not specified, bad=True, bad=False
 #
 # test scale_fluxes():
 #   Specify a source_flux, blend_flux and make sure it works
+#   One option: calculate fluxes for two different, overlapping datasets for a
+#     known event. MB08310 is *not* a good candidate because it seems the data
+#     are pre-aligned. OB03235 might work
 #
 # test get_residuals():
 #   Test all keywords:
