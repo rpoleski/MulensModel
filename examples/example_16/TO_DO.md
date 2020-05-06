@@ -16,8 +16,9 @@
 
 ( **boldface** - do this before sending e-mail around)
 
+**NOW - FINISH Mroz+17** - example
+
 - **limit epochs in "best model" plot**
-- **data here for tests, so that PATH doesnt change**
 - **methods for Model**
 - **some documentation - see above**
 - **add one more fitting method?**

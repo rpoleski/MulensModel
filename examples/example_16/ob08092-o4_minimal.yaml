@@ -1,5 +1,5 @@
 photometry_files:
-    - {file_name: "../../data/photometry_files/OB08092/phot_ob08092_O4.dat"}
+    - {file_name: "data/OB08092/phot_ob08092_O4.dat"}
 starting_parameters:
     t_0: gauss 2455380. 0.1
     u_0: uniform 0.001 1.

@@ -3,9 +3,10 @@ Class and script for fitting microlensing model using MulensModel.
 All the settings are read from a YAML file.
 """
 import sys
-import numpy as np
-import yaml
 from os import path
+import yaml
+import numpy as np
+from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 
@@ -22,7 +23,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 
 
 class UlensModelFit(object):
@@ -87,13 +88,28 @@ class UlensModelFit(object):
             For EMCEE, the required parameters are ``n_walkers`` and
             ``n_steps``. Allowed parameter is ``n_burn``.
 
-        fit_constraints: *list*
-            List of constraints on model other than minimal and maximal values.
+        fit_constraints: *dict*
+            Constraints on model other than minimal and maximal values.
 
-            Currently accepted items:
+            Currently accepted keys:
 
             ``'no_negative_blending_flux'`` - reject models with negative
-            blending flux.
+            blending flux if *True*
+
+            ``'prior'`` - specifies the priors for quantities. It's also
+            a *dict*. Possible key-value pairs:
+
+                ``'t_E': 'Mroz et al. 2017'`` - efficiency-corrected t_E
+                distribution from that paper with two modifications: 1) it is
+                constant for t_E < 1d, 2) it follows Mao & Paczynski (1996)
+                analytical approximation (i.e., slope of -3) for t_E longer
+                than probed by Mroz et al. (2017; i.e., 316 d).
+
+            References:
+              Mao & Paczynski 1996 -
+              https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
+              Mroz et al. 2017 -
+              https://ui.adsabs.harvard.edu/abs/2017Natur.548..183M/abstract
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
@@ -351,23 +367,72 @@ class UlensModelFit(object):
         """
         Parse the fitting constraints that are not simple limits on parameters
         """
-        out = {
-            "no_negative_blending_flux": False,
-            }
+        self._prior_t_E = None
 
-        if self._fit_constraints is not None:
-            for constraint in self._fit_constraints:
-                if constraint == "no_negative_blending_flux":
-                    out["no_negative_blending_flux"] = True
+        if self._fit_constraints is None:
+            self._fit_constraints = {
+                "no_negative_blending_flux": False}
+            return
+
+        if isinstance(self._fit_constraints, list):
+            raise TypeError(
+                "In version 0.5.0 we've changed type of 'fit_constraints' " +
+                "from list to dict. Please correct you input and re-run " +
+                "the code. Most probably what you need is:\n" +
+                "fit_constraints = {'no_negative_blending_flux': True}")
+
+        allowed_keys = {"no_negative_blending_flux", "prior"}
+        forbidden = set(self._fit_constraints.keys()) - allowed_keys
+        if len(forbidden) > 0:
+            raise ValueError(
+                'unrecognized constraint: {:}'.format(forbidden))
+
+        if 'prior' in self._fit_constraints:
+            self._parse_fit_constraints_prior()
+
+    def _parse_fit_constraints_prior(self):
+        """
+        Check if priors in fit constraint are correctly defined.
+        """
+        for (key, value) in self._fit_constraints['prior'].items():
+            if key == 't_E':
+                if value == "Mroz et al. 2017":
+                    self._prior_t_E = 'Mroz+17'
                 else:
                     raise ValueError(
-                        'unrecognized constraint: {:}'.format(constraint))
+                        "Unrecognized t_E prior: " + value)
+                self._read_prior_t_E_file()
+            else:
+                raise KeyError(
+                    "Unrecognized key in fit_constraints/prior: " + key)
+            self._flat_priors = False
 
-        self._constraints = out
-        self._constraints_any = False
-        if len(self._constraints) == 1:
-            if not self._constraints["no_negative_blending_flux"]:
-                self._constraints_any = True
+    def _read_prior_t_E_file(self):
+        """
+        read data that specify t_E prior and parse them appropriately
+        """
+        self._prior_t_E_data = dict()
+
+        if self._prior_t_E == 'Mroz+17':
+            file_name = path.join(
+                "data", "Mroz+17", "Mroz+17_tE_distribution.txt")
+            if not path.isfile(file_name):
+                raise ValueError(
+                    "File with t_E prior not found: " + file_name)
+            (x, y) = np.loadtxt(file_name, unpack=True, usecols=(0, 1))
+            dx = x[1] - x[0]
+            x_min = 0.
+            x_max = x[-1] + 0.5 * dx
+            mask = (x > x_min-dx)  # We need one more point for extrapolation.
+            function = interp1d(x[mask], np.log(y[mask]),
+                                kind='cubic', fill_value="extrapolate")
+            self._prior_t_E_data['x_min'] = x_min
+            self._prior_t_E_data['x_max'] = x_max
+            self._prior_t_E_data['y_min'] = function(x_min)
+            self._prior_t_E_data['y_max'] = function(x_max)
+            self._prior_t_E_data['function'] = function
+        else:
+            raise ValueError('unexpected internal error')
 
     def _parse_starting_parameters(self):
         """
@@ -469,7 +534,7 @@ class UlensModelFit(object):
         It is checked if parameters are within the prior.
         """
         max_iteration = 20 * self._n_walkers
-        if self._constraints["no_negative_blending_flux"]:
+        if self._fit_constraints["no_negative_blending_flux"]:
             max_iteration *= 5
 
         starting = []
@@ -566,10 +631,17 @@ class UlensModelFit(object):
             else:
                 return value
 
+    def _set_model_parameters(self, theta):
+        """
+        Set microlensing parameters of self._model
+        """
+        for (parameter, value) in zip(self._fit_parameters, theta):
+            setattr(self._model.parameters, parameter, value)
+
     def _ln_prior(self, theta):
         """
         Check if fitting parameters are within the prior.
-        Constraints from self._constraints and NOT applied here.
+        Constraints from self._fit_constraints are NOT applied here.
         """
         inside = 0.
         outside = -np.inf
@@ -582,14 +654,37 @@ class UlensModelFit(object):
             if theta[index] > limit:
                 return outside
 
-        return inside
+        ln_prior = inside
+
+        if self._prior_t_E is not None:
+            self._set_model_parameters(theta)
+            ln_prior += self._ln_prior_t_E()
+
+        return ln_prior
+
+    def _ln_prior_t_E(self):
+        """
+        Get log prior for t_E of current model. This function is executed
+        if there is t_E prior.
+        """
+        t_E = self._model.parameters.t_E
+        if self._prior_t_E == 'Mroz+17':
+            x = np.log10(t_E)
+            if x < self._prior_t_E_data['x_min']:
+                return self._prior_t_E_data['y_min']
+            elif x > self._prior_t_E_data['x_max']:
+                dy = -3. * np.log(10) * (x - self._prior_t_E_data['x_max'])
+                return self._prior_t_E_data['y_max'] + dy
+            else:
+                return self._prior_t_E_data['function'](x)
+        else:
+            raise ValueError('unexpected internal error ' + self._prior_t_E)
 
     def _ln_like(self, theta):
         """
         likelihood function
         """
-        for (parameter, value) in zip(self._fit_parameters, theta):
-            setattr(self._model.parameters, parameter, value)
+        self._set_model_parameters(theta)
 
         chi2 = self._event.get_chi2()
 
@@ -618,7 +713,7 @@ class UlensModelFit(object):
         inside = 0.
         outside = -np.inf
 
-        if self._constraints["no_negative_blending_flux"]:
+        if self._fit_constraints["no_negative_blending_flux"]:
             blend_index = self._model.n_sources
             if self._model.n_sources > 1:
                 raise ValueError(
@@ -728,6 +823,8 @@ class UlensModelFit(object):
         print("Best model:")
         if self._flat_priors:
             print("chi2 : {:.4f}".format(-2. * self._best_model_ln_prob))
+        else:
+            print("chi2 : {:.4f}".format(self._event.get_chi2()))
         print(*self._fit_parameters)
         print(*list(self._best_model_theta))
         if self._return_fluxes:
