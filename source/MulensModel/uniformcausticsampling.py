@@ -216,7 +216,9 @@ class UniformCausticSampling(object):
         x_cross = tau * cos_a - u_0 * sin_a
 
         # Check if crossing point is between x_1 and x_2:
-        index = np.where((x_cross - x_1) * (x_cross - x_2) < 0.)[0]
+        index = np.where((x_cross - x_1) * (x_cross - x_2) <= 0.)[0]
+        # Earlier we were using " < 0.", but this failed sometimes for
+        # trajectory going exactly through the cusp.
 
         fraction = (x_cross[index] - x_1[index]) / (x_2[index] - x_1[index])
         sum_ = sum_use[index] * (1. - fraction) + sum_use[index+1] * fraction

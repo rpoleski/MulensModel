@@ -176,7 +176,7 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, data_ref=None, f_source=None, f_blend=None,
             subtract_2450000=False, subtract_2460000=False,
-            flux_ratio_constraint=None, fit_blending=None, 
+            flux_ratio_constraint=None, fit_blending=None,
             gamma=None, bandpass=None, **kwargs):
         """
         Plot the model light curve in magnitudes.
@@ -218,8 +218,8 @@ class Model(object):
 
             bandpass: *str*
                 bandpass for defining the limb-darkening coefficient gamma.
-                Requires that the limb_darkenging coefficients have been set 
-                using :py:func:`set_limb_coeff_u()` or 
+                Requires that the limb_darkenging coefficients have been set
+                using :py:func:`set_limb_coeff_u()` or
                 :py:func:`set_lim_coeff_gamma()`.
 
             ``**kwargs``:
@@ -1030,10 +1030,10 @@ class Model(object):
             n_epochs=1000):
         """
         Return a list of times. If no keywords are specified, default
-        is 1000 epochs from [:math:`t_0 - 1.5 * t_E`,
-        :math:`t_0 + 1.5 * t_E`].
+        is 1000 epochs from [:math:`t_0 - 1.5 * t_E`, :math:`t_0 + 1.5 * t_E`]
+        range.
         For binary source models, respectively, smaller and larger of
-        `t_0_1/2` values are used.
+        `t_0_1`/`t_0_2` values are used.
 
         Parameters (all optional):
             t_range: [*list*, *tuple*]
@@ -1048,6 +1048,9 @@ class Model(object):
             n_epochs: *int*
                 the number of epochs (evenly spaced)
 
+        Returns :
+            times: *np.ndarray*
+                Vector of epochs.
         """
         if t_range is not None:
             t_start = t_range[0]

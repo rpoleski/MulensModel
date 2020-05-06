@@ -1,6 +1,7 @@
+import os
+import warnings
 import numpy as np
 from math import sin, cos, sqrt
-import os
 from scipy import integrate
 from scipy.interpolate import interp1d
 from scipy.special import ellipe
@@ -376,23 +377,6 @@ class PointLens(object):
 
         return mag
 
-    def _integrand_Lee09_v2(self, u_, u, theta_, rho, gamma):
-        """
-        Integrand in Equation 13 in Lee et al. 2009.
-
-        u_ and theta_ are np.ndarray, other parameters are scalars.
-        theta_ is in fact cos(theta_) here
-        """
-        values = 1. - (u_**2 - 2. * u_ * u * theta_ + u**2) / rho**2
-        values[:, -1] = 0.
-        if values[-1, 0] < 0.:
-            values[-1, 0] = 0.
-            if values[-1, 1] < 0.:  # This sometimes happens due to rounding
-                values[-1, 1] = .5 * values[-1, 2]  # errors above. Using
-                # math.fsum in "values = ..." doesn't help in all cases.
-        out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
-        return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
-
     def _LD_Lee09(self, u, rho, gamma, n_theta, n_u):
         """
         Calculates Equation 13 from Lee et al. 2009.
@@ -428,3 +412,34 @@ class PointLens(object):
         out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
         out *= 2. / (np.pi * rho**2)
         return out
+
+    def _integrand_Lee09_v2(self, u_, u, theta_, rho, gamma):
+        """
+        Integrand in Equation 13 in Lee et al. 2009.
+
+        u_ and theta_ are np.ndarray, other parameters are scalars.
+        theta_ is in fact cos(theta_) here
+        """
+        values = 1. - (u_*(u_ - 2. * u * theta_) + u**2) / rho**2
+        values[:, -1] = 0.
+        if values[-1, 0] < 0.:
+            values[-1, 0] = 0.
+            if values[-1, 1] < 0.:  # This sometimes happens due to rounding
+                values[-1, 1] = .5 * values[-1, 2]  # errors above. Using
+                # math.fsum in "values = ..." doesn't help in all cases.
+        if np.any(values < 0.):
+            if u/rho < 5.:
+                raise ValueError(
+                    "PointLens.get_point_lens_LD_integrated_magnification() " +
+                    "unexpected error for:\nu = {:}\n".format(repr(u)) +
+                    "rho = {:}\ngamma = {:}".format(repr(rho), repr(gamma)))
+            else:
+                message = (
+                    "PointLens.get_point_lens_LD_integrated_magnification() " +
+                    "warning! The arguments are strange: u/rho = " +
+                    "{:}.\nThere are numerical issues. You ".format(u/rho) +
+                    "can use other methods for such large u value.")
+                warnings.warn(message, UserWarning)
+                values[values < 0.] = 0.
+        out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
+        return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
