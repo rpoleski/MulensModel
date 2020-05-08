@@ -16,7 +16,7 @@
 
 ( **boldface** - do this before sending e-mail around)
 
-**NOW - FINISH Mroz+17** - example, Mroz+17 data inside the code, np.log -> math.log
+**NOW - FINISH Mroz+17** - example
 
 - **limit epochs in "best model" plot**
 - **methods for Model**

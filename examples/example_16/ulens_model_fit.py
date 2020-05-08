@@ -5,6 +5,7 @@ All the settings are read from a YAML file.
 import sys
 from os import path
 import yaml
+import math
 import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
@@ -23,7 +24,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.5.0'
+__version__ = '0.5.2'
 
 
 class UlensModelFit(object):
@@ -340,6 +341,15 @@ class UlensModelFit(object):
         Parse min and max values of parameters so that they're properly
         indexed.
         """
+        for key in self._min_values:
+            if key in self._max_values:
+                if self._min_values[key] >= self._max_values[key]:
+                    raise ValueError(
+                        "This doesn't make sense - for " + key + "the lower " +
+                        "limit is larger than the upper limit: " +
+                        "{:} vs ".format(self._min_values[key]) +
+                        "{:}".format(self._max_values[key]))
+
         self._min_values_indexed = self._parse_min_max_values_single(
             self._min_values)
         self._max_values_indexed = self._parse_min_max_values_single(
@@ -414,12 +424,15 @@ class UlensModelFit(object):
         self._prior_t_E_data = dict()
 
         if self._prior_t_E == 'Mroz+17':
-            file_name = path.join(
-                "data", "Mroz+17", "Mroz+17_tE_distribution.txt")
-            if not path.isfile(file_name):
-                raise ValueError(
-                    "File with t_E prior not found: " + file_name)
-            (x, y) = np.loadtxt(file_name, unpack=True, usecols=(0, 1))
+            x = np.array([
+                -0.93, -0.79, -0.65, -0.51, -0.37, -0.23, -0.09, 0.05, 0.19,
+                0.33, 0.47, 0.61, 0.75, 0.89, 1.03, 1.17, 1.31, 1.45, 1.59,
+                1.73, 1.87, 2.01, 2.15, 2.29, 2.43])
+            y = np.array([
+                299.40, 245.60, 358.50, 116.96, 0.00, 47.78, 85.10, 90.50,
+                315.37, 501.77, 898.26, 1559.68, 2381.46, 2849.11, 3405.00,
+                3431.30, 3611.76, 3038.06, 2170.67, 1680.38, 814.70, 444.06,
+                254.89, 114.19, 52.14])
             dx = x[1] - x[0]
             x_min = 0.
             x_max = x[-1] + 0.5 * dx
@@ -547,8 +560,8 @@ class UlensModelFit(object):
                 values = np.random.uniform(
                     low=settings[1], high=settings[2], size=max_iteration)
             elif settings[0] == 'log-uniform':
-                beg = np.log(settings[1])
-                end = np.log(settings[2])
+                beg = math.log(settings[1])
+                end = math.log(settings[2])
                 values = np.exp(np.random.uniform(beg, end, max_iteration))
             else:
                 raise ValueError('Unrecognized keyword: ' + settings[0])
@@ -669,11 +682,11 @@ class UlensModelFit(object):
         """
         t_E = self._model.parameters.t_E
         if self._prior_t_E == 'Mroz+17':
-            x = np.log10(t_E)
+            x = math.log10(t_E)
             if x < self._prior_t_E_data['x_min']:
                 return self._prior_t_E_data['y_min']
             elif x > self._prior_t_E_data['x_max']:
-                dy = -3. * np.log(10) * (x - self._prior_t_E_data['x_max'])
+                dy = -3. * math.log(10) * (x - self._prior_t_E_data['x_max'])
                 return self._prior_t_E_data['y_max'] + dy
             else:
                 return self._prior_t_E_data['function'](x)
