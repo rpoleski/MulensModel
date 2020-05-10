@@ -13,6 +13,10 @@ from matplotlib import gridspec
 
 import_failed = set()
 try:
+    import yaml
+except Exception:
+    import_failed.add("yaml")
+try:
     import emcee
 except Exception:
     import_failed.add("emcee")
@@ -24,7 +28,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 
 class UlensModelFit(object):
@@ -411,13 +415,13 @@ class UlensModelFit(object):
                 else:
                     raise ValueError(
                         "Unrecognized t_E prior: " + value)
-                self._read_prior_t_E_file()
+                self._read_prior_t_E_data()
             else:
                 raise KeyError(
                     "Unrecognized key in fit_constraints/prior: " + key)
             self._flat_priors = False
 
-    def _read_prior_t_E_file(self):
+    def _read_prior_t_E_data(self):
         """
         read data that specify t_E prior and parse them appropriately
         """
@@ -988,6 +992,8 @@ class UlensModelFit(object):
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         raise ValueError('Exactly one argument needed - YAML file')
+    if 'yaml' in import_failed:
+        raise ImportError('module "yaml" could not be imported :(')
 
     input_file = sys.argv[1]
     input_file_root = path.splitext(input_file)[0]

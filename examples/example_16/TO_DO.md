@@ -56,3 +56,4 @@
 - for parallax models check if t_0_par is fixed and give warning, if not
 - fits with 0 blending flux for first dataset
 - when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data
+- add scipy to _check_imports() - requires siginificant code to be added to _check_imports() in order to find out if t_E prior is used
