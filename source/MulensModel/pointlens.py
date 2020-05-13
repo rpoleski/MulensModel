@@ -454,15 +454,52 @@ class PointLens(object):
         out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
         return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
 
-    def get_point_lens_LD_NEW(self, u, rho, gamma):
-        """XXX"""
-        out = [self._temp(u_, rho, gamma) for u_ in u]
+    def get_point_lens_large_finite_source_magnification(self, u):
+        """
+        XXX Witt & Mao 1994
+        """
+        out = [self._get_magnification_WM94(u_) for u_ in u]
         return np.array(out)
 
-    def _temp(self, u, rho, gamma):
+    def _get_magnification_WM94(self, u, rho=None):
         """
         XXX
-        Bozza+18 Eq. 16-19
+        """
+        if rho == None:
+            rho = self.parameters.rho
+
+        if u == rho:
+            u2 = u**2
+            a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
+            return (2./u + (1.+u2) * a / u2) / np.pi
+
+        a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
+        a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2))
+        a_2 /= (rho**2 * (4. + (u - rho)**2)**.5)
+        a_3 = 2. * (u - rho)**2 * (1. + rho**2)
+        a_3 /= (rho**2 * (u + rho) * (4. + (u - rho)**2)**.5)
+
+        n = 4. * u * rho / (u + rho)**2
+        k = 4. * n / (4. + (u - rho)**2)
+        # We omit sqrt, because all python packages use k^2 convention.
+
+        x_1 = ellipk(k)
+        x_2 = ellipe(k)
+        x_3 = ellip3(n, k)
+        (x_1, x_2) = (x_2, x_1)  # WM94 under Eq. 9 are inconsitent with GR80.
+
+        return (a_1*x_1 + a_2*x_2 + a_3*x_3) / np.pi
+
+    def get_point_lens_large_LD_integrated_magnification(self, u, gamma):
+        """
+        XXX Witt & Mao 1994  + e.g. Bozza+18 Eq. 16-19
+        """
+        out = [self._get_magnification_WM94_B18(u_, gamma) for u_ in u]
+        return np.array(out)
+
+    def _get_magnification_WM94_B18(self, u, gamma):
+        """
+        XXX Bozza+18 Eq. 16-19
         """
         n_annuli = 30  # XXX - to be determined
         n_annuli += 1  # It's easier to have r=0 ring as well.
@@ -476,10 +513,8 @@ class PointLens(object):
         for (i, a) in enumerate(annuli):
             if i == 0:
                 continue
-            # XXX - should we use Lee method here? Or Witt & Mao 1994?
-            magnification[i] = WittMao1994(u=u, rho=a*self.parameters.rho)
-            #magnification[i] = self._get_point_lens_finite_source_magnification(
-            #    u, pspl_magnification, rho=a*self.parameters.rho)
+            magnification[i] = self._get_magnification_WM94(
+                u=u, rho=a*self.parameters.rho)
 
         cumulative_profile = gamma + (1. - gamma) * r2 - gamma * (1. - r2)**1.5
         d_cumulative_profile = cumulative_profile[1:] - cumulative_profile[:-1]
@@ -489,44 +524,15 @@ class PointLens(object):
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
 
-def WittMao1994(u, rho):
-    """
-    implements Witt & Mao 1994 - full calculation
-    """
-    if u == rho:
-        u2 = u**2
-        a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
-        return (2./u + (1.+u2) * a / u2) / np.pi
-
-    a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
-    a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2)) / (rho**2 * (4. + (u - rho)**2)**.5)
-    a_3 = 2. * (u - rho)**2 * (1. + rho**2) / (rho**2 * (u + rho) * (4. + (u - rho)**2)**.5)
-
-    n = 4. * u * rho / (u + rho)**2
-    k = (4. * n / (4. + (u - rho)**2))**.5
-    k = k*k  # All python packages use k^2 convention.
-
-    x_1 = ellipk(k)
-    x_2 = ellipe(k)
-    x_3 = ellip3(n, k)
-    (x_1, x_2) = (x_2, x_1)  # W&M94 under Eq. 9 are inconsitent with G&R80.
-
-    return (a_1*x_1 + a_2*x_2 + a_3*x_3) / np.pi
-
-if __name__ == '__main__':
-    rho = 0.001
-    u = [0.001, 0.0001, 0.0005]
-    for u_ in u:
-        print(u_, WittMao1994(u_, rho))
+# Test values:
 # rho 0.001
 # u 0.001  0.0001 0.0005
 # A 1273.24008748 1994.9905932  1868.43109505
 
 # TODO:
+#  - faster calculations
+#  - unit tests
 #  - XXX above
-#  - Witt & Mao 1994 added fully
-#  - remove sympy to make calculations faster
-#  - unit test - see __name__ above
 #  - latex file
 #  - get_point_lens_uniform_integrated_magnification - DOCSTRING in master
 #  - get_point_lens_LD_integrated_magnification - DOCSTRING in master

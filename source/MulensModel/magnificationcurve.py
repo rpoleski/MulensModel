@@ -112,7 +112,7 @@ class MagnificationCurve(object):
         <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_ and
         interpolate pre-computed tables when possible. Add ``_direct`` to
         these names to force direct integration.
-        """
+        """  # XXX - add WM94 above
         self._default_method = default_method
         if methods is None:
             self._methods_epochs = None
@@ -207,6 +207,8 @@ class MagnificationCurve(object):
                 interpolates pre-computed tables. The relative interpolation
                 errors are smaller than 10^-4.
 
+            XXX
+
             ``finite_source_uniform_Gould94_direct``:
                 Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a
                 *uniform* (and circular) source. This method calculates
@@ -253,32 +255,39 @@ class MagnificationCurve(object):
                     raise ValueError(
                         'Methods parameters passed, but currently ' +
                         'no point lens method accepts the parameters')
+            selection = (methods == method)
 
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection]))
             elif (method.lower() ==
                   'finite_source_uniform_Gould94_direct'.lower()):
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection],
                         direct=True))
+            elif method.lower() == 'finite_source_uniform_WittMao94'.lower():
+                pl = point_lens
+                magnification[selection] = (
+                    pl.get_point_lens_large_finite_source_magnification(
+                        u=u_all[selection]))
+            elif method.lower() == 'finite_source_LD_WittMao94'.lower():
+                pl = point_lens
+                magnification[selection] = (
+                    pl.get_point_lens_large_LD_integrated_magnification(
+                        u=u_all[selection], gamma=self._gamma))
             elif method.lower() == 'finite_source_LD_Yoo04'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_limb_darkening_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection],
                         gamma=self._gamma))
             elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_limb_darkening_magnification(
                         u=u_all[selection],
@@ -286,13 +295,11 @@ class MagnificationCurve(object):
                         gamma=self._gamma,
                         direct=True))
             elif method.lower() == 'finite_source_uniform_Lee09'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_uniform_integrated_magnification(
                         u=u_all[selection],
                         rho=self.parameters.rho))
             elif method.lower() == 'finite_source_LD_Lee09'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_LD_integrated_magnification(
                         u=u_all[selection],
