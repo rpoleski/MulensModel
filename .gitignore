@@ -28,9 +28,13 @@ docs/_sources/
 
 # Example figures
 examples/figure_[1234].png
+examples/example_16/*.png
 
 # Test files in examples:
 examples/run_time_tests/test_100*txt
+
+# pymultinest output files:
+examples/chains/
 
 # Temporary tasks:
 DEV
