@@ -4,8 +4,9 @@ import numpy as np
 from math import sin, cos, sqrt
 from scipy import integrate
 from scipy.interpolate import interp1d
-from scipy.special import ellipe
-# This is an incomplete elliptic integral of the second kind.
+from scipy.special import ellipk, ellipe
+# These are complete elliptic integrals of the first and the second kind.
+from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
 from MulensModel.trajectory import Trajectory
 import MulensModel
@@ -463,7 +464,7 @@ class PointLens(object):
         XXX
         Bozza+18 Eq. 16-19
         """
-        n_annuli = 100
+        n_annuli = 30  # XXX - to be determined
         n_annuli += 1  # It's easier to have r=0 ring as well.
 
         pspl_magnification = get_pspl_magnification(u)
@@ -476,8 +477,9 @@ class PointLens(object):
             if i == 0:
                 continue
             # XXX - should we use Lee method here? Or Witt & Mao 1994?
-            magnification[i] = self._get_point_lens_finite_source_magnification(
-                u, pspl_magnification, rho=a*self.parameters.rho)
+            magnification[i] = WittMao1994(u=u, rho=a*self.parameters.rho)
+            #magnification[i] = self._get_point_lens_finite_source_magnification(
+            #    u, pspl_magnification, rho=a*self.parameters.rho)
 
         cumulative_profile = gamma + (1. - gamma) * r2 - gamma * (1. - r2)**1.5
         d_cumulative_profile = cumulative_profile[1:] - cumulative_profile[:-1]
@@ -487,9 +489,44 @@ class PointLens(object):
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
 
+def WittMao1994(u, rho):
+    """
+    implements Witt & Mao 1994 - full calculation
+    """
+    if u == rho:
+        u2 = u**2
+        a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
+        return (2./u + (1.+u2) * a / u2) / np.pi
+
+    a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
+    a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2)) / (rho**2 * (4. + (u - rho)**2)**.5)
+    a_3 = 2. * (u - rho)**2 * (1. + rho**2) / (rho**2 * (u + rho) * (4. + (u - rho)**2)**.5)
+
+    n = 4. * u * rho / (u + rho)**2
+    k = (4. * n / (4. + (u - rho)**2))**.5
+    k = k*k  # All python packages use k^2 convention.
+
+    x_1 = ellipk(k)
+    x_2 = ellipe(k)
+    x_3 = ellip3(n, k)
+    (x_1, x_2) = (x_2, x_1)  # W&M94 under Eq. 9 are inconsitent with G&R80.
+
+    return (a_1*x_1 + a_2*x_2 + a_3*x_3) / np.pi
+
+if __name__ == '__main__':
+    rho = 0.001
+    u = [0.001, 0.0001, 0.0005]
+    for u_ in u:
+        print(u_, WittMao1994(u_, rho))
+# rho 0.001
+# u 0.001  0.0001 0.0005
+# A 1273.24008748 1994.9905932  1868.43109505
+
 # TODO:
 #  - XXX above
-#  - unit test
+#  - Witt & Mao 1994 added fully
+#  - remove sympy to make calculations faster
+#  - unit test - see __name__ above
 #  - latex file
 #  - get_point_lens_uniform_integrated_magnification - DOCSTRING in master
 #  - get_point_lens_LD_integrated_magnification - DOCSTRING in master
