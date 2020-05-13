@@ -1,9 +1,9 @@
 import os
 import warnings
 import numpy as np
-from math import sin, cos, sqrt
+from math import sin, cos, sqrt, log10
 from scipy import integrate
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, interp2d
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
@@ -63,6 +63,8 @@ class PointLens(object):
 
     def __init__(self, parameters=None):
         self.parameters = parameters
+        if not PointLens._B0B1_file_read:
+            self._read_B0B1_file()  # XXX
 
     def _read_B0B1_file(self):
         """Read file with pre-computed function values"""
@@ -77,6 +79,18 @@ class PointLens(object):
                 z, B0_minus_B1, kind='cubic')
         PointLens._z_min = np.min(z)
         PointLens._z_max = np.max(z)
+
+        # XXX
+        file_ = os.path.join(MulensModel.DATA_PATH, 'interpolation_2.dat')
+        (x, y, z) = np.loadtxt(file_, unpack=True)
+        x = np.linspace(-3., 1., 100)
+        y = np.linspace(-3., 1., 100)
+        zz = z.reshape(len(y), len(x)).T
+        PointLens._interpolation = interp2d(x, y, zz, kind='cubic')
+        PointLens._interpolation_min_x = np.min(x)
+        PointLens._interpolation_max_x = np.max(x)
+        PointLens._interpolation_min_y = np.min(y)
+        PointLens._interpolation_max_y = np.max(y)
 
     def _B_0_function(self, z):
         """
@@ -472,6 +486,16 @@ class PointLens(object):
             u2 = u**2
             a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
             return (2./u + (1.+u2) * a / u2) / np.pi
+
+        x = log10(u)
+        y = log10(rho)
+        c1 = (x >= PointLens._interpolation_min_x)
+        c2 = (x <= PointLens._interpolation_max_x)
+        c3 = (y >= PointLens._interpolation_min_y)
+        c4 = (y <= PointLens._interpolation_max_y)
+        if c1 and c2 and c3 and c4:
+            #print(x, y, "INTERP", PointLens._interpolatiddon(x, y))
+            return 10**PointLens._interpolation(x, y)[0]
 
         a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
         a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2))
