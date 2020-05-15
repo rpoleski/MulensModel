@@ -386,9 +386,9 @@ class PointLens(object):
         u_1_min = 1.e-13
 
         if n_theta % 2 != 0:
-            raise ValueError('internal error - odd number expected')
+            raise ValueError('internal error - even number expected')
         if n_u % 2 != 0:
-            raise ValueError('internal error - odd number expected')
+            raise ValueError('internal error - even number expected')
 
         if u > rho:
             theta_max = np.arcsin(rho / u)
