@@ -11,6 +11,7 @@
 - plotting to screen
 - introduce YAML files
 - Delta t_0
+- binary source
 
 ## List of task to be done:
 
@@ -25,7 +26,6 @@
 - MulensData - just provide *str*
 - n_walkers for EMCEE - default is x4 and remove from minimal yaml file
 - remove _update_best_model() and extract it from fitting results
-- binary source and number of fluxes returned - see _return_ln_prob()
 - all_parameters in _get_parameters_ordered() and _check_fixed_parameters() - combine in a single one
 - note that parameters are re-ordered (maybe in future add option for specifying order)
 - datasets - guessing 245/246
@@ -57,3 +57,4 @@
 - fits with 0 blending flux for first dataset
 - when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data
 - add scipy to _check_imports() - requires siginificant code to be added to _check_imports() in order to find out if t_E prior is used
+- if corner could not be imported, then give link to specific file in error message

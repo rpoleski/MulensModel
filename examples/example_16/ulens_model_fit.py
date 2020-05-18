@@ -28,7 +28,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.5.3'
+__version__ = '0.6.0'
 
 
 class UlensModelFit(object):
@@ -273,8 +273,9 @@ class UlensModelFit(object):
         change self._fit_parameters into latex parameters
         """
         conversion = dict(
-            t_0='\\Delta t_0', u_0='u_0', t_0_1='t_0_1', u_0_1='u_0_1',
-            t_0_2='t_0_2', u_0_2='u_0_2', t_E='t_{\\rm E}',
+            t_0='\\Delta t_0', u_0='u_0',
+            t_0_1='\\Delta t_{0,1}', u_0_1='u_{0,1}',
+            t_0_2='\\Delta t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
             t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
             rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
             t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
@@ -518,18 +519,7 @@ class UlensModelFit(object):
         """
         Set internal MulensModel instances: Model and Event
         """
-        parameters = dict()
-        for (key, value) in self._starting_parameters.items():
-            if value[0] == 'gauss':
-                parameters[key] = value[1]
-            elif value[0] == 'uniform':
-                parameters[key] = (value[1] + value[2]) / 2.
-            elif value[0] == 'log-uniform':
-                parameters[key] = (value[1] + value[2]) / 2.
-
-        if self._fixed_parameters is not None:
-            for (key, value) in self._fixed_parameters.items():
-                parameters[key] = value
+        parameters = self._get_example_parameters()
 
         kwargs = dict()
         if 'coords' in self._model_parameters:
@@ -544,6 +534,50 @@ class UlensModelFit(object):
 
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'
+
+        self._get_n_fluxes()
+
+    def _get_n_fluxes(self):
+        """
+        find out how many flux parameters there are
+        """
+        self._event.get_chi2()
+
+        n = 0
+        for (i, dataset) in enumerate(self._datasets):
+            k = len(self._event.fit.flux_of_sources(dataset)) + 1
+            # Plus 1 is for blending.
+            if i == 0:
+                self._n_fluxes_per_dataset = k
+            elif k != self._n_fluxes_per_dataset:
+                raise ValueError(
+                    'Strange internal error with number of source fluxes: ' +
+                    "{:} {:} {:}".format(i, k, self._n_fluxes_per_dataset))
+            n += k
+
+        self._n_fluxes = n
+
+    def _get_example_parameters(self):
+        """
+        Generate parameters *dict* according to provided starting and fixed
+        parameters.
+        """
+        parameters = dict()
+        for (key, value) in self._starting_parameters.items():
+            if value[0] == 'gauss':
+                parameters[key] = value[1]
+            elif value[0] == 'uniform':
+                parameters[key] = (value[1] + value[2]) / 2.
+            elif value[0] == 'log-uniform':
+                parameters[key] = (value[1] + value[2]) / 2.
+            else:
+                raise ValueError('internal error: ' + value[0])
+
+        if self._fixed_parameters is not None:
+            for (key, value) in self._fixed_parameters.items():
+                parameters[key] = value
+
+        return parameters
 
     def _generate_random_parameters(self):
         """
@@ -632,12 +666,7 @@ class UlensModelFit(object):
         """
         if value == -np.inf:
             if self._return_fluxes:
-                if self._model.n_sources > 1:
-                    raise ValueError(
-                        "I'm not sure - for binary source models are there " +
-                        "2 fluxes or 1 for each dataset?")
-                n_fluxes = (self._model.n_sources + 1) * len(self._datasets)
-                return (value, [0.] * n_fluxes)
+                return (value, [0.] * self._n_fluxes)
             else:
                 return value
         else:
@@ -711,14 +740,9 @@ class UlensModelFit(object):
         """
         Extract all fluxes and return them in a list.
         """
-        if self._model.n_sources > 1:
-            raise ValueError(
-                "I'm not sure - for binary source models are there " +
-                "2 fluxes or 1 for each dataset?")
-
         fluxes = []
         for dataset in self._datasets:
-            fluxes.append(self._event.fit.flux_of_sources(dataset)[0])
+            fluxes += self._event.fit.flux_of_sources(dataset).tolist()
             fluxes.append(self._event.fit.blending_flux(dataset))
 
         return fluxes
@@ -731,11 +755,7 @@ class UlensModelFit(object):
         outside = -np.inf
 
         if self._fit_constraints["no_negative_blending_flux"]:
-            blend_index = self._model.n_sources
-            if self._model.n_sources > 1:
-                raise ValueError(
-                    "I'm not sure - for binary source models are there 2 " +
-                    "fluxes or 1 for each dataset?")
+            blend_index = self._n_fluxes_per_dataset - 1
             if fluxes[blend_index] < 0.:
                 return outside
 
@@ -797,9 +817,11 @@ class UlensModelFit(object):
         self._samples = self._sampler.chain[:, n_burn:, :].reshape((-1, n_fit))
         print("Fitted parameters:")
         self._parse_results_EMECEE_print(self._samples, self._fit_parameters)
-        if 't_0' in self._fit_parameters:
-            index = self._fit_parameters.index('t_0')
-            self._samples[:, index] -= int(np.mean(self._samples[:, index]))
+        for name in ['t_0', 't_0_1', 't_0_2']:
+            if name in self._fit_parameters:
+                index = self._fit_parameters.index(name)
+                self._samples[:, index] -= int(
+                    np.mean(self._samples[:, index]))
 
         if self._return_fluxes:
             try:
@@ -808,13 +830,22 @@ class UlensModelFit(object):
                 raise ValueError('There was some issue with blobs\n' +
                                  str(exception))
             blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
-            n_fluxes = blob_sampler.shape[-1]
-            blob_samples = blob_sampler[:, n_burn:, :].reshape((-1, n_fluxes))
+            blob_samples = blob_sampler[:, n_burn:, :].reshape(
+                (-1, self._n_fluxes))
             print("Fitted fluxes (source and blending):")
-            s_or_b = ['s', 'b']
+            if self._n_fluxes_per_dataset == 2:
+                s_or_b = ['s', 'b']
+            elif self._n_fluxes_per_dataset == 3:
+                s_or_b = ['s1', 's2', 'b']
+            else:
+                raise ValueError(
+                    'Internal error: ' + str(self._n_fluxes_per_dataset))
             text = 'flux_{:}_{:}'
+            n = self._n_fluxes_per_dataset
             flux_names = [
-                text.format(s_or_b[i % 2], i // 2+1) for i in range(n_fluxes)]
+                text.format(s_or_b[i % n], i // n+1)
+                for i in range(self._n_fluxes)
+                ]
             self._parse_results_EMECEE_print(blob_samples, flux_names)
 
         self._print_best_model()
@@ -929,8 +960,7 @@ class UlensModelFit(object):
             'hspace': hspace}
         kwargs = {'subtract_2450000': remove_245}
 
-        t_1 = self._model.parameters.t_0 - tau * self._model.parameters.t_E
-        t_2 = self._model.parameters.t_0 + tau * self._model.parameters.t_E
+        (t_1, t_2) = self._get_time_limits_for_plot(tau)
 
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
@@ -946,6 +976,25 @@ class UlensModelFit(object):
 
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
                 kwargs_axes_1, kwargs_axes_2)
+
+    def _get_time_limits_for_plot(self, tau):
+        """
+        find limits for the best model plot
+        """
+        if self._model.n_sources == 1:
+            t_1 = self._model.parameters.t_0 - tau * self._model.parameters.t_E
+            t_2 = self._model.parameters.t_0 + tau * self._model.parameters.t_E
+        elif self._model.n_sources == 2:
+            t_1 = self._model.parameters.t_0_1
+            t_2 = self._model.parameters.t_0_2
+            if t_1 > t_2:
+                (t_1, t_2) = (t_2, t_1)
+            t_1 -= tau * self._model.parameters.t_E
+            t_2 += tau * self._model.parameters.t_E
+        else:
+            raise ValueError('internal issue: ' + str(self._model.n_sources))
+
+        return (t_1, t_2)
 
     def _get_ylim_for_best_model_plot(self, t_1, t_2):
         """
