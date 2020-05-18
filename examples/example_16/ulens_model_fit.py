@@ -28,7 +28,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.6.0'
+__version__ = '0.6.1'
 
 
 class UlensModelFit(object):
@@ -964,6 +964,9 @@ class UlensModelFit(object):
 
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
+        if self._model.n_sources != 1:
+            kwargs_model['flux_ratio_constraint'] = self._datasets[0]
+
         if kwargs['subtract_2450000']:
             xlim = [t_1-2450000., t_2-2450000.]
         else:

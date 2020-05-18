@@ -58,3 +58,5 @@
 - when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data
 - add scipy to _check_imports() - requires siginificant code to be added to _check_imports() in order to find out if t_E prior is used
 - if corner could not be imported, then give link to specific file in error message
+- flux constraints for binary source models (note that for plotting it is now set to first dataset)
+- allow Model.set_magnification_methods_parameters()
