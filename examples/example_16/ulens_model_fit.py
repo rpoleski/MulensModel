@@ -28,7 +28,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.6.1'
+__version__ = '0.7.0'
 
 
 class UlensModelFit(object):
@@ -223,12 +223,16 @@ class UlensModelFit(object):
         if self._model_parameters is None:
             self._model_parameters = dict()
 
-        allowed = {'coords'}
+        allowed = {'coords', 'default method', 'methods'}
         not_allowed = set(self._model_parameters.keys()) - allowed
         if len(not_allowed) > 0:
             raise ValueError(
                 'model keyword is a dict with keys not allowed: ' +
-                not_allowed)
+                str(not_allowed))
+        if 'methods' in self._model_parameters:
+            _enumerate = enumerate(self._model_parameters['methods'].split())
+            self._model_parameters['methods'] = [
+                float(x) if i%2==0 else x for (i, x) in _enumerate]
 
         condition_1 = ('pi_E_E' in self._starting_parameters)
         condition_2 = ('pi_E_N' in self._starting_parameters)
@@ -531,6 +535,12 @@ class UlensModelFit(object):
             print("Initializer of MulensModel.Model failed.")
             print("Parameters passed: {:}".format(parameters))
             raise
+        if 'default method' in self._model_parameters:
+            self._model.set_default_magnification_method(
+                self._model_parameters['default method'])
+        if 'methods' in self._model_parameters:
+            self._model.set_magnification_methods(
+                self._model_parameters['methods'])
 
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'

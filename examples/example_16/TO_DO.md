@@ -12,6 +12,7 @@
 - introduce YAML files
 - Delta t_0
 - binary source
+- methods: 'default method' and 'methods'
 
 ## List of task to be done:
 
@@ -20,12 +21,10 @@
 **NOW - FINISH Mroz+17** - example
 
 - **limit epochs in "best model" plot**
-- **methods for Model**
 - **some documentation - see above**
 - **add one more fitting method?**
-- MulensData - just provide *str*
-- n_walkers for EMCEE - default is x4 and remove from minimal yaml file
-- remove _update_best_model() and extract it from fitting results
+- MulensData - just provide *str* - "SIMPLIFIIES INPUT"
+- n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIIES INPUT"
 - all_parameters in _get_parameters_ordered() and _check_fixed_parameters() - combine in a single one
 - note that parameters are re-ordered (maybe in future add option for specifying order)
 - datasets - guessing 245/246
@@ -60,3 +59,5 @@
 - if corner could not be imported, then give link to specific file in error message
 - flux constraints for binary source models (note that for plotting it is now set to first dataset)
 - allow Model.set_magnification_methods_parameters()
+- add source parameter for Model.set_magnification_methods()
+- methods - if only single string is provided, then this is a default method
