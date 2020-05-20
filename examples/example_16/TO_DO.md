@@ -12,7 +12,6 @@
 - introduce YAML files
 - Delta t_0
 - binary source
-- methods: 'default method' and 'methods'
 
 ## List of task to be done:
 
@@ -23,8 +22,9 @@
 - **limit epochs in "best model" plot**
 - **some documentation - see above**
 - **add one more fitting method?**
-- MulensData - just provide *str* - "SIMPLIFIIES INPUT"
-- n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIIES INPUT"
+- MulensData - just provide *str* - "SIMPLIFIES INPUT"
+- n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIES INPUT"
+- LD coeffs as parameters
 - all_parameters in _get_parameters_ordered() and _check_fixed_parameters() - combine in a single one
 - note that parameters are re-ordered (maybe in future add option for specifying order)
 - datasets - guessing 245/246

@@ -9,12 +9,18 @@ Example usage:
 python ulens_model_fit.py ob08092-o4_minimal.yaml
 ```
 
-should produce fitted model parameters in a few seconds. Please have a look at `ob08092-o4_minimal.yaml` - it has only basic settings. In many cases, one can fit a reasonable point-source point-lens model by jus changing file name and mean value of `t_0`.
+should produce fitted model parameters in a few seconds. Please have a look at [`ob08092-o4_minimal.yaml`](ob08092-o4_minimal.yaml) - it has only basic settings. In many cases, one can fit a reasonable point-source point-lens model by jus changing file name and mean value of `t_0`.
 
 More complicated example that will also produce plots of the best model with residuals and the triangle plot:
 
 ```
 python ulens_model_fit.py ob08092-o4.yaml
+```
+
+You can specify the methods used for calculating magnification. For example, fit the first microlensing planet (calculations may take a few minutes):
+
+```
+python ulens_model_fit.py ob03235_1.yaml
 ```
 
 There are many more features to be added - _please let authors know what specific needs you have_.
