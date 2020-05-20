@@ -511,7 +511,7 @@ class Model(object):
         fit.fit_fluxes()
         self._fit = fit
 
-        for (i, data) in enumerate(self._datasets):
+        for data in self._datasets[::-1]:
             data.plot(
                 phot_fmt='mag', show_errorbars=show_errorbars,
                 show_bad=show_bad, subtract_2450000=subtract_2450000,
@@ -561,7 +561,7 @@ class Model(object):
         plt.plot([0., 3000000.], [0., 0.], color='black')
 
         # Plot residuals
-        for data in self._datasets:
+        for data in self._datasets[::-1]:
             data.plot(
                 phot_fmt='mag', show_errorbars=show_errorbars,
                 show_bad=show_bad, subtract_2450000=subtract_2450000,
