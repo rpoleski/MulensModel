@@ -28,7 +28,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.7.0'
+__version__ = '0.7.2'
 
 
 class UlensModelFit(object):
@@ -469,7 +469,8 @@ class UlensModelFit(object):
             words = value.split()
             if words[0] not in accepted_types:
                 raise ValueError(
-                    'starting value: {:} is not recognized'.format(words[0]))
+                    'starting parameter: ' + words[0] + ' is not recognized.' +
+                    'Allowed parameters: ' + str(accepted_types))
             if len(words) != 3:
                 raise ValueError('Expected 3 parameters, got: ' + str(words))
             floats = []
@@ -1030,8 +1031,9 @@ class UlensModelFit(object):
 
             residuals = self._model.get_residuals(
                 data=data, type=phot_fmt)[0][0][mask]
-            y_3 = min(y_3, np.min(residuals - err_mag))
-            y_4 = max(y_4, np.max(residuals + err_mag))
+            mask_ = np.isfinite(residuals)
+            y_3 = min(y_3, np.min((residuals - err_mag)[mask_]))
+            y_4 = max(y_4, np.max((residuals + err_mag)[mask_]))
 
         if y_1 == np.inf:  # There are no data points in the plot.
             return (None, [0.1, -0.1])
