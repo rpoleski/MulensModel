@@ -2,6 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 import warnings
 from astropy.coordinates import SkyCoord
+from astropy import __version__ as astropy_version
 
 from MulensModel.horizons import Horizons
 
@@ -70,8 +71,13 @@ class SatelliteSkyCoord(object):
         y = interp1d(time, self._horizons.xyz.y, kind='cubic')(times)
         z = interp1d(time, self._horizons.xyz.z, kind='cubic')(times)
 
-        self._satellite_skycoord = SkyCoord(
-                  x=x, y=y, z=z, representation='cartesian')
-        self._satellite_skycoord.representation = 'spherical'
+        if int(astropy_version[0]) >= 4:
+            self._satellite_skycoord = SkyCoord(
+                x=x, y=y, z=z, representation_type='cartesian')
+            self._satellite_skycoord.representation_type = 'spherical'
+        else:
+            self._satellite_skycoord = SkyCoord(
+                x=x, y=y, z=z, representation='cartesian')
+            self._satellite_skycoord.representation = 'spherical'
 
         return self._satellite_skycoord

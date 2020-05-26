@@ -4,6 +4,7 @@ from os.path import isfile
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.time import Time
+from astropy import __version__ as astropy_version
 
 from MulensModel.utils import Utils
 
@@ -59,7 +60,12 @@ class Horizons(object):
                 self.file_properties['file_name'],
                 usecols=(0, 1, 2, 3), unpack=True)
             self._time = time
-            self._xyz = SkyCoord(x=x, y=y, z=z, representation='cartesian')
+            if int(astropy_version[0]) >= 4:
+                self._xyz = SkyCoord(x=x, y=y, z=z,
+                                     representation_type='cartesian')
+            else:
+                self._xyz = SkyCoord(x=x, y=y, z=z,
+                                     representation='cartesian')
 
     def _get_start_end(self):
         """
