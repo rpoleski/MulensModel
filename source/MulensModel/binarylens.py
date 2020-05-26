@@ -421,6 +421,21 @@ class BinaryLens(object):
                                     source_x=source_x, source_y=source_y)
         return 0.25 * fsum(out) - magnification_center
 
+    def _rho_check(self, rho):
+        """
+        Check if rho is float and positive.
+        """
+        if rho is None:
+            raise TypeError(
+                'rho must be positive float, but None was provided')
+        if not isinstance(rho, float):
+            raise TypeError(
+                'rho must be positive float, but ' + str(rho) +
+                str(type(rho)) + ' was provided')
+        if rho < 0:
+            raise ValueError(
+                'rho must be positive, got: {:}'.format(rho))
+
     def hexadecapole_magnification(self, source_x, source_y, rho, gamma,
                                    quadrupole=False, all_approximations=False):
         """
@@ -465,6 +480,7 @@ class BinaryLens(object):
         if quadrupole and all_approximations:
             raise ValueError('Inconsistent parameters of ' +
                              'BinaryLens.hexadecapole_magnification()')
+        self._rho_check(rho)
 
         a_center = self.point_source_magnification(
             source_x=source_x, source_y=source_y)
@@ -563,6 +579,7 @@ class BinaryLens(object):
         if ld_accuracy <= 0.:
             raise ValueError('adaptive_contouring requires ld_accuracy > 0')
         # Note that this accuracy is not guaranteed.
+        self._rho_check(rho)
 
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
@@ -584,6 +601,9 @@ class BinaryLens(object):
         # so we have to transform the coordinates below.
         x = float(-source_x)
         y = float(-source_y)
+        rho = float(rho)
+        accuracy = float(accuracy)
+        ld_accuracy = float(ld_accuracy)
 
         magnification = _adaptive_contouring_linear(
             s, q, x, y, rho, gamma, accuracy, ld_accuracy)
@@ -631,6 +651,7 @@ class BinaryLens(object):
                 Magnification.
 
         """
+        self._rho_check(rho)
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
@@ -653,6 +674,8 @@ class BinaryLens(object):
         q = float(self.mass_2 / self.mass_1)
         x = float(source_x)
         y = float(source_y)
+        rho = float(rho)
+        accuracy = float(accuracy)
 
         magnification = _vbbl_binary_mag_dark(
             s, q, x, y, rho, u_limb_darkening, accuracy)
