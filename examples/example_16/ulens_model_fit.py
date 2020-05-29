@@ -28,7 +28,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.7.2'
+__version__ = '0.7.3'
 
 
 class UlensModelFit(object):
@@ -350,6 +350,11 @@ class UlensModelFit(object):
         Parse min and max values of parameters so that they're properly
         indexed.
         """
+        if self._min_values is None:
+            self._min_values = []
+        if self._max_values is None:
+            self._max_values = []
+
         for key in self._min_values:
             if key in self._max_values:
                 if self._min_values[key] >= self._max_values[key]:
@@ -369,7 +374,7 @@ class UlensModelFit(object):
         change dict that has str as key to index as key
         """
         out = dict()
-        if limits is None:
+        if len(limits) == 0:
             return out
 
         for (key, value) in limits.items():
