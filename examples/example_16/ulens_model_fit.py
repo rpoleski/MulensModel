@@ -28,7 +28,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.7.3'
+__version__ = '0.9.1'
 
 
 class UlensModelFit(object):
@@ -145,13 +145,81 @@ class UlensModelFit(object):
         self._fit_constraints = fit_constraints
         self._plots = plots
 
-        self._fit_method = 'emcee'
-        self._flat_priors = True  # Are priors only 0 or 1?
-        self._return_fluxes = True
-
-        self._best_model_ln_prob = -np.inf
-
+        self._which_task()
+        self._set_default_parameters()
         self._check_imports()
+
+    def _which_task(self):
+        """
+        Check if input parameters indicate run_fit() or plot_model() will
+        be run.
+        """
+        if self._starting_parameters is not None:
+            fit = True
+        else:
+            fit = False
+        plot = False
+
+        if self._model_parameters is not None:
+            keys = set(self._model_parameters.keys())
+            check = keys.intersection({'parameters', 'values'})
+            if len(check) == 1:
+                raise ValueError(
+                    'You have to specify either both or none of ' +
+                    'model["parameters"] and model["values"].')
+            if len(check) == 2:
+                plot = True
+
+        if plot and fit:
+            raise ValueError(
+                'Too many parameters specified!\nThe starting_parameters ' +
+                'indicate you want to fit, but model["parameters"] and ' +
+                'model["values"] indicate you want to plot. Please decide')
+
+        if not plot and not fit:
+            if self._fixed_parameters is None:
+                raise ValueError(
+                    'Missing input information. Please specify parameters ' +
+                    'to be plotted (model["parameters"] and ' +
+                    'model["values"]) or starting_parameters to be fit.')
+            else:
+                plot = True
+
+        if fit:
+            self._task = 'fit'
+        elif plot:
+            self._task = 'plot'
+            self._check_unnecessary_settings()
+        else:
+            raise ValueError('internal error')
+
+    def _check_unnecessary_settings(self):
+        """
+        Make sure that there arent' too many parameters specified
+        """
+        keys = ['_starting_parameters', '_min_values', '_max_values',
+                '_fitting_parameters']
+        for key in keys:
+            if getattr(self, key) is not None:
+                raise ValueError(
+                    'In plotting mode you should not provide in __init__: ' +
+                    key[1:])
+
+        if self._plots is not None:
+            if "triangle" in self._plots:
+                raise ValueError(
+                    'You cannot provide plots["triangle"] is you ' +
+                    "don't fit")
+
+    def _set_default_parameters(self):
+        """
+        set some default parameters
+        """
+        if self._task == 'fit':
+            self._fit_method = 'emcee'
+            self._flat_priors = True  # Are priors only 0 or 1?
+            self._return_fluxes = True
+            self._best_model_ln_prob = -np.inf
 
     def _check_imports(self):
         """
@@ -159,10 +227,11 @@ class UlensModelFit(object):
         """
         required_packages = set()
 
-        if self._fit_method == 'emcee':
-            required_packages.add('emcee')
-        if self._plots is not None and 'triangle' in self._plots:
-            required_packages.add('corner')
+        if self._task == 'fit':
+            if self._fit_method == 'emcee':
+                required_packages.add('emcee')
+            if self._plots is not None and 'triangle' in self._plots:
+                required_packages.add('corner')
 
         failed = import_failed.intersection(required_packages)
 
@@ -178,6 +247,9 @@ class UlensModelFit(object):
         This function does not accept any parameters. All the settings
         are passed via __init__().
         """
+        if self._task != "fit":
+            raise ValueError('wrong settings to run .run_fit()')
+
         self._check_plots_parameters()
         self._check_model_parameters()
         self._get_datasets()
@@ -194,6 +266,23 @@ class UlensModelFit(object):
         self._setup_fit()
         self._run_fit()
         self._parse_results()
+        self._make_plots()
+
+    def plot_model(self):
+        """
+        Plot the model.
+
+        """
+        #XXX - NOTE how the model is defined
+       
+        if self._task != "plot":
+            raise ValueError('wrong settings to run .plot_model()')
+
+        self._check_plots_parameters()
+        self._check_model_parameters()
+        self._get_datasets()
+        self._check_fixed_parameters()
+        self._make_model_and_event()
         self._make_plots()
 
     def _check_plots_parameters(self):
@@ -215,6 +304,17 @@ class UlensModelFit(object):
             if value is None:
                 self._plots[key] = dict()
 
+        if 'best model' in self._plots:
+            if 'time range' in self._plots['best model']:
+                text = self._plots['best model']['time range'].split()
+                if len(text) != 2:
+                    raise ValueError(
+                        "'time range' for 'best model' should specify 2 " +
+                        "values (begin and end); got: " +
+                        str(self._plots['best model']['time range']))
+                self._plots['best model']['time range'] = [
+                    float(text[0]), float(text[1])]
+
     def _check_model_parameters(self):
         """
         Check parameters of the MulensModel.Model provided by the user
@@ -223,8 +323,10 @@ class UlensModelFit(object):
         if self._model_parameters is None:
             self._model_parameters = dict()
 
-        allowed = {'coords', 'default method', 'methods'}
-        not_allowed = set(self._model_parameters.keys()) - allowed
+        allowed = {'coords', 'default method', 'methods', 'parameters',
+                   'values'}
+        keys = set(self._model_parameters.keys())
+        not_allowed = keys - allowed
         if len(not_allowed) > 0:
             raise ValueError(
                 'model keyword is a dict with keys not allowed: ' +
@@ -232,7 +334,19 @@ class UlensModelFit(object):
         if 'methods' in self._model_parameters:
             _enumerate = enumerate(self._model_parameters['methods'].split())
             self._model_parameters['methods'] = [
-                float(x) if i%2==0 else x for (i, x) in _enumerate]
+                float(x) if i % 2 == 0 else x for (i, x) in _enumerate]
+        check = keys.intersection({'parameters', 'values'})
+        if len(check) == 1:
+            raise ValueError("If you specify 'parameters' and 'values' for " +
+                             "'model', then both have to be defined")
+        if len(check) == 2:
+            self._model_parameters['parameters'] = (
+                self._model_parameters['parameters'].split())
+            self._model_parameters['values'] = [
+                float(x) for x in self._model_parameters['values'].split()]
+
+        if self._starting_parameters is None:
+            return  # Below we do checks valid only for fitting.
 
         condition_1 = ('pi_E_E' in self._starting_parameters)
         condition_2 = ('pi_E_N' in self._starting_parameters)
@@ -579,15 +693,26 @@ class UlensModelFit(object):
         parameters.
         """
         parameters = dict()
-        for (key, value) in self._starting_parameters.items():
-            if value[0] == 'gauss':
-                parameters[key] = value[1]
-            elif value[0] == 'uniform':
-                parameters[key] = (value[1] + value[2]) / 2.
-            elif value[0] == 'log-uniform':
-                parameters[key] = (value[1] + value[2]) / 2.
-            else:
-                raise ValueError('internal error: ' + value[0])
+        # XXX it should be either that we have parameters/values or
+        # _starting_parameters
+        if self._starting_parameters is None:
+            keys = self._model_parameters['parameters']
+            values = self._model_parameters['values']
+            for (key, value) in zip(keys, values):
+                parameters[key] = value
+            # XXX this is some kind of a hack:
+            self._best_model_theta = []
+            self._fit_parameters = []
+        else:
+            for (key, value) in self._starting_parameters.items():
+                if value[0] == 'gauss':
+                    parameters[key] = value[1]
+                elif value[0] == 'uniform':
+                    parameters[key] = (value[1] + value[2]) / 2.
+                elif value[0] == 'log-uniform':
+                    parameters[key] = (value[1] + value[2]) / 2.
+                else:
+                    raise ValueError('internal error: ' + value[0])
 
         if self._fixed_parameters is not None:
             for (key, value) in self._fixed_parameters.items():
@@ -1000,6 +1125,11 @@ class UlensModelFit(object):
         """
         find limits for the best model plot
         """
+        if 'time range' in self._plots['best model']:
+            t_1 = self._plots['best model']['time range'][0]
+            t_2 = self._plots['best model']['time range'][1]
+            return (t_1, t_2)
+
         if self._model.n_sources == 1:
             t_1 = self._model.parameters.t_0 - tau * self._model.parameters.t_E
             t_2 = self._model.parameters.t_0 + tau * self._model.parameters.t_E
