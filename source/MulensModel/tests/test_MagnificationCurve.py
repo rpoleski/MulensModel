@@ -63,9 +63,9 @@ def test_fspl():
     np.testing.assert_almost_equal(expected/results, 1., decimal=4)
 
 
-def test_Lee09():
+def test_Lee09_and_WittMao94():
     """
-    test Lee+2009 finite source calculation
+    test Lee et al. 2009 and Witt & Mao 1994 finite source calculation
     """
     t_vec = np.array([3.5, 2., 1., 0.5, 0.])
 
@@ -100,6 +100,17 @@ def test_Lee09():
     mag_curve_1.set_magnification_methods(methods_1, 'point_source')
     results_1 = mag_curve_1.get_point_lens_magnification()
     np.testing.assert_almost_equal(expected_1, results_1, decimal=3)
+
+    # Tests for Witt & Mao 1994 start here
+    methods_2 = [-5., 'finite_source_uniform_WittMao94', 5.]
+    mag_curve_0.set_magnification_methods(methods_2, 'point_source')
+    results_2 = mag_curve_0.get_point_lens_magnification()
+    np.testing.assert_almost_equal(expected_0, results_2, decimal=4)
+
+    methods_3 = [-5., 'finite_source_LD_WittMao94', 5.]
+    mag_curve_1.set_magnification_methods(methods_3, 'point_source')
+    results_3 = mag_curve_1.get_point_lens_magnification()
+    np.testing.assert_almost_equal(expected_1, results_3, decimal=3)
 
 
 def test_PSPL_for_binary():
