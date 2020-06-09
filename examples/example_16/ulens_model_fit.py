@@ -4,7 +4,6 @@ All the settings are read from a YAML file.
 """
 import sys
 from os import path
-import yaml
 import math
 import numpy as np
 from scipy.interpolate import interp1d
@@ -28,7 +27,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 
 
 class UlensModelFit(object):
