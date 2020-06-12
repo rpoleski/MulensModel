@@ -1,8 +1,11 @@
 # High-level script for fitting microlensing models with MulensModel
 
-This script aims at allowing easy access to fitting capabilities that gives MulensModel.
-It's an advanced usage of MulensModel package. 
-All settings are passed via YAML files, which are human- and machine-readable. 
+This script aims at allowing easy access to fitting capabilities that gives MulensModel. 
+Allowing easy access to many functions results in somehow complicated code, so if you want to learn MulensModel usage, then it's not the best place to start. Please see other examples in that case! Also please note that MulensModel has more capabilities than provided in this script.
+
+Here all settings are passed via YAML files, which are human- and machine-readable. If the script syntax is unclear, then please search for information on YAML format files.
+
+### Basic usage
 
 Example usage:
 
