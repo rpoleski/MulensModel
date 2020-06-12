@@ -1,6 +1,6 @@
 photometry_files:
-    - {file_name: "data/OB03235/OB03235_OGLE.txt", plot_properties: {zorder: 10.}}
-    - {file_name: "data/OB03235/OB03235_MOA.txt", phot_fmt: "flux"}
+    - {file_name: data/OB03235/OB03235_OGLE.txt, plot_properties: {zorder: 10.}}
+    - {file_name: data/OB03235/OB03235_MOA.txt, phot_fmt: "flux"}
 #
 # Here we provide information on method used for calculating magnifications:
 model:
