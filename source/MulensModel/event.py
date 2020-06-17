@@ -918,7 +918,7 @@ class Event(object):
 
     @data_ref.setter
     def data_ref(self, new_value):
-        self._data_ref = self._set_data_ref(new_value)
+        self._set_data_ref(new_value)
 
     def _set_data_ref(self, new_value):
         """
@@ -926,11 +926,15 @@ class Event(object):
         """
         if isinstance(new_value, MulensData):
             index = self.datasets.index(new_value)
-            if index is not None:
+            try:
+                ind_2 = self.datasets.index(new_value, index+1)
+            except ValueError:
+                pass
+            else:
                 raise ValueError(
                     'Dataset is included in Event.datasets more than once.')
 
-            self._data_ref = index[0]
+            self._data_ref = index
         elif isinstance(new_value, (int, np.int)):
             self._data_ref = new_value
         else:

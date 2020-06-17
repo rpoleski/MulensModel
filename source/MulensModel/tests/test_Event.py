@@ -478,12 +478,44 @@ def test_get_flux_for_dataset():
     (source_fluxes_fix, blend_flux_fix) = event.get_flux_for_dataset(1)
     np.testing.assert_almost_equal(blend_flux_fix, 0.)
 
+
+def test_get_ref_fluxes():
+    """
+    test for case with multiple datasets
+    """
+    # Setup
+    (model, model_1, model_2) = generate_binary_source_models()
+    (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
+    event = mm.Event([data_1, data_2], model)
+
+    # default: ref = dataset 0
+    (source_fluxes_1, blend_flux_1) = event.get_ref_fluxes()
+    np.testing.assert_almost_equal(source_fluxes_1, np.array([100., 300.]))
+    np.testing.assert_almost_equal(blend_flux_1, 50.)
+
+    # set data_ref != dataset 0
+    event.data_ref = 1 # Does not work
+    (source_fluxes_2, blend_flux_2) = event.get_ref_fluxes()
+    np.testing.assert_almost_equal(source_fluxes_2, np.array([20., 30.]))
+    np.testing.assert_almost_equal(blend_flux_2, 50.)
+
+    # set data_ref using a dataset
+    event.data_ref = data_1 # Does not work
+    (source_fluxes_1, blend_flux_1) = event.get_ref_fluxes()
+    np.testing.assert_almost_equal(source_fluxes_1, np.array([100., 300.]))
+    np.testing.assert_almost_equal(blend_flux_1, 50.)
+
+# Try get_ref_fluxes() with an event with duplicated data:
+class TestDataRef(unittest.TestCase):
+    def test_1(self):
+        (model, model_1, model_2) = generate_binary_source_models()
+        (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
+        with self.assertRaises(ValueError):
+            event_1 = mm.Event([data_1, data_2, data_2], model)
+            event_1.data_ref = data_2
+
 # Tests to add:
 #
-# test get_ref_fluxes:
-#     test for case with multiple datasets:
-#          default: ref = dataset 0
-#          set data_ref != dataset 0
 #
 # test get_chi2_per_point:
 #     test format of output: access a specific point in an event with multiple
