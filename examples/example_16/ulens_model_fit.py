@@ -27,7 +27,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.9.2'
+__version__ = '0.10.0'
 
 
 class UlensModelFit(object):
@@ -150,7 +150,7 @@ class UlensModelFit(object):
 
     def _which_task(self):
         """
-        Check if input parameters indicate run_fit() or plot_model() will
+        Check if input parameters indicate run_fit() or plot_best_model() will
         be run.
         """
         if self._starting_parameters is not None:
@@ -267,15 +267,15 @@ class UlensModelFit(object):
         self._parse_results()
         self._make_plots()
 
-    def plot_model(self):
+    def plot_best_model(self):
         """
-        Plot the model.
+        Plot the best model.
 
         """
         #XXX - NOTE how the model is defined
-       
+
         if self._task != "plot":
-            raise ValueError('wrong settings to run .plot_model()')
+            raise ValueError('wrong settings to run .plot_best_model()')
 
         self._check_plots_parameters()
         self._check_model_parameters()
