@@ -368,7 +368,7 @@ class Event(object):
             self.fit_fluxes()
 
         if isinstance(dataset, MulensData):
-            i = np.where(self.datasets == dataset)
+            i = self.datasets.index(dataset)
         else:
             i = dataset
 
@@ -925,8 +925,8 @@ class Event(object):
         Set reference dataset. Not covered by unit tests.
         """
         if isinstance(new_value, MulensData):
-            index = np.where(self.datasets == new_value)
-            if len(index[0]) > 1:
+            index = self.datasets.index(new_value)
+            if index is not None:
                 raise ValueError(
                     'Dataset is included in Event.datasets more than once.')
 

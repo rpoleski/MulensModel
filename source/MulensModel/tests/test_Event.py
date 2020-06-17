@@ -380,17 +380,16 @@ def test_event_chi2_binary_source():
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
 
 
-def test_event_chi2_binary_source_2datasets():
-    """
-    simple test if chi2 calculation for binary source
-    works fine for 2 datasets
-    """
+def generate_binary_source_models():
     model = mm.Model({
         't_0_1': 5000., 'u_0_1': 0.05,
         't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.})
     model_1 = mm.Model(model.parameters.source_1_parameters)
     model_2 = mm.Model(model.parameters.source_2_parameters)
 
+    return (model, model_1, model_2)
+
+def generate_binary_source_datasets(model_1, model_2):
     # prepare fake data:
     time = np.linspace(4900., 5200., 600)
     mag_1 = model_1.magnification(time)
@@ -399,6 +398,16 @@ def test_event_chi2_binary_source_2datasets():
     data_1 = mm.MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
     flux = 20. * mag_1 + 30. * mag_2 + 50.
     data_2 = mm.MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
+
+    return (data_1, data_2)
+
+def test_event_chi2_binary_source_2datasets():
+    """
+    simple test if chi2 calculation for binary source
+    works fine for 2 datasets
+    """
+    (model, model_1, model_2) = generate_binary_source_models()
+    (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
 
     # Calculate chi^2:
     event = mm.Event([data_1, data_2], model)
@@ -428,15 +437,48 @@ def test_event_chi2_binary_source_2datasets():
     event.fit_fluxes()
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
 
+def test_get_flux_for_dataset():
+    """ Test that get_flux_for_dataset behaves as expected under various
+    conditions. """
+
+    # Setup
+    (model, model_1, model_2) = generate_binary_source_models()
+    (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
+    event = mm.Event([data_1, data_2], model)
+
+    # first run: works
+    (source_fluxes_init, blend_flux_init) = event.get_flux_for_dataset(1)
+    np.testing.assert_almost_equal(source_fluxes_init, np.array([20., 30.]))
+    np.testing.assert_almost_equal(blend_flux_init, 50.)
+    (source_fluxes, blend_flux) = event.get_flux_for_dataset(data_2)
+    np.testing.assert_almost_equal(source_fluxes, np.array([20., 30.]))
+    np.testing.assert_almost_equal(blend_flux, 50.)
+
+
+    # change model parameters w/o updating: gives old values
+    event.model.parameters.t_E = 30.
+    (source_fluxes, blend_flux) = event.get_flux_for_dataset(1)
+    np.testing.assert_almost_equal(source_fluxes, np.array([20., 30.]))
+    np.testing.assert_almost_equal(blend_flux, 50.)
+
+    # run fit_fluxes(): gives new values
+    event.fit_fluxes()
+    (source_fluxes, blend_flux) = event.get_flux_for_dataset(1)
+    assert source_fluxes[0] < source_fluxes_init[0]
+    assert source_fluxes[1] < source_fluxes_init[1]
+    assert blend_flux != blend_flux_init
+
+    # change fit_blend w/o updating: gives old values
+    event.fix_blend_flux = {data_2: 0.}
+    (source_fluxes_fix, blend_flux_fix) = event.get_flux_for_dataset(1)
+    np.testing.assert_almost_equal(blend_flux_fix, blend_flux)
+
+    # run fit_fluxes(): gives new values
+    event.fit_fluxes()
+    (source_fluxes_fix, blend_flux_fix) = event.get_flux_for_dataset(1)
+    np.testing.assert_almost_equal(blend_flux_fix, 0.)
 
 # Tests to add:
-#
-# test get_flux_for_dataset (could derive from test_FitData?):
-#     first run: works
-#     change model parameters w/o updating: gives old values
-#     run fit_fluxes(): gives new values
-#     change fit_blend w/o updating: gives old values
-#     run fit_fluxes(): gives new values
 #
 # test get_ref_fluxes:
 #     test for case with multiple datasets:
@@ -444,7 +486,7 @@ def test_event_chi2_binary_source_2datasets():
 #          set data_ref != dataset 0
 #
 # test get_chi2_per_point:
-#     test format of output: access a specific point in an events with multiple
+#     test format of output: access a specific point in an event with multiple
 #       datasets
 #
 # test get_chi2_gradient:
