@@ -38,5 +38,5 @@ for x_ in x:
         u = 10**x_
         rho = 10**y_
         out = _get_magnification_WM94(u, rho)
-        print("{:e} {:e} {:e}".format(x_, y_, math.log10(out)))
+        print("{:.10e} {:.10e} {:.10e}".format(x_, y_, math.log10(out)))
 
