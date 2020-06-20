@@ -1,3 +1,11 @@
+# MOST IMPORTANT NOW:
+0. commit UC 16 plotting script
+1. Przemek's compilation - [link1](https://docs.python.org/3.7/extending/index.html), [link2](https://hackmd.io/@linnil1/Hk0RKai8S)
+2. UC 16 - make it ready for e-mail annoucement
+3. new method for FSPL with LD
+4. check notes below
+5. back to triple lenses
+
 ## Nov & Dec goals:
 1. make plans for MM v2.0
 2. get pypi/pip website

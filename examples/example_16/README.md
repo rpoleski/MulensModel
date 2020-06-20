@@ -1,7 +1,6 @@
 # High-level script for fitting microlensing models with MulensModel
 
-This script aims at allowing easy access to fitting capabilities that gives MulensModel. 
-Allowing easy access to many functions results in somehow complicated code, so if you want to learn MulensModel usage, then it's not the best place to start. Please see other examples in that case! Also please note that MulensModel has more capabilities than provided in this script.
+__This script aims allowing easy access to fitting microlensing models with MulensModel and it's not the best place to learn MulensModel itself.__ Allowing easy access to many functions results in somehow complicated code, so if you want to learn MulensModel usage, then we suggest to start with other examples. Also please note that MulensModel has more capabilities than provided in this script.
 
 Here all settings are passed via YAML files, which are human- and machine-readable. If the script syntax is unclear, then please search for information on YAML format files.
 
@@ -20,6 +19,8 @@ More complicated example that will also produce plots of the best model with res
 ```python
 python ulens_model_fit.py ob08092-o4.yaml
 ```
+
+In [`ob08092-o4.yaml`](ob08092-o4.yaml) you can see how format of these YAML files mirrors MulensModel API - see the second line and compare it to [MulensData API](https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html).
 
 You can specify the methods used for calculating magnification. For example, fit the first microlensing planet (calculations may take a few minutes):
 
