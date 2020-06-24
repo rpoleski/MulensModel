@@ -263,25 +263,31 @@ class TestEvent(unittest.TestCase):
         with self.assertRaises(TypeError):
             ev = mm.Event(datasets='some_string')
 
+class Chi2GradientTest():
+
+    def __init__(self, parameters=None, grad_params=None, gradient=None):
+        self.parameters = parameters
+        self.grad_params = grad_params
+        self.gradient = gradient
+
+
+chi2_gradient_test_1 = Chi2GradientTest(
+    parameters={'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87},
+    grad_params=['t_0', 'u_0', 't_E'],
+    gradient={'t_0': 236.206598, 'u_0': 101940.249, 't_E': -1006.88678})
+
+# Not used:
+chi2_gradient_test_2 = Chi2GradientTest(
+    parameters={'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                'pi_E_N': -0.248, 'pi_E_E': 0.234},
+    grad_params=['t_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E', 'f_source',
+                 'f_blend'],
+    gradient={'t_0': 568.781786, 'u_0': 65235.3513, 't_E': -491.782005,
+              'pi_E_N': -187878.357, 'pi_E_E': 129162.927,
+              'f_source': -83124.5869, 'f_blend': -78653.242})
 
 def test_event_chi2_gradient():
     """test calculation of chi2 gradient"""
-    # fs = 11.0415734, fb = 0.0
-    parameters_1 = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
-    params_1 = ['t_0', 'u_0', 't_E']
-    gradient_1 = {'t_0': 236.206598, 'u_0': 101940.249,
-                  't_E': -1006.88678}
-    test_1 = (parameters_1, params_1, gradient_1)
-
-    parameters_2 = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
-                    'pi_E_N': -0.248, 'pi_E_E': 0.234}
-    # This model also used fluxes given above.
-    params_2 = ['t_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E', 'f_source', 'f_blend']
-    gradient_2 = {'t_0': 568.781786, 'u_0': 65235.3513, 't_E': -491.782005,
-                  'pi_E_N': -187878.357, 'pi_E_E': 129162.927,
-                  'f_source': -83124.5869, 'f_blend': -78653.242}
-    test_2 = (parameters_2, params_2, gradient_2)
-    # We're not applying the test above, yet. See 'for' loop below.
 
     data = mm.MulensData(file_name=SAMPLE_FILE_02)
     kwargs = {'datasets': [data], 'coords': '17:47:12.25 -21:22:58.7'}
@@ -297,16 +303,20 @@ def test_event_chi2_gradient():
     #     np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
     # New method for fixing blending
-    for test in [test_1]:  # , test_2]:
-        (parameters, params, gradient) = test
+    for test in [chi2_gradient_test_1]:  # , chi2_gradient_test_2]:
         event = mm.Event(
-            model=mm.Model(parameters), fix_blend_flux={data: 0.}, **kwargs)
-        result = event.get_chi2_gradient(params)
-        reference = np.array([gradient[key] for key in params])
+            model=mm.Model(test.parameters), fix_blend_flux={data: 0.}, **kwargs)
+        result = event.get_chi2_gradient(test.grad_params)
+        reference = np.array([test.gradient[key] for key in test.grad_params])
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
-        result = event.chi2_gradient(params)
+        result = event.chi2_gradient(test.grad_params)
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
+# test chi2_gradient:
+#     test that fit_fluxes/update must be run in order to update the gradient:
+#        before fit_fluxes --> error
+#        changing something w/o updating: gives old values
+#        run fit_fluxes: gives new values
 
 def test_get_ref_fluxes():
     """Test Event.get_ref_fluxes()"""
@@ -535,17 +545,8 @@ def test_get_chi2_per_point():
         event.get_chi2_per_point()[1], chi2_exp, decimal=6)
 
 
+
 # Tests to add:
-#
-#
-# test get_chi2_gradient:
-#     derive tests from test_FitData?
-#
-# test chi2_gradient:
-#     test that fit_fluxes/update must be run in order to update the gradient:
-#        before fit_fluxes --> error
-#        changing something w/o updating: gives old values
-#        run fit_fluxes: gives new values
 #
 # test fit_fluxes (double-check that other unit tests cover the cases):
 #     fixed_blend_fluxes, fix_source_flux: especially for fixing for only one
