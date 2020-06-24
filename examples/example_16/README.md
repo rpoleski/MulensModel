@@ -1,6 +1,10 @@
 # High-level script for fitting microlensing models with MulensModel
 
-__This script aims allowing easy access to fitting microlensing models with MulensModel and it's not the best place to learn MulensModel itself.__ Allowing easy access to many functions results in somehow complicated code, so if you want to learn MulensModel usage, then we suggest to start with other examples. Also please note that MulensModel has more capabilities than provided in this script.
+First things first:
+
+__This script aims allowing easy access to fitting microlensing models with MulensModel and it's not the best place to learn MulensModel itself.__
+
+Allowing easy access to many functions results in somehow complicated code, so if you want to learn MulensModel usage, then we suggest to start with other examples. Also please note that MulensModel has more capabilities than provided in this script.
 
 Here all settings are passed via YAML files, which are human- and machine-readable. If the script syntax is unclear, then please search for information on YAML format files.
 
@@ -14,6 +18,14 @@ python ulens_model_fit.py ob08092-o4_minimal.yaml
 
 should produce fitted model parameters in a few seconds. Please have a look at [`ob08092-o4_minimal.yaml`](ob08092-o4_minimal.yaml) - it has only basic settings. In many cases, one can fit a reasonable point-source point-lens model by just changing file name and mean value of `t_0`.
 
+This minimal script does not plot the model. You can plot the model at the end of fitting, or run a separate script ([`ulens_model_plot.py`](ulens_model_plot.py)) that only makes the plot. You have to take 3rd and 4th last line from output of the above script, add them in `model` secion of the YAML file and add the information where you want your plot to be saved:
+
+```python
+python ulens_model_plot.py ob08092-o4_minimal_plot.yaml
+```
+
+This should produce file `ob08092-o4_minimal_plot.png`. Compare the two above YAML files to see the differences. You can remove three sections from plotting YAML file, because they're ignored anyway.
+
 More complicated example that will also produce plots of the best model with residuals and the triangle plot:
 
 ```python
@@ -21,6 +33,8 @@ python ulens_model_fit.py ob08092-o4.yaml
 ```
 
 In [`ob08092-o4.yaml`](ob08092-o4.yaml) you can see how format of these YAML files mirrors MulensModel API - see the second line and compare it to [MulensData API](https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html).
+
+### Binary lens fitting
 
 You can specify the methods used for calculating magnification. For example, fit the first microlensing planet (calculations may take a few minutes):
 

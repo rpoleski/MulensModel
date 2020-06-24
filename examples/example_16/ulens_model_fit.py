@@ -24,10 +24,12 @@ try:
 except Exception:
     import_failed.add("corner")
 
-import MulensModel as mm
+try:
+    import MulensModel as mm
+except Ecception:
+    raise ImportError('\nYou have to install MulensModel first!\n')
 
-
-__version__ = '0.10.0'
+__version__ = '0.10.1'
 
 
 class UlensModelFit(object):
