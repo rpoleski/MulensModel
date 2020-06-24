@@ -1,11 +1,11 @@
 # MOST IMPORTANT NOW:
-1. Przemek compilation - add and note
-2. windows compilation - [link](https://docs.python.org/3.7/extending/index.html)
+1. windows compilation - [link](https://docs.python.org/3.7/extending/index.html)
 3. UC 16 - make it ready for e-mail annoucement
 4. new method for FSPL with LD
 5. Jen & problem with unit test
-6. check notes below
-7. back to triple lenses
+6. remove unused branches
+7. check notes below
+8. back to triple lenses
 
 ## Nov & Dec goals:
 1. make plans for MM v2.0
