@@ -514,12 +514,27 @@ class TestDataRef(unittest.TestCase):
             event_1 = mm.Event([data_1, data_2, data_2], model)
             event_1.data_ref = data_2
 
+def test_get_chi2_per_point():
+    """test format of output: access a specific point in an event with multiple
+    datasets"""
+
+    # Setup
+    (model, model_1, model_2) = generate_binary_source_models()
+    (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
+    # Modify data_2 to make two outliers:
+    n = 100
+    data_2.flux[n] += data_2.err_flux[n]
+    data_2.flux[n + 1] -= data_2.err_flux[n + 1]
+    chi2_exp = np.zeros(len(data_2.time))
+    chi2_exp[n:n + 2] = 1.
+
+    event = mm.Event([data_1, data_2], model)
+    np.testing.assert_almost_equal(
+        event.get_chi2_per_point()[1], chi2_exp, decimal=6)
+
+
 # Tests to add:
 #
-#
-# test get_chi2_per_point:
-#     test format of output: access a specific point in an event with multiple
-#       datasets
 #
 # test get_chi2_gradient:
 #     derive tests from test_FitData?
