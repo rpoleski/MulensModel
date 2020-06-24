@@ -1,0 +1,43 @@
+photometry_files:
+    - {file_name: data/OB03235/OB03235_OGLE.txt, plot_properties: {zorder: 10.}}
+    - {file_name: data/OB03235/OB03235_MOA.txt, phot_fmt: "flux"}
+#
+# Here we provide information on method used for calculating magnifications:
+model:
+    methods: 2452800. point_source 2452833. VBBL 2452845. point_source 2452860.
+    default method: point_source_point_lens
+# For binary lenses you can use VBBL for all epochs:
+#   default method: VBBL
+#
+# We assume that parameters are approximately known:
+starting_parameters:
+    t_0: gauss 2452848.0 0.1
+    u_0: gauss 0.13 0.01
+    t_E: gauss 61.5 0.5
+    rho: gauss 0.001 0.0002
+    q: gauss 0.004 0.001
+    s: gauss 1.10 0.05
+    alpha: gauss 224.0 1.0
+min_values:
+    t_0: 2452840.
+    u_0: 0.
+    t_E: 0.
+    rho: 0.
+    q: 0.
+    s: 1.
+    alpha: 0.
+max_values:
+    t_0: 2452860.
+    u_0: 1.
+    t_E: 100.
+    rho: 0.1
+    q: 1.
+    s: 2.
+    alpha: 360.
+fitting_parameters:
+    n_walkers: 20
+    n_steps: 200
+    n_burn:  100
+plots:
+    best model:
+        file: ob03235_1_model_prior.png

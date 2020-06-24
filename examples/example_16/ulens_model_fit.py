@@ -3,13 +3,18 @@ Class and script for fitting microlensing model using MulensModel.
 All the settings are read from a YAML file.
 """
 import sys
-import numpy as np
-import yaml
 from os import path
+import math
+import numpy as np
+from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 
 import_failed = set()
+try:
+    import yaml
+except Exception:
+    import_failed.add("yaml")
 try:
     import emcee
 except Exception:
@@ -22,7 +27,7 @@ except Exception:
 import MulensModel as mm
 
 
-__version__ = '0.4.1'
+__version__ = '0.10.0'
 
 
 class UlensModelFit(object):
@@ -87,13 +92,28 @@ class UlensModelFit(object):
             For EMCEE, the required parameters are ``n_walkers`` and
             ``n_steps``. Allowed parameter is ``n_burn``.
 
-        fit_constraints: *list*
-            List of constraints on model other than minimal and maximal values.
+        fit_constraints: *dict*
+            Constraints on model other than minimal and maximal values.
 
-            Currently accepted items:
+            Currently accepted keys:
 
             ``'no_negative_blending_flux'`` - reject models with negative
-            blending flux.
+            blending flux if *True*
+
+            ``'prior'`` - specifies the priors for quantities. It's also
+            a *dict*. Possible key-value pairs:
+
+                ``'t_E': 'Mroz et al. 2017'`` - efficiency-corrected t_E
+                distribution from that paper with two modifications: 1) it is
+                constant for t_E < 1d, 2) it follows Mao & Paczynski (1996)
+                analytical approximation (i.e., slope of -3) for t_E longer
+                than probed by Mroz et al. (2017; i.e., 316 d).
+
+            References:
+              Mao & Paczynski 1996 -
+              https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
+              Mroz et al. 2017 -
+              https://ui.adsabs.harvard.edu/abs/2017Natur.548..183M/abstract
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
@@ -124,13 +144,81 @@ class UlensModelFit(object):
         self._fit_constraints = fit_constraints
         self._plots = plots
 
-        self._fit_method = 'emcee'
-        self._flat_priors = True  # Are priors only 0 or 1?
-        self._return_fluxes = True
-
-        self._best_model_ln_prob = -np.inf
-
+        self._which_task()
+        self._set_default_parameters()
         self._check_imports()
+
+    def _which_task(self):
+        """
+        Check if input parameters indicate run_fit() or plot_best_model() will
+        be run.
+        """
+        if self._starting_parameters is not None:
+            fit = True
+        else:
+            fit = False
+        plot = False
+
+        if self._model_parameters is not None:
+            keys = set(self._model_parameters.keys())
+            check = keys.intersection({'parameters', 'values'})
+            if len(check) == 1:
+                raise ValueError(
+                    'You have to specify either both or none of ' +
+                    'model["parameters"] and model["values"].')
+            if len(check) == 2:
+                plot = True
+
+        if plot and fit:
+            raise ValueError(
+                'Too many parameters specified!\nThe starting_parameters ' +
+                'indicate you want to fit, but model["parameters"] and ' +
+                'model["values"] indicate you want to plot. Please decide')
+
+        if not plot and not fit:
+            if self._fixed_parameters is None:
+                raise ValueError(
+                    'Missing input information. Please specify parameters ' +
+                    'to be plotted (model["parameters"] and ' +
+                    'model["values"]) or starting_parameters to be fit.')
+            else:
+                plot = True
+
+        if fit:
+            self._task = 'fit'
+        elif plot:
+            self._task = 'plot'
+            self._check_unnecessary_settings()
+        else:
+            raise ValueError('internal error')
+
+    def _check_unnecessary_settings(self):
+        """
+        Make sure that there arent' too many parameters specified
+        """
+        keys = ['_starting_parameters', '_min_values', '_max_values',
+                '_fitting_parameters']
+        for key in keys:
+            if getattr(self, key) is not None:
+                raise ValueError(
+                    'In plotting mode you should not provide in __init__: ' +
+                    key[1:])
+
+        if self._plots is not None:
+            if "triangle" in self._plots:
+                raise ValueError(
+                    'You cannot provide plots["triangle"] is you ' +
+                    "don't fit")
+
+    def _set_default_parameters(self):
+        """
+        set some default parameters
+        """
+        if self._task == 'fit':
+            self._fit_method = 'emcee'
+            self._flat_priors = True  # Are priors only 0 or 1?
+            self._return_fluxes = True
+            self._best_model_ln_prob = -np.inf
 
     def _check_imports(self):
         """
@@ -138,10 +226,11 @@ class UlensModelFit(object):
         """
         required_packages = set()
 
-        if self._fit_method == 'emcee':
-            required_packages.add('emcee')
-        if self._plots is not None and 'triangle' in self._plots:
-            required_packages.add('corner')
+        if self._task == 'fit':
+            if self._fit_method == 'emcee':
+                required_packages.add('emcee')
+            if self._plots is not None and 'triangle' in self._plots:
+                required_packages.add('corner')
 
         failed = import_failed.intersection(required_packages)
 
@@ -157,6 +246,9 @@ class UlensModelFit(object):
         This function does not accept any parameters. All the settings
         are passed via __init__().
         """
+        if self._task != "fit":
+            raise ValueError('wrong settings to run .run_fit()')
+
         self._check_plots_parameters()
         self._check_model_parameters()
         self._get_datasets()
@@ -173,6 +265,23 @@ class UlensModelFit(object):
         self._setup_fit()
         self._run_fit()
         self._parse_results()
+        self._make_plots()
+
+    def plot_best_model(self):
+        """
+        Plot the best model.
+
+        """
+        #XXX - NOTE how the model is defined
+
+        if self._task != "plot":
+            raise ValueError('wrong settings to run .plot_best_model()')
+
+        self._check_plots_parameters()
+        self._check_model_parameters()
+        self._get_datasets()
+        self._check_fixed_parameters()
+        self._make_model_and_event()
         self._make_plots()
 
     def _check_plots_parameters(self):
@@ -194,6 +303,17 @@ class UlensModelFit(object):
             if value is None:
                 self._plots[key] = dict()
 
+        if 'best model' in self._plots:
+            if 'time range' in self._plots['best model']:
+                text = self._plots['best model']['time range'].split()
+                if len(text) != 2:
+                    raise ValueError(
+                        "'time range' for 'best model' should specify 2 " +
+                        "values (begin and end); got: " +
+                        str(self._plots['best model']['time range']))
+                self._plots['best model']['time range'] = [
+                    float(text[0]), float(text[1])]
+
     def _check_model_parameters(self):
         """
         Check parameters of the MulensModel.Model provided by the user
@@ -202,12 +322,30 @@ class UlensModelFit(object):
         if self._model_parameters is None:
             self._model_parameters = dict()
 
-        allowed = {'coords'}
-        not_allowed = set(self._model_parameters.keys()) - allowed
+        allowed = {'coords', 'default method', 'methods', 'parameters',
+                   'values'}
+        keys = set(self._model_parameters.keys())
+        not_allowed = keys - allowed
         if len(not_allowed) > 0:
             raise ValueError(
                 'model keyword is a dict with keys not allowed: ' +
-                not_allowed)
+                str(not_allowed))
+        if 'methods' in self._model_parameters:
+            _enumerate = enumerate(self._model_parameters['methods'].split())
+            self._model_parameters['methods'] = [
+                float(x) if i % 2 == 0 else x for (i, x) in _enumerate]
+        check = keys.intersection({'parameters', 'values'})
+        if len(check) == 1:
+            raise ValueError("If you specify 'parameters' and 'values' for " +
+                             "'model', then both have to be defined")
+        if len(check) == 2:
+            self._model_parameters['parameters'] = (
+                self._model_parameters['parameters'].split())
+            self._model_parameters['values'] = [
+                float(x) for x in self._model_parameters['values'].split()]
+
+        if self._starting_parameters is None:
+            return  # Below we do checks valid only for fitting.
 
         condition_1 = ('pi_E_E' in self._starting_parameters)
         condition_2 = ('pi_E_N' in self._starting_parameters)
@@ -252,8 +390,9 @@ class UlensModelFit(object):
         change self._fit_parameters into latex parameters
         """
         conversion = dict(
-            t_0='\\Delta t_0', u_0='u_0', t_0_1='t_0_1', u_0_1='u_0_1',
-            t_0_2='t_0_2', u_0_2='u_0_2', t_E='t_{\\rm E}',
+            t_0='\\Delta t_0', u_0='u_0',
+            t_0_1='\\Delta t_{0,1}', u_0_1='u_{0,1}',
+            t_0_2='\\Delta t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
             t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
             rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
             t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
@@ -324,6 +463,20 @@ class UlensModelFit(object):
         Parse min and max values of parameters so that they're properly
         indexed.
         """
+        if self._min_values is None:
+            self._min_values = []
+        if self._max_values is None:
+            self._max_values = []
+
+        for key in self._min_values:
+            if key in self._max_values:
+                if self._min_values[key] >= self._max_values[key]:
+                    raise ValueError(
+                        "This doesn't make sense - for " + key + "the lower " +
+                        "limit is larger than the upper limit: " +
+                        "{:} vs ".format(self._min_values[key]) +
+                        "{:}".format(self._max_values[key]))
+
         self._min_values_indexed = self._parse_min_max_values_single(
             self._min_values)
         self._max_values_indexed = self._parse_min_max_values_single(
@@ -334,7 +487,7 @@ class UlensModelFit(object):
         change dict that has str as key to index as key
         """
         out = dict()
-        if limits is None:
+        if len(limits) == 0:
             return out
 
         for (key, value) in limits.items():
@@ -351,23 +504,75 @@ class UlensModelFit(object):
         """
         Parse the fitting constraints that are not simple limits on parameters
         """
-        out = {
-            "no_negative_blending_flux": False,
-            }
+        self._prior_t_E = None
 
-        if self._fit_constraints is not None:
-            for constraint in self._fit_constraints:
-                if constraint == "no_negative_blending_flux":
-                    out["no_negative_blending_flux"] = True
+        if self._fit_constraints is None:
+            self._fit_constraints = {
+                "no_negative_blending_flux": False}
+            return
+
+        if isinstance(self._fit_constraints, list):
+            raise TypeError(
+                "In version 0.5.0 we've changed type of 'fit_constraints' " +
+                "from list to dict. Please correct you input and re-run " +
+                "the code. Most probably what you need is:\n" +
+                "fit_constraints = {'no_negative_blending_flux': True}")
+
+        allowed_keys = {"no_negative_blending_flux", "prior"}
+        forbidden = set(self._fit_constraints.keys()) - allowed_keys
+        if len(forbidden) > 0:
+            raise ValueError(
+                'unrecognized constraint: {:}'.format(forbidden))
+
+        if 'prior' in self._fit_constraints:
+            self._parse_fit_constraints_prior()
+
+    def _parse_fit_constraints_prior(self):
+        """
+        Check if priors in fit constraint are correctly defined.
+        """
+        for (key, value) in self._fit_constraints['prior'].items():
+            if key == 't_E':
+                if value == "Mroz et al. 2017":
+                    self._prior_t_E = 'Mroz+17'
                 else:
                     raise ValueError(
-                        'unrecognized constraint: {:}'.format(constraint))
+                        "Unrecognized t_E prior: " + value)
+                self._read_prior_t_E_data()
+            else:
+                raise KeyError(
+                    "Unrecognized key in fit_constraints/prior: " + key)
+            self._flat_priors = False
 
-        self._constraints = out
-        self._constraints_any = False
-        if len(self._constraints) == 1:
-            if not self._constraints["no_negative_blending_flux"]:
-                self._constraints_any = True
+    def _read_prior_t_E_data(self):
+        """
+        read data that specify t_E prior and parse them appropriately
+        """
+        self._prior_t_E_data = dict()
+
+        if self._prior_t_E == 'Mroz+17':
+            x = np.array([
+                -0.93, -0.79, -0.65, -0.51, -0.37, -0.23, -0.09, 0.05, 0.19,
+                0.33, 0.47, 0.61, 0.75, 0.89, 1.03, 1.17, 1.31, 1.45, 1.59,
+                1.73, 1.87, 2.01, 2.15, 2.29, 2.43])
+            y = np.array([
+                299.40, 245.60, 358.50, 116.96, 0.00, 47.78, 85.10, 90.50,
+                315.37, 501.77, 898.26, 1559.68, 2381.46, 2849.11, 3405.00,
+                3431.30, 3611.76, 3038.06, 2170.67, 1680.38, 814.70, 444.06,
+                254.89, 114.19, 52.14])
+            dx = x[1] - x[0]
+            x_min = 0.
+            x_max = x[-1] + 0.5 * dx
+            mask = (x > x_min-dx)  # We need one more point for extrapolation.
+            function = interp1d(x[mask], np.log(y[mask]),
+                                kind='cubic', fill_value="extrapolate")
+            self._prior_t_E_data['x_min'] = x_min
+            self._prior_t_E_data['x_max'] = x_max
+            self._prior_t_E_data['y_min'] = function(x_min)
+            self._prior_t_E_data['y_max'] = function(x_max)
+            self._prior_t_E_data['function'] = function
+        else:
+            raise ValueError('unexpected internal error')
 
     def _parse_starting_parameters(self):
         """
@@ -382,7 +587,8 @@ class UlensModelFit(object):
             words = value.split()
             if words[0] not in accepted_types:
                 raise ValueError(
-                    'starting value: {:} is not recognized'.format(words[0]))
+                    'starting parameter: ' + words[0] + ' is not recognized.' +
+                    'Allowed parameters: ' + str(accepted_types))
             if len(words) != 3:
                 raise ValueError('Expected 3 parameters, got: ' + str(words))
             floats = []
@@ -436,18 +642,7 @@ class UlensModelFit(object):
         """
         Set internal MulensModel instances: Model and Event
         """
-        parameters = dict()
-        for (key, value) in self._starting_parameters.items():
-            if value[0] == 'gauss':
-                parameters[key] = value[1]
-            elif value[0] == 'uniform':
-                parameters[key] = (value[1] + value[2]) / 2.
-            elif value[0] == 'log-uniform':
-                parameters[key] = (value[1] + value[2]) / 2.
-
-        if self._fixed_parameters is not None:
-            for (key, value) in self._fixed_parameters.items():
-                parameters[key] = value
+        parameters = self._get_example_parameters()
 
         kwargs = dict()
         if 'coords' in self._model_parameters:
@@ -459,9 +654,70 @@ class UlensModelFit(object):
             print("Initializer of MulensModel.Model failed.")
             print("Parameters passed: {:}".format(parameters))
             raise
+        if 'default method' in self._model_parameters:
+            self._model.set_default_magnification_method(
+                self._model_parameters['default method'])
+        if 'methods' in self._model_parameters:
+            self._model.set_magnification_methods(
+                self._model_parameters['methods'])
 
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'
+
+        self._get_n_fluxes()
+
+    def _get_n_fluxes(self):
+        """
+        find out how many flux parameters there are
+        """
+        self._event.get_chi2()
+
+        n = 0
+        for (i, dataset) in enumerate(self._datasets):
+            k = len(self._event.fit.flux_of_sources(dataset)) + 1
+            # Plus 1 is for blending.
+            if i == 0:
+                self._n_fluxes_per_dataset = k
+            elif k != self._n_fluxes_per_dataset:
+                raise ValueError(
+                    'Strange internal error with number of source fluxes: ' +
+                    "{:} {:} {:}".format(i, k, self._n_fluxes_per_dataset))
+            n += k
+
+        self._n_fluxes = n
+
+    def _get_example_parameters(self):
+        """
+        Generate parameters *dict* according to provided starting and fixed
+        parameters.
+        """
+        parameters = dict()
+        # XXX it should be either that we have parameters/values or
+        # _starting_parameters
+        if self._starting_parameters is None:
+            keys = self._model_parameters['parameters']
+            values = self._model_parameters['values']
+            for (key, value) in zip(keys, values):
+                parameters[key] = value
+            # XXX this is some kind of a hack:
+            self._best_model_theta = []
+            self._fit_parameters = []
+        else:
+            for (key, value) in self._starting_parameters.items():
+                if value[0] == 'gauss':
+                    parameters[key] = value[1]
+                elif value[0] == 'uniform':
+                    parameters[key] = (value[1] + value[2]) / 2.
+                elif value[0] == 'log-uniform':
+                    parameters[key] = (value[1] + value[2]) / 2.
+                else:
+                    raise ValueError('internal error: ' + value[0])
+
+        if self._fixed_parameters is not None:
+            for (key, value) in self._fixed_parameters.items():
+                parameters[key] = value
+
+        return parameters
 
     def _generate_random_parameters(self):
         """
@@ -469,7 +725,7 @@ class UlensModelFit(object):
         It is checked if parameters are within the prior.
         """
         max_iteration = 20 * self._n_walkers
-        if self._constraints["no_negative_blending_flux"]:
+        if self._fit_constraints["no_negative_blending_flux"]:
             max_iteration *= 5
 
         starting = []
@@ -482,8 +738,8 @@ class UlensModelFit(object):
                 values = np.random.uniform(
                     low=settings[1], high=settings[2], size=max_iteration)
             elif settings[0] == 'log-uniform':
-                beg = np.log(settings[1])
-                end = np.log(settings[2])
+                beg = math.log(settings[1])
+                end = math.log(settings[2])
                 values = np.exp(np.random.uniform(beg, end, max_iteration))
             else:
                 raise ValueError('Unrecognized keyword: ' + settings[0])
@@ -550,12 +806,7 @@ class UlensModelFit(object):
         """
         if value == -np.inf:
             if self._return_fluxes:
-                if self._model.n_sources > 1:
-                    raise ValueError(
-                        "I'm not sure - for binary source models are there " +
-                        "2 fluxes or 1 for each dataset?")
-                n_fluxes = (self._model.n_sources + 1) * len(self._datasets)
-                return (value, [0.] * n_fluxes)
+                return (value, [0.] * self._n_fluxes)
             else:
                 return value
         else:
@@ -566,10 +817,17 @@ class UlensModelFit(object):
             else:
                 return value
 
+    def _set_model_parameters(self, theta):
+        """
+        Set microlensing parameters of self._model
+        """
+        for (parameter, value) in zip(self._fit_parameters, theta):
+            setattr(self._model.parameters, parameter, value)
+
     def _ln_prior(self, theta):
         """
         Check if fitting parameters are within the prior.
-        Constraints from self._constraints and NOT applied here.
+        Constraints from self._fit_constraints are NOT applied here.
         """
         inside = 0.
         outside = -np.inf
@@ -582,14 +840,37 @@ class UlensModelFit(object):
             if theta[index] > limit:
                 return outside
 
-        return inside
+        ln_prior = inside
+
+        if self._prior_t_E is not None:
+            self._set_model_parameters(theta)
+            ln_prior += self._ln_prior_t_E()
+
+        return ln_prior
+
+    def _ln_prior_t_E(self):
+        """
+        Get log prior for t_E of current model. This function is executed
+        if there is t_E prior.
+        """
+        t_E = self._model.parameters.t_E
+        if self._prior_t_E == 'Mroz+17':
+            x = math.log10(t_E)
+            if x < self._prior_t_E_data['x_min']:
+                return self._prior_t_E_data['y_min']
+            elif x > self._prior_t_E_data['x_max']:
+                dy = -3. * math.log(10) * (x - self._prior_t_E_data['x_max'])
+                return self._prior_t_E_data['y_max'] + dy
+            else:
+                return self._prior_t_E_data['function'](x)
+        else:
+            raise ValueError('unexpected internal error ' + self._prior_t_E)
 
     def _ln_like(self, theta):
         """
         likelihood function
         """
-        for (parameter, value) in zip(self._fit_parameters, theta):
-            setattr(self._model.parameters, parameter, value)
+        self._set_model_parameters(theta)
 
         chi2 = self._event.get_chi2()
 
@@ -599,14 +880,9 @@ class UlensModelFit(object):
         """
         Extract all fluxes and return them in a list.
         """
-        if self._model.n_sources > 1:
-            raise ValueError(
-                "I'm not sure - for binary source models are there " +
-                "2 fluxes or 1 for each dataset?")
-
         fluxes = []
         for dataset in self._datasets:
-            fluxes.append(self._event.fit.flux_of_sources(dataset)[0])
+            fluxes += self._event.fit.flux_of_sources(dataset).tolist()
             fluxes.append(self._event.fit.blending_flux(dataset))
 
         return fluxes
@@ -618,12 +894,8 @@ class UlensModelFit(object):
         inside = 0.
         outside = -np.inf
 
-        if self._constraints["no_negative_blending_flux"]:
-            blend_index = self._model.n_sources
-            if self._model.n_sources > 1:
-                raise ValueError(
-                    "I'm not sure - for binary source models are there 2 " +
-                    "fluxes or 1 for each dataset?")
+        if self._fit_constraints["no_negative_blending_flux"]:
+            blend_index = self._n_fluxes_per_dataset - 1
             if fluxes[blend_index] < 0.:
                 return outside
 
@@ -685,9 +957,11 @@ class UlensModelFit(object):
         self._samples = self._sampler.chain[:, n_burn:, :].reshape((-1, n_fit))
         print("Fitted parameters:")
         self._parse_results_EMECEE_print(self._samples, self._fit_parameters)
-        if 't_0' in self._fit_parameters:
-            index = self._fit_parameters.index('t_0')
-            self._samples[:, index] -= int(np.mean(self._samples[:, index]))
+        for name in ['t_0', 't_0_1', 't_0_2']:
+            if name in self._fit_parameters:
+                index = self._fit_parameters.index(name)
+                self._samples[:, index] -= int(
+                    np.mean(self._samples[:, index]))
 
         if self._return_fluxes:
             try:
@@ -696,13 +970,22 @@ class UlensModelFit(object):
                 raise ValueError('There was some issue with blobs\n' +
                                  str(exception))
             blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
-            n_fluxes = blob_sampler.shape[-1]
-            blob_samples = blob_sampler[:, n_burn:, :].reshape((-1, n_fluxes))
+            blob_samples = blob_sampler[:, n_burn:, :].reshape(
+                (-1, self._n_fluxes))
             print("Fitted fluxes (source and blending):")
-            s_or_b = ['s', 'b']
+            if self._n_fluxes_per_dataset == 2:
+                s_or_b = ['s', 'b']
+            elif self._n_fluxes_per_dataset == 3:
+                s_or_b = ['s1', 's2', 'b']
+            else:
+                raise ValueError(
+                    'Internal error: ' + str(self._n_fluxes_per_dataset))
             text = 'flux_{:}_{:}'
+            n = self._n_fluxes_per_dataset
             flux_names = [
-                text.format(s_or_b[i % 2], i // 2+1) for i in range(n_fluxes)]
+                text.format(s_or_b[i % n], i // n+1)
+                for i in range(self._n_fluxes)
+                ]
             self._parse_results_EMECEE_print(blob_samples, flux_names)
 
         self._print_best_model()
@@ -728,6 +1011,8 @@ class UlensModelFit(object):
         print("Best model:")
         if self._flat_priors:
             print("chi2 : {:.4f}".format(-2. * self._best_model_ln_prob))
+        else:
+            print("chi2 : {:.4f}".format(self._event.get_chi2()))
         print(*self._fit_parameters)
         print(*list(self._best_model_theta))
         if self._return_fluxes:
@@ -815,11 +1100,13 @@ class UlensModelFit(object):
             'hspace': hspace}
         kwargs = {'subtract_2450000': remove_245}
 
-        t_1 = self._model.parameters.t_0 - tau * self._model.parameters.t_E
-        t_2 = self._model.parameters.t_0 + tau * self._model.parameters.t_E
+        (t_1, t_2) = self._get_time_limits_for_plot(tau)
 
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
+        if self._model.n_sources != 1:
+            kwargs_model['flux_ratio_constraint'] = self._datasets[0]
+
         if kwargs['subtract_2450000']:
             xlim = [t_1-2450000., t_2-2450000.]
         else:
@@ -832,6 +1119,30 @@ class UlensModelFit(object):
 
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
                 kwargs_axes_1, kwargs_axes_2)
+
+    def _get_time_limits_for_plot(self, tau):
+        """
+        find limits for the best model plot
+        """
+        if 'time range' in self._plots['best model']:
+            t_1 = self._plots['best model']['time range'][0]
+            t_2 = self._plots['best model']['time range'][1]
+            return (t_1, t_2)
+
+        if self._model.n_sources == 1:
+            t_1 = self._model.parameters.t_0 - tau * self._model.parameters.t_E
+            t_2 = self._model.parameters.t_0 + tau * self._model.parameters.t_E
+        elif self._model.n_sources == 2:
+            t_1 = self._model.parameters.t_0_1
+            t_2 = self._model.parameters.t_0_2
+            if t_1 > t_2:
+                (t_1, t_2) = (t_2, t_1)
+            t_1 -= tau * self._model.parameters.t_E
+            t_2 += tau * self._model.parameters.t_E
+        else:
+            raise ValueError('internal issue: ' + str(self._model.n_sources))
+
+        return (t_1, t_2)
 
     def _get_ylim_for_best_model_plot(self, t_1, t_2):
         """
@@ -854,8 +1165,9 @@ class UlensModelFit(object):
 
             residuals = self._model.get_residuals(
                 data=data, type=phot_fmt)[0][0][mask]
-            y_3 = min(y_3, np.min(residuals - err_mag))
-            y_4 = max(y_4, np.max(residuals + err_mag))
+            mask_ = np.isfinite(residuals)
+            y_3 = min(y_3, np.min((residuals - err_mag)[mask_]))
+            y_4 = max(y_4, np.max((residuals + err_mag)[mask_]))
 
         if y_1 == np.inf:  # There are no data points in the plot.
             return (None, [0.1, -0.1])
@@ -878,6 +1190,8 @@ class UlensModelFit(object):
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         raise ValueError('Exactly one argument needed - YAML file')
+    if 'yaml' in import_failed:
+        raise ImportError('module "yaml" could not be imported :(')
 
     input_file = sys.argv[1]
     input_file_root = path.splitext(input_file)[0]

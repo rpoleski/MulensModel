@@ -1,5 +1,5 @@
 photometry_files:
-    - {file_name: "../../data/photometry_files/OB08092/phot_ob08092_O4.dat", plot_properties: {color: red}}
+    - {file_name: data/OB08092/phot_ob08092_O4.dat, plot_properties: {color: red}}
 starting_parameters:
     t_0: gauss 2455380. 0.1
     u_0: uniform 0.001 1.
@@ -12,8 +12,8 @@ max_values:
     t_0: 2460000.
     u_0: 1.5
     t_E: 200.
-
-    no_negative_blending_flux
+fit_constraints:
+    no_negative_blending_flux: True
 fitting_parameters:
     n_walkers: 20
     n_steps: 2000

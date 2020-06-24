@@ -1,5 +1,5 @@
 photometry_files:
-    - {file_name: "../../data/photometry_files/OB08092/phot_ob08092_O4.dat"}
+    - {file_name: data/OB08092/phot_ob08092_O4.dat}
 starting_parameters:
     t_0: gauss 2455380. 0.1
     u_0: uniform 0.001 1.
@@ -7,6 +7,7 @@ starting_parameters:
 min_values:
     u_0: 0.
     t_E: 0.
+# Values below are EMCEE settings:
 fitting_parameters:
     n_walkers: 10
     n_steps: 1000
