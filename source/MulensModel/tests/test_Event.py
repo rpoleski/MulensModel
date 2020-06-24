@@ -521,6 +521,7 @@ def test_get_chi2_per_point():
     # Setup
     (model, model_1, model_2) = generate_binary_source_models()
     (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
+
     # Modify data_2 to make two outliers:
     n = 100
     data_2.flux[n] += data_2.err_flux[n]
@@ -528,6 +529,7 @@ def test_get_chi2_per_point():
     chi2_exp = np.zeros(len(data_2.time))
     chi2_exp[n:n + 2] = 1.
 
+    # Create event and perform test
     event = mm.Event([data_1, data_2], model)
     np.testing.assert_almost_equal(
         event.get_chi2_per_point()[1], chi2_exp, decimal=6)
