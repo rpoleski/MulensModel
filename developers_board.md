@@ -5,6 +5,7 @@
 5. Jen & problem with unit test
 6. remove unused branches
 7. check notes below
+8. add notes: 1) adding t_eff_1, t_eff_2, 2) example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/)
 8. back to triple lenses
 
 ## Nov & Dec goals:
