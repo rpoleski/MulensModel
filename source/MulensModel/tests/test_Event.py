@@ -308,10 +308,10 @@ def test_event_chi2_gradient():
             model=mm.Model(test.parameters), fix_blend_flux={data: 0.}, **kwargs)
         result = event.get_chi2_gradient(test.grad_params)
         reference = np.array([test.gradient[key] for key in test.grad_params])
-        np.testing.assert_almost_equal(reference/result, 1., decimal=1)
+        np.testing.assert_almost_equal(reference/result, 1., decimal=4)
 
         result = event.chi2_gradient
-        np.testing.assert_almost_equal(reference/result, 1., decimal=1)
+        np.testing.assert_almost_equal(reference/result, 1., decimal=4)
 
 class TestGradient(unittest.TestCase):
 
@@ -364,6 +364,31 @@ def test_chi2_gradient():
     result_4 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
     np.testing.assert_almost_equal(result_4 / result, 1.)
 
+def test_chi2_gradient_2():
+    # Double-up on the gradient test, i.e. duplicate the dataset and check that the
+    # gradient values double.
+    reference = np.array(
+        [chi2_gradient_test_1.gradient[key] for key in
+         chi2_gradient_test_1.grad_params])
+
+    data = mm.MulensData(file_name=SAMPLE_FILE_02)
+    event = mm.Event(
+        datasets=[data, data],
+        model=mm.Model(chi2_gradient_test_1.parameters),
+        fix_blend_flux={data: 0.})
+    result_0 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
+    result_1 = event.fits[1].chi2_gradient
+    np.testing.assert_almost_equal(2. * reference / result_0, 1., decimal=4)
+    np.testing.assert_almost_equal(2. * result_1 / result_0, 1.)
+    np.testing.assert_almost_equal(reference / result_1, 1., decimal=4)
+
+    # Change something and test fit.get_chi2_gradient
+    event.model.parameters.t_0 += 0.1
+    result_2 = event.fits[1].get_chi2_gradient(chi2_gradient_test_1.grad_params)
+    assert result_2[0] != result_1[0]
+    event.model.parameters.t_0 -= 0.1
+    result_3 = event.fits[1].get_chi2_gradient(chi2_gradient_test_1.grad_params)
+    np.testing.assert_almost_equal(result_3 / reference, 1., decimal=4)
 
 def test_get_ref_fluxes():
     """Test Event.get_ref_fluxes()"""
@@ -595,10 +620,6 @@ def test_get_chi2_per_point():
 
 # Tests to add:
 #
-# Working on test_chi2_gradient()
-#
-# Double-up on the gradient test, i.e. duplicate the dataset and check that the
-# gradient values double.
 #
 # test fit_fluxes (double-check that other unit tests cover the cases):
 #     fixed_blend_fluxes, fix_source_flux: especially for fixing for only one
