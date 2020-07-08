@@ -5,7 +5,7 @@ We are currently working on updating MulensModel installation, so that it will w
 Go to `source/VBBL/`. Then replace the wrapper file:
 
 ```
-mv VBBinaryLensingLibrary_wrapper_NEW.cpp VBBinaryLensingLibrary_wrapper.cpp
+mv VBBinaryLensingLibrary_wrapper.cpp_NEW VBBinaryLensingLibrary_wrapper.cpp
 ```
 
 Change directory: `cd ../MulensModel/`. Now you have to edit `binarylens.py` file. Remove lines 45-76 and add:
