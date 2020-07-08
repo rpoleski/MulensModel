@@ -1,5 +1,5 @@
 """
-Create Figure 2. of Poleski and Yee (2009)
+Create Figure 2. of Poleski and Yee (2019)
 "Modeling microlensing events with MulensModel"
 Astronomy and Computing 26, 35
 https://ui.adsabs.harvard.edu/abs/2019A&C....26...35P/abstract
