@@ -516,14 +516,7 @@ class FitData:
 
     def get_chi2_gradient(self, parameters):
         """
-        Same as :py:func:`~chi2_gradient`, but fits for the fluxes first.
-        """
-        self.fit_fluxes()
-        return self.chi2_gradient()
-
-    def chi2_gradient(self, parameters):
-        """
-        Calculate chi^2 gradient (also called Jacobian), i.e.,
+        Fits fluxes and calculates chi^2 gradient (also called Jacobian), i.e.,
         :math:`d chi^2/d parameter`.
 
         Parameters :
@@ -535,6 +528,29 @@ class FitData:
 
         Returns :
             gradient: *float* or *np.ndarray*
+                chi^2 gradient
+        """
+        self.fit_fluxes()
+        self.calc_chi2_gradient(parameters)
+        return self.chi2_gradient
+
+
+    def calc_chi2_gradient(self, parameters):
+        """
+        Calculates chi^2 gradient (also called Jacobian), i.e.,
+        :math:`d chi^2/d parameter` WITHOUT refitting for the fluxes. Saves
+        computations if, e.g., you want to retrieve both py:attr:`~chi2` and
+        py:attr:`~chi2_gradient`.
+
+        Parameters :
+            parameters: *str* or *list*, required
+                Parameters with respect to which gradient is calculated.
+                Currently accepted parameters are: ``t_0``, ``u_0``, ``t_eff``,
+                ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
+                which you request gradient must be defined in py:attr:`~model`.
+
+            Returns :
+                gradient: *float* or *np.ndarray*
                 chi^2 gradient
         """
         self._check_for_gradient_implementation(parameters)
@@ -571,12 +587,12 @@ class FitData:
         # Calculate factor
         # JCY - Everything below here should be refactored into smaller bits.
         factor = self.dataset.flux - self.get_model_fluxes()
-        factor *= -2. / self.dataset.err_flux**2
+        factor *= -2. / self.dataset.err_flux ** 2
         factor *= self.source_flux
 
         # Get source location
         trajectory = self.model.get_trajectory(self.dataset.time)
-        u_2 = trajectory.x**2 + trajectory.y**2
+        u_2 = trajectory.x ** 2 + trajectory.y ** 2
         u_ = np.sqrt(u_2)
 
         # Calculate derivatives
@@ -597,18 +613,18 @@ class FitData:
             if 'u_0' in parameters:
                 gradient['u_0'] += sum_d_y_d_u
             if 't_E' in parameters:
-                gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E**2)
+                gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E ** 2)
         elif 't_E' not in as_dict:
             t_eff = as_dict['t_eff'].to(u.day).value
             if 't_0' in parameters:
                 gradient['t_0'] += -sum_d_x_d_u * as_dict['u_0'] / t_eff
             if 'u_0' in parameters:
                 gradient['u_0'] += sum_d_y_d_u + np.sum(
-                        factor_d_x_d_u * dt / t_eff)
+                    factor_d_x_d_u * dt / t_eff)
             if 't_eff' in parameters:
                 gradient['t_eff'] += np.sum(
-                        factor_d_x_d_u * -dt *
-                        as_dict['u_0'] / t_eff**2)
+                    factor_d_x_d_u * -dt *
+                    as_dict['u_0'] / t_eff ** 2)
         elif 'u_0' not in as_dict:
             t_E = as_dict['t_E'].to(u.day).value
             t_eff = as_dict['t_eff'].to(u.day).value
@@ -616,8 +632,8 @@ class FitData:
                 gradient['t_0'] += -sum_d_x_d_u / t_E
             if 't_E' in parameters:
                 gradient['t_E'] += (
-                        np.sum(factor_d_x_d_u * dt) -
-                        sum_d_y_d_u * t_eff) / t_E**2
+                                           np.sum(factor_d_x_d_u * dt) -
+                                           sum_d_y_d_u * t_eff) / t_E ** 2
             if 't_eff' in parameters:
                 gradient['t_eff'] += sum_d_y_d_u / t_E
         else:
@@ -645,7 +661,7 @@ class FitData:
             dy = (trajectory.y - trajectory_no_piE.y)[self.dataset.good]
             delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
             delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
-            det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
+            det = as_dict['pi_E_N'] ** 2 + as_dict['pi_E_E'] ** 2
 
             if 'pi_E_N' in parameters:
                 gradient['pi_E_N'] += np.sum(
@@ -661,7 +677,28 @@ class FitData:
         else:
             out = np.array([gradient[p] for p in parameters])
 
-        return out
+        self._chi2_gradient = out
+
+        return self._chi2_gradient
+
+    @property
+    def chi2_gradient(self):
+        """
+        Return previously calculated chi^2 gradient (also called Jacobian),
+        i.e., :math:`d chi^2/d parameter`. See :py:func:`~get_chi2_gradient()`
+        and :py:func:`~calc_chi2_gradient()`.
+
+        Returns :
+            gradient: *float* or *np.ndarray*
+                chi^2 gradient. Will return None if the chi2 gradient was not
+                previously calculated using one of the functions mentioned
+                above.
+
+        """
+        try:
+            return self._chi2_gradient
+        except AttributeError:
+            return None
 
     @property
     def chi2(self):

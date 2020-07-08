@@ -309,14 +309,61 @@ def test_event_chi2_gradient():
         result = event.get_chi2_gradient(test.grad_params)
         reference = np.array([test.gradient[key] for key in test.grad_params])
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
-        result = event.chi2_gradient(test.grad_params)
+
+        result = event.chi2_gradient
         np.testing.assert_almost_equal(reference/result, 1., decimal=1)
 
-# test chi2_gradient:
-#     test that fit_fluxes/update must be run in order to update the gradient:
-#        before fit_fluxes --> error
-#        changing something w/o updating: gives old values
-#        run fit_fluxes: gives new values
+class TestGradient(unittest.TestCase):
+
+    def test_gradient_init_1(self):
+        """test that fit_fluxes/update must be run in order to update the
+        gradient"""
+        # before fit_fluxes --> error
+        with self.assertRaises(TypeError):
+            data = mm.MulensData(file_name=SAMPLE_FILE_02)
+            event = mm.Event(
+                datasets=[data],
+                model=mm.Model(chi2_gradient_test_1.parameters),
+                fix_blend_flux={data: 0.})
+            event.chi2_gradient()
+
+def test_chi2_gradient():
+    """test that fit_fluxes/update must be run in order to update the
+    gradient"""
+    data = mm.MulensData(file_name=SAMPLE_FILE_02)
+    event = mm.Event(
+        datasets=[data],
+        model=mm.Model(chi2_gradient_test_1.parameters),
+        fix_blend_flux={data: 0.})
+    result = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
+    reference = np.array(
+        [chi2_gradient_test_1.gradient[key] for key in
+         chi2_gradient_test_1.grad_params])
+    np.testing.assert_almost_equal(reference / result, 1., decimal=1)
+
+    # changing something w/o updating: gives old values
+    event.model.parameters.t_0 += 0.1
+    result_1 = event.chi2_gradient
+    np.testing.assert_almost_equal(result_1 / result, 1.)
+
+    def is_different(new_result):
+        assert result[0] != new_result[0]
+        assert result[1] != new_result[1]
+        assert result[2] != new_result[2]
+
+    # run fit_fluxes: gives new values
+    event.fit_fluxes()
+    result_2 = event.calc_chi2_gradient(chi2_gradient_test_1.grad_params)
+    is_different(result_2)
+
+    # Go back to previous results and test that calc_chi2_gradient gives
+    # results that don't match anything.
+    event.model.parameters.t_0 -= 0.1
+    result_3 = event.calc_chi2_gradient(chi2_gradient_test_1.grad_params)
+    is_different(result_3)
+    result_4 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
+    np.testing.assert_almost_equal(result_4 / result, 1.)
+
 
 def test_get_ref_fluxes():
     """Test Event.get_ref_fluxes()"""
@@ -547,6 +594,11 @@ def test_get_chi2_per_point():
 
 
 # Tests to add:
+#
+# Working on test_chi2_gradient()
+#
+# Double-up on the gradient test, i.e. duplicate the dataset and check that the
+# gradient values double.
 #
 # test fit_fluxes (double-check that other unit tests cover the cases):
 #     fixed_blend_fluxes, fix_source_flux: especially for fixing for only one
