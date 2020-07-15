@@ -376,13 +376,38 @@ def test_bad_data():
     # Test fitted fluxes are different with and without bad data points.
     assert (fit_all.source_flux > fit_bad.source_flux)
 
+
+def test_scale_fluxes():
+    """Specify a source_flux, blend_flux and make sure it works"""
+
+    # Original Flux values
+    f_s = 1.0
+    f_b = 0.5
+
+    # Generate fake data from a fake model
+    pspl, t, A = generate_model()
+    f_mod = f_s * A + f_b
+    data = generate_dataset(f_mod, t)
+
+    fit = mm.FitData(dataset=data, model=pspl)
+    fit.fit_fluxes()
+
+    num = 100
+    # Test the same
+    (new_flux, new_err) = fit.scale_fluxes(source_flux=f_s, blend_flux=f_b)
+    almost(data.flux[num], new_flux[num])
+
+    # Test Different
+    (f_s_new, f_b_new) = (0.1, 0.)
+    exp_flux = (data.flux - f_b) * f_s_new / f_s + f_b_new
+    exp_err = data.err_flux * f_s_new / f_s
+    (new_flux, new_err) = fit.scale_fluxes(source_flux=f_s_new, blend_flux=f_b_new)
+    assert np.abs(data.flux[num] - new_flux[num]) > 0.5
+    almost(exp_flux / new_flux, 1.)
+    almost(exp_err / new_err, 1.)
+
 # Tests to add:
 #
-# test scale_fluxes():
-#   Specify a source_flux, blend_flux and make sure it works
-#   One option: calculate fluxes for two different, overlapping datasets for a
-#     known event. MB08310 is *not* a good candidate because it seems the data
-#     are pre-aligned. OB03235 might work
 #
 # test get_residuals():
 #   Test all keywords:
