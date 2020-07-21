@@ -274,7 +274,7 @@ class UlensModelFit(object):
         Plot the best model.
 
         """
-        #XXX - NOTE how the model is defined
+        # XXX - NOTE how the model is defined
 
         if self._task != "plot":
             raise ValueError('wrong settings to run .plot_best_model()')
@@ -573,6 +573,28 @@ class UlensModelFit(object):
             self._prior_t_E_data['y_min'] = function(x_min)
             self._prior_t_E_data['y_max'] = function(x_max)
             self._prior_t_E_data['function'] = function
+        elif self._prior_t_E == 'Mroz+20':
+# XXX - TO DO:
+# - documentation
+# - XXX in line 893
+# - add Mroz+20 in function above
+# - _parse_fit_constraints_prior()
+# - test np.log() vs np.log10()
+# - line 110
+            x = np.array([
+                0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69, 1.82, 1.96,
+                2.09, 2.23, 2.36, 2.50, 2.63])
+            y = np.array([
+                82.04, 94.98, 167.76, 507.81, 402.08, 681.61, 1157.51,
+                1132.80, 668.12, 412.20, 236.14, 335.34, 74.88, 52.64, 97.78])
+            dx = (x[1] - x[0]) / 2.
+            function = interp1d(x, np.log(y),
+                                kind='cubic', fill_value="extrapolate")
+            self._prior_t_E_data['x_min'] = x[0] - dx
+            self._prior_t_E_data['x_max'] = x[-1] + dx
+            self._prior_t_E_data['y_min'] = function(x_min)
+            self._prior_t_E_data['y_max'] = function(x_max)
+            self._prior_t_E_data['function'] = function
         else:
             raise ValueError('unexpected internal error')
 
@@ -856,17 +878,21 @@ class UlensModelFit(object):
         if there is t_E prior.
         """
         t_E = self._model.parameters.t_E
-        if self._prior_t_E == 'Mroz+17':
+        if self._prior_t_E not in ['Mroz+17', 'Mroz+20']:
+            raise ValueError('unexpected internal error ' + self._prior_t_E)
+        else:
             x = math.log10(t_E)
-            if x < self._prior_t_E_data['x_min']:
-                return self._prior_t_E_data['y_min']
-            elif x > self._prior_t_E_data['x_max']:
+            if x > self._prior_t_E_data['x_max']:
                 dy = -3. * math.log(10) * (x - self._prior_t_E_data['x_max'])
                 return self._prior_t_E_data['y_max'] + dy
-            else:
+            elif x > self._prior_t_E_data['x_min']:
                 return self._prior_t_E_data['function'](x)
-        else:
-            raise ValueError('unexpected internal error ' + self._prior_t_E)
+            else:
+                out = self._prior_t_E_data['y_min']
+                if self._prior_t_E == 'Mroz+20':
+                    dx = x - self._prior_t_E_data['x_min']
+                    out -= 3. * math.log(10) * dx  # XXX - test this
+                return out
 
     def _ln_like(self, theta):
         """
