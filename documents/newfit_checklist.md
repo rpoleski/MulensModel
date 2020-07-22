@@ -2,27 +2,15 @@
 
 ## Unit tests
 ### Event
-- tests for various combinations of fixed blending (DONE), fixed source (DONE), fixed q_flux
+- tests for various combinations of fixed blending (DONE), fixed source (DONE), 
+fixed q_flux (IN PROGRESS)
 - tests for event.chi2 (does not change unless fit_fluxes or get_chi2 is run)
 
 
 ### FitData
 - get_residuals() for diff values of phot_fmt
-- gradient unit tests for parallax, diff combinations of u_0, t_eff, t_E
-
-## Model
-- test get_trajectory:
-  - straight-up trajectory
-  - case with annual parallax (check test_Model_Parallax.py)
-  - case with satellite parallax (check test_Model_Parallax.py)
-  - coords is propagating correctly (check test_Model_Parallax.py)
-- test set_times:
-  - keywords to test:
-    t_range=None, t_start=None, t_stop=None, dt=None, n_epochs=1000
-- test set_default_magnification_method:
-  - change from default value
-- test get_satellite_coords: (check test_Model_Parallax.py)
-  - returns None if no ephemerides file set
+- gradient unit tests for parallax, diff combinations of u_0, t_eff, t_E (only 
+do if easy)
 
 ## Implementation
 ### Event
