@@ -416,7 +416,7 @@ def test_scale_fluxes():
 #       bad: True, False
 #
 # test get_chi2_gradient(), chi2_gradient:
-#   might be covered by unit tests in event.py
+#   Effectively covered by unit tests in event.py
 #
 # properties:
 #   chi2, chi2_per_point, source_flux, source_fluxes, blend_flux, q_flux,
