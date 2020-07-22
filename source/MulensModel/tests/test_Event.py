@@ -346,7 +346,7 @@ def test_chi2_gradient():
     result_1 = event.chi2_gradient
     np.testing.assert_almost_equal(result_1 / result, 1.)
 
-    def is_different(new_result):
+    def is_different(result, new_result):
         assert result[0] != new_result[0]
         assert result[1] != new_result[1]
         assert result[2] != new_result[2]
@@ -354,13 +354,14 @@ def test_chi2_gradient():
     # run fit_fluxes: gives new values
     event.fit_fluxes()
     result_2 = event.calc_chi2_gradient(chi2_gradient_test_1.grad_params)
-    is_different(result_2)
+    is_different(result, result_2)
 
     # Go back to previous results and test that calc_chi2_gradient gives
     # results that don't match anything.
     event.model.parameters.t_0 -= 0.1
     result_3 = event.calc_chi2_gradient(chi2_gradient_test_1.grad_params)
-    is_different(result_3)
+    is_different(result, result_3)
+    is_different(result_2, result_3)
     result_4 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
     np.testing.assert_almost_equal(result_4 / result, 1.)
 
@@ -619,7 +620,6 @@ def test_get_chi2_per_point():
 
 
 # Tests to add:
-#
 #
 # test fit_fluxes (double-check that other unit tests cover the cases):
 #     fixed_blend_fluxes, fix_source_flux: especially for fixing for only one
