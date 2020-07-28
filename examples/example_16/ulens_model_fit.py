@@ -29,7 +29,7 @@ try:
 except Ecception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.10.1'
+__version__ = '0.11.0'
 
 
 class UlensModelFit(object):
@@ -101,6 +101,11 @@ class UlensModelFit(object):
 
             ``'no_negative_blending_flux'`` - reject models with negative
             blending flux if *True*
+
+            ``'negative_blending_flux_sigma_mag'`` - impose a prior that
+            disfavours models with negative blending flux using gaussian prior
+            for negative values; the value provided should be on the order of
+            *20.*
 
             ``'prior'`` - specifies the priors for quantities. It's also
             a *dict*. Possible key-value pairs:
@@ -509,8 +514,7 @@ class UlensModelFit(object):
         self._prior_t_E = None
 
         if self._fit_constraints is None:
-            self._fit_constraints = {
-                "no_negative_blending_flux": False}
+            self._fit_constraints = {"no_negative_blending_flux": False}
             return
 
         if isinstance(self._fit_constraints, list):
@@ -520,11 +524,22 @@ class UlensModelFit(object):
                 "the code. Most probably what you need is:\n" +
                 "fit_constraints = {'no_negative_blending_flux': True}")
 
-        allowed_keys = {"no_negative_blending_flux", "prior"}
-        forbidden = set(self._fit_constraints.keys()) - allowed_keys
-        if len(forbidden) > 0:
+        allowed_keys_flux = {
+            "no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
+        allowed_keys = {*allowed_keys_flux, "prior"}
+        used_keys = set(self._fit_constraints.keys())
+        if len(used_keys - allowed_keys) > 0:
             raise ValueError(
                 'unrecognized constraint: {:}'.format(forbidden))
+        if len(used_keys.intersection(allowed_keys_flux)) == 2:
+            raise ValueError(
+                'you cannot specify both no_negative_blending_flux and ' +
+                'negative_blending_flux_sigma_mag')
+
+        key = "negative_blending_flux_sigma_mag"
+        if key in used_keys:
+            self._fit_constraints[key] = mm.Utils.get_flux_from_mag(
+                self._fit_constraints[key])
 
         if 'prior' in self._fit_constraints:
             self._parse_fit_constraints_prior()
@@ -926,6 +941,13 @@ class UlensModelFit(object):
             blend_index = self._n_fluxes_per_dataset - 1
             if fluxes[blend_index] < 0.:
                 return outside
+
+        key = "negative_blending_flux_sigma_mag"
+        if key in self._fit_constraints:
+            blend_index = self._n_fluxes_per_dataset - 1
+            if fluxes[blend_index] < 0.:
+                sigma = self._fit_constraints[key]
+                inside += -0.5 * (fluxes[blend_index] / sigma)**2
 
         return inside
 
