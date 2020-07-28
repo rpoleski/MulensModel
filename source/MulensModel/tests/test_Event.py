@@ -327,9 +327,11 @@ class TestGradient(unittest.TestCase):
                 fix_blend_flux={data: 0.})
             event.chi2_gradient()
 
+
 def test_chi2_gradient():
-    """test that fit_fluxes/update must be run in order to update the
-    gradient"""
+    """
+    test that fit_fluxes/update must be run in order to update the gradient
+    """
     data = mm.MulensData(file_name=SAMPLE_FILE_02)
     event = mm.Event(
         datasets=[data],
@@ -346,28 +348,26 @@ def test_chi2_gradient():
     result_1 = event.chi2_gradient
     np.testing.assert_almost_equal(result_1 / result, 1.)
 
-    def is_different(result, new_result):
-        assert result[0] != new_result[0]
-        assert result[1] != new_result[1]
-        assert result[2] != new_result[2]
-
     # run fit_fluxes: gives new values
     event.fit_fluxes()
     result_2 = event.calc_chi2_gradient(chi2_gradient_test_1.grad_params)
-    is_different(result, result_2)
+    assert all(result != result_2)
 
     # Go back to previous results and test that calc_chi2_gradient gives
     # results that don't match anything.
     event.model.parameters.t_0 -= 0.1
     result_3 = event.calc_chi2_gradient(chi2_gradient_test_1.grad_params)
-    is_different(result, result_3)
-    is_different(result_2, result_3)
+    assert all(result != result_3)
+    assert all(result_2 != result_3)
     result_4 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
     np.testing.assert_almost_equal(result_4 / result, 1.)
 
+
 def test_chi2_gradient_2():
-    # Double-up on the gradient test, i.e. duplicate the dataset and check that the
-    # gradient values double.
+    """
+    Double-up on the gradient test, i.e. duplicate the dataset and check that the
+    gradient values double.
+    """
     reference = np.array(
         [chi2_gradient_test_1.gradient[key] for key in
          chi2_gradient_test_1.grad_params])
@@ -390,6 +390,7 @@ def test_chi2_gradient_2():
     event.model.parameters.t_0 -= 0.1
     result_3 = event.fits[1].get_chi2_gradient(chi2_gradient_test_1.grad_params)
     np.testing.assert_almost_equal(result_3 / reference, 1., decimal=4)
+
 
 def test_get_ref_fluxes():
     """Test Event.get_ref_fluxes()"""
