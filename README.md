@@ -1,9 +1,10 @@
 # MulensModel
 
-<dl>MulensModel is package for modeling microlensing (or &mu;-lensing) 
-events. </dl>
+<dl>MulensModel is package for modeling microlensing (or &mu;-lensing) events. </dl>
 
-[Latest release: 1.14.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code. The documentations is at [**https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/).
+[**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
+
+[Latest release: 1.14.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
 
@@ -21,8 +22,11 @@ Are you using MulensModel for scientific research? Please give us credit by citi
 
 ## Examples and tutorials
 
-We have more than a dozen of examples - starting from very simple ones (like plotting a model) to very advanced (like fitting a binary lens model with finite source effect). See [**this file**](documents/examples_list.md) for **a list of examples** and a few tutorials. Most importantly, we have file describing **all microlensing parameters used in MulensModel** [**here**](documents/parameter_names.pdf). Also we have a file describing **methods used to calculate magnification in MulensModel** [**here**](documents/magnification_methods.pdf). 
-Finally, we have **high-level fitting example** [**here**](examples/example_16).
+We have more than a dozen of examples - starting from very simple ones (like plotting a model) to very advanced (like fitting a binary lens model with finite source effect). Please see:
+* [**a list of examples and tutorials**](documents/examples_list.md),
+* [**descriptio of all microlensing parameters used in MulensModel**](documents/parameter_names.pdf),
+* [**methods used to calculate magnification in MulensModel**](documents/magnification_methods.pdf), and
+* [**high-level fitting example**](examples/example_16).
 
 The full documentation of API is at [https://rpoleski.github.io/MulensModel/](https://rpoleski.github.io/MulensModel/).
 
@@ -38,12 +42,10 @@ pip install -r requirements.txt
 ```
 Alternatively, you can run makefiles: go to `source/VBBL/` and run `make`, then go to `source/AdaptiveContouring/` and do the same. Then and add the path `MulensModel/source` to your `PYTHONPATH`. If you have any problems, please contact the authors and we will try to help.
 
-If you want to **install MulensModel on Windows**, please see notes [here](documents/windows_install.md).
-
-If you have **problems with installing or running MulensModel on MacOS**, please see notes [here](documents/macos_install.md).
+If you want to **install MulensModel on Windows**, please see notes [here](documents/windows_install.md). If you have **problems with installing or running MulensModel on MacOS**, please see notes [here](documents/macos_install.md). We're now working on improving intallation process.
 
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Jun 2020
+file revised Jul 2020
 
