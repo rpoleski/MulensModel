@@ -516,6 +516,8 @@ class UlensModelFit(object):
         if self._fit_constraints is None:
             self._fit_constraints = {"no_negative_blending_flux": False}
             return
+        if "no_negative_blending_flux" not in self._fit_constraints:
+            self._fit_constraints["no_negative_blending_flux"] = False
 
         if isinstance(self._fit_constraints, list):
             raise TypeError(
@@ -552,10 +554,14 @@ class UlensModelFit(object):
             if key == 't_E':
                 if value == "Mroz et al. 2017":
                     self._prior_t_E = 'Mroz+17'
+                elif value == "Mroz et al. 2020":
+                    self._prior_t_E = 'Mroz+20'
                 else:
                     raise ValueError(
                         "Unrecognized t_E prior: " + value)
                 self._read_prior_t_E_data()
+            elif key == 'no_negative_blending_flux':
+                self._fit_constraints["no_negative_blending_flux"] = value
             else:
                 raise KeyError(
                     "Unrecognized key in fit_constraints/prior: " + key)
@@ -592,10 +598,10 @@ class UlensModelFit(object):
 # XXX - TO DO:
 # - documentation
 # - XXX in line 893
-# - add Mroz+20 in function above
 # - _parse_fit_constraints_prior()
 # - test np.log() vs np.log10()
 # - line 110
+# - smooth the input data and note that
             x = np.array([
                 0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69, 1.82, 1.96,
                 2.09, 2.23, 2.36, 2.50, 2.63])
@@ -603,10 +609,12 @@ class UlensModelFit(object):
                 82.04, 94.98, 167.76, 507.81, 402.08, 681.61, 1157.51,
                 1132.80, 668.12, 412.20, 236.14, 335.34, 74.88, 52.64, 97.78])
             dx = (x[1] - x[0]) / 2.
+            x_min = x[0] - dx
+            x_max = x[-1] + dx
             function = interp1d(x, np.log(y),
                                 kind='cubic', fill_value="extrapolate")
-            self._prior_t_E_data['x_min'] = x[0] - dx
-            self._prior_t_E_data['x_max'] = x[-1] + dx
+            self._prior_t_E_data['x_min'] = x_min
+            self._prior_t_E_data['x_max'] = x_max
             self._prior_t_E_data['y_min'] = function(x_min)
             self._prior_t_E_data['y_max'] = function(x_max)
             self._prior_t_E_data['function'] = function
@@ -903,10 +911,10 @@ class UlensModelFit(object):
             elif x > self._prior_t_E_data['x_min']:
                 return self._prior_t_E_data['function'](x)
             else:
-                out = self._prior_t_E_data['y_min']
+                out = self._prior_t_E_data['y_min'] + 0.
                 if self._prior_t_E == 'Mroz+20':
                     dx = x - self._prior_t_E_data['x_min']
-                    out -= 3. * math.log(10) * dx  # XXX - test this
+                    out += 3. * math.log(10) * dx
                 return out
 
     def _ln_like(self, theta):
