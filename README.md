@@ -6,7 +6,7 @@
 
 [Latest release: 1.14.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
-MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best fit parameters.
+MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best-fit parameters.
 
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
 
@@ -24,7 +24,7 @@ Are you using MulensModel for scientific research? Please give us credit by citi
 
 We have more than a dozen of examples - starting from very simple ones (like plotting a model) to very advanced (like fitting a binary lens model with finite source effect). Please see:
 * [**a list of examples and tutorials**](documents/examples_list.md),
-* [**descriptio of all microlensing parameters used in MulensModel**](documents/parameter_names.pdf),
+* [**description of all microlensing parameters used in MulensModel**](documents/parameter_names.pdf),
 * [**methods used to calculate magnification in MulensModel**](documents/magnification_methods.pdf), and
 * [**high-level fitting example**](examples/example_16).
 
