@@ -69,3 +69,8 @@ python ulens_model_fit.py ob05086_3.yaml
 
 The chi^2 improved very slightly over positive `u_0` parallax model, only by 2.3. In this model the blending flux is positive, so it's the best model. Congratulations!
 
+
+### Priors and constraints
+
+It is possible to specify additional fit constraints in input file. Currently, empirical `t_E` distribution and constraining negative blending flux are allowed. For description see `fit_constraints` in [ulens\_model\_fit.py](ulens_model_fit.py).
+

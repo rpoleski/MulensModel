@@ -29,7 +29,7 @@ try:
 except Ecception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.11.0'
+__version__ = '0.11.1'
 
 
 class UlensModelFit(object):
@@ -114,25 +114,36 @@ class UlensModelFit(object):
                 distribution from that paper with two modifications: 1) it is
                 constant for t_E < 1d, 2) it follows Mao & Paczynski (1996)
                 analytical approximation (i.e., slope of -3) for t_E longer
-                than probed by Mroz et al. (2017; i.e., 316 d).
+                than probed by Mroz et al. (2017; i.e., 316 d). Note that
+                Mroz et al. (2020) studied Galactic bulge.
+
+                ``'t_E': 'Mroz et al. 2020'`` - similar to above but for
+                Mroz et al. (2020), where Galactic disc outside bulge region
+                was studied. Approximate slopes of 3 and -3 from
+                Mao & Paczynski (1996) are used for t_E shorter and longer,
+                respectively, than probed by Mroz et al. (2020).
 
             References:
               Mao & Paczynski 1996 -
               https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
               Mroz et al. 2017 -
               https://ui.adsabs.harvard.edu/abs/2017Natur.548..183M/abstract
+              Mroz et al. 2020 -
+              https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``'triangle'`` and ``'best model'``.
             The values are also dicts and currently accept only ``'file'``
-            key, e.g.,
+            key, and ``'time range'`` e.g.,
 
             .. code-block:: python
 
               {
                   'triangle': {'file': 'my_fit_triangle.png'},
-                  'best model': {'file': 'my_fit_best.png'}
+                  'best model':
+                      'file': 'my_fit_best.png'
+                      'time range': 2456000. 2456300.
               }
     """
     def __init__(
@@ -516,8 +527,6 @@ class UlensModelFit(object):
         if self._fit_constraints is None:
             self._fit_constraints = {"no_negative_blending_flux": False}
             return
-        if "no_negative_blending_flux" not in self._fit_constraints:
-            self._fit_constraints["no_negative_blending_flux"] = False
 
         if isinstance(self._fit_constraints, list):
             raise TypeError(
@@ -537,6 +546,8 @@ class UlensModelFit(object):
             raise ValueError(
                 'you cannot specify both no_negative_blending_flux and ' +
                 'negative_blending_flux_sigma_mag')
+        if "no_negative_blending_flux" not in self._fit_constraints:
+            self._fit_constraints["no_negative_blending_flux"] = False
 
         key = "negative_blending_flux_sigma_mag"
         if key in used_keys:
@@ -557,11 +568,8 @@ class UlensModelFit(object):
                 elif value == "Mroz et al. 2020":
                     self._prior_t_E = 'Mroz+20'
                 else:
-                    raise ValueError(
-                        "Unrecognized t_E prior: " + value)
+                    raise ValueError("Unrecognized t_E prior: " + value)
                 self._read_prior_t_E_data()
-            elif key == 'no_negative_blending_flux':
-                self._fit_constraints["no_negative_blending_flux"] = value
             else:
                 raise KeyError(
                     "Unrecognized key in fit_constraints/prior: " + key)
@@ -597,11 +605,8 @@ class UlensModelFit(object):
         elif self._prior_t_E == 'Mroz+20':
 # XXX - TO DO:
 # - documentation
-# - XXX in line 893
-# - _parse_fit_constraints_prior()
 # - test np.log() vs np.log10()
-# - line 110
-# - smooth the input data and note that
+# - smooth the input data from M+20 and note that
             x = np.array([
                 0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69, 1.82, 1.96,
                 2.09, 2.23, 2.36, 2.50, 2.63])

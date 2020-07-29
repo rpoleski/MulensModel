@@ -55,6 +55,7 @@
 - periodic variables - suggest it for alpha, x_caustic_X
 - check if data files exist
 - allow log10() of parameter
+- Event.get_chi2() - add fit_blending=False option
 - allow turning off flux printing
 - warnings on time plotting and data limits - checks for add/subtract 245/246
 - if code fails during fitting, then it should still print the best model found so far - add try/except in _run_fit()
