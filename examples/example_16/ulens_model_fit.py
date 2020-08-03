@@ -29,7 +29,7 @@ try:
 except Ecception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.11.1'
+__version__ = '0.11.3'
 
 
 class UlensModelFit(object):
@@ -879,7 +879,9 @@ class UlensModelFit(object):
     def _ln_prior(self, theta):
         """
         Check if fitting parameters are within the prior.
-        Constraints from self._fit_constraints are NOT applied here.
+        Constraints from self._fit_constraints:
+         - on blending flux are NOT applied here,
+         - on t_E are applied here.
         """
         inside = 0.
         outside = -np.inf
@@ -905,22 +907,20 @@ class UlensModelFit(object):
         Get log prior for t_E of current model. This function is executed
         if there is t_E prior.
         """
-        t_E = self._model.parameters.t_E
         if self._prior_t_E not in ['Mroz+17', 'Mroz+20']:
             raise ValueError('unexpected internal error ' + self._prior_t_E)
+
+        x = math.log10(self._model.parameters.t_E)
+        if x > self._prior_t_E_data['x_max']:
+            dy = -3. * math.log(10) * (x - self._prior_t_E_data['x_max'])
+            return self._prior_t_E_data['y_max'] + dy
+        elif x > self._prior_t_E_data['x_min']:
+            return self._prior_t_E_data['function'](x)
         else:
-            x = math.log10(t_E)
-            if x > self._prior_t_E_data['x_max']:
-                dy = -3. * math.log(10) * (x - self._prior_t_E_data['x_max'])
-                return self._prior_t_E_data['y_max'] + dy
-            elif x > self._prior_t_E_data['x_min']:
-                return self._prior_t_E_data['function'](x)
-            else:
-                out = self._prior_t_E_data['y_min'] + 0.
-                if self._prior_t_E == 'Mroz+20':
-                    dx = x - self._prior_t_E_data['x_min']
-                    out += 3. * math.log(10) * dx
-                return out
+            out = self._prior_t_E_data['y_min'] + 0.
+            if self._prior_t_E == 'Mroz+20':
+                out += 3. * math.log(10) * (x - self._prior_t_E_data['x_min'])
+            return out
 
     def _ln_like(self, theta):
         """

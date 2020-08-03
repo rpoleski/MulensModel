@@ -16,6 +16,7 @@
 - binary source
 - x_caustic_in etc.
 - note 245 convention
+- note that "Best model" is the one with highest probability, which is different from smallest chi2 if non-flat priors are applied
 
 ## List of task to be done:
 
