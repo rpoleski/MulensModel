@@ -777,11 +777,48 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(
             fluxes_2[1], fixed_blend_flux_2)
 
+class TestFixedFluxRatios(unittest.TestCase):
+    """test various combinations of fixed flux ratios"""
+
+    def setUp(self):
+        # Model based on binary source
+        self.model = mm.Model(
+            {'t_0_1': 8000., 'u_0_1': 0.3, 't_0_2': 8001., 'u_0_2': 0.001,
+             't_E': 25.})
+        self.model_1 = mm.Model(
+            {'t_0': 8000., 'u_0': 0.3, 't_E': 25.})
+        self.model_2 = mm.Model(
+            {'t_0': 8001., 'u_0': 0.001, 't_E': 25.})
+        self.generate_fake_datasets()
+
+    def generate_fake_datasets(self):
+        """
+        Generate perfect datasets with different source and blend fluxes
+        """
+        self.q_I = 0.01
+        self.q_V = 0.002
+
+        def gen_data(f_source_1, f_blend, q_flux, times):
+            """generate perfect data"""
+            mag_1 = self.model_1.magnification(times)
+            mag_2 = self.model_2.magnification(times)
+            f_source_2 = f_source_1 * q_flux
+            flux = f_source_1 * mag_1 + f_source_2 * mag_2 + f_blend
+            err = np.zeros(len(times)) + 0.01
+            data = mm.MulensData([times, flux, err], phot_fmt='flux')
+            return data
+
+        pass
+        # dense "Survey" data
+        # sparse "Survey" data
+        # "FollowUp" data x2
+
+    # Tests
+    #     fix_q_flux: in the case that q_I is fixed, e.g. for two datasets with
+    #       band=I and one with band=V
+
 # Tests to add:
 #
-#     fix_q_flux: in the case that q_I is fixed, e.g. for two datasets with
-#       band=I and one with band=V
-
 # test chi2 vs get_chi2:
 #      get_chi2 always updates after something changes in the model, chi2 does
 #        not.
