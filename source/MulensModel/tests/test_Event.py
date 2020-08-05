@@ -3,6 +3,7 @@ from os.path import join
 import unittest
 import numpy as np
 from astropy import units as u
+import matplotlib.pyplot as plt
 
 import MulensModel as mm
 
@@ -782,39 +783,154 @@ class TestFixedFluxRatios(unittest.TestCase):
     """test various combinations of fixed flux ratios"""
 
     def setUp(self):
+        # Flux ratios
+        self.q_I = 0.01
+        self.q_V = 0.002
+
         # Model based on binary source
         self.model = mm.Model(
             {'t_0_1': 8000., 'u_0_1': 0.3, 't_0_2': 8001., 'u_0_2': 0.001,
-             't_E': 25.})
+             't_E': 25., 'rho_2': 0.002})
+        self.model.set_magnification_methods(
+            [7999., 'finite_source_LD_Yoo04', 8003.])
+        self.model.set_limb_coeff_gamma('I', 0.44)
+        self.model.set_limb_coeff_gamma('V', 0.72)
         self.model_1 = mm.Model(
-            {'t_0': 8000., 'u_0': 0.3, 't_E': 25.})
+            {'t_0': self.model.parameters.t_0_1,
+             'u_0': self.model.parameters.u_0_1,
+             't_E': self.model.parameters.t_E})
         self.model_2 = mm.Model(
-            {'t_0': 8001., 'u_0': 0.001, 't_E': 25.})
+            {'t_0': self.model.parameters.t_0_2,
+             'u_0': self.model.parameters.u_0_2,
+             't_E': self.model.parameters.t_E,
+             'rho': self.model.parameters.rho_2})
+        self.model_2.set_magnification_methods(
+            [7999., 'finite_source_LD_Yoo04', 8003.])
+        self.model_2.set_limb_coeff_gamma('I', 0.44)
+        self.model_2.set_limb_coeff_gamma('V', 0.72)
         self.generate_fake_datasets()
+
+        plt.figure()
+        self.model.set_source_flux_ratio_for_band('I', self.q_I)
+        self.model.set_source_flux_ratio_for_band('V', self.q_V)
+        self.model.plot_magnification(
+            t_range=[7900., 8100.], dt=0.01, flux_ratio_constraint='I',
+            color='red')
+        self.model.plot_magnification(
+            t_range=[7900., 8100.], dt=0.01, flux_ratio_constraint='V',
+            color='blue')
+        self.model_1.plot_magnification(
+            t_range=[7900., 8100.], dt=0.01, color='black')
+        self.model_2.plot_magnification(
+            t_range=[7900., 8100.], dt=0.01, color='cyan')
 
     def generate_fake_datasets(self):
         """
         Generate perfect datasets with different source and blend fluxes
         """
-        self.q_I = 0.01
-        self.q_V = 0.002
-
-        def gen_data(f_source_1, f_blend, q_flux, times):
+        def gen_data(
+                f_source_1, f_blend, q_flux, times, bandpass=None):
             """generate perfect data"""
             mag_1 = self.model_1.magnification(times)
             mag_2 = self.model_2.magnification(times)
             f_source_2 = f_source_1 * q_flux
             flux = f_source_1 * mag_1 + f_source_2 * mag_2 + f_blend
             err = np.zeros(len(times)) + 0.01
-            data = mm.MulensData([times, flux, err], phot_fmt='flux')
+            data = mm.MulensData(
+                [times, flux, err], phot_fmt='flux', bandpass=bandpass)
             return data
 
-        pass
-        # dense "Survey" data
-        # sparse "Survey" data
-        # "FollowUp" data x2
+        def add_data(properties):
+            times = np.arange(
+                properties['t_start'], properties['t_stop'],
+                properties['dt_I'])
+            data_I = gen_data(
+                properties['f_source_I'], properties['f_blend_I'], self.q_I,
+                times, bandpass='I')
+            self.datasets.append(data_I)
+            times = np.arange(
+                properties['t_start'], properties['t_stop'],
+                properties['dt_V'])
+            data_V = gen_data(
+                properties['f_source_V'], properties['f_blend_V'], self.q_V,
+                times, bandpass='V')
+            self.datasets.append(data_V)
+
+        self.datasets = []
+        self.expected_fluxes = []
+        n_tE = 10
+        self.data_properties = {
+            # dense "Survey" data
+            'survey_1': {
+                't_start': (self.model.parameters.t_0_1 -
+                            n_tE * self.model.parameters.t_E),
+                't_stop': (self.model.parameters.t_0_1 +
+                          n_tE * self.model.parameters.t_E),
+                'dt_I': 0.04, 'dt_V': 0.4, 'f_source_I': 1., 'f_blend_I': 0.2,
+                'f_source_V': 0.8, 'f_blend_V': 0.3},
+            # sparse "Survey" data
+            'survey_2': {
+                't_start': (self.model.parameters.t_0_1 -
+                            n_tE * self.model.parameters.t_E+0.01),
+                't_stop': (self.model.parameters.t_0_1 +
+                           n_tE * self.model.parameters.t_E+0.01),
+                'dt_I': 1.0, 'dt_V': 2.0, 'f_source_I': 1.1, 'f_blend_I': 0.15,
+                'f_source_V': 0.81, 'f_blend_V': 0.2},
+            # "FollowUp" data x2
+            'followup_1': {
+                't_start': (self.model.parameters.t_0_1 - 1.1),
+                't_stop': (self.model.parameters.t_0_2 + 2.0),
+                'dt_I': 0.001, 'dt_V': 0.01, 'f_source_I': 2.3,
+                'f_blend_I': 0.5, 'f_source_V': 1.8, 'f_blend_V': 0.65}}
+        # The list is intentional to ensure that survey_1, I is the first (and
+        # reference dataset)
+        self.data_keys = ['survey_1', 'survey_2', 'followup_1']
+        for key in self.data_keys:
+            add_data(self.data_properties[key])
+            self.expected_fluxes.append(
+                ([self.data_properties[key]['f_source_I'],
+                  self.q_I * self.data_properties[key]['f_source_I']],
+                 self.data_properties[key]['f_blend_I']))
+            self.expected_fluxes.append(
+                ([self.data_properties[key]['f_source_V'],
+                  self.q_V * self.data_properties[key]['f_source_V']],
+                 self.data_properties[key]['f_blend_V']))
+
+        print(self.datasets)
+        print(self.expected_fluxes)
+
 
     # Tests
+    def extract_fluxes(self, event):
+        event.fit_fluxes()
+        fluxes = []
+        for i, dataset in enumerate(self.datasets):
+            fluxes.append(event.get_flux_for_dataset(i))
+
+        return fluxes
+
+    def test_free_fluxes(self):
+        # test both free
+        event = mm.Event(datasets=self.datasets, model=self.model)
+        fluxes = self.extract_fluxes(event)
+        plt.figure()
+        for i, dataset in enumerate(self.datasets):
+            print('test_free_fluxes', i)
+            print(fluxes[i])
+            print(self.expected_fluxes[i])
+            np.testing.assert_almost_equal(
+                fluxes[i][0], self.expected_fluxes[i][0])
+            np.testing.assert_almost_equal(
+                fluxes[i][1], self.expected_fluxes[i][1])
+            dataset.plot()
+
+
+        plt.figure()
+        event.plot_model(data_ref=self.datasets[0], color='red')
+        event.plot_model(data_ref=self.datasets[1], color='blue')
+        # event.plot_data() # Not Implemented for multiple datasets
+        plt.show()
+        assert 1 == 2
     #     fix_q_flux: in the case that q_I is fixed, e.g. for two datasets with
     #       band=I and one with band=V
 

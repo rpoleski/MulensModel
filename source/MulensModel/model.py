@@ -1572,7 +1572,7 @@ class Model(object):
         allowed = (MulensData, float, np.float)
         if not isinstance(flux_ratio_constraint, allowed):
             raise TypeError(
-                'Source flux ratio must me float or MulensData at this ' +
+                'Source flux ratio must be float or MulensData at this ' +
                 'point, not {:}'.format(type(flux_ratio_constraint)))
 
         if isinstance(flux_ratio_constraint, (float, np.float)):
