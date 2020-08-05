@@ -1,10 +1,12 @@
 # MOST IMPORTANT NOW:
-0. commit UC 16 plotting script
-1. Przemek's compilation - [link1](https://docs.python.org/3.7/extending/index.html), [link2](https://hackmd.io/@linnil1/Hk0RKai8S)
-2. UC 16 - make it ready for e-mail annoucement
-3. new method for FSPL with LD
-4. check notes below
-5. back to triple lenses
+1. windows compilation - [link](https://docs.python.org/3.7/extending/index.html)
+3. UC 16 - make it ready for e-mail annoucement
+4. new method for FSPL with LD
+5. UC 16 - file_name removed in minimal example
+6. remove unused branches
+7. check notes below
+8. add notes: 1) adding t_eff_1, t_eff_2, 2) example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/); 3) example 2 - clarify first function; 4) data.bad requires example - note that one has to substitute full vector, not single values
+8. back to triple lenses
 
 ## Nov & Dec goals:
 1. make plans for MM v2.0

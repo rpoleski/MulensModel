@@ -24,10 +24,12 @@ try:
 except Exception:
     import_failed.add("corner")
 
-import MulensModel as mm
+try:
+    import MulensModel as mm
+except Ecception:
+    raise ImportError('\nYou have to install MulensModel first!\n')
 
-
-__version__ = '0.10.0'
+__version__ = '0.11.3'
 
 
 class UlensModelFit(object):
@@ -100,6 +102,11 @@ class UlensModelFit(object):
             ``'no_negative_blending_flux'`` - reject models with negative
             blending flux if *True*
 
+            ``'negative_blending_flux_sigma_mag'`` - impose a prior that
+            disfavours models with negative blending flux using gaussian prior
+            for negative values; the value provided should be on the order of
+            *20.*
+
             ``'prior'`` - specifies the priors for quantities. It's also
             a *dict*. Possible key-value pairs:
 
@@ -107,25 +114,36 @@ class UlensModelFit(object):
                 distribution from that paper with two modifications: 1) it is
                 constant for t_E < 1d, 2) it follows Mao & Paczynski (1996)
                 analytical approximation (i.e., slope of -3) for t_E longer
-                than probed by Mroz et al. (2017; i.e., 316 d).
+                than probed by Mroz et al. (2017; i.e., 316 d). Note that
+                Mroz et al. (2020) studied Galactic bulge.
+
+                ``'t_E': 'Mroz et al. 2020'`` - similar to above but for
+                Mroz et al. (2020), where Galactic disc outside bulge region
+                was studied. Approximate slopes of 3 and -3 from
+                Mao & Paczynski (1996) are used for t_E shorter and longer,
+                respectively, than probed by Mroz et al. (2020).
 
             References:
               Mao & Paczynski 1996 -
               https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
               Mroz et al. 2017 -
               https://ui.adsabs.harvard.edu/abs/2017Natur.548..183M/abstract
+              Mroz et al. 2020 -
+              https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``'triangle'`` and ``'best model'``.
             The values are also dicts and currently accept only ``'file'``
-            key, e.g.,
+            key, and ``'time range'`` e.g.,
 
             .. code-block:: python
 
               {
                   'triangle': {'file': 'my_fit_triangle.png'},
-                  'best model': {'file': 'my_fit_best.png'}
+                  'best model':
+                      'file': 'my_fit_best.png'
+                      'time range': 2456000. 2456300.
               }
     """
     def __init__(
@@ -272,7 +290,7 @@ class UlensModelFit(object):
         Plot the best model.
 
         """
-        #XXX - NOTE how the model is defined
+        # XXX - NOTE how the model is defined
 
         if self._task != "plot":
             raise ValueError('wrong settings to run .plot_best_model()')
@@ -507,8 +525,7 @@ class UlensModelFit(object):
         self._prior_t_E = None
 
         if self._fit_constraints is None:
-            self._fit_constraints = {
-                "no_negative_blending_flux": False}
+            self._fit_constraints = {"no_negative_blending_flux": False}
             return
 
         if isinstance(self._fit_constraints, list):
@@ -518,11 +535,24 @@ class UlensModelFit(object):
                 "the code. Most probably what you need is:\n" +
                 "fit_constraints = {'no_negative_blending_flux': True}")
 
-        allowed_keys = {"no_negative_blending_flux", "prior"}
-        forbidden = set(self._fit_constraints.keys()) - allowed_keys
-        if len(forbidden) > 0:
+        allowed_keys_flux = {
+            "no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
+        allowed_keys = {*allowed_keys_flux, "prior"}
+        used_keys = set(self._fit_constraints.keys())
+        if len(used_keys - allowed_keys) > 0:
             raise ValueError(
                 'unrecognized constraint: {:}'.format(forbidden))
+        if len(used_keys.intersection(allowed_keys_flux)) == 2:
+            raise ValueError(
+                'you cannot specify both no_negative_blending_flux and ' +
+                'negative_blending_flux_sigma_mag')
+        if "no_negative_blending_flux" not in self._fit_constraints:
+            self._fit_constraints["no_negative_blending_flux"] = False
+
+        key = "negative_blending_flux_sigma_mag"
+        if key in used_keys:
+            self._fit_constraints[key] = mm.Utils.get_flux_from_mag(
+                self._fit_constraints[key])
 
         if 'prior' in self._fit_constraints:
             self._parse_fit_constraints_prior()
@@ -535,9 +565,10 @@ class UlensModelFit(object):
             if key == 't_E':
                 if value == "Mroz et al. 2017":
                     self._prior_t_E = 'Mroz+17'
+                elif value == "Mroz et al. 2020":
+                    self._prior_t_E = 'Mroz+20'
                 else:
-                    raise ValueError(
-                        "Unrecognized t_E prior: " + value)
+                    raise ValueError("Unrecognized t_E prior: " + value)
                 self._read_prior_t_E_data()
             else:
                 raise KeyError(
@@ -565,6 +596,27 @@ class UlensModelFit(object):
             x_max = x[-1] + 0.5 * dx
             mask = (x > x_min-dx)  # We need one more point for extrapolation.
             function = interp1d(x[mask], np.log(y[mask]),
+                                kind='cubic', fill_value="extrapolate")
+            self._prior_t_E_data['x_min'] = x_min
+            self._prior_t_E_data['x_max'] = x_max
+            self._prior_t_E_data['y_min'] = function(x_min)
+            self._prior_t_E_data['y_max'] = function(x_max)
+            self._prior_t_E_data['function'] = function
+        elif self._prior_t_E == 'Mroz+20':
+# XXX - TO DO:
+# - documentation
+# - test np.log() vs np.log10()
+# - smooth the input data from M+20 and note that
+            x = np.array([
+                0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69, 1.82, 1.96,
+                2.09, 2.23, 2.36, 2.50, 2.63])
+            y = np.array([
+                82.04, 94.98, 167.76, 507.81, 402.08, 681.61, 1157.51,
+                1132.80, 668.12, 412.20, 236.14, 335.34, 74.88, 52.64, 97.78])
+            dx = (x[1] - x[0]) / 2.
+            x_min = x[0] - dx
+            x_max = x[-1] + dx
+            function = interp1d(x, np.log(y),
                                 kind='cubic', fill_value="extrapolate")
             self._prior_t_E_data['x_min'] = x_min
             self._prior_t_E_data['x_max'] = x_max
@@ -827,7 +879,9 @@ class UlensModelFit(object):
     def _ln_prior(self, theta):
         """
         Check if fitting parameters are within the prior.
-        Constraints from self._fit_constraints are NOT applied here.
+        Constraints from self._fit_constraints:
+         - on blending flux are NOT applied here,
+         - on t_E are applied here.
         """
         inside = 0.
         outside = -np.inf
@@ -853,18 +907,20 @@ class UlensModelFit(object):
         Get log prior for t_E of current model. This function is executed
         if there is t_E prior.
         """
-        t_E = self._model.parameters.t_E
-        if self._prior_t_E == 'Mroz+17':
-            x = math.log10(t_E)
-            if x < self._prior_t_E_data['x_min']:
-                return self._prior_t_E_data['y_min']
-            elif x > self._prior_t_E_data['x_max']:
-                dy = -3. * math.log(10) * (x - self._prior_t_E_data['x_max'])
-                return self._prior_t_E_data['y_max'] + dy
-            else:
-                return self._prior_t_E_data['function'](x)
-        else:
+        if self._prior_t_E not in ['Mroz+17', 'Mroz+20']:
             raise ValueError('unexpected internal error ' + self._prior_t_E)
+
+        x = math.log10(self._model.parameters.t_E)
+        if x > self._prior_t_E_data['x_max']:
+            dy = -3. * math.log(10) * (x - self._prior_t_E_data['x_max'])
+            return self._prior_t_E_data['y_max'] + dy
+        elif x > self._prior_t_E_data['x_min']:
+            return self._prior_t_E_data['function'](x)
+        else:
+            out = self._prior_t_E_data['y_min'] + 0.
+            if self._prior_t_E == 'Mroz+20':
+                out += 3. * math.log(10) * (x - self._prior_t_E_data['x_min'])
+            return out
 
     def _ln_like(self, theta):
         """
@@ -898,6 +954,13 @@ class UlensModelFit(object):
             blend_index = self._n_fluxes_per_dataset - 1
             if fluxes[blend_index] < 0.:
                 return outside
+
+        key = "negative_blending_flux_sigma_mag"
+        if key in self._fit_constraints:
+            blend_index = self._n_fluxes_per_dataset - 1
+            if fluxes[blend_index] < 0.:
+                sigma = self._fit_constraints[key]
+                inside += -0.5 * (fluxes[blend_index] / sigma)**2
 
         return inside
 

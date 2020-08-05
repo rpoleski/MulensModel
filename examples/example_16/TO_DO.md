@@ -16,6 +16,7 @@
 - binary source
 - x_caustic_in etc.
 - note 245 convention
+- note that "Best model" is the one with highest probability, which is different from smallest chi2 if non-flat priors are applied
 
 ## List of task to be done:
 
@@ -55,6 +56,7 @@
 - periodic variables - suggest it for alpha, x_caustic_X
 - check if data files exist
 - allow log10() of parameter
+- Event.get_chi2() - add fit_blending=False option
 - allow turning off flux printing
 - warnings on time plotting and data limits - checks for add/subtract 245/246
 - if code fails during fitting, then it should still print the best model found so far - add try/except in _run_fit()

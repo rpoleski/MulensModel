@@ -566,6 +566,10 @@ class ModelParameters(object):
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
 
+        for parameter in ['t_E', 't_star', 't_eff', 't_star_1', 't_star_2']:
+            if parameter in self.parameters:
+                self._set_time_quantity(parameter, self.parameters[parameter])
+
     def _update_sources(self, parameter, value):
         """
         For multi-source models, update the values for all sources.
