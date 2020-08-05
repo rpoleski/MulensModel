@@ -454,9 +454,9 @@ def test_separate_method_for_each_source():
 #
 # test get_trajectory:
 #   straight-up trajectory
-#   case with annual parallax
-#   case with satellite parallax
-#   coords is propagating correctly
+#   case with annual parallax (check test_Model_Parallax.py)
+#   case with satellite parallax (check test_Model_Parallax.py)
+#   coords is propagating correctly (check test_Model_Parallax.py)
 #
 # test set_times:
 #   keywords to test:
@@ -465,7 +465,7 @@ def test_separate_method_for_each_source():
 # test set_default_magnification_method:
 #   change from default value
 #
-# test get_satellite_coords:
+# test get_satellite_coords: (check test_Model_Parallax.py)
 #   returns None if no ephemerides file set
 #   other condidtions probably covered by other unit tests
 #
