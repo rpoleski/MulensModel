@@ -2,10 +2,10 @@
 1. windows compilation - [link](https://docs.python.org/3.7/extending/index.html)
 3. UC 16 - make it ready for e-mail annoucement
 4. new method for FSPL with LD
-5. UC 16 - file_name removed in minimal example
+5. UC 16 - file\_name removed in minimal example
 6. remove unused branches
 7. check notes below
-8. add notes: 1) adding t_eff_1, t_eff_2, 2) example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/); 3) example 2 - clarify first function; 4) data.bad requires example - note that one has to substitute full vector, not single values
+8. add notes: 1) adding t\_eff\_1, t\_eff\_2, 2) example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/); 3) example 2 - clarify first function; 4) data.bad requires example - note that one has to substitute full vector, not single values
 8. back to triple lenses
 
 ## Nov & Dec goals:
@@ -30,7 +30,7 @@
 
 _italics_ mark important tasks
 
-Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
+Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
 
 * Install
   * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
