@@ -29,7 +29,7 @@ try:
 except Ecception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.11.3'
+__version__ = '0.12.0'
 
 
 class UlensModelFit(object):
@@ -37,9 +37,11 @@ class UlensModelFit(object):
     Class for fitting microlensing model using *MulensModel* package.
 
     Parameters :
-        photometry_files: *list*
-            List of datasets. Currently accepts each entry as *dict*, which
-            gives settings passed to *MulensModel.MulensData*, e.g.,
+        photometry_files: *list* or *str*
+            List of datasets. It can be either a *str* (then just gives
+            a name of one file that is read) or a *list*. For *list* each
+            element is either a *str* (then just gives the name of the file)
+            or a *dict*, which allows more options to be passed, e.g.,
 
             .. code-block:: python
 
@@ -49,9 +51,9 @@ class UlensModelFit(object):
 
             .. code-block:: python
 
-              [{'file_name': 'data_1.dat'}, {'file_name': 'data_2.dat'}]
+              [{'file_name': 'data_1.dat'}, 'data_2.dat']
 
-            Currently, ``'add_2450000'`` is turned on by default.
+            Currently, keyword ``'add_2450000'`` is turned on by default.
 
         starting_parameters: *dict*
             Starting values of the parameters. Keys of this *dict* are
@@ -288,7 +290,6 @@ class UlensModelFit(object):
     def plot_best_model(self):
         """
         Plot the best model.
-
         """
         # XXX - NOTE how the model is defined
 
@@ -376,8 +377,11 @@ class UlensModelFit(object):
         construct a list of MulensModel.MulensData objects
         """
         kwargs = {'add_2450000': True}
-        self._datasets = [
-            mm.MulensData(**f, **kwargs) for f in self._photometry_files]
+        if isinstance(self._photometry_files, str):
+            self._photometry_files = [self._photometry_files]
+        files = [f if isinstance(f, dict) else {'file_name': f}
+                 for f in self._photometry_files]
+        self._datasets = [mm.MulensData(**kwargs, **f) for f in files]
 
     def _get_parameters_ordered(self):
         """

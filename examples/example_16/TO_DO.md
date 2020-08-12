@@ -10,13 +10,10 @@
 - how the output should look like?
 
 ### Documentation:
-- plotting to screen
-- introduce YAML files
 - Delta t_0
 - binary source
 - x_caustic_in etc.
-- note 245 convention
-- note that "Best model" is the one with highest probability, which is different from smallest chi2 if non-flat priors are applied
+- ob08092-o4_prior.yaml
 
 ## List of task to be done:
 
@@ -24,10 +21,9 @@
 
 **NOW - FINISH Mroz+17** - example
 
-- **limit epochs in "best model" plot**
 - **some documentation - see above**
 - **add one more fitting method?**
-- MulensData - just provide *str* - "SIMPLIFIES INPUT"
+- **corner.py**
 - n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIES INPUT"
 - Mroz+20 - finish
 - LD coeffs as parameters
