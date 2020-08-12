@@ -10,13 +10,13 @@ import MulensModel
 from MulensModel.utils import Utils
 try:
     import MulensModel.VBBL as mm_vbbl
-except:
+except Exception:
     _vbbl_wrapped = False
 else:
     _vbbl_wrapped = True
 try:
     import MulensModel.AdaptiveContouring as mm_ac
-except:
+except Exception:
     _adaptive_contouring_wrapped = False
 else:
     _adaptive_contouring_wrapped = True
@@ -61,7 +61,8 @@ def _import_compiled_VBBL():
         vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
         vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
             dtype=ctypes.c_double, shape=(10,))
-    return (_vbbl_wrapped, vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5)
+    return (_vbbl_wrapped,
+            vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5)
 
 
 def _import_compiled_AdaptiveContouring():
