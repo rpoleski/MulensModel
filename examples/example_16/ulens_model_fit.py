@@ -26,10 +26,10 @@ except Exception:
 
 try:
     import MulensModel as mm
-except Ecception:
+except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.0'
+__version__ = '0.12.1'
 
 
 class UlensModelFit(object):
