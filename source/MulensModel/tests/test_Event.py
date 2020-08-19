@@ -786,6 +786,7 @@ class TestFixedFluxRatios(unittest.TestCase):
         # Flux ratios
         self.q_I = 0.01
         self.q_V = 0.002
+        self.gamma = {'I': 0.44, 'V': 0.72}
 
         # Model based on binary source
         self.model = mm.Model(
@@ -798,62 +799,48 @@ class TestFixedFluxRatios(unittest.TestCase):
              'finite_source_LD_Yoo04',
              self.model.parameters.t_0_2 +
              n_tstar * self.model.parameters.t_star_2], source=2)
-        self.model.set_limb_coeff_gamma('I', 0.44)
-        self.model.set_limb_coeff_gamma('V', 0.72)
-        self.model_1 = mm.Model(
-            {'t_0': self.model.parameters.t_0_1,
-             'u_0': self.model.parameters.u_0_1,
-             't_E': self.model.parameters.t_E})
-        self.model_2 = mm.Model(
-            {'t_0': self.model.parameters.t_0_2,
-             'u_0': self.model.parameters.u_0_2,
-             't_E': self.model.parameters.t_E,
-             'rho': self.model.parameters.rho_2})
-        self.model_2.set_magnification_methods(
-            [self.model.parameters.t_0_2 -
-             n_tstar * self.model.parameters.t_star_2,
-             'finite_source_LD_Yoo04',
-             self.model.parameters.t_0_2 +
-             n_tstar * self.model.parameters.t_star_2])
-        self.model_2.set_limb_coeff_gamma('I', 0.44)
-        self.model_2.set_limb_coeff_gamma('V', 0.72)
-        self.generate_fake_datasets()
+        self.model.set_limb_coeff_gamma('I', self.gamma['I'])
+        self.model.set_limb_coeff_gamma('V', self.gamma['V'])
 
-        # plt.figure()
-        # plt.title('TestFixedFluxRatios: Input Models')
-        # n_tE = 2.
-        # t_range = [self.model.parameters.t_0_1 -
-        #      n_tE * self.model.parameters.t_E,
-        #            self.model.parameters.t_0_1 +
-        #      n_tE * self.model.parameters.t_E]
-        # self.model.set_source_flux_ratio_for_band('I', self.q_I)
-        # self.model.set_source_flux_ratio_for_band('V', self.q_V)
-        # self.model.plot_magnification(
-        #     t_range=t_range, dt=0.01, flux_ratio_constraint='I',
-        #     color='red')
-        # self.model.plot_magnification(
-        #     t_range=t_range, dt=0.01, flux_ratio_constraint='V',
-        #     color='blue')
-        # self.model_1.plot_magnification(
-        #     t_range=t_range, dt=0.01, color='black')
-        # self.model_2.plot_magnification(
-        #     t_range=t_range, dt=0.01, color='cyan')
-        # plt.show()
+        self.generate_fake_datasets()
 
     def generate_fake_datasets(self):
         """
         Generate perfect datasets with different source and blend fluxes
         """
+
+        model_1 = mm.Model(
+            {'t_0': self.model.parameters.t_0_1,
+             'u_0': self.model.parameters.u_0_1,
+             't_E': self.model.parameters.t_E})
+        model_2 = mm.Model(
+            {'t_0': self.model.parameters.t_0_2,
+             'u_0': self.model.parameters.u_0_2,
+             't_E': self.model.parameters.t_E,
+             'rho': self.model.parameters.rho_2})
+        model_2.set_magnification_methods(self.model._methods[2])
+        model_2.set_limb_coeff_gamma('I', self.gamma['I'])
+        model_2.set_limb_coeff_gamma('V', self.gamma['V'])
+
         def gen_data(
-                f_source_1, f_blend, q_flux, times, **kwargs):
-            """generate perfect data"""
-            mag_1 = self.model_1.magnification(times)
-            mag_2 = self.model_2.magnification(times)
+                f_source_1, f_blend, q_flux, times, bandpass=None, **kwargs):
+            """generate perfect data for a given set of properties"""
+
+            if bandpass == 'I':
+                gamma = self.gamma['I']
+            elif bandpass == 'V':
+                gamma = self.gamma['V']
+            else:
+                gamma = None
+
+            mag_1 = model_1.magnification(times)
+            mag_2 = model_2.magnification(times, gamma=gamma)
             f_source_2 = f_source_1 * q_flux
             flux = f_source_1 * mag_1 + f_source_2 * mag_2 + f_blend
             err = np.zeros(len(times)) + 0.01
             data = mm.MulensData(
-                [times, flux, err], phot_fmt='flux', **kwargs)
+                [times, flux, err], phot_fmt='flux', bandpass=bandpass,
+                **kwargs)
 
             return data
 
@@ -896,15 +883,16 @@ class TestFixedFluxRatios(unittest.TestCase):
                            n_tE * self.model.parameters.t_E+1.01),
                 'dt_I': 1.0, 'dt_V': 2.0, 'f_source_I': 1.1, 'f_blend_I': 0.15,
                 'f_source_V': 0.81, 'f_blend_V': 0.2},
-            # "FollowUp" data x2
+            # "FollowUp" data
             'followup_1': {
                 't_start': (self.model.parameters.t_0_1 - 1.1),
                 't_stop': (self.model.parameters.t_0_2 +
                            self.model.parameters.t_E),
                 'dt_I': 0.001, 'dt_V': 0.01, 'f_source_I': 2.3,
                 'f_blend_I': 0.5, 'f_source_V': 1.8, 'f_blend_V': 0.65}}
-        # The list is intentional to ensure that survey_1, I is the first (and
-        # reference dataset)
+
+        # The data_keys list is intentional to ensure that survey_1, I is the
+        # first (and reference) dataset
         self.data_keys = ['survey_1', 'survey_2', 'followup_1']
         for key in self.data_keys:
             add_data(self.data_properties[key], label=key)
@@ -917,18 +905,9 @@ class TestFixedFluxRatios(unittest.TestCase):
                   self.q_V * self.data_properties[key]['f_source_V']],
                  self.data_properties[key]['f_blend_V']))
 
-        # print(self.datasets)
-        # print(self.expected_fluxes)
-
-        # plt.figure()
-        # plt.title('TestFixedFluxRatios: Input Datasets')
-        # for dataset in self.datasets:
-        #     dataset.plot()
-        #
-        # plt.show()
-
     # Tests
     def extract_fluxes(self, event):
+        """ Return a list of fitted fluxes for all datasets"""
         event.fit_fluxes()
         fluxes = []
         for i, dataset in enumerate(self.datasets):
@@ -937,44 +916,18 @@ class TestFixedFluxRatios(unittest.TestCase):
         return fluxes
 
     def test_free_fluxes(self):
-        # test both free
+        # test both q_flux free. Should give original values
         event = mm.Event(datasets=self.datasets, model=self.model)
         fluxes = self.extract_fluxes(event)
         for i, dataset in enumerate(self.datasets):
-            print(
-                dataset.plot_properties['label'], len(dataset.time),
-                event.get_chi2_for_dataset(i))
-
-            # Adjust the expected precision for each flux parameter for each
-            # dataset.
-            dt = dataset.time[1] - dataset.time[0]
-            if dt < 0.5:
-                decimal = 2
-            else:
-                decimal = 1
-
-            if dataset.plot_properties['label'][0:3] == 'fol':
-                j = 1
-            else:
-                j = 0
-
             np.testing.assert_almost_equal(
-                fluxes[i][0][0] / self.expected_fluxes[i][0][0], 1.,
-                decimal=(3 - j))
+                fluxes[i][0][0] / self.expected_fluxes[i][0][0], 1.)
             np.testing.assert_almost_equal(
-                fluxes[i][0][1] / self.expected_fluxes[i][0][1], 1.,
-                decimal=(decimal - j))
+                fluxes[i][0][1] / self.expected_fluxes[i][0][1], 1.)
             np.testing.assert_almost_equal(
-                fluxes[i][1] / self.expected_fluxes[i][1], 1.,
-                decimal=(decimal - j))
+                fluxes[i][1] / self.expected_fluxes[i][1], 1.)
+            np.testing.assert_almost_equal(event.get_chi2_for_dataset(i), 0.)
 
-
-        # plt.figure()
-        # event.plot_model(data_ref=self.datasets[0], color='red')
-        # event.plot_model(data_ref=self.datasets[1], color='blue')
-        # event.plot_data() # Not Implemented for multiple datasets
-        # plt.show()
-        assert 1 == 2
 
     def test_fixed_q_I_flux(self):
         """test the case that q_I is fixed"""
@@ -984,12 +937,17 @@ class TestFixedFluxRatios(unittest.TestCase):
         event.fix_q_flux = {'I': q_I_value}
         fluxes = self.extract_fluxes(event)
         for i, dataset in enumerate(self.datasets):
-            print(dataset.plot_properties['label'])
-            print(fluxes[i][0][1] / fluxes[i][0][0])
             if dataset.bandpass == 'I':
                 # the ratio of q_I should be identical to the set value
                 np.testing.assert_almost_equal(
                     fluxes[i][0][1] / fluxes[i][0][0], q_I_value)
+                assert event.get_chi2_for_dataset(i) > 1
+            elif dataset.bandpass == 'V':
+                # the ratio of q_V should be the input value
+                np.testing.assert_almost_equal(
+                    fluxes[i][0][1] / fluxes[i][0][0], self.q_V)
+                np.testing.assert_almost_equal(
+                    event.get_chi2_for_dataset(i), 0.)
 
     def test_both_q_fixed(self):
         """test the case that q_I is fixed"""
@@ -1000,8 +958,6 @@ class TestFixedFluxRatios(unittest.TestCase):
         event.fix_q_flux = {'I': q_I_value, 'V': q_V_value}
         fluxes = self.extract_fluxes(event)
         for i, dataset in enumerate(self.datasets):
-            print(dataset.plot_properties['label'])
-            print(fluxes[i][0][1] / fluxes[i][0][0])
             if dataset.bandpass == 'I':
                 # the ratio of q_I should be identical to the set value
                 np.testing.assert_almost_equal(
@@ -1011,7 +967,7 @@ class TestFixedFluxRatios(unittest.TestCase):
                 np.testing.assert_almost_equal(
                     fluxes[i][0][1] / fluxes[i][0][0], q_V_value)
 
-        assert 1 == 2
+            assert event.get_chi2_for_dataset(i) > 1
 
 
 # Tests to add:
