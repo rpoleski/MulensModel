@@ -8,7 +8,7 @@ fixed q_flux (DONE)
 
 
 ### FitData
-- get_residuals() for diff values of phot_fmt
+- [IN PROGRESS] get_residuals() for diff values of phot_fmt
 - gradient unit tests for parallax, diff combinations of u_0, t_eff, t_E (only 
 do if easy)
 
