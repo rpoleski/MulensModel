@@ -147,6 +147,35 @@ def test_event_get_chi2_3():
                                    err_msg='problem in resulting chi2')
 
 
+def test_chi2_vs_get_chi2():
+    """get_chi2 always updates after something changes in the model, chi2 does
+    not."""
+    t_0 = 5379.57091
+    u_0 = 0.52298
+    t_E = 17.94002
+
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+
+    ev = mm.Event()
+    mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+    mod.set_datasets([data])
+    ev.model = mod
+    ev.datasets = [data]
+
+    # New method of fixing the blending
+    ev.fix_blend_flux = {}
+    np.testing.assert_almost_equal(ev.get_chi2(), 427.20382, decimal=4)
+    np.testing.assert_almost_equal(ev.chi2, 427.20382, decimal=4)
+
+    fix_blend_flux = {}
+    for dataset in ev.datasets:
+        fix_blend_flux[dataset] = 0.
+
+    ev.fix_blend_flux = fix_blend_flux
+    np.testing.assert_almost_equal(ev.chi2, 427.20382, decimal=4)
+    np.testing.assert_almost_equal(ev.get_chi2(), 459.09826, decimal=4)
+    np.testing.assert_almost_equal(ev.chi2, 459.09826, decimal=4)
+
 def test_event_get_chi2_double_source_simple():
     """
     basic test on ob08092 OGLE-IV data
@@ -971,9 +1000,5 @@ class TestFixedFluxRatios(unittest.TestCase):
 
 
 # Tests to add:
-#
-# test chi2 vs get_chi2:
-#      get_chi2 always updates after something changes in the model, chi2 does
-#        not.
 #
 # properties: coords, model, datasets, data_ref, sum_function?

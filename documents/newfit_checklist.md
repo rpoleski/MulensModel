@@ -4,7 +4,7 @@
 ### Event
 - [DONE] tests for various combinations of fixed blending (DONE), fixed source (DONE), 
 fixed q_flux (DONE)
-- tests for event.chi2 (does not change unless fit_fluxes or get_chi2 is run)
+- [DONE] tests for event.chi2 (does not change unless fit_fluxes or get_chi2 is run)
 
 
 ### FitData
