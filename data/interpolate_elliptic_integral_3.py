@@ -1,16 +1,13 @@
+"""
+Calculates interpolation tables for elliptical integral of the third kind.
+"""
 import math
 import numpy as np
 from math import sin, cos, sqrt
 from scipy import integrate
 from scipy.interpolate import interp1d, interp2d
-from scipy.special import ellipk, ellipe
-# These are complete elliptic integrals of the first and the second kind.
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
-###################################################
-# 1st and 2nd ellip integrals should be interpoalted between 1e-4 and 0.5
-# ellip3(n, k) for n in (1e-3,0.4) and k as above 
-###################################################
 
 accuracy = 1.e-5
 n_divide = 5 + 1
@@ -19,6 +16,9 @@ x_stop = 0.5
 y_start = 1.e-3
 y_stop = 0.4
 n_start = 10
+file_out_name = "interpolate_elliptic_integral_3.dat"
+
+# Settings end here.
 
 def get_ellip(x, y):
     p = []
@@ -44,8 +44,7 @@ while len(add_x) > 0 or len(add_y) > 0:
     add_y = []
     p = get_ellip(x, y)
 
-    #interp_p = interp2d(x, y, p.T, kind='cubic')
-    interp_p = interp2d(np.log10(x), np.log10(y), p.T, kind='cubic')
+    interp_p = interp2d(x, y, p.T, kind='cubic')
 
     check_x = []
     for i in range(len(x)-1):
@@ -57,8 +56,7 @@ while len(add_x) > 0 or len(add_y) > 0:
     check_p = np.zeros( (len(check_x), len(check_y)) )
     for (ix, cx) in enumerate(check_x):
         for (iy, cy) in enumerate(check_y):
-            #check_p[ix, iy] = interp_p(cx, cy)[0]
-            check_p[ix, iy] = interp_p(np.log10(cx), np.log10(cy))[0]
+            check_p[ix, iy] = interp_p(cx, cy)[0]
     relative_diff_p = np.abs(check_p - check_true_p) / check_true_p
     index = np.unravel_index(relative_diff_p.argmax(), relative_diff_p.shape)
 
@@ -68,13 +66,26 @@ while len(add_x) > 0 or len(add_y) > 0:
     add_y.append(check_y[index[1]])
     new_x = np.sort(add_x + x.tolist())
     new_y = np.sort(add_y + y.tolist())
-    print(iteration, len(new_x), len(new_y), np.max(relative_diff_p), add_x[0], add_y[0])
     x = new_x
     y = new_y
 
+# Write to ouput file.
 p = get_ellip(x, y)
-for (i, x_) in enumerate(x):
-    for (j, y_) in enumerate(y):
-        #print(x_, y_, p[i, j])
-        pass
+with open(file_out_name, "w") as f_out:
+    f_out.write(" ".join(["# X"] + [str(x_) for x_ in x] + ["\n"]))
+    f_out.write(" ".join(["# Y"] + [str(y_) for y_ in y] + ["\n"]))
+    for (i, x_) in enumerate(x):
+        f_out.write(" ".join([str(p[i, j]) for (j, y_) in enumerate(y)] + ["\n"]))
+
+# Read the output file and test it.
+with open(file_out_name) as file_in:
+    for line in file_in.readlines():
+        if line[:3] == "# X":
+            xx = np.array([float(t) for t in line.split()[2:]])
+        if line[:3] == "# Y":
+            yy = np.array([float(t) for t in line.split()[2:]])
+pp = np.loadtxt(file_out_name)
+print(np.all(x == xx))
+print(np.all(y == yy))
+print(np.all(p == pp))
 

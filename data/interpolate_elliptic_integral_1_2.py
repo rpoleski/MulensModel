@@ -1,3 +1,7 @@
+"""
+Calculates interpolation tables for elliptical integral of
+the first and second kind.
+"""
 import math
 import numpy as np
 from math import sin, cos, sqrt
@@ -5,18 +9,16 @@ from scipy import integrate
 from scipy.interpolate import interp1d
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
-from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
-###################################################
-# 1st and 2nd ellip integrals should be interpoalted between 1e-4 and 0.5
-# ellip3(n, k) for n in (1e-3,0.4) and k as above 
-###################################################
 
 accuracy = 1.e-6
 n_divide = 10 + 1
 x_start = 2.e-5
 x_stop = 1. - 1.e-6
 n_start = 10
+
+# Settings end here.
+
 
 def get_ellip(x):
     k = []
@@ -33,7 +35,7 @@ get_ellip.e = dict()
 
 x = np.logspace(np.log10(x_start), np.log10(x_stop), n_start)
 
-iteration = 0 
+iteration = 0
 add = [None]
 while len(add) > 0:
     iteration += 1
@@ -55,13 +57,13 @@ while len(add) > 0:
         check_e = np.array(check_e)
         relative_diff_k = np.abs(check_k - check_true_k) / check_true_k
         relative_diff_e = np.abs(check_e - check_true_e) / check_true_e
-        relative_diff_max = np.amax(np.array([relative_diff_k, relative_diff_e]), axis=0)
+        relative_diff_max = np.amax(
+            np.array([relative_diff_k, relative_diff_e]), axis=0)
         index = np.argsort(relative_diff_max)[-1]
         if relative_diff_max[index] < accuracy:
             continue
         add.append(check[index])
     new_x = np.sort(add + x.tolist())
-    #print(iteration, len(x), len(add), len(new_x))
     x = new_x
 
 for (x_, k_, e_) in zip(x, k, e):
