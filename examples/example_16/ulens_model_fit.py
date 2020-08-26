@@ -29,7 +29,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.1'
+__version__ = '0.12.2'
 
 
 class UlensModelFit(object):
@@ -687,6 +687,9 @@ class UlensModelFit(object):
         unknown = fixed - all_parameters
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
+
+        if self._task == 'plot':
+            return
 
         repeated = set(self._fit_parameters).intersection(fixed)
         if len(repeated) > 0:
