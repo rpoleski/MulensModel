@@ -465,7 +465,7 @@ class FitData:
                     'If phot_fmt=scaled, source_flux and blend_flux must' +
                     'also be specified.')
 
-            magnification = self.get_data_magnification()
+            magnification = self._data_magnification
             model_mag = Utils.get_mag_from_flux(
                 blend_flux + source_flux * magnification)
             (flux, err_flux) = self.scale_fluxes(source_flux, blend_flux)
@@ -473,7 +473,7 @@ class FitData:
             residuals = mag - model_mag
             errorbars = err
         elif phot_fmt == 'mag':
-            model_mag = self.get_model_mag()
+            model_mag = self.get_model_magnitudes()
             residuals = self._dataset.mag - model_mag
             errorbars = self._dataset.err_mag
         elif phot_fmt == 'flux':

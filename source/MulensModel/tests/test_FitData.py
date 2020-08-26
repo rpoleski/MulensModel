@@ -2,6 +2,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal as almost
 import unittest
 import os.path
+import matplotlib.pyplot as plt
 
 import MulensModel as mm
 
@@ -406,14 +407,197 @@ def test_scale_fluxes():
     almost(exp_flux / new_flux, 1.)
     almost(exp_err / new_err, 1.)
 
+
+class TestGetResiduals(unittest.TestCase):
+    """
+    test get_residuals():
+    Test all keywords:
+        phot_fmt: 'mag', 'flux'
+        phot_fmt: 'scaled' and source_flux, blend_flux specified
+        bad: True, False
+    test values of residuals and errorbars
+    """
+
+    def setUp(self):
+        self.model = mm.Model(
+            {'t_0': 8000., 'u_0': 0.3, 't_E': 25.})
+        self.generate_fake_dataset()
+        self.fit = mm.FitData(model=self.model, dataset=self.dataset)
+        self.fit.fit_fluxes()
+
+        # Plotting code for vetting the unit test. Delete before final commit.
+        # import matplotlib.pyplot as plt
+        # event = mm.Event(model=self.model, datasets=[self.dataset])
+        # event.plot_model(color='black')
+        # event.plot_data(show_bad=True, show_errorbars=True)
+        # plt.show()
+
+    def generate_fake_dataset(self):
+        """
+        create a fake, perfect dataset, but with a few known outliers and
+        errorbar variations.
+        """
+        self.dataset_properties = {
+            'f_source': 10, 'f_blend': 3.5, 'errorbar': 1.}
+
+        # Generate perfect data
+        n = 3
+        dt = 1.0
+        times = np.arange(
+            self.model.parameters.t_0 - n * self.model.parameters.t_E,
+            self.model.parameters.t_0 + n * self.model.parameters.t_E,
+            dt)
+        flux = (self.dataset_properties['f_source'] *
+                self.model.magnification(times) +
+                self.dataset_properties['f_blend'])
+        err = np.zeros(len(times)) + self.dataset_properties['errorbar']
+        bad = np.zeros(len(times), dtype=bool)
+
+        # Add outliers
+        self.outliers = {'index': np.arange(0, len(times)-5, 10)+3}
+        self.outliers['values'] = 10 + np.zeros(len(self.outliers['index']))
+        #print(self.outliers['values'])
+        for i in np.arange(len(self.outliers['index'])):
+            if i % 5 == 0:
+                self.outliers['values'][i] *= -1
+
+            flux[self.outliers['index'][i]] += self.outliers['values'][i]
+            bad[self.outliers['index'][i]] = True
+
+        #print(self.outliers['values'])
+
+        # Add errorbar variations
+        self.big_errors = {'index': np.arange(0, len(times)-6, 21) + 4}
+        self.big_errors['values'] = 5. + np.zeros(
+            len(self.big_errors['index']))
+        for i in np.arange(len(self.big_errors['index'])):
+            err[self.big_errors['index'][i]] = self.big_errors['values'][i]
+
+        assert np.sum(err) > len(err) * self.dataset_properties['errorbar']
+
+        # Create final dataset
+        self.dataset = mm.MulensData(
+            [times, flux, err], phot_fmt='flux', bad=bad)
+
+    def test_bad_keyword(self):
+        """
+        If bad = False, the magnification should be zero. Therefore, the flux
+        calculated for the bad data points should be f_blend. If bad=True,
+        the values should be the true values of the residuals.
+        """
+        # Bad = False
+        (residuals, res_errors) = self.fit.get_residuals(
+            phot_fmt='flux', bad=False)
+
+        for index in self.outliers['index']:
+            exp_residual = (self.dataset.flux[index] -
+                            self.dataset_properties['f_blend'])
+            almost(residuals[index], exp_residual)
+
+        # Check errorbars
+        
+        almost(res_errors, self.dataset.err_flux)
+        
+        # Bad = True
+        (residuals, res_errors) = self.fit.get_residuals(
+            phot_fmt='flux', bad=True)
+
+        # source_flux = self.fit.source_flux
+        # blend_flux = self.fit.blend_flux
+        # plt.figure()
+        # plt.subplot(1, 2, 1)
+        # self.model.plot_lc(f_source=source_flux, f_blend=blend_flux)
+        # self.dataset.plot(phot_fmt='mag', show_bad=True)
+        # plt.subplot(1, 2, 2)
+        # plt.errorbar(self.dataset.time, residuals, yerr=res_errors, fmt='o')
+        # plt.show()
+
+        for i, index in enumerate(self.outliers['index']):
+            exp_residual = self.outliers['values'][i]
+            almost(residuals[index], exp_residual)
+
+        # Check errorbars
+        almost(res_errors, self.dataset.err_flux)
+
+    def test_photfmt_mag(self):
+        """ check phot_fmt = 'mag' ."""
+        # Bad = True
+        (residuals, res_errors) = self.fit.get_residuals(
+            phot_fmt='mag', bad=True)
+
+        # Simple sign check
+        for i, index in enumerate(self.outliers['index']):
+            print(i, index, self.outliers['values'][i])
+            if self.outliers['values'][i] > 0:
+                assert residuals[index] < 0
+            else:
+                assert residuals[index] > 0
+
+        # Value check
+        for i in np.arange(len(self.dataset.time)):
+            if i in self.outliers['index']:
+                index = np.where(self.outliers['index'] == i)
+                f_0 = self.dataset.flux[i] - self.outliers['values'][index]
+                f_obs = self.dataset.flux[i]
+                delta_mag = -2.5*np.log10(f_obs / f_0)
+                almost(delta_mag, residuals[i])
+            else:
+                # Non-outliers should have zero residual
+                almost(residuals[i], 0)
+
+        # Check errorbars
+        almost(res_errors, self.dataset.err_mag)
+
+    def test_photfmt_scaled_1(self):
+        """ check phot_fmt='scaled' """
+        f_source_0 = 1.0
+        f_blend_0 = 0.1
+
+        # Bad = True
+        (residuals, res_errors) = self.fit.get_residuals(
+            phot_fmt='scaled', source_flux=f_source_0, blend_flux=f_blend_0,
+            bad=True)
+
+        model_flux = (f_source_0 *
+                      self.model.magnification(self.dataset.time) +
+                      f_blend_0)
+        model_mag = mm.Utils.get_mag_from_flux(model_flux)
+        for i in np.arange(len(self.dataset.time)):
+            print(
+                i, self.dataset.time[i], self.dataset.flux[i],
+                self.dataset.err_flux[i])
+            exp_flux = (f_source_0 *
+                        (self.dataset.flux[i] -
+                         self.dataset_properties['f_blend']) /
+                        self.dataset_properties['f_source'] + f_blend_0)
+            if i in self.outliers['index']:
+                exp_mag = mm.Utils.get_mag_from_flux(exp_flux)
+                exp_delta_mag = exp_mag - model_mag[i]
+                almost(exp_delta_mag, residuals[i])
+            else:
+                # Non-outliers should have zero residual
+                almost(residuals[i], 0)
+
+            # Check errorbars
+            exp_err_flux = (f_source_0 * self.dataset.err_flux[i] /
+                            self.dataset_properties['f_source'])
+            exp_err_mag = 2.5 * exp_err_flux / exp_flux / np.log(10.)
+            almost(exp_err_mag, res_errors[i])
+            assert self.dataset.err_mag[i] != res_errors[i]
+
+    def test_photfmt_scaled_2(self):
+        """ check phot_fmt='scaled'; true values of f_source, f_blend should
+        yield errorbars identical to the true values."""
+        f_source_0 = self.dataset_properties['f_source']
+        f_blend_0 = self.dataset_properties['f_blend']
+
+        # Bad = True
+        (residuals, res_errors) = self.fit.get_residuals(
+            phot_fmt='scaled', source_flux=f_source_0, blend_flux=f_blend_0,
+            bad=True)
+        almost(res_errors, self.dataset.err_mag)
+
 # Tests to add:
-#
-#
-# test get_residuals():
-#   Test all keywords:
-#       phot_fmt: 'mag', 'flux'
-#       phot_fmt: 'scaled' and source_flux, blend_flux specified
-#       bad: True, False
 #
 # test get_chi2_gradient(), chi2_gradient:
 #   Effectively covered by unit tests in event.py
