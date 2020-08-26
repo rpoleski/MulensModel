@@ -60,6 +60,7 @@ class PointLens(object):
     """
 
     _B0B1_file_read = False
+    _elliptical_files_read = False
 
     def __init__(self, parameters=None):
         self.parameters = parameters
@@ -80,17 +81,46 @@ class PointLens(object):
         PointLens._z_min = np.min(z)
         PointLens._z_max = np.max(z)
 
-        # XXX
-        file_ = os.path.join(MulensModel.DATA_PATH, 'interpolation_2.dat')
-        (x, y, z) = np.loadtxt(file_, unpack=True)
-        x = np.linspace(-3., 1., 100)
-        y = np.linspace(-3., 1., 100)
-        zz = z.reshape(len(y), len(x)).T
-        PointLens._interpolation = interp2d(x, y, zz, kind='cubic')
-        PointLens._interpolation_min_x = np.min(x)
-        PointLens._interpolation_max_x = np.max(x)
-        PointLens._interpolation_min_y = np.min(y)
-        PointLens._interpolation_max_y = np.max(y)
+    def _read_elliptical_files(self):
+        """
+        XXX
+        """
+        file_1_2 = os.path.join(
+            MulensModel.DATA_PATH, 'interpolate_elliptic_integral_1_2.dat')
+        file_3 = os.path.join(
+            MulensModel.DATA_PATH, 'interpolate_elliptic_integral_3.dat')
+
+        (x, y1, y2) = np.loadtxt(file_1_2, unpack=True)
+        PointLens._interpolate_1 = interp1d(np.log10(x), y1, kind='cubic')
+        PointLens._interpolate_2 = interp1d(np.log10(x), y2, kind='cubic')
+        PointLens._interpolate_1_2_x_min = np.min(np.log10(x))
+        PointLens._interpolate_1_2_x_max = np.max(np.log10(x))
+
+        with open(file_3) as file_in:
+            for line in file_in.readlines():
+                if line[:3] == "# X":
+                    xx = np.array([float(t) for t in line.split()[2:]])
+                if line[:3] == "# Y":
+                    yy = np.array([float(t) for t in line.split()[2:]])
+        pp = np.loadtxt(file_3)
+        PointLens._interpolate_3 = interp2d(xx, yy, pp.T, kind='cubic')
+        PointLens._interpolate_3_min_x = np.min(xx)
+        PointLens._interpolate_3_max_x = np.max(xx)
+        PointLens._interpolate_3_min_y = np.min(yy)
+        PointLens._interpolate_3_max_y = np.max(yy)
+
+        PointLens._elliptical_files_read = True
+
+        #file_ = os.path.join(MulensModel.DATA_PATH, 'interpolation_2.dat')
+        #(x, y, z) = np.loadtxt(file_, unpack=True)
+        #x = np.linspace(-3., 1., 100)
+        #y = np.linspace(-3., 1., 100)
+        #zz = z.reshape(len(y), len(x)).T
+        #PointLens._interpolation = interp2d(x, y, zz, kind='cubic')
+        #PointLens._interpolation_min_x = np.min(x)
+        #PointLens._interpolation_max_x = np.max(x)
+        #PointLens._interpolation_min_y = np.min(y)
+        #PointLens._interpolation_max_y = np.max(y)
 
     def _B_0_function(self, z):
         """
@@ -479,7 +509,7 @@ class PointLens(object):
         """
         XXX
         """
-        if rho == None:
+        if rho is None:
             rho = self.parameters.rho
 
         if u == rho:
@@ -487,15 +517,19 @@ class PointLens(object):
             a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
             return (2./u + (1.+u2) * a / u2) / np.pi
 
-        x = log10(u)
-        y = log10(rho)
-        c1 = (x >= PointLens._interpolation_min_x)
-        c2 = (x <= PointLens._interpolation_max_x)
-        c3 = (y >= PointLens._interpolation_min_y)
-        c4 = (y <= PointLens._interpolation_max_y)
-        if c1 and c2 and c3 and c4:
-            #print(x, y, "INTERP", PointLens._interpolatiddon(x, y))
-            return 10**PointLens._interpolation(x, y)[0]
+        if not PointLens._elliptical_files_read:
+            self._read_elliptical_files()
+        # XXX HERE - continue
+
+        #x = log10(u)
+        #y = log10(rho)
+        #c1 = (x >= PointLens._interpolation_min_x)
+        #c2 = (x <= PointLens._interpolation_max_x)
+        #c3 = (y >= PointLens._interpolation_min_y)
+        #c4 = (y <= PointLens._interpolation_max_y)
+        #if c1 and c2 and c3 and c4:
+        #    #print(x, y, "INTERP", PointLens._interpolatiddon(x, y))
+        #    return 10**PointLens._interpolation(x, y)[0]
 
         a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
         a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2))
@@ -507,12 +541,51 @@ class PointLens(object):
         k = 4. * n / (4. + (u - rho)**2)
         # We omit sqrt, because all python packages use k^2 convention.
 
-        x_1 = ellipk(k)
-        x_2 = ellipe(k)
-        x_3 = ellip3(n, k)
+        x_1 = self._get_ellipk(k)
+        x_2 = self._get_ellipe(k)
+        x_3 = self._get_ellip3(n, k)
+#        x_1 = ellipk(k)
+#        x_2 = ellipe(k)
+#        x_3 = ellip3(n, k)
         (x_1, x_2) = (x_2, x_1)  # WM94 under Eq. 9 are inconsitent with GR80.
 
         return (a_1*x_1 + a_2*x_2 + a_3*x_3) / np.pi
+
+    def _get_ellipk(self, k):
+        """
+        XXX
+        """
+        x = np.log10(k)
+        condition_1 = (x >= PointLens._interpolate_1_2_x_min)
+        condition_2 = (x <= PointLens._interpolate_1_2_x_max)
+        if condition_1 and condition_2:
+            return PointLens._interpolate_1(x)
+        return ellipk(k)
+
+    def _get_ellipe(self, k):
+        """
+        XXX
+        """
+        x = np.log10(k)
+        condition_1 = (x >= PointLens._interpolate_1_2_x_min)
+        condition_2 = (x <= PointLens._interpolate_1_2_x_max)
+        if condition_1 and condition_2:
+            return PointLens._interpolate_1(x)
+        return ellipe(k)
+
+    def _get_ellip3(self, n, k):
+        """
+        XXX
+        """
+        cond_1 = (n >= PointLens._interpolate_3_min_x)
+        cond_2 = (n <= PointLens._interpolate_3_max_x)
+        cond_3 = (k >= PointLens._interpolate_3_min_y)
+        cond_4 = (k <= PointLens._interpolate_3_max_y)
+
+        if cond_1 and cond_2 and cond_3 and cond_4:
+            return PointLens._interpolate_3(x, y)[0]
+
+        return ellip3(n, k)
 
     def get_point_lens_large_LD_integrated_magnification(self, u, gamma):
         """
