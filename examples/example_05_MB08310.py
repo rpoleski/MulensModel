@@ -49,6 +49,16 @@ plt.title('Data and Fitted Model (Default)')
 plt.subplot(gs[1])
 event_default.plot_residuals(subtract_2450000=True)
 
+# Plot the trajectory
+traj_range = (-0.05, 0.05)
+plt.figure()
+plt.title('Trajectory w/Data (Default)')
+plt.gca().set_aspect('equal')
+event_default.plot_trajectory()
+event_default.plot_source_for_datasets()
+plt.xlim(traj_range)
+plt.ylim(traj_range)
+
 # -----------------
 # Plot the data and model (customized)
 datasets_custom = []
@@ -85,5 +95,14 @@ plt.title('Data and Fitted Model (Custom)')
 plt.subplot(gs[1])
 event_custom.plot_residuals(marker='s', markersize=3, subtract_2450000=True)
 plt.xlim(t_start-2450000., t_stop-2450000.)
+
+# Plot the trajectory
+plt.figure()
+plt.title('Trajectory w/Data (Custom)')
+plt.gca().set_aspect('equal')
+event_custom.plot_trajectory()
+event_custom.plot_source_for_datasets()
+plt.xlim(traj_range)
+plt.ylim(traj_range)
 
 plt.show()

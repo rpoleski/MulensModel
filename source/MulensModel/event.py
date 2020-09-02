@@ -287,11 +287,18 @@ class Event(object):
     def plot_source_for_datasets(self, **kwargs):
         """
         Plot source positions for all linked datasets.
-        See :py:func:`MulensModel.model.Model.plot_source_for_datasets()` for
+        See :py:func:`MulensModel.model.Model.plot_source` for
         details.
+
+        Note: plots all points in datasets (including ones flagged as bad)
+        using the same marker.
         """
-        pass
         # self.model.plot_source_for_datasets(**kwargs)
+        # New:
+        for dataset in self.datasets:
+            properties = dataset._set_plot_properties()
+            self.model.plot_source(
+                times=dataset.time, color=properties['color'], **kwargs)
 
     def _set_default_colors(self):
         """

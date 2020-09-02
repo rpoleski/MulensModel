@@ -2,9 +2,11 @@
 
 ## Unit tests
 ### Event
-- [DONE] tests for various combinations of fixed blending (DONE), fixed source (DONE), 
+- [DONE] tests for various combinations of fixed blending (DONE), fixed source 
+(DONE), 
 fixed q_flux (DONE)
-- [DONE] tests for event.chi2 (does not change unless fit_fluxes or get_chi2 is run)
+- [DONE] tests for event.chi2 (does not change unless fit_fluxes or get_chi2 is 
+run)
 
 
 ### FitData
@@ -14,8 +16,10 @@ do if easy)
 
 ## Implementation
 ### Event
-- plot_source_for_datasets()
-    1) identify appropriate example for testing
+- [DONE] plot_source_for_datasets()
+    1) [DONE] identify appropriate example for testing --> Modify example_05_MB08310 
+    to include trajectory plot
+    2) [DONE] implement
 
 ## Clean Up Code
 - Delete code that has been commented out:
