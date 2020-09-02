@@ -23,7 +23,7 @@ do if easy)
 
 ## Clean Up Code
 - Delete code that has been commented out:
-    - in unit tests for Event [DONE], FitData [DONE], Model
+    - [DONE] in unit tests for Event [DONE], FitData [DONE], Model [DONE]
     - in Event, Model
 - Add Exceptions for methods and attributes that no longer work
 - Remove Fit class

@@ -22,15 +22,7 @@ def test_model_PSPL_1():
     u_0 = 0.52298
     t_E = 17.94002
     times = np.array([t_0-2.5*t_E, t_0, t_0+t_E])
-    # New formulation makes tying data to model obsolete.
-    # data = mm.MulensData(data_list=[times, times*0., times*0.])
     model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    # model.parameters.u_0 = u_0
-    # model.parameters.t_E = t_E
-    # model.set_datasets([data])
-    # almost(model.data_magnification,
-    #        [np.array([1.028720763, 2.10290259, 1.26317278])],
-    #        err_msg="PSPL model returns wrong values")
     almost(model.magnification(times),
            np.array([1.028720763, 2.10290259, 1.26317278]),
            err_msg="PSPL model returns wrong values")
@@ -55,17 +47,7 @@ class TestModel(unittest.TestCase):
 
 
 def test_model_parallax_definition():
-    # JCY: I don't think we should allow parameters
-    # to be set sequentially like this.
-    # model_1 = Model()
-    # model_1.parameters.pi_E = [0.1, 0.2]
-    # assert model_1.pi_E_N == 0.1
-    # assert model_1.pi_E_E == 0.2
-
-    # JCY: below is acceptable (i.e. if the parameter has been
-    # defined, the user can change it. If the user wants to add a
-    # parameter, they need to create a new model.)
-
+    # Update parameters in an existing model
     model_2 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
                         'pi_E_N': 0.1, 'pi_E_E': 0.2})
 
@@ -164,8 +146,6 @@ def test_BLPS_01():
     model = mm.Model(parameters=params)
     t = np.array([2456112.5])
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    # model.set_datasets([data])
-    # magnification = model.data_magnification[0][0]
     magnification = model.magnification(data.time[0])
     almost(magnification, 4.691830781584699)
 # This value comes from early version of this code.
@@ -191,8 +171,6 @@ def test_BLPS_02():
     model.set_magnification_methods(methods)
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    # model.set_datasets([data])
-    # result = model.data_magnification[0]
     result = model.magnification(data.time)
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
@@ -204,7 +182,6 @@ def test_BLPS_02():
     # data.bandpass = 'I'
     model.set_limb_coeff_u('I', 10.)
     # This is an absurd value but I needed something quick.
-    # result = model.data_magnification[0]
     result = model.magnification(
         data.time, gamma=model.get_limb_coeff_gamma('I'))
     almost(result[5], 1.6366862)
@@ -231,8 +208,6 @@ def test_BLPS_02_AC():
     model.set_magnification_methods_parameters({ac_name: accuracy_1})
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    # model.set_datasets([data])
-    # result = model.data_magnification[0]
     result = model.magnification(data.time)
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
@@ -265,20 +240,16 @@ def test_methods_parameters():
     model.set_magnification_methods(methods)
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    # model.set_datasets([data])
-    # result_1 = model.data_magnification[0]
     result_1 = model.magnification(data.time)
 
     vbbl_options = {'accuracy': 0.1}
     methods_parameters = {'VBBL': vbbl_options}
     model.set_magnification_methods_parameters(methods_parameters)
-    # result_2 = model.data_magnification[0]
     result_2 = model.magnification(data.time)
 
     vbbl_options = {'accuracy': 1.e-5}
     methods_parameters = {'VBBL': vbbl_options}
     model.set_magnification_methods_parameters(methods_parameters)
-    # result_3 = model.data_magnification[0]
     result_3 = model.magnification(data.time)
 
     assert result_1[0] != result_2[0]
@@ -350,25 +321,7 @@ def test_model_binary_and_finite_sources():
     time = np.linspace(4900., 5200., 4200)
     mag_1 = model_1.magnification(time)
     mag_2 = model_2.magnification(time)
-    # Old method
-    # prepare fake data:
-    # flux = f_s_1 * mag_1 + f_s_2 * mag_2 + f_b
-    # data = mm.MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
-    # model.set_datasets([data])
-    # model_1.set_datasets([data])
-    # model_2.set_datasets([data])
-    #
-    # # test:
-    # fitted = model.get_data_magnification(data)
-    # expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
-    # almost(fitted, expected)
-    #
-    # # test separate=True option:
-    # (mag_1_, mag_2_) = model.magnification(time, separate=True)
-    # almost(mag_1, mag_1_)
-    # almost(mag_2, mag_2_)
 
-    # New method
     # test:
     model.set_source_flux_ratio(f_s_2/f_s_1)
     fitted = model.magnification(time)
@@ -402,12 +355,6 @@ def test_binary_source_and_fluxes_for_bands():
     effective_mag_V = (mag_1_V + mag_2_V * q_f_V) / (1. + q_f_V)
     flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
     flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
-    # Old method
-    # data_I = mm.MulensData(data_list=[times_I, flux_I, flux_I/100.],
-    #                        phot_fmt='flux', bandpass='I')
-    # data_V = mm.MulensData(data_list=[times_V, flux_V, flux_V/1000.],
-    #                        phot_fmt='flux', bandpass='V')
-    # model.set_datasets([data_V, data_I])
 
     model.set_source_flux_ratio_for_band('I', q_f_I)
     model.set_source_flux_ratio_for_band('V', q_f_V)
@@ -417,13 +364,6 @@ def test_binary_source_and_fluxes_for_bands():
     result_V = model.magnification(times_V, flux_ratio_constraint='V')
     almost(result_I, effective_mag_I)
     almost(result_V, effective_mag_V)
-
-    # Old method (irrelevant for new method)
-    # Test Model.get_data_magnification()
-    # result_I = model.get_data_magnification(data_I)
-    # result_V = model.get_data_magnification(data_V)
-    # almost(result_I, effective_mag_I)
-    # almost(result_V, effective_mag_V)
 
 
 def test_separate_method_for_each_source():
