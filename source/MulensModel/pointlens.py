@@ -671,7 +671,8 @@ class PointLens(object):
         return out
 
 # TODO:
-#  - latex file
+#  - latex file - suggestions & links
 #  - spell
 #  - rho in WM94 & Lee09
+#  - Jen to verify
 #  - version.py
