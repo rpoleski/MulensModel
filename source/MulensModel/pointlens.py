@@ -60,12 +60,10 @@ class PointLens(object):
     """
 
     _B0B1_file_read = False
-    _elliptical_files_read = False
+    _elliptic_files_read = False
 
     def __init__(self, parameters=None):
         self.parameters = parameters
-        if not PointLens._B0B1_file_read:
-            self._read_B0B1_file()  # XXX
 
     def _read_B0B1_file(self):
         """Read file with pre-computed function values"""
@@ -74,16 +72,18 @@ class PointLens(object):
         if not os.path.exists(file_):
             raise ValueError('File with FSPL data does not exist.\n' + file_)
         (z, B0, B0_minus_B1) = np.loadtxt(file_, unpack=True)
-        PointLens._B0B1_file_read = True
         PointLens._B0_interpolation = interp1d(z, B0, kind='cubic')
         PointLens._B0_minus_B1_interpolation = interp1d(
                 z, B0_minus_B1, kind='cubic')
         PointLens._z_min = np.min(z)
         PointLens._z_max = np.max(z)
 
-    def _read_elliptical_files(self):
+        PointLens._B0B1_file_read = True
+
+    def _read_elliptic_files(self):
         """
-        XXX
+        Read 2 files with values of elliptic integrals of the 1st, 2nd,
+        and 3rd kind.
         """
         file_1_2 = os.path.join(
             MulensModel.DATA_PATH, 'interpolate_elliptic_integral_1_2.dat')
@@ -109,18 +109,7 @@ class PointLens(object):
         PointLens._interpolate_3_min_y = np.min(yy)
         PointLens._interpolate_3_max_y = np.max(yy)
 
-        PointLens._elliptical_files_read = True
-
-        #file_ = os.path.join(MulensModel.DATA_PATH, 'interpolation_2.dat')
-        #(x, y, z) = np.loadtxt(file_, unpack=True)
-        #x = np.linspace(-3., 1., 100)
-        #y = np.linspace(-3., 1., 100)
-        #zz = z.reshape(len(y), len(x)).T
-        #PointLens._interpolation = interp2d(x, y, zz, kind='cubic')
-        #PointLens._interpolation_min_x = np.min(x)
-        #PointLens._interpolation_max_x = np.max(x)
-        #PointLens._interpolation_min_y = np.min(y)
-        #PointLens._interpolation_max_y = np.max(y)
+        PointLens._elliptic_files_read = True
 
     def _B_0_function(self, z):
         """
@@ -507,7 +496,7 @@ class PointLens(object):
 
     def _get_magnification_WM94(self, u, rho=None):
         """
-        XXX
+        Get point-lens finite-source magnification without LD.
         """
         if rho is None:
             rho = self.parameters.rho
@@ -517,8 +506,8 @@ class PointLens(object):
             a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
             return (2./u + (1.+u2) * a / u2) / np.pi
 
-        if not PointLens._elliptical_files_read:
-            self._read_elliptical_files()
+        if not PointLens._elliptic_files_read:
+            self._read_elliptic_files()
 
         a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
         a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2))
@@ -539,7 +528,7 @@ class PointLens(object):
 
     def _get_ellipk(self, k):
         """
-        Get value of elliptical integral of the first kind.
+        Get value of elliptic integral of the first kind.
         Use interpolation if possible.
         """
         x = np.log10(k)
@@ -551,7 +540,7 @@ class PointLens(object):
 
     def _get_ellipe(self, k):
         """
-        Get value of elliptical integral of the second kind.
+        Get value of elliptic integral of the second kind.
         Use interpolation if possible.
         """
         x = np.log10(k)
@@ -563,7 +552,7 @@ class PointLens(object):
 
     def _get_ellip3(self, n, k):
         """
-        Get value of elliptical integral of the third kind.
+        Get value of elliptic integral of the third kind.
         Use interpolation if possible.
         """
         cond_1 = (n >= PointLens._interpolate_3_min_x)
@@ -580,14 +569,18 @@ class PointLens(object):
         """
         XXX Witt & Mao 1994  + e.g. Bozza+18 Eq. 16-19
         """
-        out = [self._get_magnification_WM94_B18(u_, gamma) for u_ in u]
+        n_annuli = 30  # This value could be tested better.
+
+        out = [
+            self._get_magnification_WM94_B18(u_, gamma, n_annuli) for u_ in u]
+
         return np.array(out)
 
-    def _get_magnification_WM94_B18(self, u, gamma):
+    def _get_magnification_WM94_B18(self, u, gamma, n_annuli):
         """
-        XXX Bozza+18 Eq. 16-19
+        Get point-lens finite-source magnification with LD using
+        Witt & Mao 1994 approach and equations 16-19 from Bozza et al. 2018.
         """
-        n_annuli = 30  # XXX - to be determined
         n_annuli += 1  # It's easier to have r=0 ring as well.
 
         pspl_magnification = get_pspl_magnification(u)
@@ -610,14 +603,6 @@ class PointLens(object):
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
 
-# Test values:
-# rho 0.001
-# u 0.001  0.0001 0.0005
-# A 1273.24008748 1994.9905932  1868.43109505
-
 # TODO:
-#  - unit tests
 #  - XXX above
 #  - latex file
-#  - get_point_lens_uniform_integrated_magnification - DOCSTRING in master
-#  - get_point_lens_LD_integrated_magnification - DOCSTRING in master
