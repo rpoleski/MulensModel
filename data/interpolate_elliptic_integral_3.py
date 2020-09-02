@@ -20,9 +20,10 @@ file_out_name = "interpolate_elliptic_integral_3.dat"
 
 # Settings end here.
 
+
 def get_ellip(x, y):
     p = []
-    z = np.zeros( (len(x), len(y)) )
+    z = np.zeros((len(x), len(y)))
     for (i, x_) in enumerate(x):
         for (j, y_) in enumerate(y):
             index = (x_, y_)
@@ -35,7 +36,7 @@ get_ellip.p = dict()
 x = np.logspace(np.log10(x_start), np.log10(x_stop), n_start)
 y = np.logspace(np.log10(y_start), np.log10(y_stop), n_start)
 
-iteration = 0 
+iteration = 0
 add_x = [None]
 add_y = [None]
 while len(add_x) > 0 or len(add_y) > 0:
@@ -48,12 +49,14 @@ while len(add_x) > 0 or len(add_y) > 0:
 
     check_x = []
     for i in range(len(x)-1):
-        check_x += np.logspace(np.log10(x[i]), np.log10(x[i+1]), n_divide)[1:-1].tolist()
+        check_ = np.logspace(np.log10(x[i]), np.log10(x[i+1]), n_divide)
+        check_x += check_[1:-1].tolist()
     check_y = []
     for i in range(len(y)-1):
-        check_y += np.logspace(np.log10(y[i]), np.log10(y[i+1]), n_divide)[1: -1].tolist()
+        check_ = np.logspace(np.log10(y[i]), np.log10(y[i+1]), n_divide)
+        check_y += check_[1: -1].tolist()
     check_true_p = get_ellip(check_x, check_y)
-    check_p = np.zeros( (len(check_x), len(check_y)) )
+    check_p = np.zeros((len(check_x), len(check_y)))
     for (ix, cx) in enumerate(check_x):
         for (iy, cy) in enumerate(check_y):
             check_p[ix, iy] = interp_p(cx, cy)[0]
@@ -61,7 +64,7 @@ while len(add_x) > 0 or len(add_y) > 0:
     index = np.unravel_index(relative_diff_p.argmax(), relative_diff_p.shape)
 
     if np.max(relative_diff_p) < accuracy:
-                continue
+        continue
     add_x.append(check_x[index[0]])
     add_y.append(check_y[index[1]])
     new_x = np.sort(add_x + x.tolist())
@@ -75,7 +78,8 @@ with open(file_out_name, "w") as f_out:
     f_out.write(" ".join(["# X"] + [str(x_) for x_ in x] + ["\n"]))
     f_out.write(" ".join(["# Y"] + [str(y_) for y_ in y] + ["\n"]))
     for (i, x_) in enumerate(x):
-        f_out.write(" ".join([str(p[i, j]) for (j, y_) in enumerate(y)] + ["\n"]))
+        f_out.write(
+            " ".join([str(p[i, j]) for (j, y_) in enumerate(y)] + ["\n"]))
 
 # Read the output file and test it.
 with open(file_out_name) as file_in:
@@ -88,4 +92,3 @@ pp = np.loadtxt(file_out_name)
 print(np.all(x == xx))
 print(np.all(y == yy))
 print(np.all(p == pp))
-
