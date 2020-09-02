@@ -322,18 +322,8 @@ def test_event_chi2_gradient():
     data = mm.MulensData(file_name=SAMPLE_FILE_02)
     kwargs = {'datasets': [data], 'coords': '17:47:12.25 -21:22:58.7'}
 
-    # Old method for fixing blending
-    # for test in [test_1]:  # , test_2]:
-    #     (parameters, params, gradient) = test
-    #     event = mm.Event(model=mm.Model(parameters), **kwargs)
-    #     event.fit_fluxes()
-    #     result = event.chi2_gradient(params, fit_blending=False)
-    #
-    #     reference = np.array([gradient[key] for key in params])
-    #     np.testing.assert_almost_equal(reference/result, 1., decimal=1)
-
     # New method for fixing blending
-    for test in [chi2_gradient_test_1]:  # , chi2_gradient_test_2]:
+    for test in [chi2_gradient_test_1]:
         event = mm.Event(
             model=mm.Model(test.parameters), fix_blend_flux={data: 0.}, **kwargs)
         result = event.get_chi2_gradient(test.grad_params)
@@ -478,16 +468,8 @@ def test_event_chi2_binary_source():
     # Calculate chi^2:
     event = mm.Event([data], model)
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
-    # Make sure Model.set_source_flux_ratio() is taken into account.
 
-    # Old method of setting flux ratios
-    # model.set_source_flux_ratio(1.)
-    # np.testing.assert_almost_equal(model.magnification(time), (mag_1+mag_2)/2.)
-    # assert event.get_chi2() > 1.
-    # model.set_source_flux_ratio(3.)
-    # np.testing.assert_almost_equal(event.get_chi2(), 0.)
-
-    # New method of setting flux ratios
+    # Make sure fix_q_flux is taken into account.
     event.fix_q_flux = {data: 1.}
     assert event.get_chi2() > 1.
     event.fix_q_flux = {data: 3.}
@@ -539,13 +521,6 @@ def test_event_chi2_binary_source_2datasets():
 
     # Test combination of Model.set_source_flux_ratio_for_band() and
     # Event.get_chi2_for_dataset().
-
-    # Old method of fixing flux ratios
-    # data_1.bandpass = 'some'
-    # event.model.set_source_flux_ratio_for_band('some', 3.)
-    # np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
-
-    # New method of fixing flux ratios
     data_1.bandpass = 'some'
     event.fix_q_flux['some'] = 3.
     event.fit_fluxes()
@@ -608,13 +583,13 @@ def test_get_ref_fluxes():
     np.testing.assert_almost_equal(blend_flux_1, 50.)
 
     # set data_ref != dataset 0
-    event.data_ref = 1 # Does not work
+    event.data_ref = 1
     (source_fluxes_2, blend_flux_2) = event.get_ref_fluxes()
     np.testing.assert_almost_equal(source_fluxes_2, np.array([20., 30.]))
     np.testing.assert_almost_equal(blend_flux_2, 50.)
 
     # set data_ref using a dataset
-    event.data_ref = data_1 # Does not work
+    event.data_ref = data_1
     (source_fluxes_1, blend_flux_1) = event.get_ref_fluxes()
     np.testing.assert_almost_equal(source_fluxes_1, np.array([100., 300.]))
     np.testing.assert_almost_equal(blend_flux_1, 50.)

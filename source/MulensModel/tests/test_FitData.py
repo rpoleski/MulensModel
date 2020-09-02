@@ -425,13 +425,6 @@ class TestGetResiduals(unittest.TestCase):
         self.fit = mm.FitData(model=self.model, dataset=self.dataset)
         self.fit.fit_fluxes()
 
-        # Plotting code for vetting the unit test. Delete before final commit.
-        # import matplotlib.pyplot as plt
-        # event = mm.Event(model=self.model, datasets=[self.dataset])
-        # event.plot_model(color='black')
-        # event.plot_data(show_bad=True, show_errorbars=True)
-        # plt.show()
-
     def generate_fake_dataset(self):
         """
         create a fake, perfect dataset, but with a few known outliers and
@@ -456,15 +449,12 @@ class TestGetResiduals(unittest.TestCase):
         # Add outliers
         self.outliers = {'index': np.arange(0, len(times)-5, 10)+3}
         self.outliers['values'] = 10 + np.zeros(len(self.outliers['index']))
-        #print(self.outliers['values'])
         for i in np.arange(len(self.outliers['index'])):
             if i % 5 == 0:
                 self.outliers['values'][i] *= -1
 
             flux[self.outliers['index'][i]] += self.outliers['values'][i]
             bad[self.outliers['index'][i]] = True
-
-        #print(self.outliers['values'])
 
         # Add errorbar variations
         self.big_errors = {'index': np.arange(0, len(times)-6, 21) + 4}
@@ -495,22 +485,11 @@ class TestGetResiduals(unittest.TestCase):
             almost(residuals[index], exp_residual)
 
         # Check errorbars
-        
         almost(res_errors, self.dataset.err_flux)
         
         # Bad = True
         (residuals, res_errors) = self.fit.get_residuals(
             phot_fmt='flux', bad=True)
-
-        # source_flux = self.fit.source_flux
-        # blend_flux = self.fit.blend_flux
-        # plt.figure()
-        # plt.subplot(1, 2, 1)
-        # self.model.plot_lc(f_source=source_flux, f_blend=blend_flux)
-        # self.dataset.plot(phot_fmt='mag', show_bad=True)
-        # plt.subplot(1, 2, 2)
-        # plt.errorbar(self.dataset.time, residuals, yerr=res_errors, fmt='o')
-        # plt.show()
 
         for i, index in enumerate(self.outliers['index']):
             exp_residual = self.outliers['values'][i]
