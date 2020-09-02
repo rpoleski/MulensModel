@@ -519,17 +519,6 @@ class PointLens(object):
 
         if not PointLens._elliptical_files_read:
             self._read_elliptical_files()
-        # XXX HERE - continue
-
-        #x = log10(u)
-        #y = log10(rho)
-        #c1 = (x >= PointLens._interpolation_min_x)
-        #c2 = (x <= PointLens._interpolation_max_x)
-        #c3 = (y >= PointLens._interpolation_min_y)
-        #c4 = (y <= PointLens._interpolation_max_y)
-        #if c1 and c2 and c3 and c4:
-        #    #print(x, y, "INTERP", PointLens._interpolatiddon(x, y))
-        #    return 10**PointLens._interpolation(x, y)[0]
 
         a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
         a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2))
@@ -544,16 +533,14 @@ class PointLens(object):
         x_1 = self._get_ellipk(k)
         x_2 = self._get_ellipe(k)
         x_3 = self._get_ellip3(n, k)
-#        x_1 = ellipk(k)
-#        x_2 = ellipe(k)
-#        x_3 = ellip3(n, k)
         (x_1, x_2) = (x_2, x_1)  # WM94 under Eq. 9 are inconsitent with GR80.
 
         return (a_1*x_1 + a_2*x_2 + a_3*x_3) / np.pi
 
     def _get_ellipk(self, k):
         """
-        XXX
+        Get value of elliptical integral of the first kind.
+        Use interpolation if possible.
         """
         x = np.log10(k)
         condition_1 = (x >= PointLens._interpolate_1_2_x_min)
@@ -564,18 +551,20 @@ class PointLens(object):
 
     def _get_ellipe(self, k):
         """
-        XXX
+        Get value of elliptical integral of the second kind.
+        Use interpolation if possible.
         """
         x = np.log10(k)
         condition_1 = (x >= PointLens._interpolate_1_2_x_min)
         condition_2 = (x <= PointLens._interpolate_1_2_x_max)
         if condition_1 and condition_2:
-            return PointLens._interpolate_1(x)
+            return PointLens._interpolate_2(x)
         return ellipe(k)
 
     def _get_ellip3(self, n, k):
         """
-        XXX
+        Get value of elliptical integral of the third kind.
+        Use interpolation if possible.
         """
         cond_1 = (n >= PointLens._interpolate_3_min_x)
         cond_2 = (n <= PointLens._interpolate_3_max_x)
@@ -583,7 +572,7 @@ class PointLens(object):
         cond_4 = (k <= PointLens._interpolate_3_max_y)
 
         if cond_1 and cond_2 and cond_3 and cond_4:
-            return PointLens._interpolate_3(x, y)[0]
+            return PointLens._interpolate_3(n, k)[0]
 
         return ellip3(n, k)
 
@@ -627,7 +616,6 @@ class PointLens(object):
 # A 1273.24008748 1994.9905932  1868.43109505
 
 # TODO:
-#  - faster calculations
 #  - unit tests
 #  - XXX above
 #  - latex file
