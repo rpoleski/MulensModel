@@ -304,14 +304,25 @@ class PointLens(object):
 
     def get_point_lens_uniform_integrated_magnification(self, u, rho):
         """
-        Calculate magnification for the point lens and uniform finite source.
-        This approach works well for for small and large sources
+        Calculate magnification for the point lens and *uniform* finite source.
+        This approach works well for small and large sources
         (e.g., rho~0.5). Uses the method presented by:
 
         `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
         Microlensing: A Precise, Easy to Implement, Fast, and Numerically
         Stable Formalism"
         <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+            rho: *float*
+                Source size as a fraction of the Einstein radius.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
         """
         n = 100
 
@@ -401,14 +412,29 @@ class PointLens(object):
 
     def get_point_lens_LD_integrated_magnification(self, u, rho, gamma):
         """
-        Calculate magnification for the point lens and finite source with
-        limb-darkening. This approach works well for for small and large
+        Calculate magnification for the point lens and *finite source with
+        limb-darkening*. This approach works well for small and large
         sources (e.g., rho~0.5). Uses the method presented by:
 
         `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
         Microlensing: A Precise, Easy to Implement, Fast, and Numerically
         Stable Formalism"
         <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+            rho: *float*
+                Source size as a fraction of the Einstein radius.
+
+            gamma: *float*
+                Gamma limb darkening coefficient. See also
+                :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
         """
         n_theta = 90
         n_u = 1000
@@ -489,7 +515,22 @@ class PointLens(object):
 
     def get_point_lens_large_finite_source_magnification(self, u):
         """
-        XXX Witt & Mao 1994
+        Calculate magnification for the point lens and *uniform* source.
+        This approach works well for small and large
+        sources (e.g., rho~0.5). The method was presented by:
+
+        `Witt and Mao 1994 ApJ 430, 505 "Can Lensed Stars Be Regarded as
+        Pointlike for Microlensing by MACHOs?"
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
+
         """
         out = [self._get_magnification_WM94(u_) for u_ in u]
         return np.array(out)
@@ -531,7 +572,7 @@ class PointLens(object):
         Get value of elliptic integral of the first kind.
         Use interpolation if possible.
         """
-        x = np.log10(k)
+        x = log10(k)
         condition_1 = (x >= PointLens._interpolate_1_2_x_min)
         condition_2 = (x <= PointLens._interpolate_1_2_x_max)
         if condition_1 and condition_2:
@@ -543,7 +584,7 @@ class PointLens(object):
         Get value of elliptic integral of the second kind.
         Use interpolation if possible.
         """
-        x = np.log10(k)
+        x = log10(k)
         condition_1 = (x >= PointLens._interpolate_1_2_x_min)
         condition_2 = (x <= PointLens._interpolate_1_2_x_max)
         if condition_1 and condition_2:
@@ -567,7 +608,33 @@ class PointLens(object):
 
     def get_point_lens_large_LD_integrated_magnification(self, u, gamma):
         """
-        XXX Witt & Mao 1994  + e.g. Bozza+18 Eq. 16-19
+        Calculate magnification for the point lens and *finite source with
+        limb-darkening*. This approach works well for small and large
+        sources (e.g., rho~0.5). Here multiple annuli
+        (each with uniform source) are used to approximate finite source with
+        limb-darkening. For uniform source calculation see:
+
+        `Witt and Mao 1994 ApJ 430, 505 "Can Lensed Stars Be Regarded as
+        Pointlike for Microlensing by MACHOs?"
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
+
+        The approximation of multiple sources in presented by, e.g.,:
+
+        `Bozza et al. 2018 MNRAS 479, 5157 "VBBINARYLENSING:
+        a public package for microlensing light-curve computation"
+        <https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+            gamma: *float*
+                Gamma limb darkening coefficient. See also
+                :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
         """
         n_annuli = 30  # This value could be tested better.
 
@@ -604,5 +671,7 @@ class PointLens(object):
         return out
 
 # TODO:
-#  - XXX above
 #  - latex file
+#  - spell
+#  - rho in WM94 & Lee09
+#  - version.py
