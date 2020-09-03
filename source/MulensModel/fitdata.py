@@ -460,6 +460,11 @@ class FitData:
             self._calc_magnifications(bad=True)
 
         if phot_fmt == 'scaled':
+            if self.model.n_sources > 1:
+                raise NotImplementedError(
+                    'Scaling data to model not implemented for multiple ' +
+                    'sources.')
+
             if source_flux is None or blend_flux is None:
                 raise ValueError(
                     'If phot_fmt=scaled, source_flux and blend_flux must' +
