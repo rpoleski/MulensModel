@@ -762,6 +762,8 @@ class Event(object):
     #----Stuff that Doesn't Work (or is Deprecated)---#
     def reset_best_chi2(self):
         """
+        DEPRECATED
+
         Reset :py:attr:`~best_chi2` attribute and its parameters
         (:py:attr:`~best_chi2_parameters`).
         """
@@ -770,6 +772,8 @@ class Event(object):
     @property
     def best_chi2(self):
         """
+        DEPRECATED
+
         *float*
 
         The smallest value returned by :py:func:`get_chi2()`.
@@ -779,6 +783,8 @@ class Event(object):
     @property
     def best_chi2_parameters(self):
         """
+        DEPRECATED
+
         *dict*
 
         Parameters that gave the smallest chi2.

@@ -36,7 +36,6 @@ def test_event_get_chi2_1():
 
     ev = mm.Event()
     mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    mod.set_datasets([data])
     ev.model = mod
     ev.datasets = [data]
 
@@ -87,7 +86,6 @@ def test_event_get_chi2_2():
 
     ev = mm.Event()
     mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    mod.set_datasets([data_1, data_2])
     ev.model = mod
     ev.datasets = [data_1, data_2]
 
@@ -132,14 +130,12 @@ def test_event_get_chi2_3():
 
     ev = mm.Event()
     mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    mod.set_datasets([data_1])
     ev.model = mod
     ev.datasets = [data_1]
     chi2 = ev.get_chi2()
     np.testing.assert_almost_equal(float(chi2), 343.46567, decimal=4,
                                    err_msg='problem in resulting chi2')
 
-    mod.set_datasets([data_2])
     ev.model = mod
     ev.datasets = [data_2]
     chi2 = ev.get_chi2()
@@ -158,7 +154,6 @@ def test_chi2_vs_get_chi2():
 
     ev = mm.Event()
     mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    mod.set_datasets([data])
     ev.model = mod
     ev.datasets = [data]
 
@@ -188,7 +183,6 @@ def test_event_get_chi2_double_source_simple():
 
     ev = mm.Event()
     mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    mod.set_datasets([data, data])
 
     ev.model = mod
     ev.datasets = [data, data]
@@ -241,7 +235,6 @@ def test_event_get_chi2_4():
     ev = mm.Event()
     params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E*u.day}
     mod = mm.Model(params)
-    mod.set_datasets([data])
     ev.model = mod
     ev.datasets = [data]
 

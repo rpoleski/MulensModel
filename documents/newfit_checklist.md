@@ -24,8 +24,9 @@ do if easy)
 ## Clean Up Code
 - Delete code that has been commented out:
     - [DONE] in unit tests for Event [DONE], FitData [DONE], Model [DONE]
-    - in Event[DONE], Model
+    - in Event[DONE], Model[DONE], MulensData, Fit Data
 - Add Exceptions for methods and attributes that no longer work
+- Make usage of source_flux and f_source consistent (also for blend)
 - Remove Fit class
 
 ## Check All Examples Work
