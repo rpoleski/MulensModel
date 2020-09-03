@@ -253,8 +253,6 @@ def test_event_get_chi2_4():
     chi2_2 = ev.get_chi2()
 
     assert chi2_2 > chi2_1
-    assert ev.best_chi2 == chi2_1
-    assert ev.best_chi2_parameters == params
 
 
 def test_event_get_chi2_5():

@@ -24,10 +24,12 @@ do if easy)
 ## Clean Up Code
 - Delete code that has been commented out:
     - [DONE] in unit tests for Event [DONE], FitData [DONE], Model [DONE]
-    - in Event, Model
+    - in Event[DONE], Model
 - Add Exceptions for methods and attributes that no longer work
 - Remove Fit class
 
 ## Check All Examples Work
 I think I did this, but I also might have been side-tracked by adding unit tests
 - 01--15
+
+## Check PEP8 Compliance
