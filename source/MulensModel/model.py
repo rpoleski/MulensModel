@@ -146,7 +146,7 @@ class Model(object):
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
 
-        subtract = self._subtract(subtract_2450000, subtract_2460000)
+        subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
 
         if satellite_skycoord is not None:
             if isinstance(satellite_skycoord, SatelliteSkyCoord):
@@ -265,7 +265,7 @@ class Model(object):
 
             flux += f_blend
 
-        subtract = mm_plot._subtract(subtract_2450000, subtract_2460000)
+        subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
 
         self._plt_plot(times-subtract, Utils.get_mag_from_flux(flux), kwargs)
         plt.ylabel('Magnitude')
