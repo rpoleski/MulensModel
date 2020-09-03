@@ -174,7 +174,7 @@ class FitData:
                         source][self._dataset.good] = mag_matrix[source]
 
     def _get_xy_qflux(self):
-        """Use a flux ratio constraint"""
+        """ Apply a fixed flux ratio. """
         y = self._dataset.flux[self._dataset.good]
         x = np.array(
             self._data_magnification[0][self._dataset.good] +
@@ -558,31 +558,6 @@ class FitData:
         # Setup
         gradient = {param: 0 for param in parameters}
         as_dict = self.model.parameters.as_dict()
-
-        # ***seems unnecessary
-        # # Define a Fit given the model and perform linear fit for fs and fb
-        # self._update_data_in_model()
-        # self.fit = Fit(
-        #     data=self.datasets, magnification=self.model.data_magnification)
-        # # For binary source cases, the above line would need to be replaced,
-        # # so that it uses self.model.fit.
-        # if fit_blending is not None:
-        #     self.fit.fit_fluxes(fit_blending=fit_blending)
-        # else:
-        #     self.fit.fit_fluxes()
-        #
-
-        # ***
-        # JCY - Originally implemented for arbitrary chi2 fmt, but this should
-        # always be fluxes, right?
-
-        # for (i, dataset) in enumerate(self.datasets):
-        #     (data, err_data) = dataset.data_and_err_in_chi2_fmt()
-        #     factor = data - self.fit.get_chi2_format(data=dataset)
-        #     factor *= -2. / err_data**2
-        #     if dataset.chi2_fmt == 'mag':
-        #         factor *= -2.5 / (log(10.) * Utils.get_flux_from_mag(data))
-        #     factor *= self.fit.flux_of_sources(dataset)[0]
 
         # Calculate factor
         # JCY - Everything below here should be refactored into smaller bits.
