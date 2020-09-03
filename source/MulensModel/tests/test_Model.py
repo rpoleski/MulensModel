@@ -323,8 +323,8 @@ def test_model_binary_and_finite_sources():
     mag_2 = model_2.magnification(time)
 
     # test:
-    model.set_source_flux_ratio(f_s_2/f_s_1)
-    fitted = model.magnification(time)
+    #model.set_source_flux_ratio(f_s_2/f_s_1)
+    fitted = model.magnification(time, q_flux=f_s_2/f_s_1)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
     almost(fitted, expected)
 
@@ -356,12 +356,12 @@ def test_binary_source_and_fluxes_for_bands():
     flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
     flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
 
-    model.set_source_flux_ratio_for_band('I', q_f_I)
-    model.set_source_flux_ratio_for_band('V', q_f_V)
+    #model.set_source_flux_ratio_for_band('I', q_f_I)
+    #model.set_source_flux_ratio_for_band('V', q_f_V)
 
     # Test Model.magnification()
-    result_I = model.magnification(times_I, flux_ratio_constraint='I')
-    result_V = model.magnification(times_V, flux_ratio_constraint='V')
+    result_I = model.magnification(times_I, q_flux=q_f_I)
+    result_V = model.magnification(times_V, q_flux=q_f_V)
     almost(result_I, effective_mag_I)
     almost(result_V, effective_mag_V)
 
@@ -409,4 +409,9 @@ def test_separate_method_for_each_source():
 #   returns None if no ephemerides file set
 #   other condidtions probably covered by other unit tests
 #
-# properties: parallax, caustics, parameters, n_lenses, n_source, is_static, coords, bandpasses,
+# test _magnification_2_sources: check instances of q_flux being specified vs.
+# separate. Specifically worried that calls to magnification from other parts
+# of the code work as expected.
+#
+# properties: parallax, caustics, parameters, n_lenses, n_source, is_static,
+# coords, bandpasses,
