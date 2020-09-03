@@ -328,11 +328,6 @@ class MulensData(object):
 
             ``**kwargs``: passed to matplotlib plotting functions.
         """
-
-        # JCY - This needs to be sub-divided into many smaller functions
-        # keeping in mind that the final plotting bit needs to be accessible by
-        # Event.plot_data().
-
         if phot_fmt is None:
             phot_fmt = self.input_fmt
         if phot_fmt not in ['mag', 'flux']:
@@ -341,17 +336,12 @@ class MulensData(object):
             raise ValueError(
                     'MulensData.plot() requires model to plot residuals')
 
-        # if show_errorbars is None:
-        #     show_errorbars = self.plot_properties.get('show_errorbars', True)
-        #
-        # if show_bad is None:
-        #     show_bad = self.plot_properties.get('show_bad', False)
-
         if model is None:
             (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
                                                        self.flux,
                                                        self.err_flux)
         else:
+            #### This entire else statement will be deprecated.
             warnings.warn(
                 'Passing a model to MulensData.plot will be depracated. Use ' +
                 'Event.plot_data() instead.', FutureWarning)
@@ -376,41 +366,12 @@ class MulensData(object):
                 err_flux = f_source_0 * self.err_flux / f_source
                 (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
                                                            flux, err_flux)
+            ####
 
         self._plot_datapoints(
             (y_value, y_err), subtract_2450000=subtract_2450000,
             subtract_2460000=subtract_2460000, show_errorbars=show_errorbars,
             show_bad=show_bad, **kwargs)
-        # properties = self._set_plot_properties(
-        #         show_errorbars=show_errorbars, **kwargs)
-        # properties_bad = self._set_plot_properties(
-        #         show_errorbars=show_errorbars, bad=True, **kwargs)
-        #
-        # time_good = self.time[self.good] - subtract
-        # time_bad = self.time[self.bad] - subtract
-        #
-        # if show_errorbars:
-        #     container = self._plt_errorbar(time_good, y_value[self.good],
-        #                                    y_err[self.good], properties)
-        #     if show_bad:
-        #         if 'color' in properties_bad or 'c' in properties_bad:
-        #             pass
-        #         else:
-        #             properties_bad['color'] = container[0].get_color()
-        #
-        #         self._plt_errorbar(time_bad, y_value[self.bad],
-        #                            y_err[self.bad], properties_bad)
-        # else:
-        #     collection = self._plt_scatter(time_good, y_value[self.good],
-        #                                    properties)
-        #     if show_bad:
-        #         change = True
-        #         keys = ['c', 'color', 'facecolor', 'facecolors', 'edgecolors']
-        #         for key in keys:
-        #             change &= key not in properties_bad
-        #         if change:
-        #             properties_bad['color'] = collection.get_edgecolor()
-        #         self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
 
         if phot_fmt == 'mag':
             (ymin, ymax) = plt.gca().get_ylim()
@@ -655,6 +616,7 @@ class MulensData(object):
         """
         if self._err_flux is None:
             self.flux
+
         return self._err_flux
 
     @property
@@ -671,6 +633,7 @@ class MulensData(object):
         new_value = np.asarray(new_value)
         if new_value.dtype != np.dtype('bool'):
             raise TypeError("MulensData.bad has to be a boolean numpy array")
+
         self._bad = new_value
         self._good = np.logical_not(self._bad)
 
@@ -688,6 +651,7 @@ class MulensData(object):
         new_value = np.asarray(new_value)
         if new_value.dtype != np.dtype('bool'):
             raise TypeError("MulensData.good has to be a boolean numpy array")
+
         self._good = new_value
         self._bad = np.logical_not(self._good)
 
@@ -765,6 +729,7 @@ class MulensData(object):
             raise ValueError(
                 "Limb darkening weights were already set - you" +
                 "cannot bandpass now.")
+
         self._bandpass = value
 
     @property
