@@ -29,7 +29,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.2'
+__version__ = '0.12.3'
 
 
 class UlensModelFit(object):
@@ -1224,14 +1224,25 @@ class UlensModelFit(object):
 
         y_1 = y_3 = np.inf
         y_2 = y_4 = -np.inf
+        i_data_ref = self._event.model.data_ref
+        (f_source_0, f_blend_0) = self._event.model.get_ref_fluxes(
+            data_ref=self._datasets[i_data_ref])
 
         for data in self._datasets:
             mask = (data.time >= t_1) & (data.time <= t_2)
             if np.sum(mask) == 0:
                 continue
+            (f_source, f_blend) = self._event.model.get_ref_fluxes(data_ref=data)
+            flux = f_source_0 * (data.flux - f_blend) / f_source
+            flux += f_blend_0
+            err_flux = f_source_0 * data.err_flux / f_source
+            (y_value, y_err) = data._get_y_value_y_err(phot_fmt,
+                                                       flux, err_flux)
+            self._event.model.data_ref = i_data_ref
+
             err_mag = data.err_mag[mask]
-            y_1 = min(y_1, np.min(data.mag[mask] - err_mag))
-            y_2 = max(y_2, np.max(data.mag[mask] + err_mag))
+            y_1 = min(y_1, np.min((y_value - y_err)[mask]))
+            y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
             residuals = self._model.get_residuals(
                 data=data, type=phot_fmt)[0][0][mask]
