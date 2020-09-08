@@ -29,7 +29,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.3'
+__version__ = '0.12.4'
 
 
 class UlensModelFit(object):
@@ -841,7 +841,7 @@ class UlensModelFit(object):
             return self._return_ln_prob(-np.inf)
 
         ln_like = self._ln_like(theta)
-        if not np.isfinite(ln_prior):
+        if not np.isfinite(ln_like):
             return self._return_ln_prob(-np.inf)
 
         ln_prob = ln_prior + ln_like
