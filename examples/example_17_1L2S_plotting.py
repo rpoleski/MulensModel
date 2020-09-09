@@ -49,8 +49,6 @@ my_dataset.plot(phot_fmt='mag', color='red')
 
 
 (source_flux, blend_flux) = my_event.get_ref_fluxes()
-print(source_flux, blend_flux)
-print(assumed_flux_1, assumed_flux_2, assumed_flux_blend)
 # Plot just the model
 plt.figure(figsize=(6, 8))
 # Plot the model in "effective" magnification
@@ -61,13 +59,13 @@ my_model.plot_magnification(q_flux=assumed_flux_2/assumed_flux_1)
 # specifying f_source
 plt.subplot(3, 1, 2)
 plt.title('Model Lightcurve with Specified Fluxes')
-my_model.plot_lc(f_source=source_flux, f_blend=blend_flux)
+my_model.plot_lc(source_flux=source_flux, blend_flux=blend_flux)
 # specifying q_flux (using assumed values, so should be different from prev,
 # which uses fitted fluxes)
 plt.subplot(3, 1, 3)
 plt.title('Model Lightcurve with q_flux')
 my_model.plot_lc(
-    f_source=assumed_flux_1, f_blend=assumed_flux_blend,
+    source_flux=assumed_flux_1, blend_flux=assumed_flux_blend,
     q_flux=assumed_flux_2/assumed_flux_1)
 plt.tight_layout()
 
