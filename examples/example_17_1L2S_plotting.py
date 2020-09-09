@@ -33,18 +33,24 @@ flux += flux_err * np.random.normal(size=n_a+n_b)
 my_dataset = mm.MulensData([time, flux, flux_err], phot_fmt='flux')
 
 # Model
-params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,
-          't_E': 20.}
+#params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,
+#          't_E': 20.}
+params = {'t_0_1': t_0_1, 'u_0_1': u_0_1, 't_0_2': t_0_2, 'u_0_2': u_0_2,
+         't_E': t_E}
 my_model = mm.Model(params)
 my_event = mm.Event(datasets=my_dataset, model=my_model)
 
 # NEW CODE STARTS HERE
 # Plot the model from Event()
 plt.figure()
-plt.title('Event() Model')
-my_event.plot_model()
+plt.title('Event() Model + Raw Data')
+my_event.plot_model(zorder=10, color='black')
+my_dataset.plot(phot_fmt='mag', color='red')
+
 
 (source_flux, blend_flux) = my_event.get_ref_fluxes()
+print(source_flux, blend_flux)
+print(assumed_flux_1, assumed_flux_2, assumed_flux_blend)
 # Plot just the model
 plt.figure(figsize=(6, 8))
 # Plot the model in "effective" magnification
