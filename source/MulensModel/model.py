@@ -259,9 +259,9 @@ class Model(object):
             flux = None
             for i in range(self.n_sources):
                 if flux is None:
-                    flux = f_source[i] + magnification[i]
+                    flux = f_source[i] * magnification[i]
                 else:
-                    flux += f_source[i] + magnification[i]
+                    flux += f_source[i] * magnification[i]
 
             flux += f_blend
 
