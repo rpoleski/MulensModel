@@ -341,32 +341,9 @@ class MulensData(object):
                                                        self.flux,
                                                        self.err_flux)
         else:
-            #### This entire else statement will be deprecated.
-            warnings.warn(
+            raise KeyError(
                 'Passing a model to MulensData.plot will be depracated. Use ' +
-                'Event.plot_data() instead.', FutureWarning)
-
-            if plot_residuals:
-                warnings.warn(
-                    'The plot_residuals option will be deprecated because it '
-                    'requires a model. Use Event.plot_residuals() instead.'
-                )
-                residuals = model.get_residuals(data_ref=model.data_ref,
-                                                type=phot_fmt, data=self)
-                y_value = residuals[0][0]
-                y_err = residuals[1][0]
-            else:
-                data_ref = model.datasets[model.data_ref]
-                f_source_0 = model.fit.flux_of_sources(data_ref)
-                f_blend_0 = model.fit.blending_flux(data_ref)
-                f_source = model.fit.flux_of_sources(self)
-                f_blend = model.fit.blending_flux(self)
-                flux = f_source_0 * (self.flux - f_blend) / f_source
-                flux += f_blend_0
-                err_flux = f_source_0 * self.err_flux / f_source
-                (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
-                                                           flux, err_flux)
-            ####
+                'Event.plot_data() or Event.plot_residuals() instead.')
 
         self._plot_datapoints(
             (y_value, y_err), subtract_2450000=subtract_2450000,
