@@ -29,8 +29,8 @@ do if easy)
 - Make usage of source_flux and f_source consistent (also for blend)
     - [DONE]Find an example to check that output of FitData can be input to
       model plotting
-        - Now, make it work properly...
-    - Add source_flux, blend_flux where necessary. Add deprecation warnings and 
+        - [DONE] Now, make it work properly...
+    - [DONE] Add source_flux, blend_flux where necessary. Add deprecation warnings and 
       fixes for f_source, f_blend.
     - q_flux --> flux_ratio
 - put deprecated keywords back in documentation with comment about deprecation 

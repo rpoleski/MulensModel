@@ -126,7 +126,7 @@ class Model(object):
 
             q_flux: *float*
                 If the model has two sources, q_flux is the ratio of
-                f_source_2 / f_source_1
+                source_flux_2 / source_flux_1
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
@@ -167,9 +167,10 @@ class Model(object):
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
-            dt=None, n_epochs=None, f_source=None, f_blend=None,
+            dt=None, n_epochs=None, source_flux=None, blend_flux=None,
             q_flux=None, subtract_2450000=False, subtract_2460000=False,
             data_ref=None, flux_ratio_constraint=None, fit_blending=None,
+            f_source=None, f_blend=None,
             **kwargs):
         """
         Plot the model light curve in magnitudes.
@@ -180,30 +181,33 @@ class Model(object):
 
             t_range, t_start, t_stop, dt, n_epochs: see :py:func:`set_times`
 
-            f_source: *float* or *list*
+            source_flux: *float* or *list*
                 Explicitly specify the source flux(es) in a
                 system where flux = 1 corresponds to
                 :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag). If the model
-                has n_source > 1, f_source may be specified as a list: one
-                value for each source. Alternatively, if f_source is specified
-                as a float, q_flux should also be specificed. Then, f_source is
+                has n_source > 1, source_flux may be specified as a list: one
+                value for each source. Alternatively, if source_flux is specified
+                as a float, q_flux should also be specificed. Then, source_flux is
                 taken to be the flux of the first source, and the other source
                 fluxes are derived using q_flux.
 
-            f_blend: *float*
+            blend_flux: *float*
                 Explicitly specify the blend flux in a
                 system where flux = 1 corresponds to
                 :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag).
 
             q_flux: *float*, Optional
                 If the model has two sources, q_flux is the ratio of
-                f_source_2 / f_source_1.
+                source_flux_2 / source_flux_1.
 
             subtract_2450000, subtract_2460000: *boolean*, optional
                 If True, subtracts 2450000 or 2460000 from the time
                 axis to get more human-scale numbers. If using, make
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_data()`)
+
+            f_source, f_blend: DEPRECATED
+                use *source_flux* or *blend_flux* instead.
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
@@ -217,32 +221,42 @@ class Model(object):
 
         if data_ref is not None:
             raise NameError(
-                'data_ref keyword has been deprecated. Specify f_source and ' +
-                'f_blend instead or use plotting functions in Event().')
+                'data_ref keyword has been deprecated. Specify source_flux and ' +
+                'blend_flux instead or use plotting functions in Event().')
 
         if fit_blending is not None:
             raise NameError(
                 'fit_blending keyword has been deprecated. Use Event() ' +
                 'instead.')
 
-        if f_source is None:
-            raise ValueError("You must provide a value for f_source.")
-        elif (isinstance(f_source, float) and self.n_sources > 1):
+        if f_source is not None:
+            warnings.warn(
+                'f_source will be deprecated. Use source_flux instead')
+            source_flux = f_source
+
+        if f_blend is not None:
+            warnings.warn(
+                'f_blend will be deprecated. Use blend_flux instead')
+            blend_flux = f_blend
+
+        if source_flux is None:
+            raise ValueError("You must provide a value for source_flux.")
+        elif (isinstance(source_flux, float) and self.n_sources > 1):
             if q_flux is None:
                 raise ValueError(
-                    "Either f_source should be a list or q_flux should be" +
+                    "Either source_flux should be a list or q_flux should be" +
                     "specified.\n" +
-                    "f_source = {0}\n".format(f_source) +
-                    "n_sources = {0}\n".format(self.n_sources)+
+                    "source_flux = {0}\n".format(source_flux) +
+                    "n_sources = {0}\n".format(self.n_sources) +
                     "q_flux = {0}")
             else:
                 # This condition will need to be modified for > 2 sources.
-                f_source = [f_source]
-                f_source.append(f_source[0] * q_flux)
+                source_flux = [source_flux]
+                source_flux.append(source_flux[0] * q_flux)
 
-        if f_blend is None:
-            warnings.warn('No f_blend not specified. Assuming f_blend = zero.')
-            f_blend = 0.
+        if blend_flux is None:
+            warnings.warn('No blend_flux not specified. Assuming blend_flux = zero.')
+            blend_flux = 0.
 
         if times is None:
             times = self.set_times(
@@ -253,17 +267,17 @@ class Model(object):
 
         if self.n_sources == 1:
             magnification = self.magnification(times)
-            flux = f_source * magnification + f_blend
+            flux = source_flux * magnification + blend_flux
         else:
             magnification = self.magnification(times, separate=True)
             flux = None
             for i in range(self.n_sources):
                 if flux is None:
-                    flux = f_source[i] * magnification[i]
+                    flux = source_flux[i] * magnification[i]
                 else:
-                    flux += f_source[i] * magnification[i]
+                    flux += source_flux[i] * magnification[i]
 
-            flux += f_blend
+            flux += blend_flux
 
         subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
 
@@ -882,7 +896,7 @@ class Model(object):
 
             q_flux: *float*
                 If the model has two sources, q_flux is the ratio of
-                f_source_2 / f_source_1
+                source_flux_2 / source_flux_1
 
             separate: *boolean*, optional
                 For binary source models, return magnification of each source

@@ -127,7 +127,7 @@ class Event(object):
             data_ref = self.data_ref
 
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
-        self.model.plot_lc(f_source=f_source_0, f_blend=f_blend_0, **kwargs)
+        self.model.plot_lc(source_flux=f_source_0, blend_flux=f_blend_0, **kwargs)
 
     def plot_data(
             self, phot_fmt='mag', data_ref=None, show_errorbars=None,
@@ -340,12 +340,12 @@ class Event(object):
             dataset in the :py:obj:`~datasets` list.
 
         Returns :
-            f_source: *np.ndarray*
-                Sources' flux; normally of size (1). If it is of size (1)
-                for a double source model, then it is a sum of fluxes
-                of both sources.
-            f_blend: *float*
-                blending flux
+            source_flux: *np.ndarray*
+                flux of sources. see
+                :py:obj:`~MulensModel.fitdata.FitData.source_fluxes`
+            blend_flux: *float*
+                blending flux. see
+                :py:obj:`~MulensModel.fitdata.FitData.blend_flux`
 
         NOTE: This function does not recalculate fits or fluxes. If the data
         haven't yet been fit to the model (i.e. self.fits = None),
@@ -363,10 +363,10 @@ class Event(object):
         else:
             i = dataset
 
-        f_source = self.fits[i].source_fluxes
-        f_blend = self.fits[i].blend_flux
+        source_flux = self.fits[i].source_fluxes
+        blend_flux = self.fits[i].blend_flux
 
-        return (f_source, f_blend)
+        return (source_flux, blend_flux)
 
     def get_ref_fluxes(self, data_ref=None, fit_blending=None):
         """

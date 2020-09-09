@@ -33,12 +33,12 @@ class FitData:
             parameter. If set to a float, it will fix the source value to that
             value. For binary source models, a list should be used to set the
             fluxes of the individual sources or fix one and not the other, e.g.
-            [2.3, False] would fix f_source_0 to 2.3 but allow a free fit to
-            f_source_1.
+            [2.3, False] would fix source_flux_0 to 2.3 but allow a free fit to
+            source_flux_1.
 
         fix_q_flux: *False* or *float*, optional
             For binary source models, q_flux is the flux ratio between two
-            components, i.e. q_flux = f_source_1 / f_source_0
+            components, i.e. q_flux = source_flux_1 / source_flux_0
             Default is *False*, i.e. allow the source flux to be a free
             parameter. If set to a float, it will fix the source value to that
             value.
@@ -388,9 +388,9 @@ class FitData:
     def scale_fluxes(self, source_flux, blend_flux):
         """
         Rescale the data fluxes to an arbitrary flux scale:
-            flux = f_source_0 * (data.flux - f_blend) / f_source
-            flux += f_blend_0
-            err_flux = f_source_0 * data.err_flux / f_source
+            flux = source_flux_0 * (data.flux - blend_flux) / source_flux
+            flux += blend_flux_0
+            err_flux = source_flux_0 * data.err_flux / source_flux
 
         Arguments :
             source_flux: *float*
@@ -760,7 +760,7 @@ class FitData:
     @property
     def q_flux(self):
         """
-        q_flux = f_source_1 / f_source_0
+        q_flux = source_flux_1 / source_flux_0
 
         Returns :
             q_flux: *float*
