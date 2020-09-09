@@ -917,6 +917,14 @@ class Model(object):
                 raise TypeError(
                     'q_flux should be a float. Got: {:}'.format(q_flux))
 
+        if self.n_sources > 1:
+            if (q_flux is None) and (separate is False):
+                raise ValueError(
+                    'For 2 sources either q_flux should be set or ' +
+                    'separate=True. \n' +
+                    'separate: {0}\n'.format(separate) +
+                    'q_flux: {0}'.format(q_flux))
+
         mag = self._magnification(
             time, satellite_skycoord, gamma, q_flux, separate)
 
