@@ -368,7 +368,7 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, caustics=False,
             arrow=True, satellite_skycoord=None, arrow_kwargs=None,
-            show_data=False, **kwargs):
+            show_data=None, **kwargs):
         """
         Plot the source trajectory.
 
