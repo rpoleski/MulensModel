@@ -42,13 +42,13 @@ class Event(object):
 
         fix_blend_flux, fix_source_flux: *dict*
             Used to fix the source flux(es) or blend flux
-            (q_flux for 1L2S models) for a particular dataset. The dataset is
+            for a particular dataset. The dataset is
             the key, and the value to be fixed is the value. For example, to
             fix the blending of some dataset *my_data* to zero set
             *fix_blend_flux={my_data: 0.}*. See also
             :py:class:`~MulensModel.fitdata.FitData` .
 
-        fix_q_flux: *dict*
+        fix_source_flux_ratio: *dict*
             Used to fix the flux ratio for a given band or dataset. The keys
             should be either :py:class:`~MulensModel.mulensdata.MulensData`
             objects or *str*. If a
@@ -78,7 +78,7 @@ class Event(object):
 
     def __init__(
             self, datasets=None, model=None, coords=None, fix_blend_flux={},
-            fix_source_flux={}, fix_q_flux={}, data_ref=0):
+            fix_source_flux={}, fix_source_flux_ratio={}, data_ref=0):
         self._model = None
         self._coords = None
 
@@ -111,7 +111,7 @@ class Event(object):
         self.chi2 = None
         self.fix_blend_flux = fix_blend_flux
         self.fix_source_flux = fix_source_flux
-        self.fix_q_flux = fix_q_flux
+        self.fix_source_flux_ratio = fix_source_flux_ratio
 
     def plot_model(self, data_ref=None, **kwargs):
         """
@@ -561,18 +561,19 @@ class Event(object):
                 fix_source_flux = False
 
             # JCY - This needs a unit test.
-            if dataset in self.fix_q_flux.keys():
-                fix_q_flux = self.fix_q_flux[dataset]
+            if dataset in self.fix_source_flux_ratio.keys():
+                fix_source_flux_ratio = self.fix_source_flux_ratio[dataset]
             else:
-                if dataset.bandpass in self.fix_q_flux.keys():
-                    fix_q_flux = self.fix_q_flux[dataset.bandpass]
+                if dataset.bandpass in self.fix_source_flux_ratio.keys():
+                    fix_source_flux_ratio = self.fix_source_flux_ratio[
+                        dataset.bandpass]
                 else:
-                    fix_q_flux = False
+                    fix_source_flux_ratio = False
 
             fit = FitData(
                 model=self.model, dataset=dataset,
                 fix_blend_flux=fix_blend_flux, fix_source_flux=fix_source_flux,
-                fix_q_flux=fix_q_flux)
+                fix_source_flux_ratio=fix_source_flux_ratio)
             fit.update(bad=bad)  # Fit the fluxes and calculate chi2.
             self.fits.append(fit)
 

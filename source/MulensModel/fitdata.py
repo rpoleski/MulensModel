@@ -36,9 +36,10 @@ class FitData:
             [2.3, False] would fix source_flux_0 to 2.3 but allow a free fit to
             source_flux_1.
 
-        fix_q_flux: *False* or *float*, optional
-            For binary source models, q_flux is the flux ratio between two
-            components, i.e. q_flux = source_flux_1 / source_flux_0
+        fix_source_flux_ratio: *False* or *float*, optional
+            For binary source models, source_flux_ratio is the flux ratio
+            between two  components, i.e.,
+            source_flux_ratio = source_flux_1 / source_flux_0
             Default is *False*, i.e. allow the source flux to be a free
             parameter. If set to a float, it will fix the source value to that
             value.
@@ -46,7 +47,7 @@ class FitData:
     """
 
     def __init__(self, model=None, dataset=None, fix_blend_flux=False,
-                 fix_source_flux=False, fix_q_flux=False):
+                 fix_source_flux=False, fix_source_flux_ratio=False):
         self.model = model
         self.dataset = dataset
 
@@ -66,7 +67,7 @@ class FitData:
 
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
-        self.fix_q_flux = fix_q_flux
+        self.fix_source_flux_ratio = fix_source_flux_ratio
         if isinstance(fix_source_flux, list) or (fix_source_flux is False):
             self.fix_source_flux = fix_source_flux
         else:
@@ -82,24 +83,24 @@ class FitData:
         # parameters fluxes of various sources
         self._source_fluxes = None
         self._blend_flux = None
-        self._q_flux = None
+        self._source_flux_ratio = None
 
         # chi2 parameters
         self._chi2_per_point = None
         self._chi2 = None
 
-    def _check_for_q_flux_errors(self):
+    def _check_for_flux_ratio_errors(self):
         """
         If combination of settings and models are invalid, raise exceptions.
         """
 
-        if self.fix_q_flux is not False:
+        if self.fix_source_flux_ratio is not False:
             if self._model.n_sources != 2:
-                msg = ('fix_q_flux only valid for models with 2 sources.' +
+                msg = ('fix_source_flux_ratio only valid for models with 2 sources.' +
                        'n_sources = {0}'.format(self._model.n_sources))
                 raise ValueError(msg)
             elif self.fix_source_flux is not False:
-                msg = ('fix_q_flux + fixed_source_flux not implemented.' +
+                msg = ('fix_source_flux_ratio + fixed_source_flux not implemented.' +
                        'Fix the fluxes for each source individually instead.')
                 raise NotImplementedError(msg)
 
@@ -178,7 +179,7 @@ class FitData:
         y = self._dataset.flux[self._dataset.good]
         x = np.array(
             self._data_magnification[0][self._dataset.good] +
-            self.fix_q_flux * self._data_magnification[1][self._dataset.good])
+            self.fix_source_flux_ratio * self._data_magnification[1][self._dataset.good])
         self.n_fluxes = 1
 
         return (x, y)
@@ -233,8 +234,8 @@ class FitData:
         self._calc_magnifications(bad=False)
 
         # Account for source fluxes
-        if self.fix_q_flux is not False:
-            self._check_for_q_flux_errors()
+        if self.fix_source_flux_ratio is not False:
+            self._check_for_flux_ratio_errors()
             (x, y) = self._get_xy_qflux()
         else:
             (x, y) = self._get_xy_individual_fluxes()
@@ -297,7 +298,7 @@ class FitData:
                 ' probably in the data.')
 
         # Record the results
-        if self.fix_q_flux is False:
+        if self.fix_source_flux_ratio is False:
             if self.fix_source_flux is False:
                 self._source_fluxes = results[0:self._model.n_sources]
             else:
@@ -311,7 +312,7 @@ class FitData:
                         self._source_fluxes.append(self.fix_source_flux[i])
 
         else:
-            self._source_fluxes = [results[0], results[0] * self.fix_q_flux]
+            self._source_fluxes = [results[0], results[0] * self.fix_source_flux_ratio]
 
         if self.fix_blend_flux is False:
             self._blend_flux = results[-1]
@@ -758,14 +759,14 @@ class FitData:
         return self._blend_flux
 
     @property
-    def q_flux(self):
+    def source_flux_ratio(self):
         """
-        q_flux = source_flux_1 / source_flux_0
+        source_flux_ratio = source_flux_1 / source_flux_0
 
         Returns :
-            q_flux: *float*
+            source_flux_ratio: *float*
                 the ratio of the fitted source fluxes or the value set by
-                fix_q_flux (see :ref:`keywords`).
+                fix_source_flux_ratio (see :ref:`keywords`).
 
         If None, you need to run :py:func:`~fit_fluxes()` or
         :py:func:`~update()` to execute the linear fit.
@@ -777,8 +778,8 @@ class FitData:
                    " sources.")
             raise NameError(msg)
 
-        if self.fix_q_flux:
-            return self.fix_q_flux
+        if self.fix_source_flux_ratio:
+            return self.fix_source_flux_ratio
         else:
             return self.source_fluxes[1] / self.source_fluxes[0]
 

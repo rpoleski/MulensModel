@@ -20,19 +20,20 @@ do if easy)
     1) [DONE] identify appropriate example for testing --> Modify 
     example_05_MB08310 to include trajectory plot
     2) [DONE] implement
+- Plotting for 1L2S, multiple datasets
 
 ## Clean Up Code
 - Delete code that has been commented out:
     - [DONE] in unit tests for Event [DONE], FitData [DONE], Model [DONE]
     - [DONE]in Event[DONE], Model[DONE], MulensData[DONE], FitData[DONE]
 - [DONE]Add Exceptions for methods and attributes that no longer work
-- Make usage of source_flux and f_source consistent (also for blend)
+- [DONE] Make usage of source_flux and f_source consistent (also for blend)
     - [DONE]Find an example to check that output of FitData can be input to
       model plotting
         - [DONE] Now, make it work properly...
     - [DONE] Add source_flux, blend_flux where necessary. Add deprecation warnings and 
       fixes for f_source, f_blend.
-    - q_flux --> flux_ratio
+    - [DONE] q_flux --> flux_ratio
 - put deprecated keywords back in documentation with comment about deprecation 
 and alternatives.
 - Remove Fit class

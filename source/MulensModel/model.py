@@ -109,7 +109,7 @@ class Model(object):
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
-            satellite_skycoord=None, gamma=0., q_flux=None,
+            satellite_skycoord=None, gamma=0., source_flux_ratio=None,
             flux_ratio_constraint=None,
             **kwargs):
         """
@@ -124,8 +124,8 @@ class Model(object):
             satellite_skycoord:
                 see :py:func:`plot_trajectory()`
 
-            q_flux: *float*
-                If the model has two sources, q_flux is the ratio of
+            source_flux_ratio: *float*
+                If the model has two sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1
 
             ``**kwargs``:
@@ -134,8 +134,9 @@ class Model(object):
         """
         if flux_ratio_constraint is not None:
             warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use q_flux instead')
-            q_flux = flux_ratio_constraint
+                'flux_ratio_constraint will be deprecated. Use ' +
+                'source_flux_ratio instead')
+            source_flux_ratio = flux_ratio_constraint
 
         if 'fit_blending' in kwargs:
             raise ValueError(
@@ -159,7 +160,7 @@ class Model(object):
 
         magnification = self.magnification(
             times, satellite_skycoord=satellite, gamma=gamma,
-            q_flux=q_flux)
+            source_flux_ratio=source_flux_ratio)
 
         self._plt_plot(times-subtract, magnification, kwargs)
         plt.ylabel('Magnification')
@@ -168,7 +169,7 @@ class Model(object):
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, source_flux=None, blend_flux=None,
-            q_flux=None, subtract_2450000=False, subtract_2460000=False,
+            source_flux_ratio=None, subtract_2450000=False, subtract_2460000=False,
             data_ref=None, flux_ratio_constraint=None, fit_blending=None,
             f_source=None, f_blend=None,
             **kwargs):
@@ -187,17 +188,17 @@ class Model(object):
                 :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag). If the model
                 has n_source > 1, source_flux may be specified as a list: one
                 value for each source. Alternatively, if source_flux is specified
-                as a float, q_flux should also be specificed. Then, source_flux is
+                as a float, source_flux_ratio should also be specificed. Then, source_flux is
                 taken to be the flux of the first source, and the other source
-                fluxes are derived using q_flux.
+                fluxes are derived using source_flux_ratio.
 
             blend_flux: *float*
                 Explicitly specify the blend flux in a
                 system where flux = 1 corresponds to
                 :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag).
 
-            q_flux: *float*, Optional
-                If the model has two sources, q_flux is the ratio of
+            source_flux_ratio: *float*, Optional
+                If the model has two sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1.
 
             subtract_2450000, subtract_2460000: *boolean*, optional
@@ -216,8 +217,8 @@ class Model(object):
 
         if flux_ratio_constraint is not None:
             warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use q_flux instead')
-            q_flux = flux_ratio_constraint
+                'flux_ratio_constraint will be deprecated. Use source_flux_ratio instead')
+            source_flux_ratio = flux_ratio_constraint
 
         if data_ref is not None:
             raise NameError(
@@ -242,17 +243,17 @@ class Model(object):
         if source_flux is None:
             raise ValueError("You must provide a value for source_flux.")
         elif (isinstance(source_flux, float) and self.n_sources > 1):
-            if q_flux is None:
+            if source_flux_ratio is None:
                 raise ValueError(
-                    "Either source_flux should be a list or q_flux should be" +
+                    "Either source_flux should be a list or source_flux_ratio should be" +
                     "specified.\n" +
                     "source_flux = {0}\n".format(source_flux) +
                     "n_sources = {0}\n".format(self.n_sources) +
-                    "q_flux = {0}")
+                    "source_flux_ratio = {0}")
             else:
                 # This condition will need to be modified for > 2 sources.
                 source_flux = [source_flux]
-                source_flux.append(source_flux[0] * q_flux)
+                source_flux.append(source_flux[0] * source_flux_ratio)
 
         if blend_flux is None:
             warnings.warn('No blend_flux not specified. Assuming blend_flux = zero.')
@@ -876,7 +877,7 @@ class Model(object):
             return satellite_skycoords.get_satellite_coords(times)
 
     def magnification(self, time, satellite_skycoord=None, gamma=0.,
-                      q_flux=None, separate=False,
+                      source_flux_ratio=None, separate=False,
                       flux_ratio_constraint=None):
         """
         Calculate the model magnification for the given time(s).
@@ -894,8 +895,8 @@ class Model(object):
                 The limb darkening coefficient in gamma convention. Default is
                 0 which means no limb darkening effect.
 
-            q_flux: *float*
-                If the model has two sources, q_flux is the ratio of
+            source_flux_ratio: *float*
+                If the model has two sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1
 
             separate: *boolean*, optional
@@ -910,42 +911,43 @@ class Model(object):
                 *separate=True*).
         """
         # JCY - In future, there could be a bandpass option. This could
-        #    simultaneously account for limb-darkening and q_flux for a given
+        #    simultaneously account for limb-darkening and source_flux_ratio for a given
         #    band.
 
         if flux_ratio_constraint is not None:
             warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use q_flux instead.')
+                'flux_ratio_constraint will be deprecated. Use source_flux_ratio instead.')
             if isinstance(flux_ratio_constraint, float):
-                q_flux = flux_ratio_constraint
+                source_flux_ratio = flux_ratio_constraint
             elif isinstance(flux_ratio_constraint, MulensData):
                 raise ValueError(
                     'The ability to set flux_ratio_constraint with a dataset' +
-                    'is deprecated. Use a float with q_flux instead.')
+                    'is deprecated. Use a float with source_flux_ratio instead.')
             else:
                 raise ValueError(
                     'Wrong type for flux_ratio_constraint. Use a float with '
-                    'q_flux instead.')
-        elif q_flux is not None:
-            if not isinstance(q_flux, float):
+                    'source_flux_ratio instead.')
+        elif source_flux_ratio is not None:
+            if not isinstance(source_flux_ratio, float):
                 raise TypeError(
-                    'q_flux should be a float. Got: {:}'.format(q_flux))
+                    'source_flux_ratio should be a float. Got: {:}'.format(
+                        source_flux_ratio))
 
         if self.n_sources > 1:
-            if (q_flux is None) and (separate is False):
+            if (source_flux_ratio is None) and (separate is False):
                 raise ValueError(
-                    'For 2 sources either q_flux should be set or ' +
+                    'For 2 sources either source_flux_ratio should be set or ' +
                     'separate=True. \n' +
                     'separate: {0}\n'.format(separate) +
-                    'q_flux: {0}'.format(q_flux))
+                    'source_flux_ratio: {0}'.format(source_flux_ratio))
 
         mag = self._magnification(
-            time, satellite_skycoord, gamma, q_flux, separate)
+            time, satellite_skycoord, gamma, source_flux_ratio, separate)
 
         return mag
 
     def _magnification(self, time, satellite_skycoord, gamma,
-                       q_flux, separate):
+                       source_flux_ratio, separate):
         """
         Internal function that calculates magnification.
         """
@@ -962,11 +964,11 @@ class Model(object):
             satellite_skycoord = self.get_satellite_coords(time)
 
         if self.n_sources == 1:
-            if q_flux is not None:
+            if source_flux_ratio is not None:
                 raise ValueError(
                     'Model.magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
-                    'models, not {:}'.format(q_flux))
+                    'models, not {:}'.format(source_flux_ratio))
             elif separate:
                 raise ValueError(
                     'Model.magnification() parameter separate ' +
@@ -977,7 +979,7 @@ class Model(object):
 
         elif self.n_sources == 2:
             magnification = self._magnification_2_sources(
-                time, satellite_skycoord, gamma, q_flux,
+                time, satellite_skycoord, gamma, source_flux_ratio,
                 separate)
         else:
             raise ValueError(
@@ -1004,17 +1006,17 @@ class Model(object):
         return magnification_curve.magnification
 
     def _magnification_2_sources(
-            self, time, satellite_skycoord, gamma, q_flux, separate):
+            self, time, satellite_skycoord, gamma, source_flux_ratio, separate):
         """
         calculate model magnification for given times for model with
         two sources
 
-        q_flux: *float*
+        source_flux_ratio: *float*
         separate: *bool*
         """
-        if separate and (q_flux is not None):
+        if separate and (source_flux_ratio is not None):
             raise ValueError(
-                'You cannot set both q_flux and separate' +
+                'You cannot set both source_flux_ratio and separate' +
                 " parameters in Model.magnification(). This doesn't make" +
                 'sense')
 
@@ -1024,8 +1026,8 @@ class Model(object):
         if separate:
             return (mag_1, mag_2)
         else:
-            magnification = mag_1 + mag_2 * q_flux
-            magnification /= (1. + q_flux)
+            magnification = mag_1 + mag_2 * source_flux_ratio
+            magnification /= (1. + source_flux_ratio)
             return magnification
 
 
