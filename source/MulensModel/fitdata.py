@@ -394,8 +394,10 @@ class FitData:
             err_flux = source_flux_0 * data.err_flux / source_flux
 
         Arguments :
-            source_flux: *float*
-                Flux of the source in the desired system
+            source_flux: *float*, *list*, *np.array*
+                Flux of the source in the desired system. If n_sources > 1 and
+                source_flux has more than one element, the elements are
+                summed to produce the overall scaling flux.
 
             blend_flux: *float*
                 Flux of the blend in the desired system
@@ -404,14 +406,17 @@ class FitData:
             (flux, err): the fluxes and flux errors of the dataset rescaled
             to the desired system
         """
-        if self.model.n_sources > 1:
-            raise NotImplementedError(
-                'Scaling data to model not implemented for multiple sources.')
+        if self.model.n_sources == 1:
+            data_source_flux = self.source_flux
+        else:
+            data_source_flux = np.sum(self.source_fluxes)
+            if len(source_flux) > 1:
+                source_flux = np.sum(source_flux)
 
         flux = source_flux * (self._dataset.flux - self.blend_flux)
-        flux /= self.source_flux
+        flux /= data_source_flux
         flux += blend_flux
-        err_flux = source_flux * self._dataset.err_flux / self.source_flux
+        err_flux = source_flux * self._dataset.err_flux / data_source_flux
 
         return (flux, err_flux)
 

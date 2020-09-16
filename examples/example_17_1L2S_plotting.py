@@ -15,22 +15,40 @@ u_0_1 = 0.2
 t_0_2 = 6140.
 u_0_2 = 0.01
 t_E = 25.
+model_1 = mm.Model({'t_0': t_0_1, 'u_0': u_0_1, 't_E': t_E})
+model_2 = mm.Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
+
+
+def generate_time_vector(n_a, n_b):
+    time_a = np.linspace(6000., 6300., n_a)
+    time_b = np.linspace(6139., 6141., n_b)
+    time = np.sort(np.concatenate((time_a, time_b)))
+    return time
+
+def generate_dataset(time, fluxes, flux_err=6):
+    (flux_1, flux_2, blend_flux) = fluxes
+    A_1 = model_1.magnification(time)
+    A_2 = model_2.magnification(time)
+    flux = A_1 * flux_1 + A_2 * flux_2 + blend_flux
+    flux_err = 6. + 0. * time
+    flux += flux_err * np.random.normal(size=len(time))
+    my_dataset = mm.MulensData([time, flux, flux_err], phot_fmt='flux')
+    return my_dataset
+
 assumed_flux_1 = 100.
 assumed_flux_2 = 5.
 assumed_flux_blend = 10.
 n_a = 1000
 n_b = 600
-time_a = np.linspace(6000., 6300., n_a)
-time_b = np.linspace(6139., 6141., n_b)
-time = np.sort(np.concatenate((time_a, time_b)))
-model_1 = mm.Model({'t_0': t_0_1, 'u_0': u_0_1, 't_E': t_E})
-A_1 = model_1.magnification(time)
-model_2 = mm.Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
-A_2 = model_2.magnification(time)
-flux = A_1 * assumed_flux_1 + A_2 * assumed_flux_2 + assumed_flux_blend
-flux_err = 6. + 0. * time
-flux += flux_err * np.random.normal(size=n_a+n_b)
-my_dataset = mm.MulensData([time, flux, flux_err], phot_fmt='flux')
+time = generate_time_vector(n_a, n_b)
+my_dataset = generate_dataset(
+    time, (assumed_flux_1, assumed_flux_2, assumed_flux_blend), flux_err=6)
+
+time_2 = generate_time_vector(int(n_a / 5), int(n_b / 5))
+my_dataset_2 = generate_dataset(
+    time_2, (assumed_flux_1/2., assumed_flux_2/2., assumed_flux_blend/2.),
+    flux_err=12.)
+
 
 # Model
 #params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,
@@ -38,15 +56,14 @@ my_dataset = mm.MulensData([time, flux, flux_err], phot_fmt='flux')
 params = {'t_0_1': t_0_1, 'u_0_1': u_0_1, 't_0_2': t_0_2, 'u_0_2': u_0_2,
          't_E': t_E}
 my_model = mm.Model(params)
-my_event = mm.Event(datasets=my_dataset, model=my_model)
+my_event = mm.Event(datasets=[my_dataset, my_dataset_2], model=my_model)
 
 # NEW CODE STARTS HERE
-# Plot the model from Event()
+# Plot just the data
 plt.figure()
-plt.title('Event() Model + Raw Data')
-my_event.plot_model(zorder=10, color='black')
-my_dataset.plot(phot_fmt='mag', color='red')
-
+plt.title('Raw Data')
+my_dataset.plot(phot_fmt='mag')
+my_dataset_2.plot(phot_fmt='mag')
 
 (source_flux, blend_flux) = my_event.get_ref_fluxes()
 # Plot just the model
@@ -68,5 +85,11 @@ my_model.plot_lc(
     source_flux=assumed_flux_1, blend_flux=assumed_flux_blend,
     source_flux_ratio=assumed_flux_2 / assumed_flux_1)
 plt.tight_layout()
+
+# Plot the model from Event()
+plt.figure()
+plt.title('Event() Model + Data')
+my_event.plot_model(zorder=10, color='black')
+my_event.plot_data()
 
 plt.show()

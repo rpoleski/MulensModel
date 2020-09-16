@@ -20,7 +20,7 @@ do if easy)
     1) [DONE] identify appropriate example for testing --> Modify 
     example_05_MB08310 to include trajectory plot
     2) [DONE] implement
-- Plotting for 1L2S, multiple datasets
+- [DONE] Plotting for 1L2S, multiple datasets
 
 ## Clean Up Code
 - Delete code that has been commented out:
