@@ -128,6 +128,8 @@ class Model(object):
                 If the model has two sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1
 
+            flux_ratio_constraint: DEPRECATED. Use source_flux_ratio instead.
+
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
 
@@ -169,9 +171,10 @@ class Model(object):
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, source_flux=None, blend_flux=None,
-            source_flux_ratio=None, subtract_2450000=False, subtract_2460000=False,
-            data_ref=None, flux_ratio_constraint=None, fit_blending=None,
-            f_source=None, f_blend=None,
+            source_flux_ratio=None, subtract_2450000=False,
+            subtract_2460000=False,
+            data_ref=None, flux_ratio_constraint=None,
+            fit_blending=None, f_source=None, f_blend=None,
             **kwargs):
         """
         Plot the model light curve in magnitudes.
@@ -187,10 +190,11 @@ class Model(object):
                 system where flux = 1 corresponds to
                 :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag). If the model
                 has n_source > 1, source_flux may be specified as a list: one
-                value for each source. Alternatively, if source_flux is specified
-                as a float, source_flux_ratio should also be specificed. Then, source_flux is
-                taken to be the flux of the first source, and the other source
-                fluxes are derived using source_flux_ratio.
+                value for each source. Alternatively, if source_flux is
+                specified as a float, source_flux_ratio should also be
+                specified. Then, source_flux is taken to be the flux of the
+                first source, and the other source fluxes are derived using
+                source_flux_ratio.
 
             blend_flux: *float*
                 Explicitly specify the blend flux in a
@@ -207,6 +211,16 @@ class Model(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_data()`)
 
+            data_ref: DEPRECATED
+                Specify source_flux and blend_flux instead or use plotting
+                functions in py:class:`~MulensModel.Event()`
+
+            flux_ratio_constraint: DEPRECATED
+                Use source_flux_ratio instead
+
+            fit_blending: DEPRECATED
+                Use py:class:`~MulensModel.Event()` for fitting.
+
             f_source, f_blend: DEPRECATED
                 use *source_flux* or *blend_flux* instead.
 
@@ -217,7 +231,8 @@ class Model(object):
 
         if flux_ratio_constraint is not None:
             warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use source_flux_ratio instead')
+                'flux_ratio_constraint will be deprecated. Use ' +
+                'source_flux_ratio instead')
             source_flux_ratio = flux_ratio_constraint
 
         if data_ref is not None:
@@ -390,6 +405,10 @@ class Model(object):
                 *width* keyword and maybe other as well. Note that
                 *arrow_kwargs* are of *dict* type and are different than
                 ``**kwargs``.
+
+            show_data: DEPRECATED
+                Use py:class:`~MulensModel.Event()` for plotting data with
+                models.
 
             ``**kwargs``
                 Controls plotting features of the trajectory. It's passed to
@@ -904,6 +923,9 @@ class Model(object):
                 separately. Default is *False* and then only effective
                 magnification is returned.
 
+            flux_ratio_constraint: DEPRECATED
+                Use source_flux_ratio instead.
+
         Returns :
             magnification: *np.ndarray*
                 A vector of calculated magnification values. For binary source
@@ -911,12 +933,13 @@ class Model(object):
                 *separate=True*).
         """
         # JCY - In future, there could be a bandpass option. This could
-        #    simultaneously account for limb-darkening and source_flux_ratio for a given
-        #    band.
+        #    simultaneously account for limb-darkening and source_flux_ratio
+        #    for a given band.
 
         if flux_ratio_constraint is not None:
             warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use source_flux_ratio instead.')
+                'flux_ratio_constraint will be deprecated. Use ' +
+                'source_flux_ratio instead.')
             if isinstance(flux_ratio_constraint, float):
                 source_flux_ratio = flux_ratio_constraint
             elif isinstance(flux_ratio_constraint, MulensData):

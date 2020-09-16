@@ -34,7 +34,7 @@ do if easy)
     - [DONE] Add source_flux, blend_flux where necessary. Add deprecation warnings and 
       fixes for f_source, f_blend.
     - [DONE] q_flux --> flux_ratio
-- put deprecated keywords back in documentation with comment about deprecation 
+- [DONE] put deprecated keywords back in documentation with comment about deprecation 
 and alternatives.
 - [DONE] Remove Fit class (replaced with a deprecation error)
 
@@ -44,3 +44,9 @@ I think I did this, but I also might have been side-tracked by adding unit tests
     - Completed: None
 
 ## Check PEP8 Compliance
+
+# Post-merge
+
+## Check PEP8 Compliance
+
+## Check documentation
