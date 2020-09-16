@@ -9,12 +9,12 @@ from scipy.interpolate import interp1d, interp2d
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
 
-accuracy = 1.e-5
-n_divide = 5 + 1
+accuracy = 1.e-4
+n_divide = 3 + 1
 x_start = 1.e-4
-x_stop = 0.5
-y_start = 1.e-3
-y_stop = 0.4
+x_stop = 1.-1.e-6
+y_start = 1.e-4
+y_stop = 1.-1.e-6
 n_start = 10
 file_out_name = "interpolate_elliptic_integral_3.dat"
 
@@ -59,7 +59,11 @@ while len(add_x) > 0 or len(add_y) > 0:
     check_p = np.zeros((len(check_x), len(check_y)))
     for (ix, cx) in enumerate(check_x):
         for (iy, cy) in enumerate(check_y):
-            check_p[ix, iy] = interp_p(cx, cy)[0]
+            if cy > cx:
+                check_p[ix, iy] = 1.
+                check_true_p[ix, iy] = 1.
+            else:
+                check_p[ix, iy] = interp_p(cx, cy)[0]
     relative_diff_p = np.abs(check_p - check_true_p) / check_true_p
     index = np.unravel_index(relative_diff_p.argmax(), relative_diff_p.shape)
 
@@ -72,7 +76,7 @@ while len(add_x) > 0 or len(add_y) > 0:
     x = new_x
     y = new_y
 
-# Write to ouput file.
+# Write to output file.
 p = get_ellip(x, y)
 with open(file_out_name, "w") as f_out:
     f_out.write(" ".join(["# X"] + [str(x_) for x_ in x] + ["\n"]))

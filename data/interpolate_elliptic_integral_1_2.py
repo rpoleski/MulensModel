@@ -14,7 +14,7 @@ from scipy.special import ellipk, ellipe
 accuracy = 1.e-6
 n_divide = 10 + 1
 x_start = 2.e-5
-x_stop = 1. - 1.e-6
+x_stop = 1. - 1.e-12
 n_start = 10
 
 # Settings end here.
