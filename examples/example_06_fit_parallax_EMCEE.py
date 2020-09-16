@@ -18,8 +18,6 @@ import matplotlib.pyplot as plt
 import MulensModel as mm
 
 
-# JCY - Have not figured out how to store best chi2 information using EMCEE.
-
 # Define likelihood functions
 def ln_like(theta, event, parameters_to_fit):
     """ likelihood function """
