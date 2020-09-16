@@ -69,10 +69,10 @@ final_fit.fit_fluxes()
 
 plt.figure()
 init_model.plot_lc(
-    f_source=init_fit.source_flux, f_blend=init_fit.blend_flux,
+    source_flux=init_fit.source_flux, blend_flux=init_fit.blend_flux,
     label='Initial Trial')
 final_model.plot_lc(
-    f_source=final_fit.source_flux, f_blend=final_fit.blend_flux,
+    source_flux=final_fit.source_flux, blend_flux=final_fit.blend_flux,
     label='Final Model')
 plt.title('Difference b/w Input and Fitted Model')
 plt.legend(loc='best')

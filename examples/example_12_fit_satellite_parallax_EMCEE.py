@@ -130,7 +130,7 @@ my_event.plot_model(subtract_2450000=True)
 fluxes = my_event.model.get_ref_fluxes()  # We need this to ensure that fluxes
 # are scalled properly.
 space_model.plot_lc(subtract_2450000=True,
-                    f_source=fluxes[0], f_blend=fluxes[1])
+                    source_flux=fluxes[0], blend_flux=fluxes[1])
 my_event.plot_data(subtract_2450000=True)
 plt.legend()
 plt.xlim(6800., 6880.)

@@ -117,7 +117,7 @@ class BinarySourceTest():
         self.my_fit = mm.FitData(
             model=self.model, dataset=self.dataset,
             fix_blend_flux=fix_blend_flux,
-            fix_source_flux=fix_source_flux, fix_q_flux=fix_q_flux)
+            fix_source_flux=fix_source_flux, fix_source_flux_ratio=fix_q_flux)
         self.my_fit.fit_fluxes()
 
         almost(self.my_fit.blend_flux, self.f_b)

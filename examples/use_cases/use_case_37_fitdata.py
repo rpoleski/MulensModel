@@ -52,4 +52,4 @@ binary_source_model = mm.Model(
 free_1L2S_fit = mm.FitData(model=binary_source_model, dataset=data)
 
 # Fix the flux ratio
-free_1L2S_fit = mm.FitData(model=binary_source_model, dataset=data, fix_q_flux=0.629/38.56)
+free_1L2S_fit = mm.FitData(model=binary_source_model, dataset=data, fix_source_flux_ratio=0.629 / 38.56)

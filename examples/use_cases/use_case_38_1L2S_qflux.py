@@ -48,9 +48,9 @@ class MyEvent(mm.Event):
                 self.fits.append(kmtc_v_fit)
             else:
                 if dataset.bandpass == 'I':
-                    q_flux = kmtc_i_fit.q_flux
+                    q_flux = kmtc_i_fit.source_flux_ratio
                 elif dataset.bandpass == 'V':
-                    q_flux = kmtc_v_fit.q_flux
+                    q_flux = kmtc_v_fit.source_flux_ratio
                 else:
                     raise Exception(
                         'Unknown bandpass: {0}. '.format(dataset.bandpass) +
@@ -58,7 +58,7 @@ class MyEvent(mm.Event):
 
                 self.fits.append(
                     mm.FitData(model=self.model, dataset=dataset,
-                               fix_q_flux=q_flux))
+                               fix_source_flux_ratio=q_flux))
 # RP - I haven't thought deeply about it, but this seems very complicated.
 
 

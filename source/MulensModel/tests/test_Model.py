@@ -324,7 +324,7 @@ def test_model_binary_and_finite_sources():
 
     # test:
     #model.set_source_flux_ratio(f_s_2/f_s_1)
-    fitted = model.magnification(time, q_flux=f_s_2/f_s_1)
+    fitted = model.magnification(time, source_flux_ratio=f_s_2 / f_s_1)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
     almost(fitted, expected)
 
@@ -360,8 +360,8 @@ def test_binary_source_and_fluxes_for_bands():
     #model.set_source_flux_ratio_for_band('V', q_f_V)
 
     # Test Model.magnification()
-    result_I = model.magnification(times_I, q_flux=q_f_I)
-    result_V = model.magnification(times_V, q_flux=q_f_V)
+    result_I = model.magnification(times_I, source_flux_ratio=q_f_I)
+    result_V = model.magnification(times_V, source_flux_ratio=q_f_V)
     almost(result_I, effective_mag_I)
     almost(result_V, effective_mag_V)
 

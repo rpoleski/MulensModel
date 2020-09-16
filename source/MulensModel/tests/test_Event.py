@@ -460,10 +460,10 @@ def test_event_chi2_binary_source():
     event = mm.Event([data], model)
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
 
-    # Make sure fix_q_flux is taken into account.
-    event.fix_q_flux = {data: 1.}
+    # Make sure fix_source_flux_ratio is taken into account.
+    event.fix_source_flux_ratio = {data: 1.}
     assert event.get_chi2() > 1.
-    event.fix_q_flux = {data: 3.}
+    event.fix_source_flux_ratio = {data: 3.}
     np.testing.assert_almost_equal(event.get_chi2(), 0.)
 
 
@@ -513,7 +513,7 @@ def test_event_chi2_binary_source_2datasets():
     # Test combination of Model.set_source_flux_ratio_for_band() and
     # Event.get_chi2_for_dataset().
     data_1.bandpass = 'some'
-    event.fix_q_flux['some'] = 3.
+    event.fix_source_flux_ratio['some'] = 3.
     event.fit_fluxes()
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
 
@@ -929,7 +929,7 @@ class TestFixedFluxRatios(unittest.TestCase):
         q_I_value = 0.012
 
         event = mm.Event(datasets=self.datasets, model=self.model)
-        event.fix_q_flux = {'I': q_I_value}
+        event.fix_source_flux_ratio = {'I': q_I_value}
         fluxes = self.extract_fluxes(event)
         for i, dataset in enumerate(self.datasets):
             if dataset.bandpass == 'I':
@@ -950,7 +950,7 @@ class TestFixedFluxRatios(unittest.TestCase):
         q_V_value = 0.005
 
         event = mm.Event(datasets=self.datasets, model=self.model)
-        event.fix_q_flux = {'I': q_I_value, 'V': q_V_value}
+        event.fix_source_flux_ratio = {'I': q_I_value, 'V': q_V_value}
         fluxes = self.extract_fluxes(event)
         for i, dataset in enumerate(self.datasets):
             if dataset.bandpass == 'I':

@@ -85,7 +85,7 @@ event.plot_data(label_list=['OGLE', 'Spitzer'])
 # which dataset was set as the reference and request values for the wrong dataset.
 # Now that there are ways to access fluxes for an arbitrary dataset, ref_fluxes should *only*
 # refer to the actual reference dataset.
-space_model.plot_lc(f_source=fs_ogle, f_blend=fb_ogle)
+space_model.plot_lc(source_flux=fs_ogle, blend_flux=fb_ogle)
 
 plt.title('OB140939 Models with Data')
 plt.legend(loc='best')
