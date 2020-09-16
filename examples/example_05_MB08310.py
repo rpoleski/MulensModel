@@ -39,7 +39,7 @@ event_default.data_ref = 6
 
 gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 
-# Plot the data and model
+# F1: Plot the data and model
 plt.figure()
 plt.subplot(gs[0])
 event_default.plot_model(subtract_2450000=True)
@@ -49,18 +49,14 @@ plt.title('Data and Fitted Model (Default)')
 plt.subplot(gs[1])
 event_default.plot_residuals(subtract_2450000=True)
 
-# Plot the trajectory
-traj_range = (-0.05, 0.05)
+# F2: Plot the trajectory
 plt.figure()
 plt.title('Trajectory w/Data (Default)')
-plt.gca().set_aspect('equal')
 event_default.plot_trajectory()
 event_default.plot_source_for_datasets()
-plt.xlim(traj_range)
-plt.ylim(traj_range)
 
 # -----------------
-# Plot the data and model (customized)
+# F3: Plot the data and model (customized)
 datasets_custom = []
 color_list = ['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
 for (i, file_) in enumerate(sorted(files)):
@@ -96,12 +92,13 @@ plt.subplot(gs[1])
 event_custom.plot_residuals(marker='s', markersize=3, subtract_2450000=True)
 plt.xlim(t_start-2450000., t_stop-2450000.)
 
-# Plot the trajectory
+# F4: Plot the trajectory
 plt.figure()
 plt.title('Trajectory w/Data (Custom)')
 plt.gca().set_aspect('equal')
 event_custom.plot_trajectory()
 event_custom.plot_source_for_datasets()
+traj_range = (-0.05, 0.05)
 plt.xlim(traj_range)
 plt.ylim(traj_range)
 
