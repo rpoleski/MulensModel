@@ -41,7 +41,10 @@ and alternatives.
 ## Check All Examples Work
 I think I did this, but I also might have been side-tracked by adding unit tests
 - 01--16
-    - Completed: None
+    - Completed: 01, 02, 03, 04, 05, 06
+    - Can't check example_07 because I don't have multinest.
+    - example_08 has not been checked (need to figure out how to open a jupyter 
+      notebook)
 
 ## Check PEP8 Compliance
 
