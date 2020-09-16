@@ -54,7 +54,7 @@ plt.figure(figsize=(6, 8))
 # Plot the model in "effective" magnification
 plt.subplot(3, 1, 1)
 plt.title('Model Magnification')
-my_model.plot_magnification(q_flux=assumed_flux_2/assumed_flux_1)
+my_model.plot_magnification(source_flux_ratio=assumed_flux_2 / assumed_flux_1)
 # Plot the model in magnitudes
 # specifying f_source
 plt.subplot(3, 1, 2)
@@ -66,7 +66,7 @@ plt.subplot(3, 1, 3)
 plt.title('Model Lightcurve with q_flux')
 my_model.plot_lc(
     source_flux=assumed_flux_1, blend_flux=assumed_flux_blend,
-    q_flux=assumed_flux_2/assumed_flux_1)
+    source_flux_ratio=assumed_flux_2 / assumed_flux_1)
 plt.tight_layout()
 
 plt.show()
