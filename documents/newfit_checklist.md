@@ -36,7 +36,7 @@ do if easy)
     - [DONE] q_flux --> flux_ratio
 - put deprecated keywords back in documentation with comment about deprecation 
 and alternatives.
-- Remove Fit class
+- [DONE] Remove Fit class (replaced with a deprecation error)
 
 ## Check All Examples Work
 I think I did this, but I also might have been side-tracked by adding unit tests
