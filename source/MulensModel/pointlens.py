@@ -63,6 +63,10 @@ class PointLens(object):
     _elliptic_files_read = False
 
     def __init__(self, parameters=None):
+        if not isinstance(parameters, MulensModel.ModelParameters):
+            raise TypeError(
+                "PointLens argument has to be of ModelParameters type, not " +
+                str(type(parameters)))
         self.parameters = parameters
 
     def _read_B0B1_file(self):
@@ -563,7 +567,7 @@ class PointLens(object):
         x_1 = self._get_ellipk(k)
         x_2 = self._get_ellipe(k)
         x_3 = self._get_ellip3(n, k)
-        (x_1, x_2) = (x_2, x_1)  # WM94 under Eq. 9 are inconsitent with GR80.
+        (x_1, x_2) = (x_2, x_1)  # WM94 under Eq. 9 are inconsistent with GR80.
 
         return (a_1*x_1 + a_2*x_2 + a_3*x_3) / np.pi
 
@@ -603,7 +607,6 @@ class PointLens(object):
 
         if cond_1 and cond_2 and cond_3 and cond_4:
             return PointLens._interpolate_3(n, k)[0]
-
         return ellip3(n, k)
 
     def get_point_lens_large_LD_integrated_magnification(self, u, gamma):
@@ -669,10 +672,3 @@ class PointLens(object):
         d_mag_r2 = temp[1:] - temp[:-1]
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
-
-# TODO:
-#  - latex file - suggestions & links
-#  - spell
-#  - rho in WM94 & Lee09
-#  - Jen to verify
-#  - version.py
