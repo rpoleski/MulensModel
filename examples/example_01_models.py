@@ -38,8 +38,8 @@ plt.title('A Point Lens Model')
 
 # Plot PSPL model in magnitudes with arbitrary blending
 plt.figure()
-pspl.plot_lc(f_source=1.0, f_blend=0.0, label='fs=1.0, fb=0.0')
-pspl.plot_lc(f_source=0.5, f_blend=0.5, label='fs=0.5, fb=0.5')
+pspl.plot_lc(source_flux=1.0, blend_flux=0.0, label='fs=1.0, fb=0.0')
+pspl.plot_lc(source_flux=0.5, blend_flux=0.5, label='fs=0.5, fb=0.5')
 plt.legend(loc='best')
 plt.title('A Point Lens Model in Magnitudes')
 

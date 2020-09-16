@@ -49,6 +49,6 @@ plt.gca().invert_yaxis()
 
 plt.figure()
 plt.title('1 Binary Source Model')
-binary_source_model.plot_lc(times, f_source=f_source_1, color='magenta')
+binary_source_model.plot_lc(times, source_flux=f_source_1, color='magenta')
 
 plt.show()

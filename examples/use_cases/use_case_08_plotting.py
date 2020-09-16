@@ -23,7 +23,7 @@ plt.gca().invert_yaxis()
 model = mm.Model({'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87*u.day})
 
 plt.figure()
-model.plot_lc(f_source=1.0, f_blend=0.0, subtract_2450000=True)
+model.plot_lc(source_flux=1.0, blend_flux=0.0, subtract_2450000=True)
 plt.title('Base Model')
 
 # Combine Model and Data and plot
