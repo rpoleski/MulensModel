@@ -223,6 +223,7 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
     * for plotting X for bad data use large size and/or thinner line
     * separate colors (or even kwargs) for X-es as an option (to get contrasting colors see https://itsphbytes.wordpress.com/2016/08/29/complementary-colors-python-code/)
   * PointLens class:
+    * make WM method faster: 1) interpolation done once for many values; 2) interpolate different function; 3) allow changing number of annuli.
     * add [Witt and Atrio-Barandela 2019](https://arxiv.org/abs/1906.08378)?
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
     * 1+2/u^4 approximation for very large u
