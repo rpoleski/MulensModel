@@ -53,7 +53,9 @@ model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Link the data and the model
 ev = mm.Event(datasets=data, model=model)
+(source_flux_init, blend_flux_init) = ev.get_ref_fluxes(data_ref=data)
 print('Initial Trial\n{0}'.format(ev.model.parameters))
+print('Chi2 = {0}\n'.format(ev.get_chi2()))
 
 # Find the best-fit parameters
 initial_guess = [t_0, u_0, t_E]
@@ -65,6 +67,7 @@ result = op.minimize(
 
 # Save the best-fit parameters
 chi2 = chi2_fun(result.x, ev, parameters_to_fit)
+(source_flux_final, blend_flux_final) = ev.get_ref_fluxes(data_ref=data)
 
 # Output the fit parameters
 msg = 'Best Fit: t_0 = {0:12.5f}, u_0 = {1:6.4f}, t_E = {2:8.3f}'
@@ -76,10 +79,13 @@ print(result)
 # Plot and compare the two models
 init_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 final_model = mm.Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
-(source_flux, blend_flux) = ev.get_ref_fluxes(data_ref=data)
 plt.figure()
-init_model.plot_lc(source_flux=source_flux, blend_flux=blend_flux, label='Initial Trial')
-final_model.plot_lc(source_flux=source_flux, blend_flux=blend_flux, label='Final Model')
+init_model.plot_lc(
+    source_flux=source_flux_init, blend_flux=blend_flux_init,
+    label='Initial Trial')
+final_model.plot_lc(
+    source_flux=source_flux_final, blend_flux=blend_flux_final,
+    label='Final Model')
 plt.title('Difference b/w Input and Fitted Model')
 plt.legend(loc='best')
 
