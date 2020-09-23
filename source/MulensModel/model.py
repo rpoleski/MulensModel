@@ -1053,6 +1053,10 @@ class Model(object):
                 Vector of epochs.
         """
         if t_range is not None:
+            if t_start is not None or t_stop is not None:
+                raise ValueError(
+                    'Model.set_times() - you cannot set t_range and either ' +
+                    't_start or t_stop')
             t_start = t_range[0]
             t_stop = t_range[1]
 
@@ -1075,9 +1079,13 @@ class Model(object):
         if dt is None:
             if n_epochs is None:
                 n_epochs = 1000
+            n_epochs -= 1
             dt = (t_stop - t_start) / float(n_epochs)
 
-        return np.arange(t_start, t_stop+dt, dt)
+        out = np.arange(t_start, t_stop+dt, dt)
+        if out[-1] > t_stop:  # This may happen due to rounding errors.
+            out = out[:-1]
+        return out
 
     def set_magnification_methods(self, methods, source=None):
         """

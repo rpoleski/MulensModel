@@ -2,10 +2,9 @@
 1. windows compilation - [link](https://docs.python.org/3.7/extending/index.html)
 3. UC 16 - make it ready for e-mail annoucement
 4. new method for FSPL with LD
-5. UC 16 - file_name removed in minimal example
 6. remove unused branches
 7. check notes below
-8. add notes: 1) adding t_eff_1, t_eff_2, 2) example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/); 3) example 2 - clarify first function; 4) data.bad requires example - note that one has to substitute full vector, not single values
+8. add notes: 1) adding t\_eff\_1, t\_eff\_2, 2) example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/); 3) example 2 - clarify first function; 4) data.bad requires example - note that one has to substitute full vector, not single values; 5) try to remove sympy (using scipy); 6) astropy warning ("py.test -s"); 7)...
 8. back to triple lenses
 
 ## Nov & Dec goals:
@@ -21,7 +20,7 @@
 9. [documents/TRIPLE\_LENS.md](documents/TRIPLE_LENS.md) - make notes in order there
 10. check triple lens use cases in master branch
 11. \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions - _DONE_
-12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it's != t\_0
+12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it is != t\_0
 13. Event - not .fit after get\_chi2(), but there is one after get\_chi2\_for\_dataset() - _DONE_
 14. **chi2 gradient for finite source effects.** (requested by JCY)
 
@@ -30,11 +29,11 @@
 
 _italics_ mark important tasks
 
-Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
+Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
 
 * Install
   * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
-  * PIP install - the problem some time ago ws that CustomInstall from setup.py was run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html), [link 3 - seems to be most official](https://packaging.python.org/)
+  * PIP install - the problem some time ago ws that CustomInstall from setup.py was run when the archive is prepared, not when it is run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html), [link 3 - seems to be most official](https://packaging.python.org/)
   * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependencies first
   * more metadata in setup.py
@@ -62,7 +61,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * add a note that pi\_E is "geocentric" (and "heliocentric" has the same length of vector but is rotated)
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
   * make sure that website shows correct version of MM
-  * note that we're not checking for negative source or blending flux
+  * note that we are not checking for negative source or blending flux
   * add a list of public datasets: [VVV paper](https://ui.adsabs.harvard.edu/abs/2019arXiv190704339N/abstract) was published?, add link to K2/MCPM?; LINK the file [documents/public\_data\_list.md](documents/public_data_list.md) somewhere
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
@@ -70,7 +69,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * finish use cases
     * _source\_flux\_ratio added to ModelParameters_
     * Fit.fit\_fluxes docstring to be updated
-    * which\_parameters() - note that it doesn't work for binary source parameters, but the parameters work properly; just BSPL and rho\_2 etc. are optional
+    * which\_parameters() - note that it doesnt work for binary source parameters, but the parameters work properly; just BSPL and rho\_2 etc. are optional
     * models with fixed no blending: fit\_blending keyword changes
     * parallax models
     * binary source - there should be one Fit less in Event.get\_chi2xxx functions - if there are 2 sources, then calculate magnification and use F\_S = F\_S\_1+F\_S\_2 and get it from self.model.fit; most probably adding some function to Fit would help
@@ -91,7 +90,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
     * mapmaking version which adds new rays as needed (but remember that it runs for fixed (s,q) only!)
-    * Yossi's idea to find all the images
+    * Yossi idea to find all the images
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
   * calculate jerk parallax degeneracy: [Park+04](https://ui.adsabs.harvard.edu/abs/2004ApJ...609..166P/abstract) [Gould 04](https://ui.adsabs.harvard.edu/abs/2004ApJ...606..319G/abstract)  
   * topocentric/Earth parallax
@@ -224,6 +223,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * for plotting X for bad data use large size and/or thinner line
     * separate colors (or even kwargs) for X-es as an option (to get contrasting colors see https://itsphbytes.wordpress.com/2016/08/29/complementary-colors-python-code/)
   * PointLens class:
+    * make WM method faster: 1) interpolation done once for many values; 2) interpolate different function; 3) allow changing number of annuli.
     * add [Witt and Atrio-Barandela 2019](https://arxiv.org/abs/1906.08378)?
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
     * 1+2/u^4 approximation for very large u

@@ -21,6 +21,7 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * Model.set\_datasets and .datasets - make sure it's always a list even if only single MulensData object is provided
 
 ### Yet unsorted/undecided:
+ * Model.set_times() - n_epochs should be None as default, so that we can check if both dt and n_epochs were set
  * Caustics.get\_caustics() should return np.arrays, not lists
  * check all NotImplementedError and maybe remove some functions/options
  * somehow change which\_parameters() in modelparameters.py - maybe remove

@@ -26,10 +26,10 @@ except Exception:
 
 try:
     import MulensModel as mm
-except Ecception:
+except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.11.3'
+__version__ = '0.12.4'
 
 
 class UlensModelFit(object):
@@ -37,9 +37,11 @@ class UlensModelFit(object):
     Class for fitting microlensing model using *MulensModel* package.
 
     Parameters :
-        photometry_files: *list*
-            List of datasets. Currently accepts each entry as *dict*, which
-            gives settings passed to *MulensModel.MulensData*, e.g.,
+        photometry_files: *list* or *str*
+            List of datasets. It can be either a *str* (then just gives
+            a name of one file that is read) or a *list*. For *list* each
+            element is either a *str* (then just gives the name of the file)
+            or a *dict*, which allows more options to be passed, e.g.,
 
             .. code-block:: python
 
@@ -49,9 +51,9 @@ class UlensModelFit(object):
 
             .. code-block:: python
 
-              [{'file_name': 'data_1.dat'}, {'file_name': 'data_2.dat'}]
+              [{'file_name': 'data_1.dat'}, 'data_2.dat']
 
-            Currently, ``'add_2450000'`` is turned on by default.
+            Currently, keyword ``'add_2450000'`` is turned on by default.
 
         starting_parameters: *dict*
             Starting values of the parameters. Keys of this *dict* are
@@ -288,7 +290,6 @@ class UlensModelFit(object):
     def plot_best_model(self):
         """
         Plot the best model.
-
         """
         # XXX - NOTE how the model is defined
 
@@ -376,8 +377,11 @@ class UlensModelFit(object):
         construct a list of MulensModel.MulensData objects
         """
         kwargs = {'add_2450000': True}
-        self._datasets = [
-            mm.MulensData(**f, **kwargs) for f in self._photometry_files]
+        if isinstance(self._photometry_files, str):
+            self._photometry_files = [self._photometry_files]
+        files = [f if isinstance(f, dict) else {'file_name': f}
+                 for f in self._photometry_files]
+        self._datasets = [mm.MulensData(**kwargs, **f) for f in files]
 
     def _get_parameters_ordered(self):
         """
@@ -684,6 +688,9 @@ class UlensModelFit(object):
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
+        if self._task == 'plot':
+            return
+
         repeated = set(self._fit_parameters).intersection(fixed)
         if len(repeated) > 0:
             raise ValueError(
@@ -834,7 +841,7 @@ class UlensModelFit(object):
             return self._return_ln_prob(-np.inf)
 
         ln_like = self._ln_like(theta)
-        if not np.isfinite(ln_prior):
+        if not np.isfinite(ln_like):
             return self._return_ln_prob(-np.inf)
 
         ln_prob = ln_prior + ln_like
@@ -1217,14 +1224,25 @@ class UlensModelFit(object):
 
         y_1 = y_3 = np.inf
         y_2 = y_4 = -np.inf
+        i_data_ref = self._event.model.data_ref
+        (f_source_0, f_blend_0) = self._event.model.get_ref_fluxes(
+            data_ref=self._datasets[i_data_ref])
 
         for data in self._datasets:
             mask = (data.time >= t_1) & (data.time <= t_2)
             if np.sum(mask) == 0:
                 continue
+            (f_source, f_blend) = self._event.model.get_ref_fluxes(data_ref=data)
+            flux = f_source_0 * (data.flux - f_blend) / f_source
+            flux += f_blend_0
+            err_flux = f_source_0 * data.err_flux / f_source
+            (y_value, y_err) = data._get_y_value_y_err(phot_fmt,
+                                                       flux, err_flux)
+            self._event.model.data_ref = i_data_ref
+
             err_mag = data.err_mag[mask]
-            y_1 = min(y_1, np.min(data.mag[mask] - err_mag))
-            y_2 = max(y_2, np.max(data.mag[mask] + err_mag))
+            y_1 = min(y_1, np.min((y_value - y_err)[mask]))
+            y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
             residuals = self._model.get_residuals(
                 data=data, type=phot_fmt)[0][0][mask]

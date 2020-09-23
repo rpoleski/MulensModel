@@ -2,11 +2,11 @@
 
 First things first:
 
-__This script aims allowing easy access to fitting microlensing models with MulensModel and it's not the best place to learn MulensModel itself.__
+__This script aims at allowing easy access to fitting microlensing models with the [MulensModel package](https://github.com/rpoleski/MulensModel) and it's not the best place to learn the [MulensModel](https://github.com/rpoleski/MulensModel) itself.__
 
 Allowing easy access to many functions results in somehow complicated code, so if you want to learn MulensModel usage, then we suggest to start with other examples. Also please note that MulensModel has more capabilities than provided in this script.
 
-Here all settings are passed via YAML files, which are human- and machine-readable. If the script syntax is unclear, then please search for information on YAML format files.
+Here all settings are passed via YAML files, which are human- and machine-readable. If the script syntax is unclear, then please search for information on YAML format files (or see [this link](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html)).
 
 ### Basic usage
 
@@ -74,3 +74,10 @@ The chi^2 improved very slightly over positive `u_0` parallax model, only by 2.3
 
 It is possible to specify additional fit constraints in input file. Currently, empirical `t_E` distribution and constraining negative blending flux are allowed. For description see `fit_constraints` in [ulens\_model\_fit.py](ulens_model_fit.py).
 
+
+### More information
+
+* Some more information on API can be found at the top of [ulens\_model\_fit.py file](https://github.com/rpoleski/MulensModel/blob/master/examples/example_16/ulens_model_fit.py) - see docstrings for UlensModelFit class. Please keep in mind that all keywords are read from YAML type file.
+* Julian Dates are long numbers and which may cause problems (e.g., too many numbers to be displayed properly on axis label), hence, in this example we add 2450000 to all input data and subtract it from plots. Note that all calculations are carried out using full HJD, so e.g., Earth's positions are calculated for proper epochs.
+* If you want to plot to screen then do not provide the name of output file for plot, e.g., you can remove last line in [ob08092-o4\_minimal\_plot.yaml](ob08092-o4_minimal_plot.yaml).
+* In output, "Best model" is the one with the highest probability, which if different from the smallest chi2 model if informative priors are applied.

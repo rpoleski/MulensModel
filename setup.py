@@ -31,9 +31,9 @@ with open(os.path.join('source', 'MulensModel', 'version.py')) as in_put:
             version = line_.split()[2][1:-1]
 
 ext_AC = Extension('MulensModel.AdaptiveContouring',
-                   glob.glob(os.path.join(source_AC, "*.c")))
+                   sources=glob.glob(os.path.join(source_AC, "*.c")))
 ext_VBBL = Extension('MulensModel.VBBL',
-                     glob.glob(os.path.join(source_VBBL, "*.cpp")))
+                     sources=glob.glob(os.path.join(source_VBBL, "*.cpp")))
 
 setup(
     name='MulensModel',
