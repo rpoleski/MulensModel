@@ -53,7 +53,7 @@ model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Link the data and the model
 ev = mm.Event(datasets=data, model=model)
-(source_flux_init, blend_flux_init) = ev.get_ref_fluxes(data_ref=data)
+(source_flux_init, blend_flux_init) = ev.get_flux_for_dataset(data)
 print('Initial Trial\n{0}'.format(ev.model.parameters))
 print('Chi2 = {0}\n'.format(ev.get_chi2()))
 
@@ -67,7 +67,7 @@ result = op.minimize(
 
 # Save the best-fit parameters
 chi2 = chi2_fun(result.x, ev, parameters_to_fit)
-(source_flux_final, blend_flux_final) = ev.get_ref_fluxes(data_ref=data)
+(source_flux_final, blend_flux_final) = ev.get_flux_for_dataset(data)
 
 # Output the fit parameters
 msg = 'Best Fit: t_0 = {0:12.5f}, u_0 = {1:6.4f}, t_E = {2:8.3f}'
