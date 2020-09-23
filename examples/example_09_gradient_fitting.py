@@ -19,16 +19,24 @@ def chi2_fun(theta, event, parameters_to_fit):
     """
     for (key, val) in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
+
     return event.get_chi2()
 
 
 def jacobian(theta, event, parameters_to_fit):
     """
     Calculate chi^2 gradient (also called Jacobian).
+
+    Note: this implementation is robust but possibly inefficient. If
+    chi2_fun() is ALWAYS called before jacobian with the same parameters,
+    there is no need to set the parameters in event.model; also,
+    event.calc_chi2_gradient() can be used instead (which avoids fitting for
+    the fluxes twice).
     """
     for (key, val) in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
-    return event.chi2_gradient(parameters_to_fit)
+
+    return event.get_chi2_gradient(parameters_to_fit)
 
 
 # Read in the data file
@@ -68,9 +76,10 @@ print(result)
 # Plot and compare the two models
 init_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 final_model = mm.Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
+(source_flux, blend_flux) = ev.get_ref_fluxes(data_ref=data)
 plt.figure()
-init_model.plot_lc(data_ref=data, label='Initial Trial')
-final_model.plot_lc(data_ref=data, label='Final Model')
+init_model.plot_lc(source_flux=source_flux, blend_flux=blend_flux, label='Initial Trial')
+final_model.plot_lc(source_flux=source_flux, blend_flux=blend_flux, label='Final Model')
 plt.title('Difference b/w Input and Fitted Model')
 plt.legend(loc='best')
 
