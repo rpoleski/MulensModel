@@ -27,9 +27,11 @@ def ln_like(theta, event, parameters_to_fit):
     for (param, theta_) in zip(parameters_to_fit, theta):
         # Here we handle fixing source flux ratio:
         if param == 'flux_ratio':
-            event.model.set_source_flux_ratio(theta_)
+            # implemented for a single dataset
+            event.fix_source_flux_ratio = {my_dataset: theta_}
         else:
             setattr(event.model.parameters, param, theta_)
+
     return -0.5 * event.get_chi2()
 
 
@@ -95,16 +97,25 @@ def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
     print("\nSmallest chi2 model:")
     if "flux_ratio" in parameters_to_fit:
         parameters_to_fit.pop(parameters_to_fit.index("flux_ratio"))
-    best = [event.best_chi2_parameters[p] for p in parameters_to_fit]
+    prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+    best_index = np.argmax(prob)
+    best = samples[best_index, :]
+    for key, val in enumerate(parameters_to_fit):
+        if val == 'flux_ratio':
+            event.fix_source_flux_ratio = {my_dataset: best[key]}
+        else:
+            setattr(event.model.parameters, val, best[key])
+
+    print("\nSmallest chi2 model:")
     print(*[repr(b) if isinstance(b, float) else b.value for b in best])
-    print('chi^2 =', event.best_chi2)
+    print("chi2 = ", event.get_chi2())
 
     # Set model parameters to best value. Note that
     # event.model.parameters does not know flux_ratio.
-    for param in parameters_to_fit:
-        if param != 'flux_ratio':
-            setattr(event.model.parameters, param,
-                    event.best_chi2_parameters[param])
+    # for param in parameters_to_fit:
+    #     if param != 'flux_ratio':
+    #         setattr(event.model.parameters, param,
+    #                 event.best_chi2_parameters[param])
 
 
 # First, prepare the data. There is nothing very exciting in this part,
