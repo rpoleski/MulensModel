@@ -103,15 +103,6 @@ class MagnificationCurve(object):
             default_method: *str*
                 Name of the method to be used for epochs outside the ranges
                 specified in *methods*.
-
-        For point-lens with finite source, the methods named
-        ``finite_source_uniform_Gould94`` and ``finite_source_LD_Yoo04``
-        implement the algorithms presented by `Gould 1994 ApJ, 421L, 71
-        <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_ and
-        `Yoo et al. 2004 ApJ, 603, 139
-        <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_ and
-        interpolate pre-computed tables when possible. Add ``_direct`` to
-        these names to force direct integration.
         """
         self._default_method = default_method
         if methods is None:
@@ -196,26 +187,47 @@ class MagnificationCurve(object):
                 standard Paczynski equation for a point source/point lens.
 
             ``finite_source_uniform_Gould94``:
-                Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a
+                Uses the `Gould 1994 ApJ, 421L, 71
+                <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
+                prescription assuming a
                 *uniform* (and circular) source. This method interpolates
                 pre-computed tables. The relative interpolation
                 errors are smaller than 10^-4.
 
+            ``finite_source_uniform_Gould94_direct``:
+                Same as ``finite_source_uniform_Gould94``, but calculates
+                the underlying functions directly
+                (i.e., without interpolation).
+
+            ``finite_source_uniform_WittMao94``:
+                Uses the `Witt and Mao 1994 ApJ, 430, 505
+                <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
+                method assuming a *uniform* (and circular) source. This method
+                interpolates pre-computed tables. The relative interpolation
+                errors are smaller than 10^-4.
+
+            ``finite_source_LD_WittMao94``:
+                Uses the `Witt and Mao 1994 ApJ, 430, 505`_ method and
+                integrates multiple annuli to obtain magnification for
+                a circular source *including limb-darkening*. For description
+                of integration of multiple annuli see, e.g.,
+                `Bozza et al. 2018 MNRAS, 479, 5157
+                <https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract>`_.
+                This method interpolates pre-computed tables. The relative
+                interpolation errors are smaller than 10^-4.
+
             ``finite_source_LD_Yoo04``:
-                Uses the `Yoo et al. 2004 ApJ, 603, 139`_ prescription for
+                Uses the `Yoo et al. 2004 ApJ, 603, 139
+                <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_
+                prescription for
                 a circular source *including limb-darkening*. This method
                 interpolates pre-computed tables. The relative interpolation
                 errors are smaller than 10^-4.
 
-            ``finite_source_uniform_Gould94_direct``:
-                Uses the `Gould 1994 ApJ, 421L, 71`_ prescription assuming a
-                *uniform* (and circular) source. This method calculates
-                the underlying functions directly.
-
             ``finite_source_LD_Yoo04_direct``:
-                Uses the `Yoo et al. 2004 ApJ, 603, 139`_ prescription for
-                a circular source *including limb-darkening*. This method
-                calculates 2D integral directly (hence can be slow).
+                Same as ``finite_source_LD_Yoo04``, but calculates
+                the underlying functions directly
+                (i.e., without interpolation), hence can be slow.
 
             ``finite_source_uniform_Lee09``:
                 Uses the `Lee et al. 2009 ApJ, 695, 200
@@ -253,32 +265,39 @@ class MagnificationCurve(object):
                     raise ValueError(
                         'Methods parameters passed, but currently ' +
                         'no point lens method accepts the parameters')
+            selection = (methods == method)
 
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection]))
             elif (method.lower() ==
                   'finite_source_uniform_Gould94_direct'.lower()):
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection],
                         direct=True))
+            elif method.lower() == 'finite_source_uniform_WittMao94'.lower():
+                pl = point_lens
+                magnification[selection] = (
+                    pl.get_point_lens_large_finite_source_magnification(
+                        u=u_all[selection]))
+            elif method.lower() == 'finite_source_LD_WittMao94'.lower():
+                pl = point_lens
+                magnification[selection] = (
+                    pl.get_point_lens_large_LD_integrated_magnification(
+                        u=u_all[selection], gamma=self._gamma))
             elif method.lower() == 'finite_source_LD_Yoo04'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_limb_darkening_magnification(
                         u=u_all[selection],
                         pspl_magnification=pspl_magnification[selection],
                         gamma=self._gamma))
             elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_limb_darkening_magnification(
                         u=u_all[selection],
@@ -286,13 +305,11 @@ class MagnificationCurve(object):
                         gamma=self._gamma,
                         direct=True))
             elif method.lower() == 'finite_source_uniform_Lee09'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_uniform_integrated_magnification(
                         u=u_all[selection],
                         rho=self.parameters.rho))
             elif method.lower() == 'finite_source_LD_Lee09'.lower():
-                selection = (methods == method)
                 magnification[selection] = (
                     point_lens.get_point_lens_LD_integrated_magnification(
                         u=u_all[selection],

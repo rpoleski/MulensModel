@@ -1,11 +1,12 @@
 import os
 import warnings
 import numpy as np
-from math import sin, cos, sqrt
+from math import sin, cos, sqrt, log10
 from scipy import integrate
-from scipy.interpolate import interp1d
-from scipy.special import ellipe
-# This is an incomplete elliptic integral of the second kind.
+from scipy.interpolate import interp1d, interp2d
+from scipy.special import ellipk, ellipe
+# These are complete elliptic integrals of the first and the second kind.
+from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
 from MulensModel.trajectory import Trajectory
 import MulensModel
@@ -59,8 +60,13 @@ class PointLens(object):
     """
 
     _B0B1_file_read = False
+    _elliptic_files_read = False
 
     def __init__(self, parameters=None):
+        if not isinstance(parameters, MulensModel.ModelParameters):
+            raise TypeError(
+                "PointLens argument has to be of ModelParameters type, not " +
+                str(type(parameters)))
         self.parameters = parameters
 
     def _read_B0B1_file(self):
@@ -70,12 +76,44 @@ class PointLens(object):
         if not os.path.exists(file_):
             raise ValueError('File with FSPL data does not exist.\n' + file_)
         (z, B0, B0_minus_B1) = np.loadtxt(file_, unpack=True)
-        PointLens._B0B1_file_read = True
         PointLens._B0_interpolation = interp1d(z, B0, kind='cubic')
         PointLens._B0_minus_B1_interpolation = interp1d(
                 z, B0_minus_B1, kind='cubic')
         PointLens._z_min = np.min(z)
         PointLens._z_max = np.max(z)
+
+        PointLens._B0B1_file_read = True
+
+    def _read_elliptic_files(self):
+        """
+        Read 2 files with values of elliptic integrals of the 1st, 2nd,
+        and 3rd kind.
+        """
+        file_1_2 = os.path.join(
+            MulensModel.DATA_PATH, 'interpolate_elliptic_integral_1_2.dat')
+        file_3 = os.path.join(
+            MulensModel.DATA_PATH, 'interpolate_elliptic_integral_3.dat')
+
+        (x, y1, y2) = np.loadtxt(file_1_2, unpack=True)
+        PointLens._interpolate_1 = interp1d(np.log10(x), y1, kind='cubic')
+        PointLens._interpolate_2 = interp1d(np.log10(x), y2, kind='cubic')
+        PointLens._interpolate_1_2_x_min = np.min(np.log10(x))
+        PointLens._interpolate_1_2_x_max = np.max(np.log10(x))
+
+        with open(file_3) as file_in:
+            for line in file_in.readlines():
+                if line[:3] == "# X":
+                    xx = np.array([float(t) for t in line.split()[2:]])
+                if line[:3] == "# Y":
+                    yy = np.array([float(t) for t in line.split()[2:]])
+        pp = np.loadtxt(file_3)
+        PointLens._interpolate_3 = interp2d(xx, yy, pp.T, kind='cubic')
+        PointLens._interpolate_3_min_x = np.min(xx)
+        PointLens._interpolate_3_max_x = np.max(xx)
+        PointLens._interpolate_3_min_y = np.min(yy)
+        PointLens._interpolate_3_max_y = np.max(yy)
+
+        PointLens._elliptic_files_read = True
 
     def _B_0_function(self, z):
         """
@@ -169,7 +207,16 @@ class PointLens(object):
                 Type is the same as of u parameter.
 
         """
-        z = u / self.parameters.rho
+        return self._get_point_lens_finite_source_magnification(
+            u, pspl_magnification, rho=self.parameters.rho, direct=direct)
+
+    def _get_point_lens_finite_source_magnification(
+                self, u, pspl_magnification, rho, direct=False):
+        """
+        Calculate large source magnification assuming rho provided directly,
+        not as self.parameters.rho
+        """
+        z = u / rho
         try:
             _ = iter(z)
         except TypeError:
@@ -261,14 +308,25 @@ class PointLens(object):
 
     def get_point_lens_uniform_integrated_magnification(self, u, rho):
         """
-        Calculate magnification for the point lens and uniform finite source.
-        This approach works well for for small and large sources
+        Calculate magnification for the point lens and *uniform* finite source.
+        This approach works well for small and large sources
         (e.g., rho~0.5). Uses the method presented by:
 
         `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
         Microlensing: A Precise, Easy to Implement, Fast, and Numerically
         Stable Formalism"
         <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+            rho: *float*
+                Source size as a fraction of the Einstein radius.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
         """
         n = 100
 
@@ -358,14 +416,29 @@ class PointLens(object):
 
     def get_point_lens_LD_integrated_magnification(self, u, rho, gamma):
         """
-        Calculate magnification for the point lens and finite source with
-        limb-darkening. This approach works well for for small and large
+        Calculate magnification for the point lens and *finite source with
+        limb-darkening*. This approach works well for small and large
         sources (e.g., rho~0.5). Uses the method presented by:
 
         `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
         Microlensing: A Precise, Easy to Implement, Fast, and Numerically
         Stable Formalism"
         <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+            rho: *float*
+                Source size as a fraction of the Einstein radius.
+
+            gamma: *float*
+                Gamma limb darkening coefficient. See also
+                :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
         """
         n_theta = 90
         n_u = 1000
@@ -443,3 +516,159 @@ class PointLens(object):
                 values[values < 0.] = 0.
         out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
         return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
+
+    def get_point_lens_large_finite_source_magnification(self, u):
+        """
+        Calculate magnification for the point lens and *uniform* source.
+        This approach works well for small and large
+        sources (e.g., rho~0.5). The method was presented by:
+
+        `Witt and Mao 1994 ApJ 430, 505 "Can Lensed Stars Be Regarded as
+        Pointlike for Microlensing by MACHOs?"
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
+
+        """
+        out = [self._get_magnification_WM94(u_) for u_ in u]
+        return np.array(out)
+
+    def _get_magnification_WM94(self, u, rho=None):
+        """
+        Get point-lens finite-source magnification without LD.
+        """
+        if rho is None:
+            rho = self.parameters.rho
+
+        if u == rho:
+            u2 = u**2
+            a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
+            return (2./u + (1.+u2) * a / u2) / np.pi
+
+        if not PointLens._elliptic_files_read:
+            self._read_elliptic_files()
+
+        a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
+        a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2))
+        a_2 /= (rho**2 * (4. + (u - rho)**2)**.5)
+        a_3 = 2. * (u - rho)**2 * (1. + rho**2)
+        a_3 /= (rho**2 * (u + rho) * (4. + (u - rho)**2)**.5)
+
+        n = 4. * u * rho / (u + rho)**2
+        k = 4. * n / (4. + (u - rho)**2)
+        # We omit sqrt, because all python packages use k^2 convention.
+
+        x_1 = self._get_ellipk(k)
+        x_2 = self._get_ellipe(k)
+        x_3 = self._get_ellip3(n, k)
+        (x_1, x_2) = (x_2, x_1)  # WM94 under Eq. 9 are inconsistent with GR80.
+
+        return (a_1*x_1 + a_2*x_2 + a_3*x_3) / np.pi
+
+    def _get_ellipk(self, k):
+        """
+        Get value of elliptic integral of the first kind.
+        Use interpolation if possible.
+        """
+        x = log10(k)
+        condition_1 = (x >= PointLens._interpolate_1_2_x_min)
+        condition_2 = (x <= PointLens._interpolate_1_2_x_max)
+        if condition_1 and condition_2:
+            return PointLens._interpolate_1(x)
+        return ellipk(k)
+
+    def _get_ellipe(self, k):
+        """
+        Get value of elliptic integral of the second kind.
+        Use interpolation if possible.
+        """
+        x = log10(k)
+        condition_1 = (x >= PointLens._interpolate_1_2_x_min)
+        condition_2 = (x <= PointLens._interpolate_1_2_x_max)
+        if condition_1 and condition_2:
+            return PointLens._interpolate_2(x)
+        return ellipe(k)
+
+    def _get_ellip3(self, n, k):
+        """
+        Get value of elliptic integral of the third kind.
+        Use interpolation if possible.
+        """
+        cond_1 = (n >= PointLens._interpolate_3_min_x)
+        cond_2 = (n <= PointLens._interpolate_3_max_x)
+        cond_3 = (k >= PointLens._interpolate_3_min_y)
+        cond_4 = (k <= PointLens._interpolate_3_max_y)
+
+        if cond_1 and cond_2 and cond_3 and cond_4:
+            return PointLens._interpolate_3(n, k)[0]
+        return ellip3(n, k)
+
+    def get_point_lens_large_LD_integrated_magnification(self, u, gamma):
+        """
+        Calculate magnification for the point lens and *finite source with
+        limb-darkening*. This approach works well for small and large
+        sources (e.g., rho~0.5). Here multiple annuli
+        (each with uniform source) are used to approximate finite source with
+        limb-darkening. For uniform source calculation see:
+
+        `Witt and Mao 1994 ApJ 430, 505 "Can Lensed Stars Be Regarded as
+        Pointlike for Microlensing by MACHOs?"
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
+
+        The approximation of multiple sources in presented by, e.g.,:
+
+        `Bozza et al. 2018 MNRAS 479, 5157 "VBBINARYLENSING:
+        a public package for microlensing light-curve computation"
+        <https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+            gamma: *float*
+                Gamma limb darkening coefficient. See also
+                :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
+        """
+        n_annuli = 30  # This value could be tested better.
+
+        out = [
+            self._get_magnification_WM94_B18(u_, gamma, n_annuli) for u_ in u]
+
+        return np.array(out)
+
+    def _get_magnification_WM94_B18(self, u, gamma, n_annuli):
+        """
+        Get point-lens finite-source magnification with LD using
+        Witt & Mao 1994 approach and equations 16-19 from Bozza et al. 2018.
+        """
+        n_annuli += 1  # It's easier to have r=0 ring as well.
+
+        pspl_magnification = get_pspl_magnification(u)
+
+        annuli = np.linspace(0, 1., n_annuli)
+        r2 = annuli**2
+
+        magnification = np.zeros(n_annuli)
+        for (i, a) in enumerate(annuli):
+            if i == 0:
+                continue
+            magnification[i] = self._get_magnification_WM94(
+                u=u, rho=a*self.parameters.rho)
+
+        cumulative_profile = gamma + (1. - gamma) * r2 - gamma * (1. - r2)**1.5
+        d_cumulative_profile = cumulative_profile[1:] - cumulative_profile[:-1]
+        d_r2 = r2[1:] - r2[:-1]
+        temp = magnification * r2
+        d_mag_r2 = temp[1:] - temp[:-1]
+        out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
+        return out
