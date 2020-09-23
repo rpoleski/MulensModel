@@ -55,8 +55,12 @@ def get_fluxes(event):
     """
     fluxes = []
     for dataset in event.datasets:
-        fluxes.append(event.fit.flux_of_sources(dataset)[0])
-        fluxes.append(event.fit.blending_flux(dataset))
+        #fluxes.append(event.fit.flux_of_sources(dataset)[0])
+        #fluxes.append(event.fit.blending_flux(dataset))
+        (data_source_flux, data_blend_flux) = event.get_flux_for_dataset(dataset)
+        fluxes.append(data_source_flux[0])
+        fluxes.append(data_blend_flux)
+
     return fluxes
 
 
@@ -175,13 +179,17 @@ for i in range(n_fluxes):
     print('flux_{:}_{:} : {:.4f} {:.4f} {:.4f}'.format(flux_name[i % 2],
           i//2+1, *uncertainties(blob_results[:, i])))
 
-# We extract best model parameters and chi2 from my_event:
+# We extract best model parameters and chi2:
 print("\nSmallest chi2 model:")
-best = [event.best_chi2_parameters[p] for p in parameters_to_fit]
+prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
+print("\nSmallest chi2 model:")
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
-print("chi2 = ", event.best_chi2)
-for param in parameters_to_fit:
-    setattr(model.parameters, param, event.best_chi2_parameters[param])
+print("chi2 = ", best_chi2)
+for key, val in enumerate(parameters_to_fit):
+    setattr(event.model.parameters, val, best[key])
 
 # Plot model and data.
 print("\nNow let's plot the best model")
