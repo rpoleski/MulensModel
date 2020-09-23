@@ -185,11 +185,14 @@ prob = sampler.lnprobability[:, n_burn:].reshape((-1))
 best_index = np.argmax(prob)
 best_chi2 = prob[best_index] / -0.5
 best = samples[best_index, :]
-print("\nSmallest chi2 model:")
-print(*[repr(b) if isinstance(b, float) else b.value for b in best])
-print("chi2 = ", best_chi2)
 for key, val in enumerate(parameters_to_fit):
     setattr(event.model.parameters, val, best[key])
+
+print("\nSmallest chi2 model:")
+print(*[repr(b) if isinstance(b, float) else b.value for b in best])
+print("chi2 = ", event.get_chi2())
+# Note: the call to event.get_chi2() is necessary so that event is updated with
+# the fluxes for the best-fit model for use in plotting (below).
 
 # Plot model and data.
 print("\nNow let's plot the best model")
