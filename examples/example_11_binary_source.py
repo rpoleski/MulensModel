@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 
 import MulensModel as mm
 
+# Fix the seed for the random number generator so the behavior is reproducible.
+np.random.seed(12343)
 
 # Define likelihood functions
 def ln_like(theta, event, parameters_to_fit):
@@ -94,9 +96,6 @@ def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
         print(msg.format(r, results[2, i]-r, r-results[0, i]))
 
     # We extract best model parameters and chi2 from event:
-    print("\nSmallest chi2 model:")
-    if "flux_ratio" in parameters_to_fit:
-        parameters_to_fit.pop(parameters_to_fit.index("flux_ratio"))
     prob = sampler.lnprobability[:, n_burn:].reshape((-1))
     best_index = np.argmax(prob)
     best = samples[best_index, :]
@@ -109,13 +108,6 @@ def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
     print("\nSmallest chi2 model:")
     print(*[repr(b) if isinstance(b, float) else b.value for b in best])
     print("chi2 = ", event.get_chi2())
-
-    # Set model parameters to best value. Note that
-    # event.model.parameters does not know flux_ratio.
-    # for param in parameters_to_fit:
-    #     if param != 'flux_ratio':
-    #         setattr(event.model.parameters, param,
-    #                 event.best_chi2_parameters[param])
 
 
 # First, prepare the data. There is nothing very exciting in this part,
