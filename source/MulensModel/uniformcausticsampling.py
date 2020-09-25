@@ -2,7 +2,7 @@ import numpy as np
 import math
 import warnings
 
-import MulensModel as MM
+import MulensModel as mm
 
 
 class UniformCausticSampling(object):
@@ -97,7 +97,7 @@ class UniformCausticSampling(object):
         self._q = q
         self._n_points = n_points
 
-        self._n_caustics = MM.utils.Utils.get_n_caustics(s=self.s, q=self.q)
+        self._n_caustics = mm.utils.Utils.get_n_caustics(s=self.s, q=self.q)
         self._get_phi()
         self._integrate()
         self._find_inflections_and_correct()
