@@ -279,7 +279,7 @@ class MulensData(object):
         """
         Plot the data.
 
-        Uses plot_properties_ for label, color, etc.
+        Uses :py:attr:`plot_properties` for label, color, etc.
         This settings can be changed by setting ``**kwargs``.
 
         You can plot in either flux or magnitude space. You can plot

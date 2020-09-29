@@ -1,19 +1,19 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.binarylens module &#8212; MulensModel 1.15.6 documentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MulensModel.binarylens module &#8212; MulensModel 1.17.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -28,29 +28,30 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="module-MulensModel.binarylens">
 <span id="mulensmodel-binarylens-module"></span><h1>MulensModel.binarylens module<a class="headerlink" href="#module-MulensModel.binarylens" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="MulensModel.binarylens.BinaryLens">
-<em class="property">class </em><code class="descclassname">MulensModel.binarylens.</code><code class="descname">BinaryLens</code><span class="sig-paren">(</span><em>mass_1=None</em>, <em>mass_2=None</em>, <em>separation=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">MulensModel.binarylens.</code><code class="sig-name descname">BinaryLens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mass_1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mass_2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">separation</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The binary lens equation - its solutions, images, parities,
 magnifications, etc.</p>
 <p>The binary lens equation is a 5th order complex polynomial.</p>
-<dl class="docutils">
-<dt>Attributes :</dt>
-<dd><dl class="first last docutils">
-<dt>mass_1: <em>float</em></dt>
-<dd>mass of the primary (left-hand object) as a fraction of
-the total mass.</dd>
-<dt>mass_2: <em>float</em></dt>
-<dd>mass of the secondary (right-hand object) as a fraction of the
-total mass.</dd>
-<dt>separation: <em>float</em></dt>
-<dd>separation between the two bodies as a fraction of the Einstein
-ring.</dd>
+<dl class="simple">
+<dt>Attributes :</dt><dd><dl class="simple">
+<dt>mass_1: <em>float</em></dt><dd><p>mass of the primary (left-hand object) as a fraction of
+the total mass.</p>
+</dd>
+<dt>mass_2: <em>float</em></dt><dd><p>mass of the secondary (right-hand object) as a fraction of the
+total mass.</p>
+</dd>
+<dt>separation: <em>float</em></dt><dd><p>separation between the two bodies as a fraction of the Einstein
+ring.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -58,157 +59,149 @@ ring.</dd>
 mass than the total mass. This is possible but not recommended -
 make sure you know what you’re doing before you start using this
 possibility.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="MulensModel.binarylens.BinaryLens.point_source_magnification">
-<code class="descname">point_source_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">point_source_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_x</span></em>, <em class="sig-param"><span class="n">source_y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate point source magnification for given position. The
 origin of the coordinate system is at the center of mass and
 both masses are on X axis with higher mass at negative X; this
 means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
 the lower mass is at (s/(1+q), 0).</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>source_x: <em>float</em></dt>
-<dd>X-axis coordinate of the source.</dd>
-<dt>source_y: <em>float</em></dt>
-<dd>Y-axis coordinate of the source.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>source_x: <em>float</em></dt><dd><p>X-axis coordinate of the source.</p>
+</dd>
+<dt>source_y: <em>float</em></dt><dd><p>Y-axis coordinate of the source.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>magnification: <em>float</em></dt>
-<dd>Point source magnification.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>magnification: <em>float</em></dt><dd><p>Point source magnification.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="MulensModel.binarylens.BinaryLens.hexadecapole_magnification">
-<code class="descname">hexadecapole_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma</em>, <em>quadrupole=False</em>, <em>all_approximations=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">hexadecapole_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_x</span></em>, <em class="sig-param"><span class="n">source_y</span></em>, <em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">gamma</span></em>, <em class="sig-param"><span class="n">quadrupole</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">all_approximations</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Magnification in hexadecapole approximation of the
 binary-lens/finite-source event - based on <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract">Gould 2008 ApJ
 681, 1593</a>.</p>
 <p>For coordinate system convention see
 <a class="reference internal" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="MulensModel.binarylens.BinaryLens.point_source_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">point_source_magnification()</span></code></a></p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>source_x: <em>float</em></dt>
-<dd>X-axis coordinate of the source.</dd>
-<dt>source_y: <em>float</em></dt>
-<dd>Y-axis coordinate of the source.</dd>
-<dt>rho: <em>float</em></dt>
-<dd>Source size relative to Einstein ring radius.</dd>
-<dt>gamma: <em>float</em></dt>
-<dd>Linear limb-darkening coefficient in gamma convention.</dd>
-<dt>quadrupole: <em>boolean</em>, optional</dt>
-<dd>Return quadrupole approximation instead of hexadecapole?
-Default is <em>False</em>.</dd>
-<dt>all_approximations: <em>boolean</em>, optional</dt>
-<dd>Return hexadecapole, quadrupole, and point source
-approximations? Default is <em>False</em>.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>source_x: <em>float</em></dt><dd><p>X-axis coordinate of the source.</p>
+</dd>
+<dt>source_y: <em>float</em></dt><dd><p>Y-axis coordinate of the source.</p>
+</dd>
+<dt>rho: <em>float</em></dt><dd><p>Source size relative to Einstein ring radius.</p>
+</dd>
+<dt>gamma: <em>float</em></dt><dd><p>Linear limb-darkening coefficient in gamma convention.</p>
+</dd>
+<dt>quadrupole: <em>boolean</em>, optional</dt><dd><p>Return quadrupole approximation instead of hexadecapole?
+Default is <em>False</em>.</p>
+</dd>
+<dt>all_approximations: <em>boolean</em>, optional</dt><dd><p>Return hexadecapole, quadrupole, and point source
+approximations? Default is <em>False</em>.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>magnification: <em>float</em> or <em>sequence</em> of three <em>floats</em></dt>
-<dd>Hexadecapole approximation (<em>float</em>) by default.
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>magnification: <em>float</em> or <em>sequence</em> of three <em>floats</em></dt><dd><p>Hexadecapole approximation (<em>float</em>) by default.
 Quadrupole approximation (<em>float</em>) if <em>quadrupole</em>
 parameter is <em>True</em>. Hexadecapole, quadrupole, and
 point source approximations (<em>sequence</em> of three
-<em>floats</em>) if <em>all_approximations</em> parameter is <em>True</em>.</dd>
+<em>floats</em>) if <em>all_approximations</em> parameter is <em>True</em>.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification">
-<code class="descname">adaptive_contouring_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma=None</em>, <em>u_limb_darkening=None</em>, <em>accuracy=0.1</em>, <em>ld_accuracy=0.001</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">adaptive_contouring_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_x</span></em>, <em class="sig-param"><span class="n">source_y</span></em>, <em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">u_limb_darkening</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">ld_accuracy</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Binary lens finite source magnification calculated using
 Adaptive Contouring method by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract">Dominik 2007 MNRAS, 377, 1679</a></p>
 <p>See also
 <a class="reference external" href="http://star-www.st-and.ac.uk/~md35/Software.html">AdaptiveContouring website by Martin Dominik</a></p>
 <p>For coordinate system convention see
 <a class="reference internal" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="MulensModel.binarylens.BinaryLens.point_source_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">point_source_magnification()</span></code></a></p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>source_x: <em>float</em></dt>
-<dd>X-axis coordinate of the source.</dd>
-<dt>source_y: <em>float</em></dt>
-<dd>Y-axis coordinate of the source.</dd>
-<dt>rho: <em>float</em></dt>
-<dd>Source size relative to Einstein ring radius.</dd>
-<dt>gamma: <em>float</em>, optional</dt>
-<dd>Linear limb-darkening coefficient in gamma convention.</dd>
-<dt>u_limb_darkening: <em>float</em></dt>
-<dd>Linear limb-darkening coefficient in u convention.
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>source_x: <em>float</em></dt><dd><p>X-axis coordinate of the source.</p>
+</dd>
+<dt>source_y: <em>float</em></dt><dd><p>Y-axis coordinate of the source.</p>
+</dd>
+<dt>rho: <em>float</em></dt><dd><p>Source size relative to Einstein ring radius.</p>
+</dd>
+<dt>gamma: <em>float</em>, optional</dt><dd><p>Linear limb-darkening coefficient in gamma convention.</p>
+</dd>
+<dt>u_limb_darkening: <em>float</em></dt><dd><p>Linear limb-darkening coefficient in u convention.
 Note that either <em>gamma</em> or <em>u_limb_darkening</em> can be
 set.  If neither of them is provided then limb
-darkening is ignored.</dd>
-<dt>accuracy: <em>float</em>, optional</dt>
-<dd>Requested accuracy of the result defined as the sum of
+darkening is ignored.</p>
+</dd>
+<dt>accuracy: <em>float</em>, optional</dt><dd><p>Requested accuracy of the result defined as the sum of
 the area of the squares that determine the contour
 line and the estimated total enclosed area (see sec. 4
 of the paper).  As M. Dominik states: <em>“this vastly
 overestimates the fractional error, and a suitable
 value should be chosen by testing how its variation
 affects the final results - I recommend starting at
-acc = 0.1.”</em> It significantly affects execution time.</dd>
-<dt>ld_accuracy: <em>float</em>, optional</dt>
-<dd>Requested limb-darkening accuracy. As M. Dominik
+acc = 0.1.”</em> It significantly affects execution time.</p>
+</dd>
+<dt>ld_accuracy: <em>float</em>, optional</dt><dd><p>Requested limb-darkening accuracy. As M. Dominik
 states: <em>” Fractional uncertainty for the adaptive
 Simpson integration of the limb-darkening
 profile-related function during application of Green’s
 theorem.”</em> It does not add execution time so can be
-set to very small value.</dd>
+set to very small value.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>magnification: <em>float</em></dt>
-<dd>Magnification.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>magnification: <em>float</em></dt><dd><p>Magnification.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="MulensModel.binarylens.BinaryLens.vbbl_magnification">
-<code class="descname">vbbl_magnification</code><span class="sig-paren">(</span><em>source_x</em>, <em>source_y</em>, <em>rho</em>, <em>gamma=None</em>, <em>u_limb_darkening=None</em>, <em>accuracy=0.001</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">vbbl_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_x</span></em>, <em class="sig-param"><span class="n">source_y</span></em>, <em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">u_limb_darkening</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Binary lens finite source magnification calculated using VBBL
 library that implements advanced contour integration algorithm
 presented by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract">Bozza 2010 MNRAS, 408, 2188</a>.
 See also <a class="reference external" href="http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm">VBBL website by Valerio Bozza</a>.</p>
 <p>For coordinate system convention see
 <a class="reference internal" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="MulensModel.binarylens.BinaryLens.point_source_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">point_source_magnification()</span></code></a></p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>source_x: <em>float</em></dt>
-<dd>X-axis coordinate of the source.</dd>
-<dt>source_y: <em>float</em></dt>
-<dd>Y-axis coordinate of the source.</dd>
-<dt>rho: <em>float</em></dt>
-<dd>Source size relative to Einstein ring radius.</dd>
-<dt>gamma: <em>float</em>, optional</dt>
-<dd>Linear limb-darkening coefficient in gamma convention.</dd>
-<dt>u_limb_darkening: <em>float</em></dt>
-<dd>Linear limb-darkening coefficient in u convention.
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>source_x: <em>float</em></dt><dd><p>X-axis coordinate of the source.</p>
+</dd>
+<dt>source_y: <em>float</em></dt><dd><p>Y-axis coordinate of the source.</p>
+</dd>
+<dt>rho: <em>float</em></dt><dd><p>Source size relative to Einstein ring radius.</p>
+</dd>
+<dt>gamma: <em>float</em>, optional</dt><dd><p>Linear limb-darkening coefficient in gamma convention.</p>
+</dd>
+<dt>u_limb_darkening: <em>float</em></dt><dd><p>Linear limb-darkening coefficient in u convention.
 Note that either <em>gamma</em> or <em>u_limb_darkening</em> can be
 set.  If neither of them is provided then limb
-darkening is ignored.</dd>
-<dt>accuracy: <em>float</em>, optional</dt>
-<dd>Requested accuracy of the result.</dd>
+darkening is ignored.</p>
+</dd>
+<dt>accuracy: <em>float</em>, optional</dt><dd><p>Requested accuracy of the result.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>magnification: <em>float</em></dt>
-<dd>Magnification.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>magnification: <em>float</em></dt><dd><p>Magnification.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -220,35 +213,54 @@ darkening is ignored.</dd>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MulensModel</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pspl.html">Fitting tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pi_E.html">Parallax fitting tutorial</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.binarylens.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -257,8 +269,8 @@ darkening is ignored.</dd>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/MulensModel.binarylens.rst.txt"
