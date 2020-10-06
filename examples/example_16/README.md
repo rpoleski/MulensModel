@@ -42,6 +42,8 @@ You can specify the methods used for calculating magnification. For example, fit
 python ulens_model_fit.py ob03235_1.yaml
 ```
 
+Note that this YAML file will result in a warning message. The message is caused by the fact that in some cases, flux minus its uncertainty results in negative values which cannot be translated to magnitudes when plotting. The warning is related to only plotting, not fitting. You can ignore this warning.
+
 There are many more features to be added - _please let authors know what specific needs you have_.
 
 Please note that this code is a high-level example for MulensModel, but it uses fitting algorithms that are not part of MulensModel. The latter allows many microlensing calculations including chi^2 for given data and model parameters, but does not have built-in fitting capabilities.
