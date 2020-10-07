@@ -2,7 +2,6 @@
 1. UC 16 - make it ready for e-mail annoucement
 6. remove unused branches - FSPL_no_Bozza, some other ones?
 7. check notes below
-8. example 2 - clarify first function
 10. _are we using VBBL with improvements from 2018 paper?_
 3. **code not yet well documented** - see below
 12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it is != t\_0

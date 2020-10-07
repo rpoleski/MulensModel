@@ -36,4 +36,3 @@ plt.colorbar()
 plt.title('uniform sampling plotting')
 
 plt.show()
-

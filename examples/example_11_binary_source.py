@@ -20,8 +20,10 @@ import matplotlib.pyplot as plt
 
 import MulensModel as mm
 
+
 # Fix the seed for the random number generator so the behavior is reproducible.
 np.random.seed(12343)
+
 
 # Define likelihood functions
 def ln_like(theta, event, parameters_to_fit):
