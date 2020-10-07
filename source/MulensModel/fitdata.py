@@ -134,10 +134,7 @@ class FitData:
         if self.dataset.ephemerides_file is None:
             satellite_skycoord = None
         else:
-            satellite_skycoords = SatelliteSkyCoord(
-                 ephemerides_file=self.dataset.ephemerides_file)
-            satellite_skycoord = satellite_skycoords.get_satellite_coords(
-                self.dataset.time)
+            satellite_skycoord = self.dataset.satellite_skycoord
 
         magnification_kwargs = {
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
