@@ -44,6 +44,8 @@ I think I did this, but I also might have been side-tracked by adding unit tests
     - Completed: 01, 02, 03, 04, 05, 06, 07[RP], 09, 10, 11
     - example_08 has not been checked (need to figure out how to open a jupyter 
       notebook)
+      
+## Check All Previously Functioning Use Cases Work
 
 ## Check PEP8 Compliance
 
