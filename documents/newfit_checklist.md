@@ -41,7 +41,7 @@ and alternatives.
 ## Check All Examples Work
 I think I did this, but I also might have been side-tracked by adding unit tests
 - 01--16
-    - Completed: 01, 02, 03, 04, 05, 06, 07[RP], 09, 10, 11
+    - Completed: 01, 02, 03, 04, 05, 06, 07[RP], 09, 10, 11, 12
     - example_08 has not been checked (need to figure out how to open a jupyter 
       notebook)
       
