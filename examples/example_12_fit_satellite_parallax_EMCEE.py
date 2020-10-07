@@ -111,13 +111,18 @@ for (i, p) in enumerate(parameters_to_fit):
     r = results[1, i]
     print(fmt.format(p, r, results[2, i]-r, r-results[0, i]))
 
-# We extract best model parameters and chi2 from my_event:
+# We extract best model parameters and chi2 from the chain:
+prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
 print("\nSmallest chi2 model:")
-best = [my_event.best_chi2_parameters[p] for p in parameters_to_fit]
-print(*["{:.4f}".format(b) if isinstance(b, float) else b.value for b in best])
-print("{:.4f}".format(my_event.best_chi2))
+print(*[repr(b) if isinstance(b, float) else b.value for b in best])
+print(best_chi2)
 for (i, parameter) in enumerate(parameters_to_fit):
     setattr(my_event.model.parameters, parameter, best[i])
+
+my_event.fit_fluxes()
 
 # In order to make plots, we need a Model instance
 # that has satellite ephemeris:
@@ -127,8 +132,8 @@ space_model = mm.Model({**params}, coords=coords,
 
 # Prepare plots:
 my_event.plot_model(subtract_2450000=True)
-fluxes = my_event.model.get_ref_fluxes()  # We need this to ensure that fluxes
-# are scalled properly.
+fluxes = my_event.get_flux_for_dataset(data_ground)
+# We need this to ensure that fluxes are scaled properly.
 space_model.plot_lc(subtract_2450000=True,
                     source_flux=fluxes[0], blend_flux=fluxes[1])
 my_event.plot_data(subtract_2450000=True)
