@@ -74,7 +74,23 @@ The chi^2 improved very slightly over positive `u_0` parallax model, only by 2.3
 
 ### Priors and constraints
 
-It is possible to specify additional fit constraints in input file. Currently, empirical `t_E` distribution and constraining negative blending flux are allowed. For description see `fit_constraints` in [ulens\_model\_fit.py](ulens_model_fit.py).
+It is possible to specify additional fit constraints in the input file. Currently, empirical `t_E` distribution and constraining negative blending flux are allowed. To see how it works, let's go back to `ob08092-o4.yaml`. If you carefully look at the output printed, you will see that the blending flux (`flux_b_1` in output) is negative within 1-sigma. This is somehow unphysical. To prevent it, we can disfavor negative blending flux models - see [`ob08092-o4_prior_1.yaml`](ob08092-o4_prior_1.yaml):
+
+```python
+python ulens_model_fit.py ob08092-o4_prior_1.yaml
+```
+
+You will see that the blending flux changed - the median increased and uncertainties decreased. Also, positive and negative uncertainties changed to asymmetric. You can have a look at triangle plots from two runs to see the difference.
+
+We can also specify prior on `t_E`. In [`ob08092-o4_prior_2.yaml`](ob08092-o4_prior_2.yaml) we use the results from [Mroz et al. (2017)](https://ui.adsabs.harvard.edu/abs/2017Natur.548..183M/abstract):
+
+```python
+python ulens_model_fit.py ob08092-o4_prior_2.yaml
+```
+
+In this case, the parameters don't change much because `t_E` is well constrained by the data.
+
+For detailed description of different options, see `fit_constraints` in [ulens\_model\_fit.py](ulens_model_fit.py).
 
 
 ### More information

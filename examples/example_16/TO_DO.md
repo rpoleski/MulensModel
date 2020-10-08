@@ -19,8 +19,6 @@
 
 ( **boldface** - do this before sending e-mail around)
 
-**NOW - FINISH Mroz+17** - example
-
 - **some documentation - see above**
 - **add one more fitting method?**
 - **corner.py**
