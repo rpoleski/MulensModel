@@ -29,7 +29,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.4'
+__version__ = '0.12.5'
 
 
 class UlensModelFit(object):
@@ -1082,6 +1082,7 @@ class UlensModelFit(object):
         if self._flat_priors:
             print("chi2 : {:.4f}".format(-2. * self._best_model_ln_prob))
         else:
+            self._ln_like(self._best_model_theta)
             print("chi2 : {:.4f}".format(self._event.get_chi2()))
         print(*self._fit_parameters)
         print(*list(self._best_model_theta))
