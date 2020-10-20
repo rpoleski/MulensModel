@@ -148,10 +148,19 @@ for i in range(n_dim):
     else:
         fmt = "{:} {:.5f} +{:.5f} -{:.5f}"
     print(fmt.format(parameters[i], r_50[i], r_84[i]-r_50[i], r_50[i]-r_16[i]))
-print("Smallest chi2 model:")
-best = [my_event.best_chi2_parameters[p] for p in parameters]
-print(*[b if isinstance(b, float) else b.value for b in best])
-print(my_event.best_chi2)
+
+# We extract best model parameters and chi2 from the chain:
+prob = sampler.lnprobability[:, burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
+print("\nSmallest chi2 model:")
+print(*[repr(b) if isinstance(b, float) else b.value for b in best])
+print(best_chi2)
+for (i, parameter) in enumerate(parameters):
+    setattr(my_event.model.parameters, parameter, best[i])
+
+my_event.fit_fluxes()
 
 # Plot results.
 ln_like(best, my_event, parameters, False)  # This allows plotting of
