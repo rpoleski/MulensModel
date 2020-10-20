@@ -48,8 +48,8 @@ I think I did this, but I also might have been side-tracked by adding unit tests
       
 ## Check All Previously Functioning Use Cases Work
 - Completed: 
-    - working 01, 03, 08, 10
-    - not implemented: 05, 05b, 06, 07 
+    - working 01, 03, 08, 10, 12, 13, 15, 16
+    - not implemented: 05, 05b, 06, 07, 11, 14
 
 ## Check PEP8 Compliance
 
