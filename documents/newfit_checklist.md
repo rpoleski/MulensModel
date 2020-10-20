@@ -41,11 +41,15 @@ and alternatives.
 ## Check All Examples Work
 I think I did this, but I also might have been side-tracked by adding unit tests
 - 01--16
-    - Completed: 01, 02, 03, 04, 05, 06, 07[RP], 09, 10, 11, 12, 13, 14, 15
+    - Completed: 01, 02, 03, 04, 05, 06, 07[RP], 09, 10, 11, 12, 13, 14, 15, 17
     - example_08 has not been checked (need to figure out how to open a jupyter 
       notebook)
+    - example 16 is in the master branch, so can't be tested yet.
       
 ## Check All Previously Functioning Use Cases Work
+- Completed: 
+    - working 01, 03, 08, 10
+    - not implemented: 05, 05b, 06, 07 
 
 ## Check PEP8 Compliance
 
