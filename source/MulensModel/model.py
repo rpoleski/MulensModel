@@ -1433,12 +1433,13 @@ class Model(object):
         """
         # Check for type
         if not isinstance(time, np.ndarray):
-            if isinstance(time, (np.float, float)):
+            if isinstance(time, (np.float, float, np.int, int)):
                 time = np.array([time])
             elif isinstance(time, list):
                 time = np.array(time)
             else:
-                raise TypeError('time must be a float, list, or np.ndarray')
+                raise TypeError(
+                    'time must be a float, int, list, or np.ndarray')
 
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)
