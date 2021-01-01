@@ -373,7 +373,8 @@ class UniformCausticSampling(object):
         """
         if (x_caustic_in < 0. or x_caustic_in > 1. or
                 x_caustic_out < 0. or x_caustic_out > 1. or
-                t_caustic_in >= t_caustic_out):
+                t_caustic_in >= t_caustic_out or
+                x_caustic_in == x_caustic_out):
             msg = 'Wrong input in get_standard_parameters(): {:} {:} {:} {:}'
             raise ValueError(msg.format(x_caustic_in, x_caustic_out,
                                         t_caustic_in, t_caustic_out))

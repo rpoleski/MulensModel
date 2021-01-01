@@ -479,7 +479,7 @@ class ModelParameters(object):
         allowed_keys = set(parameters + ['rho', 't_star'])
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
-            msg = 'Parameters not allow in Cassan (2008) parameterization '
+            msg = 'Parameters not allowed in Cassan (2008) parameterization '
             msg += '(at this point): {:}'.format(difference)
             raise KeyError(msg)
 
