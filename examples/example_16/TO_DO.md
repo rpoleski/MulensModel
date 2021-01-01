@@ -24,16 +24,19 @@
 - **corner.py**
 - n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIES INPUT"
 - Mroz+20 - finish
+- print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
 - LD coeffs as parameters
 - all_parameters in _get_parameters_ordered() and _check_fixed_parameters() - combine in a single one
 - note that parameters are re-ordered (maybe in future add option for specifying order)
 - datasets - guessing 245/246; plotting as well
 - no_negative_blending_flux - only first dataset, or all datasets? Maybe add one more option
 - trace plot
+- allow plotting multiple models
 - for plot script add printing chi2 and fluxes
 - allow making plots without a fit
 - starting parameters are read from file
 - some of the starting values are calculated based on equation given in yaml file, eg. "s: equation 100 / t_E" and then substitute each value of t_E and then use: "exec('out = 100 / 20.12345')" and use variable 'out'; This requires import from math of log, log10, arcsin etc.; make sure "s" in x_caustic_in is not replaced etc.; 
+- if Cassan08 paramaterization is used then make sure times are >2450000.
 - self._plots - check what is there
 - add automatic "obvious" checks on parameters: t_E>0, rho>0, s>0, 1>q>0 - even if they are not provided, then model should be rejected and warning given
 - Fitting method to be added: scipy.optimize, pymultinest, ???

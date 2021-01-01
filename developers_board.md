@@ -324,11 +324,8 @@ ob9919 - [Smith et al. 2002](https://ui.adsabs.harvard.edu/abs/2002MNRAS.336..67
 [Dong et al. 2009](https://ui.adsabs.harvard.edu/abs/2009ApJ...695..970D/abstract), 
 ob07514 - [Miyake+12](https://ui.adsabs.harvard.edu/abs/2012ApJ...752...82M/abstract), 
 mb10328 - [Furusawa et al. 2013](https://ui.adsabs.harvard.edu/abs/2013ApJ...779...91F/abstract), 
-ob130911 - [Miyazaki et al. 2019](https://arxiv.org/abs/1912.09613) 
-
-[Poindexter et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...633..914P/abstract) - 23% of events are affected by xallarap
-
-ob07368 - [Sumi et al. 2010](https://ui.adsabs.harvard.edu/abs/2010ApJ...710.1641S/abstract) and [Suzuki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...833..145S/abstract)
-
-ob150845 = mb15277 - Calen leads
-
+ob130911 - [Miyazaki et al. 2019](https://arxiv.org/abs/1912.09613), 
+[Poindexter et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...633..914P/abstract) - 23% of events are affected by xallarap, 
+ob07368 - [Sumi et al. 2010](https://ui.adsabs.harvard.edu/abs/2010ApJ...710.1641S/abstract) and [Suzuki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...833..145S/abstract), 
+ob150845 = mb15277 - Calen leads, 
+Roman predictions - [Miyazaki+20](https://arxiv.org/abs/2010.10315), 

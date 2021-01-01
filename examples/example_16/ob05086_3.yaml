@@ -15,6 +15,7 @@ min_values:
     pi_E_N: -1.
     pi_E_E: -1.
 max_values:
+    u_0: 0.
     pi_E_N: 1.
     pi_E_E: 1.
 fitting_parameters:

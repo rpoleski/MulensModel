@@ -11,6 +11,7 @@ model:
 fixed_parameters:
     t_0_par: 2453628.0
 min_values:
+    u_0: 0.
     t_E: 0.
     pi_E_N: -1.
     pi_E_E: -1.
