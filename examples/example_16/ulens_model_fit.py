@@ -4,6 +4,7 @@ All the settings are read from a YAML file.
 """
 import sys
 from os import path
+import warnings
 import math
 import numpy as np
 from scipy.interpolate import interp1d
@@ -29,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.6'
+__version__ = '0.12.7'
 
 
 class UlensModelFit(object):
@@ -493,11 +494,11 @@ class UlensModelFit(object):
         for key in self._min_values:
             if key in self._max_values:
                 if self._min_values[key] >= self._max_values[key]:
-                    raise ValueError(
-                        "This doesn't make sense - for " + key + "the lower " +
-                        "limit is larger than the upper limit: " +
-                        "{:} vs ".format(self._min_values[key]) +
-                        "{:}".format(self._max_values[key]))
+                    fmt = (
+                        "This doesn't make sense: for {:} the lower limit " +
+                        "is larger than the upper limit: {:} vs {:}")
+                    raise ValueError(fmt.format(
+                        key, self._min_values[key], self._max_values[key]))
 
         self._min_values_indexed = self._parse_min_max_values_single(
             self._min_values)
@@ -1056,8 +1057,16 @@ class UlensModelFit(object):
         for name in ['t_0', 't_0_1', 't_0_2']:
             if name in self._fit_parameters:
                 index = self._fit_parameters.index(name)
-                self._samples[:, index] -= int(
-                    np.mean(self._samples[:, index]))
+                try:
+                    self._samples[:, index] -= int(
+                        np.mean(self._samples[:, index]))
+                except TypeError:
+                    fmt = ("Warning: extremely wide range of posterior t_0: " +
+                           "from {:} to {:}")
+                    warnings.warn(fmt.format(np.min(self._samples[:, index]),
+                                             np.max(self._samples[:, index])))
+                    mean = int(np.mean(self._samples[:, index]))
+                    self._samples[:, index] = self._samples[:, index] - mean
 
         if self._return_fluxes:
             try:
