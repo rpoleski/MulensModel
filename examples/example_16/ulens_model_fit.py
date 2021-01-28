@@ -29,7 +29,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.5'
+__version__ = '0.12.6'
 
 
 class UlensModelFit(object):
@@ -729,7 +729,15 @@ class UlensModelFit(object):
         """
         find out how many flux parameters there are
         """
-        self._event.get_chi2()
+        try:
+            self._event.get_chi2()
+        except ValueError:
+            if 'x_caustic_in' in self._model.parameters.parameters:
+                self._model.parameters.x_caustic_in = (
+                    self._model.parameters.x_caustic_out + 0.01)
+                self._event.get_chi2()
+            else:
+                raise
 
         n = 0
         for (i, dataset) in enumerate(self._datasets):
@@ -763,14 +771,25 @@ class UlensModelFit(object):
             self._fit_parameters = []
         else:
             for (key, value) in self._starting_parameters.items():
-                if value[0] == 'gauss':
-                    parameters[key] = value[1]
-                elif value[0] == 'uniform':
-                    parameters[key] = (value[1] + value[2]) / 2.
-                elif value[0] == 'log-uniform':
-                    parameters[key] = (value[1] + value[2]) / 2.
+                # We treat Cassan08 case differently so that
+                # x_caustic_in is different than x_caustic_out.
+                if key == "x_caustic_in":
+                    if value[0] == 'gauss':
+                        parameters[key] = (
+                            value[1] + value[2] * np.random.randn(1)[0])
+                    elif value[0] in ['uniform', 'log-uniform']:
+                        parameters[key] = 0.25 * value[1] + 0.75 * value[2]
+                    else:
+                        raise ValueError('internal error: ' + value[0])
                 else:
-                    raise ValueError('internal error: ' + value[0])
+                    if value[0] == 'gauss':
+                        parameters[key] = value[1]
+                    elif value[0] == 'uniform':
+                        parameters[key] = (value[1] + value[2]) / 2.
+                    elif value[0] == 'log-uniform':
+                        parameters[key] = (value[1] + value[2]) / 2.
+                    else:
+                        raise ValueError('internal error: ' + value[0])
 
         if self._fixed_parameters is not None:
             for (key, value) in self._fixed_parameters.items():
@@ -917,7 +936,14 @@ class UlensModelFit(object):
         if self._prior_t_E not in ['Mroz+17', 'Mroz+20']:
             raise ValueError('unexpected internal error ' + self._prior_t_E)
 
-        x = math.log10(self._model.parameters.t_E)
+        try:
+            x = math.log10(self._model.parameters.t_E)
+        except ValueError:
+            if 'x_caustic_in' in self._model.parameters.parameters:
+                return -np.inf
+            else:
+                raise
+
         if x > self._prior_t_E_data['x_max']:
             dy = -3. * math.log(10) * (x - self._prior_t_E_data['x_max'])
             return self._prior_t_E_data['y_max'] + dy
@@ -1233,7 +1259,8 @@ class UlensModelFit(object):
             mask = (data.time >= t_1) & (data.time <= t_2)
             if np.sum(mask) == 0:
                 continue
-            (f_source, f_blend) = self._event.model.get_ref_fluxes(data_ref=data)
+            (f_source, f_blend) = self._event.model.get_ref_fluxes(
+                data_ref=data)
             flux = f_source_0 * (data.flux - f_blend) / f_source
             flux += f_blend_0
             err_flux = f_source_0 * data.err_flux / f_source
