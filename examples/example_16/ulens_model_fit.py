@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.7'
+__version__ = '0.12.8'
 
 
 class UlensModelFit(object):
@@ -331,8 +331,13 @@ class UlensModelFit(object):
                         "'time range' for 'best model' should specify 2 " +
                         "values (begin and end); got: " +
                         str(self._plots['best model']['time range']))
-                self._plots['best model']['time range'] = [
-                    float(text[0]), float(text[1])]
+                t_0 = float(text[0])
+                t_1 = float(text[1])
+                if t_1 < t_0:
+                    raise ValueError(
+                        "Incorrect 'time range' for 'best model':\n" +
+                        text[0] + " " + text[1])
+                self._plots['best model']['time range'] = [t_0, t_1]
 
     def _check_model_parameters(self):
         """
@@ -1267,6 +1272,7 @@ class UlensModelFit(object):
         for data in self._datasets:
             mask = (data.time >= t_1) & (data.time <= t_2)
             if np.sum(mask) == 0:
+                self._event.model.data_ref = i_data_ref
                 continue
             (f_source, f_blend) = self._event.model.get_ref_fluxes(
                 data_ref=data)

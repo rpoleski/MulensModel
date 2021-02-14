@@ -39,6 +39,7 @@
 - if Cassan08 paramaterization is used then make sure times are >2450000.
 - self._plots - check what is there
 - add automatic "obvious" checks on parameters: t_E>0, rho>0, s>0, 1>q>0 - even if they are not provided, then model should be rejected and warning given
+- binary source models - print fluxes of both sources separately
 - Fitting method to be added: scipy.optimize, pymultinest, ???
 - allow plotting many random models from posterior
 - MulensData() - use try/except with meaningful error message
@@ -68,7 +69,6 @@
 - flux constraints for binary source models (note that for plotting it is now set to first dataset)
 - method to be used: https://lmfit.github.io/lmfit-py/
 - allow Model.set_magnification_methods_parameters()
-- add source parameter for Model.set_magnification_methods()
 - methods - if only single string is provided, then this is a default method
 - print all models
 - print current best model - each minute, each nth model etc.
