@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.12.8'
+__version__ = '0.13.0'
 
 
 class UlensModelFit(object):
@@ -74,9 +74,21 @@ class UlensModelFit(object):
               }
 
         model: *dict*
-            Additional settings for *MulensModel.Model*. Currently,
-            the only accepted key in this dict is `'coords'`, which
-            specifies event coordinates.
+            Additional settings for *MulensModel.Model*. Accepted keys:
+
+            `'coords'` - event coordinates,
+
+            `'methods'` - methods used for magnification calculation,
+
+            `'methods source 1'` - methods used for magnification calculation
+            for the first source in binary source models,
+
+            `'methods source 2'` - methods used for magnification calculation
+            for the second source in binary source models,
+
+            `'default method'` - default magnification calculation method,
+
+            `'parameters'` and `'values'` - used to plot specific model.
 
         fixed_parameters: *dict*
             Provide parameters that will be kept fixed during the fitting
@@ -347,18 +359,19 @@ class UlensModelFit(object):
         if self._model_parameters is None:
             self._model_parameters = dict()
 
-        allowed = {'coords', 'default method', 'methods', 'parameters',
-                   'values'}
+        allowed = {'coords', 'default method', 'methods',
+                   'methods source 1', 'methods source 2',
+                   'parameters', 'values'}
         keys = set(self._model_parameters.keys())
         not_allowed = keys - allowed
         if len(not_allowed) > 0:
             raise ValueError(
                 'model keyword is a dict with keys not allowed: ' +
                 str(not_allowed))
-        if 'methods' in self._model_parameters:
-            _enumerate = enumerate(self._model_parameters['methods'].split())
-            self._model_parameters['methods'] = [
-                float(x) if i % 2 == 0 else x for (i, x) in _enumerate]
+        for key in {'methods', 'methods source 1', 'methods source 2'}:
+            if key in self._model_parameters:
+                self._model_parameters[key] = self._parse_methods(
+                    self._model_parameters[key])
         check = keys.intersection({'parameters', 'values'})
         if len(check) == 1:
             raise ValueError("If you specify 'parameters' and 'values' for " +
@@ -377,6 +390,21 @@ class UlensModelFit(object):
         if condition_1 or condition_2:
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
+
+    def _parse_methods(self, methods):
+        """
+        check if odd elements are floats and parse them
+        """
+        _enumerate = enumerate(methods.split())
+        try:
+            out = [float(x) if i % 2 == 0 else x for (i, x) in _enumerate]
+        except ValueError:
+            raise ValueError(
+                "Error in parsing floats in methods:\n" + methods)
+        if len(out) < 3 or len(out) % 2 != 1:
+            raise ValueError(
+                "Error in parsing methods:\n" + methods)
+        return out
 
     def _get_datasets(self):
         """
@@ -725,6 +753,12 @@ class UlensModelFit(object):
         if 'methods' in self._model_parameters:
             self._model.set_magnification_methods(
                 self._model_parameters['methods'])
+        if 'methods source 1' in self._model_parameters:
+            self._model.set_magnification_methods(
+                self._model_parameters['methods source 1'], 1)
+        if 'methods source 2' in self._model_parameters:
+            self._model.set_magnification_methods(
+                self._model_parameters['methods source 2'], 2)
 
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'
