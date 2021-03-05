@@ -36,7 +36,23 @@ class Coordinates(SkyCoord):
         if not isinstance(args[0], SkyCoord) and 'unit' not in kwargs:
             kwargs['unit'] = (u.hourangle, u.deg)
         SkyCoord.__init__(self, *args, **kwargs)
+        if self.cartesian.xyz.shape not in [(3,), (3, 1)]:
+            raise ValueError(
+                "Something wrong with parameters of Coordinates().\nMost " +
+                "probably you have provided more than one sky position.")
         self._calculate_projected()
+
+    def _calculate_projected(self):
+        """
+        Calculate North and East directions projected on the plane of the sky.
+        """
+        direction = np.array(self.cartesian.xyz.value)
+        if direction.shape == (3, 1):
+            direction = direction[:, 0]
+        north = np.array([0., 0., 1.])
+        self._east_projected = Utils.vector_product_normalized(
+            north, direction)
+        self._north_projected = np.cross(direction, self._east_projected)
 
     @property
     def galactic_l(self):
@@ -97,16 +113,6 @@ class Coordinates(SkyCoord):
         East projected on the plane of the sky.
         """
         return self._east_projected
-
-    def _calculate_projected(self):
-        """
-        Calculate North and East directions projected on the plane of the sky.
-        """
-        direction = np.array(self.cartesian.xyz.value)
-        north = np.array([0., 0., 1.])
-        self._east_projected = Utils.vector_product_normalized(
-            north, direction)
-        self._north_projected = np.cross(direction, self._east_projected)
 
     def v_Earth_projected(self, full_BJD):
         """

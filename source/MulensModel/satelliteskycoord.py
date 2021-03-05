@@ -15,8 +15,8 @@ class SatelliteSkyCoord(object):
     Keywords :
         ephemerides_file: *str*
             path to file with satellite ephemerides from JPL horizons,
-            for examples see *data/Spitzer_ephemeris_01.dat* or
-            *data/K2_ephemeris_01.dat*
+            for examples see *data/ephemeris_files/Spitzer_ephemeris_01.dat*
+            or *data/ephemeris_files/K2_ephemeris_01.dat*
 
         satellite: *str*, optional
             Just the name of the satellite.
