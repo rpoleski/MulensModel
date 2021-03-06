@@ -30,11 +30,15 @@ class Model(object):
             see
             :py:class:`MulensModel.modelparameters.ModelParameters`
 
-        :py:obj:`coords`: [*list*, *str*, *astropy.SkyCoords*], optional
-            Sky Coordinates of the event.
+        :py:obj:`coords`: *str*, *astropy.SkyCoords*,
+        *MulensModel.Coordsinates*, optional
+
+            Sky coordinates of the event. If type is *str*, then it is
+            assumed that the units are hour angle and degrees for RA and Dec,
+            respectively.
 
         ra, dec: *str*, optional
-            Sky Coordinates of the event.
+            Sky coordinates of the event.
 
         ephemerides_file: *str*, optional
             Specify name of the file with satellite ephemerides. See
