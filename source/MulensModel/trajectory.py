@@ -94,12 +94,10 @@ class Trajectory(object):
             for (key, value) in parallax.items():
                 self.parallax[key] = value
 
-        if (
-                isinstance(coords, SkyCoord) and
-                not isinstance(coords, Coordinates)):
-            self.coords = Coordinates(coords)
-        else:
+        if coords is None or isinstance(coords, Coordinates):
             self.coords = coords
+        else:
+            self.coords = Coordinates(coords)
         self.satellite_skycoord = satellite_skycoord
         if earth_coords is not None:
             raise NotImplementedError(
@@ -148,6 +146,12 @@ class Trajectory(object):
                 raise ValueError("You're trying to calculate trajectory in " +
                                  "a parallax model, but event sky " +
                                  "coordinates were not provided.")
+            keys = ['earth_orbital', 'satellite', 'topocentric']
+            if set([self.parallax[k] for k in keys]) == set([False]):
+                raise ValueError(
+                    'If pi_E value is provided then at least one value ' +
+                    'of parallax dict has to be True ' +
+                    '(earth_orbital, satellite, or topocentric)')
 
             # Apply Earth Orbital parallax effect
             if self.parallax['earth_orbital']:
