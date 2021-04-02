@@ -130,9 +130,9 @@ class BinaryLens(object):
 
     """
     def __init__(self, mass_1=None, mass_2=None, separation=None):
-        self.mass_1 = mass_1
-        self.mass_2 = mass_2
-        self.separation = separation
+        self.mass_1 = float(mass_1)  # This speeds-up code for np.float input.
+        self.mass_2 = float(mass_2)
+        self.separation = float(separation)
         self._total_mass = None
         self._mass_difference = None
         self._position_z1 = None
@@ -181,7 +181,7 @@ class BinaryLens(object):
         z1_pow4 = z1_pow2 * z1_pow2
 
         zeta = self._zeta
-        zeta_conj = np.conjugate(zeta)
+        zeta_conj = zeta.conjugate()
         zeta_conj_pow2 = zeta_conj * zeta_conj
 
         # Calculate the coefficients of the 5th order complex polynomial
@@ -229,7 +229,7 @@ class BinaryLens(object):
         m_diff = self._mass_difference
 
         zeta = self._zeta
-        zeta_conj = np.conjugate(zeta)
+        zeta_conj = zeta.conjugate()
 
         c_sum = Utils.complex_fsum
 
@@ -292,8 +292,9 @@ class BinaryLens(object):
                 self._solver = 'numpy'
                 self._polynomial_roots = np_polyroots(polynomial)
             else:
-                roots = [out[i] + out[i+5] * 1.j for i in range(5)]
-                self._polynomial_roots = np.array(roots)
+                self._polynomial_roots = np.array([
+                    out[0]+out[5]*1.j, out[1]+out[6]*1.j, out[2]+out[7]*1.j,
+                    out[3]+out[8]*1.j, out[4]+out[9]*1.j])
         else:
             raise ValueError('Unknown solver: {:}'.format(self._solver))
         self._last_polynomial_input = polynomial_input
@@ -306,9 +307,12 @@ class BinaryLens(object):
         roots = self._get_polynomial_roots(
             source_x=source_x, source_y=source_y)
 
-        component2 = self.mass_1 / np.conjugate(roots - self._position_z1)
-        component3 = self.mass_2 / np.conjugate(roots - self._position_z2)
-        solutions = self._zeta + component2 + component3
+        # Two lines below are simplified assuming
+        # self._position_z1.imag = 0 and same for z2.
+        roots_conj = np.conjugate(roots)
+        solutions = (self._zeta +
+                     self.mass_1 / (roots_conj - self._position_z1) +
+                     self.mass_2 / (roots_conj - self._position_z2))
         # This backs-up the lens equation.
 
         out = []
@@ -413,7 +417,8 @@ class BinaryLens(object):
         x_shift *= self.separation
         # We need to add this because in order to shift to correct frame.
         return self._point_source_Witt_Mao_95(
-                source_x=source_x+x_shift, source_y=source_y)
+                source_x=float(source_x)+x_shift, source_y=float(source_y))
+        # Casting to float speeds-up code for np.float input.
 
     def _get_magnification_w_plus(self, source_x, source_y, radius,
                                   magnification_center=None):
