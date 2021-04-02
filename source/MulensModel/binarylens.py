@@ -54,13 +54,16 @@ def _import_compiled_VBBL():
     vbbl = _try_load(
         _get_path_2('VBBL', "VBBinaryLensingLibrary_wrapper.so"), "VBBL")
     _vbbl_wrapped = (vbbl is not None)
-    if _vbbl_wrapped:
-        vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
-        vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
+    if not _vbbl_wrapped:
+        return (_vbbl_wrapped, None, None)
 
-        vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
-        vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
-            dtype=ctypes.c_double, shape=(10,))
+    vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
+    vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
+
+    vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
+    vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
+        dtype=ctypes.c_double, shape=(10,))
+
     return (_vbbl_wrapped,
             vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5)
 
@@ -70,10 +73,11 @@ def _import_compiled_AdaptiveContouring():
     ac = "AdaptiveContouring"
     adaptive_contour = _try_load(_get_path_2(ac, ac + "_wrapper.so"), ac)
     _adaptive_contouring_wrapped = (adaptive_contour is not None)
-    if _adaptive_contouring_wrapped:
-        adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
-            8 * [ctypes.c_double])
-        adaptive_contour.Adaptive_Contouring_Linear.restype = ctypes.c_double
+    if not _adaptive_contouring_wrapped:
+        return (_adaptive_contouring_wrapped, None)
+    adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
+        8 * [ctypes.c_double])
+    adaptive_contour.Adaptive_Contouring_Linear.restype = ctypes.c_double
     return (_adaptive_contouring_wrapped,
             adaptive_contour.Adaptive_Contouring_Linear)
 
