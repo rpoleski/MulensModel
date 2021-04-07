@@ -42,11 +42,13 @@
 - binary source models - print fluxes of both sources separately
 - Fitting method to be added: scipy.optimize, pymultinest, ???
 - allow plotting many random models from posterior
+- warnings if plots will overwrite existing files
 - MulensData() - use try/except with meaningful error message
 - plot title
 - make plots tighter, i.e., reduce white space
 - Add ln_prior values to blob? At some point we will want to save that information in output files
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
+- posterior output: 1) add log(prior), 2) add chi2 or equivalent, 3) add option to add fluxes
 - check if output files (including plots) exists at the begin
 - add check if 't_0' is covered by data and give warning if not
 - print number of models calculated

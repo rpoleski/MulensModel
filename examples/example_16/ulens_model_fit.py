@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.13.0'
+__version__ = '0.14.0'
 
 
 class UlensModelFit(object):
@@ -107,7 +107,12 @@ class UlensModelFit(object):
             Parameters of the fit function. They depend on the method used.
 
             For EMCEE, the required parameters are ``n_walkers`` and
-            ``n_steps``. Allowed parameter is ``n_burn``.
+            ``n_steps``. Allowed parameters are ``n_burn`` and
+            ``posterior_file_name``. The latter is *str* which indicates file
+            to which posterior samples will be written. It has to end in
+            ``.npy`` because we save in NumPy file format. You can read this
+            file using ``numpy.load()``. You will get an array with a shape
+            of (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``).
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
@@ -496,7 +501,7 @@ class UlensModelFit(object):
         settings = self._fitting_parameters
 
         required = ['n_walkers', 'n_steps']
-        allowed = ['n_burn']
+        allowed = ['n_burn', 'posterior_file_name']
         full = required + allowed
 
         for required_ in required:
@@ -509,10 +514,29 @@ class UlensModelFit(object):
                              str(set(settings.keys()) - set(full)))
 
         for (p, value) in settings.items():
-            if not isinstance(value, int):
+            if not isinstance(value, int) and p != 'posterior_file_name':
                 raise ValueError(
                     'Fitting parameter ' + p + ' requires int value; got: ' +
                     str(value) + ' ' + str(type(value)))
+
+        if 'posterior_file_name' not in settings:
+            self._posterior_file_name = None
+        else:
+            name = settings['posterior_file_name']
+            if not isinstance(name, str):
+                raise ValueError('posterior_file_name must be string, got: ' +
+                                 str(type(name)))
+            if name[-4:] != '.npy':
+                raise ValueError('posterior_file_name must end in ".npy", ' +
+                                 'got: ' + name)
+            if path.exists(name):
+                if path.isfile(name):
+                    warnings.warn("Exisiting file " + name +
+                                  " will be overwritten")
+                else:
+                    raise ValueError("The path provided for posterior (" +
+                                     name + ") exsists and is a directory")
+            self._posterior_file_name = name[:-4]
 
     def _set_min_max_values(self):
         """
@@ -1080,6 +1104,8 @@ class UlensModelFit(object):
         Call the function that prints and saves results
         """
         self._parse_results_EMCEE()
+        if self._posterior_file_name is not None:
+            self._save_posterior_EMCEE()
 
     def _parse_results_EMCEE(self):
         """
@@ -1163,6 +1189,14 @@ class UlensModelFit(object):
         if self._return_fluxes:
             print("Fluxes:")
             print(*list(self._best_model_fluxes))
+
+    def _save_posterior_EMCEE(self):
+        """
+        save 3D cube with posterior to a numpy array
+        """
+        n_burn = self._fitting_parameters.get('n_burn', 0)
+        samples = self._sampler.chain[:, n_burn:, :]
+        np.save(self._posterior_file_name, samples)
 
     def _make_plots(self):
         """
