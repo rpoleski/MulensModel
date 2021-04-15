@@ -260,7 +260,6 @@ class Trajectory(object):
 
     def _satellite_parallax_trajectory(self):
         """calculate satellite parallax component of trajectory"""
-        # Calculate the parallax offset due to the satellite
         delta_satellite = self._get_delta_satellite()
         return self._project_delta(delta_satellite)
 
