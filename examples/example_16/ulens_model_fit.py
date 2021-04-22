@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.14.0'
+__version__ = '0.15.0'
 
 
 class UlensModelFit(object):
@@ -165,12 +165,19 @@ class UlensModelFit(object):
                       'file': 'my_fit_best.png'
                       'time range': 2456000. 2456300.
               }
+
+        other_output: *dict*
+            Parameters for other output. Currently, the only allowed value is
+            ``'models': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE is
+            a *str* that gives a path to text file to which we will print all
+            models and their chi^2. If ``NAME_OF_FILE`` is ``"-"``, then
+            the models will be printed to standard output.
     """
     def __init__(
             self, photometry_files, starting_parameters=None, model=None,
             fixed_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
-            fit_constraints=None, plots=None,
+            fit_constraints=None, plots=None, other_output=None
             ):
         self._photometry_files = photometry_files
         self._starting_parameters = starting_parameters
@@ -181,6 +188,7 @@ class UlensModelFit(object):
         self._fitting_parameters = fitting_parameters
         self._fit_constraints = fit_constraints
         self._plots = plots
+        self._other_output = other_output
 
         self._which_task()
         self._set_default_parameters()
@@ -245,7 +253,7 @@ class UlensModelFit(object):
         if self._plots is not None:
             if "triangle" in self._plots:
                 raise ValueError(
-                    'You cannot provide plots["triangle"] is you ' +
+                    'You cannot provide plots["triangle"] if you ' +
                     "don't fit")
 
     def _set_default_parameters(self):
@@ -257,6 +265,11 @@ class UlensModelFit(object):
             self._flat_priors = True  # Are priors only 0 or 1?
             self._return_fluxes = True
             self._best_model_ln_prob = -np.inf
+        elif self._task == 'plot':
+            pass
+        else:
+            raise ValueError('internal error - task ' + str(self._task))
+        self._print_model = False
 
     def _check_imports(self):
         """
@@ -289,6 +302,7 @@ class UlensModelFit(object):
 
         self._check_plots_parameters()
         self._check_model_parameters()
+        self._parse_other_output_parameters()
         self._get_datasets()
         self._get_parameters_ordered()
         self._get_parameters_latex()
@@ -302,6 +316,7 @@ class UlensModelFit(object):
         self._generate_random_parameters()
         self._setup_fit()
         self._run_fit()
+        self._finish_fit()
         self._parse_results()
         self._make_plots()
 
@@ -411,6 +426,34 @@ class UlensModelFit(object):
                 "Error in parsing methods:\n" + methods)
         return out
 
+    def _parse_other_output_parameters(self):
+        """
+        parse information on other output
+        """
+        for (key, value) in self._other_output.items():
+            if key == 'models':
+                if not isinstance(value, dict):
+                    raise ValueError('models value should also be *dict*, ' +
+                                     'got ' + str(type(value)))
+                for (key2, value2) in value.items():
+                    if key2 == 'file name':
+                        self._print_model = True
+                        self._print_model_i = 0
+                        if value2 == '-':
+                            self._print_model_file = sys.stdout
+                        else:
+                            try:
+                                self._print_model_file = open(value2, 'w')
+                            except Exception:
+                                raise ValueError(
+                                    'Error while opening file ' + str(value2))
+                    else:
+                        raise KeyError("Unrecognized key: " + str(key) +
+                                       "\nExpected keys: 'file name'.")
+            else:
+                raise ValueError('Unrecognized key: ' + str(key) + "\n" +
+                                 "Expected keys: models")
+
     def _get_datasets(self):
         """
         construct a list of MulensModel.MulensData objects
@@ -420,7 +463,19 @@ class UlensModelFit(object):
             self._photometry_files = [self._photometry_files]
         files = [f if isinstance(f, dict) else {'file_name': f}
                  for f in self._photometry_files]
-        self._datasets = [mm.MulensData(**kwargs, **f) for f in files]
+        self._datasets = []
+        for file_ in files:
+            try:
+                dataset = mm.MulensData(**kwargs, **file_)
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    'Provided file path does not exist: ' +
+                    str(file_['file_name']))
+            except Exception:
+                print('Something went wrong while reading file ' +
+                      str(file_['file_name']), file=sys.stderr)
+                raise
+            self._datasets.append(dataset)
 
     def _get_parameters_ordered(self):
         """
@@ -1027,7 +1082,25 @@ class UlensModelFit(object):
 
         chi2 = self._event.get_chi2()
 
+        if self._print_model:
+            self._print_current_model(theta, chi2)
+
         return -0.5 * chi2
+
+    def _print_current_model(self, theta, chi2):
+        """
+        print the chi2 and parameters for model provided
+        """
+        out = "{:.4f}  {:}".format(chi2, " ".join([repr(x) for x in theta]))
+
+        flush = False
+        cond_1 = self._print_model_i <= 1000 and self._print_model_i % 10 == 0
+        cond_2 = self._print_model_i > 1000 and self._print_model_i % 100 == 0
+        if self._print_model_i < 100 or cond_1 or cond_2:
+            flush = True
+
+        print(out, file=self._print_model_file, flush=flush)
+        self._print_model_i += 1
 
     def _get_fluxes(self):
         """
@@ -1098,6 +1171,15 @@ class UlensModelFit(object):
         """
         self._sampler.run_mcmc(self._starting_points,
                                self._fitting_parameters['n_steps'])
+
+    def _finish_fit(self):
+        """
+        Make the things that are necessary after the fit is done.
+        Currently it's just closing the file with all models.
+        """
+        if self._print_model:
+            if self._print_model_file is not sys.stdout:
+                self._print_model_file.close()
 
     def _parse_results(self):
         """

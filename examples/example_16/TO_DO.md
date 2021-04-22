@@ -14,6 +14,8 @@
 - binary source
 - x_caustic_in etc.
 - ob08092-o4_prior.yaml
+- posterior files
+- print model
 
 ## List of task to be done:
 
@@ -22,6 +24,7 @@
 - **some documentation - see above**
 - **add one more fitting method?**
 - **corner.py**
+- **requirements.txt**
 - n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIES INPUT"
 - Mroz+20 - finish
 - print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
@@ -43,7 +46,6 @@
 - Fitting method to be added: scipy.optimize, pymultinest, ???
 - allow plotting many random models from posterior
 - warnings if plots will overwrite existing files
-- MulensData() - use try/except with meaningful error message
 - plot title
 - make plots tighter, i.e., reduce white space
 - Add ln_prior values to blob? At some point we will want to save that information in output files
@@ -72,6 +74,5 @@
 - method to be used: https://lmfit.github.io/lmfit-py/
 - allow Model.set_magnification_methods_parameters()
 - methods - if only single string is provided, then this is a default method
-- print all models
 - print current best model - each minute, each nth model etc.
 - print every n-th model
