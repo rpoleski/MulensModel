@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.15.0'
+__version__ = '0.15.1'
 
 
 class UlensModelFit(object):
@@ -430,6 +430,9 @@ class UlensModelFit(object):
         """
         parse information on other output
         """
+        if self._other_output is None:
+            return
+
         for (key, value) in self._other_output.items():
             if key == 'models':
                 if not isinstance(value, dict):
@@ -1180,6 +1183,7 @@ class UlensModelFit(object):
         if self._print_model:
             if self._print_model_file is not sys.stdout:
                 self._print_model_file.close()
+                self._print_model = False
 
     def _parse_results(self):
         """
