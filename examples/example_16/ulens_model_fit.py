@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.15.1'
+__version__ = '0.15.2'
 
 
 class UlensModelFit(object):
@@ -286,9 +286,15 @@ class UlensModelFit(object):
         failed = import_failed.intersection(required_packages)
 
         if len(failed) > 0:
-            raise ImportError(
+            message = (
                 'Some of the required packages could not be imported:\n' +
                 " ".join(failed))
+            if "corner" in failed:
+                message += (
+                    "\nFor corner package it's enough that you run:\nwget " +
+                    "https://raw.githubusercontent.com/dfm/corner.py/" +
+                    "v2.0.0/corner/corner.py")
+            raise ImportError(message)
 
     def run_fit(self):
         """
