@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.15.2'
+__version__ = '0.15.3'
 
 
 class UlensModelFit(object):
@@ -582,6 +582,10 @@ class UlensModelFit(object):
                 raise ValueError(
                     'Fitting parameter ' + p + ' requires int value; got: ' +
                     str(value) + ' ' + str(type(value)))
+
+        if 'n_burn' in settings:
+            if settings['n_burn'] >= settings['n_steps']:
+                raise ValueError('You cannot set n_burn >= n_steps.')
 
         if 'posterior_file_name' not in settings:
             self._posterior_file_name = None
