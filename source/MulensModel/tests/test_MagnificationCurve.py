@@ -3,6 +3,16 @@ import numpy as np
 import MulensModel as mm
 
 
+def test_magnification_type():
+    """
+    Check type of magnification returned for model with t_eff.
+    At some point it was astropy quantity.
+    """
+    parameters = mm.ModelParameters({'t_0': 1., 't_eff': 0.2, 't_E': 3.})
+    magnification_curve = mm.MagnificationCurve(2., parameters)
+    assert type(magnification_curve.get_magnification()) == np.ndarray
+
+
 def test_fspl_noLD():
     """
     check if FSPL magnification is calculate properly
