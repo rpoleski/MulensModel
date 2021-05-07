@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.15.3'
+__version__ = '0.16.0'
 
 
 class UlensModelFit(object):
@@ -107,12 +107,18 @@ class UlensModelFit(object):
             Parameters of the fit function. They depend on the method used.
 
             For EMCEE, the required parameters are ``n_walkers`` and
-            ``n_steps``. Allowed parameters are ``n_burn`` and
-            ``posterior_file_name``. The latter is *str* which indicates file
-            to which posterior samples will be written. It has to end in
-            ``.npy`` because we save in NumPy file format. You can read this
-            file using ``numpy.load()``. You will get an array with a shape
-            of (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``).
+            ``n_steps``. You can also specify ``n_burn`` which controls
+            length of burn-in. Other options are described below.
+
+            It is possible to export posterior to a .npy file. Just provide
+            the file name as ``posterior file`` parameter. You can read this
+            file using ``numpy.load()``. You will get an array with a shape of
+            (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``). You can
+            additionally add option ``posterior file fluxes`` for which
+            allowed values are ``all`` and *None* (``null`` in yaml file).
+            The value ``all`` means that additionally all source and blending
+            fluxes will be saved (``n_parameters`` increases by two times the
+            number of datasets).
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
@@ -565,7 +571,9 @@ class UlensModelFit(object):
         settings = self._fitting_parameters
 
         required = ['n_walkers', 'n_steps']
-        allowed = ['n_burn', 'posterior_file_name']
+        strings = ['posterior file', 'posterior file fluxes']
+        allowed = ['n_burn'] + strings
+
         full = required + allowed
 
         for required_ in required:
@@ -578,7 +586,7 @@ class UlensModelFit(object):
                              str(set(settings.keys()) - set(full)))
 
         for (p, value) in settings.items():
-            if not isinstance(value, int) and p != 'posterior_file_name':
+            if not isinstance(value, int) and p not in strings:
                 raise ValueError(
                     'Fitting parameter ' + p + ' requires int value; got: ' +
                     str(value) + ' ' + str(type(value)))
@@ -587,24 +595,35 @@ class UlensModelFit(object):
             if settings['n_burn'] >= settings['n_steps']:
                 raise ValueError('You cannot set n_burn >= n_steps.')
 
-        if 'posterior_file_name' not in settings:
+        if 'posterior file' not in settings:
             self._posterior_file_name = None
+            if 'posterior file fluxes' in settings:
+                raise ValueError('You cannot set "posterior file fluxes" ' +
+                                 'without setting "posterior file"')
         else:
-            name = settings['posterior_file_name']
+            name = settings['posterior file']
             if not isinstance(name, str):
-                raise ValueError('posterior_file_name must be string, got: ' +
+                raise ValueError('"posterior file" must be string, got: ' +
                                  str(type(name)))
             if name[-4:] != '.npy':
-                raise ValueError('posterior_file_name must end in ".npy", ' +
+                raise ValueError('"posterior file" must end in ".npy", ' +
                                  'got: ' + name)
             if path.exists(name):
                 if path.isfile(name):
-                    warnings.warn("Exisiting file " + name +
-                                  " will be overwritten")
+                    msg = "Exisiting file " + name + " will be overwritten"
+                    warnings.warn(msg)
                 else:
                     raise ValueError("The path provided for posterior (" +
                                      name + ") exsists and is a directory")
             self._posterior_file_name = name[:-4]
+            self._posterior_file_fluxes = None
+
+        if 'posterior file fluxes' in settings:
+            fluxes_allowed = ['all', None]
+            if settings['posterior file fluxes'] not in fluxes_allowed:
+                raise ValueError('Unrecognized "posterior file fluxes": ' +
+                                 settings['posterior file fluxes'])
+            self._posterior_file_fluxes = settings['posterior file fluxes']
 
     def _set_min_max_values(self):
         """
@@ -1292,6 +1311,10 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters.get('n_burn', 0)
         samples = self._sampler.chain[:, n_burn:, :]
+        if self._posterior_file_fluxes == 'all':
+            blobs = np.array(self._sampler.blobs)
+            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
+            samples = np.dstack((samples, blobs))
         np.save(self._posterior_file_name, samples)
 
     def _make_plots(self):
