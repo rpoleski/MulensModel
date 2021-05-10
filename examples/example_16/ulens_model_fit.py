@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.16.0'
+__version__ = '0.17.0'
 
 
 class UlensModelFit(object):
@@ -160,8 +160,9 @@ class UlensModelFit(object):
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``'triangle'`` and ``'best model'``.
-            The values are also dicts and currently accept only ``'file'``
-            key, and ``'time range'`` e.g.,
+            The values are also dicts and currently accepted keys are
+            ``'file'`` (both plots) and ``'time range'`` and
+            ``'magnitude range'`` (for best model plot), e.g.,
 
             .. code-block:: python
 
@@ -170,6 +171,7 @@ class UlensModelFit(object):
                   'best model':
                       'file': 'my_fit_best.png'
                       'time range': 2456000. 2456300.
+                      'magnitude range': 15.123 13.012
               }
 
         other_output: *dict*
@@ -368,20 +370,47 @@ class UlensModelFit(object):
                 self._plots[key] = dict()
 
         if 'best model' in self._plots:
-            if 'time range' in self._plots['best model']:
-                text = self._plots['best model']['time range'].split()
-                if len(text) != 2:
-                    raise ValueError(
-                        "'time range' for 'best model' should specify 2 " +
-                        "values (begin and end); got: " +
-                        str(self._plots['best model']['time range']))
-                t_0 = float(text[0])
-                t_1 = float(text[1])
-                if t_1 < t_0:
-                    raise ValueError(
-                        "Incorrect 'time range' for 'best model':\n" +
-                        text[0] + " " + text[1])
-                self._plots['best model']['time range'] = [t_0, t_1]
+            self._check_plots_parameters_best_model()
+
+    def _check_plots_parameters_best_model(self):
+        """
+        Check if parameters of best model make sense
+        """
+        allowed = set(['file', 'time range', 'magnitude range'])
+        unknown = set(self._plots['best model'].keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'Unknown settings for "best model": {:}'.format(unknown))
+
+        if 'time range' in self._plots['best model']:
+            text = self._plots['best model']['time range'].split()
+            if len(text) != 2:
+                raise ValueError(
+                    "'time range' for 'best model' should specify 2 " +
+                    "values (begin and end); got: " +
+                    str(self._plots['best model']['time range']))
+            t_0 = float(text[0])
+            t_1 = float(text[1])
+            if t_1 < t_0:
+                raise ValueError(
+                    "Incorrect 'time range' for 'best model':\n" +
+                    text[0] + " " + text[1])
+            self._plots['best model']['time range'] = [t_0, t_1]
+
+        if 'magnitude range' in self._plots['best model']:
+            text = self._plots['best model']['magnitude range'].split()
+            if len(text) != 2:
+                raise ValueError(
+                    "'magnitude range' for 'best model' should specify 2 " +
+                    "values (begin and end); got: " +
+                    str(self._plots['best model']['magnitude range']))
+            mag_0 = float(text[0])
+            mag_1 = float(text[1])
+            if mag_1 > mag_0:
+                raise ValueError(
+                    "Incorrect 'magnitude range' for 'best model':\n" +
+                    text[0] + " " + text[1])
+            self._plots['best model']['magnitude range'] = [mag_0, mag_1]
 
     def _check_model_parameters(self):
         """
@@ -1494,6 +1523,9 @@ class UlensModelFit(object):
         if ylim_r_max > 1.:
             ylim_r_max = 0.5
         ylim_residuals = [ylim_r_max, -ylim_r_max]
+
+        if 'magnitude range' in self._plots['best model']:
+            ylim = self._plots['best model']['magnitude range']
 
         return (ylim, ylim_residuals)
 
