@@ -8,9 +8,9 @@ Shows different ways to access fitted fluxes.
 """
 import os
 import MulensModel
+import numpy as np
 
-
-raise NotImplementedError('This use case has not been implemented.')
+raise NotImplementedError('set_mag_zeropoint has not been implemented.')
 
 # Function to set the default zeropoint to 18
 # (more appropriate for ground-based data.)
@@ -33,7 +33,7 @@ model = MulensModel.Model(
      'pi_E_N': -0.2154, 'pi_E_E': -0.380,
      'alpha': np.rad2deg(-0.9684), 's': 0.9842, 'q': 0.0000543})
 
-methods = [7560., 'VBBL', 7580.]
+methods = [2457560., 'VBBL', 2457580.]
 
 model.set_magnification_methods(methods)
 model.set_default_magnification_method('point_source_point_lens')
@@ -43,19 +43,13 @@ event = MulensModel.Event(datasets=datasets, model=model,
 
 # *** NEW ***
 print(event.get_ref_fluxes())
-print(event.fluxes)
-# should be a (n, m) array where n = the number of datasets, and m = n_sources + 1
-# --> one flux value for each source + the blend flux. It makes sense for the blend
-# flux to be last because then it can be consistently accessed with index = -1.
-print(event.source_fluxes)
-print(event.blend_fluxes)
 
 # Output the source and blend fluxes in a "nice" way.
 print('Observatory, Source Flux, Blend Flux')
 for i in range(len(datasets)):
     print('{0:10} {1:8.2f} {2:8.2f}'.format(
         event.datasets[i].plot_properties['label'],
-        event.fits[datasets[i]].source_flux,
-        event.fits[datasets[i]].blend_flux))
+        event.fits[i].source_flux,
+        event.fits[i].blend_flux))
 
 # *** END NEW ***
