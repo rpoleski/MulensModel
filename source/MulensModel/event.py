@@ -305,8 +305,10 @@ class Event(object):
         if len(used_colors) == 0:
             differences = None
         else:
-            d_col = self._color_differences
-            diffs = np.array([np.min(d_col(used_colors, c)) for c in colors])
+            diffs = np.array(
+                [np.min(
+                    mm_plot._color_differences(used_colors, c))
+                 for c in colors])
             indexes = np.argsort(diffs)[::-1]
             colors = [colors[i] for i in indexes]
             differences = diffs[indexes]

@@ -1,4 +1,5 @@
-import matplotlib.pyplot as plt
+from matplotlib.colors import ColorConverter
+import numpy as np
 from MulensModel.utils import Utils
 
 """Convenience functions for plotting."""
@@ -44,31 +45,30 @@ def _subtract_xlabel(subtract_2450000, subtract_2460000):
 
     return out
 
-# JCY - Not sure if this is used anywhere. Used to be part of Model.
-# def _color_differences(self, color_list, color):
-#     """
-#     Calculate color difference between a list of colors and a single color.
-#     Uses algorithm from
-#     `this Wikipedia page<https://en.wikipedia.org/wiki/Color_difference>`_.
-#     Arguments :
-#         color_list: *list* of *str*
-#             list of matplotlib colors e.g., ``['black', '#E9967A']``
-#         color: *str*
-#             single matplotlib color
-#     Returns :
-#         differences: *np.ndarray*
-#             differences of colors, values < 0.3 are very similar
-#     """
-#     # JCY --> plot_functions.py?
-#     rgba = ColorConverter.to_rgba
-#     array = np.array(
-#         [[float(x) for x in list(rgba(c))[:3]] for c in color_list])
-#     # We use float above because some versions of matplotlib return str.
-#     color_value = [float(x) for x in list(rgba(color))[:3]]
-#     mean_red = 0.5 * (array[:, 0] + color_value[0])
-#     diffs = (array - color_value)**2
-#     add_1 = (2. + mean_red) * diffs[:, 0]
-#     add_2 = 4. * diffs[:, 1]
-#     add_3 = (3. + mean_red) * diffs[:, 2]
-#     return np.sqrt(add_1 + add_2 + add_3)
+
+def _color_differences(color_list, color):
+    """
+    Calculate color difference between a list of colors and a single color.
+    Uses algorithm from
+    `this Wikipedia page<https://en.wikipedia.org/wiki/Color_difference>`_.
+    Arguments :
+        color_list: *list* of *str*
+            list of matplotlib colors e.g., ``['black', '#E9967A']``
+        color: *str*
+            single matplotlib color
+    Returns :
+        differences: *np.ndarray*
+            differences of colors, values < 0.3 are very similar
+    """
+    rgba = ColorConverter.to_rgba
+    array = np.array(
+        [[float(x) for x in list(rgba(c))[:3]] for c in color_list])
+    # We use float above because some versions of matplotlib return str.
+    color_value = [float(x) for x in list(rgba(color))[:3]]
+    mean_red = 0.5 * (array[:, 0] + color_value[0])
+    diffs = (array - color_value)**2
+    add_1 = (2. + mean_red) * diffs[:, 0]
+    add_2 = 4. * diffs[:, 1]
+    add_3 = (3. + mean_red) * diffs[:, 2]
+    return np.sqrt(add_1 + add_2 + add_3)
 
