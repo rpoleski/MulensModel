@@ -23,8 +23,6 @@ import matplotlib.pyplot as plt
 import MulensModel
 
 
-raise NotImplementedError('This use case has not been implemented.')
-
 def ln_like(theta, event, parameters_to_fit):
     """ likelihood function """
     KCT01 = 0
@@ -34,9 +32,9 @@ def ln_like(theta, event, parameters_to_fit):
         # Some fluxes are MCMC parameters
         if val[0] == 'f':
             if val == 'fsKCT01':
-                event.fix_source_fluxes[datasets[KTC01]] = theta[key]
+                event.fix_source_flux[datasets[KCT01]] = theta[key]
             elif val == 'fsSpitzer':
-                event.fix_source_fluxes[datasets[KTC01]] = theta[key]
+                event.fix_source_flux[datasets[Spitzer]] = theta[key]
 
         else:
             setattr(event.model.parameters, val, theta[key])
@@ -78,10 +76,10 @@ for file_name in file_names:
     datasets.append(MulensModel.MulensData(file_name=file_, add_2450000=True))
 
 # Close-- model
-model = MulensModel.Model(
-    {'t_0': 2457568.7692, 'u_0': -0.05321, 't_E': 9.96, 'rho': 0.00290,
+params = {'t_0': 2457568.7692, 'u_0': 0.05321, 't_E': 9.96, 'rho': 0.00290,
      'pi_E_N': -0.2154, 'pi_E_E': -0.380,
-     'alpha': np.rad2deg(-0.9684), 's': 0.9842, 'q': 0.0000543})
+     'alpha': np.rad2deg(-0.9684), 's': 0.9842, 'q': 0.0000543}
+model = MulensModel.Model(params)
 
 methods = [7560., 'VBBL', 7580.]
 
@@ -102,13 +100,15 @@ n_walkers = 40
 n_steps = 500
 n_burn = 150
 # Including the set of n_walkers starting points:
-start_1 = [params[p] for p in parameters_to_fit]
+start_1 = [params[p] for p in parameters_to_fit[0:5]]
+start_1.append(1.0)
+start_1.append(1.0)
 start = [start_1 + np.random.randn(n_dim) * sigmas
          for i in range(n_walkers)]
 
 # Run emcee (this can take some time):
 sampler = emcee.EnsembleSampler(
-    n_walkers, n_dim, ln_prob, args=(my_event, parameters_to_fit))
+    n_walkers, n_dim, ln_prob, args=(event, parameters_to_fit))
 sampler.run_mcmc(start, n_steps)
 
 # Remove burn-in samples and reshape:
@@ -119,22 +119,25 @@ results = np.percentile(samples, [16, 50, 84], axis=0)
 print("Fitted parameters:")
 for i in range(n_dim):
     r = results[1, i]
-    print("{:.5f} {:.5f} {:.5f}".format(r, results[2, i]-r, r-results[0, i]))
+    print("{:} {:.5f} {:.5f} {:.5f}".format(parameters_to_fit[i], r, results[2, i]-r, r-results[0, i]))
 
-# We extract best model parameters and chi2 from my_event:
+# We extract best model parameters and chi2 from the chain:
+prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
 print("\nSmallest chi2 model:")
-best = [my_event.best_chi2_parameters[p] for p in parameters_to_fit]
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
-print(my_event.best_chi2)
+print(best_chi2)
 
 # *** NEW ***
 # Compare to the Color constraint for OB161195 (I_KMT - L_Spitzer)
 (source_color, sigma_color) = (0.78, 0.03)
-plt.hist(-2.5*np.log10(samples[:,0] / samples[:,9]), bins=25)
+plt.hist(-2.5*np.log10(samples[:,5] / samples[:,6]), bins=25)
 plt.axvline(source_color, linestyle='-', color='black')
 plt.axvline(source_color - sigma_color, linestyle=':', color='black')
 plt.axvline(source_color + sigma_color, linestyle=':', color='black')
-pl.xlabel('(I-L)')
+plt.xlabel('(I-L)')
 plt.show()
 # *** END NEW ***
 
