@@ -42,15 +42,18 @@ PSPL_params = mm.ModelParameters(
 my_PSPL_model = mm.Model({'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5})
 print(my_PSPL_model.parameters)
 print(my_PSPL_model.parameters.t_eff)
-print(my_PSPL_model.parameters.rho)
-# Returns: AttributeError('rho is not defined for this model.')
+print('rho:', my_PSPL_model.parameters.rho)
+# Returns: None
 
 FSPL_params = dict(my_PSPL_model.parameters.parameters)
 FSPL_params['rho'] = 0.001
 
 my_FSPL_model = mm.Model(FSPL_params)
 
-my_PSPL_model = mm.Model(
-    parameters={'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5, 't_0_1': 2458062.})
-# Returns: AttributeError('Not a valid combination of parameters. See
+try:
+    my_PSPL_model = mm.Model(
+        parameters={'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5, 't_0_1': 2458062.})
+except ValueError as msg:
+    print('ValueError: ', msg)
+# Returns: ValueError('Not a valid combination of parameters. See
 #    which_parameters()')
