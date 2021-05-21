@@ -281,6 +281,8 @@ class Event(object):
         Note: plots all points in datasets (including ones flagged as bad)
         using the same marker.
         """
+        self._set_default_colors()
+
         for dataset in self.datasets:
             properties = dataset._set_plot_properties()
             self.model.plot_source(
