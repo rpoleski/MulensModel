@@ -28,7 +28,7 @@
 - n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIES INPUT"
 - Mroz+20 - finish
 - print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
-- LD coeffs as parameters
+- LD coeffs as parameters (see ulens_model_fit_0.16.0dev4.py in K2 planet and compare to dev2 but there should be more checks comparing with bands of datasets)
 - all_parameters in _get_parameters_ordered() and _check_fixed_parameters() - combine in a single one
 - note that parameters are re-ordered (maybe in future add option for specifying order)
 - datasets - guessing 245/246; plotting as well

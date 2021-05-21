@@ -221,8 +221,8 @@ class Trajectory(object):
         """
         calculates projected Earth positions required by annual parallax
         """
-        index = (self.parameters.t_0_par, hash(self.coords),
-                 tuple(self.times.tolist()))
+        index = (self.parameters.t_0_par, self.coords.ra.value,
+                 self.coords.dec.value, tuple(self.times.tolist()))
         if index == Trajectory._get_delta_annual_last_index:
             return Trajectory._get_delta_annual_last
         if index in Trajectory._get_delta_annual_results:
@@ -268,7 +268,7 @@ class Trajectory(object):
         calculates differences of Earth and satellite positions
         projected on the plane of the sky at event position
         """
-        index = (hash(self.coords), hash(self.satellite_skycoord),
+        index = (self.coords.ra.value, self.coords.dec.value,
                  tuple(self.times.tolist()))
         if index in Trajectory._get_delta_satellite_results.keys():
             return Trajectory._get_delta_satellite_results[index]

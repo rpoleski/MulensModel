@@ -224,7 +224,7 @@ class Model(object):
                 bandpass for defining the limb-darkening coefficient gamma.
                 Requires that the limb_darkenging coefficients have been set
                 using :py:func:`set_limb_coeff_u()` or
-                :py:func:`set_lim_coeff_gamma()`.
+                :py:func:`set_limb_coeff_gamma()`.
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
