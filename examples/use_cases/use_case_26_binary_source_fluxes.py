@@ -6,7 +6,8 @@ import MulensModel as mm
 import scipy.optimize as op
 
 
-raise NotImplementedError('This use case has not been implemented.')
+raise NotImplementedError(
+    'This use case has not been implemented. Needs fake data files.')
 
 
 def chi2_fun(theta, event, parameters_to_fit):
