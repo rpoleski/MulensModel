@@ -35,6 +35,7 @@
 - no_negative_blending_flux - only first dataset, or all datasets? Maybe add one more option
 - trace plot
 - allow plotting multiple models
+- add beta distribution to allowed distributions (search for "gauss")
 - for plot script add printing chi2 and fluxes
 - allow making plots without a fit
 - starting parameters are read from file

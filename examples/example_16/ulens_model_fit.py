@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.17.0'
+__version__ = '0.17.1'
 
 
 class UlensModelFit(object):
@@ -783,7 +783,6 @@ class UlensModelFit(object):
         elif self._prior_t_E == 'Mroz+20':
 # XXX - TO DO:
 # - documentation
-# - test np.log() vs np.log10()
 # - smooth the input data from M+20 and note that
             x = np.array([
                 0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69, 1.82, 1.96,
@@ -989,23 +988,32 @@ class UlensModelFit(object):
         starting = []
         for parameter in self._fit_parameters:
             settings = self._starting_parameters[parameter]
-            if settings[0] == 'gauss':
-                values = settings[2] * np.random.randn(max_iteration)
-                values += settings[1]
-            elif settings[0] == 'uniform':
-                values = np.random.uniform(
-                    low=settings[1], high=settings[2], size=max_iteration)
-            elif settings[0] == 'log-uniform':
-                beg = math.log(settings[1])
-                end = math.log(settings[2])
-                values = np.exp(np.random.uniform(beg, end, max_iteration))
-            else:
-                raise ValueError('Unrecognized keyword: ' + settings[0])
+            values = self._get_samples_from_distribution(
+                max_iteration, settings)
             starting.append(values)
 
         starting = np.array(starting).T.tolist()
 
         self._check_generated_random_parameters(starting)
+
+    def _get_samples_from_distribution(self, n, settings):
+        """
+        Get n samples from a given distribution (settings[0]).
+        The meaning and number of settings[1:] depends on particular
+        distribution.
+        """
+        if settings[0] == 'gauss':
+            values = settings[2] * np.random.randn(n) + settings[1]
+        elif settings[0] == 'uniform':
+            values = np.random.uniform(
+                low=settings[1], high=settings[2], size=n)
+        elif settings[0] == 'log-uniform':
+            beg = math.log(settings[1])
+            end = math.log(settings[2])
+            values = np.exp(np.random.uniform(beg, end, n))
+        else:
+            raise ValueError('Unrecognized keyword: ' + settings[0])
+        return values
 
     def _check_generated_random_parameters(self, starting):
         """
@@ -1034,6 +1042,8 @@ class UlensModelFit(object):
         """
         Log probability of the model - combines _ln_prior(), _ln_like(),
         and constraints which include fluxes.
+
+        NOTE: we're using np.log(), i.e., natural logarithms.
         """
         ln_prior = self._ln_prior(theta)
         if not np.isfinite(ln_prior):
@@ -1087,7 +1097,10 @@ class UlensModelFit(object):
         Check if fitting parameters are within the prior.
         Constraints from self._fit_constraints:
          - on blending flux are NOT applied here,
+           but in _run_flux_checks_ln_prior(),
          - on t_E are applied here.
+
+        NOTE: we're using np.log(), i.e., natural logarithms.
         """
         inside = 0.
         outside = -np.inf
@@ -1176,7 +1189,7 @@ class UlensModelFit(object):
 
     def _run_flux_checks_ln_prior(self, fluxes):
         """
-        Run the checks on fluxes - are they in the prior
+        Run the checks on fluxes - are they in the prior?
         """
         inside = 0.
         outside = -np.inf
