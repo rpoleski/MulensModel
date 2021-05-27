@@ -70,6 +70,7 @@
 - fits with 0 blending flux for first dataset
 - when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data so that anomalies are not missed etc.
 - add scipy to _check_imports() - requires siginificant code to be added to _check_imports() in order to find out if t_E prior is used
+- in _parse_fit_constraints_prior() add a check if the priors are defined for fit parameters
 - if corner could not be imported, then give link to specific file in error message
 - flux constraints for binary source models (note that for plotting it is now set to first dataset)
 - method to be used: https://lmfit.github.io/lmfit-py/

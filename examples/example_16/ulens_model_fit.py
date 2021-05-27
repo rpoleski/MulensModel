@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.17.1'
+__version__ = '0.18.0'
 
 
 class UlensModelFit(object):
@@ -97,7 +97,8 @@ class UlensModelFit(object):
 
         min_values: *dict*
             Minimum values of parameters that define the prior, e.g.,
-            ``{'t_E': 0.}``.
+            ``{'t_E': 0.}``. Note that the these are only limits of a prior.
+            Functional form of priors can be defines in ``fit_constraints``.
 
         max_values: *dict*
             Maximum values of parameters that define the prior, e.g.,
@@ -148,6 +149,10 @@ class UlensModelFit(object):
                 was studied. Approximate slopes of 3 and -3 from
                 Mao & Paczynski (1996) are used for t_E shorter and longer,
                 respectively, than probed by Mroz et al. (2020).
+
+                ``'pi_E_N': gauss mean sigma`` (same for ``'pi_E_E'``) -
+                specify gaussian prior for parallax components. Parameters
+                *mean* and *sigma* are floats.
 
             References:
               Mao & Paczynski 1996 -
@@ -701,6 +706,7 @@ class UlensModelFit(object):
         Parse the fitting constraints that are not simple limits on parameters
         """
         self._prior_t_E = None
+        self._priors = None
 
         if self._fit_constraints is None:
             self._fit_constraints = {"no_negative_blending_flux": False}
@@ -739,6 +745,7 @@ class UlensModelFit(object):
         """
         Check if priors in fit constraint are correctly defined.
         """
+        priors = dict()
         for (key, value) in self._fit_constraints['prior'].items():
             if key == 't_E':
                 if value == "Mroz et al. 2017":
@@ -748,10 +755,27 @@ class UlensModelFit(object):
                 else:
                     raise ValueError("Unrecognized t_E prior: " + value)
                 self._read_prior_t_E_data()
+            elif key in ['pi_E_E', 'pi_E_N']:
+                words = value.split()
+                if len(words) != 3 or words[0] != 'gauss':
+                    msg = "Something went wrong in parsing prior for "
+                    msg += "{:}: {:}"
+                    raise ValueError(msg.format(key, value))
+                try:
+                    settings = [words[0], float(words[1]), float(words[2])]
+                except Exception:
+                    raise ValueError('error in parsing: ' + words[1] + " " +
+                                     words[2])
+                if settings[2] < 0.:
+                    raise ValueError('sigma cannot be negative: ' + words[2])
+                priors[key] = settings
             else:
                 raise KeyError(
                     "Unrecognized key in fit_constraints/prior: " + key)
             self._flat_priors = False
+
+        if len(priors) > 0:
+            self._priors = priors
 
     def _read_prior_t_E_data(self):
         """
@@ -1119,7 +1143,29 @@ class UlensModelFit(object):
             self._set_model_parameters(theta)
             ln_prior += self._ln_prior_t_E()
 
+        if self._priors is not None:
+            self._set_model_parameters(theta)
+            for (parameter, prior_settings) in self._priors.items():
+                if parameter in ['pi_E_N', 'pi_E_E']:
+                    # Other parameters can be added here.
+                    value = self._model.parameters.parameters[parameter]
+                    ln_prior += self._get_ln_prior_for_1_parameter(
+                        value, prior_settings)
+                else:
+                    raise ValueError('prior not handled: ' + parameter)
+
         return ln_prior
+
+    def _get_ln_prior_for_1_parameter(self, value, settings):
+        """
+        Calculate ln(prior) for given value and settings
+        """
+        if settings[0] == 'gauss':
+            sigma = settings[2]
+            diff = value - settings[1]
+            return -0.5*(diff/sigma)**2 - math.log(math.sqrt(2*np.pi)*sigma)
+        else:
+            raise ValueError('Case not handelded yet: ' + settings[0])
 
     def _ln_prior_t_E(self):
         """
