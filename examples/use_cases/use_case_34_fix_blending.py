@@ -1,5 +1,6 @@
 import os
 import MulensModel
+import scipy.optimize as op
 
 """
 use_case_34_fix_blending.py
@@ -16,8 +17,6 @@ appropriate to fix the blending at the value added to the baseline star.
 Adapted from use_case_24_chi2_gradient.py
 New functionality marked by # *** NEW ***
 """
-
-raise NotImplementedError('This use case has not been implemented.')
 
 class Minimizer(object):
     """
@@ -44,7 +43,8 @@ class Minimizer(object):
         for a given set of parameters (theta), return the gradient of chi^2
         """
         self.set_parameters(theta)  # might be redundant, but probably safer
-        return self.event.chi2_gradient(self.parameters_to_fit)
+        return self.event.get_chi2_gradient(self.parameters_to_fit)
+
 
 # *** NEW ***
 datasets = []
@@ -52,9 +52,11 @@ file_names = ['KMTA12_I.pysis', 'KMTC12_I.pysis', 'KMTS12_I.pysis',
               'KMTA14_I.pysis', 'KMTC14_I.pysis', 'KMTS14_I.pysis']
 data_ref = 1
 dir_ = os.path.join(MulensModel.DATA_PATH, "photometry_files", "KB180003")
-for file_name in file_names:
+for i, file_name in enumerate(file_names):
     file_ = os.path.join(dir_, file_name)
-    datasets.append(MulensModel.MulensData(file_name=file_, add_2450000=True))
+    datasets.append(
+        MulensModel.MulensData(
+            file_name=file_, add_2450000=True, usecols=[0,3,4], phot_fmt='mag'))
 
 # Calculate the amount of blending flux that was added.
 Icat = 21.89
@@ -76,7 +78,7 @@ for u_0 in [0.0, 0.01, 0.1]:
     # the known added value
     # *** END NEW ***
 
-    initial_guess = [t_0, u_0, t_E]
+    initial_guess = [t_0, t_E]
     minimizer = Minimizer(event, parameters_to_fit)
     result = op.minimize(
         minimizer.chi2_fun, x0=initial_guess, method='Newton-CG',

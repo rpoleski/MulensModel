@@ -355,7 +355,7 @@ class Event(object):
         haven't yet been fit to the model (i.e. self.fits = None),
         it will run :py:func:`~fit_fluxes()`. Otherwise, it just accesses the
         existing values. So if you change something in :py:obj:`~model` or
-        some fit parameter (e.g., :py:obj:`~fix_blending`), be sure to run
+        some fit parameter (e.g., :py:obj:`~fix_blend_flux`), be sure to run
         :py:func:`~fit_fluxes()` first.
 
         """
@@ -747,6 +747,19 @@ class Event(object):
             return self._chi2_gradient
         except AttributeError:
             return None
+
+    @property
+    def fluxes(self):
+        """
+        *list*
+
+        An array giving the fitted source and blend flux(es) for each dataset.
+        """
+        fluxes = []
+        for dataset in self.datasets:
+            fluxes.append(self.get_flux_for_dataset(dataset))
+
+        return fluxes
 
     @property
     def sum_function(self):
