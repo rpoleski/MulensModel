@@ -10,6 +10,8 @@ import os
 import MulensModel as mm
 
 
+raise NotImplementedError('predict_degenerate_jerk_model not implemented')
+
 parameters = {
     't_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
     'pi_E_N': -0.248, 'pi_E_E': 0.234}
