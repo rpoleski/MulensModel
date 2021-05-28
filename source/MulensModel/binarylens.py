@@ -349,13 +349,15 @@ class BinaryLens(object):
                     "numpy.polynomial.polynomial.polyroots(). " +
                     "Skowron_and_Gould_12 method is selected in automated " +
                     "way if VBBL is imported properly.")
-            else:
-                distance = sqrt(source_x**2 + source_y**2)
-                if (self.mass_2 > 1.e-6 * self.mass_1 and
-                        (distance < 15. or distance < 2. * self.separation)):
-                    txt += ("\n\nThis is surprising error - please contact " +
-                            "code authors and provide the above error " +
-                            "message.")
+            distance = sqrt(source_x**2 + source_y**2)
+            if (self.mass_2 > 1.e-6 * self.mass_1 and
+                    (distance < 15. or distance < 2. * self.separation)):
+                txt += ("\n\nThis is surprising error - please contact code " +
+                        "authors and provide the above error message.")
+            elif distance > 200.:
+                txt += ("\n\nYou try to calculate magnification at huge " +
+                        "distance from the source and this is causing an " +
+                        "error.")
             txt += "\nMulensModel version: {:}".format(MulensModel.__version__)
 
             raise ValueError(txt)
