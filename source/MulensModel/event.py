@@ -756,8 +756,42 @@ class Event(object):
         An array giving the fitted source and blend flux(es) for each dataset.
         """
         fluxes = []
-        for dataset in self.datasets:
-            fluxes.append(self.get_flux_for_dataset(dataset))
+        if self.fits is None:
+            raise AttributeError('Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
+
+        for fit in self.fits:
+            fluxes.append([fit.source_fluxes, fit.blend_flux])
+
+        return fluxes
+
+    @property
+    def source_fluxes(self):
+        """
+        *list*
+
+        An array giving the fitted source flux(es) for each dataset.
+        """
+        fluxes = []
+        if self.fits is None:
+            raise AttributeError('Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
+
+        for fit in self.fits:
+            fluxes.append(fit.source_fluxes)
+
+        return fluxes
+
+    def blend_fluxes(self):
+        """
+        *list*
+
+        An array giving the fitted blend flux for each dataset.
+        """
+        fluxes = []
+        if self.fits is None:
+            raise AttributeError('Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
+
+        for fit in self.fits:
+            fluxes.append(fit.blend_flux)
 
         return fluxes
 

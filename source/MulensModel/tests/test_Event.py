@@ -51,16 +51,10 @@ def test_event_get_chi2_1():
     np.testing.assert_almost_equal(
         ev.get_chi2(), 427.20382, decimal=4, err_msg='problem with numpy.sum')
 
-    # Old method of fixing the blending
-    chi2_no_blend = ev.get_chi2(fit_blending=False)
-    assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
-    np.testing.assert_almost_equal(
-        float(chi2_no_blend), 459.09826, decimal=4,
-        err_msg='problem in resulting chi2 for fixed no blending')
-
     # New method of fixing the blending
     ev.fix_blend_flux = {}
-    np.testing.assert_almost_equal(ev.get_chi2(), 427.20382, decimal=4)
+    chi2_no_blend = ev.get_chi2()
+    np.testing.assert_almost_equal(chi2_no_blend, 427.20382, decimal=4)
 
     fix_blend_flux = {}
     for dataset in ev.datasets:
@@ -68,6 +62,7 @@ def test_event_get_chi2_1():
 
     ev.fix_blend_flux = fix_blend_flux
     np.testing.assert_almost_equal(ev.get_chi2(), 459.09826, decimal=4)
+    assert(ev.blend_fluxes() == [0.])
 
 
 def test_event_get_chi2_2():
@@ -100,21 +95,15 @@ def test_event_get_chi2_2():
     chi2_3 = ev.get_chi2_for_dataset(1)
     np.testing.assert_almost_equal(chi2_3, answer)
 
-    # Old method of fixing the blending
-    chi2_no_blend = ev.get_chi2(fit_blending=False)
+    # New method of fixing the blending
+    # Both datasets have zero blending
+    ev.fix_blend_flux = {data_1: 0., data_2: 0.}
+    chi2_no_blend = ev.get_chi2()
     assert isinstance(chi2_no_blend, float), 'wrong type of chi2'
     np.testing.assert_almost_equal(
         float(chi2_no_blend), 2.*459.09826, decimal=4,
         err_msg='problem in resulting chi2 for fixed no blending')
-
-    # New method of fixing the blending
-    # Both datasets have zero blending
-    ev.fix_blend_flux = {data_1: 0., data_2: 0.}
-    chi2_no_blend_2 = ev.get_chi2()
-    assert isinstance(chi2_no_blend_2, float), 'wrong type of chi2'
-    np.testing.assert_almost_equal(
-        float(chi2_no_blend), 2.*459.09826, decimal=4,
-        err_msg='problem in resulting chi2 for fixed no blending')
+    assert (ev.blend_fluxes() == [0., 0.])
 
 
 def test_event_get_chi2_3():
@@ -761,7 +750,9 @@ class TestFixedFluxes(unittest.TestCase):
             datasets=self.datasets, model=self.model,
             fix_source_flux={self.data_1: fixed_source_flux_1},
             fix_blend_flux={self.data_2: fixed_blend_flux_2})
-        (fluxes_1, fluxes_2) = self.extract_fluxes(event)
+        #(fluxes_1, fluxes_2) = self.extract_fluxes(event)
+        event.fit_fluxes()
+        (fluxes_1, fluxes_2) = event.fluxes
 
         np.testing.assert_almost_equal(
             fluxes_1[0], fixed_source_flux_1)
