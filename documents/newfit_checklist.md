@@ -41,13 +41,13 @@ and alternatives.
 ## Check All Examples Work
 I think I did this, but I also might have been side-tracked by adding unit tests
 - 01--16
-    - Completed: 01, 02, 03, 04, 05, 06, 07[RP], 09, 10, 11, 12, 13, 14, 15, 17
+    - [COMPLETED]: 01, 02, 03, 04, 05, 06, 07[RP], 09, 10, 11, 12, 13, 14, 15, 17
     - example_08 has not been checked (need to figure out how to open a jupyter 
       notebook)
     - example 16 is in the master branch, so can't be tested yet.
       
 ## Check All Previously Functioning Use Cases Work
-- Completed: 
+- [COMPLETED]: 
     - working: 01, 03, 08, 10, 12, 13, 15, 16, 17, 18, 20, 23, 24, 25, 26b, 27, 29, 30, 31, 32, 33
     - not implemented: 05, 05b, 06, 07, 11, 14, 19, 22, 26
     - 21: raises NotImplemented error, but may be at least partially implemented at this point.
@@ -56,6 +56,14 @@ I think I did this, but I also might have been side-tracked by adding unit tests
 
 # Post-merge
 
+## Update to Version 2.0.0
+
+## Fix alpha convention
+
+## Check all Examples and Use Cases STILL Work
+
 ## Check PEP8 Compliance
 
 ## Check documentation
+
+## Write release notes explaining changes
