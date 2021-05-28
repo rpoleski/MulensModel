@@ -93,6 +93,15 @@ In this case, the parameters don't change much because `t_E` is well constrained
 For detailed description of different options, see `fit_constraints` in [ulens\_model\_fit.py](ulens_model_fit.py).
 
 
+### More options
+
+There are many options and more are being added. The file [ob03235\_2\_full.yaml](ob03235_2_full.yaml) presents all options currently available:
+
+```python
+python ulens_model_fit.py ob03235_2_full.yaml
+```
+
+
 ### More information
 
 * Some more information on API can be found at the top of [ulens\_model\_fit.py file](https://github.com/rpoleski/MulensModel/blob/master/examples/example_16/ulens_model_fit.py) - see docstrings for UlensModelFit class. Please keep in mind that all keywords are read from YAML type file.
