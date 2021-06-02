@@ -54,7 +54,7 @@ I think I did this, but I also might have been side-tracked by adding unit tests
     - 21: raises NotImplemented error, but may be at least partially 
         implemented at this point.
         
-- Check with KMT about 180003 data.
+- [DONE] Check with KMT about 180003 data.
     
 ## Check PEP8 Compliance
 

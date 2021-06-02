@@ -20,27 +20,27 @@ data = mm.MulensData(file_name=file_name)
 
 # Freely fit the fluxes
 free_fit = mm.FitData(model=pspl_model, dataset=data)
-free_fit.fit_fluxes()
+free_fit.update() # Required to calculate chi2 (not just fluxes)
 
 # Access different properties of that fit
+print(free_fit.chi2_per_point)
 print(free_fit.source_fluxes, free_fit.blend_flux)
-#commented out since not implemented
-'''
-print(free_fit.chi2_per_datapoint)
 print(free_fit.chi2)
-'''
-
-# since the rest hasn't been implemented, quitting early
-quit()
 
 # Constrain various aspects of the fit
 fit_1 = mm.FitData(model=pspl_model, dataset=data, fix_source_flux=False, fix_blend_flux=0.)
+fit_1.fit_fluxes()
+print(fit_1.source_flux, fit_1.blend_flux, 0.)
 
 fit_2 = mm.FitData(model=pspl_model, dataset=data, fix_blend_flux=0.1584)
+fit_2.fit_fluxes()
 # Could re-write to act on an OGLE DIA event with f_base forced to I=20.0
+print(fit_2.source_flux, fit_2.blend_flux, 0.1584)
 
 fit_3 = mm.FitData(model=pspl_model, dataset=data, fix_source_flux=0.1)
+fit_3.fit_fluxes()
 # Could re-write such that 0.1 --> known f_source value
+print(fit_3.source_flux, 0.1, fit_3.blend_flux)
 
 #################
 # Maybe add a version of the OB08092 data for which a binary source fit is plausible (i.e. including 2008 data)
@@ -50,6 +50,12 @@ binary_source_model = mm.Model(
 
 # Freely fit the fluxes
 free_1L2S_fit = mm.FitData(model=binary_source_model, dataset=data)
+free_1L2S_fit.fit_fluxes()
+print(free_1L2S_fit.source_fluxes, free_1L2S_fit.blend_flux)
 
 # Fix the flux ratio
 free_1L2S_fit = mm.FitData(model=binary_source_model, dataset=data, fix_source_flux_ratio=0.629 / 38.56)
+free_1L2S_fit.fit_fluxes()
+print(
+    free_1L2S_fit.source_fluxes, free_1L2S_fit.blend_flux,
+    free_1L2S_fit.source_fluxes[1]/free_1L2S_fit.source_fluxes[0], 0.629 / 38.56)
