@@ -50,7 +50,7 @@ I think I did this, but I also might have been side-tracked by adding unit tests
 - [COMPLETED]: 
     - working: 01, 03, 08, 10, 12, 13, 15, 16, 17, 18, 20, 23, 24, 25, 26b, 
         27, 29, 30, 31, 32, 33, 34, 37
-    - not implemented: 05, 05b, 06, 07, 11, 14, 19, 22, 26, 35, 36, 38
+    - not implemented: 05, 05b, 06, 07, 11, 14, 19, 22, 26, 35, 36, 38, 39
     - 21: raises NotImplemented error, but may be at least partially 
         implemented at this point.
         

@@ -261,7 +261,7 @@ class Model(object):
             if source_flux_ratio is None:
                 raise ValueError(
                     "Either source_flux should be a list or source_flux_ratio should be" +
-                    "specified.\n" +
+                    " specified.\n" +
                     "source_flux = {0}\n".format(source_flux) +
                     "n_sources = {0}\n".format(self.n_sources) +
                     "source_flux_ratio = {0}")
@@ -896,7 +896,7 @@ class Model(object):
             return satellite_skycoords.get_satellite_coords(times)
 
     def magnification(self, time, satellite_skycoord=None, gamma=0.,
-                      source_flux_ratio=None, separate=False,
+                      bandpass=None, source_flux_ratio=None, separate=False,
                       flux_ratio_constraint=None):
         """
         Calculate the model magnification for the given time(s).
@@ -911,8 +911,14 @@ class Model(object):
                 parallax calculations.
 
             gamma: *float*, optional
-                The limb darkening coefficient in gamma convention. Default is
+                The limb-darkening coefficient in gamma convention. Default is
                 0 which means no limb darkening effect.
+
+            bandpass: *str*, optional
+                The bandpass for setting the limb-darkening coefficient. Expects
+                that you have used :py:func:`set_limb_coeff_gamma() or
+                :py:func:`set_limb_coeff_u()`. Only ONE of `gamma' or `bandpass'
+                may be specified.
 
             source_flux_ratio: *float*
                 If the model has two sources, source_flux_ratio is the ratio of
@@ -955,6 +961,14 @@ class Model(object):
                 raise TypeError(
                     'source_flux_ratio should be a float. Got: {:}'.format(
                         source_flux_ratio))
+
+        if bandpass is not None:
+            if gamma > 0.:
+                raise AttributeError(
+                    'Set either bandpass OR gamma. Not both. bandpass = {0}, gamma={1}'.format(
+                        bandpass, gamma))
+            else:
+                gamma = self.get_limb_coeff_gamma(bandpass)
 
         if self.n_sources > 1:
             if (source_flux_ratio is None) and (separate is False):
@@ -1228,7 +1242,8 @@ class Model(object):
         """
 
         raise NameError('plot_residuals is deprecated. datasets are no ' +
-                        'longer part of Model(). Use Event() instead.')
+                        'longer part of Model(). Use Event().fits[data_ref]' +
+                        '.get_residuals() instead.')
 
     def get_residuals(self, data_ref=None, type='mag', data=None):
         """
