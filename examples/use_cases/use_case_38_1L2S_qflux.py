@@ -15,6 +15,8 @@ down an event with appropriate data.
 """
 import MulensModel as mm
 
+raise  NotImplementedError('Needs fake data.')
+
 # define some fake data
 files = ['phot.dat', 'KMTC_I.pysis', 'KMTA_I.pysis', 'KMTS_I.pysis',
          'KMTC_V.pysis', 'KMTA_V.pysis', 'KMTS_V.pysis']
