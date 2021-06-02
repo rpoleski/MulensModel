@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import warnings
 
 from MulensModel.trajectory import Trajectory
@@ -396,7 +397,16 @@ class MagnificationCurve(object):
                         raise ValueError(msg.format(method))
 
             if method == 'point_source':
-                m = binary_lens.point_source_magnification(x, y)
+                # XXX add try except here and print model parameters
+                try:
+                    m = binary_lens.point_source_magnification(x, y)
+                except Exception as e:
+                    text = "Model parameters for above exception:\n"
+                    text += str(self.parameters)
+                    raise ValueError(text) from e
+                    # The code above is based on
+                    # https://stackoverflow.com/questions/6062576/
+                    # adding-information-to-an-exception/6062799
             elif method == 'quadrupole':
                 m = binary_lens.hexadecapole_magnification(
                     x, y, rho=self.parameters.rho, quadrupole=True,
@@ -411,7 +421,7 @@ class MagnificationCurve(object):
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'point_source_point_lens':
-                u = np.sqrt(x**2 + y**2)
+                u = math.sqrt(x**2 + y**2)
                 m = get_pspl_magnification(u)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
