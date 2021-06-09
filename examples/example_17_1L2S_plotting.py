@@ -25,6 +25,7 @@ def generate_time_vector(n_a, n_b):
     time = np.sort(np.concatenate((time_a, time_b)))
     return time
 
+
 def generate_dataset(time, fluxes, flux_err=6):
     (flux_1, flux_2, blend_flux) = fluxes
     A_1 = model_1.magnification(time)
@@ -34,6 +35,7 @@ def generate_dataset(time, fluxes, flux_err=6):
     flux += flux_err * np.random.normal(size=len(time))
     my_dataset = mm.MulensData([time, flux, flux_err], phot_fmt='flux')
     return my_dataset
+
 
 assumed_flux_1 = 100.
 assumed_flux_2 = 5.
@@ -51,10 +53,8 @@ my_dataset_2 = generate_dataset(
 
 
 # Model
-#params = {'t_0_1': 6101., 'u_0_1': 0.19, 't_0_2': 6140.123, 'u_0_2': 0.04,
-#          't_E': 20.}
 params = {'t_0_1': t_0_1, 'u_0_1': u_0_1, 't_0_2': t_0_2, 'u_0_2': u_0_2,
-         't_E': t_E}
+          't_E': t_E}
 my_model = mm.Model(params)
 my_event = mm.Event(datasets=[my_dataset, my_dataset_2], model=my_model)
 

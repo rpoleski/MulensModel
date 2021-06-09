@@ -104,7 +104,6 @@ best_index = np.argmax(prob)
 best_chi2 = prob[best_index] / -0.5
 best = samples[best_index, :]
 print("\nSmallest chi2 model:")
-#best = [best_params[p] for p in parameters_to_fit]
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print(best_chi2)
 
@@ -131,7 +130,8 @@ plot_params = {'lw': 2.5, 'alpha': 0.3, 'subtract_2450000': True,
 my_event.plot_data(subtract_2450000=True)
 event_0.plot_model(label='no pi_E', **plot_params)
 event_1.plot_model(label='pi_E, u_0>0', **plot_params)
-event_2.plot_model(label='pi_E, u_0<0', color='black', ls='dashed', **plot_params)
+event_2.plot_model(
+    label='pi_E, u_0<0', color='black', ls='dashed', **plot_params)
 
 plt.xlim(t_1-2450000., t_2-2450000.)
 plt.legend(loc='best')

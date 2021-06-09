@@ -55,9 +55,8 @@ def get_fluxes(event):
     """
     fluxes = []
     for dataset in event.datasets:
-        #fluxes.append(event.fit.flux_of_sources(dataset)[0])
-        #fluxes.append(event.fit.blending_flux(dataset))
-        (data_source_flux, data_blend_flux) = event.get_flux_for_dataset(dataset)
+        (data_source_flux, data_blend_flux) = event.get_flux_for_dataset(
+            dataset)
         fluxes.append(data_source_flux[0])
         fluxes.append(data_blend_flux)
 
