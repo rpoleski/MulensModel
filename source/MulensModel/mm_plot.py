@@ -14,6 +14,7 @@ def _get_y_value_y_err(phot_fmt, flux, flux_err):
     else:
         return (flux, flux_err)
 
+
 def subtract(subtract_2450000=False, subtract_2460000=False):
     """ Check if some value should be subtracted from all dates."""
     subtract = 0.
@@ -71,4 +72,3 @@ def _color_differences(color_list, color):
     add_2 = 4. * diffs[:, 1]
     add_3 = (3. + mean_red) * diffs[:, 2]
     return np.sqrt(add_1 + add_2 + add_3)
-

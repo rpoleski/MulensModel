@@ -127,7 +127,8 @@ class Event(object):
             data_ref = self.data_ref
 
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
-        self.model.plot_lc(source_flux=f_source_0, blend_flux=f_blend_0, **kwargs)
+        self.model.plot_lc(
+            source_flux=f_source_0, blend_flux=f_blend_0, **kwargs)
 
     def plot_data(
             self, phot_fmt='mag', data_ref=None, show_errorbars=None,
@@ -418,7 +419,6 @@ class Event(object):
 
         return self.chi2
 
-
     def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
         """
         Calculates chi^2 for a single dataset
@@ -482,7 +482,6 @@ class Event(object):
             chi2_per_point.append(self.fits[i].chi2_per_point)
 
         return chi2_per_point
-
 
     def get_chi2_gradient(self, parameters, fit_blending=None):
         """
@@ -757,7 +756,8 @@ class Event(object):
         """
         fluxes = []
         if self.fits is None:
-            raise AttributeError('Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
+            raise AttributeError(
+                'Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
 
         for fit in self.fits:
             fluxes.append([fit.source_fluxes, fit.blend_flux])
@@ -773,7 +773,8 @@ class Event(object):
         """
         fluxes = []
         if self.fits is None:
-            raise AttributeError('Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
+            raise AttributeError(
+                'Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
 
         for fit in self.fits:
             fluxes.append(fit.source_fluxes)
@@ -788,7 +789,8 @@ class Event(object):
         """
         fluxes = []
         if self.fits is None:
-            raise AttributeError('Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
+            raise AttributeError(
+                'Fluxes not calculated. Run fit_fluxes() or get_chi2() first.')
 
         for fit in self.fits:
             fluxes.append(fit.blend_flux)
@@ -811,7 +813,7 @@ class Event(object):
     def sum_function(self, new_value):
         self._sum_function = new_value
 
-    #----Stuff that Doesn't Work (or is Deprecated)---#
+    # ----Stuff that Doesn't Work (or is Deprecated)---- #
     def reset_best_chi2(self):
         """
         DEPRECATED
@@ -843,7 +845,6 @@ class Event(object):
         """
         raise NameError(
             'best_chi2_parameters (and best_chi2) has been deprecated.')
-
 
     def clean_data(self):
         """masks outlying datapoints. **Not Implemented.**"""

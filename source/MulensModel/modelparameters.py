@@ -570,7 +570,6 @@ class ModelParameters(object):
             if parameter in self.parameters:
                 self._set_time_quantity(parameter, self.parameters[parameter])
 
-
     def _update_sources(self, parameter, value):
         """
         For multi-source models, update the values for all sources.

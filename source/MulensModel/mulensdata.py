@@ -533,7 +533,7 @@ class MulensData(object):
         Sky coordinates of data.
         See :py:class:`~MulensModel.coordinates.Coordinates`.
         """
-        #JCY - should this be deprecated?
+        # JCY - should this be deprecated?
         return self._coords
 
     @coords.setter

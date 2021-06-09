@@ -102,7 +102,6 @@ class Model(object):
         self._limb_darkening_coeffs = LimbDarkeningCoeffs()
         self._bandpasses = []
 
-
     def __repr__(self):
         return '{0}'.format(self.parameters)
 
@@ -166,7 +165,8 @@ class Model(object):
 
         self._plt_plot(times-subtract, magnification, kwargs)
         plt.ylabel('Magnification')
-        plt.xlabel(mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.xlabel(
+            mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -237,8 +237,8 @@ class Model(object):
 
         if data_ref is not None:
             raise NameError(
-                'data_ref keyword has been deprecated. Specify source_flux and ' +
-                'blend_flux instead or use plotting functions in Event().')
+                'data_ref keyword has been deprecated. Specify source_flux ' +
+                'and blend_flux instead or use plotting functions in Event().')
 
         if fit_blending is not None:
             raise NameError(
@@ -260,8 +260,8 @@ class Model(object):
         elif (isinstance(source_flux, float) and self.n_sources > 1):
             if source_flux_ratio is None:
                 raise ValueError(
-                    "Either source_flux should be a list or source_flux_ratio should be" +
-                    " specified.\n" +
+                    "Either source_flux should be a list or ' +"
+                    "source_flux_ratio should be specified.\n" +
                     "source_flux = {0}\n".format(source_flux) +
                     "n_sources = {0}\n".format(self.n_sources) +
                     "source_flux_ratio = {0}")
@@ -271,7 +271,8 @@ class Model(object):
                 source_flux.append(source_flux[0] * source_flux_ratio)
 
         if blend_flux is None:
-            warnings.warn('No blend_flux not specified. Assuming blend_flux = zero.')
+            warnings.warn(
+                'No blend_flux not specified. Assuming blend_flux = zero.')
             blend_flux = 0.
 
         if times is None:
@@ -299,7 +300,8 @@ class Model(object):
 
         self._plt_plot(times-subtract, Utils.get_mag_from_flux(flux), kwargs)
         plt.ylabel('Magnitude')
-        plt.xlabel(mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.xlabel(
+            mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
 
         (ymin, ymax) = plt.gca().get_ylim()
         if ymax > ymin:
@@ -315,7 +317,6 @@ class Model(object):
             print("kwargs passed to plt.plot():")
             print(kwargs)
             raise
-
 
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
@@ -469,7 +470,6 @@ class Model(object):
         if caustics:
             self.plot_caustics(marker='.', color='red')
 
-
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):
         """
@@ -554,7 +554,6 @@ class Model(object):
             self._plot_source_for_trajectory(trajectory, **kwargs)
         else:
             raise ValueError('Wrong number of sources!')
-
 
     def _plot_source_for_trajectory(self, trajectory, **kwargs):
         """
@@ -915,10 +914,10 @@ class Model(object):
                 0 which means no limb darkening effect.
 
             bandpass: *str*, optional
-                The bandpass for setting the limb-darkening coefficient. Expects
-                that you have used :py:func:`set_limb_coeff_gamma() or
-                :py:func:`set_limb_coeff_u()`. Only ONE of `gamma' or `bandpass'
-                may be specified.
+                The bandpass for setting the limb-darkening coefficient.
+                Expects that you have used :py:func:`set_limb_coeff_gamma() or
+                :py:func:`set_limb_coeff_u()`. Only ONE of `gamma' or
+                `bandpass' may be specified.
 
             source_flux_ratio: *float*
                 If the model has two sources, source_flux_ratio is the ratio of
@@ -951,7 +950,8 @@ class Model(object):
             elif isinstance(flux_ratio_constraint, MulensData):
                 raise ValueError(
                     'The ability to set flux_ratio_constraint with a dataset' +
-                    'is deprecated. Use a float with source_flux_ratio instead.')
+                    'is deprecated. Use a float with source_flux_ratio ' +
+                    'instead.')
             else:
                 raise ValueError(
                     'Wrong type for flux_ratio_constraint. Use a float with '
@@ -965,16 +965,16 @@ class Model(object):
         if bandpass is not None:
             if gamma > 0.:
                 raise AttributeError(
-                    'Set either bandpass OR gamma. Not both. bandpass = {0}, gamma={1}'.format(
-                        bandpass, gamma))
+                    'Set either bandpass OR gamma. Not both. bandpass = {0},' +
+                    ' gamma={1}'.format(bandpass, gamma))
             else:
                 gamma = self.get_limb_coeff_gamma(bandpass)
 
         if self.n_sources > 1:
             if (source_flux_ratio is None) and (separate is False):
                 raise ValueError(
-                    'For 2 sources either source_flux_ratio should be set or ' +
-                    'separate=True. \n' +
+                    'For 2 sources either source_flux_ratio should be set or' +
+                    ' separate=True. \n' +
                     'separate: {0}\n'.format(separate) +
                     'source_flux_ratio: {0}'.format(source_flux_ratio))
 
@@ -1043,7 +1043,8 @@ class Model(object):
         return magnification_curve.magnification
 
     def _magnification_2_sources(
-            self, time, satellite_skycoord, gamma, source_flux_ratio, separate):
+            self, time, satellite_skycoord, gamma, source_flux_ratio,
+            separate):
         """
         calculate model magnification for given times for model with
         two sources
@@ -1066,7 +1067,6 @@ class Model(object):
             magnification = mag_1 + mag_2 * source_flux_ratio
             magnification /= (1. + source_flux_ratio)
             return magnification
-
 
     def _separate_magnifications(self, time, satellite_skycoord, gamma):
         """
@@ -1174,7 +1174,7 @@ class Model(object):
         """
         return self._bandpasses
 
-#---- DEPRECATED PROPERTIES AND FUNCTIONS----#
+# ---- DEPRECATED PROPERTIES AND FUNCTIONS---- #
     def reset_plot_properties(self):
         """
         DEPRECATED
@@ -1371,7 +1371,6 @@ class Model(object):
             'intrinsic to Model(). Set them explicitly when ' +
             'needed or use Event().')
 
-
     @property
     def data_magnification(self):
         """
@@ -1406,7 +1405,6 @@ class Model(object):
             'get_data_magnification is deprecated. datasets ' +
             'are no longer part of Model(). Use Event() instead or use' +
             'Model.magnification() for the relevant times.')
-
 
     @property
     def datasets(self):
@@ -1453,4 +1451,3 @@ class Model(object):
         """
         raise NameError('fit is deprecated. datasets ' +
                         'are no longer part of Model(). Use Event() instead.')
-

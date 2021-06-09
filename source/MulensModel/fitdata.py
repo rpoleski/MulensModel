@@ -96,12 +96,14 @@ class FitData:
 
         if self.fix_source_flux_ratio is not False:
             if self._model.n_sources != 2:
-                msg = ('fix_source_flux_ratio only valid for models with 2 sources.' +
-                       'n_sources = {0}'.format(self._model.n_sources))
+                msg = ('fix_source_flux_ratio only valid for models with 2' +
+                       'sources. n_sources = {0}'.format(
+                           self._model.n_sources))
                 raise ValueError(msg)
             elif self.fix_source_flux is not False:
-                msg = ('fix_source_flux_ratio + fixed_source_flux not implemented.' +
-                       'Fix the fluxes for each source individually instead.')
+                msg = ('fix_source_flux_ratio + fixed_source_flux not ' +
+                       'implemented. Fix the fluxes for each source ' +
+                       'individually instead.')
                 raise NotImplementedError(msg)
 
     def update(self, bad=False):
@@ -176,7 +178,8 @@ class FitData:
         y = self._dataset.flux[self._dataset.good]
         x = np.array(
             self._data_magnification[0][self._dataset.good] +
-            self.fix_source_flux_ratio * self._data_magnification[1][self._dataset.good])
+            self.fix_source_flux_ratio *
+            self._data_magnification[1][self._dataset.good])
         self.n_fluxes = 1
 
         return (x, y)
@@ -197,7 +200,7 @@ class FitData:
             x = None
             if self._model.n_sources == 1:
                 y -= (self.fix_source_flux[0] *
-                    self._data_magnification[self._dataset.good])
+                      self._data_magnification[self._dataset.good])
             else:
                 for i in range(self._model.n_sources):
                     if self.fix_source_flux[i] is False:
@@ -309,7 +312,8 @@ class FitData:
                         self._source_fluxes.append(self.fix_source_flux[i])
 
         else:
-            self._source_fluxes = [results[0], results[0] * self.fix_source_flux_ratio]
+            self._source_fluxes = [results[0],
+                                   results[0] * self.fix_source_flux_ratio]
 
         if self.fix_blend_flux is False:
             self._blend_flux = results[-1]
@@ -541,7 +545,6 @@ class FitData:
         self.fit_fluxes()
         self.calc_chi2_gradient(parameters)
         return self.chi2_gradient
-
 
     def calc_chi2_gradient(self, parameters):
         """
