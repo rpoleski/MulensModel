@@ -56,7 +56,7 @@ I think I did this, but I also might have been side-tracked by adding unit tests
         
 - [DONE] Check with KMT about 180003 data.
     
-## Check PEP8 Compliance
+## [DONE] Check PEP8 Compliance
 
 # Post-merge
 
