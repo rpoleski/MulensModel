@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.18.0'
+__version__ = '0.19.0'
 
 
 class UlensModelFit(object):
@@ -107,9 +107,13 @@ class UlensModelFit(object):
         fitting_parameters: *dict*
             Parameters of the fit function. They depend on the method used.
 
-            For EMCEE, the required parameters are ``n_walkers`` and
-            ``n_steps``. You can also specify ``n_burn`` which controls
-            length of burn-in. Other options are described below.
+            For EMCEE, the required parameter is ``n_steps``.
+            You can also specify ``n_burn`` and ``n_walkers``. The ``n_burn``
+            controls the length of burn-in. If not provided, it is assumed to
+            be ``0.25*n_steps``. The ``n_walkers`` gives number of parallel
+            walkers to be run. If not provided, it is assumed four times
+            the number of parameters to be fitted.
+            Other options are described below.
 
             It is possible to export posterior to a .npy file. Just provide
             the file name as ``posterior file`` parameter. You can read this
@@ -325,8 +329,8 @@ class UlensModelFit(object):
         self._get_datasets()
         self._get_parameters_ordered()
         self._get_parameters_latex()
-        self._get_n_walkers()
         self._parse_fitting_parameters()
+        self._get_n_walkers()
         self._set_min_max_values()
         self._parse_fit_constraints()
         self._parse_starting_parameters()
@@ -571,23 +575,6 @@ class UlensModelFit(object):
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
 
-    def _get_n_walkers(self):
-        """
-        guess how many walkers and starting values there are
-        """
-        self._n_walkers = None
-
-        if self._fit_method == 'emcee':
-            self._n_walkers = self._fitting_parameters.get('n_walkers', None)
-        else:
-            raise ValueError('internal bug')
-
-        if self._n_walkers is None:
-            raise ValueError(
-                "Couldn't guess the number of walkers based on " +
-                "method: {:}\n".format(self._fit_method) +
-                "fitting_parameters: " + str(self._fitting_parameters))
-
     def _parse_fitting_parameters(self):
         """
         run some checks on self._fitting_parameters to make sure that
@@ -604,9 +591,9 @@ class UlensModelFit(object):
         """
         settings = self._fitting_parameters
 
-        required = ['n_walkers', 'n_steps']
+        required = ['n_steps']
         strings = ['posterior file', 'posterior file fluxes']
-        allowed = ['n_burn'] + strings
+        allowed = ['n_walkers', 'n_burn'] + strings
 
         full = required + allowed
 
@@ -628,6 +615,8 @@ class UlensModelFit(object):
         if 'n_burn' in settings:
             if settings['n_burn'] >= settings['n_steps']:
                 raise ValueError('You cannot set n_burn >= n_steps.')
+        else:
+            settings['n_burn'] = int(0.25*self._fitting_parameters['n_steps'])
 
         if 'posterior file' not in settings:
             self._posterior_file_name = None
@@ -658,6 +647,26 @@ class UlensModelFit(object):
                 raise ValueError('Unrecognized "posterior file fluxes": ' +
                                  settings['posterior file fluxes'])
             self._posterior_file_fluxes = settings['posterior file fluxes']
+
+    def _get_n_walkers(self):
+        """
+        guess how many walkers and starting values there are
+        """
+        self._n_walkers = None
+
+        if self._fit_method == 'emcee':
+            if 'n_walkers' in self._fitting_parameters:
+                self._n_walkers = self._fitting_parameters['n_walkers']
+            else:
+                self._n_walkers = 4 * len(self._starting_parameters)
+        else:
+            raise ValueError('internal bug')
+
+        if self._n_walkers is None:
+            raise ValueError(
+                "Couldn't guess the number of walkers based on " +
+                "method: {:}\n".format(self._fit_method) +
+                "fitting_parameters: " + str(self._fitting_parameters))
 
     def _set_min_max_values(self):
         """
@@ -1316,7 +1325,7 @@ class UlensModelFit(object):
 
         This version works with EMCEE version 2.X and 3.0.
         """
-        n_burn = self._fitting_parameters.get('n_burn', 0)
+        n_burn = self._fitting_parameters['n_burn']
         n_fit = len(self._fit_parameters)
 
         self._samples = self._sampler.chain[:, n_burn:, :].reshape((-1, n_fit))
@@ -1596,7 +1605,6 @@ if __name__ == '__main__':
         raise ImportError('module "yaml" could not be imported :(')
 
     input_file = sys.argv[1]
-    input_file_root = path.splitext(input_file)[0]
 
     with open(input_file, 'r') as data:
         settings = yaml.safe_load(data)

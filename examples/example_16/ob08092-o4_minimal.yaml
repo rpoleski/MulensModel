@@ -9,6 +9,4 @@ min_values:
     t_E: 0.
 # Values below are EMCEE settings:
 fitting_parameters:
-    n_walkers: 10
     n_steps: 1000
-    n_burn:  500
