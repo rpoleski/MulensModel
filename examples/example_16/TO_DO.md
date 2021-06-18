@@ -56,7 +56,7 @@
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
 - posterior output: 1) add log(prior), 2) add chi2 or equivalent, 3) add option to add fluxes
 - print number of models calculated
-- full support of satellite data
+- full support of satellite data (plotting model - done)
 - periodic variables - suggest it for alpha, x_caustic_X
 - check if data files exist
 - allow log10() of parameter

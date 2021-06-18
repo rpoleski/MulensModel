@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.19.0'
+__version__ = '0.19.1'
 
 
 class UlensModelFit(object):
@@ -919,18 +919,27 @@ class UlensModelFit(object):
             print("Initializer of MulensModel.Model failed.")
             print("Parameters passed: {:}".format(parameters))
             raise
-        if 'default method' in self._model_parameters:
-            self._model.set_default_magnification_method(
-                self._model_parameters['default method'])
-        if 'methods' in self._model_parameters:
-            self._model.set_magnification_methods(
-                self._model_parameters['methods'])
-        if 'methods source 1' in self._model_parameters:
-            self._model.set_magnification_methods(
-                self._model_parameters['methods source 1'], 1)
-        if 'methods source 2' in self._model_parameters:
-            self._model.set_magnification_methods(
-                self._model_parameters['methods source 2'], 2)
+        self._models_satellite = []
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                continue
+            model = mm.Model(
+                parameters, ephemerides_file=dataset.ephemerides_file,
+                **kwargs)
+            self._models_satellite.append(model)
+        for model in [self._model] + self._models_satellite:
+            if 'default method' in self._model_parameters:
+                model.set_default_magnification_method(
+                    self._model_parameters['default method'])
+            if 'methods' in self._model_parameters:
+                model.set_magnification_methods(
+                    self._model_parameters['methods'])
+            if 'methods source 1' in self._model_parameters:
+                self._model.set_magnification_methods(
+                    self._model_parameters['methods source 1'], 1)
+            if 'methods source 2' in self._model_parameters:
+                self._model.set_magnification_methods(
+                    self._model_parameters['methods source 2'], 2)
 
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'
@@ -1460,7 +1469,11 @@ class UlensModelFit(object):
 
         axes = plt.subplot(grid[0])
         self._event.plot_data(**kwargs)
-        self._event.plot_model(**kwargs_model)
+        self._model.plot_lc(**kwargs_model)
+        fluxes = self._model.get_ref_fluxes()
+        for model in self._models_satellite:
+            model.plot_lc(f_source=fluxes[0], f_blend=fluxes[1],
+                          **kwargs_model)
         if len(self._datasets) > 1:
             plt.legend()
         plt.xlim(*xlim)
