@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.19.1'
+__version__ = '0.19.2'
 
 
 class UlensModelFit(object):
@@ -1469,9 +1469,15 @@ class UlensModelFit(object):
 
         axes = plt.subplot(grid[0])
         self._event.plot_data(**kwargs)
-        self._model.plot_lc(**kwargs_model)
+        # Plot models below, first ground-based (if needed),
+        # then satellite ones (if needed).
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                self._model.plot_lc(**kwargs_model)
+                break
         fluxes = self._model.get_ref_fluxes()
         for model in self._models_satellite:
+            model.parameters.parameters = {**self._model.parameters.parameters}
             model.plot_lc(f_source=fluxes[0], f_blend=fluxes[1],
                           **kwargs_model)
         if len(self._datasets) > 1:
