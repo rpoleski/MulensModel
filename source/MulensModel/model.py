@@ -205,6 +205,15 @@ class Model(object):
                 If the model has two sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1.
 
+            gamma:
+                see :py:func:`magnification()`
+
+            bandpass: *str*
+                bandpass for defining the limb-darkening coefficient gamma.
+                Requires that the limb_darkenging coefficients have been set
+                using :py:func:`set_limb_coeff_u()` or
+                :py:func:`set_limb_coeff_gamma()`.
+
             subtract_2450000, subtract_2460000: *boolean*, optional
                 If True, subtracts 2450000 or 2460000 from the time
                 axis to get more human-scale numbers. If using, make
@@ -282,10 +291,29 @@ class Model(object):
         elif isinstance(times, list):
             times = np.array(times)
 
+        if (bandpass is not None) and (gamma is not None):
+            raise ValueError('Only one of bandpass and gamma can be set')
+        elif (bandpass is None) and (gamma is None):
+            gamma = 0.
+        elif bandpass is not None:
+            if bandpass not in self._bandpasses:
+                raise KeyError(
+                    'No limb-darkening coefficient set for {0}'.format(
+                        bandpass))
+            else:
+                gamma = self.get_limb_coeff_gamma(bandpass)
+
+        else:
+            pass
+
         if self.n_sources == 1:
-            magnification = self.magnification(times)
+            magnification = self.magnification(times, gamma=gamma)
             flux = source_flux * magnification + blend_flux
         else:
+            if gamma is not None:
+                raise NotImplementedError(
+                    'limb-darkening not implemented for multiple sources.')
+
             magnification = self.magnification(times, separate=True)
             flux = None
             for i in range(self.n_sources):
