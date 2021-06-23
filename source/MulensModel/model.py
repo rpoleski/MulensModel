@@ -171,8 +171,8 @@ class Model(object):
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, source_flux=None, blend_flux=None,
-            source_flux_ratio=None, subtract_2450000=False,
-            subtract_2460000=False,
+            source_flux_ratio=None, gamma=None, bandpass=None,
+            subtract_2450000=False, subtract_2460000=False,
             data_ref=None, flux_ratio_constraint=None,
             fit_blending=None, f_source=None, f_blend=None,
             **kwargs):
