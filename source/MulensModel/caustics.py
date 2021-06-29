@@ -121,7 +121,7 @@ class Caustics(object):
             coeff_4 = 1.
             coeff_3 = -2. * self.s
             coeff_2 = Utils.complex_fsum([self.s**2, -eiphi])
-            coeff_1 = 2. * self.s * eiphi / (1. + self.q)
+            coeff_1 = eiphi * (2. * self.s / (1. + self.q))
             coeff_0 = -self.s**2 * eiphi / (1. + self.q)
 
             # Find roots
