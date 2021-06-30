@@ -29,7 +29,7 @@ month_3letter_to_2digit = {
 class Utils(object):
     """ A number of small functions used in different places """
 
-    def get_flux_from_mag(mag, zeropoint=MAG_ZEROPOINT):
+    def get_flux_from_mag(mag, zeropoint=None):
         """
         Transform magnitudes into fluxes.
 
@@ -45,11 +45,13 @@ class Utils(object):
             flux: *np.ndarray* or *float*
                 Calculated fluxes. Type is the same as *mag* parameter.
         """
+        if zeropoint is None:
+            zeropoint = MAG_ZEROPOINT
         flux = 10. ** (0.4 * (zeropoint - mag))
         return flux
     get_flux_from_mag = staticmethod(get_flux_from_mag)
 
-    def get_flux_and_err_from_mag(mag, err_mag, zeropoint=MAG_ZEROPOINT):
+    def get_flux_and_err_from_mag(mag, err_mag, zeropoint=None):
         """
         Transform magnitudes and their uncertainties into flux space.
 
@@ -72,12 +74,14 @@ class Utils(object):
                 Calculated flux uncertainties. Type is *float* if both *mag*
                 and *err_mag* are *floats* and *np.ndarray* otherwise.
         """
+        if zeropoint is None:
+            zeropoint = MAG_ZEROPOINT
         flux = 10. ** (0.4 * (zeropoint - mag))
         err_flux = err_mag * flux * np.log(10.) * 0.4
         return (flux, err_flux)
     get_flux_and_err_from_mag = staticmethod(get_flux_and_err_from_mag)
 
-    def get_mag_from_flux(flux, zeropoint=MAG_ZEROPOINT):
+    def get_mag_from_flux(flux, zeropoint=None):
         """
         Transform fluxes into magnitudes.
 
@@ -93,6 +97,8 @@ class Utils(object):
             mag: *np.ndarray* or *float*
                 Calculated fluxes. Type is the same as *flux* parameter.
         """
+        if zeropoint is None:
+            zeropoint = MAG_ZEROPOINT
         if np.any(flux <= 0.):
             warnings.warn(
                 "Flux to magnitude conversion approached negative flux",
@@ -101,7 +107,7 @@ class Utils(object):
         return mag
     get_mag_from_flux = staticmethod(get_mag_from_flux)
 
-    def get_mag_and_err_from_flux(flux, err_flux, zeropoint=MAG_ZEROPOINT):
+    def get_mag_and_err_from_flux(flux, err_flux, zeropoint=None):
         """
         Transform fluxes and their uncertainties into magnitude space.
 
@@ -124,6 +130,8 @@ class Utils(object):
                 Calculated magnitude uncertainties. Type is *float* if both
                 *flux* and *err_flux* are *floats* and *np.ndarray* otherwise.
         """
+        if zeropoint is None:
+            zeropoint = MAG_ZEROPOINT
         if np.any(flux <= 0.):
             warnings.warn(
                 "Flux to magnitude conversion approached negative flux",
