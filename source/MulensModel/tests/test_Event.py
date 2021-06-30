@@ -645,8 +645,6 @@ class TestFixedFluxes(unittest.TestCase):
         event.fit_fluxes()
         fluxes_1 = event.get_flux_for_dataset(self.data_1)
         fluxes_2 = event.get_flux_for_dataset(self.data_2)
-        print(fluxes_1)
-        print(fluxes_2)
         return (fluxes_1, fluxes_2)
 
     def test_free_fluxes(self):

@@ -506,7 +506,6 @@ class TestGetResiduals(unittest.TestCase):
 
         # Simple sign check
         for i, index in enumerate(self.outliers['index']):
-            print(i, index, self.outliers['values'][i])
             if self.outliers['values'][i] > 0:
                 assert residuals[index] < 0
             else:
@@ -542,9 +541,6 @@ class TestGetResiduals(unittest.TestCase):
                       f_blend_0)
         model_mag = mm.Utils.get_mag_from_flux(model_flux)
         for i in np.arange(len(self.dataset.time)):
-            print(
-                i, self.dataset.time[i], self.dataset.flux[i],
-                self.dataset.err_flux[i])
             exp_flux = (f_source_0 *
                         (self.dataset.flux[i] -
                          self.dataset_properties['f_blend']) /
