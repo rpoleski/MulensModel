@@ -63,9 +63,9 @@ class SatelliteSkyCoord(object):
                 np.min(time), np.max(time))
             msg_2 = "Requested dates: {:} {:}".format(
                 np.min(times), np.max(times))
-            warnings.warn(
+            raise ValueError(
                 "Satellite ephemeris doesn't cover requested epochs.\n " +
-                msg_1 + msg_2, UserWarning)
+                msg_1 + msg_2)
 
         x = interp1d(time, self._horizons.xyz.x, kind='cubic')(times)
         y = interp1d(time, self._horizons.xyz.y, kind='cubic')(times)

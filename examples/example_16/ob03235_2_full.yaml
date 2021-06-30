@@ -10,6 +10,7 @@ model:
     # methods source 1: ...
     # methods source 2: ...
     coords: 18:05:16.35 -28:53:42.0
+# Below you can have any combination of parameters allowed by MulensModel
 fixed_parameters:
     t_0_par: 2452848.
 starting_parameters:
