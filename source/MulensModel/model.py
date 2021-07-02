@@ -314,7 +314,7 @@ class Model(object):
             magnification = self.magnification(times, gamma=gamma)
             flux = source_flux * magnification + blend_flux
         else:
-            if gamma is not None:
+            if gamma > 0.:
                 raise NotImplementedError(
                     'limb-darkening not implemented for multiple sources.')
 
