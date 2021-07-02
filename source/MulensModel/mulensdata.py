@@ -3,9 +3,6 @@ import matplotlib.pyplot as plt
 from os.path import basename, exists
 import warnings
 
-from astropy.coordinates import SkyCoord
-from astropy import units as u
-
 from MulensModel.utils import Utils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.coordinates import Coordinates

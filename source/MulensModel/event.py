@@ -1,19 +1,13 @@
 import warnings
 import numpy as np
-from math import log, fsum
-
+from math import fsum
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
 
-from astropy.coordinates import SkyCoord
-import astropy.units as u
-
-from MulensModel.utils import Utils
 from MulensModel.fitdata import FitData
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
-from MulensModel.trajectory import Trajectory
 from MulensModel import mm_plot
 
 
@@ -24,7 +18,7 @@ class Event(object):
 
     Arguments :
         :py:obj:`~datasets` :  :py:class:`~MulensModel.mulensdata.MulensData`
-        or *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects
+        or *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects,
             Datasets that will be linked to the event. These datasets will
             be used for chi^2 calculation, plotting etc.
 
@@ -216,8 +210,10 @@ class Event(object):
         """
         Plot the residuals (in magnitudes) to the model.
 
-                For explanation of keywords, see doctrings in
-        :py:func:`plot_data()`. Note different order of keywords.
+        Keywords:
+            For explanation of keywords, see doctrings in
+            :py:func:`plot_data()`. Note different order of keywords.
+
         """
         self._set_default_colors()
 

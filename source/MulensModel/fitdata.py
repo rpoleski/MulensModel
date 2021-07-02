@@ -1,7 +1,6 @@
 import numpy as np
 import warnings
 from MulensModel.trajectory import Trajectory
-from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.utils import Utils
 import astropy.units as u
 
