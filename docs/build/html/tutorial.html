@@ -1,0 +1,185 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Very Basic Tutorial &#8212; MulensModel 1.14.26 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.26',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Basic Fitting Tutorial" href="tutorial_fit_pspl.html" />
+    <link rel="prev" title="How to install?" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="very-basic-tutorial">
+<h1>Very Basic Tutorial<a class="headerlink" href="#very-basic-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>The main MulensModel features are in classes <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>, <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html">MulensData</a>,
+and <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.event.html">Event</a>.</p>
+<p>This is a very simple tutorial showing how you might use those classes.
+It is also available (somewhat expanded) as a Jupyter <a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/MulensModelTutorial.ipynb">notebook</a>.
+Please note that MulensModel is written in Python3. If you’re using Python2.X,
+then start by adding <code class="docutils literal"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">print_function</span></code> at the begin
+of your codes and be advised that we don’t guarantee that everything will work.</p>
+<p>This example shows OGLE-2003-BLG-235/MOA-2003-BLG-53, the first
+microlensing planet. See <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2004ApJ...606L.155B/abstract">Bond et al. (2004)</a>.
+The data were downloaded from the <a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/cgi-bin/DisplayOverview/nph-DisplayOverview?objname=OGLE-2003-BLG-235L+b&amp;type=CONFIRMED_PLANET">NASA Exoplanet Archive</a>.</p>
+<div class="section" id="defining-a-model">
+<h2>Defining a Model<a class="headerlink" href="#defining-a-model" title="Permalink to this headline">¶</a></h2>
+<p>The most basic thing to do is to define a microlensing model. For example, you could define a point lens model as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">MulensModel</span> <span class="kn">as</span> <span class="nn">mm</span>
+<span class="n">my_pspl_model</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="mf">2452848.06</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="mf">0.133</span><span class="p">,</span> <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="mf">61.5</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Or a model with 2-bodies:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">my_1S2L_model</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Model</span><span class="p">({</span><span class="s1">&#39;t_0&#39;</span><span class="p">:</span> <span class="mf">2452848.06</span><span class="p">,</span> <span class="s1">&#39;u_0&#39;</span><span class="p">:</span> <span class="mf">0.133</span><span class="p">,</span>
+     <span class="s1">&#39;t_E&#39;</span><span class="p">:</span> <span class="mf">61.5</span><span class="p">,</span> <span class="s1">&#39;rho&#39;</span><span class="p">:</span> <span class="mf">0.00096</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="mf">0.0039</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mf">1.120</span><span class="p">,</span>
+     <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">223.8</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>(by default alpha is in degrees, but you could explicitly specify radians)</p>
+<p>Since rho is set, define a time range and method for finite source
+effects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">my_1S2L_model</span><span class="o">.</span><span class="n">set_magnification_methods</span><span class="p">([</span><span class="mf">2452833.</span><span class="p">,</span> <span class="s1">&#39;VBBL&#39;</span><span class="p">,</span> <span class="mf">2452845.</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Then, you might plot those models:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">my_pspl_model</span><span class="o">.</span><span class="n">plot_magnification</span><span class="p">(</span><span class="n">t_range</span><span class="o">=</span><span class="p">[</span><span class="mi">2452810</span><span class="p">,</span> <span class="mi">2452890</span><span class="p">],</span>
+    <span class="n">subtract_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+<span class="n">my_1S2L_model</span><span class="o">.</span><span class="n">plot_magnification</span><span class="p">(</span><span class="n">t_range</span><span class="o">=</span><span class="p">[</span><span class="mi">2452810</span><span class="p">,</span> <span class="mi">2452890</span><span class="p">],</span>
+    <span class="n">subtract_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="introducing-data">
+<h2>Introducing Data<a class="headerlink" href="#introducing-data" title="Permalink to this headline">¶</a></h2>
+<p>Suppose you also had some data you want to import:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;photometry_files&#39;</span><span class="p">,</span> <span class="s1">&#39;OB03235&#39;</span><span class="p">)</span>
+<span class="n">OGLE_data</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span>
+     <span class="n">file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;OB03235_OGLE.tbl.txt&#39;</span><span class="p">),</span>
+     <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">])</span>
+<span class="n">MOA_data</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span>
+     <span class="n">file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;OB03235_MOA.tbl.txt&#39;</span><span class="p">),</span>
+     <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="combining-data-with-a-model">
+<h2>Combining Data with a Model<a class="headerlink" href="#combining-data-with-a-model" title="Permalink to this headline">¶</a></h2>
+<p>Now suppose you wanted to combine the two together:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">my_event</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="n">OGLE_data</span><span class="p">,</span> <span class="n">MOA_data</span><span class="p">],</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">my_1S2L_model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And you wanted to plot the result:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">my_event</span><span class="o">.</span><span class="n">plot_model</span><span class="p">(</span><span class="n">t_range</span><span class="o">=</span><span class="p">[</span><span class="mi">2452810</span><span class="p">,</span> <span class="mi">2452890</span><span class="p">],</span> <span class="n">subtract_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">my_event</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">subtract_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This fits for the fluxes so that the model and data are all on the
+flux scale set by the first dataset. It does NOT fit for the best
+microlensing parameters. If you wanted to know how good the fit is, you can get the chi2:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">get_chi2</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>If you want to optimize that chi2, we leave it up to you to determine the best method for doing this.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Very Basic Tutorial</a><ul>
+<li><a class="reference internal" href="#defining-a-model">Defining a Model</a></li>
+<li><a class="reference internal" href="#introducing-data">Introducing Data</a></li>
+<li><a class="reference internal" href="#combining-data-with-a-model">Combining Data with a Model</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">How to install?</a></li>
+      <li>Next: <a href="tutorial_fit_pspl.html" title="next chapter">Basic Fitting Tutorial</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/tutorial.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

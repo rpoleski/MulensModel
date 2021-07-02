@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.fit module &#8212; MulensModel 1.14.26 documentation</title>
+    <title>MulensModel.fit module &#8212; MulensModel 2.0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.14.26',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,8 +43,9 @@
 <span id="mulensmodel-fit-module"></span><h1>MulensModel.fit module<a class="headerlink" href="#module-MulensModel.fit" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="MulensModel.fit.Fit">
-<em class="property">class </em><code class="descclassname">MulensModel.fit.</code><code class="descname">Fit</code><span class="sig-paren">(</span><em>data=None</em>, <em>magnification=None</em>, <em>n_sources=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="descclassname">MulensModel.fit.</code><code class="descname">Fit</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>DEPRECATED</p>
 <p>Fits source and blending fluxes for given data and model magnification.</p>
 <dl class="docutils">
 <dt>Keywords :</dt>
@@ -59,163 +60,6 @@ this option now.</em></dd>
 </dl>
 </dd>
 </dl>
-<dl class="method">
-<dt id="MulensModel.fit.Fit.fit_fluxes">
-<code class="descname">fit_fluxes</code><span class="sig-paren">(</span><em>fit_blending=True</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.fit_fluxes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit source(s) and blending fluxes. Performs a least squares
-linear fit (<em>np.linalg.lstsq()</em>) to the data for the flux
-parameters. I.e., given the data <span class="math">\(y\)</span> and magnification
-<span class="math">\(A\)</span>, solves for <span class="math">\(f_{source}\)</span> and
-<span class="math">\(f_{blend}\)</span>:</p>
-<div class="math">
-\[y = f_{source} * A + f_{blend}\]</div>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>fit_blending: <em>boolean</em>, optional</dt>
-<dd>Do you want the blending to be fitted (<em>True</em>) or to
-be fixed at 0 (<em>False</em>)? Default is <em>True</em></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.fit.Fit.flux_of_sources">
-<code class="descname">flux_of_sources</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.flux_of_sources" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fluxes of source(s).</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
-<dd>A dataset for which source fluxes will be given.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>source_fluxes: <em>np.ndarray</em></dt>
-<dd>Fluxes of sources in units where 1 corresponds to 22 mag.
-The number of array elements is the same as number of sources.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.fit.Fit.blending_flux">
-<code class="descname">blending_flux</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.blending_flux" title="Permalink to this definition">¶</a></dt>
-<dd><p>Blending flux for given dataset.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
-<dd>A dataset for which blending flux will be given.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>blending_flux: <em>np.float64</em></dt>
-<dd>Blending flux in units where 1 corresponds to 22 mag.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.fit.Fit.get_flux">
-<code class="descname">get_flux</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.get_flux" title="Permalink to this definition">¶</a></dt>
-<dd><p>Microlensing model in flux units.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
-<dd>A dataset for which model will be returned.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>flux: <em>np.ndarray</em></dt>
-<dd>Microlensing model in flux units.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.fit.Fit.get_input_format">
-<code class="descname">get_input_format</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.get_input_format" title="Permalink to this definition">¶</a></dt>
-<dd><p>Microlensing model in the same format as given dataset. The
-output is either in flux units or magnitudes, depending on
-format of the input data.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
-<dd>A dataset for which model will be returned.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>model: <em>np.ndarray</em></dt>
-<dd>Microlensing model in flux units or magnitudes (depending on
-the format of input data).</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.fit.Fit.get_chi2_format">
-<code class="descname">get_chi2_format</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.get_chi2_format" title="Permalink to this definition">¶</a></dt>
-<dd><p>Microlensing model in the format used for chi^2 calculation.
-The output is in flux space in most cases, but can be in
-magnitudes depending on dataset format.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>data: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal"><span class="pre">MulensData</span></code></a></dt>
-<dd>A dataset for which model will be returned.</dd>
-</dl>
-</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>model: <em>np.ndarray</em></dt>
-<dd>Microlensing model in flux units or magnitudes (depending on
-the settings of input data).</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.fit.Fit.get_n_sources">
-<code class="descname">get_n_sources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.get_n_sources" title="Permalink to this definition">¶</a></dt>
-<dd><p>Count sources.</p>
-<dl class="docutils">
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>n_sources: <em>int</em></dt>
-<dd>Number of sources in input data.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="MulensModel.fit.Fit.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>fit</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fit.Fit.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update internal variables using information from a different
-instance of the same class.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>fit: <a class="reference internal" href="#MulensModel.fit.Fit" title="MulensModel.fit.Fit"><code class="xref py py-class docutils literal"><span class="pre">Fit</span></code></a></dt>
-<dd>A different instance of this class.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </div>

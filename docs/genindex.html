@@ -6,13 +6,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Index &#8212; MulensModel 1.14.26 documentation</title>
+    <title>Index &#8212; MulensModel 2.0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.14.26',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -108,7 +108,7 @@
 </li>
       <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.blend_flux">blend_flux (MulensModel.fitdata.FitData attribute)</a>
 </li>
-      <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.blending_flux">blending_flux() (MulensModel.fit.Fit method)</a>
+      <li><a href="MulensModel.event.html#MulensModel.event.Event.blend_fluxes">blend_fluxes() (MulensModel.event.Event method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -116,6 +116,12 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="MulensModel.event.html#MulensModel.event.Event.calc_chi2_gradient">calc_chi2_gradient() (MulensModel.event.Event method)</a>
+
+      <ul>
+        <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.calc_chi2_gradient">(MulensModel.fitdata.FitData method)</a>
+</li>
+      </ul></li>
       <li><a href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling.caustic_point">caustic_point() (MulensModel.uniformcausticsampling.UniformCausticSampling method)</a>
 </li>
       <li><a href="MulensModel.caustics.html#MulensModel.caustics.Caustics">Caustics (class in MulensModel.caustics)</a>
@@ -130,14 +136,22 @@
 </li>
       <li><a href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling.check_valid_trajectory">check_valid_trajectory() (MulensModel.uniformcausticsampling.UniformCausticSampling method)</a>
 </li>
-      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.chi2">chi2 (MulensModel.fitdata.FitData attribute)</a>
+      <li><a href="MulensModel.event.html#MulensModel.event.Event.chi2">chi2 (MulensModel.event.Event attribute)</a>
+
+      <ul>
+        <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.chi2">(MulensModel.fitdata.FitData attribute)</a>
 </li>
-      <li><a href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.chi2_fmt">chi2_fmt (MulensModel.mulensdata.MulensData attribute)</a>
-</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="MulensModel.event.html#MulensModel.event.Event.chi2_gradient">chi2_gradient() (MulensModel.event.Event method)</a>
+      <li><a href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.chi2_fmt">chi2_fmt (MulensModel.mulensdata.MulensData attribute)</a>
 </li>
+      <li><a href="MulensModel.event.html#MulensModel.event.Event.chi2_gradient">chi2_gradient (MulensModel.event.Event attribute)</a>
+
+      <ul>
+        <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.chi2_gradient">(MulensModel.fitdata.FitData attribute)</a>
+</li>
+      </ul></li>
       <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.chi2_per_point">chi2_per_point (MulensModel.fitdata.FitData attribute)</a>
 </li>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.clean_data">clean_data() (MulensModel.event.Event method)</a>
@@ -233,8 +247,6 @@
       <li><a href="MulensModel.event.html#MulensModel.event.Event.fit_fluxes">fit_fluxes() (MulensModel.event.Event method)</a>
 
       <ul>
-        <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes">(MulensModel.fit.Fit method)</a>
-</li>
         <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.fit_fluxes">(MulensModel.fitdata.FitData method)</a>
 </li>
       </ul></li>
@@ -244,7 +256,7 @@
 </li>
       <li><a href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.flux">flux (MulensModel.mulensdata.MulensData attribute)</a>
 </li>
-      <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.flux_of_sources">flux_of_sources() (MulensModel.fit.Fit method)</a>
+      <li><a href="MulensModel.event.html#MulensModel.event.Event.fluxes">fluxes (MulensModel.event.Event attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -274,19 +286,25 @@
 </li>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.get_chi2_for_dataset">get_chi2_for_dataset() (MulensModel.event.Event method)</a>
 </li>
-      <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.get_chi2_format">get_chi2_format() (MulensModel.fit.Fit method)</a>
+      <li><a href="MulensModel.event.html#MulensModel.event.Event.get_chi2_gradient">get_chi2_gradient() (MulensModel.event.Event method)</a>
+
+      <ul>
+        <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.get_chi2_gradient">(MulensModel.fitdata.FitData method)</a>
 </li>
+      </ul></li>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.get_chi2_per_point">get_chi2_per_point() (MulensModel.event.Event method)</a>
 </li>
-      <li><a href="MulensModel.model.html#MulensModel.model.Model.get_data_magnification">get_data_magnification() (MulensModel.model.Model method)</a>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.get_data_magnification">get_data_magnification() (MulensModel.fitdata.FitData method)</a>
+
+      <ul>
+        <li><a href="MulensModel.model.html#MulensModel.model.Model.get_data_magnification">(MulensModel.model.Model method)</a>
 </li>
-      <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.get_flux">get_flux() (MulensModel.fit.Fit method)</a>
-</li>
+      </ul></li>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.get_flux_and_err_from_mag">get_flux_and_err_from_mag() (MulensModel.utils.Utils static method)</a>
 </li>
-      <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.get_flux_from_mag">get_flux_from_mag() (MulensModel.utils.Utils static method)</a>
+      <li><a href="MulensModel.event.html#MulensModel.event.Event.get_flux_for_dataset">get_flux_for_dataset() (MulensModel.event.Event method)</a>
 </li>
-      <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.get_input_format">get_input_format() (MulensModel.fit.Fit method)</a>
+      <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.get_flux_from_mag">get_flux_from_mag() (MulensModel.utils.Utils static method)</a>
 </li>
       <li><a href="MulensModel.limbdarkeningcoeffs.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs.get_limb_coeff_gamma">get_limb_coeff_gamma() (MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs method)</a>
 
@@ -302,17 +320,17 @@
       </ul></li>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.get_mag_and_err_from_flux">get_mag_and_err_from_flux() (MulensModel.utils.Utils static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.get_mag_from_flux">get_mag_from_flux() (MulensModel.utils.Utils static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="MulensModel.magnificationcurve.html#MulensModel.magnificationcurve.MagnificationCurve.get_magnification">get_magnification() (MulensModel.magnificationcurve.MagnificationCurve method)</a>
 </li>
       <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.get_model_fluxes">get_model_fluxes() (MulensModel.fitdata.FitData method)</a>
 </li>
-      <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.get_n_caustics">get_n_caustics() (MulensModel.utils.Utils static method)</a>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.get_model_magnitudes">get_model_magnitudes() (MulensModel.fitdata.FitData method)</a>
 </li>
-      <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.get_n_sources">get_n_sources() (MulensModel.fit.Fit method)</a>
+      <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.get_n_caustics">get_n_caustics() (MulensModel.utils.Utils static method)</a>
 </li>
       <li><a href="MulensModel.model.html#MulensModel.model.Model.get_parallax">get_parallax() (MulensModel.model.Model method)</a>
 </li>
@@ -334,8 +352,12 @@
         <li><a href="MulensModel.model.html#MulensModel.model.Model.get_ref_fluxes">(MulensModel.model.Model method)</a>
 </li>
       </ul></li>
-      <li><a href="MulensModel.model.html#MulensModel.model.Model.get_residuals">get_residuals() (MulensModel.model.Model method)</a>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.get_residuals">get_residuals() (MulensModel.fitdata.FitData method)</a>
+
+      <ul>
+        <li><a href="MulensModel.model.html#MulensModel.model.Model.get_residuals">(MulensModel.model.Model method)</a>
 </li>
+      </ul></li>
       <li><a href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.get_s">get_s() (MulensModel.modelparameters.ModelParameters method)</a>
 </li>
       <li><a href="MulensModel.model.html#MulensModel.model.Model.get_satellite_coords">get_satellite_coords() (MulensModel.model.Model method)</a>
@@ -345,6 +367,8 @@
 </li>
       </ul></li>
       <li><a href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters">get_standard_parameters() (MulensModel.uniformcausticsampling.UniformCausticSampling method)</a>
+</li>
+      <li><a href="MulensModel.model.html#MulensModel.model.Model.get_trajectory">get_trajectory() (MulensModel.model.Model method)</a>
 </li>
       <li><a href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling.get_uniform_sampling">get_uniform_sampling() (MulensModel.uniformcausticsampling.UniformCausticSampling method)</a>
 </li>
@@ -621,10 +645,6 @@
 </li>
       </ul></li>
   </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.q_flux">q_flux (MulensModel.fitdata.FitData attribute)</a>
-</li>
-  </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
@@ -663,6 +683,8 @@
       <li><a href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.satellite_skycoord">satellite_skycoord (MulensModel.mulensdata.MulensData attribute)</a>
 </li>
       <li><a href="MulensModel.satelliteskycoord.html#MulensModel.satelliteskycoord.SatelliteSkyCoord">SatelliteSkyCoord (class in MulensModel.satelliteskycoord)</a>
+</li>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.scale_fluxes">scale_fluxes() (MulensModel.fitdata.FitData method)</a>
 </li>
       <li><a href="MulensModel.model.html#MulensModel.model.Model.set_datasets">set_datasets() (MulensModel.model.Model method)</a>
 </li>
@@ -712,8 +734,14 @@
 </li>
       <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.source_flux">source_flux (MulensModel.fitdata.FitData attribute)</a>
 </li>
-      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.source_fluxes">source_fluxes (MulensModel.fitdata.FitData attribute)</a>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.source_flux_ratio">source_flux_ratio (MulensModel.fitdata.FitData attribute)</a>
 </li>
+      <li><a href="MulensModel.event.html#MulensModel.event.Event.source_fluxes">source_fluxes (MulensModel.event.Event attribute)</a>
+
+      <ul>
+        <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.source_fluxes">(MulensModel.fitdata.FitData attribute)</a>
+</li>
+      </ul></li>
       <li><a href="MulensModel.event.html#MulensModel.event.Event.sum_function">sum_function (MulensModel.event.Event attribute)</a>
 </li>
   </ul></td>
@@ -778,18 +806,14 @@
 </li>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils.u_to_gamma">u_to_gamma() (MulensModel.utils.Utils static method)</a>
 </li>
-      <li><a href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling">uniform_caustic_sampling (MulensModel.modelparameters.ModelParameters attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling">uniform_caustic_sampling (MulensModel.modelparameters.ModelParameters attribute)</a>
+</li>
       <li><a href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling">UniformCausticSampling (class in MulensModel.uniformcausticsampling)</a>
 </li>
-      <li><a href="MulensModel.fit.html#MulensModel.fit.Fit.update">update() (MulensModel.fit.Fit method)</a>
-
-      <ul>
-        <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.update">(MulensModel.fitdata.FitData method)</a>
+      <li><a href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.update">update() (MulensModel.fitdata.FitData method)</a>
 </li>
-      </ul></li>
       <li><a href="MulensModel.model.html#MulensModel.model.Model.update_caustics">update_caustics() (MulensModel.model.Model method)</a>
 </li>
       <li><a href="MulensModel.utils.html#MulensModel.utils.Utils">Utils (class in MulensModel.utils)</a>
