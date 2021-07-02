@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import unittest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
@@ -95,7 +96,8 @@ def test_annual_parallax_calculation():
     t_0 = 2457479.5  # April 1 2016, a time when parallax is large
     times = np.array([t_0-1., t_0, t_0+1., t_0+1.])
     true_no_par = np.array([7.12399067, 10.0374609, 7.12399067, 7.12399067])
-    true_with_par = np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])
+    true_with_par = [
+        np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])]
 
     model_with_par = mm.Model(
         {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
@@ -125,6 +127,20 @@ def test_annual_parallax_calculation():
         model_no_par.magnification(times), true_no_par)
     np.testing.assert_almost_equal(
         model_with_par.magnification(times), true_with_par, decimal=4)
+
+class test(unittest.TestCase):
+    def test_wrong_settings(self):
+        """
+        make sure that if pi_E is defined, then at least
+        one component of parallax is True
+        """
+        model_no_par = mm.Model(
+            {'t_0': 2457479.5, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
+            coords='17:57:05 -30:22:59')
+        model_no_par.parallax(
+            satellite=False, earth_orbital=False, topocentric=False)
+        with self.assertRaises(ValueError):
+            model_no_par.magnification(2457500.)
 
 
 def do_get_delta_annual_test(filename):

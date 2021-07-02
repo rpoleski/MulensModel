@@ -479,7 +479,7 @@ class ModelParameters(object):
         allowed_keys = set(parameters + ['rho', 't_star'])
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
-            msg = 'Parameters not allow in Cassan (2008) parameterization '
+            msg = 'Parameters not allowed in Cassan (2008) parameterization '
             msg += '(at this point): {:}'.format(difference)
             raise KeyError(msg)
 
@@ -666,7 +666,9 @@ class ModelParameters(object):
             return self.parameters['u_0']
         else:
             try:
-                return self.parameters['t_eff'] / self.parameters['t_E']
+                u_0_quantity = self.parameters['t_eff'] / self.parameters['t_E']
+                return (u_0_quantity + 0.).value
+                # Adding 0 ensures the units are simplified.
             except KeyError:
                 raise AttributeError(
                     'u_0 is not defined for these parameters: {0}'.format(

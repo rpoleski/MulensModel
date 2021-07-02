@@ -9,12 +9,12 @@ Tutorials MulensModel:
 
 [Examples on how to use the code](../examples/):
 * [Example 01](../examples/example_01_models.py) - plot simple point-source/point-lens (PSPL) model and model with planetary lens,
-* [Example 02](../examples/example_02_fitting.py) - fit PSPL model to the data using scipy.optimize.minimize(),
+* [Example 02](../examples/example_02_fitting.py) - fit PSPL model to the data using [scipy.optimize.minimize()](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html),
 * [Example 03](../examples/example_03_mulenssystem.py) - define PSPL model using physical properties and plot the resulting magnification curve,
 * [Example 04](../examples/example_04_einsteinring.py) - calculate the Einstein ring size for a grid of lens masses and distances,
 * [Example 05](../examples/example_05_MB08310.py) - plot multiple datasets for a single model, plot the residuals, and do this both in magnitude and magnification spaces,
-* [Example 06](../examples/example_06_fit_parallax_EMCEE.py) - fit parallax model using EMCEE,
-* [Example 07](../examples/example_07_fit_parallax_MN.py) - fit parallax model using MultiNest,
+* [Example 06](../examples/example_06_fit_parallax_EMCEE.py) - fit parallax model using [EMCEE](https://emcee.readthedocs.io/en/stable/),
+* [Example 07](../examples/example_07_fit_parallax_MN.py) - fit parallax model using [MultiNest](https://github.com/JohannesBuchner/PyMultiNest),
 * [Example 08](../examples/example_08_planet_grid_fitting.ipynb) - shows how to fit simulated WFIRST light curve with planetary model,
 * [Example 09](../examples/example_09_gradient_fitting.py) - fit point lens model using chi^2 gradient,
 * [Example 10](../examples/example_10_fitting_and_fluxes.py) - fit model and extract posterior fluxes, use [config file](../examples/example_10.cfg) to pass all parameters,
@@ -23,6 +23,7 @@ Tutorials MulensModel:
 * [Example 13](../examples/example_13_caustic_sampling.py) - fit planetary event using caustic entrance and exit epochs as parameters (uses [config file](../examples/example_13.cfg)),
 * [Example 14](../examples/example_14_caustic_plotting.py) - plot caustic using standard method and uniform sampling,
 * [Example 15](../examples/example_15_fitting.py) - fitting binary lens model with many options - use config file for [ob05390](../examples/example_15_ob05390_v1.cfg) or [mb07192](../examples/example_15_mb07192_v1.cfg); settings are read by [this file](../examples/example_15_read.py),
+* [Example 16](../examples/example_16/) - **high-level fitting example** where all settings are read from a human-readable YAML file, there is a separate description of that example in [this README file](../examples/example_16/README.md),
 * Three files producing plots presented in paper describing MulensModel: [plots_1.py](../examples/plots_1.py), [plots_2.py](../examples/plots_2.py), and [plots_3.py](../examples/plots_3.py).
 
 [MulensModel documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 

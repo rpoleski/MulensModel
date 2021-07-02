@@ -81,7 +81,7 @@ class Caustics(object):
         """
         if self._x is None or self._y is None:
             self._calculate(n_points=n_points)
-        return self._x, self._y
+        return (self._x, self._y)
 
     @property
     def critical_curve(self):
@@ -121,7 +121,8 @@ class Caustics(object):
             coeff_4 = 1.
             coeff_3 = -2. * self.s
             coeff_2 = Utils.complex_fsum([self.s**2, -eiphi])
-            coeff_1 = eiphi * (2. * self.s / (1. + self.q))
+            coeff_1 = eiphi * (2. * self.s / (1. + self.q))  # The additional
+            # parenthesis make it more stable numerically.
             coeff_0 = -self.s**2 * eiphi / (1. + self.q)
 
             # Find roots

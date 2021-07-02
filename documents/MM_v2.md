@@ -21,6 +21,7 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * Model.set\_datasets and .datasets - make sure it's always a list even if only single MulensData object is provided
 
 ### Yet unsorted/undecided:
+ * Model.set_times() - n_epochs should be None as default, so that we can check if both dt and n_epochs were set
  * Caustics.get\_caustics() should return np.arrays, not lists
  * check all NotImplementedError and maybe remove some functions/options
  * somehow change which\_parameters() in modelparameters.py - maybe remove
@@ -32,3 +33,10 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * Model.magnification has parameter flux\_ratio\_constraint but there is also Model.set\_source\_flux\_ratio() - probably there should be just one version of that - the latter seems more logical
  * binary source models - currently, I think, the source flux is visible as a 1D array, but its size is (1,) even for binary source events - make sure what's the status and either add full support of (2,) size or just change it to float
  * ModelParameters or Model internally split into classes like: PSPL, BSPL, BSBL and use inheritance; but should those also have parallax information? finite source vs. point source?; We may end up with huge number of classes, which is not good if current solution works well. The only problem is that modelparameters.py is very long. We should also check if binary-lens binary-source models work well.
+ * BinaryLens - change all *_magnification() to get_...()
+ * ModelParameters - all parameters should be float, not astropy.Quantity objects
+ * Event.get_ref_fluxes() and similar functions should not update data_ref ?
+ * Event.sum_function - change default to 'numpy.sum'
+
+### Version 3:
+ * Add an Observatory class.

@@ -9,6 +9,15 @@
 
 \begin{document} % ########################################
 
+\begin{center}
+{\LARGE Methods to calculate magnification in \MM}\\
+\bigskip
+Radek Poleski\\
+last update: Sep 2020
+\end{center}
+
+\bigskip\bigskip
+
 \MM offers a wide range of methods used to calculate magnifications. 
 These methods are passed to {\tt Model} class using 
 {\tt set\_magnification\_methods()} function.  For each method one has to 
@@ -33,6 +42,8 @@ Point lens methods:
 \begin{itemize}
 \item {\tt point\_source} -- the simplest thing that exists, also called ``Paczy\'nski curve'':\linebreak $A(u) = \left(u^2+2\right)/\left(u\sqrt{u^2+4}\right)$.
 \item {\tt finite\_source\_uniform\_Gould94} -- for the finite source with uniform profile (i.e., no limb-darkening effect) use approximation presented by Gould (1994).  It works only for small $\rho$, i.e, $\rho\lesssim0.1$.
+\item {\tt finite\_source\_uniform\_WittMao94} -- for the finite source with uniform profile use method presented by Witt and Mao (1994).  It interpolates pre-computed tables.
+\item {\tt finite\_source\_LD\_WittMao94} -- for the finite source with limb darkening integrate many uniform profiles. For each uniform profile, {\tt finite\_source\_uniform\_WittMao94} method is used. For description on how the uniform profiles are combined see, e.g., Bozza et al. (2018).
 \item {\tt finite\_source\_LD\_Yoo04} -- for the finite source with limb darkening use Yoo et al.~(2004) approximation.  It works only for small $\rho$, i.e, $\rho\lesssim0.1$.
 \item {\tt finite\_source\_uniform\_Lee09} -- for the finite source with uniform profile (Lee et al.~2009) but works well for large $\rho$ as well (e.g., $\rho = 2$).  It is significantly slower than approximate method {\tt finite\_source\_uniform\_Gould94}.
 \item {\tt finite\_source\_LD\_Lee09} -- for the finite source with limb darkening that works well for large sources (e.g., $\rho = 2$).  This method is much slower than {\tt finite\_source\_LD\_Yoo04}.

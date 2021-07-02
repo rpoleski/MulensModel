@@ -13,13 +13,32 @@ import matplotlib.pyplot as plt
 import MulensModel as mm
 
 
-def chi2_fun(theta, event, parameters_to_fit):
+def chi2_fun(theta, parameters_to_fit, event):
     """
-    for given event set attributes from parameters_to_fit (list of
-    str) to values from theta list
+    Calculate chi2 for given values of parameters
+
+    Keywords :
+        theta: *np.ndarray*
+            Vector of parameter values, e.g.,
+            `np.array([5380., 0.5, 20.])`.
+
+        parameters_to_fit: *list* of *str*
+            List of names of parameters corresponding to theta, e.g.,
+            `['t_0', 'u_0', 't_E']`.
+
+        event: *MulensModel.Event*
+            Event which has datasets for which chi2 will be calculated.
+
+    Returns :
+        chi2: *float*
+            Chi2 value for given model parameters.
     """
-    for (key, val) in enumerate(parameters_to_fit):
-        setattr(event.model.parameters, val, theta[key])
+    # First we have to change the values of parameters in
+    # event.model.parameters to values given by theta.
+    for (parameter, value) in zip(parameters_to_fit, theta):
+        setattr(event.model.parameters, parameter, value)
+
+    # After that, calculating chi2 is trivial:
     return event.get_chi2()
 
 
@@ -31,25 +50,26 @@ data = mm.MulensData(file_name=SAMPLE_FILE_01)
 
 # Initialize the fit
 parameters_to_fit = ["t_0", "u_0", "t_E"]
+# Approximate values of the parameters are needed:
 t_0 = 5380.
 u_0 = 0.5
-t_E = 18.
+t_E = 25.
 model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Link the data and the model
-ev = mm.Event(datasets=data, model=model)
-print('Initial Trial\n{0}'.format(ev.model.parameters))
+event = mm.Event(datasets=data, model=model)
+print('Initial Trial\n{0}'.format(event.model.parameters))
 
 # Find the best-fit parameters
 initial_guess = [t_0, u_0, t_E]
 result = op.minimize(
-    chi2_fun, x0=initial_guess, args=(ev, parameters_to_fit),
+    chi2_fun, x0=initial_guess, args=(parameters_to_fit, event),
     method='Nelder-Mead')
 print(result.x)
 (fit_t_0, fit_u_0, fit_t_E) = result.x
 
 # Save the best-fit parameters
-chi2 = chi2_fun(result.x, ev, parameters_to_fit)
+chi2 = chi2_fun(result.x, parameters_to_fit, event)
 
 # Output the fit parameters
 msg = 'Best Fit: t_0 = {0:12.5f}, u_0 = {1:6.4f}, t_E = {2:8.3f}'
@@ -79,8 +99,8 @@ plt.legend(loc='best')
 
 # Plot the fitted model with the data
 plt.figure()
-ev.plot_data()
-ev.plot_model(color='red')
+event.plot_data()
+event.plot_model(color='red')
 plt.title('Data and Fitted Model')
 
 plt.show()

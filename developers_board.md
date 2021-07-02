@@ -1,29 +1,23 @@
-## Nov & Dec goals:
-1. make plans for MM v2.0
-2. get pypi/pip website
-4. list of examples in a separate file, change order 01<->02 - _DONE_
+# MOST IMPORTANT NOW:
+1. UC 16 - make it ready for e-mail annoucement
+6. remove unused branches - FSPL_no_Bozza, some other ones?
+7. check notes below
 10. _are we using VBBL with improvements from 2018 paper?_
-3. **code not yet well documented** - see below; DONE ALREADY: Event.fit, MagnificationCurve, PointLens, and 3 Trajectory ones
-5. triple lens - test [ob07349](https://ui.adsabs.harvard.edu/#abs/2016AJ....152..125B/abstract) to see if center of mass can reference point for t0 and u0
-6. triple lens caustics
-7. triple lens - plan use cases and unit tests - note in [documents/TRIPLE\_LENS.md](documents/TRIPLE_LENS.md)
-8. "reset" triple\_lens branch? (i.e., copy code, remove branch, start new branch e.g. tripleLens, use the code copied at begin)
-9. [documents/TRIPLE\_LENS.md](documents/TRIPLE_LENS.md) - make notes in order there
-10. check triple lens use cases in master branch
-11. \_check\_valid\_combination\_1\_source\_standard() is extremely long - divide it into smaller functions - _DONE_
-12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it's != t\_0
-13. Event - not .fit after get\_chi2(), but there is one after get\_chi2\_for\_dataset() - _DONE_
+3. **code not yet well documented** - see below
+12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it is != t\_0
+14. **chi2 gradient for finite source effects.** (requested by JCY)
+10. "import MulensModel as mm" everywhere: binarylens.py pointlens.py use_cases/->30,31,34 examples/run_time_tests/check_system.py examples/checks.py TUTORIALS
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
 
 _italics_ mark important tasks
 
-Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
+Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
 
 * Install
-  * **makefile for Windows (basic instructions exist already) [good example](https://stackoverflow.com/a/145649), [checking for Windows in makefile](https://github.com/dariomanesku/cmft/issues/28)**
-  * PIP install - the problem some time ago ws that CustomInstall from setup.py was run when the archive is prepared, not when it's run on users machine; [link 1](https://packaging.python.org/tutorials/packaging-projects/), [link 2](https://setuptools.readthedocs.io/en/latest/setuptools.html), [link 3 - seems to be most official](https://packaging.python.org/)
+  * **PYPI website** - some links: [1](https://docs.python.org/3.7/extending/index.html) [2](https://github.com/dariomanesku/cmft/issues/28)
+  * **test Windows installation**
   * in setup.py in setup() add keywords: long\_description, classifiers
   * virtualenv; pip install -r requirements.txt; its best to install the dependencies first
   * more metadata in setup.py
@@ -35,15 +29,9 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Add \_\_repr\_\_ functions to Lens and Source
   * **code not yet well documented - some should changed to private in V2.0.0**: 
     * RA & Dec in coordinates.py (maybe also code it better)
-    * _Event.fit seems to be not documented_
     * Horizons.file\_properties
-    * MagnificationCurve.trajectory
     * MulensData.plot\_properties
-    * PointLens.parameters
     * SatelliteSkyCoord.ephemerides\_file
-    * Trajectory.times
-    * Trajectory.parameters
-    * Trajectory.satellite\_skycoord
     * Trajectory.earth\_coords - not implemented, so maybe remove?
   * Include full documentation via setup.py data\_files mechanism.
   * note that all plotting functions require plt.show() or plt.save()
@@ -51,7 +39,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * add a note that pi\_E is "geocentric" (and "heliocentric" has the same length of vector but is rotated)
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
   * make sure that website shows correct version of MM
-  * note that we're not checking for negative source or blending flux
+  * note that we are not checking for negative source or blending flux
   * add a list of public datasets: [VVV paper](https://ui.adsabs.harvard.edu/abs/2019arXiv190704339N/abstract) was published?, add link to K2/MCPM?; LINK the file [documents/public\_data\_list.md](documents/public_data_list.md) somewhere
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
@@ -59,15 +47,23 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * finish use cases
     * _source\_flux\_ratio added to ModelParameters_
     * Fit.fit\_fluxes docstring to be updated
-    * which\_parameters() - note that it doesn't work for binary source parameters, but the parameters work properly; just BSPL and rho\_2 etc. are optional
+    * which\_parameters() - note that it doesnt work for binary source parameters, but the parameters work properly; just BSPL and rho\_2 etc. are optional
     * models with fixed no blending: fit\_blending keyword changes
     * parallax models
     * binary source - there should be one Fit less in Event.get\_chi2xxx functions - if there are 2 sources, then calculate magnification and use F\_S = F\_S\_1+F\_S\_2 and get it from self.model.fit; most probably adding some function to Fit would help
-    * binary lens binary source
+    * test binary-lens binary-source 
     * different t\_E for each source (correct Model.set\_times)
     * test binary source with exactly one rho\_X defined
+    * add t\_eff\_1, t\_eff\_2
   * **Magnification function provided by the user - already started in user\_method branch; also this could be used to model variable source events - note that**
-  * _triple lens - use cases, point source, hexadecapole..._
+  * **triple lens** 
+    * test [ob07349](https://ui.adsabs.harvard.edu/#abs/2016AJ....152..125B/abstract) to see if center of mass can reference point for t0 and u0
+    * caustics calculations
+    * plan use cases and unit tests - note in [documents/TRIPLE\_LENS.md](documents/TRIPLE_LENS.md)
+    * "reset" triple\_lens branch? (i.e., copy code, remove branch, start new branch e.g. tripleLens, use the code copied at begin)
+    * [documents/TRIPLE\_LENS.md](documents/TRIPLE_LENS.md) - make notes in order there
+    * check triple lens use cases in master branch
+    * use cases, point source, hexadecapole...
   * triple source calculations
   * Finite Source
     * FSPL with low magnification - do [Witt & Mao 94](https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract) or [Witt 95](https://ui.adsabs.harvard.edu/abs/1995ApJ...449...42W/abstract) give the right formulas?
@@ -80,7 +76,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
     * mapmaking version which adds new rays as needed (but remember that it runs for fixed (s,q) only!)
-    * Yossi's idea to find all the images
+    * Yossi idea to find all the images
   * Orbital motion like in [VBBL 2.0](https://arxiv.org/abs/1805.05653)
   * calculate jerk parallax degeneracy: [Park+04](https://ui.adsabs.harvard.edu/abs/2004ApJ...609..166P/abstract) [Gould 04](https://ui.adsabs.harvard.edu/abs/2004ApJ...606..319G/abstract)  
   * topocentric/Earth parallax
@@ -88,7 +84,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * elliptical source magnification [Heyrovsky & Loeb 1997](https://ui.adsabs.harvard.edu/abs/1997ApJ...490...38H/abstract)
   * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
   * fit\_blending for only some of the datasets
-  * _wrapper for ESPLMag2 from VBBL_
   * _blending flux fixed at user-specified value - requires use case_
 * Parameterization
   * Cassan 2008 binary lens parameters:
@@ -103,7 +98,6 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
   * [Jung+17](https://ui.adsabs.harvard.edu/abs/2017AJ....153..129J/abstract) - rotating triple lens - somehow special version of xallarap
 * Function Improvements/Expansion:
   * BinaryLens class:
-    * _are we using VBBL with improvements from 2018 paper?_
     * _VBBL2.0 - are we using accuracy limit as default? If so then we should switch to relative accuracy_
     * should BinaryLens() accept source\_x/y as lists or arrays?
     * function for center of mass shift (currently: shift\_x in trajectory.py, x\_shift in binarylens.py, xcm\_offset in caustics.py)
@@ -184,6 +178,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * plot\_lc() should have satellite\_skycoord keyword as plot\_magnification() has
     * plot\_source and binary sources - allow different kwargs for each of the sources?
     * check\_if\_caustic\_crossing() function can be added - for non-parallax, no-orbital motion it requires calculation of cusps positions for each caustic and checking if they are on the same side of the trajectory
+    * try/except in pyplot commands and catch AttributeError - these may be miss-spelling etc.
   * ModelParameters class:
     * _values in dimensionless astropy.quantity should be changed to float, other types should be rejected (unless it's a time unit etc.)_
     * _LaTeX strings with parameters names (useful e.g. for corner plots or tables with results)_
@@ -213,9 +208,11 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * for plotting X for bad data use large size and/or thinner line
     * separate colors (or even kwargs) for X-es as an option (to get contrasting colors see https://itsphbytes.wordpress.com/2016/08/29/complementary-colors-python-code/)
   * PointLens class:
+    * make WM method faster: 1) interpolation done once for many values; 2) interpolate different function; 3) allow changing number of annuli; 4) divide A by 2 different functions (z<1 or z>1) and interpolate these - like in VBBL (arguments of interpolation are: 1) (rho, z), 2) (log rho, log z) etc.)
     * add [Witt and Atrio-Barandela 2019](https://arxiv.org/abs/1906.08378)?
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
     * 1+2/u^4 approximation for very large u
+    * try to remove sympy and use scipy instead (not possible in Sep 2020, because there is no elliptical integral of third kind in scipy)
   * SatelliteSkyCoord class:
     * attach magnification\_methods to SatelliteSkyCoord so that they overwrite Model and MagnificationCurve settings when given SatelliteSkyCoord is used
   * Trajectory class:
@@ -244,13 +241,14 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * _plt.plot() .scatter() and .errorbar() should share default colors, so that when you plot one dataset and one model and don't set colors, then they are of different colors_
     * for plotting functions option to pass pyplot.Axis and pyplot.Figure instances and call e.g. Axis.scatter() instead of pyplot.scatter(); for a simple example see [here](https://github.com/rpoleski/K2-CPM/blob/master/source/K2CPM/plot_utils.py)
     * subplots with shared X-axis (plt.subplots(2, 1, sharex=True, gridspec\_kw={'height\_ratios': [4, 1]}, figsize=???, dpi=100)) - start in Example 5
-    * add option to plot satellite coordinates as in Henderson+16 where K2 and Spitzer orbits were compared
+    * add option to plot satellite coordinates as in Henderson+16 where K2 and Spitzer orbits were compared; i.e., make Trajectory.\_get\_delta\_satellite() public and add appropriate example
     * add plotting with fit\_blending=False for functions that use magnitude space
     * add plt.xlim() and ylim in plotting functions (using t\_start) etc.; then also update (simplify) tutorials, examples etc.
     * caustics for trajectory plot with single lens models
     * plot upper limits instead of photometry with negative flux
   * Examples:
     * _Hamiltonian MCMC [link 1](http://arogozhnikov.github.io/2016/12/19/markov_chain_monte_carlo.html) and [link 2](https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/) and [link 3](https://colindcarroll.com/2019/04/11/hamiltonian-monte-carlo-from-scratch/)_
+    * example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/)
     * _plot many models from posterior_
     * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
@@ -274,6 +272,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * add Coordinates.velocity\_of\_Earth() example
     * Example 13 - make x\_caustic\_in/\_out periodic variables
     * add example with well-known code like [https://mc-stan.org/](https://mc-stan.org/)
+    * MulensData.bad needs example note that one has to substitute full vector, not single values
   * Miscellaneous:
     * _COVERAGE : "coverage run --source MulensModel -m py.test" and then "coverage report" or "coverage report -m" or "coverage html" (and then open htmlcov/index.html); https://coverage.readthedocs.io/en/v4.5.x/_
     * u\_0 sign for satellite or just parallax model - some way of following u(t) evolution
@@ -294,6 +293,7 @@ Changes for planned v2 are here: [documents/MM_v2.md](documents/MM_v2.md)
     * [documents/TODO.md](documents/TODO.md) file - move content and remove
     * add transformation Jacobians, see: Batista+11 and Skowron+11
     * use cython, numba, pypy or similar (numba seems best) to speed-up calculations in Lee+09 and/or Cassan08
+    * remove "import *" from \_\_init\_\_.py and mulensobjects/\_\_init\_\_.py
 * Other Tests:
   * test\_event\_chi2\_gradient() - add parallax without flux gradient
   * add unit tests for Horizons and MulensData.satellite\_skycoord
@@ -324,11 +324,8 @@ ob9919 - [Smith et al. 2002](https://ui.adsabs.harvard.edu/abs/2002MNRAS.336..67
 [Dong et al. 2009](https://ui.adsabs.harvard.edu/abs/2009ApJ...695..970D/abstract), 
 ob07514 - [Miyake+12](https://ui.adsabs.harvard.edu/abs/2012ApJ...752...82M/abstract), 
 mb10328 - [Furusawa et al. 2013](https://ui.adsabs.harvard.edu/abs/2013ApJ...779...91F/abstract), 
-ob130911 - [Miyazaki et al. 2019](https://arxiv.org/abs/1912.09613) 
-
-[Poindexter et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...633..914P/abstract) - 23% of events are affected by xallarap
-
-ob07368 - [Sumi et al. 2010](https://ui.adsabs.harvard.edu/abs/2010ApJ...710.1641S/abstract) and [Suzuki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...833..145S/abstract)
-
-ob150845 = mb15277 - Calen leads
-
+ob130911 - [Miyazaki et al. 2019](https://arxiv.org/abs/1912.09613), 
+[Poindexter et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...633..914P/abstract) - 23% of events are affected by xallarap, 
+ob07368 - [Sumi et al. 2010](https://ui.adsabs.harvard.edu/abs/2010ApJ...710.1641S/abstract) and [Suzuki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...833..145S/abstract), 
+ob150845 = mb15277 - Calen leads, 
+Roman predictions - [Miyazaki+20](https://arxiv.org/abs/2010.10315), 

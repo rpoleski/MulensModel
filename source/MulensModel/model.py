@@ -27,11 +27,15 @@ class Model(object):
             see
             :py:class:`MulensModel.modelparameters.ModelParameters`
 
-        :py:obj:`coords`: [*list*, *str*, *astropy.SkyCoords*], optional
-            Sky Coordinates of the event.
+        :py:obj:`coords`: *str*, *astropy.SkyCoords*,
+        *MulensModel.Coordsinates*, optional
+
+            Sky coordinates of the event. If type is *str*, then it is
+            assumed that the units are hour angle and degrees for RA and Dec,
+            respectively.
 
         ra, dec: *str*, optional
-            Sky Coordinates of the event.
+            Sky coordinates of the event.
 
         ephemerides_file: *str*, optional
             Specify name of the file with satellite ephemerides. See
@@ -642,10 +646,10 @@ class Model(object):
             n_epochs=1000):
         """
         Return a list of times. If no keywords are specified, default
-        is 1000 epochs from [:math:`t_0 - 1.5 * t_E`,
-        :math:`t_0 + 1.5 * t_E`].
+        is 1000 epochs from [:math:`t_0 - 1.5 * t_E`, :math:`t_0 + 1.5 * t_E`]
+        range.
         For binary source models, respectively, smaller and larger of
-        `t_0_1/2` values are used.
+        `t_0_1`/`t_0_2` values are used.
 
         Parameters (all optional):
             t_range: [*list*, *tuple*]
@@ -660,8 +664,15 @@ class Model(object):
             n_epochs: *int*
                 the number of epochs (evenly spaced)
 
+        Returns :
+            times: *np.ndarray*
+                Vector of epochs.
         """
         if t_range is not None:
+            if t_start is not None or t_stop is not None:
+                raise ValueError(
+                    'Model.set_times() - you cannot set t_range and either ' +
+                    't_start or t_stop')
             t_start = t_range[0]
             t_stop = t_range[1]
 
@@ -684,9 +695,13 @@ class Model(object):
         if dt is None:
             if n_epochs is None:
                 n_epochs = 1000
+            n_epochs -= 1
             dt = (t_stop - t_start) / float(n_epochs)
 
-        return np.arange(t_start, t_stop+dt, dt)
+        out = np.arange(t_start, t_stop+dt, dt)
+        if out[-1] > t_stop:  # This may happen due to rounding errors.
+            out = out[:-1]
+        return out
 
     def set_magnification_methods(self, methods, source=None):
         """
@@ -1018,12 +1033,13 @@ class Model(object):
         """
         # Check for type
         if not isinstance(time, np.ndarray):
-            if isinstance(time, (np.float, float)):
+            if isinstance(time, (np.float, float, np.int, int)):
                 time = np.array([time])
             elif isinstance(time, list):
                 time = np.array(time)
             else:
-                raise TypeError('time must be a float, list, or np.ndarray')
+                raise TypeError(
+                    'time must be a float, int, list, or np.ndarray')
 
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)

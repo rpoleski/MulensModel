@@ -82,8 +82,7 @@ class MulensData(object):
             Flags for good data, should be the same length as the
             number of data points.
 
-        .. _plot_properties:
-          plot_properties: *dict*, optional
+        plot_properties: *dict*, optional
             Specify properties for plotting, e.g. ``color``, ``marker``,
             ``label``, ``alpha``, ``zorder``, ``markersize``, ``visible``,
             and also the ``show_bad`` and ``show_errorbars``
@@ -288,7 +287,7 @@ class MulensData(object):
         """
         Plot the data.
 
-        Uses plot_properties_ for label, color, etc.
+        Uses :py:attr:`plot_properties` for label, color, etc.
         This settings can be changed by setting ``**kwargs``.
 
         You can plot in either flux or magnitude space.
@@ -530,7 +529,6 @@ class MulensData(object):
         Sky coordinates of data.
         See :py:class:`~MulensModel.coordinates.Coordinates`.
         """
-        # JCY - should this be deprecated?
         return self._coords
 
     @coords.setter

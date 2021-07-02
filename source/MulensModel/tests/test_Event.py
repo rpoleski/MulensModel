@@ -13,7 +13,9 @@ SAMPLE_FILE_01 = join(dir_, "OB08092", "phot_ob08092_O4.dat")
 SAMPLE_FILE_02 = join(dir_, "OB140939", "ob140939_OGLE.dat")
 SAMPLE_FILE_03 = join(dir_, "OB03235", "OB03235_OGLE.tbl.txt")
 SAMPLE_FILE_04 = join(dir_, "OB03235", "OB03235_MOA.tbl.txt")
-
+SAMPLE_FILE_310_01 = join(dir_, "MB08310", "MOA_0300089_PLC_007.tbl")
+SAMPLE_FILE_310_02 = join(dir_, "MB08310", "Bron_0300089_PLC_002.tbl")
+SAMPLE_FILE_310_03 = join(dir_, "MB08310", "CTIO_I_0300089_PLC_005.tbl")
 
 def test_model_event_coords():
     """
@@ -390,6 +392,45 @@ def test_chi2_gradient_2():
     event.model.parameters.t_0 -= 0.1
     result_3 = event.fits[1].get_chi2_gradient(chi2_gradient_test_1.grad_params)
     np.testing.assert_almost_equal(result_3 / reference, 1., decimal=4)
+
+def _test_event_chi2_gradient_rho():
+    """test calculation of chi2 gradient including finite source effects"""
+    # MB08310 is the example
+    # Set datasets
+    datasets = [mm.MulensData(file_name=SAMPLE_FILE_310_01, bandpass='R'),
+                mm.MulensData(file_name=SAMPLE_FILE_310_02, bandpass='U'),
+                mm.MulensData(file_name=SAMPLE_FILE_310_03, bandpass='I')]
+
+    # Setup Model
+    gamma_I, gamma_V = (0.44, 0.72)
+    t_0 = 2454656.39975
+    u_0 = 0.00300
+    t_E = 11.14
+    rho = 0.00492549
+    t_star = rho * t_E
+    parameters = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho}
+    model = mm.Model(parameters)
+    method = 'finite_source_LD_Yoo04'
+    model.set_magnification_methods(
+        [t_0 - 2. * t_star, method, t_0 + 2. * t_star])
+    model.set_limb_coeff_gamma('R', (gamma_V + gamma_I) / 2.)
+    model.set_limb_coeff_gamma('U', (gamma_V + gamma_I) / 2.)
+    model.set_limb_coeff_gamma('I', gamma_I)
+
+    # Set expected values
+    # JCY - see sandbox/rho_gradient on pink laptop
+    params = parameters.keys
+    gradient = {'t_0': 1283513.3068849628, 'u_0': 20492801.742886964,
+                't_E': -9573.3589902395161, 'rho': -1503911.2409404013}
+    reference = np.array([gradient[key] for key in params])
+
+    # Create event and run test
+    event = mm.Event(model=model, datasets=datasets)
+    #result = event.chi2_gradient(params, fit_blending=False)
+
+    #print(result)
+    #print(reference)
+    #np.testing.assert_almost_equal(reference / result, 1., decimal=2)
 
 
 def test_get_ref_fluxes():

@@ -2,7 +2,7 @@ import numpy as np
 import math
 import warnings
 
-import MulensModel as MM
+import MulensModel as mm
 
 
 class UniformCausticSampling(object):
@@ -97,7 +97,7 @@ class UniformCausticSampling(object):
         self._q = q
         self._n_points = n_points
 
-        self._n_caustics = MM.utils.Utils.get_n_caustics(s=self.s, q=self.q)
+        self._n_caustics = mm.utils.Utils.get_n_caustics(s=self.s, q=self.q)
         self._get_phi()
         self._integrate()
         self._find_inflections_and_correct()
@@ -373,7 +373,8 @@ class UniformCausticSampling(object):
         """
         if (x_caustic_in < 0. or x_caustic_in > 1. or
                 x_caustic_out < 0. or x_caustic_out > 1. or
-                t_caustic_in >= t_caustic_out):
+                t_caustic_in >= t_caustic_out or
+                x_caustic_in == x_caustic_out):
             msg = 'Wrong input in get_standard_parameters(): {:} {:} {:} {:}'
             raise ValueError(msg.format(x_caustic_in, x_caustic_out,
                                         t_caustic_in, t_caustic_out))
