@@ -96,8 +96,7 @@ def test_annual_parallax_calculation():
     t_0 = 2457479.5  # April 1 2016, a time when parallax is large
     times = np.array([t_0-1., t_0, t_0+1., t_0+1.])
     true_no_par = np.array([7.12399067, 10.0374609, 7.12399067, 7.12399067])
-    true_with_par = [
-        np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])]
+    true_with_par = np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])
 
     model_with_par = mm.Model(
         {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
@@ -111,7 +110,7 @@ def test_annual_parallax_calculation():
     model_with_par.parameters.t_0_par = 2457479.
 
     model_no_par = mm.Model(
-        {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
+        {'t_0': t_0, 'u_0': 0.1, 't_E': 10.},
         coords='17:57:05 -30:22:59')
     #model_no_par.set_datasets([data])
     model_no_par.parallax(
