@@ -35,7 +35,7 @@ def lnprob(theta, event, parameters_to_fit):
 
 # Initialize the model
 parameters_to_fit = ["t_0", "u_0", "t_E"]
-parameters_values = [2457500., 0.5, 100.]
+parameters_values = [2455400., 0.5, 30.]
 parameters_steps = [1., 0.01, 1.]
 
 model = mm.Model(
@@ -46,7 +46,7 @@ print("Initial", model.parameters)
 # Read in the data
 file_ = os.path.join(mm.DATA_PATH, "photometry_files",
                      "OB08092", "phot_ob08092_O4.dat")
-data = mm.MulensData(file_name=file_)
+data = mm.MulensData(file_name=file_, add_2450000=True)
 
 # Set up the Event
 event = mm.Event(datasets=data, model=model)
