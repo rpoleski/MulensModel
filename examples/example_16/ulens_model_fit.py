@@ -962,7 +962,7 @@ class UlensModelFit(object):
 
         n = 0
         for (i, dataset) in enumerate(self._datasets):
-            k = len(self._event.fit.flux_of_sources(dataset)) + 1
+            k = len(self._event.fits[i].source_fluxes) + 1
             # Plus 1 is for blending.
             if i == 0:
                 self._n_fluxes_per_dataset = k
@@ -1245,9 +1245,9 @@ class UlensModelFit(object):
         Extract all fluxes and return them in a list.
         """
         fluxes = []
-        for dataset in self._datasets:
-            fluxes += self._event.fit.flux_of_sources(dataset).tolist()
-            fluxes.append(self._event.fit.blending_flux(dataset))
+        for i, dataset in enumerate(self._datasets):
+            fluxes += self._event.fits[i].source_fluxes.tolist()
+            fluxes.append(self._event.fits[i].blend_flux)
 
         return fluxes
 
@@ -1469,17 +1469,21 @@ class UlensModelFit(object):
 
         axes = plt.subplot(grid[0])
         self._event.plot_data(**kwargs)
+        fluxes = self._event.get_ref_fluxes()
         # Plot models below, first ground-based (if needed),
         # then satellite ones (if needed).
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
-                self._model.plot_lc(**kwargs_model)
+                # new_fit requires source and blend flux
+                self._model.plot_lc(
+                    source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
                 break
-        fluxes = self._model.get_ref_fluxes()
+
         for model in self._models_satellite:
             model.parameters.parameters = {**self._model.parameters.parameters}
-            model.plot_lc(f_source=fluxes[0], f_blend=fluxes[1],
+            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
                           **kwargs_model)
+
         if len(self._datasets) > 1:
             plt.legend()
         plt.xlim(*xlim)
@@ -1564,34 +1568,33 @@ class UlensModelFit(object):
         Use t_1 and t_2 to limit the data considered.
         """
         padding = 0.05
-        phot_fmt = 'mag'
 
         y_1 = y_3 = np.inf
         y_2 = y_4 = -np.inf
-        i_data_ref = self._event.model.data_ref
-        (f_source_0, f_blend_0) = self._event.model.get_ref_fluxes(
-            data_ref=self._datasets[i_data_ref])
+        i_data_ref = self._event.data_ref
+        (f_source_0, f_blend_0) = self._event.get_ref_fluxes()
 
-        for data in self._datasets:
+        for i, data in enumerate(self._datasets):
             mask = (data.time >= t_1) & (data.time <= t_2)
             if np.sum(mask) == 0:
-                self._event.model.data_ref = i_data_ref
+                self._event.data_ref = i_data_ref
                 continue
-            (f_source, f_blend) = self._event.model.get_ref_fluxes(
-                data_ref=data)
+
+            (f_source, f_blend) = self._event.get_flux_for_dataset(data)
             flux = f_source_0 * (data.flux - f_blend) / f_source
             flux += f_blend_0
             err_flux = f_source_0 * data.err_flux / f_source
-            (y_value, y_err) = data._get_y_value_y_err(phot_fmt,
-                                                       flux, err_flux)
-            self._event.model.data_ref = i_data_ref
+            (y_value, y_err) = data._get_y_value_y_err(
+                'mag', flux, err_flux)
+            self._event.data_ref = i_data_ref
 
             err_mag = data.err_mag[mask]
             y_1 = min(y_1, np.min((y_value - y_err)[mask]))
             y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
-            residuals = self._model.get_residuals(
-                data=data, type=phot_fmt)[0][0][mask]
+            residuals = self._event.fits[i].get_residuals(
+                phot_fmt='scaled', source_flux=f_source_0,
+                blend_flux=f_blend_0)[0][mask]
             mask_ = np.isfinite(residuals)
             y_3 = min(y_3, np.min((residuals - err_mag)[mask_]))
             y_4 = max(y_4, np.max((residuals + err_mag)[mask_]))

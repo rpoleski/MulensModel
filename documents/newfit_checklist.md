@@ -66,8 +66,8 @@ I think I did this, but I also might have been side-tracked by adding unit tests
 
 ## Check all Examples and Use Cases STILL Work
 - Unit Tests completed
-- Examples completed EXCEPT: 07, 08, 16 (which hasn't been merged in for some 
-  reason.)
+- Examples completed EXCEPT: 07, 08
+- Example 16 appears to work
 - Use cases: 01, 03, 08, 10, 12, 13, 15, 16, 17, 20, 23, 24, 25, 26b, 27, 29, 30,
     32, 33, 34, 37
   - open issues: 18
