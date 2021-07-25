@@ -1245,7 +1245,7 @@ class UlensModelFit(object):
         Extract all fluxes and return them in a list.
         """
         fluxes = []
-        for i, dataset in enumerate(self._datasets):
+        for (i, dataset) in enumerate(self._datasets):
             fluxes += self._event.fits[i].source_fluxes.tolist()
             fluxes.append(self._event.fits[i].blend_flux)
 
@@ -1574,7 +1574,7 @@ class UlensModelFit(object):
         i_data_ref = self._event.data_ref
         (f_source_0, f_blend_0) = self._event.get_ref_fluxes()
 
-        for i, data in enumerate(self._datasets):
+        for (i, data) in enumerate(self._datasets):
             mask = (data.time >= t_1) & (data.time <= t_2)
             if np.sum(mask) == 0:
                 self._event.data_ref = i_data_ref

@@ -77,11 +77,11 @@ for file_name in file_names:
 
 # Close-- model
 params = {'t_0': 2457568.7692, 'u_0': 0.05321, 't_E': 9.96, 'rho': 0.00290,
-     'pi_E_N': -0.2154, 'pi_E_E': -0.380,
-     'alpha': np.rad2deg(-0.9684), 's': 0.9842, 'q': 0.0000543}
+          'pi_E_N': -0.2154, 'pi_E_E': -0.380,
+          'alpha': np.rad2deg(-0.9684), 's': 0.9842, 'q': 0.0000543}
 model = MulensModel.Model(params)
 
-methods = [7560., 'VBBL', 7580.]
+methods = [2457560., 'VBBL', 2457580.]
 
 model.set_magnification_methods(methods)
 model.set_default_magnification_method('point_source_point_lens')
@@ -90,7 +90,8 @@ event = MulensModel.Event(datasets=datasets, model=model,
                           coords="17:55:23.50 -30:12:26.1")
 
 # Which parameters we want to fit?
-parameters_to_fit = ["t_0", "u_0", "t_E", "pi_E_N", "pi_E_E", "fsKCT01", "fsSpitzer"]
+parameters_to_fit = ["t_0", "u_0", "t_E", "pi_E_N", "pi_E_E", "fsKCT01",
+                     "fsSpitzer"]
 # And remember to provide dispersions to draw starting set of points
 sigmas = [0.01, 0.001, 0.1, 0.01, 0.01, 0.01, 0.01]
 
@@ -117,9 +118,10 @@ samples = sampler.chain[:, n_burn:, :].reshape((-1, n_dim))
 # Results:
 results = np.percentile(samples, [16, 50, 84], axis=0)
 print("Fitted parameters:")
-for i in range(n_dim):
+fmt = "{:} {:.5f} {:.5f} {:.5f}"
+for (i, parameter) in enumerate(parameters_to_fit):
     r = results[1, i]
-    print("{:} {:.5f} {:.5f} {:.5f}".format(parameters_to_fit[i], r, results[2, i]-r, r-results[0, i]))
+    print(fmt.format(parameter, r, results[2, i]-r, r-results[0, i]))
 
 # We extract best model parameters and chi2 from the chain:
 prob = sampler.lnprobability[:, n_burn:].reshape((-1))

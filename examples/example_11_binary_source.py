@@ -8,6 +8,7 @@ with source flux ratio as a chain parameter.
 import os
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 try:
     import emcee
 except ImportError as err:
@@ -16,12 +17,8 @@ except ImportError as err:
     print("Get it from: http://dfm.io/emcee/current/user/install/")
     print("and re-run the script")
     sys.exit(1)
-import matplotlib.pyplot as plt
 
 import MulensModel as mm
-
-# Fix the seed for the random number generator so the behavior is reproducible.
-np.random.seed(12343)
 
 
 # Fix the seed for the random number generator so the behavior is reproducible.

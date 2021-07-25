@@ -20,20 +20,22 @@ model_2 = mm.Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
 
 
 def generate_time_vector(n_a, n_b):
+    """Generate sorted array simulating survey + follow-up time vector."""
     time_a = np.linspace(6000., 6300., n_a)
     time_b = np.linspace(6139., 6141., n_b)
     time = np.sort(np.concatenate((time_a, time_b)))
     return time
 
 
-def generate_dataset(time, fluxes, flux_err=6):
-    (flux_1, flux_2, blend_flux) = fluxes
+def generate_dataset(time, flux_1, flux_2, blend_flux, flux_err,
+                     model_1, model_2):
+    """Generate simulated dataset assuming binary source model."""
     A_1 = model_1.magnification(time)
     A_2 = model_2.magnification(time)
     flux = A_1 * flux_1 + A_2 * flux_2 + blend_flux
-    flux_err = 6. + 0. * time
+    err_flux = flux_err + 0. * time
     flux += flux_err * np.random.normal(size=len(time))
-    my_dataset = mm.MulensData([time, flux, flux_err], phot_fmt='flux')
+    my_dataset = mm.MulensData([time, flux, err_flux], phot_fmt='flux')
     return my_dataset
 
 
@@ -42,15 +44,17 @@ assumed_flux_2 = 5.
 assumed_flux_blend = 10.
 n_a = 1000
 n_b = 600
+flux_err = 6.
+
 time = generate_time_vector(n_a, n_b)
 my_dataset = generate_dataset(
-    time, (assumed_flux_1, assumed_flux_2, assumed_flux_blend), flux_err=6)
+    time, assumed_flux_1, assumed_flux_2, assumed_flux_blend, flux_err,
+    model_1, model_2)
 
 time_2 = generate_time_vector(int(n_a / 5), int(n_b / 5))
 my_dataset_2 = generate_dataset(
-    time_2, (assumed_flux_1/2., assumed_flux_2/2., assumed_flux_blend/2.),
-    flux_err=12.)
-
+    time_2, assumed_flux_1/2., assumed_flux_2/2., assumed_flux_blend/2.,
+    2.*flux_err, model_1, model_2)
 
 # Model
 params = {'t_0_1': t_0_1, 'u_0_1': u_0_1, 't_0_2': t_0_2, 'u_0_2': u_0_2,

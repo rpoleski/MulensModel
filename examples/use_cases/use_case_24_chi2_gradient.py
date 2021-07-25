@@ -84,9 +84,9 @@ print(result)
 
 # Plot and compare the two models
 init_model = mm.Model(dict(t_0=t_0, u_0=u_0, t_E=t_E))
-init_ev = mm.Event(model=init_model, datasets=data)
+init_event = mm.Event(model=init_model, datasets=data)
 plt.figure()
-init_ev.plot_model(label='Initial Trial')
+init_event.plot_model(label='Initial Trial')
 ev.plot_model(label='Final Model')
 plt.title('Difference b/w Input and Fitted Model')
 plt.legend(loc='best')

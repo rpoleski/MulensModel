@@ -1,8 +1,9 @@
 import numpy as np
 import warnings
+import astropy.units as u
+
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils
-import astropy.units as u
 
 
 class FitData:
