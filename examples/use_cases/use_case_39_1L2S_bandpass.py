@@ -1,10 +1,11 @@
-import MulensModel as mm
-import matplotlib.pyplot as plt
-
 """
 Show magnification curves in different bands for a binary source event with 
 finite source effects and color dependent effects.
 """
+import matplotlib.pyplot as plt
+
+import MulensModel as mm
+
 
 raise NotImplementedError('limb-darkening for multiple sources not implemented.')
 

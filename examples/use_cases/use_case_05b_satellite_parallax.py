@@ -22,7 +22,7 @@ moa_data = mm.MulensData(
 spitzer_data = mm.MulensData(
     file_name='Spitzer File Name', satellite='Spitzer',  # this keyword does not work.
     plot_properties = {'label': 'Spitzer', 'color': 'red'})
-kepler _data = mm.MulensData(
+kepler_data = mm.MulensData(
     file_name='Kepler File Name', satellite='Kepler',
     plot_properties={'label': 'Kepler', 'color': 'blue'})
 
@@ -48,9 +48,9 @@ print('Event Parallax Settings:')
 print(event.model.parallax())
 
 # Make Nice Plots
-event.plot_data(, subtract_2450000=True))
+event.plot_data(subtract_2450000=True)
 event.plot_model(color='black', subtract_2450000=True)
-event.plot_model(satellite='Spitzer', color='red', subtract_2450000=True))
-event.plot_model(satellite='Kepler', color='blue', subtract_2450000=True))
+event.plot_model(satellite='Spitzer', color='red', subtract_2450000=True)
+event.plot_model(satellite='Kepler', color='blue', subtract_2450000=True)
 plt.legend()
 plt.show()
