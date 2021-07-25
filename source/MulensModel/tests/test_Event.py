@@ -694,9 +694,9 @@ class TestFixedFluxes(unittest.TestCase):
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
         np.testing.assert_almost_equal(
-            fluxes_1, (self.f_source_1, self.f_blend_1))
+            (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
         np.testing.assert_almost_equal(
-            fluxes_2, (self.f_source_2, self.f_blend_2))
+            (fluxes_2[0][0], fluxes_2[1]), (self.f_source_2, self.f_blend_2))
 
     def test_fixed_blend_fluxes_1(self):
         # test one is fixed at zero, the other is free.
@@ -706,11 +706,10 @@ class TestFixedFluxes(unittest.TestCase):
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
         np.testing.assert_almost_equal(
-            fluxes_1, (self.f_source_1, self.f_blend_1))
+            (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
         np.testing.assert_almost_equal(
             fluxes_2[0] / (self.f_source_2 + self.f_blend_2), 1., decimal=2)
-        np.testing.assert_almost_equal(
-            fluxes_2[1], 0.)
+        np.testing.assert_almost_equal(fluxes_2[1], 0.)
 
     def test_fixed_blend_fluxes_2(self):
         # test one is fixed at value, the other is free.
@@ -720,11 +719,10 @@ class TestFixedFluxes(unittest.TestCase):
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
         np.testing.assert_almost_equal(
-            fluxes_1, (self.f_source_1, self.f_blend_1))
+            (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
         np.testing.assert_almost_equal(
-            fluxes_2[0] / (self.f_source_2 + self.f_blend_2 - 1.), 1., decimal=2)
-        np.testing.assert_almost_equal(
-            fluxes_2[1], 1.)
+            fluxes_2[0][0], self.f_source_2 + self.f_blend_2 - 1., decimal=2)
+        np.testing.assert_almost_equal(fluxes_2[1], 1.)
 
     def test_fixed_blend_fluxes_3(self):
         # test both fixed at zero.
@@ -751,12 +749,13 @@ class TestFixedFluxes(unittest.TestCase):
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
         np.testing.assert_almost_equal(
-            fluxes_1, (self.f_source_1, self.f_blend_1))
+            (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
         np.testing.assert_almost_equal(
-            fluxes_2[0], fixed_source_flux)
+            fluxes_2[0][0], fixed_source_flux)
+
         np.testing.assert_almost_equal(
-            fluxes_2[1] / (self.f_source_2 - fixed_source_flux + self.f_blend_2),
-            1., decimal=2)
+            fluxes_2[1], self.f_source_2 - fixed_source_flux + self.f_blend_2,
+            decimal=2)
 
     def test_fixed_source_fluxes_2(self):
         # test both fixed at values.

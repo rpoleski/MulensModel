@@ -27,20 +27,16 @@ def test_model_coords():
 
 def test_event_coords():
     coord_str_event = '15h30m00s +45d00m00s'
-    data = mm.MulensData(
-        file_name=SAMPLE_FILE_01,
-        coords='00:00:15 -75:30:15')
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.})
 
     event = mm.Event(datasets=data, model=model, coords='15:30:00 45:00:00')
     assert event.coords.to_string('hmsdms') == coord_str_event
     assert event.model.coords.to_string('hmsdms') == coord_str_event
 
-    coord_str_data = '00h00m15s -75d30m15s'
-    data.coords = '00:00:15 -75:30:15'
     event_2 = mm.Event(coords='15:30:00 45:00:00')
     event_2.datasets = [data]
-    assert event_2.coords.to_string('hmsdms') == coord_str_data
+    assert event_2.coords.to_string('hmsdms') == coord_str_event
 
     event_3 = mm.Event(datasets=data, model=model, coords='15:30:00 45:00:00')
     event_3.model.coords = '5:10:15 20:25:30'
