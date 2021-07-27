@@ -1,8 +1,10 @@
+"""
+Convenience functions for plotting.
+"""
 from matplotlib.colors import ColorConverter
 import numpy as np
-from MulensModel.utils import Utils
 
-"""Convenience functions for plotting."""
+from MulensModel.utils import Utils
 
 
 def _get_y_value_y_err(phot_fmt, flux, flux_err):
@@ -33,7 +35,6 @@ def _subtract_xlabel(subtract_2450000, subtract_2460000):
     """
     string that would be past to plt.xlabel()
     """
-    # JCY --> plot_functions.py?
     if subtract_2450000:
         if subtract_2460000:
             raise ValueError('subtract_2450000 and subtract_2460000 ' +
