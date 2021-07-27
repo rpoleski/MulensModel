@@ -4,7 +4,8 @@ use_case_30_fit_fluxes.py
 Assume you want (some) of the fluxes to be freely fitted parameters, e.g.
 so you can measure the uncertainty in the color.
 
-Adapted from example_06_fit_parallax_EMCEE.py and use_case_25_flux_constraint.py
+Adapted from example_06_fit_parallax_EMCEE.py and
+use_case_25_flux_constraint.py
 New functionality marked by # *** NEW ***
 """
 import os
@@ -135,11 +136,10 @@ print(best_chi2)
 # *** NEW ***
 # Compare to the Color constraint for OB161195 (I_KMT - L_Spitzer)
 (source_color, sigma_color) = (0.78, 0.03)
-plt.hist(-2.5*np.log10(samples[:,5] / samples[:,6]), bins=25)
+plt.hist(-2.5*np.log10(samples[:, 5] / samples[:, 6]), bins=25)
 plt.axvline(source_color, linestyle='-', color='black')
 plt.axvline(source_color - sigma_color, linestyle=':', color='black')
 plt.axvline(source_color + sigma_color, linestyle=':', color='black')
 plt.xlabel('(I-L)')
 plt.show()
 # *** END NEW ***
-

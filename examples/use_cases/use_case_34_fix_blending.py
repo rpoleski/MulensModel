@@ -1,22 +1,22 @@
-import os
-import MulensModel
-import scipy.optimize as op
-
 """
 use_case_34_fix_blending.py
 
 Fix the blending for one observatory to a non-zero value.
 
-This example is modeled after real-time fitting procedures, so the 
+This example is modeled after real-time fitting procedures, so the
 input datasets are truncated.
 
-For this event, the catalog star in KMT is I > 20. Thus, a fake blending flux 
+For this event, the catalog star in KMT is I > 20. Thus, a fake blending flux
 has been added so the baseline is I=20. Thus, for a fixed blending fit, it is
 appropriate to fix the blending at the value added to the baseline star.
 
 Adapted from use_case_24_chi2_gradient.py
 New functionality marked by # *** NEW ***
 """
+import os
+import MulensModel
+import scipy.optimize as op
+
 
 class Minimizer(object):
     """
@@ -56,7 +56,8 @@ for i, file_name in enumerate(file_names):
     file_ = os.path.join(dir_, file_name)
     datasets.append(
         MulensModel.MulensData(
-            file_name=file_, add_2450000=True, usecols=[0,3,4], phot_fmt='mag'))
+            file_name=file_, add_2450000=True, usecols=[0, 3, 4],
+            phot_fmt='mag'))
 
 # Calculate the amount of blending flux that was added.
 Icat = 21.89
@@ -64,7 +65,8 @@ fcat = MulensModel.Utils.get_flux_from_mag(Icat)
 fblend = MulensModel.Utils.get_flux_from_mag(20.) - fcat
 # *** END NEW ***
 
-# Fit t_0, t_E for several, fixed values of u_0 with fixed blending = added flux
+# Fit t_0, t_E for several, fixed values of u_0 with
+# fixed blending = added flux
 # e.g. to assess whether or not the event could be high-magnification
 parameters_to_fit = ["t_0", "t_E"]
 for u_0 in [0.0, 0.01, 0.1]:
@@ -86,7 +88,4 @@ for u_0 in [0.0, 0.01, 0.1]:
 
     chi2 = minimizer.chi2_fun(result.x)
     print(chi2, u_0, result.x)
-    print(minimizer.event.fluxes) # *** NEW ***
-
-
-
+    print(minimizer.event.fluxes)  # *** NEW ***
