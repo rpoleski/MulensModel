@@ -17,7 +17,7 @@ def chi2_fun(theta, event, parameters_to_fit):
     """
     for (theta_, parameter) in zip(theta, parameters_to_fit):
         if parameter[0] == 'q':
-            setattr(event.fix_q_flux, parameter[2:], theta_)
+            setattr(event.fix_source_flux_ratio, parameter[2:], theta_)
         else:
             setattr(event.model.parameters, parameter, theta_)
 
