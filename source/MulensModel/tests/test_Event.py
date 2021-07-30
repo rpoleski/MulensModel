@@ -343,7 +343,7 @@ def test_chi2_gradient():
     reference = np.array(
         [chi2_gradient_test_1.gradient[key] for key in
          chi2_gradient_test_1.grad_params])
-    np.testing.assert_almost_equal(reference / result, 1., decimal=1)
+    np.testing.assert_almost_equal(reference / result, 1., decimal=4)
 
     # changing something w/o updating: gives old values
     event.model.parameters.t_0 += 0.1
