@@ -713,16 +713,6 @@ class TestFixedFluxes(unittest.TestCase):
         fluxes_2 = event.get_flux_for_dataset(self.data_2)
         return (fluxes_1, fluxes_2)
 
-    def test_free_fluxes(self):
-        """test fit for all fluxes free"""
-        event = mm.Event(datasets=self.datasets, model=self.model)
-        (fluxes_1, fluxes_2) = self.extract_fluxes(event)
-
-        np.testing.assert_almost_equal(fluxes_1[0][0], self.f_source_1)
-        np.testing.assert_almost_equal(fluxes_1[1], self.f_blend_1)
-        np.testing.assert_almost_equal(fluxes_2[0][0], self.f_source_2)
-        np.testing.assert_almost_equal(fluxes_2[1], self.f_blend_2)
-
     def test_fixed_blend_fluxes_1(self):
         """
         test fix no blending flux for second dataset and all other fluxes free
@@ -761,6 +751,20 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[0][0], self.expected_1)
         np.testing.assert_almost_equal(fluxes_2[1], 0.)
 
+    def test_fixed_source_and_blend_fluxes(self):
+        # test one blend fixed at zero and the other source fixed.
+        event = mm.Event(
+            datasets=self.datasets, model=self.model,
+            fix_source_flux={self.data_1: self.constrain_3},
+            fix_blend_flux={self.data_2: self.constrain_2})
+        event.fit_fluxes()
+        (fluxes_1, fluxes_2) = event.fluxes
+
+        np.testing.assert_almost_equal(fluxes_1[0], self.constrain_3)
+        np.testing.assert_almost_equal(fluxes_1[1], self.expected_4)
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.expected_5)
+        np.testing.assert_almost_equal(fluxes_2[1], self.constrain_2)
+
     def test_fixed_source_fluxes_1(self):
         # test one is fixed at value, the other is free.
         event = mm.Event(
@@ -788,19 +792,15 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[0][0], self.constrain_2)
         np.testing.assert_almost_equal(fluxes_2[1], self.expected_6)
 
-    def test_fixed_source_and_blend_fluxes(self):
-        # test one blend fixed at zero and the other source fixed.
-        event = mm.Event(
-            datasets=self.datasets, model=self.model,
-            fix_source_flux={self.data_1: self.constrain_3},
-            fix_blend_flux={self.data_2: self.constrain_2})
-        event.fit_fluxes()
-        (fluxes_1, fluxes_2) = event.fluxes
+    def test_free_fluxes(self):
+        """test fit for all fluxes free"""
+        event = mm.Event(datasets=self.datasets, model=self.model)
+        (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
-        np.testing.assert_almost_equal(fluxes_1[0], self.constrain_3)
-        np.testing.assert_almost_equal(fluxes_1[1], self.expected_4)
-        np.testing.assert_almost_equal(fluxes_2[0][0], self.expected_5)
-        np.testing.assert_almost_equal(fluxes_2[1], self.constrain_2)
+        np.testing.assert_almost_equal(fluxes_1[0][0], self.f_source_1)
+        np.testing.assert_almost_equal(fluxes_1[1], self.f_blend_1)
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.f_source_2)
+        np.testing.assert_almost_equal(fluxes_2[1], self.f_blend_2)
 
 
 class TestFixedFluxRatios(unittest.TestCase):
@@ -929,7 +929,6 @@ class TestFixedFluxRatios(unittest.TestCase):
                   self.q_V * self.data_properties[key]['f_source_V']],
                  self.data_properties[key]['f_blend_V']))
 
-    # Tests
     def extract_fluxes(self, event):
         """ Return a list of fitted fluxes for all datasets"""
         event.fit_fluxes()
@@ -938,39 +937,6 @@ class TestFixedFluxRatios(unittest.TestCase):
             fluxes.append(event.get_flux_for_dataset(i))
 
         return fluxes
-
-    def test_free_fluxes(self):
-        # test both q_flux free. Should give original values
-        event = mm.Event(datasets=self.datasets, model=self.model)
-        fluxes = self.extract_fluxes(event)
-        for (i, dataset) in enumerate(self.datasets):
-            np.testing.assert_almost_equal(
-                fluxes[i][0][0] / self.expected_fluxes[i][0][0], 1.)
-            np.testing.assert_almost_equal(
-                fluxes[i][0][1] / self.expected_fluxes[i][0][1], 1.)
-            np.testing.assert_almost_equal(
-                fluxes[i][1] / self.expected_fluxes[i][1], 1.)
-            np.testing.assert_almost_equal(event.get_chi2_for_dataset(i), 0.)
-
-    def test_fixed_q_I_flux(self):
-        """test the case that q_I is fixed"""
-        q_I_value = 0.012
-
-        event = mm.Event(datasets=self.datasets, model=self.model)
-        event.fix_source_flux_ratio = {'I': q_I_value}
-        fluxes = self.extract_fluxes(event)
-        for (i, dataset) in enumerate(self.datasets):
-            if dataset.bandpass == 'I':
-                # the ratio of q_I should be identical to the set value
-                np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], q_I_value)
-                assert event.get_chi2_for_dataset(i) > 1
-            elif dataset.bandpass == 'V':
-                # the ratio of q_V should be the input value
-                np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], self.q_V)
-                np.testing.assert_almost_equal(
-                    event.get_chi2_for_dataset(i), 0.)
 
     def test_both_q_fixed(self):
         """test the case that q_I is fixed"""
@@ -992,6 +958,38 @@ class TestFixedFluxRatios(unittest.TestCase):
 
             assert event.get_chi2_for_dataset(i) > 1
 
+    def test_fixed_q_I_flux(self):
+        """test the case that q_I is fixed"""
+        q_I_value = 0.012
+
+        event = mm.Event(datasets=self.datasets, model=self.model)
+        event.fix_source_flux_ratio = {'I': q_I_value}
+        fluxes = self.extract_fluxes(event)
+        for (i, dataset) in enumerate(self.datasets):
+            if dataset.bandpass == 'I':
+                # the ratio of q_I should be identical to the set value
+                np.testing.assert_almost_equal(
+                    fluxes[i][0][1] / fluxes[i][0][0], q_I_value)
+                assert event.get_chi2_for_dataset(i) > 1
+            elif dataset.bandpass == 'V':
+                # the ratio of q_V should be the input value
+                np.testing.assert_almost_equal(
+                    fluxes[i][0][1] / fluxes[i][0][0], self.q_V)
+                np.testing.assert_almost_equal(
+                    event.get_chi2_for_dataset(i), 0.)
+
+    def test_free_fluxes(self):
+        # test both q_flux free. Should give original values
+        event = mm.Event(datasets=self.datasets, model=self.model)
+        fluxes = self.extract_fluxes(event)
+        for (i, dataset) in enumerate(self.datasets):
+            np.testing.assert_almost_equal(
+                fluxes[i][0][0] / self.expected_fluxes[i][0][0], 1.)
+            np.testing.assert_almost_equal(
+                fluxes[i][0][1] / self.expected_fluxes[i][0][1], 1.)
+            np.testing.assert_almost_equal(
+                fluxes[i][1] / self.expected_fluxes[i][1], 1.)
+            np.testing.assert_almost_equal(event.get_chi2_for_dataset(i), 0.)
 
 # Tests to add:
 #
