@@ -671,9 +671,16 @@ class TestFixedFluxes(unittest.TestCase):
         self.n_tE = 100
         self.flux_uncertainty = 0.01
 
-        self.expected_1 = None
-        self.expected_2 = None
-        self.expected_3 = None
+        self.constrain_1 = 1.
+        self.constrain_2 = 3.
+        self.constrain_3 = 1.1
+
+        self.expected_1 = 5.455106739005208
+        self.expected_2 = 4.485035579668404
+        self.expected_3 = 3.910213477978024
+        self.expected_4 = 2.898667067448723
+        self.expected_5 = 2.544893260994792
+        self.expected_6 = 2.5133293255121805
 
         self.generate_two_fake_datasets()
 
@@ -707,41 +714,39 @@ class TestFixedFluxes(unittest.TestCase):
         return (fluxes_1, fluxes_2)
 
     def test_free_fluxes(self):
-        # test both free
+        """test fit for all fluxes free"""
         event = mm.Event(datasets=self.datasets, model=self.model)
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
-        np.testing.assert_almost_equal(
-            (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
-        np.testing.assert_almost_equal(
-            (fluxes_2[0][0], fluxes_2[1]), (self.f_source_2, self.f_blend_2))
+        np.testing.assert_almost_equal(fluxes_1[0][0], self.f_source_1)
+        np.testing.assert_almost_equal(fluxes_1[1], self.f_blend_1)
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.f_source_2)
+        np.testing.assert_almost_equal(fluxes_2[1], self.f_blend_2)
 
     def test_fixed_blend_fluxes_1(self):
-        # test one is fixed at zero, the other is free.
+        """
+        test fix no blending flux for second dataset and all other fluxes free
+        """
         event = mm.Event(
             datasets=self.datasets, model=self.model,
             fix_blend_flux={self.data_2: 0.})
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
-        np.testing.assert_almost_equal(
-            (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
-#        print(fluxes_2[0], self.f_source_2 + self.f_blend_2) # expected_1
-        np.testing.assert_almost_equal(
-            fluxes_2[0][0] / (self.f_source_2 + self.f_blend_2), 1., decimal=2)
+        np.testing.assert_almost_equal(fluxes_1[0][0], self.f_source_1)
+        np.testing.assert_almost_equal(fluxes_1[1], self.f_blend_1)
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.expected_1)
         np.testing.assert_almost_equal(fluxes_2[1], 0.)
 
     def test_fixed_blend_fluxes_2(self):
         # test one is fixed at value, the other is free.
         event = mm.Event(
             datasets=self.datasets, model=self.model,
-            fix_blend_flux={self.data_2: 1.})
+            fix_blend_flux={self.data_2: self.constrain_1})
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
-        np.testing.assert_almost_equal(
-            (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
-#        print(fluxes_2[0][0], self.f_source_2 + self.f_blend_2 - 1.) # expected_2
-        np.testing.assert_almost_equal(
-            fluxes_2[0][0], self.f_source_2 + self.f_blend_2 - 1., decimal=2)
+        np.testing.assert_almost_equal(fluxes_1[0][0], self.f_source_1)
+        np.testing.assert_almost_equal(fluxes_1[1], self.f_blend_1)
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.expected_2)
         np.testing.assert_almost_equal(fluxes_2[1], 1.)
 
     def test_fixed_blend_fluxes_3(self):
@@ -751,76 +756,51 @@ class TestFixedFluxes(unittest.TestCase):
             fix_blend_flux={self.data_1: 0., self.data_2: 0.})
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
-#        print(fluxes_1[0], self.f_source_1 + self.f_blend_1)
-        np.testing.assert_almost_equal(
-            fluxes_1[0][0] / (self.f_source_1 + self.f_blend_1), 1., decimal=1) # expected_3
+        np.testing.assert_almost_equal(fluxes_1[0][0], self.expected_3)
         np.testing.assert_almost_equal(fluxes_1[1], 0.)
-#        print(fluxes_2[0], self.f_source_2 + self.f_blend_2)
-        np.testing.assert_almost_equal(
-            fluxes_2[0][0] / (self.f_source_2 + self.f_blend_2), 1., decimal=2) # expected_1
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.expected_1)
         np.testing.assert_almost_equal(fluxes_2[1], 0.)
 
     def test_fixed_source_fluxes_1(self):
         # test one is fixed at value, the other is free.
-        fixed_source_flux = 3.
         event = mm.Event(
             datasets=self.datasets, model=self.model,
-            fix_source_flux={self.data_2: fixed_source_flux})
+            fix_source_flux={self.data_2: self.constrain_2})
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
         np.testing.assert_almost_equal(
             (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
-        np.testing.assert_almost_equal(
-            fluxes_2[0][0], fixed_source_flux)
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.constrain_2)
 
-        np.testing.assert_almost_equal(
-            fluxes_2[1], self.f_source_2 - fixed_source_flux + self.f_blend_2,
-            decimal=2)
+        np.testing.assert_almost_equal(fluxes_2[1], self.expected_6)
 
     def test_fixed_source_fluxes_2(self):
         # test both fixed at values.
-        fixed_source_flux_1 = 1.1
-        fixed_source_flux_2 = 3.
         event = mm.Event(
             datasets=self.datasets, model=self.model,
             fix_source_flux={
-                self.data_2: fixed_source_flux_2,
-                self.data_1: fixed_source_flux_1})
+                self.data_2: self.constrain_2,
+                self.data_1: self.constrain_3})
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
-        np.testing.assert_almost_equal(
-            fluxes_1[0], fixed_source_flux_1)
-        np.testing.assert_almost_equal(
-            fluxes_1[1] / (self.f_source_1 - fixed_source_flux_1 + self.f_blend_1),
-            1., decimal=2)
-        np.testing.assert_almost_equal(
-            fluxes_2[0], fixed_source_flux_2)
-        np.testing.assert_almost_equal(
-            fluxes_2[1] / (self.f_source_2 - fixed_source_flux_2 + self.f_blend_2),
-            1., decimal=2)
+        np.testing.assert_almost_equal(fluxes_1[0][0], self.constrain_3)
+        np.testing.assert_almost_equal(fluxes_1[1], self.expected_4)
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.constrain_2)
+        np.testing.assert_almost_equal(fluxes_2[1], self.expected_6)
 
     def test_fixed_source_and_blend_fluxes(self):
         # test one blend fixed at zero and the other source fixed.
-        fixed_source_flux_1 = 1.1
-        fixed_blend_flux_2 = 3.
         event = mm.Event(
             datasets=self.datasets, model=self.model,
-            fix_source_flux={self.data_1: fixed_source_flux_1},
-            fix_blend_flux={self.data_2: fixed_blend_flux_2})
-        # (fluxes_1, fluxes_2) = self.extract_fluxes(event)
+            fix_source_flux={self.data_1: self.constrain_3},
+            fix_blend_flux={self.data_2: self.constrain_2})
         event.fit_fluxes()
         (fluxes_1, fluxes_2) = event.fluxes
 
-        np.testing.assert_almost_equal(
-            fluxes_1[0], fixed_source_flux_1)
-        np.testing.assert_almost_equal(
-            fluxes_1[1] / (self.f_source_1 - fixed_source_flux_1 + self.f_blend_1),
-            1., decimal=2)
-        np.testing.assert_almost_equal(
-            fluxes_2[0] / (self.f_source_2 + self.f_blend_2 - fixed_blend_flux_2),
-            1, decimal=1)
-        np.testing.assert_almost_equal(
-            fluxes_2[1], fixed_blend_flux_2)
+        np.testing.assert_almost_equal(fluxes_1[0], self.constrain_3)
+        np.testing.assert_almost_equal(fluxes_1[1], self.expected_4)
+        np.testing.assert_almost_equal(fluxes_2[0][0], self.expected_5)
+        np.testing.assert_almost_equal(fluxes_2[1], self.constrain_2)
 
 
 class TestFixedFluxRatios(unittest.TestCase):
