@@ -11,6 +11,7 @@ Once the changes are accepted to be made, **mark them in the code using warnings
    * Model.reset\_plot\_properties() will be removed
    * Model.set\_source\_flux\_ratio\_for\_band
  * fit\_blending maybe should be class property, not an option, or maybe even it should be MulensData property! - This change should simplify Event, Model, and Fit functions where we see many "if fit\_blending:" or passing fit\_blending to other functions.
+ * example_06: refactor to create a MySampler(emcee.EnsembleSampler) class with functions for extracting median/confidence intervals and best sample, etc.
 
 ### Minor changes:
  * Delete ModelParameters.pi\_E and leave pi\_E\_N and pi\_E\_E - it's not really used and just complicates the code inside
