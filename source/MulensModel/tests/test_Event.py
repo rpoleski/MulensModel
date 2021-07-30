@@ -17,6 +17,7 @@ SAMPLE_FILE_310_01 = join(dir_, "MB08310", "MOA_0300089_PLC_007.tbl")
 SAMPLE_FILE_310_02 = join(dir_, "MB08310", "Bron_0300089_PLC_002.tbl")
 SAMPLE_FILE_310_03 = join(dir_, "MB08310", "CTIO_I_0300089_PLC_005.tbl")
 
+
 def test_model_event_coords():
     """
     Check if coordinates are properly passed from Model to Event.
@@ -162,6 +163,7 @@ def test_chi2_vs_get_chi2():
     np.testing.assert_almost_equal(ev.get_chi2(), 459.09826, decimal=4)
     np.testing.assert_almost_equal(ev.chi2, 459.09826, decimal=4)
 
+
 def test_event_get_chi2_double_source_simple():
     """
     basic test on ob08092 OGLE-IV data
@@ -275,6 +277,7 @@ class TestEvent(unittest.TestCase):
         with self.assertRaises(TypeError):
             ev = mm.Event(datasets='some_string')
 
+
 class Chi2GradientTest():
 
     def __init__(self, parameters=None, grad_params=None, gradient=None):
@@ -298,6 +301,7 @@ chi2_gradient_test_2 = Chi2GradientTest(
               'pi_E_N': -187878.357, 'pi_E_E': 129162.927,
               'f_source': -83124.5869, 'f_blend': -78653.242})
 
+
 def test_event_chi2_gradient():
     """test calculation of chi2 gradient"""
 
@@ -307,13 +311,15 @@ def test_event_chi2_gradient():
     # New method for fixing blending
     for test in [chi2_gradient_test_1]:
         event = mm.Event(
-            model=mm.Model(test.parameters), fix_blend_flux={data: 0.}, **kwargs)
+            model=mm.Model(test.parameters), fix_blend_flux={data: 0.},
+            **kwargs)
         result = event.get_chi2_gradient(test.grad_params)
         reference = np.array([test.gradient[key] for key in test.grad_params])
         np.testing.assert_almost_equal(reference/result, 1., decimal=4)
 
         result = event.chi2_gradient
         np.testing.assert_almost_equal(reference/result, 1., decimal=4)
+
 
 class TestGradient(unittest.TestCase):
 
@@ -367,8 +373,8 @@ def test_chi2_gradient():
 
 def test_chi2_gradient_2():
     """
-    Double-up on the gradient test, i.e. duplicate the dataset and check that the
-    gradient values double.
+    Double-up on the gradient test, i.e. duplicate the dataset and check that
+    the gradient values double.
     """
     reference = np.array(
         [chi2_gradient_test_1.gradient[key] for key in
@@ -387,11 +393,14 @@ def test_chi2_gradient_2():
 
     # Change something and test fit.get_chi2_gradient
     event.model.parameters.t_0 += 0.1
-    result_2 = event.fits[1].get_chi2_gradient(chi2_gradient_test_1.grad_params)
+    result_2 = event.fits[1].get_chi2_gradient(
+        chi2_gradient_test_1.grad_params)
     assert result_2[0] != result_1[0]
     event.model.parameters.t_0 -= 0.1
-    result_3 = event.fits[1].get_chi2_gradient(chi2_gradient_test_1.grad_params)
+    result_3 = event.fits[1].get_chi2_gradient(
+        chi2_gradient_test_1.grad_params)
     np.testing.assert_almost_equal(result_3 / reference, 1., decimal=4)
+
 
 def _test_event_chi2_gradient_rho():
     """test calculation of chi2 gradient including finite source effects"""
@@ -426,11 +435,11 @@ def _test_event_chi2_gradient_rho():
 
     # Create event and run test
     event = mm.Event(model=model, datasets=datasets)
-    #result = event.chi2_gradient(params, fit_blending=False)
+    # result = event.chi2_gradient(params, fit_blending=False)
 
-    #print(result)
-    #print(reference)
-    #np.testing.assert_almost_equal(reference / result, 1., decimal=2)
+    # print(result)
+    # print(reference)
+    # np.testing.assert_almost_equal(reference / result, 1., decimal=2)
 
 
 def test_get_ref_fluxes():
@@ -506,6 +515,7 @@ def generate_binary_source_models():
 
     return (model, model_1, model_2)
 
+
 def generate_binary_source_datasets(model_1, model_2):
     # prepare fake data:
     time = np.linspace(4900., 5200., 600)
@@ -517,6 +527,7 @@ def generate_binary_source_datasets(model_1, model_2):
     data_2 = mm.MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
 
     return (data_1, data_2)
+
 
 def test_event_chi2_binary_source_2datasets():
     """
@@ -547,6 +558,7 @@ def test_event_chi2_binary_source_2datasets():
     event.fit_fluxes()
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
 
+
 def test_get_flux_for_dataset():
     """ Test that get_flux_for_dataset behaves as expected under various
     conditions. """
@@ -563,7 +575,6 @@ def test_get_flux_for_dataset():
     (source_fluxes, blend_flux) = event.get_flux_for_dataset(data_2)
     np.testing.assert_almost_equal(source_fluxes, np.array([20., 30.]))
     np.testing.assert_almost_equal(blend_flux, 50.)
-
 
     # change model parameters w/o updating: gives old values
     event.model.parameters.t_E = 30.
@@ -615,6 +626,7 @@ def test_get_ref_fluxes():
     np.testing.assert_almost_equal(source_fluxes_1, np.array([100., 300.]))
     np.testing.assert_almost_equal(blend_flux_1, 50.)
 
+
 # Try get_ref_fluxes() with an event with duplicated data:
 class TestDataRef(unittest.TestCase):
     def test_1(self):
@@ -623,6 +635,7 @@ class TestDataRef(unittest.TestCase):
         with self.assertRaises(ValueError):
             event_1 = mm.Event([data_1, data_2, data_2], model)
             event_1.data_ref = data_2
+
 
 def test_get_chi2_per_point():
     """test format of output: access a specific point in an event with multiple
@@ -649,38 +662,43 @@ class TestFixedFluxes(unittest.TestCase):
     """test various combinations of fixed source and blend fluxes)"""
 
     def setUp(self):
-        self.model = mm.Model(
-            {'t_0': 8000., 'u_0': 0.3, 't_E': 25.})
+        self.model = mm.Model({'t_0': 8000., 'u_0': 0.3, 't_E': 25.})
+        self.f_source_1 = 1.
+        self.f_blend_1 = 3.
+        self.f_source_2 = 4.
+        self.f_blend_2 = 1.5
+        self.dt = 2.0
+        self.n_tE = 100
+        self.flux_uncertainty = 0.01
+
+        self.expected_1 = None
+        self.expected_2 = None
+        self.expected_3 = None
+
         self.generate_two_fake_datasets()
 
     def generate_two_fake_datasets(self):
         """
         Generate two perfect datasets with different source and blend fluxes
         """
-        self.f_source_1, self.f_blend_1 = 1.0, 3.0
-        self.f_source_2, self.f_blend_2 = 4.0, 1.5
+        t_0 = self.model.parameters.t_0
+        delta_t = self.n_tE * self.model.parameters.t_E
+        times = np.arange(t_0-delta_t, t_0+delta_t, self.dt)
 
-        def gen_data(f_source, f_blend, times):
-            flux = f_source * self.model.magnification(times) + f_blend
-            err = np.zeros(len(times)) + 0.01
-            data = mm.MulensData([times, flux, err], phot_fmt='flux')
-            return data
+        self.data_1 = self.generate_dataset(
+            self.f_source_1, self.f_blend_1, times)
 
-        dt = 2.0
-        n = 100
-        self.data_1 = gen_data(
-            self.f_source_1, self.f_blend_1,
-            np.arange(self.model.parameters.t_0 - n * self.model.parameters.t_E,
-                      self.model.parameters.t_0 + n * self.model.parameters.t_E,
-                      dt))
-        self.data_2 = gen_data(
-            self.f_source_2, self.f_blend_2,
-            np.arange(
-                self.model.parameters.t_0 - n * self.model.parameters.t_E + dt / 2.,
-                self.model.parameters.t_0 + n * self.model.parameters.t_E + dt / 2.,
-                      dt))
+        self.data_2 = self.generate_dataset(
+            self.f_source_2, self.f_blend_2, times+self.dt/2.)
 
         self.datasets = [self.data_1, self.data_2]
+
+    def generate_dataset(self, f_source, f_blend, times):
+        """generate a single dataset without noise"""
+        flux = f_source * self.model.magnification(times) + f_blend
+        err = np.zeros(len(times)) + self.flux_uncertainty
+        data = mm.MulensData([times, flux, err], phot_fmt='flux')
+        return data
 
     def extract_fluxes(self, event):
         event.fit_fluxes()
@@ -707,8 +725,9 @@ class TestFixedFluxes(unittest.TestCase):
 
         np.testing.assert_almost_equal(
             (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
+#        print(fluxes_2[0], self.f_source_2 + self.f_blend_2) # expected_1
         np.testing.assert_almost_equal(
-            fluxes_2[0] / (self.f_source_2 + self.f_blend_2), 1., decimal=2)
+            fluxes_2[0][0] / (self.f_source_2 + self.f_blend_2), 1., decimal=2)
         np.testing.assert_almost_equal(fluxes_2[1], 0.)
 
     def test_fixed_blend_fluxes_2(self):
@@ -720,6 +739,7 @@ class TestFixedFluxes(unittest.TestCase):
 
         np.testing.assert_almost_equal(
             (fluxes_1[0][0], fluxes_1[1]), (self.f_source_1, self.f_blend_1))
+#        print(fluxes_2[0][0], self.f_source_2 + self.f_blend_2 - 1.) # expected_2
         np.testing.assert_almost_equal(
             fluxes_2[0][0], self.f_source_2 + self.f_blend_2 - 1., decimal=2)
         np.testing.assert_almost_equal(fluxes_2[1], 1.)
@@ -731,14 +751,14 @@ class TestFixedFluxes(unittest.TestCase):
             fix_blend_flux={self.data_1: 0., self.data_2: 0.})
         (fluxes_1, fluxes_2) = self.extract_fluxes(event)
 
+#        print(fluxes_1[0], self.f_source_1 + self.f_blend_1)
         np.testing.assert_almost_equal(
-            fluxes_1[0] / (self.f_source_1 + self.f_blend_1), 1., decimal=1)
+            fluxes_1[0][0] / (self.f_source_1 + self.f_blend_1), 1., decimal=1) # expected_3
+        np.testing.assert_almost_equal(fluxes_1[1], 0.)
+#        print(fluxes_2[0], self.f_source_2 + self.f_blend_2)
         np.testing.assert_almost_equal(
-            fluxes_1[1], 0.)
-        np.testing.assert_almost_equal(
-            fluxes_2[0] / (self.f_source_2 + self.f_blend_2), 1., decimal=2)
-        np.testing.assert_almost_equal(
-            fluxes_2[1], 0.)
+            fluxes_2[0][0] / (self.f_source_2 + self.f_blend_2), 1., decimal=2) # expected_1
+        np.testing.assert_almost_equal(fluxes_2[1], 0.)
 
     def test_fixed_source_fluxes_1(self):
         # test one is fixed at value, the other is free.
@@ -779,7 +799,6 @@ class TestFixedFluxes(unittest.TestCase):
             fluxes_2[1] / (self.f_source_2 - fixed_source_flux_2 + self.f_blend_2),
             1., decimal=2)
 
-
     def test_fixed_source_and_blend_fluxes(self):
         # test one blend fixed at zero and the other source fixed.
         fixed_source_flux_1 = 1.1
@@ -788,7 +807,7 @@ class TestFixedFluxes(unittest.TestCase):
             datasets=self.datasets, model=self.model,
             fix_source_flux={self.data_1: fixed_source_flux_1},
             fix_blend_flux={self.data_2: fixed_blend_flux_2})
-        #(fluxes_1, fluxes_2) = self.extract_fluxes(event)
+        # (fluxes_1, fluxes_2) = self.extract_fluxes(event)
         event.fit_fluxes()
         (fluxes_1, fluxes_2) = event.fluxes
 
@@ -802,6 +821,7 @@ class TestFixedFluxes(unittest.TestCase):
             1, decimal=1)
         np.testing.assert_almost_equal(
             fluxes_2[1], fixed_blend_flux_2)
+
 
 class TestFixedFluxRatios(unittest.TestCase):
     """test various combinations of fixed flux ratios"""
@@ -896,7 +916,7 @@ class TestFixedFluxRatios(unittest.TestCase):
                 't_start': (self.model.parameters.t_0_1 -
                             n_tE * self.model.parameters.t_E),
                 't_stop': (self.model.parameters.t_0_1 +
-                          n_tE * self.model.parameters.t_E),
+                           n_tE * self.model.parameters.t_E),
                 'dt_I': 0.04, 'dt_V': 0.4, 'f_source_I': 1., 'f_blend_I': 0.2,
                 'f_source_V': 0.8, 'f_blend_V': 0.3},
             # sparse "Survey" data
@@ -934,7 +954,7 @@ class TestFixedFluxRatios(unittest.TestCase):
         """ Return a list of fitted fluxes for all datasets"""
         event.fit_fluxes()
         fluxes = []
-        for i, dataset in enumerate(self.datasets):
+        for (i, dataset) in enumerate(self.datasets):
             fluxes.append(event.get_flux_for_dataset(i))
 
         return fluxes
@@ -943,7 +963,7 @@ class TestFixedFluxRatios(unittest.TestCase):
         # test both q_flux free. Should give original values
         event = mm.Event(datasets=self.datasets, model=self.model)
         fluxes = self.extract_fluxes(event)
-        for i, dataset in enumerate(self.datasets):
+        for (i, dataset) in enumerate(self.datasets):
             np.testing.assert_almost_equal(
                 fluxes[i][0][0] / self.expected_fluxes[i][0][0], 1.)
             np.testing.assert_almost_equal(
@@ -952,7 +972,6 @@ class TestFixedFluxRatios(unittest.TestCase):
                 fluxes[i][1] / self.expected_fluxes[i][1], 1.)
             np.testing.assert_almost_equal(event.get_chi2_for_dataset(i), 0.)
 
-
     def test_fixed_q_I_flux(self):
         """test the case that q_I is fixed"""
         q_I_value = 0.012
@@ -960,7 +979,7 @@ class TestFixedFluxRatios(unittest.TestCase):
         event = mm.Event(datasets=self.datasets, model=self.model)
         event.fix_source_flux_ratio = {'I': q_I_value}
         fluxes = self.extract_fluxes(event)
-        for i, dataset in enumerate(self.datasets):
+        for (i, dataset) in enumerate(self.datasets):
             if dataset.bandpass == 'I':
                 # the ratio of q_I should be identical to the set value
                 np.testing.assert_almost_equal(
@@ -981,7 +1000,7 @@ class TestFixedFluxRatios(unittest.TestCase):
         event = mm.Event(datasets=self.datasets, model=self.model)
         event.fix_source_flux_ratio = {'I': q_I_value, 'V': q_V_value}
         fluxes = self.extract_fluxes(event)
-        for i, dataset in enumerate(self.datasets):
+        for (i, dataset) in enumerate(self.datasets):
             if dataset.bandpass == 'I':
                 # the ratio of q_I should be identical to the set value
                 np.testing.assert_almost_equal(
