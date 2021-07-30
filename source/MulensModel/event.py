@@ -49,11 +49,7 @@ class Event(object):
             :py:class:`~MulensModel.mulensdata.MulensData` object is specified,
             it will take precedence over a band.
 
-        fit: :py:class:`~MulensModel.fit.Fit` or *None*
-            Instance of :py:class:`~MulensModel.fit.Fit` class used in
-            the last calculation of chi^2 or its gradient. In can be used to
-            extract source and bleding fluxes. If no chi^2 calculation was
-            performed, then it is *None*.
+        fit: DEPRECATED
 
         data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`
             Reference dataset. If *int* then gives index of reference dataset
@@ -98,10 +94,9 @@ class Event(object):
                 self._update_coords(coords=self._model.coords)
 
         self.sum_function = 'math.fsum'
-        self.fit = None  # This should be changed to @property w/ lazy loading
 
         # Properties related to FitData
-        self.fits = None  # New property
+        self._fits = None  # New property
         self.chi2 = None
         self.fix_blend_flux = fix_blend_flux
         self.fix_source_flux = fix_source_flux
@@ -392,10 +387,7 @@ class Event(object):
         blending fluxes.
 
         Parameters :
-            fit_blending: *boolean*, optional
-                If *True*, then the blend flux is a free parameter. If
-                *False*, the blend flux is fixed at zero.  Default is
-                the same as :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
 
         Returns :
             chi2: *float*
@@ -423,10 +415,7 @@ class Event(object):
             index_dataset: *int*
                 index that specifies for which dataset the chi^2 is requested
 
-            fit_blending: *boolean*, optional
-                Are we fitting for blending flux? If not then blending flux is
-                fixed to 0.  Default is the same as
-                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
 
         Returns :
             chi2: *float*
@@ -446,10 +435,7 @@ class Event(object):
         fitting for source and blending fluxes.
 
         Parameters :
-            fit_blending: *boolean*, optional
-                Are we fitting for blending flux? If not then blending flux is
-                fixed to 0.  Default is the same as
-                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
 
         Returns :
             chi2: *list* of *np.ndarray*
@@ -491,10 +477,7 @@ class Event(object):
                 ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
                 which you request gradient must be defined in py:attr:`~model`.
 
-            fit_blending: *boolean*, optional
-                Are we fitting for blending flux? If not then blending flux is
-                fixed to 0.  Default is the same as
-                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
 
         Returns :
             gradient: *float* or *np.ndarray*
@@ -547,7 +530,7 @@ class Event(object):
         Fit for the optimal fluxes for each dataset (and its chi2)
         """
 
-        self.fits = []
+        self._fits = []
         for dataset in self.datasets:
             if dataset in self.fix_blend_flux.keys():
                 fix_blend_flux = self.fix_blend_flux[dataset]
@@ -628,7 +611,7 @@ class Event(object):
         if new_value.coords is not None:
             self._update_coords(coords=new_value.coords)
 
-        self.fits = None  # reset the fits if the model changed.
+        self._fits = None  # reset the fits if the model changed.
 
     @property
     def datasets(self):
@@ -664,7 +647,7 @@ class Event(object):
             return
 
         self._datasets = new_value
-        self.fits = None  # reset the fits if the data changed
+        self._fits = None  # reset the fits if the data changed
 
     @property
     def data_ref(self):
@@ -742,6 +725,17 @@ class Event(object):
             return self._chi2_gradient
         except AttributeError:
             return None
+
+    @property
+    def fits(self):
+        """
+        *list* of :py:class:`~MulensModel.fitdata.FitData` objects
+
+        There is one :py:class:`~MulensModel.fitdata.FitData` object for
+        each dataset containing the information for fitting the model to
+        that dataset, e.g. fitted fluxes, chi2 (for that dataset).
+        """
+        return self._fits
 
     @property
     def fluxes(self):
@@ -858,7 +852,7 @@ class Event(object):
             'fit_blending option will be deprecated in future.' +
             'To fix the blending, set Event.fix_blend_flux instead.',
             FutureWarning)
-        self.fits = None
+        self._fits = None
         if fit_blending is True:
             self.fix_blend_flux = {}
         else:
