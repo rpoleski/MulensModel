@@ -50,11 +50,11 @@ def test_event_get_chi2_1():
     np.testing.assert_almost_equal(float(chi2), 427.20382, decimal=4,
                                    err_msg='problem in resulting chi2')
 
-    ev.sum_function = 'numpy.sum'  # JCY what is the purpose of this test?
+    ev.sum_function = 'numpy.sum'
     np.testing.assert_almost_equal(
         ev.get_chi2(), 427.20382, decimal=4, err_msg='problem with numpy.sum')
 
-    # New method of fixing the blending
+    # New (v2.0) method of fixing the blending
     ev.fix_blend_flux = {}
     chi2_no_blend = ev.get_chi2()
     np.testing.assert_almost_equal(chi2_no_blend, 427.20382, decimal=4)
@@ -149,7 +149,7 @@ def test_chi2_vs_get_chi2():
     ev.model = mod
     ev.datasets = [data]
 
-    # New method of fixing the blending
+    # New (v2.0) method of fixing the blending
     ev.fix_blend_flux = {}
     np.testing.assert_almost_equal(ev.get_chi2(), 427.20382, decimal=4)
     np.testing.assert_almost_equal(ev.chi2, 427.20382, decimal=4)
@@ -208,7 +208,6 @@ def test_event_get_chi2_3():
 
     # Generate event and fit
     event = mm.Event(datasets=data, model=model)
-
     orig_chi2 = event.get_chi2()
 
     # Change the model
@@ -260,7 +259,6 @@ def test_event_get_chi2_5():
 
     chi2_1 = event_1.get_chi2()
     chi2_2 = event_2.get_chi2()
-    # The line below was failing when the test was written:
     chi2_1_2 = event_1_2.get_chi2()
     chi2_2_1 = event_2_1.get_chi2()
 
@@ -308,7 +306,7 @@ def test_event_chi2_gradient():
     data = mm.MulensData(file_name=SAMPLE_FILE_02)
     kwargs = {'datasets': [data], 'coords': '17:47:12.25 -21:22:58.7'}
 
-    # New method for fixing blending
+    # New (v2.0) method for fixing blending
     for test in [chi2_gradient_test_1]:
         event = mm.Event(
             model=mm.Model(test.parameters), fix_blend_flux={data: 0.},
@@ -324,15 +322,15 @@ def test_event_chi2_gradient():
 class TestGradient(unittest.TestCase):
 
     def test_gradient_init_1(self):
-        """test that fit_fluxes/update must be run in order to update the
-        gradient"""
-        # before fit_fluxes --> error
+        """
+        Test that fit_fluxes/update must be run before the gradient is accessed
+        """
+        data = mm.MulensData(file_name=SAMPLE_FILE_02)
+        event = mm.Event(
+            datasets=[data],
+            model=mm.Model(chi2_gradient_test_1.parameters),
+            fix_blend_flux={data: 0.})
         with self.assertRaises(TypeError):
-            data = mm.MulensData(file_name=SAMPLE_FILE_02)
-            event = mm.Event(
-                datasets=[data],
-                model=mm.Model(chi2_gradient_test_1.parameters),
-                fix_blend_flux={data: 0.})
             event.chi2_gradient()
 
 
@@ -405,13 +403,11 @@ def test_chi2_gradient_2():
 def _test_event_chi2_gradient_rho():
     """test calculation of chi2 gradient including finite source effects"""
     # MB08310 is the example
-    # Set datasets
     datasets = [mm.MulensData(file_name=SAMPLE_FILE_310_01, bandpass='R'),
                 mm.MulensData(file_name=SAMPLE_FILE_310_02, bandpass='U'),
                 mm.MulensData(file_name=SAMPLE_FILE_310_03, bandpass='I')]
 
-    # Setup Model
-    gamma_I, gamma_V = (0.44, 0.72)
+    (gamma_I, gamma_V) = (0.44, 0.72)
     t_0 = 2454656.39975
     u_0 = 0.00300
     t_E = 11.14
@@ -463,7 +459,7 @@ def test_get_ref_fluxes():
     # Table 1 of Poleski et al. 2014:
     np.testing.assert_almost_equal(f_b_1 / f_s_1, 0.016, decimal=3)
 
-    # New method for fixing the blending
+    # New (v2.0) method for fixing the blending
     (f_s_1, f_b_1) = event.get_ref_fluxes()
     event.fix_blend_flux[data] = 0.
     event.fit_fluxes()
@@ -517,7 +513,7 @@ def generate_binary_source_models():
 
 
 def generate_binary_source_datasets(model_1, model_2):
-    # prepare fake data:
+    """prepare fake data for binary source model"""
     time = np.linspace(4900., 5200., 600)
     mag_1 = model_1.magnification(time)
     mag_2 = model_2.magnification(time)
@@ -560,8 +556,10 @@ def test_event_chi2_binary_source_2datasets():
 
 
 def test_get_flux_for_dataset():
-    """ Test that get_flux_for_dataset behaves as expected under various
-    conditions. """
+    """
+    Test that get_flux_for_dataset behaves as expected under
+    various conditions.
+    """
 
     # Setup
     (model, model_1, model_2) = generate_binary_source_models()
@@ -627,21 +625,24 @@ def test_get_ref_fluxes():
     np.testing.assert_almost_equal(blend_flux_1, 50.)
 
 
-# Try get_ref_fluxes() with an event with duplicated data:
 class TestDataRef(unittest.TestCase):
     def test_1(self):
+        """
+        Try get_ref_fluxes() with an event with duplicated data
+        """
         (model, model_1, model_2) = generate_binary_source_models()
         (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
+        event_1 = mm.Event([data_1, data_2, data_2], model)
         with self.assertRaises(ValueError):
-            event_1 = mm.Event([data_1, data_2, data_2], model)
             event_1.data_ref = data_2
 
 
 def test_get_chi2_per_point():
-    """test format of output: access a specific point in an event with multiple
-    datasets"""
+    """
+    test format of output: access a specific point in an event with multiple
+    datasets
+    """
 
-    # Setup
     (model, model_1, model_2) = generate_binary_source_models()
     (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
 
@@ -728,7 +729,7 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[1], 0.)
 
     def test_fixed_blend_fluxes_2(self):
-        # test one is fixed at value, the other is free.
+        """test one is fixed at value, the other is free"""
         event = mm.Event(
             datasets=self.datasets, model=self.model,
             fix_blend_flux={self.data_2: self.constrain_1})
@@ -740,7 +741,7 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[1], 1.)
 
     def test_fixed_blend_fluxes_3(self):
-        # test both fixed at zero.
+        """test both fixed at zero"""
         event = mm.Event(
             datasets=self.datasets, model=self.model,
             fix_blend_flux={self.data_1: 0., self.data_2: 0.})
@@ -752,7 +753,7 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[1], 0.)
 
     def test_fixed_source_and_blend_fluxes(self):
-        # test one blend fixed at zero and the other source fixed.
+        """test one blend fixed at zero and the other source fixed"""
         event = mm.Event(
             datasets=self.datasets, model=self.model,
             fix_source_flux={self.data_1: self.constrain_3},
@@ -766,7 +767,7 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[1], self.constrain_2)
 
     def test_fixed_source_fluxes_1(self):
-        # test one is fixed at value, the other is free.
+        """test one is fixed at value, the other is free"""
         event = mm.Event(
             datasets=self.datasets, model=self.model,
             fix_source_flux={self.data_2: self.constrain_2})
@@ -779,7 +780,7 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[1], self.expected_6)
 
     def test_fixed_source_fluxes_2(self):
-        # test both fixed at values.
+        """test both fixed at values"""
         event = mm.Event(
             datasets=self.datasets, model=self.model,
             fix_source_flux={
@@ -810,6 +811,7 @@ class TestFixedFluxRatios(unittest.TestCase):
         # Flux ratios
         self.q_I = 0.01
         self.q_V = 0.002
+
         self.gamma = {'I': 0.44, 'V': 0.72}
 
         # Model based on binary source
@@ -830,7 +832,6 @@ class TestFixedFluxRatios(unittest.TestCase):
         """
         Generate perfect datasets with different source and blend fluxes
         """
-
         model_1 = mm.Model(self.model.parameters.source_1_parameters)
         model_2 = mm.Model(self.model.parameters.source_2_parameters)
         model_2.set_magnification_methods(self.model._methods[2])
@@ -963,7 +964,7 @@ class TestFixedFluxRatios(unittest.TestCase):
                     event.get_chi2_for_dataset(i), 0.)
 
     def test_free_fluxes(self):
-        # test both q_flux free. Should give original values
+        """test both q_flux free. Should give original values"""
         event = mm.Event(datasets=self.datasets, model=self.model)
         fluxes = self.extract_fluxes(event)
         for (i, dataset) in enumerate(self.datasets):

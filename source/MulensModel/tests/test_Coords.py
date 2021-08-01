@@ -12,6 +12,9 @@ SAMPLE_FILE_01 = os.path.join(
 
 
 def test_model_coords():
+    """
+    Test Model.coords and different changes of format.
+    """
     coords = SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
     model_1 = mm.Model({'t_0': 2450000, 'u_0': 0.1, 't_E': 100},
                        coords='18:00:00 -30:00:00')
@@ -26,6 +29,9 @@ def test_model_coords():
 
 
 def test_event_coords():
+    """
+    Test Event.coords and different changes of format.
+    """
     coord_str_event = '15h30m00s +45d00m00s'
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.})
@@ -72,7 +78,6 @@ def test_event_coords_ra_dec_1():
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.})
     event = mm.Event(datasets=data, model=model, coords=coords_str_1)
 
-    # Assertations start here.
     check_event_coords(event, ra_1, dec_1)
 
     event.coords = '{0} {1}'.format(ra_2_str, dec_2_str)
