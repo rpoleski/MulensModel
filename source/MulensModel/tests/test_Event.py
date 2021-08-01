@@ -817,12 +817,10 @@ class TestFixedFluxRatios(unittest.TestCase):
             {'t_0_1': 8000., 'u_0_1': 0.3, 't_0_2': 8001., 'u_0_2': 0.001,
              't_E': 25., 'rho_2': 0.002})
         n_tstar = 3
+        t_1 = self.model.parameters.t_0_2 - 3 * self.model.parameters.t_star_2
+        t_2 = self.model.parameters.t_0_2 + 3 * self.model.parameters.t_star_2
         self.model.set_magnification_methods(
-            [self.model.parameters.t_0_2 -
-             n_tstar * self.model.parameters.t_star_2,
-             'finite_source_LD_Yoo04',
-             self.model.parameters.t_0_2 +
-             n_tstar * self.model.parameters.t_star_2], source=2)
+            [t_1, 'finite_source_LD_Yoo04', t_2], source=2)
         self.model.set_limb_coeff_gamma('I', self.gamma['I'])
         self.model.set_limb_coeff_gamma('V', self.gamma['V'])
 
@@ -833,15 +831,8 @@ class TestFixedFluxRatios(unittest.TestCase):
         Generate perfect datasets with different source and blend fluxes
         """
 
-        model_1 = mm.Model(
-            {'t_0': self.model.parameters.t_0_1,
-             'u_0': self.model.parameters.u_0_1,
-             't_E': self.model.parameters.t_E})
-        model_2 = mm.Model(
-            {'t_0': self.model.parameters.t_0_2,
-             'u_0': self.model.parameters.u_0_2,
-             't_E': self.model.parameters.t_E,
-             'rho': self.model.parameters.rho_2})
+        model_1 = mm.Model(self.model.parameters.source_1_parameters)
+        model_2 = mm.Model(self.model.parameters.source_2_parameters)
         model_2.set_magnification_methods(self.model._methods[2])
         model_2.set_limb_coeff_gamma('I', self.gamma['I'])
         model_2.set_limb_coeff_gamma('V', self.gamma['V'])
@@ -940,21 +931,14 @@ class TestFixedFluxRatios(unittest.TestCase):
 
     def test_both_q_fixed(self):
         """test the case that q_I is fixed"""
-        q_I_value = 0.013
-        q_V_value = 0.005
+        q_values = {'I': 0.013, 'V': 0.005}
 
         event = mm.Event(datasets=self.datasets, model=self.model)
-        event.fix_source_flux_ratio = {'I': q_I_value, 'V': q_V_value}
+        event.fix_source_flux_ratio = q_values
         fluxes = self.extract_fluxes(event)
         for (i, dataset) in enumerate(self.datasets):
-            if dataset.bandpass == 'I':
-                # the ratio of q_I should be identical to the set value
-                np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], q_I_value)
-            elif dataset.bandpass == 'V':
-                # the ratio of q_V should be identical to the set value
-                np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], q_V_value)
+            np.testing.assert_almost_equal(
+                fluxes[i][0][1] / fluxes[i][0][0], q_values[dataset.bandpass])
 
             assert event.get_chi2_for_dataset(i) > 1
 
