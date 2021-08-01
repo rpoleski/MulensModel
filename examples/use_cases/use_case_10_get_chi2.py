@@ -1,7 +1,7 @@
 """
 Calculate the chi2 between a model and some data.
 """
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 from astropy import units as u
 import os
 import numpy as np
@@ -34,8 +34,7 @@ event.plot_model()
 # Get fluxes for all datasets
 fmt = "dataset {:}: F_s = {:.3f} F_b = {:.3f}"
 for (i, dataset) in enumerate(event.datasets):
-    f_source = event.fits[i].source_flux
-    f_blend = event.fits[i].blend_flux
-    print(fmt.format(i, f_source, f_blend))
+    (f_source, f_blend) = event.get_flux_for_dataset(dataset)
+    print(fmt.format(i, f_source[0], f_blend))
 
-pl.show()
+plt.show()
