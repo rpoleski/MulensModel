@@ -93,7 +93,7 @@ class Event(object):
             if self._model.coords is not None:
                 self._update_coords(coords=self._model.coords)
 
-        self.sum_function = 'math.fsum'
+        self.sum_function = 'numpy.sum'
 
         # Properties related to FitData
         self._fits = None  # New property
@@ -793,8 +793,8 @@ class Event(object):
         *str*
 
         Function used for adding chi^2 contributions. Can be either
-        'math.fsum' (default value) or 'numpy.sum'.
-        The former is slightly slower and more accurate,
+        'numpy.sum' (default value) or 'math.fsum'.
+        The latter is slightly slower and more accurate,
         which may be important for large datasets.
         """
         return self._sum_function
