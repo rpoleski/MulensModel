@@ -59,10 +59,10 @@ class FitData:
                     self.gamma = self.model.get_limb_coeff_gamma(
                         self.dataset.bandpass)
                 except KeyError:
-                    warnings.warn(
-                        'Dataset bandpass is {0} '.format(self.dataset.bandpass) +
-                        'but model does not have a limb-darkening coefficient ' +
-                        'for {0}. Assuming zero.'.format(self.dataset.bandpass))
+                    msg = (
+                        'Dataset bandpass is {0} but model does not have a ' +
+                        'limb-darkening coefficient for {0}. Assuming zero.')
+                    warnings.warn(msg.format(self.dataset.bandpass))
 
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
