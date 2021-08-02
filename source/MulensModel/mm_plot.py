@@ -9,16 +9,50 @@ from MulensModel.utils import Utils
 
 def _get_y_value_y_err(phot_fmt, flux, flux_err):
     """
-    just calculate magnitudes if needed, or return input otherwise
+    Change the format of data for Y axis.
+
+    Parameters :
+        phot_fmt: *str*
+            Requested format of output: 'mag' or 'flux'
+
+        flux: *np.ndarray*
+            fluxes values for Y axis
+
+        flux_err: *np.ndarray*
+            flux uncertainties for Y axis
+
+    Returns :
+        values: *np.ndarray*
+            Values in the requested format
+
+        uncertainties: *np.ndarray*
+            Uncertainties in the requested format
     """
     if phot_fmt == 'mag':
         return Utils.get_mag_and_err_from_flux(flux, flux_err)
-    else:
+    elif phot_fmt == 'flux':
         return (flux, flux_err)
+    else:
+        raise ValueError(
+            'Unrecognized photometry format: {:}, allowed '.format(phot_fmt) +
+            'values are "mag" and "flux"')
 
 
 def subtract(subtract_2450000=False, subtract_2460000=False):
-    """ Check if some value should be subtracted from all dates."""
+    """
+    Find value that is supposed to be subtracted from time vector.
+
+    Parameters :
+        subtract_2450000: *bool*
+            Should we subtract 2450000?
+
+        subtract_2460000: *bool*
+            Should we subtract 2460000?
+
+    Returns :
+        subtract: *float*
+            Value to be subtracted.
+    """
     subtract = 0.
     if subtract_2450000:
         if subtract_2460000:
@@ -31,8 +65,20 @@ def subtract(subtract_2450000=False, subtract_2460000=False):
     return subtract
 
 
-def _subtract_xlabel(subtract_2450000, subtract_2460000):
+def _subtract_xlabel(subtract_2450000=False, subtract_2460000=False):
     """
+    Find string for xlabel
+
+    Parameters :
+        subtract_2450000: *bool*
+            Should we subtract 2450000?
+
+        subtract_2460000: *bool*
+            Should we subtract 2460000?
+
+    Returns :
+        xlabel: *str*
+            String to be used by *pyplot.xlabel()*
     string that would be past to plt.xlabel()
     """
     if subtract_2450000:
@@ -53,11 +99,14 @@ def _color_differences(color_list, color):
     Calculate color difference between a list of colors and a single color.
     Uses algorithm from
     `this Wikipedia page<https://en.wikipedia.org/wiki/Color_difference>`_.
-    Arguments :
+
+    Parameters :
         color_list: *list* of *str*
             list of matplotlib colors e.g., ``['black', '#E9967A']``
+
         color: *str*
             single matplotlib color
+
     Returns :
         differences: *np.ndarray*
             differences of colors, values < 0.3 are very similar
