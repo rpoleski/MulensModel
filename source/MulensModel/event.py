@@ -836,17 +836,6 @@ class Event(object):
         raise NameError(
             'best_chi2_parameters (and best_chi2) has been deprecated.')
 
-    def clean_data(self):
-        """masks outlying datapoints. **Not Implemented.**"""
-        raise NotImplementedError("This feature has not been implemented yet")
-
-    def estimate_model_params(self):
-        """
-        estimates model parameters without fitting them.
-        **Not Implemented.**
-        """
-        raise NotImplementedError("This feature has not been implemented yet")
-
     def _apply_fit_blending(self, fit_blending):
         warnings.warn(
             'fit_blending option will be deprecated in future.' +
