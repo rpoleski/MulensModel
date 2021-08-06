@@ -52,11 +52,11 @@ class FitData:
         self.dataset = dataset
 
         # Setup limb-darkening
-        self.gamma = 0.
+        self._gamma = 0.
         if self.model.parameters.is_finite_source():
             if self.dataset.bandpass is not None:
                 try:
-                    self.gamma = self.model.get_limb_coeff_gamma(
+                    self._gamma = self.model.get_limb_coeff_gamma(
                         self.dataset.bandpass)
                 except KeyError:
                     warnings.warn(
@@ -812,3 +812,17 @@ class FitData:
     @model.setter
     def model(self, new_value):
         self._model = new_value
+
+
+    @property
+    def gamma(self):
+        """
+        *float*
+
+        Limb-darkening coefficient for this fit. Set by
+        :py:attr:`~dataset.bandpass` and
+        :py:func:`~model.get_limb_coeff_gamma()`.
+
+        *** CHECK LINKS IN SPHINX. PROBABLY WON'T WORK. ***
+        """
+        return self._gamma
