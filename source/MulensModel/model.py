@@ -4,16 +4,15 @@ import matplotlib.pyplot as plt
 
 from astropy.coordinates import SkyCoord
 
-from MulensModel.modelparameters import ModelParameters
-from MulensModel.magnificationcurve import MagnificationCurve
-from MulensModel.trajectory import Trajectory
 from MulensModel.caustics import Caustics
-from MulensModel.satelliteskycoord import SatelliteSkyCoord
-from MulensModel.utils import Utils
-from MulensModel.mulensdata import MulensData
-from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.coordinates import Coordinates
-from MulensModel import mm_plot
+from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
+from MulensModel.magnificationcurve import MagnificationCurve
+from MulensModel.modelparameters import ModelParameters
+from MulensModel.mulensdata import MulensData
+from MulensModel.satelliteskycoord import SatelliteSkyCoord
+from MulensModel.trajectory import Trajectory
+from MulensModel.utils import Utils, PlotUtils
 
 
 class Model(object):
@@ -152,7 +151,8 @@ class Model(object):
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
 
-        subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
+        subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
+                                           subtract_2460000=subtract_2460000)
 
         if satellite_skycoord is not None:
             if isinstance(satellite_skycoord, SatelliteSkyCoord):
@@ -170,7 +170,9 @@ class Model(object):
         self._plt_plot(times-subtract, magnification, kwargs)
         plt.ylabel('Magnification')
         plt.xlabel(
-            mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
+            PlotUtils.find_subtract_xlabel(
+                subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000))
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -328,12 +330,15 @@ class Model(object):
 
             flux += blend_flux
 
-        subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
+        subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
+                                           subtract_2460000=subtract_2460000)
 
         self._plt_plot(times-subtract, Utils.get_mag_from_flux(flux), kwargs)
         plt.ylabel('Magnitude')
         plt.xlabel(
-            mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
+            PlotUtils.find_subtract_xlabel(
+                subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000))
 
         (ymin, ymax) = plt.gca().get_ylim()
         if ymax > ymin:

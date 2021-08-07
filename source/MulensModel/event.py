@@ -8,7 +8,7 @@ from MulensModel.fitdata import FitData
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
-from MulensModel import mm_plot
+from MulensModel.utils import PlotUtils
 
 
 class Event(object):
@@ -171,14 +171,14 @@ class Event(object):
         # Set plot limits
         t_min = 3000000.
         t_max = 0.
-        subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
+        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
         # Get fluxes for the reference dataset
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         for (i, data) in enumerate(self._datasets):
-            # Scale the data flux
+            # Scale the data flue
             (flux, err_flux) = self.fits[i].scale_fluxes(f_source_0, f_blend_0)
-            (y_value, y_err) = mm_plot._get_y_value_y_err(
+            (y_value, y_err) = PlotUtils.get_y_value_y_err(
                 phot_fmt, flux, err_flux)
 
             data._plot_datapoints(
@@ -192,7 +192,7 @@ class Event(object):
         # Plot properties
         plt.ylabel('Magnitude')
         plt.xlabel(
-            mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
+            PlotUtils.find_subtract_xlabel(subtract_2450000, subtract_2460000))
         plt.xlim(t_min-subtract, t_max-subtract)
 
         (ymin, ymax) = plt.gca().get_ylim()
@@ -218,7 +218,7 @@ class Event(object):
         # Plot limit parameters
         t_min = 3000000.
         t_max = 0.
-        subtract = mm_plot.subtract(subtract_2450000, subtract_2460000)
+        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
         # Plot zeropoint line
         plt.plot([0., 3000000.], [0., 0.], color='black')
@@ -255,7 +255,7 @@ class Event(object):
         plt.xlim(t_min-subtract, t_max-subtract)
         plt.ylabel('Residuals')
         plt.xlabel(
-            mm_plot._subtract_xlabel(subtract_2450000, subtract_2460000))
+            PlotUtils.find_subtract_xlabel(subtract_2450000, subtract_2460000))
 
     def plot_trajectory(self, **kwargs):
         """
@@ -301,7 +301,7 @@ class Event(object):
         else:
             diffs = np.array(
                 [np.min(
-                    mm_plot._color_differences(used_colors, c))
+                    PlotUtils.get_color_differences(used_colors, c))
                  for c in colors])
             indexes = np.argsort(diffs)[::-1]
             colors = [colors[i] for i in indexes]

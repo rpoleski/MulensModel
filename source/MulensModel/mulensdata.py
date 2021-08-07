@@ -3,10 +3,9 @@ import matplotlib.pyplot as plt
 from os.path import basename, exists
 import warnings
 
-from MulensModel.utils import Utils
+from MulensModel.utils import Utils, PlotUtils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.coordinates import Coordinates
-from MulensModel import mm_plot
 
 
 class MulensData(object):
@@ -359,9 +358,8 @@ class MulensData(object):
         plot datapoints while evaluating various contingencies
         """
         (y_value, y_err) = y
-        subtract = mm_plot.subtract(
-            subtract_2450000=subtract_2450000,
-            subtract_2460000=subtract_2460000)
+        subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
+                                           subtract_2460000=subtract_2460000)
 
         if show_errorbars is None:
             show_errorbars = self.plot_properties.get('show_errorbars', True)
