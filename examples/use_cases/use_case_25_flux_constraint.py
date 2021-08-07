@@ -1,9 +1,9 @@
 """
 Use cases showing how to implement a flux constraint.
 
-Shows how to access fitted fluxes using event.source_fluxes in contrast to use_case_32,
-which shows how to access fitted fluxes using event.fits .
-
+Shows how to access fitted fluxes using event.source_fluxes
+in contrast to use_case_32, which shows how to access fitted fluxes
+using event.fits.
 """
 import numpy as np
 import os
@@ -79,4 +79,3 @@ coords = "17:55:23.50 -30:12:26.1"
 event = mm.Event(datasets=datasets, model=model, coords=coords)
 
 print(chi2_fun([], event, []))
-

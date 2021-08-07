@@ -98,4 +98,3 @@ ev.plot_data()
 plt.title('Data and Fitted Model')
 
 plt.show()
-

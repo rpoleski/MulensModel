@@ -813,7 +813,6 @@ class FitData:
     def model(self, new_value):
         self._model = new_value
 
-
     @property
     def gamma(self):
         """

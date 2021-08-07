@@ -1474,9 +1474,9 @@ class UlensModelFit(object):
         # then satellite ones (if needed).
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
-                # new_fit requires source and blend flux
                 self._model.plot_lc(
-                    source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
+                    source_flux=fluxes[0], blend_flux=fluxes[1],
+                    **kwargs_model)
                 break
 
         for model in self._models_satellite:

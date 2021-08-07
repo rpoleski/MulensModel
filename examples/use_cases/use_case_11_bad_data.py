@@ -29,4 +29,3 @@ plt.scatter(data.time, data.mag, marker="o", facecolor=None)
 plt.scatter(data.time[data.good], data.mag[not data.bad],
             marker="o", facecolor="black")
 plt.scatter(data.time[data.bad], data.mag[data.bad], marker="x")
-

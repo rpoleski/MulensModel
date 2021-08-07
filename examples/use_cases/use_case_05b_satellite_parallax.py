@@ -20,8 +20,9 @@ moa_data = mm.MulensData(
     file_name='MOA File Name',
     plot_properties={'label': 'MOA', 'color': 'orange'})
 spitzer_data = mm.MulensData(
-    file_name='Spitzer File Name', satellite='Spitzer',  # this keyword does not work.
-    plot_properties = {'label': 'Spitzer', 'color': 'red'})
+    file_name='Spitzer File Name',
+    satellite='Spitzer',  # this keyword does not work.
+    plot_properties={'label': 'Spitzer', 'color': 'red'})
 kepler_data = mm.MulensData(
     file_name='Kepler File Name', satellite='Kepler',
     plot_properties={'label': 'Kepler', 'color': 'blue'})

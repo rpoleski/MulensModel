@@ -17,7 +17,7 @@ data = mm.MulensData(
 
 # Define the model
 model = mm.Model(
-    {'t_0': 2455379.571, 'u_0': 0.523, 't_E': 17.94 })
+    {'t_0': 2455379.571, 'u_0': 0.523, 't_E': 17.94})
 
 # Combine the model and the data
 event = mm.Event(datasets=data, model=model)

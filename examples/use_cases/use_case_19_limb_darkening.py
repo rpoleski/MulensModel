@@ -33,4 +33,3 @@ for band in model.bandpasses:
                                      model.get_limb_coeff_gamma(band)))
 
 # Add implementation for setting method to calculate FS effects for point lens
-

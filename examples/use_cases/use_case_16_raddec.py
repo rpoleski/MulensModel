@@ -81,10 +81,11 @@ event.plot_model(color=ground_data.plot_properties['color'])
 event.plot_data()
 
 (fs_ogle, fb_ogle) = event.get_ref_fluxes()
-# JCY: IMO, data_ref should be a fixed property of event. Otherwise, the user could forget
-# which dataset was set as the reference and request values for the wrong dataset.
-# Now that there are ways to access fluxes for an arbitrary dataset, ref_fluxes should *only*
-# refer to the actual reference dataset.
+# JCY: IMO, data_ref should be a fixed property of event. Otherwise, the user
+# could forget which dataset was set as the reference and request values for
+# the wrong dataset. Now that there are ways to access fluxes for
+# an arbitrary dataset, ref_fluxes should *only* refer to
+# the actual reference dataset.
 space_model.plot_lc(
     source_flux=fs_ogle, blend_flux=fb_ogle,
     color=space_data.plot_properties['color'])

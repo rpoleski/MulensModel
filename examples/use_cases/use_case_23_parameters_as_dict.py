@@ -52,7 +52,8 @@ my_FSPL_model = mm.Model(FSPL_params)
 
 try:
     my_PSPL_model = mm.Model(
-        parameters={'t_0': 2458060., 'u_0': 0.2, 't_E': 30.5, 't_0_1': 2458062.})
+        parameters={
+            't_0': 2458060., 'u_0': 0.2, 't_E': 30.5, 't_0_1': 2458062.})
 except ValueError as msg:
     print('ValueError: ', msg)
 # Returns: ValueError('Not a valid combination of parameters. See

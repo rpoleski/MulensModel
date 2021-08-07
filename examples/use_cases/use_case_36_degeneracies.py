@@ -21,7 +21,7 @@ model_1 = mm.Model(parameters, coords=coords)
 
 # Proposed solution - a separate function for each degeneracy:
 model_2 = model_1.predict_degenerate_jerk_model()
-# There are two other degeneracies that can be implemented this way 
+# There are two other degeneracies that can be implemented this way
 # (i.e., discrete and requiring non-trivial calculations):
 # 1) satellite - Gould 1994 (1994ApJ...421L..75G) and
 #    Refsdal 1966 (1966MNRAS.134..315R),
