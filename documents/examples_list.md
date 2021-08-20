@@ -25,6 +25,7 @@ Tutorials MulensModel:
 * [Example 15](../examples/example_15_fitting.py) - fitting binary lens model with many options - use config file for [ob05390](../examples/example_15_ob05390_v1.cfg) or [mb07192](../examples/example_15_mb07192_v1.cfg); settings are read by [this file](../examples/example_15_read.py),
 * [Example 16](../examples/example_16/) - **high-level fitting example** where all settings are read from a human-readable YAML file, there is a separate description of that example in [this README file](../examples/example_16/README.md),
 * [Example 17](../examples/example_17_1L2S_plotting.py) - plotting binary source model,
+* [Example 18](../examples/example_18_simulate.py) - simulate a light curve and save it; example input files: [example_18_input_1.yaml](../examples/example_18_input_1.yaml) and [example_18_input_2.yaml](../examples/example_18_input_2.yaml),
 * Three files producing plots presented in paper describing MulensModel: [plots_1.py](../examples/plots_1.py), [plots_2.py](../examples/plots_2.py), and [plots_3.py](../examples/plots_3.py).
 
 [MulensModel documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
