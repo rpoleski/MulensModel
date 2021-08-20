@@ -397,7 +397,6 @@ class MagnificationCurve(object):
                         raise ValueError(msg.format(method))
 
             if method == 'point_source':
-                # XXX add try except here and print model parameters
                 try:
                     m = binary_lens.point_source_magnification(x, y)
                 except Exception as e:
