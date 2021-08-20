@@ -10,15 +10,16 @@ more sense because it removes circular dependencies from the Model() class and
 makes it completely independent from the data. The basic user who primarily 
 accessed fit results through the Event() class should not notice these changes.
 
-A secondary goal of this version update was to clarify keyword and function 
-names. 
-
-Finally, the Event() class no longer stores the best_chi2() or
+A secondary goal of this version update was to clean up other aspects of the 
+code. For example, clarifying keyword and function 
+names. We also explicitly created a utils.PlotUtils() so that convenience 
+functions for plotting that were used by multiple classes were collected in one
+place. Finally, the Event() class no longer stores the best_chi2() or
 best_chi2_parameters() from previous updates. These properties are intrisic to
 model minimization and not to an Event() object, so should not be properties
 of an Event().
 
-# Differences
+# Main Differences
 
 ## mm.FitData()
 
@@ -90,3 +91,29 @@ Combining datasets with a model and all fitting are now handled by mm.Event()
 
 ### Other Changes
 - REMOVE: set_source_flux_ratio(), set_source_flux_ratio_for_band()
+
+## mm.MulensData():
+
+- plot():
+  - model keyword is DEPRECATED.
+  
+## mm.utils.PlotUtils():
+
+New class of utility functions useful for plotting (collected from elsewhere in 
+the code):
+- get_y_value_y_err()
+- find_subtract()
+- find_subtract_xlabel()
+- get_color_differences()
+
+## Examples That Have Changed
+
+- example_01_models.py
+  - f_source, f_blend --> source_flux, blend_flux
+- example_02_fitting.py
+  - data_ref replaced by explict FitData instance.
+
+# Other Changes
+
+## Examples:
+- example_05_MB083100.py: Added source trajectory plots.
