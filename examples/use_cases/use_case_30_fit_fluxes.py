@@ -1,12 +1,11 @@
 """
 use_case_30_fit_fluxes.py
 
-Assume you want (some) of the fluxes to be freely fitted parameters, e.g.
-so you can measure the uncertainty in the color.
+Assume you want (some) of the fluxes to be freely fitted parameters, e.g.,
+so that you can properly measure the uncertainty in the color.
 
 Adapted from example_06_fit_parallax_EMCEE.py and
 use_case_25_flux_constraint.py
-New functionality marked by # *** NEW ***
 """
 import os
 import sys
@@ -25,21 +24,13 @@ import MulensModel
 
 
 def ln_like(theta, event, parameters_to_fit):
-    """ likelihood function """
-    KCT01 = 0
-    Spitzer = 9
+    """ likelihood function that fixes some fluxes """
+    data = {'f_s_KCT01': event.datasets[0], 'f_s_Spitzer': event.datasets[9]}
     for (key, val) in enumerate(parameters_to_fit):
-        # *** NEW ***
-        # Some fluxes are MCMC parameters
         if val[0] == 'f':
-            if val == 'fsKCT01':
-                event.fix_source_flux[datasets[KCT01]] = theta[key]
-            elif val == 'fsSpitzer':
-                event.fix_source_flux[datasets[Spitzer]] = theta[key]
-
+            event.fix_source_flux[data[val]] = theta[key]
         else:
             setattr(event.model.parameters, val, theta[key])
-        # *** END NEW ***
 
     return -0.5 * event.get_chi2()
 
@@ -91,8 +82,8 @@ event = MulensModel.Event(datasets=datasets, model=model,
                           coords="17:55:23.50 -30:12:26.1")
 
 # Which parameters we want to fit?
-parameters_to_fit = ["t_0", "u_0", "t_E", "pi_E_N", "pi_E_E", "fsKCT01",
-                     "fsSpitzer"]
+parameters_to_fit = ["t_0", "u_0", "t_E", "pi_E_N", "pi_E_E", "f_s_KCT01",
+                     "f_s_Spitzer"]
 # And remember to provide dispersions to draw starting set of points
 sigmas = [0.01, 0.001, 0.1, 0.01, 0.01, 0.01, 0.01]
 
@@ -133,7 +124,6 @@ print("\nSmallest chi2 model:")
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print(best_chi2)
 
-# *** NEW ***
 # Compare to the Color constraint for OB161195 (I_KMT - L_Spitzer)
 (source_color, sigma_color) = (0.78, 0.03)
 plt.hist(-2.5*np.log10(samples[:, 5] / samples[:, 6]), bins=25)
@@ -142,4 +132,3 @@ plt.axvline(source_color - sigma_color, linestyle=':', color='black')
 plt.axvline(source_color + sigma_color, linestyle=':', color='black')
 plt.xlabel('(I-L)')
 plt.show()
-# *** END NEW ***

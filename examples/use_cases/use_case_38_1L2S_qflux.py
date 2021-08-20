@@ -41,27 +41,18 @@ class MyEvent(mm.Event):
         the same bandpass.
         """
         self.fits = []
-        kmtc_i_fit = mm.FitData(model=self.model, dataset=self.datasets[1])
-        kmtc_v_fit = mm.FitData(model=self.model, dataset=self.datasets[4])
-        for i, dataset in self.datasets:
-            if i == 1:
-                self.fits.append(kmtc_i_fit)
-            elif i == 4:
-                self.fits.append(kmtc_v_fit)
+        kmtc_fits = {
+            1: mm.FitData(model=self.model, dataset=self.datasets[1]),
+            4: mm.FitData(model=self.model, dataset=self.datasets[4])}
+        band = {'I': 1, 'V': 4}  # This simplies the code below.
+        for (i, dataset) in enumerate(self.datasets):
+            if i in kmtc_fits:
+                fit = kmtc_fits[i]
             else:
-                if dataset.bandpass == 'I':
-                    q_flux = kmtc_i_fit.source_flux_ratio
-                elif dataset.bandpass == 'V':
-                    q_flux = kmtc_v_fit.source_flux_ratio
-                else:
-                    raise Exception(
-                        'Unknown bandpass: {0}. '.format(dataset.bandpass) +
-                        'Fitting is only defined for I and V.')
-
-                self.fits.append(
-                    mm.FitData(model=self.model, dataset=dataset,
-                               fix_source_flux_ratio=q_flux))
-# RP - I haven't thought deeply about it, but this seems very complicated.
+                q_flux = kmtc_fits[band[dataset.bandpass]].source_flux_ratio
+                fit = mm.FitData(model=self.model, dataset=dataset,
+                                 fix_source_flux_ratio=q_flux)
+            self.fits.append(fit)
 
 
 # Fit the fluxes

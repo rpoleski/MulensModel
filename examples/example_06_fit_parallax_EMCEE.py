@@ -49,6 +49,7 @@ def ln_prob(theta, event, parameters_to_fit):
 
     return ln_prior_ + ln_like_
 
+
 # Read the data
 file_name = os.path.join(
     mm.DATA_PATH, "photometry_files", "OB05086",

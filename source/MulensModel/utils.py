@@ -217,9 +217,8 @@ class Utils(object):
 
         Parameters :
             full_BJD: *float*
-                Are we fitting for blending flux? If not then blending flux is
-                fixed to 0.  Default is the same as
-                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+                Barycentric Julian Data. Full means it should begin
+                with 245... or 246...
 
         Returns :
             velocity: *np.ndarray* (*float*, size of (3,))
@@ -364,7 +363,6 @@ class PlotUtils(object):
             uncertainties: *np.ndarray*
                 Uncertainties in the requested format
         """
-        print("----------------- TEST 1 -------------------")
         if phot_fmt == 'mag':
             return Utils.get_mag_and_err_from_flux(flux, flux_err)
         elif phot_fmt == 'flux':
@@ -391,8 +389,6 @@ class PlotUtils(object):
             subtract: *float*
                 Value to be subtracted.
         """
-        print("----------------- TEST 2 -------------------")
-
         subtract = 0.
         if subtract_2450000:
             if subtract_2460000:
@@ -422,8 +418,6 @@ class PlotUtils(object):
                 String to be used by *pyplot.xlabel()*
         string that would be past to plt.xlabel()
         """
-        print("----------------- TEST 3 -------------------")
-
         if subtract_2450000:
             if subtract_2460000:
                 raise ValueError('subtract_2450000 and subtract_2460000 ' +
