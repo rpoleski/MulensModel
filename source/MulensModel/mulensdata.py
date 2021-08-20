@@ -313,9 +313,8 @@ class MulensData(object):
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
             model: :py:class:`~MulensModel.model.Model`
-                Model used to scale the data or calculate residuals
-                (if *plot_residuals* is *True*). If provided, then data are
-                scaled to *model.data_ref* dataset.
+                DEPRECATED. Use :py:func:`~MulensModel.model.Event.plot_data()`
+                to plot a dataset scaled to a model.
 
             plot_residuals: *boolean*
                 If *True* then residuals are plotted (*model* is required).
