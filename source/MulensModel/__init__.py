@@ -6,7 +6,6 @@ from MulensModel.binarylens import BinaryLens
 from MulensModel.caustics import Caustics
 from MulensModel.coordinates import Coordinates
 from MulensModel.event import Event
-from MulensModel.fit import Fit
 from MulensModel.fitdata import FitData
 from MulensModel.horizons import Horizons
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs

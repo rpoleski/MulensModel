@@ -1487,16 +1487,3 @@ class Model(object):
         """
         raise NameError('set_datasets is deprecated. datasets ' +
                         'are no longer part of Model(). Use Event() instead.')
-
-    @property
-    def fit(self):
-        """
-        DEPRECATED
-
-        :py:class:`MulensModel.fit.Fit`
-
-        :py:class:`MulensModel.fit.Fit` instance recently used. It gives
-        access to source and blending fluxes.
-        """
-        raise NameError('fit is deprecated. datasets ' +
-                        'are no longer part of Model(). Use Event() instead.')
