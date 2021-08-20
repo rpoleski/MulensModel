@@ -387,7 +387,7 @@ class Event(object):
         blending fluxes.
 
         Parameters :
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
+            fit_blending: DEPRECATED. use :py:attr:`~fix_blend_flux` instead.
 
         Returns :
             chi2: *float*

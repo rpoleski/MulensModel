@@ -27,7 +27,7 @@ class Model(object):
             :py:class:`MulensModel.modelparameters.ModelParameters`
 
         :py:obj:`coords`: *str*, *astropy.SkyCoords*,
-        *MulensModel.Coordsinates*, optional
+        *MulensModel.Coordinates*, optional
 
             Sky coordinates of the event. If type is *str*, then it is
             assumed that the units are hour angle and degrees for RA and Dec,
