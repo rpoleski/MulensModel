@@ -21,6 +21,9 @@ VBBinaryLensingLibrary_wrapper.so
 source/AdaptiveContouring/*.o
 source/AdaptiveContouring/*.so
 
+# additional code in example_16/
+examples/example_16/corner.py
+
 # Sphinx files
 *.doctree
 docs/_sources/
