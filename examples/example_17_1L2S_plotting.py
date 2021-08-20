@@ -1,12 +1,11 @@
 """
 This example checks plotting functions for binary sources. It is
 derived from example_11_binary_source.py
-
-New code starts at Line 38.
 """
 import MulensModel as mm
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 # First, prepare the data. There is nothing very exciting in this part,
 # so you may skip it.
@@ -62,27 +61,26 @@ params = {'t_0_1': t_0_1, 'u_0_1': u_0_1, 't_0_2': t_0_2, 'u_0_2': u_0_2,
 my_model = mm.Model(params)
 my_event = mm.Event(datasets=[my_dataset, my_dataset_2], model=my_model)
 
-# NEW CODE STARTS HERE
 # Plot just the data
 plt.figure()
 plt.title('Raw Data')
 my_dataset.plot(phot_fmt='mag')
 my_dataset_2.plot(phot_fmt='mag')
-
 (source_flux, blend_flux) = my_event.get_ref_fluxes()
-# Plot just the model
-plt.figure(figsize=(6, 8))
+
+# Plot just the model:
 # Plot the model in "effective" magnification
+plt.figure(figsize=(6, 8))
 plt.subplot(3, 1, 1)
 plt.title('Model Magnification')
 my_model.plot_magnification(source_flux_ratio=assumed_flux_2 / assumed_flux_1)
 # Plot the model in magnitudes
-# specifying f_source
+# - specifying f_source
 plt.subplot(3, 1, 2)
 plt.title('Model Lightcurve with Specified Fluxes')
 my_model.plot_lc(source_flux=source_flux, blend_flux=blend_flux)
-# specifying q_flux (using assumed values, so should be different from prev,
-# which uses fitted fluxes)
+# - specifying q_flux (using assumed values, so should be different from prev,
+#   which uses fitted fluxes)
 plt.subplot(3, 1, 3)
 plt.title('Model Lightcurve with q_flux')
 my_model.plot_lc(
@@ -90,7 +88,7 @@ my_model.plot_lc(
     source_flux_ratio=assumed_flux_2 / assumed_flux_1)
 plt.tight_layout()
 
-# Plot the model from Event()
+# Plot the model and data from Event()
 plt.figure()
 plt.title('Event() Model + Data')
 my_event.plot_model(zorder=10, color='black')
