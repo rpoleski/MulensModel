@@ -356,13 +356,13 @@ def test_chi2_gradient():
 
     # run fit_fluxes: gives new values
     event.fit_fluxes()
-    result_2 = event.calc_chi2_gradient(chi2_gradient_test_1.grad_params)
+    result_2 = event.calculate_chi2_gradient(chi2_gradient_test_1.grad_params)
     assert all(result != result_2)
 
-    # Go back to previous results and test that calc_chi2_gradient gives
+    # Go back to previous results and test that calculate_chi2_gradient gives
     # results that don't match anything.
     event.model.parameters.t_0 -= 0.1
-    result_3 = event.calc_chi2_gradient(chi2_gradient_test_1.grad_params)
+    result_3 = event.calculate_chi2_gradient(chi2_gradient_test_1.grad_params)
     assert all(result != result_3)
     assert all(result_2 != result_3)
     result_4 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)

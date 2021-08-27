@@ -30,8 +30,8 @@ def jacobian(theta, event, parameters_to_fit):
     Note: this implementation is robust but possibly inefficient. If
     chi2_fun() is ALWAYS called before jacobian with the same parameters,
     there is no need to set the parameters in event.model; also,
-    event.calc_chi2_gradient() can be used instead (which avoids fitting for
-    the fluxes twice).
+    event.calculate_chi2_gradient() can be used instead (which avoids fitting
+    for the fluxes twice).
     """
     for (key, val) in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
