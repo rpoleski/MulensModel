@@ -21,9 +21,34 @@ of an Event().
 
 # Main Differences
 
-## mm.FitData()
+## mm.Fit() vs. mm.FitData()
 
-New. Handles each dataset independently. (will write more later.)
+### mm.Fit()
+
+The old mm.Fit() class acted on all datasets at once and took magnification 
+rather than a model as its input. Hence, setting conditions (such as zero 
+blending) for individual datasets was not possible with the existing class. In 
+addition, because Fit() took magnification as an input, it became a property of
+mm.Model() and thus, required that mm.Model() also took datasets and a property.
+This did not make logical sense and resulted in circular code.
+
+This class has been DEPRECATED in favor of mm.FitData(). However, if you only
+combined datasets with a mm.Model() using the mm.Event() class, you should not
+notice much, if any, difference (except increased functionality).
+
+### mm.FitData()
+
+The mm.FitData() class combines a model with a single dataset. This resolves 
+the circular logic and allows different fitting conditions (such as zero 
+blending) to be applied to one (or several), but not all datasets. Fits for
+multiple datasets are combined in the mm.Event() class, i.e., mm.Event() 
+contains a new property mm.Event.fits, which is a list of FitData() objects, one
+for each dataset.
+
+The blend flux, source flux, and/or the source flux ratio (for two source fits),
+can be fixed for an individual FitData() object. For a fit with multiple 
+datasets, this information is supplied as a dictionary to the Event() object and 
+passed to the relevant FitData() object as necessary.
 
 ## mm.Event()
 
@@ -37,7 +62,7 @@ New. Handles each dataset independently. (will write more later.)
 - ADD: fluxes, source_fluxes, blend_fluxes
 - ADD: get_flux_for_dataset(dataset)
 
-### Remove Circular Dependencies from mm.Model() 
+### Transfer Actions that Created Circular Dependencies from mm.Model() to mm.Event()
 (and cleanup other plotting functions)
 
 - ADD: utils.PlotUtils()
@@ -56,7 +81,7 @@ New. Handles each dataset independently. (will write more later.)
 
 ### Other Changes
 
-- chi2_gradient() --> calc_chi2_gradient()
+- chi2_gradient() --> calculate_chi2_gradient()
 - fit_blending (keyword used by get_chi2(), get_chi2_for_dataset(), 
     get_chi2_per_point(), get_chi2_gradient() ): this should be controlled by fix_blend_flux instead.
 - mm.Event().get_ref_fluxes(): data_ref keyword will be deprecated, because
@@ -77,7 +102,7 @@ Combining datasets with a model and all fitting are now handled by mm.Event()
 - REMOVE: reset_plot_properties(), plot_data(), plot_residuals()
 - REMOVE: datasets, set_datasets()
 
-### Clarify Keyword Names
+### Clarify Keyword/Function Names
 - plot_magnification(): 
   - flux_ratio_constraint --> source_flux_ratio
   - DEPRECATED: fit_blending keyword
@@ -85,7 +110,7 @@ Combining datasets with a model and all fitting are now handled by mm.Event()
   - f_source --> source_flux
   - f_blend --> blend_flux
   - flux_ratio_constraint --> source_flux_ratio
-- magnification():
+- magnification() --> get_magnification() and:
   - flux_ratio_constraint --> source_flux_ratio
   - ADD: bandpass
 
@@ -106,14 +131,38 @@ the code):
 - find_subtract_xlabel()
 - get_color_differences()
 
-## Examples That Have Changed
+## Examples That Reflect These Changes
 
 - example_01_models.py
   - f_source, f_blend --> source_flux, blend_flux
 - example_02_fitting.py
   - data_ref replaced by explict FitData instance.
+- example_06_fit_parallax_EMCEE.py
+  - model.set_datasets instances --> Event() instances
+  - model.plot_lc() --> Event.plot_model()
+- example_09_gradient_fitting.py
+  - event.chi2_gradient() --> event.get_chi2_gradient()
+  - model.plot_lc(dataref=data) --> model.plot_lc(source_flux=value, 
+    blend_flux=value) where the values are extracted using 
+    Event().get_flux_for_dataset(data).
+- example_10_fitting_and_fluxes.py
+  - event.fit.flux_of_sources(dataset), event.fit.blending_flux(dataset) -->
+    event.get_flux_for_dataset(dataset)
+- example_11_binary_source.py
+  - event.model.set_source_flux_ratio(theta_) --> 
+    event.fix_source_flux_ratio ={my_dataset: theta_}
+- example_12_fit_satellite_parallax_EMCEE.py
+  - added my_event.fit_fluxes()
+  - my_event.model.get_ref_fluxes() --> 
+    my_event.get_flux_for_dataset(data_ground)
+  - f_source, f_blend --> source_flux, blend_flux
+
+Also, because best_chi2 and best_chi2_parameters are no longer properties of 
+Event(), we changed how we store and access that information in Examples 06, 10,
+ 11, 12, 13, 15.
 
 # Other Changes
 
-## Examples:
-- example_05_MB083100.py: Added source trajectory plots.
+## New Examples:
+- example_17_1L2S_plotting.py
+- example_16: added additional yaml files.
