@@ -488,10 +488,10 @@ class Event(object):
             self._apply_fit_blending(fit_blending)
 
         self.fit_fluxes()
-        self.calc_chi2_gradient(parameters)
+        self.calculate_chi2_gradient(parameters)
         return self.chi2_gradient
 
-    def calc_chi2_gradient(self, parameters):
+    def calculate_chi2_gradient(self, parameters):
         """
         Calculate chi^2 gradient (also called Jacobian), i.e.,
         :math:`d chi^2/d parameter`.
@@ -512,7 +512,7 @@ class Event(object):
         """
         gradient = {param: 0 for param in parameters}
         for i, dataset in enumerate(self.datasets):
-            data_gradient = self.fits[i].calc_chi2_gradient(parameters)
+            data_gradient = self.fits[i].calculate_chi2_gradient(parameters)
             for i, p in enumerate(parameters):
                 gradient[p] += data_gradient[i]
 
@@ -712,7 +712,7 @@ class Event(object):
         """
         Return previously calculated chi^2 gradient (also called Jacobian),
         i.e., :math:`d chi^2/d parameter`. See :py:func:`~get_chi2_gradient()`
-        and :py:func:`~calc_chi2_gradient()`.
+        and :py:func:`~calculate_chi2_gradient()`.
 
         Returns :
             gradient: *float* or *np.ndarray*

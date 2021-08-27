@@ -123,7 +123,7 @@ class FitData:
         diff = self._dataset.flux - model_flux
         self._chi2_per_point = (diff / self._dataset.err_flux)**2
 
-    def _calc_magnifications(self, bad=True):
+    def _calculate_magnifications(self, bad=True):
         """
         Calculate the model magnifications for the epochs of the dataset.
         """
@@ -230,7 +230,7 @@ class FitData:
         # Initializations
         self.n_fluxes = 0
         n_epochs = np.sum(self._dataset.good)
-        self._calc_magnifications(bad=False)
+        self._calculate_magnifications(bad=False)
 
         # Account for source fluxes
         if self.fix_source_flux_ratio is not False:
@@ -337,7 +337,7 @@ class FitData:
                 reported separately.
         """
 
-        self._calc_magnifications(bad=bad)
+        self._calculate_magnifications(bad=bad)
         return self._data_magnification
 
     def get_model_fluxes(self, bad=False):
@@ -360,7 +360,7 @@ class FitData:
                 'linear fit.')
 
         if bad:
-            self._calc_magnifications(bad=True)
+            self._calculate_magnifications(bad=True)
 
         model_flux = np.ones(self._dataset.n_epochs) * self.blend_flux
         if self._model.n_sources == 1:
@@ -463,7 +463,7 @@ class FitData:
             phot_fmt = type
 
         if bad:
-            self._calc_magnifications(bad=True)
+            self._calculate_magnifications(bad=True)
 
         if phot_fmt == 'scaled':
             if self.model.n_sources > 1:
@@ -542,10 +542,10 @@ class FitData:
                 chi^2 gradient
         """
         self.fit_fluxes()
-        self.calc_chi2_gradient(parameters)
+        self.calculate_chi2_gradient(parameters)
         return self.chi2_gradient
 
-    def calc_chi2_gradient(self, parameters):
+    def calculate_chi2_gradient(self, parameters):
         """
         Calculates chi^2 gradient (also called Jacobian), i.e.,
         :math:`d chi^2/d parameter` WITHOUT refitting for the fluxes. Saves
@@ -671,7 +671,7 @@ class FitData:
         """
         Return previously calculated chi^2 gradient (also called Jacobian),
         i.e., :math:`d chi^2/d parameter`. See :py:func:`~get_chi2_gradient()`
-        and :py:func:`~calc_chi2_gradient()`.
+        and :py:func:`~calculate_chi2_gradient()`.
 
         Returns :
             gradient: *float* or *np.ndarray*
