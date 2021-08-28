@@ -1072,6 +1072,12 @@ class Model(object):
                 'Only 1 or 2 sources is implemented. Number of sources: ' +
                 '{:}'.format(self.n_sources))
 
+        if np.sum(np.isnan(magnification)) > 0:
+            fmt = ("EPOCHS:\n{:}\nMODEL:\n{:}Something went wrong with " +
+                   "calculating of magnification for the above model. " +
+                   "For all above epochs magnifications are NaN.")
+            msg = fmt.format(time[np.isnan(magnification)], self.__repr__())
+            raise ValueError(msg)
         return magnification
 
     def _magnification_1_source(self, time, satellite_skycoord, gamma):

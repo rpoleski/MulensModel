@@ -291,10 +291,12 @@ class FitData:
         except ValueError as e:
             raise ValueError(
                 '{0}\n'.format(e) +
-                'If either of these numbers ({0}, {1})'.format(
+                'If either of these numbers ({0}, {1}) '.format(
                     np.sum(np.isnan(xT)), np.sum(np.isnan(y))) +
-                ' is greater than zero, there is a NaN somewhere,' +
-                ' probably in the data.')
+                'is greater than zero, there is a NaN somewhere, ' +
+                'probably in the data. The cause of this error may be the ' +
+                'epochs with extreme brightness (e.g., 99.999 mag), which ' +
+                'is sometimes used to mark bad data.')
 
         # Record the results
         if self.fix_source_flux_ratio is False:
