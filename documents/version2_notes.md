@@ -86,7 +86,13 @@ passed to the relevant FitData() object as necessary.
     get_chi2_per_point(), get_chi2_gradient() ): this should be controlled by fix_blend_flux instead.
 - mm.Event().get_ref_fluxes(): data_ref keyword will be deprecated, because
     there is now a get_flux_for_dataset() function.
-    
+
+## mm.MagnificationCurve()
+
+### Remove propery .magnification, which duplicates .get_magnification()
+
+- REMOVE: magnification property
+
 ## mm.Model()
 
 ### Remove Circular Dependencies from mm.Model() 
