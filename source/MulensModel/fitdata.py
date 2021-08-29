@@ -140,20 +140,20 @@ class FitData:
         magnification_kwargs = {
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
 
-        # currently, model.magnification is good for up to two
+        # currently, model.get_magnification is good for up to two
         # sources
         if self._model.n_sources == 1:
-            mag_matrix = self._model.magnification(
+            mag_matrix = self._model.get_magnification(
                 time=self._dataset.time[select],
                 **magnification_kwargs)
         elif self._model.n_sources == 2:
-            mag_matrix = self._model.magnification(
+            mag_matrix = self._model.get_magnification(
                 time=self._dataset.time[select], separate=True,
                 **magnification_kwargs)
         else:
-            msg = ("{0}".format(self._model.n_sources) +
-                   " sources used. model.magnification can only" +
-                   " handle <=2 sources")
+            msg = ("{0} ".format(self._model.n_sources) +
+                   "sources used. Function model.get_magnification can " +
+                   "only handle <=2 sources")
             raise NotImplementedError(msg)
 
         if bad:

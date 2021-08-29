@@ -128,9 +128,9 @@ time_a = np.linspace(6000., 6300., n_a)
 time_b = np.linspace(6139., 6141., n_b)
 time = np.sort(np.concatenate((time_a, time_b)))
 model_1 = mm.Model({'t_0': t_0_1, 'u_0': u_0_1, 't_E': t_E})
-A_1 = model_1.magnification(time)
+A_1 = model_1.get_magnification(time)
 model_2 = mm.Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
-A_2 = model_2.magnification(time)
+A_2 = model_2.get_magnification(time)
 flux = A_1 * assumed_flux_1 + A_2 * assumed_flux_2 + assumed_flux_blend
 flux_err = 6. + 0. * time
 flux += flux_err * np.random.normal(size=n_a+n_b)

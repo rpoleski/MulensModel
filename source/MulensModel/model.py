@@ -121,7 +121,7 @@ class Model(object):
             see :py:func:`plot_lc()`
 
             gamma:
-                see :py:func:`magnification()`
+                see :py:func:`get_magnification()`
 
             satellite_skycoord:
                 see :py:func:`plot_trajectory()`
@@ -163,7 +163,7 @@ class Model(object):
         else:
             satellite = None
 
-        magnification = self.magnification(
+        magnification = self.get_magnification(
             times, satellite_skycoord=satellite, gamma=gamma,
             source_flux_ratio=source_flux_ratio)
 
@@ -212,7 +212,7 @@ class Model(object):
                 source_flux_2 / source_flux_1.
 
             gamma:
-                see :py:func:`magnification()`
+                see :py:func:`get_magnification()`
 
             bandpass: *str*
                 bandpass for defining the limb-darkening coefficient gamma.
@@ -313,14 +313,14 @@ class Model(object):
             pass
 
         if self.n_sources == 1:
-            magnification = self.magnification(times, gamma=gamma)
+            magnification = self.get_magnification(times, gamma=gamma)
             flux = source_flux * magnification + blend_flux
         else:
             if gamma > 0.:
                 raise NotImplementedError(
                     'limb-darkening not implemented for multiple sources.')
 
-            magnification = self.magnification(times, separate=True)
+            magnification = self.get_magnification(times, separate=True)
             flux = None
             for i in range(self.n_sources):
                 if flux is None:
@@ -942,9 +942,9 @@ class Model(object):
                  ephemerides_file=self.ephemerides_file)
             return satellite_skycoords.get_satellite_coords(times)
 
-    def magnification(self, time, satellite_skycoord=None, gamma=0.,
-                      bandpass=None, source_flux_ratio=None, separate=False,
-                      flux_ratio_constraint=None):
+    def get_magnification(self, time, satellite_skycoord=None, gamma=0.,
+                          bandpass=None, source_flux_ratio=None,
+                          separate=False, flux_ratio_constraint=None):
         """
         Calculate the model magnification for the given time(s).
 
@@ -1026,13 +1026,13 @@ class Model(object):
                     'separate: {0}\n'.format(separate) +
                     'source_flux_ratio: {0}'.format(source_flux_ratio))
 
-        mag = self._magnification(
+        mag = self._get_magnification(
             time, satellite_skycoord, gamma, source_flux_ratio, separate)
 
         return mag
 
-    def _magnification(self, time, satellite_skycoord, gamma,
-                       source_flux_ratio, separate):
+    def _get_magnification(self, time, satellite_skycoord, gamma,
+                           source_flux_ratio, separate):
         """
         Internal function that calculates magnification.
         """
@@ -1052,12 +1052,12 @@ class Model(object):
         if self.n_sources == 1:
             if source_flux_ratio is not None:
                 raise ValueError(
-                    'Model.magnification() parameter ' +
+                    'Model.get_magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
                     'models, not {:}'.format(source_flux_ratio))
             elif separate:
                 raise ValueError(
-                    'Model.magnification() parameter separate ' +
+                    'Model.get_magnification() parameter separate ' +
                     'cannot be True for single source models')
             else:
                 magnification = self._magnification_1_source(
@@ -1095,7 +1095,7 @@ class Model(object):
         magnification_curve.set_magnification_methods_parameters(
             self._methods_parameters)
 
-        return magnification_curve.magnification
+        return magnification_curve.get_magnification()
 
     def _magnification_2_sources(
             self, time, satellite_skycoord, gamma, source_flux_ratio,
@@ -1110,8 +1110,8 @@ class Model(object):
         if separate and (source_flux_ratio is not None):
             raise ValueError(
                 'You cannot set both source_flux_ratio and separate' +
-                " parameters in Model.magnification(). This doesn't make" +
-                'sense')
+                " parameters in Model.get_magnification(). This doesn't " +
+                'make sense')
 
         (mag_1, mag_2) = self._separate_magnifications(
                 time, satellite_skycoord, gamma)
@@ -1144,7 +1144,7 @@ class Model(object):
             methods_1, self._default_magnification_method)
         self._magnification_curve_1.set_magnification_methods_parameters(
             self._methods_parameters)
-        mag_1 = self._magnification_curve_1.magnification
+        mag_1 = self._magnification_curve_1.get_magnification()
 
         self._magnification_curve_2 = MagnificationCurve(
             parameters=self.parameters.source_2_parameters, **kwargs)
@@ -1152,7 +1152,7 @@ class Model(object):
             methods_2, self._default_magnification_method)
         self._magnification_curve_2.set_magnification_methods_parameters(
             self._methods_parameters)
-        mag_2 = self._magnification_curve_2.magnification
+        mag_2 = self._magnification_curve_2.get_magnification()
 
         return (mag_1, mag_2)
 
@@ -1459,7 +1459,7 @@ class Model(object):
         raise NameError(
             'get_data_magnification is deprecated. datasets ' +
             'are no longer part of Model(). Use Event() instead or use' +
-            'Model.magnification() for the relevant times.')
+            'Model.get_magnification() for the relevant times.')
 
     @property
     def datasets(self):

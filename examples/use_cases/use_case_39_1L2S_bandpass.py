@@ -37,14 +37,14 @@ def get_mag_string(model):
     ref_time = 5005.01
     # JCY - I am not actually sure how eff_mag should work for finite
     # source models if a band is not specified. Maybe it should fail...
-    # eff_mag = model.magnification(ref_time)
-    eff_mag_i = model.magnification(
+    # eff_mag = model.get_magnification(ref_time)
+    eff_mag_i = model.get_magnification(
         ref_time, bandpass='I', source_flux_ratio=0.01)
-    eff_mag_v = model.magnification(
+    eff_mag_v = model.get_magnification(
         ref_time, bandpass='V', source_flux_ratio=0.005)
-    (mag_1_i, mag_2_i) = model.magnification(
+    (mag_1_i, mag_2_i) = model.get_magnification(
         ref_time, bandpass='I', separate=True)
-    (mag_1_v, mag_2_v) = model.magnification(
+    (mag_1_v, mag_2_v) = model.get_magnification(
         ref_time, bandpass='V', separate=True)
     str_1 = '{0:8.4f} {1:8.4f} '.format(
         eff_mag_i, eff_mag_v)

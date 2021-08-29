@@ -123,9 +123,10 @@ def test_annual_parallax_calculation():
     #     model_with_par.data_magnification, true_with_par, decimal=4)
     # New architecture
     np.testing.assert_almost_equal(
-        model_no_par.magnification(times), true_no_par)
+        model_no_par.get_magnification(times), true_no_par)
     np.testing.assert_almost_equal(
-        model_with_par.magnification(times), true_with_par, decimal=4)
+        model_with_par.get_magnification(times), true_with_par, decimal=4)
+
 
 class test(unittest.TestCase):
     def test_wrong_settings(self):
@@ -139,7 +140,7 @@ class test(unittest.TestCase):
         model_no_par.parallax(
             satellite=False, earth_orbital=False, topocentric=False)
         with self.assertRaises(ValueError):
-            model_no_par.magnification(2457500.)
+            model_no_par.get_magnification(2457500.)
 
 
 def do_get_delta_annual_test(filename):
@@ -202,7 +203,7 @@ def do_annual_parallax_test(filename):
     model.parallax(satellite=False, earth_orbital=True, topocentric=False)
 
     return np.testing.assert_almost_equal(
-        model.magnification(time) / data[:, 1], 1.0, decimal=4)
+        model.get_magnification(time) / data[:, 1], 1.0, decimal=4)
 
 
 def test_annual_parallax_calculation_2():
@@ -228,7 +229,8 @@ def test_annual_parallax_calculation_6():
 def test_satellite_and_annual_parallax_calculation():
     """test parallax calculation with Spitzer data"""
     model_parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
-                        'pi_E_N': -0.248, 'pi_E_E': 0.234, 't_0_par': 2456836.2}
+                        'pi_E_N': -0.248, 'pi_E_E': 0.234,
+                        't_0_par': 2456836.2}
     coords = "17:47:12.25 -21:22:58.2"
 
     model_with_par = mm.Model(model_parameters, coords=coords)
@@ -250,9 +252,10 @@ def test_satellite_and_annual_parallax_calculation():
     #                                ref_OGLE, decimal=2)
     # ratio = model_with_par.data_magnification[1] / ref_Spitzer
     # np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
-    np.testing.assert_almost_equal(model_with_par.magnification(data_OGLE.time),
-                                   ref_OGLE, decimal=2)
-    ratio = model_spitzer.magnification(data_Spitzer.time) / ref_Spitzer
+    np.testing.assert_almost_equal(
+        model_with_par.get_magnification(data_OGLE.time), ref_OGLE,
+        decimal=2)
+    ratio = model_spitzer.get_magnification(data_Spitzer.time) / ref_Spitzer
     np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
 
 
@@ -276,7 +279,8 @@ def test_satellite_parallax_magnification():
         ra='17:47:12.25', dec='-21:22:58.2',
         ephemerides_file=SAMPLE_FILE_03_EPH)
 
-    delta = ground_model.magnification(t_0) - space_model.magnification(t_0)
+    ground_mag = ground_model.get_magnification(t_0)
+    delta = ground_mag - space_model.get_magnification(t_0)
     assert np.abs(delta) > 0.01
 
 

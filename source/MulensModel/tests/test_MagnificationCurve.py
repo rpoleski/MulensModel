@@ -137,4 +137,4 @@ def test_PSPL_for_binary():
     mag_curve.set_magnification_methods(None, 'point_source_point_lens')
     u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
-    np.testing.assert_almost_equal(pspl, mag_curve.magnification)
+    np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())

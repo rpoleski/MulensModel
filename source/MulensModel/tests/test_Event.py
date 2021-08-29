@@ -201,7 +201,7 @@ def test_event_get_chi2_3():
     times = np.arange(5320, 5420.)
     f_source = 0.1
     f_blend = 0.5
-    mod_fluxes = f_source * model.magnification(times) + f_blend
+    mod_fluxes = f_source * model.get_magnification(times) + f_blend
     I_mag = mm.Utils.get_mag_from_flux(mod_fluxes)
     errors = 0.01 * np.ones(times.shape)
     data = mm.MulensData(data_list=[times, I_mag, errors])
@@ -486,8 +486,8 @@ def test_event_chi2_binary_source():
 
     # prepare fake data:
     time = np.linspace(4900., 5200., 600)
-    mag_1 = model_1.magnification(time)
-    mag_2 = model_2.magnification(time)
+    mag_1 = model_1.get_magnification(time)
+    mag_2 = model_2.get_magnification(time)
     flux = 100. * mag_1 + 300. * mag_2 + 50.
     data = mm.MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
 
@@ -515,8 +515,8 @@ def generate_binary_source_models():
 def generate_binary_source_datasets(model_1, model_2):
     """prepare fake data for binary source model"""
     time = np.linspace(4900., 5200., 600)
-    mag_1 = model_1.magnification(time)
-    mag_2 = model_2.magnification(time)
+    mag_1 = model_1.get_magnification(time)
+    mag_2 = model_2.get_magnification(time)
     flux = 100. * mag_1 + 300. * mag_2 + 50.
     data_1 = mm.MulensData(data_list=[time, flux, 1.+0.*time], phot_fmt='flux')
     flux = 20. * mag_1 + 30. * mag_2 + 50.
@@ -703,7 +703,7 @@ class TestFixedFluxes(unittest.TestCase):
 
     def generate_dataset(self, f_source, f_blend, times):
         """generate a single dataset without noise"""
-        flux = f_source * self.model.magnification(times) + f_blend
+        flux = f_source * self.model.get_magnification(times) + f_blend
         err = np.zeros(len(times)) + self.flux_uncertainty
         data = mm.MulensData([times, flux, err], phot_fmt='flux')
         return data
@@ -849,8 +849,8 @@ class TestFixedFluxRatios(unittest.TestCase):
             else:
                 gamma = None
 
-            mag_1 = model_1.magnification(times)
-            mag_2 = model_2.magnification(times, gamma=gamma)
+            mag_1 = model_1.get_magnification(times)
+            mag_2 = model_2.get_magnification(times, gamma=gamma)
             f_source_2 = f_source_1 * q_flux
             flux = f_source_1 * mag_1 + f_source_2 * mag_2 + f_blend
             err = np.zeros(len(times)) + 0.01

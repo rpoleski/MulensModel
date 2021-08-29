@@ -31,7 +31,7 @@ def generate_model():
 
     t = np.linspace(t_0 - 3. * t_E, t_0 + 3. * t_E, 1000)
     pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    A = pspl.magnification(t)
+    A = pspl.get_magnification(t)
 
     return (pspl, t, A)
 
@@ -54,7 +54,7 @@ def generate_binary_model():
 
     model_2 = mm.Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
 
-    A_2 = model_2.magnification(t)
+    A_2 = model_2.get_magnification(t)
 
     # create separate binary model
     params = {'t_0_1': t_0_1, 'u_0_1': u_0_1, 't_0_2': t_0_2, 'u_0_2': u_0_2,
@@ -441,7 +441,7 @@ class TestGetResiduals(unittest.TestCase):
             self.model.parameters.t_0 + n * self.model.parameters.t_E,
             dt)
         flux = (self.dataset_properties['f_source'] *
-                self.model.magnification(times) +
+                self.model.get_magnification(times) +
                 self.dataset_properties['f_blend'])
         err = np.zeros(len(times)) + self.dataset_properties['errorbar']
         bad = np.zeros(len(times), dtype=bool)
@@ -537,7 +537,7 @@ class TestGetResiduals(unittest.TestCase):
             bad=True)
 
         model_flux = (f_source_0 *
-                      self.model.magnification(self.dataset.time) +
+                      self.model.get_magnification(self.dataset.time) +
                       f_blend_0)
         model_mag = mm.Utils.get_mag_from_flux(model_flux)
         for i in np.arange(len(self.dataset.time)):

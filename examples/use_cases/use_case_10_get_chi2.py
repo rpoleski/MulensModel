@@ -26,7 +26,7 @@ print(event.get_chi2())
 # Get magnifications for selected dates
 model_times = np.arange(2455300, 2455400, 10.)
 print(model_times)
-print(event.model.magnification(model_times))
+print(event.model.get_magnification(model_times))
 
 event.plot_data()
 event.plot_model()

@@ -29,8 +29,8 @@ def generate_time_vector(n_a, n_b):
 def generate_dataset(time, flux_1, flux_2, blend_flux, flux_err,
                      model_1, model_2):
     """Generate simulated dataset assuming binary source model."""
-    A_1 = model_1.magnification(time)
-    A_2 = model_2.magnification(time)
+    A_1 = model_1.get_magnification(time)
+    A_2 = model_2.get_magnification(time)
     flux = A_1 * flux_1 + A_2 * flux_2 + blend_flux
     err_flux = flux_err + 0. * time
     flux += flux_err * np.random.normal(size=len(time))

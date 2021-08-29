@@ -28,8 +28,8 @@ times = np.union1d(
 model_1 = mm.Model(dict(t_0=t_0_1, u_0=u_0_1, t_E=t_E))
 model_2 = mm.Model(dict(t_0=t_0_2, u_0=u_0_2, t_E=t_E))
 
-mag_1 = model_1.magnification(times)
-mag_2 = model_2.magnification(times)
+mag_1 = model_1.get_magnification(times)
+mag_2 = model_2.get_magnification(times)
 combined_model_lc = mm.Utils.get_mag_from_flux(
     f_source_1 * mag_1 + f_source_2 * mag_2 + f_blend)
 

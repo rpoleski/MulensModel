@@ -23,7 +23,7 @@ def test_model_PSPL_1():
     t_E = 17.94002
     times = np.array([t_0-2.5*t_E, t_0, t_0+t_E])
     model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-    almost(model.magnification(times),
+    almost(model.get_magnification(times),
            np.array([1.028720763, 2.10290259, 1.26317278]),
            err_msg="PSPL model returns wrong values")
 
@@ -146,7 +146,7 @@ def test_BLPS_01():
     model = mm.Model(parameters=params)
     t = np.array([2456112.5])
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    magnification = model.magnification(data.time[0])
+    magnification = model.get_magnification(data.time[0])
     almost(magnification, 4.691830781584699)
 # This value comes from early version of this code.
 # almost(m, 4.710563917)
@@ -171,7 +171,7 @@ def test_BLPS_02():
     model.set_magnification_methods(methods)
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    result = model.magnification(data.time)
+    result = model.get_magnification(data.time)
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
                          1.61038135, 1.63603122, 1.69045492, 1.77012807])
@@ -182,7 +182,7 @@ def test_BLPS_02():
     # data.bandpass = 'I'
     model.set_limb_coeff_u('I', 10.)
     # This is an absurd value but I needed something quick.
-    result = model.magnification(
+    result = model.get_magnification(
         data.time, gamma=model.get_limb_coeff_gamma('I'))
     almost(result[5], 1.6366862)
 
@@ -208,7 +208,7 @@ def test_BLPS_02_AC():
     model.set_magnification_methods_parameters({ac_name: accuracy_1})
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    result = model.magnification(data.time)
+    result = model.get_magnification(data.time)
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
                          1.61038135, 1.63603122, 1.69045492, 1.77012807])
@@ -220,7 +220,7 @@ def test_BLPS_02_AC():
     # This is an absurd value but I needed something quick.
     model.set_magnification_methods_parameters({ac_name: accuracy_2})
     # result = model.data_magnification[0]
-    result = model.magnification(
+    result = model.get_magnification(
         data.time, gamma=model.get_limb_coeff_gamma('I'))
     almost(result[5], 1.6366862, decimal=3)
 
@@ -240,17 +240,17 @@ def test_methods_parameters():
     model.set_magnification_methods(methods)
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    result_1 = model.magnification(data.time)
+    result_1 = model.get_magnification(data.time)
 
     vbbl_options = {'accuracy': 0.1}
     methods_parameters = {'VBBL': vbbl_options}
     model.set_magnification_methods_parameters(methods_parameters)
-    result_2 = model.magnification(data.time)
+    result_2 = model.get_magnification(data.time)
 
     vbbl_options = {'accuracy': 1.e-5}
     methods_parameters = {'VBBL': vbbl_options}
     model.set_magnification_methods_parameters(methods_parameters)
-    result_3 = model.magnification(data.time)
+    result_3 = model.get_magnification(data.time)
 
     assert result_1[0] != result_2[0]
     assert result_1[0] != result_3[0]
@@ -290,12 +290,12 @@ def test_magnifications_for_orbital_motion():
     motion = mm.Model(dict_motion)
 
     t_1 = 100.
-    almost(static.magnification(t_1), motion.magnification(t_1))
+    almost(static.get_magnification(t_1), motion.get_magnification(t_1))
 
     t_2 = 130.
     static.parameters.s = 0.93572895
     static.parameters.alpha = 345.359342916
-    almost(static.magnification(t_2), motion.magnification(t_2))
+    almost(static.get_magnification(t_2), motion.get_magnification(t_2))
 
 
 def test_model_binary_and_finite_sources():
@@ -319,17 +319,17 @@ def test_model_binary_and_finite_sources():
 
     (f_s_1, f_s_2, f_b) = (100., 300., 50.)
     time = np.linspace(4900., 5200., 4200)
-    mag_1 = model_1.magnification(time)
-    mag_2 = model_2.magnification(time)
+    mag_1 = model_1.get_magnification(time)
+    mag_2 = model_2.get_magnification(time)
 
     # test:
     #model.set_source_flux_ratio(f_s_2/f_s_1)
-    fitted = model.magnification(time, source_flux_ratio=f_s_2 / f_s_1)
+    fitted = model.get_magnification(time, source_flux_ratio=f_s_2 / f_s_1)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
     almost(fitted, expected)
 
     # test separate=True option:
-    (mag_1_, mag_2_) = model.magnification(time, separate=True)
+    (mag_1_, mag_2_) = model.get_magnification(time, separate=True)
     almost(mag_1, mag_1_)
     almost(mag_2, mag_2_)
 
@@ -349,8 +349,8 @@ def test_binary_source_and_fluxes_for_bands():
     (f_s_1_V, f_s_2_V, f_b_V) = (15., 5., 30.)
     q_f_I = f_s_2_I / f_s_1_I
     q_f_V = f_s_2_V / f_s_1_V
-    (mag_1_I, mag_2_I) = model.magnification(times_I, separate=True)
-    (mag_1_V, mag_2_V) = model.magnification(times_V, separate=True)
+    (mag_1_I, mag_2_I) = model.get_magnification(times_I, separate=True)
+    (mag_1_V, mag_2_V) = model.get_magnification(times_V, separate=True)
     effective_mag_I = (mag_1_I + mag_2_I * q_f_I) / (1. + q_f_I)
     effective_mag_V = (mag_1_V + mag_2_V * q_f_V) / (1. + q_f_V)
     flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
@@ -359,9 +359,9 @@ def test_binary_source_and_fluxes_for_bands():
     #model.set_source_flux_ratio_for_band('I', q_f_I)
     #model.set_source_flux_ratio_for_band('V', q_f_V)
 
-    # Test Model.magnification()
-    result_I = model.magnification(times_I, source_flux_ratio=q_f_I)
-    result_V = model.magnification(times_V, source_flux_ratio=q_f_V)
+    # Test Model.get_magnification()
+    result_I = model.get_magnification(times_I, source_flux_ratio=q_f_I)
+    result_V = model.get_magnification(times_V, source_flux_ratio=q_f_V)
     almost(result_I, effective_mag_I)
     almost(result_V, effective_mag_V)
 
@@ -380,14 +380,14 @@ def test_separate_method_for_each_source():
     # In order not to get "no FS method" warning:
     model.set_magnification_methods(
         [0., 'finite_source_uniform_Gould94', 1.], source=2)
-    out = model.magnification(5000., separate=True)
+    out = model.get_magnification(5000., separate=True)
     almost([out[0][0], out[1][0]], [103.46704167, 10.03696291])
 
     model.set_magnification_methods(
         [4999., 'finite_source_uniform_Gould94', 5001.], source=1)
     model.set_magnification_methods(
         [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
-    out = model.magnification(5100., separate=True)
+    out = model.get_magnification(5100., separate=True)
     almost([out[0][0], out[1][0]], [9.98801936, 395.96963727])
 
 # Tests to Add:

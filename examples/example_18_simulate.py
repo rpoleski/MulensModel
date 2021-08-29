@@ -78,7 +78,7 @@ def simulate_lc(
     if methods is not None:
         model.set_magnification_methods(methods)
 
-    magnification = model.magnification(times)
+    magnification = model.get_magnification(times)
 
     flux = flux_source * magnification + flux_blending
     flux_err = relative_uncertainty * flux
