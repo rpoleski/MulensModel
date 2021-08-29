@@ -112,7 +112,7 @@ def test_annual_parallax_calculation():
     model_no_par = mm.Model(
         {'t_0': t_0, 'u_0': 0.1, 't_E': 10.},
         coords='17:57:05 -30:22:59')
-    #model_no_par.set_datasets([data])
+    # model_no_par.set_datasets([data])
     model_no_par.parallax(
         satellite=False, earth_orbital=False, topocentric=False)
 

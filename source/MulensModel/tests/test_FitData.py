@@ -19,6 +19,7 @@ SAMPLE_FILE_04_WF = os.path.join(mm.MODULE_PATH, 'data', 'WFIRST_1827.dat')
 
 # Note: default precision for assert_almost_equal (aka almost) is decimal = 7
 
+
 def generate_model():
     """
     returns a model, time array, and magnification
@@ -241,6 +242,7 @@ def test_binary_qflux():
 
     execute_test_binary_source(q_flux=True)
 
+
 def test_fit_fluxes():
     """
     test that when the model is updated, and fit fluxes is re-run, the fluxes
@@ -280,6 +282,7 @@ def test_fit_fluxes():
     my_fit.update()
     assert(chi2_1 != my_fit.chi2)
 
+
 def test_chi2_per_point():
     """Test that the chi2 shape is correct for multiple sources, i.e. = number
     of epochs, rather than epochs * sources."""
@@ -288,6 +291,7 @@ def test_chi2_per_point():
     my_fit.update()
 
     assert(my_fit.chi2_per_point.shape == (test_object.dataset.n_epochs,))
+
 
 def test_satellite_and_annual_parallax_calculation():
     """
@@ -312,6 +316,7 @@ def test_satellite_and_annual_parallax_calculation():
     my_fit = mm.FitData(dataset=data_Spitzer, model=model_with_par)
     ratio = my_fit.get_data_magnification() / ref_Spitzer
     np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
+
 
 def test_bad_data():
     """
@@ -360,19 +365,19 @@ def test_bad_data():
     assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] >
             100.)
     expected_mag = mm.Utils.get_mag_from_flux(fit_bad.blend_flux)
-    almost( fit_bad.get_model_magnitudes()[bad_pt], expected_mag)
+    almost(fit_bad.get_model_magnitudes()[bad_pt], expected_mag)
 
     # update: bad=True --> calculated
     fit_bad.update(bad=True)
     assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] <
             10.)
-    almost( fit_bad.get_model_magnitudes()[bad_pt], 19.27, decimal=1)
+    almost(fit_bad.get_model_magnitudes()[bad_pt], 19.27, decimal=1)
 
     # update: bad=False --> not calculated
     fit_bad.update(bad=False)
     assert (fit_bad.chi2_per_point[bad_pt] / fit_bad.chi2_per_point[good_pt] >
             100.)
-    almost( fit_bad.get_model_magnitudes()[bad_pt], expected_mag)
+    almost(fit_bad.get_model_magnitudes()[bad_pt], expected_mag)
 
     # Test fitted fluxes are different with and without bad data points.
     assert (fit_all.source_flux > fit_bad.source_flux)
@@ -402,7 +407,8 @@ def test_scale_fluxes():
     (f_s_new, f_b_new) = (0.1, 0.)
     exp_flux = (data.flux - f_b) * f_s_new / f_s + f_b_new
     exp_err = data.err_flux * f_s_new / f_s
-    (new_flux, new_err) = fit.scale_fluxes(source_flux=f_s_new, blend_flux=f_b_new)
+    (new_flux, new_err) = fit.scale_fluxes(
+        source_flux=f_s_new, blend_flux=f_b_new)
     assert np.abs(data.flux[num] - new_flux[num]) > 0.5
     almost(exp_flux / new_flux, 1.)
     almost(exp_err / new_err, 1.)
@@ -486,7 +492,7 @@ class TestGetResiduals(unittest.TestCase):
 
         # Check errorbars
         almost(res_errors, self.dataset.err_flux)
-        
+
         # Bad = True
         (residuals, res_errors) = self.fit.get_residuals(
             phot_fmt='flux', bad=True)

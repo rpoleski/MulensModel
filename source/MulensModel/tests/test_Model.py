@@ -27,6 +27,7 @@ def test_model_PSPL_1():
            np.array([1.028720763, 2.10290259, 1.26317278]),
            err_msg="PSPL model returns wrong values")
 
+
 def test_model_init_1():
     """tests if basic parameters of Model.__init__() are properly passed"""
     t_0 = 5432.10987
@@ -323,7 +324,7 @@ def test_model_binary_and_finite_sources():
     mag_2 = model_2.get_magnification(time)
 
     # test:
-    #model.set_source_flux_ratio(f_s_2/f_s_1)
+    # model.set_source_flux_ratio(f_s_2/f_s_1)
     fitted = model.get_magnification(time, source_flux_ratio=f_s_2 / f_s_1)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
     almost(fitted, expected)
@@ -356,8 +357,8 @@ def test_binary_source_and_fluxes_for_bands():
     flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
     flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
 
-    #model.set_source_flux_ratio_for_band('I', q_f_I)
-    #model.set_source_flux_ratio_for_band('V', q_f_V)
+    # model.set_source_flux_ratio_for_band('I', q_f_I)
+    # model.set_source_flux_ratio_for_band('V', q_f_V)
 
     # Test Model.get_magnification()
     result_I = model.get_magnification(times_I, source_flux_ratio=q_f_I)
