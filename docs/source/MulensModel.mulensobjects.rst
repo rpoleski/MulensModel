@@ -5,6 +5,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    MulensModel.mulensobjects.lens
    MulensModel.mulensobjects.mulenssystem
@@ -14,6 +15,6 @@ Module contents
 ---------------
 
 .. automodule:: MulensModel.mulensobjects
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

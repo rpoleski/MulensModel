@@ -1,27 +1,19 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MulensModel.mulensobjects.lens module &#8212; MulensModel 2.0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2.0.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -30,101 +22,102 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="module-MulensModel.mulensobjects.lens">
 <span id="mulensmodel-mulensobjects-lens-module"></span><h1>MulensModel.mulensobjects.lens module<a class="headerlink" href="#module-MulensModel.mulensobjects.lens" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="MulensModel.mulensobjects.lens.Lens">
-<em class="property">class </em><code class="descclassname">MulensModel.mulensobjects.lens.</code><code class="descname">Lens</code><span class="sig-paren">(</span><em>total_mass=None</em>, <em>mass=None</em>, <em>mass_1=None</em>, <em>mass_2=None</em>, <em>a_proj=None</em>, <em>distance=None</em>, <em>q=None</em>, <em>s=None</em>, <em>epsilon=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">MulensModel.mulensobjects.lens.</code><code class="sig-name descname">Lens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">total_mass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mass_1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mass_2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">a_proj</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">distance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">q</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">epsilon</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A mass or system of masses.</p>
 <p>Standard parameter combinations for defining a Lens object:</p>
-<dl class="docutils">
-<dt>Point Lens:</dt>
-<dd>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass" title="MulensModel.mulensobjects.lens.Lens.mass"><code class="xref py py-obj docutils literal"><span class="pre">mass</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>)</dd>
+<dl class="simple">
+<dt>Point Lens:</dt><dd><p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass" title="MulensModel.mulensobjects.lens.Lens.mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a>)</p>
+</dd>
 </dl>
 <p>2+ body lens:</p>
 <blockquote>
-<div><p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.s" title="MulensModel.mulensobjects.lens.Lens.s"><code class="xref py py-obj docutils literal"><span class="pre">s</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.q" title="MulensModel.mulensobjects.lens.Lens.q"><code class="xref py py-obj docutils literal"><span class="pre">q</span></code></a>)</p>
-<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.s" title="MulensModel.mulensobjects.lens.Lens.s"><code class="xref py py-obj docutils literal"><span class="pre">s</span></code></a>)</p>
-<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal"><span class="pre">total_mass</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>)
+<div><p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.s" title="MulensModel.mulensobjects.lens.Lens.s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.q" title="MulensModel.mulensobjects.lens.Lens.q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">q</span></code></a>)</p>
+<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.s" title="MulensModel.mulensobjects.lens.Lens.s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s</span></code></a>)</p>
+<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">total_mass</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="MulensModel.mulensobjects.lens.Lens.epsilon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">epsilon</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a>)
 - Missing s/Not Implemented?</p>
-<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_1" title="MulensModel.mulensobjects.lens.Lens.mass_1"><code class="xref py py-obj docutils literal"><span class="pre">mass_1</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_2" title="MulensModel.mulensobjects.lens.Lens.mass_2"><code class="xref py py-obj docutils literal"><span class="pre">mass_2</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.a_proj" title="MulensModel.mulensobjects.lens.Lens.a_proj"><code class="xref py py-obj docutils literal"><span class="pre">a_proj</span></code></a>,
-<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>) - Not Implemented</p>
+<p>(<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_1" title="MulensModel.mulensobjects.lens.Lens.mass_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass_1</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.mass_2" title="MulensModel.mulensobjects.lens.Lens.mass_2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass_2</span></code></a>, <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.a_proj" title="MulensModel.mulensobjects.lens.Lens.a_proj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">a_proj</span></code></a>,
+<a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.distance" title="MulensModel.mulensobjects.lens.Lens.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a>) - Not Implemented</p>
 </div></blockquote>
 <p>Note that s, q, and epsilon may be single values, lists, or numpy ndarrays.</p>
 <p>If units are not specified for a given mass, it is assumed the
 value given is in Solar Masses.</p>
 <p>If units are not specified for distance it is assumed the value is
 given in kpc.</p>
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.epsilon">
-<code class="descname">epsilon</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">epsilon</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.epsilon" title="Permalink to this definition">¶</a></dt>
 <dd><p>[<em>float, list, numpy.ndarray</em>]</p>
 <p>An array of mass fractions for each lens components:
 m_i/total_mass. Stored as a <em>numpy.ndarray</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.q">
-<code class="descname">q</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.q" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">q</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.q" title="Permalink to this definition">¶</a></dt>
 <dd><p>[<em>float, list, numpy.ndarray</em>]</p>
 <p>mass ratio for companions relative to the primary</p>
 <p>Array of mass ratios defined relative to the primary
 (m_i/m_1). Size is number of components -1. Set as a list,
 np.ndarray, or single value.</p>
-<p>Note: if <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal"><span class="pre">total_mass</span></code></a> is defined before q, it is
+<p>Note: if <a class="reference internal" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="MulensModel.mulensobjects.lens.Lens.total_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">total_mass</span></code></a> is defined before q, it is
 assumed this is the mass of the primary. If you want this to
 actually be the total mass, define it after defining q.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.s">
-<code class="descname">s</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.s" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">s</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.s" title="Permalink to this definition">¶</a></dt>
 <dd><p>[<em>float, list, numpy.ndarray</em>]</p>
 <p>Separation between the components of the lens as a fraction of
 the Einstein ring. A np.ndarray or single value.</p>
 <p>Definitions for more than 2 lens bodies TBD</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.total_mass">
-<code class="descname">total_mass</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">total_mass</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.total_mass" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The total mass of the lens (sum of all components). An
 astropy.Quantity with mass units. If set as a <em>float</em>, units
 are assumed to be solMass.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass">
-<code class="descname">mass</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mass</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The mass of a point lens –&gt; total mass. An astropy.Quantity
 with mass units. May be set as a float (in which case solMass
 is assumed).</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass_1">
-<code class="descname">mass_1</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_1" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mass_1</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_1" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The mass of the primary. Defined as total_mass *
 epsilon[0]. An <em>astropy.Quantity</em> with mass units. If set as a
 <em>float</em>, units are assumed to be solMass.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass_2">
-<code class="descname">mass_2</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_2" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mass_2</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_2" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The mass of the secondary. Defined as total_mass *
 epsilon[1]. An <em>astropy.Quantity</em> with mass units. If set as a
@@ -134,9 +127,9 @@ no epsilon corresponding to mass_2, mass_2 is added to the
 total_mass.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.mass_3">
-<code class="descname">mass_3</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_3" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mass_3</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.mass_3" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The mass of the tertiary. Defined as total_mass * epsilon[2].
 An <em>astropy.Quantity</em> with mass units. If set as a <em>float</em>,
@@ -145,59 +138,58 @@ units are assumed to be solMass.</p>
 no epsilon corresponding to mass_3, mass_3 is added to the total_mass.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.n_masses">
-<code class="descname">n_masses</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.n_masses" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_masses</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.n_masses" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em>, read-only</p>
 <p>number of masses in the system.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.distance">
-<code class="descname">distance</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.distance" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">distance</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.distance" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The distance to the lens.</p>
 <p>May be set as a <em>float</em>. If no unit is given, the value is
 assumed to be kpc.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.pi_L">
-<code class="descname">pi_L</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.pi_L" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">pi_L</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.pi_L" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The parallax to the lens in milliarcseconds. May be set as a
 <em>float</em>, in which case units are assumed to be
 milliarcseconds.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.a_proj">
-<code class="descname">a_proj</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.a_proj" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">a_proj</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.a_proj" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>Projected separation between the components of the lens in
 AU. An <em>astropy.Quantity</em> with distance units. If set as <em>float</em>
 (without units), AU is assumed.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.caustics">
-<code class="descname">caustics</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.caustics" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics" title="MulensModel.caustics.Caustics"><code class="xref py py-class docutils literal"><span class="pre">Caustics</span></code></a> object, read-only</p>
+<em class="property">property </em><code class="sig-name descname">caustics</code><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics" title="MulensModel.caustics.Caustics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Caustics</span></code></a> object, read-only</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="MulensModel.mulensobjects.lens.Lens.plot_caustics">
-<code class="descname">plot_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.plot_caustics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_caustics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_points</span><span class="o">=</span><span class="default_value">5000</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensobjects.lens.Lens.plot_caustics" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function to plot the x,y coordinates (scaled to the
 Einstein ring) of the caustics. <a class="reference external" href="https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.scatter">Pyplot scatter</a> is used for
-plotting. See <a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a>.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>n_points: <em>int</em></dt>
-<dd>Number of points be plotted.</dd>
-<dt><code class="docutils literal"><span class="pre">**kwargs</span></code>:</dt>
-<dd>Keyword arguments passed to <cite>Pyplot scatter</cite></dd>
+plotting. See <a class="reference internal" href="MulensModel.caustics.html#MulensModel.caustics.Caustics.plot" title="MulensModel.caustics.Caustics.plot"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.caustics.Caustics.plot()</span></code></a>.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>n_points: <em>int</em></dt><dd><p>Number of points be plotted.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt><dd><p>Keyword arguments passed to <cite>Pyplot scatter</cite></p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -209,33 +201,54 @@ plotting. See <a class="reference internal" href="MulensModel.caustics.html#Mule
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MulensModel</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pspl.html">Fitting tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pi_E.html">Parallax fitting tutorial</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.mulensobjects.lens.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -244,8 +257,8 @@ plotting. See <a class="reference internal" href="MulensModel.caustics.html#Mule
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/MulensModel.mulensobjects.lens.rst.txt"

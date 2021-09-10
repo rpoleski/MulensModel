@@ -1,27 +1,19 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MulensModel.utils module &#8212; MulensModel 2.0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2.0.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -30,309 +22,379 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="module-MulensModel.utils">
 <span id="mulensmodel-utils-module"></span><h1>MulensModel.utils module<a class="headerlink" href="#module-MulensModel.utils" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<p>File with general code used in other parts of MulensModel package.</p>
+<p>Most importantly there are Utils and PlotUtils classes.</p>
+<dl class="py class">
 <dt id="MulensModel.utils.Utils">
-<em class="property">class </em><code class="descclassname">MulensModel.utils.</code><code class="descname">Utils</code><a class="headerlink" href="#MulensModel.utils.Utils" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">MulensModel.utils.</code><code class="sig-name descname">Utils</code><a class="headerlink" href="#MulensModel.utils.Utils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A number of small functions used in different places</p>
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.get_flux_from_mag">
-<em class="property">static </em><code class="descname">get_flux_from_mag</code><span class="sig-paren">(</span><em>mag</em>, <em>zeropoint=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_from_mag" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_flux_from_mag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mag</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_from_mag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform magnitudes into fluxes.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>mag: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Values to be transformed.</dd>
-<dt>zeropoint: <em>float</em></dt>
-<dd>Zeropoint of magnitude scale.
-Defaults to 22. - double check if you want to change this.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>mag: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Values to be transformed.</p>
+</dd>
+<dt>zeropoint: <em>float</em></dt><dd><p>Zeropoint of magnitude scale.
+Defaults to 22. - double check if you want to change this.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>flux: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Calculated fluxes. Type is the same as <em>mag</em> parameter.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>flux: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Calculated fluxes. Type is the same as <em>mag</em> parameter.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.get_flux_and_err_from_mag">
-<em class="property">static </em><code class="descname">get_flux_and_err_from_mag</code><span class="sig-paren">(</span><em>mag</em>, <em>err_mag</em>, <em>zeropoint=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_and_err_from_mag" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_flux_and_err_from_mag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mag</span></em>, <em class="sig-param"><span class="n">err_mag</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_and_err_from_mag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform magnitudes and their uncertainties into flux space.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>mag: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Magnitude values to be transformed.</dd>
-<dt>err_mag: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Uncertainties of magnitudes to be transformed.</dd>
-<dt>zeropoint: <em>float</em></dt>
-<dd>Zeropoint of magnitude scale.
-Defaults to 22. - double check if you want to change this.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>mag: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Magnitude values to be transformed.</p>
+</dd>
+<dt>err_mag: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Uncertainties of magnitudes to be transformed.</p>
+</dd>
+<dt>zeropoint: <em>float</em></dt><dd><p>Zeropoint of magnitude scale.
+Defaults to 22. - double check if you want to change this.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>flux: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Calculated fluxes. Type is the same as <em>mag</em> parameter.</dd>
-<dt>err_flux: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Calculated flux uncertainties. Type is <em>float</em> if both <em>mag</em>
-and <em>err_mag</em> are <em>floats</em> and <em>np.ndarray</em> otherwise.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>flux: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Calculated fluxes. Type is the same as <em>mag</em> parameter.</p>
+</dd>
+<dt>err_flux: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Calculated flux uncertainties. Type is <em>float</em> if both <em>mag</em>
+and <em>err_mag</em> are <em>floats</em> and <em>np.ndarray</em> otherwise.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.get_mag_from_flux">
-<em class="property">static </em><code class="descname">get_mag_from_flux</code><span class="sig-paren">(</span><em>flux</em>, <em>zeropoint=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_from_flux" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_mag_from_flux</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flux</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_from_flux" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform fluxes into magnitudes.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>flux: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Values to be transformed.</dd>
-<dt>zeropoint: <em>float</em></dt>
-<dd>Zeropoint of magnitude scale.
-Defaults to 22. - double check if you want to change this.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>flux: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Values to be transformed.</p>
+</dd>
+<dt>zeropoint: <em>float</em></dt><dd><p>Zeropoint of magnitude scale.
+Defaults to 22. - double check if you want to change this.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>mag: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Calculated fluxes. Type is the same as <em>flux</em> parameter.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>mag: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Calculated fluxes. Type is the same as <em>flux</em> parameter.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.get_mag_and_err_from_flux">
-<em class="property">static </em><code class="descname">get_mag_and_err_from_flux</code><span class="sig-paren">(</span><em>flux</em>, <em>err_flux</em>, <em>zeropoint=None</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_and_err_from_flux" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_mag_and_err_from_flux</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flux</span></em>, <em class="sig-param"><span class="n">err_flux</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_and_err_from_flux" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform fluxes and their uncertainties into magnitude space.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>flux: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Flux values to be transformed.</dd>
-<dt>err_flux: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Uncertainties of fluxes to be transformed.</dd>
-<dt>zeropoint: <em>float</em></dt>
-<dd>Zeropoint of magnitude scale.
-Defaults to 22. - double check if you want to change this.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>flux: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Flux values to be transformed.</p>
+</dd>
+<dt>err_flux: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Uncertainties of fluxes to be transformed.</p>
+</dd>
+<dt>zeropoint: <em>float</em></dt><dd><p>Zeropoint of magnitude scale.
+Defaults to 22. - double check if you want to change this.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>mag: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Calculated fluxes. Type is the same as <em>mag</em> parameter.</dd>
-<dt>err_mag: <em>np.ndarray</em> or <em>float</em></dt>
-<dd>Calculated magnitude uncertainties. Type is <em>float</em> if both
-<em>flux</em> and <em>err_flux</em> are <em>floats</em> and <em>np.ndarray</em> otherwise.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>mag: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Calculated fluxes. Type is the same as <em>mag</em> parameter.</p>
+</dd>
+<dt>err_mag: <em>np.ndarray</em> or <em>float</em></dt><dd><p>Calculated magnitude uncertainties. Type is <em>float</em> if both
+<em>flux</em> and <em>err_flux</em> are <em>floats</em> and <em>np.ndarray</em> otherwise.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.gamma_to_u">
-<em class="property">static </em><code class="descname">gamma_to_u</code><span class="sig-paren">(</span><em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.gamma_to_u" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">gamma_to_u</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gamma</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.gamma_to_u" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform gamma limb darkening coefficient to u in convention
 introduced by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract">An et al. 2008 (ApJ 681, 1593)</a>.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>gamma: <em>float</em></dt>
-<dd>Limb darkening coefficient in gamma convention.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>gamma: <em>float</em></dt><dd><p>Limb darkening coefficient in gamma convention.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>u: <em>float</em></dt>
-<dd>Limb darkening coefficient in u convention.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>u: <em>float</em></dt><dd><p>Limb darkening coefficient in u convention.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.u_to_gamma">
-<em class="property">static </em><code class="descname">u_to_gamma</code><span class="sig-paren">(</span><em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.u_to_gamma" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">u_to_gamma</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.u_to_gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform u limb darkening coefficient to gamma in convention
 introduced by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract">An et al. 2008 (ApJ 681, 1593)</a>.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>u: <em>float</em></dt>
-<dd>Limb darkening coefficient in u convention.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>u: <em>float</em></dt><dd><p>Limb darkening coefficient in u convention.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>gamma: <em>float</em></dt>
-<dd>Limb darkening coefficient in gamma convention.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>gamma: <em>float</em></dt><dd><p>Limb darkening coefficient in gamma convention.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.get_n_caustics">
-<em class="property">static </em><code class="descname">get_n_caustics</code><span class="sig-paren">(</span><em>s</em>, <em>q</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_n_caustics" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_n_caustics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span></em>, <em class="sig-param"><span class="n">q</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_n_caustics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find number of caustics for binary lens.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>s: <em>float</em></dt>
-<dd>Separation of binary lens relative to theta_E.</dd>
-<dt>q: <em>float</em></dt>
-<dd>Mass ratio (&lt;1).</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>s: <em>float</em></dt><dd><p>Separation of binary lens relative to theta_E.</p>
+</dd>
+<dt>q: <em>float</em></dt><dd><p>Mass ratio (&lt;1).</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>n_caustics: <em>int</em></dt>
-<dd>Number of caustics: 1, 2, or 3.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>n_caustics: <em>int</em></dt><dd><p>Number of caustics: 1, 2, or 3.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.velocity_of_Earth">
-<em class="property">static </em><code class="descname">velocity_of_Earth</code><span class="sig-paren">(</span><em>full_BJD</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.velocity_of_Earth" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">velocity_of_Earth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">full_BJD</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.velocity_of_Earth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate 3D velocity of Earth for given epoch.</p>
 <p>If you need velocity projected on the plane of the sky, then use
-<a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates.v_Earth_projected" title="MulensModel.coordinates.Coordinates.v_Earth_projected"><code class="xref py py-func docutils literal"><span class="pre">v_Earth_projected()</span></code></a></p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>full_BJD: <em>float</em></dt>
-<dd>Are we fitting for blending flux? If not then blending flux is
-fixed to 0.  Default is the same as
-<code class="xref py py-func docutils literal"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code>.</dd>
+<a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates.v_Earth_projected" title="MulensModel.coordinates.Coordinates.v_Earth_projected"><code class="xref py py-func docutils literal notranslate"><span class="pre">v_Earth_projected()</span></code></a></p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>full_BJD: <em>float</em></dt><dd><p>Barycentric Julian Data. Full means it should begin
+with 245… or 246…</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>velocity: <em>np.ndarray</em> (<em>float</em>, size of (3,))</dt>
-<dd>3D velocity in km/s. The frame follows <em>Astropy</em> conventions.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>velocity: <em>np.ndarray</em> (<em>float</em>, size of (3,))</dt><dd><p>3D velocity in km/s. The frame follows <em>Astropy</em> conventions.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.complex_fsum">
-<em class="property">static </em><code class="descname">complex_fsum</code><span class="sig-paren">(</span><em>arguments</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.complex_fsum" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">complex_fsum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arguments</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.complex_fsum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Accurate floating points sum of complex numbers in iterable.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd>arguments: <em>iterable</em> (e.g., <em>list</em> or <em>np.ndarray</em>)</dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>sum: <em>complex</em></dt>
-<dd>Sum of <em>arguments</em>.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><p>arguments: <em>iterable</em> (e.g., <em>list</em> or <em>np.ndarray</em>)</p>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>sum: <em>complex</em></dt><dd><p>Sum of <em>arguments</em>.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.vector_product_normalized">
-<em class="property">static </em><code class="descname">vector_product_normalized</code><span class="sig-paren">(</span><em>vector_1</em>, <em>vector_2</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.vector_product_normalized" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">vector_product_normalized</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vector_1</span></em>, <em class="sig-param"><span class="n">vector_2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.vector_product_normalized" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get vector that is perpendicular to the 2 input ones and is normalized.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>vector_1: <em>np.ndarray</em> (3,)</dt>
-<dd>First vector.</dd>
-<dt>vector_2: <em>np.ndarray</em> (3,)</dt>
-<dd>Second vector.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>vector_1: <em>np.ndarray</em> (3,)</dt><dd><p>First vector.</p>
+</dd>
+<dt>vector_2: <em>np.ndarray</em> (3,)</dt><dd><p>Second vector.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>vector_product_norm: <em>np.ndarray</em> (3,)</dt>
-<dd>Normalized vector product of the inputs.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>vector_product_norm: <em>np.ndarray</em> (3,)</dt><dd><p>Normalized vector product of the inputs.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.dot">
-<em class="property">static </em><code class="descname">dot</code><span class="sig-paren">(</span><em>cartesian</em>, <em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.dot" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">dot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cartesian</span></em>, <em class="sig-param"><span class="n">vector</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.dot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dot product of 2 vectors represented by
 <em>astropy.CartesianRepresentation</em> and <em>np.ndarray</em>.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>cartesian: <em>astropy.CartesianRepresentation</em></dt>
-<dd>First vector.</dd>
-<dt>vector: <em>np.ndarray</em></dt>
-<dd>Second vector (length 3).</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>cartesian: <em>astropy.CartesianRepresentation</em></dt><dd><p>First vector.</p>
+</dd>
+<dt>vector: <em>np.ndarray</em></dt><dd><p>Second vector (length 3).</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>dot_product: <em>astropy.Quantity</em></dt>
-<dd>Dot product of inputs.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>dot_product: <em>astropy.Quantity</em></dt><dd><p>Dot product of inputs.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.date_change">
-<em class="property">static </em><code class="descname">date_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">date_change</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change format of month in date, e.g.
 <em>‘2015-Oct-30 12:00’</em> -&gt; <em>‘2015-10-30 12:00’</em></p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>text: <em>str</em></dt>
-<dd>Date to be changed.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>text: <em>str</em></dt><dd><p>Date to be changed.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>out_text: <em>str</em></dt>
-<dd>Changed text.</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>out_text: <em>str</em></dt><dd><p>Changed text.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="MulensModel.utils.Utils.astropy_version_check">
-<em class="property">static </em><code class="descname">astropy_version_check</code><span class="sig-paren">(</span><em>minimum</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.astropy_version_check" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">astropy_version_check</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">minimum</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.astropy_version_check" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if <em>astropy</em> package is installed at given or later version.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>minimum: <em>str</em></dt>
-<dd>Minimum version, e.g., <em>‘3.1.2’</em>.</dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>minimum: <em>str</em></dt><dd><p>Minimum version, e.g., <em>‘3.1.2’</em>.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns :</dt>
-<dd><dl class="first last docutils">
-<dt>out: <em>bool</em></dt>
-<dd>Is the installed version later?</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>out: <em>bool</em></dt><dd><p>Is the installed version later?</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="MulensModel.utils.PlotUtils">
+<em class="property">class </em><code class="sig-prename descclassname">MulensModel.utils.</code><code class="sig-name descname">PlotUtils</code><a class="headerlink" href="#MulensModel.utils.PlotUtils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A number of small functions related to plotting used in different places</p>
+<dl class="py method">
+<dt id="MulensModel.utils.PlotUtils.get_y_value_y_err">
+<em class="property">static </em><code class="sig-name descname">get_y_value_y_err</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phot_fmt</span></em>, <em class="sig-param"><span class="n">flux</span></em>, <em class="sig-param"><span class="n">flux_err</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.PlotUtils.get_y_value_y_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the format of data for Y axis.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>phot_fmt: <em>str</em></dt><dd><p>Requested format of output: ‘mag’ or ‘flux’</p>
+</dd>
+<dt>flux: <em>np.ndarray</em></dt><dd><p>fluxes values for Y axis</p>
+</dd>
+<dt>flux_err: <em>np.ndarray</em></dt><dd><p>flux uncertainties for Y axis</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>values: <em>np.ndarray</em></dt><dd><p>Values in the requested format</p>
+</dd>
+<dt>uncertainties: <em>np.ndarray</em></dt><dd><p>Uncertainties in the requested format</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.utils.PlotUtils.find_subtract">
+<em class="property">static </em><code class="sig-name descname">find_subtract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.PlotUtils.find_subtract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find value that is supposed to be subtracted from time vector.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>subtract_2450000: <em>bool</em></dt><dd><p>Should we subtract 2450000?</p>
+</dd>
+<dt>subtract_2460000: <em>bool</em></dt><dd><p>Should we subtract 2460000?</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>subtract: <em>float</em></dt><dd><p>Value to be subtracted.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.utils.PlotUtils.find_subtract_xlabel">
+<em class="property">static </em><code class="sig-name descname">find_subtract_xlabel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.PlotUtils.find_subtract_xlabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find string for xlabel</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>subtract_2450000: <em>bool</em></dt><dd><p>Should we subtract 2450000?</p>
+</dd>
+<dt>subtract_2460000: <em>bool</em></dt><dd><p>Should we subtract 2460000?</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>xlabel: <em>str</em></dt><dd><p>String to be used by <em>pyplot.xlabel()</em></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.utils.PlotUtils.get_color_differences">
+<em class="property">static </em><code class="sig-name descname">get_color_differences</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">color_list</span></em>, <em class="sig-param"><span class="n">color</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.PlotUtils.get_color_differences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate color difference between a list of colors and a single color.
+Uses algorithm from Wikipedia page:
+<a class="reference external" href="https://en.wikipedia.org/wiki/Color_difference">https://en.wikipedia.org/wiki/Color_difference</a></p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>color_list: <em>list</em> of <em>str</em></dt><dd><p>list of matplotlib colors e.g., <code class="docutils literal notranslate"><span class="pre">['black',</span> <span class="pre">'#E9967A']</span></code></p>
+</dd>
+<dt>color: <em>str</em></dt><dd><p>single matplotlib color</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>differences: <em>np.ndarray</em></dt><dd><p>differences of colors, values &lt; 0.3 are very similar</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -344,33 +406,54 @@ fixed to 0.  Default is the same as
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MulensModel</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pspl.html">Fitting tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pi_E.html">Parallax fitting tutorial</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.utils.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -379,8 +462,8 @@ fixed to 0.  Default is the same as
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/MulensModel.utils.rst.txt"
