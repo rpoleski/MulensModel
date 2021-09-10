@@ -341,7 +341,6 @@ class PlotUtils(object):
     A number of small functions related to plotting used in different places
     """
 
-# _get_y_value_y_err
     def get_y_value_y_err(phot_fmt, flux, flux_err):
         """
         Change the format of data for Y axis.
@@ -373,7 +372,6 @@ class PlotUtils(object):
                 'allowed values are "mag" and "flux"')
     get_y_value_y_err = staticmethod(get_y_value_y_err)
 
-    # subtract
     def find_subtract(subtract_2450000=False, subtract_2460000=False):
         """
         Find value that is supposed to be subtracted from time vector.
@@ -401,7 +399,6 @@ class PlotUtils(object):
         return subtract
     find_subtract = staticmethod(find_subtract)
 
-    # _subtract_xlabel
     def find_subtract_xlabel(subtract_2450000=False, subtract_2460000=False):
         """
         Find string for xlabel
@@ -416,7 +413,6 @@ class PlotUtils(object):
         Returns :
             xlabel: *str*
                 String to be used by *pyplot.xlabel()*
-        string that would be past to plt.xlabel()
         """
         if subtract_2450000:
             if subtract_2460000:
@@ -431,12 +427,12 @@ class PlotUtils(object):
         return out
     find_subtract_xlabel = staticmethod(find_subtract_xlabel)
 
-    # _color_differences
     def get_color_differences(color_list, color):
+        # I couldn't make the link below to work in sphinx because of "_" - RP
         """
         Calculate color difference between a list of colors and a single color.
-        Uses algorithm from
-        `this Wikipedia page<https://en.wikipedia.org/wiki/Color_difference>`_.
+        Uses algorithm from Wikipedia page:
+        https://en.wikipedia.org/wiki/Color_difference
 
         Parameters :
             color_list: *list* of *str*
@@ -449,8 +445,6 @@ class PlotUtils(object):
             differences: *np.ndarray*
                 differences of colors, values < 0.3 are very similar
         """
-        print("----------------- TEST 4 -------------------")
-
         rgba = ColorConverter.to_rgba
         array = np.array(
             [[float(x) for x in list(rgba(c))[:3]] for c in color_list])

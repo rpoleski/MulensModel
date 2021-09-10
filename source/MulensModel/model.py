@@ -963,7 +963,7 @@ class Model(object):
 
             bandpass: *str*, optional
                 The bandpass for setting the limb-darkening coefficient.
-                Expects that you have used :py:func:`set_limb_coeff_gamma() or
+                Expects that you have used :py:func:`set_limb_coeff_gamma()` or
                 :py:func:`set_limb_coeff_u()`. Only ONE of `gamma' or
                 `bandpass' may be specified.
 
@@ -1032,8 +1032,8 @@ class Model(object):
         return mag
 
     def magnification(self, *args, **kwargs):
-        warnings.warn(
-            'magnification() will be deprecated in favor of get_magnification()')
+        warnings.warn('magnification() will be deprecated in ' +
+                      'favor of get_magnification()')
         return self.get_magnification(*args, **kwargs)
 
     def _get_magnification(self, time, satellite_skycoord, gamma,

@@ -344,6 +344,7 @@ class FitData:
 
     def get_model_fluxes(self, bad=False):
         """
+        Calculate model in flux space.
 
         Keywords :
             bad: *bool*
@@ -376,8 +377,10 @@ class FitData:
 
     def get_model_magnitudes(self, **kwargs):
         """
+        Calculate model in magnitude space
+
         Arguments:
-            **kwargs: see :py:func:`~get_model_fluxes'
+            **kwargs: see :py:func:`~get_model_fluxes`
 
         Returns :
             model_mag: *np.ndarray*
