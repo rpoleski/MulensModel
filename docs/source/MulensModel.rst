@@ -5,19 +5,21 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
-    MulensModel.mulensobjects
+   MulensModel.mulensobjects
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    MulensModel.binarylens
    MulensModel.caustics
    MulensModel.coordinates
    MulensModel.event
-   MulensModel.fit
+   MulensModel.fitdata
    MulensModel.horizons
    MulensModel.limbdarkeningcoeffs
    MulensModel.magnificationcurve
@@ -30,11 +32,12 @@ Submodules
    MulensModel.uniformcausticsampling
    MulensModel.utils
    MulensModel.version
+   MulensModel.x
 
 Module contents
 ---------------
 
 .. automodule:: MulensModel
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

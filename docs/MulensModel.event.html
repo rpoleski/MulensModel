@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.event module &#8212; MulensModel 1.17.1 documentation</title>
+    <title>MulensModel.event module &#8212; MulensModel 2.0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -36,13 +36,13 @@
 <span id="mulensmodel-event-module"></span><h1>MulensModel.event module<a class="headerlink" href="#module-MulensModel.event" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="MulensModel.event.Event">
-<em class="property">class </em><code class="sig-prename descclassname">MulensModel.event.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datasets</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">MulensModel.event.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datasets</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_blend_flux</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">fix_source_flux</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">fix_source_flux_ratio</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Combines a microlensing model with data. Allows calculating chi^2 and
 making a number of plots.</p>
 <dl>
 <dt>Arguments :</dt><dd><p><a class="reference internal" href="#MulensModel.event.Event.datasets" title="MulensModel.event.Event.datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datasets</span></code></a> :  <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>
-or <em>list</em> of <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> objects</p>
+or <em>list</em> of <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> objects,</p>
 <blockquote>
 <div><p>Datasets that will be linked to the event. These datasets will
 be used for chi^2 calculation, plotting etc.</p>
@@ -62,10 +62,24 @@ change parameters for this model (i.e., do not provide separate
 <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html">astropy.SkyCoord</a> e.g., <code class="docutils literal notranslate"><span class="pre">'18:00:00</span> <span class="pre">-30:00:00'</span></code>.</p>
 </div></blockquote>
 <dl class="simple">
-<dt>fit: <a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit" title="MulensModel.fit.Fit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fit</span></code></a> or <em>None</em></dt><dd><p>Instance of <a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit" title="MulensModel.fit.Fit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fit</span></code></a> class used in
-the last calculation of chi^2 or its gradient. In can be used to
-extract source and bleding fluxes. If no chi^2 calculation was
-performed, then it is <em>None</em>.</p>
+<dt>fix_blend_flux, fix_source_flux: <em>dict</em></dt><dd><p>Used to fix the source flux(es) or blend flux
+for a particular dataset. The dataset is
+the key, and the value to be fixed is the value. For example, to
+fix the blending of some dataset <em>my_data</em> to zero set
+<em>fix_blend_flux={my_data: 0.}</em>. See also
+<a class="reference internal" href="MulensModel.fitdata.html#MulensModel.fitdata.FitData" title="MulensModel.fitdata.FitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitData</span></code></a> .</p>
+</dd>
+<dt>fix_source_flux_ratio: <em>dict</em></dt><dd><p>Used to fix the flux ratio for a given band or dataset. The keys
+should be either <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a>
+objects or <em>str</em>. If a
+<a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> object is specified,
+it will take precedence over a band.</p>
+</dd>
+</dl>
+<p>fit: DEPRECATED</p>
+<dl class="simple">
+<dt>data_ref: <em>int</em> or <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a></dt><dd><p>Reference dataset. If <em>int</em> then gives index of reference dataset
+in <a class="reference internal" href="#MulensModel.event.Event.datasets" title="MulensModel.event.Event.datasets"><code class="xref py py-attr docutils literal notranslate"><span class="pre">datasets</span></code></a>. Default is the first dataset.</p>
 </dd>
 </dl>
 </dd>
@@ -78,23 +92,62 @@ in negative flux, then we calculate chi^2 in flux space but only for the
 epochs with negative model flux.</p>
 <dl class="py method">
 <dt id="MulensModel.event.Event.plot_model">
-<code class="sig-name descname">plot_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the model light curve in magnitudes. See
 <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_lc" title="MulensModel.model.Model.plot_lc"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.model.Model.plot_lc()</span></code></a> for details.</p>
+<dl class="simple">
+<dt>Keywords :</dt><dd><dl class="simple">
+<dt>data_ref: <em>int</em> or <em>MulensData</em></dt><dd><p>If data_ref is not specified, uses <a class="reference internal" href="#MulensModel.event.Event.data_ref" title="MulensModel.event.Event.data_ref"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_ref</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="MulensModel.event.Event.plot_data">
-<code class="sig-name descname">plot_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the data scaled to the model. See
-<a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_data" title="MulensModel.model.Model.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.model.Model.plot_data()</span></code></a> for details.</p>
+<code class="sig-name descname">plot_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phot_fmt</span><span class="o">=</span><span class="default_value">'mag'</span></em>, <em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_errorbars</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_bad</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the data scaled to the model.</p>
+<dl class="simple">
+<dt>Keywords (all optional):</dt><dd><dl class="simple">
+<dt>phot_fmt: <em>string</em> (‘mag’, ‘flux’)</dt><dd><p>Whether to plot the data in magnitudes or in flux. Default
+is ‘mag’.</p>
+</dd>
+<dt>data_ref: <em>int</em> or <em>MulensData</em></dt><dd><p>If data_ref is not specified, uses <a class="reference internal" href="#MulensModel.event.Event.data_ref" title="MulensModel.event.Event.data_ref"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_ref</span></code></a>.</p>
+</dd>
+<dt>show_errorbars: <em>boolean</em> or <em>None</em></dt><dd><p>Do you want errorbars to be shown for all datasets?
+Default is <em>None</em>, which means the option is taken from each
+dataset plotting properties (for which default is <em>True</em>).
+If <em>True</em>, then data are plotted using matplotlib.errorbar().
+If <em>False</em>, then data are plotted using matplotlib.scatter().</p>
+</dd>
+<dt>show_bad: <em>boolean</em> or <em>None</em></dt><dd><p>Do you want data marked as bad to be shown?
+Default is <em>None</em>, which means the option is taken from each
+dataset plotting properties (for which default is <em>False</em>).
+If bad data are shown, then they are plotted with ‘x’ marker.</p>
+</dd>
+<dt>subtract_2450000, subtract_2460000: <em>boolean</em></dt><dd><p>If True, subtracts 2450000 or 2460000 from the time
+axis to get more human-scale numbers. If using, make
+sure to also set the same settings for all other
+plotting calls (e.g. <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_lc()</span></code>).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt><dd><p>Passed to matplotlib plotting functions. Contrary to
+previous behavior, <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> are no longer remembered.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="MulensModel.event.Event.plot_residuals">
-<code class="sig-name descname">plot_residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_residuals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the residuals (in magnitudes) of the model.
-See <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_residuals" title="MulensModel.model.Model.plot_residuals"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.model.Model.plot_residuals()</span></code></a> for details.</p>
+<code class="sig-name descname">plot_residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">show_errorbars</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">show_bad</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the residuals (in magnitudes) to the model.</p>
+<dl class="simple">
+<dt>Keywords:</dt><dd><p>For explanation of keywords, see doctrings in
+<a class="reference internal" href="#MulensModel.event.Event.plot_data" title="MulensModel.event.Event.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>. Note different order of keywords.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -108,15 +161,45 @@ py:func:<cite>MulensModel.model.Model.plot_trajectory()</cite> for details.</p>
 <dt id="MulensModel.event.Event.plot_source_for_datasets">
 <code class="sig-name descname">plot_source_for_datasets</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_source_for_datasets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot source positions for all linked datasets.
-See <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_source_for_datasets" title="MulensModel.model.Model.plot_source_for_datasets"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.model.Model.plot_source_for_datasets()</span></code></a> for
+See <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.plot_source" title="MulensModel.model.Model.plot_source"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.model.Model.plot_source()</span></code></a> for
 details.</p>
+<p>Note: plots all points in datasets (including ones flagged as bad)
+using the same marker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.event.Event.get_flux_for_dataset">
+<code class="sig-name descname">get_flux_for_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_flux_for_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the source and blend flux for a given dataset.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><p>dataset: <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> or <em>int</em>
+If <em>int</em> should be the index (starting at 0) of the appropriate
+dataset in the <a class="reference internal" href="#MulensModel.event.Event.datasets" title="MulensModel.event.Event.datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datasets</span></code></a> list.</p>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>source_flux: <em>np.ndarray</em></dt><dd><p>flux of sources. see
+<a class="reference internal" href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.source_fluxes" title="MulensModel.fitdata.FitData.source_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_fluxes</span></code></a></p>
+</dd>
+<dt>blend_flux: <em>float</em></dt><dd><p>blending flux. see
+<a class="reference internal" href="MulensModel.fitdata.html#MulensModel.fitdata.FitData.blend_flux" title="MulensModel.fitdata.FitData.blend_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blend_flux</span></code></a></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>NOTE: This function does not recalculate fits or fluxes. If the data
+haven’t yet been fit to the model (i.e. self.fits = None),
+it will run <a class="reference internal" href="#MulensModel.event.Event.fit_fluxes" title="MulensModel.event.Event.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_fluxes()</span></code></a>. Otherwise, it just accesses the
+existing values. So if you change something in <a class="reference internal" href="#MulensModel.event.Event.model" title="MulensModel.event.Event.model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code></a> or
+some fit parameter (e.g., <code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_blend_flux</span></code>), be sure to run
+<a class="reference internal" href="#MulensModel.event.Event.fit_fluxes" title="MulensModel.event.Event.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_fluxes()</span></code></a> first.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="MulensModel.event.Event.get_ref_fluxes">
 <code class="sig-name descname">get_ref_fluxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit_blending</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_ref_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get source and blending fluxes for the reference dataset. See
-<a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.get_ref_fluxes" title="MulensModel.model.Model.get_ref_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.model.Model.get_ref_fluxes()</span></code></a> for details.</p>
+<a class="reference internal" href="#MulensModel.event.Event.get_flux_for_dataset" title="MulensModel.event.Event.get_flux_for_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_flux_for_dataset()</span></code></a>. If the reference dataset is not
+set, uses the first dataset as default. See <a class="reference internal" href="#MulensModel.event.Event.data_ref" title="MulensModel.event.Event.data_ref"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_ref</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -125,12 +208,7 @@ details.</p>
 <dd><p>Calculates chi^2 of current model by fitting for source and
 blending fluxes.</p>
 <dl class="simple">
-<dt>Parameters :</dt><dd><dl class="simple">
-<dt>fit_blending: <em>boolean</em>, optional</dt><dd><p>If <em>True</em>, then the blend flux is a free parameter. If
-<em>False</em>, the blend flux is fixed at zero.  Default is
-the same as <a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</p>
-</dd>
-</dl>
+<dt>Parameters :</dt><dd><p>fit_blending: DEPRECATED. use <code class="xref py py-attr docutils literal notranslate"><span class="pre">fix_blend_flux</span></code> instead.</p>
 </dd>
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>chi2: <em>float</em></dt><dd><p>Chi^2 value</p>
@@ -144,15 +222,12 @@ the same as <a class="reference internal" href="MulensModel.fit.html#MulensModel
 <dt id="MulensModel.event.Event.get_chi2_for_dataset">
 <code class="sig-name descname">get_chi2_for_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index_dataset</span></em>, <em class="sig-param"><span class="n">fit_blending</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2_for_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates chi^2 for a single dataset</p>
-<dl class="simple">
+<dl>
 <dt>Parameters :</dt><dd><dl class="simple">
 <dt>index_dataset: <em>int</em></dt><dd><p>index that specifies for which dataset the chi^2 is requested</p>
 </dd>
-<dt>fit_blending: <em>boolean</em>, optional</dt><dd><p>Are we fitting for blending flux? If not then blending flux is
-fixed to 0.  Default is the same as
-<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</p>
-</dd>
 </dl>
+<p>fit_blending: DEPRECATED. use <code class="xref py py-attr docutils literal notranslate"><span class="pre">fix_blending</span></code> instead.</p>
 </dd>
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>chi2: <em>float</em></dt><dd><p>chi2 for dataset[index_dataset].</p>
@@ -168,12 +243,7 @@ fixed to 0.  Default is the same as
 <dd><p>Calculates chi^2 for each data point of the current model by
 fitting for source and blending fluxes.</p>
 <dl>
-<dt>Parameters :</dt><dd><dl class="simple">
-<dt>fit_blending: <em>boolean</em>, optional</dt><dd><p>Are we fitting for blending flux? If not then blending flux is
-fixed to 0.  Default is the same as
-<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</p>
-</dd>
-</dl>
+<dt>Parameters :</dt><dd><p>fit_blending: DEPRECATED. use <code class="xref py py-attr docutils literal notranslate"><span class="pre">fix_blending</span></code> instead.</p>
 </dd>
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>chi2: <em>list</em> of <em>np.ndarray</em></dt><dd><p>Chi^2 contribution from each data point,
@@ -193,22 +263,19 @@ for 10-th point point of 0-th dataset.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.event.Event.chi2_gradient">
-<code class="sig-name descname">chi2_gradient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em>, <em class="sig-param"><span class="n">fit_blending</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.chi2_gradient" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate chi^2 gradient (also called Jacobian), i.e.,
-<span class="math notranslate nohighlight">\(d chi^2/d parameter\)</span>.</p>
-<dl class="simple">
+<dt id="MulensModel.event.Event.get_chi2_gradient">
+<code class="sig-name descname">get_chi2_gradient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em>, <em class="sig-param"><span class="n">fit_blending</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.get_chi2_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit for fluxes and calculate chi^2 gradient (also called Jacobian),
+i.e., <span class="math notranslate nohighlight">\(d chi^2/d parameter\)</span>.</p>
+<dl>
 <dt>Parameters :</dt><dd><dl class="simple">
 <dt>parameters: <em>str</em> or <em>list</em>, required</dt><dd><p>Parameters with respect to which gradient is calculated.
 Currently accepted parameters are: <code class="docutils literal notranslate"><span class="pre">t_0</span></code>, <code class="docutils literal notranslate"><span class="pre">u_0</span></code>, <code class="docutils literal notranslate"><span class="pre">t_eff</span></code>,
 <code class="docutils literal notranslate"><span class="pre">t_E</span></code>, <code class="docutils literal notranslate"><span class="pre">pi_E_N</span></code>, and <code class="docutils literal notranslate"><span class="pre">pi_E_E</span></code>. The parameters for
 which you request gradient must be defined in py:attr:<cite>~model</cite>.</p>
 </dd>
-<dt>fit_blending: <em>boolean</em>, optional</dt><dd><p>Are we fitting for blending flux? If not then blending flux is
-fixed to 0.  Default is the same as
-<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</p>
-</dd>
 </dl>
+<p>fit_blending: DEPRECATED. use <code class="xref py py-attr docutils literal notranslate"><span class="pre">fix_blending</span></code> instead.</p>
 </dd>
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>gradient: <em>float</em> or <em>np.ndarray</em></dt><dd><p>chi^2 gradient</p>
@@ -219,10 +286,33 @@ fixed to 0.  Default is the same as
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.event.Event.reset_best_chi2">
-<code class="sig-name descname">reset_best_chi2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.reset_best_chi2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset <a class="reference internal" href="#MulensModel.event.Event.best_chi2" title="MulensModel.event.Event.best_chi2"><code class="xref py py-attr docutils literal notranslate"><span class="pre">best_chi2</span></code></a> attribute and its parameters
-(<a class="reference internal" href="#MulensModel.event.Event.best_chi2_parameters" title="MulensModel.event.Event.best_chi2_parameters"><code class="xref py py-attr docutils literal notranslate"><span class="pre">best_chi2_parameters</span></code></a>).</p>
+<dt id="MulensModel.event.Event.calculate_chi2_gradient">
+<code class="sig-name descname">calculate_chi2_gradient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.calculate_chi2_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate chi^2 gradient (also called Jacobian), i.e.,
+<span class="math notranslate nohighlight">\(d chi^2/d parameter\)</span>.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>parameters: <em>str</em> or <em>list</em>, required</dt><dd><p>Parameters with respect to which gradient is calculated.
+Currently accepted parameters are: <code class="docutils literal notranslate"><span class="pre">t_0</span></code>, <code class="docutils literal notranslate"><span class="pre">u_0</span></code>, <code class="docutils literal notranslate"><span class="pre">t_eff</span></code>,
+<code class="docutils literal notranslate"><span class="pre">t_E</span></code>, <code class="docutils literal notranslate"><span class="pre">pi_E_N</span></code>, and <code class="docutils literal notranslate"><span class="pre">pi_E_E</span></code>. The parameters for
+which you request gradient must be defined in py:attr:<cite>~model</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>gradient: <em>float</em> or <em>np.ndarray</em></dt><dd><p>chi^2 gradient</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>NOTE: Because this is not a ‘get’ function, it ASSUMES you have ALREADY
+fit for the fluxes, e.g. by calling get_chi2().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.event.Event.fit_fluxes">
+<code class="sig-name descname">fit_fluxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bad</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.fit_fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit for the optimal fluxes for each dataset (and its chi2)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -251,20 +341,67 @@ instances.</p>
 plotting). May be set as a
 <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> object or an
 index (<em>int</em>). Default is the first data set.</p>
+<dl class="simple">
+<dt>Returns :</dt><dd><p>index (<em>int</em>) of the relevant dataset.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.event.Event.best_chi2">
-<em class="property">property </em><code class="sig-name descname">best_chi2</code><a class="headerlink" href="#MulensModel.event.Event.best_chi2" title="Permalink to this definition">¶</a></dt>
+<dt id="MulensModel.event.Event.chi2">
+<em class="property">property </em><code class="sig-name descname">chi2</code><a class="headerlink" href="#MulensModel.event.Event.chi2" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>The smallest value returned by <a class="reference internal" href="#MulensModel.event.Event.get_chi2" title="MulensModel.event.Event.get_chi2"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_chi2()</span></code></a>.</p>
+<p>Chi^2 value. Note this is a static property. It is only updated when
+<a class="reference internal" href="#MulensModel.event.Event.fit_fluxes" title="MulensModel.event.Event.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_fluxes()</span></code></a> or <a class="reference internal" href="#MulensModel.event.Event.get_chi2" title="MulensModel.event.Event.get_chi2"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_chi2()</span></code></a> is run. So, if you
+change one of the settings be sure to run one of those functions to
+update the chi2.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.event.Event.best_chi2_parameters">
-<em class="property">property </em><code class="sig-name descname">best_chi2_parameters</code><a class="headerlink" href="#MulensModel.event.Event.best_chi2_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>dict</em></p>
-<p>Parameters that gave the smallest chi2.</p>
+<dt id="MulensModel.event.Event.chi2_gradient">
+<em class="property">property </em><code class="sig-name descname">chi2_gradient</code><a class="headerlink" href="#MulensModel.event.Event.chi2_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return previously calculated chi^2 gradient (also called Jacobian),
+i.e., <span class="math notranslate nohighlight">\(d chi^2/d parameter\)</span>. See <a class="reference internal" href="#MulensModel.event.Event.get_chi2_gradient" title="MulensModel.event.Event.get_chi2_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_chi2_gradient()</span></code></a>
+and <a class="reference internal" href="#MulensModel.event.Event.calculate_chi2_gradient" title="MulensModel.event.Event.calculate_chi2_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_chi2_gradient()</span></code></a>.</p>
+<dl class="simple">
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>gradient: <em>float</em> or <em>np.ndarray</em></dt><dd><p>chi^2 gradient. Will return None if the chi2 gradient was not
+previously calculated using one of the functions mentioned
+above.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.event.Event.fits">
+<em class="property">property </em><code class="sig-name descname">fits</code><a class="headerlink" href="#MulensModel.event.Event.fits" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> of <a class="reference internal" href="MulensModel.fitdata.html#MulensModel.fitdata.FitData" title="MulensModel.fitdata.FitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitData</span></code></a> objects</p>
+<p>There is one <a class="reference internal" href="MulensModel.fitdata.html#MulensModel.fitdata.FitData" title="MulensModel.fitdata.FitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitData</span></code></a> object for
+each dataset containing the information for fitting the model to
+that dataset, e.g. fitted fluxes, chi2 (for that dataset).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.event.Event.fluxes">
+<em class="property">property </em><code class="sig-name descname">fluxes</code><a class="headerlink" href="#MulensModel.event.Event.fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em></p>
+<p>An array giving the fitted source and blend flux(es) for each dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.event.Event.source_fluxes">
+<em class="property">property </em><code class="sig-name descname">source_fluxes</code><a class="headerlink" href="#MulensModel.event.Event.source_fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em></p>
+<p>An array giving the fitted source flux(es) for each dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.event.Event.blend_fluxes">
+<code class="sig-name descname">blend_fluxes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.blend_fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em></p>
+<p>An array giving the fitted blend flux for each dataset.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -272,22 +409,33 @@ index (<em>int</em>). Default is the first data set.</p>
 <em class="property">property </em><code class="sig-name descname">sum_function</code><a class="headerlink" href="#MulensModel.event.Event.sum_function" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em></p>
 <p>Function used for adding chi^2 contributions. Can be either
-‘math.fsum’ (default value) or ‘numpy.sum’.
-The former is slightly slower and more accurate,
+‘numpy.sum’ (default value) or ‘math.fsum’.
+The latter is slightly slower and more accurate,
 which may be important for large datasets.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.event.Event.clean_data">
-<code class="sig-name descname">clean_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.clean_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>masks outlying datapoints. <strong>Not Implemented.</strong></p>
+<dt id="MulensModel.event.Event.reset_best_chi2">
+<code class="sig-name descname">reset_best_chi2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.reset_best_chi2" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED</p>
+<p>Reset <a class="reference internal" href="#MulensModel.event.Event.best_chi2" title="MulensModel.event.Event.best_chi2"><code class="xref py py-attr docutils literal notranslate"><span class="pre">best_chi2</span></code></a> attribute and its parameters
+(<a class="reference internal" href="#MulensModel.event.Event.best_chi2_parameters" title="MulensModel.event.Event.best_chi2_parameters"><code class="xref py py-attr docutils literal notranslate"><span class="pre">best_chi2_parameters</span></code></a>).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.event.Event.estimate_model_params">
-<code class="sig-name descname">estimate_model_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.estimate_model_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>estimates model parameters without fitting them.
-<strong>Not Implemented.</strong></p>
+<dt id="MulensModel.event.Event.best_chi2">
+<em class="property">property </em><code class="sig-name descname">best_chi2</code><a class="headerlink" href="#MulensModel.event.Event.best_chi2" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED</p>
+<p><em>float</em></p>
+<p>The smallest value returned by <a class="reference internal" href="#MulensModel.event.Event.get_chi2" title="MulensModel.event.Event.get_chi2"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_chi2()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.event.Event.best_chi2_parameters">
+<em class="property">property </em><code class="sig-name descname">best_chi2_parameters</code><a class="headerlink" href="#MulensModel.event.Event.best_chi2_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED</p>
+<p><em>dict</em></p>
+<p>Parameters that gave the smallest chi2.</p>
 </dd></dl>
 
 </dd></dl>

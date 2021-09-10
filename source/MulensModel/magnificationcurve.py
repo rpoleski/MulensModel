@@ -397,7 +397,6 @@ class MagnificationCurve(object):
                         raise ValueError(msg.format(method))
 
             if method == 'point_source':
-                # XXX add try except here and print model parameters
                 try:
                     m = binary_lens.point_source_magnification(x, y)
                 except Exception as e:
@@ -447,13 +446,3 @@ class MagnificationCurve(object):
                if (value > 0 and value < n_max) else self._default_method
                for value in brackets]
         return out
-
-    @property
-    def magnification(self):
-        """
-        *np.ndarray*
-
-        provide vector of magnifications.
-        Same as :py:func:`~get_magnification()`
-        """
-        return self.get_magnification()

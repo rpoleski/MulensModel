@@ -2,6 +2,6 @@ MulensModel.limbdarkeningcoeffs module
 ======================================
 
 .. automodule:: MulensModel.limbdarkeningcoeffs
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

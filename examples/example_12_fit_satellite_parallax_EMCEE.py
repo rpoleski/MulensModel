@@ -59,15 +59,15 @@ def ln_prob(theta, event, parameters_to_fit):
 dir_ = join(mm.DATA_PATH, "photometry_files", "OB140939")
 file_ground = join(dir_, "ob140939_OGLE.dat")
 file_spitzer = join(dir_, "ob140939_Spitzer.dat")
-data_ground = mm.MulensData(file_name=file_ground,
-                            plot_properties={'label': 'OGLE'})
+data_ground = mm.MulensData(
+    file_name=file_ground, plot_properties={'label': 'OGLE'})
 
 # Here is the main difference - we provide the ephemeris for Spitzer:
 file_spitzer_eph = join(
     mm.DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat')
-data_spitzer = mm.MulensData(file_name=file_spitzer,
-                             ephemerides_file=file_spitzer_eph,
-                             plot_properties={'label': 'Spitzer'})
+data_spitzer = mm.MulensData(
+    file_name=file_spitzer, ephemerides_file=file_spitzer_eph,
+    plot_properties={'label': 'Spitzer'})
 
 # For parallax calculations we need event coordinates:
 coords = "17:47:12.25 -21:22:58.7"
@@ -111,13 +111,18 @@ for (i, p) in enumerate(parameters_to_fit):
     r = results[1, i]
     print(fmt.format(p, r, results[2, i]-r, r-results[0, i]))
 
-# We extract best model parameters and chi2 from my_event:
+# We extract best model parameters and chi2 from the chain:
+prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
 print("\nSmallest chi2 model:")
-best = [my_event.best_chi2_parameters[p] for p in parameters_to_fit]
-print(*["{:.4f}".format(b) if isinstance(b, float) else b.value for b in best])
-print("{:.4f}".format(my_event.best_chi2))
+print(*[repr(b) if isinstance(b, float) else b.value for b in best])
+print(best_chi2)
 for (i, parameter) in enumerate(parameters_to_fit):
     setattr(my_event.model.parameters, parameter, best[i])
+
+my_event.fit_fluxes()
 
 # In order to make plots, we need a Model instance
 # that has satellite ephemeris:
@@ -127,10 +132,10 @@ space_model = mm.Model({**params}, coords=coords,
 
 # Prepare plots:
 my_event.plot_model(subtract_2450000=True)
-fluxes = my_event.model.get_ref_fluxes()  # We need this to ensure that fluxes
-# are scalled properly.
+fluxes = my_event.get_flux_for_dataset(data_ground)
+# We need this to ensure that fluxes are scaled properly.
 space_model.plot_lc(subtract_2450000=True,
-                    f_source=fluxes[0], f_blend=fluxes[1])
+                    source_flux=fluxes[0], blend_flux=fluxes[1])
 my_event.plot_data(subtract_2450000=True)
 plt.legend()
 plt.xlim(6800., 6880.)

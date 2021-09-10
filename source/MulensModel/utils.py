@@ -1,6 +1,12 @@
+"""
+File with general code used in other parts of MulensModel package.
+
+Most importantly there are Utils and PlotUtils classes.
+"""
 import numpy as np
 from math import fsum, pow, sqrt
 import warnings
+from matplotlib.colors import ColorConverter
 
 from astropy import __version__ as astropy__version__
 from astropy.time import Time
@@ -29,7 +35,7 @@ month_3letter_to_2digit = {
 class Utils(object):
     """ A number of small functions used in different places """
 
-    def get_flux_from_mag(mag, zeropoint=MAG_ZEROPOINT):
+    def get_flux_from_mag(mag, zeropoint=None):
         """
         Transform magnitudes into fluxes.
 
@@ -45,11 +51,13 @@ class Utils(object):
             flux: *np.ndarray* or *float*
                 Calculated fluxes. Type is the same as *mag* parameter.
         """
+        if zeropoint is None:
+            zeropoint = MAG_ZEROPOINT
         flux = 10. ** (0.4 * (zeropoint - mag))
         return flux
     get_flux_from_mag = staticmethod(get_flux_from_mag)
 
-    def get_flux_and_err_from_mag(mag, err_mag, zeropoint=MAG_ZEROPOINT):
+    def get_flux_and_err_from_mag(mag, err_mag, zeropoint=None):
         """
         Transform magnitudes and their uncertainties into flux space.
 
@@ -72,12 +80,14 @@ class Utils(object):
                 Calculated flux uncertainties. Type is *float* if both *mag*
                 and *err_mag* are *floats* and *np.ndarray* otherwise.
         """
+        if zeropoint is None:
+            zeropoint = MAG_ZEROPOINT
         flux = 10. ** (0.4 * (zeropoint - mag))
         err_flux = err_mag * flux * np.log(10.) * 0.4
         return (flux, err_flux)
     get_flux_and_err_from_mag = staticmethod(get_flux_and_err_from_mag)
 
-    def get_mag_from_flux(flux, zeropoint=MAG_ZEROPOINT):
+    def get_mag_from_flux(flux, zeropoint=None):
         """
         Transform fluxes into magnitudes.
 
@@ -93,6 +103,8 @@ class Utils(object):
             mag: *np.ndarray* or *float*
                 Calculated fluxes. Type is the same as *flux* parameter.
         """
+        if zeropoint is None:
+            zeropoint = MAG_ZEROPOINT
         if np.any(flux <= 0.):
             warnings.warn(
                 "Flux to magnitude conversion approached negative flux",
@@ -101,7 +113,7 @@ class Utils(object):
         return mag
     get_mag_from_flux = staticmethod(get_mag_from_flux)
 
-    def get_mag_and_err_from_flux(flux, err_flux, zeropoint=MAG_ZEROPOINT):
+    def get_mag_and_err_from_flux(flux, err_flux, zeropoint=None):
         """
         Transform fluxes and their uncertainties into magnitude space.
 
@@ -124,6 +136,8 @@ class Utils(object):
                 Calculated magnitude uncertainties. Type is *float* if both
                 *flux* and *err_flux* are *floats* and *np.ndarray* otherwise.
         """
+        if zeropoint is None:
+            zeropoint = MAG_ZEROPOINT
         if np.any(flux <= 0.):
             warnings.warn(
                 "Flux to magnitude conversion approached negative flux",
@@ -203,9 +217,8 @@ class Utils(object):
 
         Parameters :
             full_BJD: *float*
-                Are we fitting for blending flux? If not then blending flux is
-                fixed to 0.  Default is the same as
-                :py:func:`MulensModel.fit.Fit.fit_fluxes()`.
+                Barycentric Julian Data. Full means it should begin
+                with 245... or 246...
 
         Returns :
             velocity: *np.ndarray* (*float*, size of (3,))
@@ -321,3 +334,126 @@ class Utils(object):
                 return False
         return True
     astropy_version_check = staticmethod(astropy_version_check)
+
+
+class PlotUtils(object):
+    """
+    A number of small functions related to plotting used in different places
+    """
+
+    def get_y_value_y_err(phot_fmt, flux, flux_err):
+        """
+        Change the format of data for Y axis.
+
+        Parameters :
+            phot_fmt: *str*
+                Requested format of output: 'mag' or 'flux'
+
+            flux: *np.ndarray*
+                fluxes values for Y axis
+
+            flux_err: *np.ndarray*
+                flux uncertainties for Y axis
+
+        Returns :
+            values: *np.ndarray*
+                Values in the requested format
+
+            uncertainties: *np.ndarray*
+                Uncertainties in the requested format
+        """
+        if phot_fmt == 'mag':
+            return Utils.get_mag_and_err_from_flux(flux, flux_err)
+        elif phot_fmt == 'flux':
+            return (flux, flux_err)
+        else:
+            raise ValueError(
+                'Unrecognized photometry format: {:}, '.format(phot_fmt) +
+                'allowed values are "mag" and "flux"')
+    get_y_value_y_err = staticmethod(get_y_value_y_err)
+
+    def find_subtract(subtract_2450000=False, subtract_2460000=False):
+        """
+        Find value that is supposed to be subtracted from time vector.
+
+        Parameters :
+            subtract_2450000: *bool*
+                Should we subtract 2450000?
+
+            subtract_2460000: *bool*
+                Should we subtract 2460000?
+
+        Returns :
+            subtract: *float*
+                Value to be subtracted.
+        """
+        subtract = 0.
+        if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError("subtract_2450000 and subtract_2460000 " +
+                                 "cannot be both True")
+            subtract = 2450000.
+        if subtract_2460000:
+            subtract = 2460000.
+
+        return subtract
+    find_subtract = staticmethod(find_subtract)
+
+    def find_subtract_xlabel(subtract_2450000=False, subtract_2460000=False):
+        """
+        Find string for xlabel
+
+        Parameters :
+            subtract_2450000: *bool*
+                Should we subtract 2450000?
+
+            subtract_2460000: *bool*
+                Should we subtract 2460000?
+
+        Returns :
+            xlabel: *str*
+                String to be used by *pyplot.xlabel()*
+        """
+        if subtract_2450000:
+            if subtract_2460000:
+                raise ValueError('subtract_2450000 and subtract_2460000 ' +
+                                 'cannot be both True')
+            out = 'Time - 2450000'
+        elif subtract_2460000:
+            out = 'Time - 2460000'
+        else:
+            out = 'Time'
+
+        return out
+    find_subtract_xlabel = staticmethod(find_subtract_xlabel)
+
+    def get_color_differences(color_list, color):
+        # I couldn't make the link below to work in sphinx because of "_" - RP
+        """
+        Calculate color difference between a list of colors and a single color.
+        Uses algorithm from Wikipedia page:
+        https://en.wikipedia.org/wiki/Color_difference
+
+        Parameters :
+            color_list: *list* of *str*
+                list of matplotlib colors e.g., ``['black', '#E9967A']``
+
+            color: *str*
+                single matplotlib color
+
+        Returns :
+            differences: *np.ndarray*
+                differences of colors, values < 0.3 are very similar
+        """
+        rgba = ColorConverter.to_rgba
+        array = np.array(
+            [[float(x) for x in list(rgba(c))[:3]] for c in color_list])
+        # We use float above because some versions of matplotlib return str.
+        color_value = [float(x) for x in list(rgba(color))[:3]]
+        mean_red = 0.5 * (array[:, 0] + color_value[0])
+        diffs = (array - color_value)**2
+        add_1 = (2. + mean_red) * diffs[:, 0]
+        add_2 = 4. * diffs[:, 1]
+        add_3 = (3. + mean_red) * diffs[:, 2]
+        return np.sqrt(add_1 + add_2 + add_3)
+    get_color_differences = staticmethod(get_color_differences)

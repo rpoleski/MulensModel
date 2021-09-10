@@ -81,9 +81,19 @@ print(result)
 # Plot and compare the two models
 init_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 final_model = mm.Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
+
+init_fit = mm.FitData(dataset=data, model=init_model)
+init_fit.fit_fluxes()
+final_fit = mm.FitData(dataset=data, model=final_model)
+final_fit.fit_fluxes()
+
 plt.figure()
-init_model.plot_lc(data_ref=data, label='Initial Trial')
-final_model.plot_lc(data_ref=data, label='Final Model')
+init_model.plot_lc(
+    source_flux=init_fit.source_flux, blend_flux=init_fit.blend_flux,
+    label='Initial Trial')
+final_model.plot_lc(
+    source_flux=final_fit.source_flux, blend_flux=final_fit.blend_flux,
+    label='Final Model')
 plt.title('Difference b/w Input and Fitted Model')
 plt.legend(loc='best')
 

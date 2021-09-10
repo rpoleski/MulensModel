@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.utils module &#8212; MulensModel 1.17.1 documentation</title>
+    <title>MulensModel.utils module &#8212; MulensModel 2.0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,14 +34,16 @@
             
   <div class="section" id="module-MulensModel.utils">
 <span id="mulensmodel-utils-module"></span><h1>MulensModel.utils module<a class="headerlink" href="#module-MulensModel.utils" title="Permalink to this headline">¶</a></h1>
+<p>File with general code used in other parts of MulensModel package.</p>
+<p>Most importantly there are Utils and PlotUtils classes.</p>
 <dl class="py class">
 <dt id="MulensModel.utils.Utils">
 <em class="property">class </em><code class="sig-prename descclassname">MulensModel.utils.</code><code class="sig-name descname">Utils</code><a class="headerlink" href="#MulensModel.utils.Utils" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A number of small functions used in different places</p>
 <dl class="py method">
 <dt id="MulensModel.utils.Utils.get_flux_from_mag">
-<em class="property">static </em><code class="sig-name descname">get_flux_from_mag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mag</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">22.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_from_mag" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_flux_from_mag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mag</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_from_mag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform magnitudes into fluxes.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
@@ -62,7 +64,7 @@ Defaults to 22. - double check if you want to change this.</p>
 
 <dl class="py method">
 <dt id="MulensModel.utils.Utils.get_flux_and_err_from_mag">
-<em class="property">static </em><code class="sig-name descname">get_flux_and_err_from_mag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mag</span></em>, <em class="sig-param"><span class="n">err_mag</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">22.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_and_err_from_mag" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_flux_and_err_from_mag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mag</span></em>, <em class="sig-param"><span class="n">err_mag</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_and_err_from_mag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform magnitudes and their uncertainties into flux space.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
@@ -88,7 +90,7 @@ and <em>err_mag</em> are <em>floats</em> and <em>np.ndarray</em> otherwise.</p>
 
 <dl class="py method">
 <dt id="MulensModel.utils.Utils.get_mag_from_flux">
-<em class="property">static </em><code class="sig-name descname">get_mag_from_flux</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flux</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">22.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_from_flux" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_mag_from_flux</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flux</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_from_flux" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform fluxes into magnitudes.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
@@ -109,7 +111,7 @@ Defaults to 22. - double check if you want to change this.</p>
 
 <dl class="py method">
 <dt id="MulensModel.utils.Utils.get_mag_and_err_from_flux">
-<em class="property">static </em><code class="sig-name descname">get_mag_and_err_from_flux</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flux</span></em>, <em class="sig-param"><span class="n">err_flux</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">22.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_and_err_from_flux" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_mag_and_err_from_flux</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flux</span></em>, <em class="sig-param"><span class="n">err_flux</span></em>, <em class="sig-param"><span class="n">zeropoint</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_and_err_from_flux" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform fluxes and their uncertainties into magnitude space.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
@@ -199,9 +201,8 @@ introduced by <a class="reference external" href="https://ui.adsabs.harvard.edu/
 <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates.v_Earth_projected" title="MulensModel.coordinates.Coordinates.v_Earth_projected"><code class="xref py py-func docutils literal notranslate"><span class="pre">v_Earth_projected()</span></code></a></p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
-<dt>full_BJD: <em>float</em></dt><dd><p>Are we fitting for blending flux? If not then blending flux is
-fixed to 0.  Default is the same as
-<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</p>
+<dt>full_BJD: <em>float</em></dt><dd><p>Barycentric Julian Data. Full means it should begin
+with 245… or 246…</p>
 </dd>
 </dl>
 </dd>
@@ -300,6 +301,99 @@ fixed to 0.  Default is the same as
 </dd>
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>out: <em>bool</em></dt><dd><p>Is the installed version later?</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="MulensModel.utils.PlotUtils">
+<em class="property">class </em><code class="sig-prename descclassname">MulensModel.utils.</code><code class="sig-name descname">PlotUtils</code><a class="headerlink" href="#MulensModel.utils.PlotUtils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A number of small functions related to plotting used in different places</p>
+<dl class="py method">
+<dt id="MulensModel.utils.PlotUtils.get_y_value_y_err">
+<em class="property">static </em><code class="sig-name descname">get_y_value_y_err</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phot_fmt</span></em>, <em class="sig-param"><span class="n">flux</span></em>, <em class="sig-param"><span class="n">flux_err</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.PlotUtils.get_y_value_y_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the format of data for Y axis.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>phot_fmt: <em>str</em></dt><dd><p>Requested format of output: ‘mag’ or ‘flux’</p>
+</dd>
+<dt>flux: <em>np.ndarray</em></dt><dd><p>fluxes values for Y axis</p>
+</dd>
+<dt>flux_err: <em>np.ndarray</em></dt><dd><p>flux uncertainties for Y axis</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>values: <em>np.ndarray</em></dt><dd><p>Values in the requested format</p>
+</dd>
+<dt>uncertainties: <em>np.ndarray</em></dt><dd><p>Uncertainties in the requested format</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.utils.PlotUtils.find_subtract">
+<em class="property">static </em><code class="sig-name descname">find_subtract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.PlotUtils.find_subtract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find value that is supposed to be subtracted from time vector.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>subtract_2450000: <em>bool</em></dt><dd><p>Should we subtract 2450000?</p>
+</dd>
+<dt>subtract_2460000: <em>bool</em></dt><dd><p>Should we subtract 2460000?</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>subtract: <em>float</em></dt><dd><p>Value to be subtracted.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.utils.PlotUtils.find_subtract_xlabel">
+<em class="property">static </em><code class="sig-name descname">find_subtract_xlabel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.PlotUtils.find_subtract_xlabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find string for xlabel</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>subtract_2450000: <em>bool</em></dt><dd><p>Should we subtract 2450000?</p>
+</dd>
+<dt>subtract_2460000: <em>bool</em></dt><dd><p>Should we subtract 2460000?</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>xlabel: <em>str</em></dt><dd><p>String to be used by <em>pyplot.xlabel()</em></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.utils.PlotUtils.get_color_differences">
+<em class="property">static </em><code class="sig-name descname">get_color_differences</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">color_list</span></em>, <em class="sig-param"><span class="n">color</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.PlotUtils.get_color_differences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate color difference between a list of colors and a single color.
+Uses algorithm from Wikipedia page:
+<a class="reference external" href="https://en.wikipedia.org/wiki/Color_difference">https://en.wikipedia.org/wiki/Color_difference</a></p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>color_list: <em>list</em> of <em>str</em></dt><dd><p>list of matplotlib colors e.g., <code class="docutils literal notranslate"><span class="pre">['black',</span> <span class="pre">'#E9967A']</span></code></p>
+</dd>
+<dt>color: <em>str</em></dt><dd><p>single matplotlib color</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>differences: <em>np.ndarray</em></dt><dd><p>differences of colors, values &lt; 0.3 are very similar</p>
 </dd>
 </dl>
 </dd>

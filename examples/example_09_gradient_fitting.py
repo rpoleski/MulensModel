@@ -19,16 +19,24 @@ def chi2_fun(theta, event, parameters_to_fit):
     """
     for (key, val) in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
+
     return event.get_chi2()
 
 
 def jacobian(theta, event, parameters_to_fit):
     """
     Calculate chi^2 gradient (also called Jacobian).
+
+    Note: this implementation is robust but possibly inefficient. If
+    chi2_fun() is ALWAYS called before jacobian with the same parameters,
+    there is no need to set the parameters in event.model; also,
+    event.calculate_chi2_gradient() can be used instead (which avoids fitting
+    for the fluxes twice).
     """
     for (key, val) in enumerate(parameters_to_fit):
         setattr(event.model.parameters, val, theta[key])
-    return event.chi2_gradient(parameters_to_fit)
+
+    return event.get_chi2_gradient(parameters_to_fit)
 
 
 # Read in the data file
@@ -45,7 +53,9 @@ model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
 # Link the data and the model
 ev = mm.Event(datasets=data, model=model)
+(source_flux_init, blend_flux_init) = ev.get_flux_for_dataset(data)
 print('Initial Trial\n{0}'.format(ev.model.parameters))
+print('Chi2 = {0}\n'.format(ev.get_chi2()))
 
 # Find the best-fit parameters
 initial_guess = [t_0, u_0, t_E]
@@ -57,6 +67,7 @@ result = op.minimize(
 
 # Save the best-fit parameters
 chi2 = chi2_fun(result.x, ev, parameters_to_fit)
+(source_flux_final, blend_flux_final) = ev.get_flux_for_dataset(data)
 
 # Output the fit parameters
 msg = 'Best Fit: t_0 = {0:12.5f}, u_0 = {1:6.4f}, t_E = {2:8.3f}'
@@ -69,8 +80,12 @@ print(result)
 init_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 final_model = mm.Model({'t_0': fit_t_0, 'u_0': fit_u_0, 't_E': fit_t_E})
 plt.figure()
-init_model.plot_lc(data_ref=data, label='Initial Trial')
-final_model.plot_lc(data_ref=data, label='Final Model')
+init_model.plot_lc(
+    source_flux=source_flux_init, blend_flux=blend_flux_init,
+    label='Initial Trial')
+final_model.plot_lc(
+    source_flux=source_flux_final, blend_flux=blend_flux_final,
+    label='Final Model')
 plt.title('Difference b/w Input and Fitted Model')
 plt.legend(loc='best')
 

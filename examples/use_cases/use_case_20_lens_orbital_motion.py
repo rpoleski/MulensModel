@@ -66,7 +66,8 @@ print(
     '{0} == {1}?'.format(
         model_orb.parameters.gamma_parallel, 0.3333333 / u.year))
 print(
-    '{0} == {1}?'.format(model_orb.parameters.gamma_perp, -50. / u.year))
+    '{0} == {1}?'.format(
+        model_orb.parameters.gamma_perp,  -0.87266 / u.year))
 # or # -0.87266 u.rad/u.year (the minus sign comes from the definition in
 # Skowron et al. 2011).
 print('{0} == {1}?'.format(model_orb.parameters.gamma, 0.9346 / u.year))

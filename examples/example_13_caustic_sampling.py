@@ -161,8 +161,8 @@ sampler = emcee.EnsembleSampler(
 sampler.run_mcmc(start, emcee_settings['n_steps'])
 
 # Parse results.
-burn = emcee_settings['n_burn']
-samples = sampler.chain[:, burn:, :].reshape((-1, n_dim))
+n_burn = emcee_settings['n_burn']
+samples = sampler.chain[:, n_burn:, :].reshape((-1, n_dim))
 r_16 = np.percentile(samples, 16, axis=0)
 r_50 = np.percentile(samples, 50, axis=0)
 r_84 = np.percentile(samples, 84, axis=0)
@@ -173,11 +173,19 @@ for i in range(n_dim):
     else:
         fmt = "{:} {:.5f} +{:.5f} -{:.5f}"
     print(fmt.format(parameters[i], r_50[i], r_84[i]-r_50[i], r_50[i]-r_16[i]))
-print("Smallest chi2 model:")
-best = [my_event.best_chi2_parameters[p] for p in parameters]
-for (best_, param) in zip(best, parameters):
-    setattr(my_event.model.parameters, param, best_)
-print(*[b if isinstance(b, float) else b.value for b in best])
+# We extract best model parameters and chi2 from the chain:
+prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
+print("\nSmallest chi2 model:")
+print(*[repr(b) if isinstance(b, float) else b.value for b in best])
+print(best_chi2)
+for (i, parameter) in enumerate(parameters):
+    setattr(my_event.model.parameters, parameter, best[i])
+
+my_event.fit_fluxes()
+
 # Expected results:
 # t_0 ~ 2452848.06
 # u_0 ~ 0.132
@@ -192,4 +200,4 @@ if 'x_caustic_in' in parameters:
     print(' u_0 = {:.5f}'.format(my_event.model.parameters.u_0))
     print(' t_E = {:.3f}'.format(my_event.model.parameters.t_E))
     print(' alpha = {:.2f}\n'.format(my_event.model.parameters.alpha))
-print("chi2: ", my_event.best_chi2)  # Expected value: ~1655
+print("chi2: ", my_event.get_chi2())  # Expected value: ~1655

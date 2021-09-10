@@ -1,11 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from os.path import basename, exists
+import warnings
 
-from astropy.coordinates import SkyCoord
-from astropy import units as u
-
-from MulensModel.utils import Utils
+from MulensModel.utils import Utils, PlotUtils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.coordinates import Coordinates
 
@@ -129,20 +127,7 @@ class MulensData(object):
         self._chi2_fmt = chi2_fmt
 
         # Set the coords (if applicable)...
-        coords_msg = 'Must specify both or neither of ra and dec'
-        self._coords = None
-        # ...using coords keyword
-        if coords is not None:
-            self._coords = Coordinates(coords)
-        # ...using ra, dec keywords
-        if ra is not None:
-            if dec is not None:
-                self._coords = Coordinates(ra, dec)
-            else:
-                raise AttributeError(coords_msg)
-        else:
-            if ra is not None:
-                raise AttributeError(coords_msg)
+        self._set_coords(coords=coords, ra=ra, dec=dec)
 
         # Plot properties
         if plot_properties is None:
@@ -273,6 +258,28 @@ class MulensData(object):
             msg = 'unknown brightness format in MulensData'
             raise ValueError(msg)
 
+    def _set_coords(self, coords=None, ra=None, dec=None):
+        """Set the coordinates and raise errors if applicable."""
+        self._coords = None
+        if (coords is not None) or (ra is not None) or (dec is not None):
+            # Check for errors and if none, set the coordinates
+            warnings.warn(
+                'coords will be deprecated in future. There is no reason to' +
+                'tie this to a given dataset', FutureWarning)
+            coords_msg = 'Must specify both or neither of ra and dec'
+            # ...using coords keyword
+            if coords is not None:
+                self._coords = Coordinates(coords)
+            # ...using ra, dec keywords
+            if ra is not None:
+                if dec is not None:
+                    self._coords = Coordinates(ra, dec)
+                else:
+                    raise AttributeError(coords_msg)
+            else:
+                if ra is not None:
+                    raise AttributeError(coords_msg)
+
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False,
              model=None, plot_residuals=False, **kwargs):
@@ -282,10 +289,7 @@ class MulensData(object):
         Uses :py:attr:`plot_properties` for label, color, etc.
         This settings can be changed by setting ``**kwargs``.
 
-        You can plot in either flux or magnitude space. You can plot
-        data in a scale defined by other dataset -- pass *model* argument
-        and *model.data_ref* will be used as reference. Instead of plotting
-        data themselves, you can also plot the residuals of a *model*.
+        You can plot in either flux or magnitude space.
 
         Keywords:
             phot_fmt: *string* ('mag', 'flux')
@@ -309,9 +313,8 @@ class MulensData(object):
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
             model: :py:class:`~MulensModel.model.Model`
-                Model used to scale the data or calculate residuals
-                (if *plot_residuals* is *True*). If provided, then data are
-                scaled to *model.data_ref* dataset.
+                DEPRECATED. Use :py:func:`~MulensModel.model.Event.plot_data()`
+                to plot a dataset scaled to a model.
 
             plot_residuals: *boolean*
                 If *True* then residuals are plotted (*model* is required).
@@ -319,7 +322,6 @@ class MulensData(object):
 
             ``**kwargs``: passed to matplotlib plotting functions.
         """
-
         if phot_fmt is None:
             phot_fmt = self.input_fmt
         if phot_fmt not in ['mag', 'flux']:
@@ -328,14 +330,35 @@ class MulensData(object):
             raise ValueError(
                     'MulensData.plot() requires model to plot residuals')
 
-        subtract = 0.
-        if subtract_2450000:
-            if subtract_2460000:
-                raise ValueError("subtract_2450000 and subtract_2460000 " +
-                                 "cannot be both True")
-            subtract = 2450000.
-        if subtract_2460000:
-            subtract = 2460000.
+        if model is None:
+            (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
+                                                       self.flux,
+                                                       self.err_flux)
+        else:
+            raise KeyError(
+                'Passing a model to MulensData.plot will be depracated. Use ' +
+                'Event.plot_data() or Event.plot_residuals() instead.')
+
+        self._plot_datapoints(
+            (y_value, y_err), subtract_2450000=subtract_2450000,
+            subtract_2460000=subtract_2460000, show_errorbars=show_errorbars,
+            show_bad=show_bad, **kwargs)
+
+        if phot_fmt == 'mag':
+            (ymin, ymax) = plt.gca().get_ylim()
+            if ymax > ymin:
+                plt.gca().invert_yaxis()
+
+    def _plot_datapoints(
+            self, y, subtract_2450000=False,
+            subtract_2460000=False, show_errorbars=None, show_bad=None,
+            **kwargs):
+        """
+        plot datapoints while evaluating various contingencies
+        """
+        (y_value, y_err) = y
+        subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
+                                           subtract_2460000=subtract_2460000)
 
         if show_errorbars is None:
             show_errorbars = self.plot_properties.get('show_errorbars', True)
@@ -343,32 +366,10 @@ class MulensData(object):
         if show_bad is None:
             show_bad = self.plot_properties.get('show_bad', False)
 
-        if model is None:
-            (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
-                                                       self.flux,
-                                                       self.err_flux)
-        else:
-            if plot_residuals:
-                residuals = model.get_residuals(data_ref=model.data_ref,
-                                                type=phot_fmt, data=self)
-                y_value = residuals[0][0]
-                y_err = residuals[1][0]
-            else:
-                i_data_ref = model.data_ref
-                (f_source_0, f_blend_0) = model.get_ref_fluxes(
-                    data_ref=model.datasets[i_data_ref])
-                (f_source, f_blend) = model.get_ref_fluxes(data_ref=self)
-                model.data_ref = i_data_ref
-                flux = f_source_0 * (self.flux - f_blend) / f_source
-                flux += f_blend_0
-                err_flux = f_source_0 * self.err_flux / f_source
-                (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
-                                                           flux, err_flux)
-
         properties = self._set_plot_properties(
-                show_errorbars=show_errorbars, **kwargs)
+            show_errorbars=show_errorbars, **kwargs)
         properties_bad = self._set_plot_properties(
-                show_errorbars=show_errorbars, bad=True, **kwargs)
+            show_errorbars=show_errorbars, bad=True, **kwargs)
 
         time_good = self.time[self.good] - subtract
         time_bad = self.time[self.bad] - subtract
@@ -381,6 +382,7 @@ class MulensData(object):
                     pass
                 else:
                     properties_bad['color'] = container[0].get_color()
+
                 self._plt_errorbar(time_bad, y_value[self.bad],
                                    y_err[self.bad], properties_bad)
         else:
@@ -394,11 +396,6 @@ class MulensData(object):
                 if change:
                     properties_bad['color'] = collection.get_edgecolor()
                 self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
-
-        if phot_fmt == 'mag':
-            (ymin, ymax) = plt.gca().get_ylim()
-            if ymax > ymin:
-                plt.gca().invert_yaxis()
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
@@ -588,6 +585,7 @@ class MulensData(object):
         """
         if self._err_flux is None:
             self.flux
+
         return self._err_flux
 
     @property
@@ -604,6 +602,7 @@ class MulensData(object):
         new_value = np.asarray(new_value)
         if new_value.dtype != np.dtype('bool'):
             raise TypeError("MulensData.bad has to be a boolean numpy array")
+
         self._bad = new_value
         self._good = np.logical_not(self._bad)
 
@@ -621,6 +620,7 @@ class MulensData(object):
         new_value = np.asarray(new_value)
         if new_value.dtype != np.dtype('bool'):
             raise TypeError("MulensData.good has to be a boolean numpy array")
+
         self._good = new_value
         self._bad = np.logical_not(self._good)
 
@@ -698,6 +698,7 @@ class MulensData(object):
             raise ValueError(
                 "Limb darkening weights were already set - you" +
                 "cannot bandpass now.")
+
         self._bandpass = value
 
     @property

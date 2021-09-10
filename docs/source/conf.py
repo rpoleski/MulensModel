@@ -82,7 +82,9 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = []
+#exclude_patterns = []
+# RP 10.9.2021 - I'm changing it when we remove fit.py in v2.0
+exclude_patterns = ["fit.py"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -109,8 +111,10 @@ html_theme = 'alabaster'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-
+#html_static_path = ['_static']
+# RP on 10.09.2021 I'm changing it because of  
+# WARNING: html_static_path entry '_static' does not exist
+html_static_path = []
 
 # -- Options for HTMLHelp output ------------------------------------------
 
