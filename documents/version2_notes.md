@@ -157,11 +157,16 @@ the code):
 - example_11_binary_source.py
   - event.model.set_source_flux_ratio(theta_) --> 
     event.fix_source_flux_ratio ={my_dataset: theta_}
+  - model.magnification() --> model.get_magnification()
 - example_12_fit_satellite_parallax_EMCEE.py
   - added my_event.fit_fluxes()
   - my_event.model.get_ref_fluxes() --> 
     my_event.get_flux_for_dataset(data_ground)
   - f_source, f_blend --> source_flux, blend_flux
+- example_17_1L2S_plotting.py
+  - model.magnification() --> model.get_magnification()
+- example_18_simulate.py
+  - model.magnification() --> model.get_magnification()
 
 Also, because best_chi2 and best_chi2_parameters are no longer properties of 
 Event(), we changed how we store and access that information in Examples 06, 10,
