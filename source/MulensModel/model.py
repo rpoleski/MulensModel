@@ -1031,6 +1031,11 @@ class Model(object):
 
         return mag
 
+    def magnification(self, *args, **kwargs):
+        warnings.warn(
+            'magnification() will be deprecated in favor of get_magnification()')
+        return self.get_magnification(*args, **kwargs)
+
     def _get_magnification(self, time, satellite_skycoord, gamma,
                            source_flux_ratio, separate):
         """
