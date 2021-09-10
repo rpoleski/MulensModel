@@ -811,7 +811,8 @@ class Event(object):
         Reset :py:attr:`~best_chi2` attribute and its parameters
         (:py:attr:`~best_chi2_parameters`).
         """
-        raise NameError('reset_best_chi2 (and best_chi2) has been deprecated.')
+        raise AttributeError(
+            'reset_best_chi2 (and best_chi2) has been deprecated.')
 
     @property
     def best_chi2(self):
@@ -822,7 +823,7 @@ class Event(object):
 
         The smallest value returned by :py:func:`get_chi2()`.
         """
-        raise NameError('best_chi2 has been deprecated.')
+        raise AttributeError('best_chi2 has been deprecated.')
 
     @property
     def best_chi2_parameters(self):
@@ -833,7 +834,7 @@ class Event(object):
 
         Parameters that gave the smallest chi2.
         """
-        raise NameError(
+        raise AttributeError(
             'best_chi2_parameters (and best_chi2) has been deprecated.')
 
     def _apply_fit_blending(self, fit_blending):

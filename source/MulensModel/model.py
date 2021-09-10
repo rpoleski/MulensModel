@@ -143,7 +143,7 @@ class Model(object):
             source_flux_ratio = flux_ratio_constraint
 
         if 'fit_blending' in kwargs:
-            raise ValueError(
+            raise AttributeError(
                 'fit_blending is deprecated. See Event() class instead.')
 
         if times is None:
@@ -251,12 +251,12 @@ class Model(object):
             source_flux_ratio = flux_ratio_constraint
 
         if data_ref is not None:
-            raise NameError(
+            raise AttributeError(
                 'data_ref keyword has been deprecated. Specify source_flux ' +
                 'and blend_flux instead or use plotting functions in Event().')
 
         if fit_blending is not None:
-            raise NameError(
+            raise AttributeError(
                 'fit_blending keyword has been deprecated. Use Event() ' +
                 'instead.')
 
@@ -467,7 +467,7 @@ class Model(object):
 
         """
         if show_data is not None:
-            raise NameError(
+            raise AttributeError(
                 'show_data is deprecated. datasets are no longer part of ' +
                 'Model. See Event() instead.')
 
@@ -996,7 +996,7 @@ class Model(object):
             if isinstance(flux_ratio_constraint, float):
                 source_flux_ratio = flux_ratio_constraint
             elif isinstance(flux_ratio_constraint, MulensData):
-                raise ValueError(
+                raise AttributeError(
                     'The ability to set flux_ratio_constraint with a dataset' +
                     'is deprecated. Use a float with source_flux_ratio ' +
                     'instead.')
@@ -1236,8 +1236,9 @@ class Model(object):
 
         Resets internal plotting properties of all attached datasets.
         """
-        raise NameError('reset_plot_properties is deprecated. datasets are ' +
-                        'no longer part of Model(). Use Event() instead.')
+        raise AttributeError(
+            'reset_plot_properties is deprecated. datasets are ' +
+            'no longer part of Model(). Use Event() instead.')
 
     def plot_data(
             self, data_ref=None, show_errorbars=None, show_bad=None,
@@ -1278,8 +1279,9 @@ class Model(object):
                 previous behavior, ``**kwargs`` are no longer remembered.
 
         """
-        raise NameError('plot_data is deprecated. datasets are no ' +
-                        'longer part of Model(). Use Event() instead.')
+        raise AttributeError(
+            'plot_data is deprecated. datasets are no ' +
+            'longer part of Model(). Use Event() instead.')
 
     def plot_residuals(
             self, show_errorbars=None,
@@ -1296,9 +1298,10 @@ class Model(object):
         :py:func:`plot_data()`. Note different order of keywords.
         """
 
-        raise NameError('plot_residuals is deprecated. datasets are no ' +
-                        'longer part of Model(). Use Event().fits[data_ref]' +
-                        '.get_residuals() instead.')
+        raise AttributeError(
+            'plot_residuals is deprecated. datasets are no ' +
+            'longer part of Model(). Use Event().fits[data_ref]' +
+            '.get_residuals() instead.')
 
     def get_residuals(self, data_ref=None, type='mag', data=None):
         """
@@ -1333,8 +1336,9 @@ class Model(object):
                 the scaled errorbars for each point. For plotting
                 errorbars for the residuals.
         """
-        raise NameError('get_residuals is deprecated. datasets are no ' +
-                        'longer part of Model(). Use Event() instead.')
+        raise AttributeError(
+            'get_residuals is deprecated. datasets are no ' +
+            'longer part of Model(). Use Event() instead.')
 
     def plot_source_for_datasets(self, **kwargs):
         """
@@ -1347,8 +1351,9 @@ class Model(object):
             ``**kwargs``:
                 see :py:func:`plot_source`
         """
-        raise NameError('plot_source_for_datasets is deprecated. datasets ' +
-                        'are no longer part of Model(). Use Event() instead.')
+        raise AttributeError(
+            'plot_source_for_datasets is deprecated. datasets ' +
+            'are no longer part of Model(). Use Event() instead.')
 
     def get_ref_fluxes(self, data_ref=None, fit_blending=None):
         """
@@ -1382,8 +1387,9 @@ class Model(object):
         call this without calling :py:func:`set_datasets()` first,
         there will be an exception and that's on you.
         """
-        raise NameError('get_ref_fluxes is deprecated. datasets ' +
-                        'are no longer part of Model(). Use Event() instead.')
+        raise AttributeError(
+            'get_ref_fluxes is deprecated. datasets ' +
+            'are no longer part of Model(). Use Event() instead.')
 
     def set_source_flux_ratio(self, ratio):
         """
@@ -1402,7 +1408,7 @@ class Model(object):
                 via regression (unless specific value is provided for
                 bandpass).
         """
-        raise NameError(
+        raise AttributeError(
             'set_source_flux_ratio is deprecated. Fluxes are not ' +
             'intrinsic to Model(). Set them explicitly when ' +
             'needed or use Event().')
@@ -1421,7 +1427,7 @@ class Model(object):
                 ratio of fluxes of source no. 2 to source no. 1, i.e.,
                 flux_source_band_2/flux_source_band_1
         """
-        raise NameError(
+        raise AttributeError(
             'set_source_flux_ratio_for_band is deprecated. Fluxes are not ' +
             'intrinsic to Model(). Set them explicitly when ' +
             'needed or use Event().')
@@ -1436,8 +1442,9 @@ class Model(object):
         A list of magnifications calculated for every dataset in
         :py:attr:`datasets`.
         """
-        raise NameError('data_magnification is deprecated. datasets ' +
-                        'are no longer part of Model(). Use Event() instead.')
+        raise AttributeError(
+            'data_magnification is deprecated. datasets ' +
+            'are no longer part of Model(). Use Event() instead.')
 
     def get_data_magnification(self, dataset):
         """
@@ -1456,7 +1463,7 @@ class Model(object):
                 Values on magnification.
 
         """
-        raise NameError(
+        raise AttributeError(
             'get_data_magnification is deprecated. datasets ' +
             'are no longer part of Model(). Use Event() instead or use' +
             'Model.get_magnification() for the relevant times.')
@@ -1473,8 +1480,9 @@ class Model(object):
         the same model is linked to multiple
         :py:class:`~MulensModel.event.Event` instances.
         """
-        raise NameError('datasets is deprecated. datasets ' +
-                        'are no longer part of Model(). Use Event() instead.')
+        raise AttributeError(
+            'datasets is deprecated. datasets ' +
+            'are no longer part of Model(). Use Event() instead.')
 
     def set_datasets(self, datasets, data_ref=0):
         """
@@ -1491,5 +1499,6 @@ class Model(object):
 
                 Reference dataset.
         """
-        raise NameError('set_datasets is deprecated. datasets ' +
-                        'are no longer part of Model(). Use Event() instead.')
+        raise AttributeError(
+            'set_datasets is deprecated. datasets ' +
+            'are no longer part of Model(). Use Event() instead.')
