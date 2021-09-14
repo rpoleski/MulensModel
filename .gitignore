@@ -33,6 +33,12 @@ docs/_sources/
 examples/figure_[1234].png
 examples/example_16/*.png
 
+# Other output in examples:
+examples/rE.tab
+examples/rEtilde.tab
+examples/tE.tab
+examples/thetaE.tab
+
 # Test files in examples:
 examples/run_time_tests/test_100*txt
 

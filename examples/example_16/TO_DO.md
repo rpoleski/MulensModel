@@ -1,12 +1,8 @@
 ### To be discussed:
 
-- satellite data
 - periodic variables
 - log10 variables etc.
-- flux constraints
 - for plots: t_0, \Delta t_0, or t_0 - 2456780 ???
-- should version be printed on output?
-- settings for making plot without a fit - how input should look like for best_model?
 - how the output should look like?
 
 ### Documentation:
@@ -25,6 +21,7 @@
 - **add one more fitting method?**
 - **corner.py**
 - **requirements.txt** - corner >= 2.0.0
+- script and MM versions should be printed
 - n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIES INPUT"
 - Mroz+20 - finish
 - add check if 't_0' is covered by data and give warning if not
@@ -35,7 +32,7 @@
 - note that parameters are re-ordered (maybe in future add option for specifying order)
 - datasets - guessing 245/246; plotting as well
 - no_negative_blending_flux - only first dataset, or all datasets? Maybe add one more option
-- trace plot
+- trace plot (give option to include burn-in)
 - allow plotting multiple models
 - add beta distribution to allowed distributions (search for "gauss")
 - for plot script add printing chi2 and fluxes
@@ -78,3 +75,4 @@
 - allow Model.set_magnification_methods_parameters()
 - methods - if only single string is provided, then this is a default method
 - print current best model - each minute, each nth model etc.
+- allow LD parameters to be fitted
