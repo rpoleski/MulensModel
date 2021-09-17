@@ -28,11 +28,7 @@ class SatelliteSkyCoord(object):
     """
 
     def __init__(self, ephemerides_file, satellite=None):
-        """
-        ephemerides_file = file with ephemerides for the satellite (Required)
-        satellite = Name of the satellite (Optional)
-        """
-        self.ephemerides_file = ephemerides_file
+        self._ephemerides_file = ephemerides_file
 
         self.satellite = satellite
 
@@ -54,7 +50,7 @@ class SatelliteSkyCoord(object):
 
         """
         if self._horizons is None:
-            self._horizons = Horizons(self.ephemerides_file)
+            self._horizons = Horizons(self._ephemerides_file)
 
         time = self._horizons.time
         if (np.max(time) + 0.001 < np.max(times) or

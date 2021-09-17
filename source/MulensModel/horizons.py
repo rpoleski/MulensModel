@@ -37,27 +37,27 @@ class Horizons(object):
         self._xyz = None
 
         # Read in the Horizons file
-        self.file_properties = {"file_name": file_name}
+        self._file_properties = {"file_name": file_name}
         self._read_input_file()
 
     def _read_input_file(self):
         """check the file type and then read it properly"""
         file_type = 'np.array'
-        with open(self.file_properties['file_name'], 'r') as in_file:
+        with open(self._file_properties['file_name'], 'r') as in_file:
             for line in in_file.readlines():
                 if line[0:5] == '$$SOE':
                     file_type = 'Horizons'
                     break
 
-        if not isfile(self.file_properties['file_name']):
+        if not isfile(self._file_properties['file_name']):
             msg = 'Horizons files {:} does not exists.'
-            message = msg.format(self.file_properties['file_name'])
+            message = msg.format(self._file_properties['file_name'])
             raise FileExistsError(message)
         if file_type == 'Horizons':
             self._read_horizons_file()
         else:
             (time, x, y, z) = np.loadtxt(
-                self.file_properties['file_name'],
+                self._file_properties['file_name'],
                 usecols=(0, 1, 2, 3), unpack=True)
             self._time = time
             if int(astropy_version[0]) >= 4:
@@ -74,19 +74,19 @@ class Horizons(object):
         and beginning of the footer). Also counts the lines in the
         file. (self.line_count)
         """
-        with open(self.file_properties['file_name'], 'r') as in_file:
-            self.file_properties['line_count'] = 0
+        with open(self._file_properties['file_name'], 'r') as in_file:
+            self._file_properties['line_count'] = 0
             for (i, line) in enumerate(in_file):
                 # Check for "start data" string
                 if line[0:5] == '$$SOE':
-                    self.file_properties['start_ind'] = i
+                    self._file_properties['start_ind'] = i
 
                 # Check for "end data" string
                 if line[0:5] == '$$EOE':
-                    self.file_properties['stop_ind'] = i
+                    self._file_properties['stop_ind'] = i
 
                 # Count total number of lines
-                self.file_properties['line_count'] += 1
+                self._file_properties['line_count'] += 1
 
     def _read_horizons_file(self):
         """
@@ -95,13 +95,13 @@ class Horizons(object):
         # Read in the file
         self._get_start_end()
         data = np.genfromtxt(
-            self.file_properties['file_name'],
+            self._file_properties['file_name'],
             dtype=[('date', 'S17'), ('ra_dec', 'S23'), ('distance', 'f8'),
                    ('foo', 'S23')],
             delimiter=[18, 29, 17, 24], autostrip=True,
-            skip_header=self.file_properties['start_ind'] + 1,
-            skip_footer=(self.file_properties['line_count'] -
-                         self.file_properties['stop_ind']))
+            skip_header=self._file_properties['start_ind'] + 1,
+            skip_footer=(self._file_properties['line_count'] -
+                         self._file_properties['stop_ind']))
 
         # Fix time format
         for (i, date) in enumerate(data['date']):
