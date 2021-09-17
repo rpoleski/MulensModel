@@ -8,8 +8,7 @@ from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
-from MulensModel.trajectory import Trajectory
-import MulensModel
+import MulensModel as mm
 
 
 def get_pspl_magnification(trajectory):
@@ -31,7 +30,7 @@ def get_pspl_magnification(trajectory):
             specified by `trajectory`.
 
     """
-    if isinstance(trajectory, Trajectory):
+    if isinstance(trajectory, mm.Trajectory):
         u2 = (trajectory.x**2 + trajectory.y**2)
     else:
         u2 = trajectory**2
@@ -63,7 +62,7 @@ class PointLens(object):
     _elliptic_files_read = False
 
     def __init__(self, parameters=None):
-        if not isinstance(parameters, MulensModel.ModelParameters):
+        if not isinstance(parameters, mm.ModelParameters):
             raise TypeError(
                 "PointLens argument has to be of ModelParameters type, not " +
                 str(type(parameters)))
@@ -72,7 +71,7 @@ class PointLens(object):
     def _read_B0B1_file(self):
         """Read file with pre-computed function values"""
         file_ = os.path.join(
-            MulensModel.DATA_PATH, 'interpolation_table_b0b1_v1.dat')
+            mm.DATA_PATH, 'interpolation_table_b0b1_v1.dat')
         if not os.path.exists(file_):
             raise ValueError('File with FSPL data does not exist.\n' + file_)
         (z, B0, B0_minus_B1) = np.loadtxt(file_, unpack=True)
@@ -90,9 +89,9 @@ class PointLens(object):
         and 3rd kind.
         """
         file_1_2 = os.path.join(
-            MulensModel.DATA_PATH, 'interpolate_elliptic_integral_1_2.dat')
+            mm.DATA_PATH, 'interpolate_elliptic_integral_1_2.dat')
         file_3 = os.path.join(
-            MulensModel.DATA_PATH, 'interpolate_elliptic_integral_3.dat')
+            mm.DATA_PATH, 'interpolate_elliptic_integral_3.dat')
 
         (x, y1, y2) = np.loadtxt(file_1_2, unpack=True)
         PointLens._interpolate_1 = interp1d(np.log10(x), y1, kind='cubic')

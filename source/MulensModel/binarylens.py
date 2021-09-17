@@ -6,8 +6,7 @@ import warnings
 import numpy as np
 from math import fsum, sqrt
 
-import MulensModel
-from MulensModel.utils import Utils
+import MulensModel as mm
 try:
     import MulensModel.VBBL as mm_vbbl
 except Exception:
@@ -185,29 +184,29 @@ class BinaryLens(object):
         zeta_conj_pow2 = zeta_conj * zeta_conj
 
         # Calculate the coefficients of the 5th order complex polynomial
-        coeff_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
-        coeff_4 = Utils.complex_fsum(
+        coeff_5 = mm.Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
+        coeff_4 = mm.Utils.complex_fsum(
             [-2. * total_m * zeta_conj,
              zeta * zeta_conj_pow2, -2. * m_diff * pos_z1,
              -zeta * z1_pow2])
-        coeff_3 = Utils.complex_fsum(
+        coeff_3 = mm.Utils.complex_fsum(
             [4. * total_m * zeta * zeta_conj,
              4. * m_diff * zeta_conj * pos_z1,
              2. * zeta_conj_pow2 * z1_pow2, -2. * z1_pow4])
-        coeff_2 = Utils.complex_fsum(
+        coeff_2 = mm.Utils.complex_fsum(
             [4. * total_m_pow2 * zeta,
              4. * total_m * m_diff * pos_z1,
              -4. * m_diff * zeta * zeta_conj * pos_z1,
              -2. * zeta * zeta_conj_pow2 * z1_pow2,
              4. * m_diff * z1_pow3, 2. * zeta * z1_pow4])
-        coeff_1 = Utils.complex_fsum(
+        coeff_1 = mm.Utils.complex_fsum(
             [-8. * total_m * m_diff * zeta * pos_z1,
              -4. * m_diff_pow2 * z1_pow2,
              -4. * total_m_pow2 * z1_pow2,
              -4. * total_m * zeta * zeta_conj * z1_pow2,
              -4. * m_diff * zeta_conj * z1_pow3,
              -zeta_conj_pow2 * z1_pow4, z1_pow3 * z1_pow3])
-        coeff_0 = Utils.complex_fsum(
+        coeff_0 = mm.Utils.complex_fsum(
             [4. * m_diff_pow2 * zeta,
              4. * total_m * m_diff * pos_z1,
              4. * m_diff * zeta * zeta_conj * pos_z1,
@@ -231,7 +230,7 @@ class BinaryLens(object):
         zeta = self._zeta
         zeta_conj = zeta.conjugate()
 
-        c_sum = Utils.complex_fsum
+        c_sum = mm.Utils.complex_fsum
 
         z1 = self._position_z1
 
@@ -358,7 +357,7 @@ class BinaryLens(object):
                 txt += ("\n\nYou try to calculate magnification at huge " +
                         "distance from the source and this is causing an " +
                         "error.")
-            txt += "\nMulensModel version: {:}".format(MulensModel.__version__)
+            txt += "\nMulensModel version: {:}".format(mm.__version__)
 
             raise ValueError(txt)
 
@@ -625,7 +624,7 @@ class BinaryLens(object):
         elif gamma is not None:
             gamma = float(gamma)
         elif u_limb_darkening is not None:
-            gamma = float(Utils.u_to_gamma(u_limb_darkening))
+            gamma = float(mm.Utils.u_to_gamma(u_limb_darkening))
         else:
             gamma = float(0.0)
 
@@ -698,7 +697,7 @@ class BinaryLens(object):
             raise ValueError('Only one limb darkening parameters can be set' +
                              ' in BinaryLens.vbbl_magnification()')
         elif gamma is not None:
-            u_limb_darkening = float(Utils.gamma_to_u(gamma))
+            u_limb_darkening = float(mm.Utils.gamma_to_u(gamma))
         elif u_limb_darkening is not None:
             u_limb_darkening = float(u_limb_darkening)
         else:
