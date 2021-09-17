@@ -45,5 +45,5 @@ Alternatively, you can run makefiles: go to `source/VBBL/` and run `make`, then 
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Aug 2021
+file revised Sep 2021
 
