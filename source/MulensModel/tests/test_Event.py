@@ -401,11 +401,15 @@ def test_chi2_gradient_2():
 
 
 def _test_event_chi2_gradient_rho():
-    """test calculation of chi2 gradient including finite source effects"""
-    # MB08310 is the example
-    datasets = [mm.MulensData(file_name=SAMPLE_FILE_310_01, bandpass='R'),
-                mm.MulensData(file_name=SAMPLE_FILE_310_02, bandpass='U'),
-                mm.MulensData(file_name=SAMPLE_FILE_310_03, bandpass='I')]
+    """
+    test calculation of chi2 gradient including finite source effects
+    MB08310 is used as an example
+    """
+    kwargs = {'comments': ["\\", "|"]}
+    datasets = [
+        mm.MulensData(file_name=SAMPLE_FILE_310_01, bandpass='R', **kwargs),
+        mm.MulensData(file_name=SAMPLE_FILE_310_02, bandpass='U', **kwargs),
+        mm.MulensData(file_name=SAMPLE_FILE_310_03, bandpass='I', **kwargs)]
 
     (gamma_I, gamma_V) = (0.44, 0.72)
     t_0 = 2454656.39975
@@ -424,14 +428,14 @@ def _test_event_chi2_gradient_rho():
 
     # Set expected values
     # JCY - see sandbox/rho_gradient on pink laptop
-    params = parameters.keys
+    params = parameters.keys()
     gradient = {'t_0': 1283513.3068849628, 'u_0': 20492801.742886964,
                 't_E': -9573.3589902395161, 'rho': -1503911.2409404013}
     reference = np.array([gradient[key] for key in params])
 
     # Create event and run test
     event = mm.Event(model=model, datasets=datasets)
-    # result = event.chi2_gradient(params, fit_blending=False)
+    # result = event.get_chi2_gradient(list(params), fit_blending=False)
 
     # print(result)
     # print(reference)
