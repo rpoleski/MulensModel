@@ -142,6 +142,12 @@ class Model(object):
                 'source_flux_ratio instead')
             source_flux_ratio = flux_ratio_constraint
 
+        if self.n_sources > 1 and source_flux_ratio is None:
+            raise ValueError(
+                'For binary source model you have to provide ' +
+                'source_flux_ratio. Note that plotted magnification will ' +
+                'be the effective magnification of the two sources.')
+
         if 'fit_blending' in kwargs:
             raise AttributeError(
                 'fit_blending is deprecated. See Event() class instead.')
