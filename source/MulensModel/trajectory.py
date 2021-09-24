@@ -63,6 +63,14 @@ class Trajectory(object):
         satellite_skycoord: *Astropy.coordinates.SkyCoord*
             input
             :py:attr:`~MulensModel.mulensdata.MulensData.satellite_skycoord`
+
+        parallax: *dict*
+            specifies which types of microlensing parallax will be taken
+            into account; boolean dict with keys: ``earth_orbital``,
+            ``satellite``, and ``topocentric`` (default values are *False*)
+
+        coords: :py:class:`~MulensModel.coordinates.Coordinates`
+            event coordinates
     """
     _get_delta_annual_results = dict()
     _get_delta_annual_last = None
@@ -103,7 +111,7 @@ class Trajectory(object):
             raise NotImplementedError(
                 "The earth_coords needed for " +
                 "topocentric parallax is not implemented yet")
-        self.earth_coords = None
+        self._earth_coords = None
 
         # Calculate trajectory
         self.get_xy()
@@ -167,7 +175,7 @@ class Trajectory(object):
                 vector_u += delta_u
 
             # Apply topocentric parallax effect
-            if self.parallax['topocentric'] and self.earth_coords is not None:
+            if self.parallax['topocentric'] and self._earth_coords is not None:
                 # When you implement it, make sure the behavior
                 # depends on the access to the observatory location
                 # information as the satellite parallax depends on the
