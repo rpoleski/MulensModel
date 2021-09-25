@@ -1,12 +1,24 @@
-# MOST IMPORTANT NOW:
-1. UC 16 - make it ready for e-mail annoucement
-6. remove unused branches - FSPL_no_Bozza, some other ones?
-7. check notes below
-10. _are we using VBBL with improvements from 2018 paper?_
-3. **code not yet well documented** - see below
-12. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it is != t\_0
-14. **chi2 gradient for finite source effects.** (requested by JCY)
-10. "import MulensModel as mm" everywhere: binarylens.py pointlens.py use_cases/->30,31,34 examples/run_time_tests/check_system.py examples/checks.py TUTORIALS
+# Current tasks:
+1. get\_lc/get\_flux functions (also errorbars somehow)
+2. test binary-source models in example 16 - use get\_flux
+3. update VBBL
+4. chi2 gradient for rho or t_star
+
+# Next big tasks - think about the order:
+1. xallarap
+2. full Keplerian motion
+3. triple sources
+4. triple lenses
+
+# Next smaller tasks:
+1. faster FFP calculations
+2. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it is != t\_0
+3. "import MulensModel as mm" everywhere: use_cases/->30,31,34 examples/run_time_tests/check_system.py examples/checks.py TUTORIALS
+4. satellite positions read from a file similar to data challenge files
+5. check open issues on github
+6. "add a list of public datasets:" - search below
+7. In longest files re-order functions to have documentation in expected order: modelparameters.py, model.py, event.py, mulensdata.py, fitdata.py (in that order)
+
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users
@@ -24,15 +36,10 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
   * more on setup.py: [link](https://github.com/kennethreitz/setup.py)
   * compile with "pedantic" flags for compilers
 * Documentation
+  * magnification\_methods.pdf - add full references there and link this file in the code
   * Sagan workshop hands-on activity in MM
-  * _examples as ipython notebooks_
+  * examples as ipython notebooks
   * Add \_\_repr\_\_ functions to Lens and Source
-  * **code not yet well documented - some should changed to private in V2.0.0**: 
-    * RA & Dec in coordinates.py (maybe also code it better)
-    * Horizons.file\_properties
-    * MulensData.plot\_properties
-    * SatelliteSkyCoord.ephemerides\_file
-    * Trajectory.earth\_coords - not implemented, so maybe remove?
   * Include full documentation via setup.py data\_files mechanism.
   * note that all plotting functions require plt.show() or plt.save()
   * try removing Attributes from docstrings - just make short @property functions
@@ -40,7 +47,7 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
   * _example 8 corrections - PSBL, not PSPL; clarify removing the anomaly_
   * make sure that website shows correct version of MM
   * note that we are not checking for negative source or blending flux
-  * add a list of public datasets: [VVV paper](https://ui.adsabs.harvard.edu/abs/2019arXiv190704339N/abstract) was published?, add link to K2/MCPM?; LINK the file [documents/public\_data\_list.md](documents/public_data_list.md) somewhere
+  * add a list of public datasets: [VVV paper](https://ui.adsabs.harvard.edu/abs/2019arXiv190704339N/abstract) was published?, [second VVV paper](https://arxiv.org/abs/2106.15617) was published?, add link to K2/MCPM?; LINK the file [documents/public\_data\_list.md](documents/public_data_list.md) somewhere
 * Effects:
   * **Binary source - see documents/binary\_source\_notes.md**:
     * _extract flux ratio for binary source models when fluxes are fitted via regression_
@@ -48,7 +55,6 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
     * _source\_flux\_ratio added to ModelParameters_
     * Fit.fit\_fluxes docstring to be updated
     * which\_parameters() - note that it doesnt work for binary source parameters, but the parameters work properly; just BSPL and rho\_2 etc. are optional
-    * models with fixed no blending: fit\_blending keyword changes
     * parallax models
     * binary source - there should be one Fit less in Event.get\_chi2xxx functions - if there are 2 sources, then calculate magnification and use F\_S = F\_S\_1+F\_S\_2 and get it from self.model.fit; most probably adding some function to Fit would help
     * test binary-lens binary-source 
@@ -83,8 +89,6 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
   * Chang-Refsdal binary calculations
   * elliptical source magnification [Heyrovsky & Loeb 1997](https://ui.adsabs.harvard.edu/abs/1997ApJ...490...38H/abstract)
   * magnification calculated for a set of points, not just a trajectory - this way we could, e.g., plot magnification maps
-  * fit\_blending for only some of the datasets
-  * _blending flux fixed at user-specified value - requires use case_
 * Parameterization
   * Cassan 2008 binary lens parameters:
     * option to change scaling (from [0,1] to C08 params) to work well near topology change
@@ -104,9 +108,7 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
     * central and planetary caustic properties: [Chung et al. 2005](https://ui.adsabs.harvard.edu/abs/2005ApJ...630..535C/abstract) and [Han 2006](https://ui.adsabs.harvard.edu/abs/2006ApJ...638.1080H/abstract)
     * consider using Utils.complex\_fsum() in BinaryLens functions: \_jacobian\_determinant\_ok\_WM95()
     * faster hexadecapole using [Cassan 2017](https://ui.adsabs.harvard.edu/abs/2017MNRAS.468.3993C/abstract) ([code](https://github.com/ArnaudCassan/microlensing/blob/master/microlensing/multipoles.py))
-    * there should be an option for the user to ignore "wrong number of solutions" error and replace it with a warning
-    * there should be a way to change the "wrong number of solutions" error into warning or dismiss it fully
-    * error message for not 3 or 5 images - give diagnostics first
+    * there should be an option for the user to ignore "wrong number of solutions" error and replace it with a warning or dismiss it fully
     * error message for not 3 or 5 images - This can be improved by checking the denominators in the equation (before polynomial is fully formed - see Zoey's Mathematica notes)
     * error message for not 3 or 5 images - in "Consider ..." note that one must use Model.set\_magnification\_methods() for epochs far from peak
     * VBBL additional parameter so that it works for huge source and tiny caustic
@@ -154,6 +156,7 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
     * problem with tracking number of masses, esp when successively defining masses (see test\_Lens.py)
     * implement triple+ systems  
   * MagnificationCurve class:
+    * what to do if some magnifications are nan, inf, or None?; maybe give warning and return None in these places
     * re-write magnification() to use lazy loading (here or in model.py)
   * Model class:
     * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
@@ -208,6 +211,7 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
     * for plotting X for bad data use large size and/or thinner line
     * separate colors (or even kwargs) for X-es as an option (to get contrasting colors see https://itsphbytes.wordpress.com/2016/08/29/complementary-colors-python-code/)
   * PointLens class:
+    * in \_integrand\_Lee09\_v2() use loop and math.fsum in "values = ...", check performance as u\_ and theta\_ have shape of (90, 1000)
     * make WM method faster: 1) interpolation done once for many values; 2) interpolate different function; 3) allow changing number of annuli; 4) divide A by 2 different functions (z<1 or z>1) and interpolate these - like in VBBL (arguments of interpolation are: 1) (rho, z), 2) (log rho, log z) etc.)
     * add [Witt and Atrio-Barandela 2019](https://arxiv.org/abs/1906.08378)?
     * get\_pspl\_magnification() - change it to operate on u^2, not u, so that np.sqrt() calls are reduced
@@ -246,7 +250,9 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
     * add plt.xlim() and ylim in plotting functions (using t\_start) etc.; then also update (simplify) tutorials, examples etc.
     * caustics for trajectory plot with single lens models
     * plot upper limits instead of photometry with negative flux
-  * Examples:
+  * Examples and use cases:
+    * use case 34 - make the output meaningful 
+    * example 4 - use "with open() as ...:"
     * _Hamiltonian MCMC [link 1](http://arogozhnikov.github.io/2016/12/19/markov_chain_monte_carlo.html) and [link 2](https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/) and [link 3](https://colindcarroll.com/2019/04/11/hamiltonian-monte-carlo-from-scratch/)_
     * example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/)
     * _plot many models from posterior_
@@ -329,3 +335,4 @@ ob130911 - [Miyazaki et al. 2019](https://arxiv.org/abs/1912.09613),
 ob07368 - [Sumi et al. 2010](https://ui.adsabs.harvard.edu/abs/2010ApJ...710.1641S/abstract) and [Suzuki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...833..145S/abstract), 
 ob150845 = mb15277 - Calen leads, 
 Roman predictions - [Miyazaki+20](https://arxiv.org/abs/2010.10315), 
+[conference posting](https://ui.adsabs.harvard.edu/abs/2008mmc..confE..37R/abstract),
