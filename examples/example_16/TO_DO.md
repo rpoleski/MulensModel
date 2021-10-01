@@ -19,14 +19,12 @@
 
 - **some documentation - see above**
 - **add one more fitting method?**
-- **corner.py**
 - **requirements.txt** - corner >= 2.0.0
-- script and MM versions should be printed
-- n_walkers for EMCEE - default is x4 and remove from minimal yaml file - "SIMPLIFIES INPUT"
 - Mroz+20 - finish
+- script and MM versions should be printed
 - add check if 't_0' is covered by data and give warning if not
 - print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
-- LD coeffs as parameters (see ulens_model_fit_0.16.0dev4.py in K2 planet and compare to dev2 but there should be more checks comparing with bands of datasets)
+- LD coeffs - there should be check who bands there compare to the ones in datasets
 - random seed - first just print it early on (if used in calculations); then allow setting it for exact reproduction of results
 - all_parameters in _get_parameters_ordered() and _check_fixed_parameters() - combine in a single one
 - note that parameters are re-ordered (maybe in future add option for specifying order)
@@ -70,7 +68,6 @@
 - when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data so that anomalies are not missed etc.
 - add scipy to _check_imports() - requires siginificant code to be added to _check_imports() in order to find out if t_E prior is used
 - in _parse_fit_constraints_prior() add a check if the priors are defined for fit parameters
-- if corner could not be imported, then give link to specific file in error message
 - flux constraints for binary source models (note that for plotting it is now set to first dataset)
 - allow Model.set_magnification_methods_parameters()
 - methods - if only single string is provided, then this is a default method

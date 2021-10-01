@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.21.0'
+__version__ = '0.21.1'
 
 
 class UlensModelFit(object):
@@ -90,7 +90,8 @@ class UlensModelFit(object):
 
             `'limb darkening u'` - specifies a *dict* that gives limb
             darkening coefficients in "u" convention, e.g.,
-            {'I': 0.4, 'V': 0.5},
+            {'I': 0.4, 'V': 0.5}; note that for plotting the best model we use
+            the LD coefficient same as for the first dataset,
 
             `'parameters'` and `'values'` - used to plot specific model.
 
@@ -935,10 +936,10 @@ class UlensModelFit(object):
                 **kwargs)
             self._models_satellite.append(model)
         key = 'limb darkening u'
-        if key in self._model_parameters:
-            for (band, u_value) in self._model_parameters[key].items():
-                self._model.set_limb_coeff_u(band, u_value)
         for model in [self._model] + self._models_satellite:
+            if key in self._model_parameters:
+                for (band, u_value) in self._model_parameters[key].items():
+                    model.set_limb_coeff_u(band, u_value)
             if 'default method' in self._model_parameters:
                 model.set_default_magnification_method(
                     self._model_parameters['default method'])
@@ -1481,7 +1482,8 @@ class UlensModelFit(object):
         axes = plt.subplot(grid[0])
         self._event.plot_data(**kwargs)
         fluxes = self._event.get_ref_fluxes()
-        # Plot models below, first ground-based (if needed),
+
+        # Plot models below, first ground-based (if needed, hence loop),
         # then satellite ones (if needed).
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
@@ -1489,7 +1491,6 @@ class UlensModelFit(object):
                     source_flux=fluxes[0], blend_flux=fluxes[1],
                     **kwargs_model)
                 break
-
         for model in self._models_satellite:
             model.parameters.parameters = {**self._model.parameters.parameters}
             model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
@@ -1543,6 +1544,11 @@ class UlensModelFit(object):
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
         if self._model.n_sources != 1:
             kwargs_model['flux_ratio_constraint'] = self._datasets[0]
+        if self._datasets[0].bandpass is not None:
+            key = 'limb darkening u'
+            if self._datasets[0].bandpass in self._model_parameters[key]:
+                u = self._model_parameters[key][self._datasets[0].bandpass]
+                kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
 
         if kwargs['subtract_2450000']:
             xlim = [t_1-2450000., t_2-2450000.]
