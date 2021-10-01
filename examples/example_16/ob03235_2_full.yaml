@@ -58,8 +58,8 @@ max_values:
     alpha: 360.
 fitting_parameters:
     n_walkers: 20
-    n_steps: 300
-    n_burn:  150
+    n_steps: 400
+    n_burn:  200
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
 plots:
@@ -68,6 +68,9 @@ plots:
         file: ob03235_2_model.png
         time range: 2452820 2452855
         magnitude range: 19.3 16.9
+        legend:
+            ncol: 2
+            loc: lower center
     triangle:
         file: ob03235_2_triangle.png
 other_output:

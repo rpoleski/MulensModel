@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.20.0'
+__version__ = '0.21.0'
 
 
 class UlensModelFit(object):
@@ -185,6 +185,9 @@ class UlensModelFit(object):
                       'file': 'my_fit_best.png'
                       'time range': 2456000. 2456300.
                       'magnitude range': 15.123 13.012
+                      'legend':
+                          'ncol': 2
+                          'loc': 'lower center'
               }
 
         other_output: *dict*
@@ -389,7 +392,7 @@ class UlensModelFit(object):
         """
         Check if parameters of best model make sense
         """
-        allowed = set(['file', 'time range', 'magnitude range'])
+        allowed = set(['file', 'time range', 'magnitude range', 'legend'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -1492,8 +1495,16 @@ class UlensModelFit(object):
             model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
                           **kwargs_model)
 
-        if len(self._datasets) > 1:
-            plt.legend()
+        if len(self._datasets) > 1 or 'legend' in self._plots['best model']:
+            if 'legend' in self._plots['best model']:
+                try:
+                    plt.legend(**self._plots['best model']['legend'])
+                except Exception:
+                    print("\npyplot.legend() failed with kwargs:")
+                    print(self._plots['best model']['legend'], "\n")
+                    raise
+            else:
+                plt.legend()
         plt.xlim(*xlim)
         if ylim is not None:
             plt.ylim(*ylim)
