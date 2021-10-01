@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.19.2'
+__version__ = '0.20.0'
 
 
 class UlensModelFit(object):
@@ -87,6 +87,10 @@ class UlensModelFit(object):
             for the second source in binary source models,
 
             `'default method'` - default magnification calculation method,
+
+            `'limb darkening u'` - specifies a *dict* that gives limb
+            darkening coefficients in "u" convention, e.g.,
+            {'I': 0.4, 'V': 0.5},
 
             `'parameters'` and `'values'` - used to plot specific model.
 
@@ -431,7 +435,7 @@ class UlensModelFit(object):
 
         allowed = {'coords', 'default method', 'methods',
                    'methods source 1', 'methods source 2',
-                   'parameters', 'values'}
+                   'parameters', 'values', 'limb darkening u'}
         keys = set(self._model_parameters.keys())
         not_allowed = keys - allowed
         if len(not_allowed) > 0:
@@ -927,6 +931,10 @@ class UlensModelFit(object):
                 parameters, ephemerides_file=dataset.ephemerides_file,
                 **kwargs)
             self._models_satellite.append(model)
+        key = 'limb darkening u'
+        if key in self._model_parameters:
+            for (band, u_value) in self._model_parameters[key].items():
+                self._model.set_limb_coeff_u(band, u_value)
         for model in [self._model] + self._models_satellite:
             if 'default method' in self._model_parameters:
                 model.set_default_magnification_method(
