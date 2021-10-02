@@ -51,7 +51,6 @@
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
 - posterior output: 1) add log(prior), 2) add chi2 or equivalent, 3) add option to add fluxes
 - print number of models calculated
-- full support of satellite data (plotting model - done)
 - periodic variables - suggest it for alpha, x_caustic_X
 - check if data files exist
 - allow log10() of parameter
@@ -64,7 +63,7 @@
 - print every n-th model
 - plot trajectory
 - for parallax models check if t_0_par is fixed and give warning, if not
-- fits with 0 blending flux for first dataset
+- fits with 0 blending flux for some datasets
 - when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data so that anomalies are not missed etc.
 - add scipy to _check_imports() - requires siginificant code to be added to _check_imports() in order to find out if t_E prior is used
 - in _parse_fit_constraints_prior() add a check if the priors are defined for fit parameters

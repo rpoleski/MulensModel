@@ -9,7 +9,7 @@ import math
 import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
-from matplotlib import gridspec
+from matplotlib import gridspec, rc, rcParams, rcParamsDefault
 
 import_failed = set()
 try:
@@ -30,7 +30,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.21.1'
+__version__ = '0.22.0'
 
 
 class UlensModelFit(object):
@@ -175,8 +175,9 @@ class UlensModelFit(object):
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``'triangle'`` and ``'best model'``.
             The values are also dicts and currently accepted keys are
-            ``'file'`` (both plots) and ``'time range'`` and
-            ``'magnitude range'`` (for best model plot), e.g.,
+            ``'file'`` (both plots) and ``'time range'`` and for best model
+            plot also: ``'magnitude range'``, ``'legend'``, ``'rcParams'``,
+            e.g.,
 
             .. code-block:: python
 
@@ -189,7 +190,11 @@ class UlensModelFit(object):
                       'legend':
                           'ncol': 2
                           'loc': 'lower center'
+                      'rcParams':
+                          'font.size': 15
               }
+
+            Note that 'rcParams' allows setting many matplotlib parameters.
 
         other_output: *dict*
             Parameters for other output. Currently, the only allowed value is
@@ -393,7 +398,8 @@ class UlensModelFit(object):
         """
         Check if parameters of best model make sense
         """
-        allowed = set(['file', 'time range', 'magnitude range', 'legend'])
+        allowed = set(['file', 'time range', 'magnitude range', 'legend',
+                       'rcParams'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -1448,6 +1454,8 @@ class UlensModelFit(object):
         """
         Make a triangle plot
         """
+        self._reset_rcParams()
+
         n_bins = 40
 
         kwargs = {
@@ -1463,14 +1471,26 @@ class UlensModelFit(object):
             plt.show()
         plt.close()
 
+    def _reset_rcParams(self):
+        """
+        Reset matplotlib rcParams to their defaults
+        """
+        rcParams.update(rcParamsDefault)
+
     def _best_model_plot(self):
         """
         plot best model and residuals
         """
+        self._reset_rcParams()
+
         dpi = 300
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to
         # the best model.
+
+        if 'rcParams' in self._plots['best model']:
+            for (key, value) in self._plots['best model']['rcParams'].items():
+                rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]

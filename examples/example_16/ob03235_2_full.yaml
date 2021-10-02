@@ -58,8 +58,8 @@ max_values:
     alpha: 360.
 fitting_parameters:
     n_walkers: 20
-    n_steps: 400
-    n_burn:  200
+    n_steps: 4
+    n_burn:  2
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
 plots:
@@ -68,8 +68,12 @@ plots:
         file: ob03235_2_model.png
         time range: 2452820 2452855
         magnitude range: 19.3 16.9
+        rcParams:
+        # This allows setting many matplotlib parameters, e.g.:
+            font.size: 16
         legend:
             ncol: 2
+            # makes legend in 2 columns
             loc: lower center
     triangle:
         file: ob03235_2_triangle.png
