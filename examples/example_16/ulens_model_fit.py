@@ -10,6 +10,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rc, rcParams, rcParamsDefault
+from matplotlib.backends.backend_pdf import PdfPages
 
 import_failed = set()
 try:
@@ -30,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.22.0'
+__version__ = '0.22.1'
 
 
 class UlensModelFit(object):
@@ -1465,17 +1466,34 @@ class UlensModelFit(object):
 
         figure = corner.corner(self._samples, **kwargs)
 
-        if 'file' in self._plots['triangle']:
-            figure.savefig(self._plots['triangle']['file'])
-        else:
-            plt.show()
-        plt.close()
+        self._save_figure(self._plots['triangle'].get('file'), figure=figure)
 
     def _reset_rcParams(self):
         """
         Reset matplotlib rcParams to their defaults
         """
         rcParams.update(rcParamsDefault)
+
+    def _save_figure(self, file_name, figure=None, dpi=None):
+        """
+        Save figure or display it
+        """
+        if file_name is None:
+            plt.show()
+        # elif file_name[-4:].upper() == ".PDF":
+        #    pdf = PdfPages(file_name)
+        #    if figure is None:
+        #        figure = plt.gcf()
+        #    pdf.savefig(figure)
+        else:
+            caller = plt
+            if figure is not None:
+                caller = figure
+            kwargs = dict()
+            if dpi is not None:
+                kwargs = {'dpi': dpi}
+            caller.savefig(file_name, **kwargs)
+        plt.close()
 
     def _best_model_plot(self):
         """
@@ -1537,11 +1555,7 @@ class UlensModelFit(object):
         plt.ylim(*ylim_residuals)
         axes.tick_params(**kwargs_axes_2)
 
-        if 'file' in self._plots['best model']:
-            plt.savefig(self._plots['best model']['file'], dpi=dpi)
-        else:
-            plt.show()
-        plt.close()
+        self._save_figure(self._plots['best model'].get('file'), dpi=dpi)
 
     def _get_kwargs_for_best_model_plot(self):
         """
