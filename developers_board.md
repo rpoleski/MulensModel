@@ -1,8 +1,12 @@
 # Current tasks:
+1. Model.magnification - docstrings
 1. get\_lc/get\_flux functions (also errorbars somehow)
 2. test binary-source models in example 16 - use get\_flux
 3. update VBBL
-4. chi2 gradient for rho or t_star
+4. make directory with reference plots from examples
+5. XXX in example 16
+6. MulensData - docstring for kwargs
+7. chi2 gradient for rho or t_star
 
 # Next big tasks - think about the order:
 1. xallarap
@@ -18,7 +22,7 @@
 5. check open issues on github
 6. "add a list of public datasets:" - search below
 7. In longest files re-order functions to have documentation in expected order: modelparameters.py, model.py, event.py, mulensdata.py, fitdata.py (in that order)
-
+8. FitData.get_residuals - test for binary source
 
 ## Specific tasks to be performed
 **boldfaced** tasks are most important because requested by the users

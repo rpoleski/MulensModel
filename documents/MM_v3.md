@@ -4,6 +4,8 @@ Once the changes are accepted to be made, **mark them in the code using warnings
 
 ### Major changes:
 
+ * search for all "deprecated" are remove it
+
 ???
 
 ### Minor changes:
