@@ -180,6 +180,81 @@ class Model(object):
                 subtract_2450000=subtract_2450000,
                 subtract_2460000=subtract_2460000))
 
+    def get_lc(
+            self, times=None, t_range=None, t_start=None, t_stop=None,
+            dt=None, n_epochs=None, source_flux=None, blend_flux=None,
+            source_flux_ratio=None, gamma=None, bandpass=None):
+        """
+        Calculate model light curve in magnitudes.
+
+        Keywords :
+            see :py:func:`plot_lc()`
+        """
+        # XXX - above - maybe other way round
+        if source_flux is None:
+            raise ValueError("You must provide a value for source_flux.")
+        elif (isinstance(source_flux, float) and self.n_sources > 1):
+            if source_flux_ratio is None:
+                raise ValueError(
+                    "Either source_flux should be a list or " +
+                    "source_flux_ratio should be specified.\n" +
+                    "source_flux = {0}\n".format(source_flux) +
+                    "n_sources = {0}\n".format(self.n_sources) +
+                    "source_flux_ratio = {0}".format(source_flux_ratio))
+            else:
+                # This condition will need to be modified for > 2 sources.
+                source_flux = [source_flux]
+                source_flux.append(source_flux[0] * source_flux_ratio)
+
+        if blend_flux is None:
+            warnings.warn(
+                'No blend_flux not specified. Assuming blend_flux = zero.')
+            blend_flux = 0.
+
+        if (bandpass is not None) and (gamma is not None):
+            raise ValueError('Only one of bandpass and gamma can be set')
+        elif (bandpass is None) and (gamma is None):
+            gamma = 0.
+        elif bandpass is not None:
+            if bandpass not in self._bandpasses:
+                raise KeyError(
+                    'No limb-darkening coefficient set for {0}'.format(
+                        bandpass))
+            else:
+                gamma = self.get_limb_coeff_gamma(bandpass)
+        else:
+            pass
+
+        if times is None:
+            times = self.set_times(
+                t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
+                n_epochs=n_epochs)
+        elif isinstance(times, list):
+            times = np.array(times)
+
+# XXX - the part below should be a separate function; the block above should also be there
+        if self.n_sources == 1:
+            magnification = self.get_magnification(times, gamma=gamma)
+            flux = source_flux * magnification + blend_flux
+        else:
+            if gamma != 0.:  # This should be changed into a warning?
+                raise NotImplementedError(
+                    'limb-darkening not implemented for multiple sources.')
+
+            magnification = self.get_magnification(times, separate=True)
+            flux = None
+            for i in range(self.n_sources):
+                if flux is None:
+                    flux = source_flux[i] * magnification[i]
+                else:
+                    flux += source_flux[i] * magnification[i]
+
+            flux += blend_flux
+
+        magnitudes = Utils.get_mag_from_flux(flux)
+
+        return magnitudes
+
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, source_flux=None, blend_flux=None,
@@ -276,6 +351,7 @@ class Model(object):
                 'f_blend will be deprecated. Use blend_flux instead')
             blend_flux = f_blend
 
+# XXX - copy-pasted:
         if source_flux is None:
             raise ValueError("You must provide a value for source_flux.")
         elif (isinstance(source_flux, float) and self.n_sources > 1):
@@ -286,16 +362,20 @@ class Model(object):
                     "source_flux = {0}\n".format(source_flux) +
                     "n_sources = {0}\n".format(self.n_sources) +
                     "source_flux_ratio = {0}")
-            else:
-                # This condition will need to be modified for > 2 sources.
-                source_flux = [source_flux]
-                source_flux.append(source_flux[0] * source_flux_ratio)
 
-        if blend_flux is None:
-            warnings.warn(
-                'No blend_flux not specified. Assuming blend_flux = zero.')
-            blend_flux = 0.
+        if (bandpass is not None) and (gamma is not None):
+            raise ValueError('Only one of bandpass and gamma can be set')
+        elif bandpass is not None:
+            if bandpass not in self._bandpasses:
+                raise KeyError(
+                    'No limb-darkening coefficient set for {0}'.format(
+                        bandpass))
 
+        if self.n_sources > 1 and gamma != 0. and gamma is not None:
+            raise NotImplementedError(
+                'limb-darkening not implemented for multiple sources.')
+
+# XXX - the block below is in both get_lc() and plot_lc() - make it in one place only
         if times is None:
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
@@ -303,43 +383,16 @@ class Model(object):
         elif isinstance(times, list):
             times = np.array(times)
 
-        if (bandpass is not None) and (gamma is not None):
-            raise ValueError('Only one of bandpass and gamma can be set')
-        elif (bandpass is None) and (gamma is None):
-            gamma = 0.
-        elif bandpass is not None:
-            if bandpass not in self._bandpasses:
-                raise KeyError(
-                    'No limb-darkening coefficient set for {0}'.format(
-                        bandpass))
-            else:
-                gamma = self.get_limb_coeff_gamma(bandpass)
-
-        else:
-            pass
-
-        if self.n_sources == 1:
-            magnification = self.get_magnification(times, gamma=gamma)
-            flux = source_flux * magnification + blend_flux
-        else:
-            if gamma > 0.:
-                raise NotImplementedError(
-                    'limb-darkening not implemented for multiple sources.')
-
-            magnification = self.get_magnification(times, separate=True)
-            flux = None
-            for i in range(self.n_sources):
-                if flux is None:
-                    flux = source_flux[i] * magnification[i]
-                else:
-                    flux += source_flux[i] * magnification[i]
-
-            flux += blend_flux
+        magnitudes = self.get_lc(
+            times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
+            dt=dt, n_epochs=n_epochs, source_flux=source_flux,
+            blend_flux=blend_flux, source_flux_ratio=source_flux_ratio,
+            gamma=gamma, bandpass=bandpass)
 
         subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
                                            subtract_2460000=subtract_2460000)
 
-        self._plt_plot(times-subtract, Utils.get_mag_from_flux(flux), kwargs)
+        self._plt_plot(times-subtract, magnitudes, kwargs)
         plt.ylabel('Magnitude')
         plt.xlabel(
             PlotUtils.find_subtract_xlabel(
@@ -1047,7 +1100,6 @@ class Model(object):
         """
         Internal function that calculates magnification.
         """
-        # Check for type
         if not isinstance(time, np.ndarray):
             if isinstance(time, (np.float, float, np.int, int)):
                 time = np.array([time])
