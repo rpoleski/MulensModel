@@ -41,12 +41,12 @@ gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 
 # F1: Plot the data and model
 plt.figure()
-plt.subplot(gs[0])
+ax11 = plt.subplot(gs[0])
 event_default.plot_model(subtract_2450000=True)
 event_default.plot_data(subtract_2450000=True)
 plt.title('Data and Fitted Model (Default)')
 # Plot the residuals
-plt.subplot(gs[1])
+plt.subplot(gs[1], sharex=ax11)
 event_default.plot_residuals(subtract_2450000=True)
 
 # F2: Plot the trajectory
@@ -70,7 +70,7 @@ for (i, file_) in enumerate(sorted(files)):
 event_custom = mm.Event(datasets=datasets_custom, model=plens_model)
 
 plt.figure()
-plt.subplot(gs[0])
+ax31 = plt.subplot(gs[0])
 t_start = t_0 - 3.
 t_stop = t_0 + 1.
 n_star = 2.
@@ -88,7 +88,7 @@ plt.legend(loc='upper left')
 plt.title('Data and Fitted Model (Custom)')
 
 # Plot the residuals
-plt.subplot(gs[1])
+plt.subplot(gs[1], sharex=ax31)
 event_custom.plot_residuals(marker='s', markersize=3, subtract_2450000=True)
 plt.xlim(t_start-2450000., t_stop-2450000.)
 
