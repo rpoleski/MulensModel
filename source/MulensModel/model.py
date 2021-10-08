@@ -188,9 +188,35 @@ class Model(object):
         Calculate model light curve in magnitudes.
 
         Keywords :
-            see :py:func:`plot_lc()`
+            times: [*float*, *list*, *numpy.ndarray*]
+                a list of times at which to plot the magnifications
+
+            t_range, t_start, t_stop, dt, n_epochs: see :py:func:`set_times`
+
+            source_flux: *float* or *list*
+                Explicitly specify the source flux(es) in a
+                system where flux = 1 corresponds to
+                :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag). If the model
+                has n_source > 1, source_flux may be specified as a list: one
+                value for each source. Alternatively, if source_flux is
+                specified as a float, source_flux_ratio should also be
+                specified. Then, source_flux is taken to be the flux of the
+                first source, and the other source fluxes are derived using
+                source_flux_ratio.
+
+            blend_flux: *float*
+                Explicitly specify the blend flux in a
+                system where flux = 1 corresponds to
+                :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag).
+
+            source_flux_ratio: *float*, Optional
+                If the model has two sources, source_flux_ratio is the ratio of
+                source_flux_2 / source_flux_1.
+
+            gamma, bandpass:
+                see :py:func:`get_magnification()`
         """
-        # XXX - above - maybe other way round
+# full block:
         if source_flux is None:
             raise ValueError("You must provide a value for source_flux.")
         elif (isinstance(source_flux, float) and self.n_sources > 1):
@@ -206,24 +232,13 @@ class Model(object):
                 source_flux = [source_flux]
                 source_flux.append(source_flux[0] * source_flux_ratio)
 
+# full block - missing in other part XXX:
         if blend_flux is None:
             warnings.warn(
                 'No blend_flux not specified. Assuming blend_flux = zero.')
             blend_flux = 0.
 
-        if (bandpass is not None) and (gamma is not None):
-            raise ValueError('Only one of bandpass and gamma can be set')
-        elif (bandpass is None) and (gamma is None):
-            gamma = 0.
-        elif bandpass is not None:
-            if bandpass not in self._bandpasses:
-                raise KeyError(
-                    'No limb-darkening coefficient set for {0}'.format(
-                        bandpass))
-            else:
-                gamma = self.get_limb_coeff_gamma(bandpass)
-        else:
-            pass
+        gamma = self._get_limb_coeff_gamma(bandpass, gamma)
 
         magnitudes = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -287,36 +302,14 @@ class Model(object):
             times: [*float*, *list*, *numpy.ndarray*]
                 a list of times at which to plot the magnifications
 
-            t_range, t_start, t_stop, dt, n_epochs: see :py:func:`set_times`
+            t_range, t_start, t_stop, dt, n_epochs:
+                see :py:func:`set_times()`
 
-            source_flux: *float* or *list*
-                Explicitly specify the source flux(es) in a
-                system where flux = 1 corresponds to
-                :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag). If the model
-                has n_source > 1, source_flux may be specified as a list: one
-                value for each source. Alternatively, if source_flux is
-                specified as a float, source_flux_ratio should also be
-                specified. Then, source_flux is taken to be the flux of the
-                first source, and the other source fluxes are derived using
-                source_flux_ratio.
+            source_flux, blend_flux, source_flux_ratio:
+                see :py:func:`get_lc()`
 
-            blend_flux: *float*
-                Explicitly specify the blend flux in a
-                system where flux = 1 corresponds to
-                :obj:`MulensModel.utils.MAG_ZEROPOINT` (= 22 mag).
-
-            source_flux_ratio: *float*, Optional
-                If the model has two sources, source_flux_ratio is the ratio of
-                source_flux_2 / source_flux_1.
-
-            gamma:
+            gamma, bandpass:
                 see :py:func:`get_magnification()`
-
-            bandpass: *str*
-                bandpass for defining the limb-darkening coefficient gamma.
-                Requires that the limb_darkenging coefficients have been set
-                using :py:func:`set_limb_coeff_u()` or
-                :py:func:`set_limb_coeff_gamma()`.
 
             subtract_2450000, subtract_2460000: *boolean*, optional
                 If True, subtracts 2450000 or 2460000 from the time
@@ -339,7 +332,6 @@ class Model(object):
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
-
         """
 
         if flux_ratio_constraint is not None:
@@ -369,6 +361,8 @@ class Model(object):
             blend_flux = f_blend
 
 # XXX - copy-pasted:
+
+# partial block:
         if source_flux is None:
             raise ValueError("You must provide a value for source_flux.")
         elif (isinstance(source_flux, float) and self.n_sources > 1):
@@ -380,20 +374,9 @@ class Model(object):
                     "n_sources = {0}\n".format(self.n_sources) +
                     "source_flux_ratio = {0}")
 
-        if (bandpass is not None) and (gamma is not None):
-            raise ValueError('Only one of bandpass and gamma can be set')
-        elif (bandpass is None) and (gamma is None):
-            gamma = 0.
-        elif bandpass is not None:
-            if bandpass not in self._bandpasses:
-                raise KeyError(
-                    'No limb-darkening coefficient set for {0}'.format(
-                        bandpass))
-            else:
-                gamma = self.get_limb_coeff_gamma(bandpass)
-        else:
-            pass
+        gamma = self._get_limb_coeff_gamma(bandpass, gamma)
 
+# XXX to be decided:
         if self.n_sources > 1 and gamma != 0. and gamma is not None:
             raise NotImplementedError(
                 'limb-darkening not implemented for multiple sources.')
@@ -912,6 +895,26 @@ class Model(object):
         """
         return self._limb_darkening_coeffs.get_limb_coeff_gamma(bandpass)
 
+    def _get_limb_coeff_gamma(self, bandpass, gamma):
+        """
+        Get gamma from either bandpass or gamma
+        """
+        if (bandpass is not None) and (gamma is not None):
+            raise ValueError('Only one of bandpass and gamma can be set')
+        elif (bandpass is None) and (gamma is None):
+            gamma = 0.
+        elif bandpass is not None:
+            if bandpass not in self._bandpasses:
+                raise KeyError(
+                    'No limb-darkening coefficient set for {0}'.format(
+                        bandpass))
+            else:
+                gamma = self.get_limb_coeff_gamma(bandpass)
+        else:
+            pass
+
+        return gamma
+
     def set_limb_coeff_u(self, bandpass, coeff):
         """
         Store u limb darkening coefficient for given band.  See also
@@ -1058,9 +1061,9 @@ class Model(object):
                 models, the effective magnification is returned (unless
                 *separate=True*).
         """
-        # JCY - In future, there could be a bandpass option. This could
+        # JCY - In future, the bandpass option could
         #    simultaneously account for limb-darkening and source_flux_ratio
-        #    for a given band.
+        #    for a given band. -> THIS SHOULD BE NOTED IN DEVELOPERS BOARD XXX
 
         if flux_ratio_constraint is not None:
             warnings.warn(
@@ -1083,13 +1086,7 @@ class Model(object):
                     'source_flux_ratio should be a float. Got: {:}'.format(
                         source_flux_ratio))
 
-        if bandpass is not None:
-            if gamma > 0.:
-                raise AttributeError(
-                    'Set either bandpass OR gamma. Not both. bandpass = {0},' +
-                    ' gamma={1}'.format(bandpass, gamma))
-            else:
-                gamma = self.get_limb_coeff_gamma(bandpass)
+        gamma = self._get_limb_coeff_gamma(bandpass, gamma)
 
         if self.n_sources > 1:
             if (source_flux_ratio is None) and (separate is False):
@@ -1099,10 +1096,10 @@ class Model(object):
                     'separate: {0}\n'.format(separate) +
                     'source_flux_ratio: {0}'.format(source_flux_ratio))
 
-        mag = self._get_magnification(
+        magnification = self._get_magnification(
             time, satellite_skycoord, gamma, source_flux_ratio, separate)
 
-        return mag
+        return magnification
 
     def magnification(self, *args, **kwargs):
         warnings.warn('magnification() will be deprecated in ' +
