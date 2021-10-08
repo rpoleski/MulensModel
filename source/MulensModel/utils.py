@@ -11,7 +11,12 @@ from matplotlib.colors import ColorConverter
 from astropy import __version__ as astropy__version__
 from astropy.time import Time
 from astropy.coordinates.builtin_frames.utils import get_jd12
-from astropy import _erfa as erfa
+try:
+    import erfa
+except Exception:
+    from astropy import _erfa as erfa
+# In astropy 4.2 they removed astropy._erfa module and made a separate
+# package erfa that is required by astropy.
 
 
 MAG_ZEROPOINT = 22.  # Defines magnitude at which flux = 1.
