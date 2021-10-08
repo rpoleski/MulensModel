@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 import astropy.units as u
 
+from MulensModel.mulensdata import MulensData
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils
 
@@ -801,6 +802,9 @@ class FitData:
 
     @dataset.setter
     def dataset(self, new_value):
+        if not isinstance(new_value, MulensData):
+            raise TypeError("Dataset has to of MulensData type, not: " +
+                            str(type(new_value)))
         self._dataset = new_value
 
     @property
