@@ -140,8 +140,6 @@ class FitData:
         magnification_kwargs = {
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
 
-        # currently, model.get_magnification is good for up to two
-        # sources
         if self._model.n_sources == 1:
             mag_matrix = self._model.get_magnification(
                 time=self._dataset.time[select],
