@@ -67,8 +67,8 @@ class Event(object):
     """
 
     def __init__(
-            self, datasets=None, model=None, coords=None, fix_blend_flux={},
-            fix_source_flux={}, fix_source_flux_ratio={}, data_ref=0):
+            self, datasets=None, model=None, coords=None, fix_blend_flux=None,
+            fix_source_flux=None, fix_source_flux_ratio=None, data_ref=0):
         self._model = None
         self._coords = None
 
@@ -98,9 +98,20 @@ class Event(object):
         # Properties related to FitData
         self._fits = None  # New property
         self.chi2 = None
-        self.fix_blend_flux = fix_blend_flux
-        self.fix_source_flux = fix_source_flux
-        self.fix_source_flux_ratio = fix_source_flux_ratio
+        if fix_blend_flux is None:
+            self.fix_blend_flux = {}
+        else:
+            self.fix_blend_flux = fix_blend_flux
+
+        if fix_source_flux is None:
+            self.fix_source_flux = {}
+        else:
+            self.fix_source_flux = fix_source_flux
+
+        if fix_source_flux_ratio is None:
+            self.fix_source_flux_ratio = {}
+        else:
+            self.fix_source_flux_ratio = fix_source_flux_ratio
 
     def plot_model(self, data_ref=None, **kwargs):
         """
