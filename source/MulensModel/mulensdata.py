@@ -249,6 +249,12 @@ class MulensData(object):
             self._err_mag = self._brightness_input_err
             (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
                 mag=self.mag, err_mag=self.err_mag)
+            if np.min(self._err_flux) <= 0.:
+                 raise ValueError(
+                    "Scaling of magnitude uncertainties to flux space " +
+                    "resulted in zero or negative values. Maybe the " +
+                    "photometry format is in fact 'flux', not 'mag' " +
+                    "(as you indicated).")
         elif phot_fmt == "flux":
             self._flux = self._brightness_input
             self._err_flux = self._brightness_input_err
