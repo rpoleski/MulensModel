@@ -216,7 +216,24 @@ class Model(object):
             gamma, bandpass:
                 see :py:func:`get_magnification()`
         """
-# full block:
+        fluxes = self._parse_fluxes_for_get_lc(
+            source_flux, source_flux_ratio, blend_flux)
+        (source_flux, source_flux_ratio, blend_flux) = fluxes
+
+        gamma = self._get_limb_coeff_gamma(bandpass, gamma)
+
+        magnitudes = self._get_lc(
+            times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
+            dt=dt, n_epochs=n_epochs, gamma=gamma, source_flux=source_flux,
+            blend_flux=blend_flux, return_times=False)
+
+        return magnitudes
+
+    def _parse_fluxes_for_get_lc(self, source_flux, source_flux_ratio,
+                                 blend_flux):
+        """
+        Parsing of fluxes to be used in get_lc/plot_lc.
+        """
         if source_flux is None:
             raise ValueError("You must provide a value for source_flux.")
         elif (isinstance(source_flux, float) and self.n_sources > 1):
@@ -228,24 +245,15 @@ class Model(object):
                     "n_sources = {0}\n".format(self.n_sources) +
                     "source_flux_ratio = {0}".format(source_flux_ratio))
             else:
-                # This condition will need to be modified for > 2 sources.
                 source_flux = [source_flux]
                 source_flux.append(source_flux[0] * source_flux_ratio)
 
-# full block - missing in other part XXX:
         if blend_flux is None:
             warnings.warn(
                 'No blend_flux not specified. Assuming blend_flux = zero.')
             blend_flux = 0.
 
-        gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-
-        magnitudes = self._get_lc(
-            times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
-            dt=dt, n_epochs=n_epochs, gamma=gamma, source_flux=source_flux,
-            blend_flux=blend_flux, return_times=False)
-
-        return magnitudes
+        return (source_flux, source_flux_ratio, blend_flux)
 
     def _get_lc(self, times, t_range, t_start, t_stop, dt, n_epochs, gamma,
                 source_flux, blend_flux, return_times=False):
@@ -360,19 +368,9 @@ class Model(object):
                 'f_blend will be deprecated. Use blend_flux instead')
             blend_flux = f_blend
 
-# XXX - copy-pasted:
-
-# partial block:
-        if source_flux is None:
-            raise ValueError("You must provide a value for source_flux.")
-        elif (isinstance(source_flux, float) and self.n_sources > 1):
-            if source_flux_ratio is None:
-                raise ValueError(
-                    "Either source_flux should be a list or ' +"
-                    "source_flux_ratio should be specified.\n" +
-                    "source_flux = {0}\n".format(source_flux) +
-                    "n_sources = {0}\n".format(self.n_sources) +
-                    "source_flux_ratio = {0}")
+        fluxes = self._parse_fluxes_for_get_lc(
+            source_flux, source_flux_ratio, blend_flux)
+        (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
 
