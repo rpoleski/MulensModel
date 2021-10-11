@@ -3,6 +3,8 @@ photometry_files:
     - {file_name: data/OB03235/OB03235_MOA.txt, phot_fmt: flux}
 # To add satellite ephemeris:
 #    - {file_name: some_K2_data.txt, phot_fmt: flux, bandpass: 'Kp', ephemerides_file: K2_ephemeris_01.dat}
+# For files with time starting with 245...:
+#    - {..., add_2450000: False}
 model:
     methods: 2452800. point_source 2452833. VBBL 2452845. point_source 2452860.
     default method: point_source_point_lens

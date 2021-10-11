@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.22.1'
+__version__ = '0.22.2'
 
 
 class UlensModelFit(object):
@@ -534,7 +534,7 @@ class UlensModelFit(object):
         self._datasets = []
         for file_ in files:
             try:
-                dataset = mm.MulensData(**kwargs, **file_)
+                dataset = mm.MulensData(**{**kwargs, **file_})
             except FileNotFoundError:
                 raise FileNotFoundError(
                     'Provided file path does not exist: ' +
