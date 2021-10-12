@@ -166,6 +166,7 @@ Changes for planned v2 are here: [documents/MM\_v2.md](documents/MM_v2.md)
     * **in functions magnification(), plot\_magnification(), and plot\_trajectory() use satellite\_skycoord from \_\_init\_\_ if available**
     * **plot\_lc() - add satellite option like in plot\_magnification(), other options as well - use keywords passed to self.magnification()**
     * reorder functions so that it looks good on website
+    * bandpass option could simultaneously account for limb-darkening and source_flux_ratio for a given band (to be applied in a few options that have bandpass option)
     * Model.set\_parameters() should remember previously set values (of course unless they're overwritten)
     * Class Model should not allow accessing attributes that shouldn't be there, eg., q for single lens case.
     * Function that prints RA, Dec, t\_0\_par, t\_0\_kep, types of parallaxes turned on, satellite info, limb coeffs and textual description of type of model

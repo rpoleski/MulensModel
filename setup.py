@@ -46,7 +46,7 @@ setup(
     url='git@github.com:rpoleski/MulensModel.git',
     ext_modules=[ext_AC, ext_VBBL],
     author='Radek Poleski',
-    author_email='poleski.1@osu.edu',
+    author_email='radek.poleski@gmail.com',
     description='package for modeling gravitational microlensing events',
     packages=['MulensModel', 'MulensModel.mulensobjects'],
     package_dir={
