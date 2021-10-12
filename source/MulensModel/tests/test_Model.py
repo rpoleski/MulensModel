@@ -48,7 +48,7 @@ class TestModel(unittest.TestCase):
 
 
 def test_model_parallax_definition():
-    # Update parameters in an existing model
+    """Update parameters in an existing model"""
     model_2 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
                         'pi_E_N': 0.1, 'pi_E_E': 0.2})
 
@@ -323,8 +323,7 @@ def test_model_binary_and_finite_sources():
     mag_1 = model_1.get_magnification(time)
     mag_2 = model_2.get_magnification(time)
 
-    # test:
-    # model.set_source_flux_ratio(f_s_2/f_s_1)
+    # test: model.set_source_flux_ratio(f_s_2/f_s_1)
     fitted = model.get_magnification(time, source_flux_ratio=f_s_2 / f_s_1)
     expected = (mag_1 * f_s_1 + mag_2 * f_s_2) / (f_s_1 + f_s_2)
     almost(fitted, expected)
@@ -390,6 +389,13 @@ def test_separate_method_for_each_source():
         [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
     out = model.get_magnification(5100., separate=True)
     almost([out[0][0], out[1][0]], [9.98801936, 395.96963727])
+
+
+def test_get_lc():
+    """
+    Test if Model.get_lc() works properly
+    """
+    pass
 
 # Tests to Add:
 #

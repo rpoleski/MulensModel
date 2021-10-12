@@ -1074,10 +1074,6 @@ class Model(object):
                 models, the effective magnification is returned (unless
                 *separate=True*).
         """
-        # JCY - In future, the bandpass option could
-        #    simultaneously account for limb-darkening and source_flux_ratio
-        #    for a given band. -> THIS SHOULD BE NOTED IN DEVELOPERS BOARD XXX
-
         if flux_ratio_constraint is not None:
             warnings.warn(
                 'flux_ratio_constraint will be deprecated. Use ' +
