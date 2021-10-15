@@ -393,9 +393,15 @@ def test_separate_method_for_each_source():
 
 def test_get_lc():
     """
-    Test if Model.get_lc() works properly
+    Test if Model.get_lc() works properly; we test on binary source model
+    without finite source effect.
     """
-    pass
+    model = mm.Model({'t_0_1': 5000., 'u_0_1': 1.,
+                      't_0_2': 5100., 'u_0_2': 0.1,
+                      't_E': 100.})
+    out = model.get_lc(5050., source_flux=[1., 2.], blend_flux=3.)
+    almost(out, 19.668370500043526)
+
 
 # Tests to Add:
 #
