@@ -111,7 +111,7 @@ class Model(object):
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
-            satellite_skycoord=None, gamma=0., source_flux_ratio=None,
+            satellite_skycoord=None, gamma=None, source_flux_ratio=None,
             flux_ratio_constraint=None,
             **kwargs):
         """
@@ -1031,7 +1031,7 @@ class Model(object):
                  ephemerides_file=self.ephemerides_file)
             return satellite_skycoords.get_satellite_coords(times)
 
-    def get_magnification(self, time, satellite_skycoord=None, gamma=0.,
+    def get_magnification(self, time, satellite_skycoord=None, gamma=None,
                           bandpass=None, source_flux_ratio=None,
                           separate=False, flux_ratio_constraint=None):
         """

@@ -186,6 +186,8 @@ def test_BLPS_02():
     result = model.get_magnification(
         data.time, gamma=model.get_limb_coeff_gamma('I'))
     almost(result[5], 1.6366862)
+    result_2 = model.get_magnification(data.time, bandpass='I')
+    almost(result, result_2)
 
 
 def test_BLPS_02_AC():
