@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.fitdata module &#8212; MulensModel 2.0.0 documentation</title>
+    <title>MulensModel.fitdata module &#8212; MulensModel 2.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 <dl class="py class">
 <dt id="MulensModel.fitdata.FitData">
 <em class="property">class </em><code class="sig-prename descclassname">MulensModel.fitdata.</code><code class="sig-name descname">FitData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dataset</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_blend_flux</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fix_source_flux</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fix_source_flux_ratio</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Performs a least squares linear fit for given dataset and model to
 determine the source flux(es) and (optionally) blend flux. After creating
 the object, you must run <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal notranslate"><span class="pre">update()</span></code></a> to perform the linear fit for
@@ -146,7 +146,10 @@ the magnitude of the blend).</p>
 <code class="sig-name descname">get_model_magnitudes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_model_magnitudes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate model in magnitude space</p>
 <dl class="simple">
-<dt>Arguments:</dt><dd><p><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: see <a class="reference internal" href="#MulensModel.fitdata.FitData.get_model_fluxes" title="MulensModel.fitdata.FitData.get_model_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_model_fluxes()</span></code></a></p>
+<dt>Arguments :</dt><dd><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt><dd><p>see <a class="reference internal" href="#MulensModel.fitdata.FitData.get_model_fluxes" title="MulensModel.fitdata.FitData.get_model_fluxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_model_fluxes()</span></code></a></p>
+</dd>
+</dl>
 </dd>
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>model_mag: <em>np.ndarray</em></dt><dd><p>The model magnitude evaluated for each datapoint.</p>
@@ -336,7 +339,7 @@ source. See also <a class="reference internal" href="#MulensModel.fitdata.FitDat
 <dd><dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>blend_flux: <em>float</em></dt><dd><p>the fitted blend flux or the value set by
-fix_blend_flux (see <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#keywords" title="(in Python v3.9)"><span>Keywords</span></a>).</p>
+fix_blend_flux (see <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#keywords" title="(in Python v3.10)"><span>Keywords</span></a>).</p>
 </dd>
 </dl>
 </dd>
@@ -352,7 +355,7 @@ fix_blend_flux (see <a class="reference external" href="https://docs.python.org/
 <dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>source_flux_ratio: <em>float</em></dt><dd><p>the ratio of the fitted source fluxes or the value set by
-fix_source_flux_ratio (see <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#keywords" title="(in Python v3.9)"><span>Keywords</span></a>).</p>
+fix_source_flux_ratio (see <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#keywords" title="(in Python v3.10)"><span>Keywords</span></a>).</p>
 </dd>
 </dl>
 </dd>

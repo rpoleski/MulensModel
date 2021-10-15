@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.model module &#8212; MulensModel 2.0.0 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 2.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 <dl class="py class">
 <dt id="MulensModel.model.Model">
 <em class="property">class </em><code class="sig-prename descclassname">MulensModel.model.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ra</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dec</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ephemerides_file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A Model for a microlensing event with the specified parameters.</p>
 <dl>
 <dt>Arguments :</dt><dd><p>parameters: <em>dictionary</em>,
@@ -108,9 +108,9 @@ source_flux_2 / source_flux_1</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.model.Model.plot_lc">
-<code class="sig-name descname">plot_lc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">times</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_epochs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blend_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_flux_ratio</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bandpass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flux_ratio_constraint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit_blending</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">f_source</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">f_blend</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the model light curve in magnitudes.</p>
+<dt id="MulensModel.model.Model.get_lc">
+<code class="sig-name descname">get_lc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">times</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_epochs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blend_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_flux_ratio</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bandpass</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_lc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate model light curve in magnitudes.</p>
 <dl>
 <dt>Keywords :</dt><dd><dl class="simple">
 <dt>times: [<em>float</em>, <em>list</em>, <em>numpy.ndarray</em>]</dt><dd><p>a list of times at which to plot the magnifications</p>
@@ -135,12 +135,26 @@ system where flux = 1 corresponds to
 <dt>source_flux_ratio: <em>float</em>, Optional</dt><dd><p>If the model has two sources, source_flux_ratio is the ratio of
 source_flux_2 / source_flux_1.</p>
 </dd>
-<dt>gamma:</dt><dd><p>see <a class="reference internal" href="#MulensModel.model.Model.get_magnification" title="MulensModel.model.Model.get_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_magnification()</span></code></a></p>
+<dt>gamma, bandpass:</dt><dd><p>see <a class="reference internal" href="#MulensModel.model.Model.get_magnification" title="MulensModel.model.Model.get_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_magnification()</span></code></a></p>
 </dd>
-<dt>bandpass: <em>str</em></dt><dd><p>bandpass for defining the limb-darkening coefficient gamma.
-Requires that the limb_darkenging coefficients have been set
-using <a class="reference internal" href="#MulensModel.model.Model.set_limb_coeff_u" title="MulensModel.model.Model.set_limb_coeff_u"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_limb_coeff_u()</span></code></a> or
-<a class="reference internal" href="#MulensModel.model.Model.set_limb_coeff_gamma" title="MulensModel.model.Model.set_limb_coeff_gamma"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_limb_coeff_gamma()</span></code></a>.</p>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.model.Model.plot_lc">
+<code class="sig-name descname">plot_lc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">times</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">t_stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_epochs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blend_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_flux_ratio</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bandpass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flux_ratio_constraint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit_blending</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">f_source</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">f_blend</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.plot_lc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the model light curve in magnitudes.</p>
+<dl class="simple">
+<dt>Keywords :</dt><dd><dl class="simple">
+<dt>times: [<em>float</em>, <em>list</em>, <em>numpy.ndarray</em>]</dt><dd><p>a list of times at which to plot the magnifications</p>
+</dd>
+<dt>t_range, t_start, t_stop, dt, n_epochs:</dt><dd><p>see <a class="reference internal" href="#MulensModel.model.Model.set_times" title="MulensModel.model.Model.set_times"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_times()</span></code></a></p>
+</dd>
+<dt>source_flux, blend_flux, source_flux_ratio:</dt><dd><p>see <a class="reference internal" href="#MulensModel.model.Model.get_lc" title="MulensModel.model.Model.get_lc"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_lc()</span></code></a></p>
+</dd>
+<dt>gamma, bandpass:</dt><dd><p>see <a class="reference internal" href="#MulensModel.model.Model.get_magnification" title="MulensModel.model.Model.get_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_magnification()</span></code></a></p>
 </dd>
 <dt>subtract_2450000, subtract_2460000: <em>boolean</em>, optional</dt><dd><p>If True, subtracts 2450000 or 2460000 from the time
 axis to get more human-scale numbers. If using, make
@@ -530,8 +544,8 @@ parallax calculations.</p>
 </dd>
 <dt>bandpass: <em>str</em>, optional</dt><dd><p>The bandpass for setting the limb-darkening coefficient.
 Expects that you have used <a class="reference internal" href="#MulensModel.model.Model.set_limb_coeff_gamma" title="MulensModel.model.Model.set_limb_coeff_gamma"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_limb_coeff_gamma()</span></code></a> or
-<a class="reference internal" href="#MulensModel.model.Model.set_limb_coeff_u" title="MulensModel.model.Model.set_limb_coeff_u"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_limb_coeff_u()</span></code></a>. Only ONE of <a href="#id1"><span class="problematic" id="id2">`</span></a>gamma’ or
-<a href="#id3"><span class="problematic" id="id4">`</span></a>bandpass’ may be specified.</p>
+<a class="reference internal" href="#MulensModel.model.Model.set_limb_coeff_u" title="MulensModel.model.Model.set_limb_coeff_u"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_limb_coeff_u()</span></code></a>. Only ONE of ‘gamma’ or
+‘bandpass’ may be specified.</p>
 </dd>
 <dt>source_flux_ratio: <em>float</em></dt><dd><p>If the model has two sources, source_flux_ratio is the ratio of
 source_flux_2 / source_flux_1</p>
