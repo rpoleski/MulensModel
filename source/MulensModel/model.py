@@ -1053,8 +1053,8 @@ class Model(object):
             bandpass: *str*, optional
                 The bandpass for setting the limb-darkening coefficient.
                 Expects that you have used :py:func:`set_limb_coeff_gamma()` or
-                :py:func:`set_limb_coeff_u()`. Only ONE of `gamma' or
-                `bandpass' may be specified.
+                :py:func:`set_limb_coeff_u()`. Only ONE of 'gamma' or
+                'bandpass' may be specified.
 
             source_flux_ratio: *float*
                 If the model has two sources, source_flux_ratio is the ratio of

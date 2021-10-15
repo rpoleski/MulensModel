@@ -379,8 +379,9 @@ class FitData:
         """
         Calculate model in magnitude space
 
-        Arguments:
-            **kwargs: see :py:func:`~get_model_fluxes`
+        Arguments :
+            ``**kwargs``:
+                see :py:func:`get_model_fluxes()`
 
         Returns :
             model_mag: *np.ndarray*
