@@ -288,14 +288,15 @@ class FitData:
         try:
             results = np.linalg.lstsq(xT, y, rcond=-1)[0]
         except ValueError as e:
-            raise ValueError(
-                '{0}\n'.format(e) +
-                'If either of these numbers ({0}, {1}) '.format(
-                    np.sum(np.isnan(xT)), np.sum(np.isnan(y))) +
-                'is greater than zero, there is a NaN somewhere, ' +
-                'probably in the data. The cause of this error may be the ' +
-                'epochs with extreme brightness (e.g., 99.999 mag), which ' +
-                'is sometimes used to mark bad data.')
+            message = (
+                "{0}\nIf either of these numbers ({1}, {2}) is greater than "
+                "zero, there is a NaN somewhere, probably in the data. The "
+                "cause of this error may be the epochs with extreme "
+                "brightness (e.g., 99.999 mag), which is sometimes used to "
+                "mark bad data. Other possible reason is mistakenly using "
+                "phot_fmt='flux' instead of 'mag'")
+            args = (e, np.sum(np.isnan(xT)), np.sum(np.isnan(y)))
+            raise ValueError(message.format(*args))
 
         # Record the results
         if self.fix_source_flux_ratio is False:
