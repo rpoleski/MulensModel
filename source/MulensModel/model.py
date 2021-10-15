@@ -1038,6 +1038,11 @@ class Model(object):
         return mag
 
     def magnification(self, *args, **kwargs):
+        """
+        DEPRECATED
+
+        Use :py:func:`get_magnification()` instead.
+        """
         warnings.warn('magnification() will be deprecated in ' +
                       'favor of get_magnification()')
         return self.get_magnification(*args, **kwargs)

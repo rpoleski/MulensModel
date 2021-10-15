@@ -1,7 +1,7 @@
 # Current tasks:
 1. Model.magnification - docstrings
-1. get\_lc/get\_flux functions (also errorbars somehow)
-2. test binary-source models in example 16 - use get\_flux
+1. get\_lc
+2. test binary-source models in example 16 - use get\_lc (maybe introduce get\_flux first)
 3. update VBBL
 4. make directory with reference plots from examples
 5. XXX in example 16
