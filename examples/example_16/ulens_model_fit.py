@@ -1577,7 +1577,7 @@ class UlensModelFit(object):
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
         if self._model.n_sources != 1:
-            kwargs_model['flux_ratio_constraint'] = self._datasets[0]
+            kwargs_model['source_flux_ratio'] = self._datasets[0]
         if self._datasets[0].bandpass is not None:
             key = 'limb darkening u'
             if self._datasets[0].bandpass in self._model_parameters[key]:
@@ -1630,33 +1630,26 @@ class UlensModelFit(object):
 
         y_1 = y_3 = np.inf
         y_2 = y_4 = -np.inf
-        i_data_ref = self._event.data_ref
         (f_source_0, f_blend_0) = self._event.get_ref_fluxes()
 
         for (i, data) in enumerate(self._datasets):
             mask = (data.time >= t_1) & (data.time <= t_2)
             if np.sum(mask) == 0:
-                self._event.data_ref = i_data_ref
                 continue
 
-            (f_source, f_blend) = self._event.get_flux_for_dataset(data)
-            flux = f_source_0 * (data.flux - f_blend) / f_source
-            flux += f_blend_0
-            err_flux = f_source_0 * data.err_flux / f_source
-            (y_value, y_err) = data._get_y_value_y_err(
-                'mag', flux, err_flux)
-            self._event.data_ref = i_data_ref
-
-            err_mag = data.err_mag[mask]
+            (flux, flux_err) = self._event.fits[i].scale_fluxes(
+                f_source_0, f_blend_0)
+            (y_value, y_err) = mm.Utils.get_mag_and_err_from_flux(
+                flux, flux_err)
             y_1 = min(y_1, np.min((y_value - y_err)[mask]))
             y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
-            residuals = self._event.fits[i].get_residuals(
+            (residuals, err_mag) = self._event.fits[i].get_residuals(
                 phot_fmt='scaled', source_flux=f_source_0,
-                blend_flux=f_blend_0)[0][mask]
-            mask_ = np.isfinite(residuals)
-            y_3 = min(y_3, np.min((residuals - err_mag)[mask_]))
-            y_4 = max(y_4, np.max((residuals + err_mag)[mask_]))
+                blend_flux=f_blend_0)
+            mask_ = np.isfinite(residuals[mask])
+            y_3 = min(y_3, np.min((residuals - err_mag)[mask][mask_]))
+            y_4 = max(y_4, np.max((residuals + err_mag)[mask][mask_]))
 
         if y_1 == np.inf:  # There are no data points in the plot.
             return (None, [0.1, -0.1])
