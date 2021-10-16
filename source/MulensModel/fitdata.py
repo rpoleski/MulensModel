@@ -409,8 +409,12 @@ class FitData:
                 Flux of the blend in the desired system
 
         Returns :
-            (flux, err): the fluxes and flux errors of the dataset rescaled
-            to the desired system
+            flux: *np.ndarray*
+                Fluxes from the data rescaled to the desired system.
+
+            err_flux: *np.ndarray*
+                Uncertainties of fluxes from the data rescaled to the desired
+                system.
         """
         if self.model.n_sources == 1:
             data_source_flux = self.source_flux
@@ -447,7 +451,8 @@ class FitData:
                 magnification for each point to ensure that there are values
                 even for bad datapoints.
 
-            type: deprecated, see "phot_fmt".
+            type: 
+                DEPRECATED, see "phot_fmt" above.
 
         Returns :
             residuals: *np.ndarray*
@@ -462,7 +467,6 @@ class FitData:
                 warnings.warn(
                     '"mag" returns residuals in the original data flux' +
                     'system. To scale the residuals, use "scaled".')
-
             warnings.warn(
                 'type keyword will be deprecated. Use "phot_fmt" instead.',
                 FutureWarning)
@@ -471,35 +475,32 @@ class FitData:
         if bad:
             self._calculate_magnifications(bad=True)
 
-        if phot_fmt == 'scaled':
-            if self.model.n_sources > 1:
-                raise NotImplementedError(
-                    'Scaling data to model not implemented for multiple ' +
-                    'sources.')
-
+        if phot_fmt == 'mag':
+            residuals = self._dataset.mag - self.get_model_magnitudes()
+            errorbars = self._dataset.err_mag
+        elif phot_fmt == 'flux':
+            residuals = self._dataset.flux - self.get_model_fluxes()
+            errorbars = self._dataset.err_flux
+        elif phot_fmt == 'scaled':
             if source_flux is None or blend_flux is None:
                 raise ValueError(
-                    'If phot_fmt=scaled, source_flux and blend_flux must' +
+                    'If phot_fmt=scaled, source_flux and blend_flux must ' +
                     'also be specified.')
 
             magnification = self._data_magnification
-            model_mag = Utils.get_mag_from_flux(
-                blend_flux + source_flux * magnification)
+            if self._model.n_sources == 1:
+                model_flux = source_flux * magnification
+            else:
+                model_flux = source_flux[0] * magnification[0]
+                model_flux += source_flux[1] * magnification[1]
+            model_flux += blend_flux
+            model_mag = Utils.get_mag_from_flux(model_flux)
             (flux, err_flux) = self.scale_fluxes(source_flux, blend_flux)
-            (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+            (mag, errorbars) = Utils.get_mag_and_err_from_flux(flux, err_flux)
             residuals = mag - model_mag
-            errorbars = err
-        elif phot_fmt == 'mag':
-            model_mag = self.get_model_magnitudes()
-            residuals = self._dataset.mag - model_mag
-            errorbars = self._dataset.err_mag
-        elif phot_fmt == 'flux':
-            model_flux = self.get_model_fluxes()
-            residuals = self._dataset.flux - model_flux
-            errorbars = self._dataset.err_flux
         else:
             raise ValueError(
-                'phot_fmt must be one of "mag", "flux", or "scaled". Your' +
+                'phot_fmt must be one of "mag", "flux", or "scaled". Your ' +
                 'value: {0}'.format(phot_fmt))
 
         return (residuals, errorbars)
