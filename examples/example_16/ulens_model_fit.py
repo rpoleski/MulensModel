@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.22.2'
+__version__ = '0.23.0'
 
 
 class UlensModelFit(object):
@@ -400,7 +400,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams'])
+                       'rcParams', 'second Y scale'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -435,6 +435,50 @@ class UlensModelFit(object):
                     "Incorrect 'magnitude range' for 'best model':\n" +
                     text[0] + " " + text[1])
             self._plots['best model']['magnitude range'] = [mag_0, mag_1]
+
+        for key in ['legend', 'rcParams', 'second Y scale']:
+            if key in self._plots['best model']:
+                if not isinstance(self._plots['best model'][key], dict):
+                    msg = ('The value of {:} (in best model setttings)'
+                           'must be a dictionary, but you provided {:}')
+                    args = [key, type(self._plots['best model'][key])]
+                    raise TypeError(msg.format(*args))
+
+        if 'second Y scale' in self._plots['best model']:
+            self._check_plots_parameters_best_model_Y_scale()
+
+    def _check_plots_parameters_best_model_Y_scale(self):
+        """
+        Check if parameters for second Y scale make sense.
+        This function assumes that the second Y scale will be plotted.
+        """
+        settings = self._plots['best model']['second Y scale']
+        allowed_2 = set(['color', 'label', 'labels', 'magnifications'])
+        unknown_2 = set(settings.keys()) - allowed_2
+        if len(unknown_2) > 0:
+            raise ValueError(
+                'Unknown settings for "second Y scale" in '
+                '"best model": {:}'.format(unknown_2))
+        if not isinstance(settings['magnifications'], list):
+            raise TypeError(
+                '"best model" -> "second Y scale" -> "magnifications" has to '
+                'be a list, not ' + str(type(settings['magnifications'])))
+        for value in settings['magnifications']:
+            if not isinstance(value, (int, float)):
+                raise TypeError(
+                    'Wrong value in magnifications: ' + str(value))
+        if 'labels' not in settings:
+            settings['labels'] = [
+                str(x) for x in settings['magnifications']]
+        else:
+            if not isinstance(settings['labels'], list):
+                raise TypeError(
+                    '"best model" -> "second Y scale" -> "labels" has to be '
+                    'a list, not ' + str(type(settings['labels'])))
+            if len(settings['labels']) != len(settings['magnifications']):
+                raise ValueError(
+                    'In "best model" -> "second Y scale", labels and '
+                    'magnifications must be lists of the same length')
 
     def _check_model_parameters(self):
         """
@@ -1499,13 +1543,12 @@ class UlensModelFit(object):
         """
         plot best model and residuals
         """
-        self._reset_rcParams()
-
         dpi = 300
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to
         # the best model.
 
+        self._reset_rcParams()
         if 'rcParams' in self._plots['best model']:
             for (key, value) in self._plots['best model']['rcParams'].items():
                 rcParams[key] = value
@@ -1534,20 +1577,13 @@ class UlensModelFit(object):
             model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
                           **kwargs_model)
 
-        if len(self._datasets) > 1 or 'legend' in self._plots['best model']:
-            if 'legend' in self._plots['best model']:
-                try:
-                    plt.legend(**self._plots['best model']['legend'])
-                except Exception:
-                    print("\npyplot.legend() failed with kwargs:")
-                    print(self._plots['best model']['legend'], "\n")
-                    raise
-            else:
-                plt.legend()
+        self._plot_legend_for_best_model_plot()
         plt.xlim(*xlim)
         if ylim is not None:
             plt.ylim(*ylim)
         axes.tick_params(**kwargs_axes_1)
+        if "second Y scale" in self._plots['best model']:
+            self._mark_second_Y_axis_in_best_plot()
 
         axes = plt.subplot(grid[1])
         self._event.plot_residuals(**kwargs)
@@ -1670,6 +1706,60 @@ class UlensModelFit(object):
             ylim = self._plots['best model']['magnitude range']
 
         return (ylim, ylim_residuals)
+
+    def _plot_legend_for_best_model_plot(self):
+        """
+        advanced call to plt.legend()
+        """
+        if len(self._datasets) > 1 or 'legend' in self._plots['best model']:
+            if 'legend' not in self._plots['best model']:
+                plt.legend()
+            else:
+                try:
+                    plt.legend(**self._plots['best model']['legend'])
+                except Exception:
+                    print("\npyplot.legend() failed with kwargs:")
+                    print(self._plots['best model']['legend'], "\n")
+                    raise
+
+    def _mark_second_Y_axis_in_best_plot(self):
+        """
+        Mark the second (right-hand side) scale for Y axis in
+        the best model plot
+        """
+        settings = self._plots['best model']["second Y scale"]
+        magnifications = settings['magnifications']
+        color = settings.get("color", "red")
+        label = settings.get("label", "magnification")
+
+        ylim = plt.ylim()
+        (source_flux, blend_flux) = self._event.get_ref_fluxes()
+        if self._model.n_sources == 1:
+            total_source_flux = source_flux
+        else:
+            total_source_flux = sum(source_flux)
+        flux = total_source_flux * magnifications + blend_flux
+        ticks = mm.Utils.get_mag_from_flux(flux)
+
+        if min(ticks) < ylim[1] or max(ticks) > ylim[0]:
+            flux_min = mm.Utils.get_flux_from_mag(ylim[0])
+            flux_max = mm.Utils.get_flux_from_mag(ylim[1])
+            A_min = (flux_min - blend_flux) / total_source_flux
+            A_max = (flux_max - blend_flux) / total_source_flux
+            msg = ("Provided magnifications for the second (i.e., right-hand "
+                   "side) Y-axis scale are from {:} to {:},\nbut the range "
+                   "of plotted magnifications is from {:} to {:}, hence, "
+                   "the second scale is not plotted")
+            args = [min(magnifications), max(magnifications),
+                    A_min[0], A_max[0]]
+            warnings.warn(msg.format(*args))
+            return
+        ax2 = plt.gca().twinx()
+        ax2.set_ylabel(label).set_color(color)
+        ax2.spines['right'].set_color(color)
+        ax2.set_ylim(ylim[0], ylim[1])
+        ax2.tick_params(axis='y', colors=color)
+        plt.yticks(ticks, settings['labels'], color=color)
 
 
 if __name__ == '__main__':
