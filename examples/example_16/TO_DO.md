@@ -21,6 +21,7 @@
 - **add one more fitting method?**
 - **requirements.txt** - corner >= 2.0.0
 - Mroz+20 - finish
+- trace plot (give option to include burn-in)
 - script and MM versions should be printed
 - add check if 't_0' is covered by data and give warning if not
 - print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
@@ -30,14 +31,12 @@
 - note that parameters are re-ordered (maybe in future add option for specifying order)
 - datasets - guessing 245/246; plotting as well
 - no_negative_blending_flux - only first dataset, or all datasets? Maybe add one more option
-- trace plot (give option to include burn-in)
 - allow plotting multiple models
 - add beta distribution to allowed distributions (search for "gauss")
 - for plot script add printing chi2 and fluxes
 - starting parameters are read from file (e.g. 100 lines by 7 columns)
 - some of the starting values are calculated based on equation given in yaml file, eg. "s: equation 100 / t_E" and then substitute each value of t_E and then use: "exec('out = 100 / 20.12345')" and use variable 'out'; This requires import from math of log, log10, arcsin etc.; make sure "s" in x_caustic_in is not replaced etc.; 
 - if Cassan08 paramaterization is used then make sure times are >2450000.
-- self._plots - check what is there
 - add automatic "obvious" checks on parameters: t_E>0, rho>0, s>0, 1>q>0 - even if they are not provided, then model should be rejected and warning given
 - if magnification calculations break then give warning, reject the model, and continue
 - binary source models - print fluxes of both sources separately
@@ -54,7 +53,7 @@
 - periodic variables - suggest it for alpha, x_caustic_X
 - check if data files exist
 - allow log10() of parameter
-- Event.get_chi2() - add fit_blending=False option
+- Event.get_chi2() - add fit_blending=False option (actually this is different in MM v2)
 - allow turning off flux printing
 - warnings on time plotting and data limits - checks for add/subtract 245/246
 - if code fails during fitting, then it should still print the best model found so far - add try/except in _run_fit()
