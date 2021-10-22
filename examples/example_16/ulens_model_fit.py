@@ -31,7 +31,25 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.2'
+__version__ = '0.23.2dev'
+
+
+def get_my_parameters(parameters_):
+    """
+    transformation of parameters for WIDE orbit:
+    (t_0_pl, u_0_pl, t_E_pl) ==> (s, q, alpha)
+    """
+    parameters = {**parameters_}
+    t_E_ratio = parameters['t_E_pl'] / parameters['t_E']
+    u = parameters['u_0'] + parameters['u_0_pl'] * t_E_ratio
+    tau = (parameters['t_0_pl'] - parameters['t_0']) / parameters['t_E']
+    ss = np.sqrt(u**2 + tau**2)
+    parameters['s'] = 0.5 * (ss + np.sqrt(ss**2+4.))
+    parameters['q'] = t_E_ratio**2
+    parameters['alpha'] = 360 - np.arcsin(u/ss) * 180 / np.pi
+    for p in ['t_0_pl', 'u_0_pl', 't_E_pl']:
+        parameters.pop(p)
+    return parameters
 
 
 class UlensModelFit(object):
@@ -612,6 +630,7 @@ class UlensModelFit(object):
         all_parameters = (
             't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
             't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
+            't_0_pl u_0_pl t_E_pl ' +
             'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
 # We do not include t_0_par and t_0_kep because
 # these are not fitting parameters.
@@ -644,6 +663,9 @@ class UlensModelFit(object):
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
             t_caustic_out='t_{\\rm caustic,out}')
+        conversion['t_0_pl'] ='t_{0, pl}'
+        conversion['u_0_pl'] ='u_{0, pl}'
+        conversion['t_E_pl'] ='t_{{\\rm E}, pl}'
 
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
@@ -1093,6 +1115,7 @@ class UlensModelFit(object):
             for (key, value) in self._fixed_parameters.items():
                 parameters[key] = value
 
+        parameters = get_my_parameters(parameters)
         return parameters
 
     def _generate_random_parameters(self):
@@ -1208,7 +1231,10 @@ class UlensModelFit(object):
         """
         Set microlensing parameters of self._model
         """
-        for (parameter, value) in zip(self._fit_parameters, theta):
+        parameters = dict(zip(self._fit_parameters, theta))
+        parameters = get_my_parameters(parameters)
+        for (parameter, value) in parameters.items():
+        #for (parameter, value) in zip(self._fit_parameters, theta):
             setattr(self._model.parameters, parameter, value)
 
     def _ln_prior(self, theta):
