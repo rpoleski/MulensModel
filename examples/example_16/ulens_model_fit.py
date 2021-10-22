@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.1'
+__version__ = '0.23.2'
 
 
 class UlensModelFit(object):
@@ -583,6 +583,10 @@ class UlensModelFit(object):
         kwargs = {'add_2450000': True}
         if isinstance(self._photometry_files, str):
             self._photometry_files = [self._photometry_files]
+        elif not isinstance(self._photometry_files, list):
+            raise TypeError(
+                'photometry_files should be a list or a str, but you '
+                'provided ' + str(type(self._photometry_files)))
         files = [f if isinstance(f, dict) else {'file_name': f}
                  for f in self._photometry_files]
         self._datasets = []
