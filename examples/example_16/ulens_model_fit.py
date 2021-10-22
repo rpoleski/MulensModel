@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.0'
+__version__ = '0.23.1'
 
 
 class UlensModelFit(object):
@@ -210,6 +210,7 @@ class UlensModelFit(object):
             min_values=None, max_values=None, fitting_parameters=None,
             fit_constraints=None, plots=None, other_output=None
             ):
+        self._check_MM_version()
         self._photometry_files = photometry_files
         self._starting_parameters = starting_parameters
         self._model_parameters = model
@@ -224,6 +225,15 @@ class UlensModelFit(object):
         self._which_task()
         self._set_default_parameters()
         self._check_imports()
+
+    def _check_MM_version(self):
+        """
+        Check if MulensModel is new enough
+        """
+        if int(mm.__version__.split('.')[0]) < 2:
+            raise RuntimeError(
+                "ulens_model_fit.py requires MulensModel in version "
+                "at least 2.0, but you are using " + mm.__version__)
 
     def _which_task(self):
         """
