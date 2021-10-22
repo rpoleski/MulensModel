@@ -451,7 +451,7 @@ class FitData:
                 magnification for each point to ensure that there are values
                 even for bad datapoints.
 
-            type: 
+            type:
                 DEPRECATED, see "phot_fmt" above.
 
         Returns :
@@ -506,8 +506,10 @@ class FitData:
         return (residuals, errorbars)
 
     def _check_for_gradient_implementation(self, parameters):
-        """ Check that the gradient methods are implemented for the requested
-        values. """
+        """
+        Check that the gradient methods are implemented for the requested
+        values.
+        """
 
         # Implemented for the requested parameters?
         if not isinstance(parameters, list):
@@ -590,10 +592,10 @@ class FitData:
         # Calculate derivatives
         d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
         factor *= d_A_d_u
-        factor_d_x_d_u = (factor * trajectory.x / u_)[self.dataset.good]
-        sum_d_x_d_u = np.sum(factor_d_x_d_u)
-        factor_d_y_d_u = (factor * trajectory.y / u_)[self.dataset.good]
-        sum_d_y_d_u = np.sum(factor_d_y_d_u)
+        factor_d_u_d_x = (factor * trajectory.x / u_)[self.dataset.good]
+        sum_d_u_d_x = np.sum(factor_d_u_d_x)
+        factor_d_u_d_y = (factor * trajectory.y / u_)[self.dataset.good]
+        sum_d_u_d_y = np.sum(factor_d_u_d_y)
         dt = self.dataset.time[self.dataset.good] - as_dict['t_0']
 
         # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
@@ -601,33 +603,32 @@ class FitData:
         if 't_eff' not in as_dict:
             t_E = as_dict['t_E'].to(u.day).value
             if 't_0' in parameters:
-                gradient['t_0'] += -sum_d_x_d_u / t_E
+                gradient['t_0'] += -sum_d_u_d_x / t_E
             if 'u_0' in parameters:
-                gradient['u_0'] += sum_d_y_d_u
+                gradient['u_0'] += sum_d_u_d_y
             if 't_E' in parameters:
-                gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E ** 2)
+                gradient['t_E'] += np.sum(factor_d_u_d_x * -dt / t_E ** 2)
         elif 't_E' not in as_dict:
             t_eff = as_dict['t_eff'].to(u.day).value
             if 't_0' in parameters:
-                gradient['t_0'] += -sum_d_x_d_u * as_dict['u_0'] / t_eff
+                gradient['t_0'] += -sum_d_u_d_x * as_dict['u_0'] / t_eff
             if 'u_0' in parameters:
-                gradient['u_0'] += sum_d_y_d_u + np.sum(
-                    factor_d_x_d_u * dt / t_eff)
+                gradient['u_0'] += sum_d_u_d_y + np.sum(
+                    factor_d_u_d_x * dt / t_eff)
             if 't_eff' in parameters:
                 gradient['t_eff'] += np.sum(
-                    factor_d_x_d_u * -dt *
+                    factor_d_u_d_x * -dt *
                     as_dict['u_0'] / t_eff ** 2)
         elif 'u_0' not in as_dict:
             t_E = as_dict['t_E'].to(u.day).value
             t_eff = as_dict['t_eff'].to(u.day).value
             if 't_0' in parameters:
-                gradient['t_0'] += -sum_d_x_d_u / t_E
+                gradient['t_0'] += -sum_d_u_d_x / t_E
             if 't_E' in parameters:
-                gradient['t_E'] += (
-                                           np.sum(factor_d_x_d_u * dt) -
-                                           sum_d_y_d_u * t_eff) / t_E ** 2
+                diff = np.sum(factor_d_u_d_x * dt) - sum_d_u_d_y * t_eff
+                gradient['t_E'] += diff / t_E**2
             if 't_eff' in parameters:
-                gradient['t_eff'] += sum_d_y_d_u / t_E
+                gradient['t_eff'] += sum_d_u_d_y / t_E
         else:
             raise KeyError(
                 'Something is wrong with ModelParameters in ' +
