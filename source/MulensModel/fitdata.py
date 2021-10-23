@@ -527,6 +527,7 @@ class FitData:
                 'chi2_gradient() only implemented for single lens models')
 
         # Implemented for finite source effects?
+# XXX there should ModelParameters.is_source_finite() function
         if 'rho' in parameters or 't_star' in parameters:
             as_dict = self.model.parameters.as_dict()
             if 'rho' in as_dict or 't_star' in as_dict:
@@ -596,33 +597,20 @@ class FitData:
 
         # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
         # gradient depends on which ones are defined.
-# XXX - I think all inner if-s can be removed because later we have "out = np.array([gradient[p] for p in parameters])"
+        t_E = self.model.parameters.t_E
+        t_eff = self.model.parameters.t_eff
         if 't_eff' not in as_dict:
-            t_E = as_dict['t_E'].to(u.day).value
-            if 't_0' in parameters:
-                gradient['t_0'] = -d_u_d_x / t_E
-            if 'u_0' in parameters:
-                gradient['u_0'] = d_u_d_y
-            if 't_E' in parameters:
-                gradient['t_E'] = d_u_d_x * -dt / t_E**2
+            gradient['t_0'] = -d_u_d_x / t_E
+            gradient['u_0'] = d_u_d_y
+            gradient['t_E'] = d_u_d_x * -dt / t_E**2
         elif 't_E' not in as_dict:
-            t_eff = as_dict['t_eff'].to(u.day).value
-            if 't_0' in parameters:
-                gradient['t_0'] = -d_u_d_x * as_dict['u_0'] / t_eff
-            if 'u_0' in parameters:
-                gradient['u_0'] = (d_u_d_y + d_u_d_x * dt / t_eff)
-            if 't_eff' in parameters:
-                gradient['t_eff'] = (d_u_d_x * -dt * as_dict['u_0'] / t_eff**2)
+            gradient['t_0'] = -d_u_d_x * as_dict['u_0'] / t_eff
+            gradient['u_0'] = (d_u_d_y + d_u_d_x * dt / t_eff)
+            gradient['t_eff'] = (d_u_d_x * -dt * as_dict['u_0'] / t_eff**2)
         elif 'u_0' not in as_dict:
-            t_E = as_dict['t_E'].to(u.day).value
-            t_eff = as_dict['t_eff'].to(u.day).value
-            if 't_0' in parameters:
-                gradient['t_0'] = -d_u_d_x / t_E
-            if 't_E' in parameters:
-                diff = d_u_d_x * dt - d_u_d_y * t_eff
-                gradient['t_E'] = diff / t_E**2
-            if 't_eff' in parameters:
-                gradient['t_eff'] = d_u_d_y / t_E
+            gradient['t_0'] = -d_u_d_x / t_E
+            gradient['t_E'] = (d_u_d_x * dt - d_u_d_y * t_eff) / t_E**2
+            gradient['t_eff'] = d_u_d_y / t_E
         else:
             raise KeyError(
                 'Something is wrong with ModelParameters in ' +
@@ -630,10 +618,8 @@ class FitData:
 
         # Below we deal with parallax only.
         if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-            parallax = {
-                'earth_orbital': False,
-                'satellite': False,
-                'topocentric': False}
+            parallax = {'earth_orbital': False, 'satellite': False,
+                        'topocentric': False}
             # JCY Not happy about this as it requires importing from other
             # modules. It is inelegant, which in my experience often means it
             # needs to be refactored.
@@ -653,7 +639,8 @@ class FitData:
             gradient['pi_E_N'] = (d_x_d_u * delta_N + d_y_d_u * delta_E) / det
             gradient['pi_E_E'] = (d_x_d_u * delta_E - d_y_d_u * delta_N) / det
 
-# XXX it's better to separate this loop so that flux part (i.e. factor) is separate from d_A_d_u and d_u_d_parameter (call value inside this loop).
+# XXX it's better to separate this loop so that flux part (i.e. factor) is
+# separate from d_A_d_u and d_u_d_parameter (call value inside this loop).
         mask = self.dataset.good
         for (key, value) in gradient.items():
             gradient[key] = np.sum((factor * d_A_d_u * value)[mask])
