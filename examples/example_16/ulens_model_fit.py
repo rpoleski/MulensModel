@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.2'
+__version__ = '0.23.3'
 
 
 class UlensModelFit(object):
@@ -1747,19 +1747,20 @@ class UlensModelFit(object):
         label = settings.get("label", "magnification")
 
         ylim = plt.ylim()
+        flux_min = mm.Utils.get_flux_from_mag(ylim[0])
+        flux_max = mm.Utils.get_flux_from_mag(ylim[1])
+
         (source_flux, blend_flux) = self._event.get_ref_fluxes()
         if self._model.n_sources == 1:
             total_source_flux = source_flux
         else:
             total_source_flux = sum(source_flux)
         flux = total_source_flux * magnifications + blend_flux
-        ticks = mm.Utils.get_mag_from_flux(flux)
+        A_min = (flux_min - blend_flux) / total_source_flux
+        A_max = (flux_max - blend_flux) / total_source_flux
 
-        if min(ticks) < ylim[1] or max(ticks) > ylim[0]:
-            flux_min = mm.Utils.get_flux_from_mag(ylim[0])
-            flux_max = mm.Utils.get_flux_from_mag(ylim[1])
-            A_min = (flux_min - blend_flux) / total_source_flux
-            A_max = (flux_max - blend_flux) / total_source_flux
+        if (np.min(magnifications) < A_min or np.max(magnifications) > A_max or
+                np.any(flux < 0.)):
             msg = ("Provided magnifications for the second (i.e., right-hand "
                    "side) Y-axis scale are from {:} to {:},\nbut the range "
                    "of plotted magnifications is from {:} to {:}, hence, "
@@ -1768,6 +1769,9 @@ class UlensModelFit(object):
                     A_min[0], A_max[0]]
             warnings.warn(msg.format(*args))
             return
+
+        ticks = mm.Utils.get_mag_from_flux(flux)
+
         ax2 = plt.gca().twinx()
         ax2.set_ylabel(label).set_color(color)
         ax2.spines['right'].set_color(color)
