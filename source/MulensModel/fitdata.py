@@ -575,14 +575,33 @@ class FitData:
         """
         self._check_for_gradient_implementation(parameters)
 
+        # Calculate factor
+        flux_factor = self.get_model_fluxes() - self.dataset.flux
+        flux_factor *= 2. * self.source_flux / self.dataset.err_flux**2
+
+        gradient = self._get_d_A_d_params_for_point_lens_model(parameters)
+
+        for (key, value) in gradient.items():
+            gradient[key] = np.sum((flux_factor * value)[self.dataset.good])
+
+        if len(parameters) == 1:
+            out = gradient[parameters[0]]
+        else:
+            out = np.array([gradient[p] for p in parameters])
+
+        self._chi2_gradient = out
+
+        return self._chi2_gradient
+
+    def _get_d_A_d_params_for_point_lens_model(self, parameters):
+        """
+        Calculate d A /d parameters for a point lens model.
+
+        Returns a *dict*.
+        """
         # Setup
         gradient = {param: 0 for param in parameters}
         as_dict = self.model.parameters.as_dict()
-
-        # Calculate factor
-        # JCY - Everything below here should be refactored into smaller bits.
-        factor = self.get_model_fluxes() - self.dataset.flux
-        factor *= 2. * self.source_flux / self.dataset.err_flux**2
 
         # Get source location
         trajectory = self.model.get_trajectory(self.dataset.time)
@@ -623,7 +642,7 @@ class FitData:
             # JCY Not happy about this as it requires importing from other
             # modules. It is inelegant, which in my experience often means it
             # needs to be refactored.
-            kwargs = {}
+            kwargs = dict()
             if self.dataset.ephemerides_file is not None:
                 kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
 
@@ -635,24 +654,12 @@ class FitData:
             delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
             delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
             det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
+            gradient['pi_E_N'] = (d_u_d_x * delta_N + d_u_d_y * delta_E) / det
+            gradient['pi_E_E'] = (d_u_d_x * delta_E - d_u_d_y * delta_N) / det
 
-            gradient['pi_E_N'] = (d_x_d_u * delta_N + d_y_d_u * delta_E) / det
-            gradient['pi_E_E'] = (d_x_d_u * delta_E - d_y_d_u * delta_N) / det
-
-# XXX it's better to separate this loop so that flux part (i.e. factor) is
-# separate from d_A_d_u and d_u_d_parameter (call value inside this loop).
-        mask = self.dataset.good
         for (key, value) in gradient.items():
-            gradient[key] = np.sum((factor * d_A_d_u * value)[mask])
-
-        if len(parameters) == 1:
-            out = gradient[parameters[0]]
-        else:
-            out = np.array([gradient[p] for p in parameters])
-
-        self._chi2_gradient = out
-
-        return self._chi2_gradient
+            gradient[key] *= d_A_d_u
+        return gradient
 
     @property
     def chi2_gradient(self):
