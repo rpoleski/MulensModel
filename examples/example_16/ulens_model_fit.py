@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.3'
+__version__ = '0.23.4'
 
 
 class UlensModelFit(object):
@@ -405,6 +405,17 @@ class UlensModelFit(object):
         if 'best model' in self._plots:
             self._check_plots_parameters_best_model()
 
+        if 'triangle' in self._plots:
+            self._check_plots_parameters_triangle()
+
+        if 'best model' in self._plots and 'triangle' in self._plots:
+            file_1 = self._plots['best model'].get('file')
+            file_2 = self._plots['triangle'].get('file')
+            if file_1 == file_2 and file_1 is not None:
+                raise ValueError(
+                    'Output files for "best model" and "triangle" plots '
+                    'cannot be identical')
+
     def _check_plots_parameters_best_model(self):
         """
         Check if parameters of best model make sense
@@ -463,12 +474,12 @@ class UlensModelFit(object):
         This function assumes that the second Y scale will be plotted.
         """
         settings = self._plots['best model']['second Y scale']
-        allowed_2 = set(['color', 'label', 'labels', 'magnifications'])
-        unknown_2 = set(settings.keys()) - allowed_2
-        if len(unknown_2) > 0:
+        allowed = set(['color', 'label', 'labels', 'magnifications'])
+        unknown = set(settings.keys()) - allowed
+        if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "second Y scale" in '
-                '"best model": {:}'.format(unknown_2))
+                '"best model": {:}'.format(unknown))
         if not isinstance(settings['magnifications'], list):
             raise TypeError(
                 '"best model" -> "second Y scale" -> "magnifications" has to '
@@ -489,6 +500,16 @@ class UlensModelFit(object):
                 raise ValueError(
                     'In "best model" -> "second Y scale", labels and '
                     'magnifications must be lists of the same length')
+
+    def _check_plots_parameters_triangle(self):
+        """
+        Check if parameters of triangle plot make sense
+        """
+        allowed = set(['file'])
+        unknown = set(self._plots['triangle'].keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'Unknown settings for "triangle": {:}'.format(unknown))
 
     def _check_model_parameters(self):
         """
