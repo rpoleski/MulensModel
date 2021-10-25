@@ -595,7 +595,30 @@ class FitData:
 
     def _get_d_A_d_params_for_point_lens_model(self, parameters):
         """
-        Calculate d A /d parameters for a point lens model.
+        Calculate d A / d parameters for a point lens model.
+
+        Returns a *dict*.
+        """
+        gradient = self._get_d_u_d_params(parameters)
+
+        d_A_d_u = self._get_d_A_d_u_for_point_lens_model()
+
+        for (key, value) in gradient.items():
+            gradient[key] *= d_A_d_u
+        return gradient
+
+    def _get_d_A_d_u_for_point_lens_model(self):
+        """
+        Calculate dA/du for PSPL
+        """
+        trajectory = self.model.get_trajectory(self.dataset.time)
+        u_2 = trajectory.x**2 + trajectory.y**2
+        d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
+        return d_A_d_u
+
+    def _get_d_u_d_params(self, parameters):
+        """
+        Calculate d u / d parameters
 
         Returns a *dict*.
         """
@@ -605,11 +628,9 @@ class FitData:
 
         # Get source location
         trajectory = self.model.get_trajectory(self.dataset.time)
-        u_2 = trajectory.x**2 + trajectory.y**2
-        u_ = np.sqrt(u_2)
+        u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
 
         # Calculate derivatives
-        d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
         d_u_d_x = trajectory.x / u_
         d_u_d_y = trajectory.y / u_
         dt = self.dataset.time - as_dict['t_0']
@@ -657,8 +678,6 @@ class FitData:
             gradient['pi_E_N'] = (d_u_d_x * delta_N + d_u_d_y * delta_E) / det
             gradient['pi_E_E'] = (d_u_d_x * delta_E - d_u_d_y * delta_N) / det
 
-        for (key, value) in gradient.items():
-            gradient[key] *= d_A_d_u
         return gradient
 
     @property
