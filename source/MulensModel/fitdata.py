@@ -510,7 +510,6 @@ class FitData:
         Check that the gradient methods are implemented for the requested
         values.
         """
-
         # Implemented for the requested parameters?
         if not isinstance(parameters, list):
             parameters = [parameters]
@@ -519,7 +518,6 @@ class FitData:
             raise NotImplementedError((
                 "chi^2 gradient is implemented only for {:}\nCannot work " +
                 "with {:}").format(implemented, parameters))
-        gradient = {param: 0 for param in parameters}
 
         # Implemented for the number of sources in the model?
         if self.model.n_lenses != 1:
@@ -527,13 +525,9 @@ class FitData:
                 'chi2_gradient() only implemented for single lens models')
 
         # Implemented for finite source effects?
-# XXX there should ModelParameters.is_source_finite() function
-        if 'rho' in parameters or 't_star' in parameters:
-            as_dict = self.model.parameters.as_dict()
-            if 'rho' in as_dict or 't_star' in as_dict:
-                raise NotImplementedError(
-                    'Event.chi2_gradient() is not working ' +
-                    'for finite source models yet')
+        if self.model.parameters.is_finite_source():
+            raise NotImplementedError('Event.chi2_gradient() is not working '
+                                      'for finite source models yet')
 
     def get_chi2_gradient(self, parameters):
         """
