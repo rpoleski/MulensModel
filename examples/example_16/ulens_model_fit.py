@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.22.2'
+__version__ = '0.23.4'
 
 
 class UlensModelFit(object):
@@ -210,6 +210,7 @@ class UlensModelFit(object):
             min_values=None, max_values=None, fitting_parameters=None,
             fit_constraints=None, plots=None, other_output=None
             ):
+        self._check_MM_version()
         self._photometry_files = photometry_files
         self._starting_parameters = starting_parameters
         self._model_parameters = model
@@ -224,6 +225,15 @@ class UlensModelFit(object):
         self._which_task()
         self._set_default_parameters()
         self._check_imports()
+
+    def _check_MM_version(self):
+        """
+        Check if MulensModel is new enough
+        """
+        if int(mm.__version__.split('.')[0]) < 2:
+            raise RuntimeError(
+                "ulens_model_fit.py requires MulensModel in version "
+                "at least 2.0, but you are using " + mm.__version__)
 
     def _which_task(self):
         """
@@ -395,12 +405,23 @@ class UlensModelFit(object):
         if 'best model' in self._plots:
             self._check_plots_parameters_best_model()
 
+        if 'triangle' in self._plots:
+            self._check_plots_parameters_triangle()
+
+        if 'best model' in self._plots and 'triangle' in self._plots:
+            file_1 = self._plots['best model'].get('file')
+            file_2 = self._plots['triangle'].get('file')
+            if file_1 == file_2 and file_1 is not None:
+                raise ValueError(
+                    'Output files for "best model" and "triangle" plots '
+                    'cannot be identical')
+
     def _check_plots_parameters_best_model(self):
         """
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams'])
+                       'rcParams', 'second Y scale'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -435,6 +456,60 @@ class UlensModelFit(object):
                     "Incorrect 'magnitude range' for 'best model':\n" +
                     text[0] + " " + text[1])
             self._plots['best model']['magnitude range'] = [mag_0, mag_1]
+
+        for key in ['legend', 'rcParams', 'second Y scale']:
+            if key in self._plots['best model']:
+                if not isinstance(self._plots['best model'][key], dict):
+                    msg = ('The value of {:} (in best model setttings)'
+                           'must be a dictionary, but you provided {:}')
+                    args = [key, type(self._plots['best model'][key])]
+                    raise TypeError(msg.format(*args))
+
+        if 'second Y scale' in self._plots['best model']:
+            self._check_plots_parameters_best_model_Y_scale()
+
+    def _check_plots_parameters_best_model_Y_scale(self):
+        """
+        Check if parameters for second Y scale make sense.
+        This function assumes that the second Y scale will be plotted.
+        """
+        settings = self._plots['best model']['second Y scale']
+        allowed = set(['color', 'label', 'labels', 'magnifications'])
+        unknown = set(settings.keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'Unknown settings for "second Y scale" in '
+                '"best model": {:}'.format(unknown))
+        if not isinstance(settings['magnifications'], list):
+            raise TypeError(
+                '"best model" -> "second Y scale" -> "magnifications" has to '
+                'be a list, not ' + str(type(settings['magnifications'])))
+        for value in settings['magnifications']:
+            if not isinstance(value, (int, float)):
+                raise TypeError(
+                    'Wrong value in magnifications: ' + str(value))
+        if 'labels' not in settings:
+            settings['labels'] = [
+                str(x) for x in settings['magnifications']]
+        else:
+            if not isinstance(settings['labels'], list):
+                raise TypeError(
+                    '"best model" -> "second Y scale" -> "labels" has to be '
+                    'a list, not ' + str(type(settings['labels'])))
+            if len(settings['labels']) != len(settings['magnifications']):
+                raise ValueError(
+                    'In "best model" -> "second Y scale", labels and '
+                    'magnifications must be lists of the same length')
+
+    def _check_plots_parameters_triangle(self):
+        """
+        Check if parameters of triangle plot make sense
+        """
+        allowed = set(['file'])
+        unknown = set(self._plots['triangle'].keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'Unknown settings for "triangle": {:}'.format(unknown))
 
     def _check_model_parameters(self):
         """
@@ -529,6 +604,10 @@ class UlensModelFit(object):
         kwargs = {'add_2450000': True}
         if isinstance(self._photometry_files, str):
             self._photometry_files = [self._photometry_files]
+        elif not isinstance(self._photometry_files, list):
+            raise TypeError(
+                'photometry_files should be a list or a str, but you '
+                'provided ' + str(type(self._photometry_files)))
         files = [f if isinstance(f, dict) else {'file_name': f}
                  for f in self._photometry_files]
         self._datasets = []
@@ -1499,13 +1578,12 @@ class UlensModelFit(object):
         """
         plot best model and residuals
         """
-        self._reset_rcParams()
-
         dpi = 300
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to
         # the best model.
 
+        self._reset_rcParams()
         if 'rcParams' in self._plots['best model']:
             for (key, value) in self._plots['best model']['rcParams'].items():
                 rcParams[key] = value
@@ -1534,20 +1612,13 @@ class UlensModelFit(object):
             model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
                           **kwargs_model)
 
-        if len(self._datasets) > 1 or 'legend' in self._plots['best model']:
-            if 'legend' in self._plots['best model']:
-                try:
-                    plt.legend(**self._plots['best model']['legend'])
-                except Exception:
-                    print("\npyplot.legend() failed with kwargs:")
-                    print(self._plots['best model']['legend'], "\n")
-                    raise
-            else:
-                plt.legend()
+        self._plot_legend_for_best_model_plot()
         plt.xlim(*xlim)
         if ylim is not None:
             plt.ylim(*ylim)
         axes.tick_params(**kwargs_axes_1)
+        if "second Y scale" in self._plots['best model']:
+            self._mark_second_Y_axis_in_best_plot()
 
         axes = plt.subplot(grid[1])
         self._event.plot_residuals(**kwargs)
@@ -1577,7 +1648,7 @@ class UlensModelFit(object):
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
         if self._model.n_sources != 1:
-            kwargs_model['flux_ratio_constraint'] = self._datasets[0]
+            kwargs_model['source_flux_ratio'] = self._datasets[0]
         if self._datasets[0].bandpass is not None:
             key = 'limb darkening u'
             if self._datasets[0].bandpass in self._model_parameters[key]:
@@ -1630,33 +1701,26 @@ class UlensModelFit(object):
 
         y_1 = y_3 = np.inf
         y_2 = y_4 = -np.inf
-        i_data_ref = self._event.data_ref
         (f_source_0, f_blend_0) = self._event.get_ref_fluxes()
 
         for (i, data) in enumerate(self._datasets):
             mask = (data.time >= t_1) & (data.time <= t_2)
             if np.sum(mask) == 0:
-                self._event.data_ref = i_data_ref
                 continue
 
-            (f_source, f_blend) = self._event.get_flux_for_dataset(data)
-            flux = f_source_0 * (data.flux - f_blend) / f_source
-            flux += f_blend_0
-            err_flux = f_source_0 * data.err_flux / f_source
-            (y_value, y_err) = data._get_y_value_y_err(
-                'mag', flux, err_flux)
-            self._event.data_ref = i_data_ref
-
-            err_mag = data.err_mag[mask]
+            (flux, flux_err) = self._event.fits[i].scale_fluxes(
+                f_source_0, f_blend_0)
+            (y_value, y_err) = mm.Utils.get_mag_and_err_from_flux(
+                flux, flux_err)
             y_1 = min(y_1, np.min((y_value - y_err)[mask]))
             y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
-            residuals = self._event.fits[i].get_residuals(
+            (residuals, err_mag) = self._event.fits[i].get_residuals(
                 phot_fmt='scaled', source_flux=f_source_0,
-                blend_flux=f_blend_0)[0][mask]
-            mask_ = np.isfinite(residuals)
-            y_3 = min(y_3, np.min((residuals - err_mag)[mask_]))
-            y_4 = max(y_4, np.max((residuals + err_mag)[mask_]))
+                blend_flux=f_blend_0)
+            mask_ = np.isfinite(residuals[mask])
+            y_3 = min(y_3, np.min((residuals - err_mag)[mask][mask_]))
+            y_4 = max(y_4, np.max((residuals + err_mag)[mask][mask_]))
 
         if y_1 == np.inf:  # There are no data points in the plot.
             return (None, [0.1, -0.1])
@@ -1677,6 +1741,64 @@ class UlensModelFit(object):
             ylim = self._plots['best model']['magnitude range']
 
         return (ylim, ylim_residuals)
+
+    def _plot_legend_for_best_model_plot(self):
+        """
+        advanced call to plt.legend()
+        """
+        if len(self._datasets) > 1 or 'legend' in self._plots['best model']:
+            if 'legend' not in self._plots['best model']:
+                plt.legend()
+            else:
+                try:
+                    plt.legend(**self._plots['best model']['legend'])
+                except Exception:
+                    print("\npyplot.legend() failed with kwargs:")
+                    print(self._plots['best model']['legend'], "\n")
+                    raise
+
+    def _mark_second_Y_axis_in_best_plot(self):
+        """
+        Mark the second (right-hand side) scale for Y axis in
+        the best model plot
+        """
+        settings = self._plots['best model']["second Y scale"]
+        magnifications = settings['magnifications']
+        color = settings.get("color", "red")
+        label = settings.get("label", "magnification")
+
+        ylim = plt.ylim()
+        flux_min = mm.Utils.get_flux_from_mag(ylim[0])
+        flux_max = mm.Utils.get_flux_from_mag(ylim[1])
+
+        (source_flux, blend_flux) = self._event.get_ref_fluxes()
+        if self._model.n_sources == 1:
+            total_source_flux = source_flux
+        else:
+            total_source_flux = sum(source_flux)
+        flux = total_source_flux * magnifications + blend_flux
+        A_min = (flux_min - blend_flux) / total_source_flux
+        A_max = (flux_max - blend_flux) / total_source_flux
+
+        if (np.min(magnifications) < A_min or np.max(magnifications) > A_max or
+                np.any(flux < 0.)):
+            msg = ("Provided magnifications for the second (i.e., right-hand "
+                   "side) Y-axis scale are from {:} to {:},\nbut the range "
+                   "of plotted magnifications is from {:} to {:}, hence, "
+                   "the second scale is not plotted")
+            args = [min(magnifications), max(magnifications),
+                    A_min[0], A_max[0]]
+            warnings.warn(msg.format(*args))
+            return
+
+        ticks = mm.Utils.get_mag_from_flux(flux)
+
+        ax2 = plt.gca().twinx()
+        ax2.set_ylabel(label).set_color(color)
+        ax2.spines['right'].set_color(color)
+        ax2.set_ylim(ylim[0], ylim[1])
+        ax2.tick_params(axis='y', colors=color)
+        plt.yticks(ticks, settings['labels'], color=color)
 
 
 if __name__ == '__main__':

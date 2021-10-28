@@ -288,14 +288,15 @@ class FitData:
         try:
             results = np.linalg.lstsq(xT, y, rcond=-1)[0]
         except ValueError as e:
-            raise ValueError(
-                '{0}\n'.format(e) +
-                'If either of these numbers ({0}, {1}) '.format(
-                    np.sum(np.isnan(xT)), np.sum(np.isnan(y))) +
-                'is greater than zero, there is a NaN somewhere, ' +
-                'probably in the data. The cause of this error may be the ' +
-                'epochs with extreme brightness (e.g., 99.999 mag), which ' +
-                'is sometimes used to mark bad data.')
+            message = (
+                "{0}\nIf either of these numbers ({1}, {2}) is greater than "
+                "zero, there is a NaN somewhere, probably in the data. The "
+                "cause of this error may be the epochs with extreme "
+                "brightness (e.g., 99.999 mag), which is sometimes used to "
+                "mark bad data. Other possible reason is mistakenly using "
+                "phot_fmt='flux' instead of 'mag'")
+            args = (e, np.sum(np.isnan(xT)), np.sum(np.isnan(y)))
+            raise ValueError(message.format(*args))
 
         # Record the results
         if self.fix_source_flux_ratio is False:
@@ -378,8 +379,9 @@ class FitData:
         """
         Calculate model in magnitude space
 
-        Arguments:
-            **kwargs: see :py:func:`~get_model_fluxes`
+        Arguments :
+            ``**kwargs``:
+                see :py:func:`get_model_fluxes()`
 
         Returns :
             model_mag: *np.ndarray*
@@ -407,8 +409,12 @@ class FitData:
                 Flux of the blend in the desired system
 
         Returns :
-            (flux, err): the fluxes and flux errors of the dataset rescaled
-            to the desired system
+            flux: *np.ndarray*
+                Fluxes from the data rescaled to the desired system.
+
+            err_flux: *np.ndarray*
+                Uncertainties of fluxes from the data rescaled to the desired
+                system.
         """
         if self.model.n_sources == 1:
             data_source_flux = self.source_flux
@@ -445,7 +451,8 @@ class FitData:
                 magnification for each point to ensure that there are values
                 even for bad datapoints.
 
-            type: deprecated, see "phot_fmt".
+            type:
+                DEPRECATED, see "phot_fmt" above.
 
         Returns :
             residuals: *np.ndarray*
@@ -460,7 +467,6 @@ class FitData:
                 warnings.warn(
                     '"mag" returns residuals in the original data flux' +
                     'system. To scale the residuals, use "scaled".')
-
             warnings.warn(
                 'type keyword will be deprecated. Use "phot_fmt" instead.',
                 FutureWarning)
@@ -469,43 +475,41 @@ class FitData:
         if bad:
             self._calculate_magnifications(bad=True)
 
-        if phot_fmt == 'scaled':
-            if self.model.n_sources > 1:
-                raise NotImplementedError(
-                    'Scaling data to model not implemented for multiple ' +
-                    'sources.')
-
+        if phot_fmt == 'mag':
+            residuals = self._dataset.mag - self.get_model_magnitudes()
+            errorbars = self._dataset.err_mag
+        elif phot_fmt == 'flux':
+            residuals = self._dataset.flux - self.get_model_fluxes()
+            errorbars = self._dataset.err_flux
+        elif phot_fmt == 'scaled':
             if source_flux is None or blend_flux is None:
                 raise ValueError(
-                    'If phot_fmt=scaled, source_flux and blend_flux must' +
+                    'If phot_fmt=scaled, source_flux and blend_flux must ' +
                     'also be specified.')
 
             magnification = self._data_magnification
-            model_mag = Utils.get_mag_from_flux(
-                blend_flux + source_flux * magnification)
+            if self._model.n_sources == 1:
+                model_flux = source_flux * magnification
+            else:
+                model_flux = source_flux[0] * magnification[0]
+                model_flux += source_flux[1] * magnification[1]
+            model_flux += blend_flux
+            model_mag = Utils.get_mag_from_flux(model_flux)
             (flux, err_flux) = self.scale_fluxes(source_flux, blend_flux)
-            (mag, err) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+            (mag, errorbars) = Utils.get_mag_and_err_from_flux(flux, err_flux)
             residuals = mag - model_mag
-            errorbars = err
-        elif phot_fmt == 'mag':
-            model_mag = self.get_model_magnitudes()
-            residuals = self._dataset.mag - model_mag
-            errorbars = self._dataset.err_mag
-        elif phot_fmt == 'flux':
-            model_flux = self.get_model_fluxes()
-            residuals = self._dataset.flux - model_flux
-            errorbars = self._dataset.err_flux
         else:
             raise ValueError(
-                'phot_fmt must be one of "mag", "flux", or "scaled". Your' +
+                'phot_fmt must be one of "mag", "flux", or "scaled". Your ' +
                 'value: {0}'.format(phot_fmt))
 
         return (residuals, errorbars)
 
     def _check_for_gradient_implementation(self, parameters):
-        """ Check that the gradient methods are implemented for the requested
-        values. """
-
+        """
+        Check that the gradient methods are implemented for the requested
+        values.
+        """
         # Implemented for the requested parameters?
         if not isinstance(parameters, list):
             parameters = [parameters]
@@ -514,7 +518,6 @@ class FitData:
             raise NotImplementedError((
                 "chi^2 gradient is implemented only for {:}\nCannot work " +
                 "with {:}").format(implemented, parameters))
-        gradient = {param: 0 for param in parameters}
 
         # Implemented for the number of sources in the model?
         if self.model.n_lenses != 1:
@@ -522,12 +525,9 @@ class FitData:
                 'chi2_gradient() only implemented for single lens models')
 
         # Implemented for finite source effects?
-        if 'rho' in parameters or 't_star' in parameters:
-            as_dict = self.model.parameters.as_dict()
-            if 'rho' in as_dict or 't_star' in as_dict:
-                raise NotImplementedError(
-                    'Event.chi2_gradient() is not working ' +
-                    'for finite source models yet')
+        if self.model.parameters.is_finite_source():
+            raise NotImplementedError('Event.chi2_gradient() is not working '
+                                      'for finite source models yet')
 
     def get_chi2_gradient(self, parameters):
         """
@@ -569,97 +569,14 @@ class FitData:
         """
         self._check_for_gradient_implementation(parameters)
 
-        # Setup
-        gradient = {param: 0 for param in parameters}
-        as_dict = self.model.parameters.as_dict()
-
         # Calculate factor
-        # JCY - Everything below here should be refactored into smaller bits.
-        factor = self.dataset.flux - self.get_model_fluxes()
-        factor *= -2. / self.dataset.err_flux ** 2
-        factor *= self.source_flux
+        flux_factor = self.get_model_fluxes() - self.dataset.flux
+        flux_factor *= 2. * self.source_flux / self.dataset.err_flux**2
 
-        # Get source location
-        trajectory = self.model.get_trajectory(self.dataset.time)
-        u_2 = trajectory.x ** 2 + trajectory.y ** 2
-        u_ = np.sqrt(u_2)
+        gradient = self._get_d_A_d_params_for_point_lens_model(parameters)
 
-        # Calculate derivatives
-        d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
-        factor *= d_A_d_u
-        factor_d_x_d_u = (factor * trajectory.x / u_)[self.dataset.good]
-        sum_d_x_d_u = np.sum(factor_d_x_d_u)
-        factor_d_y_d_u = (factor * trajectory.y / u_)[self.dataset.good]
-        sum_d_y_d_u = np.sum(factor_d_y_d_u)
-        dt = self.dataset.time[self.dataset.good] - as_dict['t_0']
-
-        # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
-        # gradient depends on which ones are defined.
-        if 't_eff' not in as_dict:
-            t_E = as_dict['t_E'].to(u.day).value
-            if 't_0' in parameters:
-                gradient['t_0'] += -sum_d_x_d_u / t_E
-            if 'u_0' in parameters:
-                gradient['u_0'] += sum_d_y_d_u
-            if 't_E' in parameters:
-                gradient['t_E'] += np.sum(factor_d_x_d_u * -dt / t_E ** 2)
-        elif 't_E' not in as_dict:
-            t_eff = as_dict['t_eff'].to(u.day).value
-            if 't_0' in parameters:
-                gradient['t_0'] += -sum_d_x_d_u * as_dict['u_0'] / t_eff
-            if 'u_0' in parameters:
-                gradient['u_0'] += sum_d_y_d_u + np.sum(
-                    factor_d_x_d_u * dt / t_eff)
-            if 't_eff' in parameters:
-                gradient['t_eff'] += np.sum(
-                    factor_d_x_d_u * -dt *
-                    as_dict['u_0'] / t_eff ** 2)
-        elif 'u_0' not in as_dict:
-            t_E = as_dict['t_E'].to(u.day).value
-            t_eff = as_dict['t_eff'].to(u.day).value
-            if 't_0' in parameters:
-                gradient['t_0'] += -sum_d_x_d_u / t_E
-            if 't_E' in parameters:
-                gradient['t_E'] += (
-                                           np.sum(factor_d_x_d_u * dt) -
-                                           sum_d_y_d_u * t_eff) / t_E ** 2
-            if 't_eff' in parameters:
-                gradient['t_eff'] += sum_d_y_d_u / t_E
-        else:
-            raise KeyError(
-                'Something is wrong with ModelParameters in ' +
-                'Event.chi2_gradient():\n', as_dict)
-
-        # Below we deal with parallax only.
-        if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-            parallax = {
-                'earth_orbital': False,
-                'satellite': False,
-                'topocentric': False}
-            # JCY Not happy about this as it requires importing from other
-            # modules. It is inelegant, which in my experience often means it
-            # needs to be refactored.
-            kwargs = {}
-            if self.dataset.ephemerides_file is not None:
-                kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
-
-            trajectory_no_piE = Trajectory(
-                self.dataset.time, self.model.parameters, parallax,
-                self.model.coords, **kwargs)
-            dx = (trajectory.x - trajectory_no_piE.x)[self.dataset.good]
-            dy = (trajectory.y - trajectory_no_piE.y)[self.dataset.good]
-            delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
-            delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
-            det = as_dict['pi_E_N'] ** 2 + as_dict['pi_E_E'] ** 2
-
-            if 'pi_E_N' in parameters:
-                gradient['pi_E_N'] += np.sum(
-                    factor_d_x_d_u * delta_N + factor_d_y_d_u * delta_E)
-                gradient['pi_E_N'] /= det
-            if 'pi_E_E' in parameters:
-                gradient['pi_E_E'] += np.sum(
-                    factor_d_x_d_u * delta_E - factor_d_y_d_u * delta_N)
-                gradient['pi_E_E'] /= det
+        for (key, value) in gradient.items():
+            gradient[key] = np.sum((flux_factor * value)[self.dataset.good])
 
         if len(parameters) == 1:
             out = gradient[parameters[0]]
@@ -669,6 +586,93 @@ class FitData:
         self._chi2_gradient = out
 
         return self._chi2_gradient
+
+    def _get_d_A_d_params_for_point_lens_model(self, parameters):
+        """
+        Calculate d A / d parameters for a point lens model.
+
+        Returns a *dict*.
+        """
+        gradient = self._get_d_u_d_params(parameters)
+
+        d_A_d_u = self._get_d_A_d_u_for_point_lens_model()
+
+        for (key, value) in gradient.items():
+            gradient[key] *= d_A_d_u
+        return gradient
+
+    def _get_d_A_d_u_for_point_lens_model(self):
+        """
+        Calculate dA/du for PSPL
+        """
+        trajectory = self.model.get_trajectory(self.dataset.time)
+        u_2 = trajectory.x**2 + trajectory.y**2
+        d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
+        return d_A_d_u
+
+    def _get_d_u_d_params(self, parameters):
+        """
+        Calculate d u / d parameters
+
+        Returns a *dict*.
+        """
+        # Setup
+        gradient = {param: 0 for param in parameters}
+        as_dict = self.model.parameters.as_dict()
+
+        # Get source location
+        trajectory = self.model.get_trajectory(self.dataset.time)
+        u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
+
+        # Calculate derivatives
+        d_u_d_x = trajectory.x / u_
+        d_u_d_y = trajectory.y / u_
+        dt = self.dataset.time - as_dict['t_0']
+
+        # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
+        # gradient depends on which ones are defined.
+        t_E = self.model.parameters.t_E
+        t_eff = self.model.parameters.t_eff
+        if 't_eff' not in as_dict:
+            gradient['t_0'] = -d_u_d_x / t_E
+            gradient['u_0'] = d_u_d_y
+            gradient['t_E'] = d_u_d_x * -dt / t_E**2
+        elif 't_E' not in as_dict:
+            gradient['t_0'] = -d_u_d_x * as_dict['u_0'] / t_eff
+            gradient['u_0'] = (d_u_d_y + d_u_d_x * dt / t_eff)
+            gradient['t_eff'] = (d_u_d_x * -dt * as_dict['u_0'] / t_eff**2)
+        elif 'u_0' not in as_dict:
+            gradient['t_0'] = -d_u_d_x / t_E
+            gradient['t_E'] = (d_u_d_x * dt - d_u_d_y * t_eff) / t_E**2
+            gradient['t_eff'] = d_u_d_y / t_E
+        else:
+            raise KeyError(
+                'Something is wrong with ModelParameters in ' +
+                'FitData.calculate_chi2_gradient():\n', as_dict)
+
+        # Below we deal with parallax only.
+        if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
+            parallax = {'earth_orbital': False, 'satellite': False,
+                        'topocentric': False}
+            # JCY Not happy about this as it requires importing from other
+            # modules. It is inelegant, which in my experience often means it
+            # needs to be refactored.
+            kwargs = dict()
+            if self.dataset.ephemerides_file is not None:
+                kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
+
+            trajectory_no_piE = Trajectory(
+                self.dataset.time, self.model.parameters, parallax,
+                self.model.coords, **kwargs)
+            dx = trajectory.x - trajectory_no_piE.x
+            dy = trajectory.y - trajectory_no_piE.y
+            delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
+            delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
+            det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
+            gradient['pi_E_N'] = (d_u_d_x * delta_N + d_u_d_y * delta_E) / det
+            gradient['pi_E_E'] = (d_u_d_x * delta_E - d_u_d_y * delta_N) / det
+
+        return gradient
 
     @property
     def chi2_gradient(self):

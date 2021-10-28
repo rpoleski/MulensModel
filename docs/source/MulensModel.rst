@@ -32,7 +32,6 @@ Submodules
    MulensModel.uniformcausticsampling
    MulensModel.utils
    MulensModel.version
-   MulensModel.x
 
 Module contents
 ---------------
