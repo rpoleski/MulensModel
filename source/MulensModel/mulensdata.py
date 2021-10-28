@@ -376,6 +376,8 @@ class MulensData(object):
             show_errorbars=show_errorbars, **kwargs)
         properties_bad = self._set_plot_properties(
             show_errorbars=show_errorbars, bad=True, **kwargs)
+        if 'label' in properties_bad.keys():
+            properties_bad['label'] = None
 
         time_good = self.time[self.good] - subtract
         time_bad = self.time[self.bad] - subtract
