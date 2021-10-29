@@ -43,13 +43,23 @@ $^b$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x
 }
 \end{table*}
 
-Some of the parameters can be defined separately for each of the sources.  
+Some of the parameters can be defined separately for each of the sources in binary source models.  
 In that case, add {\tt \_1} or {\tt \_2} to parameter name. These are:
 \begin{itemize}
 \item {\tt t\_0\_1}, {\tt t\_0\_2},
 \item {\tt u\_0\_1}, {\tt u\_0\_2},
 \item {\tt rho\_1}, {\tt rho\_2},
 \item {\tt t\_star\_1}, {\tt t\_star\_2}.
+\end{itemize}
+
+Also note that there are properties of the microlensing events that are not considered parameters in the \texttt{ModelParameters} class, but are implemented in other parts of the \texttt{MulensModel}. The most important are:
+\begin{itemize}
+ \item source and blending fluxes -- \texttt{Event} and \texttt{FitData}; also see use case 38,
+ \item sky coordinates -- \texttt{Model.coords},
+ \item limb-darkening coefficients -- \texttt{Model.set\_limb\_coeff\_gamma} and \texttt{Model.set\_limb\_coeff\_u},
+ \item flux ratio for binary source models -- \texttt{Model.set\_source\_flux\_ratio} and\\ \texttt{Model.set\_source\_flux\_ratio\_for\_band},
+ \item methods used to calculate magnification -- \texttt{Model.set\_magnification\_methods},
+ \item coordinates of space telescopes -- \texttt{Model.get\_satellite\_coords}.
 \end{itemize}
 
 \end{document}
