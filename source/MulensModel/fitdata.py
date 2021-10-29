@@ -4,6 +4,7 @@ import astropy.units as u
 
 from MulensModel.mulensdata import MulensData
 from MulensModel.trajectory import Trajectory
+from MulensModel.modelparameters import ModelParameters
 from MulensModel.utils import Utils
 
 
@@ -599,6 +600,7 @@ class FitData:
 
         for (key, value) in gradient.items():
             gradient[key] *= d_A_d_u
+
         return gradient
 
     def _get_d_A_d_u_for_point_lens_model(self):
@@ -661,9 +663,13 @@ class FitData:
             if self.dataset.ephemerides_file is not None:
                 kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
 
+            parameters_no_piE = {**self.model.parameters.as_dict()}
+            parameters_no_piE.pop('pi_E_N')
+            parameters_no_piE.pop('pi_E_E')
+
             trajectory_no_piE = Trajectory(
-                self.dataset.time, self.model.parameters, parallax,
-                self.model.coords, **kwargs)
+                self.dataset.time, ModelParameters(parameters_no_piE),
+                parallax, self.model.coords, **kwargs)
             dx = trajectory.x - trajectory_no_piE.x
             dy = trajectory.y - trajectory_no_piE.y
             delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
