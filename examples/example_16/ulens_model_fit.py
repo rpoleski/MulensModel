@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.4'
+__version__ = '0.23.5'
 
 
 class UlensModelFit(object):
@@ -64,7 +64,11 @@ class UlensModelFit(object):
 
             For EMCEE the values are *str*. First word indicates
             the distribution (allowed: ``gauss``, ``uniform``, and
-            ``log-uniform``) and is followed by its parameters, e.g.,
+            ``log-uniform``) and is followed by its parameters.
+            For ``uniform`` and ``log-uniform`` these parameters are lower
+            and upper limit.
+            For ``gauss`` these parameters are mean and sigma of
+            the distribution. For example:
 
             .. code-block:: python
 
