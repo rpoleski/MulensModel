@@ -104,6 +104,9 @@ class MulensData(object):
                 show_bad: *boolean*, optional
                     Whether or not to plot data points flagged as bad.
 
+        ``**kwargs``:
+            Kwargs passed to np.loadtxt(). Works only if ``file_name`` is set.
+
     .. _instructions:
         https://github.com/rpoleski/MulensModel/blob/master/documents/Horizons_manual.md
 
@@ -326,7 +329,8 @@ class MulensData(object):
                 If *True* then residuals are plotted (*model* is required).
                 Default is *False*, i.e., plot the data.
 
-            ``**kwargs``: passed to matplotlib plotting functions.
+            ``**kwargs``:
+                passed to matplotlib plotting functions.
         """
         if phot_fmt is None:
             phot_fmt = self.input_fmt
@@ -420,8 +424,7 @@ class MulensData(object):
                 marker is default to 'o'.
 
            ``**kwargs``: *dict*
-               Keywords accepted by plt.errorbar or plt.scatter.
-
+               Keywords accepted by plt.errorbar() or plt.scatter().
         """
         if show_errorbars:
             marker_key = 'fmt'

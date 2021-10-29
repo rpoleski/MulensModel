@@ -654,8 +654,6 @@ class FitData:
 
         # Below we deal with parallax only.
         if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-            parallax = {'earth_orbital': False, 'satellite': False,
-                        'topocentric': False}
             # JCY Not happy about this as it requires importing from other
             # modules. It is inelegant, which in my experience often means it
             # needs to be refactored.
@@ -669,7 +667,7 @@ class FitData:
 
             trajectory_no_piE = Trajectory(
                 self.dataset.time, ModelParameters(parameters_no_piE),
-                parallax, self.model.coords, **kwargs)
+                **kwargs)
             dx = trajectory.x - trajectory_no_piE.x
             dy = trajectory.y - trajectory_no_piE.y
             delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
