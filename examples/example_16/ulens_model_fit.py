@@ -1231,6 +1231,8 @@ class UlensModelFit(object):
         """
         Set microlensing parameters of self._model
         """
+        if len(self._fit_parameters) == 0:
+            return
         parameters = dict(zip(self._fit_parameters, theta))
         parameters = get_my_parameters(parameters)
         for (parameter, value) in parameters.items():
@@ -1717,6 +1719,7 @@ class UlensModelFit(object):
                 f_source_0, f_blend_0)
             (y_value, y_err) = mm.Utils.get_mag_and_err_from_flux(
                 flux, flux_err)
+            mask &= np.logical_not(np.isnan(y_value) | (y_err<0.))
             y_1 = min(y_1, np.min((y_value - y_err)[mask]))
             y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
