@@ -428,7 +428,8 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams', 'second Y scale'])
+                       'rcParams', 'second Y scale',
+                       'plot ground-based model'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -1608,8 +1609,11 @@ class UlensModelFit(object):
 
         # Plot models below, first ground-based (if needed, hence loop),
         # then satellite ones (if needed).
+        plot_ground = True
+        if "plot ground-based model" in self._plots['best model']:
+            plot_ground = self._plots['best model']["plot ground-based model"]
         for dataset in self._datasets:
-            if dataset.ephemerides_file is None:
+            if dataset.ephemerides_file is None and plot_ground:
                 self._model.plot_lc(
                     source_flux=fluxes[0], blend_flux=fluxes[1],
                     **kwargs_model)
