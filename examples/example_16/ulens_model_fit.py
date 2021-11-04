@@ -1778,6 +1778,7 @@ class UlensModelFit(object):
         magnifications = settings['magnifications']
         color = settings.get("color", "red")
         label = settings.get("label", "magnification")
+        labels = settings['labels']
 
         ylim = plt.ylim()
         (source_flux, blend_flux) = self._event.get_ref_fluxes()
@@ -1786,6 +1787,14 @@ class UlensModelFit(object):
         else:
             total_source_flux = sum(source_flux)
         flux = total_source_flux * magnifications + blend_flux
+        if np.any(flux < 0.):
+            mask = (flux > 0.)
+            flux = flux[mask]
+            labels = [l for (l, m) in zip(labels, mask) if m]
+            msg = ("\n\n{:} labels on the second Y scale will not be shown "
+                   "because they correspond to negative flux which cannot "
+                   "be translated to magnitudes")
+            warnings.warn(msg.format(np.sum(np.logical_not(mask))))
         ticks = mm.Utils.get_mag_from_flux(flux)
 
         if min(ticks) < ylim[1] or max(ticks) > ylim[0]:
@@ -1806,7 +1815,7 @@ class UlensModelFit(object):
         ax2.spines['right'].set_color(color)
         ax2.set_ylim(ylim[0], ylim[1])
         ax2.tick_params(axis='y', colors=color)
-        plt.yticks(ticks, settings['labels'], color=color)
+        plt.yticks(ticks, labels, color=color)
 
 
 if __name__ == '__main__':
