@@ -654,6 +654,10 @@ class FitData:
 
         # Below we deal with parallax only.
         if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
+            warnings.warn(
+                "\n\nTests indicate that chi2 gradient for models with "
+                "parallax has BUGS!!!\n It's better not to use it or contact "
+                "code authors.\n")
             # JCY Not happy about this as it requires importing from other
             # modules. It is inelegant, which in my experience often means it
             # needs to be refactored.
