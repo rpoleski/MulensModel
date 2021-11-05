@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.5'
+__version__ = '0.23.6'
 
 
 class UlensModelFit(object):
@@ -400,7 +400,8 @@ class UlensModelFit(object):
         unknown = set(self._plots.keys()) - allowed_keys
         if len(unknown) > 0:
             raise ValueError(
-                'Unknown plot types: {:}'.format(unknown))
+                'Unknown plot types: {:}\n'.format(unknown) +
+                'Accepted plot types are: ' + ", ".join(allowed_keys))
 
         for (key, value) in self._plots.items():
             if value is None:
