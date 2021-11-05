@@ -23,6 +23,7 @@
 - Mroz+20 - finish
 - trace plot (give option to include burn-in)
 - script and MM versions should be printed
+- EMCEE backend - https://emcee.readthedocs.io/en/stable/user/backends/#emcee.backends.HDFBackend
 - add check if 't_0' is covered by data and give warning if not
 - print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
 - LD coeffs - there should be check who bands there compare to the ones in datasets
