@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.6'
+__version__ = '0.23.7'
 
 
 class UlensModelFit(object):
@@ -1233,6 +1233,9 @@ class UlensModelFit(object):
     def _set_model_parameters(self, theta):
         """
         Set microlensing parameters of self._model
+
+        Note that if only plotting functions are called,
+        then self._fit_parameters and theta are empty.
         """
         for (parameter, value) in zip(self._fit_parameters, theta):
             setattr(self._model.parameters, parameter, value)
@@ -1717,6 +1720,7 @@ class UlensModelFit(object):
                 f_source_0, f_blend_0)
             (y_value, y_err) = mm.Utils.get_mag_and_err_from_flux(
                 flux, flux_err)
+            mask &= np.logical_not(np.isnan(y_value) | (y_err<0.))
             y_1 = min(y_1, np.min((y_value - y_err)[mask]))
             y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
@@ -1771,6 +1775,7 @@ class UlensModelFit(object):
         magnifications = settings['magnifications']
         color = settings.get("color", "red")
         label = settings.get("label", "magnification")
+        labels = settings['labels']
 
         ylim = plt.ylim()
         flux_min = mm.Utils.get_flux_from_mag(ylim[0])
@@ -1782,6 +1787,14 @@ class UlensModelFit(object):
         else:
             total_source_flux = sum(source_flux)
         flux = total_source_flux * magnifications + blend_flux
+        if np.any(flux < 0.):
+            mask = (flux > 0.)
+            flux = flux[mask]
+            labels = [l for (l, m) in zip(labels, mask) if m]
+            msg = ("\n\n{:} label/s on the second Y scale will not be shown "
+                   "because they correspond to negative flux which cannot "
+                   "be translated to magnitudes.")
+            warnings.warn(msg.format(np.sum(np.logical_not(mask))))
         A_min = (flux_min - blend_flux) / total_source_flux
         A_max = (flux_max - blend_flux) / total_source_flux
 
@@ -1803,7 +1816,7 @@ class UlensModelFit(object):
         ax2.spines['right'].set_color(color)
         ax2.set_ylim(ylim[0], ylim[1])
         ax2.tick_params(axis='y', colors=color)
-        plt.yticks(ticks, settings['labels'], color=color)
+        plt.yticks(ticks, labels, color=color)
 
 
 if __name__ == '__main__':
