@@ -9,8 +9,9 @@ Once the changes are accepted to be made, **mark them in the code using warnings
 ???
 
 ### Minor changes:
- * Delete ModelParameters.pi\_E and leave pi\_E\_N and pi\_E\_E - it's not really used and just complicates the code inside
- * Remove ModelParameters.as\_dict() because it's the same as ModelParameters.parameters
+ * Delete ModelParameters.pi\_E and leave pi\_E\_N and pi\_E\_E - it is not really used and just complicates the code inside
+ * Remove ModelParameters.as\_dict() because it is the same as ModelParameters.parameters
+ * ModelParameters.is_static -> is_lens_static
  * ephemerides\_file -> ephemeris\_file - maybe
  * Model.get\_residuals should have keyword phot\_fmt, not type to be consistent with other functions
 

@@ -1,6 +1,6 @@
 # Next big tasks - think about the order:
 1. xallarap
-2. full Keplerian motion of the lens
+2. full Keplerian motion of the lens (because 2-parameter approximation is unphysical and is already implemented)
 3. triple sources
 4. triple lenses
 5. astrometric microlensing
@@ -12,7 +12,7 @@
 2. update VBBL
 3. make directory with reference plots from examples
 4. remove unused branches
-5. Event.get_lc - add use cases (based on emails)
+5. UC40 - finish it and implement Event.get\_lc and plot\_lc
 6. example 16
 7. UC38 - finish it
 8. chi2 gradient for rho or t_star - first move code from FitData to Trajectory and PointLens (which means new minor version)
@@ -57,7 +57,6 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
   * **Binary source - see documents/binary\_source\_notes.md**:
     * _extract flux ratio for binary source models when fluxes are fitted via regression_
     * finish use cases
-    * _source\_flux\_ratio added to ModelParameters_
     * Fit.fit\_fluxes docstring to be updated
     * which\_parameters() - note that it doesnt work for binary source parameters, but the parameters work properly; just BSPL and rho\_2 etc. are optional
     * parallax models
@@ -191,6 +190,7 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
   * ModelParameters class:
     * _values in dimensionless astropy.quantity should be changed to float, other types should be rejected (unless it is a time unit etc.)_
     * _LaTeX strings with parameters names (useful e.g. for corner plots or tables with results)_
+    * a check if each PARAMETER.setter function changes parameter that was previously set
     * Transform t\_E and other parameters between geocentric and heliocentric frames.
     * option to return alpha, dalpha\_dt, and ds\_dt as floats instead of astropy.quantities
     * why .rho returns None if it is not defined? In other similar cases we have KeyError. Should that be changed? (if so, then maybe only after changing version to 2.0.0)
