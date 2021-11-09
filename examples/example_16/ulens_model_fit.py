@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.7'
+__version__ = '0.23.8'
 
 
 class UlensModelFit(object):
@@ -560,15 +560,26 @@ class UlensModelFit(object):
         """
         check if odd elements are floats and parse them
         """
-        _enumerate = enumerate(methods.split())
+        if isinstance(methods, str):
+            _enumerate = enumerate(methods.split())
+        elif isinstance(methods, list):
+            _enumerate = enumerate(methods)
+        else:
+            raise TypeError(
+                'Wrong type of settings specifying methods used to calculate '
+                'magnification ("list" or "str" expected): ' +
+                str(type(methods)))
+
         try:
             out = [float(x) if i % 2 == 0 else x for (i, x) in _enumerate]
         except ValueError:
             raise ValueError(
                 "Error in parsing floats in methods:\n" + methods)
+
         if len(out) < 3 or len(out) % 2 != 1:
             raise ValueError(
                 "Error in parsing methods:\n" + methods)
+
         return out
 
     def _parse_other_output_parameters(self):
@@ -1720,7 +1731,7 @@ class UlensModelFit(object):
                 f_source_0, f_blend_0)
             (y_value, y_err) = mm.Utils.get_mag_and_err_from_flux(
                 flux, flux_err)
-            mask &= np.logical_not(np.isnan(y_value) | (y_err<0.))
+            mask &= np.logical_not(np.isnan(y_value) | (y_err < 0.))
             y_1 = min(y_1, np.min((y_value - y_err)[mask]))
             y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
