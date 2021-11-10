@@ -101,7 +101,7 @@ class Model(object):
         self._parallax = {'earth_orbital': True,
                           'satellite': True,
                           'topocentric': True}
-        self._default_magnification_method = 'point_source'
+        self._default_magnification_method = 'vbbl'
         self._methods = None
         self._methods_parameters = {}
         self._caustics = None
@@ -670,10 +670,10 @@ class Model(object):
             s = self.parameters.get_s(epoch)
 
         if self._caustics is not None:
-            if s == self._caustics.s and self.parameters.q == self._caustics.q:
+            if s == self._caustics.s and self.parameters.q == self._caustics.q and self.parameters.K == self._caustics.K and self.parameters.G == self._caustics.G:
                 return
 
-        self._caustics = Caustics(q=self.parameters.q, s=s)
+        self._caustics = Caustics(q=self.parameters.q, s=s, K=self.parameters.K, G=self.parameters.G)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,

@@ -29,6 +29,7 @@ char systemslash = '/';
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
 #ifndef __unmanaged
 using namespace VBBinaryLensingLibrary;
@@ -488,19 +489,22 @@ void VBBinaryLensing::ComputeParallax(double t, double t0, double *Et) {
 //////////////////////////////
 
 
-double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v, _sols **Images) {
-	static complex a, q, m1, m2, y;
-	static double av = -1.0, qv = -1.0,cq;
-	static complex  coefs[24], d1, d2, dy, dJ, dz;
+double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v, double K1, double G1, double Gi, _sols **Images) {
+	static complex a, q, m1, m2, y, yc, mdiff, mtot, K, G;
+	static double av = -1.0, qv = -1.0, Kv = -1.0, Gv = -1.0, Giv = -1.0, cq;
+	static complex  coefs[28], d1, d2, dy, dJ, dz;
 	double Mag = -1.0;
 	_theta *stheta;
 	_curve *Prov, *Prov2;
 	_point *scan1, *scan2;
 
 	stheta = new _theta(-1.);
-	if ((a1 != av) || (q1 != qv)) {
+	if ((a1 != av) || (q1 != qv) || (K1 != Kv) || (G1 != Gv) || (Gi != Giv)) {
 		av = a1;
 		qv = q1;
+		Kv = K1;
+		Gv = G1;
+		Giv = Gi;
 		if (q1<1) {
 			a = complex(-a1, 0);
 			q = complex(q1, 0);
@@ -511,6 +515,11 @@ double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v,
 		}
 		m1 = 1.0 / (1.0 + q);
 		m2 = q*m1;
+		mdiff = (m2 - m1) / 2; //this might be the opposite sign
+		mtot = (m2 + m1) / 2;
+		K = complex(K1,0);
+		G = complex(G1,Gi);
+
 
 		coefs[20] = a;
 		coefs[21] = m1;
@@ -522,6 +531,26 @@ double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v,
 		coefs[10] = a*m2;
 		coefs[11] = a*m1;
 		coefs[23] = 0;
+		coefs[24] = (m2 - m1) / 2;
+		coefs[25] = (m2 + m1) / 2;
+		coefs[26] = K;
+		coefs[27] = G;
+
+
+		// coefs[5] = a*K*K*yc - 2*a*K*yc + a*yc + K*yc*yc - yc*yc;
+		// coefs[4] = mtot*a*K*K - 2*mtot*a*K + mtot*a + 2*mtot*K*yc - 2*mtot*yc + y*a*K*yc - y*a*yc + y*yc*yc - 2*a*a*K*K*yc + 4*a*a*K*yc - 2*a*a*yc - a*K*K*mdiff + 2*a*K*mdiff - 2*a*K*yc*yc - a*mdiff + 2*a*yc*yc;
+		// coefs[3] = 2*mtot*y*a*K - 2*mtot*y*a + 4*mtot*y*yc - mtot*a*a*K*K + 2*mtot*a*a*K - mtot*a*a - 2*mtot*a*K*yc + 2*mtot*a*yc - 2*y*a*a*K*yc + 2*y*a*a*yc - 2*y*a*yc*yc + a*a*a*K*K*yc - 2*a*a*a*K*yc + a*a*a*yc + a*a*K*K*mdiff - 2*a*a*K*mdiff + a*a*K*yc*yc + a*a*mdiff - a*a*yc*yc - 2*a*K*mdiff*yc + 2*a*mdiff*yc;
+		// coefs[2] = 4*mtot*mtot*y + 2*mtot*mtot*a*K - 2*mtot*mtot*a - 3*mtot*y*a*a*K + 3*mtot*y*a*a - 6*mtot*y*a*yc - 2*mtot*a*K*mdiff + 2*mtot*a*mdiff + y*a*a*a*K*yc - y*a*a*a*yc - y*a*a*K*mdiff + y*a*a*mdiff + y*a*a*yc*yc - 2*y*a*mdiff*yc + 2*a*a*K*mdiff*yc - 2*a*a*mdiff*yc;
+		// coefs[1] = -4*mtot*mtot*y*a - mtot*mtot*a*a*K + mtot*mtot*a*a + mtot*y*a*a*a*K - mtot*y*a*a*a + 2*mtot*y*a*a*yc - 4*mtot*y*a*mdiff + y*a*a*a*K*mdiff - y*a*a*a*mdiff + 2*y*a*a*mdiff*yc + a*a*K*mdiff*mdiff - a*a*mdiff*mdiff;
+		// coefs[0] = mtot*mtot*y*a*a + 2*mtot*y*a*a*mdiff + y*a*a*mdiff*mdiff;
+
+		// coefs[0] = coefs[9] * y;
+		// coefs[1] = coefs[10] * (coefs[20] * (coefs[21] + y*(2 * yc - coefs[20])) - 2 * y);
+		// coefs[2] = y*(1 - coefs[7] * yc) - coefs[20] * (coefs[21] + 2 * y*yc*(1 + coefs[22])) + coefs[6] * (yc*(coefs[21] - coefs[22]) + y*(1 + coefs[22] + yc*yc));
+		// coefs[3] = 2 * y*yc + coefs[7] * yc + coefs[6] * (yc*(2 * y - yc) - coefs[21]) - coefs[20] * (y + 2 * yc*(yc*y - coefs[22]));
+		// coefs[4] = yc*(2 * coefs[20] + y);
+		// coefs[4] = yc*(coefs[4] - 1) - coefs[20] * (coefs[4] - coefs[21]);
+		// coefs[5] = yc*(coefs[20] - yc);	
 
 	}
 	y = complex(y1v, y2v);
@@ -552,15 +581,14 @@ double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v,
 	Prov->length = 0;
 	delete Prov;
 	delete stheta;
-
 	return Mag;
 
 }
 
-double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v) {
+double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v, double K1, double G1, double Gi) {
 	_sols *images;
 	double mag;
-	mag = BinaryMag0(a1, q1, y1v, y2v, &images);
+	mag = BinaryMag0(a1, q1, y1v, y2v, K1, G1, Gi, &images);
 	delete images;
 	return mag;
 }
@@ -755,7 +783,7 @@ double VBBinaryLensing::BinaryMag2(double s, double q, double y1v, double y2v, d
 	tn = y1v*y1v + y2v*y2v - sms*sms;
 
 	if (tn<0 || tn*tn*Tol < 2) {
-		Mag0 = BinaryMag0(s, q, y1v, y2v, &Images);
+		Mag0 = BinaryMag0(s, q, y1v, y2v, 0.0, 0.0, 0.0, &Images);
 		delete Images;
 		rho2 = rho*rho;
 		corrquad *= 6 * (rho2 + 1.e-4*Tol);
@@ -796,7 +824,7 @@ double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, 
 			first->nim = nim0;
 		}
 		else {
-			first->Mag = BinaryMag0(a, q, y_1, y_2, &Images);
+			first->Mag = BinaryMag0(a, q, y_1, y_2, 0.0, 0.0, 0.0, &Images);
 			first->nim = Images->length;
 			delete Images;
 		}
@@ -1742,15 +1770,14 @@ double VBBinaryLensing::BinSourceLightCurveXallarap(double *pr, double t) {
 ////////// Internal private functions
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-
 #define _Jacobians1 \
-	z=zr[i];\
+	z=conj(zr[i]);\
 	dza=z-coefs[20];\
 	za2 = dza*dza;\
 	zb2=z*z;\
-	J1= coefs[21]/za2+coefs[22]/zb2;\
+	J1= coefs[21]/za2+coefs[22]/zb2 - coefs[27];\
 	J1c=conj(J1);\
-	dJ=1-J1*J1c;\
+	dJ=(1-coefs[26])*(1-coefs[26])-J1*J1c;\
 	J2=-2.*(coefs[21]/(za2*dza)+coefs[22]/(zb2*z));
 
 #define _Jacobians2\
@@ -1784,9 +1811,9 @@ double VBBinaryLensing::BinSourceLightCurveXallarap(double *pr, double t) {
 	
 
 _curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
-	static complex  y, yc, z, zc, J1, J1c, dy, dz, dJ,J2,J3,dza,za2,zb2,zaltc,Jalt,Jaltc,JJalt2;
-	static complex zr[5] = { 0.,0.,0.,0.,0. };
-	static double dzmax, dlmax = 1.0e-6, good[5], dJ2,ob2,cq;
+	static complex  y, yc, z, zc, Gc, J1, J1c, dy, dz, dJ,J2,J3,dza,za2,zb2,zaltc,Jalt,Jaltc,JJalt2;
+	static complex zr[9] = { 0.,0.,0.,0.,0.,0.,0.,0.,0.};
+	static double dzmax, dlmax = 1.0e-6, good[9], dJ2,ob2,cq;
 	static int worst1, worst2, worst3, bad, f1;
 	static double av = 0.0, m1v = 0.0, disim, disisso;
 	static _curve *Prov;
@@ -1796,18 +1823,64 @@ _curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
 	static double tim0, tim1;
 #endif
 
-	y = yi + coefs[11];
+	y = yi + coefs[11]; // Coordinate transformation to centre of mass frame
 	yc = conj(y);
+	Gc = conj(coefs[27]);
+	
 
 	/* coefs[6]=a*a; coefs[7]=a*a*a; coefs[8]=m2*m2; coefs[9]=a*a*m2*m2; coefs[10]=a*m2; coefs[11]=a*m1; coefs[20]=a; coefs[21]=m1; coefs[22]=m2;*/
+	// coefs[20] = a;
+	// coefs[21] = m1;
+	// coefs[22] = m2;
+	// coefs[6] = a*a;
+	// coefs[7] = coefs[6] * a;
+	// coefs[8] = m2*m2;
+	// coefs[9] = coefs[6] * coefs[8];
+	// coefs[10] = a*m2;
+	// coefs[11] = a*m1;
+	// coefs[23] = 0;
+	// coefs[24] = (m2 - m1) / 2;
+	// coefs[25] = (m2 + m1) / 2;
+	// coefs[26] = K;
+	// coefs[27] = G;
 
-	coefs[0] = coefs[9] * y;
-	coefs[1] = coefs[10] * (coefs[20] * (coefs[21] + y*(2 * yc - coefs[20])) - 2 * y);
-	coefs[2] = y*(1 - coefs[7] * yc) - coefs[20] * (coefs[21] + 2 * y*yc*(1 + coefs[22])) + coefs[6] * (yc*(coefs[21] - coefs[22]) + y*(1 + coefs[22] + yc*yc));
-	coefs[3] = 2 * y*yc + coefs[7] * yc + coefs[6] * (yc*(2 * y - yc) - coefs[21]) - coefs[20] * (y + 2 * yc*(yc*y - coefs[22]));
-	coefs[4] = yc*(2 * coefs[20] + y);
-	coefs[4] = yc*(coefs[4] - 1) - coefs[20] * (coefs[4] - coefs[21]);
-	coefs[5] = yc*(coefs[20] - yc);
+	// coefs[9] = -coefs[27]*coefs[27]*coefs[27]*coefs[27] + coefs[27]*coefs[27]*coefs[26]*coefs[26] - 2*coefs[27]*coefs[27]*coefs[26] + coefs[27]*coefs[27];
+	// coefs[8] = y*coefs[27]*coefs[27]*coefs[26] - y*coefs[27]*coefs[27] + 3*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[27] - coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[26] + coefs[20]*coefs[27]*coefs[27]*coefs[27] - 3*coefs[20]*coefs[27]*coefs[27]*coefs[26]*coefs[26] + 6*coefs[20]*coefs[27]*coefs[27]*coefs[26] - 3*coefs[20]*coefs[27]*coefs[27] + coefs[20]*coefs[27]*coefs[26]*coefs[26]*coefs[26] - 3*coefs[20]*coefs[27]*coefs[26]*coefs[26] + 3*coefs[20]*coefs[27]*coefs[26] - coefs[20]*coefs[27] - 3*coefs[27]*coefs[27]*coefs[27]*yc + 2*coefs[27]*coefs[26]*coefs[26]*yc - 4*coefs[27]*coefs[26]*yc + 2*coefs[27]*yc;
+	// coefs[7] = -6*coefs[25]*coefs[27]*coefs[27]*coefs[27] + 2*coefs[25]*coefs[27]*coefs[26]*coefs[26] - 4*coefs[25]*coefs[27]*coefs[26] + 2*coefs[25]*coefs[27] - 3*y*coefs[20]*coefs[27]*coefs[27]*coefs[26] + 3*y*coefs[20]*coefs[27]*coefs[27] + y*coefs[20]*coefs[27]*coefs[26]*coefs[26] - 2*y*coefs[20]*coefs[27]*coefs[26] + y*coefs[20]*coefs[27] + 2*y*coefs[27]*coefs[26]*yc - 2*y*coefs[27]*yc - 3*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[27] + 3*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[26] - 3*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27] + 3*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26]*coefs[26] - 6*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26] + 3*coefs[20]*coefs[20]*coefs[27]*coefs[27] - 3*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26]*coefs[26] + 9*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26] - 9*coefs[20]*coefs[20]*coefs[27]*coefs[26] + 3*coefs[20]*coefs[20]*coefs[27] + 9*coefs[20]*coefs[27]*coefs[27]*coefs[27]*yc - 2*coefs[20]*coefs[27]*coefs[27]*coefs[26]*yc + 2*coefs[20]*coefs[27]*coefs[27]*yc - 6*coefs[20]*coefs[27]*coefs[26]*coefs[26]*yc + 12*coefs[20]*coefs[27]*coefs[26]*yc - 6*coefs[20]*coefs[27]*yc + coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc - 3*coefs[20]*coefs[26]*coefs[26]*yc + 3*coefs[20]*coefs[26]*yc - coefs[20]*yc - 3*coefs[27]*coefs[27]*yc*yc + coefs[26]*coefs[26]*yc*yc - 2*coefs[26]*yc*yc + yc*yc;
+	// coefs[6] = 4*coefs[25]*y*coefs[27]*coefs[26] - 4*coefs[25]*y*coefs[27] + 15*coefs[25]*coefs[20]*coefs[27]*coefs[27]*coefs[27] - 4*coefs[25]*coefs[20]*coefs[27]*coefs[27]*coefs[26] + 4*coefs[25]*coefs[20]*coefs[27]*coefs[27] - 4*coefs[25]*coefs[20]*coefs[27]*coefs[26]*coefs[26] + 8*coefs[25]*coefs[20]*coefs[27]*coefs[26] - 4*coefs[25]*coefs[20]*coefs[27] + coefs[25]*coefs[20]*coefs[26]*coefs[26]*coefs[26] - 3*coefs[25]*coefs[20]*coefs[26]*coefs[26] + 3*coefs[25]*coefs[20]*coefs[26] - coefs[25]*coefs[20] - 12*coefs[25]*coefs[27]*coefs[27]*yc + 2*coefs[25]*coefs[26]*coefs[26]*yc - 4*coefs[25]*coefs[26]*yc + 2*coefs[25]*yc + 3*y*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26] - 3*y*coefs[20]*coefs[20]*coefs[27]*coefs[27] - 3*y*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26] + 6*y*coefs[20]*coefs[20]*coefs[27]*coefs[26] - 3*y*coefs[20]*coefs[20]*coefs[27] - 6*y*coefs[20]*coefs[27]*coefs[26]*yc + 6*y*coefs[20]*coefs[27]*yc + y*coefs[20]*coefs[26]*coefs[26]*yc - 2*y*coefs[20]*coefs[26]*yc + y*coefs[20]*yc + y*coefs[26]*yc*yc - y*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[27] - 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[26] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27] - coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26]*coefs[26] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26] - coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26]*coefs[26] - 9*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26] + 9*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] - 3*coefs[20]*coefs[20]*coefs[20]*coefs[27] - 9*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*yc + 6*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26]*yc - 6*coefs[20]*coefs[20]*coefs[27]*coefs[27]*yc + 6*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26]*yc - 12*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc + 6*coefs[20]*coefs[20]*coefs[27]*yc - 3*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc + 9*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 9*coefs[20]*coefs[20]*coefs[26]*yc + 3*coefs[20]*coefs[20]*yc + 3*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[24] + 9*coefs[20]*coefs[27]*coefs[27]*yc*yc - 2*coefs[20]*coefs[27]*coefs[26]*coefs[26]*coefs[24] + 4*coefs[20]*coefs[27]*coefs[26]*coefs[24] - coefs[20]*coefs[27]*coefs[26]*yc*yc - 2*coefs[20]*coefs[27]*coefs[24] + coefs[20]*coefs[27]*yc*yc - coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 3*coefs[20]*coefs[26]*coefs[26]*yc*yc - 3*coefs[20]*coefs[26]*coefs[24] + 6*coefs[20]*coefs[26]*yc*yc + coefs[20]*coefs[24] - 3*coefs[20]*yc*yc - coefs[27]*yc*yc*yc;
+	// coefs[5] = -12*coefs[25]*coefs[25]*coefs[27]*coefs[27] - 10*coefs[25]*y*coefs[20]*coefs[27]*coefs[26] + 10*coefs[25]*y*coefs[20]*coefs[27] + 2*coefs[25]*y*coefs[20]*coefs[26]*coefs[26] - 4*coefs[25]*y*coefs[20]*coefs[26] + 2*coefs[25]*y*coefs[20] + 4*coefs[25]*y*coefs[26]*yc - 4*coefs[25]*y*yc - 12*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27] + 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26] - 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[27] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26] - 4*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[27] - 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 6*coefs[25]*coefs[20]*coefs[20]*coefs[26] + 2*coefs[25]*coefs[20]*coefs[20] + 30*coefs[25]*coefs[20]*coefs[27]*coefs[27]*yc - 4*coefs[25]*coefs[20]*coefs[27]*coefs[26]*yc + 4*coefs[25]*coefs[20]*coefs[27]*yc - 4*coefs[25]*coefs[20]*coefs[26]*coefs[26]*yc + 8*coefs[25]*coefs[20]*coefs[26]*yc - 4*coefs[25]*coefs[20]*yc - 6*coefs[25]*coefs[27]*yc*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26] + y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27] + 3*y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26] - 6*y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] + 3*y*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 6*y*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc - 6*y*coefs[20]*coefs[20]*coefs[27]*yc - 3*y*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 6*y*coefs[20]*coefs[20]*coefs[26]*yc - 3*y*coefs[20]*coefs[20]*yc - 2*y*coefs[20]*coefs[27]*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[27]*coefs[24] - 3*y*coefs[20]*coefs[26]*yc*yc + 3*y*coefs[20]*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[26] - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27] - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26]*coefs[26] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26] - 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*yc - 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26]*yc + 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26]*yc + 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc - 9*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 9*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc - 3*coefs[20]*coefs[20]*coefs[20]*yc - 6*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24] - 9*coefs[20]*coefs[20]*coefs[27]*coefs[27]*yc*yc + 4*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26]*coefs[24] - 8*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc + 4*coefs[20]*coefs[20]*coefs[27]*coefs[24] - 3*coefs[20]*coefs[20]*coefs[27]*yc*yc + 2*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc*yc + 6*coefs[20]*coefs[20]*coefs[26]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[26]*yc*yc - 2*coefs[20]*coefs[20]*coefs[24] + 3*coefs[20]*coefs[20]*yc*yc + 6*coefs[20]*coefs[27]*coefs[27]*coefs[24]*yc + 3*coefs[20]*coefs[27]*yc*yc*yc - 2*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[24]*yc;
+	// coefs[4] = 4*coefs[25]*coefs[25]*y*coefs[26] - 4*coefs[25]*coefs[25]*y + 24*coefs[25]*coefs[25]*coefs[20]*coefs[27]*coefs[27] - 4*coefs[25]*coefs[25]*coefs[20]*coefs[27]*coefs[26] + 4*coefs[25]*coefs[25]*coefs[20]*coefs[27] + 2*coefs[25]*coefs[25]*coefs[20]*coefs[26]*coefs[26] - 4*coefs[25]*coefs[25]*coefs[20]*coefs[26] + 2*coefs[25]*coefs[25]*coefs[20] - 12*coefs[25]*coefs[25]*coefs[27]*yc + 8*coefs[25]*y*coefs[20]*coefs[20]*coefs[27]*coefs[26] - 8*coefs[25]*y*coefs[20]*coefs[20]*coefs[27] - 5*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 10*coefs[25]*y*coefs[20]*coefs[20]*coefs[26] - 5*coefs[25]*y*coefs[20]*coefs[20] - 10*coefs[25]*y*coefs[20]*coefs[26]*yc + 10*coefs[25]*y*coefs[20]*yc + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27] - 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26] + 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27] + coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26] - 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26] - coefs[25]*coefs[20]*coefs[20]*coefs[20] - 24*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*yc + 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc - 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc + 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 4*coefs[25]*coefs[20]*coefs[20]*coefs[26]*yc + 2*coefs[25]*coefs[20]*coefs[20]*yc + 12*coefs[25]*coefs[20]*coefs[27]*coefs[27]*coefs[24] + 15*coefs[25]*coefs[20]*coefs[27]*yc*yc - 2*coefs[25]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 4*coefs[25]*coefs[20]*coefs[26]*coefs[24] - 2*coefs[25]*coefs[20]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27] - 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc + 3*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 6*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + 3*y*coefs[20]*coefs[20]*coefs[20]*yc + 4*y*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] - 4*y*coefs[20]*coefs[20]*coefs[27]*coefs[24] - y*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 3*y*coefs[20]*coefs[20]*coefs[26]*yc*yc - y*coefs[20]*coefs[20]*coefs[24] - 3*y*coefs[20]*coefs[20]*yc*yc - 2*y*coefs[20]*coefs[26]*coefs[24]*yc + 2*y*coefs[20]*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*yc - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + coefs[20]*coefs[20]*coefs[20]*coefs[20]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[27]*coefs[24] - 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26]*coefs[24] + 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*yc*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[26]*coefs[24] + 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] - 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc*yc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*yc*yc - 12*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - 3*coefs[20]*coefs[20]*coefs[27]*yc*yc*yc + 4*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc - 8*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[24]*yc + 3*coefs[20]*coefs[27]*coefs[24]*yc*yc;
+	// coefs[3] = -8*coefs[25]*coefs[25]*coefs[25]*coefs[27] - 8*coefs[25]*coefs[25]*y*coefs[20]*coefs[26] + 8*coefs[25]*coefs[25]*y*coefs[20] - 15*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[27] + 8*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26] - 8*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27] - 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 6*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[26] - 3*coefs[25]*coefs[25]*coefs[20]*coefs[20] + 24*coefs[25]*coefs[25]*coefs[20]*coefs[27]*yc - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 4*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 8*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26] + 4*coefs[25]*y*coefs[20]*coefs[20]*coefs[20] + 8*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*yc - 8*coefs[25]*y*coefs[20]*coefs[20]*yc - 4*coefs[25]*y*coefs[20]*coefs[26]*coefs[24] + 4*coefs[25]*y*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26] - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*yc - 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc + 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc - 18*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24] + 4*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] - 4*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24] - 12*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc*yc + 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 4*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[24] + 12*coefs[25]*coefs[20]*coefs[27]*coefs[24]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*yc - 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 4*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[24] + y*coefs[20]*coefs[20]*coefs[20]*yc*yc + 4*y*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc - 4*y*coefs[20]*coefs[20]*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc + 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24]*yc - 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc + coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[24]*yc - 3*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc*yc + coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[24]*coefs[24];
+	// coefs[2] = 12*coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[27] + 5*coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[26] - 5*coefs[25]*coefs[25]*y*coefs[20]*coefs[20] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27] - 5*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] + 5*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 2*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20] - 15*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc + 12*coefs[25]*coefs[25]*coefs[20]*coefs[27]*coefs[24] - coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26] - coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20] - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*yc + 6*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*coefs[24] - 6*coefs[25]*y*coefs[20]*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24] - 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc - 18*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[24] - 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[24]*yc + y*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] - y*coefs[20]*coefs[20]*coefs[24]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[27]*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[24]*coefs[24] - 3*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*yc;
+	// coefs[1] = -6*coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27] - coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26] + coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[20] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] - coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc - 12*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24] - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - 6*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] + y*coefs[20]*coefs[20]*coefs[20]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*yc;
+	// coefs[0] = coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*coefs[24];
+
+	coefs[9] = -coefs[27]*Gc*Gc*Gc + Gc*Gc*coefs[26]*coefs[26] - 2*Gc*Gc*coefs[26] + Gc*Gc;
+	coefs[8] = y*Gc*Gc*coefs[26] - y*Gc*Gc + 3*coefs[20]*coefs[27]*Gc*Gc*Gc - coefs[20]*coefs[27]*Gc*Gc*coefs[26] + coefs[20]*coefs[27]*Gc*Gc - 3*coefs[20]*Gc*Gc*coefs[26]*coefs[26] + 6*coefs[20]*Gc*Gc*coefs[26] - 3*coefs[20]*Gc*Gc + coefs[20]*Gc*coefs[26]*coefs[26]*coefs[26] - 3*coefs[20]*Gc*coefs[26]*coefs[26] + 3*coefs[20]*Gc*coefs[26] - coefs[20]*Gc - 3*coefs[27]*Gc*Gc*yc + 2*Gc*coefs[26]*coefs[26]*yc - 4*Gc*coefs[26]*yc + 2*Gc*yc;
+	coefs[7] = -6*coefs[25]*coefs[27]*Gc*Gc + 2*coefs[25]*Gc*coefs[26]*coefs[26] - 4*coefs[25]*Gc*coefs[26] + 2*coefs[25]*Gc - 3*y*coefs[20]*Gc*Gc*coefs[26] + 3*y*coefs[20]*Gc*Gc + y*coefs[20]*Gc*coefs[26]*coefs[26] - 2*y*coefs[20]*Gc*coefs[26] + y*coefs[20]*Gc + 2*y*Gc*coefs[26]*yc - 2*y*Gc*yc - 3*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*Gc + 3*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[26] - 3*coefs[20]*coefs[20]*coefs[27]*Gc*Gc + 3*coefs[20]*coefs[20]*Gc*Gc*coefs[26]*coefs[26] - 6*coefs[20]*coefs[20]*Gc*Gc*coefs[26] + 3*coefs[20]*coefs[20]*Gc*Gc - 3*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[26] + 9*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] - 9*coefs[20]*coefs[20]*Gc*coefs[26] + 3*coefs[20]*coefs[20]*Gc + 9*coefs[20]*coefs[27]*Gc*Gc*yc - 2*coefs[20]*coefs[27]*Gc*coefs[26]*yc + 2*coefs[20]*coefs[27]*Gc*yc - 6*coefs[20]*Gc*coefs[26]*coefs[26]*yc + 12*coefs[20]*Gc*coefs[26]*yc - 6*coefs[20]*Gc*yc + coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc - 3*coefs[20]*coefs[26]*coefs[26]*yc + 3*coefs[20]*coefs[26]*yc - coefs[20]*yc - 3*coefs[27]*Gc*yc*yc + coefs[26]*coefs[26]*yc*yc - 2*coefs[26]*yc*yc + yc*yc;
+	coefs[6] = 4*coefs[25]*y*Gc*coefs[26] - 4*coefs[25]*y*Gc + 15*coefs[25]*coefs[20]*coefs[27]*Gc*Gc - 4*coefs[25]*coefs[20]*coefs[27]*Gc*coefs[26] + 4*coefs[25]*coefs[20]*coefs[27]*Gc - 4*coefs[25]*coefs[20]*Gc*coefs[26]*coefs[26] + 8*coefs[25]*coefs[20]*Gc*coefs[26] - 4*coefs[25]*coefs[20]*Gc + coefs[25]*coefs[20]*coefs[26]*coefs[26]*coefs[26] - 3*coefs[25]*coefs[20]*coefs[26]*coefs[26] + 3*coefs[25]*coefs[20]*coefs[26] - coefs[25]*coefs[20] - 12*coefs[25]*coefs[27]*Gc*yc + 2*coefs[25]*coefs[26]*coefs[26]*yc - 4*coefs[25]*coefs[26]*yc + 2*coefs[25]*yc + 3*y*coefs[20]*coefs[20]*Gc*Gc*coefs[26] - 3*y*coefs[20]*coefs[20]*Gc*Gc - 3*y*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] + 6*y*coefs[20]*coefs[20]*Gc*coefs[26] - 3*y*coefs[20]*coefs[20]*Gc - 6*y*coefs[20]*Gc*coefs[26]*yc + 6*y*coefs[20]*Gc*yc + y*coefs[20]*coefs[26]*coefs[26]*yc - 2*y*coefs[20]*coefs[26]*yc + y*coefs[20]*yc + y*coefs[26]*yc*yc - y*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*Gc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[26] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc - coefs[20]*coefs[20]*coefs[20]*Gc*Gc*coefs[26]*coefs[26] + 2*coefs[20]*coefs[20]*coefs[20]*Gc*Gc*coefs[26] - coefs[20]*coefs[20]*coefs[20]*Gc*Gc + 3*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[26] - 9*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] + 9*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] - 3*coefs[20]*coefs[20]*coefs[20]*Gc - 9*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*yc + 6*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*yc - 6*coefs[20]*coefs[20]*coefs[27]*Gc*yc + 6*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*yc - 12*coefs[20]*coefs[20]*Gc*coefs[26]*yc + 6*coefs[20]*coefs[20]*Gc*yc - 3*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc + 9*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 9*coefs[20]*coefs[20]*coefs[26]*yc + 3*coefs[20]*coefs[20]*yc + 3*coefs[20]*coefs[27]*Gc*Gc*coefs[24] + 9*coefs[20]*coefs[27]*Gc*yc*yc - coefs[20]*coefs[27]*coefs[26]*yc*yc + coefs[20]*coefs[27]*yc*yc - 2*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[24] + 4*coefs[20]*Gc*coefs[26]*coefs[24] - 2*coefs[20]*Gc*coefs[24] - coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 3*coefs[20]*coefs[26]*coefs[26]*yc*yc - 3*coefs[20]*coefs[26]*coefs[24] + 6*coefs[20]*coefs[26]*yc*yc + coefs[20]*coefs[24] - 3*coefs[20]*yc*yc - coefs[27]*yc*yc*yc;
+	coefs[5] = -12*coefs[25]*coefs[25]*coefs[27]*Gc - 10*coefs[25]*y*coefs[20]*Gc*coefs[26] + 10*coefs[25]*y*coefs[20]*Gc + 2*coefs[25]*y*coefs[20]*coefs[26]*coefs[26] - 4*coefs[25]*y*coefs[20]*coefs[26] + 2*coefs[25]*y*coefs[20] + 4*coefs[25]*y*coefs[26]*yc - 4*coefs[25]*y*yc - 12*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc + 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26] - 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc + 2*coefs[25]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] - 4*coefs[25]*coefs[20]*coefs[20]*Gc*coefs[26] + 2*coefs[25]*coefs[20]*coefs[20]*Gc - 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 6*coefs[25]*coefs[20]*coefs[20]*coefs[26] + 2*coefs[25]*coefs[20]*coefs[20] + 30*coefs[25]*coefs[20]*coefs[27]*Gc*yc - 4*coefs[25]*coefs[20]*coefs[27]*coefs[26]*yc + 4*coefs[25]*coefs[20]*coefs[27]*yc - 4*coefs[25]*coefs[20]*coefs[26]*coefs[26]*yc + 8*coefs[25]*coefs[20]*coefs[26]*yc - 4*coefs[25]*coefs[20]*yc - 6*coefs[25]*coefs[27]*yc*yc - y*coefs[20]*coefs[20]*coefs[20]*Gc*Gc*coefs[26] + y*coefs[20]*coefs[20]*coefs[20]*Gc*Gc + 3*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] - 6*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] + 3*y*coefs[20]*coefs[20]*coefs[20]*Gc + 6*y*coefs[20]*coefs[20]*Gc*coefs[26]*yc - 6*y*coefs[20]*coefs[20]*Gc*yc - 3*y*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 6*y*coefs[20]*coefs[20]*coefs[26]*yc - 3*y*coefs[20]*coefs[20]*yc - 2*y*coefs[20]*Gc*coefs[26]*coefs[24] + 2*y*coefs[20]*Gc*coefs[24] - 3*y*coefs[20]*coefs[26]*yc*yc + 3*y*coefs[20]*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[26] - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc - coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[26] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] - 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*yc - 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*yc + 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*yc - 2*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*yc + 4*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*yc - 2*coefs[20]*coefs[20]*coefs[20]*Gc*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc - 9*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 9*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc - 3*coefs[20]*coefs[20]*coefs[20]*yc - 6*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[24] + 2*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] - 9*coefs[20]*coefs[20]*coefs[27]*Gc*yc*yc + 3*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc - 3*coefs[20]*coefs[20]*coefs[27]*yc*yc + 4*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[24] - 8*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[24] + 4*coefs[20]*coefs[20]*Gc*coefs[24] + 2*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc*yc + 6*coefs[20]*coefs[20]*coefs[26]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[26]*yc*yc - 2*coefs[20]*coefs[20]*coefs[24] + 3*coefs[20]*coefs[20]*yc*yc + 6*coefs[20]*coefs[27]*Gc*coefs[24]*yc + 3*coefs[20]*coefs[27]*yc*yc*yc - 2*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[24]*yc;
+	coefs[4] = 4*coefs[25]*coefs[25]*y*coefs[26] - 4*coefs[25]*coefs[25]*y + 24*coefs[25]*coefs[25]*coefs[20]*coefs[27]*Gc - 4*coefs[25]*coefs[25]*coefs[20]*coefs[27]*coefs[26] + 4*coefs[25]*coefs[25]*coefs[20]*coefs[27] + 2*coefs[25]*coefs[25]*coefs[20]*coefs[26]*coefs[26] - 4*coefs[25]*coefs[25]*coefs[20]*coefs[26] + 2*coefs[25]*coefs[25]*coefs[20] - 12*coefs[25]*coefs[25]*coefs[27]*yc + 8*coefs[25]*y*coefs[20]*coefs[20]*Gc*coefs[26] - 8*coefs[25]*y*coefs[20]*coefs[20]*Gc - 5*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 10*coefs[25]*y*coefs[20]*coefs[20]*coefs[26] - 5*coefs[25]*y*coefs[20]*coefs[20] - 10*coefs[25]*y*coefs[20]*coefs[26]*yc + 10*coefs[25]*y*coefs[20]*yc + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc - 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26] + 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc + coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26] - 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26] - coefs[25]*coefs[20]*coefs[20]*coefs[20] - 24*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc*yc + 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc - 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc + 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 4*coefs[25]*coefs[20]*coefs[20]*coefs[26]*yc + 2*coefs[25]*coefs[20]*coefs[20]*yc + 12*coefs[25]*coefs[20]*coefs[27]*Gc*coefs[24] + 15*coefs[25]*coefs[20]*coefs[27]*yc*yc - 2*coefs[25]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 4*coefs[25]*coefs[20]*coefs[26]*coefs[24] - 2*coefs[25]*coefs[20]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc - 2*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*Gc*yc + 3*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 6*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + 3*y*coefs[20]*coefs[20]*coefs[20]*yc + 4*y*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[24] - 4*y*coefs[20]*coefs[20]*Gc*coefs[24] - y*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 3*y*coefs[20]*coefs[20]*coefs[26]*yc*yc - y*coefs[20]*coefs[20]*coefs[24] - 3*y*coefs[20]*coefs[20]*yc*yc - 2*y*coefs[20]*coefs[26]*coefs[24]*yc + 2*y*coefs[20]*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + coefs[20]*coefs[20]*coefs[20]*coefs[20]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[24] - 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*coefs[24] + 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*yc*yc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc - 2*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[24] + 4*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc*yc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*yc*yc - 12*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - 3*coefs[20]*coefs[20]*coefs[27]*yc*yc*yc + 4*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc - 8*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[24]*yc + 3*coefs[20]*coefs[27]*coefs[24]*yc*yc;
+	coefs[3] = -8*coefs[25]*coefs[25]*coefs[25]*coefs[27] - 8*coefs[25]*coefs[25]*y*coefs[20]*coefs[26] + 8*coefs[25]*coefs[25]*y*coefs[20] - 15*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc + 8*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26] - 8*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27] - 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 6*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[26] - 3*coefs[25]*coefs[25]*coefs[20]*coefs[20] + 24*coefs[25]*coefs[25]*coefs[20]*coefs[27]*yc - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*Gc + 4*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 8*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26] + 4*coefs[25]*y*coefs[20]*coefs[20]*coefs[20] + 8*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*yc - 8*coefs[25]*y*coefs[20]*coefs[20]*yc - 4*coefs[25]*y*coefs[20]*coefs[26]*coefs[24] + 4*coefs[25]*y*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26] - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*yc - 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc + 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc - 18*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] + 4*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] - 4*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24] - 12*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc*yc + 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 4*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[24] + 12*coefs[25]*coefs[20]*coefs[27]*coefs[24]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*yc - 2*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 4*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[24] + y*coefs[20]*coefs[20]*coefs[20]*yc*yc + 4*y*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc - 4*y*coefs[20]*coefs[20]*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc + 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24]*yc - 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc + coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[24]*yc - 3*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc*yc + coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[24]*coefs[24];
+	coefs[2] = 12*coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[27] + 5*coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[26] - 5*coefs[25]*coefs[25]*y*coefs[20]*coefs[20] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc - 5*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] + 5*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 2*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20] - 15*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc + 12*coefs[25]*coefs[25]*coefs[20]*coefs[27]*coefs[24] - coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26] - coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20] - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*yc + 6*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*coefs[24] - 6*coefs[25]*y*coefs[20]*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] - 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc - 18*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[24] - 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[24]*yc + y*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] - y*coefs[20]*coefs[20]*coefs[24]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[24]*coefs[24] - 3*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*yc;
+	coefs[1] = -6*coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27] - coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26] + coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[20] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] - coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc - 12*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24] - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - 6*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] + y*coefs[20]*coefs[20]*coefs[20]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*yc;
+	coefs[0] = coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*coefs[24];
+
+	// coefs[5] = coefs[20]*coefs[26]*coefs[26]*yc - 2*coefs[20]*coefs[26]*yc + coefs[20]*yc + coefs[26]*yc*yc - yc*yc;
+	// coefs[4] = coefs[25]*coefs[20]*coefs[26]*coefs[26] - 2*coefs[25]*coefs[20]*coefs[26] + coefs[25]*coefs[20] + 2*coefs[25]*coefs[26]*yc - 2*coefs[25]*yc + y*coefs[20]*coefs[26]*yc - y*coefs[20]*yc + y*yc*yc - 2*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 4*coefs[20]*coefs[20]*coefs[26]*yc - 2*coefs[20]*coefs[20]*yc - coefs[20]*coefs[26]*coefs[26]*coefs[24] + 2*coefs[20]*coefs[26]*coefs[24] - 2*coefs[20]*coefs[26]*yc*yc - coefs[20]*coefs[24] + 2*coefs[20]*yc*yc;
+	// coefs[3] = 2*coefs[25]*y*coefs[20]*coefs[26] - 2*coefs[25]*y*coefs[20] + 4*coefs[25]*y*yc - coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[26] - coefs[25]*coefs[20]*coefs[20] - 2*coefs[25]*coefs[20]*coefs[26]*yc + 2*coefs[25]*coefs[20]*yc - 2*y*coefs[20]*coefs[20]*coefs[26]*yc + 2*y*coefs[20]*coefs[20]*yc - 2*y*coefs[20]*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + coefs[20]*coefs[20]*coefs[20]*yc + coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[26]*coefs[24] + coefs[20]*coefs[20]*coefs[26]*yc*yc + coefs[20]*coefs[20]*coefs[24] - coefs[20]*coefs[20]*yc*yc - 2*coefs[20]*coefs[26]*coefs[24]*yc + 2*coefs[20]*coefs[24]*yc;
+	// coefs[2] = 4*coefs[25]*coefs[25]*y + 2*coefs[25]*coefs[25]*coefs[20]*coefs[26] - 2*coefs[25]*coefs[25]*coefs[20] - 3*coefs[25]*y*coefs[20]*coefs[20]*coefs[26] + 3*coefs[25]*y*coefs[20]*coefs[20] - 6*coefs[25]*y*coefs[20]*yc - 2*coefs[25]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[24] + y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc - y*coefs[20]*coefs[20]*coefs[20]*yc - y*coefs[20]*coefs[20]*coefs[26]*coefs[24] + y*coefs[20]*coefs[20]*coefs[24] + y*coefs[20]*coefs[20]*yc*yc - 2*y*coefs[20]*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[24]*yc;
+	// coefs[1] = -4*coefs[25]*coefs[25]*y*coefs[20] - coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[26] + coefs[25]*coefs[25]*coefs[20]*coefs[20] + coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26] - coefs[25]*y*coefs[20]*coefs[20]*coefs[20] + 2*coefs[25]*y*coefs[20]*coefs[20]*yc - 4*coefs[25]*y*coefs[20]*coefs[24] + y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[24]*yc + coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[24]*coefs[24];
+	// coefs[0] = coefs[25]*coefs[25]*y*coefs[20]*coefs[20] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[24] + y*coefs[20]*coefs[20]*coefs[24]*coefs[24];
+
+
+	// coefs[0] = coefs[9] * y;
+	// coefs[1] = coefs[10] * (coefs[20] * (coefs[21] + y*(2 * yc - coefs[20])) - 2 * y);
+	// coefs[2] = y*(1 - coefs[7] * yc) - coefs[20] * (coefs[21] + 2 * y*yc*(1 + coefs[22])) + coefs[6] * (yc*(coefs[21] - coefs[22]) + y*(1 + coefs[22] + yc*yc));
+	// coefs[3] = 2 * y*yc + coefs[7] * yc + coefs[6] * (yc*(2 * y - yc) - coefs[21]) - coefs[20] * (y + 2 * yc*(yc*y - coefs[22]));
+	// coefs[4] = yc*(2 * coefs[20] + y);
+	// coefs[4] = yc*(coefs[4] - 1) - coefs[20] * (coefs[4] - coefs[21]);
+	// coefs[5] = yc*(coefs[20] - yc);
 
 	bad = 1;
 	dzmax = 1.0e-12;
@@ -1818,14 +1891,13 @@ _curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
 #ifdef _PRINT_TIMES
 		tim0 = Environment::TickCount;
 #endif
-		cmplx_roots_gen(zr, coefs, 5, true, true);
-
+		cmplx_roots_gen(zr, coefs, 9, true, true);	
 #ifdef _PRINT_TIMES
 		tim1 = Environment::TickCount;
 		inc += tim1 - tim0;
 #endif
 		// apply lens equation to check if it is really solved
-		for (int i = 0; i<5; i++) {
+		for (int i = 0; i<9; i++) {
 			z = zr[i];
 			zc = conj(z);
 			good[i] = abs(_LL); // Lens equation check
@@ -1887,50 +1959,50 @@ _curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
 		}
 	}
 	Prov = new _curve;
-	if (good[worst1]>dlmax) {
-		for (int i = 0; i<5; i++) {
-			if ((i != worst1) && (i != worst2)) {
-				//if((i==worst3)&&(good[i]>dlmax)&&(good[worst2]>1.e2*good[worst3])){
-				//	zr[i]=(coefs[21].re<coefs[22].re)? 0.5*coefs[20]+coefs[21]/(0.5*coefs[20]-yc-coefs[22]/coefs[20]) : -0.5*coefs[20]+coefs[22]/(-0.5*coefs[20]-yc+coefs[21]/coefs[20]);
-				//}
-				Prov->append(zr[i].re, zr[i].im);
+	// if (good[worst1]>dlmax) {
+	// 	for (int i = 0; i<5; i++) {
+	// 		if ((i != worst1) && (i != worst2)) {
+	// 			//if((i==worst3)&&(good[i]>dlmax)&&(good[worst2]>1.e2*good[worst3])){
+	// 			//	zr[i]=(coefs[21].re<coefs[22].re)? 0.5*coefs[20]+coefs[21]/(0.5*coefs[20]-yc-coefs[22]/coefs[20]) : -0.5*coefs[20]+coefs[22]/(-0.5*coefs[20]-yc+coefs[21]/coefs[20]);
+	// 			//}
+	// 			Prov->append(zr[i].re, zr[i].im);
+	// 			_Jacobians1				
+	// 			if (theta->th >= 0){
+	// 				_Jacobians2
+	// 			}else {
+	// 				_Jacobians3
+	// 				corrquad += cq;
+	// 			}
 
-				_Jacobians1				
-				if (theta->th >= 0){
-					_Jacobians2
-				}else {
-					_Jacobians3
-					corrquad += cq;
-				}
+	// 			Prov->last->theta = theta;
 
-				Prov->last->theta = theta;
+	// 		}
+	// 	}
+	// 	if (theta->th < 0) {
+	// 		dz = zr[worst2] - zr[worst1];
 
-			}
-		}
-		if (theta->th < 0) {
-			dz = zr[worst2] - zr[worst1];
+	// 		int i = worst1;
+	// 		_Jacobians1
+	// 		_Jacobians4
+	// 		corrquad2 = cq;
 
-			int i = worst1;
-			_Jacobians1
-			_Jacobians4
-			corrquad2 = cq;
+	// 		i = worst2;
+	// 		_Jacobians1
+	// 		_Jacobians4
+	// 		if(cq<corrquad2) corrquad2= cq;
+	// 		//_Jacobians3
+	// 		//corrquad2 +=  1/cq;
 
-			i = worst2;
-			_Jacobians1
-			_Jacobians4
-			if(cq<corrquad2) corrquad2= cq;
-			//_Jacobians3
-			//corrquad2 +=  1/cq;
+	// 	}
+	// 	else {
+	// 		theta->errworst = abs(zr[worst1] - zr[worst2]);
+	// 	}
 
-		}
-		else {
-			theta->errworst = abs(zr[worst1] - zr[worst2]);
-		}
-
-	}
-	else {
-		f1 = 0;
-		for (int i = 0; i<5; i++) {
+	// }
+	// else {
+	f1 = 0;
+	for (int i = 0; i<9; i++) { 
+		if ( (good[i] < dlmax) && ((fabs(zr[i].re) > dlmax) || (fabs(zr[i].im) > dlmax)) && ((fabs(zr[i].re - coefs[20].re) > dlmax) || (fabs(zr[i].im) > dlmax)) ) {
 			Prov->append(zr[i].re, zr[i].im);
 
 			_Jacobians1
@@ -1945,54 +2017,55 @@ _curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
 
 			if (fabs(dJ.re)<1.e-5) f1 = 1;
 		}
-		theta->errworst = -1.e100;
-		// check Jacobians in ambiguous cases
-		if (f1) {
-			left = right = center = fifth = 0;
-			dJ.re = 0;
-			for (scan = Prov->first; scan; scan = scan->next) {
-				if (_sign(scan->x2) == _sign(y.im)) {
-					prin = scan;
-				}
-				else {
-					dz.re = fabs(scan->dJ);
-					if (dz.re>dJ.re) {
-						fifth = scan;
-						dJ.re = dz.re;
-					}
+	}
+	theta->errworst = -1.e100;
+	// check Jacobians in ambiguous cases
+	if (f1) {
+		left = right = center = fifth = 0;
+		dJ.re = 0;
+		for (scan = Prov->first; scan; scan = scan->next) {
+			if (_sign(scan->x2) == _sign(y.im)) {
+				prin = scan;
+			}
+			else {
+				dz.re = fabs(scan->dJ);
+				if (dz.re>dJ.re) {
+					fifth = scan;
+					dJ.re = dz.re;
 				}
 			}
-			for (scan = Prov->first; scan; scan = scan->next) {
-				if ((scan != prin) && (scan != fifth)) {
-					if (left) {
-						if (scan->x1<left->x1) {
-							if (left != right) {
-								center = left;
-							}
-							left = scan;
+		}
+		for (scan = Prov->first; scan; scan = scan->next) {
+			if ((scan != prin) && (scan != fifth)) {
+				if (left) {
+					if (scan->x1<left->x1) {
+						if (left != right) {
+							center = left;
 						}
-						else {
-							if (scan->x1>right->x1) {
-								if (left != right) {
-									center = right;
-								}
-								right = scan;
-							}
-							else {
-								center = scan;
-							}
-						}
+						left = scan;
 					}
 					else {
-						left = right = center = scan;
+						if (scan->x1>right->x1) {
+							if (left != right) {
+								center = right;
+							}
+							right = scan;
+						}
+						else {
+							center = scan;
+						}
 					}
 				}
+				else {
+					left = right = center = scan;
+				}
 			}
-			if (left->dJ>0) left->dJ = -left->dJ;
-			if (center->dJ<0) center->dJ = -center->dJ;
-			if (right->dJ>0) right->dJ = -right->dJ;
 		}
+		if (left->dJ>0) left->dJ = -left->dJ;
+		if (center->dJ<0) center->dJ = -center->dJ;
+		if (right->dJ>0) right->dJ = -right->dJ;
 	}
+	// }
 	return Prov;
 }
 
@@ -3621,7 +3694,7 @@ void VBBinaryLensing::cmplx_laguerre2newton(complex *poly, int degree, complex *
 
 					//NEXT LINE PROBABLY CAN BE COMMENTED OUT 
 					if (real(denom_sqrt) > 0.0) {
-						//real part of a square root is positive for probably all compilers. You can ù
+						//real part of a square root is positive for probably all compilers. You can ï¿½
 						//test this on your compiler and if so, you can omit this check
 						denom = c_one_nth + n_1_nth * denom_sqrt;
 					}

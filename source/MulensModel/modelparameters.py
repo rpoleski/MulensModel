@@ -14,7 +14,7 @@ from MulensModel.uniformcausticsampling import UniformCausticSampling
 _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
-    'binary lens': ['s, q, alpha'],
+    'binary lens': ['s, q, alpha, K, G'],
     'binary lens alt':
         'alternate: ' +
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
@@ -299,6 +299,8 @@ class ModelParameters(object):
             'pi_E_N': {'width': 9, 'precision': 5},
             'pi_E_E': {'width': 9, 'precision': 5},
             's': {'width': 9, 'precision': 5},
+            'K': {'width': 12, 'precision': 8},
+            'G': {'width': 12, 'precision': 8},
             'q': {'width': 12, 'precision': 8},
             'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
             'ds_dt': {
@@ -325,7 +327,7 @@ class ModelParameters(object):
         formats_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'ds_dt', 'dalpha_dt',
+            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'K', 'G', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
         ]
 
@@ -495,7 +497,7 @@ class ModelParameters(object):
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
+            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 'K', 'G', 't_star',
             'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
             't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
             't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
@@ -534,7 +536,7 @@ class ModelParameters(object):
 
         Also, check that all values are scalars (except pi_E vector).
         """
-        names = ['t_E', 't_star', 'rho']
+        names = ['t_E', 't_star', 'rho',]
         full_names = {
             't_E': 'Einstein timescale',
             't_star': 'Source crossing time', 'rho': 'Source size'}
@@ -861,6 +863,34 @@ class ModelParameters(object):
     def q(self, new_q):
         self.parameters['q'] = new_q
         self._update_sources('q', new_q)
+
+    @property
+    def K(self):
+        """
+        *float*
+
+        Convergence of external mass sheet.
+        """
+        return self.parameters['K']
+
+    @K.setter
+    def K(self, new_K):
+        self.parameters['K'] = new_K
+        self._update_sources('K', new_K)
+
+    @property
+    def G(self):
+        """
+        *float*
+
+        Shear of external mass sheet.
+        """
+        return self.parameters['G']
+
+    @G.setter
+    def G(self, new_G):
+        self.parameters['G'] = new_G
+        self._update_sources('G', new_G)
 
     @property
     def s(self):

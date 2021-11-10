@@ -57,10 +57,28 @@ if _vbbl_wrapped:
     vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
     _vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
 
+    vbbl.VBBinaryLensing_BinaryMag.argtypes = 6 * [ctypes.c_double]
+    vbbl.VBBinaryLensing_BinaryMag.restype = ctypes.c_double
+    _vbbl_binary_mag = vbbl.VBBinaryLensing_BinaryMag
+
+    vbbl.VBBinaryLensing_BinaryMag0.argtypes = 7 * [ctypes.c_double]
+    vbbl.VBBinaryLensing_BinaryMag0.restype = ctypes.c_double
+    _vbbl_binary_mag_0 = vbbl.VBBinaryLensing_BinaryMag0
+
     vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
     vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
             dtype=ctypes.c_double, shape=(10,))
     _vbbl_SG12_5 = vbbl.VBBL_SG12_5
+
+    vbbl.VBBL_SG12_2.argtypes = 6 * [ctypes.c_double]
+    vbbl.VBBL_SG12_2.restype = np.ctypeslib.ndpointer(
+            dtype=ctypes.c_double, shape=(4,))
+    _vbbl_SG12_2 = vbbl.VBBL_SG12_2
+
+    vbbl.VBBL_SG12_9.argtypes = 20 * [ctypes.c_double]
+    vbbl.VBBL_SG12_9.restype = np.ctypeslib.ndpointer(
+            dtype=ctypes.c_double, shape=(18,))
+    _vbbl_SG12_9 = vbbl.VBBL_SG12_9
 
 if not _vbbl_wrapped:
     _solver = 'numpy'
@@ -100,10 +118,12 @@ class BinaryLens(object):
     possibility.
 
     """
-    def __init__(self, mass_1=None, mass_2=None, separation=None):
+    def __init__(self, mass_1=None, mass_2=None, separation=None, K=0.0, G=0.0):
         self.mass_1 = mass_1
         self.mass_2 = mass_2
         self.separation = separation
+        self.K = K
+        self.G = G
         self._total_mass = None
         self._mass_difference = None
         self._position_z1 = None
@@ -150,42 +170,59 @@ class BinaryLens(object):
         z1_pow2 = pos_z1 * pos_z1
         z1_pow3 = z1_pow2 * pos_z1
         z1_pow4 = z1_pow2 * z1_pow2
+        z1_pow5 = z1_pow2 * z1_pow2 * pos_z1
+        z1_pow6 = z1_pow2 * z1_pow2 * z1_pow2
+
+        # #Convergence added here
+        K = self.K
+        warnings.warn("CCConvergence {} is being applied!".format(K),UserWarning)
+        K_pow2 = K * K
+        K_pow3 = K * K_pow2
 
         zeta = self._zeta
         zeta_conj = np.conjugate(zeta)
         zeta_conj_pow2 = zeta_conj * zeta_conj
 
+
+        # # Calculate the coefficients of the 5th order complex polynomial now with convergence
+        coeff_5 = Utils.complex_fsum([-z1_pow2*K_pow3 , 3*z1_pow2*K_pow2 , - 3*z1_pow2*K , z1_pow2 , K*zeta_conj_pow2 , - zeta_conj_pow2])
+        coeff_4 = Utils.complex_fsum([2*total_m*K*zeta_conj , - 2*total_m*zeta_conj , - zeta*z1_pow2*K_pow2 , 2*zeta*z1_pow2*K , - zeta*z1_pow2 , zeta*zeta_conj_pow2 , 2*pos_z1*K_pow2*m_diff , - 4*pos_z1*K*m_diff , 2*pos_z1*m_diff])
+        coeff_3 = Utils.complex_fsum([4*total_m*zeta*zeta_conj , 2*z1_pow4*K_pow3 , - 6*z1_pow4*K_pow2 , 6*z1_pow4*K , - 2*z1_pow4 , - 2*z1_pow2*K*zeta_conj_pow2 , 2*z1_pow2*zeta_conj_pow2 , 4*pos_z1*K*m_diff*zeta_conj , - 4*pos_z1*m_diff*zeta_conj])
+        coeff_2 = Utils.complex_fsum([4*total_m_pow2*zeta , 4*total_m*pos_z1*K*m_diff , - 4*total_m*pos_z1*m_diff , 2*zeta*z1_pow4*K_pow2 , - 4*zeta*z1_pow4*K , 2*zeta*z1_pow4 , - 2*zeta*z1_pow2*zeta_conj_pow2 , 4*zeta*pos_z1*m_diff*zeta_conj , - 4*z1_pow3*K_pow2*m_diff , 8*z1_pow3*K*m_diff , - 4*z1_pow3*m_diff])
+        coeff_1 = Utils.complex_fsum([4*total_m_pow2*z1_pow2*K , - 4*total_m_pow2*z1_pow2 , - 4*total_m*zeta*z1_pow2*zeta_conj , 8*total_m*zeta*pos_z1*m_diff , - z1_pow6*K_pow3 , 3*z1_pow6*K_pow2 , - 3*z1_pow6*K , z1_pow6 , z1_pow4*K*zeta_conj_pow2 , - z1_pow4*zeta_conj_pow2 , - 4*z1_pow3*K*m_diff*zeta_conj , 4*z1_pow3*m_diff*zeta_conj , 4*z1_pow2*K*m_diff_pow2 , - 4*z1_pow2*m_diff_pow2])
+        coeff_0 = Utils.complex_fsum([-2*total_m*z1_pow4*K*zeta_conj , 2*total_m*z1_pow4*zeta_conj , 4*total_m*z1_pow3*K*m_diff , - 4*total_m*z1_pow3*m_diff , - zeta*z1_pow6*K_pow2 , 2*zeta*z1_pow6*K , - zeta*z1_pow6 , zeta*z1_pow4*zeta_conj_pow2 , - 4*zeta*z1_pow3*m_diff*zeta_conj , 4*zeta*z1_pow2*m_diff_pow2 , 2*z1_pow5*K_pow2*m_diff , - 4*z1_pow5*K*m_diff , 2*z1_pow5*m_diff])
+
         # Calculate the coefficients of the 5th order complex polynomial
-        coeff_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
-        coeff_4 = Utils.complex_fsum(
-            [-2. * total_m * zeta_conj,
-             zeta * zeta_conj_pow2, -2. * m_diff * pos_z1,
-             -zeta * z1_pow2])
-        coeff_3 = Utils.complex_fsum(
-            [4. * total_m * zeta * zeta_conj,
-             4. * m_diff * zeta_conj * pos_z1,
-             2. * zeta_conj_pow2 * z1_pow2, -2. * z1_pow4])
-        coeff_2 = Utils.complex_fsum(
-            [4. * total_m_pow2 * zeta,
-             4. * total_m * m_diff * pos_z1,
-             -4. * m_diff * zeta * zeta_conj * pos_z1,
-             -2. * zeta * zeta_conj_pow2 * z1_pow2,
-             4. * m_diff * z1_pow3, 2. * zeta * z1_pow4])
-        coeff_1 = Utils.complex_fsum(
-            [-8. * total_m * m_diff * zeta * pos_z1,
-             -4. * m_diff_pow2 * z1_pow2,
-             -4. * total_m_pow2 * z1_pow2,
-             -4. * total_m * zeta * zeta_conj * z1_pow2,
-             -4. * m_diff * zeta_conj * z1_pow3,
-             -zeta_conj_pow2 * z1_pow4, z1_pow3 * z1_pow3])
-        coeff_0 = Utils.complex_fsum(
-            [4. * m_diff_pow2 * zeta,
-             4. * total_m * m_diff * pos_z1,
-             4. * m_diff * zeta * zeta_conj * pos_z1,
-             2. * total_m * zeta_conj * z1_pow2,
-             zeta * zeta_conj_pow2 * z1_pow2,
-             -2. * m_diff * z1_pow3 - zeta * z1_pow4])
-        coeff_0 *= z1_pow2
+        # coeff_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
+        # coeff_4 = Utils.complex_fsum(
+        #     [-2. * total_m * zeta_conj,
+        #      zeta * zeta_conj_pow2, -2. * m_diff * pos_z1,
+        #      -zeta * z1_pow2])
+        # coeff_3 = Utils.complex_fsum(
+        #     [4. * total_m * zeta * zeta_conj,
+        #      4. * m_diff * zeta_conj * pos_z1,
+        #      2. * zeta_conj_pow2 * z1_pow2, -2. * z1_pow4])
+        # coeff_2 = Utils.complex_fsum(
+        #     [4. * total_m_pow2 * zeta,
+        #      4. * total_m * m_diff * pos_z1,
+        #      -4. * m_diff * zeta * zeta_conj * pos_z1,
+        #      -2. * zeta * zeta_conj_pow2 * z1_pow2,
+        #      4. * m_diff * z1_pow3, 2. * zeta * z1_pow4])
+        # coeff_1 = Utils.complex_fsum(
+        #     [-8. * total_m * m_diff * zeta * pos_z1,
+        #      -4. * m_diff_pow2 * z1_pow2,
+        #      -4. * total_m_pow2 * z1_pow2,
+        #      -4. * total_m * zeta * zeta_conj * z1_pow2,
+        #      -4. * m_diff * zeta_conj * z1_pow3,
+        #      -zeta_conj_pow2 * z1_pow4, z1_pow3 * z1_pow3])
+        # coeff_0 = Utils.complex_fsum(
+        #     [4. * m_diff_pow2 * zeta,
+        #      4. * total_m * m_diff * pos_z1,
+        #      4. * m_diff * zeta * zeta_conj * pos_z1,
+        #      2. * total_m * zeta_conj * z1_pow2,
+        #      zeta * zeta_conj_pow2 * z1_pow2,
+        #      -2. * m_diff * z1_pow3 - zeta * z1_pow4])
+        # coeff_0 *= z1_pow2
 
         # Return the coefficients of the polynomial
         coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
@@ -196,52 +233,113 @@ class BinaryLens(object):
         # Calculate constants
         self._calculate_variables(source_x=source_x, source_y=source_y)
         total_m = self._total_mass
+        total_m_pow2 = total_m * total_m
+        total_m_pow3 = total_m * total_m_pow2
 
         m_diff = self._mass_difference
+        m_diff_pow2 = m_diff * m_diff
+        m_diff_pow3 = m_diff * m_diff_pow2
 
         zeta = self._zeta
         zeta_conj = np.conjugate(zeta)
+        zeta_conj_pow2 = zeta_conj * zeta_conj
+        zeta_conj_pow3 = zeta_conj * zeta_conj_pow2
 
+        # #Convergence added here
+        K = self.K
+        #warnings.warn("Convergence {} is being applied!".format(K),UserWarning)
+        K_pow2 = K * K
+        K_pow3 = K * K_pow2
+        K_pow4 = K_pow2 * K_pow2
+
+        #Shear added here
+        G = self.G
+        Gc = np.conjugate(G)
+        #warnings.warn("Shear {} is being applied!".format(G), UserWarning)
+        G_pow2 = G * G
+        G_pow3 = G * G_pow2
+        G_pow4 = G_pow2 * G_pow2
+
+        Gc_pow2 = Gc * Gc
+        Gc_pow3 = Gc * Gc_pow2
+        Gc_pow4 = Gc_pow2 * Gc_pow2
+    
         c_sum = Utils.complex_fsum
 
         z1 = self._position_z1
+        z1_pow2 = z1 * z1
+        z1_pow3 = z1_pow2 * z1
+        z1_pow4 = z1_pow2 * z1_pow2
 
-        coeff_5 = c_sum([z1, -zeta_conj]) * zeta_conj
-        coeff_4 = c_sum([
-            (-m_diff + total_m) * z1,
-            -c_sum([2. * total_m, z1 * c_sum([2. * z1, zeta])]) * zeta_conj,
-            c_sum([2. * z1 + zeta]) * zeta_conj**2
-            ])
-        coeff_3 = c_sum([
-            z1 * c_sum([m_diff * z1, -total_m * c_sum([z1, 2. * zeta])]),
-            zeta_conj * c_sum([
-                2. * m_diff * z1,
-                c_sum([2. * total_m, z1**2]) * c_sum([z1, 2. * zeta])
-                ]),
-            -z1 * c_sum([z1, 2. * zeta]) * zeta_conj**2
-            ])
-        coeff_2 = c_sum([
-            m_diff * z1 * c_sum([2. * total_m, z1 * zeta]),
-            total_m * c_sum([
-                -2. * total_m * z1, 4. * total_m * zeta, 3. * z1**2 * zeta]),
-            -z1 * zeta_conj * c_sum([
-                zeta * c_sum([6. * total_m, z1**2]),
-                2. * m_diff * c_sum([z1, zeta])
-                ]),
-            z1**2 * zeta * zeta_conj**2
-            ])
-        coeff_1 = -z1 * (m_diff + total_m) * c_sum([
-            m_diff * z1, -total_m * z1, 4. * total_m * zeta, z1**2 * zeta,
-            -2. * z1 * zeta * zeta_conj
-            ])
-        coeff_0 = (m_diff + total_m)**2 * z1**2 * zeta
+        # coeff_5 = c_sum([z1*K_pow2*zeta_conj , - 2*z1*K*zeta_conj , z1*zeta_conj , K*zeta_conj_pow2 , - zeta_conj_pow2])
+        # coeff_4 = c_sum([total_m*z1*K_pow2 , - 2*total_m*z1*K , total_m*z1 , 2*total_m*K*zeta_conj , - 2*total_m*zeta_conj , zeta*z1*K*zeta_conj , - zeta*z1*zeta_conj , zeta*zeta_conj_pow2 , - 2*z1_pow2*K_pow2*zeta_conj , 4*z1_pow2*K*zeta_conj , - 2*z1_pow2*zeta_conj , - z1*K_pow2*m_diff , 2*z1*K*m_diff , - 2*z1*K*zeta_conj_pow2 , - z1*m_diff , 2*z1*zeta_conj_pow2])
+        # coeff_3 = c_sum([2*total_m*zeta*z1*K , - 2*total_m*zeta*z1 , 4*total_m*zeta*zeta_conj , - total_m*z1_pow2*K_pow2 , 2*total_m*z1_pow2*K , - total_m*z1_pow2 , - 2*total_m*z1*K*zeta_conj , 2*total_m*z1*zeta_conj , - 2*zeta*z1_pow2*K*zeta_conj , 2*zeta*z1_pow2*zeta_conj , - 2*zeta*z1*zeta_conj_pow2 , z1_pow3*K_pow2*zeta_conj , - 2*z1_pow3*K*zeta_conj , z1_pow3*zeta_conj , z1_pow2*K_pow2*m_diff , - 2*z1_pow2*K*m_diff , z1_pow2*K*zeta_conj_pow2 , z1_pow2*m_diff , - z1_pow2*zeta_conj_pow2 , - 2*z1*K*m_diff*zeta_conj , 2*z1*m_diff*zeta_conj])
+        # coeff_2 = c_sum([4*total_m_pow2*zeta , 2*total_m_pow2*z1*K , - 2*total_m_pow2*z1 , - 3*total_m*zeta*z1_pow2*K , 3*total_m*zeta*z1_pow2 , - 6*total_m*zeta*z1*zeta_conj , - 2*total_m*z1*K*m_diff , 2*total_m*z1*m_diff , zeta*z1_pow3*K*zeta_conj , - zeta*z1_pow3*zeta_conj , - zeta*z1_pow2*K*m_diff , zeta*z1_pow2*m_diff , zeta*z1_pow2*zeta_conj_pow2 , - 2*zeta*z1*m_diff*zeta_conj , 2*z1_pow2*K*m_diff*zeta_conj , - 2*z1_pow2*m_diff*zeta_conj])
+        # coeff_1 = c_sum([-4*total_m_pow2*zeta*z1 , - total_m_pow2*z1_pow2*K , total_m_pow2*z1_pow2 , total_m*zeta*z1_pow3*K , - total_m*zeta*z1_pow3 , 2*total_m*zeta*z1_pow2*zeta_conj , - 4*total_m*zeta*z1*m_diff , zeta*z1_pow3*K*m_diff , - zeta*z1_pow3*m_diff , 2*zeta*z1_pow2*m_diff*zeta_conj , z1_pow2*K*m_diff_pow2 , - z1_pow2*m_diff_pow2])
+        # coeff_0 = c_sum([total_m_pow2*zeta*z1_pow2 , 2*total_m*zeta*z1_pow2*m_diff , zeta*z1_pow2*m_diff_pow2])
 
-        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
-        return np.array(coeffs_list).reshape(6)
+        # coeff_9 = c_sum([-G_pow4 , G_pow2*K_pow2 , - 2*G_pow2*K , G_pow2])
+        # coeff_8 = c_sum([zeta*G_pow2*K , - zeta*G_pow2 , 3*z1*G_pow4 , - z1*G_pow3*K , z1*G_pow3 , - 3*z1*G_pow2*K_pow2 , 6*z1*G_pow2*K , - 3*z1*G_pow2 , z1*G*K_pow3 , - 3*z1*G*K_pow2 , 3*z1*G*K , - z1*G , - 3*G_pow3*zeta_conj , 2*G*K_pow2*zeta_conj , - 4*G*K*zeta_conj , 2*G*zeta_conj])
+        # coeff_7 = c_sum([-6*total_m*G_pow3 , 2*total_m*G*K_pow2 , - 4*total_m*G*K , 2*total_m*G , - 3*zeta*z1*G_pow2*K , 3*zeta*z1*G_pow2 , zeta*z1*G*K_pow2 , - 2*zeta*z1*G*K , zeta*z1*G , 2*zeta*G*K*zeta_conj , - 2*zeta*G*zeta_conj , - 3*z1_pow2*G_pow4 , 3*z1_pow2*G_pow3*K , - 3*z1_pow2*G_pow3 , 3*z1_pow2*G_pow2*K_pow2 , - 6*z1_pow2*G_pow2*K , 3*z1_pow2*G_pow2 , - 3*z1_pow2*G*K_pow3 , 9*z1_pow2*G*K_pow2 , - 9*z1_pow2*G*K , 3*z1_pow2*G , 9*z1*G_pow3*zeta_conj , - 2*z1*G_pow2*K*zeta_conj , 2*z1*G_pow2*zeta_conj , - 6*z1*G*K_pow2*zeta_conj , 12*z1*G*K*zeta_conj , - 6*z1*G*zeta_conj , z1*K_pow3*zeta_conj , - 3*z1*K_pow2*zeta_conj , 3*z1*K*zeta_conj , - z1*zeta_conj , - 3*G_pow2*zeta_conj_pow2 , K_pow2*zeta_conj_pow2 , - 2*K*zeta_conj_pow2 , zeta_conj_pow2])
+        # coeff_6 = c_sum([4*total_m*zeta*G*K , - 4*total_m*zeta*G , 15*total_m*z1*G_pow3 , - 4*total_m*z1*G_pow2*K , 4*total_m*z1*G_pow2 , - 4*total_m*z1*G*K_pow2 , 8*total_m*z1*G*K , - 4*total_m*z1*G , total_m*z1*K_pow3 , - 3*total_m*z1*K_pow2 , 3*total_m*z1*K , - total_m*z1 , - 12*total_m*G_pow2*zeta_conj , 2*total_m*K_pow2*zeta_conj , - 4*total_m*K*zeta_conj , 2*total_m*zeta_conj , 3*zeta*z1_pow2*G_pow2*K , - 3*zeta*z1_pow2*G_pow2 , - 3*zeta*z1_pow2*G*K_pow2 , 6*zeta*z1_pow2*G*K , - 3*zeta*z1_pow2*G , - 6*zeta*z1*G*K*zeta_conj , 6*zeta*z1*G*zeta_conj , zeta*z1*K_pow2*zeta_conj , - 2*zeta*z1*K*zeta_conj , zeta*z1*zeta_conj , zeta*K*zeta_conj_pow2 , - zeta*zeta_conj_pow2 , z1_pow3*G_pow4 , - 3*z1_pow3*G_pow3*K , 3*z1_pow3*G_pow3 , - z1_pow3*G_pow2*K_pow2 , 2*z1_pow3*G_pow2*K , - z1_pow3*G_pow2 , 3*z1_pow3*G*K_pow3 , - 9*z1_pow3*G*K_pow2 , 9*z1_pow3*G*K , - 3*z1_pow3*G , - 9*z1_pow2*G_pow3*zeta_conj , 6*z1_pow2*G_pow2*K*zeta_conj , - 6*z1_pow2*G_pow2*zeta_conj , 6*z1_pow2*G*K_pow2*zeta_conj , - 12*z1_pow2*G*K*zeta_conj , 6*z1_pow2*G*zeta_conj , - 3*z1_pow2*K_pow3*zeta_conj , 9*z1_pow2*K_pow2*zeta_conj , - 9*z1_pow2*K*zeta_conj , 3*z1_pow2*zeta_conj , 3*z1*G_pow3*m_diff , 9*z1*G_pow2*zeta_conj_pow2 , - 2*z1*G*K_pow2*m_diff , 4*z1*G*K*m_diff , - z1*G*K*zeta_conj_pow2 , - 2*z1*G*m_diff , z1*G*zeta_conj_pow2 , - z1*K_pow3*m_diff , 3*z1*K_pow2*m_diff , - 3*z1*K_pow2*zeta_conj_pow2 , - 3*z1*K*m_diff , 6*z1*K*zeta_conj_pow2 , z1*m_diff , - 3*z1*zeta_conj_pow2 , - G*zeta_conj_pow3])
+        # coeff_5 = c_sum([-12*total_m_pow2*G_pow2 , - 10*total_m*zeta*z1*G*K , 10*total_m*zeta*z1*G , 2*total_m*zeta*z1*K_pow2 , - 4*total_m*zeta*z1*K , 2*total_m*zeta*z1 , 4*total_m*zeta*K*zeta_conj , - 4*total_m*zeta*zeta_conj , - 12*total_m*z1_pow2*G_pow3 , 10*total_m*z1_pow2*G_pow2*K , - 10*total_m*z1_pow2*G_pow2 , 2*total_m*z1_pow2*G*K_pow2 , - 4*total_m*z1_pow2*G*K , 2*total_m*z1_pow2*G , - 2*total_m*z1_pow2*K_pow3 , 6*total_m*z1_pow2*K_pow2 , - 6*total_m*z1_pow2*K , 2*total_m*z1_pow2 , 30*total_m*z1*G_pow2*zeta_conj , - 4*total_m*z1*G*K*zeta_conj , 4*total_m*z1*G*zeta_conj , - 4*total_m*z1*K_pow2*zeta_conj , 8*total_m*z1*K*zeta_conj , - 4*total_m*z1*zeta_conj , - 6*total_m*G*zeta_conj_pow2 , - zeta*z1_pow3*G_pow2*K , zeta*z1_pow3*G_pow2 , 3*zeta*z1_pow3*G*K_pow2 , - 6*zeta*z1_pow3*G*K , 3*zeta*z1_pow3*G , 6*zeta*z1_pow2*G*K*zeta_conj , - 6*zeta*z1_pow2*G*zeta_conj , - 3*zeta*z1_pow2*K_pow2*zeta_conj , 6*zeta*z1_pow2*K*zeta_conj , - 3*zeta*z1_pow2*zeta_conj , - 2*zeta*z1*G*K*m_diff , 2*zeta*z1*G*m_diff , - 3*zeta*z1*K*zeta_conj_pow2 , 3*zeta*z1*zeta_conj_pow2 , z1_pow4*G_pow3*K , - z1_pow4*G_pow3 , - z1_pow4*G*K_pow3 , 3*z1_pow4*G*K_pow2 , - 3*z1_pow4*G*K , z1_pow4*G , 3*z1_pow3*G_pow3*zeta_conj , - 6*z1_pow3*G_pow2*K*zeta_conj , 6*z1_pow3*G_pow2*zeta_conj , - 2*z1_pow3*G*K_pow2*zeta_conj , 4*z1_pow3*G*K*zeta_conj , - 2*z1_pow3*G*zeta_conj , 3*z1_pow3*K_pow3*zeta_conj , - 9*z1_pow3*K_pow2*zeta_conj , 9*z1_pow3*K*zeta_conj , - 3*z1_pow3*zeta_conj , - 6*z1_pow2*G_pow3*m_diff , 2*z1_pow2*G_pow2*K*m_diff , - 2*z1_pow2*G_pow2*m_diff , - 9*z1_pow2*G_pow2*zeta_conj_pow2 , 4*z1_pow2*G*K_pow2*m_diff , - 8*z1_pow2*G*K*m_diff , 3*z1_pow2*G*K*zeta_conj_pow2 , 4*z1_pow2*G*m_diff , - 3*z1_pow2*G*zeta_conj_pow2 , 2*z1_pow2*K_pow3*m_diff , - 6*z1_pow2*K_pow2*m_diff , 3*z1_pow2*K_pow2*zeta_conj_pow2 , 6*z1_pow2*K*m_diff , - 6*z1_pow2*K*zeta_conj_pow2 , - 2*z1_pow2*m_diff , 3*z1_pow2*zeta_conj_pow2 , 6*z1*G_pow2*m_diff*zeta_conj , 3*z1*G*zeta_conj_pow3 , - 2*z1*K_pow2*m_diff*zeta_conj , 4*z1*K*m_diff*zeta_conj , - 2*z1*m_diff*zeta_conj])
+        # coeff_4 = c_sum([4*total_m_pow2*zeta*K , - 4*total_m_pow2*zeta , 24*total_m_pow2*z1*G_pow2 , - 4*total_m_pow2*z1*G*K , 4*total_m_pow2*z1*G , 2*total_m_pow2*z1*K_pow2 , - 4*total_m_pow2*z1*K , 2*total_m_pow2*z1 , - 12*total_m_pow2*G*zeta_conj , 8*total_m*zeta*z1_pow2*G*K , - 8*total_m*zeta*z1_pow2*G , - 5*total_m*zeta*z1_pow2*K_pow2 , 10*total_m*zeta*z1_pow2*K , - 5*total_m*zeta*z1_pow2 , - 10*total_m*zeta*z1*K*zeta_conj , 10*total_m*zeta*z1*zeta_conj , 3*total_m*z1_pow3*G_pow3 , - 8*total_m*z1_pow3*G_pow2*K , 8*total_m*z1_pow3*G_pow2 , total_m*z1_pow3*K_pow3 , - 3*total_m*z1_pow3*K_pow2 , 3*total_m*z1_pow3*K , - total_m*z1_pow3 , - 24*total_m*z1_pow2*G_pow2*zeta_conj , 10*total_m*z1_pow2*G*K*zeta_conj , - 10*total_m*z1_pow2*G*zeta_conj , 2*total_m*z1_pow2*K_pow2*zeta_conj , - 4*total_m*z1_pow2*K*zeta_conj , 2*total_m*z1_pow2*zeta_conj , 12*total_m*z1*G_pow2*m_diff , 15*total_m*z1*G*zeta_conj_pow2 , - 2*total_m*z1*K_pow2*m_diff , 4*total_m*z1*K*m_diff , - 2*total_m*z1*m_diff , - zeta*z1_pow4*G*K_pow2 , 2*zeta*z1_pow4*G*K , - zeta*z1_pow4*G , - 2*zeta*z1_pow3*G*K*zeta_conj , 2*zeta*z1_pow3*G*zeta_conj , 3*zeta*z1_pow3*K_pow2*zeta_conj , - 6*zeta*z1_pow3*K*zeta_conj , 3*zeta*z1_pow3*zeta_conj , 4*zeta*z1_pow2*G*K*m_diff , - 4*zeta*z1_pow2*G*m_diff , - zeta*z1_pow2*K_pow2*m_diff , 2*zeta*z1_pow2*K*m_diff , 3*zeta*z1_pow2*K*zeta_conj_pow2 , - zeta*z1_pow2*m_diff , - 3*zeta*z1_pow2*zeta_conj_pow2 , - 2*zeta*z1*K*m_diff*zeta_conj , 2*zeta*z1*m_diff*zeta_conj , 2*z1_pow4*G_pow2*K*zeta_conj , - 2*z1_pow4*G_pow2*zeta_conj , - z1_pow4*K_pow3*zeta_conj , 3*z1_pow4*K_pow2*zeta_conj , - 3*z1_pow4*K*zeta_conj , z1_pow4*zeta_conj , 3*z1_pow3*G_pow3*m_diff , - 4*z1_pow3*G_pow2*K*m_diff , 4*z1_pow3*G_pow2*m_diff , 3*z1_pow3*G_pow2*zeta_conj_pow2 , - 2*z1_pow3*G*K_pow2*m_diff , 4*z1_pow3*G*K*m_diff , - 3*z1_pow3*G*K*zeta_conj_pow2 , - 2*z1_pow3*G*m_diff , 3*z1_pow3*G*zeta_conj_pow2 , - z1_pow3*K_pow3*m_diff , 3*z1_pow3*K_pow2*m_diff , - z1_pow3*K_pow2*zeta_conj_pow2 , - 3*z1_pow3*K*m_diff , 2*z1_pow3*K*zeta_conj_pow2 , z1_pow3*m_diff , - z1_pow3*zeta_conj_pow2 , - 12*z1_pow2*G_pow2*m_diff*zeta_conj , 2*z1_pow2*G*K*m_diff*zeta_conj , - 2*z1_pow2*G*m_diff*zeta_conj , - 3*z1_pow2*G*zeta_conj_pow3 , 4*z1_pow2*K_pow2*m_diff*zeta_conj , - 8*z1_pow2*K*m_diff*zeta_conj , 4*z1_pow2*m_diff*zeta_conj , 3*z1*G*m_diff*zeta_conj_pow2])
+        # coeff_3 = c_sum([-8*total_m_pow3*G , - 8*total_m_pow2*zeta*z1*K , 8*total_m_pow2*zeta*z1 , - 15*total_m_pow2*z1_pow2*G_pow2 , 8*total_m_pow2*z1_pow2*G*K , - 8*total_m_pow2*z1_pow2*G , - 3*total_m_pow2*z1_pow2*K_pow2 , 6*total_m_pow2*z1_pow2*K , - 3*total_m_pow2*z1_pow2 , 24*total_m_pow2*z1*G*zeta_conj , - 2*total_m*zeta*z1_pow3*G*K , 2*total_m*zeta*z1_pow3*G , 4*total_m*zeta*z1_pow3*K_pow2 , - 8*total_m*zeta*z1_pow3*K , 4*total_m*zeta*z1_pow3 , 8*total_m*zeta*z1_pow2*K*zeta_conj , - 8*total_m*zeta*z1_pow2*zeta_conj , - 4*total_m*zeta*z1*K*m_diff , 4*total_m*zeta*z1*m_diff , 2*total_m*z1_pow4*G_pow2*K , - 2*total_m*z1_pow4*G_pow2 , 6*total_m*z1_pow3*G_pow2*zeta_conj , - 8*total_m*z1_pow3*G*K*zeta_conj , 8*total_m*z1_pow3*G*zeta_conj , - 18*total_m*z1_pow2*G_pow2*m_diff , 4*total_m*z1_pow2*G*K*m_diff , - 4*total_m*z1_pow2*G*m_diff , - 12*total_m*z1_pow2*G*zeta_conj_pow2 , 2*total_m*z1_pow2*K_pow2*m_diff , - 4*total_m*z1_pow2*K*m_diff , 2*total_m*z1_pow2*m_diff , 12*total_m*z1*G*m_diff*zeta_conj , - zeta*z1_pow4*K_pow2*zeta_conj , 2*zeta*z1_pow4*K*zeta_conj , - zeta*z1_pow4*zeta_conj , - 2*zeta*z1_pow3*G*K*m_diff , 2*zeta*z1_pow3*G*m_diff , 2*zeta*z1_pow3*K_pow2*m_diff , - 4*zeta*z1_pow3*K*m_diff , - zeta*z1_pow3*K*zeta_conj_pow2 , 2*zeta*z1_pow3*m_diff , zeta*z1_pow3*zeta_conj_pow2 , 4*zeta*z1_pow2*K*m_diff*zeta_conj , - 4*zeta*z1_pow2*m_diff*zeta_conj , 2*z1_pow4*G_pow2*K*m_diff , - 2*z1_pow4*G_pow2*m_diff , z1_pow4*G*K*zeta_conj_pow2 , - z1_pow4*G*zeta_conj_pow2 , 6*z1_pow3*G_pow2*m_diff*zeta_conj , - 4*z1_pow3*G*K*m_diff*zeta_conj , 4*z1_pow3*G*m_diff*zeta_conj , z1_pow3*G*zeta_conj_pow3 , - 2*z1_pow3*K_pow2*m_diff*zeta_conj , 4*z1_pow3*K*m_diff*zeta_conj , - 2*z1_pow3*m_diff*zeta_conj , - 3*z1_pow2*G_pow2*m_diff_pow2 , - 6*z1_pow2*G*m_diff*zeta_conj_pow2 , z1_pow2*K_pow2*m_diff_pow2 , - 2*z1_pow2*K*m_diff_pow2 , z1_pow2*m_diff_pow2])
+        # coeff_2 = c_sum([12*total_m_pow3*z1*G , 5*total_m_pow2*zeta*z1_pow2*K , - 5*total_m_pow2*zeta*z1_pow2 , 3*total_m_pow2*z1_pow3*G_pow2 , - 5*total_m_pow2*z1_pow3*G*K , 5*total_m_pow2*z1_pow3*G , total_m_pow2*z1_pow3*K_pow2 , - 2*total_m_pow2*z1_pow3*K , total_m_pow2*z1_pow3 , - 15*total_m_pow2*z1_pow2*G*zeta_conj , 12*total_m_pow2*z1*G*m_diff , - total_m*zeta*z1_pow4*K_pow2 , 2*total_m*zeta*z1_pow4*K , - total_m*zeta*z1_pow4 , - 2*total_m*zeta*z1_pow3*K*zeta_conj , 2*total_m*zeta*z1_pow3*zeta_conj , 6*total_m*zeta*z1_pow2*K*m_diff , - 6*total_m*zeta*z1_pow2*m_diff , 2*total_m*z1_pow4*G*K*zeta_conj , - 2*total_m*z1_pow4*G*zeta_conj , 6*total_m*z1_pow3*G_pow2*m_diff , - 6*total_m*z1_pow3*G*K*m_diff , 6*total_m*z1_pow3*G*m_diff , 3*total_m*z1_pow3*G*zeta_conj_pow2 , - 18*total_m*z1_pow2*G*m_diff*zeta_conj , - zeta*z1_pow4*K_pow2*m_diff , 2*zeta*z1_pow4*K*m_diff , - zeta*z1_pow4*m_diff , - 2*zeta*z1_pow3*K*m_diff*zeta_conj , 2*zeta*z1_pow3*m_diff*zeta_conj , zeta*z1_pow2*K*m_diff_pow2 , - zeta*z1_pow2*m_diff_pow2 , 2*z1_pow4*G*K*m_diff*zeta_conj , - 2*z1_pow4*G*m_diff*zeta_conj , 3*z1_pow3*G_pow2*m_diff_pow2 , - z1_pow3*G*K*m_diff_pow2 , z1_pow3*G*m_diff_pow2 , 3*z1_pow3*G*m_diff*zeta_conj_pow2 , - z1_pow3*K_pow2*m_diff_pow2 , 2*z1_pow3*K*m_diff_pow2 , - z1_pow3*m_diff_pow2 , - 3*z1_pow2*G*m_diff_pow2*zeta_conj])
+        # coeff_1 = c_sum([-6*total_m_pow3*z1_pow2*G , - total_m_pow2*zeta*z1_pow3*K , total_m_pow2*zeta*z1_pow3 , total_m_pow2*z1_pow4*G*K , - total_m_pow2*z1_pow4*G , 3*total_m_pow2*z1_pow3*G*zeta_conj , - 12*total_m_pow2*z1_pow2*G*m_diff , - 2*total_m*zeta*z1_pow3*K*m_diff , 2*total_m*zeta*z1_pow3*m_diff , 2*total_m*z1_pow4*G*K*m_diff , - 2*total_m*z1_pow4*G*m_diff , 6*total_m*z1_pow3*G*m_diff*zeta_conj , - 6*total_m*z1_pow2*G*m_diff_pow2 , - zeta*z1_pow3*K*m_diff_pow2 , zeta*z1_pow3*m_diff_pow2 , z1_pow4*G*K*m_diff_pow2 , - z1_pow4*G*m_diff_pow2 , 3*z1_pow3*G*m_diff_pow2*zeta_conj])
+        # coeff_0 = c_sum([total_m_pow3*z1_pow3*G , 3*total_m_pow2*z1_pow3*G*m_diff , 3*total_m*z1_pow3*G*m_diff_pow2 , z1_pow3*G*m_diff_pow3])
+
+        coeff_9 = c_sum([-G*Gc_pow3 , Gc_pow2*K_pow2 , - 2*Gc_pow2*K , Gc_pow2])
+        coeff_8 = c_sum([zeta*Gc_pow2*K , - zeta*Gc_pow2 , 3*z1*G*Gc_pow3 , - z1*G*Gc_pow2*K , z1*G*Gc_pow2 , - 3*z1*Gc_pow2*K_pow2 , 6*z1*Gc_pow2*K , - 3*z1*Gc_pow2 , z1*Gc*K_pow3 , - 3*z1*Gc*K_pow2 , 3*z1*Gc*K , - z1*Gc , - 3*G*Gc_pow2*zeta_conj , 2*Gc*K_pow2*zeta_conj , - 4*Gc*K*zeta_conj , 2*Gc*zeta_conj])
+        coeff_7 = c_sum([-6*total_m*G*Gc_pow2 , 2*total_m*Gc*K_pow2 , - 4*total_m*Gc*K , 2*total_m*Gc , - 3*zeta*z1*Gc_pow2*K , 3*zeta*z1*Gc_pow2 , zeta*z1*Gc*K_pow2 , - 2*zeta*z1*Gc*K , zeta*z1*Gc , 2*zeta*Gc*K*zeta_conj , - 2*zeta*Gc*zeta_conj , - 3*z1_pow2*G*Gc_pow3 , 3*z1_pow2*G*Gc_pow2*K , - 3*z1_pow2*G*Gc_pow2 , 3*z1_pow2*Gc_pow2*K_pow2 , - 6*z1_pow2*Gc_pow2*K , 3*z1_pow2*Gc_pow2 , - 3*z1_pow2*Gc*K_pow3 , 9*z1_pow2*Gc*K_pow2 , - 9*z1_pow2*Gc*K , 3*z1_pow2*Gc , 9*z1*G*Gc_pow2*zeta_conj , - 2*z1*G*Gc*K*zeta_conj , 2*z1*G*Gc*zeta_conj , - 6*z1*Gc*K_pow2*zeta_conj , 12*z1*Gc*K*zeta_conj , - 6*z1*Gc*zeta_conj , z1*K_pow3*zeta_conj , - 3*z1*K_pow2*zeta_conj , 3*z1*K*zeta_conj , - z1*zeta_conj , - 3*G*Gc*zeta_conj_pow2 , K_pow2*zeta_conj_pow2 , - 2*K*zeta_conj_pow2 , zeta_conj_pow2])
+        coeff_6 = c_sum([4*total_m*zeta*Gc*K , - 4*total_m*zeta*Gc , 15*total_m*z1*G*Gc_pow2 , - 4*total_m*z1*G*Gc*K , 4*total_m*z1*G*Gc , - 4*total_m*z1*Gc*K_pow2 , 8*total_m*z1*Gc*K , - 4*total_m*z1*Gc , total_m*z1*K_pow3 , - 3*total_m*z1*K_pow2 , 3*total_m*z1*K , - total_m*z1 , - 12*total_m*G*Gc*zeta_conj , 2*total_m*K_pow2*zeta_conj , - 4*total_m*K*zeta_conj , 2*total_m*zeta_conj , 3*zeta*z1_pow2*Gc_pow2*K , - 3*zeta*z1_pow2*Gc_pow2 , - 3*zeta*z1_pow2*Gc*K_pow2 , 6*zeta*z1_pow2*Gc*K , - 3*zeta*z1_pow2*Gc , - 6*zeta*z1*Gc*K*zeta_conj , 6*zeta*z1*Gc*zeta_conj , zeta*z1*K_pow2*zeta_conj , - 2*zeta*z1*K*zeta_conj , zeta*z1*zeta_conj , zeta*K*zeta_conj_pow2 , - zeta*zeta_conj_pow2 , z1_pow3*G*Gc_pow3 , - 3*z1_pow3*G*Gc_pow2*K , 3*z1_pow3*G*Gc_pow2 , - z1_pow3*Gc_pow2*K_pow2 , 2*z1_pow3*Gc_pow2*K , - z1_pow3*Gc_pow2 , 3*z1_pow3*Gc*K_pow3 , - 9*z1_pow3*Gc*K_pow2 , 9*z1_pow3*Gc*K , - 3*z1_pow3*Gc , - 9*z1_pow2*G*Gc_pow2*zeta_conj , 6*z1_pow2*G*Gc*K*zeta_conj , - 6*z1_pow2*G*Gc*zeta_conj , 6*z1_pow2*Gc*K_pow2*zeta_conj , - 12*z1_pow2*Gc*K*zeta_conj , 6*z1_pow2*Gc*zeta_conj , - 3*z1_pow2*K_pow3*zeta_conj , 9*z1_pow2*K_pow2*zeta_conj , - 9*z1_pow2*K*zeta_conj , 3*z1_pow2*zeta_conj , 3*z1*G*Gc_pow2*m_diff , 9*z1*G*Gc*zeta_conj_pow2 , - z1*G*K*zeta_conj_pow2 , z1*G*zeta_conj_pow2 , - 2*z1*Gc*K_pow2*m_diff , 4*z1*Gc*K*m_diff , - 2*z1*Gc*m_diff , - z1*K_pow3*m_diff , 3*z1*K_pow2*m_diff , - 3*z1*K_pow2*zeta_conj_pow2 , - 3*z1*K*m_diff , 6*z1*K*zeta_conj_pow2 , z1*m_diff , - 3*z1*zeta_conj_pow2 , - G*zeta_conj_pow3])
+        coeff_5 = c_sum([-12*total_m_pow2*G*Gc , - 10*total_m*zeta*z1*Gc*K , 10*total_m*zeta*z1*Gc , 2*total_m*zeta*z1*K_pow2 , - 4*total_m*zeta*z1*K , 2*total_m*zeta*z1 , 4*total_m*zeta*K*zeta_conj , - 4*total_m*zeta*zeta_conj , - 12*total_m*z1_pow2*G*Gc_pow2 , 10*total_m*z1_pow2*G*Gc*K , - 10*total_m*z1_pow2*G*Gc , 2*total_m*z1_pow2*Gc*K_pow2 , - 4*total_m*z1_pow2*Gc*K , 2*total_m*z1_pow2*Gc , - 2*total_m*z1_pow2*K_pow3 , 6*total_m*z1_pow2*K_pow2 , - 6*total_m*z1_pow2*K , 2*total_m*z1_pow2 , 30*total_m*z1*G*Gc*zeta_conj , - 4*total_m*z1*G*K*zeta_conj , 4*total_m*z1*G*zeta_conj , - 4*total_m*z1*K_pow2*zeta_conj , 8*total_m*z1*K*zeta_conj , - 4*total_m*z1*zeta_conj , - 6*total_m*G*zeta_conj_pow2 , - zeta*z1_pow3*Gc_pow2*K , zeta*z1_pow3*Gc_pow2 , 3*zeta*z1_pow3*Gc*K_pow2 , - 6*zeta*z1_pow3*Gc*K , 3*zeta*z1_pow3*Gc , 6*zeta*z1_pow2*Gc*K*zeta_conj , - 6*zeta*z1_pow2*Gc*zeta_conj , - 3*zeta*z1_pow2*K_pow2*zeta_conj , 6*zeta*z1_pow2*K*zeta_conj , - 3*zeta*z1_pow2*zeta_conj , - 2*zeta*z1*Gc*K*m_diff , 2*zeta*z1*Gc*m_diff , - 3*zeta*z1*K*zeta_conj_pow2 , 3*zeta*z1*zeta_conj_pow2 , z1_pow4*G*Gc_pow2*K , - z1_pow4*G*Gc_pow2 , - z1_pow4*Gc*K_pow3 , 3*z1_pow4*Gc*K_pow2 , - 3*z1_pow4*Gc*K , z1_pow4*Gc , 3*z1_pow3*G*Gc_pow2*zeta_conj , - 6*z1_pow3*G*Gc*K*zeta_conj , 6*z1_pow3*G*Gc*zeta_conj , - 2*z1_pow3*Gc*K_pow2*zeta_conj , 4*z1_pow3*Gc*K*zeta_conj , - 2*z1_pow3*Gc*zeta_conj , 3*z1_pow3*K_pow3*zeta_conj , - 9*z1_pow3*K_pow2*zeta_conj , 9*z1_pow3*K*zeta_conj , - 3*z1_pow3*zeta_conj , - 6*z1_pow2*G*Gc_pow2*m_diff , 2*z1_pow2*G*Gc*K*m_diff , - 2*z1_pow2*G*Gc*m_diff , - 9*z1_pow2*G*Gc*zeta_conj_pow2 , 3*z1_pow2*G*K*zeta_conj_pow2 , - 3*z1_pow2*G*zeta_conj_pow2 , 4*z1_pow2*Gc*K_pow2*m_diff , - 8*z1_pow2*Gc*K*m_diff , 4*z1_pow2*Gc*m_diff , 2*z1_pow2*K_pow3*m_diff , - 6*z1_pow2*K_pow2*m_diff , 3*z1_pow2*K_pow2*zeta_conj_pow2 , 6*z1_pow2*K*m_diff , - 6*z1_pow2*K*zeta_conj_pow2 , - 2*z1_pow2*m_diff , 3*z1_pow2*zeta_conj_pow2 , 6*z1*G*Gc*m_diff*zeta_conj , 3*z1*G*zeta_conj_pow3 , - 2*z1*K_pow2*m_diff*zeta_conj , 4*z1*K*m_diff*zeta_conj , - 2*z1*m_diff*zeta_conj])
+        coeff_4 = c_sum([4*total_m_pow2*zeta*K , - 4*total_m_pow2*zeta , 24*total_m_pow2*z1*G*Gc , - 4*total_m_pow2*z1*G*K , 4*total_m_pow2*z1*G , 2*total_m_pow2*z1*K_pow2 , - 4*total_m_pow2*z1*K , 2*total_m_pow2*z1 , - 12*total_m_pow2*G*zeta_conj , 8*total_m*zeta*z1_pow2*Gc*K , - 8*total_m*zeta*z1_pow2*Gc , - 5*total_m*zeta*z1_pow2*K_pow2 , 10*total_m*zeta*z1_pow2*K , - 5*total_m*zeta*z1_pow2 , - 10*total_m*zeta*z1*K*zeta_conj , 10*total_m*zeta*z1*zeta_conj , 3*total_m*z1_pow3*G*Gc_pow2 , - 8*total_m*z1_pow3*G*Gc*K , 8*total_m*z1_pow3*G*Gc , total_m*z1_pow3*K_pow3 , - 3*total_m*z1_pow3*K_pow2 , 3*total_m*z1_pow3*K , - total_m*z1_pow3 , - 24*total_m*z1_pow2*G*Gc*zeta_conj , 10*total_m*z1_pow2*G*K*zeta_conj , - 10*total_m*z1_pow2*G*zeta_conj , 2*total_m*z1_pow2*K_pow2*zeta_conj , - 4*total_m*z1_pow2*K*zeta_conj , 2*total_m*z1_pow2*zeta_conj , 12*total_m*z1*G*Gc*m_diff , 15*total_m*z1*G*zeta_conj_pow2 , - 2*total_m*z1*K_pow2*m_diff , 4*total_m*z1*K*m_diff , - 2*total_m*z1*m_diff , - zeta*z1_pow4*Gc*K_pow2 , 2*zeta*z1_pow4*Gc*K , - zeta*z1_pow4*Gc , - 2*zeta*z1_pow3*Gc*K*zeta_conj , 2*zeta*z1_pow3*Gc*zeta_conj , 3*zeta*z1_pow3*K_pow2*zeta_conj , - 6*zeta*z1_pow3*K*zeta_conj , 3*zeta*z1_pow3*zeta_conj , 4*zeta*z1_pow2*Gc*K*m_diff , - 4*zeta*z1_pow2*Gc*m_diff , - zeta*z1_pow2*K_pow2*m_diff , 2*zeta*z1_pow2*K*m_diff , 3*zeta*z1_pow2*K*zeta_conj_pow2 , - zeta*z1_pow2*m_diff , - 3*zeta*z1_pow2*zeta_conj_pow2 , - 2*zeta*z1*K*m_diff*zeta_conj , 2*zeta*z1*m_diff*zeta_conj , 2*z1_pow4*G*Gc*K*zeta_conj , - 2*z1_pow4*G*Gc*zeta_conj , - z1_pow4*K_pow3*zeta_conj , 3*z1_pow4*K_pow2*zeta_conj , - 3*z1_pow4*K*zeta_conj , z1_pow4*zeta_conj , 3*z1_pow3*G*Gc_pow2*m_diff , - 4*z1_pow3*G*Gc*K*m_diff , 4*z1_pow3*G*Gc*m_diff , 3*z1_pow3*G*Gc*zeta_conj_pow2 , - 3*z1_pow3*G*K*zeta_conj_pow2 , 3*z1_pow3*G*zeta_conj_pow2 , - 2*z1_pow3*Gc*K_pow2*m_diff , 4*z1_pow3*Gc*K*m_diff , - 2*z1_pow3*Gc*m_diff , - z1_pow3*K_pow3*m_diff , 3*z1_pow3*K_pow2*m_diff , - z1_pow3*K_pow2*zeta_conj_pow2 , - 3*z1_pow3*K*m_diff , 2*z1_pow3*K*zeta_conj_pow2 , z1_pow3*m_diff , - z1_pow3*zeta_conj_pow2 , - 12*z1_pow2*G*Gc*m_diff*zeta_conj , 2*z1_pow2*G*K*m_diff*zeta_conj , - 2*z1_pow2*G*m_diff*zeta_conj , - 3*z1_pow2*G*zeta_conj_pow3 , 4*z1_pow2*K_pow2*m_diff*zeta_conj , - 8*z1_pow2*K*m_diff*zeta_conj , 4*z1_pow2*m_diff*zeta_conj , 3*z1*G*m_diff*zeta_conj_pow2])
+        coeff_3 = c_sum([-8*total_m_pow3*G , - 8*total_m_pow2*zeta*z1*K , 8*total_m_pow2*zeta*z1 , - 15*total_m_pow2*z1_pow2*G*Gc , 8*total_m_pow2*z1_pow2*G*K , - 8*total_m_pow2*z1_pow2*G , - 3*total_m_pow2*z1_pow2*K_pow2 , 6*total_m_pow2*z1_pow2*K , - 3*total_m_pow2*z1_pow2 , 24*total_m_pow2*z1*G*zeta_conj , - 2*total_m*zeta*z1_pow3*Gc*K , 2*total_m*zeta*z1_pow3*Gc , 4*total_m*zeta*z1_pow3*K_pow2 , - 8*total_m*zeta*z1_pow3*K , 4*total_m*zeta*z1_pow3 , 8*total_m*zeta*z1_pow2*K*zeta_conj , - 8*total_m*zeta*z1_pow2*zeta_conj , - 4*total_m*zeta*z1*K*m_diff , 4*total_m*zeta*z1*m_diff , 2*total_m*z1_pow4*G*Gc*K , - 2*total_m*z1_pow4*G*Gc , 6*total_m*z1_pow3*G*Gc*zeta_conj , - 8*total_m*z1_pow3*G*K*zeta_conj , 8*total_m*z1_pow3*G*zeta_conj , - 18*total_m*z1_pow2*G*Gc*m_diff , 4*total_m*z1_pow2*G*K*m_diff , - 4*total_m*z1_pow2*G*m_diff , - 12*total_m*z1_pow2*G*zeta_conj_pow2 , 2*total_m*z1_pow2*K_pow2*m_diff , - 4*total_m*z1_pow2*K*m_diff , 2*total_m*z1_pow2*m_diff , 12*total_m*z1*G*m_diff*zeta_conj , - zeta*z1_pow4*K_pow2*zeta_conj , 2*zeta*z1_pow4*K*zeta_conj , - zeta*z1_pow4*zeta_conj , - 2*zeta*z1_pow3*Gc*K*m_diff , 2*zeta*z1_pow3*Gc*m_diff , 2*zeta*z1_pow3*K_pow2*m_diff , - 4*zeta*z1_pow3*K*m_diff , - zeta*z1_pow3*K*zeta_conj_pow2 , 2*zeta*z1_pow3*m_diff , zeta*z1_pow3*zeta_conj_pow2 , 4*zeta*z1_pow2*K*m_diff*zeta_conj , - 4*zeta*z1_pow2*m_diff*zeta_conj , 2*z1_pow4*G*Gc*K*m_diff , - 2*z1_pow4*G*Gc*m_diff , z1_pow4*G*K*zeta_conj_pow2 , - z1_pow4*G*zeta_conj_pow2 , 6*z1_pow3*G*Gc*m_diff*zeta_conj , - 4*z1_pow3*G*K*m_diff*zeta_conj , 4*z1_pow3*G*m_diff*zeta_conj , z1_pow3*G*zeta_conj_pow3 , - 2*z1_pow3*K_pow2*m_diff*zeta_conj , 4*z1_pow3*K*m_diff*zeta_conj , - 2*z1_pow3*m_diff*zeta_conj , - 3*z1_pow2*G*Gc*m_diff_pow2 , - 6*z1_pow2*G*m_diff*zeta_conj_pow2 , z1_pow2*K_pow2*m_diff_pow2 , - 2*z1_pow2*K*m_diff_pow2 , z1_pow2*m_diff_pow2])
+        coeff_2 = c_sum([12*total_m_pow3*z1*G , 5*total_m_pow2*zeta*z1_pow2*K , - 5*total_m_pow2*zeta*z1_pow2 , 3*total_m_pow2*z1_pow3*G*Gc , - 5*total_m_pow2*z1_pow3*G*K , 5*total_m_pow2*z1_pow3*G , total_m_pow2*z1_pow3*K_pow2 , - 2*total_m_pow2*z1_pow3*K , total_m_pow2*z1_pow3 , - 15*total_m_pow2*z1_pow2*G*zeta_conj , 12*total_m_pow2*z1*G*m_diff , - total_m*zeta*z1_pow4*K_pow2 , 2*total_m*zeta*z1_pow4*K , - total_m*zeta*z1_pow4 , - 2*total_m*zeta*z1_pow3*K*zeta_conj , 2*total_m*zeta*z1_pow3*zeta_conj , 6*total_m*zeta*z1_pow2*K*m_diff , - 6*total_m*zeta*z1_pow2*m_diff , 2*total_m*z1_pow4*G*K*zeta_conj , - 2*total_m*z1_pow4*G*zeta_conj , 6*total_m*z1_pow3*G*Gc*m_diff , - 6*total_m*z1_pow3*G*K*m_diff , 6*total_m*z1_pow3*G*m_diff , 3*total_m*z1_pow3*G*zeta_conj_pow2 , - 18*total_m*z1_pow2*G*m_diff*zeta_conj , - zeta*z1_pow4*K_pow2*m_diff , 2*zeta*z1_pow4*K*m_diff , - zeta*z1_pow4*m_diff , - 2*zeta*z1_pow3*K*m_diff*zeta_conj , 2*zeta*z1_pow3*m_diff*zeta_conj , zeta*z1_pow2*K*m_diff_pow2 , - zeta*z1_pow2*m_diff_pow2 , 2*z1_pow4*G*K*m_diff*zeta_conj , - 2*z1_pow4*G*m_diff*zeta_conj , 3*z1_pow3*G*Gc*m_diff_pow2 , - z1_pow3*G*K*m_diff_pow2 , z1_pow3*G*m_diff_pow2 , 3*z1_pow3*G*m_diff*zeta_conj_pow2 , - z1_pow3*K_pow2*m_diff_pow2 , 2*z1_pow3*K*m_diff_pow2 , - z1_pow3*m_diff_pow2 , - 3*z1_pow2*G*m_diff_pow2*zeta_conj])
+        coeff_1 = c_sum([-6*total_m_pow3*z1_pow2*G , - total_m_pow2*zeta*z1_pow3*K , total_m_pow2*zeta*z1_pow3 , total_m_pow2*z1_pow4*G*K , - total_m_pow2*z1_pow4*G , 3*total_m_pow2*z1_pow3*G*zeta_conj , - 12*total_m_pow2*z1_pow2*G*m_diff , - 2*total_m*zeta*z1_pow3*K*m_diff , 2*total_m*zeta*z1_pow3*m_diff , 2*total_m*z1_pow4*G*K*m_diff , - 2*total_m*z1_pow4*G*m_diff , 6*total_m*z1_pow3*G*m_diff*zeta_conj , - 6*total_m*z1_pow2*G*m_diff_pow2 , - zeta*z1_pow3*K*m_diff_pow2 , zeta*z1_pow3*m_diff_pow2 , z1_pow4*G*K*m_diff_pow2 , - z1_pow4*G*m_diff_pow2 , 3*z1_pow3*G*m_diff_pow2*zeta_conj])
+        coeff_0 = c_sum([total_m_pow3*z1_pow3*G , 3*total_m_pow2*z1_pow3*G*m_diff , 3*total_m*z1_pow3*G*m_diff_pow2 , z1_pow3*G*m_diff_pow3])
+
+        # coeff_2 = c_sum([K * zeta_conj, - zeta_conj])
+        # coeff_1 = zeta * zeta_conj
+        # coeff_0 = zeta
+
+        # coeff_5 = c_sum([z1, -zeta_conj]) * zeta_conj
+        # coeff_4 = c_sum([
+        #     (-m_diff + total_m) * z1,
+        #     -c_sum([2. * total_m, z1 * c_sum([2. * z1, zeta])]) * zeta_conj,
+        #     c_sum([2. * z1 + zeta]) * zeta_conj**2
+        #     ])
+        # coeff_3 = c_sum([
+        #     z1 * c_sum([m_diff * z1, -total_m * c_sum([z1, 2. * zeta])]),
+        #     zeta_conj * c_sum([
+        #         2. * m_diff * z1,
+        #         c_sum([2. * total_m, z1**2]) * c_sum([z1, 2. * zeta])
+        #         ]),
+        #     -z1 * c_sum([z1, 2. * zeta]) * zeta_conj**2
+        #     ])
+        # coeff_2 = c_sum([
+        #     m_diff * z1 * c_sum([2. * total_m, z1 * zeta]),
+        #     total_m * c_sum([
+        #         -2. * total_m * z1, 4. * total_m * zeta, 3. * z1**2 * zeta]),
+        #     -z1 * zeta_conj * c_sum([
+        #         zeta * c_sum([6. * total_m, z1**2]),
+        #         2. * m_diff * c_sum([z1, zeta])
+        #         ]),
+        #     z1**2 * zeta * zeta_conj**2
+        #     ])
+        # coeff_1 = -z1 * (m_diff + total_m) * c_sum([
+        #     m_diff * z1, -total_m * z1, 4. * total_m * zeta, z1**2 * zeta,
+        #     -2. * z1 * zeta * zeta_conj
+        #     ])
+        # coeff_0 = (m_diff + total_m)**2 * z1**2 * zeta
+
+        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5, coeff_6, coeff_7, coeff_8, coeff_9]
+        return np.array(coeffs_list).reshape(10)
 
     def _get_polynomial_roots(self, source_x, source_y):
         """roots of the polynomial"""
-        polynomial_input = [self.mass_1, self.mass_2, self.separation,
+        polynomial_input = [self.mass_1, self.mass_2, self.separation, self.K, self.G,
                             source_x, source_y]
 
         if polynomial_input == self._last_polynomial_input:
@@ -256,14 +354,19 @@ class BinaryLens(object):
         elif self._solver == 'Skowron_and_Gould_12':
             args = polynomial.real.tolist() + polynomial.imag.tolist()
             try:
-                out = _vbbl_SG12_5(*args)
+                #out = _vbbl_SG12_5(*args)
+                out = _vbbl_SG12_9(*args)
+                #out = _vbbl_SG12_2(*args)
             except ValueError as err:
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
                 warnings.warn(str(err) + err2, UserWarning)
                 self._solver = 'numpy'
                 self._polynomial_roots = np_polyroots(polynomial)
             else:
-                roots = [out[i] + out[i+5] * 1.j for i in range(5)]
+                #roots = [out[i] + out[i+5] * 1.j for i in range(5)]
+                roots = [out[i] + out[i+9] * 1.j for i in range(9) if ((abs(out[i]) > 1e-10 or abs(out[i+9]) > 1e-10) 
+                        and (abs(out[i] - self._position_z1) > 1e-10 or abs(out[i+9]) > 1e-10))]
+                # roots = [out[i] + out[i+2] * 1.j for i in range(2)]
                 self._polynomial_roots = np.array(roots)
         else:
             raise ValueError('Unknown solver: {:}'.format(self._solver))
@@ -279,8 +382,10 @@ class BinaryLens(object):
 
         component2 = self.mass_1 / np.conjugate(roots - self._position_z1)
         component3 = self.mass_2 / np.conjugate(roots - self._position_z2)
-        solutions = self._zeta + component2 + component3
+        solutions = (self._zeta + self.G * np.conjugate(roots) + component2 + component3) / (1 - self.K)
+        # solutions = (self._zeta + 1 / np.conjugate(roots)) / (1 - self.K)
         # This backs-up the lens equation.
+
 
         out = []
         distances = []
@@ -296,7 +401,8 @@ class BinaryLens(object):
 
         # If the lens equation is solved correctly, there should be
         # either 3 or 5 solutions (corresponding to 3 or 5 images)
-        if len(out) not in [3, 5]:
+        # print("Number of solutions: ", len(out))
+        if len(out) not in [1,2,3,4,5,6,7,8,9]:
             msg = ("Wrong number of solutions to the lens equation of binary" +
                    " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
                    "(m1, m2, s, source_x, source_y, solver) are:\n" +
@@ -326,7 +432,6 @@ class BinaryLens(object):
             txt += "\nMulensModel version: {:}".format(MulensModel.__version__)
 
             raise ValueError(txt)
-
         if return_distances:
             return (np.array(out), np.array(distances))
         else:
@@ -339,9 +444,9 @@ class BinaryLens(object):
         # Variable X_bar is conjugate of variable X.
         add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
         add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
-        derivative = add_1 + add_2
-
-        return 1. - derivative * np.conjugate(derivative)
+        derivative = add_1 + add_2 - self.G
+        # derivative = 1 / (roots_ok_bar)**2
+        return (1.- self.K)**2 - derivative * np.conjugate(derivative)
 
     def _signed_magnification(self, source_x, source_y):
         """signed magnification for each image separately"""
@@ -378,7 +483,7 @@ class BinaryLens(object):
                 Point source magnification.
         """
         if self._use_planet_frame:
-            x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
+            x_shift = -self.mass_1 / (self.mass_1 + self.mass_2) 
         else:
             x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
         x_shift *= self.separation
@@ -652,8 +757,12 @@ class BinaryLens(object):
         x = float(source_x)
         y = float(source_y)
 
-        magnification = _vbbl_binary_mag_dark(
-            s, q, x, y, rho, u_limb_darkening, accuracy)
+        #magnification = _vbbl_binary_mag_dark(
+        #    s, q, x, y, rho, u_limb_darkening, accuracy)
+        # magnification = _vbbl_binary_mag(
+        #    s, q, x, y, rho, accuracy)
+        magnification = _vbbl_binary_mag_0(
+            s, q, x, y, self.K, self.G.real, self.G.imag)
 
         return magnification
         # To get the image positions from VBBL, following C++ code has

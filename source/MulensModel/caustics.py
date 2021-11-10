@@ -18,7 +18,7 @@ class Caustics(object):
             Einstein ring)
     """
 
-    def __init__(self, q, s):
+    def __init__(self, q, s, K, G):
         # Set s, q
         if isinstance(q, (list, np.ndarray)):
             if len(q) > 1:
@@ -28,6 +28,8 @@ class Caustics(object):
                 q = q[0]
         self.q = q
         self.s = s
+        self.K = K
+        self.G = G
 
         # Set place holder variables
         self._x = None
@@ -115,14 +117,15 @@ class Caustics(object):
         # Solve for the critical curve (and caustic) in complex coordinates.
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
-            eiphi = np.complex(cos(phi), sin(phi))
+            #eiphi = np.complex(cos(phi), sin(phi))
+            e_iphi = self.G + (1-self.K) * np.complex(cos(phi), -sin(phi))
 
             # Coefficients of Eq. 6
-            coeff_4 = 1.
-            coeff_3 = -2. * self.s
-            coeff_2 = Utils.complex_fsum([self.s**2, -eiphi])
-            coeff_1 = 2. * self.s * eiphi / (1. + self.q)
-            coeff_0 = -self.s**2 * eiphi / (1. + self.q)
+            coeff_4 = 1. * e_iphi
+            coeff_3 = -2. * self.s * e_iphi
+            coeff_2 = Utils.complex_fsum([e_iphi * self.s**2, - 1 ])
+            coeff_1 = 2. * self.s / (1. + self.q)
+            coeff_0 = -self.s**2 / (1. + self.q)
 
             # Find roots
             coeff_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4]
