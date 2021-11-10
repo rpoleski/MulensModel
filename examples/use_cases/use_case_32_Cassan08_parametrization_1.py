@@ -12,10 +12,10 @@ in typical cases and it is advantageous to use them as fitting parameters.
 """
 import matplotlib.pyplot as plt
 
-import MulensModel as MM
+import MulensModel as mm
 
 
-model = MM.Model({'s': 1.01, 'q': 0.1, 'rho': 0.002,
+model = mm.Model({'s': 1.01, 'q': 0.1, 'rho': 0.002,
                   'x_caustic_in': 0.15, 'x_caustic_out': 0.84,
                   't_caustic_in': 6543.123, 't_caustic_out': 6550.987})
 

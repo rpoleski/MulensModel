@@ -31,39 +31,38 @@ planet = mm.Model(
      'rho': rho})
 planet.set_magnification_methods([3589., 'VBBL', 3595.])
 
-# Plot PSPL model
+# F1: Plot PSPL model
 plt.figure()
 pspl.plot_magnification()
 plt.title('A Point Lens Model')
 
-# Plot PSPL model in magnitudes with arbitrary blending
+# F2: Plot PSPL model in magnitudes with arbitrary blending
 plt.figure()
-pspl.plot_lc(f_source=1.0, f_blend=0.0, label='fs=1.0, fb=0.0')
-pspl.plot_lc(f_source=0.5, f_blend=0.5, label='fs=0.5, fb=0.5')
+pspl.plot_lc(source_flux=1.0, blend_flux=0.0, label='fs=1.0, fb=0.0')
+pspl.plot_lc(source_flux=0.5, blend_flux=0.5, label='fs=0.5, fb=0.5')
 plt.legend(loc='best')
 plt.title('A Point Lens Model in Magnitudes')
 
-# Plot planet and PSPL models and show difference in magnification at
-# planet perturbation
+# F3: Plot planet and PSPL models
 plt.figure()
 pspl.plot_magnification(
-    color='blue', linestyle=':', zorder=1, label='Point Lens')
+    color='blue', linestyle=':', zorder=2, label='Point Lens')
 planet.plot_magnification(
-    color='red', linestyle='-', zorder=2, label='Planet')
+    color='red', linestyle='-', zorder=1, label='Planet')
 plt.title('Planet vs. Point Lens Models')
 plt.legend(loc='best')
 
-# Plot detail of the planet perturbation
+# F4: Plot detail of the planet perturbation
 plt.figure()
 planet.plot_magnification(
     t_range=[3592, 3593], color='red', linestyle='-', zorder=2, label='Planet')
 plt.title('Planetary Perturbation Detail')
 
-# Plot source trajectory and caustic
+# F5: Plot source trajectory and caustic
 plt.figure()
 planet.plot_trajectory(t_range=[t_0 - t_E / 2., t_0], color='red',
                        caustics=True, arrow=False)
-planet.plot_trajectory(t_range=[t_0, t_0 + t_E], color='blue')
+planet.plot_trajectory(t_range=[t_0, t_0 + t_E], linestyle=':', color='blue')
 plt.axis('equal')
 plt.title('Source Trajectory')
 

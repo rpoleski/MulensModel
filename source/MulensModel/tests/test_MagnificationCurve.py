@@ -3,6 +3,16 @@ import numpy as np
 import MulensModel as mm
 
 
+def test_magnification_type():
+    """
+    Check type of magnification returned for model with t_eff.
+    At some point it was astropy quantity.
+    """
+    parameters = mm.ModelParameters({'t_0': 1., 't_eff': 0.2, 't_E': 3.})
+    magnification_curve = mm.MagnificationCurve(2., parameters)
+    assert type(magnification_curve.get_magnification()) == np.ndarray
+
+
 def test_fspl_noLD():
     """
     check if FSPL magnification is calculate properly
@@ -63,9 +73,9 @@ def test_fspl():
     np.testing.assert_almost_equal(expected/results, 1., decimal=4)
 
 
-def test_Lee09():
+def test_Lee09_and_WittMao94():
     """
-    test Lee+2009 finite source calculation
+    test Lee et al. 2009 and Witt & Mao 1994 finite source calculation
     """
     t_vec = np.array([3.5, 2., 1., 0.5, 0.])
 
@@ -101,6 +111,17 @@ def test_Lee09():
     results_1 = mag_curve_1.get_point_lens_magnification()
     np.testing.assert_almost_equal(expected_1, results_1, decimal=3)
 
+    # Tests for Witt & Mao 1994 start here
+    methods_2 = [-5., 'finite_source_uniform_WittMao94', 5.]
+    mag_curve_0.set_magnification_methods(methods_2, 'point_source')
+    results_2 = mag_curve_0.get_point_lens_magnification()
+    np.testing.assert_almost_equal(expected_0, results_2, decimal=4)
+
+    methods_3 = [-5., 'finite_source_LD_WittMao94', 5.]
+    mag_curve_1.set_magnification_methods(methods_3, 'point_source')
+    results_3 = mag_curve_1.get_point_lens_magnification()
+    np.testing.assert_almost_equal(expected_1, results_3, decimal=3)
+
 
 def test_PSPL_for_binary():
     """
@@ -116,4 +137,4 @@ def test_PSPL_for_binary():
     mag_curve.set_magnification_methods(None, 'point_source_point_lens')
     u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
-    np.testing.assert_almost_equal(pspl, mag_curve.magnification)
+    np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())

@@ -1,19 +1,19 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MulensModel.caustics module &#8212; MulensModel 1.14.25 documentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MulensModel.caustics module &#8212; MulensModel 2.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -28,39 +28,39 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="module-MulensModel.caustics">
 <span id="mulensmodel-caustics-module"></span><h1>MulensModel.caustics module<a class="headerlink" href="#module-MulensModel.caustics" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="MulensModel.caustics.Caustics">
-<em class="property">class </em><code class="descclassname">MulensModel.caustics.</code><code class="descname">Caustics</code><span class="sig-paren">(</span><em>q</em>, <em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">MulensModel.caustics.</code><code class="sig-name descname">Caustics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">s</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for the caustic structure corresponding to a given (<em>q</em>, <em>s</em>),
 i.e. mass ratio and separation. Implemented for 2-body lenses only.</p>
-<dl class="docutils">
-<dt>Attributes :</dt>
-<dd><dl class="first last docutils">
-<dt>q: <em>float</em></dt>
-<dd>mass ratio between the 2 bodies; always &lt;= 1</dd>
-<dt>s: <em>float</em></dt>
-<dd>separation between the 2 bodies (as a fraction of the
-Einstein ring)</dd>
+<dl class="simple">
+<dt>Attributes :</dt><dd><dl class="simple">
+<dt>q: <em>float</em></dt><dd><p>mass ratio between the 2 bodies; always &lt;= 1</p>
+</dd>
+<dt>s: <em>float</em></dt><dd><p>separation between the 2 bodies (as a fraction of the
+Einstein ring)</p>
+</dd>
 </dl>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="MulensModel.caustics.Caustics.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>n_points=5000</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_points</span><span class="o">=</span><span class="default_value">5000</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the caustics using <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.scatter()</span></code>.</p>
-<dl class="docutils">
-<dt>Parameters :</dt>
-<dd><dl class="first last docutils">
-<dt>n_points: <em>int</em>, optional</dt>
-<dd>The number of points to calculate along the caustic.
-Defaults to 5000.</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt>
-<dd>keywords accepted by <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.scatter()</span></code></dd>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>n_points: <em>int</em>, optional</dt><dd><p>The number of points to calculate along the caustic.
+Defaults to 5000.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt><dd><p>keywords accepted by <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.scatter()</span></code></p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -70,48 +70,45 @@ To mitigate this, use:
 (the other possible options are <code class="docutils literal notranslate"><span class="pre">'scaled'</span></code> or <code class="docutils literal notranslate"><span class="pre">'square'</span></code>).</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="MulensModel.caustics.Caustics.get_caustics">
-<code class="descname">get_caustics</code><span class="sig-paren">(</span><em>n_points=5000</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.get_caustics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_caustics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_points</span><span class="o">=</span><span class="default_value">5000</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.get_caustics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns x and y vectors corresponding to the outlines of the
 caustics.  Origin is center of mass and larger mass is on the
 left (for <em>q</em> &lt; 1).</p>
-<dl class="docutils">
-<dt>Parameters:</dt>
-<dd><dl class="first last docutils">
-<dt>n_points <span class="classifier-delimiter">:</span> <span class="classifier"><em>int</em>, optional</span></dt>
-<dd>The number of points to calculate along the caustic.</dd>
+<dl>
+<dt>Parameters:</dt><dd><dl>
+<dt>n_points<span class="classifier"><em>int</em>, optional</span></dt><dd><p>The number of points to calculate along the caustic.</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>x, y <span class="classifier-delimiter">:</span> <span class="classifier"><em>list</em></span></dt>
-<dd>Two lists of length <em>n_points</em> giving the <em>x</em>, <em>y</em>
-coordinates of the caustic points.</dd>
+<dt>Returns:</dt><dd><dl>
+<dt>x, y<span class="classifier"><em>list</em></span></dt><dd><p>Two lists of length <em>n_points</em> giving the <em>x</em>, <em>y</em>
+coordinates of the caustic points.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="MulensModel.caustics.Caustics.critical_curve">
-<code class="descname">critical_curve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">critical_curve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Critical curve stored as <a class="reference internal" href="#MulensModel.caustics.Caustics.CriticalCurve" title="MulensModel.caustics.Caustics.CriticalCurve"><code class="xref py py-class docutils literal notranslate"><span class="pre">CriticalCurve</span></code></a> object, read-only</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="MulensModel.caustics.Caustics.CriticalCurve">
-<em class="property">class </em><code class="descname">CriticalCurve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.CriticalCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-name descname">CriticalCurve</code><a class="headerlink" href="#MulensModel.caustics.Caustics.CriticalCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Internal class of <a class="reference internal" href="#MulensModel.caustics.Caustics" title="MulensModel.caustics.Caustics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Caustics</span></code></a>. Defines the critical
 curve (in the lens plane). Origin is center of mass with
 larger mass on the left (<em>q</em> &lt; 1).</p>
-<dl class="docutils">
-<dt>Attributes :</dt>
-<dd><dl class="first last docutils">
-<dt>x, y <span class="classifier-delimiter">:</span> <span class="classifier"><em>list</em></span></dt>
-<dd>Two lists of length <em>n_points</em> giving the x, y
-coordinates of the caustic points.</dd>
+<dl>
+<dt>Attributes :</dt><dd><dl>
+<dt>x, y<span class="classifier"><em>list</em></span></dt><dd><p>Two lists of length <em>n_points</em> giving the x, y
+coordinates of the caustic points.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -123,35 +120,54 @@ coordinates of the caustic points.</dd>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MulensModel</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pspl.html">Fitting tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pi_E.html">Parallax fitting tutorial</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/MulensModel.caustics.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -160,8 +176,8 @@ coordinates of the caustic points.</dd>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/MulensModel.caustics.rst.txt"

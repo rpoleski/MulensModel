@@ -11,7 +11,7 @@ import emcee
 from matplotlib import pyplot as plt
 import configparser
 
-import MulensModel as MM
+import MulensModel as mm
 
 import example_15_read as read
 
@@ -86,6 +86,8 @@ def generate_random_parameters(parameters, starting, n):
             beg = np.log(settings[1])
             end = np.log(settings[2])
             v = np.exp(np.random.uniform(beg, end, n))
+        else:
+            raise ValueError('Unrecognized keyword: ' + settings[0])
         values.append(v)
     return np.array(values).T.tolist()
 
@@ -109,7 +111,7 @@ emcee_settings = read.read_emcee_settings(config)
 other_settings = read.read_other(config)
 
 # Read photometric data.
-datasets = [MM.MulensData(file_name=f[0], phot_fmt=f[1]) for f in files]
+datasets = [mm.MulensData(file_name=f[0], phot_fmt=f[1]) for f in files]
 
 # Generate starting values of parameters.
 start = generate_random_parameters(parameters, starting,
@@ -118,12 +120,12 @@ start = generate_random_parameters(parameters, starting,
 # Setup Event instance that combines model and data.
 par = dict(zip(parameters, start[0]))
 par = {**par, **fixed_parameters}
-my_model = MM.Model(par, coords=model_settings['coords'])
+my_model = mm.Model(par, coords=model_settings['coords'])
 if 'methods' in model_settings:
     my_model.set_magnification_methods(model_settings['methods'])
 if 'default_method' in model_settings:
     my_model.set_default_magnification_method(model_settings['default_method'])
-my_event = MM.Event(datasets=datasets, model=my_model)
+my_event = mm.Event(datasets=datasets, model=my_model)
 
 # Prepare sampler.
 n_dim = len(parameters)
@@ -148,10 +150,19 @@ for i in range(n_dim):
     else:
         fmt = "{:} {:.5f} +{:.5f} -{:.5f}"
     print(fmt.format(parameters[i], r_50[i], r_84[i]-r_50[i], r_50[i]-r_16[i]))
-print("Smallest chi2 model:")
-best = [my_event.best_chi2_parameters[p] for p in parameters]
-print(*[b if isinstance(b, float) else b.value for b in best])
-print(my_event.best_chi2)
+
+# We extract best model parameters and chi2 from the chain:
+prob = sampler.lnprobability[:, burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
+print("\nSmallest chi2 model:")
+print(*[repr(b) if isinstance(b, float) else b.value for b in best])
+print(best_chi2)
+for (i, parameter) in enumerate(parameters):
+    setattr(my_event.model.parameters, parameter, best[i])
+
+my_event.fit_fluxes()
 
 # Plot results.
 ln_like(best, my_event, parameters, False)  # This allows plotting of

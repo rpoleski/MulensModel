@@ -8,6 +8,7 @@ with source flux ratio as a chain parameter.
 import os
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 try:
     import emcee
 except ImportError as err:
@@ -16,9 +17,12 @@ except ImportError as err:
     print("Get it from: http://dfm.io/emcee/current/user/install/")
     print("and re-run the script")
     sys.exit(1)
-import matplotlib.pyplot as plt
 
 import MulensModel as mm
+
+
+# Fix the seed for the random number generator so the behavior is reproducible.
+np.random.seed(12343)
 
 
 # Define likelihood functions
@@ -27,9 +31,11 @@ def ln_like(theta, event, parameters_to_fit):
     for (param, theta_) in zip(parameters_to_fit, theta):
         # Here we handle fixing source flux ratio:
         if param == 'flux_ratio':
-            event.model.set_source_flux_ratio(theta_)
+            # implemented for a single dataset
+            event.fix_source_flux_ratio = {my_dataset: theta_}
         else:
             setattr(event.model.parameters, param, theta_)
+
     return -0.5 * event.get_chi2()
 
 
@@ -92,19 +98,18 @@ def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
         print(msg.format(r, results[2, i]-r, r-results[0, i]))
 
     # We extract best model parameters and chi2 from event:
-    print("\nSmallest chi2 model:")
-    if "flux_ratio" in parameters_to_fit:
-        parameters_to_fit.pop(parameters_to_fit.index("flux_ratio"))
-    best = [event.best_chi2_parameters[p] for p in parameters_to_fit]
-    print(*[repr(b) if isinstance(b, float) else b.value for b in best])
-    print('chi^2 =', event.best_chi2)
+    prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+    best_index = np.argmax(prob)
+    best = samples[best_index, :]
+    for key, val in enumerate(parameters_to_fit):
+        if val == 'flux_ratio':
+            event.fix_source_flux_ratio = {my_dataset: best[key]}
+        else:
+            setattr(event.model.parameters, val, best[key])
 
-    # Set model parameters to best value. Note that
-    # event.model.parameters does not know flux_ratio.
-    for param in parameters_to_fit:
-        if param != 'flux_ratio':
-            setattr(event.model.parameters, param,
-                    event.best_chi2_parameters[param])
+    print("\nSmallest chi2 model:")
+    print(*[repr(b) if isinstance(b, float) else b.value for b in best])
+    print("chi2 = ", event.get_chi2())
 
 
 # First, prepare the data. There is nothing very exciting in this part,
@@ -123,9 +128,9 @@ time_a = np.linspace(6000., 6300., n_a)
 time_b = np.linspace(6139., 6141., n_b)
 time = np.sort(np.concatenate((time_a, time_b)))
 model_1 = mm.Model({'t_0': t_0_1, 'u_0': u_0_1, 't_E': t_E})
-A_1 = model_1.magnification(time)
+A_1 = model_1.get_magnification(time)
 model_2 = mm.Model({'t_0': t_0_2, 'u_0': u_0_2, 't_E': t_E})
-A_2 = model_2.magnification(time)
+A_2 = model_2.get_magnification(time)
 flux = A_1 * assumed_flux_1 + A_2 * assumed_flux_2 + assumed_flux_blend
 flux_err = 6. + 0. * time
 flux += flux_err * np.random.normal(size=n_a+n_b)

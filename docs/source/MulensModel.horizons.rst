@@ -2,6 +2,6 @@ MulensModel.horizons module
 ===========================
 
 .. automodule:: MulensModel.horizons
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -12,6 +12,9 @@ SAMPLE_FILE_01 = os.path.join(
 
 
 def test_model_coords():
+    """
+    Test Model.coords and different changes of format.
+    """
     coords = SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
     model_1 = mm.Model({'t_0': 2450000, 'u_0': 0.1, 't_E': 100},
                        coords='18:00:00 -30:00:00')
@@ -25,39 +28,21 @@ def test_model_coords():
     assert model_3.coords.to_string('hmsdms') == '17h00m00s -27d32m14s'
 
 
-def test_data_coords():
-    coords = SkyCoord('18:00:00 -30:00:00', unit=(u.hourangle, u.deg))
-    data_1 = mm.MulensData(
-        file_name=SAMPLE_FILE_01,
-        coords='18:00:00 -30:00:00')
-    assert isinstance(data_1.coords, SkyCoord)
-    assert data_1.coords.ra == coords.ra
-    assert data_1.coords.dec == coords.dec
-    assert data_1.coords.dec.deg == -30.00
-
-    data_3 = mm.MulensData(file_name=SAMPLE_FILE_01)
-    data_3.coords = '17:00:00 -27:32:14'
-    assert data_3.coords.to_string('hmsdms') == '17h00m00s -27d32m14s'
-
-
 def test_event_coords():
+    """
+    Test Event.coords and different changes of format.
+    """
     coord_str_event = '15h30m00s +45d00m00s'
-    data = mm.MulensData(
-        file_name=SAMPLE_FILE_01,
-        coords='00:00:15 -75:30:15')
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.})
 
     event = mm.Event(datasets=data, model=model, coords='15:30:00 45:00:00')
     assert event.coords.to_string('hmsdms') == coord_str_event
     assert event.model.coords.to_string('hmsdms') == coord_str_event
-    assert event.datasets[0].coords.to_string('hmsdms') == coord_str_event
 
-    coord_str_data = '00h00m15s -75d30m15s'
-    data.coords = '00:00:15 -75:30:15'
     event_2 = mm.Event(coords='15:30:00 45:00:00')
     event_2.datasets = [data]
-    assert event_2.coords.to_string('hmsdms') == coord_str_data
-    assert event_2.datasets[0].coords.to_string('hmsdms') == coord_str_data
+    assert event_2.coords.to_string('hmsdms') == coord_str_event
 
     event_3 = mm.Event(datasets=data, model=model, coords='15:30:00 45:00:00')
     event_3.model.coords = '5:10:15 20:25:30'
@@ -93,7 +78,6 @@ def test_event_coords_ra_dec_1():
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.})
     event = mm.Event(datasets=data, model=model, coords=coords_str_1)
 
-    # Assertations start here.
     check_event_coords(event, ra_1, dec_1)
 
     event.coords = '{0} {1}'.format(ra_2_str, dec_2_str)

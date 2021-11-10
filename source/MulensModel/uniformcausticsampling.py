@@ -2,7 +2,7 @@ import numpy as np
 import math
 import warnings
 
-import MulensModel as MM
+from MulensModel.utils import Utils
 
 
 class UniformCausticSampling(object):
@@ -97,7 +97,7 @@ class UniformCausticSampling(object):
         self._q = q
         self._n_points = n_points
 
-        self._n_caustics = MM.utils.Utils.get_n_caustics(s=self.s, q=self.q)
+        self._n_caustics = Utils.get_n_caustics(s=self.s, q=self.q)
         self._get_phi()
         self._integrate()
         self._find_inflections_and_correct()
@@ -216,7 +216,9 @@ class UniformCausticSampling(object):
         x_cross = tau * cos_a - u_0 * sin_a
 
         # Check if crossing point is between x_1 and x_2:
-        index = np.where((x_cross - x_1) * (x_cross - x_2) < 0.)[0]
+        index = np.where((x_cross - x_1) * (x_cross - x_2) <= 0.)[0]
+        # Earlier we were using " < 0.", but this failed sometimes for
+        # trajectory going exactly through the cusp.
 
         fraction = (x_cross[index] - x_1[index]) / (x_2[index] - x_1[index])
         sum_ = sum_use[index] * (1. - fraction) + sum_use[index+1] * fraction
@@ -371,7 +373,8 @@ class UniformCausticSampling(object):
         """
         if (x_caustic_in < 0. or x_caustic_in > 1. or
                 x_caustic_out < 0. or x_caustic_out > 1. or
-                t_caustic_in >= t_caustic_out):
+                t_caustic_in >= t_caustic_out or
+                x_caustic_in == x_caustic_out):
             msg = 'Wrong input in get_standard_parameters(): {:} {:} {:} {:}'
             raise ValueError(msg.format(x_caustic_in, x_caustic_out,
                                         t_caustic_in, t_caustic_out))

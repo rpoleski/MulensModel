@@ -1,0 +1,184 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MulensModel.coordinates module &#8212; MulensModel 1.14.26 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.26',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.coordinates">
+<span id="mulensmodel-coordinates-module"></span><h1>MulensModel.coordinates module<a class="headerlink" href="#module-MulensModel.coordinates" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.coordinates.Coordinates">
+<em class="property">class </em><code class="descclassname">MulensModel.coordinates.</code><code class="descname">Coordinates</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.coordinates.Coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">astropy.coordinates.sky_coordinate.SkyCoord</span></code></p>
+<p>A class for the coordinates (RA, Dec) of an event. Inherits from
+<a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html">astropy.SkyCoord</a>.</p>
+<p>May be set as a <em>str</em>, pair of <em>str</em>, or <em>SkyCoord</em> object, e.g.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">)</span>
+<span class="n">Coordinates</span><span class="p">(</span><span class="s1">&#39;18h00m00s&#39;</span><span class="p">,</span> <span class="s1">&#39;-30d00m00s&#39;</span><span class="p">)</span>
+<span class="n">Coordinates</span><span class="p">(</span><span class="n">SkyCoord</span><span class="p">(</span><span class="s1">&#39;18:00:00 -30:00:00&#39;</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">hourangle</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)))</span>
+<span class="n">Coordinates</span><span class="p">(</span><span class="n">SkyCoord</span><span class="p">(</span><span class="mf">270.000</span><span class="p">,</span> <span class="o">-</span><span class="mf">30.000</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>If the unit keyword is not specified, defaults to
+unit=(u.hourangle, u.deg) where u is defined by “import
+astropy.units as u”.</p>
+<dl class="attribute">
+<dt id="MulensModel.coordinates.Coordinates.galactic_l">
+<code class="descname">galactic_l</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.galactic_l" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.coordinates.angles.Longitude</em></p>
+<p>Galactic longitude. Note that for connivance, the values l &gt;
+180 degrees are represented as 360-l.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.coordinates.Coordinates.galactic_b">
+<code class="descname">galactic_b</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.galactic_b" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.coordinates.angles.Latitude</em></p>
+<p>Galactic latitude calculated from (RA, Dec)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.coordinates.Coordinates.ecliptic_lon">
+<code class="descname">ecliptic_lon</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.ecliptic_lon" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.coordinates.angles.Longitude</em></p>
+<p>ecliptic longitude calculated from (RA, Dec)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.coordinates.Coordinates.ecliptic_lat">
+<code class="descname">ecliptic_lat</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.ecliptic_lat" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>astropy.coordinates.angles.Latitude</em></p>
+<p>ecliptic latitude calculated from (RA, Dec)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.coordinates.Coordinates.north_projected">
+<code class="descname">north_projected</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.north_projected" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>np.array</em></p>
+<p>North projected on the plane of the sky.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="MulensModel.coordinates.Coordinates.east_projected">
+<code class="descname">east_projected</code><a class="headerlink" href="#MulensModel.coordinates.Coordinates.east_projected" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>np.array</em></p>
+<p>East projected on the plane of the sky.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MulensModel.coordinates.Coordinates.v_Earth_projected">
+<code class="descname">v_Earth_projected</code><span class="sig-paren">(</span><em>full_BJD</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.coordinates.Coordinates.v_Earth_projected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Earth velocity at <em>full_BJD</em> projected on the plane of sky towards
+given coordinates.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>full_BJD: <em>float</em></dt>
+<dd>Epoch for which projected velocity is requested. In most cases
+it is
+<a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters.t_0_par" title="MulensModel.modelparameters.ModelParameters.t_0_par"><code class="xref py py-attr docutils literal"><span class="pre">t_0_par</span></code></a></dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>v_Earth_perp_N: <em>float</em></dt>
+<dd>North component of Earth’s projected velocity in km/s.</dd>
+<dt>v_Earth_perp_E: <em>float</em></dt>
+<dd>East component of Earth’s projected velocity in km/s.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.coordinates.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/MulensModel.coordinates.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

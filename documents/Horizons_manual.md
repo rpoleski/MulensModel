@@ -102,7 +102,7 @@ Congratulations! You now know how to access Horizons via e-mail.
 
 If you send default or only slightly modified settings, then you can compare the results with mine, which are here:
 
-`data/Spitzer_ephemeris_01.dat`
+`data/ephemeris_files/Spitzer_ephemeris_01.dat`
 
 ---
 

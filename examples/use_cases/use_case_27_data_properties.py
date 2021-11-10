@@ -76,7 +76,8 @@ plt.title('MOA Data w/o errors or bad data')
 ob03235_moa_data.plot()
 plt.axhline(np.median(ob03235_moa_data.flux), zorder=5)
 plt.legend(loc='best')
-plt.show()
+plt.tight_layout()
+# plt.show()
 
 file_list = glob.glob(os.path.join(data_path, 'MB08310', '*'))
 file_list = [x for x in file_list if 'README.txt' not in x]

@@ -1,0 +1,30 @@
+photometry_files:
+    - {file_name: data/OB05086/starBLG234.6.I.218982.dat}
+starting_parameters:
+    t_0: gauss 2453628.3 0.1
+    u_0: gauss 0.375 0.005
+    t_E: gauss 102. 1.
+    pi_E_N: gauss 0.0 0.1
+    pi_E_E: gauss 0.0 0.1
+model:
+    coords: 18:04:45.71 -26:59:15.2
+fixed_parameters:
+    t_0_par: 2453628.0
+min_values:
+    u_0: 0.
+    t_E: 0.
+    pi_E_N: -1.
+    pi_E_E: -1.
+max_values:
+    pi_E_N: 1.
+    pi_E_E: 1.
+fitting_parameters:
+    n_walkers: 10
+    n_steps: 10000
+    n_burn:  5000
+plots:
+    best model:
+        file: ob05086_2_model.png
+        time range: 2453430 2453830
+    triangle:
+        file: ob05086_2_triangle.png

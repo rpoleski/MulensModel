@@ -43,21 +43,24 @@ def test_rho_t_e_t_star():
     """check if conversions between rho, t_E, and t_star work ok"""
     t_0 = 2450000.
     u_0 = 0.1
-    t_E = 20. * u.day
+    t_E_1 = 20.
+    t_E_2 = t_E_1 * u.day
     rho = 0.001
-    t_star = t_E * rho
+    t_star_1 = t_E_1 * rho
+    t_star_2 = t_E_2 * rho
 
-    params_1 = mm.ModelParameters(
-        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
-    np.testing.assert_almost_equal(params_1.t_star, t_star.value)
+    for (t_E, t_star) in zip([t_E_1, t_E_2], [t_star_1, t_star_2]):
+        params_1 = mm.ModelParameters(
+            {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
+        np.testing.assert_almost_equal(params_1.t_star, t_star_1)
 
-    params_2 = mm.ModelParameters(
-        {'t_0': t_0, 'u_0': u_0, 't_star': t_star, 'rho': rho})
-    np.testing.assert_almost_equal(params_2.t_E, t_E.value)
+        params_2 = mm.ModelParameters(
+            {'t_0': t_0, 'u_0': u_0, 't_star': t_star, 'rho': rho})
+        np.testing.assert_almost_equal(params_2.t_E, t_E_1)
 
-    params_3 = mm.ModelParameters(
-        {'t_0': t_0, 'u_0': u_0, 't_star': t_star, 't_E': t_E})
-    np.testing.assert_almost_equal(params_3.rho, rho)
+        params_3 = mm.ModelParameters(
+            {'t_0': t_0, 'u_0': u_0, 't_star': t_star, 't_E': t_E})
+        np.testing.assert_almost_equal(params_3.rho, rho)
 
 
 class test(unittest.TestCase):

@@ -1,19 +1,19 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Microlensing Parallax Fitting Tutorial &#8212; MulensModel 1.14.25 documentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Microlensing Parallax Fitting Tutorial &#8212; MulensModel 2.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Basic Fitting Tutorial" href="tutorial_fit_pspl.html" />
@@ -29,6 +29,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="microlensing-parallax-fitting-tutorial">
@@ -49,10 +51,10 @@ the residuals around 3400 and 3800.</p>
 <h2>Imports and settings<a class="headerlink" href="#imports-and-settings" title="Permalink to this headline">¶</a></h2>
 <p>We start by importing python modules:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">emcee</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">MulensModel</span> <span class="kn">as</span> <span class="nn">mm</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">MulensModel</span> <span class="k">as</span> <span class="nn">mm</span>
 </pre></div>
 </div>
 <p>We’re using EMCEE package for fitting. You can download it from
@@ -60,7 +62,7 @@ the residuals around 3400 and 3800.</p>
 import the data and set the event coordinates:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">DATA_PATH</span><span class="p">,</span>
     <span class="s2">&quot;photometry_files&quot;</span><span class="p">,</span> <span class="s2">&quot;OB05086&quot;</span><span class="p">,</span> <span class="s2">&quot;starBLG234.6.I.218982.dat&quot;</span><span class="p">)</span>
-<span class="n">my_data</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span> <span class="n">add_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">my_data</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span> <span class="n">add_2450000</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">coords</span> <span class="o">=</span> <span class="s2">&quot;18:04:45.71 -26:59:15.2&quot;</span>
 </pre></div>
 </div>
@@ -142,15 +144,15 @@ three separate functions for clarity:</p>
 </div>
 <p>And now we’re ready to look at the results and best-fitted model:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">84</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Fitted parameters:&quot;</span><span class="p">)</span>
-<span class="n">form</span> <span class="o">=</span> <span class="s2">&quot;{:.5f} {:.5f} {:.5f}&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fitted parameters:&quot;</span><span class="p">)</span>
+<span class="n">form</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.5f}</span><span class="s2"> </span><span class="si">{:.5f}</span><span class="s2"> </span><span class="si">{:.5f}</span><span class="s2">&quot;</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_dim</span><span class="p">):</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="o">-</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]))</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Best model:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="o">-</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Best model:&quot;</span><span class="p">)</span>
 <span class="n">best</span> <span class="o">=</span> <span class="p">[</span><span class="n">my_event</span><span class="o">.</span><span class="n">best_chi2_parameters</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters_to_fit</span><span class="p">]</span>
-<span class="k">print</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">best</span><span class="p">])</span>
-<span class="k">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">best_chi2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">best</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">best_chi2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>I hope you got (u_0, t_E, pi_E_N, pi_E_E) of around
@@ -184,10 +186,10 @@ data slightly better. It turned out that the second fit was very important!</p>
 
 <span class="n">t_1</span> <span class="o">=</span> <span class="mf">2453200.</span>
 <span class="n">t_2</span> <span class="o">=</span> <span class="mf">2453950.</span>
-<span class="n">plot_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;subtract_2450000&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+<span class="n">plot_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;subtract_2450000&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s1">&#39;t_start&#39;</span><span class="p">:</span> <span class="n">t_1</span><span class="p">,</span> <span class="s1">&#39;t_stop&#39;</span><span class="p">:</span> <span class="n">t_2</span><span class="p">}</span>
 
-<span class="n">my_event</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">subtract_2450000</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">my_event</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">subtract_2450000</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">model_0</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;no pi_E&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_params</span><span class="p">)</span>
 <span class="n">model_1</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;pi_E, u_0&gt;0&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_params</span><span class="p">)</span>
 <span class="n">model_2</span><span class="o">.</span><span class="n">plot_lc</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;pi_E, u_0&lt;0&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">,</span>
@@ -218,20 +220,29 @@ properties of both of them.</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Microlensing Parallax Fitting Tutorial</a><ul>
-<li><a class="reference internal" href="#imports-and-settings">Imports and settings</a></li>
-<li><a class="reference internal" href="#running-the-sampler">Running the sampler</a></li>
-<li><a class="reference internal" href="#plotting">Plotting</a></li>
-<li><a class="reference internal" href="#exercise">Exercise</a></li>
+<h1 class="logo"><a href="index.html">MulensModel</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pspl.html">Fitting tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Parallax fitting tutorial</a></li>
 </ul>
-</li>
-</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -240,25 +251,24 @@ properties of both of them.</p>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/tutorial_fit_pi_E.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -267,8 +277,8 @@ properties of both of them.</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/tutorial_fit_pi_E.rst.txt"

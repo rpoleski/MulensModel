@@ -18,13 +18,13 @@ Old installation
 1. Make sure you have python with `astropy package`_ installed.
 2. Download source code - either `recent release`_ or the current repository from `MulensModel github page`_ (green button on right).
 3. Unpack the archive.
-4. Add the path to the unpack directory to the ``PYTHONPATH``, e.g., if you've extracted the archive in your home directory (``/home/USER_NAME/``) in tcsh::
+4. Add the path to the unpack directory to the ``PYTHONPATH``, e.g., if you've extracted the archive in your home directory (``/home/USER_NAME/``) and MulensModel version in 1.17.0 in tcsh (update the path as needed)::
 
-    setenv PYTHONPATH /home/USER_NAME/MulensModel-1.3.0/source\:$PYTHONPATH
+    setenv PYTHONPATH /home/USER_NAME/MulensModel-1.17.0/source\:$PYTHONPATH
 
 in bash::
 
-    export PYTHONPATH=/home/USER_NAME/MulensModel-1.3.0/source:$PYTHONPATH
+    export PYTHONPATH=/home/USER_NAME/MulensModel-1.17.0/source:$PYTHONPATH
 
 In order to have this command invoked every time you open a terminal, please add this command to your startup file (``~/.cshrc``, ``~/.bashrc``, ``~/.profile``, or similar). If you didn't have ``PYTHONPATH`` defined before, then skip the last part of the above commands.
 

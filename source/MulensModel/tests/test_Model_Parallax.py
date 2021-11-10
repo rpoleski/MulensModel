@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import unittest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
@@ -94,32 +95,52 @@ def test_annual_parallax_calculation():
     """
     t_0 = 2457479.5  # April 1 2016, a time when parallax is large
     times = np.array([t_0-1., t_0, t_0+1., t_0+1.])
-    true_no_par = [np.array([7.12399067, 10.0374609, 7.12399067, 7.12399067])]
-    true_with_par = [
-        np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])]
+    true_no_par = np.array([7.12399067, 10.0374609, 7.12399067, 7.12399067])
+    true_with_par = np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])
 
     model_with_par = mm.Model(
         {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
         coords='17:57:05 -30:22:59')
     model_with_par.parallax(satellite=False, earth_orbital=True,
                             topocentric=False)
-    ones = np.ones(len(times))
-    data = mm.MulensData(data_list=[times, ones, ones])
-    model_with_par.set_datasets([data])
+    # ones = np.ones(len(times))
+    # data = mm.MulensData(data_list=[times, ones, ones])
+    # model_with_par.set_datasets([data])
 
     model_with_par.parameters.t_0_par = 2457479.
 
     model_no_par = mm.Model(
-        {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
+        {'t_0': t_0, 'u_0': 0.1, 't_E': 10.},
         coords='17:57:05 -30:22:59')
-    model_no_par.set_datasets([data])
+    # model_no_par.set_datasets([data])
     model_no_par.parallax(
         satellite=False, earth_orbital=False, topocentric=False)
 
+    # Old architectures
+    # np.testing.assert_almost_equal(
+    #     model_no_par.data_magnification, true_no_par)
+    # np.testing.assert_almost_equal(
+    #     model_with_par.data_magnification, true_with_par, decimal=4)
+    # New architecture
     np.testing.assert_almost_equal(
-        model_no_par.data_magnification, true_no_par)
+        model_no_par.get_magnification(times), true_no_par)
     np.testing.assert_almost_equal(
-        model_with_par.data_magnification, true_with_par, decimal=4)
+        model_with_par.get_magnification(times), true_with_par, decimal=4)
+
+
+class test(unittest.TestCase):
+    def test_wrong_settings(self):
+        """
+        make sure that if pi_E is defined, then at least
+        one component of parallax is True
+        """
+        model_no_par = mm.Model(
+            {'t_0': 2457479.5, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
+            coords='17:57:05 -30:22:59')
+        model_no_par.parallax(
+            satellite=False, earth_orbital=False, topocentric=False)
+        with self.assertRaises(ValueError):
+            model_no_par.get_magnification(2457500.)
 
 
 def do_get_delta_annual_test(filename):
@@ -167,6 +188,7 @@ def do_annual_parallax_test(filename):
     ulens_params = lines[3].split()
     event_params = lines[4].split()
     data = np.loadtxt(filename, dtype=None)
+
     model = mm.Model({
         't_0': float(ulens_params[1])+2450000.,
         'u_0': float(ulens_params[3]),
@@ -177,12 +199,11 @@ def do_annual_parallax_test(filename):
             event_params[1]+' '+event_params[2], unit=(u.deg, u.deg)))
     model.parameters.t_0_par = float(ulens_params[2])+2450000.
 
-    time = data[:, 0]
-    dataset = mm.MulensData([time, 20.+time*0., 0.1+time*0.], add_2450000=True)
-    model.set_datasets([dataset])
+    time = data[:, 0] + 2450000.
     model.parallax(satellite=False, earth_orbital=True, topocentric=False)
+
     return np.testing.assert_almost_equal(
-        model.data_magnification[0] / data[:, 1], 1.0, decimal=4)
+        model.get_magnification(time) / data[:, 1], 1.0, decimal=4)
 
 
 def test_annual_parallax_calculation_2():
@@ -207,24 +228,34 @@ def test_annual_parallax_calculation_6():
 
 def test_satellite_and_annual_parallax_calculation():
     """test parallax calculation with Spitzer data"""
-    model_with_par = mm.Model({'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
-                               'pi_E_N': -0.248, 'pi_E_E': 0.234},
-                              coords="17:47:12.25 -21:22:58.2")
+    model_parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                        'pi_E_N': -0.248, 'pi_E_E': 0.234,
+                        't_0_par': 2456836.2}
+    coords = "17:47:12.25 -21:22:58.2"
+
+    model_with_par = mm.Model(model_parameters, coords=coords)
     model_with_par.parallax(satellite=True, earth_orbital=True,
                             topocentric=False)
-    model_with_par.parameters.t_0_par = 2456836.2
 
     data_OGLE = mm.MulensData(file_name=SAMPLE_FILE_02)
     data_Spitzer = mm.MulensData(
         file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
-    model_with_par.set_datasets([data_OGLE, data_Spitzer])
+    # model_with_par.set_datasets([data_OGLE, data_Spitzer])
+
+    model_spitzer = mm.Model(
+        model_parameters, coords=coords, ephemerides_file=SAMPLE_FILE_03_EPH)
 
     ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True, usecols=[5])
     ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True, usecols=[5])
 
-    np.testing.assert_almost_equal(model_with_par.data_magnification[0],
-                                   ref_OGLE, decimal=2)
-    ratio = model_with_par.data_magnification[1] / ref_Spitzer
+    # np.testing.assert_almost_equal(model_with_par.data_magnification[0],
+    #                                ref_OGLE, decimal=2)
+    # ratio = model_with_par.data_magnification[1] / ref_Spitzer
+    # np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
+    np.testing.assert_almost_equal(
+        model_with_par.get_magnification(data_OGLE.time), ref_OGLE,
+        decimal=2)
+    ratio = model_spitzer.get_magnification(data_Spitzer.time) / ref_Spitzer
     np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
 
 
@@ -248,7 +279,8 @@ def test_satellite_parallax_magnification():
         ra='17:47:12.25', dec='-21:22:58.2',
         ephemerides_file=SAMPLE_FILE_03_EPH)
 
-    delta = ground_model.magnification(t_0) - space_model.magnification(t_0)
+    ground_mag = ground_model.get_magnification(t_0)
+    delta = ground_mag - space_model.get_magnification(t_0)
     assert np.abs(delta) > 0.01
 
 

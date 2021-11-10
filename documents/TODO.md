@@ -68,7 +68,7 @@
 |21| binary source modeling | No |
 |22| parameters accessed as a vector | No |
 |23| ModelParameters dictionary | No |
-|24| Jacobian | No |
+|24| Jacobian | Yes |
 |25| flux constraint | UC needs re-writing |
 |26| binary source | No |
 |26b| binary source | No |

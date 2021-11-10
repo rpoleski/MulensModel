@@ -1,19 +1,19 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Basic Fitting Tutorial &#8212; MulensModel 1.14.25 documentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Basic Fitting Tutorial &#8212; MulensModel 2.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Microlensing Parallax Fitting Tutorial" href="tutorial_fit_pi_E.html" />
@@ -30,6 +30,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="basic-fitting-tutorial">
@@ -41,9 +43,9 @@ the data. Similar material can be found in
 <h2>Importing data<a class="headerlink" href="#importing-data" title="Permalink to this headline">¶</a></h2>
 <p>First things first - we need to import some modules:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">MulensModel</span> <span class="kn">as</span> <span class="nn">mm</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">MulensModel</span> <span class="k">as</span> <span class="nn">mm</span>
 </pre></div>
 </div>
 <p>Then we import the data (downloaded together with the code) to
@@ -51,7 +53,7 @@ the <a class="reference external" href="https://rpoleski.github.io/MulensModel/M
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">DATA_PATH</span><span class="p">,</span>
     <span class="s2">&quot;photometry_files&quot;</span><span class="p">,</span> <span class="s2">&quot;OB08092&quot;</span><span class="p">,</span> <span class="s2">&quot;phot_ob08092_O4.dat&quot;</span><span class="p">)</span>
 <span class="n">my_data</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;{:} file was imported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:}</span><span class="s2"> file was imported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -109,8 +111,8 @@ that combines the Model and
 the MulensData:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_event</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">my_data</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">pspl_model</span><span class="p">)</span>
 <span class="n">chi2_initial</span> <span class="o">=</span> <span class="n">my_event</span><span class="o">.</span><span class="n">get_chi2</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;give chi^2 of {:.2f}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chi2_initial</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_event</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;give chi^2 of </span><span class="si">{:.2f}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chi2_initial</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>We have the ability to get the goodness of fit and it turn it into a function:</p>
@@ -137,7 +139,7 @@ the same.</p>
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html">the SciPy minimize() function</a>
 from SciPy subpackage optimize. We encourage you to
 try other fitting routines.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="kn">as</span> <span class="nn">op</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="k">as</span> <span class="nn">op</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chi2_for_model</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">initial_guess</span><span class="p">,</span>
         <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">my_event</span><span class="p">,</span> <span class="n">parameters_to_fit</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Nelder-Mead&#39;</span><span class="p">)</span>
 </pre></div>
@@ -145,10 +147,10 @@ try other fitting routines.</p>
 <p>Fitting is done, so we can inspect the results. The function minimize()
 gives different output depending on method parameter. We will use just
 a few:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Fitting was successful? {:}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fitting was successful? </span><span class="si">{:}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">))</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Function evaluations: {:}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">nfev</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Function evaluations: </span><span class="si">{:}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">nfev</span><span class="p">))</span>
 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">result_fun</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span>
@@ -156,8 +158,8 @@ a few:</p>
         <span class="n">result_fun</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">result_fun</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fun</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;The smallest function value: {:.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result_fun</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;for parameters: {:.5f} {:.4f} {:.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The smallest function value: </span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result_fun</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;for parameters: </span><span class="si">{:.5f}</span><span class="s2"> </span><span class="si">{:.4f}</span><span class="s2"> </span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
 </pre></div>
 </div>
 <p>The best-fitting function parameters are stored in <code class="docutils literal notranslate"><span class="pre">result.x</span></code>, which is
@@ -198,21 +200,29 @@ Try changing <code class="docutils literal notranslate"><span class="pre">method
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Basic Fitting Tutorial</a><ul>
-<li><a class="reference internal" href="#importing-data">Importing data</a></li>
-<li><a class="reference internal" href="#plotting-data">Plotting data</a></li>
-<li><a class="reference internal" href="#preparing-for-fitting">Preparing for fitting</a></li>
-<li><a class="reference internal" href="#fitting-model-parameters">Fitting model parameters</a></li>
-<li><a class="reference internal" href="#exercise">Exercise</a></li>
+<h1 class="logo"><a href="index.html">MulensModel</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fitting tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pi_E.html">Parallax fitting tutorial</a></li>
 </ul>
-</li>
-</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -222,25 +232,24 @@ Try changing <code class="docutils literal notranslate"><span class="pre">method
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/tutorial_fit_pspl.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -249,8 +258,8 @@ Try changing <code class="docutils literal notranslate"><span class="pre">method
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/tutorial_fit_pspl.rst.txt"

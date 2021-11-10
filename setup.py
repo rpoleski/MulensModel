@@ -5,6 +5,8 @@ import warnings
 from setuptools import setup, Extension
 
 
+file_required = "requirements.txt"
+
 source_VBBL = os.path.join('source', 'VBBL')
 source_AC = os.path.join('source', 'AdaptiveContouring')
 source_MM = os.path.join('source', 'MulensModel')
@@ -31,9 +33,12 @@ with open(os.path.join('source', 'MulensModel', 'version.py')) as in_put:
             version = line_.split()[2][1:-1]
 
 ext_AC = Extension('MulensModel.AdaptiveContouring',
-                   glob.glob(os.path.join(source_AC, "*.c")))
+                   sources=glob.glob(os.path.join(source_AC, "*.c")))
 ext_VBBL = Extension('MulensModel.VBBL',
-                     glob.glob(os.path.join(source_VBBL, "*.cpp")))
+                     sources=glob.glob(os.path.join(source_VBBL, "*.cpp")))
+
+with open(file_required) as file_:
+    required = file_.read().splitlines()
 
 setup(
     name='MulensModel',
@@ -41,12 +46,12 @@ setup(
     url='git@github.com:rpoleski/MulensModel.git',
     ext_modules=[ext_AC, ext_VBBL],
     author='Radek Poleski',
-    author_email='poleski.1@osu.edu',
+    author_email='radek.poleski@gmail.com',
     description='package for modeling gravitational microlensing events',
     packages=['MulensModel', 'MulensModel.mulensobjects'],
     package_dir={
         'MulensModel': source_MM,
         'MulensModel.mulensobjects': source_MMmo},
     data_files=data_files,
-    install_requires=['numpy', 'matplotlib', 'scipy>=0.18.0', 'astropy>=1.2.0']
+    install_requires=required
 )

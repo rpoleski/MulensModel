@@ -16,7 +16,7 @@ import numpy as np
 import emcee
 import configparser
 
-import MulensModel as MM
+import MulensModel as mm
 
 import example_15_read as read
 
@@ -108,7 +108,7 @@ def generate_random_parameters(parameters, starting, n, s=None, q=None):
             v = np.exp(np.random.uniform(beg, end, n))
         values.append(v)
     if 'x_caustic_in' in parameters and 'x_caustic_out' in parameters:
-        sampling = MM.UniformCausticSampling(s=s, q=q)
+        sampling = mm.UniformCausticSampling(s=s, q=q)
         (x_in, x_out) = sampling.get_uniform_sampling(n)
         values[parameters.index('x_caustic_in')] = x_in
         values[parameters.index('x_caustic_out')] = x_out
@@ -132,7 +132,7 @@ other_settings = read.read_other(config)
 
 # Read photometric data.
 k = {'comments': ['\\', '|']}
-datasets = [MM.MulensData(file_name=f[0], phot_fmt=f[1], **k) for f in files]
+datasets = [mm.MulensData(file_name=f[0], phot_fmt=f[1], **k) for f in files]
 
 # Generate starting values of parameters.
 s = fixed_parameters.get('s', None)
@@ -143,12 +143,12 @@ start = generate_random_parameters(
 # Setup Event instance that combines model and data.
 par = dict(zip(parameters, start[0]))
 par = {**par, **fixed_parameters}
-my_model = MM.Model(par, coords=model_settings['coords'])
+my_model = mm.Model(par, coords=model_settings['coords'])
 if 'methods' in model_settings:
     my_model.set_magnification_methods(model_settings['methods'])
 if 'default_method' in model_settings:
     my_model.set_default_magnification_method(model_settings['default_method'])
-my_event = MM.Event(datasets=datasets, model=my_model)
+my_event = mm.Event(datasets=datasets, model=my_model)
 
 # Prepare sampler.
 n_dim = len(parameters)
@@ -161,8 +161,8 @@ sampler = emcee.EnsembleSampler(
 sampler.run_mcmc(start, emcee_settings['n_steps'])
 
 # Parse results.
-burn = emcee_settings['n_burn']
-samples = sampler.chain[:, burn:, :].reshape((-1, n_dim))
+n_burn = emcee_settings['n_burn']
+samples = sampler.chain[:, n_burn:, :].reshape((-1, n_dim))
 r_16 = np.percentile(samples, 16, axis=0)
 r_50 = np.percentile(samples, 50, axis=0)
 r_84 = np.percentile(samples, 84, axis=0)
@@ -173,11 +173,19 @@ for i in range(n_dim):
     else:
         fmt = "{:} {:.5f} +{:.5f} -{:.5f}"
     print(fmt.format(parameters[i], r_50[i], r_84[i]-r_50[i], r_50[i]-r_16[i]))
-print("Smallest chi2 model:")
-best = [my_event.best_chi2_parameters[p] for p in parameters]
-for (best_, param) in zip(best, parameters):
-    setattr(my_event.model.parameters, param, best_)
-print(*[b if isinstance(b, float) else b.value for b in best])
+# We extract best model parameters and chi2 from the chain:
+prob = sampler.lnprobability[:, n_burn:].reshape((-1))
+best_index = np.argmax(prob)
+best_chi2 = prob[best_index] / -0.5
+best = samples[best_index, :]
+print("\nSmallest chi2 model:")
+print(*[repr(b) if isinstance(b, float) else b.value for b in best])
+print(best_chi2)
+for (i, parameter) in enumerate(parameters):
+    setattr(my_event.model.parameters, parameter, best[i])
+
+my_event.fit_fluxes()
+
 # Expected results:
 # t_0 ~ 2452848.06
 # u_0 ~ 0.132
@@ -192,4 +200,4 @@ if 'x_caustic_in' in parameters:
     print(' u_0 = {:.5f}'.format(my_event.model.parameters.u_0))
     print(' t_E = {:.3f}'.format(my_event.model.parameters.t_E))
     print(' alpha = {:.2f}\n'.format(my_event.model.parameters.alpha))
-print("chi2: ", my_event.best_chi2)  # Expected value: ~1655
+print("chi2: ", my_event.get_chi2())  # Expected value: ~1655

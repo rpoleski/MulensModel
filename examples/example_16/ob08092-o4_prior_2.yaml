@@ -1,0 +1,26 @@
+photometry_files:
+    data/OB08092/phot_ob08092_O4.dat
+starting_parameters:
+    t_0: gauss 2455380. 0.1
+    u_0: uniform 0.001 1.
+    t_E: gauss 20. 5.
+min_values:
+    t_0: 2454000.
+    u_0: 0.
+    t_E: 0.
+max_values:
+    t_0: 2460000.
+    u_0: 1.5
+    t_E: 200.
+fit_constraints:
+    prior:
+        t_E: Mroz et al. 2017
+fitting_parameters:
+    n_walkers: 20
+    n_steps: 2000
+    n_burn:  1000
+plots:
+    triangle:
+        file: ob08092-o4_triangle_prior_2.png
+    best model:
+        file: ob08092-o4_model_prior_2.png

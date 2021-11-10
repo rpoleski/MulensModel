@@ -63,6 +63,14 @@ class Trajectory(object):
         satellite_skycoord: *Astropy.coordinates.SkyCoord*
             input
             :py:attr:`~MulensModel.mulensdata.MulensData.satellite_skycoord`
+
+        parallax: *dict*
+            specifies which types of microlensing parallax will be taken
+            into account; boolean dict with keys: ``earth_orbital``,
+            ``satellite``, and ``topocentric`` (default values are *False*)
+
+        coords: :py:class:`~MulensModel.coordinates.Coordinates`
+            event coordinates
     """
     _get_delta_annual_results = dict()
     _get_delta_annual_last = None
@@ -94,18 +102,16 @@ class Trajectory(object):
             for (key, value) in parallax.items():
                 self.parallax[key] = value
 
-        if (
-                isinstance(coords, SkyCoord) and
-                not isinstance(coords, Coordinates)):
-            self.coords = Coordinates(coords)
-        else:
+        if coords is None or isinstance(coords, Coordinates):
             self.coords = coords
+        else:
+            self.coords = Coordinates(coords)
         self.satellite_skycoord = satellite_skycoord
         if earth_coords is not None:
             raise NotImplementedError(
                 "The earth_coords needed for " +
                 "topocentric parallax is not implemented yet")
-        self.earth_coords = None
+        self._earth_coords = None
 
         # Calculate trajectory
         self.get_xy()
@@ -148,6 +154,12 @@ class Trajectory(object):
                 raise ValueError("You're trying to calculate trajectory in " +
                                  "a parallax model, but event sky " +
                                  "coordinates were not provided.")
+            keys = ['earth_orbital', 'satellite', 'topocentric']
+            if set([self.parallax[k] for k in keys]) == set([False]):
+                raise ValueError(
+                    'If pi_E value is provided then at least one value ' +
+                    'of parallax dict has to be True ' +
+                    '(earth_orbital, satellite, or topocentric)')
 
             # Apply Earth Orbital parallax effect
             if self.parallax['earth_orbital']:
@@ -163,7 +175,7 @@ class Trajectory(object):
                 vector_u += delta_u
 
             # Apply topocentric parallax effect
-            if self.parallax['topocentric'] and self.earth_coords is not None:
+            if self.parallax['topocentric'] and self._earth_coords is not None:
                 # When you implement it, make sure the behavior
                 # depends on the access to the observatory location
                 # information as the satellite parallax depends on the
@@ -217,8 +229,8 @@ class Trajectory(object):
         """
         calculates projected Earth positions required by annual parallax
         """
-        index = (self.parameters.t_0_par, hash(self.coords),
-                 tuple(self.times.tolist()))
+        index = (self.parameters.t_0_par, self.coords.ra.value,
+                 self.coords.dec.value, tuple(self.times.tolist()))
         if index == Trajectory._get_delta_annual_last_index:
             return Trajectory._get_delta_annual_last
         if index in Trajectory._get_delta_annual_results:
@@ -256,7 +268,6 @@ class Trajectory(object):
 
     def _satellite_parallax_trajectory(self):
         """calculate satellite parallax component of trajectory"""
-        # Calculate the parallax offset due to the satellite
         delta_satellite = self._get_delta_satellite()
         return self._project_delta(delta_satellite)
 
@@ -265,7 +276,7 @@ class Trajectory(object):
         calculates differences of Earth and satellite positions
         projected on the plane of the sky at event position
         """
-        index = (hash(self.coords), hash(self.satellite_skycoord),
+        index = (self.coords.ra.value, self.coords.dec.value,
                  tuple(self.times.tolist()))
         if index in Trajectory._get_delta_satellite_results.keys():
             return Trajectory._get_delta_satellite_results[index]

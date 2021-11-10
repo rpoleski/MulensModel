@@ -27,7 +27,7 @@ times = np.arange(t_0 - 1., t_0 + 1., 0.001)
 model.set_default_magnification_method('point_source')
 
 # Calculate the magnification using different magnification calculations
-default_magnification = model.magnification(times)
+default_magnification = model.get_magnification(times)
 
 # Specify list that give time ranges and methods:
 methods = [
@@ -45,7 +45,7 @@ model.set_magnification_methods_parameters(methods_parameters)
 # magnification calculation based on number of source radii from the
 # crossing.
 
-accurate_magnification = model.magnification(times)
+accurate_magnification = model.get_magnification(times)
 
 # Plot the differences
 plt.figure()

@@ -1,0 +1,96 @@
+photometry_files:
+    - {file_name: data/OB03235/OB03235_OGLE.txt, bandpass: I, plot_properties: {zorder: 10., color: red, label: "OGLE I-band"}}
+    - {file_name: data/OB03235/OB03235_MOA.txt, phot_fmt: flux}
+# To add satellite ephemeris:
+#    - {file_name: some_K2_data.txt, phot_fmt: flux, bandpass: 'Kp', ephemerides_file: K2_ephemeris_01.dat}
+# For files with time starting with 245...:
+#    - {..., add_2450000: False}
+model:
+    methods: 2452800. point_source 2452833. VBBL 2452845. point_source 2452860.
+    default method: point_source_point_lens
+    # For binary source one can specify:
+    # methods source 1: ...
+    # methods source 2: ...
+    limb darkening u:
+        I: 0.42
+        g: 0.65
+        i: 0.44
+    coords: 18:05:16.35 -28:53:42.0
+    # coordinates are needed only for parallax calculations
+# Below you can have any combination of parameters allowed by MulensModel
+fixed_parameters:
+    t_0_par: 2452848.
+starting_parameters:
+    t_0: gauss 2452848.0 0.1
+    u_0: gauss 0.13 0.01
+    t_E: gauss 61.5 0.5
+    rho: gauss 0.0010 0.0002
+    pi_E_N: gauss 0.00 0.01
+    pi_E_E: gauss 0.00 0.01
+    q: log-uniform 0.001 0.01
+    s: uniform 1.09 1.11
+    alpha: gauss 224.0 1.0
+fit_constraints:
+    negative_blending_flux_sigma_mag: 20.
+    # Alternative sharp constraint:
+    # no_negative_blending_flux: True
+    prior:
+        t_E: Mroz et al. 2017
+        # Other possibility:
+        # t_E: Mroz et al. 2020
+        pi_E_N: gauss 0.00 0.15
+        pi_E_E: gauss 0.00 0.15
+min_values:
+    t_0: 2452840.
+    u_0: 0.
+    t_E: 0.
+    rho: 0.
+    pi_E_N: -0.5
+    pi_E_E: -0.5
+    q: 0.
+    s: 1.
+    alpha: 0.
+max_values:
+    t_0: 2452860.
+    rho: 0.1
+    pi_E_N: 0.5
+    pi_E_E: 0.5
+    q: 1.
+    s: 2.
+    alpha: 360.
+fitting_parameters:
+    n_walkers: 20
+    n_steps: 4
+    n_burn:  2
+    posterior file: ob03235_2_models.npy
+    posterior file fluxes: all
+plots:
+    best model:
+        # You can skip the line below - the light curve will be plotted on screen.
+        file: ob03235_2_model.png
+        time range: 2452820 2452855
+        magnitude range: 19.3 16.9
+        rcParams:
+        # This allows setting many matplotlib parameters, e.g.:
+            font.size: 14
+        legend:
+        # Here are kwargs passed to plt.legend()
+            ncol: 2
+            # makes legend in 2 columns
+            loc: lower center
+        second Y scale:
+        # This adds second Y axis on the right-hand side. Only first line below is required.
+            magnifications: [2, 3, 4, 5, 6, 7, 8, 9]
+            # If you don't know what will be the range of magnifications on your plot, then make
+            # a test run with some very small and very large values and a warning will tell you
+            # what is exact range on the plot.
+            labels: [a, b, c, d, e, f, g, h]
+            # If you remove the line above, then magnification values will be printed.
+            label: What is shown on this axis?
+            color: magenta
+    triangle:
+        file: ob03235_2_triangle.png
+other_output:
+    models:
+        # Value "-" in line below means that the models will be printed to screen instead of a file.
+        file name: ob03235_2_all_models.txt

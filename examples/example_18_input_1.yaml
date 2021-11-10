@@ -1,0 +1,10 @@
+parameters:
+  t_0: 2456789.12345
+  u_0: 0.314
+  t_E: 50.
+time_settings:
+  type: random
+  n_epochs: 100
+  t_start: 2456600.
+  t_stop: 2457000.
+file_out: example_18_output_1.dat

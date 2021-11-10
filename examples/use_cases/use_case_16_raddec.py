@@ -22,16 +22,14 @@ ra_dec = ra + " " + dec
 
 # Specifying coordinates to calculate HJD from JD
 data_1 = mm.MulensData(
-    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'),
-    coords=ra_dec)
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'))
 
 data_2 = mm.MulensData(
-    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'),
-    ra=ra, dec=dec)
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'))
 
 coords = SkyCoord(ra_dec, unit=(u.hourangle, u.deg))
 data_3 = mm.MulensData(
-    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'), coords=coords)
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'))
 
 # Specifying coordinates to calculate a model with parallax
 t_0 = 2456836.22
@@ -56,16 +54,18 @@ print('ecliptic lat {0}'.format(ground_model.coords.ecliptic_lat))
 print('ecliptic lon {0}'.format(ground_model.coords.ecliptic_lon))
 
 plt.figure()
-ground_model.plot_magnification(label='ground')
-space_model.plot_magnification(label='space')
+ground_model.plot_magnification(label='ground', color='black')
+space_model.plot_magnification(label='space', color='red')
 plt.title('OB140939 Models with Parallax')
 plt.legend()
 
 # Specifying coordinates for an event
 ground_data = mm.MulensData(
-    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'))
+    file_name=os.path.join(data_dir, 'ob140939_OGLE.dat'),
+    plot_properties={'label': 'OGLE', 'color': 'black'})
 space_data = mm.MulensData(
     file_name=os.path.join(data_dir, 'ob140939_Spitzer.dat'),
+    plot_properties={'label': 'Spitzer', 'color': 'red'},
     ephemerides_file=os.path.join(
         ephemeris_dir, 'Spitzer_ephemeris_01.dat'))
 
@@ -77,11 +77,18 @@ event = mm.Event(datasets=[ground_data, space_data],
                  coords=ra_dec)
 
 plt.figure()
-event.plot_model()
-event.plot_data(label_list=['OGLE', 'Spitzer'])
+event.plot_model(color=ground_data.plot_properties['color'])
+event.plot_data()
 
-(fs_ogle, fb_ogle) = event.get_ref_fluxes(data_ref=event.datasets[0])
-space_model.plot_lc(f_source=fs_ogle, f_blend=fb_ogle)
+(fs_ogle, fb_ogle) = event.get_ref_fluxes()
+# JCY: IMO, data_ref should be a fixed property of event. Otherwise, the user
+# could forget which dataset was set as the reference and request values for
+# the wrong dataset. Now that there are ways to access fluxes for
+# an arbitrary dataset, ref_fluxes should *only* refer to
+# the actual reference dataset.
+space_model.plot_lc(
+    source_flux=fs_ogle, blend_flux=fb_ogle,
+    color=space_data.plot_properties['color'])
 
 plt.title('OB140939 Models with Data')
 plt.legend(loc='best')
@@ -89,16 +96,15 @@ plt.xlim(2456780., 2456880.)
 plt.ylim(15.4, 14.6)
 
 plt.figure()
-ground_model.plot_trajectory()
-space_model.plot_trajectory()
-
-ground_model.set_datasets([ground_data])
 ground_model.parameters.parameters['rho'] = 0.02
-ground_model.plot_source_for_datasets()
+ground_model.plot_trajectory(color=ground_data.plot_properties['color'])
+ground_model.plot_source(
+    ground_data.time, color=ground_data.plot_properties['color'])
 
-space_model.set_datasets([space_data])
 space_model.parameters.parameters['rho'] = 0.015
-space_model.plot_source_for_datasets()
+space_model.plot_trajectory(color=space_data.plot_properties['color'])
+space_model.plot_source(
+    space_data.time, color=space_data.plot_properties['color'])
 
 plt.title('Trajectory as Seen from Ground and Space')
 plt.axis('equal')

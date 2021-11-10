@@ -21,6 +21,9 @@ VBBinaryLensingLibrary_wrapper.so
 source/AdaptiveContouring/*.o
 source/AdaptiveContouring/*.so
 
+# additional code in example_16/
+examples/example_16/corner.py
+
 # Sphinx files
 *.doctree
 docs/_sources/
@@ -28,9 +31,19 @@ docs/_sources/
 
 # Example figures
 examples/figure_[1234].png
+examples/example_16/*.png
+
+# Other output in examples:
+examples/rE.tab
+examples/rEtilde.tab
+examples/tE.tab
+examples/thetaE.tab
 
 # Test files in examples:
 examples/run_time_tests/test_100*txt
+
+# pymultinest output files:
+examples/chains/
 
 # Temporary tasks:
 DEV

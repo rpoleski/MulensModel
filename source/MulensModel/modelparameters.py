@@ -481,7 +481,7 @@ class ModelParameters(object):
         allowed_keys = set(parameters + ['rho', 't_star'])
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
-            msg = 'Parameters not allow in Cassan (2008) parameterization '
+            msg = 'Parameters not allowed in Cassan (2008) parameterization '
             msg += '(at this point): {:}'.format(difference)
             raise KeyError(msg)
 
@@ -532,14 +532,15 @@ class ModelParameters(object):
     def _check_valid_parameter_values(self, parameters):
         """
         Prevent user from setting negative (unphysical) values for
-        t_E, t_star, rho.
+        t_E, t_star, rho etc.
 
         Also, check that all values are scalars (except pi_E vector).
         """
-        names = ['t_E', 't_star', 'rho',]
+        names = ['t_E', 't_star', 'rho', 's']
         full_names = {
             't_E': 'Einstein timescale',
-            't_star': 'Source crossing time', 'rho': 'Source size'}
+            't_star': 'Source crossing time', 'rho': 'Source size',
+            's': 'separation'}
 
         for name in names:
             if name in parameters.keys():
@@ -555,10 +556,10 @@ class ModelParameters(object):
                 msg = "{:} must be a scalar: {:}, {:}"
                 raise TypeError(msg.format(key, value, type(value)))
 
-        for name in ['x_caustic_in', 'x_caustic_out']:
+        for name in ['x_caustic_in', 'x_caustic_out', 'q']:
             if name in parameters.keys():
                 if parameters[name] < 0. or parameters[name] > 1.:
-                    msg = "{:} has to be in (0, 1) range, not {:}"
+                    msg = "Parameter {:} has to be in (0, 1) range, not {:}"
                     raise ValueError(msg.format(name, parameters[name]))
 
     def _set_parameters(self, parameters):
@@ -567,6 +568,10 @@ class ModelParameters(object):
         """
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
+
+        for parameter in ['t_E', 't_star', 't_eff', 't_star_1', 't_star_2']:
+            if parameter in self.parameters:
+                self._set_time_quantity(parameter, self.parameters[parameter])
 
     def _update_sources(self, parameter, value):
         """
@@ -664,7 +669,10 @@ class ModelParameters(object):
             return self.parameters['u_0']
         else:
             try:
-                return self.parameters['t_eff'] / self.parameters['t_E']
+                u_0_quantity = (
+                    self.parameters['t_eff'] / self.parameters['t_E'])
+                return (u_0_quantity + 0.).value
+                # Adding 0 ensures the units are simplified.
             except KeyError:
                 raise AttributeError(
                     'u_0 is not defined for these parameters: {0}'.format(
@@ -861,6 +869,8 @@ class ModelParameters(object):
 
     @q.setter
     def q(self, new_q):
+        if new_q < 0. or new_q > 1.:
+            raise ValueError('mass ratio q has to be between 0 and 1')
         self.parameters['q'] = new_q
         self._update_sources('q', new_q)
 

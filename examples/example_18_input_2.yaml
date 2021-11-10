@@ -1,0 +1,22 @@
+# The parameters below are similar to OGLE-2012-BLG-0406 (Poleski et al. 2014).
+parameters:
+  t_0: 2456141.736
+  u_0: 0.5441
+  t_E: 62.25
+  rho: 0.0097
+  pi_E_N: -0.026
+  pi_E_E: 0.029
+  s: 1.3514
+  q: 0.00417
+  alpha: 229.29
+coords: 17:53:18.17 -30:28:16.2
+flux_source: 500.
+flux_blending: 25.
+relative_uncertainty: 0.03
+methods: [2456050, VBBL, 2456250]
+time_settings:
+  type: random
+  n_epochs: 500
+  t_start: 2456050.
+  t_stop: 2456250.
+file_out: example_18_output_2.dat

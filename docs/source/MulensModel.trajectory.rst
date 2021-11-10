@@ -2,6 +2,6 @@ MulensModel.trajectory module
 =============================
 
 .. automodule:: MulensModel.trajectory
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -6,11 +6,22 @@ import warnings
 import numpy as np
 from math import fsum, sqrt
 
-import MulensModel
-from MulensModel.utils import Utils
+import MulensModel as mm
+try:
+    import MulensModel.VBBL as mm_vbbl
+except Exception:
+    _vbbl_wrapped = False
+else:
+    _vbbl_wrapped = True
+try:
+    import MulensModel.AdaptiveContouring as mm_ac
+except Exception:
+    _adaptive_contouring_wrapped = False
+else:
+    _adaptive_contouring_wrapped = True
 
 
-def _try_load(path):
+def _try_load(path, name):
     """
     Try loading compiled C library.
     Input is *str* or *list* of *str*.
@@ -21,16 +32,12 @@ def _try_load(path):
         try:
             out = ctypes.cdll.LoadLibrary(path_)
         except OSError:
-            print("OSError - File not loaded:", path_)
+            print("WARNING - File not loaded:", path_)
+            print("Everything should work except:", name)
             pass
         else:
             return out
     return None
-
-
-def _get_path_1(name):
-    """convenience function"""
-    return os.path.join(os.path.dirname(MulensModel.__file__), name + "*.so")
 
 
 def _get_path_2(name_1, name_2):
@@ -41,55 +48,76 @@ def _get_path_2(name_1, name_2):
     return os.path.join(module_path, 'source', name_1, name_2)
 
 
-vbbl = _try_load(glob.glob(_get_path_1("VBBL")))
-if vbbl is None:
-    vbbl = _try_load(_get_path_2('VBBL', "VBBinaryLensingLibrary_wrapper.so"))
-_vbbl_wrapped = (vbbl is not None)
+def _import_compiled_VBBL():
+    """try importing manually compiled VBBL package"""
+    vbbl = _try_load(
+        _get_path_2('VBBL', "VBBinaryLensingLibrary_wrapper.so"), "VBBL")
+    _vbbl_wrapped = (vbbl is not None)
+    if not _vbbl_wrapped:
+        return (_vbbl_wrapped, None, None)
 
-ac = "AdaptiveContouring"
-adaptive_contour = _try_load(glob.glob(_get_path_1(ac)))
-if adaptive_contour is None:
-    adaptive_contour = _try_load(_get_path_2(ac, ac + "_wrapper.so"))
-_adaptive_contouring_wrapped = (adaptive_contour is not None)
-
-if _vbbl_wrapped:
     vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
     vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
-    _vbbl_binary_mag_dark = vbbl.VBBinaryLensing_BinaryMagDark
 
     vbbl.VBBinaryLensing_BinaryMag.argtypes = 6 * [ctypes.c_double]
     vbbl.VBBinaryLensing_BinaryMag.restype = ctypes.c_double
-    _vbbl_binary_mag = vbbl.VBBinaryLensing_BinaryMag
 
     vbbl.VBBinaryLensing_BinaryMag0.argtypes = 7 * [ctypes.c_double]
     vbbl.VBBinaryLensing_BinaryMag0.restype = ctypes.c_double
-    _vbbl_binary_mag_0 = vbbl.VBBinaryLensing_BinaryMag0
 
     vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
     vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
-            dtype=ctypes.c_double, shape=(10,))
-    _vbbl_SG12_5 = vbbl.VBBL_SG12_5
-
+        dtype=ctypes.c_double, shape=(10,))
     vbbl.VBBL_SG12_2.argtypes = 6 * [ctypes.c_double]
     vbbl.VBBL_SG12_2.restype = np.ctypeslib.ndpointer(
             dtype=ctypes.c_double, shape=(4,))
-    _vbbl_SG12_2 = vbbl.VBBL_SG12_2
 
     vbbl.VBBL_SG12_9.argtypes = 20 * [ctypes.c_double]
     vbbl.VBBL_SG12_9.restype = np.ctypeslib.ndpointer(
             dtype=ctypes.c_double, shape=(18,))
-    _vbbl_SG12_9 = vbbl.VBBL_SG12_9
+
+    return (_vbbl_wrapped,
+            vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5, 
+            vbbl.VBBinaryLensing_BinaryMag0, vbbl.VBBL_SG12_9)
+
+
+def _import_compiled_AdaptiveContouring():
+    """try importing manually compiled AdaptiveContouring package"""
+    ac = "AdaptiveContouring"
+    adaptive_contour = _try_load(_get_path_2(ac, ac + "_wrapper.so"), ac)
+    _adaptive_contouring_wrapped = (adaptive_contour is not None)
+    if not _adaptive_contouring_wrapped:
+        return (_adaptive_contouring_wrapped, None)
+    adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
+        8 * [ctypes.c_double])
+    adaptive_contour.Adaptive_Contouring_Linear.restype = ctypes.c_double
+    return (_adaptive_contouring_wrapped,
+            adaptive_contour.Adaptive_Contouring_Linear)
+
+
+
+# Check import and try manually compiled versions.
+if _vbbl_wrapped:
+    _vbbl_binary_mag_dark = mm_vbbl.VBBinaryLensing_BinaryMagDark
+    _vbbl_SG12_5 = mm_vbbl.VBBL_SG12_5
+else:
+    out = _import_compiled_VBBL()
+    _vbbl_wrapped = out[0]
+    _vbbl_binary_mag_dark = out[1]
+    _vbbl_SG12_5 = out[2]
+    _vbbl_binary_mag_0 = out[3]
+    _vbbl_SG12_9 = out[4]
 
 if not _vbbl_wrapped:
     _solver = 'numpy'
 else:
     _solver = 'Skowron_and_Gould_12'
-
 if _adaptive_contouring_wrapped:
-    adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
-        8 * [ctypes.c_double])
-    adaptive_contour.Adaptive_Contouring_Linear.restype = ctypes.c_double
-    _adaptive_contouring_linear = adaptive_contour.Adaptive_Contouring_Linear
+    _adaptive_contouring_linear = mm_ac.Adaptive_Contouring_Linear
+else:
+    out = _import_compiled_AdaptiveContouring()
+    _adaptive_contouring_wrapped = out[0]
+    _adaptive_contouring_linear = out[1]
 
 
 class BinaryLens(object):
@@ -119,9 +147,9 @@ class BinaryLens(object):
 
     """
     def __init__(self, mass_1=None, mass_2=None, separation=None, K=0.0, G=0.0):
-        self.mass_1 = mass_1
-        self.mass_2 = mass_2
-        self.separation = separation
+        self.mass_1 = float(mass_1)
+        self.mass_2 = float(mass_2)
+        self.separation = float(separation)
         self.K = K
         self.G = G
         self._total_mass = None
@@ -180,42 +208,42 @@ class BinaryLens(object):
         K_pow3 = K * K_pow2
 
         zeta = self._zeta
-        zeta_conj = np.conjugate(zeta)
+        zeta_conj = zeta.conjugate()
         zeta_conj_pow2 = zeta_conj * zeta_conj
 
 
         # # Calculate the coefficients of the 5th order complex polynomial now with convergence
-        coeff_5 = Utils.complex_fsum([-z1_pow2*K_pow3 , 3*z1_pow2*K_pow2 , - 3*z1_pow2*K , z1_pow2 , K*zeta_conj_pow2 , - zeta_conj_pow2])
-        coeff_4 = Utils.complex_fsum([2*total_m*K*zeta_conj , - 2*total_m*zeta_conj , - zeta*z1_pow2*K_pow2 , 2*zeta*z1_pow2*K , - zeta*z1_pow2 , zeta*zeta_conj_pow2 , 2*pos_z1*K_pow2*m_diff , - 4*pos_z1*K*m_diff , 2*pos_z1*m_diff])
-        coeff_3 = Utils.complex_fsum([4*total_m*zeta*zeta_conj , 2*z1_pow4*K_pow3 , - 6*z1_pow4*K_pow2 , 6*z1_pow4*K , - 2*z1_pow4 , - 2*z1_pow2*K*zeta_conj_pow2 , 2*z1_pow2*zeta_conj_pow2 , 4*pos_z1*K*m_diff*zeta_conj , - 4*pos_z1*m_diff*zeta_conj])
-        coeff_2 = Utils.complex_fsum([4*total_m_pow2*zeta , 4*total_m*pos_z1*K*m_diff , - 4*total_m*pos_z1*m_diff , 2*zeta*z1_pow4*K_pow2 , - 4*zeta*z1_pow4*K , 2*zeta*z1_pow4 , - 2*zeta*z1_pow2*zeta_conj_pow2 , 4*zeta*pos_z1*m_diff*zeta_conj , - 4*z1_pow3*K_pow2*m_diff , 8*z1_pow3*K*m_diff , - 4*z1_pow3*m_diff])
-        coeff_1 = Utils.complex_fsum([4*total_m_pow2*z1_pow2*K , - 4*total_m_pow2*z1_pow2 , - 4*total_m*zeta*z1_pow2*zeta_conj , 8*total_m*zeta*pos_z1*m_diff , - z1_pow6*K_pow3 , 3*z1_pow6*K_pow2 , - 3*z1_pow6*K , z1_pow6 , z1_pow4*K*zeta_conj_pow2 , - z1_pow4*zeta_conj_pow2 , - 4*z1_pow3*K*m_diff*zeta_conj , 4*z1_pow3*m_diff*zeta_conj , 4*z1_pow2*K*m_diff_pow2 , - 4*z1_pow2*m_diff_pow2])
-        coeff_0 = Utils.complex_fsum([-2*total_m*z1_pow4*K*zeta_conj , 2*total_m*z1_pow4*zeta_conj , 4*total_m*z1_pow3*K*m_diff , - 4*total_m*z1_pow3*m_diff , - zeta*z1_pow6*K_pow2 , 2*zeta*z1_pow6*K , - zeta*z1_pow6 , zeta*z1_pow4*zeta_conj_pow2 , - 4*zeta*z1_pow3*m_diff*zeta_conj , 4*zeta*z1_pow2*m_diff_pow2 , 2*z1_pow5*K_pow2*m_diff , - 4*z1_pow5*K*m_diff , 2*z1_pow5*m_diff])
+        coeff_5 = mm.Utils.complex_fsum([-z1_pow2*K_pow3 , 3*z1_pow2*K_pow2 , - 3*z1_pow2*K , z1_pow2 , K*zeta_conj_pow2 , - zeta_conj_pow2])
+        coeff_4 = mm.Utils.complex_fsum([2*total_m*K*zeta_conj , - 2*total_m*zeta_conj , - zeta*z1_pow2*K_pow2 , 2*zeta*z1_pow2*K , - zeta*z1_pow2 , zeta*zeta_conj_pow2 , 2*pos_z1*K_pow2*m_diff , - 4*pos_z1*K*m_diff , 2*pos_z1*m_diff])
+        coeff_3 = mm.Utils.complex_fsum([4*total_m*zeta*zeta_conj , 2*z1_pow4*K_pow3 , - 6*z1_pow4*K_pow2 , 6*z1_pow4*K , - 2*z1_pow4 , - 2*z1_pow2*K*zeta_conj_pow2 , 2*z1_pow2*zeta_conj_pow2 , 4*pos_z1*K*m_diff*zeta_conj , - 4*pos_z1*m_diff*zeta_conj])
+        coeff_2 = mm.Utils.complex_fsum([4*total_m_pow2*zeta , 4*total_m*pos_z1*K*m_diff , - 4*total_m*pos_z1*m_diff , 2*zeta*z1_pow4*K_pow2 , - 4*zeta*z1_pow4*K , 2*zeta*z1_pow4 , - 2*zeta*z1_pow2*zeta_conj_pow2 , 4*zeta*pos_z1*m_diff*zeta_conj , - 4*z1_pow3*K_pow2*m_diff , 8*z1_pow3*K*m_diff , - 4*z1_pow3*m_diff])
+        coeff_1 = mm.Utils.complex_fsum([4*total_m_pow2*z1_pow2*K , - 4*total_m_pow2*z1_pow2 , - 4*total_m*zeta*z1_pow2*zeta_conj , 8*total_m*zeta*pos_z1*m_diff , - z1_pow6*K_pow3 , 3*z1_pow6*K_pow2 , - 3*z1_pow6*K , z1_pow6 , z1_pow4*K*zeta_conj_pow2 , - z1_pow4*zeta_conj_pow2 , - 4*z1_pow3*K*m_diff*zeta_conj , 4*z1_pow3*m_diff*zeta_conj , 4*z1_pow2*K*m_diff_pow2 , - 4*z1_pow2*m_diff_pow2])
+        coeff_0 = mm.Utils.complex_fsum([-2*total_m*z1_pow4*K*zeta_conj , 2*total_m*z1_pow4*zeta_conj , 4*total_m*z1_pow3*K*m_diff , - 4*total_m*z1_pow3*m_diff , - zeta*z1_pow6*K_pow2 , 2*zeta*z1_pow6*K , - zeta*z1_pow6 , zeta*z1_pow4*zeta_conj_pow2 , - 4*zeta*z1_pow3*m_diff*zeta_conj , 4*zeta*z1_pow2*m_diff_pow2 , 2*z1_pow5*K_pow2*m_diff , - 4*z1_pow5*K*m_diff , 2*z1_pow5*m_diff])
 
         # Calculate the coefficients of the 5th order complex polynomial
-        # coeff_5 = Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
-        # coeff_4 = Utils.complex_fsum(
+        # coeff_5 = mm.Utils.complex_fsum([z1_pow2, -zeta_conj_pow2])
+        # coeff_4 = mm.Utils.complex_fsum(
         #     [-2. * total_m * zeta_conj,
         #      zeta * zeta_conj_pow2, -2. * m_diff * pos_z1,
         #      -zeta * z1_pow2])
-        # coeff_3 = Utils.complex_fsum(
+        # coeff_3 = mm.Utils.complex_fsum(
         #     [4. * total_m * zeta * zeta_conj,
         #      4. * m_diff * zeta_conj * pos_z1,
         #      2. * zeta_conj_pow2 * z1_pow2, -2. * z1_pow4])
-        # coeff_2 = Utils.complex_fsum(
+        # coeff_2 = mm.Utils.complex_fsum(
         #     [4. * total_m_pow2 * zeta,
         #      4. * total_m * m_diff * pos_z1,
         #      -4. * m_diff * zeta * zeta_conj * pos_z1,
         #      -2. * zeta * zeta_conj_pow2 * z1_pow2,
         #      4. * m_diff * z1_pow3, 2. * zeta * z1_pow4])
-        # coeff_1 = Utils.complex_fsum(
+        # coeff_1 = mm.Utils.complex_fsum(
         #     [-8. * total_m * m_diff * zeta * pos_z1,
         #      -4. * m_diff_pow2 * z1_pow2,
         #      -4. * total_m_pow2 * z1_pow2,
         #      -4. * total_m * zeta * zeta_conj * z1_pow2,
         #      -4. * m_diff * zeta_conj * z1_pow3,
         #      -zeta_conj_pow2 * z1_pow4, z1_pow3 * z1_pow3])
-        # coeff_0 = Utils.complex_fsum(
+        # coeff_0 = mm.Utils.complex_fsum(
         #     [4. * m_diff_pow2 * zeta,
         #      4. * total_m * m_diff * pos_z1,
         #      4. * m_diff * zeta * zeta_conj * pos_z1,
@@ -241,7 +269,7 @@ class BinaryLens(object):
         m_diff_pow3 = m_diff * m_diff_pow2
 
         zeta = self._zeta
-        zeta_conj = np.conjugate(zeta)
+        zeta_conj = zeta.conjugate()
         zeta_conj_pow2 = zeta_conj * zeta_conj
         zeta_conj_pow3 = zeta_conj * zeta_conj_pow2
 
@@ -264,7 +292,7 @@ class BinaryLens(object):
         Gc_pow3 = Gc * Gc_pow2
         Gc_pow4 = Gc_pow2 * Gc_pow2
     
-        c_sum = Utils.complex_fsum
+        c_sum = mm.Utils.complex_fsum
 
         z1 = self._position_z1
         z1_pow2 = z1 * z1
@@ -363,10 +391,11 @@ class BinaryLens(object):
                 self._solver = 'numpy'
                 self._polynomial_roots = np_polyroots(polynomial)
             else:
-                #roots = [out[i] + out[i+5] * 1.j for i in range(5)]
+                # self._polynomial_roots = np.array([
+                #     out[0]+out[5]*1.j, out[1]+out[6]*1.j, out[2]+out[7]*1.j,
+                #     out[3]+out[8]*1.j, out[4]+out[9]*1.j])
                 roots = [out[i] + out[i+9] * 1.j for i in range(9) if ((abs(out[i]) > 1e-10 or abs(out[i+9]) > 1e-10) 
                         and (abs(out[i] - self._position_z1) > 1e-10 or abs(out[i+9]) > 1e-10))]
-                # roots = [out[i] + out[i+2] * 1.j for i in range(2)]
                 self._polynomial_roots = np.array(roots)
         else:
             raise ValueError('Unknown solver: {:}'.format(self._solver))
@@ -380,10 +409,12 @@ class BinaryLens(object):
         roots = self._get_polynomial_roots(
             source_x=source_x, source_y=source_y)
 
-        component2 = self.mass_1 / np.conjugate(roots - self._position_z1)
-        component3 = self.mass_2 / np.conjugate(roots - self._position_z2)
-        solutions = (self._zeta + self.G * np.conjugate(roots) + component2 + component3) / (1 - self.K)
+        roots_conj = np.conjugate(roots)
+        component2 = self.mass_1 / (roots_conj - self._position_z1)
+        component3 = self.mass_2 / (roots_conj - self._position_z2)
+        solutions = (self._zeta + self.G * roots_conj + component2 + component3) / (1 - self.K)
         # solutions = (self._zeta + 1 / np.conjugate(roots)) / (1 - self.K)
+
         # This backs-up the lens equation.
 
 
@@ -422,14 +453,16 @@ class BinaryLens(object):
                     "numpy.polynomial.polynomial.polyroots(). " +
                     "Skowron_and_Gould_12 method is selected in automated " +
                     "way if VBBL is imported properly.")
-            else:
-                distance = sqrt(source_x**2 + source_y**2)
-                if (self.mass_2 > 1.e-6 * self.mass_1 and
-                        (distance < 15. or distance < 2. * self.separation)):
-                    txt += ("\n\nThis is surprising error - please contact " +
-                            "code authors and provide the above error " +
-                            "message.")
-            txt += "\nMulensModel version: {:}".format(MulensModel.__version__)
+            distance = sqrt(source_x**2 + source_y**2)
+            if (self.mass_2 > 1.e-6 * self.mass_1 and
+                    (distance < 15. or distance < 2. * self.separation)):
+                txt += ("\n\nThis is surprising error - please contact code " +
+                        "authors and provide the above error message.")
+            elif distance > 200.:
+                txt += ("\n\nYou try to calculate magnification at huge " +
+                        "distance from the source and this is causing an " +
+                        "error.")
+            txt += "\nMulensModel version: {:}".format(mm.__version__)
 
             raise ValueError(txt)
         if return_distances:
@@ -489,7 +522,8 @@ class BinaryLens(object):
         x_shift *= self.separation
         # We need to add this because in order to shift to correct frame.
         return self._point_source_Witt_Mao_95(
-                source_x=source_x+x_shift, source_y=source_y)
+                source_x=float(source_x)+x_shift, source_y=float(source_y))
+        # Casting to float speeds-up code for np.float input.
 
     def _get_magnification_w_plus(self, source_x, source_y, radius,
                                   magnification_center=None):
@@ -523,6 +557,21 @@ class BinaryLens(object):
             magnification_center = self.point_source_magnification(
                                     source_x=source_x, source_y=source_y)
         return 0.25 * fsum(out) - magnification_center
+
+    def _rho_check(self, rho):
+        """
+        Check if rho is float and positive.
+        """
+        if rho is None:
+            raise TypeError(
+                'rho must be positive float, but None was provided')
+        if not isinstance(rho, float):
+            raise TypeError(
+                'rho must be positive float, but ' + str(rho) +
+                str(type(rho)) + ' was provided')
+        if rho < 0:
+            raise ValueError(
+                'rho must be positive, got: {:}'.format(rho))
 
     def hexadecapole_magnification(self, source_x, source_y, rho, gamma,
                                    quadrupole=False, all_approximations=False):
@@ -568,6 +617,7 @@ class BinaryLens(object):
         if quadrupole and all_approximations:
             raise ValueError('Inconsistent parameters of ' +
                              'BinaryLens.hexadecapole_magnification()')
+        self._rho_check(rho)
 
         a_center = self.point_source_magnification(
             source_x=source_x, source_y=source_y)
@@ -666,6 +716,7 @@ class BinaryLens(object):
         if ld_accuracy <= 0.:
             raise ValueError('adaptive_contouring requires ld_accuracy > 0')
         # Note that this accuracy is not guaranteed.
+        self._rho_check(rho)
 
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
@@ -677,7 +728,7 @@ class BinaryLens(object):
         elif gamma is not None:
             gamma = float(gamma)
         elif u_limb_darkening is not None:
-            gamma = float(Utils.u_to_gamma(u_limb_darkening))
+            gamma = float(mm.Utils.u_to_gamma(u_limb_darkening))
         else:
             gamma = float(0.0)
 
@@ -687,6 +738,9 @@ class BinaryLens(object):
         # so we have to transform the coordinates below.
         x = float(-source_x)
         y = float(-source_y)
+        rho = float(rho)
+        accuracy = float(accuracy)
+        ld_accuracy = float(ld_accuracy)
 
         magnification = _adaptive_contouring_linear(
             s, q, x, y, rho, gamma, accuracy, ld_accuracy)
@@ -734,6 +788,7 @@ class BinaryLens(object):
                 Magnification.
 
         """
+        self._rho_check(rho)
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
@@ -746,7 +801,7 @@ class BinaryLens(object):
             raise ValueError('Only one limb darkening parameters can be set' +
                              ' in BinaryLens.vbbl_magnification()')
         elif gamma is not None:
-            u_limb_darkening = float(Utils.gamma_to_u(gamma))
+            u_limb_darkening = float(mm.Utils.gamma_to_u(gamma))
         elif u_limb_darkening is not None:
             u_limb_darkening = float(u_limb_darkening)
         else:
@@ -756,6 +811,8 @@ class BinaryLens(object):
         q = float(self.mass_2 / self.mass_1)
         x = float(source_x)
         y = float(source_y)
+        rho = float(rho)
+        accuracy = float(accuracy)
 
         #magnification = _vbbl_binary_mag_dark(
         #    s, q, x, y, rho, u_limb_darkening, accuracy)
@@ -765,15 +822,3 @@ class BinaryLens(object):
             s, q, x, y, self.K, self.G.real, self.G.imag)
 
         return magnification
-        # To get the image positions from VBBL, following C++ code has
-        # to be run:
-        #  _sols *Images;
-        #  Mag=VBBL.BinaryMag(s, q, y1, y2, rho, accuracy, &Images);
-        #  for(_curve *c=Images->first; c; c=c->next) {
-        #      for(_point *p=c->first; p; p=p->next) {
-        #          // Here p->x1 and p->x2 give next point
-        #      }
-        #  }
-        #  delete Images;
-        # This code was written for version 1.X. Check if it's the same
-        # (maybe simpler) in 2.X.

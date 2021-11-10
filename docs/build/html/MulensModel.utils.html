@@ -1,0 +1,394 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MulensModel.utils module &#8212; MulensModel 1.14.26 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.14.26',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-MulensModel.utils">
+<span id="mulensmodel-utils-module"></span><h1>MulensModel.utils module<a class="headerlink" href="#module-MulensModel.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MulensModel.utils.Utils">
+<em class="property">class </em><code class="descclassname">MulensModel.utils.</code><code class="descname">Utils</code><a class="headerlink" href="#MulensModel.utils.Utils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A number of small functions used in different places</p>
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_flux_from_mag">
+<em class="property">static </em><code class="descname">get_flux_from_mag</code><span class="sig-paren">(</span><em>mag</em>, <em>zeropoint=22.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_from_mag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform magnitudes into fluxes.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>mag: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Values to be transformed.</dd>
+<dt>zeropoint: <em>float</em></dt>
+<dd>Zeropoint of magnitude scale.
+Defaults to 22. - double check if you want to change this.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>flux: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Calculated fluxes. Type is the same as <em>mag</em> parameter.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_flux_and_err_from_mag">
+<em class="property">static </em><code class="descname">get_flux_and_err_from_mag</code><span class="sig-paren">(</span><em>mag</em>, <em>err_mag</em>, <em>zeropoint=22.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_flux_and_err_from_mag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform magnitudes and their uncertainties into flux space.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>mag: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Magnitude values to be transformed.</dd>
+<dt>err_mag: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Uncertainties of magnitudes to be transformed.</dd>
+<dt>zeropoint: <em>float</em></dt>
+<dd>Zeropoint of magnitude scale.
+Defaults to 22. - double check if you want to change this.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>flux: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Calculated fluxes. Type is the same as <em>mag</em> parameter.</dd>
+<dt>err_flux: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Calculated flux uncertainties. Type is <em>float</em> if both <em>mag</em>
+and <em>err_mag</em> are <em>floats</em> and <em>np.ndarray</em> otherwise.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_mag_from_flux">
+<em class="property">static </em><code class="descname">get_mag_from_flux</code><span class="sig-paren">(</span><em>flux</em>, <em>zeropoint=22.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_from_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform fluxes into magnitudes.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>flux: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Values to be transformed.</dd>
+<dt>zeropoint: <em>float</em></dt>
+<dd>Zeropoint of magnitude scale.
+Defaults to 22. - double check if you want to change this.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>mag: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Calculated fluxes. Type is the same as <em>flux</em> parameter.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_mag_and_err_from_flux">
+<em class="property">static </em><code class="descname">get_mag_and_err_from_flux</code><span class="sig-paren">(</span><em>flux</em>, <em>err_flux</em>, <em>zeropoint=22.0</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_mag_and_err_from_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform fluxes and their uncertainties into magnitude space.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>flux: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Flux values to be transformed.</dd>
+<dt>err_flux: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Uncertainties of fluxes to be transformed.</dd>
+<dt>zeropoint: <em>float</em></dt>
+<dd>Zeropoint of magnitude scale.
+Defaults to 22. - double check if you want to change this.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>mag: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Calculated fluxes. Type is the same as <em>mag</em> parameter.</dd>
+<dt>err_mag: <em>np.ndarray</em> or <em>float</em></dt>
+<dd>Calculated magnitude uncertainties. Type is <em>float</em> if both
+<em>flux</em> and <em>err_flux</em> are <em>floats</em> and <em>np.ndarray</em> otherwise.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.gamma_to_u">
+<em class="property">static </em><code class="descname">gamma_to_u</code><span class="sig-paren">(</span><em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.gamma_to_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform gamma limb darkening coefficient to u in convention
+introduced by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract">An et al. 2008 (ApJ 681, 1593)</a>.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>gamma: <em>float</em></dt>
+<dd>Limb darkening coefficient in gamma convention.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>u: <em>float</em></dt>
+<dd>Limb darkening coefficient in u convention.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.u_to_gamma">
+<em class="property">static </em><code class="descname">u_to_gamma</code><span class="sig-paren">(</span><em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.u_to_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform u limb darkening coefficient to gamma in convention
+introduced by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2002ApJ...572..521A/abstract">An et al. 2008 (ApJ 681, 1593)</a>.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>u: <em>float</em></dt>
+<dd>Limb darkening coefficient in u convention.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>gamma: <em>float</em></dt>
+<dd>Limb darkening coefficient in gamma convention.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.get_n_caustics">
+<em class="property">static </em><code class="descname">get_n_caustics</code><span class="sig-paren">(</span><em>s</em>, <em>q</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.get_n_caustics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find number of caustics for binary lens.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>s: <em>float</em></dt>
+<dd>Separation of binary lens relative to theta_E.</dd>
+<dt>q: <em>float</em></dt>
+<dd>Mass ratio (&lt;1).</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>n_caustics: <em>int</em></dt>
+<dd>Number of caustics: 1, 2, or 3.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.velocity_of_Earth">
+<em class="property">static </em><code class="descname">velocity_of_Earth</code><span class="sig-paren">(</span><em>full_BJD</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.velocity_of_Earth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate 3D velocity of Earth for given epoch.</p>
+<p>If you need velocity projected on the plane of the sky, then use
+<a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates.v_Earth_projected" title="MulensModel.coordinates.Coordinates.v_Earth_projected"><code class="xref py py-func docutils literal"><span class="pre">v_Earth_projected()</span></code></a></p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>full_BJD: <em>float</em></dt>
+<dd>Are we fitting for blending flux? If not then blending flux is
+fixed to 0.  Default is the same as
+<a class="reference internal" href="MulensModel.fit.html#MulensModel.fit.Fit.fit_fluxes" title="MulensModel.fit.Fit.fit_fluxes"><code class="xref py py-func docutils literal"><span class="pre">MulensModel.fit.Fit.fit_fluxes()</span></code></a>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>velocity: <em>np.ndarray</em> (<em>float</em>, size of (3,))</dt>
+<dd>3D velocity in km/s. The frame follows <em>Astropy</em> conventions.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.complex_fsum">
+<em class="property">static </em><code class="descname">complex_fsum</code><span class="sig-paren">(</span><em>arguments</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.complex_fsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accurate floating points sum of complex numbers in iterable.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd>arguments: <em>iterable</em> (e.g., <em>list</em> or <em>np.ndarray</em>)</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>sum: <em>complex</em></dt>
+<dd>Sum of <em>arguments</em>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.vector_product_normalized">
+<em class="property">static </em><code class="descname">vector_product_normalized</code><span class="sig-paren">(</span><em>vector_1</em>, <em>vector_2</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.vector_product_normalized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get vector that is perpendicular to the 2 input ones and is normalized.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>vector_1: <em>np.ndarray</em> (3,)</dt>
+<dd>First vector.</dd>
+<dt>vector_2: <em>np.ndarray</em> (3,)</dt>
+<dd>Second vector.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>vector_product_norm: <em>np.ndarray</em> (3,)</dt>
+<dd>Normalized vector product of the inputs.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.dot">
+<em class="property">static </em><code class="descname">dot</code><span class="sig-paren">(</span><em>cartesian</em>, <em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dot product of 2 vectors represented by
+<em>astropy.CartesianRepresentation</em> and <em>np.ndarray</em>.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>cartesian: <em>astropy.CartesianRepresentation</em></dt>
+<dd>First vector.</dd>
+<dt>vector: <em>np.ndarray</em></dt>
+<dd>Second vector (length 3).</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>dot_product: <em>astropy.Quantity</em></dt>
+<dd>Dot product of inputs.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.date_change">
+<em class="property">static </em><code class="descname">date_change</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.date_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change format of month in date, e.g.
+<em>‘2015-Oct-30 12:00’</em> -&gt; <em>‘2015-10-30 12:00’</em></p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>text: <em>str</em></dt>
+<dd>Date to be changed.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>out_text: <em>str</em></dt>
+<dd>Changed text.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="MulensModel.utils.Utils.astropy_version_check">
+<em class="property">static </em><code class="descname">astropy_version_check</code><span class="sig-paren">(</span><em>minimum</em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.utils.Utils.astropy_version_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <em>astropy</em> package is installed at given or later version.</p>
+<dl class="docutils">
+<dt>Parameters :</dt>
+<dd><dl class="first last docutils">
+<dt>minimum: <em>str</em></dt>
+<dd>Minimum version, e.g., <em>‘3.1.2’</em>.</dd>
+</dl>
+</dd>
+<dt>Returns :</dt>
+<dd><dl class="first last docutils">
+<dt>out: <em>bool</em></dt>
+<dd>Is the installed version later?</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/MulensModel.utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/MulensModel.utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

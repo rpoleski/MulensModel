@@ -40,7 +40,7 @@ class Minimizer(object):
         for a given set of parameters (theta), return the gradient of chi^2
         """
         self.set_parameters(theta)  # might be redundant, but probably safer
-        return self.event.chi2_gradient(self.parameters_to_fit)
+        return self.event.get_chi2_gradient(self.parameters_to_fit)
 
 
 # Read in the data file
@@ -84,10 +84,10 @@ print(result)
 
 # Plot and compare the two models
 init_model = mm.Model(dict(t_0=t_0, u_0=u_0, t_E=t_E))
-final_model = mm.Model(dict(t_0=fit_t_0, u_0=fit_u_0, t_E=fit_t_E))
+init_event = mm.Event(model=init_model, datasets=data)
 plt.figure()
-init_model.plot_lc(data_ref=data, label='Initial Trial')
-final_model.plot_lc(data_ref=data, label='Final Model')
+init_event.plot_model(label='Initial Trial')
+ev.plot_model(label='Final Model')
 plt.title('Difference b/w Input and Fitted Model')
 plt.legend(loc='best')
 
@@ -98,4 +98,3 @@ ev.plot_data()
 plt.title('Data and Fitted Model')
 
 plt.show()
-
