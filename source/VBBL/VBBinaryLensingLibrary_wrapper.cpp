@@ -34,3 +34,13 @@ extern "C" double* VBBL_SG12_5(double p0, double p1,
 
     return roots;
 }
+
+extern "C" {
+  double VBBL_BinaryMag(double a,double q,double y1,double y2) {
+    static VBBinaryLensing VBBL;
+
+    return VBBL.BinaryMag0(a, q, y1, y2);
+  }
+}
+
+

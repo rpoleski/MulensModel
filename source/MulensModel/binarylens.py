@@ -63,8 +63,12 @@ def _import_compiled_VBBL():
     vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
         dtype=ctypes.c_double, shape=(10,))
 
+    vbbl.VBBL_BinaryMag.argtypes = 4 * [ctypes.c_double]
+    vbbl.VBBL_BinaryMag.restype = ctypes.c_double
+
     return (_vbbl_wrapped,
-            vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5)
+            vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5,
+            vbbl.VBBL_BinaryMag)
 
 
 def _import_compiled_AdaptiveContouring():
@@ -90,6 +94,7 @@ else:
     _vbbl_wrapped = out[0]
     _vbbl_binary_mag_dark = out[1]
     _vbbl_SG12_5 = out[2]
+    _vbbl_binary_mag = out[3]
 if not _vbbl_wrapped:
     _solver = 'numpy'
 else:
@@ -411,6 +416,9 @@ class BinaryLens(object):
             magnification: *float*
                 Point source magnification.
         """
+        args = [self.separation, self.mass_2/self.mass_1, source_x, source_y]
+        return _vbbl_binary_mag(*[float(arg) for arg in args])
+        """
         if self._use_planet_frame:
             x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
         else:
@@ -419,6 +427,7 @@ class BinaryLens(object):
         # We need to add this because in order to shift to correct frame.
         return self._point_source_Witt_Mao_95(
                 source_x=float(source_x)+x_shift, source_y=float(source_y))
+        """
         # Casting to float speeds-up code for np.float input.
 
     def _get_magnification_w_plus(self, source_x, source_y, radius,
