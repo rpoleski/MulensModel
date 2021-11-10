@@ -142,7 +142,7 @@ class BinaryLens(object):
     possibility.
 
     """
-    def __init__(self, mass_1=None, mass_2=None, separation=None, K=0.0, G=0.0):
+    def __init__(self, mass_1=None, mass_2=None, separation=None, K=0.0, G=complex(0,0)):
         self.mass_1 = float(mass_1)
         self.mass_2 = float(mass_2)
         self.separation = float(separation)

@@ -536,22 +536,6 @@ double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v,
 		coefs[26] = K;
 		coefs[27] = G;
 
-
-		// coefs[5] = a*K*K*yc - 2*a*K*yc + a*yc + K*yc*yc - yc*yc;
-		// coefs[4] = mtot*a*K*K - 2*mtot*a*K + mtot*a + 2*mtot*K*yc - 2*mtot*yc + y*a*K*yc - y*a*yc + y*yc*yc - 2*a*a*K*K*yc + 4*a*a*K*yc - 2*a*a*yc - a*K*K*mdiff + 2*a*K*mdiff - 2*a*K*yc*yc - a*mdiff + 2*a*yc*yc;
-		// coefs[3] = 2*mtot*y*a*K - 2*mtot*y*a + 4*mtot*y*yc - mtot*a*a*K*K + 2*mtot*a*a*K - mtot*a*a - 2*mtot*a*K*yc + 2*mtot*a*yc - 2*y*a*a*K*yc + 2*y*a*a*yc - 2*y*a*yc*yc + a*a*a*K*K*yc - 2*a*a*a*K*yc + a*a*a*yc + a*a*K*K*mdiff - 2*a*a*K*mdiff + a*a*K*yc*yc + a*a*mdiff - a*a*yc*yc - 2*a*K*mdiff*yc + 2*a*mdiff*yc;
-		// coefs[2] = 4*mtot*mtot*y + 2*mtot*mtot*a*K - 2*mtot*mtot*a - 3*mtot*y*a*a*K + 3*mtot*y*a*a - 6*mtot*y*a*yc - 2*mtot*a*K*mdiff + 2*mtot*a*mdiff + y*a*a*a*K*yc - y*a*a*a*yc - y*a*a*K*mdiff + y*a*a*mdiff + y*a*a*yc*yc - 2*y*a*mdiff*yc + 2*a*a*K*mdiff*yc - 2*a*a*mdiff*yc;
-		// coefs[1] = -4*mtot*mtot*y*a - mtot*mtot*a*a*K + mtot*mtot*a*a + mtot*y*a*a*a*K - mtot*y*a*a*a + 2*mtot*y*a*a*yc - 4*mtot*y*a*mdiff + y*a*a*a*K*mdiff - y*a*a*a*mdiff + 2*y*a*a*mdiff*yc + a*a*K*mdiff*mdiff - a*a*mdiff*mdiff;
-		// coefs[0] = mtot*mtot*y*a*a + 2*mtot*y*a*a*mdiff + y*a*a*mdiff*mdiff;
-
-		// coefs[0] = coefs[9] * y;
-		// coefs[1] = coefs[10] * (coefs[20] * (coefs[21] + y*(2 * yc - coefs[20])) - 2 * y);
-		// coefs[2] = y*(1 - coefs[7] * yc) - coefs[20] * (coefs[21] + 2 * y*yc*(1 + coefs[22])) + coefs[6] * (yc*(coefs[21] - coefs[22]) + y*(1 + coefs[22] + yc*yc));
-		// coefs[3] = 2 * y*yc + coefs[7] * yc + coefs[6] * (yc*(2 * y - yc) - coefs[21]) - coefs[20] * (y + 2 * yc*(yc*y - coefs[22]));
-		// coefs[4] = yc*(2 * coefs[20] + y);
-		// coefs[4] = yc*(coefs[4] - 1) - coefs[20] * (coefs[4] - coefs[21]);
-		// coefs[5] = yc*(coefs[20] - yc);	
-
 	}
 	y = complex(y1v, y2v);
 	(*Images) = new _sols;

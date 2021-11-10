@@ -434,9 +434,10 @@ class ModelParameters(object):
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
             if (('s' not in keys) or
-                    ('q' not in keys) or ('alpha' not in keys)):
+                    ('q' not in keys) or ('alpha' not in keys)
+                    or ('K' not in keys) or ('G' not in keys)):
                 raise KeyError(
-                    'A binary model requires all three of (s, q, alpha).')
+                    'A binary model requires all five of (s, q, alpha, K, G).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
@@ -536,7 +537,7 @@ class ModelParameters(object):
 
         Also, check that all values are scalars (except pi_E vector).
         """
-        names = ['t_E', 't_star', 'rho', 's']
+        names = ['t_E', 't_star', 'rho', 's', 'K']
         full_names = {
             't_E': 'Einstein timescale',
             't_star': 'Source crossing time', 'rho': 'Source size',
@@ -891,7 +892,7 @@ class ModelParameters(object):
     @property
     def G(self):
         """
-        *float*
+        *complex*
 
         Shear of external mass sheet.
         """
