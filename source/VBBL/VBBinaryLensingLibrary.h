@@ -86,7 +86,6 @@ namespace VBBinaryLensingLibrary {
 		double BinaryMag0(double s, double q, double y1, double y2, double K1, double G1, double Gi);
 		double BinaryMag(double s,double q,double y1,double y2,double rho,double accuracy, _sols **Images);
 		double BinaryMag(double s,double q ,double y1,double y2,double rho,double accuracy);
-		double BinaryMag2(double s, double q, double y1, double y2, double rho);
 		double BinaryMagDark(double s, double q, double y1, double y2, double rho, double a1,double accuracy);
 		void BinaryMagMultiDark(double s, double q, double y1, double y2, double rho, double *a1_list, int n_filters, double *mag_list, double accuracy);
 
