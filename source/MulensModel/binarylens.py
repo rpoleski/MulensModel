@@ -121,7 +121,8 @@ class BinaryLens(object):
     The binary lens equation - its solutions, images, parities,
     magnifications, etc.
 
-    The binary lens equation is a 5th order complex polynomial.
+    The binary lens equation is a 5th order complex polynomial 
+    or a 9th order complex polynomial if including external shear.
 
     Attributes :
         mass_1: *float*
@@ -135,6 +136,12 @@ class BinaryLens(object):
         separation: *float*
             separation between the two bodies as a fraction of the Einstein
             ring.
+        
+        convergence_K: *float*
+            External mass sheet convergence.
+        
+        shear_G: *complex*
+            External mass sheat shear.
 
     Note: mass_1 and mass_2 may be defined as a fraction of some other
     mass than the total mass. This is possible but not recommended -
@@ -142,12 +149,12 @@ class BinaryLens(object):
     possibility.
 
     """
-    def __init__(self, mass_1=None, mass_2=None, separation=None, K=0.0, G=complex(0,0)):
+    def __init__(self, mass_1=None, mass_2=None, separation=None, convergence_K=None, shear_G=None):
         self.mass_1 = float(mass_1)
         self.mass_2 = float(mass_2)
         self.separation = float(separation)
-        self.K = K
-        self.G = G
+        self.convergence_K = convergence_K
+        self.shear_G = shear_G
         self._total_mass = None
         self._mass_difference = None
         self._position_z1 = None

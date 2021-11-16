@@ -78,3 +78,16 @@ def test_ac_1():
     result = bl.adaptive_contouring_magnification(
         0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
+
+def test_polynomial():
+    s = 0.8
+    q = 0.1
+
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+    bl = mm.BinaryLens(m_1, m_2, s)
+    source_x = 0.1
+    source_y = 0.2
+    coeffs = bl._get_polynomial_WM95(source_x, source_y)
+    coeffs9 = bl._get_polynomial_planet_frame(source_x, source_y)
+    assert (coeffs == coeffs9[:6]).all()
