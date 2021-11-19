@@ -21,19 +21,20 @@ jobs:
         python-version: 3.8
     - name: Get requirements
       run: |
-        pip install -r requirements.txt
+        python -m pip install -U pip
+        python -m pip install -U -r requirements.txt
     - name: Setup package
       run: |
         python setup.py install
     - name: Test suite install
       run: |
-        pip install pytest
-        pip install pytest-cov
-        which python
-        which python3
+        python -m pip install -U pytest
+        python -m pip install -U pytest-cov
     - name: Run tests
       run: |
-        python3 -m pytest --cov=./ --cov-report=xml
+        python -m profile
+        python -m pytest
+        python -m pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
