@@ -220,3 +220,18 @@ def test_binary_source():
     assert params.source_2_parameters.t_star == 0.075
     assert params.rho_2 == 0.006
     assert params.source_2_parameters.rho == 0.006
+
+
+def test_n_lenses():
+    """
+    Test if lenses are counted properly
+    """
+    p_1 = mm.ModelParameters({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
+    p_2 = mm.ModelParameters({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001,
+                              's': 10, 'q': 0.5, 'alpha': 100.})
+    p_3 = mm.ModelParameters({'x_caustic_in': 0.1, 'x_caustic_out': 0.15,
+                              't_caustic_in': 1000, 't_caustic_out': 2000.,
+                              's': 1, 'q': 0.8})
+    assert p_1.n_lenses == 1
+    assert p_2.n_lenses == 2
+    assert p_3.n_lenses == 2

@@ -214,6 +214,7 @@ class ModelParameters(object):
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
         self._count_sources(parameters.keys())
+        self._count_lenses(parameters.keys())
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
@@ -256,6 +257,13 @@ class ModelParameters(object):
                     'Given binary source parameters do not allow defining ' +
                     'the Model: {:}'.format(common))
             self._n_sources = 2
+
+    def _count_lenses(self, keys):
+        """How many lenses there are?"""
+        self._n_lenses = 1
+        if 's' in keys or 'q' in keys:
+            self._n_lenses = 2
+        # Both standard and Cassen08 parameterizations require s and q
 
     def _divide_parameters(self, parameters):
         """
@@ -1493,12 +1501,7 @@ class ModelParameters(object):
 
         number of objects in the lens system
         """
-        if (('s' not in self.parameters.keys()) and
-                ('q' not in self.parameters.keys()) and
-                ('alpha' not in self.parameters.keys())):
-            return 1
-        else:
-            return 2
+        return self._n_lenses
 
     @property
     def n_sources(self):
