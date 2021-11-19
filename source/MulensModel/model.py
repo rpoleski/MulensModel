@@ -97,7 +97,7 @@ class Model(object):
         self._parallax = {'earth_orbital': True,
                           'satellite': True,
                           'topocentric': True}
-        self._default_magnification_method = 'vbbl'
+        self._default_magnification_method = 'point_source'
         self._methods = None
         self._methods_parameters = {}
         self._caustics = None
@@ -466,7 +466,7 @@ class Model(object):
             s = self.parameters.get_s(epoch)
 
         if self._caustics is not None:
-            if s == self._caustics.s and self.parameters.q == self._caustics.q and self.parameters.convergence_K == self._caustics.convergence_K and self.parameters.shear_G == self._caustics.shear_G:
+            if s == self._caustics.s and self.parameters.q == self._caustics.q: #and self.parameters.convergence_K == self._caustics.convergence_K and self.parameters.shear_G == self._caustics.shear_G:
                 return
 
         self._caustics = Caustics(q=self.parameters.q, s=s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)

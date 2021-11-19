@@ -18,7 +18,7 @@ class Caustics(object):
             Einstein ring)
     """
 
-    def __init__(self, q, s, convergence_K, shear_G):
+    def __init__(self, q, s, convergence_K=0.0, shear_G=complex(0, 0)):
         # Set s, q
         if isinstance(q, (list, np.ndarray)):
             if len(q) > 1:

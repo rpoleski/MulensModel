@@ -434,10 +434,9 @@ class ModelParameters(object):
         # If s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
             if (('s' not in keys) or
-                    ('q' not in keys) or ('alpha' not in keys)
-                    or ('convergence_K' not in keys) or ('shear_G' not in keys)):
+                    ('q' not in keys) or ('alpha' not in keys)):
                 raise KeyError(
-                    'A binary model requires all five of (s, q, alpha, convergence_K, shear_G).')
+                    'A binary model requires all three of (s, q, alpha).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
@@ -882,7 +881,10 @@ class ModelParameters(object):
 
         Convergence of external mass sheet.
         """
-        return self.parameters['convergence_K']
+        if 'convergence_K' in self.parameters.keys():
+            return self.parameters['convergence_K']
+        else:
+            return 0.0
 
     @convergence_K.setter
     def convergence_K(self, new_K):
@@ -896,7 +898,10 @@ class ModelParameters(object):
 
         Shear of external mass sheet.
         """
-        return self.parameters['shear_G']
+        if 'shear_G' in self.parameters.keys():
+            return self.parameters['shear_G']
+        else:
+            return complex(0,0)
 
     @shear_G.setter
     def shear_G(self, new_G):

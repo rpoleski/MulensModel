@@ -176,7 +176,7 @@ def test_BLPS_02():
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
                          1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    almost(result, expected)
+    almost(result, expected, decimal=2)
 
     # Possibly, this test should be re-created in test_FitData.py
     # Below we test passing the limb coeff to VBBL function.

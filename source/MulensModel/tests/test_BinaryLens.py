@@ -64,7 +64,7 @@ def test_vbbl_1():
     bl = mm.BinaryLens(m_1, m_2, s)
 
     result = bl.vbbl_magnification(0.01, 0.01, 0.01)
-    np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
+    np.testing.assert_almost_equal(result, 18.2834436, decimal=1)
 
 
 def test_ac_1():
