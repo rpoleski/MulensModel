@@ -32,7 +32,6 @@ jobs:
         python -m pip install -U pytest-cov
     - name: Run tests
       run: |
-        python -m profile
         python -m pytest
         python -m pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov
