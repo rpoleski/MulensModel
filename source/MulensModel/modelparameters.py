@@ -215,6 +215,7 @@ class ModelParameters(object):
 
         self._count_sources(parameters.keys())
         self._count_lenses(parameters.keys())
+        self._set_type(parameters.keys())
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
@@ -264,6 +265,32 @@ class ModelParameters(object):
         if 's' in keys or 'q' in keys:
             self._n_lenses = 2
         # Both standard and Cassen08 parameterizations require s and q
+
+    def _set_type(self, keys):
+        """
+        sets self._type property, which indicates what type of a model we have
+        """
+        types = ['finite source', 'parallax', 'Cassan08',
+                 'lens 2 parameter obital motion']
+        out = {type_: False for type_ in types}
+
+        parameter_to_type = dict()
+        for key in ['rho' 't_star', 'rho_1', 'rho_2', 't_star_1', 't_star_2']:
+            parameter_to_type[key] = 'finite source'
+        for key in ['pi_E', 'pi_E_N', 'pi_E_E']:
+            parameter_to_type[key] = 'parallax'
+        keys_Cassan08 = ['x_caustic_in', 'x_caustic_out',
+                         't_caustic_in', 't_caustic_out']
+        for key in keys_Cassan08:
+            parameter_to_type[key] = 'Cassan08'
+        for key in ['dalpha_dt', 'ds_dt']:
+            parameter_to_type[key] = 'lens 2 parameter obital motion'
+
+        for key in keys:
+            if key in parameter_to_type:
+                out[parameter_to_type[key]] = True
+
+        self._type = out
 
     def _divide_parameters(self, parameters):
         """
