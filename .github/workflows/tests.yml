@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
     env:
       OS: ${{ matrix.os }}
       PYTHON: '3.8'
@@ -25,11 +25,15 @@ jobs:
     - name: Setup package
       run: |
         python setup.py install
-    - name: Coverage
+    - name: Test suite install
       run: |
         pip install pytest
         pip install pytest-cov
-        python -m pytest --cov=./ --cov-report=xml
+        which python
+        which python3
+    - name: Run tests
+      run: |
+        python3 -m pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
