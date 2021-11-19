@@ -271,7 +271,7 @@ class ModelParameters(object):
         sets self._type property, which indicates what type of a model we have
         """
         types = ['finite source', 'parallax', 'Cassan08',
-                 'lens 2 parameter orbital motion']
+                 'lens 2-parameter orbital motion']
         out = {type_: False for type_ in types}
 
         parameter_to_type = dict()
@@ -284,7 +284,7 @@ class ModelParameters(object):
         for key in keys_Cassan08:
             parameter_to_type[key] = 'Cassan08'
         for key in ['dalpha_dt', 'ds_dt']:
-            parameter_to_type[key] = 'lens 2 parameter orbital motion'
+            parameter_to_type[key] = 'lens 2-parameter orbital motion'
 
         for key in keys:
             if key in parameter_to_type:
@@ -300,7 +300,7 @@ class ModelParameters(object):
         n_sources = self._n_sources
 
         # Lens orbital motion requires binary lens:
-        if self._type['lens 2 parameter orbital motion'] and n_lenses == 1:
+        if self._type['lens 2-parameter orbital motion'] and n_lenses == 1:
             raise KeyError('Orbital motion of the lens requires two lens '
                            'components but only one was provided.')
 
@@ -309,7 +309,7 @@ class ModelParameters(object):
             if self._type['parallax']:
                 raise KeyError('Currently we do not allow parallax for '
                                'Cassan (2008) parameterization.')
-            if self._type['lens 2 parameter orbital motion']:
+            if self._type['lens 2-parameter orbital motion']:
                 raise KeyError('Cassan (2008) parameterization and parallax '
                                'are not allowed')
             if n_sources > 1:
@@ -1506,7 +1506,7 @@ class ModelParameters(object):
                 *True* if *dalpha_dt* or *ds_dt* are set.
 
         """
-        return not self._type['lens 2 parameter orbital motion']
+        return not self._type['lens 2-parameter orbital motion']
 
     @property
     def n_lenses(self):
