@@ -466,10 +466,10 @@ class Model(object):
             s = self.parameters.get_s(epoch)
 
         if self._caustics is not None:
-            if s == self._caustics.s and self.parameters.q == self._caustics.q and self.parameters.K == self._caustics.K and self.parameters.G == self._caustics.G:
+            if s == self._caustics.s and self.parameters.q == self._caustics.q and self.parameters.convergence_K == self._caustics.convergence_K and self.parameters.shear_G == self._caustics.shear_G:
                 return
 
-        self._caustics = Caustics(q=self.parameters.q, s=s, K=self.parameters.K, G=self.parameters.G)
+        self._caustics = Caustics(q=self.parameters.q, s=s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,

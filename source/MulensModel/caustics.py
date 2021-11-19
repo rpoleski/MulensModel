@@ -18,7 +18,7 @@ class Caustics(object):
             Einstein ring)
     """
 
-    def __init__(self, q, s, K, G):
+    def __init__(self, q, s, convergence_K, shear_G):
         # Set s, q
         if isinstance(q, (list, np.ndarray)):
             if len(q) > 1:
@@ -28,8 +28,8 @@ class Caustics(object):
                 q = q[0]
         self.q = q
         self.s = s
-        self.K = K
-        self.G = G
+        self.convergence_K = convergence_K
+        self.shear_G = shear_G
 
         # Set place holder variables
         self._x = None
@@ -118,7 +118,7 @@ class Caustics(object):
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
             #eiphi = np.complex(cos(phi), sin(phi))
-            e_iphi = self.G + (1-self.K) * np.complex(cos(phi), -sin(phi))
+            e_iphi = self.shear_G + (1-self.convergence_K) * np.complex(cos(phi), -sin(phi))
 
             # Coefficients of Eq. 6
             coeff_4 = 1. * e_iphi

@@ -14,7 +14,7 @@ from MulensModel.uniformcausticsampling import UniformCausticSampling
 _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
-    'binary lens': ['s, q, alpha, K, G'],
+    'binary lens': ['s, q, alpha, convergence_K, shear_G'],
     'binary lens alt':
         'alternate: ' +
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
@@ -299,8 +299,8 @@ class ModelParameters(object):
             'pi_E_N': {'width': 9, 'precision': 5},
             'pi_E_E': {'width': 9, 'precision': 5},
             's': {'width': 9, 'precision': 5},
-            'K': {'width': 12, 'precision': 8},
-            'G': {'width': 12, 'precision': 8},
+            'convergence_K': {'width': 12, 'precision': 8},
+            'shear_G': {'width': 12, 'precision': 8},
             'q': {'width': 12, 'precision': 8},
             'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
             'ds_dt': {
@@ -327,7 +327,7 @@ class ModelParameters(object):
         formats_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'K', 'G', 'ds_dt', 'dalpha_dt',
+            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
         ]
 
@@ -435,9 +435,9 @@ class ModelParameters(object):
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
             if (('s' not in keys) or
                     ('q' not in keys) or ('alpha' not in keys)
-                    or ('K' not in keys) or ('G' not in keys)):
+                    or ('convergence_K' not in keys) or ('shear_G' not in keys)):
                 raise KeyError(
-                    'A binary model requires all five of (s, q, alpha, K, G).')
+                    'A binary model requires all five of (s, q, alpha, convergence_K, shear_G).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
@@ -498,7 +498,7 @@ class ModelParameters(object):
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 'K', 'G', 't_star',
+            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 'convergence_K', 'shear_G', 't_star',
             'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
             't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
             't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
@@ -537,7 +537,7 @@ class ModelParameters(object):
 
         Also, check that all values are scalars (except pi_E vector).
         """
-        names = ['t_E', 't_star', 'rho', 's', 'K']
+        names = ['t_E', 't_star', 'rho', 's', 'convergence_K']
         full_names = {
             't_E': 'Einstein timescale',
             't_star': 'Source crossing time', 'rho': 'Source size',
@@ -876,32 +876,32 @@ class ModelParameters(object):
         self._update_sources('q', new_q)
 
     @property
-    def K(self):
+    def convergence_K(self):
         """
         *float*
 
         Convergence of external mass sheet.
         """
-        return self.parameters['K']
+        return self.parameters['convergence_K']
 
-    @K.setter
-    def K(self, new_K):
-        self.parameters['K'] = new_K
-        self._update_sources('K', new_K)
+    @convergence_K.setter
+    def convergence_K(self, new_K):
+        self.parameters['convergence_K'] = new_K
+        self._update_sources('convergence_K', new_K)
 
     @property
-    def G(self):
+    def shear_G(self):
         """
         *complex*
 
         Shear of external mass sheet.
         """
-        return self.parameters['G']
+        return self.parameters['shear_G']
 
-    @G.setter
-    def G(self, new_G):
-        self.parameters['G'] = new_G
-        self._update_sources('G', new_G)
+    @shear_G.setter
+    def shear_G(self, new_G):
+        self.parameters['shear_G'] = new_G
+        self._update_sources('shear_G', new_G)
 
     @property
     def s(self):
