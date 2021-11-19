@@ -2,8 +2,7 @@ name: Tests
 on:
   push:
     branches:
-      - master
-      - binary_convergence_shear
+      - '*'
 
 jobs:
   run:
