@@ -538,7 +538,7 @@ class Model(object):
         if show_data is not None:
             raise AttributeError(
                 'show_data is deprecated. datasets are no longer part of ' +
-                'Model. See Event() instead.')
+                'Model. See Event.plot_source_for_datasets() instead.')
 
         if not arrow and arrow_kwargs is not None:
             raise ValueError(

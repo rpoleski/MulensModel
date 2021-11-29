@@ -270,15 +270,19 @@ class Event(object):
 
     def plot_trajectory(self, **kwargs):
         """
-        Plot the trajectory of the source. See :
-        py:func:`MulensModel.model.Model.plot_trajectory()` for details.
+        Plot the trajectory of the source. See
+        :py:func:`MulensModel.model.Model.plot_trajectory()` for details.
         """
+        if 'show_data' in kwargs:
+            raise AttributeError('Parameter show_data is deprecated. Use '
+                                 'plot_source_for_datasets() instead.')
+
         self.model.plot_trajectory(**kwargs)
 
     def plot_source_for_datasets(self, **kwargs):
         """
         Plot source positions for all linked datasets.
-        See :py:func:`MulensModel.model.Model.plot_source` for
+        See :py:func:`MulensModel.model.Model.plot_source()` for
         details.
 
         Note: plots all points in datasets (including ones flagged as bad)
@@ -287,6 +291,8 @@ class Event(object):
         self._set_default_colors()
 
         for dataset in self.datasets:
+            # RP: Call to MulensData private function should be replaced by
+            # public functions.
             properties = dataset._set_plot_properties()
             self.model.plot_source(
                 times=dataset.time, color=properties['color'], **kwargs)
