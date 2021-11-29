@@ -9,7 +9,7 @@ finite_source_uniform_WittMao94:
 
 finite_source_LD_WittMao94: 
 [Witt and Mao 1994 ApJ, 430, 505](https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract)
-[Bozza 2018 MNRAS 479, 5157](https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract)
+[Bozza et al. 2018 MNRAS 479, 5157](https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract)
 
 finite_source_LD_Yoo04 OR finite_source_LD_Yoo04_direct: [Yoo et al. 2004 ApJ, 603, 139](https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract)
 
@@ -33,7 +33,7 @@ hexadecapole approximation:
 
 VBBL: 
 [Bozza 2010 MNRAS, 408, 2188](https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract) and 
-[Bozza 2018 MNRAS 479, 5157](https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract)
+[Bozza et al. 2018 MNRAS 479, 5157](https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract)
 
 Adaptive Contouring: [Dominik 2007 MNRAS, 377, 1679](https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract)
 
