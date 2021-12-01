@@ -2,7 +2,7 @@ import os
 import sys
 import glob
 import warnings
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 
 
 file_required = "requirements.txt"
@@ -23,6 +23,7 @@ for file_ in files:
     else:
         dir_files[dir_] = [file_]
 data_files = []
+dir_files["."] = [file_required]
 for (key, value) in dir_files.items():
     data_files += [(os.path.join('MulensModel', key), value)]
 
@@ -43,15 +44,20 @@ with open(file_required) as file_:
 setup(
     name='MulensModel',
     version=version,
-    url='git@github.com:rpoleski/MulensModel.git',
+    url='https://github.com/rpoleski/MulensModel',
+    project_urls={
+        'git clone': 'git@github.com:rpoleski/MulensModel.git',
+        'documentation': 'https://github.com/rpoleski/MulensModel'},
     ext_modules=[ext_AC, ext_VBBL],
     author='Radek Poleski',
     author_email='radek.poleski@gmail.com',
     description='package for modeling gravitational microlensing events',
     packages=['MulensModel', 'MulensModel.mulensobjects'],
+# This also should work: packages=find_packages(where="source"),
     package_dir={
         'MulensModel': source_MM,
         'MulensModel.mulensobjects': source_MMmo},
     data_files=data_files,
-    install_requires=required
+    install_requires=required,
+    python_requires=">=3.6",
 )
