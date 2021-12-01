@@ -430,10 +430,10 @@ class BinaryLens(object):
             source_x=source_x, source_y=source_y)
 
         roots_conj = np.conjugate(roots)
-        component2 = self.mass_1 / (roots_conj - self._position_z1)
-        component3 = self.mass_2 / (roots_conj - self._position_z2)
-        solutions = (self._zeta + self.shear_G * roots_conj + component2 + component3) / (1 - self.convergence_K)
-        # solutions = (self._zeta + 1 / np.conjugate(roots)) / (1 - self.convergence_K)
+        # component2 = self.mass_1 / (roots_conj - self._position_z1)
+        # component3 = self.mass_2 / (roots_conj - self._position_z2)
+        # solutions = (self._zeta + self.shear_G * roots_conj + component2 + component3) / (1 - self.convergence_K)
+        solutions = (self._zeta + 1 / np.conjugate(roots)) / (1 - self.convergence_K)
 
         # This backs-up the lens equation.
 
