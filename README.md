@@ -2,7 +2,7 @@
 
 <dl>MulensModel is package for modeling microlensing (or &mu;-lensing) events. </dl>
 
-![example workflow](https://github.com/alpv95/MulensModel/actions/workflows/tests.yml/badge.svg)
+<!-- ![example workflow](https://github.com/alpv95/MulensModel/actions/workflows/tests.yml/badge.svg) -->
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
