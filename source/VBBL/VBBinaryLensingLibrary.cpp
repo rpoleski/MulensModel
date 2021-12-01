@@ -29,7 +29,6 @@ char systemslash = '/';
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
 
 #ifndef __unmanaged
 using namespace VBBinaryLensingLibrary;
