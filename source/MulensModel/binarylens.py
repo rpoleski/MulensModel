@@ -761,7 +761,7 @@ class BinaryLensWithShear(BinaryLens):
     possibility.
 
     """
-    def __init__(self, mass_1=None, mass_2=None, separation=None, convergence_K=0.0, shear_G=complex(0,0)):
+    def __init__(self, mass_1=None, mass_2=None, separation=None, convergence_K=None, shear_G=None):
         BinaryLens.__init__(self, mass_1, mass_2, separation)
         self.convergence_K = convergence_K
         self.shear_G = shear_G

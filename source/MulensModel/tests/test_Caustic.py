@@ -26,3 +26,19 @@ def test_caustic():
             x[i], test_caustics['X'][index], decimal=5)
         np.testing.assert_almost_equal(
             y[i], test_caustics['Y'][index], decimal=5)
+
+def test_caustic_shear():
+    s = 0.548
+    q = 0.0053
+
+    caustics = mm.CausticsShear(q=q, s=s, convergence_K=0.0, shear_G=complex(0,0))
+
+    x, y = caustics.get_caustics(n_points=1000)
+    for i in range(0, len(x), 100):
+        index = np.argmin(
+            np.sqrt((test_caustics['X']-x[i])**2+(test_caustics['Y']-y[i])**2))
+
+        np.testing.assert_almost_equal(
+            x[i], test_caustics['X'][index], decimal=5)
+        np.testing.assert_almost_equal(
+            y[i], test_caustics['Y'][index], decimal=5)

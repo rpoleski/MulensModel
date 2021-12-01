@@ -19,7 +19,7 @@ _valid_parameters = {
         'alternate: ' +
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
         'may be substituted for (t_0, u_0, t_E, alpha)',
-    'binary_lens_shear': ['convergence_K, shear_G'],
+    'binary_lens_shear': ['convergence_K', 'shear_G'],
     'finite source': ['rho', '(for finite source effects)'],
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
     'parallax': ['(pi_E_N, pi_E_E) OR pi_E', '(for parallax)'],
@@ -489,12 +489,20 @@ class ModelParameters(object):
         """
         Here we check binary lens parameters for non-Cassan08 parameterization.
         """
-        # If s, q, and alpha must all be defined if one is defined
+        # s, q, and alpha must all be defined if one is defined
         if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
             if (('s' not in keys) or
                     ('q' not in keys) or ('alpha' not in keys)):
                 raise KeyError(
                     'A binary model requires all three of (s, q, alpha).')
+
+        # convergence_K and shear_G must both be defined if one is defined
+        if ('convergence_K' in keys) or ('shear_G' in keys):
+            if (('convergence_K' not in keys) or
+                    ('shear_G' not in keys)):
+                raise KeyError(
+                    'A binary model with external shear requires both of (convergence_K, ' +
+                    'shear_G).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
@@ -565,7 +573,7 @@ class ModelParameters(object):
     def _check_valid_parameter_values(self, parameters):
         """
         Prevent user from setting negative (unphysical) values for
-        t_E, t_star, rho etc.
+        t_E, t_star, rho etc. Shear_G should be complex.
 
         Also, check that all values are scalars (except pi_E vector).
         """
@@ -573,7 +581,7 @@ class ModelParameters(object):
         full_names = {
             't_E': 'Einstein timescale',
             't_star': 'Source crossing time', 'rho': 'Source size',
-            's': 'separation'}
+            's': 'separation', 'convergence_K': 'external convergence'}
 
         for name in names:
             if name in parameters.keys():
@@ -594,6 +602,10 @@ class ModelParameters(object):
                 if parameters[name] < 0. or parameters[name] > 1.:
                     msg = "Parameter {:} has to be in (0, 1) range, not {:}"
                     raise ValueError(msg.format(name, parameters[name]))
+
+        if 'shear_G' in parameters.keys():
+            if not isinstance(parameters['shear_G'], complex):
+                raise TypeError("External shear (shear_G) must be complex")
 
     def _set_parameters(self, parameters):
         """
@@ -917,12 +929,16 @@ class ModelParameters(object):
         if 'convergence_K' in self.parameters.keys():
             return self.parameters['convergence_K']
         else:
-            return 0.0
+            return None
 
     @convergence_K.setter
     def convergence_K(self, new_K):
-        self.parameters['convergence_K'] = new_K
-        self._update_sources('convergence_K', new_K)
+        if 'convergence_K' in self.parameters.keys():
+            self.parameters['convergence_K'] = new_K
+            self._update_sources('convergence_K', new_K)
+        else:
+            raise KeyError('convergence_K is not a parameter of this model.')
+        
 
     @property
     def shear_G(self):
@@ -934,12 +950,15 @@ class ModelParameters(object):
         if 'shear_G' in self.parameters.keys():
             return self.parameters['shear_G']
         else:
-            return complex(0,0)
+            return None
 
     @shear_G.setter
     def shear_G(self, new_G):
-        self.parameters['shear_G'] = new_G
-        self._update_sources('shear_G', new_G)
+        if 'shear_G' in self.parameters.keys():
+            self.parameters['shear_G'] = new_G
+            self._update_sources('shear_G', new_G)
+        else:
+            raise KeyError('shear_G is not a parameter of this model.')
 
     @property
     def s(self):
