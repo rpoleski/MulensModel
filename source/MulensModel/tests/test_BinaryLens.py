@@ -21,6 +21,58 @@ def test_small_q():
     result = lens.point_source_magnification(x, y)
     np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
+def test_vbbl_vs_point_source():
+    """
+    check if vbbl and point source calculations give the same result
+    """
+    s = 1.1
+    q = 0.2
+    x = s - 1. / s
+    y = 5.e-7 * 0.
+
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+
+    lens = mm.BinaryLensWithShear(m_1, m_2, s, convergence_K=0.1, shear_G=complex(0.1,-0.1))
+    result = lens.point_source_magnification(x, y)
+    result_vbbl = lens.vbbl_magnification(x, y, 0.01)
+    np.testing.assert_almost_equal(result, result_vbbl, decimal=3)
+
+def test_standard_vs_shear():
+    """
+    check if standard and 0 shear calculations give the same result
+    """
+    s = 1.8
+    q = 1e-6
+    x = s - 1. / s
+    y = 5.e-7 * 0.
+
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+
+    lens = mm.BinaryLensWithShear(m_1, m_2, s, convergence_K=0.0, shear_G=complex(0,0))
+    lens_standard = mm.BinaryLens(m_1, m_2, s)
+    result = lens.point_source_magnification(x, y)
+    result_standard = lens_standard.point_source_magnification(x, y)
+    np.testing.assert_almost_equal(result, result_standard, decimal=3)
+
+#For q < 1e-7 the standard and shear methods start to deviate.
+ 
+# def test_small_q_shear():
+#     """
+#     run calculations with small mass-ratio
+#     """
+#     q = 1.e-8
+#     s = 1.8
+#     x = s - 1. / s
+#     y = 5.e-7 * 0.
+
+#     m_1 = 1. / (1. + q)
+#     m_2 = q / (1. + q)
+
+#     lens = mm.BinaryLensWithShear(m_1, m_2, s, convergence_K=0.0, shear_G=complex(0,0))
+#     result = lens.point_source_magnification(x, y)
+#     np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
 def test_binary_lens_hexadecapole():
     """
@@ -62,6 +114,18 @@ def test_vbbl_1():
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
     bl = mm.BinaryLens(m_1, m_2, s)
+
+    result = bl.vbbl_magnification(0.01, 0.01, 0.01)
+    np.testing.assert_almost_equal(result, 18.2834436, decimal=1)
+
+
+def test_vbbl_shear_1():
+    s = 0.8
+    q = 0.1
+
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+    bl = mm.BinaryLensWithShear(m_1, m_2, s, convergence_K=0.0, shear_G=complex(0,0))
 
     result = bl.vbbl_magnification(0.01, 0.01, 0.01)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=1)

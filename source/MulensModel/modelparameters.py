@@ -14,11 +14,12 @@ from MulensModel.uniformcausticsampling import UniformCausticSampling
 _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
-    'binary lens': ['s, q, alpha, convergence_K, shear_G'],
+    'binary lens': ['s, q, alpha'],
     'binary lens alt':
         'alternate: ' +
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
         'may be substituted for (t_0, u_0, t_E, alpha)',
+    'binary_lens_shear': ['convergence_K, shear_G'],
     'finite source': ['rho', '(for finite source effects)'],
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
     'parallax': ['(pi_E_N, pi_E_E) OR pi_E', '(for parallax)'],

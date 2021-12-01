@@ -4,7 +4,7 @@ import warnings
 
 from MulensModel.trajectory import Trajectory
 from MulensModel.pointlens import PointLens, get_pspl_magnification
-from MulensModel.binarylens import BinaryLens
+from MulensModel.binarylens import BinaryLens, BinaryLensWithShear
 from MulensModel.modelparameters import ModelParameters
 
 
@@ -374,7 +374,7 @@ class MagnificationCurve(object):
         is_static = self.parameters.is_static()
         if is_static:
             binary_lens = BinaryLens(
-                mass_1=m_1, mass_2=m_2, separation=self.parameters.s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
+                mass_1=m_1, mass_2=m_2, separation=self.parameters.s,)
         methods = self._methods_for_epochs()
 
         # Calculate the magnification
@@ -385,6 +385,115 @@ class MagnificationCurve(object):
             method = methods[index].lower()
             if not is_static:
                 binary_lens = BinaryLens(
+                    mass_1=m_1, mass_2=m_2,
+                    separation=self.parameters.get_s(self.times[index]),)
+
+            kwargs = {}
+            if self._methods_parameters is not None:
+                if method in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method]
+                    if method not in ['vbbl', 'adaptive_contouring']:
+                        msg = ('Methods parameters passed for method {:}' +
+                               ' which does not accept any parameters')
+                        raise ValueError(msg.format(method))
+
+            if method == 'point_source':
+                try:
+                    m = binary_lens.point_source_magnification(x, y)
+                except Exception as e:
+                    text = "Model parameters for above exception:\n"
+                    text += str(self.parameters)
+                    raise ValueError(text) from e
+                    # The code above is based on
+                    # https://stackoverflow.com/questions/6062576/
+                    # adding-information-to-an-exception/6062799
+            elif method == 'quadrupole':
+                m = binary_lens.hexadecapole_magnification(
+                    x, y, rho=self.parameters.rho, quadrupole=True,
+                    gamma=self._gamma)
+            elif method == 'hexadecapole':
+                m = binary_lens.hexadecapole_magnification(
+                    x, y, rho=self.parameters.rho, gamma=self._gamma)
+            elif method == 'vbbl':
+                m = binary_lens.vbbl_magnification(
+                    x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
+            elif method == 'adaptive_contouring':
+                m = binary_lens.adaptive_contouring_magnification(
+                    x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
+            elif method == 'point_source_point_lens':
+                u = math.sqrt(x**2 + y**2)
+                m = get_pspl_magnification(u)
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
+
+            magnification.append(m)
+
+        return np.array(magnification)
+
+    def get_binary_lens_shear_magnification(self):
+        """
+        Calculate the binary lens magnification.
+
+        Allowed magnification methods :
+            ``point_source``:
+                standard point source magnification calculation.
+
+            ``quadrupole``:
+                From `Gould 2008 ApJ, 681, 1593
+                <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
+                See
+                :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
+
+            ``hexadecapole``:
+                From `Gould 2008 ApJ, 681, 1593`_ See
+                :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
+
+            ``VBBL``:
+                Uses VBBinaryLensing (a Stokes theorem/contour
+                integration code) by Valerio Bozza
+                (`Bozza 2010 MNRAS, 408, 2188
+                <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).
+                See
+                :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
+
+            ``Adaptive_Contouring``:
+                Uses AdaptiveContouring (a Stokes theorem/contour
+                integration code) by Martin Dominik
+                (`Dominik 2007 MNRAS, 377, 1679
+                <https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract>`_).
+                See
+                :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
+
+            ``point_source_point_lens``:
+                Uses point-source _point_-_lens_ approximation; useful when you
+                consider binary lens but need magnification very far from
+                the lens (e.g. at separation u = 100).
+
+        Returns :
+            magnification: *np.ndarray*
+                Vector of magnifications.
+
+        """
+        # Set up the binary lens system
+        q = self.parameters.q
+        m_1 = 1. / (1. + q)
+        m_2 = q / (1. + q)
+        #print(m_1,m_2)
+        is_static = self.parameters.is_static()
+        if is_static:
+            binary_lens = BinaryLensWithShear(
+                mass_1=m_1, mass_2=m_2, separation=self.parameters.s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
+        methods = self._methods_for_epochs()
+
+        # Calculate the magnification
+        magnification = []
+        for index in range(len(self.times)):
+            x = self.trajectory.x[index]
+            y = self.trajectory.y[index]
+            method = methods[index].lower()
+            if not is_static:
+                binary_lens = BinaryLensWithShear(
                     mass_1=m_1, mass_2=m_2,
                     separation=self.parameters.get_s(self.times[index]), convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
 

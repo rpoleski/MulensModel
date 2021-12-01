@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from astropy.coordinates import SkyCoord
 
-from MulensModel.caustics import Caustics
+from MulensModel.caustics import Caustics, CausticsShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -469,7 +469,11 @@ class Model(object):
             if s == self._caustics.s and self.parameters.q == self._caustics.q: #and self.parameters.convergence_K == self._caustics.convergence_K and self.parameters.shear_G == self._caustics.shear_G:
                 return
 
-        self._caustics = Caustics(q=self.parameters.q, s=s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
+        #check if covergence_K and shear_G are in parameters
+        if self.parameters.convergence_K is None or self.parameters.shear_G is None:
+            self._caustics = Caustics_shear(q=self.parameters.q, s=s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
+        else:
+            self._caustics = Caustics(q=self.parameters.q, s=s)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
