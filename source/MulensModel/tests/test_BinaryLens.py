@@ -35,7 +35,7 @@ def test_vbbl_vs_point_source():
 
     lens = mm.BinaryLensWithShear(m_1, m_2, s, convergence_K=0.1, shear_G=complex(0.1,-0.1))
     result = lens.point_source_magnification(x, y)
-    result_vbbl = lens.vbbl_magnification(x, y, 0.01)
+    result_vbbl = lens.vbbl_magnification(x, y, 1e-5)
     np.testing.assert_almost_equal(result, result_vbbl, decimal=3)
 
 def test_standard_vs_shear():
@@ -116,9 +116,9 @@ def test_vbbl_1():
     bl = mm.BinaryLens(m_1, m_2, s)
 
     result = bl.vbbl_magnification(0.01, 0.01, 0.01)
-    np.testing.assert_almost_equal(result, 18.2834436, decimal=1)
+    np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
-
+#shear always uses a point source, so this test is not really fair.
 def test_vbbl_shear_1():
     s = 0.8
     q = 0.1
