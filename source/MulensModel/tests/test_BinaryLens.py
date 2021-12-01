@@ -57,22 +57,6 @@ def test_standard_vs_shear():
     np.testing.assert_almost_equal(result, result_standard, decimal=3)
 
 #For q < 1e-7 the standard and shear methods start to deviate.
- 
-# def test_small_q_shear():
-#     """
-#     run calculations with small mass-ratio
-#     """
-#     q = 1.e-8
-#     s = 1.8
-#     x = s - 1. / s
-#     y = 5.e-7 * 0.
-
-#     m_1 = 1. / (1. + q)
-#     m_2 = q / (1. + q)
-
-#     lens = mm.BinaryLensWithShear(m_1, m_2, s, convergence_K=0.0, shear_G=complex(0,0))
-#     result = lens.point_source_magnification(x, y)
-#     np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
 def test_binary_lens_hexadecapole():
     """
