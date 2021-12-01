@@ -433,7 +433,9 @@ class BinaryLens(object):
         # component2 = self.mass_1 / (roots_conj - self._position_z1)
         # component3 = self.mass_2 / (roots_conj - self._position_z2)
         # solutions = (self._zeta + self.shear_G * roots_conj + component2 + component3) / (1 - self.convergence_K)
-        solutions = (self._zeta + 1 / np.conjugate(roots)) / (1 - self.convergence_K)
+        solutions = (self._zeta +
+            self.mass_1 / (roots_conj - self._position_z1) +
+            self.mass_2 / (roots_conj - self._position_z2))
 
         # This backs-up the lens equation.
 
@@ -833,9 +835,9 @@ class BinaryLens(object):
         y = float(source_y)
         rho = float(rho)
         accuracy = float(accuracy)
-        # magnification = _vbbl_binary_mag_dark(
-        #    s, q, x, y, rho, u_limb_darkening, accuracy)
-        magnification = _vbbl_binary_mag_0(
-            s, q, x, y, self.convergence_K, self.shear_G.real, self.shear_G.imag)
+        magnification = _vbbl_binary_mag_dark(
+           s, q, x, y, rho, u_limb_darkening, accuracy)
+        # magnification = _vbbl_binary_mag_0(
+            # s, q, x, y, self.convergence_K, self.shear_G.real, self.shear_G.imag)
 
         return magnification

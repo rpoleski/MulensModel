@@ -22,7 +22,7 @@ extern "C" {
   double VBBinaryLensing_BinaryMag0(double a,double q,double y1,double y2, double K, double G, double Gi) {
     static VBBinaryLensing VBBL;
     
-    return VBBL.BinaryMag0(a, q, y1, y2, K, G, Gi);
+    return VBBL.BinaryMag0_shear(a, q, y1, y2, K, G, Gi);
   }
 }
 
