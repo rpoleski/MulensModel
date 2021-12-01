@@ -214,14 +214,16 @@ class ModelParameters(object):
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
         self._count_sources(parameters.keys())
+        self._count_lenses(parameters.keys())
+        self._set_type(parameters.keys())
+        self._check_types()
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
-            if self._Cassan08:
+            if self._type['Cassan08']:
                 self._uniform_caustic = None
                 self._standard_parameters = None
         elif self.n_sources == 2:
-            self._Cassan08 = False
             self._check_valid_combination_2_sources(parameters.keys())
             if 't_E' not in parameters.keys():
                 raise KeyError('Currently, the binary source calculations ' +
@@ -256,6 +258,63 @@ class ModelParameters(object):
                     'Given binary source parameters do not allow defining ' +
                     'the Model: {:}'.format(common))
             self._n_sources = 2
+
+    def _count_lenses(self, keys):
+        """How many lenses there are?"""
+        self._n_lenses = 1
+        if 's' in keys or 'q' in keys:
+            self._n_lenses = 2
+        # Both standard and Cassen08 parameterizations require s and q
+
+    def _set_type(self, keys):
+        """
+        sets self._type property, which indicates what type of a model we have
+        """
+        types = ['finite source', 'parallax', 'Cassan08',
+                 'lens 2-parameter orbital motion']
+        out = {type_: False for type_ in types}
+
+        parameter_to_type = dict()
+        for key in ['rho' 't_star', 'rho_1', 'rho_2', 't_star_1', 't_star_2']:
+            parameter_to_type[key] = 'finite source'
+        for key in ['pi_E', 'pi_E_N', 'pi_E_E']:
+            parameter_to_type[key] = 'parallax'
+        keys_Cassan08 = ['x_caustic_in', 'x_caustic_out',
+                         't_caustic_in', 't_caustic_out']
+        for key in keys_Cassan08:
+            parameter_to_type[key] = 'Cassan08'
+        for key in ['dalpha_dt', 'ds_dt']:
+            parameter_to_type[key] = 'lens 2-parameter orbital motion'
+
+        for key in keys:
+            if key in parameter_to_type:
+                out[parameter_to_type[key]] = True
+
+        self._type = out
+
+    def _check_types(self):
+        """
+        Check if self._type values make sense
+        """
+        n_lenses = self._n_lenses
+        n_sources = self._n_sources
+
+        # Lens orbital motion requires binary lens:
+        if self._type['lens 2-parameter orbital motion'] and n_lenses == 1:
+            raise KeyError('Orbital motion of the lens requires two lens '
+                           'components but only one was provided.')
+
+        # Cassan08 prevents some other features:
+        if self._type['Cassan08']:
+            if self._type['parallax']:
+                raise KeyError('Currently we do not allow parallax for '
+                               'Cassan (2008) parameterization.')
+            if self._type['lens 2-parameter orbital motion']:
+                raise KeyError('Cassan (2008) parameterization and parallax '
+                               'are not allowed')
+            if n_sources > 1:
+                raise KeyError("Cassan (2008) parameterization doesn't work"
+                               "for multi sources models")
 
     def _divide_parameters(self, parameters):
         """
@@ -415,10 +474,8 @@ class ModelParameters(object):
                 'You have to define either both or none of (pi_E_N, pi_E_E).')
 
         # t_0_par makes sense only when parallax is defined.
-        if 't_0_par' in keys:
-            if 'pi_E' not in keys and 'pi_E_N' not in keys:
-                raise KeyError(
-                    't_0_par makes sense only when parallax is defined.')
+        if 't_0_par' in keys and not self._type['parallax']:
+            raise KeyError('t_0_par makes sense only when parallax is defined')
 
         # Parallax needs reference epoch:
         if 'pi_E' in keys or 'pi_E_N' in keys:
@@ -444,12 +501,6 @@ class ModelParameters(object):
                 raise KeyError(
                     'Lens orbital motion requires both ds_dt and dalpha_dt.' +
                     '\nNote that you can set either of them to 0.')
-        # If orbital motion is defined, then we need binary lens.
-            if (
-                    ('s' not in keys) or ('q' not in keys) or
-                    ('alpha' not in keys)):
-                raise KeyError(
-                    'Lens orbital motion requires >2 bodies (s, q, alpha).')
         # If orbital motion is defined, then reference epoch has to be set.
             if 't_0' not in keys and 't_0_kep' not in keys:
                 raise KeyError(
@@ -477,23 +528,14 @@ class ModelParameters(object):
                     'these parameters have to be defined:\n' +
                     ' \n'.join(parameters))
 
-        # Make sure that there are no unwanted keys
-        allowed_keys = set(parameters + ['rho', 't_star'])
-        difference = set(keys) - allowed_keys
-        if len(difference) > 0:
-            msg = 'Parameters not allowed in Cassan (2008) parameterization '
-            msg += '(at this point): {:}'.format(difference)
-            raise KeyError(msg)
-
         # Source size cannot be over-defined.
         if ('rho' in keys) and ('t_star' in keys):
             raise KeyError('Both rho and t_star cannot be defined for ' +
-                           'Cassan 08 parametrization.')
+                           'Cassan 08 parameterization.')
 
     def _check_valid_combination_1_source(self, keys):
         """
         Check that the user hasn't over-defined the ModelParameters.
-        This function sets self._Cassan08 property.
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set([
@@ -514,17 +556,7 @@ class ModelParameters(object):
             msg += 'Unrecognized parameters: {:}'.format(difference)
             raise KeyError(msg)
 
-        # There are 2 types of models:
-        # - standard
-        # - Cassan08 (no t_0, u_0, t_E, alpha)
-        self._Cassan08 = False
-        Cassan08_parameters = [
-            'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out']
-        for parameter in Cassan08_parameters:
-            if parameter in keys:
-                self._Cassan08 = True
-
-        if self._Cassan08:
+        if self._type['Cassan08']:
             self._check_valid_combination_1_source_Cassan08(keys)
         else:
             self._check_valid_combination_1_source_standard(keys)
@@ -641,14 +673,14 @@ class ModelParameters(object):
         The time of minimum projected separation between the source
         and the lens center of mass.
         """
-        if self._Cassan08:
+        if self._type['Cassan08']:
             self._get_standard_parameters_from_Cassan08()
             return self._standard_parameters['t_0']
         return self.parameters['t_0']
 
     @t_0.setter
     def t_0(self, new_t_0):
-        if self._Cassan08:
+        if self._type['Cassan08']:
             raise ValueError('t_0 cannot be set for model using ' +
                              'Cassan (2008) parameterization')
         self.parameters['t_0'] = new_t_0
@@ -662,7 +694,7 @@ class ModelParameters(object):
         The minimum projected separation between the source
         and the lens center of mass.
         """
-        if self._Cassan08:
+        if self._type['Cassan08']:
             self._get_standard_parameters_from_Cassan08()
             return self._standard_parameters['u_0']
         if 'u_0' in self.parameters.keys():
@@ -680,7 +712,7 @@ class ModelParameters(object):
 
     @u_0.setter
     def u_0(self, new_u_0):
-        if self._Cassan08:
+        if self._type['Cassan08']:
             raise ValueError('u_0 cannot be set for model using ' +
                              'Cassan (2008) parameterization')
         if 'u_0' in self.parameters.keys():
@@ -702,7 +734,7 @@ class ModelParameters(object):
         if 't_star' in self.parameters.keys():
             self._check_time_quantity('t_star')
             return self.parameters['t_star'].to(u.day).value
-        elif ('rho' in self.parameters.keys() and self._Cassan08):
+        elif ('rho' in self.parameters.keys() and self._type['Cassan08']):
             return self.rho * self.t_E
         else:
             try:
@@ -764,7 +796,7 @@ class ModelParameters(object):
         *float* or *astropy.Quantity*, but always returns *float* in units of
         days.
         """
-        if self._Cassan08:
+        if self._type['Cassan08']:
             self._get_standard_parameters_from_Cassan08()
             return self._standard_parameters['t_E']
         if 't_E' in self.parameters.keys():
@@ -781,7 +813,7 @@ class ModelParameters(object):
 
     @t_E.setter
     def t_E(self, new_t_E):
-        if self._Cassan08:
+        if self._type['Cassan08']:
             raise ValueError('t_E cannot be set for model using ' +
                              'Cassan (2008) parameterization')
 
@@ -809,7 +841,7 @@ class ModelParameters(object):
         elif ('t_star' in self.parameters.keys() and
               't_E' in self.parameters.keys()):
             return self.t_star / self.t_E
-        elif ('t_star' in self.parameters.keys() and self._Cassan08):
+        elif ('t_star' in self.parameters.keys() and self._type['Cassan08']):
             return self.t_star / self.t_E
         else:
             return None
@@ -838,7 +870,7 @@ class ModelParameters(object):
         set as a *float* --> assumes "deg" is the default unit.
         Regardless of input value, returns value in degrees.
         """
-        if self._Cassan08:
+        if self._type['Cassan08']:
             self._get_standard_parameters_from_Cassan08()
             return self._standard_parameters['alpha'] * u.deg
 
@@ -848,7 +880,7 @@ class ModelParameters(object):
 
     @alpha.setter
     def alpha(self, new_alpha):
-        if self._Cassan08:
+        if self._type['Cassan08']:
             raise ValueError('alpha cannot be set for model using ' +
                              'Cassan (2008) parameterization')
 
@@ -1499,13 +1531,7 @@ class ModelParameters(object):
             is_finite_source: *boolean*
                 *True* if at least one source has finite size.
         """
-        if self.rho is not None:
-            return True
-        elif (self.n_sources > 1 and
-                (self.rho_1 is not None or self.rho_2 is not None)):
-            return True
-        else:
-            return False
+        return self._type['finite source']
 
     def is_static(self):
         """
@@ -1516,11 +1542,7 @@ class ModelParameters(object):
                 *True* if *dalpha_dt* or *ds_dt* are set.
 
         """
-        if ('dalpha_dt' in self.parameters.keys() or
-                'ds_dt' in self.parameters.keys()):
-            return False
-        else:
-            return True
+        return not self._type['lens 2-parameter orbital motion']
 
     @property
     def n_lenses(self):
@@ -1529,12 +1551,7 @@ class ModelParameters(object):
 
         number of objects in the lens system
         """
-        if (('s' not in self.parameters.keys()) and
-                ('q' not in self.parameters.keys()) and
-                ('alpha' not in self.parameters.keys())):
-            return 1
-        else:
-            return 2
+        return self._n_lenses
 
     @property
     def n_sources(self):
@@ -1589,9 +1606,9 @@ class ModelParameters(object):
         The main usage is access to the *jacobian()* function.
         In most cases, you do not need to access this property directly.
         """
-        if not self._Cassan08:
+        if not self._type['Cassan08']:
             raise ValueError(
-                'These parameters are not in curvelinear parameterisation. ' +
+                'These parameters are not in curvelinear parameterization. ' +
                 'Hence you cannot access uniform_caustic_sampling property.')
 
         self._get_uniform_caustic_sampling()
