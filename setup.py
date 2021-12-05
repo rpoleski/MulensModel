@@ -12,6 +12,9 @@ source_AC = os.path.join('source', 'AdaptiveContouring')
 source_MM = os.path.join('source', 'MulensModel')
 source_MMmo = os.path.join(source_MM, 'mulensobjects')
 
+source_VBBL_abs = os.path.abspath(source_VBBL)
+source_AC_abs = os.path.abspath(source_AC)
+
 # Read all files from data/ in format adequate for data_files option of setup.
 files = glob.glob(os.path.join("data", "**", "*"), recursive=True)
 files = [f for f in files if os.path.isfile(f)]
@@ -33,10 +36,10 @@ with open(os.path.join('source', 'MulensModel', 'version.py')) as in_put:
         if line_.startswith('__version__'):
             version = line_.split()[2][1:-1]
 
-ext_AC = Extension('MulensModel.AdaptiveContouring',
-                   sources=glob.glob(os.path.join(source_AC, "*.c")))
-ext_VBBL = Extension('MulensModel.VBBL',
-                     sources=glob.glob(os.path.join(source_VBBL, "*.cpp")))
+ext_AC = Extension('MulensModel.AdaptiveContouring', libraries=["m"],
+                   sources=glob.glob(os.path.join(source_AC_abs, "*.c")))
+ext_VBBL = Extension('MulensModel.VBBL', libraries=["m"],
+                     sources=glob.glob(os.path.join(source_VBBL_abs, "*.cpp")))
 
 with open(file_required) as file_:
     required = file_.read().splitlines()
@@ -53,7 +56,7 @@ setup(
     author_email='radek.poleski@gmail.com',
     description='package for modeling gravitational microlensing events',
     packages=['MulensModel', 'MulensModel.mulensobjects'],
-# This also should work: packages=find_packages(where="source"),
+    # This also should work: packages=find_packages(where="source"),
     package_dir={
         'MulensModel': source_MM,
         'MulensModel.mulensobjects': source_MMmo},
