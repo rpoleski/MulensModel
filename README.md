@@ -2,6 +2,8 @@
 
 <dl>MulensModel is package for modeling microlensing (or &mu;-lensing) events. </dl>
 
+<!-- ![example workflow](https://github.com/alpv95/MulensModel/actions/workflows/tests.yml/badge.svg) -->
+
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
 [Latest release: 2.1.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
@@ -17,7 +19,9 @@ Currently, MulensModel supports:
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues) or send us an e-mail. 
 
-Are you using MulensModel for scientific research? Please give us credit by citing the [paper published in "Astronomy and Computing"](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract) and [ASCL reference](http://ascl.net/1803.006). For arXiv see [link](https://arxiv.org/abs/1803.01003).
+## Acknowledgements
+
+Are you using MulensModel for scientific research? Please give us credit by citing the [paper published in "Astronomy and Computing"](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract) and [ASCL reference](http://ascl.net/1803.006). For arXiv see [link](https://arxiv.org/abs/1803.01003). You should also cite relevant papers for algorithms used. In a typical run that uses binary lenses these will be [Bozza (2010)](https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract) and [Skowron & Gould (2012)](https://ui.adsabs.harvard.edu/abs/2012arXiv1203.1034S/abstract). [HERE](documents/papers_to_cite.md) is a list of papers to cite for various algorithms used in MulensModel.
 
 
 ## Examples and tutorials
@@ -45,5 +49,5 @@ Alternatively, you can run makefiles: go to `source/VBBL/` and run `make`, then 
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Oct 2021
+file revised Nov 2021
 

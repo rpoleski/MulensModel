@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from astropy.coordinates import SkyCoord
 
-from MulensModel.caustics import Caustics
+from MulensModel.caustics import Caustics, CausticsShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -97,7 +97,7 @@ class Model(object):
         self._parallax = {'earth_orbital': True,
                           'satellite': True,
                           'topocentric': True}
-        self._default_magnification_method = 'vbbl'
+        self._default_magnification_method = 'point_source'
         self._methods = None
         self._methods_parameters = {}
         self._caustics = None
@@ -466,10 +466,14 @@ class Model(object):
             s = self.parameters.get_s(epoch)
 
         if self._caustics is not None:
-            if s == self._caustics.s and self.parameters.q == self._caustics.q and self.parameters.K == self._caustics.K and self.parameters.G == self._caustics.G:
+            if s == self._caustics.s and self.parameters.q == self._caustics.q: #and self.parameters.convergence_K == self._caustics.convergence_K and self.parameters.shear_G == self._caustics.shear_G:
                 return
 
-        self._caustics = Caustics(q=self.parameters.q, s=s, K=self.parameters.K, G=self.parameters.G)
+        #check if covergence_K and shear_G are in parameters
+        if self.parameters.convergence_K is not None or self.parameters.shear_G is not None:
+            self._caustics = CausticsShear(q=self.parameters.q, s=s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
+        else:
+            self._caustics = Caustics(q=self.parameters.q, s=s)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -538,7 +542,7 @@ class Model(object):
         if show_data is not None:
             raise AttributeError(
                 'show_data is deprecated. datasets are no longer part of ' +
-                'Model. See Event() instead.')
+                'Model. See Event.plot_source_for_datasets() instead.')
 
         if not arrow and arrow_kwargs is not None:
             raise ValueError(

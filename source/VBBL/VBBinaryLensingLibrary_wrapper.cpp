@@ -22,7 +22,7 @@ extern "C" {
   double VBBinaryLensing_BinaryMag0(double a,double q,double y1,double y2, double K, double G, double Gi) {
     static VBBinaryLensing VBBL;
     
-    return VBBL.BinaryMag0(a, q, y1, y2, K, G, Gi);
+    return VBBL.BinaryMag0_shear(a, q, y1, y2, K, G, Gi);
   }
 }
 
@@ -46,28 +46,6 @@ extern "C" double* VBBL_SG12_5(double p0, double p1,
     for (i=0; i<5; i++) {
         roots[i] = complex_roots[i].re;
         roots[i+5] = complex_roots[i].im;
-    }
-
-    return roots;
-}
-
-extern "C" double* VBBL_SG12_2(double p0, double p1, 
-                    double p2, double p3, double p4, double p5) {
-    static VBBinaryLensing VBBL;
-    complex complex_poly[3], complex_roots[2];
-    static double roots[4];
-    int i;
-
-    complex_poly[0] = complex(p0, p3);
-    complex_poly[1] = complex(p1, p4);
-    complex_poly[2] = complex(p2, p5);
-
-
-    VBBL.cmplx_roots_gen(complex_roots, complex_poly, 2, true, true);
-    
-    for (i=0; i<2; i++) {
-        roots[i] = complex_roots[i].re;
-        roots[i+2] = complex_roots[i].im;
     }
 
     return roots;
