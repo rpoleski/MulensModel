@@ -671,3 +671,47 @@ class PointLens(object):
         d_mag_r2 = temp[1:] - temp[:-1]
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
+
+
+class PointLensWithShear(PointLens):
+    """
+    Point-lens with shear.
+
+    Parameters
+    ----------
+    parameters : :py:class:`~MulensModel.parameters.Parameters`
+        The parameters of the model.
+
+    Attributes
+    ----------
+    parameters : :py:class:`~MulensModel.parameters.Parameters`
+        The parameters of the model.
+
+    Methods
+    -------
+    get_point_lens_magnification(u, gamma)
+        Calculate magnification for the point lens.
+    """
+
+    def __init__(self, parameters):
+        super().__init__(parameters)
+
+    def get_point_lens_magnification(self, u, gamma):
+        """
+        Calculate magnification for the point lens.
+
+        Parameters
+        ----------
+        u: *np.array*
+            The instantaneous source-lens separation.
+
+        gamma: *float*
+            Gamma limb darkening coefficient. See also
+            :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
+        Returns
+        -------
+        magnification: *np.array*
+            The point-lens magnification.
+        """
+        return self._get_magnification_WM94_B18(u, gamma, 1)
