@@ -502,8 +502,8 @@ class ModelParameters(object):
             if (('convergence_K' not in keys) or
                     ('shear_G' not in keys)):
                 raise KeyError(
-                    'A binary model with external shear requires both of (convergence_K, ' +
-                    'shear_G).')
+                    'A binary model with external shear requires both of '
+                    '(convergence_K, shear_G).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
@@ -941,7 +941,6 @@ class ModelParameters(object):
             self._update_sources('convergence_K', new_K)
         else:
             raise KeyError('convergence_K is not a parameter of this model.')
-        
 
     @property
     def shear_G(self):

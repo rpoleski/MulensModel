@@ -160,11 +160,14 @@ class MagnificationCurve(object):
 
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
-        elif self.parameters.n_lenses == 2 and self.parameters.convergence_K is None:
+        elif (self.parameters.n_lenses == 2 and
+                self.parameters.convergence_K is None):
             print('Binary lens with no convergence')
             magnification = self.get_binary_lens_magnification()
-        elif self.parameters.n_lenses == 2 and self.parameters.convergence_K is not None:
-            print('Warning: convergence_K is used in the magnification ', self.parameters.convergence_K)
+        elif (self.parameters.n_lenses == 2 and
+                self.parameters.convergence_K is not None):
+            print('Warning: convergence_K is used in the magnification ',
+                  self.parameters.convergence_K)
             magnification = self.get_binary_lens_shear_magnification()
         else:
             raise NotImplementedError(
@@ -485,7 +488,9 @@ class MagnificationCurve(object):
         is_static = self.parameters.is_static()
         if is_static:
             binary_lens = BinaryLensWithShear(
-                mass_1=m_1, mass_2=m_2, separation=self.parameters.s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
+                mass_1=m_1, mass_2=m_2, separation=self.parameters.s,
+                convergence_K=self.parameters.convergence_K,
+                shear_G=self.parameters.shear_G)
         methods = self._methods_for_epochs()
 
         # Calculate the magnification
@@ -497,7 +502,9 @@ class MagnificationCurve(object):
             if not is_static:
                 binary_lens = BinaryLensWithShear(
                     mass_1=m_1, mass_2=m_2,
-                    separation=self.parameters.get_s(self.times[index]), convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
+                    separation=self.parameters.get_s(self.times[index]),
+                    convergence_K=self.parameters.convergence_K,
+                    shear_G=self.parameters.shear_G)
 
             kwargs = {}
             if self._methods_parameters is not None:

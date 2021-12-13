@@ -469,9 +469,13 @@ class Model(object):
             if s == self._caustics.s and self.parameters.q == self._caustics.q:
                 return
 
-        #check if covergence_K and shear_G are in parameters
-        if self.parameters.convergence_K is not None or self.parameters.shear_G is not None:
-            self._caustics = CausticsShear(q=self.parameters.q, s=s, convergence_K=self.parameters.convergence_K, shear_G=self.parameters.shear_G)
+        # check if covergence_K and shear_G are in parameters
+        if (self.parameters.convergence_K is not None or
+                self.parameters.shear_G is not None):
+            self._caustics = CausticsShear(
+                q=self.parameters.q, s=s,
+                convergence_K=self.parameters.convergence_K,
+                shear_G=self.parameters.shear_G)
         else:
             self._caustics = Caustics(q=self.parameters.q, s=s)
 
