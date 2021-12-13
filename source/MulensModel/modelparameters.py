@@ -359,10 +359,10 @@ class ModelParameters(object):
             'pi_E_N': {'width': 9, 'precision': 5},
             'pi_E_E': {'width': 9, 'precision': 5},
             's': {'width': 9, 'precision': 5},
-            'convergence_K': {'width': 12, 'precision': 8},
-            'shear_G': {'width': 12, 'precision': 8},
             'q': {'width': 12, 'precision': 8},
             'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
+            'convergence_K': {'width': 12, 'precision': 8},
+            'shear_G': {'width': 12, 'precision': 8},
             'ds_dt': {
                 'width': 11, 'precision': 5, 'unit': '/yr', 'name': 'ds/dt'},
             'dalpha_dt': {
@@ -387,7 +387,8 @@ class ModelParameters(object):
         formats_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
+            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha',
+            'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
         ]
 
@@ -548,8 +549,10 @@ class ModelParameters(object):
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 'convergence_K', 'shear_G', 't_star',
-            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
+            't_0', 'u_0', 't_E', 't_eff', 'rho', 't_star',
+            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par',
+            's', 'q', 'alpha', 'convergence_K', 'shear_G',
+            'dalpha_dt', 'ds_dt',
             't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
             't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
             't_caustic_in', 't_caustic_out'])

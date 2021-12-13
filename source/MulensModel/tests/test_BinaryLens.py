@@ -102,8 +102,11 @@ def test_vbbl_1():
     result = bl.vbbl_magnification(0.01, 0.01, 0.01)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
-#shear always uses a point source, so this test is not really fair.
+
 def test_vbbl_shear_1():
+    """
+    shear always uses a point source, so this test is not really fair
+    """
     s = 0.8
     q = 0.1
 
