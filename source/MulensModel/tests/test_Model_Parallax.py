@@ -30,14 +30,15 @@ class _ParallaxFile(object):
     Private class to allow easy access to the contents of the parallax
     test files.
     """
+
     def __init__(self, filename):
         """
         Open the file and store parameters.
         """
         self.filename = filename
         self.data = np.genfromtxt(
-                self.filename, dtype=None,
-                names=['Time', 'Magnification', 'PLflux', 'u', 'qn', 'qe'])
+            self.filename, dtype=None,
+            names=['Time', 'Magnification', 'PLflux', 'u', 'qn', 'qe'])
 
         (self.ulens_params, self.event_params) = self.get_file_params()
 
