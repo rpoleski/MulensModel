@@ -579,7 +579,7 @@ class Model(object):
                 satellite_skycoord, arrow, arrow_kwargs, **kwargs)
         else:
             raise ValueError(
-                    'Wrong number of sources: {:}'.format(self.n_sources))
+                'Wrong number of sources: {:}'.format(self.n_sources))
 
         if caustics:
             self.plot_caustics(marker='.', color='red')
@@ -1036,7 +1036,7 @@ class Model(object):
             return None
         else:
             satellite_skycoords = SatelliteSkyCoord(
-                 ephemerides_file=self.ephemerides_file)
+                ephemerides_file=self.ephemerides_file)
             return satellite_skycoords.get_satellite_coords(times)
 
     def get_magnification(self, time, satellite_skycoord=None, gamma=None,
@@ -1211,7 +1211,7 @@ class Model(object):
                 'make sense')
 
         (mag_1, mag_2) = self._separate_magnifications(
-                time, satellite_skycoord, gamma)
+            time, satellite_skycoord, gamma)
 
         if separate:
             return (mag_1, mag_2)

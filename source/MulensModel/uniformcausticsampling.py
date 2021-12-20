@@ -92,6 +92,7 @@ class UniformCausticSampling(object):
     selection applied to caustic-crossing binary-lens microlensing events"
     <https://ui.adsabs.harvard.edu/abs/2012MNRAS.426.2228K/abstract>`_
     """
+
     def __init__(self, s, q, n_points=10000):
         self._s = s
         self._q = q

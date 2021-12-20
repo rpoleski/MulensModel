@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from MulensModel.utils import Utils
 
+
 class Caustics(object):
     """
     Class for the caustic structure corresponding to a given (*q*, *s*),
@@ -176,7 +177,7 @@ class CausticsShear(Caustics):
     """
 
     def __init__(self, q, s, convergence_K=0.0, shear_G=complex(0, 0)):
-        Caustics.__init__(self, q,s)
+        Caustics.__init__(self, q, s)
         self.convergence_K = convergence_K
         self.shear_G = shear_G
 
@@ -203,12 +204,13 @@ class CausticsShear(Caustics):
         # Solve for the critical curve (and caustic) in complex coordinates.
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
-            e_iphi = self.shear_G + (1-self.convergence_K) * np.complex(cos(phi), -sin(phi))
+            e_iphi = self.shear_G + (
+                1-self.convergence_K) * np.complex(cos(phi), -sin(phi))
 
             # Coefficients of Eq. 6
             coeff_4 = 1. * e_iphi
             coeff_3 = -2. * self.s * e_iphi
-            coeff_2 = Utils.complex_fsum([e_iphi * self.s**2, - 1 ])
+            coeff_2 = Utils.complex_fsum([e_iphi * self.s**2, - 1])
             coeff_1 = 2. * self.s / (1. + self.q)
             coeff_0 = -self.s**2 / (1. + self.q)
 

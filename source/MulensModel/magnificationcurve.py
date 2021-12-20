@@ -44,6 +44,7 @@ class MagnificationCurve(object):
             Trajectory used to calculate positions of
             the source that are used to calculate magnification values.
     """
+
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, gamma=0.):
         # Set times

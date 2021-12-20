@@ -125,7 +125,7 @@ def _print_parameters(header, components):
     if len(components['optional']) > 0:
         for item in components['optional']:
             print('optional: {0} {1}'.format(
-                    _valid_parameters[item][0], _valid_parameters[item][1]))
+                _valid_parameters[item][0], _valid_parameters[item][1]))
 
 
 def _print_all():
@@ -207,6 +207,7 @@ class ModelParameters(object):
             ``print(params)``
 
     """
+
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
             raise TypeError(
@@ -423,7 +424,7 @@ class ModelParameters(object):
             if parameter in keys:
                 if parameter[:-2] in keys:
                     raise ValueError('You cannot set {:} and {:}'.format(
-                                        parameter, parameter[:-2]))
+                        parameter, parameter[:-2]))
 
     def _check_valid_combination_1_source_standard(self, keys):
         """
@@ -590,7 +591,7 @@ class ModelParameters(object):
             if name in parameters.keys():
                 if parameters[name] < 0.:
                     raise ValueError("{:} cannot be negative: {:}".format(
-                            full_names[name], parameters[name]))
+                        full_names[name], parameters[name]))
 
         for (key, value) in parameters.items():
             if key == 'pi_E':
