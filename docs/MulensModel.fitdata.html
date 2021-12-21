@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.fitdata module &#8212; MulensModel 2.1.0 documentation</title>
+    <title>MulensModel.fitdata module &#8212; MulensModel 2.1.15 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -176,8 +176,13 @@ summed to produce the overall scaling flux.</p>
 </dd>
 </dl>
 </dd>
-<dt>Returns :</dt><dd><p>(flux, err): the fluxes and flux errors of the dataset rescaled
-to the desired system</p>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>flux: <em>np.ndarray</em></dt><dd><p>Fluxes from the data rescaled to the desired system.</p>
+</dd>
+<dt>err_flux: <em>np.ndarray</em></dt><dd><p>Uncertainties of fluxes from the data rescaled to the desired
+system.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -186,7 +191,7 @@ to the desired system</p>
 <dt id="MulensModel.fitdata.FitData.get_residuals">
 <code class="sig-name descname">get_residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phot_fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blend_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">type</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_residuals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the residuals for each datapoint relative to the model.</p>
-<dl>
+<dl class="simple">
 <dt>Keywords :</dt><dd><dl class="simple">
 <dt>phot_fmt: <em>str</em>, optional</dt><dd><p>specify whether the residuals should be returned in
 magnitudes (‘mag’) or in flux (‘flux’). Default is
@@ -199,8 +204,9 @@ scaled to source_flux, blend_flux.</p>
 magnification for each point to ensure that there are values
 even for bad datapoints.</p>
 </dd>
+<dt>type:</dt><dd><p>DEPRECATED, see “phot_fmt” above.</p>
+</dd>
 </dl>
-<p>type: deprecated, see “phot_fmt”.</p>
 </dd>
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>residuals: <em>np.ndarray</em></dt><dd><p>the residuals for the corresponding dataset.</p>

@@ -74,7 +74,7 @@ Suppose you also had some data you want to import:
         comments=['\\', '|'])
    MOA_data = mm.MulensData(
         file_name=os.path.join(path, 'OB03235_MOA.tbl.txt'),
-        comments=['\\', '|'])
+        comments=['\\', '|'], phot_fmt='flux')
 
 Combining Data with a Model
 ---------------------------
@@ -93,6 +93,8 @@ And you wanted to plot the result:
    my_event.plot_model(t_range=[2452810, 2452890], subtract_2450000=True, 
        color='black')
    my_event.plot_data(subtract_2450000=True)
+   plt.xlim(2810, 2890)
+   plt.ylim(19.25, 16.6)
    plt.show()
 
 This fits for the fluxes so that the model and data are all on the

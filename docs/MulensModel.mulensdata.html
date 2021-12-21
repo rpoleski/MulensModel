@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.mulensdata module &#8212; MulensModel 2.1.0 documentation</title>
+    <title>MulensModel.mulensdata module &#8212; MulensModel 2.1.15 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -122,6 +122,8 @@ contact code authors.</p>
 </dd>
 </dl>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt><dd><p>Kwargs passed to np.loadtxt(). Works only if <code class="docutils literal notranslate"><span class="pre">file_name</span></code> is set.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -132,7 +134,7 @@ contact code authors.</p>
 <p>Uses <code class="xref py py-attr docutils literal notranslate"><span class="pre">plot_properties</span></code> for label, color, etc.
 This settings can be changed by setting <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>.</p>
 <p>You can plot in either flux or magnitude space.</p>
-<dl>
+<dl class="simple">
 <dt>Keywords:</dt><dd><dl class="simple">
 <dt>phot_fmt: <em>string</em> (‘mag’, ‘flux’)</dt><dd><p>Whether to plot the data in magnitudes or in flux. Default
 is the same as <a class="reference internal" href="#MulensModel.mulensdata.MulensData.input_fmt" title="MulensModel.mulensdata.MulensData.input_fmt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">input_fmt</span></code></a>.</p>
@@ -156,8 +158,9 @@ to plot a dataset scaled to a model.</p>
 <dt>plot_residuals: <em>boolean</em></dt><dd><p>If <em>True</em> then residuals are plotted (<em>model</em> is required).
 Default is <em>False</em>, i.e., plot the data.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>:</dt><dd><p>passed to matplotlib plotting functions.</p>
+</dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>: passed to matplotlib plotting functions.</p>
 </dd>
 </dl>
 </dd></dl>
