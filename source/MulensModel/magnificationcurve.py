@@ -163,12 +163,9 @@ class MagnificationCurve(object):
             magnification = self.get_point_lens_magnification()
         elif (self.parameters.n_lenses == 2 and
                 self.parameters.convergence_K is None):
-            print('Binary lens with no convergence')
             magnification = self.get_binary_lens_magnification()
         elif (self.parameters.n_lenses == 2 and
                 self.parameters.convergence_K is not None):
-            print('Warning: convergence_K is used in the magnification ',
-                  self.parameters.convergence_K)
             magnification = self.get_binary_lens_shear_magnification()
         else:
             raise NotImplementedError(
