@@ -1337,7 +1337,7 @@ class BinaryLensWithShear(BinaryLens):
         accuracy = float(accuracy)
 
         magnification = _vbbl_binary_mag_0(
-            s, q, x, y, self.convergence_K, self.shear_G.real, 
+            s, q, x, y, self.convergence_K, self.shear_G.real,
             self.shear_G.imag)
 
         return magnification
