@@ -273,8 +273,8 @@ class MulensData(object):
         if (coords is not None) or (ra is not None) or (dec is not None):
             # Check for errors and if none, set the coordinates
             warnings.warn(
-                'coords will be deprecated in future. There is no reason to' +
-                'tie this to a given dataset', FutureWarning)
+                'coords will be deprecated in future. There is no reason ' +
+                'to tie this to a given dataset', FutureWarning)
             coords_msg = 'Must specify both or neither of ra and dec'
             # ...using coords keyword
             if coords is not None:
