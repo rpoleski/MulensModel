@@ -788,6 +788,7 @@ class Event(object):
 
         return fluxes
 
+    @property
     def blend_fluxes(self):
         """
         *list*
