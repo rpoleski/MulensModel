@@ -40,7 +40,6 @@ setup(
     version=version,
     url='https://github.com/rpoleski/MulensModel',
     project_urls={
-        'git clone': 'git@github.com:rpoleski/MulensModel.git',
         'documentation': 'https://github.com/rpoleski/MulensModel'},
     ext_modules=[ext_AC, ext_VBBL],
     author='Radek Poleski',
