@@ -1,7 +1,7 @@
 import warnings
 import numpy as np
 from math import fsum
-from matplotlib import rcParams
+from matplotlib import rcParams, gridspec
 import matplotlib.pyplot as plt
 
 from MulensModel.fitdata import FitData
@@ -112,6 +112,132 @@ class Event(object):
             self.fix_source_flux_ratio = {}
         else:
             self.fix_source_flux_ratio = fix_source_flux_ratio
+
+    def plot(self, t_range=None, residuals=True, show_errorbars=None,
+             show_bad=None, legend=True, trajectory=None, title=None,
+             subtract_2450000=False, subtract_2460000=False, data_ref=None):
+        """
+        Basic plotting. Default is to plot the light curve with the residuals.
+        If the model has 2 or more lenses, also plot the source trajectory with
+        caustics. For more detailed control over the plotting, see
+        :py:func:`~plot_model()`, :py:func:`~plot_data()`, and
+        :py:func:`~plot_trajectory`.
+
+        Keywords:
+            t_range: *list*, *tuple*
+                Time range over which to show the light curve plot.
+
+            residuals: *bool*
+                Whether or not to plot the residuals with the light curve.
+
+            show_errorbars: *bool*
+                Whether or not to show the errorbars on the data. Default is
+                *None* (see :py:func:`~plot_data()`).
+
+            show_bad: *bool*
+                Whether or not to show data points marked as "bad" (see
+                :py:attr:`~MulensModel.MulensData.bad`). Default is
+                *None* (see :py:func:`~plot_data()`).
+
+            legend: *bool*
+                Whether or not to show a legend for the datasets.
+
+            trajectory: *bool*
+                Whether or not to plot the source trajectory.
+
+            title: *str*
+                Title for the plot. Same title is used for trajectory plot, if
+                applicable.
+
+            subtract_2450000, subtract_2460000: *bool*
+                see :py:func:`~plot_data()`.
+
+            data_ref:  *int* or *MulensData*
+                see :py:func:`~plot_data()`.
+
+        """
+
+        if trajectory is None:
+            if self.model.n_lenses == 1:
+                trajectory = False
+            else:
+                trajectory = True
+
+        self._plot_lc_default(
+            t_range=t_range, residuals=residuals, show_errorbars=show_errorbars,
+            show_bad=show_bad, legend=legend, title=title,
+            subtract_2450000=subtract_2450000,
+            subtract_2460000=subtract_2460000, data_ref=data_ref)
+
+        if trajectory:
+            self._plot_trajectory_default(t_range=t_range, title=title)
+
+    def _plot_lc_default(self, t_range=None, residuals=True, show_errorbars=None,
+             show_bad=None, legend=True, title=None,
+             subtract_2450000=False, subtract_2460000=False, data_ref=None):
+
+        plt.figure()
+
+        if residuals:
+            gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
+            if title is not None:
+                plt.suptitle(title)
+
+            ax11 = plt.subplot(gs[0])
+        else:
+            if title is not None:
+                plt.title(title)
+
+        self.plot_model(
+            t_range=t_range, subtract_2450000=subtract_2450000,
+            subtract_2460000=subtract_2460000, data_ref=data_ref,
+            color='black')
+        self.plot_data(
+            show_errorbars=show_errorbars, show_bad=show_bad,
+            subtract_2450000=subtract_2450000,
+            subtract_2460000=subtract_2460000, data_ref=data_ref)
+        plt.gca().minorticks_on()
+        if legend:
+            plt.legend()
+
+        if residuals:
+            plt.xlabel(None)
+            plt.gca().xaxis.set_ticklabels([])
+            plt.subplot(gs[1], sharex=ax11)
+            self.plot_residuals(subtract_2450000=True)
+
+        if t_range is not None:
+            if subtract_2450000:
+                xlim = np.array(t_range) - 2450000.
+            elif subtract_2460000:
+                xlim = np.array(t_range) - 2460000.
+            else:
+                xlim = t_range
+
+            plt.xlim(xlim)
+
+        plt.tight_layout()
+
+
+    def _plot_trajectory_default(self, t_range=None, title=None):
+        plt.figure()
+        plt.gca().set_aspect('equal')
+        if title is not None:
+            plt.title(title)
+
+        self.plot_trajectory()
+        self.plot_source_for_datasets()
+
+        if t_range is None:
+            t_range = (self.model.parameters.t_0 +
+                       self.model.parameters.t_E * np.array([-1. ,1.]) )
+
+        lims = (np.array(t_range) -
+                self.model.parameters.t_0) / self.model.parameters.t_E
+
+        plt.xlim(lims)
+        plt.ylim(lims)
+        plt.gca().minorticks_on()
 
     def plot_model(self, data_ref=None, **kwargs):
         """
@@ -530,8 +656,8 @@ class Event(object):
         gradient = {param: 0 for param in parameters}
         for i, dataset in enumerate(self.datasets):
             data_gradient = self.fits[i].calculate_chi2_gradient(parameters)
-            for i, p in enumerate(parameters):
-                gradient[p] += data_gradient[i]
+            for j, p in enumerate(parameters):
+                gradient[p] += data_gradient[j]
 
         if len(parameters) == 1:
             out = gradient[parameters[0]]

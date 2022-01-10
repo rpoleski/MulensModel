@@ -37,9 +37,12 @@ plens_model.set_magnification_methods([t_0-2.*t_star, method, t_0+2.*t_star])
 event_default = mm.Event(datasets=datasets_default, model=plens_model)
 event_default.data_ref = 6
 
-gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
+# F1 & F2: (data and model) and trajectory using minimal commands.
+event_default.plot(
+    subtract_2450000=True, trajectory=True, title='Minimal Effort Plot')
 
-# F1: Plot the data and model
+# F3: Plot the data and model
+gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
 plt.figure()
 ax11 = plt.subplot(gs[0])
 event_default.plot_model(subtract_2450000=True)
@@ -49,14 +52,14 @@ plt.title('Data and Fitted Model (Default)')
 plt.subplot(gs[1], sharex=ax11)
 event_default.plot_residuals(subtract_2450000=True)
 
-# F2: Plot the trajectory
+# F4: Plot the trajectory
 plt.figure()
 plt.title('Trajectory w/Data (Default)')
 event_default.plot_trajectory()
 event_default.plot_source_for_datasets()
 
 # -----------------
-# F3: Plot the data and model (customized)
+# F5: Plot the data and model (customized)
 datasets_custom = []
 color_list = ['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
 for (i, file_) in enumerate(sorted(files)):
@@ -92,7 +95,7 @@ plt.subplot(gs[1], sharex=ax31)
 event_custom.plot_residuals(marker='s', markersize=3, subtract_2450000=True)
 plt.xlim(t_start-2450000., t_stop-2450000.)
 
-# F4: Plot the trajectory
+# F6: Plot the trajectory
 plt.figure()
 plt.title('Trajectory w/Data (Custom)')
 plt.gca().set_aspect('equal')
