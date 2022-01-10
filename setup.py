@@ -1,57 +1,52 @@
-import os
-import sys
-import glob
-import warnings
-from setuptools import setup, Extension
+from pathlib import Path
 
+from setuptools import Extension, find_packages, setup
 
-file_required = "requirements.txt"
+PROJECT_PATH = Path(__file__).resolve().parent
+SOURCE_PATH = PROJECT_PATH / "source"
+DATA_PATH = PROJECT_PATH / "data"
 
-source_VBBL = os.path.join('source', 'VBBL')
-source_AC = os.path.join('source', 'AdaptiveContouring')
-source_MM = os.path.join('source', 'MulensModel')
-source_MMmo = os.path.join(source_MM, 'mulensobjects')
-
-# Read all files from data/ in format adequate for data_files option of setup.
-files = glob.glob(os.path.join("data", "**", "*"), recursive=True)
-files = [f for f in files if os.path.isfile(f)]
-dir_files = dict()
-for file_ in files:
-    dir_ = os.path.dirname(file_)
-    if dir_ in dir_files:
-        dir_files[dir_] += [file_]
-    else:
-        dir_files[dir_] = [file_]
-data_files = []
-for (key, value) in dir_files.items():
-    data_files += [(os.path.join('MulensModel', key), value)]
+file_required = PROJECT_PATH / "requirements.txt"
+with file_required.open() as file_:
+    install_requires = file_.read().splitlines()
 
 version = "unknown"
-with open(os.path.join('source', 'MulensModel', 'version.py')) as in_put:
+with Path(SOURCE_PATH / "MulensModel" / "version.py").open() as in_put:
     for line_ in in_put.readlines():
         if line_.startswith('__version__'):
             version = line_.split()[2][1:-1]
 
-ext_AC = Extension('MulensModel.AdaptiveContouring',
-                   sources=glob.glob(os.path.join(source_AC, "*.c")))
-ext_VBBL = Extension('MulensModel.VBBL',
-                     sources=glob.glob(os.path.join(source_VBBL, "*.cpp")))
+source_VBBL = SOURCE_PATH / "VBBL"
+source_AC = SOURCE_PATH / "AdaptiveContouring"
+source_MM = SOURCE_PATH / "MulensModel"
+source_MMmo = source_MM / "mulensobjects"
 
-with open(file_required) as file_:
-    required = file_.read().splitlines()
+# Read all files from data/ in format adequate for data_files option of setup.
+files = [
+    f.relative_to(PROJECT_PATH) for f in DATA_PATH.rglob("*") if f.is_file()]
+data_files = {str(f): str(f) for f in files}
+
+# C/C++ Extensions
+ext_AC = Extension('MulensModel.AdaptiveContouring',
+                   sources=[str(f) for f in source_AC.glob("*.c")],
+                   libraries=["m"])
+ext_VBBL = Extension('MulensModel.VBBL',
+                     sources=[str(f) for f in source_AC.glob("*.cpp")],
+                     libraries=["m"])
 
 setup(
     name='MulensModel',
     version=version,
-    url='git@github.com:rpoleski/MulensModel.git',
+    url='https://github.com/rpoleski/MulensModel',
+    project_urls={
+        'documentation': 'https://github.com/rpoleski/MulensModel'},
     ext_modules=[ext_AC, ext_VBBL],
-    author='Radek Poleski',
+    author='Radek Poleski & Jennifer Yee',
     author_email='radek.poleski@gmail.com',
     description='package for modeling gravitational microlensing events',
-    packages=['MulensModel', 'MulensModel.mulensobjects'],
-    package_dir={
-        'MulensModel': source_MM,
-        'MulensModel.mulensobjects': source_MMmo},
+    packages=find_packages(where="source"),
+    package_dir={"": "source"},
     data_files=data_files,
-    install_requires=required
+    python_requires=">=3.6",
+    install_requires=install_requires,
 )

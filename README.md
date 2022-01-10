@@ -4,7 +4,7 @@
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
-[Latest release: 2.1.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 2.2.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best-fit parameters.
 
@@ -34,7 +34,13 @@ The full documentation of API is at [https://rpoleski.github.io/MulensModel/](ht
 
 ## How to install?
 
-Download the source code and run:
+The easiest way is to run:
+```
+pip install MulensModel
+```
+which will download all files and also install all dependencies.
+
+The second possibility is to download the source code and run:
 ```
 python setup.py install
 ```
@@ -42,7 +48,8 @@ MulensModel requires some standard packages plus [astropy package](http://www.as
 ```
 pip install -r requirements.txt
 ```
-Alternatively, you can run makefiles: go to `source/VBBL/` and run `make`, then go to `source/AdaptiveContouring/` and do the same. Then and add the path `MulensModel/source` to your `PYTHONPATH`. If you have any problems, please contact the authors and we will try to help.
+
+There is also third possibility. You can run makefiles: go to `source/VBBL/` and run `make`, then go to `source/AdaptiveContouring/` and do the same. Then and add the full path `/.../MulensModel/source` to your `PYTHONPATH`. If you have any problems, please contact the authors and we will try to help.
 
 ## Contributing
 
@@ -51,5 +58,5 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 
-file revised Dec 2021
+file revised Jan 2022
 
