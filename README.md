@@ -34,7 +34,13 @@ The full documentation of API is at [https://rpoleski.github.io/MulensModel/](ht
 
 ## How to install?
 
-Download the source code and run:
+The easiest way is to run:
+```
+pip install MulensModel
+```
+which will download all files and also install all dependencies.
+
+The second possibility is to download the source code and run:
 ```
 python setup.py install
 ```
@@ -42,7 +48,8 @@ MulensModel requires some standard packages plus [astropy package](http://www.as
 ```
 pip install -r requirements.txt
 ```
-Alternatively, you can run makefiles: go to `source/VBBL/` and run `make`, then go to `source/AdaptiveContouring/` and do the same. Then and add the path `MulensModel/source` to your `PYTHONPATH`. If you have any problems, please contact the authors and we will try to help.
+
+There is also third possibility. You can run makefiles: go to `source/VBBL/` and run `make`, then go to `source/AdaptiveContouring/` and do the same. Then and add the full path `/.../MulensModel/source` to your `PYTHONPATH`. If you have any problems, please contact the authors and we will try to help.
 
 ## Contributing
 
