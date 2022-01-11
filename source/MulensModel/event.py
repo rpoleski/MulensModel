@@ -143,7 +143,8 @@ class Event(object):
                 Whether or not to show a legend for the datasets.
 
             trajectory: *bool*
-                Whether or not to plot the source trajectory.
+                Whether or not to plot the source trajectory. Defaults to
+                *False* for single lens events and *True* for binary lenses.
 
             title: *str*
                 Title for the plot. Same title is used for trajectory plot, if
@@ -154,9 +155,7 @@ class Event(object):
 
             data_ref:  *int* or *MulensData*
                 see :py:func:`~plot_data()`.
-
         """
-
         if trajectory is None:
             if self.model.n_lenses == 1:
                 trajectory = False
@@ -164,7 +163,8 @@ class Event(object):
                 trajectory = True
 
         self._plot_lc_default(
-            t_range=t_range, residuals=residuals, show_errorbars=show_errorbars,
+            t_range=t_range, residuals=residuals,
+            show_errorbars=show_errorbars,
             show_bad=show_bad, legend=legend, title=title,
             subtract_2450000=subtract_2450000,
             subtract_2460000=subtract_2460000, data_ref=data_ref)
@@ -172,9 +172,13 @@ class Event(object):
         if trajectory:
             self._plot_trajectory_default(t_range=t_range, title=title)
 
-    def _plot_lc_default(self, t_range=None, residuals=True, show_errorbars=None,
+    def _plot_lc_default(
+             self, t_range=None, residuals=True, show_errorbars=None,
              show_bad=None, legend=True, title=None,
              subtract_2450000=False, subtract_2460000=False, data_ref=None):
+        """
+        Plot model and data
+        """
 
         plt.figure()
 
@@ -218,8 +222,10 @@ class Event(object):
 
         plt.tight_layout()
 
-
     def _plot_trajectory_default(self, t_range=None, title=None):
+        """
+        plot trajectory after plotting model and data
+        """
         plt.figure()
         plt.gca().set_aspect('equal')
         if title is not None:
@@ -230,7 +236,7 @@ class Event(object):
 
         if t_range is None:
             t_range = (self.model.parameters.t_0 +
-                       self.model.parameters.t_E * np.array([-1. ,1.]) )
+                       self.model.parameters.t_E * np.array([-1., 1.]))
 
         lims = (np.array(t_range) -
                 self.model.parameters.t_0) / self.model.parameters.t_E
