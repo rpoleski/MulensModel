@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.event module &#8212; MulensModel 2.1.15 documentation</title>
+    <title>MulensModel.event module &#8212; MulensModel 2.3.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -90,6 +90,44 @@ we do it in magnitude or flux space depending on value of
 If dataset is in magnitude space and model results
 in negative flux, then we calculate chi^2 in flux space but only for the
 epochs with negative model flux.</p>
+<dl class="py method">
+<dt id="MulensModel.event.Event.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">residuals</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">show_errorbars</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_bad</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">legend</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">trajectory</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic plotting. Default is to plot the light curve with the residuals.
+If the model has 2 or more lenses, also plot the source trajectory with
+caustics. For more detailed control over the plotting, see
+<a class="reference internal" href="#MulensModel.event.Event.plot_model" title="MulensModel.event.Event.plot_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_model()</span></code></a>, <a class="reference internal" href="#MulensModel.event.Event.plot_data" title="MulensModel.event.Event.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>, and
+<a class="reference internal" href="#MulensModel.event.Event.plot_trajectory" title="MulensModel.event.Event.plot_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_trajectory()</span></code></a>.</p>
+<dl class="simple">
+<dt>Keywords:</dt><dd><dl class="simple">
+<dt>t_range: <em>list</em>, <em>tuple</em></dt><dd><p>Time range over which to show the light curve plot.</p>
+</dd>
+<dt>residuals: <em>bool</em></dt><dd><p>Whether or not to plot the residuals with the light curve.</p>
+</dd>
+<dt>show_errorbars: <em>bool</em></dt><dd><p>Whether or not to show the errorbars on the data. Default is
+<em>None</em> (see <a class="reference internal" href="#MulensModel.event.Event.plot_data" title="MulensModel.event.Event.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>).</p>
+</dd>
+<dt>show_bad: <em>bool</em></dt><dd><p>Whether or not to show data points marked as “bad” (see
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">bad</span></code>). Default is
+<em>None</em> (see <a class="reference internal" href="#MulensModel.event.Event.plot_data" title="MulensModel.event.Event.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>).</p>
+</dd>
+<dt>legend: <em>bool</em></dt><dd><p>Whether or not to show a legend for the datasets.</p>
+</dd>
+<dt>trajectory: <em>bool</em></dt><dd><p>Whether or not to plot the source trajectory. Defaults to
+<em>False</em> for single lens events and <em>True</em> for binary lenses.</p>
+</dd>
+<dt>title: <em>str</em></dt><dd><p>Title for the plot. Same title is used for trajectory plot, if
+applicable.</p>
+</dd>
+<dt>subtract_2450000, subtract_2460000: <em>bool</em></dt><dd><p>see <a class="reference internal" href="#MulensModel.event.Event.plot_data" title="MulensModel.event.Event.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>.</p>
+</dd>
+<dt>data_ref:  <em>int</em> or <em>MulensData</em></dt><dd><p>see <a class="reference internal" href="#MulensModel.event.Event.plot_data" title="MulensModel.event.Event.plot_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_data()</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="MulensModel.event.Event.plot_model">
 <code class="sig-name descname">plot_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_ref</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.plot_model" title="Permalink to this definition">¶</a></dt>
@@ -399,7 +437,7 @@ that dataset, e.g. fitted fluxes, chi2 (for that dataset).</p>
 
 <dl class="py method">
 <dt id="MulensModel.event.Event.blend_fluxes">
-<code class="sig-name descname">blend_fluxes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.event.Event.blend_fluxes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">blend_fluxes</code><a class="headerlink" href="#MulensModel.event.Event.blend_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list</em></p>
 <p>An array giving the fitted blend flux for each dataset.</p>
 </dd></dl>
