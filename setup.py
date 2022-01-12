@@ -22,7 +22,8 @@ source_MM = SOURCE_PATH / "MulensModel"
 source_MMmo = source_MM / "mulensobjects"
 
 # Read all files from data/ in format adequate for data_files option of setup.
-files = [
+files = [file_required.relative_to(PROJECT_PATH)]
+files += [
     f.relative_to(PROJECT_PATH) for f in DATA_PATH.rglob("*") if f.is_file()]
 data_files = {str(f): str(f) for f in files}
 
