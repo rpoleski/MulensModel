@@ -32,7 +32,7 @@ ext_AC = Extension('MulensModel.AdaptiveContouring',
                    sources=[str(f) for f in source_AC.glob("*.c")],
                    libraries=["m"])
 ext_VBBL = Extension('MulensModel.VBBL',
-                     sources=[str(f) for f in source_AC.glob("*.cpp")],
+                     sources=[str(f) for f in source_VBBL.glob("*.cpp")],
                      libraries=["m"])
 
 setup(
