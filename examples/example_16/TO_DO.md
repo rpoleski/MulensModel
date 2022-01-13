@@ -19,9 +19,8 @@
 
 - **some documentation - see above**
 - **add one more fitting method?**
-- **requirements.txt** - corner >= 2.0.0
+- **requirements.txt** - corner >= 2.0.0, MM>2.0
 - Mroz+20 - finish
-- trace plot (give option to include burn-in)
 - script and MM versions should be printed
 - EMCEE backend - https://emcee.readthedocs.io/en/stable/user/backends/#emcee.backends.HDFBackend
 - add check if 't_0' is covered by data and give warning if not
@@ -69,6 +68,7 @@
 - in _parse_fit_constraints_prior() add a check if the priors are defined for fit parameters
 - flux constraints for binary source models (note that for plotting it is now set to first dataset)
 - allow Model.set_magnification_methods_parameters()
+- triangle and trace plots - add option to plot burn-in as well
 - methods - if only single string is provided, then this is a default method
 - print current best model - each minute, each nth model etc.
 - allow LD parameters to be fitted

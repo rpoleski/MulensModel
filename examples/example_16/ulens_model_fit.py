@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.23.8'
+__version__ = '0.24.0'
 
 
 class UlensModelFit(object):
@@ -180,14 +180,17 @@ class UlensModelFit(object):
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``'triangle'`` and ``'best model'``.
             The values are also dicts and currently accepted keys are
-            ``'file'`` (both plots) and ``'time range'`` and for best model
-            plot also: ``'magnitude range'``, ``'legend'``, ``'rcParams'``,
-            e.g.,
+            ``'file'`` (both plots) and for best model plot also:
+            ``'time range'``, ``'magnitude range'``, ``'legend'``,
+            ``'rcParams'``, e.g.,
 
             .. code-block:: python
 
               {
-                  'triangle': {'file': 'my_fit_triangle.png'},
+                  'triangle':
+                      'file': 'my_fit_triangle.png'
+                  'trace':
+                      'file': 'my_fit_trace_plot.png'
                   'best model':
                       'file': 'my_fit_best.png'
                       'time range': 2456000. 2456300.
@@ -279,13 +282,14 @@ class UlensModelFit(object):
             self._task = 'fit'
         elif plot:
             self._task = 'plot'
-            self._check_unnecessary_settings()
+            self._check_unnecessary_settings_plot()
         else:
             raise ValueError('internal error')
 
-    def _check_unnecessary_settings(self):
+    def _check_unnecessary_settings_plot(self):
         """
-        Make sure that there arent' too many parameters specified
+        Make sure that there arent' too many parameters specified for:
+        self._task = 'plot'
         """
         keys = ['_starting_parameters', '_min_values', '_max_values',
                 '_fitting_parameters']
@@ -298,8 +302,11 @@ class UlensModelFit(object):
         if self._plots is not None:
             if "triangle" in self._plots:
                 raise ValueError(
-                    'You cannot provide plots["triangle"] if you ' +
+                    'You cannot provide plots["triangle"] if you '
                     "don't fit")
+            if "trace" in self._plots:
+                raise ValueError(
+                    'You cannot provide plots["trace"] if you' "don't fit")
 
     def _set_default_parameters(self):
         """
@@ -391,7 +398,7 @@ class UlensModelFit(object):
         """
         Check if parameters of plots make sense
         """
-        allowed_keys = set(['best model', 'triangle'])
+        allowed_keys = set(['best model', 'triangle', 'trace'])
 
         if self._plots is None:
             self._plots = dict()
@@ -413,13 +420,19 @@ class UlensModelFit(object):
         if 'triangle' in self._plots:
             self._check_plots_parameters_triangle()
 
-        if 'best model' in self._plots and 'triangle' in self._plots:
-            file_1 = self._plots['best model'].get('file')
-            file_2 = self._plots['triangle'].get('file')
-            if file_1 == file_2 and file_1 is not None:
+        if 'trace' in self._plots:
+            self._check_plots_parameters_trace()
+
+        names = {key: value['file'] for (key, value) in self._plots.items()}
+        done = {}
+        for (plot_type, name) in names.items():
+            if name is None:
+                continue
+            if name in done:
                 raise ValueError(
-                    'Output files for "best model" and "triangle" plots '
-                    'cannot be identical')
+                    "Names of output plot files cannot repeat. They repeat "
+                    "for: {:} and {:}".format(done[name], plot_type))
+            done[name] = plot_type
 
     def _check_plots_parameters_best_model(self):
         """
@@ -515,6 +528,16 @@ class UlensModelFit(object):
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "triangle": {:}'.format(unknown))
+
+    def _check_plots_parameters_trace(self):
+        """
+        Check if parameters of trace plot make sense
+        """
+        allowed = set(['file'])
+        unknown = set(self._plots['trace'].keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'Unknown settings for "trace": {:}'.format(unknown))
 
     def _check_model_parameters(self):
         """
@@ -924,9 +947,9 @@ class UlensModelFit(object):
             self._prior_t_E_data['y_max'] = function(x_max)
             self._prior_t_E_data['function'] = function
         elif self._prior_t_E == 'Mroz+20':
-# XXX - TO DO:
-# - documentation
-# - smooth the input data from M+20 and note that
+            # XXX - TO DO:
+            # - documentation
+            # - smooth the input data from M+20 and note that
             x = np.array([
                 0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69, 1.82, 1.96,
                 2.09, 2.23, 2.36, 2.50, 2.63])
@@ -1454,22 +1477,30 @@ class UlensModelFit(object):
         n_burn = self._fitting_parameters['n_burn']
         n_fit = len(self._fit_parameters)
 
-        self._samples = self._sampler.chain[:, n_burn:, :].reshape((-1, n_fit))
+        self._samples = self._sampler.chain[:, n_burn:, :]
+        self._samples_flat = self._samples.copy().reshape((-1, n_fit))
+        if 'trace' not in self._plots:
+            self._samples = None
         print("Fitted parameters:")
-        self._parse_results_EMECEE_print(self._samples, self._fit_parameters)
+        self._parse_results_EMECEE_print(
+            self._samples_flat, self._fit_parameters)
         for name in ['t_0', 't_0_1', 't_0_2']:
             if name in self._fit_parameters:
                 index = self._fit_parameters.index(name)
+                values = self._samples_flat[:, index]
+                mean = np.mean(values)
                 try:
-                    self._samples[:, index] -= int(
-                        np.mean(self._samples[:, index]))
+                    self._samples_flat[:, index] -= int(mean)
+                    if 'trace' in self._plots:
+                        self._samples[:, :, index] -= int(mean)
                 except TypeError:
                     fmt = ("Warning: extremely wide range of posterior t_0: " +
                            "from {:} to {:}")
-                    warnings.warn(fmt.format(np.min(self._samples[:, index]),
-                                             np.max(self._samples[:, index])))
-                    mean = int(np.mean(self._samples[:, index]))
-                    self._samples[:, index] = self._samples[:, index] - mean
+                    warnings.warn(fmt.format(np.min(values), np.max(values)))
+                    self._samples_flat[:, index] = values - int(mean)
+                    if 'trace' in self._plots:
+                        self._samples[:, :, index] = (
+                            self._samples[:, :, index] - int(mean))
 
         if self._return_fluxes:
             try:
@@ -1544,10 +1575,12 @@ class UlensModelFit(object):
         """
         make plots after fitting: best model, triangle plot, trace plot
         """
-        if 'best model' in self._plots:
-            self._best_model_plot()
         if 'triangle' in self._plots:
             self._triangle_plot()
+        if 'trace' in self._plots:
+            self._trace_plot()
+        if 'best model' in self._plots:
+            self._best_model_plot()
 
     def _triangle_plot(self):
         """
@@ -1562,7 +1595,7 @@ class UlensModelFit(object):
             'show_titles': True, 'quantiles': [0.15866, 0.5, 0.84134],
             'verbose': False, 'top_ticks': False}
 
-        figure = corner.corner(self._samples, **kwargs)
+        figure = corner.corner(self._samples_flat, **kwargs)
 
         self._save_figure(self._plots['triangle'].get('file'), figure=figure)
 
@@ -1578,6 +1611,7 @@ class UlensModelFit(object):
         """
         if file_name is None:
             plt.show()
+        # XXX - does this work?
         # elif file_name[-4:].upper() == ".PDF":
         #    pdf = PdfPages(file_name)
         #    if figure is None:
@@ -1592,6 +1626,42 @@ class UlensModelFit(object):
                 kwargs = {'dpi': dpi}
             caller.savefig(file_name, **kwargs)
         plt.close()
+
+    def _trace_plot(self):
+        """
+        Make a trace plot
+        """
+        self._reset_rcParams()
+
+        alpha = 0.5
+        plt.rcParams['font.size'] = 12
+        plt.rcParams['axes.linewidth'] = 1.4
+        margins = {'left': 0.13, 'right': 0.97, 'top': 0.99, 'bottom': 0.05}
+
+        grid = gridspec.GridSpec(len(self._fit_parameters), 1, hspace=0)
+
+        plt.figure(figsize=(7.5, 10.5))  # A4 is 8.27 11.69. XXX
+        plt.subplots_adjust(**margins)
+        x_vector = np.arange(self._samples.shape[1])
+
+        for (i, latex_name) in enumerate(self._fit_parameters_latex):
+            if i == 0:
+                plt.subplot(grid[i])
+                ax0 = plt.gca()
+            else:
+                plt.gcf().add_subplot(grid[i], sharex=ax0)
+            plt.ylabel(latex_name)
+            for j in range(self._samples.shape[0]):
+                plt.plot(x_vector, self._samples[j, :, i], alpha=alpha)
+            plt.xlim(0, self._samples.shape[1])
+            plt.gca().tick_params(axis='both', which='both', direction='in',
+                                  top=True, right=True)
+            if i != len(self._fit_parameters) - 1:
+                plt.setp(plt.gca().get_xticklabels(), visible=False)
+            plt.gca().set_prop_cycle(None)
+        plt.xlabel('step count')
+
+        self._save_figure(self._plots['trace'].get('file'))
 
     def _best_model_plot(self):
         """

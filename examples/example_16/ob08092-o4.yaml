@@ -19,5 +19,7 @@ fitting_parameters:
 plots:
     triangle:
         file: ob08092-o4_triangle.png
+    trace:
+        file: ob08092-o4_trace.png
     best model:
         file: ob08092-o4_model.png
