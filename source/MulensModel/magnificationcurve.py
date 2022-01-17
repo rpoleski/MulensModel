@@ -483,6 +483,8 @@ class MagnificationCurve(object):
                 m = binary_lens.vbbl_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'adaptive_contouring':
+                if isinstance(binary_lens, BinaryLensWithShear):
+                    raise ValueError("Adaptive contouring not available for BinaryLensWithShear")
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'point_source_point_lens':

@@ -2,7 +2,7 @@
 Example use of MulensModel to model a single source binary lens with an
 external mass sheet, as in Peirson et al. 2022 ApJ, 
 Vedantham et al. 2017 ApJ 845, 89. 
-Binary lens with external mass sheet always assumes a point source for now.
+Binary lens with external mass sheet assumes a point source when using VBBL.
 """
 
 import numpy as np
