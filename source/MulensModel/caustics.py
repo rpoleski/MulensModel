@@ -163,7 +163,7 @@ class Caustics(object):
             self.y = []
 
 
-class CausticsShear(Caustics):
+class CausticsWithShear(Caustics):
     """
     Class for the caustic structure corresponding to a given (*q*, *s*),
     i.e. mass ratio and separation. Implemented for 2-body lenses only.
