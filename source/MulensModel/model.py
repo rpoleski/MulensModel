@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 
 from astropy.coordinates import SkyCoord
 
-from MulensModel.caustics import Caustics, CausticsWithShear
+from MulensModel.caustics import Caustics
+from MulensModel.causticswithshear import CausticsWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -470,8 +471,7 @@ class Model(object):
                 return
 
         # check if covergence_K and shear_G are in parameters
-        if (self.parameters.convergence_K is not None or
-                self.parameters.shear_G is not None):
+        if self.parameters.external_mass_sheet:
             self._caustics = CausticsWithShear(
                 q=self.parameters.q, s=s,
                 convergence_K=self.parameters.convergence_K,

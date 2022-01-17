@@ -11,14 +11,6 @@ extern "C" {
 }
 
 extern "C" {
-  double VBBinaryLensing_BinaryMag(double a,double q,double y1,double y2,double RSv, double Tol) {
-    static VBBinaryLensing VBBL;
-    
-    return VBBL.BinaryMag(a, q, y1, y2, RSv, Tol);
-  }
-}
-
-extern "C" {
   double VBBinaryLensing_BinaryMag0(double a,double q,double y1,double y2, double K, double G, double Gi) {
     static VBBinaryLensing VBBL;
     

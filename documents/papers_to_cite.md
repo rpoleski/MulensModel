@@ -23,6 +23,9 @@ For all binary models (root solver):
 Skowron & Gould 2012 [ASCL](http://ascl.net/1212.005) [arXiv:1203.1034](https://ui.adsabs.harvard.edu/abs/2012arXiv1203.1034S/abstract) and 
 [Bozza 2010 MNRAS, 408, 2188](https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract)
 
+For binary models with external shear:
+[Peirson et al. 2022 ApJ](https://arxiv.org/abs/2201.01110) and [Vedantham et al. 2017 ApJ 845, 89](https://iopscience.iop.org/article/10.3847/1538-4357/aa745c)
+
 quadrupole approximation: [Gould 2008 ApJ, 681, 1593](https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract) and 
 [Pejcha & Heyrovsky 2009 ApJ, 690, 1772](https://ui.adsabs.harvard.edu/abs/2009ApJ...690.1772P/abstract)
 

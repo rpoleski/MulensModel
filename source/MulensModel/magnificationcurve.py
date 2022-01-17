@@ -4,7 +4,8 @@ import warnings
 
 from MulensModel.trajectory import Trajectory
 from MulensModel.pointlens import PointLens, get_pspl_magnification
-from MulensModel.binarylens import BinaryLens, BinaryLensWithShear
+from MulensModel.binarylens import BinaryLens
+from MulensModel.binarylenswithshear import BinaryLensWithShear 
 from MulensModel.modelparameters import ModelParameters
 
 
@@ -161,11 +162,11 @@ class MagnificationCurve(object):
 
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
-        elif (self.parameters.n_lenses == 2 and
-                self.parameters.convergence_K is None):
+        elif (self.parameters.n_lenses == 2 and not
+                self.parameters.external_mass_sheet):
             magnification = self.get_binary_lens_magnification()
         elif (self.parameters.n_lenses == 2 and
-                self.parameters.convergence_K is not None):
+                self.parameters.external_mass_sheet):
             magnification = self.get_binary_lens_with_shear_magnification()
         else:
             raise NotImplementedError(

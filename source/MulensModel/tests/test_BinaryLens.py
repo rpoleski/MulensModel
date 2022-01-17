@@ -29,7 +29,7 @@ def test_vbbl_vs_point_source():
     s = 1.1
     q = 0.2
     x = s - 1. / s
-    y = 5.e-7 * 0.
+    y = 0.
 
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
@@ -40,6 +40,8 @@ def test_vbbl_vs_point_source():
     result_vbbl = lens.vbbl_magnification(x, y, 1e-5)
     np.testing.assert_almost_equal(result, result_vbbl, decimal=3)
 
+
+# For q < 1e-7 the standard and shear methods start to deviate.
 def test_standard_vs_shear():
     """
     check if standard and 0 shear calculations give the same result
@@ -47,7 +49,7 @@ def test_standard_vs_shear():
     s = 1.8
     q = 1e-6
     x = s - 1. / s
-    y = 5.e-7 * 0.
+    y = 0.
 
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
@@ -58,7 +60,6 @@ def test_standard_vs_shear():
     result = lens.point_source_magnification(x, y)
     result_standard = lens_standard.point_source_magnification(x, y)
     np.testing.assert_almost_equal(result, result_standard, decimal=3)
-# For q < 1e-7 the standard and shear methods start to deviate.
 
 
 def test_binary_lens_hexadecapole():
@@ -134,7 +135,7 @@ def test_ac_1():
         0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
-# test binary lens with shear magnification against external ray tracing
+# test binary lens with shear magnification against Vedantham et al. 2017 (ApJ 845 2 89) ray tracing
 def test_vbbl_shear_2():
     """
     shear always uses a point source

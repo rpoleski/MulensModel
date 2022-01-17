@@ -182,8 +182,9 @@ def which_parameters(*args):
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
-    t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
-    lens. The pi_E assumes NE coordinates (Parallel, Perpendicular
+    t_E, rho, s, q, alpha, pi_E, convergence_K, shear_G). Can handle point 
+    lens or binary lens. 
+    The pi_E assumes NE coordinates (Parallel, Perpendicular
     coordinates are not supported).
 
     Arguments :
@@ -933,7 +934,7 @@ class ModelParameters(object):
         if 'convergence_K' in self.parameters.keys():
             return self.parameters['convergence_K']
         else:
-            return None
+            raise KeyError('convergence_K is not a parameter of this model.')
 
     @convergence_K.setter
     def convergence_K(self, new_K):
@@ -1584,6 +1585,16 @@ class ModelParameters(object):
         number of luminous sources; it's possible to be 1 for xallarap model
         """
         return self._n_sources
+
+    @property
+    def external_mass_sheet(self):
+        """
+        *bool*
+
+        Whether an external mass sheet is included in the model
+        """
+        return (('convergence_K' in self.parameters.keys()) and 
+                ('shear_G' in self.parameters.keys()))
 
     @property
     def source_1_parameters(self):
