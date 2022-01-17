@@ -166,7 +166,7 @@ class MagnificationCurve(object):
             magnification = self.get_binary_lens_magnification()
         elif (self.parameters.n_lenses == 2 and
                 self.parameters.convergence_K is not None):
-            magnification = self.get_binary_lens_shear_magnification()
+            magnification = self.get_binary_lens_with_shear_magnification()
         else:
             raise NotImplementedError(
                 "magnification for more than 2 lenses not handled yet")
@@ -188,7 +188,8 @@ class MagnificationCurve(object):
         """
         Calculate the Point Lens magnification.
 
-        Allowed magnification methods :
+        Allowed magnification methods
+        (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard Paczynski equation for a point source/point lens.
 
@@ -331,7 +332,8 @@ class MagnificationCurve(object):
         """
         Calculate the binary lens magnification.
 
-        Allowed magnification methods :
+        Allowed magnification methods
+        (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard point source magnification calculation.
 
@@ -375,11 +377,12 @@ class MagnificationCurve(object):
 
         return out
 
-    def get_binary_lens_shear_magnification(self):
+    def get_binary_lens_with_shear_magnification(self):
         """
-        Calculate the binary lens magnification.
+        Calculate magnification for the binary lens with shear and convergence.
 
-        Allowed magnification methods :
+        Allowed magnification methods
+        (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard point source magnification calculation.
 
@@ -402,12 +405,7 @@ class MagnificationCurve(object):
                 :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
 
             ``Adaptive_Contouring``:
-                Uses AdaptiveContouring (a Stokes theorem/contour
-                integration code) by Martin Dominik
-                (`Dominik 2007 MNRAS, 377, 1679
-                <https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract>`_).
-                See
-                :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
+                Not implemented.
 
             ``point_source_point_lens``:
                 Uses point-source _point_-_lens_ approximation; useful when you
