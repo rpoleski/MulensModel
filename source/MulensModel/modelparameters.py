@@ -11,6 +11,7 @@ from MulensModel.uniformcausticsampling import UniformCausticSampling
 # 'basic' should be a list. Parameters that may be 'optional' should
 # be a list of length 2. The second item will only be printed if the
 # effect is included in the 'optional' list (see _get_effect_strings()).
+
 _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
