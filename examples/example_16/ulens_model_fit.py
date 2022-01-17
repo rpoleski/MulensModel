@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.24.0'
+__version__ = '0.24.1'
 
 
 class UlensModelFit(object):
@@ -81,24 +81,24 @@ class UlensModelFit(object):
         model: *dict*
             Additional settings for *MulensModel.Model*. Accepted keys:
 
-            `'coords'` - event coordinates,
+            ``'coords'`` - event coordinates,
 
-            `'methods'` - methods used for magnification calculation,
+            ``'methods'`` - methods used for magnification calculation,
 
-            `'methods source 1'` - methods used for magnification calculation
+            ``'methods source 1'`` - methods used for magnification calculation
             for the first source in binary source models,
 
-            `'methods source 2'` - methods used for magnification calculation
+            ``'methods source 2'`` - methods used for magnification calculation
             for the second source in binary source models,
 
-            `'default method'` - default magnification calculation method,
+            ``'default method'`` - default magnification calculation method,
 
-            `'limb darkening u'` - specifies a *dict* that gives limb
+            ``'limb darkening u'`` - specifies a *dict* that gives limb
             darkening coefficients in "u" convention, e.g.,
             {'I': 0.4, 'V': 0.5}; note that for plotting the best model we use
             the LD coefficient same as for the first dataset,
 
-            `'parameters'` and `'values'` - used to plot specific model.
+            ``'parameters'`` and ``'values'`` - used to plot specific model.
 
         fixed_parameters: *dict*
             Provide parameters that will be kept fixed during the fitting
@@ -381,9 +381,11 @@ class UlensModelFit(object):
     def plot_best_model(self):
         """
         Plot the best model.
-        """
-        # XXX - NOTE how the model is defined
 
+        The parameters names and their values are taken from \_\_init\_\_()
+        keyword ``model``, which is a *dict* and has this information in
+        ``model['parameters']`` and ``model['values']``.
+        """
         if self._task != "plot":
             raise ValueError('wrong settings to run .plot_best_model()')
 
@@ -1142,9 +1144,7 @@ class UlensModelFit(object):
                 else:
                     if value[0] == 'gauss':
                         parameters[key] = value[1]
-                    elif value[0] == 'uniform':
-                        parameters[key] = (value[1] + value[2]) / 2.
-                    elif value[0] == 'log-uniform':
+                    elif value[0] in ['uniform', 'log-uniform']:
                         parameters[key] = (value[1] + value[2]) / 2.
                     else:
                         raise ValueError('internal error: ' + value[0])
