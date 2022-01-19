@@ -5,7 +5,7 @@ import warnings
 from MulensModel.trajectory import Trajectory
 from MulensModel.pointlens import PointLens, get_pspl_magnification
 from MulensModel.binarylens import BinaryLens
-from MulensModel.binarylenswithshear import BinaryLensWithShear 
+from MulensModel.binarylenswithshear import BinaryLensWithShear
 from MulensModel.modelparameters import ModelParameters
 
 
@@ -484,7 +484,8 @@ class MagnificationCurve(object):
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'adaptive_contouring':
                 if isinstance(binary_lens, BinaryLensWithShear):
-                    raise ValueError("Adaptive contouring not available for BinaryLensWithShear")
+                    raise ValueError("Adaptive contouring is not available "
+                                     "for BinaryLensWithShear")
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'point_source_point_lens':

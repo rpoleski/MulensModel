@@ -183,8 +183,7 @@ def which_parameters(*args):
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
-    t_E, rho, s, q, alpha, pi_E, convergence_K, shear_G). Can handle point 
-    lens or binary lens. 
+    t_E, s, q, alpha, etc.). Can handle point lens or binary lens.
     The pi_E assumes NE coordinates (Parallel, Perpendicular
     coordinates are not supported).
 
@@ -1594,7 +1593,7 @@ class ModelParameters(object):
 
         Whether an external mass sheet is included in the model
         """
-        return (('convergence_K' in self.parameters.keys()) and 
+        return (('convergence_K' in self.parameters.keys()) or
                 ('shear_G' in self.parameters.keys()))
 
     @property
