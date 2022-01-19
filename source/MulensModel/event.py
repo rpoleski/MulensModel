@@ -206,9 +206,14 @@ class Event(object):
 
         if residuals:
             plt.xlabel(None)
-            plt.gca().xaxis.set_ticklabels([])
+            #plt.gca().xaxis.set_ticklabels([])
             plt.subplot(gs[1], sharex=ax11)
-            self.plot_residuals(subtract_2450000=True)
+            self.plot_residuals(
+                subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000,
+                show_errorbars=show_errorbars,
+                show_bad=show_bad, data_ref=data_ref)
+            plt.setp(ax11.get_xticklabels(), visible=False)
 
         if t_range is not None:
             if subtract_2450000:
@@ -241,9 +246,12 @@ class Event(object):
         lims = (np.array(t_range) -
                 self.model.parameters.t_0) / self.model.parameters.t_E
 
+        plt.xlabel('X')
+        plt.ylabel('Y')
         plt.xlim(lims)
         plt.ylim(lims)
         plt.gca().minorticks_on()
+        plt.tight_layout()
 
     def plot_model(self, data_ref=None, **kwargs):
         """
