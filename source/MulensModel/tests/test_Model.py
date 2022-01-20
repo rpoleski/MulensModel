@@ -196,7 +196,7 @@ def test_BLPS_02_AC():
     simple binary lens with extended source and different methods to evaluate
     magnification - version with adaptivecontouring
     """
-    check_architecture.skip_m1(check_architecture.skip_m1(msg='Adaptive Contouring'))
+    check_architecture.skip_m1(msg='Adaptive Contouring')
 
     params = mm.ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
