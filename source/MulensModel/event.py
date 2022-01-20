@@ -115,7 +115,7 @@ class Event(object):
 
     def plot(self, t_range=None, residuals=True, show_errorbars=None,
              show_bad=None, legend=True, trajectory=None, title=None,
-             subtract_2450000=False, subtract_2460000=False, data_ref=None):
+             subtract_2450000=True, subtract_2460000=False, data_ref=None):
         """
         Basic plotting. Default is to plot the light curve with the residuals.
         If the model has 2 or more lenses, also plot the source trajectory with
@@ -214,6 +214,7 @@ class Event(object):
                 show_errorbars=show_errorbars,
                 show_bad=show_bad, data_ref=data_ref)
             plt.setp(ax11.get_xticklabels(), visible=False)
+            plt.setp(ax11.get_xaxis().get_offset_text(), visible=False)
 
         if t_range is not None:
             if subtract_2450000:
@@ -236,7 +237,7 @@ class Event(object):
         if title is not None:
             plt.title(title)
 
-        self.plot_trajectory()
+        self.plot_trajectory(t_range=t_range, caustics=True)
         self.plot_source_for_datasets()
 
         if t_range is None:
@@ -245,7 +246,6 @@ class Event(object):
 
         lims = (np.array(t_range) -
                 self.model.parameters.t_0) / self.model.parameters.t_E
-
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.xlim(lims)

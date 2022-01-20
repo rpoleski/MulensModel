@@ -43,7 +43,7 @@ pspl_event.plot()
 # Fig 3: Source trajectory with points plotted for each observation
 pspl_event.plot(
     t_range=[pspl_t_start, pspl_t_stop], residuals=False, show_errorbars=False,
-    trajectory=True, title='MB08310', subtract_2450000=True)
+    trajectory=True, title='MB08310', subtract_2450000=False)
 
 # Planetary Lens Event (Derived from Example 16)
 ogle_data = mm.MulensData(
