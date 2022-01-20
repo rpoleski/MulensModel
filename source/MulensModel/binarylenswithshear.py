@@ -153,13 +153,9 @@ class BinaryLensWithShear(BinaryLens):
         # External Shear added here
         shear_G = self.shear_G
         Gc = np.conjugate(shear_G)
-        G_pow2 = shear_G * shear_G
-        G_pow3 = shear_G * G_pow2
-        G_pow4 = G_pow2 * G_pow2
 
         Gc_pow2 = Gc * Gc
         Gc_pow3 = Gc * Gc_pow2
-        Gc_pow4 = Gc_pow2 * Gc_pow2
 
         c_sum = mm.Utils.complex_fsum
 

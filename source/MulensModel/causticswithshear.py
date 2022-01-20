@@ -47,15 +47,16 @@ class CausticsWithShear(Caustics):
         # Solve for the critical curve (and caustic) in complex coordinates.
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
-            e_iphi = self.shear_G + (
+            e_iphi = self.shear_G.conjugate() + (
                 1-self.convergence_K) * np.complex(cos(phi), -sin(phi))
 
             # Coefficients of Eq. 6
-            coeff_4 = 1. * e_iphi
-            coeff_3 = -2. * self.s * e_iphi
-            coeff_2 = Utils.complex_fsum([e_iphi * self.s**2, - 1])
-            coeff_1 = 2. * self.s / (1. + self.q)
-            coeff_0 = -self.s**2 / (1. + self.q)
+            coeff_4 = 1.
+            coeff_3 = -2. * self.s
+            coeff_2 = Utils.complex_fsum([self.s**2, -1/e_iphi])
+            coeff_1 = 1/e_iphi * (2. * self.s / (1. + self.q))  # The additional
+            # parenthesis make it more stable numerically.
+            coeff_0 = -self.s**2 * 1/e_iphi * 1 / (1. + self.q)
 
             # Find roots
             coeff_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4]
@@ -68,3 +69,12 @@ class CausticsWithShear(Caustics):
                 source_plane_position = self._solve_lens_equation(root)
                 self._x.append(source_plane_position.real - xcm_offset)
                 self._y.append(source_plane_position.imag)
+
+    def _solve_lens_equation(self, complex_value):
+        """
+        Solve the lens equation for the given point (in complex coordinates).
+        """
+        complex_conjugate = np.conjugate(complex_value)
+        return ((1-self.convergence_K) * complex_value 
+            - self.shear_G * complex_conjugate - (1. / (1. + self.q)) * (
+            (1./complex_conjugate) + (self.q / (complex_conjugate - self.s))))
