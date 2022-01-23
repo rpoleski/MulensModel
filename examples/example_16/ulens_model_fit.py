@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.24.1'
+__version__ = '0.24.2'
 
 
 class UlensModelFit(object):
@@ -1477,6 +1477,8 @@ class UlensModelFit(object):
         n_burn = self._fitting_parameters['n_burn']
         n_fit = len(self._fit_parameters)
 
+        accept_rate = np.mean(self._sampler.acceptance_fraction)
+        print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
         self._samples = self._sampler.chain[:, n_burn:, :]
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))
         if 'trace' not in self._plots:
