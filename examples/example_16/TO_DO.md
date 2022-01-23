@@ -1,3 +1,22 @@
+# test:
+python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
+
+# TO DO:
+ - _get_parameters_ordered()
+ - _parse_fitting_parameters_MN()
+ - _get_n_walkers() - where it is supposed to be?
+ - in run_fit() next one is _parse_fitting_parameters()
+ - make sure different prior settings are consistent
+ - min/max_values cannot be set
+ - XXX
+ - if there is first working version - let interested people know about this branch and ask them for input
+ - requirements.txt - see below; also note it in README
+ - documentation of \_\_init\_\_
+ - pycodestyle
+ - example full file for MN
+ - add it to README, or a task to do it later
+ - maybe add task: user directly says which method to fit
+
 ### To be discussed:
 
 - periodic variables
@@ -19,7 +38,7 @@
 
 - **some documentation - see above**
 - **add one more fitting method?** scipy.optimize, pymultinest, ultranest, https://lmfit.github.io/lmfit-py/, ???
-- **requirements.txt** - corner >= 2.0.0, MM>2.0
+- **requirements.txt** - corner >= 2.0.0, MM>2.0, yaml, pymultinest, ???
 - Mroz+20 - finish
 - script and MM versions should be printed
 - EMCEE backend - https://emcee.readthedocs.io/en/stable/user/backends/#emcee.backends.HDFBackend

@@ -25,13 +25,18 @@ try:
     import corner
 except Exception:
     import_failed.add("corner")
+try:
+    from pymultinest.solve import solve
+    from pymultinest.analyse import Analyzer
+except Exception:
+    import_failed.add("pymultinest")
 
 try:
     import MulensModel as mm
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.24.3'
+__version__ = '0.25.0'
 
 
 class UlensModelFit(object):
@@ -58,6 +63,7 @@ class UlensModelFit(object):
             Currently, keyword ``'add_2450000'`` is turned on by default.
 
         starting_parameters: *dict*
+XXX        
             Starting values of the parameters. Keys of this *dict* are
             microlensing parameters recognized by *MulensModel*. Values
             depend on method used for fitting.
@@ -77,6 +83,9 @@ class UlensModelFit(object):
                   'u_0': 'uniform 0.001 1.',
                   't_E': 'gauss 20. 5.'
               }
+
+        prior_limits: XXX
+            XXX
 
         model: *dict*
             Additional settings for *MulensModel.Model*. Accepted keys:
@@ -212,7 +221,8 @@ class UlensModelFit(object):
             the models will be printed to standard output.
     """
     def __init__(
-            self, photometry_files, starting_parameters=None, model=None,
+            self, photometry_files,
+            starting_parameters=None, prior_limits=None, model=None,
             fixed_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
             fit_constraints=None, plots=None, other_output=None
@@ -220,6 +230,7 @@ class UlensModelFit(object):
         self._check_MM_version()
         self._photometry_files = photometry_files
         self._starting_parameters = starting_parameters
+        self._prior_limits = prior_limits
         self._model_parameters = model
         self._fixed_parameters = fixed_parameters
         self._min_values = min_values
@@ -231,6 +242,8 @@ class UlensModelFit(object):
 
         self._which_task()
         self._set_default_parameters()
+        if self._task == 'fit':
+            self._guess_fitting_method()
         self._check_imports()
 
     def _check_MM_version(self):
@@ -247,7 +260,7 @@ class UlensModelFit(object):
         Check if input parameters indicate run_fit() or plot_best_model() will
         be run.
         """
-        if self._starting_parameters is not None:
+        if self._starting_parameters is not None or self._prior_limits is not None:
             fit = True
         else:
             fit = False
@@ -313,7 +326,6 @@ class UlensModelFit(object):
         set some default parameters
         """
         if self._task == 'fit':
-            self._fit_method = 'emcee'
             self._flat_priors = True  # Are priors only 0 or 1?
             self._return_fluxes = True
             self._best_model_ln_prob = -np.inf
@@ -323,6 +335,28 @@ class UlensModelFit(object):
             raise ValueError('internal error - task ' + str(self._task))
         self._print_model = False
 
+    def _guess_fitting_method(self):
+        """
+        guess what is the fitting method based on parameters provided
+        """
+        method = None
+        if self._starting_parameters is not None:
+            method = "EMCEE"
+        if self._prior_limits is not None:
+            if method is not None:
+                raise ValueError(
+                    "Both starting_parameters and prior_limits were defined "
+                    "which makes impossible to choose the fitting method. "
+                    "These settings indicate EMCEE and pyMultiNest "
+                    "rescpectively, and cannot be both set.")
+            method = "MultiNest"
+        if method is None:
+            raise ValueError(
+                "No fitting method chosen. You can chose either 'EMCEE' or "
+                "'pyMultiNest' and you do it by providing "
+                "starting_parameters or prior_limits, respectively.")
+        self._fit_method = method
+
     def _check_imports(self):
         """
         check if all the required packages are imported
@@ -330,8 +364,10 @@ class UlensModelFit(object):
         required_packages = set()
 
         if self._task == 'fit':
-            if self._fit_method == 'emcee':
+            if self._fit_method == 'EMCEE':
                 required_packages.add('emcee')
+            elif self._fit_method == "MultiNest":
+                required_packages.add('pymultinest')
             if self._plots is not None and 'triangle' in self._plots:
                 required_packages.add('corner')
 
@@ -679,7 +715,12 @@ class UlensModelFit(object):
 # these are not fitting parameters.
         all_parameters = all_parameters.split()
 
-        parameters = self._starting_parameters.keys()
+        if self._fit_method == "EMCEE":
+            parameters = self._starting_parameters.keys()
+        elif self._fit_method == "MultiNest":
+            parameters = self._prior_limits.keys()
+        else:
+            raise ValueError('unexpected method error')
 
         unknown = set(parameters) - set(all_parameters)
         if len(unknown) > 0:
@@ -715,8 +756,10 @@ class UlensModelFit(object):
         run some checks on self._fitting_parameters to make sure that
         the fit can be run
         """
-        if self._fit_method == 'emcee':
+        if self._fit_method == 'EMCEE':
             self._parse_fitting_parameters_EMCEE()
+        elif self._fit_method == 'MultiNest':
+            self._parse_fitting_parameters_MultiNest()
         else:
             raise ValueError('internal inconsistency')
 
@@ -783,13 +826,19 @@ class UlensModelFit(object):
                                  settings['posterior file fluxes'])
             self._posterior_file_fluxes = settings['posterior file fluxes']
 
+    def _parse_fitting_parameters_MultiNest(self):
+        """
+        make sure MultiNest fitting parameters are properly defined
+        """
+        raise NotImplementedError()
+
     def _get_n_walkers(self):
         """
         guess how many walkers and starting values there are
         """
         self._n_walkers = None
 
-        if self._fit_method == 'emcee':
+        if self._fit_method == 'EMCEE':
             if 'n_walkers' in self._fitting_parameters:
                 self._n_walkers = self._fitting_parameters['n_walkers']
             else:
