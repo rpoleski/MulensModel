@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.24.2'
+__version__ = '0.24.3'
 
 
 class UlensModelFit(object):
@@ -1479,6 +1479,7 @@ class UlensModelFit(object):
 
         accept_rate = np.mean(self._sampler.acceptance_fraction)
         print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
+
         self._samples = self._sampler.chain[:, n_burn:, :]
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))
         if 'trace' not in self._plots:
@@ -1486,47 +1487,12 @@ class UlensModelFit(object):
         print("Fitted parameters:")
         self._parse_results_EMECEE_print(
             self._samples_flat, self._fit_parameters)
-        for name in ['t_0', 't_0_1', 't_0_2']:
-            if name in self._fit_parameters:
-                index = self._fit_parameters.index(name)
-                values = self._samples_flat[:, index]
-                mean = np.mean(values)
-                try:
-                    self._samples_flat[:, index] -= int(mean)
-                    if 'trace' in self._plots:
-                        self._samples[:, :, index] -= int(mean)
-                except TypeError:
-                    fmt = ("Warning: extremely wide range of posterior t_0: " +
-                           "from {:} to {:}")
-                    warnings.warn(fmt.format(np.min(values), np.max(values)))
-                    self._samples_flat[:, index] = values - int(mean)
-                    if 'trace' in self._plots:
-                        self._samples[:, :, index] = (
-                            self._samples[:, :, index] - int(mean))
+
+        self._shift_t_0_in_samples()
 
         if self._return_fluxes:
-            try:
-                blobs = np.array(self._sampler.blobs)
-            except Exception as exception:
-                raise ValueError('There was some issue with blobs\n' +
-                                 str(exception))
-            blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
-            blob_samples = blob_sampler[:, n_burn:, :].reshape(
-                (-1, self._n_fluxes))
+            (blob_samples, flux_names) = self._get_fluxes_to_print()
             print("Fitted fluxes (source and blending):")
-            if self._n_fluxes_per_dataset == 2:
-                s_or_b = ['s', 'b']
-            elif self._n_fluxes_per_dataset == 3:
-                s_or_b = ['s1', 's2', 'b']
-            else:
-                raise ValueError(
-                    'Internal error: ' + str(self._n_fluxes_per_dataset))
-            text = 'flux_{:}_{:}'
-            n = self._n_fluxes_per_dataset
-            flux_names = [
-                text.format(s_or_b[i % n], i // n+1)
-                for i in range(self._n_fluxes)
-                ]
             self._parse_results_EMECEE_print(blob_samples, flux_names)
 
         self._print_best_model()
@@ -1544,6 +1510,54 @@ class UlensModelFit(object):
             if out[0] == 'q':
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}"
             print(format_.format(*out))
+
+    def _shift_t_0_in_samples(self):
+        """
+        shift the values of t_0, t_0_1, and t_0_2:
+        """
+        for name in ['t_0', 't_0_1', 't_0_2']:
+            if name in self._fit_parameters:
+                index = self._fit_parameters.index(name)
+                values = self._samples_flat[:, index]
+                mean = np.mean(values)
+                try:
+                    self._samples_flat[:, index] -= int(mean)
+                    if 'trace' in self._plots:
+                        self._samples[:, :, index] -= int(mean)
+                except TypeError:
+                    fmt = ("Warning: extremely wide range of posterior {:}: "
+                           "from {:} to {:}")
+                    warnings.warn(
+                        fmt.format(name, np.min(values), np.max(values)))
+                    self._samples_flat[:, index] = values - int(mean)
+                    if 'trace' in self._plots:
+                        self._samples[:, :, index] = (
+                            self._samples[:, :, index] - int(mean))
+
+    def _get_fluxes_to_print(self):
+        """
+        prepare flux names and values to be printed
+        """
+        try:
+            blobs = np.array(self._sampler.blobs)
+        except Exception as exception:
+            raise ValueError('There was some issue with blobs:\n' +
+                             str(exception))
+        blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
+        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
+        blob_samples = blob_samples.reshape((-1, self._n_fluxes))
+
+        if self._n_fluxes_per_dataset == 2:
+            s_or_b = ['s', 'b']
+        elif self._n_fluxes_per_dataset == 3:
+            s_or_b = ['s1', 's2', 'b']
+        else:
+            raise ValueError(
+                'Internal error: ' + str(self._n_fluxes_per_dataset))
+        n = self._n_fluxes_per_dataset
+        flux_names = ['flux_{:}_{:}'.format(s_or_b[i % n], i // n+1)
+                      for i in range(self._n_fluxes)]
+        return (blob_samples, flux_names)
 
     def _print_best_model(self):
         """
