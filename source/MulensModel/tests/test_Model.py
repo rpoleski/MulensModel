@@ -160,7 +160,9 @@ def test_BLPS_01():
 
 
 def test_BLPS_shear_active():
-    """simple binary lens with point source and external convergence and shear"""
+    """
+    simple binary lens with point source and external convergence and shear
+    """
     params = mm.ModelParameters({
         't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
         'q': q, 'convergence_K': 0.08, 'shear_G': complex(0.1, -0.1)})
@@ -173,7 +175,9 @@ def test_BLPS_shear_active():
 
 
 def test_BLPS_shear():
-    """simple binary lens with point source and external convergence and shear"""
+    """
+    simple binary lens with point source and external convergence and shear
+    """
     params = mm.ModelParameters({
         't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
         'q': q, 'convergence_K': 0.0, 'shear_G': complex(0, 0)})

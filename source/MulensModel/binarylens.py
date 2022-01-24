@@ -2,10 +2,11 @@ import warnings
 import numpy as np
 from math import fsum, sqrt
 
-from MulensModel.binarylensimports import (_vbbl_wrapped, _adaptive_contouring_wrapped,
-                                            _vbbl_binary_mag_dark, _vbbl_SG12_5, 
-                                            _adaptive_contouring_linear, _solver)
+from MulensModel.binarylensimports import (
+    _vbbl_wrapped, _adaptive_contouring_wrapped, _vbbl_binary_mag_dark,
+    _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 import MulensModel as mm
+
 
 class BinaryLens(object):
     """

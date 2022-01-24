@@ -12,6 +12,9 @@ test_caustics = np.genfromtxt(SAMPLE_FILE_01, names=['X', 'Y'], dtype=None)
 
 
 def test_caustic():
+    """
+    Make sure the caustic is properly calculated.
+    """
     s = 0.548
     q = 0.0053
 
@@ -29,6 +32,9 @@ def test_caustic():
 
 
 def test_caustic_shear():
+    """
+    Trivial test of shear and convergence equal to 0.
+    """
     s = 0.548
     q = 0.0053
 

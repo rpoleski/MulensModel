@@ -107,6 +107,19 @@ def test_vbbl_1():
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
 
+def test_ac_1():
+    s = 0.8
+    q = 0.1
+
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+    bl = mm.BinaryLens(m_1, m_2, s)
+
+    result = bl.adaptive_contouring_magnification(
+        0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
+    np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
+
+
 def test_vbbl_shear_1():
     """
     shear always uses a point source, so this test is not really fair
@@ -123,19 +136,8 @@ def test_vbbl_shear_1():
     np.testing.assert_almost_equal(result, 18.2834436, decimal=1)
 
 
-def test_ac_1():
-    s = 0.8
-    q = 0.1
-
-    m_1 = 1. / (1. + q)
-    m_2 = q / (1. + q)
-    bl = mm.BinaryLens(m_1, m_2, s)
-
-    result = bl.adaptive_contouring_magnification(
-        0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
-    np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
-
-# test binary lens with shear magnification against Vedantham et al. 2017 (ApJ 845 2 89) ray tracing
+# Test binary lens with shear magnification against ray tracing in
+# Vedantham et al. 2017 (ApJ 845 2 89).
 def test_vbbl_shear_2():
     """
     shear always uses a point source
@@ -152,6 +154,7 @@ def test_vbbl_shear_2():
     x = 0.11776447105788423
     result = bl.vbbl_magnification(x, y, 0.0001)
     np.testing.assert_almost_equal(result, 15.07985008909832, decimal=2)
+
 
 def test_vbbl_shear_3():
     """
