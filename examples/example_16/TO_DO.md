@@ -1,8 +1,11 @@
 # test:
 python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
 
+../example_07_fit_parallax_MN.py
+https://github.com/JohannesBuchner/PyMultiNest
+https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
+
 # TO DO:
- - _get_parameters_ordered()
  - _parse_fitting_parameters_MN()
  - _get_n_walkers() - where it is supposed to be?
  - in run_fit() next one is _parse_fitting_parameters()

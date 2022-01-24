@@ -707,13 +707,11 @@ XXX
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        all_parameters = (
+        all_fit_parameters_str = (
             't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
             't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
             'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
-# We do not include t_0_par and t_0_kep because
-# these are not fitting parameters.
-        all_parameters = all_parameters.split()
+        all_fit_parameters = all_fit_parameters_str.split()
 
         if self._fit_method == "EMCEE":
             parameters = self._starting_parameters.keys()
@@ -830,11 +828,17 @@ XXX
         """
         make sure MultiNest fitting parameters are properly defined
         """
+        settings = self._fitting_parameters
+
+#        required = ['n_steps']
+#        strings = ['posterior file', 'posterior file fluxes']
+#        allowed = ['n_walkers', 'n_burn'] + strings
+
         raise NotImplementedError()
 
     def _get_n_walkers(self):
         """
-        guess how many walkers and starting values there are
+        guess how many walkers (and hence starting values) there will be
         """
         self._n_walkers = None
 
