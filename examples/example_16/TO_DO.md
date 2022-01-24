@@ -4,13 +4,15 @@ python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
 ../example_07_fit_parallax_MN.py
 https://github.com/JohannesBuchner/PyMultiNest
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
+https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - _parse_fitting_parameters_MN()
- - _get_n_walkers() - where it is supposed to be?
  - in run_fit() next one is _parse_fitting_parameters()
+ - print output root file name to output
+ - output root file - should we remove it if not provided?
  - make sure different prior settings are consistent
  - min/max_values cannot be set
+ - _parse_fitting_parameters_MN() - we need more parameters there
  - XXX
  - if there is first working version - let interested people know about this branch and ask them for input
  - requirements.txt - see below; also note it in README
@@ -19,6 +21,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
  - example full file for MN
  - add it to README, or a task to do it later
  - maybe add task: user directly says which method to fit
+ - clean this task
 
 ### To be discussed:
 

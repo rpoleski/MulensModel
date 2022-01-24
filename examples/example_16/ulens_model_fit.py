@@ -401,8 +401,7 @@ XXX
         self._get_parameters_ordered()
         self._get_parameters_latex()
         self._parse_fitting_parameters()
-        self._get_n_walkers()
-        self._set_min_max_values()
+        self._set_min_max_values() # XXX HERE
         self._parse_fit_constraints()
         self._parse_starting_parameters()
         self._check_fixed_parameters()
@@ -720,13 +719,13 @@ XXX
         else:
             raise ValueError('unexpected method error')
 
-        unknown = set(parameters) - set(all_parameters)
+        unknown = set(parameters) - set(all_fit_parameters)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
 
-        indexes = [all_parameters.index(p) for p in parameters]
+        indexes = [all_fit_parameters.index(p) for p in parameters]
 
-        self._fit_parameters = [all_parameters[i] for i in indexes]
+        self._fit_parameters = [all_fit_parameters[i] for i in indexes]
 
     def _get_parameters_latex(self):
         """
@@ -756,6 +755,7 @@ XXX
         """
         if self._fit_method == 'EMCEE':
             self._parse_fitting_parameters_EMCEE()
+            self._get_n_walkers()
         elif self._fit_method == 'MultiNest':
             self._parse_fitting_parameters_MultiNest()
         else:
@@ -766,21 +766,11 @@ XXX
         make sure EMCEE fitting parameters are properly defined
         """
         settings = self._fitting_parameters
-
         required = ['n_steps']
         strings = ['posterior file', 'posterior file fluxes']
         allowed = ['n_walkers', 'n_burn'] + strings
 
-        full = required + allowed
-
-        for required_ in required:
-            if required_ not in settings:
-                raise ValueError('EMCEE method requires fitting parameter: ' +
-                                 required_)
-
-        if len(set(settings.keys()) - set(full)) > 0:
-            raise ValueError('Unexpected fitting parameters: ' +
-                             str(set(settings.keys()) - set(full)))
+        self._check_required_and_allowed_parameters(required, allowed)
 
         for (p, value) in settings.items():
             if not isinstance(value, int) and p not in strings:
@@ -824,17 +814,37 @@ XXX
                                  settings['posterior file fluxes'])
             self._posterior_file_fluxes = settings['posterior file fluxes']
 
+    def _check_required_and_allowed_parameters(self, required, allowed):
+        """
+        Check if required parameters are provided and there aren't parameters
+        that shouldn't be defined.
+        """
+        settings = self._fitting_parameters
+        full = required + allowed
+
+        for required_ in required:
+            if required_ not in settings:
+                raise ValueError('EMCEE method requires fitting parameter: ' +
+                                 required_)
+
+        if len(set(settings.keys()) - set(full)) > 0:
+            raise ValueError('Unexpected fitting parameters: ' +
+                             str(set(settings.keys()) - set(full)))
+
     def _parse_fitting_parameters_MultiNest(self):
         """
         make sure MultiNest fitting parameters are properly defined
         """
         settings = self._fitting_parameters
 
-#        required = ['n_steps']
-#        strings = ['posterior file', 'posterior file fluxes']
-#        allowed = ['n_walkers', 'n_burn'] + strings
+        required = ['basename']
+        allowed = []
 
-        raise NotImplementedError()
+        self._check_required_and_allowed_parameters(required, allowed)
+
+        self._kwargs_MultiNest = {
+            'resume': False, 'multimodal': False,
+            'outputfiles_basename': settings['basename']}
 
     def _get_n_walkers(self):
         """
