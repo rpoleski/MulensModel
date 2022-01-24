@@ -13,7 +13,7 @@
 {\LARGE Methods to calculate magnification in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Sep 2020
+last update: Jan 2022
 \end{center}
 
 \bigskip\bigskip
@@ -59,13 +59,13 @@ Binary lens methods:
 \item {\tt quadrupole} -- uses Taylor expansion -- evaluates point-source magnification at 9 points.  Works only outside caustic.
 \item {\tt hexadecapole} -- uses Taylor expansion -- evaluates point-source magnification at 13 points.  Works only outside caustic.
 \item {\tt VBBL} -- Bozza (2010) method -- finite source with limb darkening.  Most widely used method nowadays.  Parameters that ca be set: {\tt accuracy}.
-\item {\tt Adaptive\_Contouring} -- Dominik (2007) method -- finite source with limb darkening.  Parameters that can be set: {\tt accuracy} and {\tt ld\_accuracy}
-\item {\tt point\_source\_point\_lens} -- approximates binary lens as a single lens.  It is useful when binary lens effects are negligible and binary lens calculations 
-may cause numerical errors, e.g., $q\approx10^{-6}$ and source far from caustics.  
+\item {\tt Adaptive\_Contouring} -- Dominik (2007) method -- finite source with limb darkening.  Parameters that can be set: {\tt accuracy} and {\tt ld\_accuracy}.
+\item {\tt point\_source\_point\_lens} -- approximates binary lens as a single lens.  It is useful when binary lens effects are negligible and binary lens calculations may cause numerical errors, e.g., $q\approx10^{-6}$ and source far from caustics.  
 \end{itemize}
+Note that if you define shear and convergence, then \MM uses properly modified versions of: {\tt point\_source}, {\tt quadrupole}, {\tt hexadecapole}, or {\tt VBBL}.
 
 \bigskip\bigskip
-Triple lens methods -- under construction.  Come back soon!
+Triple lens methods -- under construction.  Please come back later!
 
 
 \end{document}
