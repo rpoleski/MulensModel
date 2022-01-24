@@ -63,7 +63,7 @@ class UlensModelFit(object):
             Currently, keyword ``'add_2450000'`` is turned on by default.
 
         starting_parameters: *dict*
-XXX        
+XXX
             Starting values of the parameters. Keys of this *dict* are
             microlensing parameters recognized by *MulensModel*. Values
             depend on method used for fitting.
@@ -260,12 +260,14 @@ XXX
         Check if input parameters indicate run_fit() or plot_best_model() will
         be run.
         """
-        if self._starting_parameters is not None or self._prior_limits is not None:
+        if self._starting_parameters is not None:
+            fit = True
+        elif self._prior_limits is not None:
             fit = True
         else:
             fit = False
-        plot = False
 
+        plot = False
         if self._model_parameters is not None:
             keys = set(self._model_parameters.keys())
             check = keys.intersection({'parameters', 'values'})
@@ -401,7 +403,7 @@ XXX
         self._get_parameters_ordered()
         self._get_parameters_latex()
         self._parse_fitting_parameters()
-        self._set_min_max_values() # XXX HERE
+        self._set_min_max_values()  # XXX HERE
         self._parse_fit_constraints()
         self._parse_starting_parameters()
         self._check_fixed_parameters()
@@ -417,7 +419,7 @@ XXX
         """
         Plot the best model.
 
-        The parameters names and their values are taken from \_\_init\_\_()
+        The parameters names and their values are taken from __init__()
         keyword ``model``, which is a *dict* and has this information in
         ``model['parameters']`` and ``model['values']``.
         """
