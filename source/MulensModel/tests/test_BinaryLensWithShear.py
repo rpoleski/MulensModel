@@ -16,7 +16,7 @@ def test_vbbl_shear_1():
         m_1, m_2, s, convergence_K=0.0, shear_G=complex(0, 0))
 
     result = bl.vbbl_magnification(0.01, 0.01, 0.01)
-    np.testing.assert_almost_equal(result, 18.2834436, decimal=1)
+    np.testing.assert_almost_equal(result/18.2834436, 1., decimal=2)
 
 
 # Test binary lens with shear magnification against ray tracing in
@@ -36,7 +36,7 @@ def test_vbbl_shear_2():
     y = 0.0
     x = 0.11776447105788423
     result = bl.vbbl_magnification(x, y, 0.0001)
-    np.testing.assert_almost_equal(result, 15.07985008909832, decimal=2)
+    np.testing.assert_almost_equal(result, 15.07985008909832)
 
 
 def test_vbbl_shear_3():
@@ -54,4 +54,4 @@ def test_vbbl_shear_3():
     y = 0.2
     x = 0.03792415169660668
     result = bl.vbbl_magnification(x, y, 0.0001)
-    np.testing.assert_almost_equal(result, 6.480196704201193, decimal=2)
+    np.testing.assert_almost_equal(result, 6.480196704201193)
