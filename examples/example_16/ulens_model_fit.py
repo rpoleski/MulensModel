@@ -403,11 +403,12 @@ XXX
         self._get_parameters_ordered()
         self._get_parameters_latex()
         self._parse_fitting_parameters()
-        self._set_min_max_values()  # XXX HERE
+        self._set_prior_limits()
         self._parse_fit_constraints()
-        self._parse_starting_parameters()
+        if self._fit_method == "EMCEE":
+            self._parse_starting_parameters()
         self._check_fixed_parameters()
-        self._make_model_and_event()
+        self._make_model_and_event()  # XXX HERE
         self._generate_random_parameters()
         self._setup_fit()
         self._run_fit()
@@ -852,23 +853,26 @@ XXX
         """
         guess how many walkers (and hence starting values) there will be
         """
-        self._n_walkers = None
+        if self._fit_method != 'EMCEE':
+            raise ValueError('internal bug')
 
+        if 'n_walkers' in self._fitting_parameters:
+            self._n_walkers = self._fitting_parameters['n_walkers']
+        else:
+            self._n_walkers = 4 * len(self._starting_parameters)
+
+    def _set_prior_limits(self):
+        """
+        Set minimum and maximum values of the prior space
+        """
         if self._fit_method == 'EMCEE':
-            if 'n_walkers' in self._fitting_parameters:
-                self._n_walkers = self._fitting_parameters['n_walkers']
-            else:
-                self._n_walkers = 4 * len(self._starting_parameters)
+            self._set_prior_limits_EMCEE()
+        elif self._fit_method == 'MultiNest':
+            self._set_prior_limits_MultiNest()
         else:
             raise ValueError('internal bug')
 
-        if self._n_walkers is None:
-            raise ValueError(
-                "Couldn't guess the number of walkers based on " +
-                "method: {:}\n".format(self._fit_method) +
-                "fitting_parameters: " + str(self._fitting_parameters))
-
-    def _set_min_max_values(self):
+    def _set_prior_limits_EMCEE(self):
         """
         Parse min and max values of parameters so that they're properly
         indexed.
@@ -910,10 +914,51 @@ XXX
             out[index] = value
         return out
 
+    def _set_prior_limits_MultiNest(self):
+        """
+        Set prior limits and transformation constants (from unit cube to
+        MM parameters).
+        """
+        min_values = []
+        max_values = []
+        for parameter in self._fit_parameters:
+            if parameter not in self._prior_limits:
+                raise ValueError("interal issue")
+            values = self._prior_limits[parameter]
+            if isinstance(values, str):
+                values = values.split()
+            if not isinstance(values, list) or len(values) != 2:
+                raise ValueError(
+                    "prior_limits for " + parameter + " could not be "
+                    "processed: " + str(self._prior_limits[parameter]))
+            try:
+                values = [float(v) for v in values]
+            except Exception:
+                raise ValueError(
+                    "couldn't get floats for prior_limits of " + parameter +
+                    ": " + str(self._prior_limits[parameter]))
+            if values[0] >= values[1]:
+                raise ValueError(
+                    "This won't work - wrong order of limits for " +
+                    parameter + ": " + str(values))
+            min_values.append(values[0])
+            max_values.append(values[1])
+
+        self._min_values = np.array(min_values)
+        self._max_values = np.array(max_values)
+        self._range_values = self._max_values - self._min_values
+
     def _parse_fit_constraints(self):
         """
         Parse the fitting constraints that are not simple limits on parameters
         """
+        if self._fit_method == 'MultiNest':
+            if self._fit_constraints is not None:
+                raise NotImplementedError(
+                    "Currently no fit_constraints are implemented for "
+                    "MultiNest fit. Please contact Radek Poleski with "
+                    "a specific request.")
+
         self._prior_t_E = None
         self._priors = None
 

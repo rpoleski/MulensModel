@@ -3,6 +3,6 @@ photometry_files:
 prior_limits:
     t_0: [2455370, 2455390]
     u_0: [0., 1.]
-    t_E: [5., 50.]
+    t_E: 5. 50.
 fitting_parameters:
     basename: out_ob08092_O4_MN-

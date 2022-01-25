@@ -7,7 +7,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - in run_fit() next one is _parse_fitting_parameters()
+ - in run_fit() next one: "XXX HERE"
  - print output root file name to output
  - output root file - should we remove it if not provided?
  - make sure different prior settings are consistent
