@@ -14,6 +14,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - min/max_values cannot be set
  - _parse_fitting_parameters_MN() - we need more parameters there
  - XXX
+ - give warning if files outputfiles_basename* exist - early on!
  - if there is first working version - let interested people know about this branch and ask them for input
  - requirements.txt - see below; also note it in README
  - documentation of \_\_init\_\_

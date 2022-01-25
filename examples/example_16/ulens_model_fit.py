@@ -409,9 +409,9 @@ XXX
             self._parse_starting_parameters()
         self._check_fixed_parameters()
         self._make_model_and_event()
-#        if self._fit_method == "EMCEE":
-        self._generate_random_parameters() # XXX HERE
-        self._setup_fit()
+        if self._fit_method == "EMCEE":
+            self._generate_random_parameters()
+        self._setup_fit()  # XXX HERE
         self._run_fit()
         self._finish_fit()
         self._parse_results()
@@ -1558,21 +1558,37 @@ XXX
         """
         Setup what is needed for fitting after MulensModel.Event is set up.
         """
-        self._setup_fit_EMCEE()
+        if self._fit_method == 'EMCEE':
+            self._setup_fit_EMCEE()
+        elif self._fit_method == 'MultiNest':
+            self._setup_fit_MultiNest()
+        else:
+            raise ValueError('internal bug')
 
     def _setup_fit_EMCEE(self):
         """
-        Setup fit using EMCEE
+        Setup EMCEE fit
         """
         n_fit = len(self._fit_parameters)
         self._sampler = emcee.EnsembleSampler(
             self._n_walkers, n_fit, self._ln_prob)
 
+    def _setup_fit_MultiNest(self):
+        """
+        Prepare MultiNest fit
+        """
+        raise NotImplementedError("XXX")
+
     def _run_fit(self):
         """
         Call the method that does the fit.
         """
-        self._run_fit_EMCEE()
+        if self._fit_method == 'EMCEE':
+            self._run_fit_EMCEE()
+        elif self._fit_method == 'MultiNest':
+            self._run_fit_MultiNest()
+        else:
+            raise ValueError('internal bug')
 
     def _run_fit_EMCEE(self):
         """
@@ -1580,6 +1596,12 @@ XXX
         """
         self._sampler.run_mcmc(self._starting_points,
                                self._fitting_parameters['n_steps'])
+
+    def _run_fit_MultiNest(self):
+        """
+        Run MultiNest fit
+        """
+        raise NotImplementedError("XXX")
 
     def _finish_fit(self):
         """
