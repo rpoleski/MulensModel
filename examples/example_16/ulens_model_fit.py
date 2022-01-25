@@ -408,8 +408,9 @@ XXX
         if self._fit_method == "EMCEE":
             self._parse_starting_parameters()
         self._check_fixed_parameters()
-        self._make_model_and_event()  # XXX HERE
-        self._generate_random_parameters()
+        self._make_model_and_event()
+#        if self._fit_method == "EMCEE":
+        self._generate_random_parameters() # XXX HERE
         self._setup_fit()
         self._run_fit()
         self._finish_fit()
@@ -1228,41 +1229,58 @@ XXX
         Generate parameters *dict* according to provided starting and fixed
         parameters.
         """
-        parameters = dict()
-        # XXX it should be either that we have parameters/values or
-        # _starting_parameters
-        if self._starting_parameters is None:
-            keys = self._model_parameters['parameters']
-            values = self._model_parameters['values']
-            for (key, value) in zip(keys, values):
-                parameters[key] = value
+        if self._task == 'plot':
+            parameters = dict(zip(
+                self._model_parameters['parameters'],
+                self._model_parameters['values']))
             # XXX this is some kind of a hack:
             self._best_model_theta = []
             self._fit_parameters = []
+        elif self._task == 'fit':
+            if self._fit_method == 'EMCEE':
+                parameters = self._get_example_parameters_EMCEE()
+            elif self._fit_method == 'MultiNest':
+                means = 0.5 * (self._max_values + self._min_values)
+                parameters = dict(zip(self._fit_parameters, means))
+                if "x_caustic_in" in self._fit_parameters:
+                    index = self._fit_parameters.index("x_caustic_in")
+                    parameters["x_caustic_in"] = (
+                        self._min_values[index] +
+                        np.random.randn(1)[0] * self._range_values[index])
+            else:
+                raise ValueError('internal value')
         else:
-            for (key, value) in self._starting_parameters.items():
-                # We treat Cassan08 case differently so that
-                # x_caustic_in is different than x_caustic_out.
-                if key == "x_caustic_in":
-                    if value[0] == 'gauss':
-                        parameters[key] = (
-                            value[1] + value[2] * np.random.randn(1)[0])
-                    elif value[0] in ['uniform', 'log-uniform']:
-                        parameters[key] = 0.25 * value[1] + 0.75 * value[2]
-                    else:
-                        raise ValueError('internal error: ' + value[0])
-                else:
-                    if value[0] == 'gauss':
-                        parameters[key] = value[1]
-                    elif value[0] in ['uniform', 'log-uniform']:
-                        parameters[key] = (value[1] + value[2]) / 2.
-                    else:
-                        raise ValueError('internal error: ' + value[0])
+            raise ValueError('internal value')
 
         if self._fixed_parameters is not None:
             for (key, value) in self._fixed_parameters.items():
                 parameters[key] = value
 
+        return parameters
+
+    def _get_example_parameters_EMCEE(self):
+        """
+        get sample values of parameters for EMCEE - only to make mm.Model
+        """
+        parameters = dict()
+        for (key, value) in self._starting_parameters.items():
+            # We treat Cassan08 case differently so that
+            # x_caustic_in is different than x_caustic_out.
+            if key == "x_caustic_in":
+                if value[0] == 'gauss':
+                    parameters[key] = (
+                        value[1] + value[2] * np.random.randn(1)[0])
+                elif value[0] in ['uniform', 'log-uniform']:
+                    parameters[key] = 0.25 * value[1] + 0.75 * value[2]
+                else:
+                    raise ValueError('internal error: ' + value[0])
+            else:
+                if value[0] == 'gauss':
+                    parameters[key] = value[1]
+                elif value[0] in ['uniform', 'log-uniform']:
+                    parameters[key] = (value[1] + value[2]) / 2.
+                else:
+                    raise ValueError('internal error: ' + value[0])
         return parameters
 
     def _generate_random_parameters(self):
@@ -1321,10 +1339,13 @@ XXX
 
         if len(out) < self._n_walkers:
             raise ValueError(
-                "Couldn't generate required starting points in a prior. " +
-                "Most probably you have to correct at least one of: " +
-                "starting_parameters, min_values, max_values, or " +
-                "fit_constraints.\nGot " + str(len(out)))
+                "Couldn't generate required starting points in a prior. "
+                "Most probably you have to correct at least one of: "
+                "starting_parameters, min_values, max_values, or "
+                "fit_constraints.\nGot " + str(len(out)) + " walkers in "
+                "the prior, but required " + str(self._n_walkers) + ".\n"
+                "If you think the code should work with your settings, "
+                "then please contact Radek Poleski.")
         self._starting_points = out
 
     def _ln_prob(self, theta):
