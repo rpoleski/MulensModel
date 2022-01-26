@@ -411,10 +411,10 @@ XXX
         self._make_model_and_event()
         if self._fit_method == "EMCEE":
             self._generate_random_parameters()
-        self._setup_fit()  # XXX HERE
+        self._setup_fit()
         self._run_fit()
         self._finish_fit()
-        self._parse_results()
+        self._parse_results()  # XXX HERE
         self._make_plots()
 
     def plot_best_model(self):
@@ -847,7 +847,6 @@ XXX
         self._check_required_and_allowed_parameters(required, allowed)
 
         self._kwargs_MultiNest = {
-            'resume': False, 'multimodal': False,
             'outputfiles_basename': settings['basename']}
 
     def _get_n_walkers(self):
@@ -1418,13 +1417,14 @@ XXX
         inside = 0.
         outside = -np.inf
 
-        for (index, limit) in self._min_values_indexed.items():
-            if theta[index] < limit:
-                return outside
+        if self._fit_method != 'MultiNest':  # XXX - not sure if that's the right way, but it works for now
+            for (index, limit) in self._min_values_indexed.items():
+                if theta[index] < limit:
+                    return outside
 
-        for (index, limit) in self._max_values_indexed.items():
-            if theta[index] > limit:
-                return outside
+            for (index, limit) in self._max_values_indexed.items():
+                if theta[index] > limit:
+                    return outside
 
         ln_prior = inside
 
@@ -1577,7 +1577,19 @@ XXX
         """
         Prepare MultiNest fit
         """
-        raise NotImplementedError("XXX")
+        self._kwargs_MultiNest['LogLikelihood'] = self._ln_prob
+        self._kwargs_MultiNest['Prior'] = self._transform_unit_cube
+        self._kwargs_MultiNest['n_dims'] = len(self._fit_parameters)
+        self._kwargs_MultiNest['resume'] = False
+        self._kwargs_MultiNest['multimodal'] = False
+
+        self._return_fluxes = False  # XXX - not here
+
+    def _transform_unit_cube(self, cube):
+        """
+        transform MulitNest unit cube to microlensing parameters
+        """
+        return self._min_values + cube * self._range_values
 
     def _run_fit(self):
         """
@@ -1601,7 +1613,7 @@ XXX
         """
         Run MultiNest fit
         """
-        raise NotImplementedError("XXX")
+        self._result = solve(**self._kwargs_MultiNest)
 
     def _finish_fit(self):
         """
@@ -1617,9 +1629,14 @@ XXX
         """
         Call the function that prints and saves results
         """
-        self._parse_results_EMCEE()
-        if self._posterior_file_name is not None:
-            self._save_posterior_EMCEE()
+        if self._fit_method == "EMCEE":
+            self._parse_results_EMCEE()
+            if self._posterior_file_name is not None:
+                self._save_posterior_EMCEE()
+        elif self._fit_method == "MultiNest":
+            self._parse_results_MultiNest()
+        else:
+            raise ValueError('internal bug')
 
     def _parse_results_EMCEE(self):
         """
@@ -1739,6 +1756,12 @@ XXX
             blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
             samples = np.dstack((samples, blobs))
         np.save(self._posterior_file_name, samples)
+
+    def _parse_results_MultiNest(self):
+        """
+        Parse results of MultiNest fitting
+        """
+        raise NotImplementedError("working on that")  # XXX
 
     def _make_plots(self):
         """
