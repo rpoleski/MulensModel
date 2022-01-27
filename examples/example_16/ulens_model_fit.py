@@ -31,7 +31,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.24.3'
+__version__ = '0.24.4'
 
 
 class UlensModelFit(object):
@@ -1479,6 +1479,8 @@ class UlensModelFit(object):
 
         accept_rate = np.mean(self._sampler.acceptance_fraction)
         print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
+        autocorr_time = np.mean(self._sampler.get_autocorr_time(quiet=True))
+        print("Mean autocorrelation time: {0:.1f} steps".format(autocorr_time))
 
         self._samples = self._sampler.chain[:, n_burn:, :]
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))

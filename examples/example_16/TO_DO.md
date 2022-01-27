@@ -46,7 +46,6 @@
 - check if output files (including plots) exists at the begin
 - plot title
 - make plots tighter, i.e., reduce white space
-- print autocorrelation time
 - Add ln_prior values to blob? At some point we will want to save that information in output files
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
 - posterior output: 1) add log(prior), 2) add chi2 or equivalent, 3) add option to add fluxes
