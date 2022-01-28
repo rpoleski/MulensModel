@@ -1644,36 +1644,58 @@ XXX
 
         This version works with EMCEE version 2.X and 3.0.
         """
-        n_burn = self._fitting_parameters['n_burn']
-        n_fit = len(self._fit_parameters)
-
         accept_rate = np.mean(self._sampler.acceptance_fraction)
         print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
 
-        self._samples = self._sampler.chain[:, n_burn:, :]
-        self._samples_flat = self._samples.copy().reshape((-1, n_fit))
-        if 'trace' not in self._plots:
-            self._samples = None
+        self._extract_posterior_samples_EMCEE()
+
         print("Fitted parameters:")
-        self._parse_results_EMECEE_print(
-            self._samples_flat, self._fit_parameters)
+        self._print_results(self._samples_flat, self._fit_parameters)
 
         self._shift_t_0_in_samples()
 
         if self._return_fluxes:
-            (blob_samples, flux_names) = self._get_fluxes_to_print()
             print("Fitted fluxes (source and blending):")
-            self._parse_results_EMECEE_print(blob_samples, flux_names)
+            (blob_samples, flux_names) = self._get_fluxes_to_print()
+            self._print_results(blob_samples, flux_names)
 
         self._print_best_model()
 
-    def _parse_results_EMECEE_print(self, data, parameters):
+    def _extract_posterior_samples_EMCEE(self):
+        """
+        set self._samples_flat and self._samples
+        """
+        n_burn = self._fitting_parameters['n_burn']
+        n_fit = len(self._fit_parameters)
+        self._samples = self._sampler.chain[:, n_burn:, :]
+        self._samples_flat = self._samples.copy().reshape((-1, n_fit))
+        if 'trace' not in self._plots:
+            self._samples = None
+
+    def weighted_percentile(self, data, weights, fraction):  # XXX move it in right place
+        """
+        Calculate weighted percentile of the data. The parameter *fraction* should
+        be 0.158655, 0.5, or 0.841345.
+        """
+        indexes = np.argsort(data)
+        weights_sorted = weights[indexes]
+        weights_cumulative = np.cumsum(weights_sorted)
+        weighted_quantiles = (weights_cumulative - 0.5 * weights_sorted)
+        weighted_quantiles /= weights_cumulative[-1]
+        return np.interp(fraction, weighted_quantiles, data[indexes])
+
+    def _print_results(self, data, parameters):
         """
         print mean values and +- 1 sigma for given parameters
         """
-        results = np.percentile(data, [15.866, 50, 84.134], axis=0)
-        sigma_plus = results[2, :] - results[1, :]
-        sigma_minus = results[1, :] - results[0, :]
+        if self._fit_method == "EMCEE":
+            results = np.percentile(data, [15.866, 50, 84.134], axis=0)
+            sigma_plus = results[2, :] - results[1, :]
+            sigma_minus = results[1, :] - results[0, :]
+        elif self._fit_method == "MultiNest":
+            raise NotImplementedError("working on that")
+        else:
+            raise ValueError("internal bug")
 
         for out in zip(parameters, results[1], sigma_plus, sigma_minus):
             format_ = "{:} : {:.5f} +{:.5f} -{:.5f}"
@@ -1761,7 +1783,42 @@ XXX
         """
         Parse results of MultiNest fitting
         """
+        self._extract_posterior_samples_MultiNest()  # XXX HERE
+
+        print("Fitted parameters:")
+        self._print_results(self._samples_flat, self._fit_parameters)
+
+        self._shift_t_0_in_samples()
+
+        if self._return_fluxes:
+            print("Fitted fluxes (source and blending):")
+            (blob_samples, flux_names) = self._get_fluxes_to_print()  # XXX - this function probably requires dedicted MN version
+            self._print_results(blob_samples, flux_names)
+
+        self._print_best_model()
+
         raise NotImplementedError("working on that")  # XXX
+
+    def _extract_posterior_samples_MultiNest(self):
+        """
+        set self._samples_flat and self._samples_flat_weights for MultiNest 
+        """
+        base = self._kwargs_MultiNest['outputfiles_basename']
+        self._analyzer = Analyzer(n_params=len(self._fit_parameters),
+                                  outputfiles_basename=base)
+        data = self._analyzer.get_data()
+        self._samples_flat = data[:, 2:]
+        self._samples_flat_weights = data[:0]
+
+#        w = data[:, 0]
+#        for i in [2, 3, 4]:
+#            out = self.weighted_percentile(data[:, i], w, [0.158655, 0.5, 0.841345])
+#            print(out[1], out[2]-out[1], out[0]-out[1])
+
+#        x = self._analyzer.get_mode_stats()['modes']
+#        for (k, v) in x.items():
+#            print(k, ":")
+#            print(v)
 
     def _make_plots(self):
         """

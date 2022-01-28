@@ -6,6 +6,11 @@ https://github.com/JohannesBuchner/PyMultiNest
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
+# TO DO NOW - HERE:
+ - move stuff commented in _extract_posterior_samples_MultiNest()
+ - move function weighted_percentile and make it private
+ - the above should make _parse_results_MultiNest() to work, hence _parse_results() to work, hence we should move to _make_plots() in run_fit()
+
 # TO DO:
  - in run_fit() next one: "XXX HERE"
  - check functions that were not yet checked: _ln_prob() _return_ln_prob() _set_model_parameters() _ln_prior() _get_ln_prior_for_1_parameter() _ln_prior_t_E() _ln_like() _print_current_model() _get_fluxes() _run_flux_checks_ln_prior() _update_best_model()
