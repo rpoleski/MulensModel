@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
@@ -33,14 +34,42 @@ class Coordinates(SkyCoord):
     """
 
     def __init__(self,  *args, **kwargs):
-        if not isinstance(args[0], SkyCoord) and 'unit' not in kwargs:
-            kwargs['unit'] = (u.hourangle, u.deg)
+        if not isinstance(args[0], (SkyCoord, u.quantity.Quantity)):
+            if 'unit' not in kwargs and len(args) > 0:
+                self._check_for_ra_in_degrees(args[0])
+                kwargs['unit'] = (u.hourangle, u.deg)
         SkyCoord.__init__(self, *args, **kwargs)
         if self.cartesian.xyz.shape not in [(3,), (3, 1)]:
             raise ValueError(
                 "Something wrong with parameters of Coordinates().\nMost " +
                 "probably you have provided more than one sky position.")
         self._calculate_projected()
+
+    def _check_for_ra_in_degrees(self, arg):
+        """
+        Try to check if RA is outside 0-24 range and raise a warning if that
+        is the case. No warning would be given if the user provided RA of,
+        e.g., 5.123 and assumed degrees, but has not explicitly stated that.
+        """
+        if isinstance(arg, str):
+            arg = arg.split()[0]
+
+        try:
+            value = float(arg)
+        except Exception:
+            return
+
+        if value > 24.:
+            warning = (
+                'It seems that you provided RA in degrees rather than hours. '
+                'We suggest to provide RA unit or use hours as RA units. ' +
+                str(value))
+            warnings.warn(warning, UserWarning)
+        elif value < 0.:
+            warning = (
+                "It's very uncommon to use negative RA. Please remember that "
+                "a default unit for RA is hours (not degrees). " + str(value))
+            warnings.warn(warning, UserWarning)
 
     def _calculate_projected(self):
         """

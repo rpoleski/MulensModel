@@ -90,6 +90,8 @@ plots:
             color: magenta
     triangle:
         file: ob03235_2_triangle.png
+    trace:
+        file: ob03235_2_trace.png
 other_output:
     models:
         # Value "-" in line below means that the models will be printed to screen instead of a file.

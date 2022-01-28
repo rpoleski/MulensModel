@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Very Basic Tutorial &#8212; MulensModel 2.1.0 documentation</title>
+    <title>Very Basic Tutorial &#8212; MulensModel 2.3.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -86,7 +86,7 @@ effects:</p>
      <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">])</span>
 <span class="n">MOA_data</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">MulensData</span><span class="p">(</span>
      <span class="n">file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;OB03235_MOA.tbl.txt&#39;</span><span class="p">),</span>
-     <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">])</span>
+     <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">],</span> <span class="n">phot_fmt</span><span class="o">=</span><span class="s1">&#39;flux&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -101,6 +101,8 @@ effects:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_event</span><span class="o">.</span><span class="n">plot_model</span><span class="p">(</span><span class="n">t_range</span><span class="o">=</span><span class="p">[</span><span class="mi">2452810</span><span class="p">,</span> <span class="mi">2452890</span><span class="p">],</span> <span class="n">subtract_2450000</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
 <span class="n">my_event</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">subtract_2450000</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">2810</span><span class="p">,</span> <span class="mi">2890</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">19.25</span><span class="p">,</span> <span class="mf">16.6</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>

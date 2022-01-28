@@ -119,7 +119,6 @@ class MulensData(object):
                  add_2460000=False, bandpass=None, bad=None, good=None,
                  plot_properties=None, **kwargs):
 
-        # Initialize some variables
         self._n_epochs = None
         self._horizons = None
         self._satellite_skycoord = None
@@ -129,15 +128,14 @@ class MulensData(object):
         self.bandpass = bandpass
         self._chi2_fmt = chi2_fmt
 
-        # Set the coords (if applicable)...
         self._set_coords(coords=coords, ra=ra, dec=dec)
 
-        # Plot properties
         if plot_properties is None:
             plot_properties = {}
         self.plot_properties = plot_properties
 
         # Import the photometry...
+        self._file_name = file_name
         if data_list is not None and file_name is not None:
             raise ValueError(
                 'MulensData cannot be initialized with both data_list and ' +
@@ -253,11 +251,13 @@ class MulensData(object):
             (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
                 mag=self.mag, err_mag=self.err_mag)
             if np.min(self._err_flux) <= 0.:
-                raise ValueError(
-                    "Scaling of magnitude uncertainties to flux space " +
-                    "resulted in zero or negative values. Maybe the " +
-                    "photometry format is in fact 'flux', not 'mag' " +
-                    "(as you indicated).")
+                msg = ("Scaling of magnitude uncertainties to flux space "
+                       "resulted in zero or negative values. Maybe the "
+                       "photometry format is in fact 'flux', not 'mag' "
+                       "(as you indicated). ")
+                if self._file_name is not None:
+                    msg += "File name: " + self._file_name
+                raise ValueError(msg)
         elif phot_fmt == "flux":
             self._flux = self._brightness_input
             self._err_flux = self._brightness_input_err
@@ -273,8 +273,8 @@ class MulensData(object):
         if (coords is not None) or (ra is not None) or (dec is not None):
             # Check for errors and if none, set the coordinates
             warnings.warn(
-                'coords will be deprecated in future. There is no reason to' +
-                'tie this to a given dataset', FutureWarning)
+                'coords will be deprecated in future. There is no reason ' +
+                'to tie this to a given dataset', FutureWarning)
             coords_msg = 'Must specify both or neither of ra and dec'
             # ...using coords keyword
             if coords is not None:
