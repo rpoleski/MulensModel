@@ -691,14 +691,25 @@ class PointLens(object):
                 specified by `trajectory`.
 
         """
-        if isinstance(trajectory, mm.Trajectory):
-            u2 = (trajectory.x**2 + trajectory.y**2)
-        else:
-            u2 = trajectory**2
+        shear_G_conj = shear_G.conjugate()
+        zeta = trajectory.x + trajectory.y * 1j
+        zeta_conj = zeta.conjugate()
 
-        if isinstance(trajectory, float):
-            pspl_magnification = (u2 + 2.) / sqrt(u2 * (u2 + 4.))
-        else:
-            pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+        coeffs_list = [shear_G, 
+               2*shear_G*zeta_conj - zeta*convergence_K + zeta, 
+              2*shear_G*shear_G_conj + shear_G*zeta_conj**2 - zeta*zeta_conj*convergence_K + zeta*zeta_conj,
+              2*shear_G*shear_G_conj*zeta_conj - zeta*convergence_K*shear_G_conj + zeta*shear_G_conj - convergence_K**2*zeta_conj + 2*convergence_K*zeta_conj - zeta_conj,
+               shear_G*shear_G_conj**2 - convergence_K**2*shear_G_conj + 2*convergence_K*shear_G_conj - shear_G_conj]
+        
+        roots = np.polynomial.polynomial.polyroots(coeffs_list)
+        # if isinstance(trajectory, mm.Trajectory):
+        #     u2 = (trajectory.x**2 + trajectory.y**2)
+        # else:
+        #     u2 = trajectory**2
+
+        # if isinstance(trajectory, float):
+        #     pspl_magnification = (u2 + 2.) / sqrt(u2 * (u2 + 4.))
+        # else:
+        #     pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
 
         return pspl_magnification
