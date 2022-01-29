@@ -672,46 +672,33 @@ class PointLens(object):
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
 
-
-class PointLensWithShear(PointLens):
-    """
-    Point-lens with shear.
-
-    Parameters
-    ----------
-    parameters : :py:class:`~MulensModel.parameters.Parameters`
-        The parameters of the model.
-
-    Attributes
-    ----------
-    parameters : :py:class:`~MulensModel.parameters.Parameters`
-        The parameters of the model.
-
-    Methods
-    -------
-    get_point_lens_magnification(u, gamma)
-        Calculate magnification for the point lens.
-    """
-
-    def __init__(self, parameters):
-        super().__init__(parameters)
-
-    def get_point_lens_magnification(self, u, gamma):
+    def get_pspl_with_shear_magnification(self, trajectory, convergence_K, shear_G):
         """
-        Calculate magnification for the point lens.
+        This is Paczynski equation, i.e., point-source--point-lens (PSPL)
+        magnification.
 
-        Parameters
-        ----------
-        u: *np.array*
-            The instantaneous source-lens separation.
+        Arguments :
+            trajectory: *float*, *np.ndarray*, or
+            :py:class:`~MulensModel.trajectory.Trajectory` object
 
-        gamma: *float*
-            Gamma limb darkening coefficient. See also
-            :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+                The source-lens relative position. If _not_ a
+                :py:class:`~MulensModel.trajectory.Trajectory` object,
+                then trajectory is assumed to be value(s) of :math:`u`.
 
-        Returns
-        -------
-        magnification: *np.array*
-            The point-lens magnification.
+        Returns :
+            pspl_magnification: *float* or *np.ndarray*
+                The point-source--point-lens magnification for each point
+                specified by `trajectory`.
+
         """
-        return self._get_magnification_WM94_B18(u, gamma, 1)
+        if isinstance(trajectory, mm.Trajectory):
+            u2 = (trajectory.x**2 + trajectory.y**2)
+        else:
+            u2 = trajectory**2
+
+        if isinstance(trajectory, float):
+            pspl_magnification = (u2 + 2.) / sqrt(u2 * (u2 + 4.))
+        else:
+            pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+
+        return pspl_magnification
