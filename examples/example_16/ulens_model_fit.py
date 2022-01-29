@@ -580,6 +580,10 @@ XXX
             raise ValueError(
                 'Unknown settings for "trace": {:}'.format(unknown))
 
+        if self._fit_method == "MultiNest":
+            raise ValueError(
+                'Trace plot cannot be requested for MultiNest fit')
+
     def _check_model_parameters(self):
         """
         Check parameters of the MulensModel.Model provided by the user
@@ -839,15 +843,24 @@ XXX
         """
         make sure MultiNest fitting parameters are properly defined
         """
-        settings = self._fitting_parameters
+        self._kwargs_MultiNest = dict()
 
-        required = ['basename']
-        allowed = []
+        settings = self._fitting_parameters
+        if settings is None:
+            print("No base for MultiNest output provided.")
+            return
+
+        required = []
+        allowed = ['basename']
 
         self._check_required_and_allowed_parameters(required, allowed)
 
-        self._kwargs_MultiNest = {
-            'outputfiles_basename': settings['basename']}
+        if 'basename' not in settings:
+            print("No base for MultiNest output provided.")
+        else:
+            self._kwargs_MultiNest['outputfiles_basename'] = (
+                settings['basename'])
+            print("Base name for MultiNest output:", settings['basename'])
 
     def _get_n_walkers(self):
         """
@@ -1436,7 +1449,7 @@ XXX
             self._set_model_parameters(theta)
             for (parameter, prior_settings) in self._priors.items():
                 if parameter in ['pi_E_N', 'pi_E_E']:
-                    # Other parameters can be added here.
+                    # Other parameters can be added here. XXX
                     value = self._model.parameters.parameters[parameter]
                     ln_prior += self._get_ln_prior_for_1_parameter(
                         value, prior_settings)
@@ -1462,7 +1475,7 @@ XXX
         if there is t_E prior.
         """
         if self._prior_t_E not in ['Mroz+17', 'Mroz+20']:
-            raise ValueError('unexpected internal error ' + self._prior_t_E)
+            raise ValueError('unexpected internal error: ' + self._prior_t_E)
 
         try:
             x = math.log10(self._model.parameters.t_E)
@@ -1800,7 +1813,11 @@ XXX
         """
         Parse results of MultiNest fitting
         """
-        self._extract_posterior_samples_MultiNest()  # XXX HERE
+        if 'outputfiles_basename' not in self._kwargs_MultiNest:
+            self._samples_flat = None
+            return
+
+        self._extract_posterior_samples_MultiNest()
 
         print("Fitted parameters:")
         self._print_results(self._samples_flat, self._fit_parameters)
@@ -1846,6 +1863,12 @@ XXX
         """
         Make a triangle plot
         """
+        if self._samples_flat is None:  # XXX this shouldn't be here, but before the fit
+            raise ValueError(
+                "We lack posterior samples, co cannot make the triangle plot. "
+                "Most probably you're using fitting with MultiNest and have "
+                "not defined the outpus base files")
+
         self._reset_rcParams()
 
         n_bins = 40

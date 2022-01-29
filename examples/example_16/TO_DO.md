@@ -7,10 +7,8 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - check functions that were not yet checked: _ln_prob() _return_ln_prob() _set_model_parameters() _ln_prior() _get_ln_prior_for_1_parameter() _ln_prior_t_E() _ln_like() _print_current_model() _get_fluxes() _run_flux_checks_ln_prior() _update_best_model()
- - test plots
- - print output root file name to output
  - flux info
+ - _ln_prior
  - output root file - should we remove it if not provided?
  - print info on different modes, including posterior mode probability
  - make sure different prior settings are consistent
