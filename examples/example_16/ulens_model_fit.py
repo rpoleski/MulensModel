@@ -414,7 +414,7 @@ XXX
         self._setup_fit()
         self._run_fit()
         self._finish_fit()
-        self._parse_results()  # XXX HERE
+        self._parse_results()
         self._make_plots()
 
     def plot_best_model(self):
@@ -1672,36 +1672,53 @@ XXX
         if 'trace' not in self._plots:
             self._samples = None
 
-    def weighted_percentile(self, data, weights, fraction):  # XXX move it in right place
-        """
-        Calculate weighted percentile of the data. The parameter *fraction* should
-        be 0.158655, 0.5, or 0.841345.
-        """
-        indexes = np.argsort(data)
-        weights_sorted = weights[indexes]
-        weights_cumulative = np.cumsum(weights_sorted)
-        weighted_quantiles = (weights_cumulative - 0.5 * weights_sorted)
-        weighted_quantiles /= weights_cumulative[-1]
-        return np.interp(fraction, weighted_quantiles, data[indexes])
-
     def _print_results(self, data, parameters):
         """
-        print mean values and +- 1 sigma for given parameters
+        calculate and print median values and +- 1 sigma for given parameters
         """
         if self._fit_method == "EMCEE":
-            results = np.percentile(data, [15.866, 50, 84.134], axis=0)
-            sigma_plus = results[2, :] - results[1, :]
-            sigma_minus = results[1, :] - results[0, :]
+            results = self._get_weighted_percentile(data)
         elif self._fit_method == "MultiNest":
-            raise NotImplementedError("working on that")
+            results = self._get_weighted_percentile(
+                data, weights=self._samples_flat_weights)
         else:
             raise ValueError("internal bug")
 
-        for out in zip(parameters, results[1], sigma_plus, sigma_minus):
+        for (parameter, results_) in zip(parameters, results):
             format_ = "{:} : {:.5f} +{:.5f} -{:.5f}"
-            if out[0] == 'q':
+            if parameter == 'q':
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}"
-            print(format_.format(*out))
+            print(format_.format(parameter, *results_))
+
+    def _get_weighted_percentile(
+            self, data, fractions=[0.158655, 0.5, 0.841345], weights=None):
+        """
+        Calculate weighted percentile of the data. Data can be weighted or not.
+        """
+        if weights is None:
+            kwargs = dict()
+            if data.shape[0] > data.shape[1]:
+                kwargs['axis'] = 0
+            results = np.percentile(data, 100.*np.array(fractions), **kwargs)
+        else:
+            results = []
+            for i in range(data.shape[1]):
+                data_ = data[:, i]
+                indexes = np.argsort(data_)
+                weights_sorted = weights[indexes]
+                weights_cumulative = np.cumsum(weights_sorted)
+                weighted_quantiles = weights_cumulative - 0.5 * weights_sorted
+                weighted_quantiles /= weights_cumulative[-1]
+                results.append(
+                    np.interp(fractions, weighted_quantiles, data_[indexes]))
+            results = np.array(results).T
+
+        out = []
+        for i in range(results.shape[1]):
+            median = results[1, i]
+            out.append([median, results[2, i]-median, median-results[0, i]])
+
+        return out
 
     def _shift_t_0_in_samples(self):
         """
@@ -1795,30 +1812,24 @@ XXX
             (blob_samples, flux_names) = self._get_fluxes_to_print()  # XXX - this function probably requires dedicted MN version
             self._print_results(blob_samples, flux_names)
 
-        self._print_best_model()
+# XXX - print separate info on each mode
+#        x = self._analyzer.get_mode_stats()['modes']
+#        for (k, v) in x.items():
+#            print(k, ":")
+#            print(v)
 
-        raise NotImplementedError("working on that")  # XXX
+        self._print_best_model()
 
     def _extract_posterior_samples_MultiNest(self):
         """
-        set self._samples_flat and self._samples_flat_weights for MultiNest 
+        set self._samples_flat and self._samples_flat_weights for MultiNest
         """
         base = self._kwargs_MultiNest['outputfiles_basename']
         self._analyzer = Analyzer(n_params=len(self._fit_parameters),
                                   outputfiles_basename=base)
         data = self._analyzer.get_data()
         self._samples_flat = data[:, 2:]
-        self._samples_flat_weights = data[:0]
-
-#        w = data[:, 0]
-#        for i in [2, 3, 4]:
-#            out = self.weighted_percentile(data[:, i], w, [0.158655, 0.5, 0.841345])
-#            print(out[1], out[2]-out[1], out[0]-out[1])
-
-#        x = self._analyzer.get_mode_stats()['modes']
-#        for (k, v) in x.items():
-#            print(k, ":")
-#            print(v)
+        self._samples_flat_weights = data[:, 0]
 
     def _make_plots(self):
         """
