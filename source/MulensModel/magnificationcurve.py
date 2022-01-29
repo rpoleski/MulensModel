@@ -270,6 +270,10 @@ class MagnificationCurve(object):
 
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
+            elif method.lower() == 'point_source_with_shear':
+                point_lens.get_pspl_with_shear_magnification(self.trajectory,
+                            convergence_K=self.convergence_K,
+                            shear_G=self.shear_G)
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(
