@@ -65,7 +65,7 @@ def test_event_get_chi2_1():
 
     ev.fix_blend_flux = fix_blend_flux
     np.testing.assert_almost_equal(ev.get_chi2(), 459.09826, decimal=4)
-    assert(ev.blend_fluxes() == [0.])
+    assert(ev.blend_fluxes == [0.])
 
 
 def test_event_get_chi2_2():
@@ -106,7 +106,7 @@ def test_event_get_chi2_2():
     np.testing.assert_almost_equal(
         float(chi2_no_blend), 2.*459.09826, decimal=4,
         err_msg='problem in resulting chi2 for fixed no blending')
-    assert (ev.blend_fluxes() == [0., 0.])
+    assert (ev.blend_fluxes == [0., 0.])
 
 
 def test_event_get_chi2_3():

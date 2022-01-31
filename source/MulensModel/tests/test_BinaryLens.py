@@ -1,8 +1,7 @@
-import sys
 import numpy as np
-import unittest
 
 import MulensModel as mm
+import check_architecture
 
 
 def test_small_q():
@@ -108,6 +107,8 @@ def test_vbbl_1():
 
 
 def test_ac_1():
+    check_architecture.skip_m1(msg='Adaptive Contouring')
+
     s = 0.8
     q = 0.1
 
