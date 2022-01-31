@@ -4,8 +4,9 @@ from math import sqrt
 
 from MulensModel.binarylens import BinaryLens
 from MulensModel.binarylensimports import (_vbbl_wrapped,
-                                            _vbbl_binary_mag_0, _vbbl_SG12_9)
+                                           _vbbl_binary_mag_0, _vbbl_SG12_9)
 import MulensModel as mm
+
 
 class BinaryLensWithShear(BinaryLens):
     """

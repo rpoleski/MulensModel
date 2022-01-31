@@ -54,8 +54,8 @@ class CausticsWithShear(Caustics):
             coeff_4 = 1.
             coeff_3 = -2. * self.s
             coeff_2 = Utils.complex_fsum([self.s**2, -1/e_iphi])
-            coeff_1 = 1/e_iphi * (2. * self.s / (1. + self.q))  # The additional
-            # parenthesis make it more stable numerically.
+            coeff_1 = 1. / e_iphi * (2. * self.s / (1. + self.q))  # The
+            # additional parenthesis make it more stable numerically.
             coeff_0 = -self.s**2 * 1/e_iphi * 1 / (1. + self.q)
 
             # Find roots
@@ -75,6 +75,7 @@ class CausticsWithShear(Caustics):
         Solve the lens equation for the given point (in complex coordinates).
         """
         complex_conjugate = np.conjugate(complex_value)
-        return ((1-self.convergence_K) * complex_value 
-            - self.shear_G * complex_conjugate - (1. / (1. + self.q)) * (
-            (1./complex_conjugate) + (self.q / (complex_conjugate - self.s))))
+        return (
+            (1-self.convergence_K) * complex_value
+            - self.shear_G * complex_conjugate - (1. / (1. + self.q)) *
+            ((1./complex_conjugate) + (self.q / (complex_conjugate - self.s))))
