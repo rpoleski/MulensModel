@@ -184,10 +184,10 @@ class Trajectory(object):
                     "The topocentric parallax effect not implemented yet")
 
         # If 2 lenses, rotate trajectory relative to binary lens axis
-        if self.parameters.n_lenses == 1:
+        if self.parameters.n_lenses == 1 and not self.parameters.external_mass_sheet:
             vector_x = vector_tau
             vector_y = vector_u
-        elif self.parameters.n_lenses == 2:
+        elif self.parameters.n_lenses == 2 or self.parameters.external_mass_sheet:
             if self.parameters.is_static():
                 sin_alpha = np.sin(self.parameters.alpha).value
                 cos_alpha = np.cos(self.parameters.alpha).value

@@ -674,8 +674,9 @@ class PointLens(object):
 
     def get_pspl_with_shear_magnification(self, trajectory, convergence_K, shear_G):
         """
-        This is Paczynski equation, i.e., point-source--point-lens (PSPL)
-        magnification.
+        Solving 4th order complex polynomial equation for the magnification with an
+        external convergence and shear. If shear is zero, this reduces to a quadratic
+        polynomial solve.
 
         Arguments :
             trajectory: *float*, *np.ndarray*, or
@@ -684,32 +685,40 @@ class PointLens(object):
                 The source-lens relative position. If _not_ a
                 :py:class:`~MulensModel.trajectory.Trajectory` object,
                 then trajectory is assumed to be value(s) of :math:`u`.
+            
+            convergence_K: *float*
+                The convergence of the external mass sheet.
+            
+            shear_G: *float*
+                The shear of the external mass sheet.
 
         Returns :
             pspl_magnification: *float* or *np.ndarray*
-                The point-source--point-lens magnification for each point
-                specified by `trajectory`.
+                The point-source--point-lens with external mass sheet
+                magnification for each point specified by `trajectory`.
 
         """
+        if not isinstance(trajectory, mm.Trajectory):
+            raise(ValueError("trajectory must be a Trajectory object."))
+
         shear_G_conj = shear_G.conjugate()
         zeta = trajectory.x + trajectory.y * 1j
         zeta_conj = zeta.conjugate()
 
-        coeffs_list = [shear_G, 
-               2*shear_G*zeta_conj - zeta*convergence_K + zeta, 
-              2*shear_G*shear_G_conj + shear_G*zeta_conj**2 - zeta*zeta_conj*convergence_K + zeta*zeta_conj,
-              2*shear_G*shear_G_conj*zeta_conj - zeta*convergence_K*shear_G_conj + zeta*shear_G_conj - convergence_K**2*zeta_conj + 2*convergence_K*zeta_conj - zeta_conj,
-               shear_G*shear_G_conj**2 - convergence_K**2*shear_G_conj + 2*convergence_K*shear_G_conj - shear_G_conj]
+        coeffs_array = np.stack([[shear_G]*len(zeta), 
+            2*shear_G*zeta_conj - zeta*convergence_K + zeta, 
+            2*shear_G*shear_G_conj + shear_G*zeta_conj**2 - zeta*zeta_conj*convergence_K + zeta*zeta_conj,
+            2*shear_G*shear_G_conj*zeta_conj - zeta*convergence_K*shear_G_conj + zeta*shear_G_conj - convergence_K**2*zeta_conj + 2*convergence_K*zeta_conj - zeta_conj,
+            [shear_G*shear_G_conj**2 - convergence_K**2*shear_G_conj + 2*convergence_K*shear_G_conj - shear_G_conj]*len(zeta)], axis=1)
         
-        roots = np.polynomial.polynomial.polyroots(coeffs_list)
-        # if isinstance(trajectory, mm.Trajectory):
-        #     u2 = (trajectory.x**2 + trajectory.y**2)
-        # else:
-        #     u2 = trajectory**2
+        pspl_magnification = []
+        for coeffs in coeffs_array:
+            mag = 0
+            roots = np.polynomial.polynomial.polyroots(coeffs)
+            for root in roots:
+                det = abs((1-convergence_K)**2 - (1/np.conjugate(root)**2 - shear_G)*(1/root**2 - shear_G_conj))
+                if not np.isnan(det):
+                    mag += 1/det
+            pspl_magnification.append(mag)
 
-        # if isinstance(trajectory, float):
-        #     pspl_magnification = (u2 + 2.) / sqrt(u2 * (u2 + 4.))
-        # else:
-        #     pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
-
-        return pspl_magnification
+        return np.array(pspl_magnification)

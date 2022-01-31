@@ -235,3 +235,23 @@ def test_n_lenses():
     assert p_1.n_lenses == 1
     assert p_2.n_lenses == 2
     assert p_3.n_lenses == 2
+
+
+def test_single_lens_convergence_K_shear_G():
+    """
+    Test single lens with convergence_K and shear_G in intialized
+    """
+    t_0 = 6141.593
+    u_0 = 0.5425
+    t_E = 62.63*u.day
+    convergence_K = 0.1
+    shear_G = complex(0.1,0.2)
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 
+                'convergence_K': convergence_K, 'shear_G': shear_G})
+
+    np.testing.assert_almost_equal(params.t_0, t_0)
+    np.testing.assert_almost_equal(params.u_0, u_0)
+    np.testing.assert_almost_equal(params.t_E, t_E.value)
+    np.testing.assert_almost_equal(params.convergence_K, convergence_K)
+    np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
+

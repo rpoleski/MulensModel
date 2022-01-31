@@ -444,7 +444,8 @@ class Model(object):
             ``**kwargs``:
                 keywords accepted by :py:func:`matplotlib.pyplot.scatter()`
         """
-        if self.n_lenses == 1:
+        if (self.n_lenses == 1 
+            and not self.parameters.external_mass_sheet):
             plt.scatter([0], [0], **kwargs)
         else:
             self.update_caustics(epoch=epoch)
@@ -460,16 +461,21 @@ class Model(object):
                 is calculated to calculate :py:attr:`~caustics`. Defaults
                 to *t_0_kep*, which defaults to *t_0*.
         """
-        if epoch is None:
-            s = self.parameters.s
+        if self.n_lenses == 1:
+            self._caustics = CausticsPointWithShear(
+                convergence_K=self.parameters.convergence_K,
+                shear_G=self.parameters.shear_G)
         else:
-            s = self.parameters.get_s(epoch)
+            if epoch is None:
+                s = self.parameters.s
+            else:
+                s = self.parameters.get_s(epoch)
 
-        if self._caustics is not None:
-            if s == self._caustics.s and self.parameters.q == self._caustics.q:
-                return
+            if self._caustics is not None:
+                if s == self._caustics.s and self.parameters.q == self._caustics.q:
+                    return
 
-        self._caustics = Caustics(q=self.parameters.q, s=s)
+            self._caustics = Caustics(q=self.parameters.q, s=s)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,

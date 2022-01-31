@@ -11,6 +11,7 @@ from MulensModel.uniformcausticsampling import UniformCausticSampling
 # 'basic' should be a list. Parameters that may be 'optional' should
 # be a list of length 2. The second item will only be printed if the
 # effect is included in the 'optional' list (see _get_effect_strings()).
+
 _valid_parameters = {
     'point lens': ['t_0, u_0, t_E'],
     'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
@@ -19,6 +20,7 @@ _valid_parameters = {
         'alternate: ' +
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
         'may be substituted for (t_0, u_0, t_E, alpha)',
+    'external_mass_sheet': ['convergence_K', 'shear_G','alpha'],
     'finite source': ['rho', '(for finite source effects)'],
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
     'parallax': ['(pi_E_N, pi_E_E) OR pi_E', '(for parallax)'],
@@ -124,7 +126,7 @@ def _print_parameters(header, components):
     if len(components['optional']) > 0:
         for item in components['optional']:
             print('optional: {0} {1}'.format(
-                    _valid_parameters[item][0], _valid_parameters[item][1]))
+                _valid_parameters[item][0], _valid_parameters[item][1]))
 
 
 def _print_all():
@@ -181,8 +183,8 @@ def which_parameters(*args):
 class ModelParameters(object):
     """
     A class for the basic microlensing model parameters (t_0, u_0,
-    t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
-    lens. The pi_E assumes NE coordinates (Parallel, Perpendicular
+    t_E, s, q, alpha, etc.). Can handle point lens or binary lens.
+    The pi_E assumes NE coordinates (Parallel, Perpendicular
     coordinates are not supported).
 
     Arguments :
@@ -206,6 +208,7 @@ class ModelParameters(object):
             ``print(params)``
 
     """
+
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
             raise TypeError(
@@ -360,6 +363,8 @@ class ModelParameters(object):
             's': {'width': 9, 'precision': 5},
             'q': {'width': 12, 'precision': 8},
             'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
+            'convergence_K': {'width': 12, 'precision': 8},
+            'shear_G': {'width': 12, 'precision': 8},
             'ds_dt': {
                 'width': 11, 'precision': 5, 'unit': '/yr', 'name': 'ds/dt'},
             'dalpha_dt': {
@@ -384,7 +389,8 @@ class ModelParameters(object):
         formats_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha', 'ds_dt', 'dalpha_dt',
+            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha',
+            'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
         ]
 
@@ -419,7 +425,7 @@ class ModelParameters(object):
             if parameter in keys:
                 if parameter[:-2] in keys:
                     raise ValueError('You cannot set {:} and {:}'.format(
-                                        parameter, parameter[:-2]))
+                        parameter, parameter[:-2]))
 
     def _check_valid_combination_1_source_standard(self, keys):
         """
@@ -486,12 +492,20 @@ class ModelParameters(object):
         """
         Here we check binary lens parameters for non-Cassan08 parameterization.
         """
-        # If s, q, and alpha must all be defined if one is defined
-        if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
+        # s, q, and alpha must all be defined if one is defined
+        if ('s' in keys) or ('q' in keys):
             if (('s' not in keys) or
                     ('q' not in keys) or ('alpha' not in keys)):
                 raise KeyError(
                     'A binary model requires all three of (s, q, alpha).')
+
+        # convergence_K and shear_G must both be defined if one is defined
+        if ('convergence_K' in keys) or ('shear_G' in keys):
+            if (('convergence_K' not in keys) or
+                    ('shear_G' not in keys) or ('alpha' not in keys)):
+                raise KeyError(
+                    'A model with external mass sheet requires all of '
+                    '(convergence_K, shear_G, alpha).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
@@ -537,8 +551,10 @@ class ModelParameters(object):
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 's', 'q', 'alpha', 'rho', 't_star',
-            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par', 'dalpha_dt', 'ds_dt',
+            't_0', 'u_0', 't_E', 't_eff', 'rho', 't_star',
+            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par',
+            's', 'q', 'alpha', 'convergence_K', 'shear_G',
+            'dalpha_dt', 'ds_dt',
             't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
             't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
             't_caustic_in', 't_caustic_out'])
@@ -562,21 +578,21 @@ class ModelParameters(object):
     def _check_valid_parameter_values(self, parameters):
         """
         Prevent user from setting negative (unphysical) values for
-        t_E, t_star, rho etc.
+        t_E, t_star, rho etc. Shear_G should be complex.
 
         Also, check that all values are scalars (except pi_E vector).
         """
-        names = ['t_E', 't_star', 'rho', 's']
+        names = ['t_E', 't_star', 'rho', 's', 'convergence_K']
         full_names = {
             't_E': 'Einstein timescale',
             't_star': 'Source crossing time', 'rho': 'Source size',
-            's': 'separation'}
+            's': 'separation', 'convergence_K': 'external convergence'}
 
         for name in names:
             if name in parameters.keys():
                 if parameters[name] < 0.:
                     raise ValueError("{:} cannot be negative: {:}".format(
-                            full_names[name], parameters[name]))
+                        full_names[name], parameters[name]))
 
         for (key, value) in parameters.items():
             if key == 'pi_E':
@@ -591,6 +607,10 @@ class ModelParameters(object):
                 if parameters[name] < 0. or parameters[name] > 1.:
                     msg = "Parameter {:} has to be in (0, 1) range, not {:}"
                     raise ValueError(msg.format(name, parameters[name]))
+
+        if 'shear_G' in parameters.keys():
+            if not isinstance(parameters['shear_G'], complex):
+                raise TypeError("External shear (shear_G) must be complex")
 
     def _set_parameters(self, parameters):
         """
@@ -903,6 +923,46 @@ class ModelParameters(object):
             raise ValueError('mass ratio q has to be between 0 and 1')
         self.parameters['q'] = new_q
         self._update_sources('q', new_q)
+
+    @property
+    def convergence_K(self):
+        """
+        *float*
+
+        Convergence of external mass sheet.
+        """
+        if 'convergence_K' in self.parameters.keys():
+            return self.parameters['convergence_K']
+        else:
+            raise KeyError('convergence_K is not a parameter of this model.')
+
+    @convergence_K.setter
+    def convergence_K(self, new_K):
+        if 'convergence_K' in self.parameters.keys():
+            self.parameters['convergence_K'] = new_K
+            self._update_sources('convergence_K', new_K)
+        else:
+            raise KeyError('convergence_K is not a parameter of this model.')
+
+    @property
+    def shear_G(self):
+        """
+        *complex*
+
+        Shear of external mass sheet.
+        """
+        if 'shear_G' in self.parameters.keys():
+            return self.parameters['shear_G']
+        else:
+            return None
+
+    @shear_G.setter
+    def shear_G(self, new_G):
+        if 'shear_G' in self.parameters.keys():
+            self.parameters['shear_G'] = new_G
+            self._update_sources('shear_G', new_G)
+        else:
+            raise KeyError('shear_G is not a parameter of this model.')
 
     @property
     def s(self):
@@ -1525,6 +1585,16 @@ class ModelParameters(object):
         number of luminous sources; it's possible to be 1 for xallarap model
         """
         return self._n_sources
+
+    @property
+    def external_mass_sheet(self):
+        """
+        *bool*
+
+        Whether an external mass sheet is included in the model
+        """
+        return (('convergence_K' in self.parameters.keys()) or
+                ('shear_G' in self.parameters.keys()))
 
     @property
     def source_1_parameters(self):

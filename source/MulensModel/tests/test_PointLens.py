@@ -64,3 +64,22 @@ def test_get_point_lens_limb_darkening_magnification():
     test_FSPL_LD = point_lens.get_point_lens_limb_darkening_magnification(
         u, pspl_magnification, gamma)
     np.testing.assert_almost_equal(test_FSPL_LD/data['Mag_LD'], 1., decimal=4)
+
+def test_get_pspl_with_shear_magnification():
+    """test PLPS+KG"""
+    t_0 = 1000.
+    t_E = 20.
+    u_0 = 0.1.
+    t_vec = np.array([0., 100.]) * t_E + t_0
+    convergence_K = 0.1
+    shear_G = complex(-0.1, 0.2)
+    parameters = mm.ModelParameters({
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 
+        'convergence_K': convergence_K, 'shear_G': shear_G
+        'alpha': 0.})
+    #Set trajectory to be a single point
+    trajectory = mm.Trajectory(t_vec, parameters)
+    test_pspl_shear = point_lens.get_pspl_with_shear_magnification(
+        trajectory, convergence_K, shear_G) 
+    np.testing.assert_almost_equal(test_pspl_shear[0], 5.2, decimal=5)
+

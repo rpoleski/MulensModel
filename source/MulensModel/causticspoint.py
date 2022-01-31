@@ -18,16 +18,10 @@ class CausticsPointWithShear(Caustics):
             Einstein ring)
     """
 
-    def __init__(self, q, s):
-        # Set s, q
-        if isinstance(q, (list, np.ndarray)):
-            if len(q) > 1:
-                raise NotImplementedError(
-                    'Too many q. Does not support more than 2 bodies.')
-            else:
-                q = q[0]
-        self.q = q
-        self.s = s
+    def __init__(self, convergence_K, shear_G):
+        # Set K, G
+        self.convergence_K = convergence_K
+        self.shear_G = shear_G
 
         # Set place holder variables
         self._x = None
@@ -51,32 +45,19 @@ class CausticsPointWithShear(Caustics):
         self._y = []
         self._critical_curve = self.CriticalCurve()
 
-        # Distance between primary mass and center of mass
-        xcm_offset = self.q * self.s / (1. + self.q)
-
         # Solve for the critical curve (and caustic) in complex coordinates.
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
-            eiphi = np.complex(cos(phi), sin(phi))
-
-            # Coefficients of Eq. 6
-            coeff_4 = 1.
-            coeff_3 = -2. * self.s
-            coeff_2 = Utils.complex_fsum([self.s**2, -eiphi])
-            coeff_1 = eiphi * (2. * self.s / (1. + self.q))  # The additional
-            # parenthesis make it more stable numerically.
-            coeff_0 = -self.s**2 * eiphi / (1. + self.q)
-
-            # Find roots
-            coeff_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4]
-            roots = np.polynomial.polynomial.polyroots(coeff_list)
+            eiphi = np.complex(cos(phi), -sin(phi))
+            soln = sqrt(1/((1-self.convergence_K)*eiphi + self.shear_G.conjugate()))
+            roots = np.array([soln, -soln])
             # Store results
             for root in roots:
-                self._critical_curve.x.append(root.real - xcm_offset)
+                self._critical_curve.x.append(root.real)
                 self._critical_curve.y.append(root.imag)
 
                 source_plane_position = self._solve_lens_equation(root)
-                self._x.append(source_plane_position.real - xcm_offset)
+                self._x.append(source_plane_position.real)
                 self._y.append(source_plane_position.imag)
 
     def _solve_lens_equation(self, complex_value):
@@ -84,5 +65,6 @@ class CausticsPointWithShear(Caustics):
         Solve the lens equation for the given point (in complex coordinates).
         """
         complex_conjugate = np.conjugate(complex_value)
-        return complex_value - (1. / (1. + self.q)) * (
-            (1./complex_conjugate) + (self.q / (complex_conjugate - self.s)))
+        return ((1-self.convergence_K)*complex_value 
+                - self.shear_G*complex_conjugate
+                - (1./complex_conjugate))
