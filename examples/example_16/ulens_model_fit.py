@@ -398,6 +398,7 @@ XXX
 
         self._check_plots_parameters()
         self._check_model_parameters()
+        self._check_other_fit_parameters()
         self._parse_other_output_parameters()
         self._get_datasets()
         self._get_parameters_ordered()
@@ -623,6 +624,15 @@ XXX
         if condition_1 or condition_2:
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
+
+    def _check_other_fit_parameters(self):
+        """
+        Check if there aren't any other inconsistenties between settings
+        """
+        if self._fit_method == "MultiNest":
+            if self._min_values is not None or self._max_values is not None:
+                raise ValueError("In MultiNest fitting you cannot set "
+                                 "min_values or max_values")
 
     def _parse_methods(self, methods):
         """
@@ -1430,14 +1440,13 @@ XXX
         inside = 0.
         outside = -np.inf
 
-        if self._fit_method != 'MultiNest':  # XXX - not sure if that's the right way, but it works for now
-            for (index, limit) in self._min_values_indexed.items():
-                if theta[index] < limit:
-                    return outside
+        for (index, limit) in self._min_values_indexed.items():
+            if theta[index] < limit:
+                return outside
 
-            for (index, limit) in self._max_values_indexed.items():
-                if theta[index] > limit:
-                    return outside
+        for (index, limit) in self._max_values_indexed.items():
+            if theta[index] > limit:
+                return outside
 
         ln_prior = inside
 
@@ -1590,8 +1599,8 @@ XXX
         """
         Prepare MultiNest fit
         """
-        self._kwargs_MultiNest['LogLikelihood'] = self._ln_prob
         self._kwargs_MultiNest['Prior'] = self._transform_unit_cube
+        self._kwargs_MultiNest['LogLikelihood'] = self._ln_like_MN
         self._kwargs_MultiNest['n_dims'] = len(self._fit_parameters)
         self._kwargs_MultiNest['resume'] = False
         self._kwargs_MultiNest['multimodal'] = False
@@ -1603,6 +1612,19 @@ XXX
         transform MulitNest unit cube to microlensing parameters
         """
         return self._min_values + cube * self._range_values
+
+    def _ln_like_MN(self, theta):
+        """
+        Calculate likelihood and save if its best model.
+        This is used for MultiNest fitting.
+        """
+        ln_like = self._ln_like(theta)
+
+        if ln_like > self._best_model_ln_prob:
+            self._best_model_ln_prob = ln_like
+            self._best_model_theta = theta
+
+        return ln_like
 
     def _run_fit(self):
         """

@@ -7,15 +7,15 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - flux info
- - _ln_prior
- - output root file - should we remove it if not provided?
+ - flux info - pymultinest: 1) pass Analyzer, 2) can we calculated fluxes in LogLikelihood, not Prior, 3) code changes needed
+ - .gitignore
  - print info on different modes, including posterior mode probability
  - make sure different prior settings are consistent
- - min/max_values cannot be set
  - _parse_fitting_parameters_MN() - we need more parameters there
  - self._return_fluxes = False is currnetly used
  - XXX
+ - self._flat_priors
+ - test fixed_parameters - in input file
  - give warning if files outputfiles_basename* exist - early on!
  - if there is first working version - let interested people know about this branch and ask them for input
  - requirements.txt - see below; also note it in README
@@ -25,6 +25,12 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - add it to README, or a task to do it later
  - maybe add task: user directly says which method to fit
  - clean this task
+
+# DONE:
+ - _ln_prior
+ - min/max_values cannot be set
+ - output root file not provided - what to do then
+
 
 ### To be discussed:
 
