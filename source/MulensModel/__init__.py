@@ -1,4 +1,3 @@
-from importlib import resources
 from os import path
 
 from MulensModel.binarylens import BinaryLens
@@ -27,4 +26,8 @@ MODULE_PATH = path.abspath(__file__)
 for i in range(3):
     MODULE_PATH = path.dirname(MODULE_PATH)
 
-DATA_PATH = str(resources.path("MulensModel", "data"))
+path_1 = path.join(MODULE_PATH, 'data')
+if path.isdir(path_1):
+    DATA_PATH = path_1
+else:
+    DATA_PATH = path.join(path.dirname(__file__), 'data')
