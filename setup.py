@@ -35,7 +35,8 @@ ext_AC = Extension(
 )
 ext_VBBL = Extension(
     "MulensModel.VBBL",
-    sources=[str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")],
+    sources=[
+        str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")],
     libraries=["m"],
 )
 
