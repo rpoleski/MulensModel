@@ -9,6 +9,12 @@ DATA_PATH = PROJECT_PATH / "data"
 file_required = PROJECT_PATH / "requirements.txt"
 with file_required.open() as file_:
     install_requires = file_.read().splitlines()
+data_files = [
+    (
+        str(file_required.relative_to(PROJECT_PATH)),
+        [str(file_required.relative_to(PROJECT_PATH))],
+    )
+]
 
 version = "unknown"
 with Path(SOURCE_PATH / "MulensModel" / "version.py").open() as in_put:
@@ -21,19 +27,17 @@ source_AC = SOURCE_PATH / "AdaptiveContouring"
 source_MM = SOURCE_PATH / "MulensModel"
 source_MMmo = source_MM / "mulensobjects"
 
-# Read all files from data/ in format adequate for data_files option of setup.
-files = [file_required.relative_to(PROJECT_PATH)]
-files += [
-    f.relative_to(PROJECT_PATH) for f in DATA_PATH.rglob("*") if f.is_file()]
-data_files = {str(f): str(f) for f in files}
-
 # C/C++ Extensions
-ext_AC = Extension('MulensModel.AdaptiveContouring',
-                   sources=[str(f) for f in source_AC.glob("*.c")],
-                   libraries=["m"])
-ext_VBBL = Extension('MulensModel.VBBL',
-                     sources=[str(f) for f in source_VBBL.glob("*.cpp")],
-                     libraries=["m"])
+ext_AC = Extension(
+    "MulensModel.AdaptiveContouring",
+    sources=[str(f.relative_to(PROJECT_PATH)) for f in source_AC.glob("*.c")],
+    libraries=["m"],
+)
+ext_VBBL = Extension(
+    "MulensModel.VBBL",
+    sources=[str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")],
+    libraries=["m"],
+)
 
 setup(
     name='MulensModel',
@@ -47,6 +51,7 @@ setup(
     description='package for modeling gravitational microlensing events',
     packages=find_packages(where="source"),
     package_dir={"": "source"},
+    include_package_data=True,
     data_files=data_files,
     python_requires=">=3.6",
     install_requires=install_requires,
