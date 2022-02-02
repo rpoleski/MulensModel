@@ -853,6 +853,8 @@ XXX
         """
         make sure MultiNest fitting parameters are properly defined
         """
+        # XXX see parameters in:
+        # https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
         self._kwargs_MultiNest = dict()
 
         settings = self._fitting_parameters
