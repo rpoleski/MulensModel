@@ -26,7 +26,7 @@ try:
 except Exception:
     import_failed.add("corner")
 try:
-    from pymultinest.solve import solve
+    from pymultinest.run import run as mn_run
     from pymultinest.analyse import Analyzer
 except Exception:
     import_failed.add("pymultinest")
@@ -1397,7 +1397,7 @@ XXX
 
         ln_prob += ln_prior_flux
 
-        self._update_best_model(ln_prob, theta, fluxes)
+        self._update_best_model_EMCEE(ln_prob, theta, fluxes)
 
         return self._return_ln_prob(ln_prob, fluxes)
 
@@ -1567,7 +1567,7 @@ XXX
 
         return inside
 
-    def _update_best_model(self, ln_prob, theta, fluxes):
+    def _update_best_model_EMCEE(self, ln_prob, theta, fluxes):
         """
         Check if the current model is the best one and save information.
         """
@@ -1609,13 +1609,22 @@ XXX
 
         self._return_fluxes = False  # XXX - not here
 
-    def _transform_unit_cube(self, cube):
+    def _transform_unit_cube(self, cube, n_dims, n_params):
         """
-        transform MulitNest unit cube to microlensing parameters
-        """
-        return self._min_values + cube * self._range_values
+        Transform MulitNest unit cube to microlensing parameters.
 
-    def _ln_like_MN(self, theta):
+        Based on SafePrior() in
+        https://github.com/JohannesBuchner/PyMultiNest/blob/master/
+        pymultinest/solve.py
+        """
+        #
+        # XXX check in line below what happens for n_dims < n_params
+        cube_in = cube[:n_dims].copy()
+        cube_out = self._min_values + cube_in * self._range_values
+        for i in range(n_params):
+            cube[i] = cube_out[i]
+
+    def _ln_like_MN(self, theta, n_dim, n_params, lnew):
         """
         Calculate likelihood and save if its best model.
         This is used for MultiNest fitting.
@@ -1624,7 +1633,16 @@ XXX
 
         if ln_like > self._best_model_ln_prob:
             self._best_model_ln_prob = ln_like
-            self._best_model_theta = theta
+            self._best_model_theta = np.array([
+                theta[i] for i in range(len(self._fit_parameters))])
+            # The line above is needed because theta is some C variable.
+
+        ln_max = -1.e300
+        if not np.isfinite(ln_like) or ln_like < ln_max:
+            if not np.isfinite(ln_like):
+                msg = "problematic likelihood: {:}\nfor parameters: {:}"
+                warnings.warn(msg.format(ln_like, theta))
+            ln_like = ln_max
 
         return ln_like
 
@@ -1650,7 +1668,7 @@ XXX
         """
         Run MultiNest fit
         """
-        self._result = solve(**self._kwargs_MultiNest)
+        mn_run(**self._kwargs_MultiNest)
 
     def _finish_fit(self):
         """

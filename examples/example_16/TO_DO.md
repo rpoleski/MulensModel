@@ -7,11 +7,12 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
+ - lack of outputfiles_basename - see https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
  - flux info - pymultinest
+ - self._return_fluxes = False is currnetly used
  - _parse_fitting_parameters_MultiNest() - we need more parameters there
  - print info on different modes, including posterior mode probability
  - make sure different prior settings are consistent
- - self._return_fluxes = False is currnetly used
  - XXX
  - self._flat_priors
  - test fixed_parameters - in input file
@@ -23,6 +24,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - example full file for MN
  - add it to README, or a task to do it later
  - maybe add task: user directly says which method to fit
+ - check all commented lines and remove the ones that are not needed anymore
  - clean this task
 
 # DONE:
@@ -30,6 +32,8 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - min/max_values cannot be set
  - output root file not provided - what to do then
  - .gitignore
+ - use run() instead of solve() from pyMultiNest
+
 
 ### To be discussed:
 
