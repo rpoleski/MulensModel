@@ -7,8 +7,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - lack of outputfiles_basename - see https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
- - flux info - pymultinest
+ - flux info - pymultinest - search for HERE
  - self._return_fluxes = False is currnetly used
  - _parse_fitting_parameters_MultiNest() - we need more parameters there
  - print info on different modes, including posterior mode probability
@@ -33,6 +32,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - output root file not provided - what to do then
  - .gitignore
  - use run() instead of solve() from pyMultiNest
+ - lack of outputfiles_basename - see https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 
 
 ### To be discussed:

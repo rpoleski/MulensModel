@@ -1614,6 +1614,8 @@ XXX
         self._kwargs_MultiNest['multimodal'] = False
 
         self._return_fluxes = False  # XXX - not here
+        # HERE :
+        #self._kwargs_MultiNest['n_params'] = 1 + self._kwargs_MultiNest['n_dims']
 
     def _transform_unit_cube(self, cube, n_dims, n_params):
         """
@@ -1627,8 +1629,10 @@ XXX
         # XXX check in line below what happens for n_dims < n_params
         cube_in = cube[:n_dims].copy()
         cube_out = self._min_values + cube_in * self._range_values
-        for i in range(n_params):
+        for i in range(n_dims):
             cube[i] = cube_out[i]
+        # HERE :
+        #cube[n_params-1] = cube[1] + cube[2]
 
     def _ln_like_MN(self, theta, n_dim, n_params, lnew):
         """
