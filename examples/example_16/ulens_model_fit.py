@@ -1224,9 +1224,9 @@ XXX
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'
 
-        self._get_n_fluxes()
+        self._set_n_fluxes()
 
-    def _get_n_fluxes(self):
+    def _set_n_fluxes(self):
         """
         find out how many flux parameters there are
         """
@@ -1609,13 +1609,13 @@ XXX
         """
         self._kwargs_MultiNest['Prior'] = self._transform_unit_cube
         self._kwargs_MultiNest['LogLikelihood'] = self._ln_like_MN
-        self._kwargs_MultiNest['n_dims'] = len(self._fit_parameters)
         self._kwargs_MultiNest['resume'] = False
         self._kwargs_MultiNest['multimodal'] = False
 
-        self._return_fluxes = False  # XXX - not here
-        # HERE :
-        #self._kwargs_MultiNest['n_params'] = 1 + self._kwargs_MultiNest['n_dims']
+        self._kwargs_MultiNest['n_dims'] = len(self._fit_parameters)
+        self._kwargs_MultiNest['n_params'] = self._kwargs_MultiNest['n_dims']
+        if self._return_fluxes:
+            self._kwargs_MultiNest['n_params'] += self._n_fluxes
 
     def _transform_unit_cube(self, cube, n_dims, n_params):
         """
@@ -1624,28 +1624,41 @@ XXX
         Based on SafePrior() in
         https://github.com/JohannesBuchner/PyMultiNest/blob/master/
         pymultinest/solve.py
+
+        NOTE: We call self._ln_like() here (and remember the result)
+        because in MultiNest you can add fluxes only in "prior" function,
+        not in likelihood function.
         """
-        #
-        # XXX check in line below what happens for n_dims < n_params
-        cube_in = cube[:n_dims].copy()
-        cube_out = self._min_values + cube_in * self._range_values
+        cube_out = self._min_values + cube[:n_dims] * self._range_values
         for i in range(n_dims):
             cube[i] = cube_out[i]
-        # HERE :
-        #cube[n_params-1] = cube[1] + cube[2]
+
+        self._last_ln_like = self._ln_like(cube_out)
+        self._last_theta = cube_out
+
+        if self._return_fluxes:
+            fluxes = self._get_fluxes()
+            for i in range(n_dims, n_params):
+                cube[i] = fluxes[i-n_dims]
+            self._last_fluxes = fluxes
 
     def _ln_like_MN(self, theta, n_dim, n_params, lnew):
         """
         Calculate likelihood and save if its best model.
         This is used for MultiNest fitting.
         """
-        ln_like = self._ln_like(theta)
+        for i in range(n_dim):
+            if self._last_theta[i] != theta[i]:
+                msg = "internal bug:\n{:}\n{:}\n{:}"
+                raise ValueError(msg.format(i, self._last_theta[i], theta[i]))
+
+        ln_like = self._last_ln_like
 
         if ln_like > self._best_model_ln_prob:
             self._best_model_ln_prob = ln_like
-            self._best_model_theta = np.array([
-                theta[i] for i in range(len(self._fit_parameters))])
-            # The line above is needed because theta is some C variable.
+            self._best_model_theta = np.array(theta[:n_dim])
+            if self._return_fluxes:
+                self._best_model_fluxes = self._last_fluxes
 
         ln_max = -1.e300
         if not np.isfinite(ln_like) or ln_like < ln_max:
@@ -1730,7 +1743,8 @@ XXX
 
         if self._return_fluxes:
             print("Fitted fluxes (source and blending):")
-            (blob_samples, flux_names) = self._get_fluxes_to_print()
+            blob_samples = self._get_fluxes_to_print_EMCEE()
+            flux_names = self._get_fluxes_names_to_print()
             self._print_results(blob_samples, flux_names)
 
         self._print_best_model()
@@ -1817,9 +1831,9 @@ XXX
                         self._samples[:, :, index] = (
                             self._samples[:, :, index] - int(mean))
 
-    def _get_fluxes_to_print(self):
+    def _get_fluxes_to_print_EMCEE(self):
         """
-        prepare flux names and values to be printed
+        prepare values to be printed for EMCEE fitting
         """
         try:
             blobs = np.array(self._sampler.blobs)
@@ -1830,6 +1844,12 @@ XXX
         blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
         blob_samples = blob_samples.reshape((-1, self._n_fluxes))
 
+        return blob_samples
+
+    def _get_fluxes_names_to_print(self):
+        """
+        get strings to be used as names of parameters to be printed
+        """
         if self._n_fluxes_per_dataset == 2:
             s_or_b = ['s', 'b']
         elif self._n_fluxes_per_dataset == 3:
@@ -1840,7 +1860,7 @@ XXX
         n = self._n_fluxes_per_dataset
         flux_names = ['flux_{:}_{:}'.format(s_or_b[i % n], i // n+1)
                       for i in range(self._n_fluxes)]
-        return (blob_samples, flux_names)
+        return flux_names
 
     def _print_best_model(self):
         """
@@ -1883,14 +1903,14 @@ XXX
 
         if self._return_fluxes:
             print("Fitted fluxes (source and blending):")
-            (blob_samples, flux_names) = self._get_fluxes_to_print()  # XXX - this function probably requires dedicted MN version
-            self._print_results(blob_samples, flux_names)
+            flux_samples = self._get_fluxes_to_print_MultiNest()
+            flux_names = self._get_fluxes_names_to_print()
+            self._print_results(flux_samples, flux_names)
 
 # XXX - print separate info on each mode
 #        x = self._analyzer.get_mode_stats()['modes']
 #        for (k, v) in x.items():
-#            print(k, ":")
-#            print(v)
+#            print(k, ":", v)
 
         self._print_best_model()
 
@@ -1898,8 +1918,18 @@ XXX
         """
         set self._samples_flat and self._samples_flat_weights for MultiNest
         """
-        self._samples_flat = self._analyzer_data[:, 2:]
+        end_index = 2 + len(self._fit_parameters)
+        self._samples_flat = self._analyzer_data[:, 2:end_index]
         self._samples_flat_weights = self._analyzer_data[:, 0]
+
+    def _get_fluxes_to_print_MultiNest(self):
+        """
+        prepare values to be printed for EMCEE fitting
+        """
+        index = 2 + len(self._fit_parameters)
+        data = self._analyzer_data[:, index:]
+
+        return data
 
     def _make_plots(self):
         """

@@ -7,8 +7,6 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - flux info - pymultinest - search for HERE
- - self._return_fluxes = False is currnetly used
  - _parse_fitting_parameters_MultiNest() - we need more parameters there
  - print info on different modes, including posterior mode probability
  - make sure different prior settings are consistent
@@ -24,6 +22,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - add it to README, or a task to do it later
  - maybe add task: user directly says which method to fit
  - check all commented lines and remove the ones that are not needed anymore
+ - add a task below to add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
  - clean this task
 
 # DONE:
@@ -33,6 +32,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - .gitignore
  - use run() instead of solve() from pyMultiNest
  - lack of outputfiles_basename - see https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
+ - fluxes are returned (also setting self._return_fluxes)
 
 
 ### To be discussed:
