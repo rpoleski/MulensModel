@@ -3,7 +3,9 @@ Class and script for fitting microlensing model using MulensModel.
 All the settings are read from a YAML file.
 """
 import sys
-from os import path
+from os import path, sep
+import tempfile
+import shutil
 import warnings
 import math
 import numpy as np
@@ -838,6 +840,8 @@ XXX
         that shouldn't be defined.
         """
         settings = self._fitting_parameters
+        if settings is None:
+            settings = dict()
         full = required + allowed
 
         for required_ in required:
@@ -859,8 +863,7 @@ XXX
 
         settings = self._fitting_parameters
         if settings is None:
-            print("No base for MultiNest output provided.")
-            return
+            settings = dict()
 
         required = []
         allowed = ['basename']
@@ -869,10 +872,13 @@ XXX
 
         if 'basename' not in settings:
             print("No base for MultiNest output provided.")
+            path_ = tempfile.mkdtemp('MM_ex16_pyMN') + sep
+            self._MN_temporary_files = True
         else:
-            self._kwargs_MultiNest['outputfiles_basename'] = (
-                settings['basename'])
             print("Base name for MultiNest output:", settings['basename'])
+            path_ = settings['basename']
+            self._MN_temporary_files = False
+        self._kwargs_MultiNest['outputfiles_basename'] = path_
 
     def _get_n_walkers(self):
         """
@@ -1673,12 +1679,21 @@ XXX
     def _finish_fit(self):
         """
         Make the things that are necessary after the fit is done.
-        Currently it's just closing the file with all models.
+        Currently it's just closing the file with all models and
+        reads the output files (only for MultiNest).
         """
         if self._print_model:
             if self._print_model_file is not sys.stdout:
                 self._print_model_file.close()
                 self._print_model = False
+
+        if self._fit_method == 'MultiNest':
+            base = self._kwargs_MultiNest['outputfiles_basename']
+            self._analyzer = Analyzer(n_params=len(self._fit_parameters),
+                                      outputfiles_basename=base)
+            self._analyzer_data = self._analyzer.get_data()
+            if self._MN_temporary_files:
+                shutil.rmtree(base, ignore_errors=True)
 
     def _parse_results(self):
         """
@@ -1855,10 +1870,6 @@ XXX
         """
         Parse results of MultiNest fitting
         """
-        if 'outputfiles_basename' not in self._kwargs_MultiNest:
-            self._samples_flat = None
-            return
-
         self._extract_posterior_samples_MultiNest()
 
         print("Fitted parameters:")
@@ -1883,12 +1894,8 @@ XXX
         """
         set self._samples_flat and self._samples_flat_weights for MultiNest
         """
-        base = self._kwargs_MultiNest['outputfiles_basename']
-        self._analyzer = Analyzer(n_params=len(self._fit_parameters),
-                                  outputfiles_basename=base)
-        data = self._analyzer.get_data()
-        self._samples_flat = data[:, 2:]
-        self._samples_flat_weights = data[:, 0]
+        self._samples_flat = self._analyzer_data[:, 2:]
+        self._samples_flat_weights = self._analyzer_data[:, 0]
 
     def _make_plots(self):
         """
@@ -1905,12 +1912,6 @@ XXX
         """
         Make a triangle plot
         """
-        if self._samples_flat is None:  # XXX this shouldn't be here, but before the fit
-            raise ValueError(
-                "We lack posterior samples, co cannot make the triangle plot. "
-                "Most probably you're using fitting with MultiNest and have "
-                "not defined the outpus base files")
-
         self._reset_rcParams()
 
         n_bins = 40
