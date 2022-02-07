@@ -2,7 +2,6 @@ import numpy as np
 from numpy.testing import assert_almost_equal as almost
 import unittest
 import os.path
-import matplotlib.pyplot as plt
 
 import MulensModel as mm
 
@@ -209,6 +208,7 @@ def test_source_fixed():
 
     almost(my_fit.blend_flux, f_b)
 
+
 def test_both_fixed():
     """
     test for when both fluxes are fixed --> evaluate chi2 but not fluxes.
@@ -228,6 +228,7 @@ def test_both_fixed():
 
     almost(my_fit.blend_flux, f_b)
     almost(my_fit.source_flux, f_s)
+
 
 def test_binary_source():
     """Test a binary source model with all free parameters."""
@@ -374,7 +375,7 @@ def test_bad_data():
     chi2_bad = fit_bad.chi2
     assert(chi2_all > chi2_bad)
 
-    # test whether or not chi2_per_point is calculated for bad points.
+    # test whether chi2_per_point is calculated for bad points.
     # not calculated --> magnification = 0, model_flux --> f_blend, dchi2=large
     # update: bad not specified --> not calculated
     # Likewise, do these tests for get_model_magnitudes
