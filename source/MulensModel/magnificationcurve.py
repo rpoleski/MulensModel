@@ -272,7 +272,7 @@ class MagnificationCurve(object):
                 pass  # These cases are already taken care of.
             elif (method.lower() == 'point_source_with_shear' 
                     and self.parameters.external_mass_sheet):
-                magnification[selection] = (
+                magnification = (
                     point_lens.get_pspl_with_shear_magnification(self.trajectory,
                             convergence_K=self.parameters.convergence_K,
                             shear_G=self.parameters.shear_G))

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from astropy.coordinates import SkyCoord
 
 from MulensModel.caustics import Caustics
+from MulensModel.causticspoint import CausticsPointWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
