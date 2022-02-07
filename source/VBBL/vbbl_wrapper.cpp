@@ -54,9 +54,22 @@ VBBL_SG12_5_wrapper(PyObject *self, PyObject *args) {
   return makelist(roots, 10);
 }
 
+static PyObject * 
+VBBinaryLensing_BinaryMag_wrapper(PyObject *self, PyObject *args) {
+  double a, q, y1, y2;
+  static VBBinaryLensing VBBL;
+
+  if (!PyArg_ParseTuple(args, "dddd", &a, &q, &y1, &y2)) return NULL;
+
+  mag = VBBL.BinaryMag0(a, q, y1, y2);
+
+  return Py_BuildValue("d", mag);
+}
+
 static PyMethodDef VBBLMethods[] = {
     {"VBBinaryLensing_BinaryMagDark", VBBinaryLensing_BinaryMagDark_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_SG12_5", VBBL_SG12_5_wrapper, METH_VARARGS, "some notes here"},
+    {"VBBL_BinaryMag", VBBinaryLensing_BinaryMag_wrapper, METH_VARARGS, "some notes here"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

@@ -89,6 +89,7 @@ def _import_compiled_AdaptiveContouring():
 if _vbbl_wrapped:
     _vbbl_binary_mag_dark = mm_vbbl.VBBinaryLensing_BinaryMagDark
     _vbbl_SG12_5 = mm_vbbl.VBBL_SG12_5
+    _vbbl_binary_mag = mm_vbbl.VBBL_BinaryMag
 else:
     out = _import_compiled_VBBL()
     _vbbl_wrapped = out[0]
@@ -416,18 +417,35 @@ class BinaryLens(object):
             magnification: *float*
                 Point source magnification.
         """
+        repeat = False
+        try:
+            out = self._point_source_magnification_VBBL(source_x, source_y)
+        except Exception:
+            repeat = True
+
+        if repeat or out < 1.:
+            out = self._point_source_magnification(source_x, source_y)
+        return out
+
+    def _point_source_magnification_VBBL(self, source_x, source_y):
+        """
+        Calculate point source magnification using VBBL fully
+        """
         args = [self.separation, self.mass_2/self.mass_1, source_x, source_y]
         return _vbbl_binary_mag(*[float(arg) for arg in args])
+
+    def _point_source_magnification(self, source_x, source_y):
+        """
+        Calculate point source magnification using VBBL for solving
+        the polynomial and MM code for rest.
         """
         if self._use_planet_frame:
             x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
         else:
             x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
         x_shift *= self.separation
-        # We need to add this because in order to shift to correct frame.
         return self._point_source_Witt_Mao_95(
                 source_x=float(source_x)+x_shift, source_y=float(source_y))
-        """
         # Casting to float speeds-up code for np.float input.
 
     def _get_magnification_w_plus(self, source_x, source_y, radius,
