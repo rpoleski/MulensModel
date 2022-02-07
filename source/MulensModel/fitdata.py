@@ -282,6 +282,15 @@ class FitData:
         run :py:func:`~update()`.
         """
 
+        # Bypass this code if all fluxes are fixed.
+        if self.fix_source_flux is not False:
+            if self.fix_blend_flux is not False:
+                if False not in self.fix_source_flux:
+                    self._calculate_magnifications(bad=False)
+                    self._blend_flux = self.fix_blend_flux
+                    self._source_fluxes = self.fix_source_flux
+                    return
+
         (xT, y) = self._setup_linalg_arrays()
 
         # Solve for the coefficients in y = fs * x + fb (point source)

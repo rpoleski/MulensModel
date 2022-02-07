@@ -2,7 +2,6 @@ import numpy as np
 from numpy.testing import assert_almost_equal as almost
 import unittest
 import os.path
-import matplotlib.pyplot as plt
 
 import MulensModel as mm
 
@@ -15,7 +14,7 @@ SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
 SAMPLE_FILE_03 = os.path.join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
 SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
 SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
-SAMPLE_FILE_04_WF = os.path.join(mm.MODULE_PATH, 'data', 'WFIRST_1827.dat')
+SAMPLE_FILE_04_WF = os.path.join(mm.DATA_PATH, 'WFIRST_1827.dat')
 
 # Note: default precision for assert_almost_equal (aka almost) is decimal = 7
 
@@ -185,6 +184,7 @@ def test_blend_fixed():
     zero
     """
     execute_test_blend_fixed(f_b=0.5)
+    execute_test_blend_fixed(f_b=-0.5)
 
 
 def test_source_fixed():
@@ -209,6 +209,27 @@ def test_source_fixed():
     almost(my_fit.blend_flux, f_b)
 
 
+def test_both_fixed():
+    """
+    test for when both fluxes are fixed --> evaluate chi2 but not fluxes.
+    """
+    pspl, t, A = generate_model()
+
+    # secret blend flux, set source flux
+    f_s = 1.0
+    f_b = 0.5
+    f_mod = f_s * A + f_b
+
+    my_dataset = generate_dataset(f_mod, t)
+    my_fit = mm.FitData(
+        model=pspl, dataset=my_dataset, fix_blend_flux=f_b,
+        fix_source_flux=f_s)
+    my_fit.update()
+
+    almost(my_fit.blend_flux, f_b)
+    almost(my_fit.source_flux, f_s)
+
+
 def test_binary_source():
     """Test a binary source model with all free parameters."""
     execute_test_binary_source(q_flux=False)
@@ -225,6 +246,8 @@ def test_binary_source_fixed():
     test.run_test(fix_source_flux=[False, 1.2])
     test.run_test(fix_source_flux=[1.0, 1.2])
     test.run_test(fix_blend_flux=0.5)
+    test.run_test(fix_source_flux=[1.0, 1.2], fix_blend_flux=0.5)
+    test.run_test(fix_source_flux=[1.0, False], fix_blend_flux=0.5)
 
 
 class TestFitData(unittest.TestCase):
@@ -352,7 +375,7 @@ def test_bad_data():
     chi2_bad = fit_bad.chi2
     assert(chi2_all > chi2_bad)
 
-    # test whether or not chi2_per_point is calculated for bad points.
+    # test whether chi2_per_point is calculated for bad points.
     # not calculated --> magnification = 0, model_flux --> f_blend, dchi2=large
     # update: bad not specified --> not calculated
     # Likewise, do these tests for get_model_magnitudes
