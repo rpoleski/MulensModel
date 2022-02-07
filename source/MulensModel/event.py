@@ -206,7 +206,7 @@ class Event(object):
 
         if residuals:
             plt.xlabel(None)
-            #plt.gca().xaxis.set_ticklabels([])
+            # plt.gca().xaxis.set_ticklabels([])
             plt.subplot(gs[1], sharex=ax11)
             self.plot_residuals(
                 subtract_2450000=subtract_2450000,
