@@ -1,2 +1,4 @@
 graft source/VBBL
 graft source/AdaptiveContouring
+graft source/MulensModel
+include requirements.txt

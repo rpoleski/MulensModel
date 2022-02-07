@@ -15,7 +15,7 @@ SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
 SAMPLE_FILE_03 = os.path.join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
 SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
 SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
-SAMPLE_FILE_04_WF = os.path.join(mm.MODULE_PATH, 'data', 'WFIRST_1827.dat')
+SAMPLE_FILE_04_WF = os.path.join(mm.DATA_PATH, 'WFIRST_1827.dat')
 
 # Note: default precision for assert_almost_equal (aka almost) is decimal = 7
 

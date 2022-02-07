@@ -1,7 +1,7 @@
 import cpuinfo
 import pytest
 """
-Functions to skip certain tests if not compatible with the computer 
+Functions to skip certain tests if not compatible with the computer
 architecture.
 """
 
