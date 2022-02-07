@@ -18,8 +18,9 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - requirements.txt - see below; also note it in README
  - documentation of \_\_init\_\_
  - pycodestyle
- - example full file for MN
+ - example full file for MN? - maybe just MN specific tasks
  - add it to README, or a task to do it later
+ - warning if output files exist
  - maybe add task: user directly says which method to fit
  - check all commented lines and remove the ones that are not needed anymore
  - add a task below to add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times

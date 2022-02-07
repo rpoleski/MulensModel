@@ -747,6 +747,10 @@ XXX
 
         self._fit_parameters = [all_fit_parameters[i] for i in indexes]
 
+        # HERE:
+        #(self._fit_parameters[0], self._fit_parameters[1]) = (
+        #    self._fit_parameters[1], self._fit_parameters[0])
+
     def _get_parameters_latex(self):
         """
         change self._fit_parameters into latex parameters
@@ -1610,12 +1614,17 @@ XXX
         self._kwargs_MultiNest['Prior'] = self._transform_unit_cube
         self._kwargs_MultiNest['LogLikelihood'] = self._ln_like_MN
         self._kwargs_MultiNest['resume'] = False
-        self._kwargs_MultiNest['multimodal'] = False
 
         self._kwargs_MultiNest['n_dims'] = len(self._fit_parameters)
-        self._kwargs_MultiNest['n_params'] = self._kwargs_MultiNest['n_dims']
         if self._return_fluxes:
             self._kwargs_MultiNest['n_params'] += self._n_fluxes
+
+        self._kwargs_MultiNest['multimodal'] = False
+
+        if False:  # Multimodal HERE XXX
+            self._kwargs_MultiNest['multimodal'] = True
+            self._kwargs_MultiNest['n_live_points'] = 1000
+            self._kwargs_MultiNest['n_clustering_params'] = 1
 
     def _transform_unit_cube(self, cube, n_dims, n_params):
         """
@@ -1709,6 +1718,21 @@ XXX
             self._analyzer = Analyzer(n_params=len(self._fit_parameters),
                                       outputfiles_basename=base)
             self._analyzer_data = self._analyzer.get_data()
+
+            if False: # HERE
+                x = self._analyzer.get_mode_stats()['modes']
+                print("XXX number of modes:", len(x))
+# XXX - print separate info on each mode
+            if False:
+                if isinstance(x, dict):
+                    for (k, v) in x.items():
+                        print(k, ":", v)
+                else:
+                    for xx in x:
+                        print("---------------------")
+                        for (k, v) in xx.items():
+                            print(k, ":", v)
+
             if self._MN_temporary_files:
                 shutil.rmtree(base, ignore_errors=True)
 
@@ -1906,11 +1930,6 @@ XXX
             flux_samples = self._get_fluxes_to_print_MultiNest()
             flux_names = self._get_fluxes_names_to_print()
             self._print_results(flux_samples, flux_names)
-
-# XXX - print separate info on each mode
-#        x = self._analyzer.get_mode_stats()['modes']
-#        for (k, v) in x.items():
-#            print(k, ":", v)
 
         self._print_best_model()
 
