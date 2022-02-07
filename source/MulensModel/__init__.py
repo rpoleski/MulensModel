@@ -2,6 +2,7 @@ from os import path
 
 from MulensModel.binarylens import BinaryLens
 from MulensModel.caustics import Caustics
+from MulensModel.causticspoint import CausticsPointWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.event import Event
 from MulensModel.fitdata import FitData

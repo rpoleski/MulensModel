@@ -246,12 +246,13 @@ def test_single_lens_convergence_K_shear_G():
     t_E = 62.63*u.day
     convergence_K = 0.1
     shear_G = complex(0.1,0.2)
+    alpha = 20.
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 
-                'convergence_K': convergence_K, 'shear_G': shear_G})
+                'convergence_K': convergence_K, 'shear_G': shear_G,
+                'alpha': alpha})
 
     np.testing.assert_almost_equal(params.t_0, t_0)
     np.testing.assert_almost_equal(params.u_0, u_0)
     np.testing.assert_almost_equal(params.t_E, t_E.value)
     np.testing.assert_almost_equal(params.convergence_K, convergence_K)
     np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
-

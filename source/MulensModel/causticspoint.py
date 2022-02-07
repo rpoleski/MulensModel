@@ -1,8 +1,10 @@
 import numpy as np
 from math import cos, sin
+from cmath import sqrt
 import matplotlib.pyplot as plt
 
 from MulensModel.utils import Utils
+from MulensModel.caustics import Caustics
 
 
 class CausticsPointWithShear(Caustics):

@@ -149,7 +149,7 @@ def test_PSPL_with_external_mass_sheet_reduces_to_point_source():
     t_vec = np.array([10., 100.]) * t_E + t_0
     params = mm.ModelParameters({
         't_0': t_0, 'u_0': u_0, 't_E': t_E, 
-        'convergence_K': 0.0, 'shear_G': complex(0.0,-0.0)
+        'convergence_K': 0.0, 'shear_G': complex(0.0,-0.0),
         'alpha': 20.})
     mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
     mag_curve.set_magnification_methods(None, 'point_source_point_lens')
