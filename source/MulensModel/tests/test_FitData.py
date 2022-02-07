@@ -185,6 +185,7 @@ def test_blend_fixed():
     zero
     """
     execute_test_blend_fixed(f_b=0.5)
+    execute_test_blend_fixed(f_b=-0.5)
 
 
 def test_source_fixed():
@@ -208,6 +209,25 @@ def test_source_fixed():
 
     almost(my_fit.blend_flux, f_b)
 
+def test_both_fixed():
+    """
+    test for when both fluxes are fixed --> evaluate chi2 but not fluxes.
+    """
+    pspl, t, A = generate_model()
+
+    # secret blend flux, set source flux
+    f_s = 1.0
+    f_b = 0.5
+    f_mod = f_s * A + f_b
+
+    my_dataset = generate_dataset(f_mod, t)
+    my_fit = mm.FitData(
+        model=pspl, dataset=my_dataset, fix_blend_flux=f_b,
+        fix_source_flux=f_s)
+    my_fit.update()
+
+    almost(my_fit.blend_flux, f_b)
+    almost(my_fit.source_flux, f_s)
 
 def test_binary_source():
     """Test a binary source model with all free parameters."""
@@ -225,6 +245,8 @@ def test_binary_source_fixed():
     test.run_test(fix_source_flux=[False, 1.2])
     test.run_test(fix_source_flux=[1.0, 1.2])
     test.run_test(fix_blend_flux=0.5)
+    test.run_test(fix_source_flux=[1.0, 1.2], fix_blend_flux=0.5)
+    test.run_test(fix_source_flux=[1.0, False], fix_blend_flux=0.5)
 
 
 class TestFitData(unittest.TestCase):
