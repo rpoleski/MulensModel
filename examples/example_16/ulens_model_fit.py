@@ -1616,15 +1616,18 @@ XXX
         self._kwargs_MultiNest['resume'] = False
 
         self._kwargs_MultiNest['n_dims'] = len(self._fit_parameters)
+        self._kwargs_MultiNest['n_params'] = self._kwargs_MultiNest['n_dims']
         if self._return_fluxes:
             self._kwargs_MultiNest['n_params'] += self._n_fluxes
 
         self._kwargs_MultiNest['multimodal'] = False
 
+        self._kwargs_MultiNest['n_live_points'] = 1000
         if False:  # Multimodal HERE XXX
             self._kwargs_MultiNest['multimodal'] = True
+            self._kwargs_MultiNest['importance_nested_sampling'] = False
             self._kwargs_MultiNest['n_live_points'] = 1000
-            self._kwargs_MultiNest['n_clustering_params'] = 1
+            self._kwargs_MultiNest['n_clustering_params'] = 2
 
     def _transform_unit_cube(self, cube, n_dims, n_params):
         """
@@ -1732,6 +1735,34 @@ XXX
                         print("---------------------")
                         for (k, v) in xx.items():
                             print(k, ":", v)
+
+""" HERE XXX
+        if self._kwargs_MultiNest['multimodal']:
+
+x = np.loadtxt(self._analyzer.post_file)
+
+n = []
+skip = False
+with open("out_ob08092_O4_MN-post_separate.dat") as in_data:
+    for (i, line) in enumerate(in_data.readlines()):
+        if skip:
+            skip = False
+            continue
+        l = len(line)
+        if l == 1:
+            skip = True
+            n += [0]
+        else:
+            n[-1] += 1
+
+if x.shape[0] != sum(n):
+    raise ...
+
+        end_index = 2 + len(self._fit_parameters)
+        self._samples_flat = self._analyzer_data[:, 2:end_index]
+        self._samples_flat_weights = self._analyzer_data[:, 0]
+"""
+
 
             if self._MN_temporary_files:
                 shutil.rmtree(base, ignore_errors=True)

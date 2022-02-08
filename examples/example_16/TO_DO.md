@@ -7,8 +7,14 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
+ - mutltiple modes: 
+    1) print number of modes, 
+    2) loops or other changes in: 
+        - self.parse_results_MultiNest
+        - self._extract_posterior_samples_MultiNest
+        - self._print_results
+        - self._shift_t_0_in_samples
  - _parse_fitting_parameters_MultiNest() - we need more parameters there
- - print info on different modes, including posterior mode probability
  - make sure different prior settings are consistent
  - XXX
  - self._flat_priors
