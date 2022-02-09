@@ -13,7 +13,9 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
         - self.parse_results_MultiNest
         - self._extract_posterior_samples_MultiNest
         - self._print_results
-        - self._shift_t_0_in_samples
+        - self._shift_t_0_in_samples - the same Delta t_0 has to be used in all cases
+        - join parameters and flux output for each mode
+    3) add to _parse_fitting_parameters_MultiNest
  - _parse_fitting_parameters_MultiNest() - we need more parameters there
  - make sure different prior settings are consistent
  - XXX

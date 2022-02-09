@@ -748,7 +748,7 @@ XXX
         self._fit_parameters = [all_fit_parameters[i] for i in indexes]
 
         # HERE:
-        #(self._fit_parameters[0], self._fit_parameters[1]) = (
+        # `(self._fit_parameters[0], self._fit_parameters[1]) = (
         #    self._fit_parameters[1], self._fit_parameters[0])
 
     def _get_parameters_latex(self):
@@ -1622,12 +1622,11 @@ XXX
 
         self._kwargs_MultiNest['multimodal'] = False
 
-        self._kwargs_MultiNest['n_live_points'] = 1000
         if False:  # Multimodal HERE XXX
             self._kwargs_MultiNest['multimodal'] = True
             self._kwargs_MultiNest['importance_nested_sampling'] = False
-            self._kwargs_MultiNest['n_live_points'] = 1000
-            self._kwargs_MultiNest['n_clustering_params'] = 2
+            # self._kwargs_MultiNest['n_live_points'] = 1000
+            # self._kwargs_MultiNest['n_clustering_params'] = 2
 
     def _transform_unit_cube(self, cube, n_dims, n_params):
         """
@@ -1722,50 +1721,51 @@ XXX
                                       outputfiles_basename=base)
             self._analyzer_data = self._analyzer.get_data()
 
-            if False: # HERE
-                x = self._analyzer.get_mode_stats()['modes']
-                print("XXX number of modes:", len(x))
-# XXX - print separate info on each mode
-            if False:
-                if isinstance(x, dict):
-                    for (k, v) in x.items():
-                        print(k, ":", v)
-                else:
-                    for xx in x:
-                        print("---------------------")
-                        for (k, v) in xx.items():
-                            print(k, ":", v)
-
-""" HERE XXX
-        if self._kwargs_MultiNest['multimodal']:
-
-x = np.loadtxt(self._analyzer.post_file)
-
-n = []
-skip = False
-with open("out_ob08092_O4_MN-post_separate.dat") as in_data:
-    for (i, line) in enumerate(in_data.readlines()):
-        if skip:
-            skip = False
-            continue
-        l = len(line)
-        if l == 1:
-            skip = True
-            n += [0]
-        else:
-            n[-1] += 1
-
-if x.shape[0] != sum(n):
-    raise ...
-
-        end_index = 2 + len(self._fit_parameters)
-        self._samples_flat = self._analyzer_data[:, 2:end_index]
-        self._samples_flat_weights = self._analyzer_data[:, 0]
-"""
-
+            if self._kwargs_MultiNest['multimodal']:
+                self._read_multimode_posterior_MultiNest()
 
             if self._MN_temporary_files:
                 shutil.rmtree(base, ignore_errors=True)
+
+    def _read_multimode_posterior_MultiNest(self):
+        """
+        We read data from MultiNest output file [root]post_separate.dat.
+        It has 2 empty lines then info on a mode at this repeats N_modes
+        times. We read it twice - first to get all the data and then to
+        find how many samples there are in each mode.
+        """
+        data = np.loadtxt(self._analyzer.post_file)
+
+        n_samples = []
+        skip = False
+        with open(self._analyzer.post_file) as in_data:
+            for line in in_data.readlines():
+                if skip:
+                    skip = False
+                    continue
+                if len(line) == 1:
+                    skip = True
+                    n_samples.append(0)
+                else:
+                    n_samples[-1] += 1
+
+        if data.shape[0] != sum(n_samples):
+            raise ValueError('Error in file ' + self._analyzer.post_file +
+                             str(data.shape) + " vs. " + str(n_samples))
+
+# HERE XXX - data and n_samples should be remembered and part below moved to _extract_posterior_samples_MultiNest()
+        self._samples_modes_flat = []
+        self._samples_modes_flat_weights = []
+        n_cumulative = 0
+        end_index = 2 + len(self._fit_parameters)
+        for n in n_samples:
+            samples = data[n_cumulative:n_cumulative+n, 2:end_index]
+            weights = data[n_cumulative:n_cumulative+n, 0]
+            self._samples_modes_flat.append(samples)
+            self._samples_modes_flat_weights.append(weights)
+            n_cumulative += n
+
+        self._n_modes = len(n_samples)
 
     def _parse_results(self):
         """
@@ -1815,15 +1815,18 @@ if x.shape[0] != sum(n):
         if 'trace' not in self._plots:
             self._samples = None
 
-    def _print_results(self, data, parameters):
+    def _print_results(self, data, parameters, mode=None):
         """
         calculate and print median values and +- 1 sigma for given parameters
         """
         if self._fit_method == "EMCEE":
             results = self._get_weighted_percentile(data)
         elif self._fit_method == "MultiNest":
-            results = self._get_weighted_percentile(
-                data, weights=self._samples_flat_weights)
+            if mode is None:
+                weights = self._samples_flat_weights
+            else:
+                weights = self._samples_modes_flat_weights[mode]
+            results = self._get_weighted_percentile(data, weights=weights)
         else:
             raise ValueError("internal bug")
 
@@ -1952,7 +1955,13 @@ if x.shape[0] != sum(n):
         self._extract_posterior_samples_MultiNest()
 
         print("Fitted parameters:")
-        self._print_results(self._samples_flat, self._fit_parameters)
+        if not self._kwargs_MultiNest['multimodal']:
+            self._print_results(self._samples_flat, self._fit_parameters)
+        else:
+            for i_mode in range(self._n_modes):
+                print("MODE", i_mode+1)
+                self._print_results(self._samples_modes_flat[i_mode],
+                                    self._fit_parameters, mode=i_mode)
 
         self._shift_t_0_in_samples()
 
