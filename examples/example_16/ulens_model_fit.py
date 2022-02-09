@@ -880,6 +880,9 @@ XXX
             path_ = tempfile.mkdtemp('MM_ex16_pyMN') + sep
             self._MN_temporary_files = True
         else:
+            if not isinstance(settings['basename'], str):
+                raise TypeError('basename should be of type string, got ' +
+                                str(type(settings['basename'])))
             print("Base name for MultiNest output:", settings['basename'])
             path_ = settings['basename']
             self._MN_temporary_files = False
