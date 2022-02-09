@@ -748,10 +748,6 @@ XXX
 
         self._fit_parameters = [all_fit_parameters[i] for i in indexes]
 
-        # HERE:
-        # (self._fit_parameters[0], self._fit_parameters[1]) = (
-        #    self._fit_parameters[1], self._fit_parameters[0])
-
     def _get_parameters_latex(self):
         """
         change self._fit_parameters into latex parameters
