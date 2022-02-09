@@ -9,9 +9,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 # TO DO:
  - mutltiple modes: 
     1) loops or other changes in: 
-        - self._extract_posterior_samples_MultiNest
         - self._shift_t_0_in_samples - the same Delta t_0 has to be used in all cases
-    2) add to _parse_fitting_parameters_MultiNest
  - _parse_fitting_parameters_MultiNest() - we need more parameters there
  - make sure different prior settings are consistent
  - XXX
@@ -30,6 +28,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - check all commented lines and remove the ones that are not needed anymore
  - add a task below to add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
  - clean this task
+ - FOR FUTURE - separate corner plot for each mode
 
 # DONE:
  - _ln_prior

@@ -871,7 +871,7 @@ XXX
             settings = dict()
 
         required = []
-        allowed = ['basename']
+        allowed = ['basename', 'multimodal']
 
         self._check_required_and_allowed_parameters(required, allowed)
 
@@ -884,6 +884,16 @@ XXX
             path_ = settings['basename']
             self._MN_temporary_files = False
         self._kwargs_MultiNest['outputfiles_basename'] = path_
+
+        self._kwargs_MultiNest['multimodal'] = False
+        if 'multimodal' in settings:
+            if not isinstance(settings['multimodal'], bool):
+                raise TypeError(
+                    'multimodal option can only by True or False, not ' +
+                    str(settings['multimodal']))
+            if settings['multimodal']:
+                self._kwargs_MultiNest['multimodal'] = True
+                self._kwargs_MultiNest['importance_nested_sampling'] = False
 
     def _get_n_walkers(self):
         """
@@ -1621,11 +1631,6 @@ XXX
         if self._return_fluxes:
             self._kwargs_MultiNest['n_params'] += self._n_fluxes
 
-        self._kwargs_MultiNest['multimodal'] = False
-
-        if False:  # Multimodal HERE XXX
-            self._kwargs_MultiNest['multimodal'] = True
-            self._kwargs_MultiNest['importance_nested_sampling'] = False
             # self._kwargs_MultiNest['n_live_points'] = 1000
             # self._kwargs_MultiNest['n_clustering_params'] = 2
 
@@ -1754,21 +1759,8 @@ XXX
             raise ValueError('Error in file ' + self._analyzer.post_file +
                              str(data.shape) + " vs. " + str(n_samples))
 
-# HERE XXX - data and n_samples should be remembered and part below moved to _extract_posterior_samples_MultiNest()
-        self._samples_modes_flat = []
-        self._samples_modes_flat_weights = []
-        self._samples_modes_flat_fluxes = []
-        n_cumulative = 0
-        index = 2 + len(self._fit_parameters)
-        for n in n_samples:
-            samples = data[n_cumulative:n_cumulative+n, 2:index]
-            weights = data[n_cumulative:n_cumulative+n, 0]
-            fluxes = data[n_cumulative:n_cumulative+n, index:]
-            self._samples_modes_flat.append(samples)
-            self._samples_modes_flat_weights.append(weights)
-            self._samples_modes_flat_fluxes.append(fluxes)
-            n_cumulative += n
-
+        self._MN_samples_modes_all = data
+        self._MN_modes_indexes = n_samples
         self._n_modes = len(n_samples)
 
     def _parse_results(self):
@@ -2005,9 +1997,25 @@ XXX
         """
         set self._samples_flat and self._samples_flat_weights for MultiNest
         """
-        end_index = 2 + len(self._fit_parameters)
-        self._samples_flat = self._analyzer_data[:, 2:end_index]
+        index = 2 + len(self._fit_parameters)
+
+        self._samples_flat = self._analyzer_data[:, 2:index]
         self._samples_flat_weights = self._analyzer_data[:, 0]
+
+        if self._kwargs_MultiNest['multimodal']:
+            self._samples_modes_flat = []
+            self._samples_modes_flat_weights = []
+            self._samples_modes_flat_fluxes = []
+            n_begin = 0
+            for n in self._MN_modes_indexes:
+                n_end = n_begin + n
+                weights = self._MN_samples_modes_all[n_begin:n_end, 0]
+                samples = self._MN_samples_modes_all[n_begin:n_end, 2:index]
+                fluxes_ = self._MN_samples_modes_all[n_begin:n_end, index:]
+                self._samples_modes_flat.append(samples)
+                self._samples_modes_flat_weights.append(weights)
+                self._samples_modes_flat_fluxes.append(fluxes_)
+                n_begin = n_end
 
     def _get_fluxes_to_print_MultiNest(self):
         """

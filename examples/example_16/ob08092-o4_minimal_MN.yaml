@@ -8,6 +8,7 @@ prior_limits:
 # if the thing below is provided, then this is almost minimal file
 fitting_parameters:
     basename: out_ob08092_O4_MN-
+    multimodal: True
 #plots:
 #    best model:
 #        file: out1.png
