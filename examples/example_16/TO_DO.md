@@ -8,19 +8,16 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
  - mutltiple modes: 
-    1) print number of modes, 
-    2) loops or other changes in: 
-        - self.parse_results_MultiNest
+    1) loops or other changes in: 
         - self._extract_posterior_samples_MultiNest
-        - self._print_results
         - self._shift_t_0_in_samples - the same Delta t_0 has to be used in all cases
-        - join parameters and flux output for each mode
-    3) add to _parse_fitting_parameters_MultiNest
+    2) add to _parse_fitting_parameters_MultiNest
  - _parse_fitting_parameters_MultiNest() - we need more parameters there
  - make sure different prior settings are consistent
  - XXX
  - self._flat_priors
  - test fixed_parameters - in input file
+ - print best model for each mode separately
  - give warning if files outputfiles_basename* exist - early on!
  - if there is first working version - let interested people know about this branch and ask them for input
  - requirements.txt - see below; also note it in README

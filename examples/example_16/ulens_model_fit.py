@@ -333,6 +333,7 @@ XXX
             self._flat_priors = True  # Are priors only 0 or 1?
             self._return_fluxes = True
             self._best_model_ln_prob = -np.inf
+            self._flux_names = None
         elif self._task == 'plot':
             pass
         else:
@@ -748,7 +749,7 @@ XXX
         self._fit_parameters = [all_fit_parameters[i] for i in indexes]
 
         # HERE:
-        # `(self._fit_parameters[0], self._fit_parameters[1]) = (
+        # (self._fit_parameters[0], self._fit_parameters[1]) = (
         #    self._fit_parameters[1], self._fit_parameters[0])
 
     def _get_parameters_latex(self):
@@ -1756,13 +1757,16 @@ XXX
 # HERE XXX - data and n_samples should be remembered and part below moved to _extract_posterior_samples_MultiNest()
         self._samples_modes_flat = []
         self._samples_modes_flat_weights = []
+        self._samples_modes_flat_fluxes = []
         n_cumulative = 0
-        end_index = 2 + len(self._fit_parameters)
+        index = 2 + len(self._fit_parameters)
         for n in n_samples:
-            samples = data[n_cumulative:n_cumulative+n, 2:end_index]
+            samples = data[n_cumulative:n_cumulative+n, 2:index]
             weights = data[n_cumulative:n_cumulative+n, 0]
+            fluxes = data[n_cumulative:n_cumulative+n, index:]
             self._samples_modes_flat.append(samples)
             self._samples_modes_flat_weights.append(weights)
+            self._samples_modes_flat_fluxes.append(fluxes)
             n_cumulative += n
 
         self._n_modes = len(n_samples)
@@ -1792,15 +1796,14 @@ XXX
         self._extract_posterior_samples_EMCEE()
 
         print("Fitted parameters:")
-        self._print_results(self._samples_flat, self._fit_parameters)
+        self._print_results(self._samples_flat)
 
         self._shift_t_0_in_samples()
 
         if self._return_fluxes:
             print("Fitted fluxes (source and blending):")
             blob_samples = self._get_fluxes_to_print_EMCEE()
-            flux_names = self._get_fluxes_names_to_print()
-            self._print_results(blob_samples, flux_names)
+            self._print_results(blob_samples, names='fluxes')
 
         self._print_best_model()
 
@@ -1815,10 +1818,19 @@ XXX
         if 'trace' not in self._plots:
             self._samples = None
 
-    def _print_results(self, data, parameters, mode=None):
+    def _print_results(self, data, names="parameters", mode=None):
         """
         calculate and print median values and +- 1 sigma for given parameters
         """
+        if names == "parameters":
+            ids = self._fit_parameters
+        elif names == "fluxes":
+            if self._flux_names is None:
+                self._flux_names = self._get_fluxes_names_to_print()
+            ids = self._flux_names
+        else:
+            raise ValueError('internal bug')
+
         if self._fit_method == "EMCEE":
             results = self._get_weighted_percentile(data)
         elif self._fit_method == "MultiNest":
@@ -1830,11 +1842,27 @@ XXX
         else:
             raise ValueError("internal bug")
 
-        for (parameter, results_) in zip(parameters, results):
+        for (parameter, results_) in zip(ids, results):
             format_ = "{:} : {:.5f} +{:.5f} -{:.5f}"
             if parameter == 'q':
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}"
             print(format_.format(parameter, *results_))
+
+    def _get_fluxes_names_to_print(self):
+        """
+        get strings to be used as names of parameters to be printed
+        """
+        if self._n_fluxes_per_dataset == 2:
+            s_or_b = ['s', 'b']
+        elif self._n_fluxes_per_dataset == 3:
+            s_or_b = ['s1', 's2', 'b']
+        else:
+            raise ValueError(
+                'Internal error: ' + str(self._n_fluxes_per_dataset))
+        n = self._n_fluxes_per_dataset
+        flux_names = ['flux_{:}_{:}'.format(s_or_b[i % n], i // n+1)
+                      for i in range(self._n_fluxes)]
+        return flux_names
 
     def _get_weighted_percentile(
             self, data, fractions=[0.158655, 0.5, 0.841345], weights=None):
@@ -1904,22 +1932,6 @@ XXX
 
         return blob_samples
 
-    def _get_fluxes_names_to_print(self):
-        """
-        get strings to be used as names of parameters to be printed
-        """
-        if self._n_fluxes_per_dataset == 2:
-            s_or_b = ['s', 'b']
-        elif self._n_fluxes_per_dataset == 3:
-            s_or_b = ['s1', 's2', 'b']
-        else:
-            raise ValueError(
-                'Internal error: ' + str(self._n_fluxes_per_dataset))
-        n = self._n_fluxes_per_dataset
-        flux_names = ['flux_{:}_{:}'.format(s_or_b[i % n], i // n+1)
-                      for i in range(self._n_fluxes)]
-        return flux_names
-
     def _print_best_model(self):
         """
         print best model found
@@ -1953,25 +1965,41 @@ XXX
         Parse results of MultiNest fitting
         """
         self._extract_posterior_samples_MultiNest()
+        if self._return_fluxes:
+            flux_names = self._get_fluxes_names_to_print()
 
-        print("Fitted parameters:")
-        if not self._kwargs_MultiNest['multimodal']:
-            self._print_results(self._samples_flat, self._fit_parameters)
+        if self._kwargs_MultiNest['multimodal']:
+            self._parse_results_MultiNest_multimodal()
         else:
-            for i_mode in range(self._n_modes):
-                print("MODE", i_mode+1)
-                self._print_results(self._samples_modes_flat[i_mode],
-                                    self._fit_parameters, mode=i_mode)
+            print("Fitted parameters:")
+            self._print_results(self._samples_flat)
+
+            if self._return_fluxes:
+                print("Fitted fluxes (source and blending):")
+                flux_samples = self._get_fluxes_to_print_MultiNest()
+                self._print_results(flux_samples, names='fluxes')
 
         self._shift_t_0_in_samples()
 
-        if self._return_fluxes:
-            print("Fitted fluxes (source and blending):")
-            flux_samples = self._get_fluxes_to_print_MultiNest()
-            flux_names = self._get_fluxes_names_to_print()
-            self._print_results(flux_samples, flux_names)
-
         self._print_best_model()
+
+    def _parse_results_MultiNest_multimodal(self):
+        """
+        Print parameters and fluxes for each mode separately
+        """
+        print("Number of modes found:", self._n_modes)
+        if self._return_fluxes:
+            print("Fitted parameters and fluxes (source and blending):")
+        else:
+            print("Fitted parameters:")
+
+        for i_mode in range(self._n_modes):
+            print(" MODE", i_mode+1)
+            self._print_results(self._samples_modes_flat[i_mode], mode=i_mode)
+            if self._return_fluxes:
+                self._print_results(
+                    self._samples_modes_flat_fluxes[i_mode], names="fluxes")
+        print(" END OF MODES")
 
     def _extract_posterior_samples_MultiNest(self):
         """
