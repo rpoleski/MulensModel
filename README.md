@@ -4,7 +4,7 @@
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
-[Latest release: 2.3.3](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 2.4.5](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best-fit parameters.
 
@@ -38,18 +38,9 @@ The easiest way is to run:
 ```
 pip install MulensModel
 ```
-which will download all files and also install all dependencies.
+which will download all files and also install all dependencies. 
 
-The second possibility is to download the source code and run:
-```
-python setup.py install
-```
-MulensModel requires some standard packages plus [astropy package](http://www.astropy.org/). To make sure that you have everything that's needed, just run:
-```
-pip install -r requirements.txt
-```
-
-There is also third possibility. You can run makefiles: go to `source/VBBL/` and run `make`, then go to `source/AdaptiveContouring/` and do the same. Then and add the full path `/.../MulensModel/source` to your `PYTHONPATH`. If you have any problems, please contact the authors and we will try to help.
+If the above method doesn't work, or you would like to see other possibilities, then please see [the install file](documents/install.md).
 
 ## Contributing
 
@@ -61,5 +52,5 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 [![GitHub stars](https://badgen.net/github/stars/rpoleski/MulensModel)](https://GitHub.com/rpoleski/MulensModel/stargazers/) 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) 
 
-file revised Jan 2022
+file revised Feb 2022
 
