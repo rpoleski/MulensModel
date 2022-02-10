@@ -7,10 +7,9 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - _parse_fitting_parameters_MultiNest() - we need more parameters there
  - make sure different prior settings are consistent
- - XXX
  - self._flat_priors
+ - XXX
  - test fixed_parameters - in input file
  - print best model for each mode separately
  - give warning if files outputfiles_basename* exist - early on!
@@ -37,6 +36,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - lack of outputfiles_basename - see https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
  - fluxes are returned (also setting self._return_fluxes)
  - mutltiple modes
+ - additional parameters in _parse_fitting_parameters_MultiNest()
 
 
 ### To be discussed:

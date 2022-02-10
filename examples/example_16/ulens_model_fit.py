@@ -126,6 +126,11 @@ XXX
             ``{'u_0': 1.}``.
 
         fitting_parameters: *dict*
+
+        XXX - all MN ones - see _parse_fitting_parameters_MultiNest
+        XXX sampling_efficiency - 0.8 (default) and 0.3 are recommended for
+            parameter estimation & evidence evalutation respectively
+
             Parameters of the fit function. They depend on the method used.
 
             For EMCEE, the required parameter is ``n_steps``.
@@ -894,10 +899,6 @@ XXX
         # XXX see parameters in:
         # https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
         # https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
-        # NOW:
-        ## - sampling_efficiency - 0.8 (default) and 0.3 are recommended for parameter estimation & evidence evalutation respectively
-        ## - n_live_points - number of live points
-        # LATER:
         # - mode_tolerance
         # - evidence_tolerance
         # - n_clustering_params
@@ -916,14 +917,13 @@ XXX
 
         required = []
         bools = ['multimodal']
+        ints = ['n_live_points']
         strings = ['basename']
-        allowed = bools + strings
-#        ints = ['n_live_points']
-#        floats = ['sampling_efficiency']
-#        allowed = strings + bools + ints + floats
+        floats = ['sampling efficiency']
+        allowed = strings + bools + ints + floats
 
         self._check_required_and_allowed_parameters(required, allowed)
-        self._check_parameters_types(settings, bools=bools, strings=strings)
+        self._check_parameters_types(settings, bools, ints, floats, strings)
 
         if 'basename' not in settings:
             print("No base for MultiNest output provided.")
@@ -940,6 +940,12 @@ XXX
             if settings['multimodal']:
                 self._kwargs_MultiNest['multimodal'] = True
                 self._kwargs_MultiNest['importance_nested_sampling'] = False
+
+        if 'n_live_points' in settings:
+            self._kwargs_MultiNest['n_live_points'] = settings['n_live_points']
+        key = 'sampling efficiency'
+        if key in settings:
+            self._kwargs_MultiNest['sampling_efficiency'] = settings[key]
 
     def _get_n_walkers(self):
         """
@@ -1676,9 +1682,6 @@ XXX
         self._kwargs_MultiNest['n_params'] = self._kwargs_MultiNest['n_dims']
         if self._return_fluxes:
             self._kwargs_MultiNest['n_params'] += self._n_fluxes
-
-            # self._kwargs_MultiNest['n_live_points'] = 1000
-            # self._kwargs_MultiNest['n_clustering_params'] = 2
 
     def _transform_unit_cube(self, cube, n_dims, n_params):
         """
