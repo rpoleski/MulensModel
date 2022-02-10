@@ -7,25 +7,23 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - make sure different prior settings are consistent
- - self._flat_priors
- - XXX
- - test fixed_parameters - in input file
  - print best model for each mode separately
+ - print relative mode probabilities
  - give warning if files outputfiles_basename* exist - early on!
- - if there is first working version - let interested people know about this branch and ask them for input
  - requirements.txt - see below; also note it in README
  - documentation of \_\_init\_\_
- - pycodestyle
  - example full file for MN? - maybe just MN specific tasks
  - add it to README, or a task to do it later
- - warning if output files exist
  - maybe add task: user directly says which method to fit
  - check all commented lines and remove the ones that are not needed anymore
- - add a task below to add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
- - clean this task
+ - clean this file
+ - AT THE END - XXX
+ - AT THE END - pycodestyle
  - AT THE END - test EMCEE
- - FOR FUTURE - separate corner plot for each mode (requires same shift to be used in _shift_t_0_in_samples())
+ - FOR FUTURE - MN: separate corner plot for each mode (requires same shift to be used in _shift_t_0_in_samples())
+ - FOR FUTURE - add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
+ - FOR FUTURE - MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
+
 
 # DONE:
  - _ln_prior
@@ -37,6 +35,9 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - fluxes are returned (also setting self._return_fluxes)
  - mutltiple modes
  - additional parameters in _parse_fitting_parameters_MultiNest()
+ - make sure different prior settings are consistent
+ - self._flat_priors
+ - test fixed_parameters - in input file
 
 
 ### To be discussed:

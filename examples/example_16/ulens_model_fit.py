@@ -116,6 +116,8 @@ XXX
             process. This option is often used to set parameter reference
             epoch, e.g., ``{'t_0_par': 2456789.}``.
 
+        XXX - EMCEE in 2 settings below
+
         min_values: *dict*
             Minimum values of parameters that define the prior, e.g.,
             ``{'t_E': 0.}``. Note that the these are only limits of a prior.
@@ -896,19 +898,6 @@ XXX
         """
         make sure MultiNest fitting parameters are properly defined
         """
-        # XXX see parameters in:
-        # https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
-        # https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
-        # - mode_tolerance
-        # - evidence_tolerance
-        # - n_clustering_params
-        # - log_zero
-        # - max_iter
-        # - const_efficiency_mode
-        # - seed - random no. generator seed
-        # - wrapped_params - wraparound parameters - list of 0 or 1 (1 for wrap arround)
-        # - verbose - need update on sampling progress?
-        # - resume - resume from a previous run?
         self._kwargs_MultiNest = dict()
 
         settings = self._fitting_parameters

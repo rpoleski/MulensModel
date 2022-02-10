@@ -9,7 +9,7 @@ prior_limits:
 fitting_parameters:
     basename: out_ob08092_O4_MN-
     multimodal: True
-    n_live_points: 2000
+#    n_live_points: 2000
 #plots:
 #    best model:
 #        file: out1.png
