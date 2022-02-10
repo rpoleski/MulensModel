@@ -25,6 +25,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - check all commented lines and remove the ones that are not needed anymore
  - add a task below to add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
  - clean this task
+ - AT THE END - test EMCEE
  - FOR FUTURE - separate corner plot for each mode (requires same shift to be used in _shift_t_0_in_samples())
 
 # DONE:

@@ -787,17 +787,17 @@ XXX
         make sure EMCEE fitting parameters are properly defined
         """
         settings = self._fitting_parameters
-        required = ['n_steps']
+
+        ints_required = ['n_steps']
+        required = ints_required
+
         strings = ['posterior file', 'posterior file fluxes']
-        allowed = ['n_walkers', 'n_burn'] + strings
+        ints = ['n_walkers', 'n_burn']
+        allowed = ints + strings
 
         self._check_required_and_allowed_parameters(required, allowed)
-
-        for (p, value) in settings.items():
-            if not isinstance(value, int) and p not in strings:
-                raise ValueError(
-                    'Fitting parameter ' + p + ' requires int value; got: ' +
-                    str(value) + ' ' + str(type(value)))
+        self._check_parameters_types(settings,
+                                     ints=ints+ints_required, strings=strings)
 
         if 'n_burn' in settings:
             if settings['n_burn'] >= settings['n_steps']:
@@ -812,9 +812,6 @@ XXX
                                  'without setting "posterior file"')
         else:
             name = settings['posterior file']
-            if not isinstance(name, str):
-                raise ValueError('"posterior file" must be string, got: ' +
-                                 str(type(name)))
             if name[-4:] != '.npy':
                 raise ValueError('"posterior file" must end in ".npy", ' +
                                  'got: ' + name)
@@ -854,12 +851,63 @@ XXX
             raise ValueError('Unexpected fitting parameters: ' +
                              str(set(settings.keys()) - set(full)))
 
+    def _check_parameters_types(self, settings, bools=None,
+                                ints=None, floats=None, strings=None):
+        """
+        Check if the settings have right type
+        """
+        if bools is None:
+            bools = []
+        if ints is None:
+            ints = []
+        if floats is None:
+            floats = []
+        if strings is None:
+            strings = []
+
+        fmt = "For key {:} the expected type is {:}, but got {:}"
+        for (key, value) in settings.items():
+            if key in bools:
+                if not isinstance(value, bool):
+                    raise TypeError(
+                        fmt.format(key, "bool", str(type(value))))
+            elif key in ints:
+                if not isinstance(value, int):
+                    raise TypeError(
+                        fmt.format(key, "int", str(type(value))))
+            elif key in floats:
+                if not isinstance(value, float):
+                    raise TypeError(
+                        fmt.format(key, "float", str(type(value))))
+            elif key in strings:
+                if not isinstance(value, str):
+                    raise TypeError(
+                        fmt.format(key, "string", str(type(value))))
+            else:
+                raise ValueError(
+                    "internal bug - no type for key " + key + " specified")
+
     def _parse_fitting_parameters_MultiNest(self):
         """
         make sure MultiNest fitting parameters are properly defined
         """
         # XXX see parameters in:
         # https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
+        # https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
+        # NOW:
+        ## - sampling_efficiency - 0.8 (default) and 0.3 are recommended for parameter estimation & evidence evalutation respectively
+        ## - n_live_points - number of live points
+        # LATER:
+        # - mode_tolerance
+        # - evidence_tolerance
+        # - n_clustering_params
+        # - log_zero
+        # - max_iter
+        # - const_efficiency_mode
+        # - seed - random no. generator seed
+        # - wrapped_params - wraparound parameters - list of 0 or 1 (1 for wrap arround)
+        # - verbose - need update on sampling progress?
+        # - resume - resume from a previous run?
         self._kwargs_MultiNest = dict()
 
         settings = self._fitting_parameters
@@ -867,18 +915,21 @@ XXX
             settings = dict()
 
         required = []
-        allowed = ['basename', 'multimodal']
+        bools = ['multimodal']
+        strings = ['basename']
+        allowed = bools + strings
+#        ints = ['n_live_points']
+#        floats = ['sampling_efficiency']
+#        allowed = strings + bools + ints + floats
 
         self._check_required_and_allowed_parameters(required, allowed)
+        self._check_parameters_types(settings, bools=bools, strings=strings)
 
         if 'basename' not in settings:
             print("No base for MultiNest output provided.")
             path_ = tempfile.mkdtemp('MM_ex16_pyMN') + sep
             self._MN_temporary_files = True
         else:
-            if not isinstance(settings['basename'], str):
-                raise TypeError('basename should be of type string, got ' +
-                                str(type(settings['basename'])))
             print("Base name for MultiNest output:", settings['basename'])
             path_ = settings['basename']
             self._MN_temporary_files = False
@@ -886,10 +937,6 @@ XXX
 
         self._kwargs_MultiNest['multimodal'] = False
         if 'multimodal' in settings:
-            if not isinstance(settings['multimodal'], bool):
-                raise TypeError(
-                    'multimodal option can only by True or False, not ' +
-                    str(settings['multimodal']))
             if settings['multimodal']:
                 self._kwargs_MultiNest['multimodal'] = True
                 self._kwargs_MultiNest['importance_nested_sampling'] = False
