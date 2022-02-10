@@ -894,6 +894,19 @@ XXX
                 raise ValueError(
                     "internal bug - no type for key " + key + " specified")
 
+    def _get_n_walkers(self):
+        """
+        Guess how many walkers (and hence starting values) there will be.
+        EMCEE fitting only.
+        """
+        if self._fit_method != 'EMCEE':
+            raise ValueError('internal bug')
+
+        if 'n_walkers' in self._fitting_parameters:
+            self._n_walkers = self._fitting_parameters['n_walkers']
+        else:
+            self._n_walkers = 4 * len(self._starting_parameters)
+
     def _parse_fitting_parameters_MultiNest(self):
         """
         make sure MultiNest fitting parameters are properly defined
@@ -914,6 +927,13 @@ XXX
         self._check_required_and_allowed_parameters(required, allowed)
         self._check_parameters_types(settings, bools, ints, floats, strings)
 
+        self._kwargs_MultiNest['multimodal'] = False
+        self._kwargs_MultiNest['importance_nested_sampling'] = True
+        if 'multimodal' in settings:
+            if settings['multimodal']:
+                self._kwargs_MultiNest['multimodal'] = True
+                self._kwargs_MultiNest['importance_nested_sampling'] = False
+
         if 'basename' not in settings:
             print("No base for MultiNest output provided.")
             path_ = tempfile.mkdtemp('MM_ex16_pyMN') + sep
@@ -923,12 +943,7 @@ XXX
             path_ = settings['basename']
             self._MN_temporary_files = False
         self._kwargs_MultiNest['outputfiles_basename'] = path_
-
-        self._kwargs_MultiNest['multimodal'] = False
-        if 'multimodal' in settings:
-            if settings['multimodal']:
-                self._kwargs_MultiNest['multimodal'] = True
-                self._kwargs_MultiNest['importance_nested_sampling'] = False
+        self._warn_about_existing_output_files_MultiNest()
 
         if 'n_live_points' in settings:
             self._kwargs_MultiNest['n_live_points'] = settings['n_live_points']
@@ -936,17 +951,31 @@ XXX
         if key in settings:
             self._kwargs_MultiNest['sampling_efficiency'] = settings[key]
 
-    def _get_n_walkers(self):
+    def _warn_about_existing_output_files_MultiNest(self):
         """
-        guess how many walkers (and hence starting values) there will be
+        Check if output files exist and warn about overwrtting them
         """
-        if self._fit_method != 'EMCEE':
-            raise ValueError('internal bug')
+        check = (
+            'resume.dat phys_live.points live.points phys_live-birth.txt '
+            'ev.dat dead-birth.txt .txt stats.dat post_equal_weights.dat'
+            'post_separate_strict.dat post_separate.dat summary.txt').split()
+        if self._kwargs_MultiNest['importance_nested_sampling']:
+            check += ['IS.points', 'IS.ptprob', 'IS.iterinfo']
 
-        if 'n_walkers' in self._fitting_parameters:
-            self._n_walkers = self._fitting_parameters['n_walkers']
-        else:
-            self._n_walkers = 4 * len(self._starting_parameters)
+        root = self._kwargs_MultiNest['outputfiles_basename']
+        if path.isdir(root):
+            root += sep
+
+        existing = []
+        for check_ in check:
+            file_name = root + check_
+            if path.isfile(file_name):
+                existing.append(file_name)
+
+        if len(existing) > 0:
+            message = "\n\n Exisiting files will be overwritten "
+            message += "(unless you kill this process)!!!\n"
+            warnings.warn(message + str(existing) + "\n")
 
     def _set_prior_limits(self):
         """

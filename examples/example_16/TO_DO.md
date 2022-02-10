@@ -7,21 +7,22 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - print best model for each mode separately
- - print relative mode probabilities
- - give warning if files outputfiles_basename* exist - early on!
+ - check all commented lines and remove the ones that are not needed anymore
  - requirements.txt - see below; also note it in README
  - documentation of \_\_init\_\_
  - example full file for MN? - maybe just MN specific tasks
  - add it to README, or a task to do it later
- - maybe add task: user directly says which method to fit
- - check all commented lines and remove the ones that are not needed anymore
  - clean this file
+ - MAYBE: make a new function at the end of _parse_fitting_parameters_MultiNest()
  - AT THE END - XXX
  - AT THE END - pycodestyle
  - AT THE END - test EMCEE
+ - FOR FUTURE - MN: print best model for each mode separately
+ - FOR FUTURE - MN: print relative mode probabilities
+ - FOR FUTURE - MN: add option to plot best model from each mode
  - FOR FUTURE - MN: separate corner plot for each mode (requires same shift to be used in _shift_t_0_in_samples())
  - FOR FUTURE - add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
+ - FOR FUTURE - maybe add task: user directly says which method to fit
  - FOR FUTURE - MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
 
 
@@ -38,7 +39,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - make sure different prior settings are consistent
  - self._flat_priors
  - test fixed_parameters - in input file
-
+ - give warning if files outputfiles_basename* exist
 
 ### To be discussed:
 
