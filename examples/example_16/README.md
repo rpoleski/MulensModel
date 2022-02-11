@@ -8,6 +8,14 @@ Allowing easy access to many functions results in somehow complicated code, so i
 
 Here all settings are passed via YAML files, which are human- and machine-readable. If the script syntax is unclear, then please search for information on YAML format files (or see [this link](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html)).
 
+### Install required packages
+
+I suggest to start with:
+```
+pip install -r requirements.txt
+```
+so that you have all required packages.
+
 ### Basic usage
 
 Example usage:

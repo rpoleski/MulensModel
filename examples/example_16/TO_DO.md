@@ -7,7 +7,6 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - requirements.txt - see below; also note it in README
  - documentation of \_\_init\_\_
  - example full file for MN? - maybe just MN specific tasks
  - add it to README, or a task to do it later
@@ -41,7 +40,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - test fixed_parameters - in input file
  - give warning if files outputfiles_basename* exist
  - check all commented lines and remove the ones that are not needed anymore
-
+ - requirements.txt
 
 ### To be discussed:
 
@@ -63,8 +62,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 ( **boldface** - do this before sending e-mail around)
 
 - **some documentation - see above**
-- **add one more fitting method?** scipy.optimize, pymultinest, ultranest, https://lmfit.github.io/lmfit-py/, ???
-- **requirements.txt** - corner >= 2.0.0, MM>2.0, yaml, pymultinest, ???
+- **add one more fitting method?** scipy.optimize, ultranest, https://lmfit.github.io/lmfit-py/, ???
 - Mroz+20 - finish
 - script and MM versions should be printed
 - EMCEE backend - https://emcee.readthedocs.io/en/stable/user/backends/#emcee.backends.HDFBackend
