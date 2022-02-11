@@ -253,6 +253,7 @@ XXX
         self._set_default_parameters()
         if self._task == 'fit':
             self._guess_fitting_method()
+            self._set_fit_parameters_unsorted()
         self._check_imports()
 
     def _check_MM_version(self):
@@ -313,10 +314,10 @@ XXX
     def _check_unnecessary_settings_plot(self):
         """
         Make sure that there arent' too many parameters specified for:
-        self._task = 'plot'
+        self._task == 'plot'
         """
         keys = ['_starting_parameters', '_min_values', '_max_values',
-                '_fitting_parameters']
+                '_fitting_parameters', '_prior_limits']
         for key in keys:
             if getattr(self, key) is not None:
                 raise ValueError(
@@ -368,6 +369,17 @@ XXX
                 "'pyMultiNest' and you do it by providing "
                 "starting_parameters or prior_limits, respectively.")
         self._fit_method = method
+
+    def _set_fit_parameters_unsorted(self):
+        """
+        Find what are the fitted parameters. It will be sorted later.
+        """
+        if self._fit_method == "EMCEE":
+            self._fit_parameters_unsorted = self._starting_parameters.keys()
+        elif self._fit_method == "MultiNest":
+            self._fit_parameters_unsorted = self._prior_limits.keys()
+        else:
+            raise ValueError('unexpected method error')
 
     def _check_imports(self):
         """
@@ -626,12 +638,14 @@ XXX
             self._model_parameters['values'] = [
                 float(x) for x in self._model_parameters['values'].split()]
 
-        if self._starting_parameters is None:
-            return  # Below we do checks valid only for fitting.
-
-        condition_1 = ('pi_E_E' in self._starting_parameters)
-        condition_2 = ('pi_E_N' in self._starting_parameters)
-        if condition_1 or condition_2:
+        all_parameters = []
+        if self._fixed_parameters is not None:
+            all_parameters += list(self._fixed_parameters.keys())
+        if 'parameters' in keys:
+            all_parameters += self._model_parameters['parameters']
+        if self._task == 'fit':
+            all_parameters += self._fit_parameters_unsorted
+        if 'pi_E_E' in all_parameters or 'pi_E_N' in all_parameters:
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
 
@@ -740,18 +754,12 @@ XXX
             'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
         all_fit_parameters = all_fit_parameters_str.split()
 
-        if self._fit_method == "EMCEE":
-            parameters = self._starting_parameters.keys()
-        elif self._fit_method == "MultiNest":
-            parameters = self._prior_limits.keys()
-        else:
-            raise ValueError('unexpected method error')
-
-        unknown = set(parameters) - set(all_fit_parameters)
+        unknown = set(self._fit_parameters_unsorted) - set(all_fit_parameters)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
 
-        indexes = [all_fit_parameters.index(p) for p in parameters]
+        indexes = [all_fit_parameters.index(p)
+                   for p in self._fit_parameters_unsorted]
 
         self._fit_parameters = [all_fit_parameters[i] for i in indexes]
 

@@ -7,7 +7,6 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 
 # TO DO:
- - check all commented lines and remove the ones that are not needed anymore
  - requirements.txt - see below; also note it in README
  - documentation of \_\_init\_\_
  - example full file for MN? - maybe just MN specific tasks
@@ -24,6 +23,7 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - FOR FUTURE - add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
  - FOR FUTURE - maybe add task: user directly says which method to fit
  - FOR FUTURE - MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
+ - FOR FUTURE - EMCEE version of _warn_about_existing_output_files_MultiNest() and same for plots
 
 
 # DONE:
@@ -40,6 +40,8 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - self._flat_priors
  - test fixed_parameters - in input file
  - give warning if files outputfiles_basename* exist
+ - check all commented lines and remove the ones that are not needed anymore
+
 
 ### To be discussed:
 
