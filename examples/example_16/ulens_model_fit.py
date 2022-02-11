@@ -937,28 +937,33 @@ XXX
         self._check_parameters_types(settings, bools, ints, floats, strings)
 
         self._kwargs_MultiNest['multimodal'] = False
-        self._kwargs_MultiNest['importance_nested_sampling'] = True
-        if 'multimodal' in settings:
-            if settings['multimodal']:
-                self._kwargs_MultiNest['multimodal'] = True
-                self._kwargs_MultiNest['importance_nested_sampling'] = False
 
+        keys = {"basename": "outputfiles_basename",
+                "sampling efficiency": "sampling_efficiency"}
+        same_keys = ["multimodal", "n_live_points"]
+        keys = {**keys, **{key: key for key in same_keys}}
+
+        self._set_dict_safetly(self._kwargs_MultiNest, settings, keys)
+
+        self._kwargs_MultiNest['importance_nested_sampling'] = (
+            not self._kwargs_MultiNest['multimodal'])
+        self._MN_temporary_files = False
         if 'basename' not in settings:
             print("No base for MultiNest output provided.")
-            path_ = tempfile.mkdtemp('MM_ex16_pyMN') + sep
+            self._kwargs_MultiNest['outputfiles_basename'] = (
+                tempfile.mkdtemp('_MM_ex16_pyMN') + sep)
             self._MN_temporary_files = True
-        else:
-            print("Base name for MultiNest output:", settings['basename'])
-            path_ = settings['basename']
-            self._MN_temporary_files = False
-        self._kwargs_MultiNest['outputfiles_basename'] = path_
         self._warn_about_existing_output_files_MultiNest()
 
-        if 'n_live_points' in settings:
-            self._kwargs_MultiNest['n_live_points'] = settings['n_live_points']
-        key = 'sampling efficiency'
-        if key in settings:
-            self._kwargs_MultiNest['sampling_efficiency'] = settings[key]
+    def _set_dict_safetly(self, target, source, keys_mapping):
+        """
+        For each key in keys_mapping (*dict*) check if it is in
+        source (*dict*). If it is, then set
+        target[keys_mapping[key]] to source[key].
+        """
+        for (key_in, key_out) in keys_mapping.items():
+            if key_in in source:
+                target[key_out] = source[key_in]
 
     def _warn_about_existing_output_files_MultiNest(self):
         """

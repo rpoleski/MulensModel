@@ -4,7 +4,6 @@ python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
 # TO DO:
  - documentation of \_\_init\_\_
  - example full file for MN? - maybe just MN specific tasks
- - MAYBE: make a new function at the end of _parse_fitting_parameters_MultiNest()
  - AT THE END - example files and README
  - AT THE END - XXX
  - AT THE END - pycodestyle
@@ -28,6 +27,7 @@ python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
  - requirements.txt
  - a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
  - README
+ - _set_dict_safetly()
 
 ### To be discussed:
 
@@ -51,6 +51,11 @@ python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
 - Mroz+20 - finish
 - MN: print best model for each mode separately
 - MN: print relative mode probabilities
+    b = np.array([m['strictly local log-evidence'] for m in self._analyzer.get_mode_stats()['modes']])
+    c = np.exp(b - np.mean(b))
+    d = c / np.sum(c) # these are relative mode probabilities.
+    # m['strictly local log-evidence error']
+    # m['local log-evidence error']
 - MN: add option to plot best model from each mode
 - MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
 - script and MM versions should be printed
