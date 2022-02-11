@@ -583,7 +583,7 @@ class FitData:
         flux_factor = self.get_model_fluxes() - self.dataset.flux
         flux_factor *= 2. * self.source_flux / self.dataset.err_flux**2
 
-        gradient = self._get_d_A_d_params_for_point_lens_model(parameters)
+        gradient = self.get_d_A_d_params_for_point_lens_model(parameters)
 
         for (key, value) in gradient.items():
             gradient[key] = np.sum((flux_factor * value)[self.dataset.good])
@@ -597,11 +597,19 @@ class FitData:
 
         return self._chi2_gradient
 
-    def _get_d_A_d_params_for_point_lens_model(self, parameters):
+    def get_d_A_d_params_for_point_lens_model(self, parameters):
         """
         Calculate d A / d parameters for a point lens model.
 
-        Returns a *dict*.
+        Arguments:
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns: *dict*
+            Keys are parameter names from *parameters* argument above. Values
+            are the partial derivatives for that parameter evaluated at each
+            data point.
+
         """
         gradient = self._get_d_u_d_params(parameters)
 
