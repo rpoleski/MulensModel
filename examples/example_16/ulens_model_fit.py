@@ -380,6 +380,7 @@ XXX
             self._fit_parameters_unsorted = self._prior_limits.keys()
         else:
             raise ValueError('unexpected method error')
+        self._n_fit_parameters = len(self._fit_parameters_unsorted)
 
     def _check_imports(self):
         """
@@ -1692,9 +1693,8 @@ XXX
         """
         Setup EMCEE fit
         """
-        n_fit = len(self._fit_parameters)
         self._sampler = emcee.EnsembleSampler(
-            self._n_walkers, n_fit, self._ln_prob)
+            self._n_walkers, self._n_fit_parameters, self._ln_prob)
 
     def _setup_fit_MultiNest(self):
         """
@@ -1704,7 +1704,7 @@ XXX
         self._kwargs_MultiNest['LogLikelihood'] = self._ln_like_MN
         self._kwargs_MultiNest['resume'] = False
 
-        self._kwargs_MultiNest['n_dims'] = len(self._fit_parameters)
+        self._kwargs_MultiNest['n_dims'] = self._n_fit_parameters
         self._kwargs_MultiNest['n_params'] = self._kwargs_MultiNest['n_dims']
         if self._return_fluxes:
             self._kwargs_MultiNest['n_params'] += self._n_fluxes
@@ -1798,7 +1798,7 @@ XXX
 
         if self._fit_method == 'MultiNest':
             base = self._kwargs_MultiNest['outputfiles_basename']
-            self._analyzer = Analyzer(n_params=len(self._fit_parameters),
+            self._analyzer = Analyzer(n_params=self._n_fit_parameters,
                                       outputfiles_basename=base)
             self._analyzer_data = self._analyzer.get_data()
 
@@ -1879,8 +1879,8 @@ XXX
         set self._samples_flat and self._samples
         """
         n_burn = self._fitting_parameters['n_burn']
-        n_fit = len(self._fit_parameters)
         self._samples = self._sampler.chain[:, n_burn:, :]
+        n_fit = self._n_fit_parameters
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))
         if 'trace' not in self._plots:
             self._samples = None
@@ -2072,7 +2072,7 @@ XXX
         """
         set self._samples_flat and self._samples_flat_weights for MultiNest
         """
-        index = 2 + len(self._fit_parameters)
+        index = 2 + self._n_fit_parameters
 
         self._samples_flat = self._analyzer_data[:, 2:index]
         self._samples_flat_weights = self._analyzer_data[:, 0]
@@ -2096,7 +2096,7 @@ XXX
         """
         prepare values to be printed for EMCEE fitting
         """
-        index = 2 + len(self._fit_parameters)
+        index = 2 + self._n_fit_parameters
         data = self._analyzer_data[:, index:]
 
         return data
@@ -2168,7 +2168,7 @@ XXX
         plt.rcParams['axes.linewidth'] = 1.4
         margins = {'left': 0.13, 'right': 0.97, 'top': 0.99, 'bottom': 0.05}
 
-        grid = gridspec.GridSpec(len(self._fit_parameters), 1, hspace=0)
+        grid = gridspec.GridSpec(self._n_fit_parameters, 1, hspace=0)
 
         plt.figure(figsize=(7.5, 10.5))  # A4 is 8.27 11.69. XXX
         plt.subplots_adjust(**margins)
@@ -2186,7 +2186,7 @@ XXX
             plt.xlim(0, self._samples.shape[1])
             plt.gca().tick_params(axis='both', which='both', direction='in',
                                   top=True, right=True)
-            if i != len(self._fit_parameters) - 1:
+            if i != self._n_fit_parameters - 1:
                 plt.setp(plt.gca().get_xticklabels(), visible=False)
             plt.gca().set_prop_cycle(None)
         plt.xlabel('step count')

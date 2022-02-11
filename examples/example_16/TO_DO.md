@@ -1,11 +1,6 @@
 # test:
 python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
 
-../example_07_fit_parallax_MN.py
-https://github.com/JohannesBuchner/PyMultiNest
-https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
-https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
-
 # TO DO:
  - documentation of \_\_init\_\_
  - example full file for MN? - maybe just MN specific tasks
@@ -15,15 +10,6 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - AT THE END - XXX
  - AT THE END - pycodestyle
  - AT THE END - test EMCEE
- - FOR FUTURE - MN: print best model for each mode separately
- - FOR FUTURE - MN: print relative mode probabilities
- - FOR FUTURE - MN: add option to plot best model from each mode
- - FOR FUTURE - MN: separate corner plot for each mode (requires same shift to be used in _shift_t_0_in_samples())
- - FOR FUTURE - add a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
- - FOR FUTURE - maybe add task: user directly says which method to fit
- - FOR FUTURE - MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
- - FOR FUTURE - EMCEE version of _warn_about_existing_output_files_MultiNest() and same for plots
-
 
 # DONE:
  - _ln_prior
@@ -41,13 +27,13 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
  - give warning if files outputfiles_basename* exist
  - check all commented lines and remove the ones that are not needed anymore
  - requirements.txt
+ - a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
 
 ### To be discussed:
 
 - periodic variables
 - log10 variables etc.
 - for plots: t_0, \Delta t_0, or t_0 - 2456780 ???
-- how the output should look like?
 
 ### Documentation:
 - Delta t_0
@@ -62,9 +48,13 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 ( **boldface** - do this before sending e-mail around)
 
 - **some documentation - see above**
-- **add one more fitting method?** scipy.optimize, ultranest, https://lmfit.github.io/lmfit-py/, ???
 - Mroz+20 - finish
+- MN: print best model for each mode separately
+- MN: print relative mode probabilities
+- MN: add option to plot best model from each mode
+- MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
 - script and MM versions should be printed
+- add one more fitting method? scipy.optimize, ultranest, https://lmfit.github.io/lmfit-py/, ???
 - EMCEE backend - https://emcee.readthedocs.io/en/stable/user/backends/#emcee.backends.HDFBackend
 - plot trajectory
 - add check if 't_0' is covered by data and give warning if not
@@ -79,21 +69,21 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 - allow plotting many random models from posterior
 - add beta distribution to allowed distributions (search for "gauss")
 - for plot script add printing chi2 and fluxes
-- starting parameters are read from file (e.g. 100 lines by 7 columns)
-- some of the starting values are calculated based on equation given in yaml file, eg. "s: equation 100 / t_E" and then substitute each value of t_E and then use: "exec('out = 100 / 20.12345')" and use variable 'out'; This requires import from math of log, log10, arcsin etc.; make sure "s" in x_caustic_in is not replaced etc.; 
+- EMCEE: starting parameters are read from file (e.g. 100 lines by 7 columns)
+- EMCEE: some of the starting values are calculated based on equation given in yaml file, eg. "s: equation 100 / t_E" and then substitute each value of t_E and then use: "exec('out = 100 / 20.12345')" and use variable 'out'; This requires import from math of log, log10, arcsin etc.; make sure "s" in x_caustic_in is not replaced etc.; 
 - if Cassan08 paramaterization is used then make sure times are >2450000.
 - add automatic "obvious" checks on parameters: t_E>0, rho>0, s>0, 1>q>0 - even if they are not provided, then model should be rejected and warning given
 - if magnification calculations break then give warning, reject the model, and continue
 - binary source models - print fluxes of both sources separately
 - warnings if plots will overwrite existing files
-- check if output files (including plots) exists at the begin
+- check if output files (including plots) exists at the begin - similar to _warn_about_existing_output_files_MultiNest()
 - plot title
 - make plots tighter, i.e., reduce white space
-- print autocorrelation time
-- Add ln_prior values to blob? At some point we will want to save that information in output files
+- EMCEE: add ln_prior values to blob? At some point we will want to save that information in output files
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
-- posterior output: 1) add log(prior), 2) add chi2 or equivalent, 3) add option to add fluxes
-- print number of models calculated
+- EMCEE: posterior output: 1) add log(prior), 2) add chi2 or equivalent, 3) add option to add fluxes
+- EMCEE: print number of models calculated
+- MN: separate corner plot for each mode (requires same shift to be used in _shift_t_0_in_samples())
 - periodic variables - suggest it for alpha, x_caustic_X
 - check if data files exist
 - allow log10() of parameter
@@ -108,7 +98,6 @@ https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py
 - fits with 0 blending flux for some datasets
 - when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data so that anomalies are not missed etc.
 - add option to adjust Y scale to plot model fully
-- add scipy to _check_imports() - requires siginificant code to be added to _check_imports() in order to find out if t_E prior is used
 - in _parse_fit_constraints_prior() add a check if the priors are defined for fit parameters
 - flux constraints for binary source models (note that for plotting it is now set to first dataset)
 - allow Model.set_magnification_methods_parameters()
