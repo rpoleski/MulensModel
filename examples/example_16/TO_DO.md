@@ -4,9 +4,8 @@ python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
 # TO DO:
  - documentation of \_\_init\_\_
  - example full file for MN? - maybe just MN specific tasks
- - add it to README, or a task to do it later
- - clean this file
  - MAYBE: make a new function at the end of _parse_fitting_parameters_MultiNest()
+ - AT THE END - example files and README
  - AT THE END - XXX
  - AT THE END - pycodestyle
  - AT THE END - test EMCEE
@@ -28,6 +27,7 @@ python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
  - check all commented lines and remove the ones that are not needed anymore
  - requirements.txt
  - a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
+ - README
 
 ### To be discussed:
 
@@ -89,6 +89,7 @@ python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
 - allow log10() of parameter
 - Event.get_chi2() - add fit_blending=False option (actually this is different in MM v2)
 - allow turning off flux printing
+- EMCEE: in self._sampler.run_mcmc() and option for progress=True
 - warnings on time plotting and data limits - checks for add/subtract 245/246
 - if code fails during fitting, then it should still print the best model found so far - add try/except in _run_fit()
 - example how to run fits on a grid of (s,q)

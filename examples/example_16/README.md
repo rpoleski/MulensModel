@@ -18,6 +18,8 @@ so that you have all required packages.
 
 ### Basic usage
 
+In this and following few sections I show how to fit model using [EMCEE](https://emcee.readthedocs.io/en/stable/) implementation of [MCMC](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo). The other possibility is to use [MultiNest](http://johannesbuchner.github.io/PyMultiNest/) and it's presented at the end.
+
 Example usage:
 
 ```python
@@ -99,6 +101,13 @@ python ulens_model_fit.py ob08092-o4_prior_2.yaml
 In this case, the parameters don't change much because `t_E` is well constrained by the data.
 
 For detailed description of different options, see `fit_constraints` in [ulens\_model\_fit.py](ulens_model_fit.py).
+
+
+### Fit using pyMultiNest
+
+The pyMultiNest is one of the implementations of [nested sampling](https://en.wikipedia.org/wiki/Nested_sampling_algorithm) - a method that has similar goals to frequently used MCMC approach. There are complicated posteriors in which EMCEE fails and pyMultiNest works without a problem. The latter method is also capable of automatically finding separate posterior modes and exploring each one separately.
+
+The most basic usage of pyMultiNest is presented in [ob08092-o4\_minimal\_MN.yaml](ob08092-o4_minimal_MN.yaml). Note that instead of `starting_parameters` there are `prior_limits` (based on these settings it's decided which method will be used). 
 
 
 ### More options
