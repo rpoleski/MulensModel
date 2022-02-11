@@ -613,14 +613,14 @@ class FitData:
         """
         gradient = self._get_d_u_d_params(parameters)
 
-        d_A_d_u = self._get_d_A_d_u_for_point_lens_model()
+        d_A_d_u = self.get_d_A_d_u_for_point_lens_model()
 
         for (key, value) in gradient.items():
             gradient[key] *= d_A_d_u
 
         return gradient
 
-    def _get_d_A_d_u_for_point_lens_model(self):
+    def get_d_A_d_u_for_point_lens_model(self):
         """
         Calculate dA/du for PSPL
         """
