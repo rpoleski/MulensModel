@@ -2,16 +2,5 @@ photometry_files:
     data/OB08092/phot_ob08092_O4.dat
 prior_limits:
     t_0: [2455379.4, 2455379.76]
-    u_0: [-0.65, 0.65]
-    #u_0: [0.46, 0.65]
+    u_0: [0.46, 0.65]
     t_E: 16. 19.6
-# if the thing below is provided, then this is almost minimal file
-fitting_parameters:
-    basename: out_ob08092_O4_MN-
-    multimodal: True
-#    n_live_points: 2000
-#plots:
-#    best model:
-#        file: out1.png
-#    triangle:
-#        file: out2.png

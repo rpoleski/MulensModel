@@ -3,31 +3,8 @@ python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
 
 # TO DO:
  - documentation of \_\_init\_\_
- - example full file for MN? - maybe just MN specific tasks
- - AT THE END - example files and README
  - AT THE END - XXX
- - AT THE END - pycodestyle
  - AT THE END - test EMCEE
-
-# DONE:
- - _ln_prior
- - min/max_values cannot be set
- - output root file not provided - what to do then
- - .gitignore
- - use run() instead of solve() from pyMultiNest
- - lack of outputfiles_basename - see https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/solve.py
- - fluxes are returned (also setting self._return_fluxes)
- - mutltiple modes
- - additional parameters in _parse_fitting_parameters_MultiNest()
- - make sure different prior settings are consistent
- - self._flat_priors
- - test fixed_parameters - in input file
- - give warning if files outputfiles_basename* exist
- - check all commented lines and remove the ones that are not needed anymore
- - requirements.txt
- - a variable with number of fitted parameters instead of calling len(self._fit_parameters) many times
- - README
- - _set_dict_safetly()
 
 ### To be discussed:
 

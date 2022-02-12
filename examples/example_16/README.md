@@ -109,6 +109,7 @@ The pyMultiNest is one of the implementations of [nested sampling](https://en.wi
 
 The most basic usage of pyMultiNest is presented in [ob08092-o4\_minimal\_MN.yaml](ob08092-o4_minimal_MN.yaml). Note that instead of `starting_parameters` there are `prior_limits` (based on these settings it's decided which method will be used). 
 
+More advanced pyMultiNest input file is [ob08092-o4\_MN.yaml](ob08092-o4_MN.yaml). It illustrates trivial degeneracy u0 vs. -u0. Note that `multimodal` option is turned on, so each mode is reported separately. 
 
 ### More options
 
@@ -125,3 +126,5 @@ python ulens_model_fit.py ob03235_2_full.yaml
 * Julian Dates are long numbers and which may cause problems (e.g., too many numbers to be displayed properly on axis label), hence, in this example we add 2450000 to all input data and subtract it from plots. Note that all calculations are carried out using full HJD, so e.g., Earth's positions are calculated for proper epochs.
 * If you want to plot to screen then do not provide the name of output file for plot, e.g., you can remove last line in [ob08092-o4\_minimal\_plot.yaml](ob08092-o4_minimal_plot.yaml).
 * In output, "Best model" is the one with the highest probability, which if different from the smallest chi2 model if informative priors are applied.
+* I have many plans to add more options and capabilities. Please let me know, what you need and I'll try to make it my priority.
+

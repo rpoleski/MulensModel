@@ -116,26 +116,22 @@ XXX
             process. This option is often used to set parameter reference
             epoch, e.g., ``{'t_0_par': 2456789.}``.
 
-        XXX - EMCEE in 2 settings below
-
         min_values: *dict*
             Minimum values of parameters that define the prior, e.g.,
             ``{'t_E': 0.}``. Note that the these are only limits of a prior.
             Functional form of priors can be defines in ``fit_constraints``.
+            It works only for EMCEE fitting.
 
         max_values: *dict*
             Maximum values of parameters that define the prior, e.g.,
             ``{'u_0': 1.}``.
+            It works only for EMCEE fitting.
 
         fitting_parameters: *dict*
+            Parameters of the fit function. They depend on the method used -
+            we discuss EMCEE and pyMultiNest below.
 
-        XXX - all MN ones - see _parse_fitting_parameters_MultiNest
-        XXX sampling_efficiency - 0.8 (default) and 0.3 are recommended for
-            parameter estimation & evidence evalutation respectively
-
-            Parameters of the fit function. They depend on the method used.
-
-            For EMCEE, the required parameter is ``n_steps``.
+            First - EMCEE. The required parameter is ``n_steps``.
             You can also specify ``n_burn`` and ``n_walkers``. The ``n_burn``
             controls the length of burn-in. If not provided, it is assumed to
             be ``0.25*n_steps``. The ``n_walkers`` gives number of parallel
@@ -152,6 +148,12 @@ XXX
             The value ``all`` means that additionally all source and blending
             fluxes will be saved (``n_parameters`` increases by two times the
             number of datasets).
+
+            Second - pyMultiNest. XXX
+                bools = ['multimodal']
+                ints = ['n_live_points']
+                strings = ['basename']
+                floats = ['sampling efficiency'] - 0.8 (default) and 0.3 are recommended for parameter estimation & evidence evalutation respectively
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
