@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.25.0'
+__version__ = '0.25.1'
 
 
 class UlensModelFit(object):
@@ -1210,11 +1210,6 @@ class UlensModelFit(object):
             mask = (x > x_min-dx)  # We need one more point for extrapolation.
             function = interp1d(x[mask], np.log(y[mask]),
                                 kind='cubic', fill_value="extrapolate")
-            self._prior_t_E_data['x_min'] = x_min
-            self._prior_t_E_data['x_max'] = x_max
-            self._prior_t_E_data['y_min'] = function(x_min)
-            self._prior_t_E_data['y_max'] = function(x_max)
-            self._prior_t_E_data['function'] = function
         elif self._prior_t_E == 'Mroz+20':
             # XXX - TO DO:
             # - documentation
@@ -1230,13 +1225,14 @@ class UlensModelFit(object):
             x_max = x[-1] + dx
             function = interp1d(x, np.log(y),
                                 kind='cubic', fill_value="extrapolate")
-            self._prior_t_E_data['x_min'] = x_min
-            self._prior_t_E_data['x_max'] = x_max
-            self._prior_t_E_data['y_min'] = function(x_min)
-            self._prior_t_E_data['y_max'] = function(x_max)
-            self._prior_t_E_data['function'] = function
         else:
             raise ValueError('unexpected internal error')
+
+        self._prior_t_E_data['x_min'] = x_min
+        self._prior_t_E_data['x_max'] = x_max
+        self._prior_t_E_data['y_min'] = function(x_min)
+        self._prior_t_E_data['y_max'] = function(x_max)
+        self._prior_t_E_data['function'] = function
 
     def _parse_starting_parameters(self):
         """
@@ -2253,18 +2249,7 @@ class UlensModelFit(object):
         self._event.plot_data(**kwargs)
         fluxes = self._event.get_ref_fluxes()
 
-        # Plot models below, first ground-based (if needed, hence loop),
-        # then satellite ones (if needed).
-        for dataset in self._datasets:
-            if dataset.ephemerides_file is None:
-                self._model.plot_lc(
-                    source_flux=fluxes[0], blend_flux=fluxes[1],
-                    **kwargs_model)
-                break
-        for model in self._models_satellite:
-            model.parameters.parameters = {**self._model.parameters.parameters}
-            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
-                          **kwargs_model)
+        self._plot_models_for_best_model_plot(fluxes, kwargs_model)
 
         self._plot_legend_for_best_model_plot()
         plt.xlim(*xlim)
@@ -2396,6 +2381,23 @@ class UlensModelFit(object):
             ylim = self._plots['best model']['magnitude range']
 
         return (ylim, ylim_residuals)
+
+    def _plot_models_for_best_model_plot(self, fluxes, kwargs_model):
+        """
+        Plot best models: first ground-based (if needed, hence loop),
+        then satellite ones (if needed).
+        """
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                self._model.plot_lc(
+                    source_flux=fluxes[0], blend_flux=fluxes[1],
+                    **kwargs_model)
+                break
+
+        for model in self._models_satellite:
+            model.parameters.parameters = {**self._model.parameters.parameters}
+            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
+                          **kwargs_model)
 
     def _plot_legend_for_best_model_plot(self):
         """
