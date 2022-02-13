@@ -1,11 +1,3 @@
-# test:
-python ulens_model_fit.py ob08092-o4_minimal_MN.yaml
-
-# TO DO:
- - documentation of \_\_init\_\_
- - AT THE END - XXX
- - AT THE END - test EMCEE
-
 ### To be discussed:
 
 - periodic variables

@@ -65,12 +65,11 @@ class UlensModelFit(object):
             Currently, keyword ``'add_2450000'`` is turned on by default.
 
         starting_parameters: *dict*
-XXX
-            Starting values of the parameters. Keys of this *dict* are
-            microlensing parameters recognized by *MulensModel*. Values
-            depend on method used for fitting.
+            Starting values of the parameters.
+            It also indicates the EMCEE fitting mode.
 
-            For EMCEE the values are *str*. First word indicates
+            Keys of this *dict* are microlensing parameters recognized by
+            *MulensModel* and values are *str*. First word indicates
             the distribution (allowed: ``gauss``, ``uniform``, and
             ``log-uniform``) and is followed by its parameters.
             For ``uniform`` and ``log-uniform`` these parameters are lower
@@ -86,8 +85,22 @@ XXX
                   't_E': 'gauss 20. 5.'
               }
 
-        prior_limits: XXX
-            XXX
+        prior_limits: *dict*
+            Upper and lower limits of parameters.
+            It also indicates the pyMultiNest fitting mode.
+
+            Keys are MulensModel parameters and values are lists of two floats
+            each (alternatively a string giving 2 floats can be provided - see
+            example below). Currently, no informative priors are allowed for
+            pyMultiNest fitting. Example input:
+
+            .. code-block:: python
+
+              {
+                  't_0': [2455379.4, 2455379.76]
+                  'u_0': [0.46, 0.65]
+                  't_E': "16. 19.6"
+              }
 
         model: *dict*
             Additional settings for *MulensModel.Model*. Accepted keys:
@@ -149,11 +162,22 @@ XXX
             fluxes will be saved (``n_parameters`` increases by two times the
             number of datasets).
 
-            Second - pyMultiNest. XXX
-                bools = ['multimodal']
-                ints = ['n_live_points']
-                strings = ['basename']
-                floats = ['sampling efficiency'] - 0.8 (default) and 0.3 are recommended for parameter estimation & evidence evalutation respectively
+            Second - pyMultiNest. There are no required parameters, but a few
+            can be provided. Currently accepted ones are:
+
+            ``basename`` (*str*) - common part of the output files produced by
+            MultiNest. If you don't provide it, then the output would be
+            saved to temporary files and deleted at the end.
+
+            ``multimodal`` (*bool*) - do you want multiple modes in
+            the prosterior to be detected and reported separately?
+
+            ``n_live_points`` (*int*) - number of live points, default value
+            is 400.
+
+            ``sampling efficiency`` (*float*) - requested sampling efficiency.
+            MultiNest documentation suggests 0.8 (default value) for parameter
+            estimatrion and 0.3 for evidence evalutation.
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
@@ -198,9 +222,10 @@ XXX
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
-            allowed keys are ``'triangle'`` and ``'best model'``.
+            allowed keys are ``triangle``, ``trace`` (only EMCEE fitting),
+            and ``best model``.
             The values are also dicts and currently accepted keys are
-            ``'file'`` (both plots) and for best model plot also:
+            ``'file'`` (all plots) and for ``best model`` plot also:
             ``'time range'``, ``'magnitude range'``, ``'legend'``,
             ``'rcParams'``, e.g.,
 
@@ -2173,11 +2198,12 @@ XXX
         alpha = 0.5
         plt.rcParams['font.size'] = 12
         plt.rcParams['axes.linewidth'] = 1.4
+        figure_size = (7.5, 10.5)
         margins = {'left': 0.13, 'right': 0.97, 'top': 0.99, 'bottom': 0.05}
 
         grid = gridspec.GridSpec(self._n_fit_parameters, 1, hspace=0)
 
-        plt.figure(figsize=(7.5, 10.5))  # A4 is 8.27 11.69. XXX
+        plt.figure(figsize=figure_size)
         plt.subplots_adjust(**margins)
         x_vector = np.arange(self._samples.shape[1])
 
