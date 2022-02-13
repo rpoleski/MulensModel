@@ -8,7 +8,17 @@ Allowing easy access to many functions results in somehow complicated code, so i
 
 Here all settings are passed via YAML files, which are human- and machine-readable. If the script syntax is unclear, then please search for information on YAML format files (or see [this link](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html)).
 
+### Install required packages
+
+I suggest to start with:
+```
+pip install -r requirements.txt
+```
+so that you have all required packages.
+
 ### Basic usage
+
+In this and following few sections I show how to fit model using [EMCEE](https://emcee.readthedocs.io/en/stable/) implementation of [MCMC](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo). The other possibility is to use [MultiNest](http://johannesbuchner.github.io/PyMultiNest/) and it's presented at the end.
 
 Example usage:
 
@@ -93,6 +103,14 @@ In this case, the parameters don't change much because `t_E` is well constrained
 For detailed description of different options, see `fit_constraints` in [ulens\_model\_fit.py](ulens_model_fit.py).
 
 
+### Fit using pyMultiNest
+
+The pyMultiNest is one of the implementations of [nested sampling](https://en.wikipedia.org/wiki/Nested_sampling_algorithm) - a method that has similar goals to frequently used MCMC approach. There are complicated posteriors in which EMCEE fails and pyMultiNest works without a problem. The latter method is also capable of automatically finding separate posterior modes and exploring each one separately.
+
+The most basic usage of pyMultiNest is presented in [ob08092-o4\_minimal\_MN.yaml](ob08092-o4_minimal_MN.yaml). Note that instead of `starting_parameters` there are `prior_limits` (based on these settings it's decided which method will be used). 
+
+More advanced pyMultiNest input file is [ob08092-o4\_MN.yaml](ob08092-o4_MN.yaml). It illustrates trivial degeneracy u0 vs. -u0. Note that `multimodal` option is turned on, so each mode is reported separately. 
+
 ### More options
 
 There are many options and more are being added. The file [ob03235\_2\_full.yaml](ob03235_2_full.yaml) presents all options currently available:
@@ -108,3 +126,5 @@ python ulens_model_fit.py ob03235_2_full.yaml
 * Julian Dates are long numbers and which may cause problems (e.g., too many numbers to be displayed properly on axis label), hence, in this example we add 2450000 to all input data and subtract it from plots. Note that all calculations are carried out using full HJD, so e.g., Earth's positions are calculated for proper epochs.
 * If you want to plot to screen then do not provide the name of output file for plot, e.g., you can remove last line in [ob08092-o4\_minimal\_plot.yaml](ob08092-o4_minimal_plot.yaml).
 * In output, "Best model" is the one with the highest probability, which if different from the smallest chi2 model if informative priors are applied.
+* I have many plans to add more options and capabilities. Please let me know, what you need and I'll try to make it my priority.
+

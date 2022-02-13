@@ -38,7 +38,7 @@ The easiest way is to run:
 ```
 pip install MulensModel
 ```
-which will download all files and also install all dependencies.
+which will download all files and also install all dependencies. 
 
 If the above method doesn't work or you would like to see other possibilities, then please see [the install file](documents/install.md).
 
