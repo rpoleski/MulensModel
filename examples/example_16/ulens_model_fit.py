@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.25.1'
+__version__ = '0.25.2'
 
 
 class UlensModelFit(object):
@@ -2089,6 +2089,22 @@ class UlensModelFit(object):
             print("Fitted parameters and fluxes (source and blending):")
         else:
             print("Fitted parameters:")
+
+        if False:  # XXX HERE
+            modes = self._analyzer.get_mode_stats()['modes']
+            key_lnZ = 'local log-evidence'
+            modes_lnZ = np.array([mode[key_lnZ] for mode in modes])
+            shift = (np.max(modes_lnZ) + np.min(modes_lnZ)) / 2.
+            # We subtract shift for numerical stability.
+            modes_lnZ -= shift
+            modes_Z = np.exp(modes_lnZ)
+            probabilities = modes_Z / np.sum(modes_Z)
+            relative_error = np.array([
+                mode[key_lnZ + ' error'] for mode in modes])
+            # Error in np.sum(modes_Z) is ignored.
+            probabilities_error = probabilities * relative_error
+            print(probabilities)
+            print(probabilities_err_2)
 
         for i_mode in range(self._n_modes):
             print(" MODE", i_mode+1)
