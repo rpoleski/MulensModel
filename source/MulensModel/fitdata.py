@@ -1,6 +1,5 @@
 import numpy as np
 import warnings
-import astropy.units as u
 
 from MulensModel.mulensdata import MulensData
 from MulensModel.trajectory import Trajectory
