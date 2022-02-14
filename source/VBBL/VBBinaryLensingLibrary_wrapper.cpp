@@ -3,7 +3,7 @@
 #include "VBBinaryLensingLibrary.h"
 
 extern "C" {
-  double VBBinaryLensing_BinaryMagDark(double a,double q,double y1,double y2,double RSv,double a1, double Tol) {
+  double VBBinaryLensing_BinaryMagDark(double a, double q, double y1, double y2, double RSv, double a1, double Tol) {
     static VBBinaryLensing VBBL;
     
     return VBBL.BinaryMagDark(a, q, y1, y2, RSv, a1, Tol);
@@ -34,3 +34,13 @@ extern "C" double* VBBL_SG12_5(double p0, double p1,
 
     return roots;
 }
+
+extern "C" {
+  double VBBL_BinaryMag(double a, double q, double y1, double y2) {
+    static VBBinaryLensing VBBL;
+
+    return VBBL.BinaryMag0(a, q, y1, y2);
+  }
+}
+
+
