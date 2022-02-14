@@ -4,7 +4,7 @@
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
-[Latest release: 2.4.5](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 2.6.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best-fit parameters.
 
