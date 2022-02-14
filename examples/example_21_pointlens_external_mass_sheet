@@ -41,4 +41,5 @@ ax2.set_ylabel("y", fontweight="bold")
 lens.plot_trajectory(t_range=[t_0 - 475, t_0], caustics=True, color='green')
 lens.plot_trajectory(t_range=[t_0, t_0 + 475], color='blue')
 
+plt.savefig("example_21_pointlens_external_mass_sheet.png")
 plt.show()
