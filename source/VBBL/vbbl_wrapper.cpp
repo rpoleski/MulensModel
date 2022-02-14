@@ -56,7 +56,7 @@ VBBL_SG12_5_wrapper(PyObject *self, PyObject *args) {
 
 static PyObject * 
 VBBinaryLensing_BinaryMag_wrapper(PyObject *self, PyObject *args) {
-  double a, q, y1, y2;
+  double a, q, y1, y2, mag;
   static VBBinaryLensing VBBL;
 
   if (!PyArg_ParseTuple(args, "dddd", &a, &q, &y1, &y2)) return NULL;
