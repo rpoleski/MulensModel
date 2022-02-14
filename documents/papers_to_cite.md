@@ -1,4 +1,4 @@
-It is important to give credit for foundations of scientific code used. When writing a paper that is based on MulensModel please cite MulensModel paper and also the papers for the relevant algorithms:
+MulensModel incorporates many algorithms from other work, which deserve acknowledgement in scientific publications (see [Muna et al. 2016](https://arxiv.org/abs/1610.03159)). When writing a paper that is based on MulensModel please cite MulensModel paper and also the papers for the relevant algorithms:
 
 
 ### Finite Source Magnification for Point lenses
@@ -59,3 +59,8 @@ Note that algorithms and implementation for underlying fortran code were present
 [Feroz, Hobson & Bridges 2009 MNRAS 298, 1601](https://ui.adsabs.harvard.edu/abs/2009MNRAS.398.1601F/abstract), and 
 [Feroz, Hobson, Cameron & Pettitt 2019 Open Journal of Astrophysics 2, 10](https://ui.adsabs.harvard.edu/abs/2019OJAp....2E..10F/abstract).
 
+### Microlensing Parallax:
+
+For microlensing parallax calculations MulensModel calls [Astropy](https://www.astropy.org/index.html) package: 
+[The Astropy Collaboration et al. 2013 A&A 558, 33](https://ui.adsabs.harvard.edu/abs/2013A%26A...558A..33A/abstract) and 
+[The Astropy Collaboration et al. 2018 AJ 156, 123](https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract)
