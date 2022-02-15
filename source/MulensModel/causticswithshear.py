@@ -63,12 +63,12 @@ class CausticsWithShear(Caustics):
             roots = np.polynomial.polynomial.polyroots(coeff_list)
             # Store results
             for root in roots:
-                self._critical_curve.x.append(root.real - xcm_offset)
+                self._critical_curve.x.append(root.real - xcm_offset + self.convergence_K + self.shear_G.real)
                 self._critical_curve.y.append(root.imag)
 
                 source_plane_position = self._solve_lens_equation(root)
-                self._x.append(source_plane_position.real - xcm_offset)
-                self._y.append(source_plane_position.imag)
+                self._x.append(source_plane_position.real - xcm_offset + self.convergence_K + self.shear_G.real)
+                self._y.append(source_plane_position.imag + self.shear_G.imag)
 
     def _solve_lens_equation(self, complex_value):
         """

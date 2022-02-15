@@ -15,12 +15,12 @@ import MulensModel as mm
 s = 1.0
 q = 0.4
 alpha = 0
-K = 0.7
-G = complex(0.6, 0.0)
+K = 0.0
+G = complex(0.0, -0.2)
 t_0 = 300
 t_E = 500
 rho = 1.e-4
-u_0 = 0.7
+u_0 = 0.25
 
 time = np.arange(t_0-775., t_0+775., 0.4, dtype=float)
 
@@ -47,8 +47,6 @@ no_shear.plot_trajectory(t_range=[t_0 - 475, t_0], caustics=True, color='green')
 mm.Caustics(s=s, q=q).plot(alpha=0.3)  # no_shear
 lens.plot_trajectory(t_range=[t_0 - 475, t_0], caustics=True, color='green')
 lens.plot_trajectory(t_range=[t_0, t_0 + 475], color='blue')
-ax2.scatter(no_shear.caustics._critical_curve.x, no_shear.caustics._critical_curve.y, color='m')
-ax2.scatter(lens.caustics._critical_curve.x, lens.caustics._critical_curve.y, color='g')
 
-fig.savefig("TEST.png")
+fig.savefig("example_21_external_mass_sheet.png")
 plt.show()
