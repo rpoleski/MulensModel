@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.25.2'
+__version__ = '0.25.3'
 
 
 class UlensModelFit(object):
@@ -2090,29 +2090,42 @@ class UlensModelFit(object):
         else:
             print("Fitted parameters:")
 
-        if False:  # XXX HERE
-            modes = self._analyzer.get_mode_stats()['modes']
-            key_lnZ = 'local log-evidence'
-            modes_lnZ = np.array([mode[key_lnZ] for mode in modes])
-            shift = (np.max(modes_lnZ) + np.min(modes_lnZ)) / 2.
-            # We subtract shift for numerical stability.
-            modes_lnZ -= shift
-            modes_Z = np.exp(modes_lnZ)
-            probabilities = modes_Z / np.sum(modes_Z)
-            relative_error = np.array([
-                mode[key_lnZ + ' error'] for mode in modes])
-            # Error in np.sum(modes_Z) is ignored.
-            probabilities_error = probabilities * relative_error
-            print(probabilities)
-            print(probabilities_err_2)
+        self._set_mode_probabilities()
 
         for i_mode in range(self._n_modes):
-            print(" MODE", i_mode+1)
+            err = self._mode_probabilities_error[i_mode]
+            accuracy = self._get_accuracy(err)
+            fmt = (" MODE {:} probability: {:." + str(accuracy) +
+                   "f} +- {:." + str(accuracy) + "f}")
+            print(fmt.format(i_mode+1, self._mode_probabilities[i_mode], err))
             self._print_results(self._samples_modes_flat[i_mode], mode=i_mode)
             if self._return_fluxes:
                 self._print_results(
                     self._samples_modes_flat_fluxes[i_mode], names="fluxes")
         print(" END OF MODES")
+
+    def _set_mode_probabilities(self):
+        """
+        Calculate probabilities of each mode and its uncertainty
+        """
+        modes = self._analyzer.get_mode_stats()['modes']
+        key_lnZ = 'local log-evidence'
+        modes_lnZ = np.array([mode[key_lnZ] for mode in modes])
+        shift = (np.max(modes_lnZ) + np.min(modes_lnZ)) / 2.
+        # We subtract shift for numerical stability.
+        modes_lnZ -= shift
+        modes_Z = np.exp(modes_lnZ)
+        self._mode_probabilities = modes_Z / np.sum(modes_Z)
+        relative_error = [mode[key_lnZ + ' error'] for mode in modes]
+        # Error in np.sum(modes_Z) is ignored.
+        self._mode_probabilities_error = (
+            relative_error * self._mode_probabilities)
+
+    def _get_accuracy(self, uncertainty):
+        """
+        Return int which says how to round given value to 2 significant digits
+        """
+        return 2-int(np.log10(uncertainty))
 
     def _extract_posterior_samples_MultiNest(self):
         """

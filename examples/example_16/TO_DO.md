@@ -11,6 +11,7 @@
 - ob08092-o4_prior.yaml
 - posterior files
 - print model
+- example with add_2450000: False
 
 ## List of task to be done:
 
@@ -19,17 +20,11 @@
 - **some documentation - see above**
 - Mroz+20 - finish
 - MN: print best model for each mode separately
-- MN: print relative mode probabilities
-    b = np.array([m['strictly local log-evidence'] for m in self._analyzer.get_mode_stats()['modes']])
-    c = np.exp(b - np.mean(b))
-    d = c / np.sum(c) # these are relative mode probabilities.
-    # m['strictly local log-evidence error']
-    # m['local log-evidence error']
 - MN: add option to plot best model from each mode
 - MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
 - script and MM versions should be printed
-- add one more fitting method? scipy.optimize, ultranest, https://lmfit.github.io/lmfit-py/, ???
 - EMCEE backend - https://emcee.readthedocs.io/en/stable/user/backends/#emcee.backends.HDFBackend
+- add one more fitting method? scipy.optimize, ultranest, https://lmfit.github.io/lmfit-py/, sfit by Jen, ???
 - plot trajectory
 - add check if 't_0' is covered by data and give warning if not
 - print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
