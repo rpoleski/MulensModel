@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.25.3'
+__version__ = '0.25.4'
 
 
 class UlensModelFit(object):
@@ -980,7 +980,7 @@ class UlensModelFit(object):
             self._kwargs_MultiNest['outputfiles_basename'] = (
                 tempfile.mkdtemp('_MM_ex16_pyMN') + sep)
             self._MN_temporary_files = True
-        self._warn_about_existing_output_files_MultiNest()
+        self._check_output_files_MultiNest()
 
     def _set_dict_safetly(self, target, source, keys_mapping):
         """
@@ -992,10 +992,20 @@ class UlensModelFit(object):
             if key_in in source:
                 target[key_out] = source[key_in]
 
-    def _warn_about_existing_output_files_MultiNest(self):
+    def _check_output_files_MultiNest(self):
         """
-        Check if output files exist and warn about overwrtting them
+        Check if output files exist and warn about overwrtting them.
+
+        If they directory doesn't exist then raise error.
         """
+        root = self._kwargs_MultiNest['outputfiles_basename']
+        print(root)
+        if not path.isdir(path.dirname(root)):
+            msg = 'directory for output files does not exist; root path: '
+            raise ValueError(msg + root)
+        if path.isdir(root):
+            root += sep
+
         check = (
             'resume.dat phys_live.points live.points phys_live-birth.txt '
             'ev.dat dead-birth.txt .txt stats.dat post_equal_weights.dat'
@@ -1832,6 +1842,13 @@ class UlensModelFit(object):
 
             if self._kwargs_MultiNest['multimodal']:
                 self._read_multimode_posterior_MultiNest()
+                if False:
+                    modes = self._analyzer.get_mode_stats()['modes']
+                    for mode in modes:
+                        print(mode['index'])
+                        print(mode['maximum'])
+                        self._set_model_parameters(np.array(mode['maximum']))
+                        print(self._event.get_chi2())
 
             if self._MN_temporary_files:
                 shutil.rmtree(base, ignore_errors=True)

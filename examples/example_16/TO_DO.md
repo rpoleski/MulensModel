@@ -19,7 +19,7 @@
 
 - **some documentation - see above**
 - Mroz+20 - finish
-- MN: print best model for each mode separately
+# MN: print best model for each mode separately
 - MN: add option to plot best model from each mode
 - MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
 - script and MM versions should be printed
