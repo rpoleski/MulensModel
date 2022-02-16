@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.25.6'
+__version__ = '0.26.0'
 
 
 class UlensModelFit(object):
@@ -178,6 +178,9 @@ class UlensModelFit(object):
             ``sampling efficiency`` (*float*) - requested sampling efficiency.
             MultiNest documentation suggests 0.8 (default value) for parameter
             estimatrion and 0.3 for evidence evalutation.
+
+            ``evidence tolerance`` (*float*) - requested tolerance of ln(Z)
+            calculation; default is 0.5 and should work well in most cases.
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
@@ -897,7 +900,8 @@ class UlensModelFit(object):
     def _check_parameters_types(self, settings, bools=None,
                                 ints=None, floats=None, strings=None):
         """
-        Check if the settings have right type
+        Check if the settings have right type.
+        For floats we accept ints as well.
         """
         if bools is None:
             bools = []
@@ -919,7 +923,7 @@ class UlensModelFit(object):
                     raise TypeError(
                         fmt.format(key, "int", str(type(value))))
             elif key in floats:
-                if not isinstance(value, float):
+                if not isinstance(value, (float, int)):
                     raise TypeError(
                         fmt.format(key, "float", str(type(value))))
             elif key in strings:
@@ -957,7 +961,7 @@ class UlensModelFit(object):
         bools = ['multimodal']
         ints = ['n_live_points']
         strings = ['basename']
-        floats = ['sampling efficiency']
+        floats = ['sampling efficiency', 'evidence tolerance']
         allowed = strings + bools + ints + floats
 
         self._check_required_and_allowed_parameters(required, allowed)
@@ -966,7 +970,8 @@ class UlensModelFit(object):
         self._kwargs_MultiNest['multimodal'] = False
 
         keys = {"basename": "outputfiles_basename",
-                "sampling efficiency": "sampling_efficiency"}
+                "sampling efficiency": "sampling_efficiency",
+                "evidence tolerance": "evidence_tolerance"}
         same_keys = ["multimodal", "n_live_points"]
         keys = {**keys, **{key: key for key in same_keys}}
 
