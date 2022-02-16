@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.25.4'
+__version__ = '0.25.5'
 
 
 class UlensModelFit(object):
@@ -999,8 +999,7 @@ class UlensModelFit(object):
         If they directory doesn't exist then raise error.
         """
         root = self._kwargs_MultiNest['outputfiles_basename']
-        print(root)
-        if not path.isdir(path.dirname(root)):
+        if len(path.dirname(root)) != 0 and not path.isdir(path.dirname(root)):
             msg = 'directory for output files does not exist; root path: '
             raise ValueError(msg + root)
         if path.isdir(root):
@@ -1843,12 +1842,12 @@ class UlensModelFit(object):
             if self._kwargs_MultiNest['multimodal']:
                 self._read_multimode_posterior_MultiNest()
                 if False:
-                    modes = self._analyzer.get_mode_stats()['modes']
-                    for mode in modes:
-                        print(mode['index'])
-                        print(mode['maximum'])
-                        self._set_model_parameters(np.array(mode['maximum']))
-                        print(self._event.get_chi2())
+                    out = dict()
+                    for mode in self._analyzer.get_mode_stats()['modes']:
+                        # index is 0-based
+                        out[mode['index']] = {"parameters": mode['maximum']}
+                        self._set_model_parameters(mode['maximum'])
+                        out[mode['index']]["chi2"] = self._event.get_chi2()
 
             if self._MN_temporary_files:
                 shutil.rmtree(base, ignore_errors=True)
