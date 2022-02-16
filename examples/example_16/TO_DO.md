@@ -19,7 +19,6 @@
 
 - **some documentation - see above**
 - Mroz+20 - finish
-# MN: print best model for each mode separately
 - MN: add option to plot best model from each mode
 - MN: add more parameters to _parse_fitting_parameters_MultiNest(): n_clustering_params, max_iter, resume [previous run], const_efficiency_mode, wrapped_params [list of 0 or 1 (1 for wrap arround)], mode_tolerance, evidence_tolerance, log_zero, seed [random no. generator seed], verbose [need update on sampling progress?]; FOR MORE INFO SEE: https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest/run.py AND https://github.com/farhanferoz/MultiNest/blob/master/MultiNest_v3.12/nested.F90
 - script and MM versions should be printed
@@ -52,6 +51,7 @@
 - settings['input_file_root'] = input_file_root - in final function and use it for default output files names
 - EMCEE: posterior output: 1) add log(prior), 2) add chi2 or equivalent, 3) add option to add fluxes
 - EMCEE: print number of models calculated
+- MN: for multimode version add option to print statistics of all modes combined
 - MN: separate corner plot for each mode (requires same shift to be used in _shift_t_0_in_samples())
 - periodic variables - suggest it for alpha, x_caustic_X
 - check if data files exist

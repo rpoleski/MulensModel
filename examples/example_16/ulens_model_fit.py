@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.25.5'
+__version__ = '0.25.6'
 
 
 class UlensModelFit(object):
@@ -1841,13 +1841,7 @@ class UlensModelFit(object):
 
             if self._kwargs_MultiNest['multimodal']:
                 self._read_multimode_posterior_MultiNest()
-                if False:
-                    out = dict()
-                    for mode in self._analyzer.get_mode_stats()['modes']:
-                        # index is 0-based
-                        out[mode['index']] = {"parameters": mode['maximum']}
-                        self._set_model_parameters(mode['maximum'])
-                        out[mode['index']]["chi2"] = self._event.get_chi2()
+                self._read_multimode_best_models_MultiNest()
 
             if self._MN_temporary_files:
                 shutil.rmtree(base, ignore_errors=True)
@@ -1881,6 +1875,20 @@ class UlensModelFit(object):
         self._MN_samples_modes_all = data
         self._MN_modes_indexes = n_samples
         self._n_modes = len(n_samples)
+
+    def _read_multimode_best_models_MultiNest(self):
+        """
+        read and process information about best models
+        (i.e., highest likelihood, not maximum a posteriori) for each mode
+        """
+        out = dict()
+        for mode in self._analyzer.get_mode_stats()['modes']:
+            out[mode['index']] = {"parameters": mode['maximum']}
+            self._set_model_parameters(mode['maximum'])
+            out[mode['index']]["chi2"] = self._event.get_chi2()
+            # The above line is not best performence, but easy solution.
+
+        self._best_models_for_modes_MN = out
 
     def _parse_results(self):
         """
@@ -2102,7 +2110,8 @@ class UlensModelFit(object):
         """
         print("Number of modes found:", self._n_modes)
         if self._return_fluxes:
-            print("Fitted parameters and fluxes (source and blending):")
+            print("Fitted parameters and fluxes (source and blending) "
+                  "plus best model info:")
         else:
             print("Fitted parameters:")
 
@@ -2118,6 +2127,10 @@ class UlensModelFit(object):
             if self._return_fluxes:
                 self._print_results(
                     self._samples_modes_flat_fluxes[i_mode], names="fluxes")
+            mode = self._best_models_for_modes_MN[i_mode]
+            print("{:.4f}".format(mode['chi2']))
+            print(*mode['parameters'][:self._n_fit_parameters])
+            print(*mode['parameters'][self._n_fit_parameters:])
         print(" END OF MODES")
 
     def _set_mode_probabilities(self):
