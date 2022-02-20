@@ -249,8 +249,11 @@ class Trajectory(object):
         position_ref = get_body_barycentric(
             body='earth', time=Time(time_ref, format='jd', scale='tdb'))
         # Seems that get_body_barycentric depends on time system, but there is
-        # no way to set BJD_TDB in astropy.Time().
-        # Likewise, get_jd12 depends on time system.
+        # no way to set BJD part of BJD_TDB in astropy.Time(). The option
+        # *format* above indicates if the first argument of Time() is
+        # a float indicating JD or e.g., a string in the form
+        # '1999-01-01T00:00:00.123' - this would be value 'fits'.
+        # Hence, the user has to provide BJD times (or at least HJD).
 
         # Main calculation is in 2 lines below:
         delta_s = (position_ref.xyz.T - position.xyz.T).to(u.au).value
