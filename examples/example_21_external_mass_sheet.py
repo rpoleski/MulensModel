@@ -12,17 +12,17 @@ import MulensModel as mm
 
 
 # Define lens model and source parameters
+t_0 = 300
+u_0 = 0.25
+t_E = 500
+rho = 1.e-4
 s = 1.0
 q = 0.4
 alpha = 0
 K = 0.0
 G = complex(0.0, -0.2)
-t_0 = 300
-t_E = 500
-rho = 1.e-4
-u_0 = 0.25
 
-time = np.arange(t_0-775., t_0+775., 0.4, dtype=float)
+time = np.arange(t_0-775., t_0+775., 0.5, dtype=float)
 
 lens = mm.model.Model({
         't_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
@@ -43,10 +43,10 @@ ax2.set_xlim(-1.5, 1.5)
 ax2.set_ylim(-1.5, 1.5)
 ax2.set_xlabel("x", fontweight="bold")
 ax2.set_ylabel("y", fontweight="bold")
-no_shear.plot_trajectory(t_range=[t_0 - 475, t_0], caustics=True, color='green')
+no_shear.plot_trajectory(t_range=[t_0 - 475, t_0], caustics=True,
+		         color='green')
 mm.Caustics(s=s, q=q).plot(alpha=0.3)  # no_shear
 lens.plot_trajectory(t_range=[t_0 - 475, t_0], caustics=True, color='green')
 lens.plot_trajectory(t_range=[t_0, t_0 + 475], color='blue')
 
-fig.savefig("example_21_external_mass_sheet.png")
 plt.show()
