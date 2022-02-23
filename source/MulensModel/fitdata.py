@@ -686,6 +686,8 @@ class FitData:
             parameters_no_piE.pop('pi_E_N')
             parameters_no_piE.pop('pi_E_E')
 
+            # Isn't this effectively delta tau, delta_beta? --> store that
+            # information in Trajectory rather than reconstructing it?
             trajectory_no_piE = Trajectory(
                 self.dataset.time, ModelParameters(parameters_no_piE),
                 **kwargs)
@@ -693,6 +695,7 @@ class FitData:
             dy = trajectory.y - trajectory_no_piE.y
             delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
             delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
+
             det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
             gradient['pi_E_N'] = (d_u_d_x * delta_N + d_u_d_y * delta_E) / det
             gradient['pi_E_E'] = (d_u_d_x * delta_E - d_u_d_y * delta_N) / det

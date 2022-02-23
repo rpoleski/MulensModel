@@ -150,10 +150,12 @@ class Trajectory(object):
 
         # If parallax is non-zero, apply parallax effects:
         if self.parameters.pi_E is not None:
+            # Warnings & Checks
             if self.coords is None:
                 raise ValueError("You're trying to calculate trajectory in " +
                                  "a parallax model, but event sky " +
                                  "coordinates were not provided.")
+
             keys = ['earth_orbital', 'satellite', 'topocentric']
             if set([self.parallax[k] for k in keys]) == set([False]):
                 raise ValueError(
@@ -161,27 +163,12 @@ class Trajectory(object):
                     'of parallax dict has to be True ' +
                     '(earth_orbital, satellite, or topocentric)')
 
-            # Apply Earth Orbital parallax effect
-            if self.parallax['earth_orbital']:
-                [delta_tau, delta_u] = self._annual_parallax_trajectory()
-                vector_tau += delta_tau
-                vector_u += delta_u
+            # Calculate parallax offsets
 
-            # Apply satellite parallax effect
-            if (self.parallax['satellite'] and
-                    self.satellite_skycoord is not None):
-                [delta_tau, delta_u] = self._satellite_parallax_trajectory()
-                vector_tau += delta_tau
-                vector_u += delta_u
-
-            # Apply topocentric parallax effect
-            if self.parallax['topocentric'] and self._earth_coords is not None:
-                # When you implement it, make sure the behavior
-                # depends on the access to the observatory location
-                # information as the satellite parallax depends on the
-                # access to satellite_skycoord.
-                raise NotImplementedError(
-                    "The topocentric parallax effect not implemented yet")
+            self._calculate_delta_NE()
+            [delta_tau, delta_u] = self._project_delta()
+            vector_tau += delta_tau
+            vector_u += delta_u
 
         # If 2 lenses, rotate trajectory relative to binary lens axis
         if self.parameters.n_lenses == 1:
@@ -208,10 +195,44 @@ class Trajectory(object):
         self._x = vector_x
         self._y = vector_y
 
-    def _project_delta(self, delta):
+    def _calculate_delta_NE(self):
+        self.delta_NE = {}
+
+        if self.parallax['earth_orbital']:
+            delta_eo = self._get_delta_annual()
+            for direction in ['N', 'E']:
+                if direction in self.delta_NE.keys():
+                    self.delta_NE[direction] += delta_eo[direction]
+                else:
+                    self.delta_NE[direction] = np.copy(delta_eo[direction])
+
+        # Apply satellite parallax effect
+        if (self.parallax['satellite'] and
+                self.satellite_skycoord is not None):
+            delta_sat = self._get_delta_satellite()
+            for direction in ['N', 'E']:
+                if direction in self.delta_NE.keys():
+                    self.delta_NE[direction] += delta_sat[direction]
+                else:
+                    self.delta_NE[direction] = np.copy(delta_sat[direction])
+
+        # Apply topocentric parallax effect
+        if self.parallax['topocentric'] and self._earth_coords is not None:
+            # When you implement it, make sure the behavior
+            # depends on the access to the observatory location
+            # information as the satellite parallax depends on the
+            # access to satellite_skycoord.
+            raise NotImplementedError(
+                "The topocentric parallax effect not implemented yet")
+
+
+    def _project_delta(self, delta=None):
         """
         Project N and E parallax offset vector onto the tau, beta plane.
         """
+        if delta is None:
+            delta = self.delta_NE
+
         delta_tau = (delta['N'] * self.parameters.pi_E_N +
                      delta['E'] * self.parameters.pi_E_E)
         delta_beta = (-delta['N'] * self.parameters.pi_E_E +
