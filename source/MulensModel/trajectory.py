@@ -134,6 +134,17 @@ class Trajectory(object):
         """
         return self._y
 
+    @property
+    def delta_NE(self):
+        """
+        *dict*
+
+        Net North (key='N') and East (key='E') components of the parallax
+        offset calculated for each time stamp (so sum of the offsets from all
+        parallax types).
+        """
+        return self._delta_NE
+
     def get_xy(self):
         """
         For a given set of parameters
@@ -196,25 +207,25 @@ class Trajectory(object):
         self._y = vector_y
 
     def _calculate_delta_NE(self):
-        self.delta_NE = {}
+        self._delta_NE = {}
 
         if self.parallax['earth_orbital']:
             delta_eo = self._get_delta_annual()
             for direction in ['N', 'E']:
                 if direction in self.delta_NE.keys():
-                    self.delta_NE[direction] += delta_eo[direction]
+                    self._delta_NE[direction] += delta_eo[direction]
                 else:
-                    self.delta_NE[direction] = np.copy(delta_eo[direction])
+                    self._delta_NE[direction] = np.copy(delta_eo[direction])
 
         # Apply satellite parallax effect
         if (self.parallax['satellite'] and
                 self.satellite_skycoord is not None):
             delta_sat = self._get_delta_satellite()
             for direction in ['N', 'E']:
-                if direction in self.delta_NE.keys():
-                    self.delta_NE[direction] += delta_sat[direction]
+                if direction in self._delta_NE.keys():
+                    self._delta_NE[direction] += delta_sat[direction]
                 else:
-                    self.delta_NE[direction] = np.copy(delta_sat[direction])
+                    self._delta_NE[direction] = np.copy(delta_sat[direction])
 
         # Apply topocentric parallax effect
         if self.parallax['topocentric'] and self._earth_coords is not None:

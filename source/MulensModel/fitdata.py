@@ -671,34 +671,16 @@ class FitData:
 
         # Below we deal with parallax only.
         if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-            warnings.warn(
-                "\n\nTests indicate that chi2 gradient for models with "
-                "parallax has BUGS!!!\n It's better not to use it or contact "
-                "code authors.\n")
-            # JCY Not happy about this as it requires importing from other
-            # modules. It is inelegant, which in my experience often means it
-            # needs to be refactored.
-            kwargs = dict()
-            if self.dataset.ephemerides_file is not None:
-                kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
+            # warnings.warn(
+            #     "\n\nTests indicate that chi2 gradient for models with "
+            #     "parallax has BUGS!!!\n It's better not to use it or contact "
+            #     "code authors.\n")
 
-            parameters_no_piE = {**self.model.parameters.as_dict()}
-            parameters_no_piE.pop('pi_E_N')
-            parameters_no_piE.pop('pi_E_E')
+            delta_N = trajectory.delta_NE['N']
+            delta_E = trajectory.delta_NE['E']
 
-            # Isn't this effectively delta tau, delta_beta? --> store that
-            # information in Trajectory rather than reconstructing it?
-            trajectory_no_piE = Trajectory(
-                self.dataset.time, ModelParameters(parameters_no_piE),
-                **kwargs)
-            dx = trajectory.x - trajectory_no_piE.x
-            dy = trajectory.y - trajectory_no_piE.y
-            delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
-            delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
-
-            det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
-            gradient['pi_E_N'] = (d_u_d_x * delta_N + d_u_d_y * delta_E) / det
-            gradient['pi_E_E'] = (d_u_d_x * delta_E - d_u_d_y * delta_N) / det
+            gradient['pi_E_N'] = (d_u_d_x * delta_N + d_u_d_y * delta_E)
+            gradient['pi_E_E'] = (d_u_d_x * delta_E - d_u_d_y * delta_N)
 
         return gradient
 
