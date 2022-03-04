@@ -15,7 +15,7 @@ Currently, MulensModel supports:
 * Source Stars: single source or binary source.
 * Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion, different parametrizations of microlensing models.
 
-Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues) or send us an e-mail. 
+Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues), start [a discussion](https://github.com/rpoleski/MulensModel/discussions), or send us an e-mail. 
 
 ## Acknowledgements
 

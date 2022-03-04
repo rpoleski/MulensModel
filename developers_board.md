@@ -5,6 +5,7 @@
 4. triple lenses
 5. astrometric microlensing
 6. better support of FFP calculations (see "next smaller tasks" below)
+7. terrestial parallax
 
 # Next smaller tasks:
 1. gradient for parallax model issue
