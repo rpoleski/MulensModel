@@ -671,16 +671,11 @@ class FitData:
 
         # Below we deal with parallax only.
         if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-            # warnings.warn(
-            #     "\n\nTests indicate that chi2 gradient for models with "
-            #     "parallax has BUGS!!!\n It's better not to use it or contact "
-            #     "code authors.\n")
-
             delta_N = trajectory.delta_NE['N']
             delta_E = trajectory.delta_NE['E']
 
-            gradient['pi_E_N'] = (d_u_d_x * delta_N + d_u_d_y * delta_E)
-            gradient['pi_E_E'] = (d_u_d_x * delta_E - d_u_d_y * delta_N)
+            gradient['pi_E_N'] = d_u_d_x * delta_N + d_u_d_y * delta_E
+            gradient['pi_E_E'] = d_u_d_x * delta_E - d_u_d_y * delta_N
 
         return gradient
 

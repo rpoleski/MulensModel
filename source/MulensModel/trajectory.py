@@ -161,7 +161,6 @@ class Trajectory(object):
 
         # If parallax is non-zero, apply parallax effects:
         if self.parameters.pi_E is not None:
-            # Warnings & Checks
             if self.coords is None:
                 raise ValueError("You're trying to calculate trajectory in " +
                                  "a parallax model, but event sky " +
@@ -173,8 +172,6 @@ class Trajectory(object):
                     'If pi_E value is provided then at least one value ' +
                     'of parallax dict has to be True ' +
                     '(earth_orbital, satellite, or topocentric)')
-
-            # Calculate parallax offsets
 
             self._calculate_delta_NE()
             [delta_tau, delta_u] = self._project_delta()
@@ -202,11 +199,13 @@ class Trajectory(object):
             raise NotImplementedError(
                 "trajectory for more than 2 lenses not handled yet")
 
-        # Store trajectory
         self._x = vector_x
         self._y = vector_y
 
     def _calculate_delta_NE(self):
+        """
+        XXX
+        """
         self._delta_NE = {}
 
         if self.parallax['earth_orbital']:
@@ -217,7 +216,6 @@ class Trajectory(object):
                 else:
                     self._delta_NE[direction] = np.copy(delta_eo[direction])
 
-        # Apply satellite parallax effect
         if (self.parallax['satellite'] and
                 self.satellite_skycoord is not None):
             delta_sat = self._get_delta_satellite()
@@ -227,15 +225,12 @@ class Trajectory(object):
                 else:
                     self._delta_NE[direction] = np.copy(delta_sat[direction])
 
-        # Apply topocentric parallax effect
         if self.parallax['topocentric'] and self._earth_coords is not None:
-            # When you implement it, make sure the behavior
-            # depends on the access to the observatory location
-            # information as the satellite parallax depends on the
-            # access to satellite_skycoord.
+            # When you implement it, make sure the behavior depends on the
+            # access to the observatory location information as the satellite
+            # parallax depends on the access to satellite_skycoord.
             raise NotImplementedError(
                 "The topocentric parallax effect not implemented yet")
-
 
     def _project_delta(self, delta=None):
         """
