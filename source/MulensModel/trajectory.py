@@ -143,7 +143,7 @@ class Trajectory(object):
         offset calculated for each time stamp (so sum of the offsets from all
         parallax types).
         """
-        return self._delta_NE
+        return self._delta_N_E
 
     def get_xy(self):
         """
@@ -173,7 +173,7 @@ class Trajectory(object):
                     'of parallax dict has to be True ' +
                     '(earth_orbital, satellite, or topocentric)')
 
-            self._calculate_delta_NE()
+            self._calculate_delta_N_E()
             [delta_tau, delta_u] = self._project_delta()
             vector_tau += delta_tau
             vector_u += delta_u
@@ -202,28 +202,22 @@ class Trajectory(object):
         self._x = vector_x
         self._y = vector_y
 
-    def _calculate_delta_NE(self):
+    def _calculate_delta_N_E(self):
         """
-        XXX
+        Calculate shifts caused by microlensing parallax effect.
         """
-        self._delta_NE = {}
+        self._delta_N_E = {'N': 0., 'E': 0.}
 
         if self.parallax['earth_orbital']:
-            delta_eo = self._get_delta_annual()
-            for direction in ['N', 'E']:
-                if direction in self.delta_NE.keys():
-                    self._delta_NE[direction] += delta_eo[direction]
-                else:
-                    self._delta_NE[direction] = np.copy(delta_eo[direction])
+            delta_annual = self._get_delta_annual()
+            self._delta_N_E['N'] += delta_annual['N']
+            self._delta_N_E['E'] += delta_annual['E']
 
         if (self.parallax['satellite'] and
                 self.satellite_skycoord is not None):
-            delta_sat = self._get_delta_satellite()
-            for direction in ['N', 'E']:
-                if direction in self._delta_NE.keys():
-                    self._delta_NE[direction] += delta_sat[direction]
-                else:
-                    self._delta_NE[direction] = np.copy(delta_sat[direction])
+            delta_satellite = self._get_delta_satellite()
+            self._delta_N_E['N'] += delta_satellite['N']
+            self._delta_N_E['E'] += delta_satellite['E']
 
         if self.parallax['topocentric'] and self._earth_coords is not None:
             # When you implement it, make sure the behavior depends on the
