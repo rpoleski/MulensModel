@@ -9,7 +9,6 @@ on:
         description: "Disable publish to PyPI"
         required: false
         type: boolean
-        default: false
 
 jobs:
   build_binary_manylinux:
@@ -35,7 +34,9 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        path: ${{ github.workspace }}/dist/*.whl
+        name: dist
+        path: dist/*.whl
+
 
   build_source:
     runs-on: ubuntu-latest
@@ -58,11 +59,12 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        path: ${{ github.workspace }}/dist/*.tar.gz
+        name: dist
+        path: dist/*.tar.gz
 
   publish:
     needs: [build_source, build_binary_manylinux]
-    if: github.event.inputs.disable_publish == 0
+    if: github.event.inputs.disable_publish == 'false'
     runs-on: ubuntu-latest
 
     steps:
@@ -70,7 +72,8 @@ jobs:
 
     - uses: actions/download-artifact@v2
       with:
-        path: ${{ github.workspace }}/dist/
+        name: dist
+        path: dist/
 
     - name: Publish package to PyPI
       # All files in dist/ are published
