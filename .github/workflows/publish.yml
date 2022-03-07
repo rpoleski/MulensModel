@@ -3,12 +3,6 @@ name: Upload Python Package to PyPI
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      disable_publish:
-        description: "Disable publish to PyPI"
-        required: false
-        type: boolean
 
 jobs:
   build_binary_manylinux:
@@ -64,7 +58,6 @@ jobs:
 
   publish:
     needs: [build_source, build_binary_manylinux]
-    if: github.event.inputs.disable_publish == 'false'
     runs-on: ubuntu-latest
 
     steps:
