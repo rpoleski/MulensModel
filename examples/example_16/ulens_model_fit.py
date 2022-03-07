@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.26.0'
+__version__ = '0.27.0'
 
 
 class UlensModelFit(object):
@@ -232,6 +232,8 @@ class UlensModelFit(object):
             ``'time range'``, ``'magnitude range'``, ``'legend'``,
             ``'rcParams'``, e.g.,
 
+            XXX 'shift t_0'
+
             .. code-block:: python
 
               {
@@ -372,6 +374,7 @@ class UlensModelFit(object):
             self._return_fluxes = True
             self._best_model_ln_prob = -np.inf
             self._flux_names = None
+            self._shift_t_0 = True
         elif self._task == 'plot':
             pass
         else:
@@ -618,17 +621,34 @@ class UlensModelFit(object):
         """
         Check if parameters of triangle plot make sense
         """
-        allowed = set(['file'])
+        allowed = set(['file', 'shift t_0'])
         unknown = set(self._plots['triangle'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "triangle": {:}'.format(unknown))
 
+        self._parse_plots_parameter_shift_t_0(self._plots['triangle'])
+
+    def _parse_plots_parameter_shift_t_0(self, settings):
+        """
+        Check if 'shift t_0' is provided and parse it
+        """
+        if 'shift t_0' not in settings:
+            return
+
+        value = settings['shift t_0']
+        if not isinstance(value, bool):
+            raise TypeError(
+                'For triangle and trace plots, the value of "shift t_0" key '
+                'must be of bool type; you provided: ' + str(type(value)))
+
+        self._shift_t_0 = value
+
     def _check_plots_parameters_trace(self):
         """
         Check if parameters of trace plot make sense
         """
-        allowed = set(['file'])
+        allowed = set(['file', 'shift t_0'])
         unknown = set(self._plots['trace'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -637,6 +657,8 @@ class UlensModelFit(object):
         if self._fit_method == "MultiNest":
             raise ValueError(
                 'Trace plot cannot be requested for MultiNest fit')
+
+        self._parse_plots_parameter_shift_t_0(self._plots['trace'])
 
     def _check_model_parameters(self):
         """
@@ -799,9 +821,9 @@ class UlensModelFit(object):
         change self._fit_parameters into latex parameters
         """
         conversion = dict(
-            t_0='\\Delta t_0', u_0='u_0',
-            t_0_1='\\Delta t_{0,1}', u_0_1='u_{0,1}',
-            t_0_2='\\Delta t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
+            t_0='t_0', u_0='u_0',
+            t_0_1='t_{0,1}', u_0_1='u_{0,1}',
+            t_0_2='t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
             t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
             rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
             t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
@@ -811,6 +833,10 @@ class UlensModelFit(object):
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
             t_caustic_out='t_{\\rm caustic,out}')
+
+        if self._shift_t_0:
+            for key in ['t_0', 't_0_1', 't_0_2']:
+                conversion[key] = '\\Delta ' + conversion[key]
 
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
@@ -1916,7 +1942,7 @@ class UlensModelFit(object):
         """
         accept_rate = np.mean(self._sampler.acceptance_fraction)
         print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
-        autocorr_time = np.mean(self._sampler.get_autocorr_time(quiet=True))
+        autocorr_time = np.mean(self._sampler.get_autocorr_time(quiet=True))  # discard=self._fitting_parameters['n_burn'])) # XXX discard
         print("Mean autocorrelation time: {0:.1f} steps".format(autocorr_time))
 
         self._extract_posterior_samples_EMCEE()
@@ -2024,6 +2050,9 @@ class UlensModelFit(object):
         """
         shift the values of t_0, t_0_1, and t_0_2:
         """
+        if not self._shift_t_0:
+            return
+
         for name in ['t_0', 't_0_1', 't_0_2']:
             if name in self._fit_parameters:
                 index = self._fit_parameters.index(name)
@@ -2260,7 +2289,7 @@ class UlensModelFit(object):
         plt.rcParams['font.size'] = 12
         plt.rcParams['axes.linewidth'] = 1.4
         figure_size = (7.5, 10.5)
-        margins = {'left': 0.13, 'right': 0.97, 'top': 0.99, 'bottom': 0.05}
+        margins = {'left': 0.13, 'right': 0.97, 'top': 0.98, 'bottom': 0.05}
 
         grid = gridspec.GridSpec(self._n_fit_parameters, 1, hspace=0)
 

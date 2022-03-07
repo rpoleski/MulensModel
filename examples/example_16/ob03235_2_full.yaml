@@ -90,6 +90,7 @@ plots:
             color: magenta
     triangle:
         file: ob03235_2_triangle.png
+        shift t_0: False
     trace:
         file: ob03235_2_trace.png
 other_output:
