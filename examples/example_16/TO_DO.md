@@ -77,3 +77,4 @@
 - methods - if only single string is provided, then this is a default method
 - move _get_weighted_percentile() to a separate file with utils because it doesnt depend on self; maybe there are other similar functions
 - allow LD parameters to be fitted
+- for trace and triangle plots, the setting `shift t_0` is common - it should be checked if it`s not set twice to different values

@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.27.0'
+__version__ = '0.27.1'
 
 
 class UlensModelFit(object):
@@ -227,12 +227,13 @@ class UlensModelFit(object):
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``triangle``, ``trace`` (only EMCEE fitting),
             and ``best model``.
-            The values are also dicts and currently accepted keys are
-            ``'file'`` (all plots) and for ``best model`` plot also:
-            ``'time range'``, ``'magnitude range'``, ``'legend'``,
-            ``'rcParams'``, e.g.,
-
-            XXX 'shift t_0'
+            The values are also dicts and currently accepted keys are:
+            1) for ``best model``:
+            ``'file'``, ``'time range'``, ``'magnitude range'``, ``'legend'``,
+            and ``'rcParams'``,
+            2) for ``triangle`` and ``trace``:
+            ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
+            e.g.:
 
             .. code-block:: python
 
@@ -241,6 +242,7 @@ class UlensModelFit(object):
                       'file': 'my_fit_triangle.png'
                   'trace':
                       'file': 'my_fit_trace_plot.png'
+                      'shift t_0': False
                   'best model':
                       'file': 'my_fit_best.png'
                       'time range': 2456000. 2456300.
@@ -1942,7 +1944,9 @@ class UlensModelFit(object):
         """
         accept_rate = np.mean(self._sampler.acceptance_fraction)
         print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
-        autocorr_time = np.mean(self._sampler.get_autocorr_time(quiet=True))  # discard=self._fitting_parameters['n_burn'])) # XXX discard
+        autocorr_times = self._sampler.get_autocorr_time(
+            quiet=True, discard=self._fitting_parameters['n_burn'])
+        autocorr_time = np.mean(autocorr_times)
         print("Mean autocorrelation time: {0:.1f} steps".format(autocorr_time))
 
         self._extract_posterior_samples_EMCEE()
