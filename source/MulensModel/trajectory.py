@@ -135,7 +135,7 @@ class Trajectory(object):
         return self._y
 
     @property
-    def delta_NE(self):
+    def parallax_delta_N_E(self):
         """
         *dict*
 
@@ -231,7 +231,7 @@ class Trajectory(object):
         Project N and E parallax offset vector onto the tau, beta plane.
         """
         if delta is None:
-            delta = self.delta_NE
+            delta = self.parallax_delta_N_E
 
         delta_tau = (delta['N'] * self.parameters.pi_E_N +
                      delta['E'] * self.parameters.pi_E_E)
