@@ -133,6 +133,17 @@ class Trajectory(object):
         """
         return self._y
 
+    @property
+    def parallax_delta_N_E(self):
+        """
+        *dict*
+
+        Net North (key='N') and East (key='E') components of the parallax
+        offset calculated for each time stamp (so sum of the offsets from all
+        parallax types).
+        """
+        return self._delta_N_E
+
     def get_xy(self):
         """
         For a given set of parameters
@@ -153,6 +164,7 @@ class Trajectory(object):
                 raise ValueError("You're trying to calculate trajectory in " +
                                  "a parallax model, but event sky " +
                                  "coordinates were not provided.")
+
             keys = ['earth_orbital', 'satellite', 'topocentric']
             if set([self.parallax[k] for k in keys]) == set([False]):
                 raise ValueError(
@@ -160,27 +172,10 @@ class Trajectory(object):
                     'of parallax dict has to be True ' +
                     '(earth_orbital, satellite, or topocentric)')
 
-            # Apply Earth Orbital parallax effect
-            if self.parallax['earth_orbital']:
-                [delta_tau, delta_u] = self._annual_parallax_trajectory()
-                vector_tau += delta_tau
-                vector_u += delta_u
-
-            # Apply satellite parallax effect
-            if (self.parallax['satellite'] and
-                    self.satellite_skycoord is not None):
-                [delta_tau, delta_u] = self._satellite_parallax_trajectory()
-                vector_tau += delta_tau
-                vector_u += delta_u
-
-            # Apply topocentric parallax effect
-            if self.parallax['topocentric'] and self._earth_coords is not None:
-                # When you implement it, make sure the behavior
-                # depends on the access to the observatory location
-                # information as the satellite parallax depends on the
-                # access to satellite_skycoord.
-                raise NotImplementedError(
-                    "The topocentric parallax effect not implemented yet")
+            self._calculate_delta_N_E()
+            [delta_tau, delta_u] = self._project_delta()
+            vector_tau += delta_tau
+            vector_u += delta_u
 
         # If 2 lenses, rotate trajectory relative to binary lens axis
         if self.parameters.n_lenses == 1:
@@ -203,14 +198,40 @@ class Trajectory(object):
             raise NotImplementedError(
                 "trajectory for more than 2 lenses not handled yet")
 
-        # Store trajectory
         self._x = vector_x
         self._y = vector_y
 
-    def _project_delta(self, delta):
+    def _calculate_delta_N_E(self):
+        """
+        Calculate shifts caused by microlensing parallax effect.
+        """
+        self._delta_N_E = {'N': 0., 'E': 0.}
+
+        if self.parallax['earth_orbital']:
+            delta_annual = self._get_delta_annual()
+            self._delta_N_E['N'] += delta_annual['N']
+            self._delta_N_E['E'] += delta_annual['E']
+
+        if (self.parallax['satellite'] and
+                self.satellite_skycoord is not None):
+            delta_satellite = self._get_delta_satellite()
+            self._delta_N_E['N'] += delta_satellite['N']
+            self._delta_N_E['E'] += delta_satellite['E']
+
+        if self.parallax['topocentric'] and self._earth_coords is not None:
+            # When you implement it, make sure the behavior depends on the
+            # access to the observatory location information as the satellite
+            # parallax depends on the access to satellite_skycoord.
+            raise NotImplementedError(
+                "The topocentric parallax effect not implemented yet")
+
+    def _project_delta(self, delta=None):
         """
         Project N and E parallax offset vector onto the tau, beta plane.
         """
+        if delta is None:
+            delta = self.parallax_delta_N_E
+
         delta_tau = (delta['N'] * self.parameters.pi_E_N +
                      delta['E'] * self.parameters.pi_E_E)
         delta_beta = (-delta['N'] * self.parameters.pi_E_E +
