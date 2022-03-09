@@ -282,9 +282,18 @@ class FitData:
         """
 
         # Bypass this code if all fluxes are fixed.
-        if self.fix_source_flux is not False:
-            if self.fix_blend_flux is not False:
-                if False not in self.fix_source_flux:
+        if isinstance(self.fix_source_flux, (list, float)):
+            if isinstance(self.fix_blend_flux, (float)):
+                proceed = False
+                if isinstance(self.fix_source_flux, (list)):
+                    for item in self.fix_source_flux:
+                        if isinstance(item, (float)):
+                            pass
+                        else:
+                            if item is False:
+                                proceed = True
+
+                if not proceed:
                     self._calculate_magnifications(bad=False)
                     self._blend_flux = self.fix_blend_flux
                     self._source_fluxes = self.fix_source_flux
