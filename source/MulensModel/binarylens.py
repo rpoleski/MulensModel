@@ -207,7 +207,7 @@ class BinaryLens(object):
 
         return self._polynomial_roots
 
-    def _polynomial_roots_ok(
+    def _verify_polynomial_roots(
             self, source_x, source_y, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots(
@@ -273,9 +273,9 @@ class BinaryLens(object):
         else:
             return np.array(out)
 
-    def _jacobian_determinant_ok(self, source_x, source_y):
+    def _get_jacobian_determinant(self, source_x, source_y):
         """determinants of lens equation Jacobian for verified roots"""
-        roots_ok_bar = np.conjugate(self._polynomial_roots_ok(
+        roots_ok_bar = np.conjugate(self._verify_polynomial_roots(
             source_x=source_x, source_y=source_y))
         # Variable X_bar is conjugate of variable X.
         add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
@@ -284,20 +284,20 @@ class BinaryLens(object):
 
         return 1. - derivative * np.conjugate(derivative)
 
-    def _signed_magnification(self, source_x, source_y):
+    def _get_signed_magnification(self, source_x, source_y):
         """signed magnification for each image separately"""
-        return 1. / self._jacobian_determinant_ok(
+        return 1. / self._get_jacobian_determinant(
             source_x=source_x, source_y=source_y)
 
-    def _point_source(self, source_x, source_y):
+    def _get_point_source(self, source_x, source_y):
         """calculate point source magnification"""
-        signed_magnification = self._signed_magnification(
+        signed_magnification = self._get_signed_magnification(
             source_x=source_x, source_y=source_y)
         return fsum(abs(signed_magnification))
 
-    def _point_source_Witt_Mao_95(self, source_x, source_y):
+    def _get_point_source_Witt_Mao_95(self, source_x, source_y):
         """calculate point source magnification"""
-        return self._point_source(source_x=source_x, source_y=source_y)
+        return self._get_point_source(source_x=source_x, source_y=source_y)
 
     def point_source_magnification(self, source_x, source_y):
         """
@@ -324,7 +324,7 @@ class BinaryLens(object):
             x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
         x_shift *= self.separation
         # We need to add this because in order to shift to correct frame.
-        return self._point_source_Witt_Mao_95(
+        return self._get_point_source_Witt_Mao_95(
             source_x=float(source_x)+x_shift, source_y=float(source_y))
         # Casting to float speeds-up code for np.float input.
 
@@ -361,7 +361,7 @@ class BinaryLens(object):
                 source_x=source_x, source_y=source_y)
         return 0.25 * fsum(out) - magnification_center
 
-    def _rho_check(self, rho):
+    def _check_rho(self, rho):
         """
         Check if rho is float and positive.
         """
@@ -420,7 +420,7 @@ class BinaryLens(object):
         if quadrupole and all_approximations:
             raise ValueError('Inconsistent parameters of ' +
                              'BinaryLens.hexadecapole_magnification()')
-        self._rho_check(rho)
+        self._check_rho(rho)
 
         a_center = self.point_source_magnification(
             source_x=source_x, source_y=source_y)
@@ -519,7 +519,7 @@ class BinaryLens(object):
         if ld_accuracy <= 0.:
             raise ValueError('adaptive_contouring requires ld_accuracy > 0')
         # Note that this accuracy is not guaranteed.
-        self._rho_check(rho)
+        self._check_rho(rho)
 
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
@@ -591,7 +591,7 @@ class BinaryLens(object):
                 Magnification.
 
         """
-        self._rho_check(rho)
+        self._check_rho(rho)
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +

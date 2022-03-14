@@ -466,7 +466,7 @@ class BinaryLensWithShear(BinaryLens):
 
         return self._polynomial_roots
 
-    def _polynomial_roots_ok(
+    def _verify_polynomial_roots(
             self, source_x, source_y, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots(
@@ -531,9 +531,9 @@ class BinaryLensWithShear(BinaryLens):
         else:
             return np.array(out)
 
-    def _jacobian_determinant_ok(self, source_x, source_y):
+    def _get_jacobian_determinant(self, source_x, source_y):
         """determinants of lens equation Jacobian for verified roots"""
-        roots_ok_bar = np.conjugate(self._polynomial_roots_ok(
+        roots_ok_bar = np.conjugate(self._verify_polynomial_roots(
             source_x=source_x, source_y=source_y))
         # Variable X_bar is conjugate of variable X.
         add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
@@ -584,7 +584,7 @@ class BinaryLensWithShear(BinaryLens):
                 Magnification.
 
         """
-        self._rho_check(rho)
+        self._check_rho(rho)
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
