@@ -40,6 +40,8 @@ class BinaryLensWithShear(BinaryLens):
     make sure you know what you're doing before you start using this
     possibility.
 
+    If you're using this class, then please cite
+    Peirson et al. (2022; ApJ 927, 24).
     """
 
     def __init__(self, mass_1=None, mass_2=None, separation=None,
