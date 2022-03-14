@@ -1,3 +1,11 @@
+# This workflow is triggered by a new release on GitHub and then uploads
+# MulensModel package to PyPI.
+#
+# If the publish step finishes succesfully, the source distribution is
+# guaranteed to be published. Binary distributions are published only if
+# their respective build steps passes. If any binary distribution fails,
+# package maintainers may manually debug, build, and publish without the
+# automated workflow.
 name: Upload Python Package to PyPI
 
 on:
@@ -30,6 +38,8 @@ jobs:
          find dist/ -type f -name *.whl | xargs -L 1 auditwheel repair --wheel-dir dist/
 
     - uses: actions/upload-artifact@v2
+      # Only upload manylinux wheels to artifact.
+      # Normal linux wheels is not allowed in PyPI
       with:
         name: dist
         path: dist/*manylinux*.whl
@@ -59,7 +69,9 @@ jobs:
         path: dist/*.tar.gz
 
   publish:
-    needs: [build_source, build_binary_manylinux]
+    # Publish to PyPI and update GitHub release
+    # Here we require only the source build to start publishing
+    needs: [build_source]
     runs-on: ubuntu-latest
 
     steps:
