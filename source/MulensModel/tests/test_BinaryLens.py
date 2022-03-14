@@ -35,8 +35,8 @@ def test_vbbl_vs_point_source():
 
     lens = mm.BinaryLensWithShear(
         m_1, m_2, s, convergence_K=0.1, shear_G=complex(0.1, -0.1))
-    result = lens.point_source_magnification(x, y)
-    result_vbbl = lens.vbbl_magnification(x, y, 1e-5)
+    result = lens.point_source_magnification(x, y, vbbl_on=False)
+    result_vbbl = lens.point_source_magnification(x, y, vbbl_on=True)
     np.testing.assert_almost_equal(result, result_vbbl, decimal=3)
 
 

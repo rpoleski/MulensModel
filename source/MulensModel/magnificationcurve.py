@@ -480,6 +480,9 @@ class MagnificationCurve(object):
                 m = binary_lens.hexadecapole_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma)
             elif method == 'vbbl':
+                if isinstance(binary_lens, BinaryLensWithShear):
+                    raise ValueError("Finite source VBBL is not available "
+                        "for BinaryLensWithShear")
                 m = binary_lens.vbbl_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'adaptive_contouring':

@@ -543,19 +543,13 @@ class BinaryLensWithShear(BinaryLens):
         return (1. - self.convergence_K)**2 - (derivative *
                                                np.conjugate(derivative))
 
-    def vbbl_magnification(self, source_x, source_y, rho,
-                           gamma=None, u_limb_darkening=None,
-                           accuracy=0.001):
+    def point_source_magnification(self, source_x, source_y, vbbl_on=True):
         """
-        Binary lens finite source magnification calculated using VBBL
-        library that implements advanced contour integration algorithm
-        presented by `Bozza 2010 MNRAS, 408, 2188
-        <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_.
-        See also `VBBL website by Valerio Bozza
-        <http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm>`_.
-
-        For coordinate system convention see
-        :py:func:`point_source_magnification()`
+        Calculate point source magnification for given position. The
+        origin of the coordinate system is at the center of mass and
+        both masses are on X axis with higher mass at negative X; this
+        means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
+        the lower mass is at (s/(1+q), 0).
 
         Parameters :
             source_x: *float*
@@ -564,54 +558,30 @@ class BinaryLensWithShear(BinaryLens):
             source_y: *float*
                 Y-axis coordinate of the source.
 
-            rho: *float*
-                Source size relative to Einstein ring radius.
-
-            gamma: *float*, optional
-                Linear limb-darkening coefficient in gamma convention.
-
-            u_limb_darkening: *float*
-                Linear limb-darkening coefficient in u convention.
-                Note that either *gamma* or *u_limb_darkening* can be
-                set.  If neither of them is provided then limb
-                darkening is ignored.
-
-            accuracy: *float*, optional
-                Requested accuracy of the result.
-
         Returns :
             magnification: *float*
-                Magnification.
-
+                Point source magnification.
         """
-        self._rho_check(rho)
-        if accuracy <= 0.:
-            raise ValueError(
-                "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
-                "\n{:} was  provided".format(accuracy))
-
-        if not _vbbl_wrapped:
-            raise ValueError('VBBL was not imported properly')
-
-        if gamma is not None and u_limb_darkening is not None:
-            raise ValueError('Only one limb darkening parameters can be set' +
-                             ' in BinaryLens.vbbl_magnification()')
-        elif gamma is not None:
-            u_limb_darkening = float(mm.Utils.gamma_to_u(gamma))
-        elif u_limb_darkening is not None:
-            u_limb_darkening = float(u_limb_darkening)
+        if self._use_planet_frame:
+            x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
         else:
-            u_limb_darkening = float(0.0)
+            x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
+        x_shift *= self.separation
+        # We need to add this because in order to shift to correct frame.
 
-        s = float(self.separation)
-        q = float(self.mass_2 / self.mass_1)
-        x = float(source_x)
-        y = float(source_y)
-        rho = float(rho)
-        accuracy = float(accuracy)
+        #run point source using faster VBBL method
+        if _vbbl_wrapped and vbbl_on:
+            s = float(self.separation)
+            q = float(self.mass_2 / self.mass_1)
+            x = float(source_x)
+            y = float(source_y)
 
-        magnification = _vbbl_binary_mag_0(
-            s, q, x, y, self.convergence_K, self.shear_G.real,
-            self.shear_G.imag)
+            magnification = _vbbl_binary_mag_0(
+                s, q, x, y, self.convergence_K, self.shear_G.real,
+                self.shear_G.imag)
+        #run point source using slower numpy method
+        else:
+            magnification = self._point_source_Witt_Mao_95(
+                source_x=float(source_x)+x_shift, source_y=float(source_y))
 
         return magnification
