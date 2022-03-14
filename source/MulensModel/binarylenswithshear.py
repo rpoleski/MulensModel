@@ -40,6 +40,8 @@ class BinaryLensWithShear(BinaryLens):
     make sure you know what you're doing before you start using this
     possibility.
 
+    If you're using this class, then please cite
+    Peirson et al. (2022; ApJ 927, 24).
     """
 
     def __init__(self, mass_1=None, mass_2=None, separation=None,
@@ -466,7 +468,7 @@ class BinaryLensWithShear(BinaryLens):
 
         return self._polynomial_roots
 
-    def _polynomial_roots_ok(
+    def _verify_polynomial_roots(
             self, source_x, source_y, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots(
@@ -531,9 +533,9 @@ class BinaryLensWithShear(BinaryLens):
         else:
             return np.array(out)
 
-    def _jacobian_determinant_ok(self, source_x, source_y):
+    def _get_jacobian_determinant(self, source_x, source_y):
         """determinants of lens equation Jacobian for verified roots"""
-        roots_ok_bar = np.conjugate(self._polynomial_roots_ok(
+        roots_ok_bar = np.conjugate(self._verify_polynomial_roots(
             source_x=source_x, source_y=source_y))
         # Variable X_bar is conjugate of variable X.
         add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
