@@ -5,7 +5,8 @@ import MulensModel as mm
 
 def test_vbbl_shear_1():
     """
-    shear always uses a point source, so this test is not really fair
+    Test if vbbl_magnification with shear 0 and convergence 0 gives the same result 
+    as point_source_magnification
     """
     s = 0.8
     q = 0.1
