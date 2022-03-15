@@ -1256,6 +1256,7 @@ class UlensModelFit(object):
             # XXX - TO DO:
             # - documentation
             # - smooth the input data from M+20 and note that
+            # 
             x = np.array([
                 0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69,
                 1.82, 1.96, 2.09, 2.23, 2.36, 2.50, 2.63])
