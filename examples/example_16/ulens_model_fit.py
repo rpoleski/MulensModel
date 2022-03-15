@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.27.1'
+__version__ = '0.27.2'
 
 
 class UlensModelFit(object):
@@ -1257,8 +1257,8 @@ class UlensModelFit(object):
             # - documentation
             # - smooth the input data from M+20 and note that
             x = np.array([
-                0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69, 1.82, 1.96,
-                2.09, 2.23, 2.36, 2.50, 2.63])
+                0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69,
+                1.82, 1.96, 2.09, 2.23, 2.36, 2.50, 2.63])
             y = np.array([
                 82.04, 94.98, 167.76, 507.81, 402.08, 681.61, 1157.51,
                 1132.80, 668.12, 412.20, 236.14, 335.34, 74.88, 52.64, 97.78])
