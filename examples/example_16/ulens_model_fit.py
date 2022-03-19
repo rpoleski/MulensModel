@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.28.0'
+__version__ = '0.28.1'
 
 
 class UlensModelFit(object):
@@ -413,11 +413,12 @@ class UlensModelFit(object):
         Find what are the fitted parameters. It will be sorted later.
         """
         if self._fit_method == "EMCEE":
-            self._fit_parameters_unsorted = self._starting_parameters.keys()
+            unsorted_keys = self._starting_parameters.keys()
         elif self._fit_method == "MultiNest":
-            self._fit_parameters_unsorted = self._prior_limits.keys()
+            unsorted_keys = self._prior_limits.keys()
         else:
             raise ValueError('unexpected method error')
+        self._fit_parameters_unsorted = list(unsorted_keys)
         self._n_fit_parameters = len(self._fit_parameters_unsorted)
 
     def _check_imports(self):
@@ -1267,7 +1268,6 @@ class UlensModelFit(object):
             # XXX - TO DO:
             # - documentation
             # - smooth the input data from M+20 and note that
-            # 
             x = np.array([
                 0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69,
                 1.82, 1.96, 2.09, 2.23, 2.36, 2.50, 2.63])
