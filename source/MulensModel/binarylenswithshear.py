@@ -571,7 +571,7 @@ class BinaryLensWithShear(BinaryLens):
         x_shift *= self.separation
         # We need to add this because in order to shift to correct frame.
 
-        #run point source using faster VBBL method
+        # Run point source using faster VBBL method.
         if _vbbl_wrapped and vbbl_on:
             s = float(self.separation)
             q = float(self.mass_2 / self.mass_1)
@@ -581,8 +581,8 @@ class BinaryLensWithShear(BinaryLens):
             magnification = _vbbl_binary_mag_0(
                 s, q, x, y, self.convergence_K, self.shear_G.real,
                 self.shear_G.imag)
-        #run point source using slower numpy method
         else:
+            # Run point source using slower numpy method.
             magnification = self._get_point_source_Witt_Mao_95(
                 source_x=float(source_x)+x_shift, source_y=float(source_y))
 
