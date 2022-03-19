@@ -7,6 +7,7 @@ from os import path, sep
 import tempfile
 import shutil
 import warnings
+from multiprocessing import Pool
 import math
 import numpy as np
 from scipy.interpolate import interp1d
@@ -38,7 +39,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.28.1'
+__version__ = '0.28.1dev'
 
 
 class UlensModelFit(object):
@@ -1775,8 +1776,10 @@ class UlensModelFit(object):
         """
         Setup EMCEE fit
         """
+        UlensModelFit._pool = Pool()
         self._sampler = emcee.EnsembleSampler(
-            self._n_walkers, self._n_fit_parameters, self._ln_prob)
+            self._n_walkers, self._n_fit_parameters, self._ln_prob,
+            pool=UlensModelFit._pool)
 
     def _setup_fit_MultiNest(self):
         """
@@ -1877,7 +1880,11 @@ class UlensModelFit(object):
                 self._print_model_file.close()
                 self._print_model = False
 
-        if self._fit_method == 'MultiNest':
+        if self._fit_method == 'EMCEE':
+            UlensModelFit._pool.close()
+            UlensModelFit._pool.join()
+            UlensModelFit._pool.terminate()
+        elif self._fit_method == 'MultiNest':
             base = self._kwargs_MultiNest['outputfiles_basename']
             self._analyzer = Analyzer(n_params=self._n_fit_parameters,
                                       outputfiles_basename=base)
