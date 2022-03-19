@@ -62,6 +62,7 @@ fitting_parameters:
     n_walkers: 20
     n_steps: 4
     n_burn:  2
+    progress: True
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
 plots:

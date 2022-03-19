@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.27.2'
+__version__ = '0.28.0'
 
 
 class UlensModelFit(object):
@@ -151,6 +151,9 @@ class UlensModelFit(object):
             walkers to be run. If not provided, it is assumed four times
             the number of parameters to be fitted.
             Other options are described below.
+
+            The ``progress`` option (*bool* type value; default is *False*)
+            controls if a progress bar is shown.
 
             It is possible to export posterior to a .npy file. Just provide
             the file name as ``posterior file`` parameter. You can read this
@@ -865,13 +868,21 @@ class UlensModelFit(object):
         ints_required = ['n_steps']
         required = ints_required
 
-        strings = ['posterior file', 'posterior file fluxes']
+        bools = ['progress']
         ints = ['n_walkers', 'n_burn']
-        allowed = ints + strings
+        strings = ['posterior file', 'posterior file fluxes']
+        allowed = bools + ints + strings
 
         self._check_required_and_allowed_parameters(required, allowed)
-        self._check_parameters_types(settings,
+        self._check_parameters_types(settings, bools=bools,
                                      ints=ints+ints_required, strings=strings)
+
+        self._kwargs_EMCEE = {'initial_state': None,  # It will be set later.
+                              'nsteps': self._fitting_parameters['n_steps'],
+                              'progress': False}
+
+        if 'progress' in settings:
+            self._kwargs_EMCEE['progress'] = settings['progress']
 
         if 'n_burn' in settings:
             if settings['n_burn'] >= settings['n_steps']:
@@ -1541,7 +1552,7 @@ class UlensModelFit(object):
                 "the prior, but required " + str(self._n_walkers) + ".\n"
                 "If you think the code should work with your settings, "
                 "then please contact Radek Poleski.")
-        self._starting_points = out
+        self._kwargs_EMCEE['initial_state'] = out
 
     def _ln_prob(self, theta):
         """
@@ -1847,8 +1858,7 @@ class UlensModelFit(object):
         """
         Run EMCEE
         """
-        self._sampler.run_mcmc(self._starting_points,
-                               self._fitting_parameters['n_steps'])
+        self._sampler.run_mcmc(**self._kwargs_EMCEE)
 
     def _run_fit_MultiNest(self):
         """
