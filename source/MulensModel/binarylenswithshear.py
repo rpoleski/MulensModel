@@ -583,7 +583,7 @@ class BinaryLensWithShear(BinaryLens):
                 self.shear_G.imag)
         #run point source using slower numpy method
         else:
-            magnification = self._point_source_Witt_Mao_95(
+            magnification = self._get_point_source_Witt_Mao_95(
                 source_x=float(source_x)+x_shift, source_y=float(source_y))
 
         return magnification
