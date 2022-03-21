@@ -1,12 +1,11 @@
 import numpy as np
-
 from astropy import units as u
-from astropy.coordinates import get_body_barycentric, SkyCoord
+from astropy.coordinates import SkyCoord, get_body_barycentric
 from astropy.time import Time
 
 from MulensModel import utils
-from MulensModel.modelparameters import ModelParameters
 from MulensModel.coordinates import Coordinates
+from MulensModel.modelparameters import ModelParameters
 
 
 class Trajectory(object):
@@ -79,12 +78,7 @@ class Trajectory(object):
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, earth_coords=None):
         # Set times
-        if isinstance(times, np.ndarray):
-            self.times = times
-        elif isinstance(times, (list, tuple)):
-            self.times = np.array(times)
-        else:
-            self.times = np.array([times])
+        self.times = np.asarray(times)
 
         # Check for ModelParameters and set.
         if isinstance(parameters, ModelParameters):
