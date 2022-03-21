@@ -1,13 +1,11 @@
+import numpy as np
 import math
 import warnings
 
-import numpy as np
-
+from MulensModel.trajectory import Trajectory
+from MulensModel.pointlens import PointLens, get_pspl_magnification
 from MulensModel.binarylens import BinaryLens
 from MulensModel.modelparameters import ModelParameters
-from MulensModel.pointlens import PointLens, get_pspl_magnification
-from MulensModel.trajectory import Trajectory
-
 
 class MagnificationCurve(object):
     """

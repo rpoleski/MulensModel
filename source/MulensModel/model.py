@@ -1,7 +1,7 @@
 import warnings
-
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+
 from astropy.coordinates import SkyCoord
 
 from MulensModel.caustics import Caustics
@@ -12,8 +12,7 @@ from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
-from MulensModel.utils import PlotUtils, Utils
-
+from MulensModel.utils import Utils, PlotUtils
 
 class Model(object):
     """

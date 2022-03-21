@@ -1,11 +1,13 @@
 import numpy as np
+
 from astropy import units as u
-from astropy.coordinates import SkyCoord, get_body_barycentric
+from astropy.coordinates import get_body_barycentric
 from astropy.time import Time
+from astropy.coordinates import SkyCoord
 
 from MulensModel import utils
-from MulensModel.coordinates import Coordinates
 from MulensModel.modelparameters import ModelParameters
+from MulensModel.coordinates import Coordinates
 
 
 class Trajectory(object):
