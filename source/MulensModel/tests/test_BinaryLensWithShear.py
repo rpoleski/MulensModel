@@ -10,14 +10,17 @@ def test_ps_shear_1():
     """
     s = 0.8
     q = 0.1
-
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
-    bl = mm.BinaryLensWithShear(
-        m_1, m_2, s, convergence_K=0.0, shear_G=complex(0, 0))
 
-    result = bl.point_source_magnification(0.01, 0.01)
-    np.testing.assert_almost_equal(result/18.2834436, 1., decimal=2)
+    blws = mm.BinaryLensWithShear(
+        m_1, m_2, s, convergence_K=0.0, shear_G=complex(0, 0))
+    result = blws.point_source_magnification(0.01, 0.01)
+
+    bl = mm.BinaryLens(m_1, m_2, s)
+    result_ref = bl.point_source_magnification(0.01, 0.01)
+
+    np.testing.assert_almost_equal(result, result_ref)
 
 
 def test_ps_shear_2():
