@@ -66,6 +66,7 @@
 - example how to run fits on a grid of (s,q)
 - allow periodic (either based on number of steps, or execution time) print of best model etc.
 - print every n-th model
+- allow easy printing of models to sys.stderr instead of sys.stdout
 - for parallax models check if t_0_par is fixed and give warning, if not
 - fits with 0 blending flux for some datasets
 - when plotting best model, plot ~100 points based on t_E etc. + all visible epochs in data so that anomalies are not missed etc.

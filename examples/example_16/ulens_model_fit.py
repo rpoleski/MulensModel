@@ -3,7 +3,7 @@ Class and script for fitting microlensing model using MulensModel.
 All the settings are read from a YAML file.
 """
 import sys
-from os import path, sep
+from os import path, remove, sep
 import tempfile
 import shutil
 import warnings
@@ -39,7 +39,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.28.1dev'
+__version__ = '0.28.2dev'
 
 
 class UlensModelFit(object):
@@ -756,18 +756,27 @@ class UlensModelFit(object):
                 if not isinstance(value, dict):
                     raise ValueError('models value should also be *dict*, ' +
                                      'got ' + str(type(value)))
+                self._models_to_print = ""
+                self._print_model_counter = 0
+                # XXX what to do if 'file name' is not provided?
                 for (key2, value2) in value.items():
                     if key2 == 'file name':
                         self._print_model = True
-                        self._print_model_i = 0
                         if value2 == '-':
-                            self._print_model_file = sys.stdout
+                            self._print_models_to_stdout = True
                         else:
-                            try:
-                                self._print_model_file = open(value2, 'w')
-                            except Exception:
-                                raise ValueError(
-                                    'Error while opening file ' + str(value2))
+                            self._print_models_to_stdout = False
+                            self._file_to_print_models = value2
+                            if path.exists(value2):
+                                if path.isfile(value2):
+                                    msg = ("Exisiting file " + value2 +
+                                           " will be overwritten")
+                                    warnings.warn(msg)
+                                    remove(value2)
+                                # XXX:
+                                #else:
+                                    #raise ValueError("The path provided ...exsists and is a directory")
+                            self._file_to_print_models = value2
                     else:
                         raise KeyError("Unrecognized key: " + str(key) +
                                        "\nExpected keys: 'file name'.")
@@ -1709,14 +1718,21 @@ class UlensModelFit(object):
         """
         out = "{:.4f}  {:}".format(chi2, " ".join([repr(x) for x in theta]))
 
-        flush = False
-        cond_1 = self._print_model_i <= 1000 and self._print_model_i % 10 == 0
-        cond_2 = self._print_model_i > 1000 and self._print_model_i % 100 == 0
-        if self._print_model_i < 100 or cond_1 or cond_2:
-            flush = True
-
-        print(out, file=self._print_model_file, flush=flush)
-        self._print_model_i += 1
+        self._print_model_counter += 1
+        n = self._print_model_counter
+        if (n <= 1000 and n % 10 == 0) or (n > 1000 and n % 100 == 0):
+            if self._print_models_to_stdout:
+                print(out, flush=True)
+            else:
+                self._models_to_print += out + "\n"
+                with open(self._file_to_print_models, "a") as file_out:
+                    file_out.write(self._models_to_print)
+                self._models_to_print = ""
+        else:
+            if self._print_models_to_stdout:
+                print(out)
+            else:
+                self._models_to_print += out + "\n"
 
     def _get_fluxes(self):
         """
@@ -1875,10 +1891,7 @@ class UlensModelFit(object):
         Currently it's just closing the file with all models and
         reads the output files (only for MultiNest).
         """
-        if self._print_model:
-            if self._print_model_file is not sys.stdout:
-                self._print_model_file.close()
-                self._print_model = False
+        self._print_model = False
 
         if self._fit_method == 'EMCEE':
             UlensModelFit._pool.close()
