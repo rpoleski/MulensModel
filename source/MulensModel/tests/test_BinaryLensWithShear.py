@@ -63,7 +63,7 @@ def test_vbbl_vs_MM():
         m_1, m_2, s, convergence_K=0.1, shear_G=complex(0.1, -0.1))
     result = lens.point_source_magnification(x, y, vbbl_on=False)
     result_vbbl = lens.point_source_magnification(x, y, vbbl_on=True)
-    np.testing.assert_almost_equal(result, result_vbbl, decimal=3)
+    np.testing.assert_almost_equal(result, result_vbbl)
 
 
 # For q < 1e-7 the standard and shear methods start to deviate.
@@ -84,5 +84,4 @@ def test_standard_vs_shear():
     lens_standard = mm.BinaryLens(m_1, m_2, s)
     result = lens.point_source_magnification(x, y)
     result_standard = lens_standard.point_source_magnification(x, y)
-    np.testing.assert_almost_equal(result, result_standard, decimal=3)
-
+    np.testing.assert_almost_equal(result, result_standard, decimal=5)
