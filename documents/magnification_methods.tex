@@ -13,12 +13,12 @@
 {\LARGE Methods to calculate magnification in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Jan 2022
+last update: Mar 2022
 \end{center}
 
 \bigskip\bigskip
 
-\MM offers a wide range of methods used to calculate magnifications. 
+{\MM} offers a wide range of methods used to calculate magnifications. 
 These methods are passed to {\tt Model} class using 
 {\tt set\_magnification\_methods()} function.  For each method one has to 
 pass the time ranges when the method will be used.  These parameters are 
@@ -62,7 +62,7 @@ Binary lens methods:
 \item {\tt Adaptive\_Contouring} -- Dominik (2007) method -- finite source with limb darkening.  Parameters that can be set: {\tt accuracy} and {\tt ld\_accuracy}.
 \item {\tt point\_source\_point\_lens} -- approximates binary lens as a single lens.  It is useful when binary lens effects are negligible and binary lens calculations may cause numerical errors, e.g., $q\approx10^{-6}$ and source far from caustics.  
 \end{itemize}
-Note that if you define shear and convergence (Peirson et al. 2022), then \MM uses properly modified versions of: {\tt point\_source}, {\tt quadrupole}, or {\tt hexadecapole}. 
+Note that if you define shear and convergence (Peirson et al. 2022), then {\MM} uses properly modified versions of: {\tt point\_source}, {\tt quadrupole}, or {\tt hexadecapole}. 
 
 \bigskip\bigskip
 Triple lens methods -- under construction.  Please come back later!
