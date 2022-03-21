@@ -14,6 +14,7 @@ from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils, PlotUtils
 
+
 class Model(object):
     """
     A Model for a microlensing event with the specified parameters.
