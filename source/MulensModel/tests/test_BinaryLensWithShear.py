@@ -69,7 +69,6 @@ def test_vbbl_vs_MM():
     np.testing.assert_almost_equal(result, result_vbbl)
 
 
-# For q < 1e-7 the standard and shear methods start to deviate.
 def test_standard_vs_shear():
     """
     check if standard and 0 shear calculations give the same result
