@@ -79,12 +79,7 @@ class Trajectory(object):
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, earth_coords=None):
         # Set times
-        if isinstance(times, np.ndarray):
-            self.times = times
-        elif isinstance(times, (list, tuple)):
-            self.times = np.array(times)
-        else:
-            self.times = np.array([times])
+        self.times = np.asarray(times)
 
         # Check for ModelParameters and set.
         if isinstance(parameters, ModelParameters):

@@ -639,10 +639,7 @@ class Model(object):
         .. _matplotlib.plot:
           https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
         """
-        if isinstance(times, float):
-            times = [times]
-        if isinstance(times, list):
-            times = np.array(times)
+        times = np.asarray(times)
 
         kwargs_ = {
             'times': times, 'parallax': self._parallax, 'coords': self._coords,
@@ -1126,14 +1123,7 @@ class Model(object):
         """
         Internal function that calculates magnification.
         """
-        if not isinstance(time, np.ndarray):
-            if isinstance(time, (np.float, float, np.int, int)):
-                time = np.array([time])
-            elif isinstance(time, list):
-                time = np.array(time)
-            else:
-                raise TypeError(
-                    'time must be a float, int, list, or np.ndarray')
+        time = np.asarray(time)
 
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)
