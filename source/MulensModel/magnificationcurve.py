@@ -162,12 +162,8 @@ class MagnificationCurve(object):
 
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
-        elif (self.parameters.n_lenses == 2 and not
-                self.parameters.is_external_mass_sheet):
+        elif (self.parameters.n_lenses == 2):
             magnification = self.get_binary_lens_magnification()
-        elif (self.parameters.n_lenses == 2 and
-                self.parameters.is_external_mass_sheet):
-            magnification = self.get_binary_lens_with_shear_magnification()
         else:
             raise NotImplementedError(
                 "magnification for more than 2 lenses not handled yet")
@@ -332,6 +328,7 @@ class MagnificationCurve(object):
     def get_binary_lens_magnification(self):
         """
         Calculate the binary lens magnification.
+        If the shear or convergence are set, then they are used.
 
         Allowed magnification methods
         (set by :py:func:`set_magnification_methods()`) :
@@ -364,49 +361,7 @@ class MagnificationCurve(object):
                 See
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
-            ``point_source_point_lens``:
-                Uses point-source _point_-_lens_ approximation; useful when you
-                consider binary lens but need magnification very far from
-                the lens (e.g. at separation u = 100).
-
-        Returns :
-            magnification: *np.ndarray*
-                Vector of magnifications.
-
-        """
-        out = self._get_binary_lens_magnification(BinaryLens, dict())
-
-        return out
-
-    def get_binary_lens_with_shear_magnification(self):
-        """
-        Calculate magnification for the binary lens with shear and convergence.
-
-        Allowed magnification methods
-        (set by :py:func:`set_magnification_methods()`) :
-            ``point_source``:
-                standard point source magnification calculation.
-
-            ``quadrupole``:
-                From `Gould 2008 ApJ, 681, 1593
-                <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
-                See
-                :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
-
-            ``hexadecapole``:
-                From `Gould 2008 ApJ, 681, 1593`_ See
-                :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
-
-            ``VBBL``:
-                Uses VBBinaryLensing (a Stokes theorem/contour
-                integration code) by Valerio Bozza
-                (`Bozza 2010 MNRAS, 408, 2188
-                <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).
-                See
-                :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
-
-            ``Adaptive_Contouring``:
-                Not implemented.
+                Note that it doesn't work if shear or convergence are set.
 
             ``point_source_point_lens``:
                 Uses point-source _point_-_lens_ approximation; useful when you
@@ -418,11 +373,15 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
-        optional_kwargs = {'convergence_K': self.parameters.convergence_K,
-                           'shear_G': self.parameters.shear_G}
+        if not self.parameters.is_external_mass_sheet:
+            binary_lens_class = BinaryLens
+            kwargs = dict()
+        else:
+            binary_lens_class = BinaryLensWithShear
+            kwargs = {'convergence_K': self.parameters.convergence_K,
+                      'shear_G': self.parameters.shear_G}
 
-        out = self._get_binary_lens_magnification(BinaryLensWithShear,
-                                                  optional_kwargs)
+        out = self._get_binary_lens_magnification(binary_lens_class, kwargs)
 
         return out
 
