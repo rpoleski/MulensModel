@@ -78,10 +78,8 @@ class Trajectory(object):
 
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, earth_coords=None):
-        # Set times
-        self.times = np.asarray(times)
+        self.times = np.atleast_1d(times)
 
-        # Check for ModelParameters and set.
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:

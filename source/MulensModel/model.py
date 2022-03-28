@@ -639,7 +639,7 @@ class Model(object):
         .. _matplotlib.plot:
           https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
         """
-        times = np.asarray(times)
+        times = np.atleast_1d(times)
 
         kwargs_ = {
             'times': times, 'parallax': self._parallax, 'coords': self._coords,
@@ -1123,7 +1123,7 @@ class Model(object):
         """
         Internal function that calculates magnification.
         """
-        time = np.asarray(time)
+        time = np.atleast_1d(time)
 
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)
