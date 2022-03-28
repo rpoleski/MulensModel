@@ -586,4 +586,14 @@ class BinaryLensWithShear(BinaryLens):
             magnification = self._get_point_source_Witt_Mao_95(
                 source_x=float(source_x)+x_shift, source_y=float(source_y))
 
+        if magnification < 1.:
+            msg = (
+                "error in BinaryLensWithShear.point_source_magnification()\n"
+                "input:\n")
+            params = [s, q, x, y, self.convergence_K, self.shear_G.real,
+                      self.shear_G.imag, vbbl_on, _vbbl_wrapped]
+            msg += " ".join([str(p) for p in params])
+            msg += "\noutput: {:}".format(magnification)
+            raise ValueError(msg)
+
         return magnification
