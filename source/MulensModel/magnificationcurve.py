@@ -250,6 +250,11 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        if self.parameters.n_lenses != 1:
+            raise ValueError(
+                "You're trying to calculate single lens magnification, but "
+                "the model provided has " + str(self.parameters.n_lenses) +
+                " lenses")
 
         pspl_magnification = get_pspl_magnification(self.trajectory)
         if self._methods_epochs is None:
@@ -373,6 +378,12 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        if self.parameters.n_lenses != 2:
+            raise ValueError(
+                "You're trying to calculate binary lens magnification, but "
+                "the model provided has " + str(self.parameters.n_lenses) +
+                " lenses")
+
         if not self.parameters.is_external_mass_sheet:
             binary_lens_class = BinaryLens
             kwargs = dict()
