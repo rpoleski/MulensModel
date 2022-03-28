@@ -471,7 +471,7 @@ class Model(object):
                 return
 
         # check if covergence_K and shear_G are in parameters
-        if self.parameters.external_mass_sheet:
+        if self.parameters.is_external_mass_sheet:
             self._caustics = CausticsWithShear(
                 q=self.parameters.q, s=s,
                 convergence_K=self.parameters.convergence_K,

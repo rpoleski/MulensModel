@@ -163,10 +163,10 @@ class MagnificationCurve(object):
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif (self.parameters.n_lenses == 2 and not
-                self.parameters.external_mass_sheet):
+                self.parameters.is_external_mass_sheet):
             magnification = self.get_binary_lens_magnification()
         elif (self.parameters.n_lenses == 2 and
-                self.parameters.external_mass_sheet):
+                self.parameters.is_external_mass_sheet):
             magnification = self.get_binary_lens_with_shear_magnification()
         else:
             raise NotImplementedError(
