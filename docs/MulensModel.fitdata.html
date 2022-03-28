@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.fitdata module &#8212; MulensModel 2.3.0 documentation</title>
+    <title>MulensModel.fitdata module &#8212; MulensModel 2.7.5 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -261,6 +261,29 @@ chi^2 gradient</p>
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.fitdata.FitData.get_d_A_d_params_for_point_lens_model">
+<code class="sig-name descname">get_d_A_d_params_for_point_lens_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_params_for_point_lens_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate d A / d parameters for a point lens model.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><dl class="simple">
+<dt>parameters: <em>list</em></dt><dd><p>List of the parameters to take derivatives with respect to.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns: <em>dict</em></dt><dd><p>Keys are parameter names from <em>parameters</em> argument above. Values
+are the partial derivatives for that parameter evaluated at each
+data point.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model">
+<code class="sig-name descname">get_d_A_d_u_for_point_lens_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate dA/du for PSPL</p>
 </dd></dl>
 
 <dl class="py method">
