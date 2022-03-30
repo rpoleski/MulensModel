@@ -1,10 +1,14 @@
 import numpy as np
+import os.path
 import warnings
+from scipy.interpolate import interp1d
 
 from MulensModel.mulensdata import MulensData
 from MulensModel.trajectory import Trajectory
 from MulensModel.modelparameters import ModelParameters
+from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.utils import Utils
+import MulensModel as mm
 
 
 class FitData:
@@ -46,6 +50,8 @@ class FitData:
             value.
 
     """
+
+    _B0B1_file_read = False
 
     def __init__(self, model=None, dataset=None, fix_blend_flux=False,
                  fix_source_flux=False, fix_source_flux_ratio=False):
@@ -624,7 +630,10 @@ class FitData:
         d_A_d_u = self.get_d_A_d_u_for_point_lens_model()
 
         for (key, value) in gradient.items():
-            gradient[key] *= d_A_d_u
+            if key == 'rho':
+                gradient[key] = self.get_d_A_d_rho()
+            else:
+                gradient[key] *= d_A_d_u
 
         return gradient
 
@@ -686,6 +695,82 @@ class FitData:
             gradient['pi_E_E'] = d_u_d_x * delta_E - d_u_d_y * delta_N
 
         return gradient
+
+    def get_d_A_d_rho(self):
+        """
+        Calculate the derivative of the magnification with respect to rho.
+        """
+        if not FitData._B0B1_file_read:
+            self._read_B0B1_file()
+
+        gradient = np.ones(len(self.dataset.time))
+
+        # This calculation gets repeated = Not efficient. Should trajectory be
+        # a property of model?
+        trajectory = self.model.get_trajectory(self.dataset.time)
+        u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
+        z = u_ / self.model.parameters.rho
+
+        # This code was copied directly from model.py --> indicates a refactor
+        # is needed.
+        # Also, shouldn't satellite_skycoord be stored as a property of mm.Model?
+        magnification_curve = MagnificationCurve(
+            self.dataset.time, parameters=self.model.parameters,
+            parallax=self.model.parallax, coords=self.model.coords,
+            satellite_skycoord=self.model.get_satellite_coords(
+                self.dataset.time),
+            gamma=self.gamma)
+        magnification_curve.set_magnification_methods(
+            self.model.methods, self.model.default_magnification_method)
+        magnification_curve.set_magnification_methods_parameters(
+            self.model.methods_parameters)
+
+        # This section was copied from magnificationcurve.py. Addl evidence a
+        # refactor is needed.
+        methods = np.array(magnification_curve._methods_for_epochs())
+
+        for method in set(methods):
+            kwargs = {}
+            if magnification_curve._methods_parameters is not None:
+                if method in magnification_curve._methods_parameters.keys():
+                    kwargs = magnification_curve._methods_parameters[method]
+                if kwargs != {}:
+                    raise ValueError(
+                        'Methods parameters passed, but currently ' +
+                        'no point lens method accepts the parameters')
+            selection = (methods == method)
+
+            if method.lower() == 'point_source':
+                pass  # These cases are already taken care of.
+            elif (method.lower() ==
+                  'finite_source_uniform_Gould94_direct'.lower()):
+                gradient[selection] = self._get_B0_prime(z[selection])
+            elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
+                gradient[selection] = self._get_B0_prime(z[selection])
+                gradient[selection] -= self.gamma * self._get_B1_prime(z[selection])
+            else:
+                msg = "dA/drho only implemented for 'finite_source_uniform_"
+                msg += "Gould94_direct' and 'finite_source_LD_Yoo04_direct'."
+                msg += 'Your value: {:}'
+                raise ValueError(msg.format(method))
+
+            gradient[selection] *= self._data_magnification[selection]
+            gradient[selection] *= (-self.model.parameters.u_0 /
+                                    self.model.parameters.rho**2)
+
+            return gradient
+
+    def _read_B0B1_file(self):
+        """Read file with pre-computed function values"""
+        file_ = os.path.join(
+            mm.DATA_PATH, 'interpolation_table_b0b1_v2.dat')
+        if not os.path.exists(file_):
+            raise ValueError('File with FSPL data does not exist.\n' + file_)
+        (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(file_, unpack=True)
+        FitData._get_B0_prime = interp1d(z, B0_prime, kind='cubic')
+        FitData._get_B1_prime = interp1d(z, B1_prime, kind='cubic')
+        FitData._B0B1_file_read = True
+
 
     @property
     def chi2_gradient(self):

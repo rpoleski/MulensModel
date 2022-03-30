@@ -128,13 +128,14 @@ class PointLens(object):
         """
 
         out = 4. * z / np.pi
-        function = lambda x: (1.-value**2*sin(x)**2)**.5
+        function = lambda x: (1. - value**2 * sin(x)**2)**0.5
 
         for (i, value) in enumerate(z):
             if value < 1.:
                 out[i] *= ellipe(value*value)
             else:
-                out[i] *= integrate.quad(function, 0., np.arcsin(1./value))[0]
+                out[i] *= integrate.quad(
+                    function, 0., np.arcsin(1. / value))[0]
         return out
 
     def _B_1_function(self, z, B_0=None):
@@ -283,6 +284,7 @@ class PointLens(object):
         except TypeError:
             z = np.array([z])
 
+        # JCY - Shouldn't these references to PointLens be references to self instead?
         if not PointLens._B0B1_file_read:
             self._read_B0B1_file()
 
