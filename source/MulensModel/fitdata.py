@@ -711,19 +711,25 @@ class FitData:
         u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
         z = u_ / self.model.parameters.rho
 
+        satellite_skycoord = None
+        if self.model.ephemerides_file is not None:
+            satellite_skycoord = self.model.get_satellite_coords(
+                self.dataset.time)
+
         # This code was copied directly from model.py --> indicates a refactor
         # is needed.
         # Also, shouldn't satellite_skycoord be stored as a property of mm.Model?
+        # We also have to access a lot of private functions of model, which is
+        # bad.
         magnification_curve = MagnificationCurve(
             self.dataset.time, parameters=self.model.parameters,
-            parallax=self.model.parallax, coords=self.model.coords,
-            satellite_skycoord=self.model.get_satellite_coords(
-                self.dataset.time),
+            parallax=self.model._parallax, coords=self.model.coords,
+            satellite_skycoord=satellite_skycoord,
             gamma=self.gamma)
         magnification_curve.set_magnification_methods(
-            self.model.methods, self.model.default_magnification_method)
+            self.model._methods, self.model._default_magnification_method)
         magnification_curve.set_magnification_methods_parameters(
-            self.model.methods_parameters)
+            self.model._methods_parameters)
 
         # This section was copied from magnificationcurve.py. Addl evidence a
         # refactor is needed.
@@ -738,8 +744,9 @@ class FitData:
                     raise ValueError(
                         'Methods parameters passed, but currently ' +
                         'no point lens method accepts the parameters')
-            selection = (methods == method)
+            selection = (methods == method) & (z < FitData._z_max)
 
+            print('z', z[selection])
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
             elif (method.lower() ==
@@ -767,6 +774,7 @@ class FitData:
         if not os.path.exists(file_):
             raise ValueError('File with FSPL data does not exist.\n' + file_)
         (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(file_, unpack=True)
+        FitData._z_max = z[-1]
         FitData._get_B0_prime = interp1d(z, B0_prime, kind='cubic')
         FitData._get_B1_prime = interp1d(z, B1_prime, kind='cubic')
         FitData._B0B1_file_read = True
