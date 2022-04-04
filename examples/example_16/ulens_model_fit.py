@@ -3,7 +3,9 @@ Class and script for fitting microlensing model using MulensModel.
 All the settings are read from a YAML file.
 """
 import sys
-from os import path
+from os import path, sep
+import tempfile
+import shutil
 import warnings
 import math
 import numpy as np
@@ -25,13 +27,18 @@ try:
     import corner
 except Exception:
     import_failed.add("corner")
+try:
+    from pymultinest.run import run as mn_run
+    from pymultinest.analyse import Analyzer
+except Exception:
+    import_failed.add("pymultinest")
 
 try:
     import MulensModel as mm
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.24.4'
+__version__ = '0.28.1'
 
 
 class UlensModelFit(object):
@@ -58,11 +65,11 @@ class UlensModelFit(object):
             Currently, keyword ``'add_2450000'`` is turned on by default.
 
         starting_parameters: *dict*
-            Starting values of the parameters. Keys of this *dict* are
-            microlensing parameters recognized by *MulensModel*. Values
-            depend on method used for fitting.
+            Starting values of the parameters.
+            It also indicates the EMCEE fitting mode.
 
-            For EMCEE the values are *str*. First word indicates
+            Keys of this *dict* are microlensing parameters recognized by
+            *MulensModel* and values are *str*. First word indicates
             the distribution (allowed: ``gauss``, ``uniform``, and
             ``log-uniform``) and is followed by its parameters.
             For ``uniform`` and ``log-uniform`` these parameters are lower
@@ -76,6 +83,23 @@ class UlensModelFit(object):
                   't_0': 'gauss 2455703. 0.01',
                   'u_0': 'uniform 0.001 1.',
                   't_E': 'gauss 20. 5.'
+              }
+
+        prior_limits: *dict*
+            Upper and lower limits of parameters.
+            It also indicates the pyMultiNest fitting mode.
+
+            Keys are MulensModel parameters and values are lists of two floats
+            each (alternatively a string giving 2 floats can be provided - see
+            example below). Currently, no informative priors are allowed for
+            pyMultiNest fitting. Example input:
+
+            .. code-block:: python
+
+              {
+                  't_0': [2455379.4, 2455379.76]
+                  'u_0': [0.46, 0.65]
+                  't_E': "16. 19.6"
               }
 
         model: *dict*
@@ -109,21 +133,27 @@ class UlensModelFit(object):
             Minimum values of parameters that define the prior, e.g.,
             ``{'t_E': 0.}``. Note that the these are only limits of a prior.
             Functional form of priors can be defines in ``fit_constraints``.
+            It works only for EMCEE fitting.
 
         max_values: *dict*
             Maximum values of parameters that define the prior, e.g.,
             ``{'u_0': 1.}``.
+            It works only for EMCEE fitting.
 
         fitting_parameters: *dict*
-            Parameters of the fit function. They depend on the method used.
+            Parameters of the fit function. They depend on the method used -
+            we discuss EMCEE and pyMultiNest below.
 
-            For EMCEE, the required parameter is ``n_steps``.
+            First - EMCEE. The required parameter is ``n_steps``.
             You can also specify ``n_burn`` and ``n_walkers``. The ``n_burn``
             controls the length of burn-in. If not provided, it is assumed to
             be ``0.25*n_steps``. The ``n_walkers`` gives number of parallel
             walkers to be run. If not provided, it is assumed four times
             the number of parameters to be fitted.
             Other options are described below.
+
+            The ``progress`` option (*bool* type value; default is *False*)
+            controls if a progress bar is shown.
 
             It is possible to export posterior to a .npy file. Just provide
             the file name as ``posterior file`` parameter. You can read this
@@ -134,6 +164,26 @@ class UlensModelFit(object):
             The value ``all`` means that additionally all source and blending
             fluxes will be saved (``n_parameters`` increases by two times the
             number of datasets).
+
+            Second - pyMultiNest. There are no required parameters, but a few
+            can be provided. Currently accepted ones are:
+
+            ``basename`` (*str*) - common part of the output files produced by
+            MultiNest. If you don't provide it, then the output would be
+            saved to temporary files and deleted at the end.
+
+            ``multimodal`` (*bool*) - do you want multiple modes in
+            the prosterior to be detected and reported separately?
+
+            ``n_live_points`` (*int*) - number of live points, default value
+            is 400.
+
+            ``sampling efficiency`` (*float*) - requested sampling efficiency.
+            MultiNest documentation suggests 0.8 (default value) for parameter
+            estimatrion and 0.3 for evidence evalutation.
+
+            ``evidence tolerance`` (*float*) - requested tolerance of ln(Z)
+            calculation; default is 0.5 and should work well in most cases.
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
@@ -178,11 +228,15 @@ class UlensModelFit(object):
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
-            allowed keys are ``'triangle'`` and ``'best model'``.
-            The values are also dicts and currently accepted keys are
-            ``'file'`` (both plots) and for best model plot also:
-            ``'time range'``, ``'magnitude range'``, ``'legend'``,
-            ``'rcParams'``, e.g.,
+            allowed keys are ``triangle``, ``trace`` (only EMCEE fitting),
+            and ``best model``.
+            The values are also dicts and currently accepted keys are:
+            1) for ``best model``:
+            ``'file'``, ``'time range'``, ``'magnitude range'``, ``'legend'``,
+            and ``'rcParams'``,
+            2) for ``triangle`` and ``trace``:
+            ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
+            e.g.:
 
             .. code-block:: python
 
@@ -191,6 +245,7 @@ class UlensModelFit(object):
                       'file': 'my_fit_triangle.png'
                   'trace':
                       'file': 'my_fit_trace_plot.png'
+                      'shift t_0': False
                   'best model':
                       'file': 'my_fit_best.png'
                       'time range': 2456000. 2456300.
@@ -212,7 +267,8 @@ class UlensModelFit(object):
             the models will be printed to standard output.
     """
     def __init__(
-            self, photometry_files, starting_parameters=None, model=None,
+            self, photometry_files,
+            starting_parameters=None, prior_limits=None, model=None,
             fixed_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
             fit_constraints=None, plots=None, other_output=None
@@ -220,6 +276,7 @@ class UlensModelFit(object):
         self._check_MM_version()
         self._photometry_files = photometry_files
         self._starting_parameters = starting_parameters
+        self._prior_limits = prior_limits
         self._model_parameters = model
         self._fixed_parameters = fixed_parameters
         self._min_values = min_values
@@ -231,6 +288,9 @@ class UlensModelFit(object):
 
         self._which_task()
         self._set_default_parameters()
+        if self._task == 'fit':
+            self._guess_fitting_method()
+            self._set_fit_parameters_unsorted()
         self._check_imports()
 
     def _check_MM_version(self):
@@ -249,10 +309,12 @@ class UlensModelFit(object):
         """
         if self._starting_parameters is not None:
             fit = True
+        elif self._prior_limits is not None:
+            fit = True
         else:
             fit = False
-        plot = False
 
+        plot = False
         if self._model_parameters is not None:
             keys = set(self._model_parameters.keys())
             check = keys.intersection({'parameters', 'values'})
@@ -289,10 +351,10 @@ class UlensModelFit(object):
     def _check_unnecessary_settings_plot(self):
         """
         Make sure that there arent' too many parameters specified for:
-        self._task = 'plot'
+        self._task == 'plot'
         """
         keys = ['_starting_parameters', '_min_values', '_max_values',
-                '_fitting_parameters']
+                '_fitting_parameters', '_prior_limits']
         for key in keys:
             if getattr(self, key) is not None:
                 raise ValueError(
@@ -313,15 +375,51 @@ class UlensModelFit(object):
         set some default parameters
         """
         if self._task == 'fit':
-            self._fit_method = 'emcee'
             self._flat_priors = True  # Are priors only 0 or 1?
             self._return_fluxes = True
             self._best_model_ln_prob = -np.inf
+            self._flux_names = None
+            self._shift_t_0 = True
         elif self._task == 'plot':
             pass
         else:
             raise ValueError('internal error - task ' + str(self._task))
         self._print_model = False
+
+    def _guess_fitting_method(self):
+        """
+        guess what is the fitting method based on parameters provided
+        """
+        method = None
+        if self._starting_parameters is not None:
+            method = "EMCEE"
+        if self._prior_limits is not None:
+            if method is not None:
+                raise ValueError(
+                    "Both starting_parameters and prior_limits were defined "
+                    "which makes impossible to choose the fitting method. "
+                    "These settings indicate EMCEE and pyMultiNest "
+                    "rescpectively, and cannot be both set.")
+            method = "MultiNest"
+        if method is None:
+            raise ValueError(
+                "No fitting method chosen. You can chose either 'EMCEE' or "
+                "'pyMultiNest' and you do it by providing "
+                "starting_parameters or prior_limits, respectively.")
+        self._fit_method = method
+
+    def _set_fit_parameters_unsorted(self):
+        """
+        Find what are the fitted parameters. It will be sorted later.
+        """
+        if self._fit_method == "EMCEE":
+            unsorted_keys = self._starting_parameters.keys()
+        elif self._fit_method == "MultiNest":
+            unsorted_keys = self._prior_limits.keys()
+        else:
+            raise ValueError('unexpected method error')
+        self._fit_parameters_unsorted = list(unsorted_keys)
+        self._n_fit_parameters = len(self._fit_parameters_unsorted)
 
     def _check_imports(self):
         """
@@ -330,8 +428,10 @@ class UlensModelFit(object):
         required_packages = set()
 
         if self._task == 'fit':
-            if self._fit_method == 'emcee':
+            if self._fit_method == 'EMCEE':
                 required_packages.add('emcee')
+            elif self._fit_method == "MultiNest":
+                required_packages.add('pymultinest')
             if self._plots is not None and 'triangle' in self._plots:
                 required_packages.add('corner')
 
@@ -360,18 +460,20 @@ class UlensModelFit(object):
 
         self._check_plots_parameters()
         self._check_model_parameters()
+        self._check_other_fit_parameters()
         self._parse_other_output_parameters()
         self._get_datasets()
         self._get_parameters_ordered()
         self._get_parameters_latex()
         self._parse_fitting_parameters()
-        self._get_n_walkers()
-        self._set_min_max_values()
+        self._set_prior_limits()
         self._parse_fit_constraints()
-        self._parse_starting_parameters()
+        if self._fit_method == "EMCEE":
+            self._parse_starting_parameters()
         self._check_fixed_parameters()
         self._make_model_and_event()
-        self._generate_random_parameters()
+        if self._fit_method == "EMCEE":
+            self._generate_random_parameters()
         self._setup_fit()
         self._run_fit()
         self._finish_fit()
@@ -382,7 +484,7 @@ class UlensModelFit(object):
         """
         Plot the best model.
 
-        The parameters names and their values are taken from \_\_init\_\_()
+        The parameters names and their values are taken from __init__()
         keyword ``model``, which is a *dict* and has this information in
         ``model['parameters']`` and ``model['values']``.
         """
@@ -525,21 +627,44 @@ class UlensModelFit(object):
         """
         Check if parameters of triangle plot make sense
         """
-        allowed = set(['file'])
+        allowed = set(['file', 'shift t_0'])
         unknown = set(self._plots['triangle'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "triangle": {:}'.format(unknown))
 
+        self._parse_plots_parameter_shift_t_0(self._plots['triangle'])
+
+    def _parse_plots_parameter_shift_t_0(self, settings):
+        """
+        Check if 'shift t_0' is provided and parse it
+        """
+        if 'shift t_0' not in settings:
+            return
+
+        value = settings['shift t_0']
+        if not isinstance(value, bool):
+            raise TypeError(
+                'For triangle and trace plots, the value of "shift t_0" key '
+                'must be of bool type; you provided: ' + str(type(value)))
+
+        self._shift_t_0 = value
+
     def _check_plots_parameters_trace(self):
         """
         Check if parameters of trace plot make sense
         """
-        allowed = set(['file'])
+        allowed = set(['file', 'shift t_0'])
         unknown = set(self._plots['trace'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "trace": {:}'.format(unknown))
+
+        if self._fit_method == "MultiNest":
+            raise ValueError(
+                'Trace plot cannot be requested for MultiNest fit')
+
+        self._parse_plots_parameter_shift_t_0(self._plots['trace'])
 
     def _check_model_parameters(self):
         """
@@ -572,14 +697,25 @@ class UlensModelFit(object):
             self._model_parameters['values'] = [
                 float(x) for x in self._model_parameters['values'].split()]
 
-        if self._starting_parameters is None:
-            return  # Below we do checks valid only for fitting.
-
-        condition_1 = ('pi_E_E' in self._starting_parameters)
-        condition_2 = ('pi_E_N' in self._starting_parameters)
-        if condition_1 or condition_2:
+        all_parameters = []
+        if self._fixed_parameters is not None:
+            all_parameters += list(self._fixed_parameters.keys())
+        if 'parameters' in keys:
+            all_parameters += self._model_parameters['parameters']
+        if self._task == 'fit':
+            all_parameters += self._fit_parameters_unsorted
+        if 'pi_E_E' in all_parameters or 'pi_E_N' in all_parameters:
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
+
+    def _check_other_fit_parameters(self):
+        """
+        Check if there aren't any other inconsistenties between settings
+        """
+        if self._fit_method == "MultiNest":
+            if self._min_values is not None or self._max_values is not None:
+                raise ValueError("In MultiNest fitting you cannot set "
+                                 "min_values or max_values")
 
     def _parse_methods(self, methods):
         """
@@ -671,32 +807,29 @@ class UlensModelFit(object):
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        all_parameters = (
+        all_fit_parameters_str = (
             't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
             't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
             'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
-# We do not include t_0_par and t_0_kep because
-# these are not fitting parameters.
-        all_parameters = all_parameters.split()
+        all_fit_parameters = all_fit_parameters_str.split()
 
-        parameters = self._starting_parameters.keys()
-
-        unknown = set(parameters) - set(all_parameters)
+        unknown = set(self._fit_parameters_unsorted) - set(all_fit_parameters)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
 
-        indexes = [all_parameters.index(p) for p in parameters]
+        indexes = [all_fit_parameters.index(p)
+                   for p in self._fit_parameters_unsorted]
 
-        self._fit_parameters = [all_parameters[i] for i in indexes]
+        self._fit_parameters = [all_fit_parameters[i] for i in indexes]
 
     def _get_parameters_latex(self):
         """
         change self._fit_parameters into latex parameters
         """
         conversion = dict(
-            t_0='\\Delta t_0', u_0='u_0',
-            t_0_1='\\Delta t_{0,1}', u_0_1='u_{0,1}',
-            t_0_2='\\Delta t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
+            t_0='t_0', u_0='u_0',
+            t_0_1='t_{0,1}', u_0_1='u_{0,1}',
+            t_0_2='t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
             t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
             rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
             t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
@@ -707,6 +840,10 @@ class UlensModelFit(object):
             t_caustic_in='t_{\\rm caustic,in}',
             t_caustic_out='t_{\\rm caustic,out}')
 
+        if self._shift_t_0:
+            for key in ['t_0', 't_0_1', 't_0_2']:
+                conversion[key] = '\\Delta ' + conversion[key]
+
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
 
@@ -715,8 +852,11 @@ class UlensModelFit(object):
         run some checks on self._fitting_parameters to make sure that
         the fit can be run
         """
-        if self._fit_method == 'emcee':
+        if self._fit_method == 'EMCEE':
             self._parse_fitting_parameters_EMCEE()
+            self._get_n_walkers()
+        elif self._fit_method == 'MultiNest':
+            self._parse_fitting_parameters_MultiNest()
         else:
             raise ValueError('internal inconsistency')
 
@@ -726,26 +866,24 @@ class UlensModelFit(object):
         """
         settings = self._fitting_parameters
 
-        required = ['n_steps']
+        ints_required = ['n_steps']
+        required = ints_required
+
+        bools = ['progress']
+        ints = ['n_walkers', 'n_burn']
         strings = ['posterior file', 'posterior file fluxes']
-        allowed = ['n_walkers', 'n_burn'] + strings
+        allowed = bools + ints + strings
 
-        full = required + allowed
+        self._check_required_and_allowed_parameters(required, allowed)
+        self._check_parameters_types(settings, bools=bools,
+                                     ints=ints+ints_required, strings=strings)
 
-        for required_ in required:
-            if required_ not in settings:
-                raise ValueError('EMCEE method requires fitting parameter: ' +
-                                 required_)
+        self._kwargs_EMCEE = {'initial_state': None,  # It will be set later.
+                              'nsteps': self._fitting_parameters['n_steps'],
+                              'progress': False}
 
-        if len(set(settings.keys()) - set(full)) > 0:
-            raise ValueError('Unexpected fitting parameters: ' +
-                             str(set(settings.keys()) - set(full)))
-
-        for (p, value) in settings.items():
-            if not isinstance(value, int) and p not in strings:
-                raise ValueError(
-                    'Fitting parameter ' + p + ' requires int value; got: ' +
-                    str(value) + ' ' + str(type(value)))
+        if 'progress' in settings:
+            self._kwargs_EMCEE['progress'] = settings['progress']
 
         if 'n_burn' in settings:
             if settings['n_burn'] >= settings['n_steps']:
@@ -760,9 +898,6 @@ class UlensModelFit(object):
                                  'without setting "posterior file"')
         else:
             name = settings['posterior file']
-            if not isinstance(name, str):
-                raise ValueError('"posterior file" must be string, got: ' +
-                                 str(type(name)))
             if name[-4:] != '.npy':
                 raise ValueError('"posterior file" must end in ".npy", ' +
                                  'got: ' + name)
@@ -783,27 +918,172 @@ class UlensModelFit(object):
                                  settings['posterior file fluxes'])
             self._posterior_file_fluxes = settings['posterior file fluxes']
 
+    def _check_required_and_allowed_parameters(self, required, allowed):
+        """
+        Check if required parameters are provided and there aren't parameters
+        that shouldn't be defined.
+        """
+        settings = self._fitting_parameters
+        if settings is None:
+            settings = dict()
+        full = required + allowed
+
+        for required_ in required:
+            if required_ not in settings:
+                raise ValueError('EMCEE method requires fitting parameter: ' +
+                                 required_)
+
+        if len(set(settings.keys()) - set(full)) > 0:
+            raise ValueError('Unexpected fitting parameters: ' +
+                             str(set(settings.keys()) - set(full)))
+
+    def _check_parameters_types(self, settings, bools=None,
+                                ints=None, floats=None, strings=None):
+        """
+        Check if the settings have right type.
+        For floats we accept ints as well.
+        """
+        if bools is None:
+            bools = []
+        if ints is None:
+            ints = []
+        if floats is None:
+            floats = []
+        if strings is None:
+            strings = []
+
+        fmt = "For key {:} the expected type is {:}, but got {:}"
+        for (key, value) in settings.items():
+            if key in bools:
+                if not isinstance(value, bool):
+                    raise TypeError(
+                        fmt.format(key, "bool", str(type(value))))
+            elif key in ints:
+                if not isinstance(value, int):
+                    raise TypeError(
+                        fmt.format(key, "int", str(type(value))))
+            elif key in floats:
+                if not isinstance(value, (float, int)):
+                    raise TypeError(
+                        fmt.format(key, "float", str(type(value))))
+            elif key in strings:
+                if not isinstance(value, str):
+                    raise TypeError(
+                        fmt.format(key, "string", str(type(value))))
+            else:
+                raise ValueError(
+                    "internal bug - no type for key " + key + " specified")
+
     def _get_n_walkers(self):
         """
-        guess how many walkers and starting values there are
+        Guess how many walkers (and hence starting values) there will be.
+        EMCEE fitting only.
         """
-        self._n_walkers = None
+        if self._fit_method != 'EMCEE':
+            raise ValueError('internal bug')
 
-        if self._fit_method == 'emcee':
-            if 'n_walkers' in self._fitting_parameters:
-                self._n_walkers = self._fitting_parameters['n_walkers']
-            else:
-                self._n_walkers = 4 * len(self._starting_parameters)
+        if 'n_walkers' in self._fitting_parameters:
+            self._n_walkers = self._fitting_parameters['n_walkers']
+        else:
+            self._n_walkers = 4 * len(self._starting_parameters)
+
+    def _parse_fitting_parameters_MultiNest(self):
+        """
+        make sure MultiNest fitting parameters are properly defined
+        """
+        self._kwargs_MultiNest = dict()
+
+        settings = self._fitting_parameters
+        if settings is None:
+            settings = dict()
+
+        required = []
+        bools = ['multimodal']
+        ints = ['n_live_points']
+        strings = ['basename']
+        floats = ['sampling efficiency', 'evidence tolerance']
+        allowed = strings + bools + ints + floats
+
+        self._check_required_and_allowed_parameters(required, allowed)
+        self._check_parameters_types(settings, bools, ints, floats, strings)
+
+        self._kwargs_MultiNest['multimodal'] = False
+
+        keys = {"basename": "outputfiles_basename",
+                "sampling efficiency": "sampling_efficiency",
+                "evidence tolerance": "evidence_tolerance"}
+        same_keys = ["multimodal", "n_live_points"]
+        keys = {**keys, **{key: key for key in same_keys}}
+
+        self._set_dict_safetly(self._kwargs_MultiNest, settings, keys)
+
+        self._kwargs_MultiNest['importance_nested_sampling'] = (
+            not self._kwargs_MultiNest['multimodal'])
+        self._MN_temporary_files = False
+        if 'basename' not in settings:
+            print("No base for MultiNest output provided.")
+            self._kwargs_MultiNest['outputfiles_basename'] = (
+                tempfile.mkdtemp('_MM_ex16_pyMN') + sep)
+            self._MN_temporary_files = True
+        self._check_output_files_MultiNest()
+
+    def _set_dict_safetly(self, target, source, keys_mapping):
+        """
+        For each key in keys_mapping (*dict*) check if it is in
+        source (*dict*). If it is, then set
+        target[keys_mapping[key]] to source[key].
+        """
+        for (key_in, key_out) in keys_mapping.items():
+            if key_in in source:
+                target[key_out] = source[key_in]
+
+    def _check_output_files_MultiNest(self):
+        """
+        Check if output files exist and warn about overwrtting them.
+
+        If they directory doesn't exist then raise error.
+        """
+        root = self._kwargs_MultiNest['outputfiles_basename']
+        if len(path.dirname(root)) != 0 and not path.isdir(path.dirname(root)):
+            msg = 'directory for output files does not exist; root path: '
+            raise ValueError(msg + root)
+        if path.isdir(root):
+            root += sep
+
+        check = (
+            'resume.dat phys_live.points live.points phys_live-birth.txt '
+            'ev.dat dead-birth.txt .txt stats.dat post_equal_weights.dat'
+            'post_separate_strict.dat post_separate.dat summary.txt').split()
+        if self._kwargs_MultiNest['importance_nested_sampling']:
+            check += ['IS.points', 'IS.ptprob', 'IS.iterinfo']
+
+        root = self._kwargs_MultiNest['outputfiles_basename']
+        if path.isdir(root):
+            root += sep
+
+        existing = []
+        for check_ in check:
+            file_name = root + check_
+            if path.isfile(file_name):
+                existing.append(file_name)
+
+        if len(existing) > 0:
+            message = "\n\n Exisiting files will be overwritten "
+            message += "(unless you kill this process)!!!\n"
+            warnings.warn(message + str(existing) + "\n")
+
+    def _set_prior_limits(self):
+        """
+        Set minimum and maximum values of the prior space
+        """
+        if self._fit_method == 'EMCEE':
+            self._set_prior_limits_EMCEE()
+        elif self._fit_method == 'MultiNest':
+            self._set_prior_limits_MultiNest()
         else:
             raise ValueError('internal bug')
 
-        if self._n_walkers is None:
-            raise ValueError(
-                "Couldn't guess the number of walkers based on " +
-                "method: {:}\n".format(self._fit_method) +
-                "fitting_parameters: " + str(self._fitting_parameters))
-
-    def _set_min_max_values(self):
+    def _set_prior_limits_EMCEE(self):
         """
         Parse min and max values of parameters so that they're properly
         indexed.
@@ -845,10 +1125,51 @@ class UlensModelFit(object):
             out[index] = value
         return out
 
+    def _set_prior_limits_MultiNest(self):
+        """
+        Set prior limits and transformation constants (from unit cube to
+        MM parameters).
+        """
+        min_values = []
+        max_values = []
+        for parameter in self._fit_parameters:
+            if parameter not in self._prior_limits:
+                raise ValueError("interal issue")
+            values = self._prior_limits[parameter]
+            if isinstance(values, str):
+                values = values.split()
+            if not isinstance(values, list) or len(values) != 2:
+                raise ValueError(
+                    "prior_limits for " + parameter + " could not be "
+                    "processed: " + str(self._prior_limits[parameter]))
+            try:
+                values = [float(v) for v in values]
+            except Exception:
+                raise ValueError(
+                    "couldn't get floats for prior_limits of " + parameter +
+                    ": " + str(self._prior_limits[parameter]))
+            if values[0] >= values[1]:
+                raise ValueError(
+                    "This won't work - wrong order of limits for " +
+                    parameter + ": " + str(values))
+            min_values.append(values[0])
+            max_values.append(values[1])
+
+        self._min_values = np.array(min_values)
+        self._max_values = np.array(max_values)
+        self._range_values = self._max_values - self._min_values
+
     def _parse_fit_constraints(self):
         """
         Parse the fitting constraints that are not simple limits on parameters
         """
+        if self._fit_method == 'MultiNest':
+            if self._fit_constraints is not None:
+                raise NotImplementedError(
+                    "Currently no fit_constraints are implemented for "
+                    "MultiNest fit. Please contact Radek Poleski with "
+                    "a specific request.")
+
         self._prior_t_E = None
         self._priors = None
 
@@ -943,18 +1264,13 @@ class UlensModelFit(object):
             mask = (x > x_min-dx)  # We need one more point for extrapolation.
             function = interp1d(x[mask], np.log(y[mask]),
                                 kind='cubic', fill_value="extrapolate")
-            self._prior_t_E_data['x_min'] = x_min
-            self._prior_t_E_data['x_max'] = x_max
-            self._prior_t_E_data['y_min'] = function(x_min)
-            self._prior_t_E_data['y_max'] = function(x_max)
-            self._prior_t_E_data['function'] = function
         elif self._prior_t_E == 'Mroz+20':
             # XXX - TO DO:
             # - documentation
             # - smooth the input data from M+20 and note that
             x = np.array([
-                0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69, 1.82, 1.96,
-                2.09, 2.23, 2.36, 2.50, 2.63])
+                0.74, 0.88, 1.01, 1.15, 1.28, 1.42, 1.55, 1.69,
+                1.82, 1.96, 2.09, 2.23, 2.36, 2.50, 2.63])
             y = np.array([
                 82.04, 94.98, 167.76, 507.81, 402.08, 681.61, 1157.51,
                 1132.80, 668.12, 412.20, 236.14, 335.34, 74.88, 52.64, 97.78])
@@ -963,13 +1279,14 @@ class UlensModelFit(object):
             x_max = x[-1] + dx
             function = interp1d(x, np.log(y),
                                 kind='cubic', fill_value="extrapolate")
-            self._prior_t_E_data['x_min'] = x_min
-            self._prior_t_E_data['x_max'] = x_max
-            self._prior_t_E_data['y_min'] = function(x_min)
-            self._prior_t_E_data['y_max'] = function(x_max)
-            self._prior_t_E_data['function'] = function
         else:
             raise ValueError('unexpected internal error')
+
+        self._prior_t_E_data['x_min'] = x_min
+        self._prior_t_E_data['x_max'] = x_max
+        self._prior_t_E_data['y_min'] = function(x_min)
+        self._prior_t_E_data['y_max'] = function(x_max)
+        self._prior_t_E_data['function'] = function
 
     def _parse_starting_parameters(self):
         """
@@ -1083,9 +1400,9 @@ class UlensModelFit(object):
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'
 
-        self._get_n_fluxes()
+        self._set_n_fluxes()
 
-    def _get_n_fluxes(self):
+    def _set_n_fluxes(self):
         """
         find out how many flux parameters there are
         """
@@ -1118,41 +1435,58 @@ class UlensModelFit(object):
         Generate parameters *dict* according to provided starting and fixed
         parameters.
         """
-        parameters = dict()
-        # XXX it should be either that we have parameters/values or
-        # _starting_parameters
-        if self._starting_parameters is None:
-            keys = self._model_parameters['parameters']
-            values = self._model_parameters['values']
-            for (key, value) in zip(keys, values):
-                parameters[key] = value
+        if self._task == 'plot':
+            parameters = dict(zip(
+                self._model_parameters['parameters'],
+                self._model_parameters['values']))
             # XXX this is some kind of a hack:
             self._best_model_theta = []
             self._fit_parameters = []
+        elif self._task == 'fit':
+            if self._fit_method == 'EMCEE':
+                parameters = self._get_example_parameters_EMCEE()
+            elif self._fit_method == 'MultiNest':
+                means = 0.5 * (self._max_values + self._min_values)
+                parameters = dict(zip(self._fit_parameters, means))
+                if "x_caustic_in" in self._fit_parameters:
+                    index = self._fit_parameters.index("x_caustic_in")
+                    parameters["x_caustic_in"] = (
+                        self._min_values[index] +
+                        np.random.randn(1)[0] * self._range_values[index])
+            else:
+                raise ValueError('internal value')
         else:
-            for (key, value) in self._starting_parameters.items():
-                # We treat Cassan08 case differently so that
-                # x_caustic_in is different than x_caustic_out.
-                if key == "x_caustic_in":
-                    if value[0] == 'gauss':
-                        parameters[key] = (
-                            value[1] + value[2] * np.random.randn(1)[0])
-                    elif value[0] in ['uniform', 'log-uniform']:
-                        parameters[key] = 0.25 * value[1] + 0.75 * value[2]
-                    else:
-                        raise ValueError('internal error: ' + value[0])
-                else:
-                    if value[0] == 'gauss':
-                        parameters[key] = value[1]
-                    elif value[0] in ['uniform', 'log-uniform']:
-                        parameters[key] = (value[1] + value[2]) / 2.
-                    else:
-                        raise ValueError('internal error: ' + value[0])
+            raise ValueError('internal value')
 
         if self._fixed_parameters is not None:
             for (key, value) in self._fixed_parameters.items():
                 parameters[key] = value
 
+        return parameters
+
+    def _get_example_parameters_EMCEE(self):
+        """
+        get sample values of parameters for EMCEE - only to make mm.Model
+        """
+        parameters = dict()
+        for (key, value) in self._starting_parameters.items():
+            # We treat Cassan08 case differently so that
+            # x_caustic_in is different than x_caustic_out.
+            if key == "x_caustic_in":
+                if value[0] == 'gauss':
+                    parameters[key] = (
+                        value[1] + value[2] * np.random.randn(1)[0])
+                elif value[0] in ['uniform', 'log-uniform']:
+                    parameters[key] = 0.25 * value[1] + 0.75 * value[2]
+                else:
+                    raise ValueError('internal error: ' + value[0])
+            else:
+                if value[0] == 'gauss':
+                    parameters[key] = value[1]
+                elif value[0] in ['uniform', 'log-uniform']:
+                    parameters[key] = (value[1] + value[2]) / 2.
+                else:
+                    raise ValueError('internal error: ' + value[0])
         return parameters
 
     def _generate_random_parameters(self):
@@ -1211,11 +1545,14 @@ class UlensModelFit(object):
 
         if len(out) < self._n_walkers:
             raise ValueError(
-                "Couldn't generate required starting points in a prior. " +
-                "Most probably you have to correct at least one of: " +
-                "starting_parameters, min_values, max_values, or " +
-                "fit_constraints.\nGot " + str(len(out)))
-        self._starting_points = out
+                "Couldn't generate required starting points in a prior. "
+                "Most probably you have to correct at least one of: "
+                "starting_parameters, min_values, max_values, or "
+                "fit_constraints.\nGot " + str(len(out)) + " walkers in "
+                "the prior, but required " + str(self._n_walkers) + ".\n"
+                "If you think the code should work with your settings, "
+                "then please contact Radek Poleski.")
+        self._kwargs_EMCEE['initial_state'] = out
 
     def _ln_prob(self, theta):
         """
@@ -1242,7 +1579,7 @@ class UlensModelFit(object):
 
         ln_prob += ln_prior_flux
 
-        self._update_best_model(ln_prob, theta, fluxes)
+        self._update_best_model_EMCEE(ln_prob, theta, fluxes)
 
         return self._return_ln_prob(ln_prob, fluxes)
 
@@ -1305,7 +1642,7 @@ class UlensModelFit(object):
             self._set_model_parameters(theta)
             for (parameter, prior_settings) in self._priors.items():
                 if parameter in ['pi_E_N', 'pi_E_E']:
-                    # Other parameters can be added here.
+                    # Other parameters can be added here. XXX
                     value = self._model.parameters.parameters[parameter]
                     ln_prior += self._get_ln_prior_for_1_parameter(
                         value, prior_settings)
@@ -1331,7 +1668,7 @@ class UlensModelFit(object):
         if there is t_E prior.
         """
         if self._prior_t_E not in ['Mroz+17', 'Mroz+20']:
-            raise ValueError('unexpected internal error ' + self._prior_t_E)
+            raise ValueError('unexpected internal error: ' + self._prior_t_E)
 
         try:
             x = math.log10(self._model.parameters.t_E)
@@ -1412,7 +1749,7 @@ class UlensModelFit(object):
 
         return inside
 
-    def _update_best_model(self, ln_prob, theta, fluxes):
+    def _update_best_model_EMCEE(self, ln_prob, theta, fluxes):
         """
         Check if the current model is the best one and save information.
         """
@@ -1427,46 +1764,188 @@ class UlensModelFit(object):
         """
         Setup what is needed for fitting after MulensModel.Event is set up.
         """
-        self._setup_fit_EMCEE()
+        if self._fit_method == 'EMCEE':
+            self._setup_fit_EMCEE()
+        elif self._fit_method == 'MultiNest':
+            self._setup_fit_MultiNest()
+        else:
+            raise ValueError('internal bug')
 
     def _setup_fit_EMCEE(self):
         """
-        Setup fit using EMCEE
+        Setup EMCEE fit
         """
-        n_fit = len(self._fit_parameters)
         self._sampler = emcee.EnsembleSampler(
-            self._n_walkers, n_fit, self._ln_prob)
+            self._n_walkers, self._n_fit_parameters, self._ln_prob)
+
+    def _setup_fit_MultiNest(self):
+        """
+        Prepare MultiNest fit
+        """
+        self._kwargs_MultiNest['Prior'] = self._transform_unit_cube
+        self._kwargs_MultiNest['LogLikelihood'] = self._ln_like_MN
+        self._kwargs_MultiNest['resume'] = False
+
+        self._kwargs_MultiNest['n_dims'] = self._n_fit_parameters
+        self._kwargs_MultiNest['n_params'] = self._kwargs_MultiNest['n_dims']
+        if self._return_fluxes:
+            self._kwargs_MultiNest['n_params'] += self._n_fluxes
+
+    def _transform_unit_cube(self, cube, n_dims, n_params):
+        """
+        Transform MulitNest unit cube to microlensing parameters.
+
+        Based on SafePrior() in
+        https://github.com/JohannesBuchner/PyMultiNest/blob/master/
+        pymultinest/solve.py
+
+        NOTE: We call self._ln_like() here (and remember the result)
+        because in MultiNest you can add fluxes only in "prior" function,
+        not in likelihood function.
+        """
+        cube_out = self._min_values + cube[:n_dims] * self._range_values
+        for i in range(n_dims):
+            cube[i] = cube_out[i]
+
+        self._last_ln_like = self._ln_like(cube_out)
+        self._last_theta = cube_out
+
+        if self._return_fluxes:
+            fluxes = self._get_fluxes()
+            for i in range(n_dims, n_params):
+                cube[i] = fluxes[i-n_dims]
+            self._last_fluxes = fluxes
+
+    def _ln_like_MN(self, theta, n_dim, n_params, lnew):
+        """
+        Calculate likelihood and save if its best model.
+        This is used for MultiNest fitting.
+        """
+        for i in range(n_dim):
+            if self._last_theta[i] != theta[i]:
+                msg = "internal bug:\n{:}\n{:}\n{:}"
+                raise ValueError(msg.format(i, self._last_theta[i], theta[i]))
+
+        ln_like = self._last_ln_like
+
+        if ln_like > self._best_model_ln_prob:
+            self._best_model_ln_prob = ln_like
+            self._best_model_theta = np.array(theta[:n_dim])
+            if self._return_fluxes:
+                self._best_model_fluxes = self._last_fluxes
+
+        ln_max = -1.e300
+        if not np.isfinite(ln_like) or ln_like < ln_max:
+            if not np.isfinite(ln_like):
+                msg = "problematic likelihood: {:}\nfor parameters: {:}"
+                warnings.warn(msg.format(ln_like, theta))
+            ln_like = ln_max
+
+        return ln_like
 
     def _run_fit(self):
         """
         Call the method that does the fit.
         """
-        self._run_fit_EMCEE()
+        if self._fit_method == 'EMCEE':
+            self._run_fit_EMCEE()
+        elif self._fit_method == 'MultiNest':
+            self._run_fit_MultiNest()
+        else:
+            raise ValueError('internal bug')
 
     def _run_fit_EMCEE(self):
         """
         Run EMCEE
         """
-        self._sampler.run_mcmc(self._starting_points,
-                               self._fitting_parameters['n_steps'])
+        self._sampler.run_mcmc(**self._kwargs_EMCEE)
+
+    def _run_fit_MultiNest(self):
+        """
+        Run MultiNest fit
+        """
+        mn_run(**self._kwargs_MultiNest)
 
     def _finish_fit(self):
         """
         Make the things that are necessary after the fit is done.
-        Currently it's just closing the file with all models.
+        Currently it's just closing the file with all models and
+        reads the output files (only for MultiNest).
         """
         if self._print_model:
             if self._print_model_file is not sys.stdout:
                 self._print_model_file.close()
                 self._print_model = False
 
+        if self._fit_method == 'MultiNest':
+            base = self._kwargs_MultiNest['outputfiles_basename']
+            self._analyzer = Analyzer(n_params=self._n_fit_parameters,
+                                      outputfiles_basename=base)
+            self._analyzer_data = self._analyzer.get_data()
+
+            if self._kwargs_MultiNest['multimodal']:
+                self._read_multimode_posterior_MultiNest()
+                self._read_multimode_best_models_MultiNest()
+
+            if self._MN_temporary_files:
+                shutil.rmtree(base, ignore_errors=True)
+
+    def _read_multimode_posterior_MultiNest(self):
+        """
+        We read data from MultiNest output file [root]post_separate.dat.
+        It has 2 empty lines then info on a mode at this repeats N_modes
+        times. We read it twice - first to get all the data and then to
+        find how many samples there are in each mode.
+        """
+        data = np.loadtxt(self._analyzer.post_file)
+
+        n_samples = []
+        skip = False
+        with open(self._analyzer.post_file) as in_data:
+            for line in in_data.readlines():
+                if skip:
+                    skip = False
+                    continue
+                if len(line) == 1:
+                    skip = True
+                    n_samples.append(0)
+                else:
+                    n_samples[-1] += 1
+
+        if data.shape[0] != sum(n_samples):
+            raise ValueError('Error in file ' + self._analyzer.post_file +
+                             str(data.shape) + " vs. " + str(n_samples))
+
+        self._MN_samples_modes_all = data
+        self._MN_modes_indexes = n_samples
+        self._n_modes = len(n_samples)
+
+    def _read_multimode_best_models_MultiNest(self):
+        """
+        read and process information about best models
+        (i.e., highest likelihood, not maximum a posteriori) for each mode
+        """
+        out = dict()
+        for mode in self._analyzer.get_mode_stats()['modes']:
+            out[mode['index']] = {"parameters": mode['maximum']}
+            self._set_model_parameters(mode['maximum'])
+            out[mode['index']]["chi2"] = self._event.get_chi2()
+            # The above line is not best performence, but easy solution.
+
+        self._best_models_for_modes_MN = out
+
     def _parse_results(self):
         """
         Call the function that prints and saves results
         """
-        self._parse_results_EMCEE()
-        if self._posterior_file_name is not None:
-            self._save_posterior_EMCEE()
+        if self._fit_method == "EMCEE":
+            self._parse_results_EMCEE()
+            if self._posterior_file_name is not None:
+                self._save_posterior_EMCEE()
+        elif self._fit_method == "MultiNest":
+            self._parse_results_MultiNest()
+        else:
+            raise ValueError('internal bug')
 
     def _parse_results_EMCEE(self):
         """
@@ -1474,49 +1953,121 @@ class UlensModelFit(object):
 
         This version works with EMCEE version 2.X and 3.0.
         """
-        n_burn = self._fitting_parameters['n_burn']
-        n_fit = len(self._fit_parameters)
-
         accept_rate = np.mean(self._sampler.acceptance_fraction)
         print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
-        autocorr_time = np.mean(self._sampler.get_autocorr_time(quiet=True))
+        autocorr_times = self._sampler.get_autocorr_time(
+            quiet=True, discard=self._fitting_parameters['n_burn'])
+        autocorr_time = np.mean(autocorr_times)
         print("Mean autocorrelation time: {0:.1f} steps".format(autocorr_time))
 
-        self._samples = self._sampler.chain[:, n_burn:, :]
-        self._samples_flat = self._samples.copy().reshape((-1, n_fit))
-        if 'trace' not in self._plots:
-            self._samples = None
+        self._extract_posterior_samples_EMCEE()
+
         print("Fitted parameters:")
-        self._parse_results_EMECEE_print(
-            self._samples_flat, self._fit_parameters)
+        self._print_results(self._samples_flat)
 
         self._shift_t_0_in_samples()
 
         if self._return_fluxes:
-            (blob_samples, flux_names) = self._get_fluxes_to_print()
             print("Fitted fluxes (source and blending):")
-            self._parse_results_EMECEE_print(blob_samples, flux_names)
+            blob_samples = self._get_fluxes_to_print_EMCEE()
+            self._print_results(blob_samples, names='fluxes')
 
         self._print_best_model()
 
-    def _parse_results_EMECEE_print(self, data, parameters):
+    def _extract_posterior_samples_EMCEE(self):
         """
-        print mean values and +- 1 sigma for given parameters
+        set self._samples_flat and self._samples
         """
-        results = np.percentile(data, [15.866, 50, 84.134], axis=0)
-        sigma_plus = results[2, :] - results[1, :]
-        sigma_minus = results[1, :] - results[0, :]
+        n_burn = self._fitting_parameters['n_burn']
+        self._samples = self._sampler.chain[:, n_burn:, :]
+        n_fit = self._n_fit_parameters
+        self._samples_flat = self._samples.copy().reshape((-1, n_fit))
+        if 'trace' not in self._plots:
+            self._samples = None
 
-        for out in zip(parameters, results[1], sigma_plus, sigma_minus):
+    def _print_results(self, data, names="parameters", mode=None):
+        """
+        calculate and print median values and +- 1 sigma for given parameters
+        """
+        if names == "parameters":
+            ids = self._fit_parameters
+        elif names == "fluxes":
+            if self._flux_names is None:
+                self._flux_names = self._get_fluxes_names_to_print()
+            ids = self._flux_names
+        else:
+            raise ValueError('internal bug')
+
+        if self._fit_method == "EMCEE":
+            results = self._get_weighted_percentile(data)
+        elif self._fit_method == "MultiNest":
+            if mode is None:
+                weights = self._samples_flat_weights
+            else:
+                weights = self._samples_modes_flat_weights[mode]
+            results = self._get_weighted_percentile(data, weights=weights)
+        else:
+            raise ValueError("internal bug")
+
+        for (parameter, results_) in zip(ids, results):
             format_ = "{:} : {:.5f} +{:.5f} -{:.5f}"
-            if out[0] == 'q':
+            if parameter == 'q':
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}"
-            print(format_.format(*out))
+            print(format_.format(parameter, *results_))
+
+    def _get_fluxes_names_to_print(self):
+        """
+        get strings to be used as names of parameters to be printed
+        """
+        if self._n_fluxes_per_dataset == 2:
+            s_or_b = ['s', 'b']
+        elif self._n_fluxes_per_dataset == 3:
+            s_or_b = ['s1', 's2', 'b']
+        else:
+            raise ValueError(
+                'Internal error: ' + str(self._n_fluxes_per_dataset))
+        n = self._n_fluxes_per_dataset
+        flux_names = ['flux_{:}_{:}'.format(s_or_b[i % n], i // n+1)
+                      for i in range(self._n_fluxes)]
+        return flux_names
+
+    def _get_weighted_percentile(
+            self, data, fractions=[0.158655, 0.5, 0.841345], weights=None):
+        """
+        Calculate weighted percentile of the data. Data can be weighted or not.
+        """
+        if weights is None:
+            kwargs = dict()
+            if data.shape[0] > data.shape[1]:
+                kwargs['axis'] = 0
+            results = np.percentile(data, 100.*np.array(fractions), **kwargs)
+        else:
+            results = []
+            for i in range(data.shape[1]):
+                data_ = data[:, i]
+                indexes = np.argsort(data_)
+                weights_sorted = weights[indexes]
+                weights_cumulative = np.cumsum(weights_sorted)
+                weighted_quantiles = weights_cumulative - 0.5 * weights_sorted
+                weighted_quantiles /= weights_cumulative[-1]
+                results.append(
+                    np.interp(fractions, weighted_quantiles, data_[indexes]))
+            results = np.array(results).T
+
+        out = []
+        for i in range(results.shape[1]):
+            median = results[1, i]
+            out.append([median, results[2, i]-median, median-results[0, i]])
+
+        return out
 
     def _shift_t_0_in_samples(self):
         """
         shift the values of t_0, t_0_1, and t_0_2:
         """
+        if not self._shift_t_0:
+            return
+
         for name in ['t_0', 't_0_1', 't_0_2']:
             if name in self._fit_parameters:
                 index = self._fit_parameters.index(name)
@@ -1536,9 +2087,9 @@ class UlensModelFit(object):
                         self._samples[:, :, index] = (
                             self._samples[:, :, index] - int(mean))
 
-    def _get_fluxes_to_print(self):
+    def _get_fluxes_to_print_EMCEE(self):
         """
-        prepare flux names and values to be printed
+        prepare values to be printed for EMCEE fitting
         """
         try:
             blobs = np.array(self._sampler.blobs)
@@ -1549,17 +2100,7 @@ class UlensModelFit(object):
         blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
         blob_samples = blob_samples.reshape((-1, self._n_fluxes))
 
-        if self._n_fluxes_per_dataset == 2:
-            s_or_b = ['s', 'b']
-        elif self._n_fluxes_per_dataset == 3:
-            s_or_b = ['s1', 's2', 'b']
-        else:
-            raise ValueError(
-                'Internal error: ' + str(self._n_fluxes_per_dataset))
-        n = self._n_fluxes_per_dataset
-        flux_names = ['flux_{:}_{:}'.format(s_or_b[i % n], i // n+1)
-                      for i in range(self._n_fluxes)]
-        return (blob_samples, flux_names)
+        return blob_samples
 
     def _print_best_model(self):
         """
@@ -1588,6 +2129,114 @@ class UlensModelFit(object):
             blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
             samples = np.dstack((samples, blobs))
         np.save(self._posterior_file_name, samples)
+
+    def _parse_results_MultiNest(self):
+        """
+        Parse results of MultiNest fitting
+        """
+        self._extract_posterior_samples_MultiNest()
+        if self._return_fluxes:
+            flux_names = self._get_fluxes_names_to_print()
+
+        if self._kwargs_MultiNest['multimodal']:
+            self._parse_results_MultiNest_multimodal()
+        else:
+            print("Fitted parameters:")
+            self._print_results(self._samples_flat)
+
+            if self._return_fluxes:
+                print("Fitted fluxes (source and blending):")
+                flux_samples = self._get_fluxes_to_print_MultiNest()
+                self._print_results(flux_samples, names='fluxes')
+
+        self._shift_t_0_in_samples()
+
+        self._print_best_model()
+
+    def _parse_results_MultiNest_multimodal(self):
+        """
+        Print parameters and fluxes for each mode separately
+        """
+        print("Number of modes found:", self._n_modes)
+        if self._return_fluxes:
+            print("Fitted parameters and fluxes (source and blending) "
+                  "plus best model info:")
+        else:
+            print("Fitted parameters:")
+
+        self._set_mode_probabilities()
+
+        for i_mode in range(self._n_modes):
+            err = self._mode_probabilities_error[i_mode]
+            accuracy = self._get_accuracy(err)
+            fmt = (" MODE {:} probability: {:." + str(accuracy) +
+                   "f} +- {:." + str(accuracy) + "f}")
+            print(fmt.format(i_mode+1, self._mode_probabilities[i_mode], err))
+            self._print_results(self._samples_modes_flat[i_mode], mode=i_mode)
+            if self._return_fluxes:
+                self._print_results(
+                    self._samples_modes_flat_fluxes[i_mode], names="fluxes")
+            mode = self._best_models_for_modes_MN[i_mode]
+            print("{:.4f}".format(mode['chi2']))
+            print(*mode['parameters'][:self._n_fit_parameters])
+            print(*mode['parameters'][self._n_fit_parameters:])
+        print(" END OF MODES")
+
+    def _set_mode_probabilities(self):
+        """
+        Calculate probabilities of each mode and its uncertainty
+        """
+        modes = self._analyzer.get_mode_stats()['modes']
+        key_lnZ = 'local log-evidence'
+        modes_lnZ = np.array([mode[key_lnZ] for mode in modes])
+        shift = (np.max(modes_lnZ) + np.min(modes_lnZ)) / 2.
+        # We subtract shift for numerical stability.
+        modes_lnZ -= shift
+        modes_Z = np.exp(modes_lnZ)
+        self._mode_probabilities = modes_Z / np.sum(modes_Z)
+        relative_error = [mode[key_lnZ + ' error'] for mode in modes]
+        # Error in np.sum(modes_Z) is ignored.
+        self._mode_probabilities_error = (
+            relative_error * self._mode_probabilities)
+
+    def _get_accuracy(self, uncertainty):
+        """
+        Return int which says how to round given value to 2 significant digits
+        """
+        return 2-int(np.log10(uncertainty))
+
+    def _extract_posterior_samples_MultiNest(self):
+        """
+        set self._samples_flat and self._samples_flat_weights for MultiNest
+        """
+        index = 2 + self._n_fit_parameters
+
+        self._samples_flat = self._analyzer_data[:, 2:index]
+        self._samples_flat_weights = self._analyzer_data[:, 0]
+
+        if self._kwargs_MultiNest['multimodal']:
+            self._samples_modes_flat = []
+            self._samples_modes_flat_weights = []
+            self._samples_modes_flat_fluxes = []
+            n_begin = 0
+            for n in self._MN_modes_indexes:
+                n_end = n_begin + n
+                weights = self._MN_samples_modes_all[n_begin:n_end, 0]
+                samples = self._MN_samples_modes_all[n_begin:n_end, 2:index]
+                fluxes_ = self._MN_samples_modes_all[n_begin:n_end, index:]
+                self._samples_modes_flat.append(samples)
+                self._samples_modes_flat_weights.append(weights)
+                self._samples_modes_flat_fluxes.append(fluxes_)
+                n_begin = n_end
+
+    def _get_fluxes_to_print_MultiNest(self):
+        """
+        prepare values to be printed for EMCEE fitting
+        """
+        index = 2 + self._n_fit_parameters
+        data = self._analyzer_data[:, index:]
+
+        return data
 
     def _make_plots(self):
         """
@@ -1654,11 +2303,12 @@ class UlensModelFit(object):
         alpha = 0.5
         plt.rcParams['font.size'] = 12
         plt.rcParams['axes.linewidth'] = 1.4
-        margins = {'left': 0.13, 'right': 0.97, 'top': 0.99, 'bottom': 0.05}
+        figure_size = (7.5, 10.5)
+        margins = {'left': 0.13, 'right': 0.97, 'top': 0.98, 'bottom': 0.05}
 
-        grid = gridspec.GridSpec(len(self._fit_parameters), 1, hspace=0)
+        grid = gridspec.GridSpec(self._n_fit_parameters, 1, hspace=0)
 
-        plt.figure(figsize=(7.5, 10.5))  # A4 is 8.27 11.69. XXX
+        plt.figure(figsize=figure_size)
         plt.subplots_adjust(**margins)
         x_vector = np.arange(self._samples.shape[1])
 
@@ -1674,7 +2324,7 @@ class UlensModelFit(object):
             plt.xlim(0, self._samples.shape[1])
             plt.gca().tick_params(axis='both', which='both', direction='in',
                                   top=True, right=True)
-            if i != len(self._fit_parameters) - 1:
+            if i != self._n_fit_parameters - 1:
                 plt.setp(plt.gca().get_xticklabels(), visible=False)
             plt.gca().set_prop_cycle(None)
         plt.xlabel('step count')
@@ -1706,18 +2356,7 @@ class UlensModelFit(object):
         self._event.plot_data(**kwargs)
         fluxes = self._event.get_ref_fluxes()
 
-        # Plot models below, first ground-based (if needed, hence loop),
-        # then satellite ones (if needed).
-        for dataset in self._datasets:
-            if dataset.ephemerides_file is None:
-                self._model.plot_lc(
-                    source_flux=fluxes[0], blend_flux=fluxes[1],
-                    **kwargs_model)
-                break
-        for model in self._models_satellite:
-            model.parameters.parameters = {**self._model.parameters.parameters}
-            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
-                          **kwargs_model)
+        self._plot_models_for_best_model_plot(fluxes, kwargs_model)
 
         self._plot_legend_for_best_model_plot()
         plt.xlim(*xlim)
@@ -1849,6 +2488,23 @@ class UlensModelFit(object):
             ylim = self._plots['best model']['magnitude range']
 
         return (ylim, ylim_residuals)
+
+    def _plot_models_for_best_model_plot(self, fluxes, kwargs_model):
+        """
+        Plot best models: first ground-based (if needed, hence loop),
+        then satellite ones (if needed).
+        """
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                self._model.plot_lc(
+                    source_flux=fluxes[0], blend_flux=fluxes[1],
+                    **kwargs_model)
+                break
+
+        for model in self._models_satellite:
+            model.parameters.parameters = {**self._model.parameters.parameters}
+            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
+                          **kwargs_model)
 
     def _plot_legend_for_best_model_plot(self):
         """

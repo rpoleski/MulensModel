@@ -14,7 +14,7 @@ max_values:
     t_E: 200.
 fitting_parameters:
     n_walkers: 20
-    n_steps: 2000
+    n_steps: 3000
     n_burn:  1000
 plots:
     triangle:

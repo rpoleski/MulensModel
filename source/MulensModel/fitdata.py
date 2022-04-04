@@ -1,6 +1,5 @@
 import numpy as np
 import warnings
-import astropy.units as u
 
 from MulensModel.mulensdata import MulensData
 from MulensModel.trajectory import Trajectory
@@ -283,9 +282,18 @@ class FitData:
         """
 
         # Bypass this code if all fluxes are fixed.
-        if self.fix_source_flux is not False:
-            if self.fix_blend_flux is not False:
-                if False not in self.fix_source_flux:
+        if isinstance(self.fix_source_flux, (list, float)):
+            if isinstance(self.fix_blend_flux, (float)):
+                proceed = False
+                if isinstance(self.fix_source_flux, (list)):
+                    for item in self.fix_source_flux:
+                        if isinstance(item, (float)):
+                            pass
+                        else:
+                            if item is False:
+                                proceed = True
+
+                if not proceed:
                     self._calculate_magnifications(bad=False)
                     self._blend_flux = self.fix_blend_flux
                     self._source_fluxes = self.fix_source_flux
@@ -583,7 +591,7 @@ class FitData:
         flux_factor = self.get_model_fluxes() - self.dataset.flux
         flux_factor *= 2. * self.source_flux / self.dataset.err_flux**2
 
-        gradient = self._get_d_A_d_params_for_point_lens_model(parameters)
+        gradient = self.get_d_A_d_params_for_point_lens_model(parameters)
 
         for (key, value) in gradient.items():
             gradient[key] = np.sum((flux_factor * value)[self.dataset.good])
@@ -597,22 +605,30 @@ class FitData:
 
         return self._chi2_gradient
 
-    def _get_d_A_d_params_for_point_lens_model(self, parameters):
+    def get_d_A_d_params_for_point_lens_model(self, parameters):
         """
         Calculate d A / d parameters for a point lens model.
 
-        Returns a *dict*.
+        Arguments:
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns: *dict*
+            Keys are parameter names from *parameters* argument above. Values
+            are the partial derivatives for that parameter evaluated at each
+            data point.
+
         """
         gradient = self._get_d_u_d_params(parameters)
 
-        d_A_d_u = self._get_d_A_d_u_for_point_lens_model()
+        d_A_d_u = self.get_d_A_d_u_for_point_lens_model()
 
         for (key, value) in gradient.items():
             gradient[key] *= d_A_d_u
 
         return gradient
 
-    def _get_d_A_d_u_for_point_lens_model(self):
+    def get_d_A_d_u_for_point_lens_model(self):
         """
         Calculate dA/du for PSPL
         """
@@ -663,31 +679,11 @@ class FitData:
 
         # Below we deal with parallax only.
         if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-            warnings.warn(
-                "\n\nTests indicate that chi2 gradient for models with "
-                "parallax has BUGS!!!\n It's better not to use it or contact "
-                "code authors.\n")
-            # JCY Not happy about this as it requires importing from other
-            # modules. It is inelegant, which in my experience often means it
-            # needs to be refactored.
-            kwargs = dict()
-            if self.dataset.ephemerides_file is not None:
-                kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
+            delta_N = trajectory.parallax_delta_N_E['N']
+            delta_E = trajectory.parallax_delta_N_E['E']
 
-            parameters_no_piE = {**self.model.parameters.as_dict()}
-            parameters_no_piE.pop('pi_E_N')
-            parameters_no_piE.pop('pi_E_E')
-
-            trajectory_no_piE = Trajectory(
-                self.dataset.time, ModelParameters(parameters_no_piE),
-                **kwargs)
-            dx = trajectory.x - trajectory_no_piE.x
-            dy = trajectory.y - trajectory_no_piE.y
-            delta_E = dx * as_dict['pi_E_E'] + dy * as_dict['pi_E_N']
-            delta_N = dx * as_dict['pi_E_N'] - dy * as_dict['pi_E_E']
-            det = as_dict['pi_E_N']**2 + as_dict['pi_E_E']**2
-            gradient['pi_E_N'] = (d_u_d_x * delta_N + d_u_d_y * delta_E) / det
-            gradient['pi_E_E'] = (d_u_d_x * delta_E - d_u_d_y * delta_N) / det
+            gradient['pi_E_N'] = d_u_d_x * delta_N + d_u_d_y * delta_E
+            gradient['pi_E_E'] = d_u_d_x * delta_E - d_u_d_y * delta_N
 
         return gradient
 

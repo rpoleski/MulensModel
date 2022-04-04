@@ -1,9 +1,8 @@
 import numpy as np
 
 from astropy import units as u
-from astropy.coordinates import get_body_barycentric
+from astropy.coordinates import get_body_barycentric, SkyCoord
 from astropy.time import Time
-from astropy.coordinates import SkyCoord
 
 from MulensModel import utils
 from MulensModel.modelparameters import ModelParameters
@@ -79,15 +78,8 @@ class Trajectory(object):
 
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, earth_coords=None):
-        # Set times
-        if isinstance(times, np.ndarray):
-            self.times = times
-        elif isinstance(times, (list, tuple)):
-            self.times = np.array(times)
-        else:
-            self.times = np.array([times])
+        self.times = np.atleast_1d(times)
 
-        # Check for ModelParameters and set.
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
@@ -134,6 +126,17 @@ class Trajectory(object):
         """
         return self._y
 
+    @property
+    def parallax_delta_N_E(self):
+        """
+        *dict*
+
+        Net North (key='N') and East (key='E') components of the parallax
+        offset calculated for each time stamp (so sum of the offsets from all
+        parallax types).
+        """
+        return self._delta_N_E
+
     def get_xy(self):
         """
         For a given set of parameters
@@ -154,6 +157,7 @@ class Trajectory(object):
                 raise ValueError("You're trying to calculate trajectory in " +
                                  "a parallax model, but event sky " +
                                  "coordinates were not provided.")
+
             keys = ['earth_orbital', 'satellite', 'topocentric']
             if set([self.parallax[k] for k in keys]) == set([False]):
                 raise ValueError(
@@ -161,27 +165,10 @@ class Trajectory(object):
                     'of parallax dict has to be True ' +
                     '(earth_orbital, satellite, or topocentric)')
 
-            # Apply Earth Orbital parallax effect
-            if self.parallax['earth_orbital']:
-                [delta_tau, delta_u] = self._annual_parallax_trajectory()
-                vector_tau += delta_tau
-                vector_u += delta_u
-
-            # Apply satellite parallax effect
-            if (self.parallax['satellite'] and
-                    self.satellite_skycoord is not None):
-                [delta_tau, delta_u] = self._satellite_parallax_trajectory()
-                vector_tau += delta_tau
-                vector_u += delta_u
-
-            # Apply topocentric parallax effect
-            if self.parallax['topocentric'] and self._earth_coords is not None:
-                # When you implement it, make sure the behavior
-                # depends on the access to the observatory location
-                # information as the satellite parallax depends on the
-                # access to satellite_skycoord.
-                raise NotImplementedError(
-                    "The topocentric parallax effect not implemented yet")
+            self._calculate_delta_N_E()
+            [delta_tau, delta_u] = self._project_delta()
+            vector_tau += delta_tau
+            vector_u += delta_u
 
         # If 2 lenses, rotate trajectory relative to binary lens axis
         if self.parameters.n_lenses == 1 and not self.parameters.external_mass_sheet:
@@ -204,14 +191,40 @@ class Trajectory(object):
             raise NotImplementedError(
                 "trajectory for more than 2 lenses not handled yet")
 
-        # Store trajectory
         self._x = vector_x
         self._y = vector_y
 
-    def _project_delta(self, delta):
+    def _calculate_delta_N_E(self):
+        """
+        Calculate shifts caused by microlensing parallax effect.
+        """
+        self._delta_N_E = {'N': 0., 'E': 0.}
+
+        if self.parallax['earth_orbital']:
+            delta_annual = self._get_delta_annual()
+            self._delta_N_E['N'] += delta_annual['N']
+            self._delta_N_E['E'] += delta_annual['E']
+
+        if (self.parallax['satellite'] and
+                self.satellite_skycoord is not None):
+            delta_satellite = self._get_delta_satellite()
+            self._delta_N_E['N'] += delta_satellite['N']
+            self._delta_N_E['E'] += delta_satellite['E']
+
+        if self.parallax['topocentric'] and self._earth_coords is not None:
+            # When you implement it, make sure the behavior depends on the
+            # access to the observatory location information as the satellite
+            # parallax depends on the access to satellite_skycoord.
+            raise NotImplementedError(
+                "The topocentric parallax effect not implemented yet")
+
+    def _project_delta(self, delta=None):
         """
         Project N and E parallax offset vector onto the tau, beta plane.
         """
+        if delta is None:
+            delta = self.parallax_delta_N_E
+
         delta_tau = (delta['N'] * self.parameters.pi_E_N +
                      delta['E'] * self.parameters.pi_E_E)
         delta_beta = (-delta['N'] * self.parameters.pi_E_E +
@@ -250,8 +263,11 @@ class Trajectory(object):
         position_ref = get_body_barycentric(
             body='earth', time=Time(time_ref, format='jd', scale='tdb'))
         # Seems that get_body_barycentric depends on time system, but there is
-        # no way to set BJD_TDB in astropy.Time().
-        # Likewise, get_jd12 depends on time system.
+        # no way to set BJD part of BJD_TDB in astropy.Time(). The option
+        # *format* above indicates if the first argument of Time() is
+        # a float indicating JD or e.g., a string in the form
+        # '1999-01-01T00:00:00.123' - this would be value 'fits'.
+        # Hence, the user has to provide BJD times (or at least HJD).
 
         # Main calculation is in 2 lines below:
         delta_s = (position_ref.xyz.T - position.xyz.T).to(u.au).value

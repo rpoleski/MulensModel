@@ -1,11 +1,12 @@
-import numpy as np
 import math
 import warnings
 
-from MulensModel.trajectory import Trajectory
-from MulensModel.pointlens import PointLens, get_pspl_magnification
+import numpy as np
+
 from MulensModel.binarylens import BinaryLens
 from MulensModel.modelparameters import ModelParameters
+from MulensModel.pointlens import PointLens, get_pspl_magnification
+from MulensModel.trajectory import Trajectory
 
 
 class MagnificationCurve(object):
@@ -47,10 +48,7 @@ class MagnificationCurve(object):
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, gamma=0.):
         # Set times
-        if isinstance(times, (list, tuple, np.ndarray)):
-            self.times = times
-        else:
-            self.times = np.array(times)
+        self.times = np.asarray(times)
 
         # Check for ModelParameters and set.
         if isinstance(parameters, ModelParameters):

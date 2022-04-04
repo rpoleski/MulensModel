@@ -1,0 +1,8 @@
+numpy
+scipy>=0.18.0
+matplotlib
+yaml
+emcee
+corner
+pymultinest
+MulensModel>=2.0.0

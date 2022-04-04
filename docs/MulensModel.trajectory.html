@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.trajectory module &#8212; MulensModel 2.3.0 documentation</title>
+    <title>MulensModel.trajectory module &#8212; MulensModel 2.7.5 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -108,6 +108,15 @@ into account; boolean dict with keys: <code class="docutils literal notranslate"
 <em class="property">property </em><code class="sig-name descname">y</code><a class="headerlink" href="#MulensModel.trajectory.Trajectory.y" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.ndarray</em></p>
 <p>Dimensionless Y coordinates of trajectory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="MulensModel.trajectory.Trajectory.parallax_delta_N_E">
+<em class="property">property </em><code class="sig-name descname">parallax_delta_N_E</code><a class="headerlink" href="#MulensModel.trajectory.Trajectory.parallax_delta_N_E" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em></p>
+<p>Net North (key=’N’) and East (key=’E’) components of the parallax
+offset calculated for each time stamp (so sum of the offsets from all
+parallax types).</p>
 </dd></dl>
 
 <dl class="py method">

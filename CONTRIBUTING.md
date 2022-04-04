@@ -4,7 +4,7 @@ Any contribution to the MulensModel package is welcomed, even if it is just anot
 
 ### Have you found a bug?
 
-If you see a bug in the code or would like to see a new feature, then please [open a new issue](https://github.com/rpoleski/MulensModel/issues/new).
+If you see a bug in the code or would like to see a new feature, then please [open a new issue](https://github.com/rpoleski/MulensModel/issues/new). If you don't think an issue is the right category, then start [a new discussion](https://github.com/rpoleski/MulensModel/discussions/new).
 
 ### Would you like to see a new feature?
 
