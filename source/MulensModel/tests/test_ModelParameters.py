@@ -235,3 +235,16 @@ def test_n_lenses():
     assert p_1.n_lenses == 1
     assert p_2.n_lenses == 2
     assert p_3.n_lenses == 2
+
+def test_is_finite_source():
+    """
+    Test if .is_finite_source() works properly for 1L1S
+    """
+    common = {'t_0': 1.23, 'u_0': 0.123, 't_E': 23.456}
+    params_1 = mm.ModelParameters(common)
+    params_2 = mm.ModelParameters({'rho': 0.001, **common})
+    params_3 = mm.ModelParameters({'t_star': 0.012, **common})
+
+    assert not params_1.is_finite_source()
+    assert params_2.is_finite_source()
+    assert params_3.is_finite_source()

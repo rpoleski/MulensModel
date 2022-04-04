@@ -275,7 +275,7 @@ class ModelParameters(object):
         out = {type_: False for type_ in types}
 
         parameter_to_type = dict()
-        for key in ['rho' 't_star', 'rho_1', 'rho_2', 't_star_1', 't_star_2']:
+        for key in ['rho', 't_star', 'rho_1', 'rho_2', 't_star_1', 't_star_2']:
             parameter_to_type[key] = 'finite source'
         for key in ['pi_E', 'pi_E_N', 'pi_E_E']:
             parameter_to_type[key] = 'parallax'
