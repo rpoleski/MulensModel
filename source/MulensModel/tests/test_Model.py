@@ -407,6 +407,13 @@ def test_get_lc():
     out = model.get_lc(5050., source_flux=[1., 2.], blend_flux=3.)
     almost(out, 19.668370500043526)
 
+def test_is_finite_source():
+    model_fs = mm.Model(
+        {'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
+    model_ps = mm.Model({'t_0': 10, 'u_0': 1, 't_E': 3})
+
+    assert model_fs.parameters.is_finite_source()
+    assert not model_ps.parameters.is_finite_source()
 
 # Tests to Add:
 #

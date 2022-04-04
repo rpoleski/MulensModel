@@ -629,7 +629,7 @@ def test_d_A_d_rho():
     fspl_dir = 'fspl_derivs'
     sfit_derivs = np.genfromtxt(
         os.path.join(dir_2, fspl_dir, 'fort.61'), dtype=None,
-        names=['nob', 'k', 't', 'dAdrho', 'mag'])
+        names=['nob', 'k', 't', 'dAdrho', 'mag', 'amp', 'b0', 'b1', 'gamma'])
 
     # Create the model
     sfit_mat = FortranSFitFile(os.path.join(dir_2, fspl_dir, 'fort.51'))
@@ -642,6 +642,10 @@ def test_d_A_d_rho():
         model.parameters.t_0 + 1.5])
     model.set_limb_coeff_gamma('I', 0.44)
     model.set_limb_coeff_gamma('V', 0.72)
+    print('model', model)
+    print('FS model?', model.parameters.is_finite_source())
+    print(model.parameters.parameters.keys())
+    print(model.parameters._type)
 
     # For each dataset
     for i, filename in enumerate(
@@ -652,17 +656,19 @@ def test_d_A_d_rho():
         dataset = mm.MulensData(
             file_name=os.path.join(dir_2, fspl_dir, filename),
             phot_fmt='mag', bandpass=bandpass)
+        print('dataset band', dataset.bandpass)
 
         t_star = model.parameters.rho * model.parameters.t_E
         n_t_star = 1.
         index = ((dataset.time > model.parameters.t_0 - n_t_star* t_star) &
                  (dataset.time < model.parameters.t_0 + n_t_star * t_star))
         n_good = np.sum(index)
-        print(filename, n_good)
+        print(filename, n_good, bandpass)
         if n_good > 0:
             fit = mm.FitData(
                 dataset=dataset, model=model, fix_source_flux=1.0,
                 fix_blend_flux=0.0)
+            print('gamma', fit.gamma)
             mags = fit.get_data_magnification()
             derivs = mags * fit.get_d_A_d_rho()
             print('hjd', dataset.time[index] - 2450000.)
@@ -670,6 +676,9 @@ def test_d_A_d_rho():
             print('derivs', derivs[index])
 
             sfit_index = np.where(sfit_derivs['nob'] == i + 1)
+            print('magnifications:')
+            print('MM', mags[index])
+            print('sfit', sfit_derivs[sfit_index]['mag'][index])
             np.testing.assert_almost_equal(
                 mags / sfit_derivs[sfit_index]['mag'],
                 np.ones(len(dataset.time)), decimal=2)

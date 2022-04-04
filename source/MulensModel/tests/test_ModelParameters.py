@@ -235,3 +235,11 @@ def test_n_lenses():
     assert p_1.n_lenses == 1
     assert p_2.n_lenses == 2
     assert p_3.n_lenses == 2
+
+
+def test_is_finite_source():
+    params_fs = mm.ModelParameters({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
+    params_ps = mm.ModelParameters({'t_0': 10, 'u_0': 1, 't_E': 3})
+
+    assert params_fs.is_finite_source()
+    assert not params_ps.is_finite_source()
