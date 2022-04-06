@@ -286,15 +286,9 @@ class ModelParameters(object):
         for key in ['dalpha_dt', 'ds_dt']:
             parameter_to_type[key] = 'lens 2-parameter orbital motion'
 
-        print('modelparameters._set_type')
-        print('keys', keys)
-        print('parameter_to_type', parameter_to_type)
-        print('out_initial', out)
         for key in keys:
             if key in parameter_to_type:
                 out[parameter_to_type[key]] = True
-
-        print('out_final', out)
 
         self._type = out
 
