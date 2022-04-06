@@ -744,9 +744,10 @@ class FitData:
                     raise ValueError(
                         'Methods parameters passed, but currently ' +
                         'no point lens method accepts the parameters')
-            selection = (methods == method) & (z < FitData._z_max)
 
-            print('z', z[selection])
+            selection = (methods == method) & (z < FitData._z_max)
+            #print('z_max', FitData._z_max)
+            #print('z', z[selection])
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
             elif (method.lower() ==
