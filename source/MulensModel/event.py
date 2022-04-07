@@ -841,7 +841,7 @@ class Event(object):
                     'Dataset is included in Event.datasets more than once.')
 
             self._data_ref = index
-        elif isinstance(new_value, (int, np.int)):
+        elif isinstance(new_value, (int, np.int_)):
             self._data_ref = new_value
         else:
             raise TypeError(
