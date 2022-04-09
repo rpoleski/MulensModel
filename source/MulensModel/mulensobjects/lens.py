@@ -35,6 +35,7 @@ class Lens(object):
     given in kpc.
 
     """
+
     def __init__(self, total_mass=None, mass=None, mass_1=None, mass_2=None,
                  a_proj=None, distance=None, q=None, s=None, epsilon=None):
         self._caustics = None

@@ -236,6 +236,7 @@ def test_n_lenses():
     assert p_2.n_lenses == 2
     assert p_3.n_lenses == 2
 
+
 def test_is_finite_source():
     """
     Test if .is_finite_source() works properly for 1L1S

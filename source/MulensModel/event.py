@@ -761,8 +761,8 @@ class Event(object):
     def model(self, new_value):
         if not isinstance(new_value, Model):
             raise TypeError((
-                    'wrong type of Event.model: {:} instead of ' +
-                    'MulensModel.Model()').format(type(new_value)))
+                'wrong type of Event.model: {:} instead of ' +
+                'MulensModel.Model()').format(type(new_value)))
         self._model = new_value
 
         if new_value.coords is not None:

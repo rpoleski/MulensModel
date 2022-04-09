@@ -83,4 +83,3 @@ def test_ac_1():
     result = bl.adaptive_contouring_magnification(
         0.06, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
     np.testing.assert_almost_equal(result, 11.403036510555962, decimal=3)
-

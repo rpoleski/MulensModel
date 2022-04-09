@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.testing import assert_almost_equal as almost
+from math import isclose
 import unittest
 from astropy import units as u
 
@@ -12,8 +13,12 @@ def test_n_lenses():
     model_1 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.})
     model_2 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
                         "s": 1.1234, "q": 0.123, 'alpha': 12.34})
+    model_3 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
+                        "s": 1.1234, "q": 0.123, 'alpha': 12.34,
+                        'convergence_K': 0.04, 'shear_G': complex(0.1, -0.05)})
     assert model_1.n_lenses == 1
     assert model_2.n_lenses == 2
+    assert model_3.n_lenses == 2
 
 
 # Point Lens Tests
@@ -142,8 +147,8 @@ u_0 = 0.5425 + delta_u_0
 def test_BLPS_01():
     """simple binary lens with point source"""
     params = mm.ModelParameters({
-            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-            'q': q})
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+        'q': q})
 
     model = mm.Model(parameters=params)
     t = np.array([2456112.5])
@@ -155,6 +160,36 @@ def test_BLPS_01():
 # This value comes from Andy's getbinp().
 
 
+def test_BLPS_shear_active():
+    """
+    simple binary lens with point source and external convergence and shear
+    """
+    params = mm.ModelParameters({
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+        'q': q, 'convergence_K': 0.08, 'shear_G': complex(0.1, -0.1)})
+
+    model = mm.Model(parameters=params)
+    t = np.array([2456112.5])
+    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
+    magnification = model.get_magnification(data.time[0])
+    assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
+
+
+def test_BLPS_shear():
+    """
+    simple binary lens with point source and external convergence and shear
+    """
+    params = mm.ModelParameters({
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+        'q': q, 'convergence_K': 0.0, 'shear_G': complex(0, 0)})
+
+    model = mm.Model(parameters=params)
+    t = np.array([2456112.5])
+    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
+    magnification = model.get_magnification(data.time[0])
+    almost(magnification, 4.691830781584699)
+
+
 def test_BLPS_02():
     """
     simple binary lens with extended source and different methods to
@@ -162,8 +197,8 @@ def test_BLPS_02():
     """
 
     params = mm.ModelParameters({
-            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-            'q': q, 'rho': rho})
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+        'q': q, 'rho': rho})
     model = mm.Model(parameters=params)
 
     t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
@@ -199,8 +234,8 @@ def test_BLPS_02_AC():
     check_architecture.skip_m1(msg='Adaptive Contouring')
 
     params = mm.ModelParameters({
-            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-            'q': q, 'rho': rho})
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+        'q': q, 'rho': rho})
     model = mm.Model(parameters=params)
 
     t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
@@ -236,8 +271,8 @@ def test_methods_parameters():
     make sure additional parameters are properly passed to very inner functions
     """
     params = mm.ModelParameters({
-            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-            'q': q, 'rho': rho})
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+        'q': q, 'rho': rho})
     model = mm.Model(parameters=params)
 
     t = np.array([2456117.])
