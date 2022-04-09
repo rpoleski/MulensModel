@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.fitdata module &#8212; MulensModel 2.7.5 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.fitdata module &#8212; MulensModel 2.8.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -32,11 +32,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.fitdata">
+  <section id="module-MulensModel.fitdata">
 <span id="mulensmodel-fitdata-module"></span><h1>MulensModel.fitdata module<a class="headerlink" href="#module-MulensModel.fitdata" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="MulensModel.fitdata.FitData">
-<em class="property">class </em><code class="sig-prename descclassname">MulensModel.fitdata.</code><code class="sig-name descname">FitData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dataset</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_blend_flux</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fix_source_flux</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fix_source_flux_ratio</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.fitdata.</span></span><span class="sig-name descname"><span class="pre">FitData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_blend_flux</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_source_flux</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_source_flux_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Performs a least squares linear fit for given dataset and model to
 determine the source flux(es) and (optionally) blend flux. After creating
@@ -73,8 +73,8 @@ value.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.update">
-<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bad</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.update" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the best-fit source and blend fluxes as well as the chi2.</p>
 <dl class="simple">
 <dt>Keywords :</dt><dd><dl class="simple">
@@ -88,8 +88,8 @@ even for bad datapoints.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.fit_fluxes">
-<code class="sig-name descname">fit_fluxes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.fit_fluxes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.fit_fluxes">
+<span class="sig-name descname"><span class="pre">fit_fluxes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.fit_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the linear least squares fit to determine the fitted fluxes.
 Sets the values of <a class="reference internal" href="#MulensModel.fitdata.FitData.source_fluxes" title="MulensModel.fitdata.FitData.source_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_fluxes</span></code></a>, <a class="reference internal" href="#MulensModel.fitdata.FitData.blend_flux" title="MulensModel.fitdata.FitData.blend_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blend_flux</span></code></a>,
 and (if applicable) <a class="reference internal" href="#MulensModel.fitdata.FitData.source_flux" title="MulensModel.fitdata.FitData.source_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_flux</span></code></a>.</p>
@@ -98,8 +98,8 @@ run <a class="reference internal" href="#MulensModel.fitdata.FitData.update" tit
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.get_data_magnification">
-<code class="sig-name descname">get_data_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bad</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_data_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_data_magnification">
+<span class="sig-name descname"><span class="pre">get_data_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_data_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the model magnification for each data point.</p>
 <dl class="simple">
 <dt>Arguments :</dt><dd><dl class="simple">
@@ -121,8 +121,8 @@ reported separately.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.get_model_fluxes">
-<code class="sig-name descname">get_model_fluxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bad</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_model_fluxes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_model_fluxes">
+<span class="sig-name descname"><span class="pre">get_model_fluxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_model_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate model in flux space.</p>
 <dl class="simple">
 <dt>Keywords :</dt><dd><dl class="simple">
@@ -142,8 +142,8 @@ the magnitude of the blend).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.get_model_magnitudes">
-<code class="sig-name descname">get_model_magnitudes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_model_magnitudes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_model_magnitudes">
+<span class="sig-name descname"><span class="pre">get_model_magnitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_model_magnitudes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate model in magnitude space</p>
 <dl class="simple">
 <dt>Arguments :</dt><dd><dl class="simple">
@@ -160,8 +160,8 @@ the magnitude of the blend).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.scale_fluxes">
-<code class="sig-name descname">scale_fluxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_flux</span></em>, <em class="sig-param"><span class="n">blend_flux</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.scale_fluxes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.scale_fluxes">
+<span class="sig-name descname"><span class="pre">scale_fluxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_flux</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.scale_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Rescale the data fluxes to an arbitrary flux scale:</dt><dd><p>flux = source_flux_0 * (data.flux - blend_flux) / source_flux
 flux += blend_flux_0
@@ -188,8 +188,8 @@ system.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.get_residuals">
-<code class="sig-name descname">get_residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phot_fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blend_flux</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">type</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_residuals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_residuals">
+<span class="sig-name descname"><span class="pre">get_residuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phot_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_flux</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blend_flux</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_residuals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the residuals for each datapoint relative to the model.</p>
 <dl class="simple">
 <dt>Keywords :</dt><dd><dl class="simple">
@@ -220,8 +220,8 @@ errorbars for the residuals.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.get_chi2_gradient">
-<code class="sig-name descname">get_chi2_gradient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_chi2_gradient" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_chi2_gradient">
+<span class="sig-name descname"><span class="pre">get_chi2_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_chi2_gradient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fits fluxes and calculates chi^2 gradient (also called Jacobian), i.e.,
 <span class="math notranslate nohighlight">\(d chi^2/d parameter\)</span>.</p>
 <dl class="simple">
@@ -242,8 +242,8 @@ which you request gradient must be defined in py:attr:<cite>~model</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.calculate_chi2_gradient">
-<code class="sig-name descname">calculate_chi2_gradient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.calculate_chi2_gradient" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.calculate_chi2_gradient">
+<span class="sig-name descname"><span class="pre">calculate_chi2_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.calculate_chi2_gradient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates chi^2 gradient (also called Jacobian), i.e.,
 <span class="math notranslate nohighlight">\(d chi^2/d parameter\)</span> WITHOUT refitting for the fluxes. Saves
 computations if, e.g., you want to retrieve both py:attr:<cite>~chi2</cite> and
@@ -264,8 +264,8 @@ chi^2 gradient</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.get_d_A_d_params_for_point_lens_model">
-<code class="sig-name descname">get_d_A_d_params_for_point_lens_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_params_for_point_lens_model" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_d_A_d_params_for_point_lens_model">
+<span class="sig-name descname"><span class="pre">get_d_A_d_params_for_point_lens_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_params_for_point_lens_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate d A / d parameters for a point lens model.</p>
 <dl class="simple">
 <dt>Arguments:</dt><dd><dl class="simple">
@@ -281,14 +281,14 @@ data point.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model">
-<code class="sig-name descname">get_d_A_d_u_for_point_lens_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model">
+<span class="sig-name descname"><span class="pre">get_d_A_d_u_for_point_lens_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate dA/du for PSPL</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.chi2_gradient">
-<em class="property">property </em><code class="sig-name descname">chi2_gradient</code><a class="headerlink" href="#MulensModel.fitdata.FitData.chi2_gradient" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.chi2_gradient">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">chi2_gradient</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.chi2_gradient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return previously calculated chi^2 gradient (also called Jacobian),
 i.e., <span class="math notranslate nohighlight">\(d chi^2/d parameter\)</span>. See <a class="reference internal" href="#MulensModel.fitdata.FitData.get_chi2_gradient" title="MulensModel.fitdata.FitData.get_chi2_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_chi2_gradient()</span></code></a>
 and <a class="reference internal" href="#MulensModel.fitdata.FitData.calculate_chi2_gradient" title="MulensModel.fitdata.FitData.calculate_chi2_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_chi2_gradient()</span></code></a>.</p>
@@ -303,9 +303,9 @@ above.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.chi2">
-<em class="property">property </em><code class="sig-name descname">chi2</code><a class="headerlink" href="#MulensModel.fitdata.FitData.chi2" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.chi2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">chi2</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.chi2" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>chi2: <em>float</em></dt><dd><p>the total chi2 for the fitted dataset. Good points only. See
@@ -318,9 +318,9 @@ above.</p>
 linear fit and calculate the chi2.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.chi2_per_point">
-<em class="property">property </em><code class="sig-name descname">chi2_per_point</code><a class="headerlink" href="#MulensModel.fitdata.FitData.chi2_per_point" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.chi2_per_point">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">chi2_per_point</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.chi2_per_point" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>chi2_per_point: <em>np.ndarray</em></dt><dd><p>Chi^2 contribution from each data point,
@@ -335,9 +335,9 @@ datapoints.</p>
 linear fit and calculate the chi2.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.source_flux">
-<em class="property">property </em><code class="sig-name descname">source_flux</code><a class="headerlink" href="#MulensModel.fitdata.FitData.source_flux" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.source_flux">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source_flux</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.source_flux" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns :</dt><dd><p>source_flux: <em>float</em>
 the fitted source flux. Only defined for models with a single
@@ -348,9 +348,9 @@ source. See also <a class="reference internal" href="#MulensModel.fitdata.FitDat
 <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal notranslate"><span class="pre">update()</span></code></a> to execute the linear fit.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.source_fluxes">
-<em class="property">property </em><code class="sig-name descname">source_fluxes</code><a class="headerlink" href="#MulensModel.fitdata.FitData.source_fluxes" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.source_fluxes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source_fluxes</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.source_fluxes" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>source_fluxes: <em>np.array</em></dt><dd><p>the fitted source flux(es).</p>
@@ -362,9 +362,9 @@ source. See also <a class="reference internal" href="#MulensModel.fitdata.FitDat
 <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal notranslate"><span class="pre">update()</span></code></a> to execute the linear fit.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.blend_flux">
-<em class="property">property </em><code class="sig-name descname">blend_flux</code><a class="headerlink" href="#MulensModel.fitdata.FitData.blend_flux" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.blend_flux">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">blend_flux</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.blend_flux" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>blend_flux: <em>float</em></dt><dd><p>the fitted blend flux or the value set by
@@ -377,9 +377,9 @@ fix_blend_flux (see <a class="reference external" href="https://docs.python.org/
 <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal notranslate"><span class="pre">update()</span></code></a> to execute the linear fit.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.source_flux_ratio">
-<em class="property">property </em><code class="sig-name descname">source_flux_ratio</code><a class="headerlink" href="#MulensModel.fitdata.FitData.source_flux_ratio" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.source_flux_ratio">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source_flux_ratio</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.source_flux_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>source_flux_ratio = source_flux_1 / source_flux_0</p>
 <dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
@@ -393,23 +393,23 @@ fix_source_flux_ratio (see <a class="reference external" href="https://docs.pyth
 <a class="reference internal" href="#MulensModel.fitdata.FitData.update" title="MulensModel.fitdata.FitData.update"><code class="xref py py-func docutils literal notranslate"><span class="pre">update()</span></code></a> to execute the linear fit.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.dataset">
-<em class="property">property </em><code class="sig-name descname">dataset</code><a class="headerlink" href="#MulensModel.fitdata.FitData.dataset" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.dataset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData" title="MulensModel.mulensdata.MulensData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensData</span></code></a> object</p>
 <p>A single photometric dataset to be fitted.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.model">
-<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#MulensModel.fitdata.FitData.model" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.model">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.model" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model" title="MulensModel.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a> object</p>
 <p>The model to fit to the data.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.fitdata.FitData.gamma">
-<em class="property">property </em><code class="sig-name descname">gamma</code><a class="headerlink" href="#MulensModel.fitdata.FitData.gamma" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.gamma">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>Limb-darkening coefficient for this fit. Set by
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">bandpass</span></code> and
@@ -419,7 +419,7 @@ fix_source_flux_ratio (see <a class="reference external" href="https://docs.pyth
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -438,7 +438,7 @@ fix_source_flux_ratio (see <a class="reference external" href="https://docs.pyth
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -457,7 +457,7 @@ fix_source_flux_ratio (see <a class="reference external" href="https://docs.pyth
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -479,7 +479,7 @@ fix_source_flux_ratio (see <a class="reference external" href="https://docs.pyth
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

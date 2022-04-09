@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.pointlens module &#8212; MulensModel 2.7.5 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.pointlens module &#8212; MulensModel 2.8.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -32,11 +32,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.pointlens">
+  <section id="module-MulensModel.pointlens">
 <span id="mulensmodel-pointlens-module"></span><h1>MulensModel.pointlens module<a class="headerlink" href="#module-MulensModel.pointlens" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="MulensModel.pointlens.get_pspl_magnification">
-<code class="sig-prename descclassname">MulensModel.pointlens.</code><code class="sig-name descname">get_pspl_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trajectory</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.get_pspl_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.pointlens.get_pspl_magnification">
+<span class="sig-prename descclassname"><span class="pre">MulensModel.pointlens.</span></span><span class="sig-name descname"><span class="pre">get_pspl_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.get_pspl_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is Paczynski equation, i.e., point-source–point-lens (PSPL)
 magnification.</p>
 <dl>
@@ -58,8 +58,8 @@ specified by <cite>trajectory</cite>.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="MulensModel.pointlens.PointLens">
-<em class="property">class </em><code class="sig-prename descclassname">MulensModel.pointlens.</code><code class="sig-name descname">PointLens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.pointlens.PointLens">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.pointlens.</span></span><span class="sig-name descname"><span class="pre">PointLens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Equations for calculating finite source effects for a point lens.</p>
 <dl class="simple">
@@ -77,8 +77,8 @@ attribute is used.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="MulensModel.pointlens.PointLens.get_point_lens_finite_source_magnification">
-<code class="sig-name descname">get_point_lens_finite_source_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">pspl_magnification</span></em>, <em class="sig-param"><span class="n">direct</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_finite_source_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.pointlens.PointLens.get_point_lens_finite_source_magnification">
+<span class="sig-name descname"><span class="pre">get_point_lens_finite_source_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pspl_magnification</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_finite_source_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate magnification for point lens and finite source (for
 a <em>uniform</em> source).  The approximation was proposed by:</p>
 <p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract">Gould A. 1994 ApJ 421L, 71 “Proper motions of MACHOs”</a></p>
@@ -108,8 +108,8 @@ Type is the same as of u parameter.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.pointlens.PointLens.get_point_lens_limb_darkening_magnification">
-<code class="sig-name descname">get_point_lens_limb_darkening_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">pspl_magnification</span></em>, <em class="sig-param"><span class="n">gamma</span></em>, <em class="sig-param"><span class="n">direct</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_limb_darkening_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.pointlens.PointLens.get_point_lens_limb_darkening_magnification">
+<span class="sig-name descname"><span class="pre">get_point_lens_limb_darkening_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pspl_magnification</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_limb_darkening_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculate magnification for point lens and finite source <em>with
 limb darkening</em>. The approximation was proposed by:</p>
 <p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract">Gould A. 1994 ApJ 421L, 71 “Proper motions of MACHOs”</a></p>
@@ -140,8 +140,8 @@ limb-darkening. Type is the same as of u parameter.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.pointlens.PointLens.get_point_lens_uniform_integrated_magnification">
-<code class="sig-name descname">get_point_lens_uniform_integrated_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">rho</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_uniform_integrated_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.pointlens.PointLens.get_point_lens_uniform_integrated_magnification">
+<span class="sig-name descname"><span class="pre">get_point_lens_uniform_integrated_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_uniform_integrated_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate magnification for the point lens and <em>uniform</em> finite source.
 This approach works well for small and large sources
 (e.g., rho~0.5). Uses the method presented by:</p>
@@ -165,8 +165,8 @@ Stable Formalism”</a></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.pointlens.PointLens.get_point_lens_LD_integrated_magnification">
-<code class="sig-name descname">get_point_lens_LD_integrated_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">gamma</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_LD_integrated_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.pointlens.PointLens.get_point_lens_LD_integrated_magnification">
+<span class="sig-name descname"><span class="pre">get_point_lens_LD_integrated_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_LD_integrated_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate magnification for the point lens and <em>finite source with
 limb-darkening</em>. This approach works well for small and large
 sources (e.g., rho~0.5). Uses the method presented by:</p>
@@ -193,8 +193,8 @@ Stable Formalism”</a></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.pointlens.PointLens.get_point_lens_large_finite_source_magnification">
-<code class="sig-name descname">get_point_lens_large_finite_source_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_large_finite_source_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.pointlens.PointLens.get_point_lens_large_finite_source_magnification">
+<span class="sig-name descname"><span class="pre">get_point_lens_large_finite_source_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_large_finite_source_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate magnification for the point lens and <em>uniform</em> source.
 This approach works well for small and large
 sources (e.g., rho~0.5). The method was presented by:</p>
@@ -215,8 +215,8 @@ Pointlike for Microlensing by MACHOs?”</a></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.pointlens.PointLens.get_point_lens_large_LD_integrated_magnification">
-<code class="sig-name descname">get_point_lens_large_LD_integrated_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">gamma</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_large_LD_integrated_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.pointlens.PointLens.get_point_lens_large_LD_integrated_magnification">
+<span class="sig-name descname"><span class="pre">get_point_lens_large_LD_integrated_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.pointlens.PointLens.get_point_lens_large_LD_integrated_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate magnification for the point lens and <em>finite source with
 limb-darkening</em>. This approach works well for small and large
 sources (e.g., rho~0.5). Here multiple annuli
@@ -246,7 +246,7 @@ a public package for microlensing light-curve computation”</a></p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -265,7 +265,7 @@ a public package for microlensing light-curve computation”</a></p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -284,7 +284,7 @@ a public package for microlensing light-curve computation”</a></p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -306,7 +306,7 @@ a public package for microlensing light-curve computation”</a></p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

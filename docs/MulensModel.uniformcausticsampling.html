@@ -4,16 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.uniformcausticsampling module &#8212; MulensModel 2.7.5 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.uniformcausticsampling module &#8212; MulensModel 2.8.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -32,11 +31,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.uniformcausticsampling">
+  <section id="module-MulensModel.uniformcausticsampling">
 <span id="mulensmodel-uniformcausticsampling-module"></span><h1>MulensModel.uniformcausticsampling module<a class="headerlink" href="#module-MulensModel.uniformcausticsampling" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling">
-<em class="property">class </em><code class="sig-prename descclassname">MulensModel.uniformcausticsampling.</code><code class="sig-name descname">UniformCausticSampling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">n_points</span><span class="o">=</span><span class="default_value">10000</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.uniformcausticsampling.</span></span><span class="sig-name descname"><span class="pre">UniformCausticSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Uniform sampling of a binary lens caustic.
 Note that calculations take some time for given (s, q).
@@ -108,8 +107,8 @@ in a very complicated way, however it is a smooth function of
 <p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2012MNRAS.426.2228K/abstract">Kains N. et al. 2012 MNRAS 426, 2228 “A Bayesian algorithm for model
 selection applied to caustic-crossing binary-lens microlensing events”</a></p>
 <dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters">
-<code class="sig-name descname">get_standard_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x_caustic_in</span></em>, <em class="sig-param"><span class="n">x_caustic_out</span></em>, <em class="sig-param"><span class="n">t_caustic_in</span></em>, <em class="sig-param"><span class="n">t_caustic_out</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters">
+<span class="sig-name descname"><span class="pre">get_standard_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_caustic_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_caustic_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_caustic_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_caustic_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_standard_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get standard binary lens parameters (i.e., <code class="docutils literal notranslate"><span class="pre">t_0</span></code>, <code class="docutils literal notranslate"><span class="pre">u_0</span></code>, <code class="docutils literal notranslate"><span class="pre">t_E</span></code>,
 <code class="docutils literal notranslate"><span class="pre">alpha</span></code>; see
 <a class="reference internal" href="MulensModel.modelparameters.html#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a>)
@@ -143,8 +142,8 @@ Must be in (0, 1) range.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out">
-<code class="sig-name descname">get_x_in_x_out</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u_0</span></em>, <em class="sig-param"><span class="n">alpha</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out">
+<span class="sig-name descname"><span class="pre">get_x_in_x_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_x_in_x_out" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate where given trajectory crosses the caustic.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
@@ -166,8 +165,8 @@ then only some pairs will produce real trajectories.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_uniform_sampling">
-<code class="sig-name descname">get_uniform_sampling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_points</span></em>, <em class="sig-param"><span class="n">n_min_for_caustic</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">caustic</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_uniform_sampling" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.get_uniform_sampling">
+<span class="sig-name descname"><span class="pre">get_uniform_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_min_for_caustic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caustic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.get_uniform_sampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample uniformly (x_caustic_in, x_caustic_out) space according to
 Jacobian and requirement that x_caustic_in corresponds to caustic
 entrance, and x_caustic_out corresponds to caustic exit. The Jacobian
@@ -203,8 +202,8 @@ caustics. Can be <em>1</em>, <em>2</em>, or <em>3</em> but has to be
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.jacobian">
-<code class="sig-name descname">jacobian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x_caustic_in</span></em>, <em class="sig-param"><span class="n">x_caustic_out</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.jacobian" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.jacobian">
+<span class="sig-name descname"><span class="pre">jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_caustic_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_caustic_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.jacobian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates Eq. 23 from Cassan et al. (2010) with condition under Eq. 27.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
@@ -223,8 +222,8 @@ caustics. Can be <em>1</em>, <em>2</em>, or <em>3</em> but has to be
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.check_valid_trajectory">
-<code class="sig-name descname">check_valid_trajectory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x_caustic_in</span></em>, <em class="sig-param"><span class="n">x_caustic_out</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.check_valid_trajectory" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.check_valid_trajectory">
+<span class="sig-name descname"><span class="pre">check_valid_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_caustic_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_caustic_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.check_valid_trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if given (x_caustic_in, x_caustic_out) define an existing
 trajectory. An obvious case, when they don’t is when both caustic
 points are on the same fold, but other cases exists.</p>
@@ -245,8 +244,8 @@ points are on the same fold, but other cases exists.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.caustic_point">
-<code class="sig-name descname">caustic_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x_caustic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.caustic_point" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.caustic_point">
+<span class="sig-name descname"><span class="pre">caustic_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_caustic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.caustic_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate caustic position corresponding to given x_caustic.</p>
 <dl class="simple">
 <dt>Keywords :</dt><dd><dl class="simple">
@@ -264,8 +263,8 @@ Has to be in 0-1 range.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.which_caustic">
-<code class="sig-name descname">which_caustic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x_caustic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.which_caustic" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.which_caustic">
+<span class="sig-name descname"><span class="pre">which_caustic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_caustic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.which_caustic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indicates on which caustic given point is.</p>
 <dl>
 <dt>Keywords :</dt><dd><dl class="simple">
@@ -285,31 +284,31 @@ the lower of the two planetary caustics,</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics">
-<em class="property">property </em><code class="sig-name descname">n_caustics</code><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_caustics</span></span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.n_caustics" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>Number of caustics: <em>1</em> for resonant topology, <em>2</em> for wide topology,
 or <em>3</em> for close topology.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.s">
-<em class="property">property </em><code class="sig-name descname">s</code><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.s" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.s">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">s</span></span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.s" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>separation of the two lens components relative to Einstein ring size</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.uniformcausticsampling.UniformCausticSampling.q">
-<em class="property">property </em><code class="sig-name descname">q</code><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.q" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.uniformcausticsampling.UniformCausticSampling.q">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q</span></span><a class="headerlink" href="#MulensModel.uniformcausticsampling.UniformCausticSampling.q" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>Mass ratio.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -328,7 +327,7 @@ or <em>3</em> for close topology.</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -347,7 +346,7 @@ or <em>3</em> for close topology.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -369,7 +368,7 @@ or <em>3</em> for close topology.</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
