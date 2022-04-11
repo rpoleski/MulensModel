@@ -689,10 +689,10 @@ def test_d_A_d_rho():
             print('z, db0, sfit_db0')
             print(test_arr.transpose())
             np.testing.assert_almost_equal(
-                db0 / sfit_db0[index], np.ones(n_good), decimal=2)
+                db0 / sfit_db0[index], np.ones(n_good), decimal=1)
             db1 = fit._get_B1_prime(z)
             np.testing.assert_almost_equal(
-                db1 / sfit_db1[index], np.ones(n_good), decimal=2)
+                db1 / sfit_db1[index], np.ones(n_good), decimal=1)
 
             # compare da_drho
             sfit_da_drho = sfit_derivs[sfit_index]['dAdrho']
