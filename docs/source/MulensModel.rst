@@ -16,7 +16,10 @@ Submodules
    :maxdepth: 4
 
    MulensModel.binarylens
+   MulensModel.binarylensimports
+   MulensModel.binarylenswithshear
    MulensModel.caustics
+   MulensModel.causticswithshear
    MulensModel.coordinates
    MulensModel.event
    MulensModel.fitdata
