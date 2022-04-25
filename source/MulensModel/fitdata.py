@@ -739,6 +739,7 @@ class FitData:
         # This section was copied from magnificationcurve.py. Addl evidence a
         # refactor is needed.
         methods = np.array(magnification_curve._methods_for_epochs())
+        print(set(methods))
         for method in set(methods):
             kwargs = {}
             if magnification_curve._methods_parameters is not None:
@@ -749,7 +750,8 @@ class FitData:
                         'Methods parameters passed, but currently ' +
                         'no point lens method accepts the parameters')
 
-            selection = (methods == method) & (z < FitData._z_max)
+            selection = np.where((methods == method) & (z < FitData._z_max))
+            #print('selection', np.sum(selection))
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
             elif (method.lower() ==
@@ -764,8 +766,10 @@ class FitData:
                 msg += 'Your value: {:}'
                 raise ValueError(msg.format(method))
 
+            print('gradient 1', gradient[selection])
             gradient[selection] *= self._data_magnification[selection]
             gradient[selection] *= (-u_[selection] / self.model.parameters.rho**2)
+            print('gradient 2', gradient[selection])
 
             return gradient
 
