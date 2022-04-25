@@ -750,8 +750,8 @@ class FitData:
                         'Methods parameters passed, but currently ' +
                         'no point lens method accepts the parameters')
 
-            selection = np.where((methods == method) & (z < FitData._z_max))
-            #print('selection', np.sum(selection))
+            selection = (methods == method) & (z < FitData._z_max)
+            print('selection', np.sum(selection))
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
             elif (method.lower() ==
