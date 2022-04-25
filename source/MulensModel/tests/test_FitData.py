@@ -655,7 +655,7 @@ def test_d_A_d_rho():
             file_name=os.path.join(dir_2, fspl_dir, filename),
             phot_fmt='mag', bandpass=bandpass)
 
-        index = ((dataset.time > model.parameters.t_0 - n_t_star* t_star) &
+        index = ((dataset.time > model.parameters.t_0 - n_t_star * t_star) &
                  (dataset.time < model.parameters.t_0 + n_t_star * t_star))
         n_good = np.sum(index)
         print(filename, n_good, bandpass)
@@ -666,39 +666,32 @@ def test_d_A_d_rho():
                 fix_blend_flux=0.0)
 
             mags = fit.get_data_magnification()
-            mm_da_drho = fit.get_d_A_d_rho()
-            derivs = mags * fit.get_d_A_d_rho()
+            derivs = fit.get_d_A_d_rho()
 
             sfit_index = np.where(sfit_derivs['nob'] == i + 1)
 
             # compare magnifications
-            np.testing.assert_almost_equal(
-                mags / sfit_derivs[sfit_index]['mag'],
-                np.ones(len(dataset.time)), decimal=2)
+            np.testing.assert_allclose(
+                mags, sfit_derivs[sfit_index]['mag'], rtol=0.002)
 
             # compare dB0, dB1
             sfit_db0 = sfit_derivs[sfit_index]['db0']
             sfit_db1 = sfit_derivs[sfit_index]['db1']
             traj = fit.model.get_trajectory(dataset.time[index])
             z = np.sqrt(traj.x**2 + traj.y**2) / model.parameters.rho
-            #print('z', z)
             db0 = fit._get_B0_prime(z)
-            #print('db0', db0)
-            #print('sfit_db0', sfit_db0[index])
-            test_arr = np.vstack((z, db0, sfit_db0[index]))
-            print('z, db0, sfit_db0')
-            print(test_arr.transpose())
-            np.testing.assert_almost_equal(
-                db0 / sfit_db0[index], np.ones(n_good), decimal=2)
+
+            np.testing.assert_allclose(db0, sfit_db0[index], rtol=0.01)
             db1 = fit._get_B1_prime(z)
-            np.testing.assert_almost_equal(
-                db1 / sfit_db1[index], np.ones(n_good), decimal=2)
+            np.testing.assert_allclose(db1, sfit_db1[index], atol=0.001)
 
             # compare da_drho
             sfit_da_drho = sfit_derivs[sfit_index]['dAdrho']
-            np.testing.assert_almost_equal(
-                derivs[index] / sfit_da_drho[index],
-                np.ones(n_good), decimal=2)
+            test_arr = np.vstack((z, derivs[index], sfit_da_drho[index]))
+            print('z, mm deriv, sfit deriv')
+            print(test_arr.transpose())
+            np.testing.assert_allclose(
+                derivs[index], sfit_da_drho[index], rtol=0.01)
 
 # Tests to add:
 #

@@ -95,6 +95,8 @@ class FitData:
         self._chi2_per_point = None
         self._chi2 = None
 
+        self._data_magnification = None
+
     def _check_for_flux_ratio_errors(self):
         """
         If combination of settings and models are invalid, raise exceptions.
@@ -703,7 +705,10 @@ class FitData:
         if not FitData._B0B1_file_read:
             self._read_B0B1_file()
 
-        gradient = np.ones(len(self.dataset.time))
+        if self._data_magnification is None:
+            self._calculate_magnifications()
+
+        gradient = np.zeros(len(self.dataset.time))
 
         # This calculation gets repeated = Not efficient. Should trajectory be
         # a property of model?
@@ -734,7 +739,7 @@ class FitData:
         # This section was copied from magnificationcurve.py. Addl evidence a
         # refactor is needed.
         methods = np.array(magnification_curve._methods_for_epochs())
-
+        print(methods)
         for method in set(methods):
             kwargs = {}
             if magnification_curve._methods_parameters is not None:
@@ -762,9 +767,12 @@ class FitData:
                 msg += 'Your value: {:}'
                 raise ValueError(msg.format(method))
 
+            print('1', gradient[selection])
             gradient[selection] *= self._data_magnification[selection]
-            gradient[selection] *= (-self.model.parameters.u_0 /
-                                    self.model.parameters.rho**2)
+            #gradient[selection] *= magnification_curve.get_magnification()[selection]
+            print('2', gradient[selection])
+            gradient[selection] *= (-u_[selection] / self.model.parameters.rho**2)
+            print('3', gradient[selection])
 
             return gradient
 
