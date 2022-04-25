@@ -662,8 +662,9 @@ def test_d_A_d_rho():
 
         if n_good > 0:
             fit = mm.FitData(
-                dataset=dataset, model=model, fix_source_flux=1.0,
-                fix_blend_flux=0.0)
+                dataset=dataset, model=model,
+                fix_source_flux=sfit_mat.a[9 + i*3],
+                fix_blend_flux=sfit_mat.a[9 + i*3 + 1])
 
             mags = fit.get_data_magnification()
             derivs = fit.get_d_A_d_rho()
