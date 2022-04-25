@@ -666,8 +666,10 @@ def test_d_A_d_rho():
                 fix_source_flux=sfit_mat.a[9 + i*3],
                 fix_blend_flux=sfit_mat.a[9 + i*3 + 1])
 
+            fit.fit_fluxes()
+            fs = fit.source_flux
             mags = fit.get_data_magnification()
-            derivs = fit.get_d_A_d_rho()
+            derivs = fs * fit.get_d_A_d_rho()
 
             sfit_index = np.where(sfit_derivs['nob'] == i + 1)
 
