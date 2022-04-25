@@ -4,16 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.modelparameters module &#8212; MulensModel 2.3.0 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.modelparameters module &#8212; MulensModel 2.8.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -32,11 +31,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.modelparameters">
+  <section id="module-MulensModel.modelparameters">
 <span id="mulensmodel-modelparameters-module"></span><h1>MulensModel.modelparameters module<a class="headerlink" href="#module-MulensModel.modelparameters" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="MulensModel.modelparameters.which_parameters">
-<code class="sig-prename descclassname">MulensModel.modelparameters.</code><code class="sig-name descname">which_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.which_parameters" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.modelparameters.which_parameters">
+<span class="sig-prename descclassname"><span class="pre">MulensModel.modelparameters.</span></span><span class="sig-name descname"><span class="pre">which_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.which_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints information on valid parameter combinations that can be
 used to define a model or a particular effect. May be called with
 no arguments (returns information on many types of models) or with
@@ -51,12 +50,12 @@ one argument referring to a specific model (e.g. PSPL) or effect
 </dd></dl>
 
 <dl class="py class">
-<dt id="MulensModel.modelparameters.ModelParameters">
-<em class="property">class </em><code class="sig-prename descclassname">MulensModel.modelparameters.</code><code class="sig-name descname">ModelParameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.modelparameters.</span></span><span class="sig-name descname"><span class="pre">ModelParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A class for the basic microlensing model parameters (t_0, u_0,
-t_E, rho, s, q, alpha, pi_E). Can handle point lens or binary
-lens. The pi_E assumes NE coordinates (Parallel, Perpendicular
+t_E, s, q, alpha, etc.). Can handle point lens or binary lens.
+The pi_E assumes NE coordinates (Parallel, Perpendicular
 coordinates are not supported).</p>
 <dl class="simple">
 <dt>Arguments :</dt><dd><dl class="simple">
@@ -82,59 +81,59 @@ change parameter values, instead use e.g.:
 </dl>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_0">
-<em class="property">property </em><code class="sig-name descname">t_0</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The time of minimum projected separation between the source
 and the lens center of mass.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.u_0">
-<em class="property">property </em><code class="sig-name descname">u_0</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.u_0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">u_0</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The minimum projected separation between the source
 and the lens center of mass.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_star">
-<em class="property">property </em><code class="sig-name descname">t_star</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_star">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_star</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>t_star = rho * t_E = source radius crossing time</p>
 <p>“day” is the default unit. Can be set as <em>float</em> or
 <em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_eff">
-<em class="property">property </em><code class="sig-name descname">t_eff</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_eff" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_eff">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_eff</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_eff" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>t_eff = u_0 * t_E = effective timescale</p>
 <p>“day” is the default unit. Can be set as <em>float</em> or
 <em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_E">
-<em class="property">property </em><code class="sig-name descname">t_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_E" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_E">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_E</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_E" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The Einstein timescale. “day” is the default unit. Can be set as
 <em>float</em> or <em>astropy.Quantity</em>, but always returns <em>float</em> in units of
 days.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.rho">
-<em class="property">property </em><code class="sig-name descname">rho</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.rho">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rho</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>source size as a fraction of the Einstein radius</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.alpha">
-<em class="property">property </em><code class="sig-name descname">alpha</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.alpha" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.alpha">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>The angle of the source trajectory relative to the binary lens
 axis (or primary-secondary axis). Measured counterclockwise,
@@ -145,46 +144,60 @@ set as a <em>float</em> –&gt; assumes “deg” is the default unit.
 Regardless of input value, returns value in degrees.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.q">
-<em class="property">property </em><code class="sig-name descname">q</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.q" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.q">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.q" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>mass ratio of the two lens components. Only 2 bodies allowed.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.s">
-<em class="property">property </em><code class="sig-name descname">s</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.s" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.convergence_K">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convergence_K</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.convergence_K" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Convergence of external mass sheet.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.shear_G">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shear_G</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.shear_G" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>complex</em></p>
+<p>Shear of external mass sheet.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.s">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">s</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.s" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>separation of the two lens components relative to Einstein ring size</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.pi_E">
-<em class="property">property </em><code class="sig-name descname">pi_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.pi_E">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pi_E</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list of floats</em></p>
 <p>The microlensing parallax vector. Must be set as a vector/list
 (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
 pi_E_mag</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.pi_E_N">
-<em class="property">property </em><code class="sig-name descname">pi_E_N</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_N" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.pi_E_N">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pi_E_N</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_N" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The North component of the microlensing parallax vector.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.pi_E_E">
-<em class="property">property </em><code class="sig-name descname">pi_E_E</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_E" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.pi_E_E">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pi_E_E</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_E" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The East component of the microlensing parallax vector.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_0_par">
-<em class="property">property </em><code class="sig-name descname">t_0_par</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_par" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_0_par">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0_par</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_par" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The reference time for the calculation of parallax. If not set
 explicitly, then it is assumed t_0_par = t_0.</p>
@@ -192,34 +205,34 @@ explicitly, then it is assumed t_0_par = t_0.</p>
 It is best to fix it at the begin of calculations.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.pi_E_mag">
-<em class="property">property </em><code class="sig-name descname">pi_E_mag</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_mag" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.pi_E_mag">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pi_E_mag</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_mag" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The magnitude of the microlensing parallax vector.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.x_caustic_in">
-<em class="property">property </em><code class="sig-name descname">x_caustic_in</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.x_caustic_in" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.x_caustic_in">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x_caustic_in</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.x_caustic_in" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>Curvelinear coordinate (in <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
 of caustic entrance for a static binary lens model. See
 <a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.x_caustic_out">
-<em class="property">property </em><code class="sig-name descname">x_caustic_out</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.x_caustic_out" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.x_caustic_out">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x_caustic_out</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.x_caustic_out" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>Curvelinear coordinate (in <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
 of caustic exit for a static binary lens model. See
 <a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_caustic_in">
-<em class="property">property </em><code class="sig-name descname">t_caustic_in</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_caustic_in" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_caustic_in">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_caustic_in</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_caustic_in" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>Epoch of caustic entrance for a static binary lens model in
 <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
@@ -227,9 +240,9 @@ See
 <a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_caustic_out">
-<em class="property">property </em><code class="sig-name descname">t_caustic_out</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_caustic_out" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_caustic_out">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_caustic_out</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_caustic_out" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>Epoch of caustic exit for a static binary lens model in
 <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract">Cassan (2008) parameterization</a>)
@@ -237,27 +250,27 @@ See
 <a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.ds_dt">
-<em class="property">property </em><code class="sig-name descname">ds_dt</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.ds_dt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ds_dt</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>Change rate of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a> in 1/year. Can be set as
 <em>AstroPy.Quantity</em> or as <em>float</em> (1/year is assumed default unit).
 Regardless of input value, returns value in 1/year.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.dalpha_dt">
-<em class="property">property </em><code class="sig-name descname">dalpha_dt</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.dalpha_dt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dalpha_dt</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>Change rate of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code></a> in deg/year. Can be set as
 <em>AstroPy.Quantity</em> or as <em>float</em> (deg/year is assumed default unit).
 Regardless of input value, returns value in deg/year.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_0_kep">
-<em class="property">property </em><code class="sig-name descname">t_0_kep</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_kep" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_0_kep">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0_kep</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_kep" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The reference time for the calculation of lens orbital motion.
 If not set explicitly, then it is assumed t_0_kep = t_0.</p>
@@ -265,73 +278,73 @@ If not set explicitly, then it is assumed t_0_kep = t_0.</p>
 It is best to fix it at the begin of calculations.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_0_1">
-<em class="property">property </em><code class="sig-name descname">t_0_1</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_1" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_0_1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0_1</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_1" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The time of minimum projected separation between the source no. 1
 and the lens center of mass.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_0_2">
-<em class="property">property </em><code class="sig-name descname">t_0_2</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_2" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_0_2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0_2</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_2" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The time of minimum projected separation between the source no. 2
 and the lens center of mass.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.u_0_1">
-<em class="property">property </em><code class="sig-name descname">u_0_1</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0_1" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.u_0_1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">u_0_1</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0_1" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The minimum projected separation between the source no. 1
 and the lens center of mass.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.u_0_2">
-<em class="property">property </em><code class="sig-name descname">u_0_2</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0_2" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.u_0_2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">u_0_2</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.u_0_2" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The minimum projected separation between the source no. 2
 and the lens center of mass.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_star_1">
-<em class="property">property </em><code class="sig-name descname">t_star_1</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star_1" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_star_1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_star_1</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star_1" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time</p>
 <p>“day” is the default unit. Can be set as <em>float</em> or
 <em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.t_star_2">
-<em class="property">property </em><code class="sig-name descname">t_star_2</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star_2" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_star_2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_star_2</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star_2" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time</p>
 <p>“day” is the default unit. Can be set as <em>float</em> or
 <em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.rho_1">
-<em class="property">property </em><code class="sig-name descname">rho_1</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho_1" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.rho_1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rho_1</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho_1" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>source no. 1 size as a fraction of the Einstein radius</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.rho_2">
-<em class="property">property </em><code class="sig-name descname">rho_2</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho_2" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.rho_2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rho_2</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.rho_2" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>source no. 2 size as a fraction of the Einstein radius</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.get_s">
-<code class="sig-name descname">get_s</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epoch</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_s" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.get_s">
+<span class="sig-name descname"><span class="pre">get_s</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_s" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a> at a given epoch or
 epochs (if orbital motion parameters are set).</p>
 <dl class="simple">
@@ -349,8 +362,8 @@ epochs (if orbital motion parameters are set).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.get_alpha">
-<code class="sig-name descname">get_alpha</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epoch</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_alpha" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.get_alpha">
+<span class="sig-name descname"><span class="pre">get_alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.get_alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code></a> at a given epoch or
 epochs (if orbital motion parameters are set).</p>
 <dl class="simple">
@@ -367,9 +380,9 @@ epochs (if orbital motion parameters are set).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.gamma_parallel">
-<em class="property">property </em><code class="sig-name descname">gamma_parallel</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_parallel" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.gamma_parallel">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_parallel</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_parallel" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>Parallel component of instantaneous velocity of the secondary
 relative to the primary in 1/year.
@@ -377,9 +390,9 @@ It is parallel to the primary-secondary axis.
 Equals <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="MulensModel.modelparameters.ModelParameters.ds_dt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ds_dt</span></code></a>/<a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a>. Cannot be set.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.gamma_perp">
-<em class="property">property </em><code class="sig-name descname">gamma_perp</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_perp" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.gamma_perp">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_perp</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_perp" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>Perpendicular component of instantaneous velocity of the secondary
 relative to the primary. It is perpendicular to the primary-secondary
@@ -387,17 +400,17 @@ axis. It has sign opposite to <a class="reference internal" href="#MulensModel.m
 and is in rad/yr, not deg/yr. Cannot be set.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.gamma">
-<em class="property">property </em><code class="sig-name descname">gamma</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.gamma">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>astropy.Quantity</em></p>
 <p>Instantaneous velocity of the secondary relative to the primary in
 1/year. Cannot be set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.is_finite_source">
-<code class="sig-name descname">is_finite_source</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.is_finite_source" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.is_finite_source">
+<span class="sig-name descname"><span class="pre">is_finite_source</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.is_finite_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if model has finite source. For binary source models it checks
 if either of the sources is finite.</p>
 <dl class="simple">
@@ -410,8 +423,8 @@ if either of the sources is finite.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.is_static">
-<code class="sig-name descname">is_static</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.is_static" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.is_static">
+<span class="sig-name descname"><span class="pre">is_static</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.is_static" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if model is static, i.e., orbital motion parameters are not set.</p>
 <dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
@@ -422,23 +435,30 @@ if either of the sources is finite.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.n_lenses">
-<em class="property">property </em><code class="sig-name descname">n_lenses</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_lenses" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.n_lenses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_lenses</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_lenses" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>number of objects in the lens system</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.n_sources">
-<em class="property">property </em><code class="sig-name descname">n_sources</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_sources" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.n_sources">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_sources</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_sources" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>number of luminous sources; it’s possible to be 1 for xallarap model</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.source_1_parameters">
-<em class="property">property </em><code class="sig-name descname">source_1_parameters</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.source_1_parameters" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.is_external_mass_sheet">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_external_mass_sheet</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.is_external_mass_sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em></p>
+<p>Whether an external mass sheet is included in the model</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.source_1_parameters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source_1_parameters</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.source_1_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></p>
 <p>Parameters of source 1 in multi-source model.</p>
 <p><strong>Do not change returned values.</strong> To change
@@ -446,9 +466,9 @@ parameters of the source 1, simply change the parameters of double
 source instance.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.source_2_parameters">
-<em class="property">property </em><code class="sig-name descname">source_2_parameters</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.source_2_parameters" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.source_2_parameters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source_2_parameters</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.source_2_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="#MulensModel.modelparameters.ModelParameters" title="MulensModel.modelparameters.ModelParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelParameters</span></code></a></p>
 <p>Parameters of source 2 in multi-source model.</p>
 <p><strong>Do not change returned values.</strong> To change
@@ -456,9 +476,9 @@ parameters of the source 1, simply change the parameters of double
 source instance.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling">
-<em class="property">property </em><code class="sig-name descname">uniform_caustic_sampling</code><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uniform_caustic_sampling</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.uniform_caustic_sampling" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a></p>
 <p>An instance of the class
 <a class="reference internal" href="MulensModel.uniformcausticsampling.html#MulensModel.uniformcausticsampling.UniformCausticSampling" title="MulensModel.uniformcausticsampling.UniformCausticSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformCausticSampling</span></code></a>
@@ -469,8 +489,8 @@ In most cases, you do not need to access this property directly.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.modelparameters.ModelParameters.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give parameters as a dict.</p>
 <dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
@@ -483,7 +503,7 @@ In most cases, you do not need to access this property directly.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -502,7 +522,7 @@ In most cases, you do not need to access this property directly.</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -521,7 +541,7 @@ In most cases, you do not need to access this property directly.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -543,7 +563,7 @@ In most cases, you do not need to access this property directly.</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

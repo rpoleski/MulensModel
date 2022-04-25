@@ -4,16 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.magnificationcurve module &#8212; MulensModel 2.3.0 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.magnificationcurve module &#8212; MulensModel 2.8.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -32,11 +31,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.magnificationcurve">
+  <section id="module-MulensModel.magnificationcurve">
 <span id="mulensmodel-magnificationcurve-module"></span><h1>MulensModel.magnificationcurve module<a class="headerlink" href="#module-MulensModel.magnificationcurve" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve">
-<em class="property">class </em><code class="sig-prename descclassname">MulensModel.magnificationcurve.</code><code class="sig-name descname">MagnificationCurve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">times</span></em>, <em class="sig-param"><span class="n">parameters</span></em>, <em class="sig-param"><span class="n">parallax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">satellite_skycoord</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.magnificationcurve.MagnificationCurve">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.magnificationcurve.</span></span><span class="sig-name descname"><span class="pre">MagnificationCurve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">satellite_skycoord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The magnification curve calculated from the model light curve.</p>
 <p>The key function is <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_magnification_methods()</span></code></a>, which
@@ -70,8 +69,8 @@ the source that are used to calculate magnification values.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods">
-<code class="sig-name descname">set_magnification_methods</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">methods</span></em>, <em class="sig-param"><span class="n">default_method</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods">
+<span class="sig-name descname"><span class="pre">set_magnification_methods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methods</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets methods used for magnification calculation.</p>
 <dl>
 <dt>For available methods, see:</dt><dd><p><a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_point_lens_magnification()</span></code></a></p>
@@ -99,8 +98,8 @@ specified in <em>methods</em>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods_parameters">
-<code class="sig-name descname">set_magnification_methods_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">methods_parameters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods_parameters" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods_parameters">
+<span class="sig-name descname"><span class="pre">set_magnification_methods_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methods_parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set additional parameters for magnification calculation methods.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
@@ -114,8 +113,8 @@ e.g., <code class="docutils literal notranslate"><span class="pre">{'VBBL':</spa
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.get_magnification">
-<code class="sig-name descname">get_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.magnificationcurve.MagnificationCurve.get_magnification">
+<span class="sig-name descname"><span class="pre">get_magnification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate magnification.</p>
 <dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
@@ -127,11 +126,13 @@ e.g., <code class="docutils literal notranslate"><span class="pre">{'VBBL':</spa
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification">
-<code class="sig-name descname">get_point_lens_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification">
+<span class="sig-name descname"><span class="pre">get_point_lens_magnification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_point_lens_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Point Lens magnification.</p>
-<dl class="simple">
-<dt>Allowed magnification methods :</dt><dd><dl class="simple">
+<p>Allowed magnification methods
+(set by <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_magnification_methods()</span></code></a>) :</p>
+<blockquote>
+<div><dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">point_source</span></code>:</dt><dd><p>standard Paczynski equation for a point source/point lens.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">finite_source_uniform_Gould94</span></code>:</dt><dd><p>Uses the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract">Gould 1994 ApJ, 421L, 71</a>
@@ -177,7 +178,8 @@ works well for large sources (rho ~ 1) but can be slow
 compared to other methods.</p>
 </dd>
 </dl>
-</dd>
+</div></blockquote>
+<dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>magnification: <em>np.ndarray</em></dt><dd><p>Vector of magnifications.</p>
 </dd>
@@ -187,11 +189,14 @@ compared to other methods.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification">
-<code class="sig-name descname">get_binary_lens_magnification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the binary lens magnification.</p>
-<dl class="simple">
-<dt>Allowed magnification methods :</dt><dd><dl class="simple">
+<dt class="sig sig-object py" id="MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification">
+<span class="sig-name descname"><span class="pre">get_binary_lens_magnification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.magnificationcurve.MagnificationCurve.get_binary_lens_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the binary lens magnification.
+If the shear or convergence are set, then they are used.</p>
+<p>Allowed magnification methods
+(set by <a class="reference internal" href="#MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods" title="MulensModel.magnificationcurve.MagnificationCurve.set_magnification_methods"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_magnification_methods()</span></code></a>) :</p>
+<blockquote>
+<div><dl>
 <dt><code class="docutils literal notranslate"><span class="pre">point_source</span></code>:</dt><dd><p>standard point source magnification calculation.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">quadrupole</span></code>:</dt><dd><p>From <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract">Gould 2008 ApJ, 681, 1593</a>.
@@ -212,13 +217,15 @@ integration code) by Martin Dominik
 (<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract">Dominik 2007 MNRAS, 377, 1679</a>).
 See
 <a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">adaptive_contouring_magnification()</span></code></a></p>
+<p>Note that it doesn’t work if shear or convergence are set.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">point_source_point_lens</span></code>:</dt><dd><p>Uses point-source _point_-_lens_ approximation; useful when you
 consider binary lens but need magnification very far from
 the lens (e.g. at separation u = 100).</p>
 </dd>
 </dl>
-</dd>
+</div></blockquote>
+<dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>magnification: <em>np.ndarray</em></dt><dd><p>Vector of magnifications.</p>
 </dd>
@@ -229,7 +236,7 @@ the lens (e.g. at separation u = 100).</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -248,7 +255,7 @@ the lens (e.g. at separation u = 100).</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -267,7 +274,7 @@ the lens (e.g. at separation u = 100).</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -289,7 +296,7 @@ the lens (e.g. at separation u = 100).</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

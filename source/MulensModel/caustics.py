@@ -115,7 +115,7 @@ class Caustics(object):
         # Solve for the critical curve (and caustic) in complex coordinates.
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
-            eiphi = np.complex(cos(phi), sin(phi))
+            eiphi = complex(cos(phi), sin(phi))
 
             # Coefficients of Eq. 6
             coeff_4 = 1.

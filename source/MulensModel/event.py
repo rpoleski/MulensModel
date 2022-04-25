@@ -761,8 +761,8 @@ class Event(object):
     def model(self, new_value):
         if not isinstance(new_value, Model):
             raise TypeError((
-                    'wrong type of Event.model: {:} instead of ' +
-                    'MulensModel.Model()').format(type(new_value)))
+                'wrong type of Event.model: {:} instead of ' +
+                'MulensModel.Model()').format(type(new_value)))
         self._model = new_value
 
         if new_value.coords is not None:
@@ -841,7 +841,7 @@ class Event(object):
                     'Dataset is included in Event.datasets more than once.')
 
             self._data_ref = index
-        elif isinstance(new_value, (int, np.int)):
+        elif isinstance(new_value, (int, np.int_)):
             self._data_ref = new_value
         else:
             raise TypeError(

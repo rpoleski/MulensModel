@@ -23,6 +23,7 @@
 #define _L1 x1-((x1+a/2.0)/((x1+a/2.0)*(x1+a/2.0)+x2*x2)+q*(x1-a/2.0)/((x1-a/2.0)*(x1-a/2.0)+x2*x2))/(1.0+q) // Used in PlotCrits
 #define _L2 x2-(x2/((x1+a/2.0)*(x1+a/2.0)+x2*x2)+q*x2/((x1-a/2.0)*(x1-a/2.0)+x2*x2))/(1.0+q)
 #define _LL (y-z)+coefs[21]/(zc-coefs[20])+coefs[22]/zc //Lens equation test
+#define _LL_shear (y-(1.0-coefs[26])*z)+coefs[27]*zc+coefs[21]/(zc-coefs[20])+coefs[22]/zc //Lens equation test
 #define _J1c coefs[21]/((zc-coefs[20])*(zc-coefs[20]))+coefs[22]/(zc*zc) //#define _J1 m1/((zc-0.5*a)*(zc-0.5*a))+m2/((zc+0.5*a)*(zc+0.5*a))
 #define _J2 -2.0*(coefs[21]/((z-coefs[20])*(z-coefs[20])*(z-coefs[20]))+coefs[22]/(z*z*z))
 #define _J3 6.0*(coefs[21]/((z-coefs[20])*(z-coefs[20])*(z-coefs[20])*(z-coefs[20]))+coefs[22]/(z*z*z*z))
@@ -61,6 +62,7 @@ namespace VBBinaryLensingLibrary {
 
 		void ComputeParallax(double, double, double *);
 		_curve *NewImages(complex,complex  *,_theta *);
+		_curve *NewImages_shear(complex,complex  *,_theta *);
 		void OrderImages(_sols *,_curve *);
 		//void cmplx_roots_gen(complex *, complex *, int, bool, bool);
 		void cmplx_laguerre(complex *, int, complex *, int &, bool &);
@@ -82,6 +84,8 @@ namespace VBBinaryLensingLibrary {
 
 	// Magnification calculation functions.
 
+		double BinaryMag0_shear(double s,double q,double y1,double y2, double K1, double G1, double Gi, _sols **Images);
+		double BinaryMag0_shear(double s, double q, double y1, double y2, double K1, double G1, double Gi);
 		double BinaryMag0(double s,double q,double y1,double y2, _sols **Images);
 		double BinaryMag0(double s, double q, double y1, double y2);
 		double BinaryMag(double s,double q,double y1,double y2,double rho,double accuracy, _sols **Images);

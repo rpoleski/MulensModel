@@ -4,16 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Very Basic Tutorial &#8212; MulensModel 2.3.0 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Very Basic Tutorial &#8212; MulensModel 2.8.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Basic Fitting Tutorial" href="tutorial_fit_pspl.html" />
@@ -34,7 +33,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="very-basic-tutorial">
+  <section id="very-basic-tutorial">
 <h1>Very Basic Tutorial<a class="headerlink" href="#very-basic-tutorial" title="Permalink to this headline">¶</a></h1>
 <p>The main MulensModel features are in classes <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>, <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.mulensdata.html">MulensData</a>,
 and <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.event.html">Event</a>.</p>
@@ -46,7 +45,7 @@ of your codes and be advised that we don’t guarantee that everything will work
 <p>This example shows OGLE-2003-BLG-235/MOA-2003-BLG-53, the first
 microlensing planet. See <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2004ApJ...606L.155B/abstract">Bond et al. (2004)</a>.
 The data were downloaded from the <a class="reference external" href="https://exoplanetarchive.ipac.caltech.edu/cgi-bin/DisplayOverview/nph-DisplayOverview?objname=OGLE-2003-BLG-235L+b&amp;type=CONFIRMED_PLANET">NASA Exoplanet Archive</a>.</p>
-<div class="section" id="defining-a-model">
+<section id="defining-a-model">
 <h2>Defining a Model<a class="headerlink" href="#defining-a-model" title="Permalink to this headline">¶</a></h2>
 <p>The most basic thing to do is to define a microlensing model. For example, you could define a point lens model as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">MulensModel</span> <span class="k">as</span> <span class="nn">mm</span>
@@ -75,8 +74,8 @@ effects:</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="introducing-data">
+</section>
+<section id="introducing-data">
 <h2>Introducing Data<a class="headerlink" href="#introducing-data" title="Permalink to this headline">¶</a></h2>
 <p>Suppose you also had some data you want to import:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -89,8 +88,8 @@ effects:</p>
      <span class="n">comments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">],</span> <span class="n">phot_fmt</span><span class="o">=</span><span class="s1">&#39;flux&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="combining-data-with-a-model">
+</section>
+<section id="combining-data-with-a-model">
 <h2>Combining Data with a Model<a class="headerlink" href="#combining-data-with-a-model" title="Permalink to this headline">¶</a></h2>
 <p>Now suppose you wanted to combine the two together:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_event</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="n">OGLE_data</span><span class="p">,</span> <span class="n">MOA_data</span><span class="p">],</span>
@@ -113,8 +112,8 @@ microlensing parameters. If you wanted to know how good the fit is, you can get 
 </pre></div>
 </div>
 <p>If you want to optimize that chi2, we leave it up to you to determine the best method for doing this.</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -133,7 +132,7 @@ microlensing parameters. If you wanted to know how good the fit is, you can get 
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a></li>
@@ -154,7 +153,7 @@ microlensing parameters. If you wanted to know how good the fit is, you can get 
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -176,7 +175,7 @@ microlensing parameters. If you wanted to know how good the fit is, you can get 
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

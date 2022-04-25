@@ -4,16 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Basic Fitting Tutorial &#8212; MulensModel 2.3.0 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Basic Fitting Tutorial &#8212; MulensModel 2.8.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Microlensing Parallax Fitting Tutorial" href="tutorial_fit_pi_E.html" />
@@ -34,12 +33,12 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="basic-fitting-tutorial">
+  <section id="basic-fitting-tutorial">
 <h1>Basic Fitting Tutorial<a class="headerlink" href="#basic-fitting-tutorial" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial shows how to fit basic point-source/point-lens model to
 the data. Similar material can be found in
 <a class="reference external" href="https://github.com/rpoleski/MulensModel/blob/master/examples/example_02_fitting.py">example 2</a>.</p>
-<div class="section" id="importing-data">
+<section id="importing-data">
 <h2>Importing data<a class="headerlink" href="#importing-data" title="Permalink to this headline">¶</a></h2>
 <p>First things first - we need to import some modules:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -56,8 +55,8 @@ the <a class="reference external" href="https://rpoleski.github.io/MulensModel/M
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:}</span><span class="s2"> file was imported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="plotting-data">
+</section>
+<section id="plotting-data">
 <h2>Plotting data<a class="headerlink" href="#plotting-data" title="Permalink to this headline">¶</a></h2>
 <p>Next step would be plotting these data using matplotlib package:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
@@ -80,8 +79,8 @@ the event parameters:</p>
 of 0.8 mag corresponds to flux ratio of slightly above 2. The magnification
 <em>A</em> and the impact parameter <em>u_0</em> are very approximately related via <em>A=1/u_0</em>
 so <em>u_0 = 0.5</em> should be a good choice.</p>
-</div>
-<div class="section" id="preparing-for-fitting">
+</section>
+<section id="preparing-for-fitting">
 <h2>Preparing for fitting<a class="headerlink" href="#preparing-for-fitting" title="Permalink to this headline">¶</a></h2>
 <p>The rough estimates of the event parameters allow us to define
 a <a class="reference external" href="https://rpoleski.github.io/MulensModel/MulensModel.model.html">Model</a>
@@ -132,8 +131,8 @@ float-type values. The second argument is an instance of the Event class.
 The third argument is a list that specifies the attributes of Event.model that
 will be changed. Note that the order of theta values and parameters_to_fit are
 the same.</p>
-</div>
-<div class="section" id="fitting-model-parameters">
+</section>
+<section id="fitting-model-parameters">
 <h2>Fitting model parameters<a class="headerlink" href="#fitting-model-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Ok, finally we can fit the parameters. Here we will use
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html">the SciPy minimize() function</a>
@@ -186,8 +185,8 @@ Let’s plot two different models:</p>
 <p>If you zoom-in on the peak, you will easily see that the fitted model is
 much better.</p>
 <p>Congratulations! You have fitted the model to the data.</p>
-</div>
-<div class="section" id="exercise">
+</section>
+<section id="exercise">
 <h2>Exercise<a class="headerlink" href="#exercise" title="Permalink to this headline">¶</a></h2>
 <p>Try using different optimization routine, starting point,
 or apply constraints on the fit. If
@@ -195,8 +194,8 @@ or apply constraints on the fit. If
 is now your favourite fitting routine, then still you can call it differently.
 Try changing <code class="docutils literal notranslate"><span class="pre">method</span></code> parameter to one of:
 ‘Powell’, ‘CG’, ‘BFGS’, ‘TNC’, ‘COBYLA’.</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -215,7 +214,7 @@ Try changing <code class="docutils literal notranslate"><span class="pre">method
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -236,7 +235,7 @@ Try changing <code class="docutils literal notranslate"><span class="pre">method
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -258,7 +257,7 @@ Try changing <code class="docutils literal notranslate"><span class="pre">method
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

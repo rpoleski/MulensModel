@@ -77,7 +77,7 @@ class PointLens(object):
         (z, B0, B0_minus_B1) = np.loadtxt(file_, unpack=True)
         PointLens._B0_interpolation = interp1d(z, B0, kind='cubic')
         PointLens._B0_minus_B1_interpolation = interp1d(
-                z, B0_minus_B1, kind='cubic')
+            z, B0_minus_B1, kind='cubic')
         PointLens._z_min = np.min(z)
         PointLens._z_max = np.max(z)
 
@@ -128,14 +128,13 @@ class PointLens(object):
         """
 
         out = 4. * z / np.pi
-        function = lambda x: (1. - value**2 * sin(x)**2)**0.5
+        def function(x): return (1.-value**2*sin(x)**2)**.5
 
         for (i, value) in enumerate(z):
             if value < 1.:
                 out[i] *= ellipe(value*value)
             else:
-                out[i] *= integrate.quad(
-                    function, 0., np.arcsin(1. / value))[0]
+                out[i] *= integrate.quad(function, 0., np.arcsin(1./value))[0]
         return out
 
     def _B_1_function(self, z, B_0=None):
@@ -156,11 +155,11 @@ class PointLens(object):
         def function(r, theta):
             r_2 = r * r
             val = (1. - r_2) / (
-                    r_2 + function.arg_2 + r*function.arg_3*cos(theta))
+                r_2 + function.arg_2 + r*function.arg_3*cos(theta))
             return r * sqrt(val)
 
-        lim_0 = lambda x: 0
-        lim_1 = lambda x: 1
+        def lim_0(x): return 0
+        def lim_1(x): return 1
         rho_W_1 = 0. * z  # This equals rho * W_1().
         for (i, zz) in enumerate(z):
             function.arg_1 = zz
@@ -173,7 +172,7 @@ class PointLens(object):
         return B_0 - 1.5 * z * rho_W_1
 
     def get_point_lens_finite_source_magnification(
-                self, u, pspl_magnification, direct=False):
+            self, u, pspl_magnification, direct=False):
         """
         Calculate magnification for point lens and finite source (for
         a *uniform* source).  The approximation was proposed by:
@@ -211,7 +210,7 @@ class PointLens(object):
             u, pspl_magnification, rho=self.parameters.rho, direct=direct)
 
     def _get_point_lens_finite_source_magnification(
-                self, u, pspl_magnification, rho, direct=False):
+            self, u, pspl_magnification, rho, direct=False):
         """
         Calculate large source magnification assuming rho provided directly,
         not as self.parameters.rho
@@ -243,7 +242,7 @@ class PointLens(object):
         return magnification
 
     def get_point_lens_limb_darkening_magnification(
-                self, u, pspl_magnification, gamma, direct=False):
+            self, u, pspl_magnification, gamma, direct=False):
         """
         calculate magnification for point lens and finite source *with
         limb darkening*. The approximation was proposed by:
@@ -284,7 +283,6 @@ class PointLens(object):
         except TypeError:
             z = np.array([z])
 
-        # JCY - Shouldn't these references to PointLens be references to self instead?
         if not PointLens._B0B1_file_read:
             self._read_B0B1_file()
 

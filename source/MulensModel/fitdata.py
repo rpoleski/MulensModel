@@ -397,7 +397,7 @@ class FitData:
         else:
             for i in range(self._model.n_sources):
                 model_flux += self.source_fluxes[i] \
-                        * self._data_magnification[i]
+                    * self._data_magnification[i]
 
         return model_flux
 

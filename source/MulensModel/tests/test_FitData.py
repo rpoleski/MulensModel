@@ -361,7 +361,7 @@ def test_bad_data():
     (t_planet_start, t_planet_stop) = (2460982., 2460985.)
     data = mm.MulensData(file_name=SAMPLE_FILE_04_WF)
     flag_planet = (data.time > t_planet_start) & (
-                data.time < t_planet_stop) | np.isnan(data.err_mag)
+        data.time < t_planet_stop) | np.isnan(data.err_mag)
     data_bad = mm.MulensData(file_name=SAMPLE_FILE_04_WF, bad=flag_planet)
 
     (t_0, u_0, t_E) = (2460962.36458, 0.411823, 22.8092)
