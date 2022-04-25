@@ -736,10 +736,17 @@ class FitData:
         magnification_curve.set_magnification_methods_parameters(
             self.model._methods_parameters)
 
+        point_source_params = {key: value for key, value in self.model.parameters.parameters.items()}
+        point_source_params.pop('rho')
+        point_source_curve = MagnificationCurve(
+            self.dataset.time, parameters=self.model.parameters,
+            parallax=self.model._parallax, coords=self.model.coords,
+            satellite_skycoord=satellite_skycoord)
+        a_pspl = point_source_curve.get_magnification()
+
         # This section was copied from magnificationcurve.py. Addl evidence a
         # refactor is needed.
         methods = np.array(magnification_curve._methods_for_epochs())
-        print(set(methods))
         for method in set(methods):
             kwargs = {}
             if magnification_curve._methods_parameters is not None:
@@ -751,7 +758,6 @@ class FitData:
                         'no point lens method accepts the parameters')
 
             selection = (methods == method) & (z < FitData._z_max)
-            print('selection', np.sum(selection))
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
             elif (method.lower() ==
@@ -766,10 +772,8 @@ class FitData:
                 msg += 'Your value: {:}'
                 raise ValueError(msg.format(method))
 
-            print('gradient 1', gradient[selection])
-            gradient[selection] *= self._data_magnification[selection]
+            gradient[selection] *= a_pspl[selection]
             gradient[selection] *= (-u_[selection] / self.model.parameters.rho**2)
-            print('gradient 2', gradient[selection])
 
             return gradient
 

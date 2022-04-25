@@ -670,6 +670,7 @@ def test_d_A_d_rho():
             fs = fit.source_flux
             mags = fit.get_data_magnification()
             derivs = fs * fit.get_d_A_d_rho()
+            print('mags', mags[index])
 
             sfit_index = np.where(sfit_derivs['nob'] == i + 1)
 
@@ -690,8 +691,12 @@ def test_d_A_d_rho():
 
             # compare da_drho
             sfit_da_drho = sfit_derivs[sfit_index]['dAdrho']
-            test_arr = np.vstack((z, derivs[index], sfit_da_drho[index]))
-            print('z, mm deriv, sfit deriv')
+            sfit_mags = sfit_derivs[sfit_index]['mag']
+            test_arr = np.vstack((
+                z, derivs[index], sfit_da_drho[index],
+                derivs[index] / sfit_da_drho[index],
+                 ))
+            print('z, mm deriv, sfit deriv, ratio')
             print(test_arr.transpose())
             np.testing.assert_allclose(
                 derivs[index], sfit_da_drho[index], rtol=0.01)
