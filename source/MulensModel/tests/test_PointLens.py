@@ -83,4 +83,3 @@ def test_get_pspl_with_shear_magnification():
     test_pspl_shear = point_lens.get_pspl_with_shear_magnification(
         trajectory, convergence_K, shear_G) 
     np.testing.assert_almost_equal(test_pspl_shear[0], 5.556327, decimal=5)
-

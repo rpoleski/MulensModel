@@ -1587,7 +1587,7 @@ class ModelParameters(object):
         return self._n_sources
 
     @property
-    def external_mass_sheet(self):
+    def is_external_mass_sheet(self):
         """
         *bool*
 

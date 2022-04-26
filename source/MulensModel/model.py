@@ -445,8 +445,7 @@ class Model(object):
             ``**kwargs``:
                 keywords accepted by :py:func:`matplotlib.pyplot.scatter()`
         """
-        if (self.n_lenses == 1 
-            and not self.parameters.external_mass_sheet):
+        if self.n_lenses == 1 and not self.parameters.is_external_mass_sheet:
             plt.scatter([0], [0], **kwargs)
         else:
             self.update_caustics(epoch=epoch)
@@ -473,7 +472,8 @@ class Model(object):
                 s = self.parameters.get_s(epoch)
 
             if self._caustics is not None:
-                if s == self._caustics.s and self.parameters.q == self._caustics.q:
+                if (s == self._caustics.s and
+                        self.parameters.q == self._caustics.q):
                     return
 
             self._caustics = Caustics(q=self.parameters.q, s=s)
