@@ -672,53 +672,69 @@ class PointLens(object):
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
 
-    def get_pspl_with_shear_magnification(self, trajectory, convergence_K, shear_G):
+    def get_pspl_with_shear_magnification(self, trajectory,
+                                          convergence_K, shear_G):
         """
-        Solving 4th order complex polynomial equation for the magnification with an
-        external convergence and shear. If shear is zero, this reduces to a quadratic
-        polynomial solve.
+        Solving 4th order complex polynomial equation for the magnification
+        with an external convergence and shear. If shear is zero, this reduces
+        to a quadratic polynomial solve.
 
         Arguments :
-            trajectory: *float*, *np.ndarray*, or
-            :py:class:`~MulensModel.trajectory.Trajectory` object
-
+            trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
                 The source-lens relative position. If _not_ a
                 :py:class:`~MulensModel.trajectory.Trajectory` object,
                 then trajectory is assumed to be value(s) of :math:`u`.
-            
+
             convergence_K: *float*
                 The convergence of the external mass sheet.
-            
+
             shear_G: *float*
                 The shear of the external mass sheet.
 
         Returns :
-            pspl_magnification: *float* or *np.ndarray*
+            pspl_magnification: *np.ndarray*
                 The point-source--point-lens with external mass sheet
                 magnification for each point specified by `trajectory`.
 
         """
         if not isinstance(trajectory, mm.Trajectory):
-            raise(ValueError("trajectory must be a Trajectory object."))
+            raise ValueError("trajectory must be a Trajectory object.")
 
         shear_G_conj = shear_G.conjugate()
         zeta = trajectory.x + trajectory.y * 1j
         zeta_conj = zeta.conjugate()
 
-        coeffs_array = np.stack([[shear_G]*len(zeta), 
-            2*shear_G*zeta_conj - zeta*convergence_K + zeta, 
-            2*shear_G*shear_G_conj + shear_G*zeta_conj**2 - zeta*zeta_conj*convergence_K + zeta*zeta_conj,
-            2*shear_G*shear_G_conj*zeta_conj - zeta*convergence_K*shear_G_conj + zeta*shear_G_conj - convergence_K**2*zeta_conj + 2*convergence_K*zeta_conj - zeta_conj,
-            [shear_G*shear_G_conj**2 - convergence_K**2*shear_G_conj + 2*convergence_K*shear_G_conj - shear_G_conj]*len(zeta)], axis=1)
-        
+        temp = [shear_G*shear_G_conj**2 - convergence_K**2*shear_G_conj +
+                2*convergence_K*shear_G_conj - shear_G_conj]
+        coeffs_array = np.stack(
+            [[shear_G]*len(zeta),
+            2*shear_G*zeta_conj - zeta*convergence_K + zeta,
+            2*shear_G*shear_G_conj + shear_G*zeta_conj**2 -
+            zeta*zeta_conj*convergence_K + zeta*zeta_conj,
+            2*shear_G*shear_G_conj*zeta_conj -
+            zeta*convergence_K*shear_G_conj + zeta*shear_G_conj -
+            convergence_K**2*zeta_conj + 2*convergence_K*zeta_conj -
+            zeta_conj,
+            temp*len(zeta)], axis=1)
+
         pspl_magnification = []
-        for coeffs in coeffs_array:
-            mag = 0
+        for (i, coeffs) in enumerate(coeffs_array):
+            mag = 0.
             roots = np.polynomial.polynomial.polyroots(coeffs)
             for root in roots:
-                det = abs((1-convergence_K)**2 - (1/np.conjugate(root)**2 - shear_G)*(1/root**2 - shear_G_conj))
+                root_conj = np.conjugate(root)
+                det = abs(
+                    (1-convergence_K)**2 -
+                    (root_conj**-2 - shear_G) * (root**-2 - shear_G_conj))
                 if not np.isnan(det):
-                    mag += 1/det
+                    mag += 1. / det
+            if mag < 1.:
+                parameters = [trajectory.x[i], trajectory.y[i],
+                              convergence_K, shear_G]
+                raise ValueError(
+                    'PointLens.get_pspl_with_shear_magnification() '
+                    'failed for input:\nx y convergence_K shear_G\n' +
+                    ' '.join([str(p) for p in parameters]))
             pspl_magnification.append(mag)
 
         return np.array(pspl_magnification)
