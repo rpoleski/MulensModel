@@ -34,9 +34,6 @@ class CausticsPointWithShear(Caustics):
         """
         Solve the caustics polynomial to calculate the critical curve
         and caustic structure.
-
-        Based on Eq. 6 Cassan 2008 modified so origin is center of
-        mass and larger mass is on the left. Uses complex coordinates.
         """
         # Find number of angles so that 4*n_angles is the multiple of 4 that
         # is closest to n_points.
@@ -50,8 +47,9 @@ class CausticsPointWithShear(Caustics):
         # Solve for the critical curve (and caustic) in complex coordinates.
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
-            eiphi = np.complex(cos(phi), -sin(phi))
-            soln = sqrt(1/((1-self.convergence_K)*eiphi + self.shear_G.conjugate()))
+            eiphi = complex(cos(phi), -sin(phi))
+            soln = sqrt(
+                1./((1.-self.convergence_K)*eiphi + self.shear_G.conjugate()))
             roots = np.array([soln, -soln])
             # Store results
             for root in roots:
@@ -67,6 +65,5 @@ class CausticsPointWithShear(Caustics):
         Solve the lens equation for the given point (in complex coordinates).
         """
         complex_conjugate = np.conjugate(complex_value)
-        return ((1-self.convergence_K)*complex_value 
-                - self.shear_G*complex_conjugate
-                - (1./complex_conjugate))
+        return ((1-self.convergence_K)*complex_value
+                - self.shear_G*complex_conjugate - (1./complex_conjugate))

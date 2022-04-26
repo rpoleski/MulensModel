@@ -268,12 +268,17 @@ class MagnificationCurve(object):
 
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.
-            elif (method.lower() == 'point_source_with_shear' 
-                    and self.parameters.external_mass_sheet):
+            elif method.lower() == 'point_source_with_shear':
+                if not self.parameters.is_external_mass_sheet:
+                    raise ValueError(
+                        'You cannot use "point_source_with_shear" method '
+                        'without specifying shear and convergence '
+                        'parameters.')
                 magnification = (
-                    point_lens.get_pspl_with_shear_magnification(self.trajectory,
-                            convergence_K=self.parameters.convergence_K,
-                            shear_G=self.parameters.shear_G))
+                    point_lens.get_pspl_with_shear_magnification(
+                        self.trajectory,
+                        convergence_K=self.parameters.convergence_K,
+                        shear_G=self.parameters.shear_G))
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(

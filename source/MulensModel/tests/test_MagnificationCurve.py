@@ -122,6 +122,7 @@ def test_Lee09_and_WittMao94():
     results_3 = mag_curve_1.get_point_lens_magnification()
     np.testing.assert_almost_equal(expected_1, results_3, decimal=3)
 
+
 def test_PSPL_for_binary():
     """
     test PSPL model used in a model that is defined as binary
@@ -138,6 +139,7 @@ def test_PSPL_for_binary():
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
     np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())
 
+
 def test_PSPL_with_external_mass_sheet_reduces_to_point_source():
     """
     Test for point source with external mass sheet reduces to point source
@@ -148,13 +150,10 @@ def test_PSPL_with_external_mass_sheet_reduces_to_point_source():
     u_0 = 1.
     t_vec = np.array([10., 100.]) * t_E + t_0
     params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 
-        'convergence_K': 0.0, 'shear_G': complex(0.0,-0.0),
-        'alpha': 20.})
+        't_0': t_0, 'u_0': u_0, 't_E': t_E,
+        'convergence_K': 0.0, 'shear_G': complex(0.0, -0.0), 'alpha': 20.})
     mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
     mag_curve.set_magnification_methods(None, 'point_source_point_lens')
     u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
     np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())
-
-    
