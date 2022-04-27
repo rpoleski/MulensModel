@@ -752,17 +752,7 @@ class TestFSPLGradient(unittest.TestCase):
     def _mags_test(self, i):
         mags = self.fits[i].get_data_magnification()
         sfit_mags = self.sfit_derivs[self.sfit_indices[i]]['mag']
-        print('shapes: z, mm mags, sfit mags')
-        print(self.zs[i].shape, mags.shape, sfit_mags.shape)
-        test_arr = np.vstack((
-            self.zs[i][self.indices[i]], mags[self.indices[i]],
-            sfit_mags[self.sfit_indices[i]],
-            mags[self.indices[i]] / sfit_mags[self.sfit_indices[i]],
-        ))
-        print('z, mm mags, sfit mags, ratio')
-        print(test_arr.transpose())
-        np.testing.assert_allclose(
-            mags, sfit_mags[self.sfit_indices[i]]['mag'], rtol=0.005)
+        np.testing.assert_allclose(mags, sfit_mags, rtol=0.005)
 
     def test_mags_0(self):
         self._mags_test(0)
