@@ -623,83 +623,130 @@ class FortranSFitFile(object):
 
         input_file.close()
 
-def test_d_A_d_rho():
-    """ Compare FitData.get_d_A_d_rho() to sfit output = fs * A * dA/drho """
-    # Read in sfit comparison file, split by dataset
-    fspl_dir = 'fspl_derivs'
-    sfit_derivs = np.genfromtxt(
-        os.path.join(dir_2, fspl_dir, 'fort.61'), dtype=None,
-        names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
 
-    # Create the model
-    sfit_mat = FortranSFitFile(os.path.join(dir_2, fspl_dir, 'fort.51'))
-    model = mm.Model({
-        't_0': sfit_mat.a[0] + 2450000., 'u_0': sfit_mat.a[1],
-        't_E': sfit_mat.a[2], 'rho': sfit_mat.a[3]})
-    model.parameters.t_0_par = sfit_mat.a[0] + 2450000.
-    t_star = model.parameters.rho * model.parameters.t_E
-    n_t_star = 9.
-    model.set_magnification_methods([
-        model.parameters.t_0 - n_t_star * t_star, 'finite_source_LD_Yoo04_direct',
-        model.parameters.t_0 + n_t_star * t_star])
-    model.set_limb_coeff_gamma('I', 0.44)
-    model.set_limb_coeff_gamma('V', 0.72)
+class TestFSPLGradient(unittest.TestCase):
 
-    # For each dataset
-    for i, filename in enumerate(
-            ['FSPL_par_Obs_1_I.pho', 'FSPL_par_Obs_2_V.pho']):
+    def setUp(self):
+        # Read in sfit comparison file, split by dataset
+        fspl_dir = 'fspl_derivs'
+        self.sfit_derivs = np.genfromtxt(
+            os.path.join(dir_2, fspl_dir, 'fort.61'), dtype=None,
+            names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
 
-        # define FitData object
-        bandpass = filename.split('.')[0][-1]
-        dataset = mm.MulensData(
-            file_name=os.path.join(dir_2, fspl_dir, filename),
-            phot_fmt='mag', bandpass=bandpass)
+        # Create the model
+        self.sfit_mat = FortranSFitFile(os.path.join(dir_2, fspl_dir, 'fort.51'))
+        self.sfit_model = mm.Model({
+            't_0': self.sfit_mat.a[0] + 2450000., 'u_0': self.sfit_mat.a[1],
+            't_E': self.sfit_mat.a[2], 'rho': self.sfit_mat.a[3]})
+        self.sfit_model.parameters.t_0_par = self.sfit_mat.a[0] + 2450000.
+        t_star = self.sfit_model.parameters.rho * self.sfit_model.parameters.t_E
+        n_t_star = 9.
+        self.sfit_model.set_magnification_methods([
+            self.sfit_model.parameters.t_0 - n_t_star * t_star,
+            'finite_source_LD_Yoo04_direct',
+            self.sfit_model.parameters.t_0 + n_t_star * t_star])
+        self.sfit_model.set_limb_coeff_gamma('I', 0.44)
+        self.sfit_model.set_limb_coeff_gamma('V', 0.72)
 
-        index = ((dataset.time > model.parameters.t_0 - n_t_star * t_star) &
-                 (dataset.time < model.parameters.t_0 + n_t_star * t_star))
-        n_good = np.sum(index)
-        print(filename, n_good, bandpass)
+        self.filenames = ['FSPL_par_Obs_1_I.pho', 'FSPL_par_Obs_2_V.pho']
+        self.datasets = []
+        for filename in self.filenames:
+            bandpass = filename.split('.')[0][-1]
+            dataset = mm.MulensData(
+                file_name=os.path.join(dir_2, fspl_dir, filename),
+                phot_fmt='mag', bandpass=bandpass)
+            self.datasets.append(dataset)
 
-        if n_good > 0:
+        self.fits = []
+        self.zs = []
+        self.indices = []
+        self.sfit_indices = []
+        for i, dataset in enumerate(self.datasets):
             fit = mm.FitData(
-                dataset=dataset, model=model,
-                fix_source_flux=sfit_mat.a[9 + i*3],
-                fix_blend_flux=sfit_mat.a[9 + i*3 + 1])
-
+                dataset=dataset, model=self.sfit_model,
+                fix_source_flux=self.sfit_mat.a[9 + i * 3],
+                fix_blend_flux=self.sfit_mat.a[9 + i * 3 + 1])
             fit.fit_fluxes()
-            fs = fit.source_flux
-            mags = fit.get_data_magnification()
-            derivs = fs * fit.get_d_A_d_rho()
-            print('mags', mags[index])
+            self.fits.append(fit)
 
-            sfit_index = np.where(sfit_derivs['nob'] == i + 1)
+            index = ((dataset.time >
+                      self.sfit_model.parameters.t_0 - n_t_star * t_star) &
+                     (dataset.time <
+                      self.sfit_model.parameters.t_0 + n_t_star * t_star))
+            self.indices.append(index)
 
-            # compare magnifications
-            np.testing.assert_allclose(
-                mags, sfit_derivs[sfit_index]['mag'], rtol=0.002)
+            sfit_index = np.where(self.sfit_derivs['nob'] == i + 1)
+            self.sfit_indices.append(sfit_index)
 
-            # compare dB0, dB1
-            sfit_db0 = sfit_derivs[sfit_index]['db0']
-            sfit_db1 = sfit_derivs[sfit_index]['db1']
             traj = fit.model.get_trajectory(dataset.time[index])
-            z = np.sqrt(traj.x**2 + traj.y**2) / model.parameters.rho
-            db0 = fit._get_B0_prime(z)
+            z = (np.sqrt(traj.x ** 2 + traj.y ** 2) /
+                 self.sfit_model.parameters.rho)
+            self.zs = z
 
-            np.testing.assert_allclose(db0, sfit_db0[index], rtol=0.01)
-            db1 = fit._get_B1_prime(z)
-            np.testing.assert_allclose(db1, sfit_db1[index], atol=0.001)
+    def _db0_test(self, i):
+        sfit_db0 = self.sfit_derivs[self.sfit_indices[i]]['db0']
+        db0 = self.fits[i]._get_B0_prime(self.zs[i])
+        np.testing.assert_allclose(
+            db0, sfit_db0[self.indices[i]], atol=0.001)
 
-            # compare da_drho
-            sfit_da_drho = sfit_derivs[sfit_index]['dAdrho']
-            sfit_mags = sfit_derivs[sfit_index]['mag']
-            test_arr = np.vstack((
-                z, derivs[index], sfit_da_drho[index],
-                derivs[index] / sfit_da_drho[index],
-                 ))
-            print('z, mm deriv, sfit deriv, ratio')
-            print(test_arr.transpose())
-            np.testing.assert_allclose(
-                derivs[index], sfit_da_drho[index], rtol=0.01)
+    def test_db0_0(self):
+        self._db0_test(0)
+
+    def test_db0_1(self):
+        self._db0_test(1)
+
+    def _db1_test(self, i):
+        sfit_db1 = self.sfit_derivs[self.sfit_indices[i]]['db1']
+        db1 = self.fits[i]._get_B1_prime(self.zs[i])
+        np.testing.assert_allclose(
+            db1, sfit_db1[self.indices[i]], atol=0.001)
+
+    def test_db1_0(self):
+        self._db1_test(0)
+
+    def test_db1_1(self):
+        self._db1_test(1)
+
+    def _mags_test(self, i):
+        mags = self.fits[i].get_data_magnification()
+        sfit_mags = self.sfit_derivs[self.sfit_indices[i]]['mag']
+        print('shapes: z, mm mags, sfit mags')
+        print(self.zs[i].shape, mags.shape, sfit_mags.shape)
+        test_arr = np.vstack((
+            self.zs[i], mags[self.indices[i]], sfit_mags[self.sfit_indices[i]],
+            mags[self.indices[i]] / sfit_mags[self.sfit_indices[i]],
+        ))
+        print('z, mm mags, sfit mags, ratio')
+        print(test_arr.transpose())
+        np.testing.assert_allclose(
+            mags, sfit_mags[self.sfit_indices[i]]['mag'], rtol=0.005)
+
+    def test_mags_0(self):
+        self._mags_test(0)
+
+    def test_mags_1(self):
+        self._mags_test(1)
+
+    def _dA_drho_test(self, i):
+        fs = self.fits[i].source_flux
+        derivs = fs * self.fits[i].get_d_A_d_rho()
+        # compare da_drho
+        sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
+        test_arr = np.vstack((
+            self.zs[i], derivs[self.indices[i]], sfit_da_drho[self.indices[i]],
+            derivs[self.indices[i]] / sfit_da_drho[self.indices[i]],
+        ))
+        print('z, mm deriv, sfit deriv, ratio')
+        print(test_arr.transpose())
+        np.testing.assert_allclose(
+            derivs[self.indices[i]], sfit_da_drho[self.indices[i]], rtol=0.01)
+
+    def test_dAdrho_0(self):
+        self._dA_drho_test(0)
+
+    def test_dAdrho_1(self):
+        self._dA_drho_test(1)
+
 
 # Tests to add:
 #
