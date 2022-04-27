@@ -688,16 +688,27 @@ class TestFSPLGradient(unittest.TestCase):
 
         # sfit not accurate near 1:
         index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-        #print(self.zs[i][index])
 
-        db0 = self.fits[i]._get_B0_prime(self.zs[i][index])
-        test_arr = np.vstack((
-            self.zs[i][index], db0, sfit_db0[index], db0 / sfit_db0[index]
-        ))
-        print('z, mm db0, sfit db0, ratio')
-        print(test_arr.transpose())
-        np.testing.assert_allclose(
-            db0, sfit_db0[index], atol=0.001)
+        z_break = 1.3
+        index_large = (self.zs[i] > z_break)
+        index_small = (self.zs[i] <= z_break)
+        for j, condition in enumerate([index_large, index_small]):
+            if j == 0:
+                kwargs = {'atol': 0.0005}
+            else:
+                kwargs = {'rtol': 0.01}
+
+            index_i = index & condition
+            if np.sum(index_i) > 0:
+                db0 = self.fits[i]._get_B0_prime(self.zs[i][index_i])
+                # debugging code:
+                # test_arr = np.vstack((
+                #     self.zs[i][index_i], db0, sfit_db0[index_i],
+                #     db0 / sfit_db0[index_i], db0 - sfit_db0[index_i]))
+                # print('z, mm db0, sfit db0, ratio, diff')
+                # print(test_arr.transpose())
+                # end debugging code
+                np.testing.assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
     def test_db0_0(self):
         self._db0_test(0)
@@ -710,17 +721,27 @@ class TestFSPLGradient(unittest.TestCase):
 
         # sfit not accurate near 1:
         index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-        #print(self.zs[i][index])
 
-        db1 = self.fits[i]._get_B1_prime(self.zs[i][index])
-        test_arr = np.vstack((
-            self.zs[i][index], db1, sfit_db1[index], db1 / sfit_db1[index]
-        ))
-        print('z, mm db1, sfit db1, ratio')
-        print(test_arr.transpose())
+        z_break = 1.3
+        index_large = (self.zs[i] > z_break)
+        index_small = (self.zs[i] <= z_break)
+        for j, condition in enumerate([index_large, index_small]):
+            if j == 0:
+                kwargs = {'atol': 0.001}
+            else:
+                kwargs = {'rtol': 0.05}
 
-        np.testing.assert_allclose(
-            db1, sfit_db1[index], atol=0.001)
+            index_i = index & condition
+            if np.sum(index_i) > 0:
+                db1 = self.fits[i]._get_B1_prime(self.zs[i][index_i])
+                # debugging code:
+                # test_arr = np.vstack((
+                #     self.zs[i][index_i], db1, sfit_db1[index_i],
+                #     db1 / sfit_db1[index_i], db1 - sfit_db1[index_i]))
+                # print('z, mm db0, sfit db0, ratio, diff')
+                # print(test_arr.transpose())
+                # end debugging code
+                np.testing.assert_allclose(db1, sfit_db1[index_i], **kwargs)
 
     def test_db1_0(self):
         self._db1_test(0)
