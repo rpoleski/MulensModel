@@ -678,16 +678,26 @@ class TestFSPLGradient(unittest.TestCase):
             sfit_index = np.where(self.sfit_derivs['nob'] == i + 1)
             self.sfit_indices.append(sfit_index)
 
-            traj = fit.model.get_trajectory(dataset.time[index])
+            traj = fit.model.get_trajectory(dataset.time)
             z = (np.sqrt(traj.x ** 2 + traj.y ** 2) /
                  self.sfit_model.parameters.rho)
-            self.zs = z
+            self.zs.append(z)
 
     def _db0_test(self, i):
         sfit_db0 = self.sfit_derivs[self.sfit_indices[i]]['db0']
-        db0 = self.fits[i]._get_B0_prime(self.zs[i])
+
+        # sfit not accurate near 1:
+        index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
+        #print(self.zs[i][index])
+
+        db0 = self.fits[i]._get_B0_prime(self.zs[i][index])
+        test_arr = np.vstack((
+            self.zs[i][index], db0, sfit_db0[index], db0 / sfit_db0[index]
+        ))
+        print('z, mm db0, sfit db0, ratio')
+        print(test_arr.transpose())
         np.testing.assert_allclose(
-            db0, sfit_db0[self.indices[i]], atol=0.001)
+            db0, sfit_db0[index], atol=0.001)
 
     def test_db0_0(self):
         self._db0_test(0)
@@ -697,9 +707,20 @@ class TestFSPLGradient(unittest.TestCase):
 
     def _db1_test(self, i):
         sfit_db1 = self.sfit_derivs[self.sfit_indices[i]]['db1']
-        db1 = self.fits[i]._get_B1_prime(self.zs[i])
+
+        # sfit not accurate near 1:
+        index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
+        #print(self.zs[i][index])
+
+        db1 = self.fits[i]._get_B1_prime(self.zs[i][index])
+        test_arr = np.vstack((
+            self.zs[i][index], db1, sfit_db1[index], db1 / sfit_db1[index]
+        ))
+        print('z, mm db1, sfit db1, ratio')
+        print(test_arr.transpose())
+
         np.testing.assert_allclose(
-            db1, sfit_db1[self.indices[i]], atol=0.001)
+            db1, sfit_db1[index], atol=0.001)
 
     def test_db1_0(self):
         self._db1_test(0)
@@ -713,7 +734,8 @@ class TestFSPLGradient(unittest.TestCase):
         print('shapes: z, mm mags, sfit mags')
         print(self.zs[i].shape, mags.shape, sfit_mags.shape)
         test_arr = np.vstack((
-            self.zs[i], mags[self.indices[i]], sfit_mags[self.sfit_indices[i]],
+            self.zs[i][self.indices[i]], mags[self.indices[i]],
+            sfit_mags[self.sfit_indices[i]],
             mags[self.indices[i]] / sfit_mags[self.sfit_indices[i]],
         ))
         print('z, mm mags, sfit mags, ratio')
@@ -733,7 +755,8 @@ class TestFSPLGradient(unittest.TestCase):
         # compare da_drho
         sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
         test_arr = np.vstack((
-            self.zs[i], derivs[self.indices[i]], sfit_da_drho[self.indices[i]],
+            self.zs[i][self.indices[i]], derivs[self.indices[i]],
+            sfit_da_drho[self.indices[i]],
             derivs[self.indices[i]] / sfit_da_drho[self.indices[i]],
         ))
         print('z, mm deriv, sfit deriv, ratio')
