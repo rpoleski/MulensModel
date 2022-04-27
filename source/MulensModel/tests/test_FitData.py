@@ -688,7 +688,7 @@ class TestFSPLGradient(unittest.TestCase):
 
         # sfit not accurate near 1:
         index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-
+        # transition between absolute and relative accuracy
         z_break = 1.3
         index_large = (self.zs[i] > z_break)
         index_small = (self.zs[i] <= z_break)
@@ -701,13 +701,6 @@ class TestFSPLGradient(unittest.TestCase):
             index_i = index & condition
             if np.sum(index_i) > 0:
                 db0 = self.fits[i]._get_B0_prime(self.zs[i][index_i])
-                # debugging code:
-                # test_arr = np.vstack((
-                #     self.zs[i][index_i], db0, sfit_db0[index_i],
-                #     db0 / sfit_db0[index_i], db0 - sfit_db0[index_i]))
-                # print('z, mm db0, sfit db0, ratio, diff')
-                # print(test_arr.transpose())
-                # end debugging code
                 np.testing.assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
     def test_db0_0(self):
@@ -721,7 +714,7 @@ class TestFSPLGradient(unittest.TestCase):
 
         # sfit not accurate near 1:
         index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-
+        # transition between absolute and relative accuracy
         z_break = 1.3
         index_large = (self.zs[i] > z_break)
         index_small = (self.zs[i] <= z_break)
@@ -734,13 +727,6 @@ class TestFSPLGradient(unittest.TestCase):
             index_i = index & condition
             if np.sum(index_i) > 0:
                 db1 = self.fits[i]._get_B1_prime(self.zs[i][index_i])
-                # debugging code:
-                # test_arr = np.vstack((
-                #     self.zs[i][index_i], db1, sfit_db1[index_i],
-                #     db1 / sfit_db1[index_i], db1 - sfit_db1[index_i]))
-                # print('z, mm db0, sfit db0, ratio, diff')
-                # print(test_arr.transpose())
-                # end debugging code
                 np.testing.assert_allclose(db1, sfit_db1[index_i], **kwargs)
 
     def test_db1_0(self):
@@ -761,19 +747,13 @@ class TestFSPLGradient(unittest.TestCase):
         self._mags_test(1)
 
     def _dA_drho_test(self, i):
+        # compare da_drho
         fs = self.fits[i].source_flux
         derivs = fs * self.fits[i].get_d_A_d_rho()
-        # compare da_drho
         sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
-        test_arr = np.vstack((
-            self.zs[i][self.indices[i]], derivs[self.indices[i]],
-            sfit_da_drho[self.indices[i]],
-            derivs[self.indices[i]] / sfit_da_drho[self.indices[i]],
-        ))
-        print('z, mm deriv, sfit deriv, ratio')
-        print(test_arr.transpose())
+        index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
         np.testing.assert_allclose(
-            derivs[self.indices[i]], sfit_da_drho[self.indices[i]], rtol=0.01)
+            derivs[index], sfit_da_drho[index], rtol=0.015)
 
     def test_dAdrho_0(self):
         self._dA_drho_test(0)
