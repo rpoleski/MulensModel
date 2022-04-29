@@ -4,8 +4,6 @@ import warnings
 from scipy.interpolate import interp1d
 
 from MulensModel.mulensdata import MulensData
-from MulensModel.trajectory import Trajectory
-from MulensModel.modelparameters import ModelParameters
 from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.utils import Utils
 import MulensModel as mm
@@ -626,14 +624,13 @@ class FitData:
 
         """
         if 'rho' in self.model.parameters.parameters:
-            #raise NotImplementedError('Refactor of dAdrho not complete.')
             derivs = self.FSPLDerivs(self)
             gradient = derivs.get_gradient(parameters)
         else:
             gradient = self._get_d_u_d_params(parameters)
             d_A_d_u = self.get_d_A_d_u_for_point_lens_model()
             for (key, value) in gradient.items():
-                    gradient[key] *= d_A_d_u
+                gradient[key] *= d_A_d_u
 
         return gradient
 
@@ -660,15 +657,11 @@ class FitData:
             if not FitData.FSPLDerivs._B0B1_file_read:
                 self._read_B0B1_file()
 
-            #if self.fit._data_magnification is None:
-            #    self.fit._calculate_magnifications()
-
-            # gradient = np.zeros(len(self.dataset.time))
             self.b0_gamma_b1 = np.zeros(len(self.dataset.time))
             self.db0_gamma_db1 = np.zeros(len(self.dataset.time))
 
-            # This calculation gets repeated = Not efficient. Should trajectory be
-            # a property of model?
+            # This calculation gets repeated = Not efficient. Should trajectory
+            #  be a property of model?
             trajectory = self.model.get_trajectory(self.dataset.time)
             self.u_ = np.sqrt(trajectory.x ** 2 + trajectory.y ** 2)
             z = self.u_ / self.model.parameters.rho
@@ -678,11 +671,12 @@ class FitData:
                 satellite_skycoord = self.model.get_satellite_coords(
                     self.dataset.time)
 
-            # This code was copied directly from model.py --> indicates a refactor
-            # is needed.
-            # Also, shouldn't satellite_skycoord be stored as a property of mm.Model?
-            # We also have to access a lot of private functions of model, which is
-            # bad.
+            # This code was copied directly from model.py --> indicates a
+            # refactor is needed.
+            # Also, shouldn't satellite_skycoord be stored as a property of
+            # mm.Model?
+            # We also have to access a lot of private functions of model, which
+            # is bad.
             magnification_curve = MagnificationCurve(
                 self.dataset.time, parameters=self.model.parameters,
                 parallax=self.model._parallax, coords=self.model.coords,
@@ -702,8 +696,8 @@ class FitData:
                 satellite_skycoord=satellite_skycoord)
             self.a_pspl = point_source_curve.get_magnification()
 
-            # This section was copied from magnificationcurve.py. Addl evidence a
-            # refactor is needed.
+            # This section was copied from magnificationcurve.py. Addl evidence
+            #  a refactor is needed.
             methods = np.array(magnification_curve._methods_for_epochs())
             for method in set(methods):
                 kwargs = {}
@@ -715,23 +709,28 @@ class FitData:
                             'Methods parameters passed, but currently ' +
                             'no point lens method accepts the parameters')
 
-                selection = (methods == method) & (z < FitData.FSPLDerivs._z_max)
+                selection = (methods == method) & (z <
+                                                   FitData.FSPLDerivs._z_max)
                 if method.lower() == 'point_source':
                     pass  # These cases are already taken care of.
                 elif (method.lower() ==
                       'finite_source_uniform_Gould94_direct'.lower()):
                     self.b0_gamma_b1[selection] = self._get_B0(z[selection])
-                    self.db0_gamma_db1[selection] = self._get_B0_prime(z[selection])
+                    self.db0_gamma_db1[selection] = self._get_B0_prime(
+                        z[selection])
                 elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
                     self.b0_gamma_b1[selection] = self._get_B0(z[selection])
-                    self.b0_gamma_b1[selection] -= self.gamma * self._get_B1(z[selection])
-                    self.db0_gamma_db1[selection] = self._get_B0_prime(z[selection])
-                    self.db0_gamma_db1[selection] -= self.gamma * self._get_B1_prime(
+                    self.b0_gamma_b1[selection] -= self.gamma * self._get_B1(
                         z[selection])
+                    self.db0_gamma_db1[selection] = self._get_B0_prime(
+                        z[selection])
+                    self.db0_gamma_db1[selection] -= (self.gamma *
+                                                      self._get_B1_prime(
+                                                          z[selection]))
                 else:
                     msg = "dA/drho only implemented for 'finite_source_uniform_"
-                    msg += "Gould94_direct' and 'finite_source_LD_Yoo04_direct'."
-                    msg += 'Your value: {:}'
+                    msg += "Gould94_direct' and 'finite_source_LD_Yoo04_"
+                    msg += "direct'. Your value: {:}"
                     raise ValueError(msg.format(method))
 
         def _read_B0B1_file(self):
@@ -741,13 +740,15 @@ class FitData:
             if not os.path.exists(file_):
                 raise ValueError(
                     'File with FSPL data does not exist.\n' + file_)
-            (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(file_,
-                                                                      unpack=True)
+            (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(
+                file_, unpack=True)
             FitData.FSPLDerivs._z_max = z[-1]
             FitData.FSPLDerivs._get_B0 = interp1d(z, B0, kind='cubic')
             FitData.FSPLDerivs._get_B1 = interp1d(z, B1, kind='cubic')
-            FitData.FSPLDerivs._get_B0_prime = interp1d(z, B0_prime, kind='cubic')
-            FitData.FSPLDerivs._get_B1_prime = interp1d(z, B1_prime, kind='cubic')
+            FitData.FSPLDerivs._get_B0_prime = interp1d(
+                z, B0_prime, kind='cubic')
+            FitData.FSPLDerivs._get_B1_prime = interp1d(
+                z, B1_prime, kind='cubic')
             FitData.FSPLDerivs._B0B1_file_read = True
 
         def get_gradient(self):
@@ -850,82 +851,6 @@ class FitData:
         """
         derivs = self.FSPLDerivs(self)
         return derivs.get_d_A_d_rho()
-
-        # if not FitData._B0B1_file_read:
-        #     self._read_B0B1_file()
-        #
-        # if self._data_magnification is None:
-        #     self._calculate_magnifications()
-        #
-        # gradient = np.zeros(len(self.dataset.time))
-        #
-        # # This calculation gets repeated = Not efficient. Should trajectory be
-        # # a property of model?
-        # trajectory = self.model.get_trajectory(self.dataset.time)
-        # u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
-        # z = u_ / self.model.parameters.rho
-        #
-        # satellite_skycoord = None
-        # if self.model.ephemerides_file is not None:
-        #     satellite_skycoord = self.model.get_satellite_coords(
-        #         self.dataset.time)
-        #
-        # # This code was copied directly from model.py --> indicates a refactor
-        # # is needed.
-        # # Also, shouldn't satellite_skycoord be stored as a property of mm.Model?
-        # # We also have to access a lot of private functions of model, which is
-        # # bad.
-        # magnification_curve = MagnificationCurve(
-        #     self.dataset.time, parameters=self.model.parameters,
-        #     parallax=self.model._parallax, coords=self.model.coords,
-        #     satellite_skycoord=satellite_skycoord,
-        #     gamma=self.gamma)
-        # magnification_curve.set_magnification_methods(
-        #     self.model._methods, self.model._default_magnification_method)
-        # magnification_curve.set_magnification_methods_parameters(
-        #     self.model._methods_parameters)
-        #
-        # point_source_params = {key: value for key, value in self.model.parameters.parameters.items()}
-        # point_source_params.pop('rho')
-        # point_source_curve = MagnificationCurve(
-        #     self.dataset.time, parameters=self.model.parameters,
-        #     parallax=self.model._parallax, coords=self.model.coords,
-        #     satellite_skycoord=satellite_skycoord)
-        # a_pspl = point_source_curve.get_magnification()
-        #
-        # # This section was copied from magnificationcurve.py. Addl evidence a
-        # # refactor is needed.
-        # methods = np.array(magnification_curve._methods_for_epochs())
-        # for method in set(methods):
-        #     kwargs = {}
-        #     if magnification_curve._methods_parameters is not None:
-        #         if method in magnification_curve._methods_parameters.keys():
-        #             kwargs = magnification_curve._methods_parameters[method]
-        #         if kwargs != {}:
-        #             raise ValueError(
-        #                 'Methods parameters passed, but currently ' +
-        #                 'no point lens method accepts the parameters')
-        #
-        #     selection = (methods == method) & (z < FitData._z_max)
-        #     if method.lower() == 'point_source':
-        #         pass  # These cases are already taken care of.
-        #     elif (method.lower() ==
-        #           'finite_source_uniform_Gould94_direct'.lower()):
-        #         gradient[selection] = self._get_B0_prime(z[selection])
-        #     elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
-        #         gradient[selection] = self._get_B0_prime(z[selection])
-        #         gradient[selection] -= self.gamma * self._get_B1_prime(z[selection])
-        #     else:
-        #         msg = "dA/drho only implemented for 'finite_source_uniform_"
-        #         msg += "Gould94_direct' and 'finite_source_LD_Yoo04_direct'."
-        #         msg += 'Your value: {:}'
-        #         raise ValueError(msg.format(method))
-        #
-        #     gradient[selection] *= a_pspl[selection]
-        #     gradient[selection] *= (-u_[selection] / self.model.parameters.rho**2)
-        #
-        #     return gradient
-
 
     @property
     def chi2_gradient(self):
