@@ -639,13 +639,24 @@ class FitData:
 
         return gradient
 
-    def get_d_A_d_u_for_point_lens_model(self):
+    def get_d_A_d_u_for_PSPL_model(self):
         """
         Calculate dA/du for PSPL
         """
         trajectory = self.model.get_trajectory(self.dataset.time)
         u_2 = trajectory.x**2 + trajectory.y**2
         d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
+        return d_A_d_u
+
+    def get_d_A_d_u_for_point_lens_model(self):
+        """
+        Calculate dA/du for PL model
+        """
+        if 'rho' in self.model.parameters.parameters.keys():
+            raise NotImplementedError('dAdu for FSPL model not implemented')
+        else:
+            d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
+
         return d_A_d_u
 
     def _get_d_u_d_params(self, parameters):
