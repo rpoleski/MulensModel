@@ -260,11 +260,16 @@ class UlensModelFit(object):
             Note that 'rcParams' allows setting many matplotlib parameters.
 
         other_output: *dict*
-            Parameters for other output. Currently, the only allowed value is
+            Parameters for other output. Allowed value are:
+           
             ``'models': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE is
             a *str* that gives a path to text file to which we will print all
             models and their chi^2. If ``NAME_OF_FILE`` is ``"-"``, then
             the models will be printed to standard output.
+           
+            ``'results': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE is
+            a *str* that gives a path to yaml file to which we will print 
+            final results
     """
     def __init__(
             self, photometry_files,
@@ -385,7 +390,8 @@ class UlensModelFit(object):
         else:
             raise ValueError('internal error - task ' + str(self._task))
         self._print_model = False
-
+        self._yaml_results = False
+        
     def _guess_fitting_method(self):
         """
         guess what is the fitting method based on parameters provided
@@ -770,8 +776,28 @@ class UlensModelFit(object):
                     else:
                         raise KeyError("Unrecognized key: " + str(key) +
                                        "\nExpected keys: 'file name'.")
+            elif key=='results':
+                if not isinstance(value, dict):
+                    raise ValueError('models value should also be *dict*, ' +
+                                     'got ' + str(type(value)))
+                for (key2, value2) in value.items():
+                    if key2 == 'file name':
+                        self._yaml_results = True
+                        
+                        if value2 == '-':
+                            self._yaml_results_file = sys.stdout
+                        else:
+                            try:
+                                self._yaml_results_file = open(value2, 'w')
+                            except Exception:
+                                raise ValueError(
+                                    'Error while opening file ' + str(value2))
+                                   
+                    else:
+                        raise KeyError("Unrecognized key: " + str(key) +
+                                       "\nExpected keys: 'file name'.")
             else:
-                raise ValueError('Unrecognized key: ' + str(key) + "\n" +
+                raise ValueError('Unrecognized key: ' + str(key) + "\n " +
                                  "Expected keys: models")
 
     def _get_datasets(self):
@@ -1955,24 +1981,34 @@ class UlensModelFit(object):
         """
         accept_rate = np.mean(self._sampler.acceptance_fraction)
         print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
+        if self._yaml_results : print("Mean acceptance fraction : {0:.3f}".format(accept_rate),file=self._yaml_results_file,flush=True)
+        
         autocorr_times = self._sampler.get_autocorr_time(
             quiet=True, discard=self._fitting_parameters['n_burn'])
         autocorr_time = np.mean(autocorr_times)
         print("Mean autocorrelation time: {0:.1f} steps".format(autocorr_time))
-
+        if self._yaml_results : print("Mean autocorrelation time [steps] : {0:.1f}".format(autocorr_time),file=self._yaml_results_file,flush=True)
         self._extract_posterior_samples_EMCEE()
 
         print("Fitted parameters:")
         self._print_results(self._samples_flat)
-
+        if self._yaml_results : 
+            print("Fitted parameters :",file=self._yaml_results_file,flush=True)
+            self._print_yaml_results(self._samples_flat)
         self._shift_t_0_in_samples()
 
         if self._return_fluxes:
             print("Fitted fluxes (source and blending):")
             blob_samples = self._get_fluxes_to_print_EMCEE()
             self._print_results(blob_samples, names='fluxes')
-
+            
+            if self._yaml_results : 
+                print("Fitted fluxes : \n # (source and blending)",file=self._yaml_results_file,flush=True)
+                self._print_yaml_results(blob_samples, names='fluxes')
+            
+            
         self._print_best_model()
+        if self._yaml_results : self._print_yaml_best_model()
 
     def _extract_posterior_samples_EMCEE(self):
         """
@@ -2014,6 +2050,45 @@ class UlensModelFit(object):
             if parameter == 'q':
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}"
             print(format_.format(parameter, *results_))
+
+    def _print_yaml_results(self, data, names="parameters", mode=None):
+        """
+        calculate and print in yaml format median values and +- 1 sigma for given parameters
+        """
+        
+        yaml_txt=''
+        if names == "parameters":
+            ids = self._fit_parameters
+        elif names == "fluxes":
+            if self._flux_names is None:
+                self._flux_names = self._get_fluxes_names_to_print()
+            ids = self._flux_names
+        else:
+            raise ValueError('internal bug')
+
+        if self._fit_method == "EMCEE":
+            results = self._get_weighted_percentile(data)
+        elif self._fit_method == "MultiNest":
+            if mode is None:
+                weights = self._samples_flat_weights
+            else:
+                weights = self._samples_modes_flat_weights[mode]
+            results = self._get_weighted_percentile(data, weights=weights)
+        else:
+            raise ValueError("internal bug")
+
+        for (parameter, results_) in zip(ids, results):
+            format_ = "  {:} : {:.5f} +{:.5f} -{:.5f}\n"
+            if parameter == 'q':
+                format_ = "  {:} : {:.7f} +{:.7f} -{:.7f}\n"
+            yaml_txt+=(format_.format(parameter, *results_))
+            
+            
+        print(yaml_txt,file=self._yaml_results_file,flush=True)
+       
+
+
+
 
     def _get_fluxes_names_to_print(self):
         """
@@ -2108,15 +2183,51 @@ class UlensModelFit(object):
         """
         print("Best model:")
         if self._flat_priors:
-            print("chi2 : {:.4f}".format(-2. * self._best_model_ln_prob))
+            print("chi2: {:.4f}".format(-2. * self._best_model_ln_prob))
         else:
             self._ln_like(self._best_model_theta)
-            print("chi2 : {:.4f}".format(self._event.get_chi2()))
+            print("chi2: {:.4f}".format(self._event.get_chi2()))
         print(*self._fit_parameters)
         print(*list(self._best_model_theta))
         if self._return_fluxes:
             print("Fluxes:")
             print(*list(self._best_model_fluxes))
+            
+            
+    def _print_yaml_best_model(self):
+        """
+        print in yaml format best model found 
+        """
+        
+        yaml_txt=''
+        
+        yaml_txt+="Best model:\n"
+        if self._flat_priors:
+           yaml_txt+="  chi2: {:.4f}\n".format(-2. * self._best_model_ln_prob)
+        else:
+            self._ln_like(self._best_model_theta)
+            yaml_txt+="  chi2: {:.4f}\n".format(self._event.get_chi2())
+       
+        for (parameter, results_) in zip(self._fit_parameters, self._best_model_theta):
+           format_ = "  {:}: {:.5f}\n"
+           if parameter == 'q':
+               format_ = "  {:}: {:.7f}\n"
+           yaml_txt+=format_.format(parameter, results_)
+        
+        if self._flux_names is None:
+            self._flux_names = self._get_fluxes_names_to_print()
+        
+        yaml_txt+="  Fluxes:\n"
+        for (parameter, results_) in zip(self._flux_names,self._best_model_fluxes):
+           format_ = "    {:}: {:.5f}\n"
+           yaml_txt+=format_.format(parameter, results_)
+           
+        print(yaml_txt,file=self._yaml_results_file,flush=True)
+
+                    
+            
+            
+
 
     def _save_posterior_EMCEE(self):
         """
@@ -2143,26 +2254,39 @@ class UlensModelFit(object):
         else:
             print("Fitted parameters:")
             self._print_results(self._samples_flat)
-
+            
+            if self._yaml_results : 
+                print("Fitted parameters:",file=self._yaml_results_file,flush=True)
+                self._print_yaml_results(self._samples_flat)
+                
             if self._return_fluxes:
                 print("Fitted fluxes (source and blending):")
                 flux_samples = self._get_fluxes_to_print_MultiNest()
                 self._print_results(flux_samples, names='fluxes')
+                if self._yaml_results : 
+                    print("Fitted fluxes: \n # (source and blending)",file=self._yaml_results_file,flush=True)
+                    self._print_yaml_results(flux_samples, names='fluxes')
 
         self._shift_t_0_in_samples()
 
         self._print_best_model()
+        if self._yaml_results :self._print_yaml_best_model()
 
     def _parse_results_MultiNest_multimodal(self):
         """
         Print parameters and fluxes for each mode separately
         """
         print("Number of modes found:", self._n_modes)
+        if self._yaml_results : print("Number of modes found : ", self._n_modes,file=self._yaml_results_file,flush=True)
         if self._return_fluxes:
             print("Fitted parameters and fluxes (source and blending) "
                   "plus best model info:")
+            if self._yaml_results : print("#Fitted parameters and fluxes (source and blending) plus best model info:",file=self._yaml_results_file,flush=True)
         else:
             print("Fitted parameters:")
+            if self._yaml_results : 
+                print("Fitted parameters :",file=self._yaml_results_file,flush=True)
+                
 
         self._set_mode_probabilities()
 
@@ -2173,6 +2297,13 @@ class UlensModelFit(object):
                    "f} +- {:." + str(accuracy) + "f}")
             print(fmt.format(i_mode+1, self._mode_probabilities[i_mode], err))
             self._print_results(self._samples_modes_flat[i_mode], mode=i_mode)
+            
+            if self._yaml_results : 
+                fmt = (" MODE {:} probability : {:." + str(accuracy) +
+                       "f} +- {:." + str(accuracy) + "f}")
+                print(fmt.format(i_mode+1, self._mode_probabilities[i_mode], err),file=self._yaml_results_file,flush=True)
+                self._print_yaml_results(self._samples_modes_flat[i_mode], mode=i_mode)
+            
             if self._return_fluxes:
                 self._print_results(
                     self._samples_modes_flat_fluxes[i_mode], names="fluxes")
@@ -2180,8 +2311,15 @@ class UlensModelFit(object):
             print("{:.4f}".format(mode['chi2']))
             print(*mode['parameters'][:self._n_fit_parameters])
             print(*mode['parameters'][self._n_fit_parameters:])
+            
+            if self._yaml_results : 
+                print("{:.4f}".format(mode['chi2']),file=self._yaml_results_file,flush=True)
+                print(*mode['parameters'][:self._n_fit_parameters],file=self._yaml_results_file,flush=True)
+                print(*mode['parameters'][self._n_fit_parameters:],file=self._yaml_results_file,flush=True)
+                
         print(" END OF MODES")
-
+        if self._yaml_results : print(" END OF MODES",file=self._yaml_results_file,flush=True)
+        
     def _set_mode_probabilities(self):
         """
         Calculate probabilities of each mode and its uncertainty
