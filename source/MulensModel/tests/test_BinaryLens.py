@@ -53,7 +53,10 @@ def test_binary_lens_hexadecapole():
     np.testing.assert_almost_equal(result_10, reference_10)
 
 
-def test_vbbl_1():
+def test_vbbl():
+    """
+    check basic magnification calculation using VBBL
+    """
     s = 0.8
     q = 0.1
 
@@ -65,8 +68,10 @@ def test_vbbl_1():
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
 
-def test_ac_1():
-
+def test_ac():
+    """
+    check basic magnification calculation using AdaptiveContouring
+    """
     s = 0.8
     q = 0.1
 

@@ -17,6 +17,9 @@ class TestModelParameters(unittest.TestCase):
 
 
 def test_init_parameters():
+    """
+    make sure that parameters are properly stored
+    """
     t_0 = 6141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
@@ -28,6 +31,9 @@ def test_init_parameters():
 
 
 def test_repr_parameters():
+    """
+    Test str(ModelParameters) or __repr__(ModelParameters)
+    """
     t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
@@ -77,6 +83,9 @@ class test(unittest.TestCase):
 
 
 def test_update():
+    """
+    check if the number of parameters can be changed
+    """
     t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
