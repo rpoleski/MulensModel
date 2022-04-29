@@ -647,12 +647,11 @@ class FitData:
 
         _B0B1_file_read = False
 
-        def __init__(self, fit, parameters=None):
+        def __init__(self, fit):
             self.fit = fit
             self.dataset = self.fit.dataset
             self.model = self.fit.model
             self.gamma = self.fit.gamma
-            self.parameters = parameters
 
             if not FitData.FSPLDerivs._B0B1_file_read:
                 self._read_B0B1_file()
@@ -751,10 +750,10 @@ class FitData:
                 z, B1_prime, kind='cubic')
             FitData.FSPLDerivs._B0B1_file_read = True
 
-        def get_gradient(self):
+        def get_gradient(self, parameters):
             d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
             gradient = {}
-            for key in self.parameters:
+            for key in parameters:
                 if key == 'rho':
                     gradient[key] = self.get_d_A_d_rho()
                 else:
