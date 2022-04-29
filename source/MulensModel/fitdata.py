@@ -51,8 +51,6 @@ class FitData:
 
     """
 
-    _B0B1_file_read = False
-
     def __init__(self, model=None, dataset=None, fix_blend_flux=False,
                  fix_source_flux=False, fix_source_flux_ratio=False):
         self.model = model
@@ -648,19 +646,24 @@ class FitData:
         d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
         return d_A_d_u
 
-    class FSPLDerivs():
+    class FSPLDerivs:
 
-        def __init__(self, fit, parameters):
+        _B0B1_file_read = False
+
+        def __init__(self, fit, parameters=None):
             self.fit = fit
+            self.dataset = self.fit.dataset
+            self.model = self.fit.model
+            self.gamma = self.fit.gamma
             self.parameters = parameters
 
-            if not FitData._B0B1_file_read:
+            if not FitData.FSPLDerivs._B0B1_file_read:
                 self._read_B0B1_file()
 
-            if self._data_magnification is None:
-                self._calculate_magnifications()
+            #if self.fit._data_magnification is None:
+            #    self.fit._calculate_magnifications()
 
-            #gradient = np.zeros(len(self.dataset.time))
+            # gradient = np.zeros(len(self.dataset.time))
             self.b0_gamma_b1 = np.zeros(len(self.dataset.time))
             self.db0_gamma_db1 = np.zeros(len(self.dataset.time))
 
@@ -671,7 +674,7 @@ class FitData:
             z = self.u_ / self.model.parameters.rho
 
             satellite_skycoord = None
-            if self.model.ephemerides_file is not None:
+            if self.fit.model.ephemerides_file is not None:
                 satellite_skycoord = self.model.get_satellite_coords(
                     self.dataset.time)
 
@@ -712,7 +715,7 @@ class FitData:
                             'Methods parameters passed, but currently ' +
                             'no point lens method accepts the parameters')
 
-                selection = (methods == method) & (z < FitData._z_max)
+                selection = (methods == method) & (z < FitData.FSPLDerivs._z_max)
                 if method.lower() == 'point_source':
                     pass  # These cases are already taken care of.
                 elif (method.lower() ==
@@ -731,6 +734,22 @@ class FitData:
                     msg += 'Your value: {:}'
                     raise ValueError(msg.format(method))
 
+        def _read_B0B1_file(self):
+            """Read file with pre-computed function values"""
+            file_ = os.path.join(
+                mm.DATA_PATH, 'interpolation_table_b0b1_v2.dat')
+            if not os.path.exists(file_):
+                raise ValueError(
+                    'File with FSPL data does not exist.\n' + file_)
+            (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(file_,
+                                                                      unpack=True)
+            FitData.FSPLDerivs._z_max = z[-1]
+            FitData.FSPLDerivs._get_B0 = interp1d(z, B0, kind='cubic')
+            FitData.FSPLDerivs._get_B1 = interp1d(z, B1, kind='cubic')
+            FitData.FSPLDerivs._get_B0_prime = interp1d(z, B0_prime, kind='cubic')
+            FitData.FSPLDerivs._get_B1_prime = interp1d(z, B1_prime, kind='cubic')
+            FitData.FSPLDerivs._B0B1_file_read = True
+
         def get_gradient(self):
             d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
             gradient = {}
@@ -746,7 +765,7 @@ class FitData:
 
         def get_d_A_d_rho(self):
             d_A_d_rho = self.a_pspl
-            d_A_d_rho *= -self.u_ / self.model.parameters.rho
+            d_A_d_rho *= -self.u_ / self.model.parameters.rho**2
             d_A_d_rho *= self.db0_gamma_db1
             return d_A_d_rho
 
@@ -906,20 +925,6 @@ class FitData:
         #     gradient[selection] *= (-u_[selection] / self.model.parameters.rho**2)
         #
         #     return gradient
-
-    def _read_B0B1_file(self):
-        """Read file with pre-computed function values"""
-        file_ = os.path.join(
-            mm.DATA_PATH, 'interpolation_table_b0b1_v2.dat')
-        if not os.path.exists(file_):
-            raise ValueError('File with FSPL data does not exist.\n' + file_)
-        (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(file_, unpack=True)
-        FitData._z_max = z[-1]
-        FitData._get_B0 = interp1d(z, B0, kind='cubic')
-        FitData._get_B1 = interp1d(z, B1, kind='cubic')
-        FitData._get_B0_prime = interp1d(z, B0_prime, kind='cubic')
-        FitData._get_B1_prime = interp1d(z, B1_prime, kind='cubic')
-        FitData._B0B1_file_read = True
 
 
     @property
