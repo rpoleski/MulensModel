@@ -656,9 +656,6 @@ class FitData:
             if not FitData.FSPLDerivs._B0B1_file_read:
                 self._read_B0B1_file()
 
-            self.b0_gamma_b1 = np.zeros(len(self.dataset.time))
-            self.db0_gamma_db1 = np.zeros(len(self.dataset.time))
-
             # This calculation gets repeated = Not efficient. Should trajectory
             #  be a property of model?
             trajectory = self.model.get_trajectory(self.dataset.time)
@@ -695,6 +692,8 @@ class FitData:
                 satellite_skycoord=satellite_skycoord)
             self.a_pspl = point_source_curve.get_magnification()
 
+            self.b0_gamma_b1 = np.ones(len(self.dataset.time))
+            self.db0_gamma_db1 = np.zeros(len(self.dataset.time))
             # This section was copied from magnificationcurve.py. Addl evidence
             #  a refactor is needed.
             methods = np.array(magnification_curve._methods_for_epochs())
@@ -752,14 +751,16 @@ class FitData:
 
         def get_gradient(self, parameters):
             d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
-            gradient = {}
+            factor = self.a_pspl * self.db0_gamma_db1
+            factor /= self.model.parameters.rho
+            factor += d_A_pspl_d_u * self.b0_gamma_b1
+
+            gradient = self.fit._get_d_u_d_params(parameters)
             for key in parameters:
                 if key == 'rho':
                     gradient[key] = self.get_d_A_d_rho()
                 else:
-                    gradient[key] = self.a_pspl * self.db0_gamma_db1
-                    gradient[key] /= self.model.parameters.rho
-                    gradient[key] += d_A_pspl_d_u * self.b0_gamma_b1
+                    gradient[key] *= factor
 
             return gradient
 
