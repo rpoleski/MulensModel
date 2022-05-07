@@ -89,6 +89,9 @@ plots:
             # If you remove the line above, then magnification values will be printed.
             label: What is shown on this axis?
             color: magenta
+    trajectory:
+        file: ob03235_2_trajectory.png
+        time range: 2452700 2452855
     triangle:
         file: ob03235_2_triangle.png
         shift t_0: False

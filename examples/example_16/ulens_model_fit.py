@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.28.1'
+__version__ = '0.29.0'
 
 
 class UlensModelFit(object):
@@ -229,13 +229,16 @@ class UlensModelFit(object):
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``triangle``, ``trace`` (only EMCEE fitting),
-            and ``best model``.
+            ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
             ``'file'``, ``'time range'``, ``'magnitude range'``, ``'legend'``,
             and ``'rcParams'``,
             2) for ``triangle`` and ``trace``:
             ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
+            3) for ``trajectory``:
+            ``'file'`` and ``'time range'`` (if not provided, then values
+            from ``best model`` will be used)
             e.g.:
 
             .. code-block:: python
@@ -246,6 +249,9 @@ class UlensModelFit(object):
                   'trace':
                       'file': 'my_fit_trace_plot.png'
                       'shift t_0': False
+                  'trajectory':
+                      'file': 'my_trajectory.png'
+                      'time range': 2456050. 2456300.
                   'best model':
                       'file': 'my_fit_best.png'
                       'time range': 2456000. 2456300.
@@ -502,7 +508,7 @@ class UlensModelFit(object):
         """
         Check if parameters of plots make sense
         """
-        allowed_keys = set(['best model', 'triangle', 'trace'])
+        allowed_keys = set(['best model', 'trajectory', 'triangle', 'trace'])
 
         if self._plots is None:
             self._plots = dict()
@@ -520,6 +526,9 @@ class UlensModelFit(object):
 
         if 'best model' in self._plots:
             self._check_plots_parameters_best_model()
+
+        if 'trajectory' in self._plots:
+            self._check_plots_parameters_trajectory()
 
         if 'triangle' in self._plots:
             self._check_plots_parameters_triangle()
@@ -549,20 +558,7 @@ class UlensModelFit(object):
             raise ValueError(
                 'Unknown settings for "best model": {:}'.format(unknown))
 
-        if 'time range' in self._plots['best model']:
-            text = self._plots['best model']['time range'].split()
-            if len(text) != 2:
-                raise ValueError(
-                    "'time range' for 'best model' should specify 2 " +
-                    "values (begin and end); got: " +
-                    str(self._plots['best model']['time range']))
-            t_0 = float(text[0])
-            t_1 = float(text[1])
-            if t_1 < t_0:
-                raise ValueError(
-                    "Incorrect 'time range' for 'best model':\n" +
-                    text[0] + " " + text[1])
-            self._plots['best model']['time range'] = [t_0, t_1]
+        self._set_time_range_for_plot('best model')
 
         if 'magnitude range' in self._plots['best model']:
             text = self._plots['best model']['magnitude range'].split()
@@ -589,6 +585,26 @@ class UlensModelFit(object):
 
         if 'second Y scale' in self._plots['best model']:
             self._check_plots_parameters_best_model_Y_scale()
+
+    def _set_time_range_for_plot(self, plot_type):
+        """
+        set time range for best model or triangle plots
+        """
+        if 'time range' not in self._plots[plot_type]:
+            return
+
+        text = self._plots[plot_type]['time range'].split()
+        if len(text) != 2:
+            msg = ("'time range' for {:} plot should specify 2 values "
+                   "(begin and end); got: {:}")
+            raise ValueError(
+                msg.format(plot_type, self._plots[plot_type]['time range']))
+        t_0 = float(text[0])
+        t_1 = float(text[1])
+        if t_1 < t_0:
+            raise ValueError("Incorrect 'time range' for " + plot_type +
+                             "plot:\n" + text[0] + " " + text[1])
+        self._plots[plot_type]['time range'] = [t_0, t_1]
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -623,6 +639,18 @@ class UlensModelFit(object):
                     'In "best model" -> "second Y scale", labels and '
                     'magnifications must be lists of the same length')
 
+    def _check_plots_parameters_trajectory(self):
+        """
+        Check if parameters of trajectory plot make sense
+        """
+        allowed = set(['file', 'time range'])
+        unknown = set(self._plots['trajectory'].keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'Unknown settings for "trajectory" plot: {:}'.format(unknown))
+
+        self._set_time_range_for_plot('trajectory')
+
     def _check_plots_parameters_triangle(self):
         """
         Check if parameters of triangle plot make sense
@@ -631,7 +659,7 @@ class UlensModelFit(object):
         unknown = set(self._plots['triangle'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
-                'Unknown settings for "triangle": {:}'.format(unknown))
+                'Unknown settings for "triangle" plot: {:}'.format(unknown))
 
         self._parse_plots_parameter_shift_t_0(self._plots['triangle'])
 
@@ -658,7 +686,7 @@ class UlensModelFit(object):
         unknown = set(self._plots['trace'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
-                'Unknown settings for "trace": {:}'.format(unknown))
+                'Unknown settings for "trace" plot: {:}'.format(unknown))
 
         if self._fit_method == "MultiNest":
             raise ValueError(
@@ -2248,6 +2276,8 @@ class UlensModelFit(object):
             self._trace_plot()
         if 'best model' in self._plots:
             self._best_model_plot()
+        if 'trajectory' in self._plots:
+            self._make_trajectory_plot()
 
     def _triangle_plot(self):
         """
@@ -2389,7 +2419,7 @@ class UlensModelFit(object):
             'hspace': hspace}
         kwargs = {'subtract_2450000': remove_245}
 
-        (t_1, t_2) = self._get_time_limits_for_plot(tau)
+        (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
 
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
@@ -2414,13 +2444,13 @@ class UlensModelFit(object):
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
                 kwargs_axes_1, kwargs_axes_2)
 
-    def _get_time_limits_for_plot(self, tau):
+    def _get_time_limits_for_plot(self, tau, plot_type):
         """
-        find limits for the best model plot
+        find limits for the best model or trajectory plot
         """
-        if 'time range' in self._plots['best model']:
-            t_1 = self._plots['best model']['time range'][0]
-            t_2 = self._plots['best model']['time range'][1]
+        if 'time range' in self._plots[plot_type]:
+            t_1 = self._plots[plot_type]['time range'][0]
+            t_2 = self._plots[plot_type]['time range'][1]
             return (t_1, t_2)
 
         if self._model.n_sources == 1:
@@ -2572,6 +2602,34 @@ class UlensModelFit(object):
         ax2.set_ylim(ylim[0], ylim[1])
         ax2.tick_params(axis='y', colors=color)
         plt.yticks(ticks, labels, color=color)
+
+    def _make_trajectory_plot(self):
+        """
+        make and save plot of the best trajectory
+        """
+        dpi = 300
+        tau = 1.5
+
+        self._ln_like(self._best_model_theta)  # Sets all parameters to
+        # the best model.
+
+        self._reset_rcParams()
+
+        if 'time range' in self._plots['trajectory']:
+            t_range = self._get_time_limits_for_plot(tau, 'trajectory')
+        else:
+            t_range = self._get_time_limits_for_plot(tau, 'best model')
+        kwargs = {'caustics': True, 't_range': t_range}
+
+        self._model.plot_trajectory(**kwargs)
+
+        plt.xlabel(r"$x [\theta_E]$")
+        plt.ylabel(r"$y [\theta_E]$")
+        plt.axis('equal')
+        plt.gca().tick_params(axis='both', which='both', direction='in',
+                              top=True, right=True)
+
+        self._save_figure(self._plots['trajectory'].get('file'), dpi=dpi)
 
 
 if __name__ == '__main__':
