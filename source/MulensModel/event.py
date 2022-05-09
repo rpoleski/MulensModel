@@ -3,7 +3,9 @@ import numpy as np
 from math import fsum
 from matplotlib import rcParams, gridspec
 import matplotlib.pyplot as plt
+import copy
 
+import MulensModel
 from MulensModel.fitdata import FitData
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
@@ -688,7 +690,7 @@ class Event(object):
         """
 
         self._fits = []
-        for dataset in self.datasets:
+        for i, dataset in enumerate(self.datasets):
             if dataset in self.fix_blend_flux.keys():
                 fix_blend_flux = self.fix_blend_flux[dataset]
             else:
