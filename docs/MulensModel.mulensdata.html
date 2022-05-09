@@ -4,16 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.mulensdata module &#8212; MulensModel 2.7.5 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.mulensdata module &#8212; MulensModel 2.8.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -32,11 +31,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.mulensdata">
+  <section id="module-MulensModel.mulensdata">
 <span id="mulensmodel-mulensdata-module"></span><h1>MulensModel.mulensdata module<a class="headerlink" href="#module-MulensModel.mulensdata" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="MulensModel.mulensdata.MulensData">
-<em class="property">class </em><code class="sig-prename descclassname">MulensModel.mulensdata.</code><code class="sig-name descname">MulensData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phot_fmt</span><span class="o">=</span><span class="default_value">'mag'</span></em>, <em class="sig-param"><span class="n">chi2_fmt</span><span class="o">=</span><span class="default_value">'flux'</span></em>, <em class="sig-param"><span class="n">coords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ra</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dec</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ephemerides_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">add_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">add_2460000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">bandpass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bad</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">good</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_properties</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.mulensdata.</span></span><span class="sig-name descname"><span class="pre">MulensData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phot_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mag'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chi2_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'flux'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ephemerides_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_2450000</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_2460000</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandpass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">good</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A set of photometric measurements for a microlensing event.</p>
 <dl>
@@ -128,8 +127,8 @@ contact code authors.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phot_fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_errorbars</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_bad</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subtract_2450000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">subtract_2460000</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_residuals</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phot_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_errorbars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtract_2450000</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtract_2460000</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_residuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the data.</p>
 <p>Uses <code class="xref py py-attr docutils literal notranslate"><span class="pre">plot_properties</span></code> for label, color, etc.
 This settings can be changed by setting <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>.</p>
@@ -166,8 +165,8 @@ Default is <em>False</em>, i.e., plot the data.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.set_limb_darkening_weights">
-<code class="sig-name descname">set_limb_darkening_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.set_limb_darkening_weights" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.set_limb_darkening_weights">
+<span class="sig-name descname"><span class="pre">set_limb_darkening_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.set_limb_darkening_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a dictionary of weights that will be used to evaluate the
 limb darkening coefficient. See also
 <a class="reference internal" href="MulensModel.limbdarkeningcoeffs.html#MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs" title="MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs"><code class="xref py py-class docutils literal notranslate"><span class="pre">LimbDarkeningCoeffs</span></code></a></p>
@@ -184,73 +183,73 @@ the V-band.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.coords">
-<em class="property">property </em><code class="sig-name descname">coords</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.coords" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.coords">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coords</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.coords" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></a></p>
 <p>Sky coordinates of data.
 See <a class="reference internal" href="MulensModel.coordinates.html#MulensModel.coordinates.Coordinates" title="MulensModel.coordinates.Coordinates"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.time">
-<em class="property">property </em><code class="sig-name descname">time</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.time" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.time" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.ndarray</em></p>
 <p>vector of dates</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.mag">
-<em class="property">property </em><code class="sig-name descname">mag</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.mag" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.mag">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mag</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.mag" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.ndarray</em></p>
 <p>magnitude vector</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.err_mag">
-<em class="property">property </em><code class="sig-name descname">err_mag</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.err_mag" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.err_mag">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">err_mag</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.err_mag" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.ndarray</em></p>
 <p>vector of magnitude errors</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.flux">
-<em class="property">property </em><code class="sig-name descname">flux</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.flux" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.flux">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flux</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.flux" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em></p>
 <p>Vector of the measured brightness in flux units.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.err_flux">
-<em class="property">property </em><code class="sig-name descname">err_flux</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.err_flux" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.err_flux">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">err_flux</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.err_flux" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.ndarray</em></p>
 <p>Vector of uncertainties of <em>flux</em> values.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.bad">
-<em class="property">property </em><code class="sig-name descname">bad</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.bad" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.bad">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bad</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.bad" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.ndarray boolean</em></p>
 <p>flags marking bad data</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.good">
-<em class="property">property </em><code class="sig-name descname">good</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.good" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.good">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">good</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.good" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>np.ndarray boolean</em></p>
 <p>flags marking good data i.e., opposite to <a class="reference internal" href="#MulensModel.mulensdata.MulensData.bad" title="MulensModel.mulensdata.MulensData.bad"><code class="xref py py-func docutils literal notranslate"><span class="pre">bad()</span></code></a></p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.n_epochs">
-<em class="property">property </em><code class="sig-name descname">n_epochs</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.n_epochs" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.n_epochs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_epochs</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.n_epochs" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>give total number of epochs (including bad data)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.data_and_err_in_input_fmt">
-<code class="sig-name descname">data_and_err_in_input_fmt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.data_and_err_in_input_fmt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.data_and_err_in_input_fmt">
+<span class="sig-name descname"><span class="pre">data_and_err_in_input_fmt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.data_and_err_in_input_fmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives photometry in input format (mag or flux).</p>
 <dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
@@ -264,8 +263,8 @@ See <a class="reference internal" href="MulensModel.coordinates.html#MulensModel
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.data_and_err_in_chi2_fmt">
-<code class="sig-name descname">data_and_err_in_chi2_fmt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.data_and_err_in_chi2_fmt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.data_and_err_in_chi2_fmt">
+<span class="sig-name descname"><span class="pre">data_and_err_in_chi2_fmt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.data_and_err_in_chi2_fmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives photometry in format used for chi2 calculation
 (flux in most cases, but magnitude possible).</p>
 <dl class="simple">
@@ -279,17 +278,17 @@ See <a class="reference internal" href="MulensModel.coordinates.html#MulensModel
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.bandpass">
-<em class="property">property </em><code class="sig-name descname">bandpass</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.bandpass" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.bandpass">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandpass</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.bandpass" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>String</em></p>
 <p>Bandpass of given dataset (primary usage is limb darkening), e.g. ‘I’
 or ‘V’. Returns <em>None</em> if not set.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.satellite_skycoord">
-<em class="property">property </em><code class="sig-name descname">satellite_skycoord</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.satellite_skycoord" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.satellite_skycoord">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">satellite_skycoord</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.satellite_skycoord" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>Astropy.SkyCoord</em> object for satellite
 positions at epochs covered by the dataset</p>
 <dl class="simple">
@@ -301,30 +300,30 @@ positions at epochs covered by the dataset</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.input_fmt">
-<em class="property">property </em><code class="sig-name descname">input_fmt</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.input_fmt" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.input_fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_fmt</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.input_fmt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em> (‘mag’ or ‘flux’)</p>
 <p>Input format - same as <em>phot_fmt</em> keyword in __init__().</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.chi2_fmt">
-<em class="property">property </em><code class="sig-name descname">chi2_fmt</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.chi2_fmt" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.chi2_fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">chi2_fmt</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.chi2_fmt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em> (‘mag’ or ‘flux’)</p>
 <p>Photometry format used  for chi^2 calculations. Default is ‘flux’.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="MulensModel.mulensdata.MulensData.ephemerides_file">
-<em class="property">property </em><code class="sig-name descname">ephemerides_file</code><a class="headerlink" href="#MulensModel.mulensdata.MulensData.ephemerides_file" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.mulensdata.MulensData.ephemerides_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ephemerides_file</span></span><a class="headerlink" href="#MulensModel.mulensdata.MulensData.ephemerides_file" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em></p>
 <p>File with satellite ephemeris.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -343,7 +342,7 @@ positions at epochs covered by the dataset</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -362,7 +361,7 @@ positions at epochs covered by the dataset</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -384,7 +383,7 @@ positions at epochs covered by the dataset</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

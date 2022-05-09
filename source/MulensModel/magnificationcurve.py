@@ -4,6 +4,7 @@ import warnings
 import numpy as np
 
 from MulensModel.binarylens import BinaryLens
+from MulensModel.binarylenswithshear import BinaryLensWithShear
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.pointlens import PointLens, get_pspl_magnification
 from MulensModel.trajectory import Trajectory
@@ -45,6 +46,7 @@ class MagnificationCurve(object):
             Trajectory used to calculate positions of
             the source that are used to calculate magnification values.
     """
+
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, gamma=0.):
         # Set times
@@ -158,7 +160,7 @@ class MagnificationCurve(object):
 
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
-        elif self.parameters.n_lenses == 2:
+        elif (self.parameters.n_lenses == 2):
             magnification = self.get_binary_lens_magnification()
         else:
             raise NotImplementedError(
@@ -181,7 +183,8 @@ class MagnificationCurve(object):
         """
         Calculate the Point Lens magnification.
 
-        Allowed magnification methods :
+        Allowed magnification methods
+        (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard Paczynski equation for a point source/point lens.
 
@@ -245,6 +248,11 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        if self.parameters.n_lenses != 1:
+            raise ValueError(
+                "You're trying to calculate single lens magnification, but "
+                "the model provided has " + str(self.parameters.n_lenses) +
+                " lenses")
 
         pspl_magnification = get_pspl_magnification(self.trajectory)
         if self._methods_epochs is None:
@@ -334,8 +342,10 @@ class MagnificationCurve(object):
     def get_binary_lens_magnification(self):
         """
         Calculate the binary lens magnification.
+        If the shear or convergence are set, then they are used.
 
-        Allowed magnification methods :
+        Allowed magnification methods
+        (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard point source magnification calculation.
 
@@ -365,6 +375,8 @@ class MagnificationCurve(object):
                 See
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
+                Note that it doesn't work if shear or convergence are set.
+
             ``point_source_point_lens``:
                 Uses point-source _point_-_lens_ approximation; useful when you
                 consider binary lens but need magnification very far from
@@ -375,26 +387,50 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
-        # Set up the binary lens system
+        if self.parameters.n_lenses != 2:
+            raise ValueError(
+                "You're trying to calculate binary lens magnification, but "
+                "the model provided has " + str(self.parameters.n_lenses) +
+                " lenses")
+
+        if not self.parameters.is_external_mass_sheet:
+            binary_lens_class = BinaryLens
+            kwargs = dict()
+        else:
+            binary_lens_class = BinaryLensWithShear
+            kwargs = {'convergence_K': self.parameters.convergence_K,
+                      'shear_G': self.parameters.shear_G}
+
+        out = self._get_binary_lens_magnification(binary_lens_class, kwargs)
+
+        return out
+
+    def _get_binary_lens_magnification(self, binary_lens_class,
+                                       optional_kwargs):
+        """
+        Run binary lens calculation with proper class (binary_lens_class) and
+        some kwargs (optional_kwargs of type *dict*).
+        """
         q = self.parameters.q
-        m_1 = 1. / (1. + q)
-        m_2 = q / (1. + q)
+        binary_kwargs = optional_kwargs
+        binary_kwargs['mass_1'] = 1. / (1. + q)
+        binary_kwargs['mass_2'] = q / (1. + q)
+
         is_static = self.parameters.is_static()
         if is_static:
-            binary_lens = BinaryLens(
-                mass_1=m_1, mass_2=m_2, separation=self.parameters.s)
+            binary_lens = binary_lens_class(separation=self.parameters.s,
+                                            **binary_kwargs)
         methods = self._methods_for_epochs()
 
-        # Calculate the magnification
         magnification = []
         for index in range(len(self.times)):
             x = self.trajectory.x[index]
             y = self.trajectory.y[index]
             method = methods[index].lower()
             if not is_static:
-                binary_lens = BinaryLens(
-                    mass_1=m_1, mass_2=m_2,
-                    separation=self.parameters.get_s(self.times[index]))
+                binary_lens = binary_lens_class(
+                    separation=self.parameters.get_s(self.times[index]),
+                    **binary_kwargs)
 
             kwargs = {}
             if self._methods_parameters is not None:
@@ -423,9 +459,15 @@ class MagnificationCurve(object):
                 m = binary_lens.hexadecapole_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma)
             elif method == 'vbbl':
+                if isinstance(binary_lens, BinaryLensWithShear):
+                    raise ValueError("Finite source VBBL is not available "
+                                     "for BinaryLensWithShear")
                 m = binary_lens.vbbl_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'adaptive_contouring':
+                if isinstance(binary_lens, BinaryLensWithShear):
+                    raise ValueError("Adaptive contouring is not available "
+                                     "for BinaryLensWithShear")
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'point_source_point_lens':

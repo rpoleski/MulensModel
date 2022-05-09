@@ -1,111 +1,11 @@
-import sys
-import os
-import ctypes
-import glob
 import warnings
 import numpy as np
 from math import fsum, sqrt
 
+from MulensModel.binarylensimports import (
+    _vbbl_wrapped, _adaptive_contouring_wrapped, _vbbl_binary_mag_dark,
+    _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 import MulensModel as mm
-try:
-    import MulensModel.VBBL as mm_vbbl
-except Exception:
-    _vbbl_wrapped = False
-else:
-    _vbbl_wrapped = True
-try:
-    import MulensModel.AdaptiveContouring as mm_ac
-except Exception:
-    _adaptive_contouring_wrapped = False
-else:
-    _adaptive_contouring_wrapped = True
-
-
-def _try_load(path, name):
-    """
-    Try loading compiled C library.
-    Input is *str* or *list* of *str*.
-    """
-    if isinstance(path, str):
-        path = [path]
-    for path_ in path:
-        try:
-            out = ctypes.cdll.LoadLibrary(path_)
-        except OSError:
-            print("WARNING - File not loaded:", path_)
-            print("Everything should work except:", name)
-            pass
-        else:
-            return out
-    return None
-
-
-def _get_path_2(name_1, name_2):
-    """convenience function"""
-    module_path = os.path.abspath(__file__)
-    for i in range(3):
-        module_path = os.path.dirname(module_path)
-    return os.path.join(module_path, 'source', name_1, name_2)
-
-
-def _import_compiled_VBBL():
-    """try importing manually compiled VBBL package"""
-    vbbl = _try_load(
-        _get_path_2('VBBL', "VBBinaryLensingLibrary_wrapper.so"), "VBBL")
-    _vbbl_wrapped = (vbbl is not None)
-    if not _vbbl_wrapped:
-        return (_vbbl_wrapped, None, None)
-
-    vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
-    vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
-
-    vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
-    vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
-        dtype=ctypes.c_double, shape=(10,))
-
-    vbbl.VBBL_BinaryMag.argtypes = 4 * [ctypes.c_double]
-    vbbl.VBBL_BinaryMag.restype = ctypes.c_double
-
-    return (_vbbl_wrapped,
-            vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5,
-            vbbl.VBBL_BinaryMag)
-
-
-def _import_compiled_AdaptiveContouring():
-    """try importing manually compiled AdaptiveContouring package"""
-    ac = "AdaptiveContouring"
-    adaptive_contour = _try_load(_get_path_2(ac, ac + "_wrapper.so"), ac)
-    _adaptive_contouring_wrapped = (adaptive_contour is not None)
-    if not _adaptive_contouring_wrapped:
-        return (_adaptive_contouring_wrapped, None)
-    adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
-        8 * [ctypes.c_double])
-    adaptive_contour.Adaptive_Contouring_Linear.restype = ctypes.c_double
-    return (_adaptive_contouring_wrapped,
-            adaptive_contour.Adaptive_Contouring_Linear)
-
-
-# Check import and try manually compiled versions.
-if _vbbl_wrapped:
-    _vbbl_binary_mag_dark = mm_vbbl.VBBinaryLensing_BinaryMagDark
-    _vbbl_SG12_5 = mm_vbbl.VBBL_SG12_5
-    _vbbl_binary_mag = mm_vbbl.VBBL_BinaryMag
-else:
-    out = _import_compiled_VBBL()
-    _vbbl_wrapped = out[0]
-    _vbbl_binary_mag_dark = out[1]
-    _vbbl_SG12_5 = out[2]
-    _vbbl_binary_mag = out[3]
-if not _vbbl_wrapped:
-    _solver = 'numpy'
-else:
-    _solver = 'Skowron_and_Gould_12'
-if _adaptive_contouring_wrapped:
-    _adaptive_contouring_linear = mm_ac.Adaptive_Contouring_Linear
-else:
-    out = _import_compiled_AdaptiveContouring()
-    _adaptive_contouring_wrapped = out[0]
-    _adaptive_contouring_linear = out[1]
 
 
 class BinaryLens(object):
@@ -134,6 +34,7 @@ class BinaryLens(object):
     possibility.
 
     """
+
     def __init__(self, mass_1=None, mass_2=None, separation=None):
         self.mass_1 = float(mass_1)  # This speeds-up code for np.float input.
         self.mass_2 = float(mass_2)
@@ -245,15 +146,15 @@ class BinaryLens(object):
             (-m_diff + total_m) * z1,
             -c_sum([2. * total_m, z1 * c_sum([2. * z1, zeta])]) * zeta_conj,
             c_sum([2. * z1 + zeta]) * zeta_conj**2
-            ])
+        ])
         coeff_3 = c_sum([
             z1 * c_sum([m_diff * z1, -total_m * c_sum([z1, 2. * zeta])]),
             zeta_conj * c_sum([
                 2. * m_diff * z1,
                 c_sum([2. * total_m, z1**2]) * c_sum([z1, 2. * zeta])
-                ]),
+            ]),
             -z1 * c_sum([z1, 2. * zeta]) * zeta_conj**2
-            ])
+        ])
         coeff_2 = c_sum([
             m_diff * z1 * c_sum([2. * total_m, z1 * zeta]),
             total_m * c_sum([
@@ -261,13 +162,13 @@ class BinaryLens(object):
             -z1 * zeta_conj * c_sum([
                 zeta * c_sum([6. * total_m, z1**2]),
                 2. * m_diff * c_sum([z1, zeta])
-                ]),
+            ]),
             z1**2 * zeta * zeta_conj**2
-            ])
+        ])
         coeff_1 = -z1 * (m_diff + total_m) * c_sum([
             m_diff * z1, -total_m * z1, 4. * total_m * zeta, z1**2 * zeta,
             -2. * z1 * zeta * zeta_conj
-            ])
+        ])
         coeff_0 = (m_diff + total_m)**2 * z1**2 * zeta
 
         coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
@@ -306,7 +207,7 @@ class BinaryLens(object):
 
         return self._polynomial_roots
 
-    def _polynomial_roots_ok(
+    def _verify_polynomial_roots(
             self, source_x, source_y, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots(
@@ -372,10 +273,10 @@ class BinaryLens(object):
         else:
             return np.array(out)
 
-    def _jacobian_determinant_ok(self, source_x, source_y):
+    def _get_jacobian_determinant(self, source_x, source_y):
         """determinants of lens equation Jacobian for verified roots"""
-        roots_ok_bar = np.conjugate(self._polynomial_roots_ok(
-                                   source_x=source_x, source_y=source_y))
+        roots_ok_bar = np.conjugate(self._verify_polynomial_roots(
+            source_x=source_x, source_y=source_y))
         # Variable X_bar is conjugate of variable X.
         add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
         add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
@@ -383,20 +284,20 @@ class BinaryLens(object):
 
         return 1. - derivative * np.conjugate(derivative)
 
-    def _signed_magnification(self, source_x, source_y):
+    def _get_signed_magnification(self, source_x, source_y):
         """signed magnification for each image separately"""
-        return 1. / self._jacobian_determinant_ok(
-                source_x=source_x, source_y=source_y)
+        return 1. / self._get_jacobian_determinant(
+            source_x=source_x, source_y=source_y)
 
-    def _point_source(self, source_x, source_y):
+    def _get_point_source(self, source_x, source_y):
         """calculate point source magnification"""
-        signed_magnification = self._signed_magnification(
+        signed_magnification = self._get_signed_magnification(
             source_x=source_x, source_y=source_y)
         return fsum(abs(signed_magnification))
 
-    def _point_source_Witt_Mao_95(self, source_x, source_y):
+    def _get_point_source_Witt_Mao_95(self, source_x, source_y):
         """calculate point source magnification"""
-        return self._point_source(source_x=source_x, source_y=source_y)
+        return self._get_point_source(source_x=source_x, source_y=source_y)
 
     def point_source_magnification(self, source_x, source_y):
         """
@@ -444,8 +345,9 @@ class BinaryLens(object):
         else:
             x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
         x_shift *= self.separation
-        return self._point_source_Witt_Mao_95(
-                source_x=float(source_x)+x_shift, source_y=float(source_y))
+        # We need to add this because in order to shift to correct frame.
+        return self._get_point_source_Witt_Mao_95(
+            source_x=float(source_x)+x_shift, source_y=float(source_y))
         # Casting to float speeds-up code for np.float input.
 
     def _get_magnification_w_plus(self, source_x, source_y, radius,
@@ -458,10 +360,10 @@ class BinaryLens(object):
             x = source_x + dxval * radius
             y = source_y + dy[i] * radius
             out.append(self.point_source_magnification(
-                                              source_x=x, source_y=y))
+                source_x=x, source_y=y))
         if magnification_center is None:
             magnification_center = self.point_source_magnification(
-                                    source_x=source_x, source_y=source_y)
+                source_x=source_x, source_y=source_y)
         return 0.25 * fsum(out) - magnification_center
 
     def _get_magnification_w_times(self, source_x, source_y, radius,
@@ -475,13 +377,13 @@ class BinaryLens(object):
             x = source_x + dxval * shift
             y = source_y + dy[i] * shift
             out.append(self.point_source_magnification(
-                                              source_x=x, source_y=y))
+                source_x=x, source_y=y))
         if magnification_center is None:
             magnification_center = self.point_source_magnification(
-                                    source_x=source_x, source_y=source_y)
+                source_x=source_x, source_y=source_y)
         return 0.25 * fsum(out) - magnification_center
 
-    def _rho_check(self, rho):
+    def _check_rho(self, rho):
         """
         Check if rho is float and positive.
         """
@@ -540,7 +442,7 @@ class BinaryLens(object):
         if quadrupole and all_approximations:
             raise ValueError('Inconsistent parameters of ' +
                              'BinaryLens.hexadecapole_magnification()')
-        self._rho_check(rho)
+        self._check_rho(rho)
 
         a_center = self.point_source_magnification(
             source_x=source_x, source_y=source_y)
@@ -639,7 +541,7 @@ class BinaryLens(object):
         if ld_accuracy <= 0.:
             raise ValueError('adaptive_contouring requires ld_accuracy > 0')
         # Note that this accuracy is not guaranteed.
-        self._rho_check(rho)
+        self._check_rho(rho)
 
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
@@ -711,7 +613,7 @@ class BinaryLens(object):
                 Magnification.
 
         """
-        self._rho_check(rho)
+        self._check_rho(rho)
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +

@@ -6,6 +6,7 @@ from astropy.coordinates import SkyCoord
 
 from MulensModel.caustics import Caustics
 from MulensModel.causticspoint import CausticsPointWithShear
+from MulensModel.causticswithshear import CausticsWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -476,6 +477,13 @@ class Model(object):
                         self.parameters.q == self._caustics.q):
                     return
 
+        # check if covergence_K and shear_G are in parameters
+        if self.parameters.is_external_mass_sheet:
+            self._caustics = CausticsWithShear(
+                q=self.parameters.q, s=s,
+                convergence_K=self.parameters.convergence_K,
+                shear_G=self.parameters.shear_G)
+        else:
             self._caustics = Caustics(q=self.parameters.q, s=s)
 
     def plot_trajectory(
@@ -578,7 +586,7 @@ class Model(object):
                 satellite_skycoord, arrow, arrow_kwargs, **kwargs)
         else:
             raise ValueError(
-                    'Wrong number of sources: {:}'.format(self.n_sources))
+                'Wrong number of sources: {:}'.format(self.n_sources))
 
         if caustics:
             self.plot_caustics(marker='.', color='red')
@@ -1032,7 +1040,7 @@ class Model(object):
             return None
         else:
             satellite_skycoords = SatelliteSkyCoord(
-                 ephemerides_file=self.ephemerides_file)
+                ephemerides_file=self.ephemerides_file)
             return satellite_skycoords.get_satellite_coords(times)
 
     def get_magnification(self, time, satellite_skycoord=None, gamma=None,
@@ -1200,7 +1208,7 @@ class Model(object):
                 'make sense')
 
         (mag_1, mag_2) = self._separate_magnifications(
-                time, satellite_skycoord, gamma)
+            time, satellite_skycoord, gamma)
 
         if separate:
             return (mag_1, mag_2)

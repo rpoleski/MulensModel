@@ -17,6 +17,9 @@ class TestModelParameters(unittest.TestCase):
 
 
 def test_init_parameters():
+    """
+    make sure that parameters are properly stored
+    """
     t_0 = 6141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
@@ -28,6 +31,9 @@ def test_init_parameters():
 
 
 def test_repr_parameters():
+    """
+    Test str(ModelParameters) or __repr__(ModelParameters)
+    """
     t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
@@ -77,6 +83,9 @@ class test(unittest.TestCase):
 
 
 def test_update():
+    """
+    check if the number of parameters can be changed
+    """
     t_0 = 2456141.593
     u_0 = 0.5425
     t_E = 62.63*u.day
@@ -237,6 +246,7 @@ def test_n_lenses():
     assert p_3.n_lenses == 2
 
 
+<<<<<<< HEAD
 def test_single_lens_convergence_K_shear_G():
     """
     Test single lens with convergence_K and shear_G in intialized
@@ -256,3 +266,17 @@ def test_single_lens_convergence_K_shear_G():
     np.testing.assert_almost_equal(params.t_E, t_E.value)
     np.testing.assert_almost_equal(params.convergence_K, convergence_K)
     np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
+=======
+def test_is_finite_source():
+    """
+    Test if .is_finite_source() works properly for 1L1S
+    """
+    common = {'t_0': 1.23, 'u_0': 0.123, 't_E': 23.456}
+    params_1 = mm.ModelParameters(common)
+    params_2 = mm.ModelParameters({'rho': 0.001, **common})
+    params_3 = mm.ModelParameters({'t_star': 0.012, **common})
+
+    assert not params_1.is_finite_source()
+    assert params_2.is_finite_source()
+    assert params_3.is_finite_source()
+>>>>>>> d88c71ba13c52627d0b85f9f892a65a7e77bdb1e

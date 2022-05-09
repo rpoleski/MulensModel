@@ -1,8 +1,10 @@
 from os import path
 
 from MulensModel.binarylens import BinaryLens
+from MulensModel.binarylenswithshear import BinaryLensWithShear
 from MulensModel.caustics import Caustics
 from MulensModel.causticspoint import CausticsPointWithShear
+from MulensModel.causticswithshear import CausticsWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.event import Event
 from MulensModel.fitdata import FitData

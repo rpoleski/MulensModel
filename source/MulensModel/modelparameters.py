@@ -21,6 +21,7 @@ _valid_parameters = {
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
         'may be substituted for (t_0, u_0, t_E, alpha)',
     'external_mass_sheet': ['convergence_K', 'shear_G','alpha'],
+    'binary_lens_shear': ['convergence_K', 'shear_G'],
     'finite source': ['rho', '(for finite source effects)'],
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
     'parallax': ['(pi_E_N, pi_E_E) OR pi_E', '(for parallax)'],
@@ -278,7 +279,7 @@ class ModelParameters(object):
         out = {type_: False for type_ in types}
 
         parameter_to_type = dict()
-        for key in ['rho' 't_star', 'rho_1', 'rho_2', 't_star_1', 't_star_2']:
+        for key in ['rho', 't_star', 'rho_1', 'rho_2', 't_star_1', 't_star_2']:
             parameter_to_type[key] = 'finite source'
         for key in ['pi_E', 'pi_E_N', 'pi_E_E']:
             parameter_to_type[key] = 'parallax'

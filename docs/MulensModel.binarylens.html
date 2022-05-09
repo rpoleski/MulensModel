@@ -4,16 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MulensModel.binarylens module &#8212; MulensModel 2.7.5 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.binarylens module &#8212; MulensModel 2.8.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -32,11 +31,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-MulensModel.binarylens">
+  <section id="module-MulensModel.binarylens">
 <span id="mulensmodel-binarylens-module"></span><h1>MulensModel.binarylens module<a class="headerlink" href="#module-MulensModel.binarylens" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="MulensModel.binarylens.BinaryLens">
-<em class="property">class </em><code class="sig-prename descclassname">MulensModel.binarylens.</code><code class="sig-name descname">BinaryLens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mass_1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mass_2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">separation</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.binarylens.BinaryLens">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.binarylens.</span></span><span class="sig-name descname"><span class="pre">BinaryLens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The binary lens equation - its solutions, images, parities,
 magnifications, etc.</p>
@@ -60,8 +59,8 @@ mass than the total mass. This is possible but not recommended -
 make sure you know what you’re doing before you start using this
 possibility.</p>
 <dl class="py method">
-<dt id="MulensModel.binarylens.BinaryLens.point_source_magnification">
-<code class="sig-name descname">point_source_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_x</span></em>, <em class="sig-param"><span class="n">source_y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.binarylens.BinaryLens.point_source_magnification">
+<span class="sig-name descname"><span class="pre">point_source_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.point_source_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate point source magnification for given position. The
 origin of the coordinate system is at the center of mass and
 both masses are on X axis with higher mass at negative X; this
@@ -84,8 +83,8 @@ the lower mass is at (s/(1+q), 0).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.binarylens.BinaryLens.hexadecapole_magnification">
-<code class="sig-name descname">hexadecapole_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_x</span></em>, <em class="sig-param"><span class="n">source_y</span></em>, <em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">gamma</span></em>, <em class="sig-param"><span class="n">quadrupole</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">all_approximations</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.binarylens.BinaryLens.hexadecapole_magnification">
+<span class="sig-name descname"><span class="pre">hexadecapole_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quadrupole</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_approximations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.hexadecapole_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Magnification in hexadecapole approximation of the
 binary-lens/finite-source event - based on <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract">Gould 2008 ApJ
 681, 1593</a>.</p>
@@ -122,8 +121,8 @@ point source approximations (<em>sequence</em> of three
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification">
-<code class="sig-name descname">adaptive_contouring_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_x</span></em>, <em class="sig-param"><span class="n">source_y</span></em>, <em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">u_limb_darkening</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">ld_accuracy</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification">
+<span class="sig-name descname"><span class="pre">adaptive_contouring_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_limb_darkening</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ld_accuracy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Binary lens finite source magnification calculated using
 Adaptive Contouring method by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract">Dominik 2007 MNRAS, 377, 1679</a></p>
 <p>See also
@@ -172,8 +171,8 @@ set to very small value.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="MulensModel.binarylens.BinaryLens.vbbl_magnification">
-<code class="sig-name descname">vbbl_magnification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_x</span></em>, <em class="sig-param"><span class="n">source_y</span></em>, <em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">u_limb_darkening</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.binarylens.BinaryLens.vbbl_magnification">
+<span class="sig-name descname"><span class="pre">vbbl_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_limb_darkening</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylens.BinaryLens.vbbl_magnification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Binary lens finite source magnification calculated using VBBL
 library that implements advanced contour integration algorithm
 presented by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract">Bozza 2010 MNRAS, 408, 2188</a>.
@@ -209,7 +208,7 @@ darkening is ignored.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -228,7 +227,7 @@ darkening is ignored.</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -247,7 +246,7 @@ darkening is ignored.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -269,7 +268,7 @@ darkening is ignored.</p>
       &copy;2018, Radek Poleski, Jennifer Yee.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

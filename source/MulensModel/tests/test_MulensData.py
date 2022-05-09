@@ -23,7 +23,10 @@ def test_file_read():
     assert data.mag[-1] == 13.913, "magnitude of the last line doesn't match"
 
 
-def test_data_list_1():
+def test_data_list():
+    """
+    check if initialization by list works fine
+    """
     t = np.array([7500., 7501.])
     m = np.array([21.0, 21.1])
     e = np.array([0.001, 1.000])

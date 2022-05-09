@@ -13,6 +13,7 @@ class MulensSystem(object):
     """
     A microlensing system consisting of a lens and a source.
     """
+
     def __init__(self, lens=None, source=None, mu_rel=None):
         self._lens = None
         self._source = None
@@ -83,7 +84,7 @@ class MulensSystem(object):
                 self.source.distance.value < self.lens.distance.value):
             msg = 'Source cannot be closer than lens: {:} {:}'
             raise ValueError(msg.format(
-                    self.source.distance, self.lens.distance))
+                self.source.distance, self.lens.distance))
 
     @property
     def mu_rel(self):

@@ -221,8 +221,8 @@ class MulensData(object):
 
         if time.dtype != np.float64:
             raise TypeError((
-                    'time vector in MulensData() must be of ' +
-                    'numpy.float64 type, not {:}').format(time.dtype))
+                'time vector in MulensData() must be of ' +
+                'numpy.float64 type, not {:}').format(time.dtype))
 
         # Adjust the time vector as necessary.
         if self._init_keys['add245']:
@@ -338,7 +338,7 @@ class MulensData(object):
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
         if plot_residuals and model is None:
             raise ValueError(
-                    'MulensData.plot() requires model to plot residuals')
+                'MulensData.plot() requires model to plot residuals')
 
         if model is None:
             (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
@@ -664,7 +664,7 @@ class MulensData(object):
             err_data = self.err_flux
         else:
             raise ValueError('Unrecognized data format: {:}'.format(
-                    self.input_fmt))
+                self.input_fmt))
 
         return (data, err_data)
 
@@ -689,7 +689,7 @@ class MulensData(object):
             err_data = self.err_flux
         else:
             raise ValueError('Unrecognized data format: {:}'.format(
-                    self.chi2_fmt))
+                self.chi2_fmt))
 
         return (data, err_data)
 

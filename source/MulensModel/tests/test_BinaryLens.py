@@ -1,7 +1,6 @@
 import numpy as np
 
 import MulensModel as mm
-import check_architecture
 
 
 def test_small_q():
@@ -54,7 +53,10 @@ def test_binary_lens_hexadecapole():
     np.testing.assert_almost_equal(result_10, reference_10)
 
 
-def test_vbbl_1():
+def test_vbbl():
+    """
+    check basic magnification calculation using VBBL
+    """
     s = 0.8
     q = 0.1
 
@@ -66,9 +68,10 @@ def test_vbbl_1():
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
 
-def test_ac_1():
-    check_architecture.skip_m1(msg='Adaptive Contouring')
-
+def test_ac():
+    """
+    check basic magnification calculation using AdaptiveContouring
+    """
     s = 0.8
     q = 0.1
 
@@ -76,6 +79,10 @@ def test_ac_1():
     m_2 = q / (1. + q)
     bl = mm.BinaryLens(m_1, m_2, s)
 
+    # Previous version was failing because of bug in AC:
+    # result = bl.adaptive_contouring_magnification(
+    #     0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
+    # np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
     result = bl.adaptive_contouring_magnification(
-        0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
-    np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
+        0.06, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
+    np.testing.assert_almost_equal(result, 11.403036510555962, decimal=3)

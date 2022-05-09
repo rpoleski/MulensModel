@@ -26,7 +26,9 @@ Tutorials MulensModel:
 * [Example 16](../examples/example_16/) - **high-level fitting example** where all settings are read from a human-readable YAML file, there is a separate description of that example in [this README file](../examples/example_16/README.md),
 * [Example 17](../examples/example_17_1L2S_plotting.py) - plotting binary source model,
 * [Example 18](../examples/example_18_simulate.py) - simulate a light curve and save it; example input files: [example_18_input_1.yaml](../examples/example_18_input_1.yaml) and [example_18_input_2.yaml](../examples/example_18_input_2.yaml),
-* [Example 19](../examples/19_binary_source_binary_lens.py) - make plots of a model that has 2 sources and 2 lenses,
+* [Example 19](../examples/example_19_binary_source_binary_lens.py) - make plots of a model that has 2 sources and 2 lenses,
+* [Example 20](../examples/example_20_event_plot.py) - Event.plot() and its settings,
+* [Example 21](../examples/example_21_external_mass_sheet.py) - binary lens with external mass sheet: shear and convergence as parameters,
 * Three files producing plots presented in paper describing MulensModel: [plots_1.py](../examples/plots_1.py), [plots_2.py](../examples/plots_2.py), and [plots_3.py](../examples/plots_3.py).
 
 [MulensModel documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 

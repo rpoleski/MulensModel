@@ -23,6 +23,7 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * new class for a collection of datasets to make looping over datasets easier; also there will be data\_ref defined
  * the same order of arguments in plotting functions (if possible)
  * ModelParameters - all parameters should be float, not astropy.Quantity objects
+ * see (this comment by Jen)[https://github.com/rpoleski/MulensModel/pull/15#issuecomment-1080879537] on how magnification methods are named and called in different parts of the code
 
 ### Version 4:
  * Add an Observatory class.

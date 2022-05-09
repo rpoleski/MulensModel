@@ -34,7 +34,7 @@ month_3letter_to_2digit = {
     'Oct': '10',
     'Nov': '11',
     'Dec': '12'
-    }
+}
 
 
 class Utils(object):

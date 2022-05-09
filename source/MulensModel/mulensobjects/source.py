@@ -14,6 +14,7 @@ class Source(object):
             Limb darkening coefficients of the source.
 
     """
+
     def __init__(self, distance=None, pi_S=None, angular_radius=None,
                  limb_darkening=None):
 
