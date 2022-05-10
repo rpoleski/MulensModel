@@ -40,7 +40,7 @@ The easiest way is to run:
 ```
 pip install MulensModel
 ```
-which will download all files and also install all dependencies. 
+which will download all files and also install all dependencies (using the [PyPI website](https://pypi.org/project/MulensModel/)).
 
 If the above method doesn't work or you would like to see other possibilities, then please see [the install file](documents/install.md).
 
@@ -56,5 +56,5 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 [![Poleski & Yee 2019](https://img.shields.io/badge/ADS-Poleski%20%26%20Yee%202019-brightgreen.svg)](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract)
 [![astro-ph/1803.01003](https://img.shields.io/badge/astro--ph-1803.01003-brightgreen.svg)](https://arxiv.org/abs/1803.01003)
 
-file revised Apr 2022
+file revised May 2022
 

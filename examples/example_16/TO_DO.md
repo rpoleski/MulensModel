@@ -17,6 +17,7 @@
 - test if works in ulens_model_plot.py
 - add satellite trajectory
 - add legend
+- mark lens positions (no built-in function)
 - note in README.md
 
 ## List of task to be done:
