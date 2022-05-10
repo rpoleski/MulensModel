@@ -20,7 +20,7 @@ _valid_parameters = {
         'alternate: ' +
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
         'may be substituted for (t_0, u_0, t_E, alpha)',
-    'external_mass_sheet': ['convergence_K', 'shear_G','alpha'],
+    'external_mass_sheet': ['convergence_K', 'shear_G', 'alpha'],
     'binary_lens_shear': ['convergence_K', 'shear_G'],
     'finite source': ['rho', '(for finite source effects)'],
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
@@ -458,6 +458,12 @@ class ModelParameters(object):
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
+        # alpha must be defined if shear_G is non-zero
+        if ('shear_G' in keys):
+            if ('alpha' not in keys):
+                raise KeyError(
+                    'A model with external mass sheet shear requires alpha.')
+
         # Cannot define t_E in 2 different ways
         if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
                 ('t_eff' in keys)):
@@ -503,10 +509,10 @@ class ModelParameters(object):
         # convergence_K and shear_G must both be defined if one is defined
         if ('convergence_K' in keys) or ('shear_G' in keys):
             if (('convergence_K' not in keys) or
-                    ('shear_G' not in keys) or ('alpha' not in keys)):
+                    ('shear_G' not in keys)):
                 raise KeyError(
                     'A model with external mass sheet requires all of '
-                    '(convergence_K, shear_G, alpha).')
+                    '(convergence_K, shear_G).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
@@ -583,11 +589,11 @@ class ModelParameters(object):
 
         Also, check that all values are scalars (except pi_E vector).
         """
-        names = ['t_E', 't_star', 'rho', 's', 'convergence_K']
+        names = ['t_E', 't_star', 'rho', 's']
         full_names = {
             't_E': 'Einstein timescale',
             't_star': 'Source crossing time', 'rho': 'Source size',
-            's': 'separation', 'convergence_K': 'external convergence'}
+            's': 'separation'}
 
         for name in names:
             if name in parameters.keys():
@@ -823,10 +829,10 @@ class ModelParameters(object):
             return self.parameters['t_E'].to(u.day).value
         elif ('t_star' in self.parameters.keys() and
               'rho' in self.parameters.keys()):
-            return self.t_star/self.rho
+            return self.t_star / self.rho
         elif ('t_eff' in self.parameters.keys() and
               'u_0' in self.parameters.keys()):
-            return self.t_eff/self.u_0
+            return self.t_eff / self.u_0
         else:
             raise KeyError("You're trying to access t_E that was not set")
 
@@ -1508,7 +1514,8 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)*u.d)
+        alpha_of_t = (self.alpha + self.dalpha_dt *
+                      (epoch - self.t_0_kep) * u.d)
 
         return alpha_of_t.to(u.deg)
 
@@ -1534,7 +1541,7 @@ class ModelParameters(object):
         axis. It has sign opposite to :py:attr:`~dalpha_dt`
         and is in rad/yr, not deg/yr. Cannot be set.
         """
-        return -self.dalpha_dt.to(u.rad/u.yr)
+        return -self.dalpha_dt.to(u.rad / u.yr)
 
     @property
     def gamma(self):
@@ -1544,7 +1551,7 @@ class ModelParameters(object):
         Instantaneous velocity of the secondary relative to the primary in
         1/year. Cannot be set.
         """
-        gamma_perp = (self.gamma_perp / u.rad).to(1/u.yr)
+        gamma_perp = (self.gamma_perp / u.rad).to(1 / u.yr)
         return (self.gamma_parallel**2 + gamma_perp**2)**0.5
 
     def is_finite_source(self):

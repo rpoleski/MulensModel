@@ -246,7 +246,6 @@ def test_n_lenses():
     assert p_3.n_lenses == 2
 
 
-<<<<<<< HEAD
 def test_single_lens_convergence_K_shear_G():
     """
     Test single lens with convergence_K and shear_G in intialized
@@ -266,7 +265,8 @@ def test_single_lens_convergence_K_shear_G():
     np.testing.assert_almost_equal(params.t_E, t_E.value)
     np.testing.assert_almost_equal(params.convergence_K, convergence_K)
     np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
-=======
+
+    
 def test_is_finite_source():
     """
     Test if .is_finite_source() works properly for 1L1S
@@ -279,4 +279,3 @@ def test_is_finite_source():
     assert not params_1.is_finite_source()
     assert params_2.is_finite_source()
     assert params_3.is_finite_source()
->>>>>>> d88c71ba13c52627d0b85f9f892a65a7e77bdb1e

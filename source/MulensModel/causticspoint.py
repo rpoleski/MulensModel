@@ -37,7 +37,7 @@ class CausticsPointWithShear(Caustics):
         """
         # Find number of angles so that 4*n_angles is the multiple of 4 that
         # is closest to n_points.
-        n_angles = int(n_points/4.+.5)
+        n_angles = int(n_points / 4. + .5)
 
         # Initialize variables
         self._x = []
@@ -45,11 +45,11 @@ class CausticsPointWithShear(Caustics):
         self._critical_curve = self.CriticalCurve()
 
         # Solve for the critical curve (and caustic) in complex coordinates.
-        for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
+        for phi in np.linspace(0., 2. * np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
             eiphi = complex(cos(phi), -sin(phi))
             soln = sqrt(
-                1./((1.-self.convergence_K)*eiphi + self.shear_G.conjugate()))
+                1. / ((1. - self.convergence_K) * eiphi + self.shear_G.conjugate()))
             roots = np.array([soln, -soln])
             # Store results
             for root in roots:
@@ -65,5 +65,5 @@ class CausticsPointWithShear(Caustics):
         Solve the lens equation for the given point (in complex coordinates).
         """
         complex_conjugate = np.conjugate(complex_value)
-        return ((1-self.convergence_K)*complex_value
-                - self.shear_G*complex_conjugate - (1./complex_conjugate))
+        return ((1 - self.convergence_K) * complex_value
+                - self.shear_G * complex_conjugate - (1. / complex_conjugate))
