@@ -636,10 +636,9 @@ class FitData:
 
     def get_dataset_trajectory(self):
         """
-        Retrieve a :py:class:`~MulensModel.trajectory.Trajectory` object that
-        combines the properties of the :py:attr:`~dataset` and the
-        :py:attr:`~model`. For example, it will apply an ephemerides_file
-        attached to the dataset but not the model.
+        Retrieve a :py:class:`~MulensModel.trajectory.Trajectory` object. If
+        the :py:attr:`~dataset` has an ephemerides_file, apply it to the
+        Trajectory, even if it is not part of the :py:attr:`~model`.
 
         Returns: :py:class:`~MulensModel.trajectory.Trajectory`
 
