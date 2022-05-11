@@ -796,8 +796,10 @@ class FitData:
             (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(
                 file_, unpack=True)
             FitData.FSPLDerivs._z_max = z[-1]
-            FitData.FSPLDerivs._get_B0 = interp1d(z, B0, kind='cubic')
-            FitData.FSPLDerivs._get_B1 = interp1d(z, B1, kind='cubic')
+            FitData.FSPLDerivs._get_B0 = interp1d(
+                z, B0, kind='cubic')
+            FitData.FSPLDerivs._get_B1 = interp1d(
+                z, B1, kind='cubic')
             FitData.FSPLDerivs._get_B0_prime = interp1d(
                 z, B0_prime, kind='cubic')
             FitData.FSPLDerivs._get_B1_prime = interp1d(
