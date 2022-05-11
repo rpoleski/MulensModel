@@ -628,11 +628,28 @@ class FitData:
 
         return gradient
 
+    def get_dataset_trajectory(self):
+        """
+        Retrieve a :py:class:`~MulensModel.trajectory.Trajectory` object. If
+        the :py:attr:`~dataset` has an ephemerides_file, apply it to the
+        Trajectory, even if it is not part of the :py:attr:`~model`.
+        Returns: :py:class:`~MulensModel.trajectory.Trajectory`
+        """
+        if self.dataset.ephemerides_file is None:
+            return self.model.get_trajectory(self.dataset.time)
+        else:
+            kwargs_ = {
+                'times': self.dataset.time, 'parallax': self.model._parallax,
+                'coords': self.model.coords,
+                'satellite_skycoord': self.dataset.satellite_skycoord}
+
+            return mm.Trajectory(parameters=self.model.parameters, **kwargs_)
+
     def get_d_A_d_u_for_point_lens_model(self):
         """
         Calculate dA/du for PSPL
         """
-        trajectory = self.model.get_trajectory(self.dataset.time)
+        trajectory = self.get_dataset_trajectory()
         u_2 = trajectory.x**2 + trajectory.y**2
         d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
         return d_A_d_u
@@ -648,7 +665,7 @@ class FitData:
         as_dict = self.model.parameters.as_dict()
 
         # Get source location
-        trajectory = self.model.get_trajectory(self.dataset.time)
+        trajectory = self.get_dataset_trajectory()
         u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
 
         # Calculate derivatives
