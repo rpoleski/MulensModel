@@ -643,7 +643,7 @@ class FitData:
                 'coords': self.model.coords,
                 'satellite_skycoord': self.dataset.satellite_skycoord}
 
-            return mm.Trajectory(parameters=self.model.parameters, **kwargs_)
+            return Trajectory(parameters=self.model.parameters, **kwargs_)
 
     def get_d_A_d_u_for_point_lens_model(self):
         """
