@@ -635,6 +635,15 @@ class FitData:
         return gradient
 
     def get_dataset_trajectory(self):
+        """
+        Retrieve a :py:class:`~MulensModel.trajectory.Trajectory` object that
+        combines the properties of the :py:attr:`~dataset` and the
+        :py:attr:`~model`. For example, it will apply an ephemerides_file
+        attached to the dataset but not the model.
+
+        Returns: :py:class:`~MulensModel.trajectory.Trajectory`
+
+        """
         if self.dataset.ephemerides_file is None:
             return self.model.get_trajectory(self.dataset.time)
         else:
