@@ -261,14 +261,14 @@ class UlensModelFit(object):
 
         other_output: *dict*
             Parameters for other output. Allowed value are:
-           
+
             ``'models': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE is
             a *str* that gives a path to text file to which we will print all
             models and their chi^2. If ``NAME_OF_FILE`` is ``"-"``, then
             the models will be printed to standard output.
-           
+
             ``'results': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE is
-            a *str* that gives a path to yaml file to which we will print 
+            a *str* that gives a path to yaml file to which we will print
             final results
     """
     def __init__(
@@ -391,7 +391,7 @@ class UlensModelFit(object):
             raise ValueError('internal error - task ' + str(self._task))
         self._print_model = False
         self._yaml_results = False
-        
+
     def _guess_fitting_method(self):
         """
         guess what is the fitting method based on parameters provided
@@ -776,14 +776,14 @@ class UlensModelFit(object):
                     else:
                         raise KeyError("Unrecognized key: " + str(key) +
                                        "\nExpected keys: 'file name'.")
-            elif key=='results':
+            elif key == 'results':
                 if not isinstance(value, dict):
                     raise ValueError('models value should also be *dict*, ' +
                                      'got ' + str(type(value)))
                 for (key2, value2) in value.items():
                     if key2 == 'file name':
                         self._yaml_results = True
-                        
+
                         if value2 == '-':
                             self._yaml_results_file = sys.stdout
                         else:
@@ -792,7 +792,7 @@ class UlensModelFit(object):
                             except Exception:
                                 raise ValueError(
                                     'Error while opening file ' + str(value2))
-                                   
+
                     else:
                         raise KeyError("Unrecognized key: " + str(key) +
                                        "\nExpected keys: 'file name'.")
