@@ -643,7 +643,7 @@ class TestFSPLGradient(unittest.TestCase):
         n_t_star = 9.
         self.sfit_model.set_magnification_methods([
             self.sfit_model.parameters.t_0 - n_t_star * t_star,
-            'finite_source_LD_Yoo04_direct',
+            'finite_source_LD_Yoo04',
             self.sfit_model.parameters.t_0 + n_t_star * t_star])
         self.sfit_model.set_limb_coeff_gamma('I', 0.44)
         self.sfit_model.set_limb_coeff_gamma('V', 0.72)
