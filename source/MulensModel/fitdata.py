@@ -787,12 +787,13 @@ class FitData:
                 file_, unpack=True)
             FitData.FSPLDerivs._z_max = z[-1]
             FitData.FSPLDerivs._get_B0 = interp1d(
-                z, B0, kind='cubic')
+                z, B0, kind='cubic', bounds_error=False, fill_value=1.0)
             FitData.FSPLDerivs._get_B1 = interp1d(
-                z, B1, kind='cubic')
-            FitData.FSPLDerivs._get_B0_prime = interp1d(z, B0_prime)
+                z, B1, kind='cubic', bounds_error=False, fill_value=0.0)
+            FitData.FSPLDerivs._get_B0_prime = interp1d(
+                z, B0_prime, kind='cubic', bounds_error=False, fill_value=0.0)
             FitData.FSPLDerivs._get_B1_prime = interp1d(
-                z, B1_prime, kind='cubic')
+                z, B1_prime, kind='cubic', bounds_error=False, fill_value=0.0)
             FitData.FSPLDerivs._B0B1_file_read = True
 
         def get_gradient(self, parameters):
