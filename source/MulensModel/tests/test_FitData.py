@@ -700,7 +700,8 @@ class TestFSPLGradient(unittest.TestCase):
 
             index_i = index & condition
             if np.sum(index_i) > 0:
-                db0 = self.fits[i].FSPLDerivs._get_B0_prime(self.zs[i][index_i])
+                db0 = self.fits[i].FSPLDerivs._get_B0_prime(
+                    self.zs[i][index_i])
                 np.testing.assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
     def test_db0_0(self):

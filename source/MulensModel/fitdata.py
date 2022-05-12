@@ -546,11 +546,6 @@ class FitData:
             raise NotImplementedError(
                 'chi2_gradient() only implemented for single lens models')
 
-        # Implemented for finite source effects?
-        if self.model.parameters.is_finite_source():
-            raise NotImplementedError('Event.chi2_gradient() is not working '
-                                      'for finite source models yet')
-
     def get_chi2_gradient(self, parameters):
         """
         Fits fluxes and calculates chi^2 gradient (also called Jacobian), i.e.,
@@ -689,11 +684,6 @@ class FitData:
                 return satellite_skycoord
 
             def _get_magnification_curve():
-                # satellite_skycoord = None
-                # if self.fit.model.ephemerides_file is not None:
-                #     satellite_skycoord = self.model.get_satellite_coords(
-                #         self.dataset.time)
-
                 # This code was copied directly from model.py --> indicates a
                 # refactor is needed.
                 # Also, shouldn't satellite_skycoord be stored as a property of
@@ -800,8 +790,7 @@ class FitData:
                 z, B0, kind='cubic')
             FitData.FSPLDerivs._get_B1 = interp1d(
                 z, B1, kind='cubic')
-            FitData.FSPLDerivs._get_B0_prime = interp1d(
-                z, B0_prime, kind='cubic')
+            FitData.FSPLDerivs._get_B0_prime = interp1d(z, B0_prime)
             FitData.FSPLDerivs._get_B1_prime = interp1d(
                 z, B1_prime, kind='cubic')
             FitData.FSPLDerivs._B0B1_file_read = True
@@ -864,7 +853,6 @@ class FitData:
         as_dict = self.model.parameters.as_dict()
 
         # Get source location
-        #trajectory = self.model.get_trajectory(self.dataset.time)
         trajectory = self.get_dataset_trajectory()
         u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
 
@@ -1060,6 +1048,21 @@ class FitData:
     @model.setter
     def model(self, new_value):
         self._model = new_value
+
+    @property
+    def data_magnification(self):
+        """
+        Returns previously calculated magnifications. To calculate the
+        magnifications (e.g., if something changed in the model), use
+        :py:func:`~get_data_magnification()`.
+
+        Returns :
+            data_magnification: *np.ndarray*
+                The model magnification evaluated for each datapoint. If there
+                is more than one source, the magnification of each source is
+                reported separately.
+        """
+        return self._data_magnification
 
     @property
     def gamma(self):
