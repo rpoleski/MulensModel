@@ -267,9 +267,9 @@ class UlensModelFit(object):
             models and their chi^2. If ``NAME_OF_FILE`` is ``"-"``, then
             the models will be printed to standard output.
 
-            ``'results': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE is
-            a *str* that gives a path to yaml file to which we will print
-            final results
+            ``'yaml output': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE
+            is a *str* that gives a path to YAML-format file to which
+            the results will be printed
     """
     def __init__(
             self, photometry_files,
@@ -776,7 +776,7 @@ class UlensModelFit(object):
                     else:
                         raise KeyError("Unrecognized key: " + str(key) +
                                        "\nExpected keys: 'file name'.")
-            elif key == 'results':
+            elif key == 'yaml output':
                 if not isinstance(value, dict):
                     raise ValueError('models value should also be *dict*, ' +
                                      'got ' + str(type(value)))
