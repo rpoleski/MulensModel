@@ -783,7 +783,6 @@ class UlensModelFit(object):
                 for (key2, value2) in value.items():
                     if key2 == 'file name':
                         self._yaml_results = True
-
                         if value2 == '-':
                             self._yaml_results_file = sys.stdout
                         else:
@@ -1973,6 +1972,10 @@ class UlensModelFit(object):
             self._parse_results_MultiNest()
         else:
             raise ValueError('internal bug')
+
+        if self._yaml_results:
+            if self._yaml_results_file is not sys.stdout:
+                self._yaml_results_file.close()
 
     def _parse_results_EMCEE(self):
         """
