@@ -1989,11 +1989,9 @@ class UlensModelFit(object):
         if self._yaml_results:
             print(out, **self._yaml_kwargs)
 
-        autocorr_times = self._sampler.get_autocorr_time(
+        auto_time = np.mean(self._sampler.get_autocorr_time(
             quiet=True, discard=self._fitting_parameters['n_burn'])
-        autocorr_time = np.mean(autocorr_times)
-        out = (
-            "Mean autocorrelation time [steps]: {0:.1f}".format(autocorr_time))
+        out = "Mean autocorrelation time [steps]: {0:.1f}".format(auto_time)
         print(out)
         if self._yaml_results:
             print(out, **self._yaml_kwargs)
@@ -2299,14 +2297,12 @@ class UlensModelFit(object):
             accuracy = self._get_accuracy(err)
             fmt = (" MODE {:} probability: {:." + str(accuracy) +
                    "f} +- {:." + str(accuracy) + "f}")
-            print(fmt.format(i_mode+1, self._mode_probabilities[i_mode], err))
+            out = fmt.format(i_mode+1, self._mode_probabilities[i_mode], err)
+            print(out)
             self._print_results(self._samples_modes_flat[i_mode], mode=i_mode)
 
             if self._yaml_results:
-                fmt = (" MODE {:} probability : {:." + str(accuracy) +
-                       "f} +- {:." + str(accuracy) + "f}")
-                args = [i_mode+1, self._mode_probabilities[i_mode], err]
-                print(fmt.format(*args), **self._yaml_kwargs)
+                print(out, **self._yaml_kwargs)
                 self._print_yaml_results(
                     self._samples_modes_flat[i_mode], mode=i_mode)
 
