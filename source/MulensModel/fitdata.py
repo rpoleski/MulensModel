@@ -7,7 +7,7 @@ from MulensModel.modelparameters import ModelParameters
 from MulensModel.utils import Utils
 
 
-class FitData:
+class FitData(object):
     """
     Performs a least squares linear fit for given dataset and model to
     determine the source flux(es) and (optionally) blend flux. After creating
@@ -110,12 +110,13 @@ class FitData:
         """
         Calculate the best-fit source and blend fluxes as well as the chi2.
 
-        Keywords :
+        Parameters :
             bad: *bool*
                 Default is *False*. If *True* recalculates the data
                 magnification for each point to ensure that there are values
                 even for bad datapoints.
 
+        No returns.
         """
         self.fit_fluxes()
 
@@ -279,6 +280,10 @@ class FitData:
 
         Does *not* calculate chi2. To fit for the fluxes and calculate chi2,
         run :py:func:`~update()`.
+
+        No parameters.
+
+        No returns.
         """
 
         # Bypass this code if all fluxes are fixed.
@@ -343,7 +348,7 @@ class FitData:
         """
         Calculates the model magnification for each data point.
 
-        Arguments :
+        Parameters :
             bad: *boolean*
                 If *True*, calculates the magnification for all points.
                 If *False*, only calculates the magnification for good data
@@ -364,7 +369,7 @@ class FitData:
         """
         Calculate model in flux space.
 
-        Keywords :
+        Parameters :
             bad: *bool*
                 Default is *False*. If *True* recalculates the data
                 magnification for each point to ensure that the values
@@ -397,7 +402,7 @@ class FitData:
         """
         Calculate model in magnitude space
 
-        Arguments :
+        Parameters :
             ``**kwargs``:
                 see :py:func:`get_model_fluxes()`
 
@@ -417,7 +422,7 @@ class FitData:
             flux += blend_flux_0
             err_flux = source_flux_0 * data.err_flux / source_flux
 
-        Arguments :
+        Parameters :
             source_flux: *float*, *list*, *np.array*
                 Flux of the source in the desired system. If n_sources > 1 and
                 source_flux has more than one element, the elements are
@@ -454,7 +459,7 @@ class FitData:
         """
         Calculate the residuals for each datapoint relative to the model.
 
-        Keywords :
+        Parameters :
             phot_fmt: *str*, optional
                 specify whether the residuals should be returned in
                 magnitudes ('mag') or in flux ('flux'). Default is
@@ -581,8 +586,8 @@ class FitData:
                 ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
                 which you request gradient must be defined in py:attr:`~model`.
 
-            Returns :
-                gradient: *float* or *np.ndarray*
+        Returns :
+            gradient: *float* or *np.ndarray*
                 chi^2 gradient
         """
         self._check_for_gradient_implementation(parameters)
@@ -609,15 +614,15 @@ class FitData:
         """
         Calculate d A / d parameters for a point lens model.
 
-        Arguments:
+        Parameters :
             parameters: *list*
                 List of the parameters to take derivatives with respect to.
 
-        Returns: *dict*
-            Keys are parameter names from *parameters* argument above. Values
-            are the partial derivatives for that parameter evaluated at each
-            data point.
-
+        Returns :
+            dA_dparam: *dict*
+                Keys are parameter names from *parameters* argument above.
+                Values are the partial derivatives for that parameter
+                evaluated at each data point.
         """
         gradient = self._get_d_u_d_params(parameters)
 
@@ -633,7 +638,12 @@ class FitData:
         Retrieve a :py:class:`~MulensModel.trajectory.Trajectory` object. If
         the :py:attr:`~dataset` has an ephemerides_file, apply it to the
         Trajectory, even if it is not part of the :py:attr:`~model`.
-        Returns: :py:class:`~MulensModel.trajectory.Trajectory`
+
+        No parameters.
+
+        Returns :
+            trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+                Trajectory for given dataset.
         """
         if self.dataset.ephemerides_file is None:
             return self.model.get_trajectory(self.dataset.time)
@@ -648,6 +658,12 @@ class FitData:
     def get_d_A_d_u_for_point_lens_model(self):
         """
         Calculate dA/du for PSPL
+
+        No parameters.
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du.
         """
         trajectory = self.get_dataset_trajectory()
         u_2 = trajectory.x**2 + trajectory.y**2
@@ -707,16 +723,15 @@ class FitData:
     @property
     def chi2_gradient(self):
         """
-        Return previously calculated chi^2 gradient (also called Jacobian),
+        *float* or *np.ndarray*
+
+        Previously calculated chi^2 gradient (also called Jacobian),
         i.e., :math:`d chi^2/d parameter`. See :py:func:`~get_chi2_gradient()`
         and :py:func:`~calculate_chi2_gradient()`.
 
-        Returns :
-            gradient: *float* or *np.ndarray*
-                chi^2 gradient. Will return None if the chi2 gradient was not
-                previously calculated using one of the functions mentioned
-                above.
-
+        Gives *None* if the chi2 gradient was not
+        previously calculated using one of the functions mentioned
+        above.
         """
         try:
             return self._chi2_gradient
@@ -726,12 +741,11 @@ class FitData:
     @property
     def chi2(self):
         """
-        Returns :
-            chi2: *float*
-                the total chi2 for the fitted dataset. Good points only. See
-                :py:obj:`~MulensModel.mulensdata.MulensData.good`.
+        *float*
+        The total chi2 for the fitted dataset. Good points only.
+        See :py:obj:`~MulensModel.mulensdata.MulensData.good`.
 
-        If None, you need to run :py:func:`~update()` to execute the
+        If *None*, you need to run :py:func:`~update()` to execute the
         linear fit and calculate the chi2.
         """
         if self.chi2_per_point is None:
@@ -742,27 +756,27 @@ class FitData:
     @property
     def chi2_per_point(self):
         """
-        Returns :
-            chi2_per_point: *np.ndarray*
-                Chi^2 contribution from each data point,
-                e.g. ``chi2_per_point[k]`` returns the chi2 contribution
-                from the *k*-th point of :py:obj:`dataset`. Includes bad
-                datapoints.
+        *np.ndarray*
 
-        If None, you need to run :py:func:`~update()` to execute the
-        linear fit and calculate the chi2.
+        The chi^2 contribution from each data point,
+        e.g., ``chi2_per_point[k]`` returns the chi2 contribution
+        from the *k*-th point of :py:obj:`dataset`. Includes bad
+        datapoints.
+
+        If *None*, you need to run :py:func:`~update()` to execute
+        the linear fit and calculate the chi2.
         """
         return self._chi2_per_point
 
     @property
     def source_flux(self):
         """
-        Returns :
-            source_flux: *float*
-            the fitted source flux. Only defined for models with a single
-            source. See also :py:obj:`~source_fluxes`
+        *float*
 
-        If None, you need to run :py:func:`~fit_fluxes()` or
+        The fitted source flux. Only defined for models with a single
+        source. See also :py:obj:`~source_fluxes`
+
+        If *None*, you need to run :py:func:`~fit_fluxes()` or
         :py:func:`~update()` to execute the linear fit.
         """
         if self._model.n_sources == 1:
@@ -778,11 +792,11 @@ class FitData:
     @property
     def source_fluxes(self):
         """
-        Returns :
-            source_fluxes: *np.array*
-                the fitted source flux(es).
+        *np.array*
 
-        If None, you need to run :py:func:`~fit_fluxes()` or
+        The fitted source flux(es).
+
+        If *None*, you need to run :py:func:`~fit_fluxes()` or
         :py:func:`~update()` to execute the linear fit.
         """
         return self._source_fluxes
@@ -790,12 +804,12 @@ class FitData:
     @property
     def blend_flux(self):
         """
-        Returns :
-            blend_flux: *float*
-                the fitted blend flux or the value set by
-                fix_blend_flux (see :ref:`keywords`).
+        *float*
 
-        If None, you need to run :py:func:`~fit_fluxes()` or
+        The fitted blend flux or the value set by
+        fix_blend_flux (see :ref:`keywords`).
+
+        If *None*, you need to run :py:func:`~fit_fluxes()` or
         :py:func:`~update()` to execute the linear fit.
         """
         return self._blend_flux
@@ -803,14 +817,14 @@ class FitData:
     @property
     def source_flux_ratio(self):
         """
+        *float*
+
         source_flux_ratio = source_flux_1 / source_flux_0
 
-        Returns :
-            source_flux_ratio: *float*
-                the ratio of the fitted source fluxes or the value set by
-                fix_source_flux_ratio (see :ref:`keywords`).
+        i.e., the ratio of the fitted source fluxes or the value set by
+        fix_source_flux_ratio (see :ref:`keywords`).
 
-        If None, you need to run :py:func:`~fit_fluxes()` or
+        If *None*, you need to run :py:func:`~fit_fluxes()` or
         :py:func:`~update()` to execute the linear fit.
         """
         if self._model.n_sources != 2:
@@ -828,7 +842,7 @@ class FitData:
     @property
     def dataset(self):
         """
-        :py:class:`~MulensModel.mulensdata.MulensData` object
+        :py:class:`~MulensModel.mulensdata.MulensData`
 
         A single photometric dataset to be fitted.
         """
@@ -844,7 +858,7 @@ class FitData:
     @property
     def model(self):
         """
-        :py:class:`~MulensModel.model.Model` object
+        :py:class:`~MulensModel.model.Model`
 
         The model to fit to the data.
         """
@@ -860,9 +874,7 @@ class FitData:
         *float*
 
         Limb-darkening coefficient for this fit. Set by
-        :py:attr:`~dataset.bandpass` and
-        :py:func:`~model.get_limb_coeff_gamma()`.
-
-        *** CHECK LINKS IN SPHINX. PROBABLY WON'T WORK. ***
+        :py:attr:`~MulensModel.mulensdata.MulensData.bandpass` and
+        :py:func:`~MulensModel.model.Model.get_limb_coeff_gamma()`.
         """
         return self._gamma
