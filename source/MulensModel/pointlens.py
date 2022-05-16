@@ -71,10 +71,10 @@ class PointLens(object):
     def _read_B0B1_file(self):
         """Read file with pre-computed function values"""
         file_ = os.path.join(
-            mm.DATA_PATH, 'interpolation_table_b0b1_v1.dat')
+            mm.DATA_PATH, 'interpolation_table_b0b1_v3.dat')
         if not os.path.exists(file_):
             raise ValueError('File with FSPL data does not exist.\n' + file_)
-        (z, B0, B0_minus_B1) = np.loadtxt(file_, unpack=True)
+        (z, B0, B0_minus_B1) = np.loadtxt(file_, usecols=range(3), unpack=True)
         PointLens._B0_interpolation = interp1d(z, B0, kind='cubic')
         PointLens._B0_minus_B1_interpolation = interp1d(
             z, B0_minus_B1, kind='cubic')
