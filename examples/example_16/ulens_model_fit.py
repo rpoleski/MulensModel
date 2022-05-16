@@ -2003,7 +2003,7 @@ class UlensModelFit(object):
         self._print_results(self._samples_flat)
         if self._yaml_results:
             print("Fitted parameters:", **self._yaml_kwargs)
-            self._print_yaml_results(self._samples_flat)  # XXX
+            self._print_yaml_results(self._samples_flat)
         self._shift_t_0_in_samples()
 
         if self._return_fluxes:
@@ -2013,11 +2013,11 @@ class UlensModelFit(object):
             if self._yaml_results:
                 print("Fitted fluxes: # (source and blending)",
                       **self._yaml_kwargs)
-                self._print_yaml_results(blob_samples, names='fluxes') # XXX
+                self._print_yaml_results(blob_samples, names='fluxes')
 
         self._print_best_model()
         if self._yaml_results:
-            self._print_yaml_best_model() # XXX
+            self._print_yaml_best_model()
 
     def _extract_posterior_samples_EMCEE(self):
         """
@@ -2092,7 +2092,7 @@ class UlensModelFit(object):
                 format_ = "  {:} : {:.7f} +{:.7f} -{:.7f}\n"
             yaml_txt += (format_.format(parameter, *results_))
 
-        print(yaml_txt, file=self._yaml_results_file)
+        print(yaml_txt, **self._yaml_kwargs)
 
     def _get_fluxes_names_to_print(self):
         """
@@ -2209,23 +2209,24 @@ class UlensModelFit(object):
             self._ln_like(self._best_model_theta)
             yaml_txt += "  chi2: {:.4f}\n".format(self._event.get_chi2())
 
+        yaml_txt += "  Parameters:\n"
+        format_ = "    {:}: {:}\n"
         zip_ = zip(self._fit_parameters, self._best_model_theta)
         for (parameter, results_) in zip_:
-            format_ = "  {:}: {:.5f}\n"
             if parameter == 'q':
-                format_ = "  {:}: {:.7f}\n"
+                format_ = "    {:}: {:.7f}\n"
             yaml_txt += format_.format(parameter, results_)
 
         if self._flux_names is None:
             self._flux_names = self._get_fluxes_names_to_print()
 
         yaml_txt += "  Fluxes:\n"
-        format_ = "    {:}: {:.5f}\n"
+        format_ = "    {:}: {:}\n"
         zip_ = zip(self._flux_names, self._best_model_fluxes)
         for (parameter, results_) in zip_:
             yaml_txt += format_.format(parameter, results_)
 
-        print(yaml_txt, file=self._yaml_results_file)
+        print(yaml_txt, **self._yaml_kwargs)
 
     def _save_posterior_EMCEE(self):
         """
@@ -2255,7 +2256,7 @@ class UlensModelFit(object):
 
             if self._yaml_results:
                 print("Fitted parameters:", **self._yaml_kwargs)
-                self._print_yaml_results(self._samples_flat) # XXX
+                self._print_yaml_results(self._samples_flat)
 
             if self._return_fluxes:
                 print("Fitted fluxes (source and blending):")
@@ -2264,13 +2265,13 @@ class UlensModelFit(object):
                 if self._yaml_results:
                     print("Fitted fluxes: # (source and blending)",
                           **self._yaml_kwargs)
-                    self._print_yaml_results(flux_samples, names='fluxes') # XXX
+                    self._print_yaml_results(flux_samples, names='fluxes')
 
         self._shift_t_0_in_samples()
 
         self._print_best_model()
         if self._yaml_results:
-            self._print_yaml_best_model() # XXX
+            self._print_yaml_best_model()
 
     def _parse_results_MultiNest_multimodal(self):
         """
