@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.29.0'
+__version__ = '0.29.1'
 
 
 class UlensModelFit(object):
@@ -1217,8 +1217,8 @@ class UlensModelFit(object):
         allowed_keys = {*allowed_keys_flux, "prior"}
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
-            raise ValueError(
-                'unrecognized constraint: {:}'.format(forbidden))
+            raise ValueError('unrecognized constraint: {:}'.format(
+                used_keys - allowed_keys))
         if len(used_keys.intersection(allowed_keys_flux)) == 2:
             raise ValueError(
                 'you cannot specify both no_negative_blending_flux and ' +
