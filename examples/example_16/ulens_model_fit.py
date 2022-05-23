@@ -1990,7 +1990,7 @@ class UlensModelFit(object):
             print(out, **self._yaml_kwargs)
 
         auto_time = np.mean(self._sampler.get_autocorr_time(
-            quiet=True, discard=self._fitting_parameters['n_burn'])
+            quiet=True, discard=self._fitting_parameters['n_burn']))
         out = "Mean autocorrelation time [steps]: {0:.1f}".format(auto_time)
         print(out)
         if self._yaml_results:
