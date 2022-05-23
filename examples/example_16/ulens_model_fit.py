@@ -2052,18 +2052,26 @@ class UlensModelFit(object):
         else:
             raise ValueError("internal bug")
 
+        print(self._format_results(ids, results))
+
+    def _format_results(self, ids, results):
+        """
+        take a list of parameters and a list of results and
+        return properly formatted string
+        """
+        text = ""
         for (parameter, results_) in zip(ids, results):
-            format_ = "{:} : {:.5f} +{:.5f} -{:.5f}"
+            format_ = "{:} : {:.5f} +{:.5f} -{:.5f}\n"
             if parameter == 'q':
-                format_ = "{:} : {:.7f} +{:.7f} -{:.7f}"
-            print(format_.format(parameter, *results_))
+                format_ = "{:} : {:.7f} +{:.7f} -{:.7f}\n"
+            text += format_.format(parameter, *results_)
+        return text[:-1]
 
     def _print_yaml_results(self, data, names="parameters", mode=None):
         """
         calculate and print in yaml format median values and +- 1 sigma
         for given parameters
         """
-        yaml_txt = ''
         if names == "parameters":
             ids = self._fit_parameters
         elif names == "fluxes":
@@ -2084,13 +2092,7 @@ class UlensModelFit(object):
         else:
             raise ValueError("internal bug")
 
-        for (parameter, results_) in zip(ids, results):
-            format_ = "  {:} : {:.5f} +{:.5f} -{:.5f}\n"
-            if parameter == 'q':
-                format_ = "  {:} : {:.7f} +{:.7f} -{:.7f}\n"
-            yaml_txt += (format_.format(parameter, *results_))
-
-        print(yaml_txt, **self._yaml_kwargs)
+        print(self._format_results(ids, results))
 
     def _get_fluxes_names_to_print(self):
         """
@@ -2224,7 +2226,7 @@ class UlensModelFit(object):
         for (parameter, results_) in zip_:
             yaml_txt += format_.format(parameter, results_)
 
-        print(yaml_txt, **self._yaml_kwargs)
+        print(yaml_txt, end="", **self._yaml_kwargs)
 
     def _save_posterior_EMCEE(self):
         """
