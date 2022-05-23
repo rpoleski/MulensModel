@@ -2278,8 +2278,8 @@ class UlensModelFit(object):
         """
         Print parameters and fluxes for each mode separately
         """
-        out = "Number of modes found:".format(self._n_modes)
-        print(out, **self._yaml_kwargs)
+        out = "Number of modes found: {:}".format(self._n_modes)
+        print(out)
         if self._yaml_results:
             print(out, **self._yaml_kwargs)
         if self._return_fluxes:
