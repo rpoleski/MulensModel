@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.interpolate import interp1d
-import warnings
 from astropy.coordinates import SkyCoord
 from astropy import __version__ as astropy_version
 

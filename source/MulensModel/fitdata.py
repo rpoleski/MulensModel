@@ -3,7 +3,6 @@ import warnings
 
 from MulensModel.mulensdata import MulensData
 from MulensModel.trajectory import Trajectory
-from MulensModel.modelparameters import ModelParameters
 from MulensModel.utils import Utils
 
 

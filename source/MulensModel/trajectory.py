@@ -1,7 +1,7 @@
 import numpy as np
 
 from astropy import units as u
-from astropy.coordinates import get_body_barycentric, SkyCoord
+from astropy.coordinates import get_body_barycentric
 from astropy.time import Time
 
 from MulensModel import utils
