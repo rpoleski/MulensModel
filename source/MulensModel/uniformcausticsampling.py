@@ -458,6 +458,43 @@ class UniformCausticSampling(object):
 
         return points
 
+    def get_t_in_t_out(self, x_caustic_in, x_caustic_out, t_0, t_E):
+        """
+        Calculate ``t_caustic_in`` and ``t_caustic_out`` for given trajectory.
+
+        Note: if you use :py:func:`get_x_in_x_out()` to obtain
+        ``x_caustic_in/out`` then you can obtain 0, 2, 4, or 6 points and you
+        have to decide which ones and in what order should be provided here
+        as input parameters.
+
+        Parameters :
+            x_caustic_in: *float*
+                Coordinate of caustic entry.
+
+            x_caustic_out: *float*
+                Coordinate of caustic exit.
+
+            t_0: *float*
+                ``t_0`` parameter of input model.
+
+            t_E: *float*
+                Einstein timescale: ``t_E`` parameter of input model.
+
+        Returns :
+            t_caustic_in: *float*
+                Epoch of caustic entry.
+
+            t_caustic_out: *float*
+                Epoch of caustic exit.
+        """
+        zeta_in = self.caustic_point(x_caustic_in)
+        zeta_out = self.caustic_point(x_caustic_out)
+        temp_1 = t_E * abs(zeta_out - zeta_in)
+        temp_2 = 0.5 * ((zeta_out + zeta_in) / (zeta_out - zeta_in)).real
+        t_in = t_0 + temp_1 * (temp_2 - 0.5)
+        t_out = t_0 + temp_1 * (temp_2 + 0.5)
+        return (t_in, t_out)
+
     def get_uniform_sampling(self, n_points, n_min_for_caustic=10,
                              caustic=None):
         """

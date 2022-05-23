@@ -18,6 +18,7 @@ def test_UniformCausticSampling():
     Test if the main functions of work correctly, namely:
     - get_standard_parameters(),
     - get_x_in_x_out(),
+    - get_t_in_t_out(),
     - check_valid_trajectory(),
     - caustic_point(),
     - n_caustics,
@@ -43,10 +44,15 @@ def test_UniformCausticSampling():
         np.testing.assert_almost_equal(sampling.caustic_point(0.3), p)
         assert sampling.n_caustics == nc
         assert sampling.which_caustic(0.95) == sampling.n_caustics
+
     np.testing.assert_almost_equal(standard['t_0'], 216.3783662)
     np.testing.assert_almost_equal(standard['u_0'], 0.0076099741)
     np.testing.assert_almost_equal(standard['t_E'], 142.7154375)
     np.testing.assert_almost_equal(standard['alpha'], 180.54305134)
+    (t_in, t_out) = sampling.get_t_in_t_out(
+        min(x_list), max(x_list), standard['t_0'], standard['t_E'])
+    np.testing.assert_almost_equal(t_in, 0., decimal=5)
+    np.testing.assert_almost_equal(t_out, 10., decimal=6)
 
     # For the last (s, q) we also check alpha = 90 or 270:
     x_1 = 0.1885475223517683
