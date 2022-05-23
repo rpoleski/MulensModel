@@ -1913,9 +1913,6 @@ class UlensModelFit(object):
                 self._read_multimode_posterior_MultiNest()
                 self._read_multimode_best_models_MultiNest()
 
-            if self._MN_temporary_files:
-                shutil.rmtree(base, ignore_errors=True)
-
     def _read_multimode_posterior_MultiNest(self):
         """
         We read data from MultiNest output file [root]post_separate.dat.
@@ -1973,9 +1970,13 @@ class UlensModelFit(object):
         else:
             raise ValueError('internal bug')
 
+        # Below we close open files and remove temporary ones.
         if self._yaml_results:
             if self._yaml_results_file is not sys.stdout:
                 self._yaml_results_file.close()
+        if self._MN_temporary_files:
+            shutil.rmtree(self._kwargs_MultiNest['outputfiles_basename'],
+                          ignore_errors=True)
 
     def _parse_results_EMCEE(self):
         """
