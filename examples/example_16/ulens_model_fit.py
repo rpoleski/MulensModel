@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.29.2'
+__version__ = '0.29.3'
 
 
 class UlensModelFit(object):
@@ -2190,8 +2190,6 @@ class UlensModelFit(object):
         Parse results of MultiNest fitting
         """
         self._extract_posterior_samples_MultiNest()
-        if self._return_fluxes:
-            flux_names = self._get_fluxes_names_to_print()
 
         if self._kwargs_MultiNest['multimodal']:
             self._parse_results_MultiNest_multimodal()
