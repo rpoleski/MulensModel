@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.29.1'
+__version__ = '0.29.2'
 
 
 class UlensModelFit(object):
@@ -1480,7 +1480,7 @@ class UlensModelFit(object):
                     index = self._fit_parameters.index("x_caustic_in")
                     parameters["x_caustic_in"] = (
                         self._min_values[index] +
-                        np.random.randn(1)[0] * self._range_values[index])
+                        np.random.uniform() * self._range_values[index])
             else:
                 raise ValueError('internal value')
         else:
@@ -1660,6 +1660,11 @@ class UlensModelFit(object):
             if theta[index] > limit:
                 return outside
 
+        if "x_caustic_in" in self._model.parameters.parameters:
+            self._set_model_parameters(theta)
+            if not self._check_valid_Cassan08_trajectory():
+                return outside
+
         ln_prior = inside
 
         if self._prior_t_E is not None:
@@ -1678,6 +1683,17 @@ class UlensModelFit(object):
                     raise ValueError('prior not handled: ' + parameter)
 
         return ln_prior
+
+    def _check_valid_Cassan08_trajectory(self):
+        """
+        Check if current model (that has to be in Cassan08 parameterization)
+        has valid trajectory.
+        """
+        sampling = self._model.parameters.uniform_caustic_sampling
+        valid = sampling.check_valid_trajectory(
+                self._model.parameters.x_caustic_in,
+                self._model.parameters.x_caustic_out)
+        return valid
 
     def _get_ln_prior_for_1_parameter(self, value, settings):
         """
@@ -1834,6 +1850,17 @@ class UlensModelFit(object):
         cube_out = self._min_values + cube[:n_dims] * self._range_values
         for i in range(n_dims):
             cube[i] = cube_out[i]
+
+        if "x_caustic_in" in self._model.parameters.parameters:
+            self._set_model_parameters(cube_out)
+            if not self._check_valid_Cassan08_trajectory():
+                self._last_ln_like = -1.e300
+                self._last_theta = cube_out
+                if self._return_fluxes:
+                    for i in range(n_dims, n_params):
+                        cube[i] = 0.
+                    self._last_fluxes = np.zeros(n_params - n_dims)
+                return
 
         self._last_ln_like = self._ln_like(cube_out)
         self._last_theta = cube_out
