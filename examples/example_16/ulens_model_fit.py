@@ -783,14 +783,11 @@ class UlensModelFit(object):
                 for (key2, value2) in value.items():
                     if key2 == 'file name':
                         self._yaml_results = True
-                        if value2 == '-':
-                            self._yaml_results_file = sys.stdout
-                        else:
-                            try:
-                                self._yaml_results_file = open(value2, 'w')
-                            except Exception:
-                                raise ValueError(
-                                    'Error while opening file ' + str(value2))
+                        try:
+                            self._yaml_results_file = open(value2, 'w')
+                        except Exception:
+                            raise ValueError('Error while opening output '
+                                             'YAML file ' + str(value2))
                         self._yaml_kwargs = {'file': self._yaml_results_file,
                                              'flush': True}
                     else:
