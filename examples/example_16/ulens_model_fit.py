@@ -1971,9 +1971,10 @@ class UlensModelFit(object):
         if self._yaml_results:
             if self._yaml_results_file is not sys.stdout:
                 self._yaml_results_file.close()
-        if self._MN_temporary_files:
-            shutil.rmtree(self._kwargs_MultiNest['outputfiles_basename'],
-                          ignore_errors=True)
+        if self._fit_method == "MultiNest":
+            if self._MN_temporary_files:
+                shutil.rmtree(self._kwargs_MultiNest['outputfiles_basename'],
+                              ignore_errors=True)
 
     def _parse_results_EMCEE(self):
         """
@@ -2052,7 +2053,7 @@ class UlensModelFit(object):
 
         print(self._format_results(ids, results))
 
-    def _format_results(self, ids, results):
+    def _format_results(self, ids, results, yaml=False):
         """
         take a list of parameters and a list of results and
         return properly formatted string
@@ -2060,8 +2061,14 @@ class UlensModelFit(object):
         text = ""
         for (parameter, results_) in zip(ids, results):
             format_ = "{:} : {:.5f} +{:.5f} -{:.5f}\n"
-            if parameter == 'q':
+            if parameter != 'q':
+                format_ = "{:} : {:.5f} +{:.5f} -{:.5f}\n"
+                if yaml:
+                    format_ = "{:} : [{:.5f}, +{:.5f}, -{:.5f}]\n"
+            else:
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}\n"
+                if yaml:
+                    format_ = "{:} : [{:.7f}, +{:.7f}, -{:.7f}]\n"
             text += format_.format(parameter, *results_)
         return text[:-1]
 
@@ -2090,7 +2097,9 @@ class UlensModelFit(object):
         else:
             raise ValueError("internal bug")
 
-        print(self._format_results(ids, results))
+        print("# [median, sigma+, sigma-]", **self._yaml_kwargs)
+        print(self._format_results(ids, results, yaml=True),
+              **self._yaml_kwargs)
 
     def _get_fluxes_names_to_print(self):
         """
