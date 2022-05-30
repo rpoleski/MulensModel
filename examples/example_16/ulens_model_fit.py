@@ -2053,7 +2053,7 @@ class UlensModelFit(object):
 
         print(self._format_results(ids, results))
 
-    def _format_results(self, ids, results, yaml=False):
+    def _format_results(self, ids, results, yaml=False, begin=""):
         """
         take a list of parameters and a list of results and
         return properly formatted string
@@ -2069,10 +2069,11 @@ class UlensModelFit(object):
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}\n"
                 if yaml:
                     format_ = "{:} : [{:.7f}, +{:.7f}, -{:.7f}]\n"
-            text += format_.format(parameter, *results_)
+            text += (begin + format_).format(parameter, *results_)
         return text[:-1]
 
-    def _print_yaml_results(self, data, names="parameters", mode=None):
+    def _print_yaml_results(self, data, names="parameters", mode=None,
+                            begin=""):
         """
         calculate and print in yaml format median values and +- 1 sigma
         for given parameters
@@ -2098,7 +2099,7 @@ class UlensModelFit(object):
             raise ValueError("internal bug")
 
         print("# [median, sigma+, sigma-]", **self._yaml_kwargs)
-        print(self._format_results(ids, results, yaml=True),
+        print(self._format_results(ids, results, yaml=True, begin=begin),
               **self._yaml_kwargs)
 
     def _get_fluxes_names_to_print(self):
@@ -2204,33 +2205,41 @@ class UlensModelFit(object):
             print("Fluxes:")
             print(*list(self._best_model_fluxes))
 
-    def _print_yaml_best_model(self):
+    def _print_yaml_best_model(self, begin="", mode=None):
         """
         print in yaml format best model found
         """
-        yaml_txt = "Best model:\n"
-        if self._flat_priors:
-            yaml_txt += (
-                "  chi2: {:.4f}\n".format(-2. * self._best_model_ln_prob))
+        yaml_txt = begin + "Best model:\n"
+
+        if mode is not None:
+            chi2 = mode['chi2']
+        elif self._flat_priors:
+            chi2 = -2. * self._best_model_ln_prob
         else:
             self._ln_like(self._best_model_theta)
-            yaml_txt += "  chi2: {:.4f}\n".format(self._event.get_chi2())
-
-        yaml_txt += "  Parameters:\n"
-        format_ = "    {:}: {:}\n"
-        zip_ = zip(self._fit_parameters, self._best_model_theta)
-        for (parameter, results_) in zip_:
-            if parameter == 'q':
-                format_ = "    {:}: {:.7f}\n"
-            yaml_txt += format_.format(parameter, results_)
+            chi2 = self._event.get_chi2()
+        yaml_txt += (begin + "  chi2: {:.4f}\n").format(chi2)
 
         if self._flux_names is None:
             self._flux_names = self._get_fluxes_names_to_print()
 
-        yaml_txt += "  Fluxes:\n"
-        format_ = "    {:}: {:}\n"
-        zip_ = zip(self._flux_names, self._best_model_fluxes)
-        for (parameter, results_) in zip_:
+        if mode is None:
+            zip_1 = zip(self._fit_parameters, self._best_model_theta)
+            zip_2 = zip(self._flux_names, self._best_model_fluxes)
+        else:
+            zip_1 = zip(self._fit_parameters,
+                        mode['parameters'][:self._n_fit_parameters])
+            zip_2 = zip(self._flux_names,
+                        mode['parameters'][self._n_fit_parameters:])
+
+        yaml_txt += begin + "  Parameters:\n"
+        format_ = begin + "    {:}: {:}\n"
+        for (parameter, results_) in zip_1:
+            yaml_txt += format_.format(parameter, results_)
+
+        yaml_txt += begin + "  Fluxes:\n"
+        format_ = begin + "    {:}: {:}\n"
+        for (parameter, results_) in zip_2:
             yaml_txt += format_.format(parameter, results_)
 
         print(yaml_txt, end="", **self._yaml_kwargs)
@@ -2291,13 +2300,8 @@ class UlensModelFit(object):
         if self._return_fluxes:
             print("Fitted parameters and fluxes (source and blending) "
                   "plus best model info:")
-            if self._yaml_results:
-                print("#Fitted parameters and fluxes (source and blending) "
-                      "plus best model info:", **self._yaml_kwargs)
         else:
             print("Fitted parameters:")
-            if self._yaml_results:
-                print("Fitted parameters :", **self._yaml_kwargs)
 
         self._set_mode_probabilities()
 
@@ -2311,28 +2315,35 @@ class UlensModelFit(object):
             self._print_results(self._samples_modes_flat[i_mode], mode=i_mode)
 
             if self._yaml_results:
-                print(out, **self._yaml_kwargs)
-                self._print_yaml_results(
-                    self._samples_modes_flat[i_mode], mode=i_mode)
+                fmt = ("MODE {:}:\n  probability: {:}\n  "
+                       "probability_sigma: {:}\n  Fitted parameters: ")
+                out = fmt.format(
+                    i_mode+1, self._mode_probabilities[i_mode], err)
+                print(out, end="", **self._yaml_kwargs)
+                self._print_yaml_results(self._samples_modes_flat[i_mode],
+                                         mode=i_mode, begin="    ")
 
             if self._return_fluxes:
                 self._print_results(
                     self._samples_modes_flat_fluxes[i_mode], names="fluxes")
+                if self._yaml_results:
+                    print("  Fitted fluxes: # source and blending ", end="",
+                          **self._yaml_kwargs)
+                    self._print_yaml_results(
+                        self._samples_modes_flat_fluxes[i_mode],
+                        names="fluxes", begin="    ")
+
             mode = self._best_models_for_modes_MN[i_mode]
             print("{:.4f}".format(mode['chi2']))
             print(*mode['parameters'][:self._n_fit_parameters])
             print(*mode['parameters'][self._n_fit_parameters:])
 
             if self._yaml_results:
-                print("{:.4f}".format(mode['chi2']), **self._yaml_kwargs)
-                print(*mode['parameters'][:self._n_fit_parameters],
-                      **self._yaml_kwargs)
-                print(*mode['parameters'][self._n_fit_parameters:],
-                      **self._yaml_kwargs)
+                self._print_yaml_best_model(mode=mode, begin="  ")
 
         print(" END OF MODES")
         if self._yaml_results:
-            print(" END OF MODES", **self._yaml_kwargs)
+            print("# END OF MODES", **self._yaml_kwargs)
 
     def _set_mode_probabilities(self):
         """
