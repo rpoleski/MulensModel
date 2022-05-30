@@ -2306,44 +2306,47 @@ class UlensModelFit(object):
         self._set_mode_probabilities()
 
         for i_mode in range(self._n_modes):
-            err = self._mode_probabilities_error[i_mode]
-            accuracy = self._get_accuracy(err)
-            fmt = (" MODE {:} probability: {:." + str(accuracy) +
-                   "f} +- {:." + str(accuracy) + "f}")
-            out = fmt.format(i_mode+1, self._mode_probabilities[i_mode], err)
-            print(out)
-            self._print_results(self._samples_modes_flat[i_mode], mode=i_mode)
-
-            if self._yaml_results:
-                fmt = ("MODE {:}:\n  probability: {:}\n  "
-                       "probability_sigma: {:}\n  Fitted parameters: ")
-                out = fmt.format(
-                    i_mode+1, self._mode_probabilities[i_mode], err)
-                print(out, end="", **self._yaml_kwargs)
-                self._print_yaml_results(self._samples_modes_flat[i_mode],
-                                         mode=i_mode, begin="    ")
-
-            if self._return_fluxes:
-                self._print_results(
-                    self._samples_modes_flat_fluxes[i_mode], names="fluxes")
-                if self._yaml_results:
-                    print("  Fitted fluxes: # source and blending ", end="",
-                          **self._yaml_kwargs)
-                    self._print_yaml_results(
-                        self._samples_modes_flat_fluxes[i_mode],
-                        names="fluxes", begin="    ")
-
-            mode = self._best_models_for_modes_MN[i_mode]
-            print("{:.4f}".format(mode['chi2']))
-            print(*mode['parameters'][:self._n_fit_parameters])
-            print(*mode['parameters'][self._n_fit_parameters:])
-
-            if self._yaml_results:
-                self._print_yaml_best_model(mode=mode, begin="  ")
+            self._parse_results_MultiNest_multimodal_one_mode(i_mode)
 
         print(" END OF MODES")
         if self._yaml_results:
             print("# END OF MODES", **self._yaml_kwargs)
+
+    def _parse_results_MultiNest_multimodal_one_mode(self, i_mode):
+        """
+        Print parameters and fluxes for one of many modes
+        """
+        probability = self._mode_probabilities[i_mode]
+        err = self._mode_probabilities_error[i_mode]
+        accuracy = self._get_accuracy(err)
+        samples = self._samples_modes_flat[i_mode]
+        fluxes = self._samples_modes_flat_fluxes[i_mode]
+        mode = self._best_models_for_modes_MN[i_mode]
+
+        fmt = (" MODE {:} probability: {:." + str(accuracy) +
+               "f} +- {:." + str(accuracy) + "f}")
+        print(fmt.format(i_mode+1, probability, err))
+        self._print_results(samples, mode=i_mode)
+
+        if self._yaml_results:
+            fmt = ("MODE {:}:\n  probability: {:}\n  "
+                   "probability_sigma: {:}\n  Fitted parameters: ")
+            print(fmt.format(i_mode+1, probability, err),
+                  end="", **self._yaml_kwargs)
+            self._print_yaml_results(samples, mode=i_mode, begin="    ")
+
+        if self._return_fluxes:
+            self._print_results(fluxes, names="fluxes")
+            if self._yaml_results:
+                print("  Fitted fluxes: # source and blending ", end="",
+                      **self._yaml_kwargs)
+                self._print_yaml_results(fluxes, names="fluxes", begin="    ")
+
+        print("{:.4f}".format(mode['chi2']))
+        print(*mode['parameters'][:self._n_fit_parameters])
+        print(*mode['parameters'][self._n_fit_parameters:])
+        if self._yaml_results:
+            self._print_yaml_best_model(mode=mode, begin="  ")
 
     def _set_mode_probabilities(self):
         """
