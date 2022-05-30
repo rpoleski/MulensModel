@@ -758,44 +758,56 @@ class UlensModelFit(object):
 
         for (key, value) in self._other_output.items():
             if key == 'models':
-                if not isinstance(value, dict):
-                    raise ValueError('models value should also be *dict*, ' +
-                                     'got ' + str(type(value)))
-                for (key2, value2) in value.items():
-                    if key2 == 'file name':
-                        self._print_model = True
-                        self._print_model_i = 0
-                        if value2 == '-':
-                            self._print_model_file = sys.stdout
-                        else:
-                            try:
-                                self._print_model_file = open(value2, 'w')
-                            except Exception:
-                                raise ValueError(
-                                    'Error while opening file ' + str(value2))
-                    else:
-                        raise KeyError("Unrecognized key: " + str(key) +
-                                       "\nExpected keys: 'file name'.")
+                self._parse_other_output_parameters_models(value)
             elif key == 'yaml output':
-                if not isinstance(value, dict):
-                    raise ValueError('models value should also be *dict*, ' +
-                                     'got ' + str(type(value)))
-                for (key2, value2) in value.items():
-                    if key2 == 'file name':
-                        self._yaml_results = True
-                        try:
-                            self._yaml_results_file = open(value2, 'w')
-                        except Exception:
-                            raise ValueError('Error while opening output '
-                                             'YAML file ' + str(value2))
-                        self._yaml_kwargs = {'file': self._yaml_results_file,
-                                             'flush': True}
-                    else:
-                        raise KeyError("Unrecognized key: " + str(key) +
-                                       "\nExpected keys: 'file name'.")
+                self._parse_other_output_parameters_yaml_output(value)
             else:
                 raise ValueError('Unrecognized key: ' + str(key) + "\n " +
                                  "Expected keys: models")
+
+    def _parse_other_output_parameters_models(self, values):
+        """
+        parse information on "other output" -> "models"
+        """
+        if not isinstance(values, dict):
+            raise ValueError('"models" value should also be *dict*, '
+                             'got ' + str(type(values)))
+        for (key, value) in values.items():
+            if key == 'file name':
+                self._print_model = True
+                self._print_model_i = 0
+                if value == '-':
+                    self._print_model_file = sys.stdout
+                else:
+                    try:
+                        self._print_model_file = open(value, 'w')
+                    except Exception:
+                        raise ValueError(
+                            'Error while opening file ' + str(value))
+            else:
+                raise KeyError("Unrecognized key: " + str(key) +
+                               "\nExpected keys: 'file name'.")
+
+    def _parse_other_output_parameters_yaml_output(self, values):
+        """
+        parse information on "other output" -> "yaml output"
+        """
+        if not isinstance(values, dict):
+            raise ValueError('"yaml output" value should also be *dict*, '
+                             'got ' + str(type(value)))
+        for (key, value) in values.items():
+            if key == 'file name':
+                self._yaml_results = True
+                try:
+                    self._yaml_results_file = open(value, 'w')
+                except Exception:
+                    raise ValueError('Error while opening output '
+                                     'YAML file ' + str(value))
+                self._yaml_kwargs = {'file': self._yaml_results_file,
+                                     'flush': True}
+            else:
+                raise KeyError("Unrecognized key: " + str(key) +
+                               "\nExpected keys: 'file name'.")
 
     def _get_datasets(self):
         """
