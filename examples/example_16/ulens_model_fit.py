@@ -2223,34 +2223,30 @@ class UlensModelFit(object):
         """
         yaml_txt = begin + "Best model:\n"
 
-        if mode is not None:
-            chi2 = mode['chi2']
-        elif self._flat_priors:
-            chi2 = -2. * self._best_model_ln_prob
-        else:
-            self._ln_like(self._best_model_theta)
-            chi2 = self._event.get_chi2()
-        yaml_txt += (begin + "  chi2: {:.4f}\n").format(chi2)
-
-        if self._flux_names is None:
-            self._flux_names = self._get_fluxes_names_to_print()
-
         if mode is None:
             zip_1 = zip(self._fit_parameters, self._best_model_theta)
             zip_2 = zip(self._flux_names, self._best_model_fluxes)
+            if self._flat_priors:
+                chi2 = -2. * self._best_model_ln_prob
+            else:
+                self._ln_like(self._best_model_theta)
+                chi2 = self._event.get_chi2()
         else:
             zip_1 = zip(self._fit_parameters,
                         mode['parameters'][:self._n_fit_parameters])
             zip_2 = zip(self._flux_names,
                         mode['parameters'][self._n_fit_parameters:])
+            chi2 = mode['chi2']
 
+        yaml_txt += (begin + "  chi2: {:.4f}\n").format(chi2)
         yaml_txt += begin + "  Parameters:\n"
         format_ = begin + "    {:}: {:}\n"
         for (parameter, results_) in zip_1:
             yaml_txt += format_.format(parameter, results_)
 
+        if self._flux_names is None:
+            self._flux_names = self._get_fluxes_names_to_print()
         yaml_txt += begin + "  Fluxes:\n"
-        format_ = begin + "    {:}: {:}\n"
         for (parameter, results_) in zip_2:
             yaml_txt += format_.format(parameter, results_)
 
