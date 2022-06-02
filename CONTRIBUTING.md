@@ -12,11 +12,11 @@ We're also open to suggestions, new ideas, and requests. If you have them, then 
 
 ### Do you have code to contribute?
 
-Having a code that you want to share is great! We follow coding conventions (e.g., [PEP8](https://github.com/rpoleski/MulensModel/issues/new), docstrings for [sphinx](https://www.sphinx-doc.org/en/master/), [camel case](https://en.wikipedia.org/wiki/Snake_case) names of classes, [snake case](https://en.wikipedia.org/wiki/Snake_case) names of attributes and methods, etc.) but you don't have to follow all of them right away. Just open a new [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) and we will have some discussion on changes that need to be done before merging.
+Having a code that you want to share is great! We follow coding conventions (e.g., [PEP8](https://github.com/rpoleski/MulensModel/issues/new), docstrings for [sphinx](https://www.sphinx-doc.org/en/master/), [camel case](https://en.wikipedia.org/wiki/Snake_case) names of classes, [snake case](https://en.wikipedia.org/wiki/Snake_case) names of attributes and methods, etc.) but you don't have to follow all of them right away. Just open a new [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) and we will have some discussion on changes that need to be done before merging. Please note that we expect that you will provide a unit test for every new public function that is not plotting. If the function is plotting, then we expect a new example. Sometimes there is significant discussion befor the pull request is accepted (see some [closed ones](https://github.com/rpoleski/MulensModel/pulls?q=is%3Apr+is%3Aclosed) for examples).
 
 ### Weekly hack sessions
 
-As of December 2021, we have regular hack sessions (just 2h each week) to work on MulensModel. Contact us if you are interested in joining.
+As of June 2022, we have regular hack sessions (just 2h each week) to work on MulensModel. Contact us if you are interested in joining.
 
 
 Thanks!
