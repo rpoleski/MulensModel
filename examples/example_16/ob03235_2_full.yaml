@@ -101,3 +101,5 @@ other_output:
     models:
         # Value "-" in line below means that the models will be printed to screen instead of a file.
         file name: ob03235_2_all_models.txt
+   yaml output:
+        file name: ob03235_2_all_results.yaml
