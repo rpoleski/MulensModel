@@ -2084,12 +2084,12 @@ class UlensModelFit(object):
             text += (begin + format_).format(parameter, *results_)
         return text[:-1]
 
-    def _print_yaml_results(self, data, names="parameters", mode=None,
-                            begin=""):
+    def _print_yaml_results(self, data, names="parameters", mode=None):
         """
         calculate and print in yaml format median values and +- 1 sigma
         for given parameters
         """
+        begin = "    "
         if names == "parameters":
             ids = self._fit_parameters
         elif names == "fluxes":
@@ -2275,21 +2275,7 @@ class UlensModelFit(object):
         if self._kwargs_MultiNest['multimodal']:
             self._parse_results_MultiNest_multimodal()
         else:
-            print("Fitted parameters:")
-            self._print_results(self._samples_flat)
-
-            if self._yaml_results:
-                print("Fitted parameters:", **self._yaml_kwargs)
-                self._print_yaml_results(self._samples_flat)
-
-            if self._return_fluxes:
-                print("Fitted fluxes (source and blending):")
-                flux_samples = self._get_fluxes_to_print_MultiNest()
-                self._print_results(flux_samples, names='fluxes')
-                if self._yaml_results:
-                    print("Fitted fluxes: # (source and blending)",
-                          **self._yaml_kwargs)
-                    self._print_yaml_results(flux_samples, names='fluxes')
+            self._parse_results_MultiNest_singlemode()
 
         self._shift_t_0_in_samples()
 
@@ -2341,20 +2327,42 @@ class UlensModelFit(object):
                    "probability_sigma: {:}\n  Fitted parameters: ")
             print(fmt.format(i_mode+1, probability, err),
                   end="", **self._yaml_kwargs)
-            self._print_yaml_results(samples, mode=i_mode, begin="    ")
+            self._print_yaml_results(samples, mode=i_mode)
 
         if self._return_fluxes:
             self._print_results(fluxes, names="fluxes")
             if self._yaml_results:
                 print("  Fitted fluxes: # source and blending ", end="",
                       **self._yaml_kwargs)
-                self._print_yaml_results(fluxes, names="fluxes", begin="    ")
+                self._print_yaml_results(fluxes, names="fluxes")
 
         print("{:.4f}".format(mode['chi2']))
         print(*mode['parameters'][:self._n_fit_parameters])
         print(*mode['parameters'][self._n_fit_parameters:])
         if self._yaml_results:
             self._print_yaml_best_model(mode=mode, begin="  ")
+
+    def _parse_results_MultiNest_singlemode(self):
+        """
+        Print results for MultiNest run in "single mode" setup.
+        Note that this is different than
+        _parse_results_MultiNest_multimodal_one_mode()
+        """
+        print("Fitted parameters:")
+        self._print_results(self._samples_flat)
+
+        if self._yaml_results:
+            print("Fitted parameters:", **self._yaml_kwargs)
+            self._print_yaml_results(self._samples_flat)
+
+        if self._return_fluxes:
+            print("Fitted fluxes (source and blending):")
+            flux_samples = self._get_fluxes_to_print_MultiNest()
+            self._print_results(flux_samples, names='fluxes')
+            if self._yaml_results:
+                print("Fitted fluxes: # (source and blending)",
+                      **self._yaml_kwargs)
+                self._print_yaml_results(flux_samples, names='fluxes')
 
     def _set_mode_probabilities(self):
         """
