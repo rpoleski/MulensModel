@@ -136,7 +136,7 @@ class Event(object):
 
             show_bad: *bool*
                 Whether or not to show data points marked as "bad" (see
-                :py:attr:`~MulensModel.MulensData.bad`). Default is
+                :py:attr:`~MulensModel.mulensdata.MulensData.bad`). Default is
                 *None* (see :py:func:`~plot_data()`).
 
             legend: *bool*

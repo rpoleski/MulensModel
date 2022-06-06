@@ -151,7 +151,6 @@ class BinaryLensWithShear(BinaryLens):
         convergence_K = self.convergence_K
         K_pow2 = convergence_K * convergence_K
         K_pow3 = convergence_K * K_pow2
-        K_pow4 = K_pow2 * K_pow2
 
         # External Shear added here
         shear_G = self.shear_G
