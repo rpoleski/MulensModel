@@ -446,7 +446,7 @@ class Model(object):
             ``**kwargs``:
                 keywords accepted by :py:func:`matplotlib.pyplot.scatter()`
         """
-        if self.n_lenses == 1 and not self.parameters.is_external_mass_sheet:
+        if self.n_lenses == 1 and not self.parameters.is_external_mass_sheet_with_shear:
             plt.scatter([0], [0], **kwargs)
         else:
             self.update_caustics(epoch=epoch)
