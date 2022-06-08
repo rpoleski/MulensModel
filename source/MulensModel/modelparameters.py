@@ -223,7 +223,8 @@ class ModelParameters(object):
         self._check_types()
 
         if self.n_sources == 1:
-            self._check_valid_combination_1_source(parameters.keys())
+            self._check_valid_combination_1_source(
+                parameters.keys(), parameters.get("shear_G", 0))
             if self._type['Cassan08']:
                 self._uniform_caustic = None
                 self._standard_parameters = None
@@ -428,15 +429,15 @@ class ModelParameters(object):
                     raise ValueError('You cannot set {:} and {:}'.format(
                         parameter, parameter[:-2]))
 
-    def _check_valid_combination_1_source_standard(self, keys):
+    def _check_valid_combination_1_source_standard(self, keys, shear_value=0):
         """
         Here we check parameters for non-Cassan08 parameterization.
         """
-        self._check_valid_combination_1_source_1_lens(keys)
+        self._check_valid_combination_1_source_1_lens(keys, shear_value)
         self._check_valid_combination_1_source_parallax(keys)
         self._check_valid_combination_1_source_binary_lens(keys)
 
-    def _check_valid_combination_1_source_1_lens(self, keys):
+    def _check_valid_combination_1_source_1_lens(self, keys, shear_value):
         """
         Here we check non-parallax single lens parameters.
         """
@@ -459,7 +460,7 @@ class ModelParameters(object):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
         # alpha must be defined if shear_G is non-zero
-        if ('shear_G' in keys):
+        if ('shear_G' in keys and shear_value != 0):
             if ('alpha' not in keys):
                 raise KeyError(
                     'A model with external mass sheet shear requires alpha.')
@@ -552,7 +553,7 @@ class ModelParameters(object):
             raise KeyError('Both rho and t_star cannot be defined for ' +
                            'Cassan 08 parameterization.')
 
-    def _check_valid_combination_1_source(self, keys):
+    def _check_valid_combination_1_source(self, keys, shear_value=0):
         """
         Check that the user hasn't over-defined the ModelParameters.
         """
@@ -580,7 +581,7 @@ class ModelParameters(object):
         if self._type['Cassan08']:
             self._check_valid_combination_1_source_Cassan08(keys)
         else:
-            self._check_valid_combination_1_source_standard(keys)
+            self._check_valid_combination_1_source_standard(keys, shear_value)
 
     def _check_valid_parameter_values(self, parameters):
         """
@@ -1603,6 +1604,17 @@ class ModelParameters(object):
         """
         return (('convergence_K' in self.parameters.keys()) or
                 ('shear_G' in self.parameters.keys()))
+
+    @property
+    def is_external_mass_sheet_with_shear(self):
+        """
+        *bool*
+
+        Whether an external mass sheet is included in the 
+        model with non-zero shear
+        """
+        return (('shear_G' in self.parameters.keys()) and
+                (self.parameters['shear_G'] != 0))
 
     @property
     def source_1_parameters(self):

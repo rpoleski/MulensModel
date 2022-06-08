@@ -864,6 +864,7 @@ class Model(object):
         if self.n_lenses == 1:
             methods_ok = [
                 'point_source',
+                'point_source_with_shear',
                 'finite_source_uniform_Gould94'.lower(),
                 'finite_source_uniform_Gould94_direct'.lower(),
                 'finite_source_LD_Yoo04'.lower(),
