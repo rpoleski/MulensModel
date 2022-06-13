@@ -452,8 +452,9 @@ class PointLens(object):
     def _LD_Lee09(self, u, rho, gamma, n_theta, n_u):
         """
         Calculates Equation 13 from Lee et al. 2009.
+
+        Accuracy of these calculations is on the order of 1e-4
         """
-        accuracy = 1e-4
         theta_sub = 1.e-12
         u_1_min = 1.e-13
 
@@ -651,9 +652,6 @@ class PointLens(object):
         Witt & Mao 1994 approach and equations 16-19 from Bozza et al. 2018.
         """
         n_annuli += 1  # It's easier to have r=0 ring as well.
-
-        pspl_magnification = get_pspl_magnification(u)
-
         annuli = np.linspace(0, 1., n_annuli)
         r2 = annuli**2
 
