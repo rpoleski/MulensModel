@@ -220,7 +220,7 @@ class ModelParameters(object):
         self._count_sources(parameters.keys())
         self._count_lenses(parameters.keys())
         self._set_type(parameters.keys())
-        self._check_types()
+        self._check_types('alpha' in parameters.keys())
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(
@@ -276,7 +276,7 @@ class ModelParameters(object):
         sets self._type property, which indicates what type of a model we have
         """
         types = ['finite source', 'parallax', 'Cassan08',
-                 'lens 2-parameter orbital motion']
+                 'lens 2-parameter orbital motion', 'mass sheet']
         out = {type_: False for type_ in types}
 
         parameter_to_type = dict()
@@ -291,13 +291,16 @@ class ModelParameters(object):
         for key in ['dalpha_dt', 'ds_dt']:
             parameter_to_type[key] = 'lens 2-parameter orbital motion'
 
+        for key in ['convergence_K', 'shear_G']:
+            parameter_to_type[key] = 'mass sheet'
+
         for key in keys:
             if key in parameter_to_type:
                 out[parameter_to_type[key]] = True
 
         self._type = out
 
-    def _check_types(self):
+    def _check_types(self, alpha_defined):
         """
         Check if self._type values make sense
         """
@@ -320,6 +323,12 @@ class ModelParameters(object):
             if n_sources > 1:
                 raise KeyError("Cassan (2008) parameterization doesn't work"
                                "for multi sources models")
+
+        if alpha_defined:
+            if self._n_lenses == 1 and not self._type['mass sheet']:
+                raise KeyError(
+                    'You defined alpha for single lens model '
+                    'without external mass sheet. This is not allowed.')
 
     def _divide_parameters(self, parameters):
         """
@@ -460,7 +469,7 @@ class ModelParameters(object):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
         # alpha must be defined if shear_G is non-zero
-        if ('shear_G' in keys and shear_value != 0):
+        if ('shear_G' in keys) and (shear_value != 0):
             if ('alpha' not in keys):
                 raise KeyError(
                     'A model with external mass sheet shear requires alpha.')
@@ -1602,15 +1611,14 @@ class ModelParameters(object):
 
         Whether an external mass sheet is included in the model
         """
-        return (('convergence_K' in self.parameters.keys()) or
-                ('shear_G' in self.parameters.keys()))
+        return self._type['mass sheet']
 
     @property
     def is_external_mass_sheet_with_shear(self):
         """
         *bool*
 
-        Whether an external mass sheet is included in the 
+        Whether an external mass sheet is included in the
         model with non-zero shear
         """
         return (('shear_G' in self.parameters.keys()) and
