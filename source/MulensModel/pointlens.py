@@ -721,13 +721,14 @@ class PointLens(object):
              temp * len(zeta)], axis=1)
 
         pspl_magnification = []
+        const = (1. - convergence_K)**2
         for (i, coeffs) in enumerate(coeffs_array):
             mag = 0.
             roots = np.polynomial.polynomial.polyroots(coeffs)
             for root in roots:
                 root_conj = np.conjugate(root)
                 det = abs(
-                    (1 - convergence_K)**2 -
+                    const -
                     (root_conj**-2 - shear_G) * (root**-2 - shear_G_conj))
                 if not np.isnan(det):
                     mag += 1. / det
