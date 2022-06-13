@@ -17,10 +17,10 @@ def test_1():
     parameters = mm.ModelParameters({**basic})
 
 def test_2():
-    parameters = mm.ModelParameters({**basic, 'shear_G': G})
+    parameters = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': alpha})
 
 def test_3():
-    parameters = mm.ModelParameters({**basic, 'convergence_K': K, 'alpha': alpha})
+    parameters = mm.ModelParameters({**basic, 'convergence_K': K})
 
 def test_4():
     parameters = mm.ModelParameters({**basic, 'shear_G': G, 'convergence_K': K, 'alpha': alpha})
@@ -37,13 +37,19 @@ class TestParameters(unittest.TestCase):
 
     def test_7(self):
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': alpha})
+            parameters = mm.ModelParameters({**basic, 'convergence_K': K, 'alpha': alpha})
+            # This is too much.
 
     def test_8(self):
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters({**basic, 'convergence_K': K, 'alpha': alpha, 'dalpha_dt': da_dt})
+            parameters = mm.ModelParameters({**basic, 'shear_G': G})
+            # This is not enough
 
     def test_9(self):
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters({**basic, 'convergence_K': K, 'alpha': alpha, 'dalpha_dt': da_dt})
+
+    def test_10(self):
         with self.assertRaises(KeyError):
             parameters = mm.ModelParameters({**basic, 'shear_G': G, 'convergence_K': K, 'alpha': alpha, 'dalpha_dt': da_dt})
 
