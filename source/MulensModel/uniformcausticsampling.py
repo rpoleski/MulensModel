@@ -458,7 +458,7 @@ class UniformCausticSampling(object):
 
         return points
 
-    def get_t_in_t_out(self, x_caustic_in, x_caustic_out, t_0, t_E):
+    def get_t_in_t_out(self, **kwargs):
         """
         Calculate ``t_caustic_in`` and ``t_caustic_out`` for given trajectory.
 
@@ -487,12 +487,17 @@ class UniformCausticSampling(object):
             t_caustic_out: *float*
                 Epoch of caustic exit.
         """
-        zeta_in = self.caustic_point(x_caustic_in)
-        zeta_out = self.caustic_point(x_caustic_out)
-        temp_1 = t_E * abs(zeta_out - zeta_in)
+        if set(kwargs) != set("x_caustic_in x_caustic_out t_0 t_E".split()):
+            raise KeyError(
+                "get_t_in_t_out() requires following parameters: "
+                "'x_caustic_in', 'x_caustic_out', 't_0', and 't_E'")
+
+        zeta_in = self.caustic_point(kwargs['x_caustic_in'])
+        zeta_out = self.caustic_point(kwargs['x_caustic_out'])
+        temp_1 = kwargs['t_E'] * abs(zeta_out - zeta_in)
         temp_2 = 0.5 * ((zeta_out + zeta_in) / (zeta_out - zeta_in)).real
-        t_in = t_0 + temp_1 * (temp_2 - 0.5)
-        t_out = t_0 + temp_1 * (temp_2 + 0.5)
+        t_in = kwargs['t_0'] + temp_1 * (temp_2 - 0.5)
+        t_out = kwargs['t_0'] + temp_1 * (temp_2 + 0.5)
         return (t_in, t_out)
 
     def get_uniform_sampling(self, n_points, n_min_for_caustic=10,
