@@ -729,10 +729,9 @@ class PointLens(object):
                 if root == 0:
                     continue
                 root_conj = np.conjugate(root)
-                det = abs(
+                mag += 1. / abs(
                     const -
                     (root_conj**-2 - shear_G) * (root**-2 - shear_G_conj))
-                mag += 1. / det
             if mag < 1.:
                 parameters = [trajectory.x[i], trajectory.y[i],
                               convergence_K, shear_G]
