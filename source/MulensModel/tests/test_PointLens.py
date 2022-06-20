@@ -96,7 +96,7 @@ def test_get_pspl_with_shear_magnification_0_shear():
     shear_G = complex(0, 0)
     parameters = mm.ModelParameters({
         't_0': t_0, 'u_0': u_0, 't_E': t_E,
-        'convergence_K': convergence_K, 'shear_G': shear_G})
+        'convergence_K': convergence_K})
     point_lens = mm.PointLens(parameters=parameters)
     # Set trajectory to be a single point
     trajectory = mm.Trajectory(t_vec, parameters)

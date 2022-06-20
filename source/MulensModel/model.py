@@ -464,8 +464,9 @@ class Model(object):
         """
         if self.n_lenses == 1:
             self._caustics = CausticsPointWithShear(
-                convergence_K=self.parameters.convergence_K,
-                shear_G=self.parameters.shear_G)
+                convergence_K=self.parameters.parameters.get(
+                    'convergence_K', 0),
+                shear_G=self.parameters.parameters.get('shear_G', complex(0, 0)))
         else:
             if epoch is None:
                 s = self.parameters.s
@@ -481,8 +482,9 @@ class Model(object):
         if self.parameters.is_external_mass_sheet:
             self._caustics = CausticsWithShear(
                 q=self.parameters.q, s=s,
-                convergence_K=self.parameters.convergence_K,
-                shear_G=self.parameters.shear_G)
+                convergence_K=self.parameters.parameters.get(
+                    'convergence_K', 0),
+                shear_G=self.parameters.parameters.get('shear_G', complex(0, 0)))
         else:
             self._caustics = Caustics(q=self.parameters.q, s=s)
 

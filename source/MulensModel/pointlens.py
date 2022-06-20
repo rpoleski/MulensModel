@@ -726,12 +726,13 @@ class PointLens(object):
             mag = 0.
             roots = np.polynomial.polynomial.polyroots(coeffs)
             for root in roots:
+                if root == 0:
+                    continue
                 root_conj = np.conjugate(root)
                 det = abs(
                     const -
                     (root_conj**-2 - shear_G) * (root**-2 - shear_G_conj))
-                if not np.isnan(det):
-                    mag += 1. / det
+                mag += 1. / det
             if mag < 1.:
                 parameters = [trajectory.x[i], trajectory.y[i],
                               convergence_K, shear_G]

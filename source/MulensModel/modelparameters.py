@@ -473,6 +473,12 @@ class ModelParameters(object):
             if ('alpha' not in keys):
                 raise KeyError(
                     'A model with external mass sheet shear requires alpha.')
+        
+        # alpha should not be defined if shear_G is zero
+        if ('shear_G' not in keys) and ('convergence_K' in keys):
+            if ('alpha' in keys):
+                raise KeyError(
+                    'A model with external mass sheet convergence only does not require alpha.')
 
         # Cannot define t_E in 2 different ways
         if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
@@ -515,14 +521,6 @@ class ModelParameters(object):
                     ('q' not in keys) or ('alpha' not in keys)):
                 raise KeyError(
                     'A binary model requires all three of (s, q, alpha).')
-
-        # convergence_K and shear_G must both be defined if one is defined
-        if ('convergence_K' in keys) or ('shear_G' in keys):
-            if (('convergence_K' not in keys) or
-                    ('shear_G' not in keys)):
-                raise KeyError(
-                    'A model with external mass sheet requires all of '
-                    '(convergence_K, shear_G).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
