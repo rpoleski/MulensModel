@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.0'
+__version__ = '0.30.1'
 
 
 class UlensModelFit(object):
@@ -1498,19 +1498,24 @@ class UlensModelFit(object):
         Generate parameters *dict* according to provided starting and fixed
         parameters.
         """
+        if self._fixed_parameters is None:
+            parameters = dict()
+        else:
+            parameters = {**self._fixed_parameters}
+
         if self._task == 'plot':
-            parameters = dict(zip(
+            parameters.update(dict(zip(
                 self._model_parameters['parameters'],
-                self._model_parameters['values']))
+                self._model_parameters['values'])))
             # XXX this is some kind of a hack:
             self._best_model_theta = []
             self._fit_parameters = []
         elif self._task == 'fit':
             if self._fit_method == 'EMCEE':
-                parameters = self._get_example_parameters_EMCEE()
+                parameters.update(self._get_example_parameters_EMCEE())
             elif self._fit_method == 'MultiNest':
                 means = 0.5 * (self._max_values + self._min_values)
-                parameters = dict(zip(self._fit_parameters, means))
+                parameters.update(dict(zip(self._fit_parameters, means)))
                 if "x_caustic_in" in self._fit_parameters:
                     index = self._fit_parameters.index("x_caustic_in")
                     parameters["x_caustic_in"] = (
@@ -1520,10 +1525,6 @@ class UlensModelFit(object):
                 raise ValueError('internal value')
         else:
             raise ValueError('internal value')
-
-        if self._fixed_parameters is not None:
-            for (key, value) in self._fixed_parameters.items():
-                parameters[key] = value
 
         return parameters
 

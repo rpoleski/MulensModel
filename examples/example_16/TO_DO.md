@@ -12,6 +12,7 @@
 - posterior files
 - print model
 - example with add_2450000: False
+- yaml output in README.md
 
 # NOW - plot trajectory:
 - test if works in ulens_model_plot.py
