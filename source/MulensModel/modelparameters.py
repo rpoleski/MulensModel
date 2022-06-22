@@ -476,10 +476,10 @@ class ModelParameters(object):
 
         # alpha should not be defined if shear_G is not defined
         if ('shear_G' not in keys) and ('convergence_K' in keys):
-            if ('alpha' in keys):
+            if 'alpha' in keys:
                 raise KeyError(
-                    'A model with external mass sheet convergence only '
-                    'does not require alpha.')
+                    'A model with external mass sheet convergence and '
+                    'no shear cannot have alpha defined.')
 
     def _check_valid_combination_1_source_parallax(self, keys):
         """
@@ -511,7 +511,7 @@ class ModelParameters(object):
         """
         Here we check binary lens parameters for non-Cassan08 parameterization.
         """
-        # s, q, and alpha must all be defined if one is defined
+        # s, q, and alpha must all be defined if s or q are defined
         if ('s' in keys) or ('q' in keys):
             if (('s' not in keys) or
                     ('q' not in keys) or ('alpha' not in keys)):
@@ -561,14 +561,11 @@ class ModelParameters(object):
         Check that the user hasn't over-defined the ModelParameters.
         """
         # Make sure that there are no unwanted keys
-        allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 'rho', 't_star',
-            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par',
-            's', 'q', 'alpha', 'convergence_K', 'shear_G',
-            'dalpha_dt', 'ds_dt',
-            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-            't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
-            't_caustic_in', 't_caustic_out'])
+        allowed_keys = set((
+            't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
+            's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
+            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
+            'x_caustic_in x_caustic_out t_caustic_in t_caustic_out').split())
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
