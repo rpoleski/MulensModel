@@ -279,20 +279,18 @@ class ModelParameters(object):
                  'lens 2-parameter orbital motion', 'mass sheet']
         out = {type_: False for type_ in types}
 
-        parameter_to_type = dict()
-        for key in ['rho', 't_star', 'rho_1', 'rho_2', 't_star_1', 't_star_2']:
-            parameter_to_type[key] = 'finite source'
-        for key in ['pi_E', 'pi_E_N', 'pi_E_E']:
-            parameter_to_type[key] = 'parallax'
-        keys_Cassan08 = ['x_caustic_in', 'x_caustic_out',
-                         't_caustic_in', 't_caustic_out']
-        for key in keys_Cassan08:
-            parameter_to_type[key] = 'Cassan08'
-        for key in ['dalpha_dt', 'ds_dt']:
-            parameter_to_type[key] = 'lens 2-parameter orbital motion'
+        temp = {
+            'finite source': 'rho t_star rho_1 rho_2 t_star_1 t_star_2',
+            'parallax': 'pi_E_N pi_E_E pi_E',
+            'Cassan08':
+                'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
+            'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
+            'mass sheet': 'convergence_K shear_G'}
 
-        for key in ['convergence_K', 'shear_G']:
-            parameter_to_type[key] = 'mass sheet'
+        parameter_to_type = dict()
+        for (key, values) in temp.items():
+            for value in values.split():
+                parameter_to_type[value] = key
 
         for key in keys:
             if key in parameter_to_type:
@@ -473,12 +471,13 @@ class ModelParameters(object):
             if ('alpha' not in keys):
                 raise KeyError(
                     'A model with external mass sheet shear requires alpha.')
-        
+
         # alpha should not be defined if shear_G is zero
         if ('shear_G' not in keys) and ('convergence_K' in keys):
             if ('alpha' in keys):
                 raise KeyError(
-                    'A model with external mass sheet convergence only does not require alpha.')
+                    'A model with external mass sheet convergence only '
+                    'does not require alpha.')
 
         # Cannot define t_E in 2 different ways
         if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
