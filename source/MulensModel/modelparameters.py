@@ -223,8 +223,7 @@ class ModelParameters(object):
         self._check_types('alpha' in parameters.keys())
 
         if self.n_sources == 1:
-            self._check_valid_combination_1_source(
-                parameters.keys(), parameters.get("shear_G", 0))
+            self._check_valid_combination_1_source(parameters.keys())
             if self._type['Cassan08']:
                 self._uniform_caustic = None
                 self._standard_parameters = None
@@ -436,15 +435,15 @@ class ModelParameters(object):
                     raise ValueError('You cannot set {:} and {:}'.format(
                         parameter, parameter[:-2]))
 
-    def _check_valid_combination_1_source_standard(self, keys, shear_value=0):
+    def _check_valid_combination_1_source_standard(self, keys):
         """
         Here we check parameters for non-Cassan08 parameterization.
         """
-        self._check_valid_combination_1_source_1_lens(keys, shear_value)
+        self._check_valid_combination_1_source_1_lens(keys)
         self._check_valid_combination_1_source_parallax(keys)
         self._check_valid_combination_1_source_binary_lens(keys)
 
-    def _check_valid_combination_1_source_1_lens(self, keys, shear_value):
+    def _check_valid_combination_1_source_1_lens(self, keys):
         """
         Here we check non-parallax single lens parameters.
         """
@@ -459,30 +458,28 @@ class ModelParameters(object):
                 (('rho' not in keys) or ('t_star' not in keys))):
             raise KeyError('not enough information to calculate t_E')
 
+        # Cannot define t_E in 2 different ways
+        if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
+                ('t_eff' in keys)):
+            raise KeyError('You cannot define rho, t_star, u_0, and t_eff')
+
         # Cannot define all 3 parameters for 2 observables
         if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
             raise KeyError('Only 1 or 2 of (t_E, rho, t_star) may be defined.')
-
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
-        # alpha must be defined if shear_G is non-zero
-        if ('shear_G' in keys) and (shear_value != 0):
-            if ('alpha' not in keys):
-                raise KeyError(
-                    'A model with external mass sheet shear requires alpha.')
+        # alpha must be defined if shear_G is defined
+        if ('shear_G' in keys) and ('alpha' not in keys):
+            raise KeyError(
+                'A model with external mass sheet shear requires alpha.')
 
-        # alpha should not be defined if shear_G is zero
+        # alpha should not be defined if shear_G is not defined
         if ('shear_G' not in keys) and ('convergence_K' in keys):
             if ('alpha' in keys):
                 raise KeyError(
                     'A model with external mass sheet convergence only '
                     'does not require alpha.')
-
-        # Cannot define t_E in 2 different ways
-        if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
-                ('t_eff' in keys)):
-            raise KeyError('You cannot define rho, t_star, u_0, and t_eff')
 
     def _check_valid_combination_1_source_parallax(self, keys):
         """
@@ -559,7 +556,7 @@ class ModelParameters(object):
             raise KeyError('Both rho and t_star cannot be defined for ' +
                            'Cassan 08 parameterization.')
 
-    def _check_valid_combination_1_source(self, keys, shear_value=0):
+    def _check_valid_combination_1_source(self, keys):
         """
         Check that the user hasn't over-defined the ModelParameters.
         """
@@ -587,7 +584,7 @@ class ModelParameters(object):
         if self._type['Cassan08']:
             self._check_valid_combination_1_source_Cassan08(keys)
         else:
-            self._check_valid_combination_1_source_standard(keys, shear_value)
+            self._check_valid_combination_1_source_standard(keys)
 
     def _check_valid_parameter_values(self, parameters):
         """
