@@ -234,10 +234,18 @@ class ModelParameters(object):
                                'require t_E to be directly defined, i.e., ' +
                                'has to be the same for both sources.')
             (params_1, params_2) = self._divide_parameters(parameters)
-            self._source_1_parameters = ModelParameters(params_1)
-            self._source_2_parameters = ModelParameters(params_2)
-            # This way we force checks from "== 1" above to be run on
-            # each source parameters separately.
+            try:
+                self._source_1_parameters = ModelParameters(params_1)
+            except Exception:
+                print("ERROR IN ITIALIZING SOURCE 1")
+                raise
+            try:
+                self._source_2_parameters = ModelParameters(params_2)
+            except Exception:
+                print("ERROR IN ITIALIZING SOURCE 2")
+                raise
+            # The block above forces checks from "== 1" block above to be
+            # run on each source parameters separately.
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
