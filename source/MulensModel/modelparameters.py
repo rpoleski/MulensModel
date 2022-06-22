@@ -332,8 +332,8 @@ class ModelParameters(object):
         Divide an input dict into 2 - each source separately.
         Some of the parameters are copied to both dicts.
         """
-        separate_parameters = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
-                               'rho_1', 'rho_2', 't_star_1', 't_star_2']
+        separate_parameters = (
+            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
         parameters_1 = {}
         parameters_2 = {}
         for (key, value) in parameters.items():
@@ -427,13 +427,12 @@ class ModelParameters(object):
         """
         make sure that there is no conflict between t_0 and t_0_1 etc.
         """
-        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-                         't_star_1', 't_star_2']
+        binary_params = (
+            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
         for parameter in binary_params:
-            if parameter in keys:
-                if parameter[:-2] in keys:
-                    raise ValueError('You cannot set {:} and {:}'.format(
-                        parameter, parameter[:-2]))
+            if (parameter in keys) and (parameter[:-2] in keys):
+                raise ValueError('You cannot set {:} and {:}'.format(
+                                 parameter, parameter[:-2]))
 
     def _check_valid_combination_1_source_standard(self, keys):
         """
@@ -590,17 +589,15 @@ class ModelParameters(object):
 
         Also, check that all values are scalars (except pi_E vector).
         """
-        names = ['t_E', 't_star', 'rho', 's']
         full_names = {
-            't_E': 'Einstein timescale',
-            't_star': 'Source crossing time', 'rho': 'Source size',
-            's': 'separation'}
+            't_E': 'Einstein timescale', 't_star': 'Source crossing time',
+            'rho': 'Source size', 's': 'separation'}
 
-        for name in names:
+        for (name, full) in full_names.items():
             if name in parameters.keys():
                 if parameters[name] < 0.:
-                    raise ValueError("{:} cannot be negative: {:}".format(
-                        full_names[name], parameters[name]))
+                    fmt = "{:} cannot be negative: {:}"
+                    raise ValueError(fmt.format(full, parameters[name]))
 
         for (key, value) in parameters.items():
             if key == 'pi_E':
