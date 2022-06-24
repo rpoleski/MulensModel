@@ -446,47 +446,37 @@ class ModelParameters(object):
         """
         Here we check parameters for non-Cassan08 parameterization.
         """
-        self._check_valid_combination_1_source_1_lens(keys)
+        self._check_valid_combination_1_source_t_0_u_0(keys)
+        self._check_valid_combination_1_source_t_E(keys)
         self._check_valid_combination_1_source_parallax(keys)
+        self._check_valid_combination_1_source_mass_sheet(keys)
         self._check_valid_combination_1_source_binary_lens(keys)
 
-    def _check_valid_combination_1_source_1_lens(self, keys):
+    def _check_valid_combination_1_source_t_0_u_0(self, keys):
         """
-        Here we check non-parallax single lens parameters.
+        Make sure that t_0 and u_0 are defined.
         """
-        # Make sure that minimum set of parameters are defined - we need
-        # to know t_0, u_0, and t_E.
         if 't_0' not in keys:
             raise KeyError('t_0 must be defined')
         if ('u_0' not in keys) and ('t_eff' not in keys):
             raise KeyError('not enough information to calculate u_0')
+
+    def _check_valid_combination_1_source_t_E(self, keys):
+        """
+        Make sure that t_E is defined and that it's not overdefined.
+        """
         if (('t_E' not in keys) and
                 (('u_0' not in keys) or ('t_eff' not in keys)) and
                 (('rho' not in keys) or ('t_star' not in keys))):
             raise KeyError('not enough information to calculate t_E')
 
-        # Cannot define t_E in 2 different ways
         if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
                 ('t_eff' in keys)):
             raise KeyError('You cannot define rho, t_star, u_0, and t_eff')
-
-        # Cannot define all 3 parameters for 2 observables
         if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
             raise KeyError('Only 1 or 2 of (t_E, rho, t_star) may be defined.')
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
-
-        # alpha must be defined if shear_G is defined
-        if ('shear_G' in keys) and ('alpha' not in keys):
-            raise KeyError(
-                'A model with external mass sheet shear requires alpha.')
-
-        # alpha should not be defined if shear_G is not defined
-        if ('shear_G' not in keys) and ('convergence_K' in keys):
-            if 'alpha' in keys:
-                raise KeyError(
-                    'A model with external mass sheet convergence and '
-                    'no shear cannot have alpha defined.')
 
     def _check_valid_combination_1_source_parallax(self, keys):
         """
@@ -513,6 +503,20 @@ class ModelParameters(object):
                 raise KeyError(
                     'Parallax is defined, hence either t_0 or t_0_par has ' +
                     'to be set.')
+
+    def _check_valid_combination_1_source_mass_sheet(self, keys):
+        """
+        Make sure that alpha is defined if shear_G is defined,
+        but not if only convergence_K is defined.
+        """
+        if ('shear_G' in keys) and ('alpha' not in keys):
+            raise KeyError(
+                'A model with external mass sheet shear requires alpha.')
+        if ('shear_G' not in keys) and ('convergence_K' in keys):
+            if 'alpha' in keys:
+                raise KeyError(
+                    'A model with external mass sheet convergence and '
+                    'no shear cannot have alpha defined.')
 
     def _check_valid_combination_1_source_binary_lens(self, keys):
         """
