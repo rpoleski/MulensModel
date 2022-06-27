@@ -467,6 +467,7 @@ class Model(object):
                 convergence_K=self.parameters.parameters.get(
                     'convergence_K', 0),
                 shear_G=self.parameters.parameters.get('shear_G', complex(0, 0)))
+            return
         else:
             if epoch is None:
                 s = self.parameters.s
