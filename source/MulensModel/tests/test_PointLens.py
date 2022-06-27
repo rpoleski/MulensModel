@@ -86,20 +86,21 @@ def test_get_pspl_with_shear_magnification():
     np.testing.assert_almost_equal(test_pspl_shear[0], 5.556327, decimal=5)
 
 
-def test_get_pspl_with_shear_magnification_0_shear():
-    """test PLPS+KG"""
+def test_get_pspl_with_shear_magnification():
+    """
+    Test magnification calculation for point lens with convergence.
+    """
     t_0 = 1000.
     t_E = 20.
     u_0 = 0.1
     t_vec = np.array([0., 100.]) * t_E + t_0
     convergence_K = 0.1
-    shear_G = complex(0, 0)
+
     parameters = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E,
-        'convergence_K': convergence_K})
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'convergence_K': convergence_K})
     point_lens = mm.PointLens(parameters=parameters)
-    # Set trajectory to be a single point
     trajectory = mm.Trajectory(t_vec, parameters)
     test_pspl_shear = point_lens.get_pspl_with_shear_magnification(
-        trajectory, convergence_K, shear_G)
+        trajectory=trajectory, convergence_K=convergence_K,
+        shear_G=complex(0, 0))
     np.testing.assert_almost_equal(test_pspl_shear[0], 11.7608836, decimal=5)
