@@ -17,7 +17,7 @@ mass_sheet = {'convergence_K': 0.0, 'shear_G': complex(0.0, -0.2)}
 shear_model = mm.model.Model({**mass_sheet, **standard_parameters})
 no_shear_model = mm.model.Model(standard_parameters)
 
-(fig, (ax1, ax2)) = plt.subplots(figsize=(10, 5), ncols=2)
+(_, (ax1, ax2)) = plt.subplots(figsize=(10, 5), ncols=2)
 t_range = [standard_parameters['t_0'] - 300, standard_parameters['t_0'] + 550]
 
 # Magnification plot:
