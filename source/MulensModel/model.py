@@ -446,7 +446,8 @@ class Model(object):
             ``**kwargs``:
                 keywords accepted by :py:func:`matplotlib.pyplot.scatter()`
         """
-        if self.n_lenses == 1 and not self.parameters.is_external_mass_sheet_with_shear:
+        mass_sheet = self.parameters.is_external_mass_sheet_with_shear
+        if self.n_lenses == 1 and not mass_sheet:
             plt.scatter([0], [0], **kwargs)
         else:
             self.update_caustics(epoch=epoch)
@@ -463,31 +464,43 @@ class Model(object):
                 to *t_0_kep*, which defaults to *t_0*.
         """
         if self.n_lenses == 1:
-            self._caustics = CausticsPointWithShear(
-                convergence_K=self.parameters.parameters.get(
-                    'convergence_K', 0),
-                shear_G=self.parameters.parameters.get('shear_G', complex(0, 0)))
-            return
+            self._update_caustics_single_lens()
+        elif self.n_lenses == 2:
+            self._update_caustics_binary_lens(epoch)
         else:
-            if epoch is None:
-                s = self.parameters.s
-            else:
-                s = self.parameters.get_s(epoch)
+            raise ValueError('updating triple lens caustics not yet coded')
 
-            if self._caustics is not None:
-                if (s == self._caustics.s and
-                        self.parameters.q == self._caustics.q):
-                    return
+    def _update_caustics_single_lens(self):
+        """
+        Update self._caustics for single lens.
+        """
+        convergence_K = self.parameters.parameters.get('convergence_K', 0)
+        shear_G = self.parameters.parameters.get('shear_G', complex(0, 0))
 
-        # check if covergence_K and shear_G are in parameters
-        if self.parameters.is_external_mass_sheet:
-            self._caustics = CausticsWithShear(
-                q=self.parameters.q, s=s,
-                convergence_K=self.parameters.parameters.get(
-                    'convergence_K', 0),
-                shear_G=self.parameters.parameters.get('shear_G', complex(0, 0)))
+        self._caustics = CausticsPointWithShear(
+            convergence_K=convergence_K, shear_G=shear_G)
+
+    def _update_caustics_binary_lens(self, epoch):
+        """
+        Update self._caustics for binary lens.
+        """
+        if epoch is None:
+            s = self.parameters.s
         else:
+            s = self.parameters.get_s(epoch)
+
+        if self._caustics is not None:
+            if s == self._caustics.s and self.parameters.q == self._caustics.q:
+                return
+
+        if not self.parameters.is_external_mass_sheet:
             self._caustics = Caustics(q=self.parameters.q, s=s)
+        else:
+            convergence_K = self.parameters.parameters.get('convergence_K', 0.)
+            shear_G = self.parameters.parameters.get('shear_G', complex(0, 0))
+            self._caustics = CausticsWithShear(
+                q=self.parameters.q, s=s, shear_G=shear_G,
+                convergence_K=convergence_K)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
