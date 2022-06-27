@@ -8,6 +8,9 @@ import MulensModel as mm
 
 class TestModelParameters(unittest.TestCase):
     def test_too_many_parameters_for_init(self):
+        """
+        Makre sure that over-defining parallax fails.
+        """
         with self.assertRaises(KeyError):
             mp = mm.ModelParameters(
                 {'pi_E': (1., 1.), 'pi_E_N': 1.})
@@ -254,11 +257,11 @@ def test_single_lens_convergence_K_shear_G():
     u_0 = 0.5425
     t_E = 62.63*u.day
     convergence_K = 0.1
-    shear_G = complex(0.1,0.2)
+    shear_G = complex(0.1, 0.2)
     alpha = 20.
-    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 
-                'convergence_K': convergence_K, 'shear_G': shear_G,
-                'alpha': alpha})
+    params = mm.ModelParameters({
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'convergence_K': convergence_K,
+        'shear_G': shear_G, 'alpha': alpha})
 
     np.testing.assert_almost_equal(params.t_0, t_0)
     np.testing.assert_almost_equal(params.u_0, u_0)
@@ -266,7 +269,7 @@ def test_single_lens_convergence_K_shear_G():
     np.testing.assert_almost_equal(params.convergence_K, convergence_K)
     np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
 
-    
+
 def test_is_finite_source():
     """
     Test if .is_finite_source() works properly for 1L1S
@@ -279,3 +282,58 @@ def test_is_finite_source():
     assert not params_1.is_finite_source()
     assert params_2.is_finite_source()
     assert params_3.is_finite_source()
+
+
+def test_single_lens_with_mass_sheet():
+    """
+    Test if Chang-Refsdal microlensing parameters are properly defined.
+    """
+    basic = {'t_0': 1000., 'u_0': 0.1, 't_E': 20.}
+    G = complex(-0.1, -0.2)
+    K = -0.1
+
+    parameters = mm.ModelParameters({**basic})
+    parameters = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': 123.})
+    parameters = mm.ModelParameters({**basic, 'convergence_K': K})
+    parameters = mm.ModelParameters(
+        {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': 123.})
+
+
+class TestParameters(unittest.TestCase):
+    def test_failing_single_lens_with_mass_sheet(self):
+        """
+        Test if Chang-Refsdal microlensing fails when it's expected to fail.
+        """
+        basic = {'t_0': 1000., 'u_0': 0.1, 't_E': 20.}
+        G = complex(-0.1, -0.2)
+        K = -0.1
+        alpha = 123.
+
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters(
+                {'t_0': 1000., 'u_0': 0.1, 'shear_G': G})
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters(
+                {'t_E': 20., 'u_0': 0.1, 'shear_G': G})
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters(
+                {'t_0': 1000., 't_E': 20., 'shear_G': G})
+
+        # Cases below have too many parameters:
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters({**basic, 'alpha': alpha})
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters(
+                {**basic, 'convergence_K': K, 'alpha': alpha})
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters({
+                **basic, 'convergence_K': K, 'alpha': alpha,
+                'dalpha_dt': -0.3})
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters({
+                **basic, 'shear_G': G, 'convergence_K': K, 'alpha': alpha,
+                'dalpha_dt': -0.3})
+
+        # The case below is missing alpha:
+        with self.assertRaises(KeyError):
+            parameters = mm.ModelParameters({**basic, 'shear_G': G})
