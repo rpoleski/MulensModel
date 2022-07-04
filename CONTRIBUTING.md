@@ -1,6 +1,7 @@
 # How to contribute to MulensModel?
 
 Any contribution to the MulensModel package is welcomed, even if it is just another test or example on how to use MulensModel.
+We note contributions in [AUTHORS.md](AUTHORS.md) file.
 
 ### Have you found a bug?
 
