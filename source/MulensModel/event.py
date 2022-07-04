@@ -586,13 +586,18 @@ class Event(object):
 
         return self.fits[index_dataset].chi2
 
-    def get_chi2_per_point(self, fit_blending=None):
+    def get_chi2_per_point(self, fit_blending=None, bad=False):
         """
         Calculates chi^2 for each data point of the current model by
         fitting for source and blending fluxes.
 
         Parameters :
             fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
+
+            bad: *bool*
+                Should chi2 be also caclulated for points marked as bad in
+                MulensData? If `False` (default), then bad epochs have chi2 of
+                `np.nan`.
 
         Returns :
             chi2: *list* of *np.ndarray*
@@ -613,12 +618,15 @@ class Event(object):
         if fit_blending is not None:
             self._apply_fit_blending(fit_blending)
 
-        self.fit_fluxes()
+        self.fit_fluxes(bad=bad)
 
         # Calculate chi^2 given the fit
         chi2_per_point = []
         for (i, dataset) in enumerate(self.datasets):
-            chi2_per_point.append(self.fits[i].chi2_per_point)
+            chi2 = self.fits[i].chi2_per_point
+            if not bad:
+                chi2[dataset.bad] = np.nan
+            chi2_per_point.append(chi2)
 
         return chi2_per_point
 

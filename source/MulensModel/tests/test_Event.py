@@ -1,9 +1,7 @@
-import sys
 from os.path import join
 import unittest
 import numpy as np
 from astropy import units as u
-import matplotlib.pyplot as plt
 
 import MulensModel as mm
 
@@ -269,11 +267,11 @@ def test_event_get_chi2_5():
 class TestEvent(unittest.TestCase):
     def test_event_init_1(self):
         with self.assertRaises(TypeError):
-            ev = mm.Event(model=3.14)
+            _ = mm.Event(model=3.14)
 
     def test_event_init_2(self):
         with self.assertRaises(TypeError):
-            ev = mm.Event(datasets='some_string')
+            _ = mm.Event(datasets='some_string')
 
 
 class Chi2GradientTest():
@@ -654,13 +652,36 @@ def test_get_chi2_per_point():
     n = 100
     data_2.flux[n] += data_2.err_flux[n]
     data_2.flux[n + 1] -= data_2.err_flux[n + 1]
-    chi2_exp = np.zeros(len(data_2.time))
-    chi2_exp[n:n + 2] = 1.
+    chi2_exp_2 = np.zeros(len(data_2.time))
+    chi2_exp_2[n:n + 2] = 1.
 
     # Create event and perform test
     event = mm.Event([data_1, data_2], model)
     np.testing.assert_almost_equal(
-        event.get_chi2_per_point()[1], chi2_exp, decimal=6)
+        event.get_chi2_per_point()[1], chi2_exp_2, decimal=6)
+    np.testing.assert_almost_equal(
+        event.get_chi2_per_point(bad=True)[1], chi2_exp_2, decimal=6)
+
+    # Make tests for when bad data are present:
+    bad_1 = data_1.bad.copy()
+    bad_1[n] = True
+    data_1.bad = bad_1
+    bad_2 = data_2.bad.copy()
+    bad_2[n] = True
+    data_2.bad = bad_2
+    chi2_exp_2_sumA = 0.99799855
+    chi2_exp_2_sumB = 2.00200630
+
+    chi2_per_point = event.get_chi2_per_point()
+    assert np.isnan(np.sum(chi2_per_point[0]))
+    np.testing.assert_almost_equal(np.nansum(chi2_per_point[0]), 0.)
+    assert np.isnan(np.sum(chi2_per_point[1]))
+    np.testing.assert_almost_equal(
+        np.nansum(chi2_per_point[1]), chi2_exp_2_sumA)
+
+    chi2_per_point = event.get_chi2_per_point(bad=True)
+    np.testing.assert_almost_equal(np.sum(chi2_per_point[0]), 0.)
+    np.testing.assert_almost_equal(np.sum(chi2_per_point[1]), chi2_exp_2_sumB)
 
 
 class TestFixedFluxes(unittest.TestCase):
@@ -819,14 +840,13 @@ class TestFixedFluxRatios(unittest.TestCase):
         self.gamma = {'I': 0.44, 'V': 0.72}
 
         # Model based on binary source
+        t_0_2 = 8001.
         self.model = mm.Model(
-            {'t_0_1': 8000., 'u_0_1': 0.3, 't_0_2': 8001., 'u_0_2': 0.001,
+            {'t_0_1': 8000., 'u_0_1': 0.3, 't_0_2': t_0_2, 'u_0_2': 0.001,
              't_E': 25., 'rho_2': 0.002})
-        n_tstar = 3
-        t_1 = self.model.parameters.t_0_2 - 3 * self.model.parameters.t_star_2
-        t_2 = self.model.parameters.t_0_2 + 3 * self.model.parameters.t_star_2
+        d_t = 3. * self.model.parameters.t_star_2
         self.model.set_magnification_methods(
-            [t_1, 'finite_source_LD_Yoo04', t_2], source=2)
+            [t_0_2 - d_t, 'finite_source_LD_Yoo04', t_0_2 + d_t], source=2)
         self.model.set_limb_coeff_gamma('I', self.gamma['I'])
         self.model.set_limb_coeff_gamma('V', self.gamma['V'])
 
