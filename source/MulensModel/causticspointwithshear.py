@@ -1,5 +1,4 @@
 import numpy as np
-from math import cos, sin
 from cmath import sqrt
 
 from MulensModel.caustics import Caustics
@@ -13,6 +12,7 @@ class CausticsPointWithShear(Caustics):
     Attributes :
         q: *float*
             mass ratio between the 2 bodies; always <= 1
+
         s: *float*
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
@@ -44,13 +44,11 @@ class CausticsPointWithShear(Caustics):
 
         # Solve for the critical curve (and caustic) in complex coordinates.
         G_conjugate = self.shear_G.conjugate()
-        for phi in np.linspace(0., 2. * np.pi, n_angles, endpoint=False):
-            # Change the angle to a complex number
-            eiphi = complex(cos(phi), -sin(phi))
-            soln = sqrt(1. / ((1.-self.convergence_K) * eiphi + G_conjugate))
-            roots = np.array([soln, -soln])
-            # Store results
-            for root in roots:
+        phi = np.linspace(0., 2. * np.pi, n_angles, endpoint=False)
+        eiphi = np.exp(1j * phi)
+        for eiphi_ in eiphi:
+            soln = sqrt(1. / ((1.-self.convergence_K) * eiphi_ + G_conjugate))
+            for root in [soln, -soln]:
                 self._critical_curve.x.append(root.real)
                 self._critical_curve.y.append(root.imag)
 
