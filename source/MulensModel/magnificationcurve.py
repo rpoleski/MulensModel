@@ -333,7 +333,8 @@ class MagnificationCurve(object):
                         self.trajectory,
                         convergence_K=self.parameters.parameters.get(
                             'convergence_K', 0),
-                        shear_G=self.parameters.parameters.get('shear_G', complex(0, 0))))
+                        shear_G=self.parameters.parameters.get(
+                            'shear_G', complex(0, 0))))
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))
@@ -399,9 +400,9 @@ class MagnificationCurve(object):
             kwargs = dict()
         else:
             binary_lens_class = BinaryLensWithShear
-            kwargs = {'convergence_K': self.parameters.parameters.get('convergence_K', 0),
-                      'shear_G': self.parameters.parameters.get('shear_G', complex(0, 0))}
-
+            K = self.parameters.parameters.get('convergence_K', 0)
+            G = self.parameters.parameters.get('shear_G', complex(0, 0))
+            kwargs = {'convergence_K': K, 'shear_G': G}
         out = self._get_binary_lens_magnification(binary_lens_class, kwargs)
 
         return out

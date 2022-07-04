@@ -1,9 +1,7 @@
 import numpy as np
 from math import cos, sin
 from cmath import sqrt
-import matplotlib.pyplot as plt
 
-from MulensModel.utils import Utils
 from MulensModel.caustics import Caustics
 
 
@@ -45,11 +43,11 @@ class CausticsPointWithShear(Caustics):
         self._critical_curve = self.CriticalCurve()
 
         # Solve for the critical curve (and caustic) in complex coordinates.
+        G_conjugate = self.shear_G.conjugate()
         for phi in np.linspace(0., 2. * np.pi, n_angles, endpoint=False):
             # Change the angle to a complex number
             eiphi = complex(cos(phi), -sin(phi))
-            soln = sqrt(
-                1. / ((1. - self.convergence_K) * eiphi + self.shear_G.conjugate()))
+            soln = sqrt(1. / ((1.-self.convergence_K) * eiphi + G_conjugate))
             roots = np.array([soln, -soln])
             # Store results
             for root in roots:
