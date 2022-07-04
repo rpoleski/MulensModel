@@ -50,6 +50,7 @@ setup(
     author='Radek Poleski & Jennifer Yee',
     author_email='radek.poleski@gmail.com',
     description='package for modeling gravitational microlensing events',
+    long_description='package for modeling gravitational microlensing events',
     packages=find_packages(where="source"),
     package_dir={"": "source"},
     include_package_data=True,
