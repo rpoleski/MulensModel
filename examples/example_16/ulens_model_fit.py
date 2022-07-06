@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.2'
+__version__ = '0.30.3'
 
 
 class UlensModelFit(object):
@@ -481,6 +481,7 @@ class UlensModelFit(object):
         self._check_other_fit_parameters()
         self._parse_other_output_parameters()
         self._get_datasets()
+        self._check_ulens_model_parameters()
         self._get_parameters_ordered()
         self._get_parameters_latex()
         self._parse_fitting_parameters()
@@ -512,6 +513,7 @@ class UlensModelFit(object):
         self._check_plots_parameters()
         self._check_model_parameters()
         self._get_datasets()
+        self._check_ulens_model_parameters()
         self._check_fixed_parameters()
         self._make_model_and_event()
         self._make_plots()
@@ -870,17 +872,22 @@ class UlensModelFit(object):
                 raise
             self._datasets.append(dataset)
 
-    def _get_parameters_ordered(self):
+    def _check_ulens_model_parameters(self):
         """
-        Order input parameters in some logical way.
-        This is useful to make sure the order of printed parameters
-        is always the same.
+        Check if there aren't too many parameters.
+        Standard check (e.g. if t_0 is defined) are done in mm.Model().
         """
         unknown = (
             set(self._fit_parameters_unsorted) - set(self._all_MM_parameters))
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
 
+    def _get_parameters_ordered(self):
+        """
+        Order input parameters in some logical way.
+        This is useful to make sure the order of printed parameters
+        is always the same.
+        """
         indexes = [self._all_MM_parameters.index(p)
                    for p in self._fit_parameters_unsorted]
 
