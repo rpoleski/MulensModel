@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.1'
+__version__ = '0.30.2'
 
 
 class UlensModelFit(object):
@@ -397,6 +397,12 @@ class UlensModelFit(object):
             raise ValueError('internal error - task ' + str(self._task))
         self._print_model = False
         self._yaml_results = False
+
+        parameters_str = (
+            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
+            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
+            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
+        self._all_MM_parameters = parameters_str.split()
 
     def _guess_fitting_method(self):
         """
@@ -822,7 +828,7 @@ class UlensModelFit(object):
         """
         if not isinstance(values, dict):
             raise ValueError('"yaml output" value should also be *dict*, '
-                             'got ' + str(type(value)))
+                             'got ' + str(type(values)))
         for (key, value) in values.items():
             if key == 'file name':
                 self._yaml_results = True
@@ -870,20 +876,15 @@ class UlensModelFit(object):
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        all_fit_parameters_str = (
-            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
-            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
-            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
-        all_fit_parameters = all_fit_parameters_str.split()
-
-        unknown = set(self._fit_parameters_unsorted) - set(all_fit_parameters)
+        unknown = (
+            set(self._fit_parameters_unsorted) - set(self._all_MM_parameters))
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
 
-        indexes = [all_fit_parameters.index(p)
+        indexes = [self._all_MM_parameters.index(p)
                    for p in self._fit_parameters_unsorted]
 
-        self._fit_parameters = [all_fit_parameters[i] for i in indexes]
+        self._fit_parameters = [self._all_MM_parameters[i] for i in indexes]
 
     def _get_parameters_latex(self):
         """
@@ -1395,17 +1396,9 @@ class UlensModelFit(object):
         if self._fixed_parameters is None:
             return
 
-        all_parameters = (
-            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
-            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
-            'dalpha_dt x_caustic_in x_caustic_out ' +
-            't_caustic_in t_caustic_out ' +
-            't_0_par t_0_kep')
-        all_parameters = set(all_parameters.split())
-
         fixed = set(self._fixed_parameters.keys())
 
-        unknown = fixed - all_parameters
+        unknown = fixed - self._all_MM_parameters
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
