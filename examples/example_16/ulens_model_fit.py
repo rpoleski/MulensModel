@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.3'
+__version__ = '0.30.4'
 
 
 class UlensModelFit(object):
@@ -403,6 +403,22 @@ class UlensModelFit(object):
             't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
             'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
         self._all_MM_parameters = parameters_str.split()
+        self._other_parameters = []
+
+        self._latex_conversion = dict(
+            t_0='t_0', u_0='u_0',
+            t_0_1='t_{0,1}', u_0_1='u_{0,1}',
+            t_0_2='t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
+            t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
+            rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
+            t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
+            pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
+            ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
+            x_caustic_in='x_{\\rm caustic,in}',
+            x_caustic_out='x_{\\rm caustic,out}',
+            t_caustic_in='t_{\\rm caustic,in}',
+            t_caustic_out='t_{\\rm caustic,out}')
+        self._latex_conversion_other = dict()
 
     def _guess_fitting_method(self):
         """
@@ -877,8 +893,8 @@ class UlensModelFit(object):
         Check if there aren't too many parameters.
         Standard check (e.g. if t_0 is defined) are done in mm.Model().
         """
-        unknown = (
-            set(self._fit_parameters_unsorted) - set(self._all_MM_parameters))
+        allowed = self._all_MM_parameters + self._other_parameters
+        unknown = set(self._fit_parameters_unsorted) - set(allowed)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
 
@@ -888,28 +904,19 @@ class UlensModelFit(object):
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        indexes = [self._all_MM_parameters.index(p)
-                   for p in self._fit_parameters_unsorted]
+        order = self._all_MM_parameters + self._other_parameters
+        indexes = [order.index(p) for p in self._fit_parameters_unsorted]
 
-        self._fit_parameters = [self._all_MM_parameters[i] for i in indexes]
+        self._fit_parameters = [order[i] for i in indexes]
+        self._fit_parameters_other = [
+            order[i] for i in indexes if order[i] in self._other_parameters]
+        self._other_parameters_dict = dict()
 
     def _get_parameters_latex(self):
         """
         change self._fit_parameters into latex parameters
         """
-        conversion = dict(
-            t_0='t_0', u_0='u_0',
-            t_0_1='t_{0,1}', u_0_1='u_{0,1}',
-            t_0_2='t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
-            t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
-            rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
-            t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
-            pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
-            ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
-            x_caustic_in='x_{\\rm caustic,in}',
-            x_caustic_out='x_{\\rm caustic,out}',
-            t_caustic_in='t_{\\rm caustic,in}',
-            t_caustic_out='t_{\\rm caustic,out}')
+        conversion = {**self._latex_conversion, **self._latex_conversion_other}
 
         if self._shift_t_0:
             for key in ['t_0', 't_0_1', 't_0_2']:
@@ -1405,7 +1412,7 @@ class UlensModelFit(object):
 
         fixed = set(self._fixed_parameters.keys())
 
-        unknown = fixed - self._all_MM_parameters
+        unknown = fixed - set(self._all_MM_parameters)
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
@@ -1423,6 +1430,8 @@ class UlensModelFit(object):
         Set internal MulensModel instances: Model and Event
         """
         parameters = self._get_example_parameters()
+        for key in self._other_parameters:
+            parameters.pop(key)
 
         kwargs = dict()
         if 'coords' in self._model_parameters:
@@ -1672,8 +1681,15 @@ class UlensModelFit(object):
         Note that if only plotting functions are called,
         then self._fit_parameters and theta are empty.
         """
-        for (parameter, value) in zip(self._fit_parameters, theta):
-            setattr(self._model.parameters, parameter, value)
+        if len(self._fit_parameters_other) == 0:
+            for (parameter, value) in zip(self._fit_parameters, theta):
+                setattr(self._model.parameters, parameter, value)
+        else:
+            for (parameter, value) in zip(self._fit_parameters, theta):
+                if parameter not in self._fit_parameters_other:
+                    setattr(self._model.parameters, parameter, value)
+                else:
+                    self._other_parameters_dict[parameter] = value
 
     def _ln_prior(self, theta):
         """
@@ -1776,11 +1792,15 @@ class UlensModelFit(object):
         self._set_model_parameters(theta)
 
         chi2 = self._event.get_chi2()
+        out = -0.5 * chi2
 
         if self._print_model:
             self._print_current_model(theta, chi2)
 
-        return -0.5 * chi2
+        if len(self._other_parameters_dict) > 0:
+            out += self._get_ln_likelihood_for_other_parameters()
+
+        return out
 
     def _print_current_model(self, theta, chi2):
         """
@@ -1796,6 +1816,22 @@ class UlensModelFit(object):
 
         print(out, file=self._print_model_file, flush=flush)
         self._print_model_i += 1
+
+    def _get_ln_probability_for_other_parameters(self):
+        """
+        Function that defines calculation of
+        ln(probability(other_parameters)).
+        The logarithm is to the base of the constant e.
+
+        If you have defined other_parameters, then you have to implement
+        child class of UlensModelFit and re-define this function.
+
+        NOTE: your implementation should primarily use *dict*
+        `self._other_parameters_dict`, but all MM parameters are already
+        set and kept in *MM.Event* instance `self._event`.
+        """
+        raise NotImplementedError(
+            'You have to subclass this class and re-implement this function')
 
     def _get_fluxes(self):
         """
