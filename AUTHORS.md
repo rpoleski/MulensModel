@@ -23,6 +23,7 @@ We also thank those who have not directly contributed to the code, but their sug
 * David Specht
 * [Demitri Muna](https://github.com/demitri) - for giving excellent suggestions just before the code was born
 * Zoey Samples
+* [Jan Skowron](https://github.com/jskowron) - for spotting bugs and letting us know about them
 * Samson Johnson - for requesting improvements in FSPL calculations
 * Adrian Hernandez
 * [Przemek Mroz](https://github.com/przemekmroz)
