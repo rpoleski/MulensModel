@@ -2,10 +2,7 @@
 Fit point source point lens model to OB08092 using Newton-CG method from scipy.
 This method requires calculating chi^2 gradient.
 """
-
-import sys
 import os
-import numpy as np
 import scipy.optimize as op
 import matplotlib.pyplot as plt
 

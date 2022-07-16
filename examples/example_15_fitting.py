@@ -4,7 +4,6 @@ High-level fitting and plotting example with MulensModel.
 Requires in-line argument which is a config file, e.g.,
 example_15_mb07192_v1.cfg or example_15_ob05390_v1.cfg.
 """
-import os
 import sys
 import numpy as np
 import emcee

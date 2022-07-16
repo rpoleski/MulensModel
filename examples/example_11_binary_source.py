@@ -5,10 +5,8 @@ The code simulates binary source light curve and fits the model twice:
 with source flux ratio found via linear regression and
 with source flux ratio as a chain parameter.
 """
-import os
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
 try:
     import emcee
 except ImportError as err:

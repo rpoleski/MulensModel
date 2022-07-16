@@ -10,8 +10,6 @@ Specific settings are in file example_13.cfg.
 
 Running this example takes 15-60 minutes on most modern machines.
 """
-import os
-import sys
 import numpy as np
 import emcee
 import configparser
