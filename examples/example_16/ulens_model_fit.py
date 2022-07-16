@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.4'
+__version__ = '0.30.5'
 
 
 class UlensModelFit(object):
@@ -1798,7 +1798,7 @@ class UlensModelFit(object):
             self._print_current_model(theta, chi2)
 
         if len(self._other_parameters_dict) > 0:
-            out += self._get_ln_likelihood_for_other_parameters()
+            out += self._get_ln_probability_for_other_parameters()
 
         return out
 
