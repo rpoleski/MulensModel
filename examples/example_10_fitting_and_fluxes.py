@@ -29,11 +29,15 @@ import configparser
 import MulensModel as mm
 
 
-# Define likelihood functions
+def set_parameters(theta, event, parameters_to_fit):
+    """set values of microlensing parameters"""
+    for (key, value) in zip(parameters_to_fit, theta):
+        setattr(event.model.parameters, key, value)
+
+
 def ln_like(theta, event, parameters_to_fit):
     """ likelihood function """
-    for key, val in enumerate(parameters_to_fit):
-        setattr(event.model.parameters, val, theta[key])
+    set_parameters(theta, event, parameters_to_fit)
     return -0.5 * event.get_chi2()
 
 
@@ -184,8 +188,7 @@ prob = sampler.lnprobability[:, n_burn:].reshape((-1))
 best_index = np.argmax(prob)
 best_chi2 = prob[best_index] / -0.5
 best = samples[best_index, :]
-for key, val in enumerate(parameters_to_fit):
-    setattr(event.model.parameters, val, best[key])
+set_parameters(best, event, parameters_to_fit)
 
 print("\nSmallest chi2 model:")
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])

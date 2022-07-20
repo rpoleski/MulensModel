@@ -21,8 +21,8 @@ import MulensModel as mm
 # Define likelihood functions
 def ln_like(theta, event, parameters_to_fit):
     """ likelihood function """
-    for key, val in enumerate(parameters_to_fit):
-        setattr(event.model.parameters, val, theta[key])
+    for (key, value) in zip(parameters_to_fit, theta):
+        setattr(event.model.parameters, key, value)
 
     chi2 = event.get_chi2()
     return -0.5 * chi2

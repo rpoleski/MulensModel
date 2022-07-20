@@ -25,11 +25,15 @@ import matplotlib.pyplot as plt
 import MulensModel as mm
 
 
-# Define likelihood functions
+def set_parameters(theta, event, parameters_to_fit):
+    """set values of microlensing parameters"""
+    for (parameter, value) in zip(parameters_to_fit, theta):
+        setattr(event.model.parameters, parameter, value)
+
+
 def ln_like(theta, event, parameters_to_fit):
     """likelihood function"""
-    for key, val in enumerate(parameters_to_fit):
-        setattr(event.model.parameters, val, theta[key])
+    set_parameters(theta, event, parameters_to_fit)
     return -0.5 * event.get_chi2()
 
 
@@ -119,8 +123,7 @@ best = samples[best_index, :]
 print("\nSmallest chi2 model:")
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print(best_chi2)
-for (i, parameter) in enumerate(parameters_to_fit):
-    setattr(my_event.model.parameters, parameter, best[i])
+set_parameters(best, my_event, parameters_to_fit)
 
 my_event.fit_fluxes()
 

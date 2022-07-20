@@ -9,14 +9,20 @@ import matplotlib.pyplot as plt
 import MulensModel as mm
 
 
+def set_parameters(theta, event, parameters_to_fit):
+    """
+    Set values of microlensing parameters
+    """
+    for (key, value) in zip(parameters_to_fit, theta):
+        setattr(event.model.parameters, key, value)
+
+
 def chi2_fun(theta, event, parameters_to_fit):
     """
     for given event set attributes from parameters_to_fit (list of
     str) to values from theta list
     """
-    for (key, val) in enumerate(parameters_to_fit):
-        setattr(event.model.parameters, val, theta[key])
-
+    set_parameters(theta, event, parameters_to_fit)
     return event.get_chi2()
 
 
@@ -30,9 +36,7 @@ def jacobian(theta, event, parameters_to_fit):
     event.calculate_chi2_gradient() can be used instead (which avoids fitting
     for the fluxes twice).
     """
-    for (key, val) in enumerate(parameters_to_fit):
-        setattr(event.model.parameters, val, theta[key])
-
+    set_parameters(theta, event, parameters_to_fit)
     return event.get_chi2_gradient(parameters_to_fit)
 
 

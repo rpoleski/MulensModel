@@ -179,8 +179,8 @@ best = samples[best_index, :]
 print("\nSmallest chi2 model:")
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print(best_chi2)
-for (i, parameter) in enumerate(parameters):
-    setattr(my_event.model.parameters, parameter, best[i])
+for (best_, parameter) in zip(best, parameters):
+    setattr(my_event.model.parameters, parameter, best_)
 
 my_event.fit_fluxes()
 
