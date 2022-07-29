@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.5'
+__version__ = '0.30.6'
 
 
 class UlensModelFit(object):
@@ -911,6 +911,9 @@ class UlensModelFit(object):
         self._fit_parameters_other = [
             order[i] for i in indexes if order[i] in self._other_parameters]
         self._other_parameters_dict = dict()
+
+        if len(self._fit_parameters_other) > 0:
+            self._flat_priors = False
 
     def _get_parameters_latex(self):
         """
