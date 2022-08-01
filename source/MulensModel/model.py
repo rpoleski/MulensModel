@@ -218,7 +218,7 @@ class Model(object):
 
             gamma, bandpass:
                 see :py:func:`get_magnification()`
-        
+
         Returns :
             magnification: *numpy.ndarray*
                 Magnification values for each epoch.
