@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.6'
+__version__ = '0.30.7'
 
 
 class UlensModelFit(object):
@@ -1434,7 +1434,10 @@ class UlensModelFit(object):
         """
         parameters = self._get_example_parameters()
         for key in self._other_parameters:
-            parameters.pop(key)
+            try:
+                parameters.pop(key)
+            except Exception:
+                pass
 
         kwargs = dict()
         if 'coords' in self._model_parameters:
