@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.8'
+__version__ = '0.30.9'
 
 
 class UlensModelFit(object):
