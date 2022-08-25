@@ -893,8 +893,14 @@ class UlensModelFit(object):
         Check if there aren't too many parameters.
         Standard check (e.g. if t_0 is defined) are done in mm.Model().
         """
+        if self._task == 'fit':
+            to_be_checked = set(self._fit_parameters_unsorted)
+        elif self._task == 'plot':
+            to_be_checked = set(self._model_parameters['parameters'])
+        else:
+            raise ValueError('unexpected error: ' + str(self._task))
         allowed = self._all_MM_parameters + self._other_parameters
-        unknown = set(self._fit_parameters_unsorted) - set(allowed)
+        unknown = to_be_checked - set(allowed)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
 
@@ -1687,6 +1693,9 @@ class UlensModelFit(object):
         Note that if only plotting functions are called,
         then self._fit_parameters and theta are empty.
         """
+        if self._task == 'plot':
+            return
+
         if len(self._fit_parameters_other) == 0:
             for (parameter, value) in zip(self._fit_parameters, theta):
                 setattr(self._model.parameters, parameter, value)
@@ -1803,7 +1812,7 @@ class UlensModelFit(object):
         if self._print_model:
             self._print_current_model(theta, chi2)
 
-        if len(self._other_parameters_dict) > 0:
+        if self._task == 'fit' and len(self._other_parameters_dict) > 0:
             out += self._get_ln_probability_for_other_parameters()
 
         return out
@@ -2607,7 +2616,7 @@ class UlensModelFit(object):
         if len(self._fit_parameters_latex) != n_grid:
             msg = "This should never happen: {:} {:}"
             raise ValueError(
-                msg.format(len(self._fit_parameters_latex), len(grid)))
+                msg.format(len(self._fit_parameters_latex), n_grid))
         grid = gridspec.GridSpec(n_grid, 1, hspace=0)
 
         plt.figure(figsize=figure_size)
