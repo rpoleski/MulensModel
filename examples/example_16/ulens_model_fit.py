@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.7'
+__version__ = '0.30.8'
 
 
 class UlensModelFit(object):
@@ -1415,7 +1415,7 @@ class UlensModelFit(object):
 
         fixed = set(self._fixed_parameters.keys())
 
-        unknown = fixed - set(self._all_MM_parameters)
+        unknown = fixed - set(self._all_MM_parameters + ['t_0_par'])
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
@@ -2128,7 +2128,7 @@ class UlensModelFit(object):
 
     def _extract_posterior_samples_EMCEE(self):
         """
-        set self._samples_flat and self._samples
+        set self._samples_flat and self._samples for EMCEE
         """
         n_burn = self._fitting_parameters['n_burn']
         self._samples = self._sampler.chain[:, n_burn:, :]
@@ -2538,11 +2538,16 @@ class UlensModelFit(object):
         n_bins = 40
 
         kwargs = {
-            'bins': n_bins, 'labels': self._fit_parameters_latex,
-            'show_titles': True, 'quantiles': [0.15866, 0.5, 0.84134],
-            'verbose': False, 'top_ticks': False}
+            'bins': n_bins, 'show_titles': True, 'top_ticks': False,
+            'quantiles': [0.15866, 0.5, 0.84134], 'verbose': False}
 
-        figure = corner.corner(self._samples_flat, **kwargs)
+        data = self._get_samples_for_triangle_plot()
+        labels = self._get_labels_for_triangle_plot()
+        if data.shape[1] != len(labels):
+            msg = "This should never happen: {:} {:}"
+            raise ValueError(msg.format(data.shape, len(labels)))
+
+        figure = corner.corner(data, labels=labels, **kwargs)
 
         self._save_figure(self._plots['triangle'].get('file'), figure=figure)
 
@@ -2551,6 +2556,18 @@ class UlensModelFit(object):
         Reset matplotlib rcParams to their defaults
         """
         rcParams.update(rcParamsDefault)
+
+    def _get_samples_for_triangle_plot(self):
+        """
+        Prepare samples that will be plotted on triangle plot
+        """
+        return self._samples_flat
+
+    def _get_labels_for_triangle_plot(self):
+        """
+        provide list of labels to be used by triangle plot
+        """
+        return self._fit_parameters_latex
 
     def _save_figure(self, file_name, figure=None, dpi=None):
         """
@@ -2586,7 +2603,12 @@ class UlensModelFit(object):
         figure_size = (7.5, 10.5)
         margins = {'left': 0.13, 'right': 0.97, 'top': 0.98, 'bottom': 0.05}
 
-        grid = gridspec.GridSpec(self._n_fit_parameters, 1, hspace=0)
+        n_grid = self._n_fit_parameters
+        if len(self._fit_parameters_latex) != n_grid:
+            msg = "This should never happen: {:} {:}"
+            raise ValueError(
+                msg.format(len(self._fit_parameters_latex), len(grid)))
+        grid = gridspec.GridSpec(n_grid, 1, hspace=0)
 
         plt.figure(figsize=figure_size)
         plt.subplots_adjust(**margins)
