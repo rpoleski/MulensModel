@@ -262,6 +262,11 @@ class Event(object):
             data_ref: *int* or *MulensData*
                 If data_ref is not specified, uses :py:obj:`~data_ref`.
 
+            ``**kwargs``:
+                Keywords passed to
+                :py:func:`MulensModel.model.Model.plot_lc()`.
+                You can use them to set time range plotted, fluxes,
+                limb-darkening etc.
         """
         if data_ref is None:
             data_ref = self.data_ref
