@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.9'
+__version__ = '0.30.10'
 
 
 class UlensModelFit(object):
@@ -379,7 +379,7 @@ class UlensModelFit(object):
                     "don't fit")
             if "trace" in self._plots:
                 raise ValueError(
-                    'You cannot provide plots["trace"] if you' "don't fit")
+                    'You cannot provide plots["trace"] if you' " don't fit")
 
     def _set_default_parameters(self):
         """
@@ -2664,6 +2664,7 @@ class UlensModelFit(object):
         grid = gridspec.GridSpec(**kwargs_grid)
 
         axes = plt.subplot(grid[0])
+
         self._event.plot_data(**kwargs)
         fluxes = self._event.get_ref_fluxes()
 
@@ -2678,6 +2679,7 @@ class UlensModelFit(object):
             self._mark_second_Y_axis_in_best_plot()
 
         axes = plt.subplot(grid[1])
+
         self._event.plot_residuals(**kwargs)
         plt.xlim(*xlim)
         plt.ylim(*ylim_residuals)
