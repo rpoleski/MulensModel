@@ -21,11 +21,14 @@ import MulensModel as mm
 # Define likelihood functions
 def ln_like(theta, event, parameters_to_fit):
     """ likelihood function """
-    for (key, value) in zip(parameters_to_fit, theta):
-        setattr(event.model.parameters, key, value)
+    for (parameter, value) in zip(parameters_to_fit, theta):
+        setattr(event.model.parameters, parameter, value)
 
     chi2 = event.get_chi2()
+    if chi2 < ln_like.best[0]:
+        ln_like.best = [chi2, theta]
     return -0.5 * chi2
+ln_like.best = [np.inf]
 
 
 def ln_prior(theta, parameters_to_fit):
@@ -99,14 +102,9 @@ for i in range(n_dim):
     r = results[1, i]
     print("{:.5f} {:.5f} {:.5f}".format(r, results[2, i]-r, r-results[0, i]))
 
-# We extract best model parameters and chi2 from the chain:
-prob = sampler.lnprobability[:, n_burn:].reshape((-1))
-best_index = np.argmax(prob)
-best_chi2 = prob[best_index] / -0.5
-best = samples[best_index, :]
 print("\nSmallest chi2 model:")
-print(*[repr(b) if isinstance(b, float) else b.value for b in best])
-print(best_chi2)
+print(*[b if isinstance(b, float) else b.value for b in ln_like.best[1]])
+print(ln_like.best[0])
 
 # Now let's plot 3 models
 plt.figure()
