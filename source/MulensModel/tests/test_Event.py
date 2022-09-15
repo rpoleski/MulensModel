@@ -544,18 +544,6 @@ def test_get_ref_fluxes():
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
     event = mm.Event(data, model)
 
-    # Old method for fixing the blending
-    (f_s_1, f_b_1) = event.get_ref_fluxes()
-    (f_s_2, f_b_2) = event.get_ref_fluxes(fit_blending=False)
-    (f_s_3, f_b_3) = event.get_ref_fluxes(fit_blending=True)
-
-    assert f_b_2 == 0.
-    assert f_s_1 == f_s_3
-    assert f_b_1 == f_b_3
-    np.testing.assert_almost_equal((f_s_1 + f_b_1)/f_s_2, 1., decimal=3)
-    # Table 1 of Poleski et al. 2014:
-    np.testing.assert_almost_equal(f_b_1 / f_s_1, 0.016, decimal=3)
-
     # New (v2.0) method for fixing the blending
     (f_s_1, f_b_1) = event.get_ref_fluxes()
     event.fix_blend_flux[data] = 0.
