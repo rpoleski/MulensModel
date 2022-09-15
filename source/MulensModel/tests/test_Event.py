@@ -158,7 +158,7 @@ def test_event_get_chi2_3():
     ev.model = mod
     ev.datasets = [data_2]
     chi2 = ev.get_chi2()
-    np.testing.assert_almost_equal(float(chi2), 343.46567, decimal=4,
+    np.testing.assert_almost_equal(float(chi2), 342.60457, decimal=2,
                                    err_msg='problem in resulting chi2')
 
 
