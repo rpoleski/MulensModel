@@ -1,5 +1,4 @@
 import numpy as np
-import unittest
 from astropy import units as u
 
 import MulensModel as mm

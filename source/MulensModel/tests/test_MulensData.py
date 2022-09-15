@@ -1,10 +1,6 @@
-import sys
 import os
 import unittest
 import numpy as np
-
-from astropy.coordinates import SkyCoord
-from astropy import units as u
 
 import MulensModel as mm
 
