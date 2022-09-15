@@ -1,0 +1,49 @@
+photometry_files:
+    - {file_name: pysis.SKMTNJ175144.7-285517.mag1.BLG02I.txt, plot_properties: {label: "KMT S BLG02"}}
+    - {file_name: pysis.SKMTNJ175144.7-285517.mag1.BLG42I.txt, plot_properties: {label: "KMT S BLG42"}}
+    - {file_name: pysis.CKMTNJ175144.7-285517.mag1.BLG02I.txt, plot_properties: {label: "KMT C BLG02"}}
+    - {file_name: pysis.CKMTNJ175144.7-285517.mag1.BLG42I.txt, plot_properties: {label: "KMT C BLG42"}}
+    - {file_name: fit_05_plot_v13.dat, phot_fmt: flux, ephemerides_file: K2_ephemeris_01.dat, plot_properties: {label: "K2"}}
+fixed_parameters:
+    t_0_par: 2457511.5
+model:
+    coords: 17:51:44.67 -28:55:17.5
+starting_parameters:
+    t_0 : gauss 2457511.47835 0.00010
+    u_0 : uniform -0.015 0.015
+    t_E : gauss 2.75 0.01
+    pi_E_N : uniform -0.15 0.15
+    pi_E_E : uniform -0.01 0.06
+    mu_s_N: uniform -12. 2.
+    mu_s_E: uniform -10. 0.
+    mu_rel: gauss 8.0 1.0
+min_values:
+    u_0: -1.5
+    t_E: 0.
+    pi_E_N: -1.5
+    pi_E_E: -1.5
+    mu_s_N: -15.
+    mu_s_E: -15.
+    mu_rel: 0.
+max_values:
+    u_0: 1.5
+    t_E: 20.
+    pi_E_N: 1.5
+    pi_E_E: 1.5
+    mu_s_N: 15.
+    mu_s_E: 15.
+    mu_rel: 20.
+# Values below are EMCEE settings:
+fitting_parameters:
+    n_steps: 10000
+other_output:
+    yaml output:
+        file name: K2C9-1_galactic_v1_out.yaml
+plots:
+    triangle:
+        file: K2C9-1_galactic_v1_triangle.png
+    trace:
+        file: K2C9-1_galactic_v1_trace.png
+    best model:
+        time range: 2457510.3 2457512.9
+        file: K2C9-1_galactic_v1_model.png
