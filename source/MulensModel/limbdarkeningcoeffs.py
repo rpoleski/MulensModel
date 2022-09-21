@@ -21,6 +21,9 @@ class LimbDarkeningCoeffs(object):
     def __init__(self):
         self._gammas_for_band = dict()
 
+    def __repr__(self):
+        return self._gammas_for_band.__repr__()
+
     def set_limb_coeff_gamma(self, bandpass, gamma):
         """
         Remembers limb darkening gamma coefficient for given band.

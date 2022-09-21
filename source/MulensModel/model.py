@@ -107,7 +107,18 @@ class Model(object):
         self._bandpasses = []
 
     def __repr__(self):
-        return '{0}'.format(self.parameters)
+        outstr = '{0}\n'.format(self.parameters)
+        outstr += 'default magnification method: {0}\n'.format(
+            self._default_magnification_method)
+        if self._methods is not None:
+            outstr += 'other magnification methods: {0}\n'.format(
+                    self._methods)
+
+        if self.bandpasses is not None:
+            outstr += 'limb-darkening coeffs (gamma): {0}\n'.format(
+                self._limb_darkening_coeffs)
+
+        return outstr
 
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
