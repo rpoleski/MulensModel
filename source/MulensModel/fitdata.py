@@ -778,6 +778,7 @@ class FitData:
 
         def _read_B0B1_file(self):
             """Read file with pre-computed function values"""
+            # Adapted from PointLens
             file_ = os.path.join(
                 mm.DATA_PATH, 'interpolation_table_b0b1_v3.dat')
             if not os.path.exists(file_):
