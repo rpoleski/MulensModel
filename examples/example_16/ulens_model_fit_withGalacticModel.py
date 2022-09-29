@@ -25,6 +25,7 @@ class UlensModelFitWithGalacticModel(UlensModelFit):
         Extend the set of available parameters
         """
         super()._set_default_parameters()
+        # All physical parameters that we may be interested in:
         self._other_parameters = ['M_l', 'D_l', 'mu_s_N', 'mu_s_E', 'mu_rel']
         self._latex_conversion_other = dict(
             M_l='M_{\\rm lens}',
@@ -43,9 +44,9 @@ class UlensModelFitWithGalacticModel(UlensModelFit):
         out = np.zeros(np.array(self._samples_flat.shape) + (0, n_add))
         out[:, :-n_add] = self._samples_flat
 
-        # TODO: extract the lines below from existing info
-        indexes = [2, 3, 4, 5, 6, 7]
+        # TODO - this should be in settings:
         keys = "t_E pi_E_N pi_E_E mu_s_N mu_s_E mu_rel".split()
+        indexes = [self._fit_parameters.index(k) for k in keys]
         kwargs = {k: self._samples_flat[:, i] for (k, i) in zip(keys, indexes)}
 
         kwargs['D_s'] = self.D_s
