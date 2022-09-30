@@ -53,7 +53,6 @@ Then, you might plot those models:
 .. code-block:: python
    
    import matplotlib.pyplot as plt
-   plt.figure()
    my_pspl_model.plot_magnification(t_range=[2452810, 2452890], 
        subtract_2450000=True, color='red', linestyle=':')
    my_1S2L_model.plot_magnification(t_range=[2452810, 2452890], 
