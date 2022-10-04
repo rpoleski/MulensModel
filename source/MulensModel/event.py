@@ -329,7 +329,7 @@ class Event(object):
         # Get fluxes for the reference dataset
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         for (i, data) in enumerate(self._datasets):
-            # Scale the data flue
+            # Scale the data flux
             (flux, err_flux) = self.fits[i].scale_fluxes(f_source_0, f_blend_0)
             (y_value, y_err) = PlotUtils.get_y_value_y_err(
                 phot_fmt, flux, err_flux)
