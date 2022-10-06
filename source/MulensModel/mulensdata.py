@@ -128,6 +128,7 @@ class MulensData(object):
         self.bandpass = bandpass
         self._chi2_fmt = chi2_fmt
         self._file_name = file_name
+        self._input_fmt = phot_fmt
 
         self._set_coords(coords=coords, ra=ra, dec=dec)
 
@@ -135,7 +136,7 @@ class MulensData(object):
             plot_properties = {}
         self.plot_properties = plot_properties
 
-        self._import_photometry(data_list, phot_fmt, **kwargs)
+        self._import_photometry(data_list, **kwargs)
 
         if bad is not None and good is not None:
             raise ValueError('Provide bad or good, but not both')
@@ -149,7 +150,7 @@ class MulensData(object):
         # Set up satellite properties (if applicable)
         self._ephemerides_file = ephemerides_file
 
-    def _import_photometry(self, data_list, phot_fmt, **kwargs):
+    def _import_photometry(self, data_list, **kwargs):
         """import time, brightnes, and its uncertainy"""
         # Import the photometry...
         if data_list is not None and self._file_name is not None:
@@ -171,8 +172,7 @@ class MulensData(object):
                 raise ValueError(msg.format(len(data_list)))
             (vector_1, vector_2, vector_3) = list(data_list)
             self._initialize(
-                phot_fmt, time=np.array(vector_1),
-                brightness=np.array(vector_2),
+                time=np.array(vector_1), brightness=np.array(vector_2),
                 err_brightness=np.array(vector_3), coords=self._coords)
         elif self._file_name is not None:  # ...from a file
             usecols = kwargs.pop('usecols', (0, 1, 2))
@@ -189,7 +189,7 @@ class MulensData(object):
                 print("File:", self._file_name)
                 raise
             self._initialize(
-                phot_fmt, time=vector_1, brightness=vector_2,
+                time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
 
             # Check if data label specified, if not use file_name.
@@ -203,14 +203,13 @@ class MulensData(object):
                 'MulensData cannot be initialized with ' +
                 'data_list or file_name')
 
-    def _initialize(self, phot_fmt, time=None, brightness=None,
+    def _initialize(self, time=None, brightness=None,
                     err_brightness=None, coords=None):
         """
         Internal function to import photometric data into the correct
         form using a few numpy ndarrays.
 
         Parameters:
-            phot_fmt - Specifies type of photometry. Either 'flux' or 'mag'.
             time - Date vector of the data
             brightness - vector of the photometric measurements
             err_brightness - vector of the errors in the phot measurements.
@@ -245,10 +244,9 @@ class MulensData(object):
         # Store the photometry
         self._brightness_input = brightness
         self._brightness_input_err = err_brightness
-        self._input_fmt = phot_fmt
 
         # Create the complementary photometry (mag --> flux, flux --> mag)
-        if phot_fmt == "mag":
+        if self._input_fmt == "mag":
             self._mag = self._brightness_input
             self._err_mag = self._brightness_input_err
             (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
@@ -261,7 +259,7 @@ class MulensData(object):
                 if self._file_name is not None:
                     msg += "File name: " + self._file_name
                 raise ValueError(msg)
-        elif phot_fmt == "flux":
+        elif self._input_fmt == "flux":
             self._flux = self._brightness_input
             self._err_flux = self._brightness_input_err
             self._mag = None
