@@ -38,26 +38,29 @@ class UlensModelFitWithGalacticModel(UlensModelFit):
         """
         Prepare a cube of samples for triangle plot
         """
-        parameters_to_add = "M_l v_rel pi_rel".split()
+        settings = self._nonstandard_settings['triangle plot']
 
+        parameters_to_add = settings['parameters to add']
         n_add = len(parameters_to_add)
-        out = np.zeros(np.array(self._samples_flat.shape) + (0, n_add))
+        out_size = np.array(self._samples_flat.shape) + (0, n_add)
+        out = np.zeros(out_size)
         out[:, :-n_add] = self._samples_flat
 
-        # TODO - this should be in settings:
-        keys = "t_E pi_E_N pi_E_E mu_s_N mu_s_E mu_rel".split()
+        keys = self._fit_parameters.copy()
+        for key in ['t_0', 'u_0']:  # These are not in _get_parameters() arguments.
+            keys.remove(key)
         indexes = [self._fit_parameters.index(k) for k in keys]
         kwargs = {k: self._samples_flat[:, i] for (k, i) in zip(keys, indexes)}
-
         kwargs['D_s'] = self.D_s
         params = self._get_parameters(**kwargs)
 
         for (i, parameter) in enumerate(parameters_to_add):
             out[:, -n_add+i] = params[parameter]
 
-        # TODO - this should be in settings:
-        # here we change mass -> log10(MASS) for triangle plot
-        out[:, -3] = np.log10(out[:, -3])
+        log10_keys = settings['parameters log10']
+        for log10_key in log10_keys:
+            index = self._n_fit_parameters + parameters_to_add.index(log10_key)
+            out[:, index] = np.log10(out[:, index])
 
         return out
 

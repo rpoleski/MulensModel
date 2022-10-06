@@ -47,3 +47,7 @@ plots:
     best model:
         time range: 2457510.3 2457512.9
         file: K2C9-1_galactic_v1_model.png
+nonstandard_settings:
+    triangle plot:
+        parameters to add: [M_l, v_rel, pi_rel]
+        parameters log10: [M_l]

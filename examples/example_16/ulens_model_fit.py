@@ -276,13 +276,19 @@ class UlensModelFit(object):
             ``'yaml output': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE
             is a *str* that gives a path to YAML-format file to which
             the results will be printed
+
+        nonstandard_settings: *dict*
+            These are settings that are used to pass some user-defined
+            settings in classes that inherit from UlensModelFit. If you don't
+            use inheritance, this does not affect the results.
     """
     def __init__(
             self, photometry_files,
             starting_parameters=None, prior_limits=None, model=None,
             fixed_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
-            fit_constraints=None, plots=None, other_output=None
+            fit_constraints=None, plots=None, other_output=None,
+            nonstandard_settings=None
             ):
         self._check_MM_version()
         self._photometry_files = photometry_files
@@ -296,6 +302,7 @@ class UlensModelFit(object):
         self._fit_constraints = fit_constraints
         self._plots = plots
         self._other_output = other_output
+        self._nonstandard_settings = nonstandard_settings
 
         self._which_task()
         self._set_default_parameters()
