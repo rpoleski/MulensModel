@@ -127,6 +127,7 @@ class MulensData(object):
         self._limb_darkening_weights = None
         self.bandpass = bandpass
         self._chi2_fmt = chi2_fmt
+        self._file_name = file_name
 
         self._set_coords(coords=coords, ra=ra, dec=dec)
 
@@ -134,14 +135,28 @@ class MulensData(object):
             plot_properties = {}
         self.plot_properties = plot_properties
 
+        self._import_photometry(data_list, phot_fmt, **kwargs)
+
+        if bad is not None and good is not None:
+            raise ValueError('Provide bad or good, but not both')
+        elif bad is not None:
+            self.bad = bad
+        elif good is not None:
+            self.good = good
+        else:
+            self.bad = self.n_epochs * [False]
+
+        # Set up satellite properties (if applicable)
+        self._ephemerides_file = ephemerides_file
+
+    def _import_photometry(self, data_list, phot_fmt, **kwargs):
+        """import time, brightnes, and its uncertainy"""
         # Import the photometry...
-        self._file_name = file_name
-        if data_list is not None and file_name is not None:
+        if data_list is not None and self._file_name is not None:
             raise ValueError(
                 'MulensData cannot be initialized with both data_list and ' +
                 'file_name. Choose one or the other.')
-        elif data_list is not None:
-            # ...from an array
+        elif data_list is not None:  # ...from an array
             if len(kwargs) > 0:
                 raise ValueError('data_list and kwargs cannot be both set')
             if len(data_list) != 3:
@@ -159,46 +174,34 @@ class MulensData(object):
                 phot_fmt, time=np.array(vector_1),
                 brightness=np.array(vector_2),
                 err_brightness=np.array(vector_3), coords=self._coords)
-        elif file_name is not None:
-            # ...from a file
+        elif self._file_name is not None:  # ...from a file
             usecols = kwargs.pop('usecols', (0, 1, 2))
-            if not exists(file_name):
-                raise FileNotFoundError(file_name)
+            if not exists(self._file_name):
+                raise FileNotFoundError(self._file_name)
             try:
                 (vector_1, vector_2, vector_3) = np.loadtxt(
-                    fname=file_name, unpack=True, usecols=usecols, **kwargs)
+                    fname=self._file_name, unpack=True,
+                    usecols=usecols, **kwargs)
             except Exception:
                 print("kwargs passed to np.loadtxt():")
                 print(kwargs)
                 print("usecols =", usecols)
-                print("File:", file_name)
+                print("File:", self._file_name)
                 raise
             self._initialize(
                 phot_fmt, time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
 
-            # check if data label specified, if not use file_name
+            # Check if data label specified, if not use file_name.
             if 'label' not in self.plot_properties.keys():
-                if file_name is not None:
-                    self.plot_properties['label'] = basename(file_name)
+                if self._file_name is not None:
+                    self.plot_properties['label'] = basename(self._file_name)
                 else:
                     self.plot_properties['label'] = 'a dataset'
         else:
             raise ValueError(
                 'MulensData cannot be initialized with ' +
                 'data_list or file_name')
-
-        if bad is not None and good is not None:
-            raise ValueError('Provide bad or good, but not both')
-        elif bad is not None:
-            self.bad = bad
-        elif good is not None:
-            self.good = good
-        else:
-            self.bad = self.n_epochs * [False]
-
-        # Set up satellite properties (if applicable)
-        self._ephemerides_file = ephemerides_file
 
     def _initialize(self, phot_fmt, time=None, brightness=None,
                     err_brightness=None, coords=None):
