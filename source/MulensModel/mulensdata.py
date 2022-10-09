@@ -133,7 +133,7 @@ class MulensData(object):
         self._set_coords(coords=coords, ra=ra, dec=dec)
 
         if plot_properties is None:
-            plot_properties = {}
+            plot_properties = dict()
         self.plot_properties = plot_properties
 
         self._import_photometry(data_list, **kwargs)
@@ -657,16 +657,20 @@ class MulensData(object):
                 Uncertainties of magnitudes or of fluxes
 
         """
-        if self.input_fmt == "mag":
+        return self._get_data_and_err_in_fmt(self.input_fmt)
+
+    def _get_data_and_err_in_fmt(self, fmt):
+        """
+        get data and their photometry in mag or flux
+        """
+        if fmt == "mag":
             data = self.mag
             err_data = self.err_mag
-        elif self.input_fmt == "flux":
+        elif fmt == "flux":
             data = self.flux
             err_data = self.err_flux
         else:
-            raise ValueError('Unrecognized data format: {:}'.format(
-                self.input_fmt))
-
+            raise ValueError('Unrecognized data format: {:}'.format(fmt))
         return (data, err_data)
 
     def data_and_err_in_chi2_fmt(self):
@@ -682,17 +686,7 @@ class MulensData(object):
                 Uncertainties of magnitudes or of fluxes
 
         """
-        if self.chi2_fmt == "mag":
-            data = self.mag
-            err_data = self.err_mag
-        elif self.chi2_fmt == "flux":
-            data = self.flux
-            err_data = self.err_flux
-        else:
-            raise ValueError('Unrecognized data format: {:}'.format(
-                self.chi2_fmt))
-
-        return (data, err_data)
+        return self._get_data_and_err_in_fmt(self.chi2_fmt)
 
     @property
     def bandpass(self):
