@@ -15,9 +15,10 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * `ModelParameters.is_static` -> `is_lens_static`
  * ephemerides\_file -> ephemeris\_file - maybe
  * Model.get\_residuals should have keyword phot\_fmt, not type to be consistent with other functions
+ * test\_MulensData.py - in test\_copy() remove warnings.catch\_warnings() because you remove coords, ra, and dec from init
 
 ### Yet unsorted/undecided:
- * `Model.set_times()` - `n_epochs` should be None as default, so that we can check if both dt and `n_epochs` were set
+ * `Model.set\_times()` - `n\_epochs` should be None as default, so that we can check if both dt and `n\_epochs` were set
  * Caustics.get\_caustics() should return np.arrays, not lists
  * check all NotImplementedError and maybe remove some functions/options
  * somehow change which\_parameters() in modelparameters.py - maybe remove

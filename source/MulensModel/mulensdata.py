@@ -134,7 +134,7 @@ class MulensData(object):
 
         if plot_properties is None:
             plot_properties = dict()
-        self.plot_properties = plot_properties
+        self._plot_properties = plot_properties
 
         self._import_photometry(data_list, **kwargs)
 
@@ -289,6 +289,24 @@ class MulensData(object):
             else:
                 if ra is not None:
                     raise AttributeError(coords_msg)
+
+    @property
+    def plot_properties(self):
+        """
+        *dict*
+
+        Settings that specify how the photometry should be plotted.
+
+        The keys in this *dict* could be either special keys introduced here
+        (i.e., ``show_bad`` and ``show_errorbars``) or keys accepted by
+        matplotlib.pyplot plotting functions. The latter could be for example
+        ``color``, ``marker``, ``label``, ``alpha``, ``zorder``,
+        ``markersize``, or ``visible``.
+
+        See :py:class:`~MulensModel.mulensdata.MulensData`
+        for more information.
+        """
+        return self._plot_properties
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False,
@@ -754,3 +772,27 @@ class MulensData(object):
         File with satellite ephemeris.
         """
         return self._ephemerides_file
+
+    def copy(self):
+        """
+        Returns a copy of given instance with settings copied
+
+        Returns :
+            mulens_data: :py:class:`~MulensModel.mulensdata.MulensData`
+                Copy of self.
+        """
+        data_and_err = self.data_and_err_in_input_fmt()
+        kwargs = {
+            'data_list': [self.time, *list(data_and_err)],
+            'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
+            'coords': self.coords, 'ephemerides_file': self._ephemerides_file,
+            'add_2450000': self._init_keys['add245'],
+            'add_2460000': self._init_keys['add246'],
+            'bandpass': self.bandpass, 'bad': np.array(self.bad),
+            'plot_properties': {**self.plot_properties}
+            }
+
+        out = MulensData(**kwargs)
+        out._file_name = self._file_name
+
+        return out
