@@ -53,6 +53,7 @@ class Horizons(object):
             msg = 'Horizons files {:} does not exists.'
             message = msg.format(self._file_properties['file_name'])
             raise FileExistsError(message)
+
         if file_type == 'Horizons':
             self._read_horizons_file()
         else:
@@ -60,12 +61,10 @@ class Horizons(object):
                 self._file_properties['file_name'],
                 usecols=(0, 1, 2, 3), unpack=True)
             self._time = time
+            key = 'representation'
             if int(astropy_version[0]) >= 4:
-                self._xyz = SkyCoord(x=x, y=y, z=z,
-                                     representation_type='cartesian')
-            else:
-                self._xyz = SkyCoord(x=x, y=y, z=z,
-                                     representation='cartesian')
+                key = "representation_type"
+            self._xyz = SkyCoord(x=x, y=y, z=z, **{key: 'cartesian'})
 
     def _get_start_end(self):
         """
