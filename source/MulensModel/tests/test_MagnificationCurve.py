@@ -84,8 +84,8 @@ def test_Lee09_and_WittMao94():
                            2.02334097551, 2.13919086656])
     expected_1 = np.array([1.01110609638, 1.07461016241, 1.57232954942,
                            2.21990790526, 2.39458814753])
-    expected_2 = np.array([1.0110829794, 1.07404148634, 1.55620547462,
-                           2.24809136704, 2.44503143812])
+#    expected_2 = np.array([1.0110829794, 1.07404148634, 1.55620547462,
+#                           2.24809136704, 2.44503143812])
 # The last values are for 2-parameter LD with same settings and lambda=0.3.
 # Correction is:
 #  -lambda*(1-1.25*sqrt(costh))

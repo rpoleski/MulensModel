@@ -12,11 +12,9 @@ class TestModelParameters(unittest.TestCase):
         Makre sure that over-defining parallax fails.
         """
         with self.assertRaises(KeyError):
-            mp = mm.ModelParameters(
-                {'pi_E': (1., 1.), 'pi_E_N': 1.})
+            _ = mm.ModelParameters({'pi_E': (1., 1.), 'pi_E_N': 1.})
         with self.assertRaises(KeyError):
-            mp = mm.ModelParameters(
-                {'pi_E': (1., 1.), 'pi_E_E': 1.})
+            _ = mm.ModelParameters({'pi_E': (1., 1.), 'pi_E_E': 1.})
 
 
 def test_init_parameters():
@@ -292,10 +290,10 @@ def test_single_lens_with_mass_sheet():
     G = complex(-0.1, -0.2)
     K = -0.1
 
-    parameters = mm.ModelParameters({**basic})
-    parameters = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': 123.})
-    parameters = mm.ModelParameters({**basic, 'convergence_K': K})
-    parameters = mm.ModelParameters(
+    _ = mm.ModelParameters({**basic})
+    _ = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': 123.})
+    _ = mm.ModelParameters({**basic, 'convergence_K': K})
+    _ = mm.ModelParameters(
         {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': 123.})
 
 
@@ -310,30 +308,26 @@ class TestParameters(unittest.TestCase):
         alpha = 123.
 
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters(
-                {'t_0': 1000., 'u_0': 0.1, 'shear_G': G})
+            _ = mm.ModelParameters({'t_0': 1000., 'u_0': 0.1, 'shear_G': G})
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters(
-                {'t_E': 20., 'u_0': 0.1, 'shear_G': G})
+            _ = mm.ModelParameters({'t_E': 20., 'u_0': 0.1, 'shear_G': G})
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters(
-                {'t_0': 1000., 't_E': 20., 'shear_G': G})
+            _ = mm.ModelParameters({'t_0': 1000., 't_E': 20., 'shear_G': G})
 
         # Cases below have too many parameters:
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters({**basic, 'alpha': alpha})
+            _ = mm.ModelParameters({**basic, 'alpha': alpha})
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters(
+            _ = mm.ModelParameters(
                 {**basic, 'convergence_K': K, 'alpha': alpha})
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters({
-                **basic, 'convergence_K': K, 'alpha': alpha,
-                'dalpha_dt': -0.3})
+            _ = mm.ModelParameters({**basic, 'convergence_K': K,
+                                    'alpha': alpha, 'dalpha_dt': -0.3})
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters({
-                **basic, 'shear_G': G, 'convergence_K': K, 'alpha': alpha,
-                'dalpha_dt': -0.3})
+            _ = mm.ModelParameters(
+                {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': alpha,
+                 'dalpha_dt': -0.3})
 
         # The case below is missing alpha:
         with self.assertRaises(KeyError):
-            parameters = mm.ModelParameters({**basic, 'shear_G': G})
+            _ = mm.ModelParameters({**basic, 'shear_G': G})

@@ -655,8 +655,6 @@ class PointLens(object):
         """
         n_annuli += 1  # It's easier to have r=0 ring as well.
 
-        pspl_magnification = get_pspl_magnification(u)
-
         annuli = np.linspace(0, 1., n_annuli)
         r2 = annuli**2
 
