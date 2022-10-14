@@ -673,9 +673,10 @@ class PointLens(object):
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
 
-    def get_pspl_with_shear_magnification(self, trajectory,
+"""
+   def get_pspl_with_shear_magnification(self, trajectory,
                                           convergence_K, shear_G):
-        """
+        "
         Solving 4th order complex polynomial equation for the magnification
         with an external convergence and shear. If shear is zero, this reduces
         to a quadratic polynomial solve.
@@ -697,7 +698,7 @@ class PointLens(object):
                 The point-source--point-lens with external mass sheet
                 magnification for each point specified by `trajectory`.
 
-        """
+        "
         if not isinstance(trajectory, mm.Trajectory):
             raise ValueError("trajectory must be a Trajectory object.")
 
@@ -740,3 +741,4 @@ class PointLens(object):
             pspl_magnification.append(mag)
 
         return np.array(pspl_magnification)
+"""

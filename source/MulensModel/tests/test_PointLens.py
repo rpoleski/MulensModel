@@ -98,9 +98,7 @@ def test_get_pspl_with_shear_magnification():
 
     parameters = mm.ModelParameters({
         't_0': t_0, 'u_0': u_0, 't_E': t_E, 'convergence_K': convergence_K})
-    point_lens = mm.PointLens(parameters=parameters)
+    point_lens = mm.PointLensWithShear(parameters=parameters)
     trajectory = mm.Trajectory(t_vec, parameters)
-    test_pspl_shear = point_lens.get_pspl_with_shear_magnification(
-        trajectory=trajectory, convergence_K=convergence_K,
-        shear_G=complex(0, 0))
+    test_pspl_shear = point_lens.get_pspl_magnification(trajectory)
     np.testing.assert_almost_equal(test_pspl_shear[0], 11.7608836, decimal=5)

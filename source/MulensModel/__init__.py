@@ -16,6 +16,7 @@ from MulensModel.modelparameters import ModelParameters, which_parameters
 from MulensModel.mulensdata import MulensData
 from MulensModel.mulensobjects import *
 from MulensModel.pointlens import PointLens, get_pspl_magnification
+from MulensModel.pointlenswithshear import PointLensWithShear
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
 from MulensModel.uniformcausticsampling import UniformCausticSampling
