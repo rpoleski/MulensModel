@@ -84,3 +84,20 @@ def test_copy():
     assert data_1.coords is not data_2.coords
     assert data_3.coords is None
     assert data_4.coords is None
+
+
+def test_scale_errorbars():
+    """
+    Check scaling of uncertainties
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(factor=1.4706)
+    #np.testing.assert_almost_equal(data.err_mag, 0.01)
+
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(minimum=0.0075)
+    #np.testing.assert_almost_equal(data.err_mag, 0.01012373)
+
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(1.4706, 0.0075)
+    #np.testing.assert_almost_equal(data.err_mag, 0.0125)
