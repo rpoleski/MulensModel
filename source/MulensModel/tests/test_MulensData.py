@@ -47,6 +47,34 @@ class test(unittest.TestCase):
             e = np.array([0.001, 1.000])
             _ = mm.MulensData(data_list=[t, m, e])
 
+    def test_scale_mag_errorbars_twice(self):
+        """make sure errorbars cannot be scaled twice"""
+        with self.assertRaises(RuntimeError):
+            data = mm.MulensData(file_name=SAMPLE_FILE_01)
+            data.scale_mag_errorbars(2.0)
+            data.scale_mag_errorbars(3.0)
+
+    def test_scale_mag_errorbars_negative(self):
+        """make sure magnitude errobar multiplication factor is not negative"""
+        with self.assertRaises(ValueError):
+            data = mm.MulensData(file_name=SAMPLE_FILE_01)
+            data.scale_mag_errorbars(-1)
+
+    def test_scale_mag_errorbars_double_none(self):
+        """make sure errorbar scaling gets some input"""
+        with self.assertRaises(ValueError):
+            data = mm.MulensData(file_name=SAMPLE_FILE_01)
+            data.scale_mag_errorbars()
+
+    def test_mag_errorbars_scaling_defined(self):
+        """
+        make sure scaling of errorbars is done before its parameters
+        are accesses
+        """
+        with self.assertRaises(RuntimeError):
+            data = mm.MulensData(file_name=SAMPLE_FILE_01)
+            _ = data.mag_errorbars_scaling
+
 
 def test_copy():
     """
@@ -86,18 +114,33 @@ def test_copy():
     assert data_4.coords is None
 
 
-def test_scale_errorbars():
+def test_scale_mag_errorbars():
     """
     Check scaling of uncertainties
     """
-    data = mm.MulensData(file_name=SAMPLE_FILE_01)
-    data.scale_errorbars(factor=1.4706)
-    #np.testing.assert_almost_equal(data.err_mag, 0.01)
+    factor = 1.4706
+    minimum = 0.0075
+
+    equation_1 = "err_mag_new = factor * err_mag\n"
+    equation_2 = "err_mag_new = sqrt(err_mag^2 + minimum^2)\n"
+    equation_3 = "err_mag_new = sqrt((factor * err_mag)^2 + minimum^2)\n"
+    factor_string = "factor: {:}".format(factor)
+    minimum_string = "minimum: {:}".format(minimum)
 
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
-    data.scale_errorbars(minimum=0.0075)
-    #np.testing.assert_almost_equal(data.err_mag, 0.01012373)
+    data.scale_mag_errorbars(factor=factor)
+    np.testing.assert_almost_equal(data.err_mag, 0.01)
+    expected_string = equation_1 + factor_string
+    assert data.mag_errorbars_scaling == expected_string
 
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
-    data.scale_errorbars(1.4706, 0.0075)
-    #np.testing.assert_almost_equal(data.err_mag, 0.0125)
+    data.scale_mag_errorbars(minimum=minimum)
+    np.testing.assert_almost_equal(data.err_mag, 0.01012373)
+    expected_string = equation_2 + minimum_string
+    assert data.mag_errorbars_scaling == expected_string
+
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_mag_errorbars(factor, minimum)
+    np.testing.assert_almost_equal(data.err_mag, 0.0125)
+    expected_string = equation_3 + factor_string + "\n" + minimum_string
+    assert data.mag_errorbars_scaling == expected_string
