@@ -1,6 +1,7 @@
 import os
 import unittest
 import numpy as np
+from numpy.testing import assert_almost_equal as almost
 import warnings
 
 import MulensModel as mm
@@ -66,14 +67,23 @@ class test(unittest.TestCase):
             data = mm.MulensData(file_name=SAMPLE_FILE_01)
             data.scale_errorbars()
 
-    def test_mag_errorbars_scaling_defined(self):
+    def test_errorbars_scaling_equation_defined(self):
         """
         make sure scaling of errorbars is done before its parameters
         are accesses
         """
         with self.assertRaises(RuntimeError):
             data = mm.MulensData(file_name=SAMPLE_FILE_01)
-            _ = data.mag_errorbars_scaling
+            _ = data.errorbars_scaling_equation
+
+    def test_errorbars_scale_factors_defined(self):
+        """
+        make sure scaling of errorbars is done before its parameters
+        are accesses
+        """
+        with self.assertRaises(RuntimeError):
+            data = mm.MulensData(file_name=SAMPLE_FILE_01)
+            _ = data.errorbars_scale_factors
 
 
 def test_copy():
@@ -121,26 +131,25 @@ def test_scale_errorbars():
     factor = 1.4706
     minimum = 0.0075
 
-    equation_1 = "err_mag_new = factor * err_mag\n"
-    equation_2 = "err_mag_new = sqrt(err_mag^2 + minimum^2)\n"
-    equation_3 = "err_mag_new = sqrt((factor * err_mag)^2 + minimum^2)\n"
-    factor_string = "factor: {:}".format(factor)
-    minimum_string = "minimum: {:}".format(minimum)
+    equation_1 = "sigma_mag_new = {:} * sigma_mag".format(factor)
+    equation_2 = "sigma_mag_new = sqrt(sigma_mag^2 + {:}^2)".format(minimum)
+    equation_3 = "sigma_mag_new = sqrt(({:} * sigma_mag)^2 + {:}^2)".format(
+        factor, minimum)
 
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
     data.scale_errorbars(factor=factor)
-    np.testing.assert_almost_equal(data.err_mag, 0.01)
-    expected_string = equation_1 + factor_string
-    assert data.mag_errorbars_scaling == expected_string
+    almost(data.err_mag, 0.01)
+    almost(data.errorbars_scale_factors, [factor, 0.])
+    assert data.errorbars_scaling_equation == equation_1
 
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
     data.scale_errorbars(minimum=minimum)
-    np.testing.assert_almost_equal(data.err_mag, 0.01012373)
-    expected_string = equation_2 + minimum_string
-    assert data.mag_errorbars_scaling == expected_string
+    almost(data.err_mag, 0.01012373)
+    almost(data.errorbars_scale_factors, [1., minimum])
+    assert data.errorbars_scaling_equation == equation_2
 
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
     data.scale_errorbars(factor, minimum)
-    np.testing.assert_almost_equal(data.err_mag, 0.0125)
-    expected_string = equation_3 + factor_string + "\n" + minimum_string
-    assert data.mag_errorbars_scaling == expected_string
+    almost(data.err_mag, 0.0125)
+    almost(data.errorbars_scale_factors, [factor, minimum])
+    assert data.errorbars_scaling_equation == equation_3
