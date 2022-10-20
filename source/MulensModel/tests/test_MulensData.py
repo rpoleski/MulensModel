@@ -47,24 +47,24 @@ class test(unittest.TestCase):
             e = np.array([0.001, 1.000])
             _ = mm.MulensData(data_list=[t, m, e])
 
-    def test_scale_mag_errorbars_twice(self):
+    def test_scale_errorbars_twice(self):
         """make sure errorbars cannot be scaled twice"""
         with self.assertRaises(RuntimeError):
             data = mm.MulensData(file_name=SAMPLE_FILE_01)
-            data.scale_mag_errorbars(2.0)
-            data.scale_mag_errorbars(3.0)
+            data.scale_errorbars(2.0)
+            data.scale_errorbars(3.0)
 
-    def test_scale_mag_errorbars_negative(self):
+    def test_scale_errorbars_negative(self):
         """make sure magnitude errobar multiplication factor is not negative"""
         with self.assertRaises(ValueError):
             data = mm.MulensData(file_name=SAMPLE_FILE_01)
-            data.scale_mag_errorbars(-1)
+            data.scale_errorbars(-1)
 
-    def test_scale_mag_errorbars_double_none(self):
+    def test_scale_errorbars_double_none(self):
         """make sure errorbar scaling gets some input"""
         with self.assertRaises(ValueError):
             data = mm.MulensData(file_name=SAMPLE_FILE_01)
-            data.scale_mag_errorbars()
+            data.scale_errorbars()
 
     def test_mag_errorbars_scaling_defined(self):
         """
@@ -114,7 +114,7 @@ def test_copy():
     assert data_4.coords is None
 
 
-def test_scale_mag_errorbars():
+def test_scale_errorbars():
     """
     Check scaling of uncertainties
     """
@@ -128,19 +128,19 @@ def test_scale_mag_errorbars():
     minimum_string = "minimum: {:}".format(minimum)
 
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
-    data.scale_mag_errorbars(factor=factor)
+    data.scale_errorbars(factor=factor)
     np.testing.assert_almost_equal(data.err_mag, 0.01)
     expected_string = equation_1 + factor_string
     assert data.mag_errorbars_scaling == expected_string
 
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
-    data.scale_mag_errorbars(minimum=minimum)
+    data.scale_errorbars(minimum=minimum)
     np.testing.assert_almost_equal(data.err_mag, 0.01012373)
     expected_string = equation_2 + minimum_string
     assert data.mag_errorbars_scaling == expected_string
 
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
-    data.scale_mag_errorbars(factor, minimum)
+    data.scale_errorbars(factor, minimum)
     np.testing.assert_almost_equal(data.err_mag, 0.0125)
     expected_string = equation_3 + factor_string + "\n" + minimum_string
     assert data.mag_errorbars_scaling == expected_string
