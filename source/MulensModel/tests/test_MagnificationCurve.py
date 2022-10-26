@@ -12,6 +12,37 @@ def test_magnification_type():
     magnification_curve = mm.MagnificationCurve(2., parameters)
     assert type(magnification_curve.get_magnification()) == np.ndarray
 
+def test_():
+    """
+    test if not setting methods in set_magnification_methods() works ok
+    """
+    t_0 = 2456789.012345
+    t_E = 23.4567
+    u_0 = 1e-4
+    rho = 1e-3
+
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
+    mag_curve = mm.MagnificationCurve([t_0], params)
+    mag_curve.set_magnification_methods(None, 'finite_source_uniform_Gould94')
+    result = mag_curve.get_point_lens_magnification()
+    pspl = (u_0**2 + 2.) / np.sqrt(u_0**2 * (u_0**2 + 4.))
+    expected = 0.19949906 * pspl
+    np.testing.assert_almost_equal(expected, result, decimal=4)
+
+    # [2456788.98900588 2456789.012345   2456789.02383639]
+    # [2456765.555645, 'finite_source_uniform_Gould94', 2456812.469045]
+    
+    # [1273.24012746 1994.99060748 1868.43109517]
+    # [1273.24008748 1994.9905932  1868.43109505]
+    # [ 1000.000375  10000.0000375  2000.0001875]
+    #print(expected)
+    #print(results)
+    #print(pspl)
+
+
+
+
 
 def test_fspl_noLD():
     """

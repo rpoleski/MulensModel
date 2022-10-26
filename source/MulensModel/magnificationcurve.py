@@ -255,8 +255,10 @@ class MagnificationCurve(object):
                 " lenses")
 
         pspl_magnification = get_pspl_magnification(self.trajectory)
+        """
         if self._methods_epochs is None:
             return pspl_magnification
+        """
         point_lens = PointLens(self.parameters)
         magnification = pspl_magnification
         u2 = self.trajectory.x**2 + self.trajectory.y**2
