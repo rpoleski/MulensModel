@@ -13,6 +13,25 @@ def test_magnification_type():
     assert type(magnification_curve.get_magnification()) == np.ndarray
 
 
+def test_methods_none():
+    """
+    Test if not setting methods in set_magnification_methods() works ok.
+    """
+    t_0 = 2456789.012345
+    t_E = 23.4567
+    u_0 = 1e-4
+    rho = 1e-3
+
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
+    mag_curve = mm.MagnificationCurve([t_0], params)
+    mag_curve.set_magnification_methods(None, 'finite_source_uniform_Gould94')
+    result = mag_curve.get_point_lens_magnification()
+    expected = 0.19949906 * (u_0**2 + 2.) / np.sqrt(u_0**2 * (u_0**2 + 4.))
+    # The above value was calculated by Andy Gould (file b0b1.dat).
+    np.testing.assert_almost_equal(expected, result, decimal=4)
+
+
 def test_fspl_noLD():
     """
     check if FSPL magnification is calculate properly
@@ -35,7 +54,7 @@ def test_fspl_noLD():
     u = np.array([rho, u_0, 0.5*rho])
     pspl = (u**2 + 2.) / np.sqrt(u**2 * (u**2 + 4.))
     expected = np.array([1.27323965, 0.19949906, 0.93421546])
-# These values were calculated by Andy Gould (file b0b1.dat).
+    # These values were calculated by Andy Gould (file b0b1.dat).
     expected *= pspl
 
     np.testing.assert_almost_equal(expected, results, decimal=4)
