@@ -50,7 +50,7 @@ class MagnificationCurve(object):
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, gamma=0.):
         # Set times
-        self.times = np.asarray(times)
+        self.times = np.atleast_1d(times)
 
         # Check for ModelParameters and set.
         if isinstance(parameters, ModelParameters):
@@ -255,13 +255,14 @@ class MagnificationCurve(object):
                 " lenses")
 
         pspl_magnification = get_pspl_magnification(self.trajectory)
-        if self._methods_epochs is None:
+        methods = np.array(self._methods_for_epochs())
+        if np.all(methods == None):
             return pspl_magnification
+
         point_lens = PointLens(self.parameters)
         magnification = pspl_magnification
         u2 = self.trajectory.x**2 + self.trajectory.y**2
         u_all = np.sqrt(u2)
-        methods = np.array(self._methods_for_epochs())
 
         for method in set(methods):
             kwargs = {}
