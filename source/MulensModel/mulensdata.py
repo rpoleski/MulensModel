@@ -122,6 +122,7 @@ class MulensData(object):
         self._n_epochs = None
         self._horizons = None
         self._satellite_skycoord = None
+        self._errorbars_scale = None
 
         self._init_keys = {'add245': add_2450000, 'add246': add_2460000}
         self._limb_darkening_weights = None
@@ -796,3 +797,86 @@ class MulensData(object):
         out._file_name = self._file_name
 
         return out
+
+    def scale_errorbars(self, factor=None, minimum=None):
+        """
+        Scale magnitude errorbars by multiplying by *factor* and
+        then adding *minimum* in squares.
+
+        Parameters :
+            factor: *float*
+                Multiplication factor. Typically used for faint events.
+
+            minimum: *float*
+                Floor of magnitude errorbars. Typically used for bright
+                events.
+        """
+        if self._errorbars_scale is not None:
+            raise RuntimeError('Errorbars cannot be scaled twice. '
+                               'Use copy() if you really need that.')
+        if factor is None and minimum is None:
+            raise ValueError('scale_errorbars() requires some input')
+        if factor is not None and factor < 0.:
+            raise ValueError('magnitude errorbar scaling cannot be negative')
+
+        self._errorbars_scale = {'factor': factor, 'minimum': minimum}
+
+        self._scale_mag_err()
+
+    def _scale_mag_err(self):
+        """
+        Scale magnitude errorbars
+        """
+        new_err_mag = self.err_mag
+
+        if self._errorbars_scale['factor'] is not None:
+            new_err_mag *= self._errorbars_scale['factor']
+
+        minimum = self._errorbars_scale['minimum']
+        if minimum is not None:
+            new_err_mag = np.sqrt(new_err_mag**2 + minimum**2)
+
+        self._err_mag = new_err_mag
+        self._err_flux = Utils.get_flux_and_err_from_mag(
+                mag=self.mag, err_mag=self.err_mag)[1]
+
+    @property
+    def errorbars_scale_factors(self):
+        """
+        *list* of two *floats*
+
+        Parameters used by :py:func:`scale_errorbars()`.
+        The first one is multiplication factor,
+        while the second is the minimum scatter added in squares.
+        """
+        if self._errorbars_scale is None:
+            raise RuntimeError("scale_errorbars() must be called before "
+                               "accessing errorbars_scale_factors")
+
+        out_1 = self._errorbars_scale['factor']
+        if out_1 is None:
+            out_1 = 1.
+        out_2 = self._errorbars_scale['minimum']
+        if out_2 is None:
+            out_2 = 0.
+        return [out_1, out_2]
+
+    @property
+    def errorbars_scaling_equation(self):
+        """
+        *str*
+
+        Equation and parameters used by :py:func:`scale_errorbars()`.
+        """
+        if self._errorbars_scale is None:
+            raise RuntimeError("scale_errorbars() must be called before "
+                               "accessing errorbars_scaling_equation")
+        elif self._errorbars_scale['minimum'] is None:
+            format_ = "sigma_mag_new = {factor:} * sigma_mag"
+        elif self._errorbars_scale['factor'] is None:
+            format_ = "sigma_mag_new = sqrt(sigma_mag^2 + {minimum:}^2)"
+        else:
+            format_ = ("sigma_mag_new = "
+                       "sqrt(({factor:} * sigma_mag)^2 + {minimum:}^2)")
+
+        return format_.format(**self._errorbars_scale)
