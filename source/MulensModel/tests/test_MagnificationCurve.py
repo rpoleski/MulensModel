@@ -1,4 +1,6 @@
 import numpy as np
+import unittest
+import warnings
 
 import MulensModel as mm
 
@@ -157,3 +159,53 @@ def test_PSPL_for_binary():
     u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
     np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())
+
+
+class TestEvent(unittest.TestCase):
+    def test_error_in_init(self):
+        """
+        What happens when dict is provided instead of ModelParameters
+        """
+        parameters = {'t_0': 10, 'u_0': 0.5, 't_E': 25.}
+        with self.assertRaises(TypeError):
+            mm.MagnificationCurve(1000., parameters)
+
+    def test_errors_in_set_magnification_methods(self):
+        """
+        Parameter methods of set_magnification_methods() can be wrong in
+        a few ways and we test them here.
+        """
+        parameters = mm.ModelParameters({'t_0': 10, 'u_0': 0.5, 't_E': 25.})
+        mag_curve = mm.MagnificationCurve([12.], parameters=parameters)
+        with self.assertRaises(TypeError):
+            methods = ['vbbl', 'vbbl', 100]
+            mag_curve.set_magnification_methods(methods, 'point_lens')
+
+        with self.assertRaises(TypeError):
+            methods = [0, 10, 100]
+            mag_curve.set_magnification_methods(methods, 'point_lens')
+
+        with self.assertRaises(ValueError):
+            methods = [100., 'vbbl', 0]
+            mag_curve.set_magnification_methods(methods, 'point_lens')
+
+    def test_error_1_vs_2_lenses(self):
+        """
+        Test if geting point lens calculation for a binary lens model
+        results in error
+        """
+        parameters = mm.ModelParameters({'t_0': 10, 'u_0': 0.5, 't_E': 25.,
+                                         's': 1.1, 'q': 0.1, 'alpha': 123.45})
+        mag_curve = mm.MagnificationCurve([12.], parameters=parameters)
+        with self.assertRaises(ValueError):
+            mag_curve.get_point_lens_magnification()
+
+"""
+def test_warning_rho_and_no_finite_source_method():
+    "XXX"
+    parameters = mm.ModelParameters({
+        't_0': 10, 'u_0': 0.5, 't_E': 25., 'rho': 0.01})
+    mag_curve = mm.MagnificationCurve([12.], parameters=parameters)
+    with warnings.catch_warnings():
+        pass # mag_curve.get_magnification()
+"""
