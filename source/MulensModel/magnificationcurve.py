@@ -56,7 +56,7 @@ class MagnificationCurve(object):
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
-            raise ValueError(
+            raise TypeError(
                 'parameters is a required keyword and must be a ' +
                 'ModelParameters object')
 
@@ -160,7 +160,7 @@ class MagnificationCurve(object):
 
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
-        elif (self.parameters.n_lenses == 2):
+        elif self.parameters.n_lenses == 2:
             magnification = self.get_binary_lens_magnification()
         else:
             raise NotImplementedError(
@@ -174,7 +174,7 @@ class MagnificationCurve(object):
         calculations and warn if not
         """
         methods = self._methods_names + [self._default_method]
-        set_ = set(['point_source', 'point_source_point_lens'])
+        set_ = set(['point_source', 'point_source_point_lens', None])
         if len(set(methods)-set_) == 0:
             warnings.warn('no finite-source method is set', UserWarning)
             return
