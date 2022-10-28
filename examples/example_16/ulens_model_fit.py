@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.28.1'
+__version__ = '0.30.10'
 
 
 class UlensModelFit(object):
@@ -229,13 +229,16 @@ class UlensModelFit(object):
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``triangle``, ``trace`` (only EMCEE fitting),
-            and ``best model``.
+            ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
             ``'file'``, ``'time range'``, ``'magnitude range'``, ``'legend'``,
             and ``'rcParams'``,
             2) for ``triangle`` and ``trace``:
             ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
+            3) for ``trajectory``:
+            ``'file'`` and ``'time range'`` (if not provided, then values
+            from ``best model`` will be used)
             e.g.:
 
             .. code-block:: python
@@ -246,6 +249,9 @@ class UlensModelFit(object):
                   'trace':
                       'file': 'my_fit_trace_plot.png'
                       'shift t_0': False
+                  'trajectory':
+                      'file': 'my_trajectory.png'
+                      'time range': 2456050. 2456300.
                   'best model':
                       'file': 'my_fit_best.png'
                       'time range': 2456000. 2456300.
@@ -260,11 +266,16 @@ class UlensModelFit(object):
             Note that 'rcParams' allows setting many matplotlib parameters.
 
         other_output: *dict*
-            Parameters for other output. Currently, the only allowed value is
+            Parameters for other output. Allowed value are:
+
             ``'models': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE is
             a *str* that gives a path to text file to which we will print all
             models and their chi^2. If ``NAME_OF_FILE`` is ``"-"``, then
             the models will be printed to standard output.
+
+            ``'yaml output': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE
+            is a *str* that gives a path to YAML-format file to which
+            the results will be printed
     """
     def __init__(
             self, photometry_files,
@@ -368,7 +379,7 @@ class UlensModelFit(object):
                     "don't fit")
             if "trace" in self._plots:
                 raise ValueError(
-                    'You cannot provide plots["trace"] if you' "don't fit")
+                    'You cannot provide plots["trace"] if you' " don't fit")
 
     def _set_default_parameters(self):
         """
@@ -385,6 +396,29 @@ class UlensModelFit(object):
         else:
             raise ValueError('internal error - task ' + str(self._task))
         self._print_model = False
+        self._yaml_results = False
+
+        parameters_str = (
+            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
+            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
+            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
+        self._all_MM_parameters = parameters_str.split()
+        self._other_parameters = []
+
+        self._latex_conversion = dict(
+            t_0='t_0', u_0='u_0',
+            t_0_1='t_{0,1}', u_0_1='u_{0,1}',
+            t_0_2='t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
+            t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
+            rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
+            t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
+            pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
+            ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
+            x_caustic_in='x_{\\rm caustic,in}',
+            x_caustic_out='x_{\\rm caustic,out}',
+            t_caustic_in='t_{\\rm caustic,in}',
+            t_caustic_out='t_{\\rm caustic,out}')
+        self._latex_conversion_other = dict()
 
     def _guess_fitting_method(self):
         """
@@ -463,6 +497,7 @@ class UlensModelFit(object):
         self._check_other_fit_parameters()
         self._parse_other_output_parameters()
         self._get_datasets()
+        self._check_ulens_model_parameters()
         self._get_parameters_ordered()
         self._get_parameters_latex()
         self._parse_fitting_parameters()
@@ -494,6 +529,7 @@ class UlensModelFit(object):
         self._check_plots_parameters()
         self._check_model_parameters()
         self._get_datasets()
+        self._check_ulens_model_parameters()
         self._check_fixed_parameters()
         self._make_model_and_event()
         self._make_plots()
@@ -502,7 +538,7 @@ class UlensModelFit(object):
         """
         Check if parameters of plots make sense
         """
-        allowed_keys = set(['best model', 'triangle', 'trace'])
+        allowed_keys = set(['best model', 'trajectory', 'triangle', 'trace'])
 
         if self._plots is None:
             self._plots = dict()
@@ -520,6 +556,9 @@ class UlensModelFit(object):
 
         if 'best model' in self._plots:
             self._check_plots_parameters_best_model()
+
+        if 'trajectory' in self._plots:
+            self._check_plots_parameters_trajectory()
 
         if 'triangle' in self._plots:
             self._check_plots_parameters_triangle()
@@ -549,20 +588,7 @@ class UlensModelFit(object):
             raise ValueError(
                 'Unknown settings for "best model": {:}'.format(unknown))
 
-        if 'time range' in self._plots['best model']:
-            text = self._plots['best model']['time range'].split()
-            if len(text) != 2:
-                raise ValueError(
-                    "'time range' for 'best model' should specify 2 " +
-                    "values (begin and end); got: " +
-                    str(self._plots['best model']['time range']))
-            t_0 = float(text[0])
-            t_1 = float(text[1])
-            if t_1 < t_0:
-                raise ValueError(
-                    "Incorrect 'time range' for 'best model':\n" +
-                    text[0] + " " + text[1])
-            self._plots['best model']['time range'] = [t_0, t_1]
+        self._set_time_range_for_plot('best model')
 
         if 'magnitude range' in self._plots['best model']:
             text = self._plots['best model']['magnitude range'].split()
@@ -589,6 +615,26 @@ class UlensModelFit(object):
 
         if 'second Y scale' in self._plots['best model']:
             self._check_plots_parameters_best_model_Y_scale()
+
+    def _set_time_range_for_plot(self, plot_type):
+        """
+        set time range for best model or triangle plots
+        """
+        if 'time range' not in self._plots[plot_type]:
+            return
+
+        text = self._plots[plot_type]['time range'].split()
+        if len(text) != 2:
+            msg = ("'time range' for {:} plot should specify 2 values "
+                   "(begin and end); got: {:}")
+            raise ValueError(
+                msg.format(plot_type, self._plots[plot_type]['time range']))
+        t_0 = float(text[0])
+        t_1 = float(text[1])
+        if t_1 < t_0:
+            raise ValueError("Incorrect 'time range' for " + plot_type +
+                             "plot:\n" + text[0] + " " + text[1])
+        self._plots[plot_type]['time range'] = [t_0, t_1]
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -623,6 +669,18 @@ class UlensModelFit(object):
                     'In "best model" -> "second Y scale", labels and '
                     'magnifications must be lists of the same length')
 
+    def _check_plots_parameters_trajectory(self):
+        """
+        Check if parameters of trajectory plot make sense
+        """
+        allowed = set(['file', 'time range'])
+        unknown = set(self._plots['trajectory'].keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'Unknown settings for "trajectory" plot: {:}'.format(unknown))
+
+        self._set_time_range_for_plot('trajectory')
+
     def _check_plots_parameters_triangle(self):
         """
         Check if parameters of triangle plot make sense
@@ -631,7 +689,7 @@ class UlensModelFit(object):
         unknown = set(self._plots['triangle'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
-                'Unknown settings for "triangle": {:}'.format(unknown))
+                'Unknown settings for "triangle" plot: {:}'.format(unknown))
 
         self._parse_plots_parameter_shift_t_0(self._plots['triangle'])
 
@@ -658,7 +716,7 @@ class UlensModelFit(object):
         unknown = set(self._plots['trace'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
-                'Unknown settings for "trace": {:}'.format(unknown))
+                'Unknown settings for "trace" plot: {:}'.format(unknown))
 
         if self._fit_method == "MultiNest":
             raise ValueError(
@@ -752,27 +810,56 @@ class UlensModelFit(object):
 
         for (key, value) in self._other_output.items():
             if key == 'models':
-                if not isinstance(value, dict):
-                    raise ValueError('models value should also be *dict*, ' +
-                                     'got ' + str(type(value)))
-                for (key2, value2) in value.items():
-                    if key2 == 'file name':
-                        self._print_model = True
-                        self._print_model_i = 0
-                        if value2 == '-':
-                            self._print_model_file = sys.stdout
-                        else:
-                            try:
-                                self._print_model_file = open(value2, 'w')
-                            except Exception:
-                                raise ValueError(
-                                    'Error while opening file ' + str(value2))
-                    else:
-                        raise KeyError("Unrecognized key: " + str(key) +
-                                       "\nExpected keys: 'file name'.")
+                self._parse_other_output_parameters_models(value)
+            elif key == 'yaml output':
+                self._parse_other_output_parameters_yaml_output(value)
             else:
-                raise ValueError('Unrecognized key: ' + str(key) + "\n" +
+                raise ValueError('Unrecognized key: ' + str(key) + "\n " +
                                  "Expected keys: models")
+
+    def _parse_other_output_parameters_models(self, values):
+        """
+        parse information on "other output" -> "models"
+        """
+        if not isinstance(values, dict):
+            raise ValueError('"models" value should also be *dict*, '
+                             'got ' + str(type(values)))
+        for (key, value) in values.items():
+            if key == 'file name':
+                self._print_model = True
+                self._print_model_i = 0
+                if value == '-':
+                    self._print_model_file = sys.stdout
+                else:
+                    try:
+                        self._print_model_file = open(value, 'w')
+                    except Exception:
+                        raise ValueError(
+                            'Error while opening file ' + str(value))
+            else:
+                raise KeyError("Unrecognized key: " + str(key) +
+                               "\nExpected keys: 'file name'.")
+
+    def _parse_other_output_parameters_yaml_output(self, values):
+        """
+        parse information on "other output" -> "yaml output"
+        """
+        if not isinstance(values, dict):
+            raise ValueError('"yaml output" value should also be *dict*, '
+                             'got ' + str(type(values)))
+        for (key, value) in values.items():
+            if key == 'file name':
+                self._yaml_results = True
+                try:
+                    self._yaml_results_file = open(value, 'w')
+                except Exception:
+                    raise ValueError('Error while opening output '
+                                     'YAML file ' + str(value))
+                self._yaml_kwargs = {'file': self._yaml_results_file,
+                                     'flush': True}
+            else:
+                raise KeyError("Unrecognized key: " + str(key) +
+                               "\nExpected keys: 'file name'.")
 
     def _get_datasets(self):
         """
@@ -801,44 +888,44 @@ class UlensModelFit(object):
                 raise
             self._datasets.append(dataset)
 
+    def _check_ulens_model_parameters(self):
+        """
+        Check if there aren't too many parameters.
+        Standard check (e.g. if t_0 is defined) are done in mm.Model().
+        """
+        if self._task == 'fit':
+            to_be_checked = set(self._fit_parameters_unsorted)
+        elif self._task == 'plot':
+            to_be_checked = set(self._model_parameters['parameters'])
+        else:
+            raise ValueError('unexpected error: ' + str(self._task))
+        allowed = self._all_MM_parameters + self._other_parameters
+        unknown = to_be_checked - set(allowed)
+        if len(unknown) > 0:
+            raise ValueError('Unknown parameters: {:}'.format(unknown))
+
     def _get_parameters_ordered(self):
         """
         Order input parameters in some logical way.
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        all_fit_parameters_str = (
-            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
-            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
-            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
-        all_fit_parameters = all_fit_parameters_str.split()
+        order = self._all_MM_parameters + self._other_parameters
+        indexes = [order.index(p) for p in self._fit_parameters_unsorted]
 
-        unknown = set(self._fit_parameters_unsorted) - set(all_fit_parameters)
-        if len(unknown) > 0:
-            raise ValueError('Unknown parameters: {:}'.format(unknown))
+        self._fit_parameters = [order[i] for i in indexes]
+        self._fit_parameters_other = [
+            order[i] for i in indexes if order[i] in self._other_parameters]
+        self._other_parameters_dict = dict()
 
-        indexes = [all_fit_parameters.index(p)
-                   for p in self._fit_parameters_unsorted]
-
-        self._fit_parameters = [all_fit_parameters[i] for i in indexes]
+        if len(self._fit_parameters_other) > 0:
+            self._flat_priors = False
 
     def _get_parameters_latex(self):
         """
         change self._fit_parameters into latex parameters
         """
-        conversion = dict(
-            t_0='t_0', u_0='u_0',
-            t_0_1='t_{0,1}', u_0_1='u_{0,1}',
-            t_0_2='t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
-            t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
-            rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
-            t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
-            pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
-            ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
-            x_caustic_in='x_{\\rm caustic,in}',
-            x_caustic_out='x_{\\rm caustic,out}',
-            t_caustic_in='t_{\\rm caustic,in}',
-            t_caustic_out='t_{\\rm caustic,out}')
+        conversion = {**self._latex_conversion, **self._latex_conversion_other}
 
         if self._shift_t_0:
             for key in ['t_0', 't_0_1', 't_0_2']:
@@ -1189,8 +1276,8 @@ class UlensModelFit(object):
         allowed_keys = {*allowed_keys_flux, "prior"}
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
-            raise ValueError(
-                'unrecognized constraint: {:}'.format(forbidden))
+            raise ValueError('unrecognized constraint: {:}'.format(
+                used_keys - allowed_keys))
         if len(used_keys.intersection(allowed_keys_flux)) == 2:
             raise ValueError(
                 'you cannot specify both no_negative_blending_flux and ' +
@@ -1332,17 +1419,9 @@ class UlensModelFit(object):
         if self._fixed_parameters is None:
             return
 
-        all_parameters = (
-            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
-            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
-            'dalpha_dt x_caustic_in x_caustic_out ' +
-            't_caustic_in t_caustic_out ' +
-            't_0_par t_0_kep')
-        all_parameters = set(all_parameters.split())
-
         fixed = set(self._fixed_parameters.keys())
 
-        unknown = fixed - all_parameters
+        unknown = fixed - set(self._all_MM_parameters + ['t_0_par'])
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
@@ -1360,6 +1439,11 @@ class UlensModelFit(object):
         Set internal MulensModel instances: Model and Event
         """
         parameters = self._get_example_parameters()
+        for key in self._other_parameters:
+            try:
+                parameters.pop(key)
+            except Exception:
+                pass
 
         kwargs = dict()
         if 'coords' in self._model_parameters:
@@ -1435,32 +1519,33 @@ class UlensModelFit(object):
         Generate parameters *dict* according to provided starting and fixed
         parameters.
         """
+        if self._fixed_parameters is None:
+            parameters = dict()
+        else:
+            parameters = {**self._fixed_parameters}
+
         if self._task == 'plot':
-            parameters = dict(zip(
+            parameters.update(dict(zip(
                 self._model_parameters['parameters'],
-                self._model_parameters['values']))
+                self._model_parameters['values'])))
             # XXX this is some kind of a hack:
             self._best_model_theta = []
             self._fit_parameters = []
         elif self._task == 'fit':
             if self._fit_method == 'EMCEE':
-                parameters = self._get_example_parameters_EMCEE()
+                parameters.update(self._get_example_parameters_EMCEE())
             elif self._fit_method == 'MultiNest':
                 means = 0.5 * (self._max_values + self._min_values)
-                parameters = dict(zip(self._fit_parameters, means))
+                parameters.update(dict(zip(self._fit_parameters, means)))
                 if "x_caustic_in" in self._fit_parameters:
                     index = self._fit_parameters.index("x_caustic_in")
                     parameters["x_caustic_in"] = (
                         self._min_values[index] +
-                        np.random.randn(1)[0] * self._range_values[index])
+                        np.random.uniform() * self._range_values[index])
             else:
                 raise ValueError('internal value')
         else:
             raise ValueError('internal value')
-
-        if self._fixed_parameters is not None:
-            for (key, value) in self._fixed_parameters.items():
-                parameters[key] = value
 
         return parameters
 
@@ -1608,8 +1693,18 @@ class UlensModelFit(object):
         Note that if only plotting functions are called,
         then self._fit_parameters and theta are empty.
         """
-        for (parameter, value) in zip(self._fit_parameters, theta):
-            setattr(self._model.parameters, parameter, value)
+        if self._task == 'plot':
+            return
+
+        if len(self._fit_parameters_other) == 0:
+            for (parameter, value) in zip(self._fit_parameters, theta):
+                setattr(self._model.parameters, parameter, value)
+        else:
+            for (parameter, value) in zip(self._fit_parameters, theta):
+                if parameter not in self._fit_parameters_other:
+                    setattr(self._model.parameters, parameter, value)
+                else:
+                    self._other_parameters_dict[parameter] = value
 
     def _ln_prior(self, theta):
         """
@@ -1632,6 +1727,11 @@ class UlensModelFit(object):
             if theta[index] > limit:
                 return outside
 
+        if "x_caustic_in" in self._model.parameters.parameters:
+            self._set_model_parameters(theta)
+            if not self._check_valid_Cassan08_trajectory():
+                return outside
+
         ln_prior = inside
 
         if self._prior_t_E is not None:
@@ -1650,6 +1750,17 @@ class UlensModelFit(object):
                     raise ValueError('prior not handled: ' + parameter)
 
         return ln_prior
+
+    def _check_valid_Cassan08_trajectory(self):
+        """
+        Check if current model (that has to be in Cassan08 parameterization)
+        has valid trajectory.
+        """
+        sampling = self._model.parameters.uniform_caustic_sampling
+        valid = sampling.check_valid_trajectory(
+                self._model.parameters.x_caustic_in,
+                self._model.parameters.x_caustic_out)
+        return valid
 
     def _get_ln_prior_for_1_parameter(self, value, settings):
         """
@@ -1696,11 +1807,15 @@ class UlensModelFit(object):
         self._set_model_parameters(theta)
 
         chi2 = self._event.get_chi2()
+        out = -0.5 * chi2
 
         if self._print_model:
             self._print_current_model(theta, chi2)
 
-        return -0.5 * chi2
+        if self._task == 'fit' and len(self._other_parameters_dict) > 0:
+            out += self._get_ln_probability_for_other_parameters()
+
+        return out
 
     def _print_current_model(self, theta, chi2):
         """
@@ -1716,6 +1831,22 @@ class UlensModelFit(object):
 
         print(out, file=self._print_model_file, flush=flush)
         self._print_model_i += 1
+
+    def _get_ln_probability_for_other_parameters(self):
+        """
+        Function that defines calculation of
+        ln(probability(other_parameters)).
+        The logarithm is to the base of the constant e.
+
+        If you have defined other_parameters, then you have to implement
+        child class of UlensModelFit and re-define this function.
+
+        NOTE: your implementation should primarily use *dict*
+        `self._other_parameters_dict`, but all MM parameters are already
+        set and kept in *MM.Event* instance `self._event`.
+        """
+        raise NotImplementedError(
+            'You have to subclass this class and re-implement this function')
 
     def _get_fluxes(self):
         """
@@ -1807,6 +1938,17 @@ class UlensModelFit(object):
         for i in range(n_dims):
             cube[i] = cube_out[i]
 
+        if "x_caustic_in" in self._model.parameters.parameters:
+            self._set_model_parameters(cube_out)
+            if not self._check_valid_Cassan08_trajectory():
+                self._last_ln_like = -1.e300
+                self._last_theta = cube_out
+                if self._return_fluxes:
+                    for i in range(n_dims, n_params):
+                        cube[i] = 0.
+                    self._last_fluxes = np.zeros(n_params - n_dims)
+                return
+
         self._last_ln_like = self._ln_like(cube_out)
         self._last_theta = cube_out
 
@@ -1887,9 +2029,6 @@ class UlensModelFit(object):
                 self._read_multimode_posterior_MultiNest()
                 self._read_multimode_best_models_MultiNest()
 
-            if self._MN_temporary_files:
-                shutil.rmtree(base, ignore_errors=True)
-
     def _read_multimode_posterior_MultiNest(self):
         """
         We read data from MultiNest output file [root]post_separate.dat.
@@ -1947,6 +2086,15 @@ class UlensModelFit(object):
         else:
             raise ValueError('internal bug')
 
+        # Below we close open files and remove temporary ones.
+        if self._yaml_results:
+            if self._yaml_results_file is not sys.stdout:
+                self._yaml_results_file.close()
+        if self._fit_method == "MultiNest":
+            if self._MN_temporary_files:
+                shutil.rmtree(self._kwargs_MultiNest['outputfiles_basename'],
+                              ignore_errors=True)
+
     def _parse_results_EMCEE(self):
         """
         Print and save results from EMCEE fitting.
@@ -1954,29 +2102,42 @@ class UlensModelFit(object):
         This version works with EMCEE version 2.X and 3.0.
         """
         accept_rate = np.mean(self._sampler.acceptance_fraction)
-        print("Mean acceptance fraction: {0:.3f}".format(accept_rate))
-        autocorr_times = self._sampler.get_autocorr_time(
-            quiet=True, discard=self._fitting_parameters['n_burn'])
-        autocorr_time = np.mean(autocorr_times)
-        print("Mean autocorrelation time: {0:.1f} steps".format(autocorr_time))
+        out = "Mean acceptance fraction: {0:.3f}".format(accept_rate)
+        print(out)
+        if self._yaml_results:
+            print(out, **self._yaml_kwargs)
 
+        auto_time = np.mean(self._sampler.get_autocorr_time(
+            quiet=True, discard=self._fitting_parameters['n_burn']))
+        out = "Mean autocorrelation time [steps]: {0:.1f}".format(auto_time)
+        print(out)
+        if self._yaml_results:
+            print(out, **self._yaml_kwargs)
         self._extract_posterior_samples_EMCEE()
 
         print("Fitted parameters:")
         self._print_results(self._samples_flat)
-
+        if self._yaml_results:
+            print("Fitted parameters:", **self._yaml_kwargs)
+            self._print_yaml_results(self._samples_flat)
         self._shift_t_0_in_samples()
 
         if self._return_fluxes:
             print("Fitted fluxes (source and blending):")
             blob_samples = self._get_fluxes_to_print_EMCEE()
             self._print_results(blob_samples, names='fluxes')
+            if self._yaml_results:
+                print("Fitted fluxes: # (source and blending)",
+                      **self._yaml_kwargs)
+                self._print_yaml_results(blob_samples, names='fluxes')
 
         self._print_best_model()
+        if self._yaml_results:
+            self._print_yaml_best_model()
 
     def _extract_posterior_samples_EMCEE(self):
         """
-        set self._samples_flat and self._samples
+        set self._samples_flat and self._samples for EMCEE
         """
         n_burn = self._fitting_parameters['n_burn']
         self._samples = self._sampler.chain[:, n_burn:, :]
@@ -2009,11 +2170,56 @@ class UlensModelFit(object):
         else:
             raise ValueError("internal bug")
 
+        print(self._format_results(ids, results))
+
+    def _format_results(self, ids, results, yaml=False, begin=""):
+        """
+        take a list of parameters and a list of results and
+        return properly formatted string
+        """
+        text = ""
         for (parameter, results_) in zip(ids, results):
-            format_ = "{:} : {:.5f} +{:.5f} -{:.5f}"
-            if parameter == 'q':
-                format_ = "{:} : {:.7f} +{:.7f} -{:.7f}"
-            print(format_.format(parameter, *results_))
+            format_ = "{:} : {:.5f} +{:.5f} -{:.5f}\n"
+            if parameter != 'q':
+                format_ = "{:} : {:.5f} +{:.5f} -{:.5f}\n"
+                if yaml:
+                    format_ = "{:} : [{:.5f}, +{:.5f}, -{:.5f}]\n"
+            else:
+                format_ = "{:} : {:.7f} +{:.7f} -{:.7f}\n"
+                if yaml:
+                    format_ = "{:} : [{:.7f}, +{:.7f}, -{:.7f}]\n"
+            text += (begin + format_).format(parameter, *results_)
+        return text[:-1]
+
+    def _print_yaml_results(self, data, names="parameters", mode=None):
+        """
+        calculate and print in yaml format median values and +- 1 sigma
+        for given parameters
+        """
+        begin = "    "
+        if names == "parameters":
+            ids = self._fit_parameters
+        elif names == "fluxes":
+            if self._flux_names is None:
+                self._flux_names = self._get_fluxes_names_to_print()
+            ids = self._flux_names
+        else:
+            raise ValueError('internal bug')
+
+        if self._fit_method == "EMCEE":
+            results = self._get_weighted_percentile(data)
+        elif self._fit_method == "MultiNest":
+            if mode is None:
+                weights = self._samples_flat_weights
+            else:
+                weights = self._samples_modes_flat_weights[mode]
+            results = self._get_weighted_percentile(data, weights=weights)
+        else:
+            raise ValueError("internal bug")
+
+        print("# [median, sigma+, sigma-]", **self._yaml_kwargs)
+        print(self._format_results(ids, results, yaml=True, begin=begin),
+              **self._yaml_kwargs)
 
     def _get_fluxes_names_to_print(self):
         """
@@ -2108,15 +2314,50 @@ class UlensModelFit(object):
         """
         print("Best model:")
         if self._flat_priors:
-            print("chi2 : {:.4f}".format(-2. * self._best_model_ln_prob))
+            print("chi2: {:.4f}".format(-2. * self._best_model_ln_prob))
         else:
             self._ln_like(self._best_model_theta)
-            print("chi2 : {:.4f}".format(self._event.get_chi2()))
+            print("chi2: {:.4f}".format(self._event.get_chi2()))
         print(*self._fit_parameters)
         print(*list(self._best_model_theta))
         if self._return_fluxes:
             print("Fluxes:")
             print(*list(self._best_model_fluxes))
+
+    def _print_yaml_best_model(self, begin="", mode=None):
+        """
+        print in yaml format best model found
+        """
+        yaml_txt = begin + "Best model:\n"
+
+        if mode is None:
+            zip_1 = zip(self._fit_parameters, self._best_model_theta)
+            zip_2 = zip(self._flux_names, self._best_model_fluxes)
+            if self._flat_priors:
+                chi2 = -2. * self._best_model_ln_prob
+            else:
+                self._ln_like(self._best_model_theta)
+                chi2 = self._event.get_chi2()
+        else:
+            zip_1 = zip(self._fit_parameters,
+                        mode['parameters'][:self._n_fit_parameters])
+            zip_2 = zip(self._flux_names,
+                        mode['parameters'][self._n_fit_parameters:])
+            chi2 = mode['chi2']
+
+        yaml_txt += (begin + "  chi2: {:.4f}\n").format(chi2)
+        yaml_txt += begin + "  Parameters:\n"
+        format_ = begin + "    {:}: {:}\n"
+        for (parameter, results_) in zip_1:
+            yaml_txt += format_.format(parameter, results_)
+
+        if self._flux_names is None:
+            self._flux_names = self._get_fluxes_names_to_print()
+        yaml_txt += begin + "  Fluxes:\n"
+        for (parameter, results_) in zip_2:
+            yaml_txt += format_.format(parameter, results_)
+
+        print(yaml_txt, end="", **self._yaml_kwargs)
 
     def _save_posterior_EMCEE(self):
         """
@@ -2135,29 +2376,26 @@ class UlensModelFit(object):
         Parse results of MultiNest fitting
         """
         self._extract_posterior_samples_MultiNest()
-        if self._return_fluxes:
-            flux_names = self._get_fluxes_names_to_print()
 
         if self._kwargs_MultiNest['multimodal']:
             self._parse_results_MultiNest_multimodal()
         else:
-            print("Fitted parameters:")
-            self._print_results(self._samples_flat)
-
-            if self._return_fluxes:
-                print("Fitted fluxes (source and blending):")
-                flux_samples = self._get_fluxes_to_print_MultiNest()
-                self._print_results(flux_samples, names='fluxes')
+            self._parse_results_MultiNest_singlemode()
 
         self._shift_t_0_in_samples()
 
         self._print_best_model()
+        if self._yaml_results:
+            self._print_yaml_best_model()
 
     def _parse_results_MultiNest_multimodal(self):
         """
         Print parameters and fluxes for each mode separately
         """
-        print("Number of modes found:", self._n_modes)
+        out = "Number of modes found: {:}".format(self._n_modes)
+        print(out)
+        if self._yaml_results:
+            print(out, **self._yaml_kwargs)
         if self._return_fluxes:
             print("Fitted parameters and fluxes (source and blending) "
                   "plus best model info:")
@@ -2167,20 +2405,69 @@ class UlensModelFit(object):
         self._set_mode_probabilities()
 
         for i_mode in range(self._n_modes):
-            err = self._mode_probabilities_error[i_mode]
-            accuracy = self._get_accuracy(err)
-            fmt = (" MODE {:} probability: {:." + str(accuracy) +
-                   "f} +- {:." + str(accuracy) + "f}")
-            print(fmt.format(i_mode+1, self._mode_probabilities[i_mode], err))
-            self._print_results(self._samples_modes_flat[i_mode], mode=i_mode)
-            if self._return_fluxes:
-                self._print_results(
-                    self._samples_modes_flat_fluxes[i_mode], names="fluxes")
-            mode = self._best_models_for_modes_MN[i_mode]
-            print("{:.4f}".format(mode['chi2']))
-            print(*mode['parameters'][:self._n_fit_parameters])
-            print(*mode['parameters'][self._n_fit_parameters:])
+            self._parse_results_MultiNest_multimodal_one_mode(i_mode)
+
         print(" END OF MODES")
+        if self._yaml_results:
+            print("# END OF MODES", **self._yaml_kwargs)
+
+    def _parse_results_MultiNest_multimodal_one_mode(self, i_mode):
+        """
+        Print parameters and fluxes for one of many modes
+        """
+        probability = self._mode_probabilities[i_mode]
+        err = self._mode_probabilities_error[i_mode]
+        accuracy = self._get_accuracy(err)
+        samples = self._samples_modes_flat[i_mode]
+        fluxes = self._samples_modes_flat_fluxes[i_mode]
+        mode = self._best_models_for_modes_MN[i_mode]
+
+        fmt = (" MODE {:} probability: {:." + str(accuracy) +
+               "f} +- {:." + str(accuracy) + "f}")
+        print(fmt.format(i_mode+1, probability, err))
+        self._print_results(samples, mode=i_mode)
+
+        if self._yaml_results:
+            fmt = ("MODE {:}:\n  probability: {:}\n  "
+                   "probability_sigma: {:}\n  Fitted parameters: ")
+            print(fmt.format(i_mode+1, probability, err),
+                  end="", **self._yaml_kwargs)
+            self._print_yaml_results(samples, mode=i_mode)
+
+        if self._return_fluxes:
+            self._print_results(fluxes, names="fluxes")
+            if self._yaml_results:
+                print("  Fitted fluxes: # source and blending ", end="",
+                      **self._yaml_kwargs)
+                self._print_yaml_results(fluxes, names="fluxes")
+
+        print("{:.4f}".format(mode['chi2']))
+        print(*mode['parameters'][:self._n_fit_parameters])
+        print(*mode['parameters'][self._n_fit_parameters:])
+        if self._yaml_results:
+            self._print_yaml_best_model(mode=mode, begin="  ")
+
+    def _parse_results_MultiNest_singlemode(self):
+        """
+        Print results for MultiNest run in "single mode" setup.
+        Note that this is different than
+        _parse_results_MultiNest_multimodal_one_mode()
+        """
+        print("Fitted parameters:")
+        self._print_results(self._samples_flat)
+
+        if self._yaml_results:
+            print("Fitted parameters:", **self._yaml_kwargs)
+            self._print_yaml_results(self._samples_flat)
+
+        if self._return_fluxes:
+            print("Fitted fluxes (source and blending):")
+            flux_samples = self._get_fluxes_to_print_MultiNest()
+            self._print_results(flux_samples, names='fluxes')
+            if self._yaml_results:
+                print("Fitted fluxes: # (source and blending)",
+                      **self._yaml_kwargs)
+                self._print_yaml_results(flux_samples, names='fluxes')
 
     def _set_mode_probabilities(self):
         """
@@ -2248,6 +2535,8 @@ class UlensModelFit(object):
             self._trace_plot()
         if 'best model' in self._plots:
             self._best_model_plot()
+        if 'trajectory' in self._plots:
+            self._make_trajectory_plot()
 
     def _triangle_plot(self):
         """
@@ -2258,11 +2547,16 @@ class UlensModelFit(object):
         n_bins = 40
 
         kwargs = {
-            'bins': n_bins, 'labels': self._fit_parameters_latex,
-            'show_titles': True, 'quantiles': [0.15866, 0.5, 0.84134],
-            'verbose': False, 'top_ticks': False}
+            'bins': n_bins, 'show_titles': True, 'top_ticks': False,
+            'quantiles': [0.15866, 0.5, 0.84134], 'verbose': False}
 
-        figure = corner.corner(self._samples_flat, **kwargs)
+        data = self._get_samples_for_triangle_plot()
+        labels = self._get_labels_for_triangle_plot()
+        if data.shape[1] != len(labels):
+            msg = "This should never happen: {:} {:}"
+            raise ValueError(msg.format(data.shape, len(labels)))
+
+        figure = corner.corner(data, labels=labels, **kwargs)
 
         self._save_figure(self._plots['triangle'].get('file'), figure=figure)
 
@@ -2271,6 +2565,18 @@ class UlensModelFit(object):
         Reset matplotlib rcParams to their defaults
         """
         rcParams.update(rcParamsDefault)
+
+    def _get_samples_for_triangle_plot(self):
+        """
+        Prepare samples that will be plotted on triangle plot
+        """
+        return self._samples_flat
+
+    def _get_labels_for_triangle_plot(self):
+        """
+        provide list of labels to be used by triangle plot
+        """
+        return self._fit_parameters_latex
 
     def _save_figure(self, file_name, figure=None, dpi=None):
         """
@@ -2306,7 +2612,12 @@ class UlensModelFit(object):
         figure_size = (7.5, 10.5)
         margins = {'left': 0.13, 'right': 0.97, 'top': 0.98, 'bottom': 0.05}
 
-        grid = gridspec.GridSpec(self._n_fit_parameters, 1, hspace=0)
+        n_grid = self._n_fit_parameters
+        if len(self._fit_parameters_latex) != n_grid:
+            msg = "This should never happen: {:} {:}"
+            raise ValueError(
+                msg.format(len(self._fit_parameters_latex), n_grid))
+        grid = gridspec.GridSpec(n_grid, 1, hspace=0)
 
         plt.figure(figsize=figure_size)
         plt.subplots_adjust(**margins)
@@ -2353,6 +2664,7 @@ class UlensModelFit(object):
         grid = gridspec.GridSpec(**kwargs_grid)
 
         axes = plt.subplot(grid[0])
+
         self._event.plot_data(**kwargs)
         fluxes = self._event.get_ref_fluxes()
 
@@ -2367,6 +2679,7 @@ class UlensModelFit(object):
             self._mark_second_Y_axis_in_best_plot()
 
         axes = plt.subplot(grid[1])
+
         self._event.plot_residuals(**kwargs)
         plt.xlim(*xlim)
         plt.ylim(*ylim_residuals)
@@ -2389,7 +2702,7 @@ class UlensModelFit(object):
             'hspace': hspace}
         kwargs = {'subtract_2450000': remove_245}
 
-        (t_1, t_2) = self._get_time_limits_for_plot(tau)
+        (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
 
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
@@ -2414,13 +2727,13 @@ class UlensModelFit(object):
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
                 kwargs_axes_1, kwargs_axes_2)
 
-    def _get_time_limits_for_plot(self, tau):
+    def _get_time_limits_for_plot(self, tau, plot_type):
         """
-        find limits for the best model plot
+        find limits for the best model or trajectory plot
         """
-        if 'time range' in self._plots['best model']:
-            t_1 = self._plots['best model']['time range'][0]
-            t_2 = self._plots['best model']['time range'][1]
+        if 'time range' in self._plots[plot_type]:
+            t_1 = self._plots[plot_type]['time range'][0]
+            t_2 = self._plots[plot_type]['time range'][1]
             return (t_1, t_2)
 
         if self._model.n_sources == 1:
@@ -2572,6 +2885,34 @@ class UlensModelFit(object):
         ax2.set_ylim(ylim[0], ylim[1])
         ax2.tick_params(axis='y', colors=color)
         plt.yticks(ticks, labels, color=color)
+
+    def _make_trajectory_plot(self):
+        """
+        make and save plot of the best trajectory
+        """
+        dpi = 300
+        tau = 1.5
+
+        self._ln_like(self._best_model_theta)  # Sets all parameters to
+        # the best model.
+
+        self._reset_rcParams()
+
+        if 'time range' in self._plots['trajectory']:
+            t_range = self._get_time_limits_for_plot(tau, 'trajectory')
+        else:
+            t_range = self._get_time_limits_for_plot(tau, 'best model')
+        kwargs = {'caustics': True, 't_range': t_range}
+
+        self._model.plot_trajectory(**kwargs)
+
+        plt.xlabel(r"$x [\theta_E]$")
+        plt.ylabel(r"$y [\theta_E]$")
+        plt.axis('equal')
+        plt.gca().tick_params(axis='both', which='both', direction='in',
+                              top=True, right=True)
+
+        self._save_figure(self._plots['trajectory'].get('file'), dpi=dpi)
 
 
 if __name__ == '__main__':

@@ -122,26 +122,43 @@ class MulensData(object):
         self._n_epochs = None
         self._horizons = None
         self._satellite_skycoord = None
+        self._errorbars_scale = None
 
         self._init_keys = {'add245': add_2450000, 'add246': add_2460000}
         self._limb_darkening_weights = None
         self.bandpass = bandpass
         self._chi2_fmt = chi2_fmt
+        self._file_name = file_name
+        self._input_fmt = phot_fmt
 
         self._set_coords(coords=coords, ra=ra, dec=dec)
 
         if plot_properties is None:
-            plot_properties = {}
-        self.plot_properties = plot_properties
+            plot_properties = dict()
+        self._plot_properties = plot_properties
 
+        self._import_photometry(data_list, **kwargs)
+
+        if bad is not None and good is not None:
+            raise ValueError('Provide bad or good, but not both')
+        elif bad is not None:
+            self.bad = bad
+        elif good is not None:
+            self.good = good
+        else:
+            self.bad = self.n_epochs * [False]
+
+        # Set up satellite properties (if applicable)
+        self._ephemerides_file = ephemerides_file
+
+    def _import_photometry(self, data_list, **kwargs):
+        """import time, brightnes, and its uncertainy"""
         # Import the photometry...
-        self._file_name = file_name
-        if data_list is not None and file_name is not None:
+        if data_list is not None and self._file_name is not None:
             raise ValueError(
                 'MulensData cannot be initialized with both data_list and ' +
                 'file_name. Choose one or the other.')
-        elif data_list is not None:
-            # ...from an array
+        elif data_list is not None:  # ...from an array
             if len(kwargs) > 0:
                 raise ValueError('data_list and kwargs cannot be both set')
             if len(data_list) != 3:
@@ -156,31 +173,30 @@ class MulensData(object):
                 raise ValueError(msg.format(len(data_list)))
             (vector_1, vector_2, vector_3) = list(data_list)
             self._initialize(
-                phot_fmt, time=np.array(vector_1),
-                brightness=np.array(vector_2),
+                time=np.array(vector_1), brightness=np.array(vector_2),
                 err_brightness=np.array(vector_3), coords=self._coords)
-        elif file_name is not None:
-            # ...from a file
+        elif self._file_name is not None:  # ...from a file
             usecols = kwargs.pop('usecols', (0, 1, 2))
-            if not exists(file_name):
-                raise FileNotFoundError(file_name)
+            if not exists(self._file_name):
+                raise FileNotFoundError(self._file_name)
             try:
                 (vector_1, vector_2, vector_3) = np.loadtxt(
-                    fname=file_name, unpack=True, usecols=usecols, **kwargs)
+                    fname=self._file_name, unpack=True,
+                    usecols=usecols, **kwargs)
             except Exception:
                 print("kwargs passed to np.loadtxt():")
                 print(kwargs)
                 print("usecols =", usecols)
-                print("File:", file_name)
+                print("File:", self._file_name)
                 raise
             self._initialize(
-                phot_fmt, time=vector_1, brightness=vector_2,
+                time=vector_1, brightness=vector_2,
                 err_brightness=vector_3, coords=self._coords)
 
-            # check if data label specified, if not use file_name
+            # Check if data label specified, if not use file_name.
             if 'label' not in self.plot_properties.keys():
-                if file_name is not None:
-                    self.plot_properties['label'] = basename(file_name)
+                if self._file_name is not None:
+                    self.plot_properties['label'] = basename(self._file_name)
                 else:
                     self.plot_properties['label'] = 'a dataset'
         else:
@@ -188,26 +204,13 @@ class MulensData(object):
                 'MulensData cannot be initialized with ' +
                 'data_list or file_name')
 
-        if bad is not None and good is not None:
-            raise ValueError('Provide bad or good, but not both')
-        elif bad is not None:
-            self.bad = bad
-        elif good is not None:
-            self.good = good
-        else:
-            self.bad = self.n_epochs * [False]
-
-        # Set up satellite properties (if applicable)
-        self._ephemerides_file = ephemerides_file
-
-    def _initialize(self, phot_fmt, time=None, brightness=None,
+    def _initialize(self, time=None, brightness=None,
                     err_brightness=None, coords=None):
         """
         Internal function to import photometric data into the correct
         form using a few numpy ndarrays.
 
         Parameters:
-            phot_fmt - Specifies type of photometry. Either 'flux' or 'mag'.
             time - Date vector of the data
             brightness - vector of the photometric measurements
             err_brightness - vector of the errors in the phot measurements.
@@ -242,10 +245,9 @@ class MulensData(object):
         # Store the photometry
         self._brightness_input = brightness
         self._brightness_input_err = err_brightness
-        self._input_fmt = phot_fmt
 
         # Create the complementary photometry (mag --> flux, flux --> mag)
-        if phot_fmt == "mag":
+        if self._input_fmt == "mag":
             self._mag = self._brightness_input
             self._err_mag = self._brightness_input_err
             (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
@@ -258,7 +260,7 @@ class MulensData(object):
                 if self._file_name is not None:
                     msg += "File name: " + self._file_name
                 raise ValueError(msg)
-        elif phot_fmt == "flux":
+        elif self._input_fmt == "flux":
             self._flux = self._brightness_input
             self._err_flux = self._brightness_input_err
             self._mag = None
@@ -288,6 +290,24 @@ class MulensData(object):
             else:
                 if ra is not None:
                     raise AttributeError(coords_msg)
+
+    @property
+    def plot_properties(self):
+        """
+        *dict*
+
+        Settings that specify how the photometry should be plotted.
+
+        The keys in this *dict* could be either special keys introduced here
+        (i.e., ``show_bad`` and ``show_errorbars``) or keys accepted by
+        matplotlib.pyplot plotting functions. The latter could be for example
+        ``color``, ``marker``, ``label``, ``alpha``, ``zorder``,
+        ``markersize``, or ``visible``.
+
+        See :py:class:`~MulensModel.mulensdata.MulensData`
+        for more information.
+        """
+        return self._plot_properties
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False,
@@ -656,16 +676,20 @@ class MulensData(object):
                 Uncertainties of magnitudes or of fluxes
 
         """
-        if self.input_fmt == "mag":
+        return self._get_data_and_err_in_fmt(self.input_fmt)
+
+    def _get_data_and_err_in_fmt(self, fmt):
+        """
+        get data and their photometry in mag or flux
+        """
+        if fmt == "mag":
             data = self.mag
             err_data = self.err_mag
-        elif self.input_fmt == "flux":
+        elif fmt == "flux":
             data = self.flux
             err_data = self.err_flux
         else:
-            raise ValueError('Unrecognized data format: {:}'.format(
-                self.input_fmt))
-
+            raise ValueError('Unrecognized data format: {:}'.format(fmt))
         return (data, err_data)
 
     def data_and_err_in_chi2_fmt(self):
@@ -681,17 +705,7 @@ class MulensData(object):
                 Uncertainties of magnitudes or of fluxes
 
         """
-        if self.chi2_fmt == "mag":
-            data = self.mag
-            err_data = self.err_mag
-        elif self.chi2_fmt == "flux":
-            data = self.flux
-            err_data = self.err_flux
-        else:
-            raise ValueError('Unrecognized data format: {:}'.format(
-                self.chi2_fmt))
-
-        return (data, err_data)
+        return self._get_data_and_err_in_fmt(self.chi2_fmt)
 
     @property
     def bandpass(self):
@@ -759,3 +773,110 @@ class MulensData(object):
         File with satellite ephemeris.
         """
         return self._ephemerides_file
+
+    def copy(self):
+        """
+        Returns a copy of given instance with settings copied
+
+        Returns :
+            mulens_data: :py:class:`~MulensModel.mulensdata.MulensData`
+                Copy of self.
+        """
+        data_and_err = self.data_and_err_in_input_fmt()
+        kwargs = {
+            'data_list': [self.time, *list(data_and_err)],
+            'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
+            'coords': self.coords, 'ephemerides_file': self._ephemerides_file,
+            'add_2450000': self._init_keys['add245'],
+            'add_2460000': self._init_keys['add246'],
+            'bandpass': self.bandpass, 'bad': np.array(self.bad),
+            'plot_properties': {**self.plot_properties}
+            }
+
+        out = MulensData(**kwargs)
+        out._file_name = self._file_name
+
+        return out
+
+    def scale_errorbars(self, factor=None, minimum=None):
+        """
+        Scale magnitude errorbars by multiplying by *factor* and
+        then adding *minimum* in squares.
+
+        Parameters :
+            factor: *float*
+                Multiplication factor. Typically used for faint events.
+
+            minimum: *float*
+                Floor of magnitude errorbars. Typically used for bright
+                events.
+        """
+        if self._errorbars_scale is not None:
+            raise RuntimeError('Errorbars cannot be scaled twice. '
+                               'Use copy() if you really need that.')
+        if factor is None and minimum is None:
+            raise ValueError('scale_errorbars() requires some input')
+        if factor is not None and factor < 0.:
+            raise ValueError('magnitude errorbar scaling cannot be negative')
+
+        self._errorbars_scale = {'factor': factor, 'minimum': minimum}
+
+        self._scale_mag_err()
+
+    def _scale_mag_err(self):
+        """
+        Scale magnitude errorbars
+        """
+        new_err_mag = self.err_mag
+
+        if self._errorbars_scale['factor'] is not None:
+            new_err_mag *= self._errorbars_scale['factor']
+
+        minimum = self._errorbars_scale['minimum']
+        if minimum is not None:
+            new_err_mag = np.sqrt(new_err_mag**2 + minimum**2)
+
+        self._err_mag = new_err_mag
+        self._err_flux = Utils.get_flux_and_err_from_mag(
+                mag=self.mag, err_mag=self.err_mag)[1]
+
+    @property
+    def errorbars_scale_factors(self):
+        """
+        *list* of two *floats*
+
+        Parameters used by :py:func:`scale_errorbars()`.
+        The first one is multiplication factor,
+        while the second is the minimum scatter added in squares.
+        """
+        if self._errorbars_scale is None:
+            raise RuntimeError("scale_errorbars() must be called before "
+                               "accessing errorbars_scale_factors")
+
+        out_1 = self._errorbars_scale['factor']
+        if out_1 is None:
+            out_1 = 1.
+        out_2 = self._errorbars_scale['minimum']
+        if out_2 is None:
+            out_2 = 0.
+        return [out_1, out_2]
+
+    @property
+    def errorbars_scaling_equation(self):
+        """
+        *str*
+
+        Equation and parameters used by :py:func:`scale_errorbars()`.
+        """
+        if self._errorbars_scale is None:
+            raise RuntimeError("scale_errorbars() must be called before "
+                               "accessing errorbars_scaling_equation")
+        elif self._errorbars_scale['minimum'] is None:
+            format_ = "sigma_mag_new = {factor:} * sigma_mag"
+        elif self._errorbars_scale['factor'] is None:
+            format_ = "sigma_mag_new = sqrt(sigma_mag^2 + {minimum:}^2)"
+        else:
+            format_ = ("sigma_mag_new = "
+                       "sqrt(({factor:} * sigma_mag)^2 + {minimum:}^2)")
+
+        return format_.format(**self._errorbars_scale)

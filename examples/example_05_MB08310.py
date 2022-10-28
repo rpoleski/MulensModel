@@ -62,11 +62,11 @@ event_default.plot_source_for_datasets()
 # F5: Plot the data and model (customized)
 datasets_custom = []
 color_list = ['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
-for (i, file_) in enumerate(sorted(files)):
+for (color, file_) in zip(color_list, sorted(files)):
     data = mm.MulensData(
         file_name=file_, comments=["\\", "|"],
         plot_properties={
-            'color': color_list[i],
+            'color': color,
             'label': os.path.basename(file_).split('_', maxsplit=2)[0]})
     datasets_custom.append(data)
 

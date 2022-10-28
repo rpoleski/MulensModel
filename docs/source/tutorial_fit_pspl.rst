@@ -34,7 +34,6 @@ Next step would be plotting these data using matplotlib package:
 
 .. code-block:: python
 
-   plt.figure()
    plt.errorbar(my_data.time, my_data.mag, yerr=my_data.err_mag, fmt='.')
    plt.gca().invert_yaxis() # We need this to invert magnitude axis.
    plt.show()
@@ -61,22 +60,23 @@ Preparing for fitting
 
 The rough estimates of the event parameters allow us to define 
 a `Model <https://rpoleski.github.io/MulensModel/MulensModel.model.html>`_
-and plot it 
-together with data:
+and combined it with data in an instance of the
+`Event Class <https://rpoleski.github.io/MulensModel/MulensModel.event.htl>`_.
+This allows us to plot the model and the data:
 
 .. code-block:: python
    
    pspl_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-   pspl_model.set_datasets([my_data])
-   pspl_model.plot_data()
-   pspl_model.plot_lc()
+   my_event = mm.Event(datasets=[my_data], model=pspl_model)
+   my_event.plot_data()
+   my_event.plot_model()
    plt.show()
 
-To associate a dataset with model we called ``Model.set_datasets()`` function. 
-Its argument is a list of datasets. In the present case this list contains only 
+To associate a dataset with a model we provided ``Event`` cunstructor a list of
+datasets. In the present case this list contains only 
 a single dataset. If you have more datasets, then just include all of them
-in the list passed to ``set_datasets()``, e.g., 
-``pspl_model.set_datasets([my_data, my_friends_data])``. 
+in the list, e.g., 
+``mm.Event(datasets=[my_data, my_friends_data], model=pspl_model)``. 
 
 The plot looks seems fine, i.e., the peak is more or less where it should be. 
 Hence, we can use our rough estimates as a starting point for fitting 
@@ -85,15 +85,10 @@ procedure.
 You may want to learn more on plotting in MulensModel from 
 `example 5 <https://github.com/rpoleski/MulensModel/blob/master/examples/example_05_MB08310.py>`_.
 
-To fit the model parameters we will need to calculate chi^2. The chi^2 
-calculation requires an instance of the 
-`Event Class <https://rpoleski.github.io/MulensModel/MulensModel.event.htl>`_
-that combines the Model and 
-the MulensData:
+To fit the model parameters we will need to calculate chi^2:
 
 .. code-block:: python
    
-   my_event = mm.Event(datasets=my_data, model=pspl_model)
    chi2_initial = my_event.get_chi2()
    print(my_event.model.parameters)
    print("give chi^2 of {:.2f}.".format(chi2_initial))
@@ -106,8 +101,10 @@ We have the ability to get the goodness of fit and it turn it into a function:
    initial_guess = [t_0, u_0, t_E]
 
    def chi2_for_model(theta, event, parameters_to_fit):
-       """for given event set attributes from parameters_to_fit 
-       (list of str) to values from the theta list"""
+       """
+       for given event set attributes from parameters_to_fit 
+       (list of str) to values from the theta list
+       """
        for (key, parameter) in enumerate(parameters_to_fit):
            setattr(event.model.parameters, parameter, theta[key])
        return event.get_chi2()
@@ -129,7 +126,7 @@ try other fitting routines.
 .. code-block:: python
    
    import scipy.optimize as op
-   result = op.minimize(chi2_for_model, x0=initial_guess, 
+   result = op.minimize(chi2_for_model, x0=initial_guess,
            args=(my_event, parameters_to_fit), method='Nelder-Mead')
 
 Fitting is done, so we can inspect the results. The function minimize() 
@@ -164,14 +161,14 @@ Let's plot two different models:
    pspl_model.parameters.t_0 = t_0
    pspl_model.parameters.u_0 = u_0
    pspl_model.parameters.t_E = t_E
-   pspl_model.plot_lc(label='initial', c='red')
+   my_event.plot_model(label='initial', c='red')
    # Best fitting model:
    pspl_model.parameters.t_0 = result.x[0]
    pspl_model.parameters.u_0 = result.x[1]
    pspl_model.parameters.t_E = result.x[2]
-   pspl_model.plot_lc(label='fitted')
+   my_event.plot_model(label='fitted')
    # Finally: data, legend, and show the plot:
-   pspl_model.plot_data()
+   my_event.plot_data()
    plt.legend(loc='best')
    plt.show()
 

@@ -22,11 +22,11 @@ pspl_model.set_magnification_methods([t_0-2.*t_star, method, t_0+2.*t_star])
 
 datasets_custom = []
 color_list = ['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
-for (i, file_) in enumerate(sorted(files)):
+for (color, file_) in zip(color_list, sorted(files)):
     data = mm.MulensData(
         file_name=file_, comments=["\\", "|"],
         plot_properties={
-            'color': color_list[i],
+            'color': color,
             'label': os.path.basename(file_).split('_', maxsplit=2)[0]})
     datasets_custom.append(data)
 
@@ -46,15 +46,14 @@ pspl_event.plot(
     trajectory=True, title='MB08310', subtract_2450000=False)
 
 # Planetary Lens Event (Derived from Example 16)
+dir_1 = os.path.join(mm.DATA_PATH, "photometry_files", 'OB03235')
+file_1 = os.path.join(dir_1, 'OB03235_OGLE.tbl.txt')
 ogle_data = mm.MulensData(
-    file_name=os.path.join(
-        mm.DATA_PATH, "photometry_files", 'OB03235', 'OB03235_OGLE.tbl.txt'),
-    bandpass='I', comments=["\\", "|"],
+    file_name=file_1, bandpass='I', comments=["\\", "|"],
     plot_properties={'zorder': 10., 'color': 'red', 'label': "OGLE I-band"})
+file_2 = os.path.join(dir_1, 'OB03235_MOA.tbl.txt')
 moa_data = mm.MulensData(
-        file_name=os.path.join(
-            mm.DATA_PATH, "photometry_files", 'OB03235', 'OB03235_MOA.tbl.txt'),
-        phot_fmt='flux', comments=["\\", "|"],
+        file_name=file_2, phot_fmt='flux', comments=["\\", "|"],
         plot_properties={'show_errorbars': False})
 planet_datasets = [ogle_data, moa_data]
 planet_model = mm.Model(

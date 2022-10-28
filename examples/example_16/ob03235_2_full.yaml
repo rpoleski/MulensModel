@@ -89,6 +89,9 @@ plots:
             # If you remove the line above, then magnification values will be printed.
             label: What is shown on this axis?
             color: magenta
+    trajectory:
+        file: ob03235_2_trajectory.png
+        time range: 2452700 2452855
     triangle:
         file: ob03235_2_triangle.png
         shift t_0: False
@@ -98,3 +101,5 @@ other_output:
     models:
         # Value "-" in line below means that the models will be printed to screen instead of a file.
         file name: ob03235_2_all_models.txt
+   yaml output:
+        file name: ob03235_2_all_results.yaml

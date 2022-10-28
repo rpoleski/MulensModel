@@ -50,13 +50,13 @@ class MagnificationCurve(object):
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, gamma=0.):
         # Set times
-        self.times = np.asarray(times)
+        self.times = np.atleast_1d(times)
 
         # Check for ModelParameters and set.
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
-            raise ValueError(
+            raise TypeError(
                 'parameters is a required keyword and must be a ' +
                 'ModelParameters object')
 
@@ -160,7 +160,7 @@ class MagnificationCurve(object):
 
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
-        elif (self.parameters.n_lenses == 2):
+        elif self.parameters.n_lenses == 2:
             magnification = self.get_binary_lens_magnification()
         else:
             raise NotImplementedError(
@@ -174,7 +174,7 @@ class MagnificationCurve(object):
         calculations and warn if not
         """
         methods = self._methods_names + [self._default_method]
-        set_ = set(['point_source', 'point_source_point_lens'])
+        set_ = set(['point_source', 'point_source_point_lens', None])
         if len(set(methods)-set_) == 0:
             warnings.warn('no finite-source method is set', UserWarning)
             return
@@ -255,13 +255,14 @@ class MagnificationCurve(object):
                 " lenses")
 
         pspl_magnification = get_pspl_magnification(self.trajectory)
-        if self._methods_epochs is None:
+        methods = np.array(self._methods_for_epochs())
+        if np.all(methods == None):
             return pspl_magnification
+
         point_lens = PointLens(self.parameters)
         magnification = pspl_magnification
         u2 = self.trajectory.x**2 + self.trajectory.y**2
         u_all = np.sqrt(u2)
-        methods = np.array(self._methods_for_epochs())
 
         for method in set(methods):
             kwargs = {}
@@ -434,7 +435,10 @@ class MagnificationCurve(object):
                 try:
                     m = binary_lens.point_source_magnification(x, y)
                 except Exception as e:
-                    text = "Model parameters for above exception:\n"
+                    text = "\nmagnificationcurve.py: Error for 'point_source' "
+                    text += "method. "
+                    text += "\n{0}\n".format(e)
+                    text += "Model parameters for above exception:\n"
                     text += str(self.parameters)
                     raise ValueError(text) from e
                     # The code above is based on

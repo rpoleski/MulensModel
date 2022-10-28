@@ -13,6 +13,9 @@ __pycache__/
 # unit tests
 .cache/
 
+# coverage
+.coverage
+
 # VBBL library
 VBBinaryLensingLibrary.o
 VBBinaryLensingLibrary_wrapper.so
@@ -46,6 +49,7 @@ examples/chains/
 examples/example_16/corner.py
 examples/example_16/out_ob08092_O4_MN*
 examples/example_16/*.png
+examples/example_16/*_out.yaml
 
 # Temporary tasks:
 DEV

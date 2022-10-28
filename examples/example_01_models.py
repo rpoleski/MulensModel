@@ -8,7 +8,6 @@ plotted).
 
 """
 import matplotlib.pyplot as plt
-import numpy as np
 
 import MulensModel as mm
 

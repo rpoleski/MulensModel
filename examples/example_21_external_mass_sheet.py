@@ -4,7 +4,6 @@ external mass sheet, as in Peirson et al. 2022 ApJ 927, 24
 and Vedantham et al. 2017 ApJ 845, 89.
 Binary lens with external mass sheet assumes a point source when using VBBL.
 """
-import numpy as np
 import matplotlib.pyplot as plt
 
 import MulensModel as mm

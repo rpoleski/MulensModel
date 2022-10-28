@@ -35,18 +35,18 @@ def test_UniformCausticSampling():
 
     for (s, q, nc, p, c) in zip(s_, q_, n_c, p_, checks):
         sampling = mm.UniformCausticSampling(s=s, q=q, n_points=n_points)
-        standard = sampling.get_standard_parameters(0.2, 0.5, 0., 10.)
+        standard = sampling.get_standard_parameters(0.2, 0.499, 0., 10.)
         x_list = sampling.get_x_in_x_out(standard['u_0'], standard['alpha'])
         assert np.min(np.abs(np.array(x_list) - 0.2)) < 1.e-6
-        assert np.min(np.abs(np.array(x_list) - 0.5)) < 1.e-6
+        assert np.min(np.abs(np.array(x_list) - 0.499)) < 2.e-6
         assert sampling.check_valid_trajectory(0.2, 0.5) == c
         np.testing.assert_almost_equal(sampling.caustic_point(0.3), p)
         assert sampling.n_caustics == nc
         assert sampling.which_caustic(0.95) == sampling.n_caustics
-    np.testing.assert_almost_equal(standard['t_0'], 215.3545535)
-    np.testing.assert_almost_equal(standard['u_0'], 0.0104627)
-    np.testing.assert_almost_equal(standard['t_E'], 142.0417601)
-    np.testing.assert_almost_equal(standard['alpha'], 180.6508586)
+    np.testing.assert_almost_equal(standard['t_0'], 216.3783662)
+    np.testing.assert_almost_equal(standard['u_0'], 0.0076099741)
+    np.testing.assert_almost_equal(standard['t_E'], 142.7154375)
+    np.testing.assert_almost_equal(standard['alpha'], 180.54305134)
 
     # For the last (s, q) we also check alpha = 90 or 270:
     x_1 = 0.1885475223517683

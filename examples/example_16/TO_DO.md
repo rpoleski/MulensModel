@@ -12,6 +12,14 @@
 - posterior files
 - print model
 - example with add_2450000: False
+- yaml output in README.md
+
+# NOW - plot trajectory:
+- test if works in ulens_model_plot.py
+- add satellite trajectory
+- add legend
+- mark lens positions (no built-in function)
+- note in README.md
 
 ## List of task to be done:
 
@@ -26,7 +34,6 @@
 - EMCEE: we should have settings in one dict - similarly to self._kwargs_MultiNest
 - EMCEE backend - https://emcee.readthedocs.io/en/stable/user/backends/#emcee.backends.HDFBackend
 - add one more fitting method? scipy.optimize, ultranest, https://lmfit.github.io/lmfit-py/, sfit by Jen, ???
-- plot trajectory
 - add check if 't_0' is covered by data and give warning if not
 - print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
 - LD coeffs - there should be check who bands there compare to the ones in datasets

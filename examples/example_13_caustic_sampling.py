@@ -10,8 +10,6 @@ Specific settings are in file example_13.cfg.
 
 Running this example takes 15-60 minutes on most modern machines.
 """
-import os
-import sys
 import numpy as np
 import emcee
 import configparser
@@ -181,8 +179,8 @@ best = samples[best_index, :]
 print("\nSmallest chi2 model:")
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print(best_chi2)
-for (i, parameter) in enumerate(parameters):
-    setattr(my_event.model.parameters, parameter, best[i])
+for (best_, parameter) in zip(best, parameters):
+    setattr(my_event.model.parameters, parameter, best_)
 
 my_event.fit_fluxes()
 

@@ -90,15 +90,21 @@ the list of starting points:
 
 We need one more important piece of information - the function that 
 computes the logarithm of (unnormalized) probability. We split it into
-three separate functions for clarity:
+three separate functions for clarity. In the first function we also
+remember the smallest chi2 nad corresponding parameters:
 
 .. code-block:: python
 
    def ln_like(theta, event, parameters_to_fit):
        """ likelihood function """
-       for key, val in enumerate(parameters_to_fit):
-           setattr(event.model.parameters, val, theta[key])
-       return -0.5 * event.get_chi2()
+       for (parameter, value) in zip(parameters_to_fit, theta):
+           setattr(event.model.parameters, parameter, value)
+       chi2 = event.get_chi2()
+       if chi2 < ln_like.chi2_min:
+           ln_like.chi2_min = chi2
+           ln_like.chi2_min_theta = theta
+       return -0.5 * chi2
+   ln_like.chi2_min = np.inf
 
 .. code-block:: python
    
@@ -142,10 +148,9 @@ And now we're ready to look at the results and best-fitted model:
    for i in range(n_dim):
        r = results[1, i]
        print(form.format(r, results[2, i]-r, r-results[0, i]))
-   print("\nBest model:")    
-   best = [my_event.best_chi2_parameters[p] for p in parameters_to_fit]
-   print(*[repr(b) if isinstance(b, float) else b.value for b in best])
-   print(my_event.best_chi2)
+   print("\nBest model:")
+   print(*list(ln_like.chi2_min_theta))
+   print(ln_like.chi2_min)
 
 I hope you got (u_0, t_E, pi_E_N, pi_E_E) of around
 (0.44, 95, 0.21, 0.10) and chi^2 of 949.5. 
@@ -180,9 +185,9 @@ I provide model parameters below. Here is how it goes:
    model_2 = mm.Model({'t_0': 2453630.67778, 'u_0': -0.415677,
            't_E': 110.120755, 'pi_E_N': -0.2972, 'pi_E_E': 0.1103,
            't_0_par': params['t_0_par']}, coords=coords)
-   model_0.set_datasets([my_data])        
-   model_1.set_datasets([my_data])        
-   model_2.set_datasets([my_data])
+   event_0 = mm.Event(datasets=my_data, model=model_0)
+   event_1 = mm.Event(datasets=my_data, model=model_1)
+   event_2 = mm.Event(datasets=my_data, model=model_2)
 
    t_1 = 2453200.
    t_2 = 2453950.
@@ -190,9 +195,9 @@ I provide model parameters below. Here is how it goes:
            't_start': t_1, 't_stop': t_2}
    
    my_event.plot_data(subtract_2450000=True)
-   model_0.plot_lc(label='no pi_E', **plot_params)
-   model_1.plot_lc(label='pi_E, u_0>0', **plot_params)
-   model_2.plot_lc(label='pi_E, u_0<0', color='black', ls='dashed',
+   event_0.plot_model(label='no pi_E', **plot_params)
+   event_1.plot_model(label='pi_E, u_0>0', **plot_params)
+   event_2.plot_model(label='pi_E, u_0<0', color='black', ls='dashed',
            **plot_params)
    
    plt.xlim(t_1-2450000., t_2-2450000.)

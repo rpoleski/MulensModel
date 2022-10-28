@@ -1,4 +1,3 @@
-import sys
 import os
 import numpy as np
 from astropy.coordinates import SkyCoord

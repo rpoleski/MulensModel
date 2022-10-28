@@ -4,7 +4,6 @@ High-level fitting and plotting example with MulensModel.
 Requires in-line argument which is a config file, e.g.,
 example_15_mb07192_v1.cfg or example_15_ob05390_v1.cfg.
 """
-import os
 import sys
 import numpy as np
 import emcee
@@ -159,8 +158,8 @@ best = samples[best_index, :]
 print("\nSmallest chi2 model:")
 print(*[repr(b) if isinstance(b, float) else b.value for b in best])
 print(best_chi2)
-for (i, parameter) in enumerate(parameters):
-    setattr(my_event.model.parameters, parameter, best[i])
+for (parameter, best_) in zip(parameters, best):
+    setattr(my_event.model.parameters, parameter, best_)
 
 my_event.fit_fluxes()
 

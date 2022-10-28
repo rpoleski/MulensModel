@@ -57,8 +57,8 @@ class Minimizer(object):
 
     def chi2(self, theta):
         """return chi^2 for a parameters theta"""
-        for (i, param) in enumerate(self.parameters_to_fit):
-            setattr(self.event.model.parameters, param, theta[i])
+        for (theta_, param) in zip(theta, self.parameters_to_fit):
+            setattr(self.event.model.parameters, param, theta_)
         chi2 = self.event.get_chi2()
         return chi2
 

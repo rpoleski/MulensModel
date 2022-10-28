@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.interpolate import interp1d
-import warnings
 from astropy.coordinates import SkyCoord
 from astropy import __version__ as astropy_version
 
@@ -38,7 +37,8 @@ class SatelliteSkyCoord(object):
     def get_satellite_coords(self, times):
         """
         Calculate the coordinates of the satellite for given times
-        using cubic interpolation.
+        using cubic interpolation. The epheris provided is extrapolated
+        up to 3 minutes beyond the range provided.
 
         Parameters :
             times: *np.ndarray* or *list of floats*
@@ -50,22 +50,13 @@ class SatelliteSkyCoord(object):
 
         """
         if self._horizons is None:
-            self._horizons = Horizons(self._ephemerides_file)
+            self._prepare_horizons()
 
-        time = self._horizons.time
-        if (np.max(time) + 0.001 < np.max(times) or
-                np.min(time) - 0.001 > np.min(times)):
-            msg_1 = "Ephemerides file: {:} {:}\n ".format(
-                np.min(time), np.max(time))
-            msg_2 = "Requested dates: {:} {:}".format(
-                np.min(times), np.max(times))
-            raise ValueError(
-                "Satellite ephemeris doesn't cover requested epochs.\n " +
-                msg_1 + msg_2)
+        self._check_times(times)
 
-        x = interp1d(time, self._horizons.xyz.x, kind='cubic')(times)
-        y = interp1d(time, self._horizons.xyz.y, kind='cubic')(times)
-        z = interp1d(time, self._horizons.xyz.z, kind='cubic')(times)
+        x = self._interp_x(times)
+        y = self._interp_y(times)
+        z = self._interp_z(times)
 
         if int(astropy_version[0]) >= 4:
             self._satellite_skycoord = SkyCoord(
@@ -77,3 +68,28 @@ class SatelliteSkyCoord(object):
             self._satellite_skycoord.representation = 'spherical'
 
         return self._satellite_skycoord
+
+    def _prepare_horizons(self):
+        """
+        Prepare an instance of Horizons class and interpolation functions.
+        """
+        self._horizons = Horizons(self._ephemerides_file)
+        time = self._horizons.time
+        kwargs = dict(kind='cubic', fill_value="extrapolate")
+        self._interp_x = interp1d(time, self._horizons.xyz.x, **kwargs)
+        self._interp_y = interp1d(time, self._horizons.xyz.y, **kwargs)
+        self._interp_z = interp1d(time, self._horizons.xyz.z, **kwargs)
+
+    def _check_times(self, times):
+        """
+        Make sure that requested range is not too much beyond the ephemeris.
+        """
+        dt = 3. / (60. * 24)
+        min_ = np.min(self._horizons.time)
+        max_ = np.max(self._horizons.time)
+
+        if max_ + dt < np.max(times) or min_ - dt > np.min(times):
+            msg = ("Satellite ephemeris doesn't cover requested epochs.\n"
+                   "Ephemerides file: {:} {:}\nRequested dates: {:} {:}")
+            args = [min_, max_, np.min(times), np.max(times)]
+            raise ValueError(msg.format(*args))

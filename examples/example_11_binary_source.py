@@ -5,10 +5,8 @@ The code simulates binary source light curve and fits the model twice:
 with source flux ratio found via linear regression and
 with source flux ratio as a chain parameter.
 """
-import os
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
 try:
     import emcee
 except ImportError as err:
@@ -101,11 +99,11 @@ def fit_EMCEE(parameters_to_fit, starting_params, sigmas, ln_prob, event,
     prob = sampler.lnprobability[:, n_burn:].reshape((-1))
     best_index = np.argmax(prob)
     best = samples[best_index, :]
-    for key, val in enumerate(parameters_to_fit):
-        if val == 'flux_ratio':
-            event.fix_source_flux_ratio = {my_dataset: best[key]}
+    for (key, value) in zip(parameters_to_fit, best):
+        if key == 'flux_ratio':
+            event.fix_source_flux_ratio = {my_dataset: value}
         else:
-            setattr(event.model.parameters, val, best[key])
+            setattr(event.model.parameters, key, value)
 
     print("\nSmallest chi2 model:")
     print(*[repr(b) if isinstance(b, float) else b.value for b in best])

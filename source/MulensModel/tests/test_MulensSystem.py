@@ -4,7 +4,7 @@ from astropy import units as u
 import MulensModel as mm
 
 
-def test_mulenssystem():
+def test_mulenssystem_1():
     """test some basic calculations"""
     kappa = 8.144183118384794 * u.mas / u.solMass
     lens = {'mass': 0.3 * u.solMass, 'dist': 4 * 10**3 * u.pc}
@@ -28,7 +28,7 @@ def test_mulenssystem():
     assert abs(test_system.t_E / tE - 1.) < 1.2e-4
 
 
-def test_mulenssystem():
+def test_mulenssystem_2():
     """test basic calculations of theta_E etc."""
     lens = mm.Lens(mass=0.64, distance=4.0)
     source = mm.Source(distance=8.0)
