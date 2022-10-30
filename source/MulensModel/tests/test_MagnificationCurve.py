@@ -200,12 +200,20 @@ class TestEvent(unittest.TestCase):
         with self.assertRaises(ValueError):
             mag_curve.get_point_lens_magnification()
 
-"""
+
 def test_warning_rho_and_no_finite_source_method():
-    "XXX"
+    """
+    Make sure UserWarning is raised if one wants to get magnification
+    for finite-source model without finite-source method.
+    """
     parameters = mm.ModelParameters({
         't_0': 10, 'u_0': 0.5, 't_E': 25., 'rho': 0.01})
     mag_curve = mm.MagnificationCurve([12.], parameters=parameters)
-    with warnings.catch_warnings():
-        pass # mag_curve.get_magnification()
-"""
+
+    with warnings.catch_warnings(record=True) as warning:
+        warnings.simplefilter("always")
+
+        mag_curve.get_magnification()
+
+        assert len(warning) == 1
+        assert issubclass(warning[0].category, UserWarning)

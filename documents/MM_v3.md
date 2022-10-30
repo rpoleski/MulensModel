@@ -18,6 +18,8 @@ Once the changes are accepted to be made, **mark them in the code using warnings
  * test\_MulensData.py - in test\_copy() remove warnings.catch\_warnings() because you remove coords, ra, and dec from init
 
 ### Yet unsorted/undecided:
+ * shift alpha by 180 deg if large update is made to follow Skowron et al. (2011) convention
+ * remove MulensData.bad - see https://github.com/rpoleski/MulensModel/issues/40
  * `Model.set\_times()` - `n\_epochs` should be None as default, so that we can check if both dt and `n\_epochs` were set
  * Caustics.get\_caustics() should return np.arrays, not lists
  * check all NotImplementedError and maybe remove some functions/options
