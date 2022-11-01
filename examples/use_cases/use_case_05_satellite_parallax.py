@@ -1,7 +1,6 @@
 """
 This is Spitzer use case.
 """
-import numpy as np
 import os
 
 import MulensModel as mm

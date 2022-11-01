@@ -2,7 +2,6 @@
 Calculate the chi2 between a model and some data.
 """
 import matplotlib.pyplot as plt
-from astropy import units as u
 import os
 import numpy as np
 

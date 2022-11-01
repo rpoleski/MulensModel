@@ -46,8 +46,11 @@ print(my_event.get_lc(t_range=[2456820., 2456850.], n_epochs=20,
 # in FitData.get_residuals() to be consistent; ohh... we should also deprecate
 # "scaled" in that case).
 
-# Event.get_lc(dataset=1, phot_fmt="scaled") --> returns model magnitudes for dataset 1 scaled to ref_data.
-# Event.get_lc(dataset=data1, phot_fmt="mag") --> returns model magnitudes for dataset 1 scaled to that dataset's fs, fb.
+# Event.get_lc(dataset=1, phot_fmt="scaled") --> returns model magnitudes for
+#                                                dataset 1 scaled to ref_data.
+# Event.get_lc(dataset=data1, phot_fmt="mag") --> returns model magnitudes for
+#                                                 dataset 1 scaled to that
+#                                                 dataset's fs, fb.
 # The above also take into account bandpass and satellite_skycoord.
 
 # Make plot:

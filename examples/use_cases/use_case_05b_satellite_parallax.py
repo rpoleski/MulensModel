@@ -3,7 +3,6 @@ This is a use case for Spitzer + Kepler. The goal is to partially reproduce
 Figure 3 from Zhu et al. 2017 ApJL 849 L31. = MOA-2016-BLG-290
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
 
 import MulensModel as mm
