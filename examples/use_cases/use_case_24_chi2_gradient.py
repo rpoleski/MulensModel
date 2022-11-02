@@ -6,9 +6,7 @@ implement such a minimization method using MulensModel.
 Similar to example_02_fitting.py except using the 'Newton-CG" method to
 minimize the function (and now has a "Minimizer" class).
 """
-import sys
 import os
-import numpy as np
 import scipy.optimize as op
 import matplotlib.pyplot as plt
 
