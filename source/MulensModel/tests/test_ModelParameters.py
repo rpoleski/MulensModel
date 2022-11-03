@@ -11,10 +11,11 @@ class TestModelParameters(unittest.TestCase):
         """
         Makre sure that over-defining parallax fails.
         """
+        params = {'t_0': 0, 't_E': 1., 'u_0': 0.1}
         with self.assertRaises(KeyError):
-            _ = mm.ModelParameters({'pi_E': (1., 1.), 'pi_E_N': 1.})
+            mm.ModelParameters({**params, 'pi_E': (1., 1.), 'pi_E_N': 1.})
         with self.assertRaises(KeyError):
-            _ = mm.ModelParameters({'pi_E': (1., 1.), 'pi_E_E': 1.})
+            mm.ModelParameters({**params, 'pi_E': (1., 1.), 'pi_E_E': 1.})
 
 
 def test_init_parameters():
@@ -307,24 +308,30 @@ class TestParameters(unittest.TestCase):
         K = -0.1
         alpha = 123.
 
-        with self.assertRaises(KeyError):
-            _ = mm.ModelParameters({'t_0': 1000., 'u_0': 0.1, 'shear_G': G})
-        with self.assertRaises(KeyError):
-            _ = mm.ModelParameters({'t_E': 20., 'u_0': 0.1, 'shear_G': G})
-        with self.assertRaises(KeyError):
-            _ = mm.ModelParameters({'t_0': 1000., 't_E': 20., 'shear_G': G})
+        # Cases with missing one of PSPL parameters:
+        dict_K = {'convergence_K': K}
+        dict_G = {'shear_G': G}
+        for mass_sheet in [dict_G, dict_K, {**dict_G, **dict_K}]:
+            with self.assertRaises(KeyError):
+                mm.ModelParameters({'t_0': 1000., 'u_0': 0.1, **mass_sheet})
+            with self.assertRaises(KeyError):
+                mm.ModelParameters({'t_E': 20., 'u_0': 0.1, **mass_sheet})
+            with self.assertRaises(KeyError):
+                mm.ModelParameters({'t_0': 1000., 't_E': 20., **mass_sheet})
 
         # Cases below have too many parameters:
         with self.assertRaises(KeyError):
-            _ = mm.ModelParameters({**basic, 'alpha': alpha})
+            mm.ModelParameters({**basic, 'alpha': alpha})
         with self.assertRaises(KeyError):
-            _ = mm.ModelParameters(
+            mm.ModelParameters({**basic, 'dalpha_dt': 0.01})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(
                 {**basic, 'convergence_K': K, 'alpha': alpha})
         with self.assertRaises(KeyError):
-            _ = mm.ModelParameters({**basic, 'convergence_K': K,
+            mm.ModelParameters({**basic, 'convergence_K': K,
                                     'alpha': alpha, 'dalpha_dt': -0.3})
         with self.assertRaises(KeyError):
-            _ = mm.ModelParameters(
+            mm.ModelParameters(
                 {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': alpha,
                  'dalpha_dt': -0.3})
 
