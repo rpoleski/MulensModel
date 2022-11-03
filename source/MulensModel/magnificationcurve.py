@@ -7,6 +7,7 @@ from MulensModel.binarylens import BinaryLens
 from MulensModel.binarylenswithshear import BinaryLensWithShear
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.pointlens import PointLens, get_pspl_magnification
+from MulensModel.pointlenswithshear import PointLensWithShear
 from MulensModel.trajectory import Trajectory
 
 
@@ -50,7 +51,7 @@ class MagnificationCurve(object):
     def __init__(self, times, parameters, parallax=None,
                  coords=None, satellite_skycoord=None, gamma=0.):
         # Set times
-        self.times = np.asarray(times)
+        self.times = np.atleast_1d(times)
 
         # Check for ModelParameters and set.
         if isinstance(parameters, ModelParameters):
@@ -254,14 +255,18 @@ class MagnificationCurve(object):
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        pspl_magnification = get_pspl_magnification(self.trajectory)
-        if self._methods_epochs is None:
-            return pspl_magnification
-        point_lens = PointLens(self.parameters)
-        magnification = pspl_magnification
+        if self.parameters.is_external_mass_sheet:
+            point_lens = PointLensWithShear(self.parameters)
+            magnification = point_lens.get_point_source_magnification(self.trajectory)
+        else:
+            point_lens = PointLens(self.parameters)
+            magnification = get_pspl_magnification(self.trajectory)
+        methods = np.array(self._methods_for_epochs())
+        if np.all(methods == None):
+            return magnification
+
         u2 = self.trajectory.x**2 + self.trajectory.y**2
         u_all = np.sqrt(u2)
-        methods = np.array(self._methods_for_epochs())
 
         for method in set(methods):
             kwargs = {}
@@ -275,18 +280,18 @@ class MagnificationCurve(object):
             selection = (methods == method)
 
             if method.lower() == 'point_source':
-                pass  # These cases are already taken care of.
+                pass
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(
                         u=u_all[selection],
-                        pspl_magnification=pspl_magnification[selection]))
+                        pspl_magnification=magnification[selection]))
             elif (method.lower() ==
                   'finite_source_uniform_Gould94_direct'.lower()):
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(
                         u=u_all[selection],
-                        pspl_magnification=pspl_magnification[selection],
+                        pspl_magnification=magnification[selection],
                         direct=True))
             elif method.lower() == 'finite_source_uniform_WittMao94'.lower():
                 pl = point_lens
@@ -302,25 +307,22 @@ class MagnificationCurve(object):
                 magnification[selection] = (
                     point_lens.get_point_lens_limb_darkening_magnification(
                         u=u_all[selection],
-                        pspl_magnification=pspl_magnification[selection],
+                        pspl_magnification=magnification[selection],
                         gamma=self._gamma))
             elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
                 magnification[selection] = (
                     point_lens.get_point_lens_limb_darkening_magnification(
                         u=u_all[selection],
-                        pspl_magnification=pspl_magnification[selection],
-                        gamma=self._gamma,
-                        direct=True))
+                        pspl_magnification=magnification[selection],
+                        gamma=self._gamma, direct=True))
             elif method.lower() == 'finite_source_uniform_Lee09'.lower():
                 magnification[selection] = (
                     point_lens.get_point_lens_uniform_integrated_magnification(
-                        u=u_all[selection],
-                        rho=self.parameters.rho))
+                        u=u_all[selection], rho=self.parameters.rho))
             elif method.lower() == 'finite_source_LD_Lee09'.lower():
                 magnification[selection] = (
                     point_lens.get_point_lens_LD_integrated_magnification(
-                        u=u_all[selection],
-                        rho=self.parameters.rho,
+                        u=u_all[selection], rho=self.parameters.rho,
                         gamma=self._gamma))
             else:
                 msg = 'Unknown method specified for single lens: {:}'
