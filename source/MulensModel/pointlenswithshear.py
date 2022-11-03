@@ -29,7 +29,6 @@ class PointLensWithShear(PointLens):
         if not isinstance(trajectory, Trajectory):
             raise ValueError("trajectory must be a Trajectory object.")
 
-        print(self.parameters)
         shear_G = self.parameters.shear_G
         if shear_G is None:
             shear_G = 0.

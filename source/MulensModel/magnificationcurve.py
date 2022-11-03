@@ -280,7 +280,7 @@ class MagnificationCurve(object):
             selection = (methods == method)
 
             if method.lower() == 'point_source':
-                pass
+                pass  # These cases are already taken care of.
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 magnification[selection] = (
                     point_lens.get_point_lens_finite_source_magnification(
