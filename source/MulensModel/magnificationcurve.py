@@ -322,19 +322,6 @@ class MagnificationCurve(object):
                         u=u_all[selection],
                         rho=self.parameters.rho,
                         gamma=self._gamma))
-            elif method.lower() == 'point_source_with_shear':
-                if not self.parameters.is_external_mass_sheet:
-                    raise ValueError(
-                        'You cannot use "point_source_with_shear" method '
-                        'without specifying shear and convergence '
-                        'parameters.')
-                magnification = (
-                    point_lens.get_pspl_with_shear_magnification(
-                        self.trajectory,
-                        convergence_K=self.parameters.parameters.get(
-                            'convergence_K', 0),
-                        shear_G=self.parameters.parameters.get(
-                            'shear_G', complex(0, 0))))
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))

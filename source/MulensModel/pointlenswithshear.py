@@ -6,7 +6,7 @@ from MulensModel.trajectory import Trajectory
 
 class PointLensWithShear(PointLens):
     """
-    Lens of point mass plus shear and convergence
+    Lens of point mass plus shear and convergence, i.e., Chang-Refsdal lens.
 
     Keywords :
         parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`

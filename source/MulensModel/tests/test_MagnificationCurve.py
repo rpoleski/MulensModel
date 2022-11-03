@@ -157,3 +157,21 @@ def test_PSPL_with_external_mass_sheet_reduces_to_point_source():
     u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
     np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())
+
+
+def test_Chang_Refsdal():
+    """
+    Make sure Chang-Refsdal is called properly
+    """
+    t_0 = 1000.
+    t_E = 20.
+    u_0 = 0.1
+    t_vec = np.array([0.]) * t_E + t_0
+    convergence_K = 0.1
+    shear_G = complex(-0.1, 0.2)
+    parameters = mm.ModelParameters({
+        't_0': t_0, 'u_0': u_0, 't_E': t_E,
+        'convergence_K': convergence_K, 'shear_G': shear_G,
+        'alpha': 0.})
+    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=parameters)
+    np.testing.assert_almost_equal(mag_curve.get_magnification(), 5.556327, decimal=5)
