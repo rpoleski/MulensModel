@@ -6,10 +6,26 @@ from MulensModel.trajectory import Trajectory
 
 class PointLensWithShear(PointLens):
     """
-    XXX
+    Lens of point mass plus shear and convergence
+
+    Keywords :
+        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
+            Parameters of the model.
     """
-    def get_pspl_magnification(self, trajectory):
-        "XXX"
+    def get_point_source_magnification(self, trajectory):
+        """
+        Calculate point source magnification for the lens composed of
+        a single mass plus a mass sheat.
+
+        Arguments :
+            trajectory: :py:class:`~MulensModel.trajectory.Trajectory` object
+                Trajectory of the source.
+
+        Returns :
+            pspl_magnification: *np.ndarray*
+                The point-source--point-lens magnification for each point
+                specified by `trajectory`.
+        """
         if not isinstance(trajectory, Trajectory):
             raise ValueError("trajectory must be a Trajectory object.")
 
@@ -58,18 +74,31 @@ class PointLensWithShear(PointLens):
             pspl_magnification.append(mag)
 
         return np.array(pspl_magnification)
+
     def get_point_lens_finite_source_magnification(self, **kwargs):
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-    def get_point_lens_limb_darkening_magnification(self, **kwargs):
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-    def get_point_lens_uniform_integrated_magnification(self, **kwargs):
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-    def get_point_lens_LD_integrated_magnification(self, **kwargs):
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-    def get_point_lens_large_finite_source_magnification(self, **kwargs):
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-    def get_point_lens_large_LD_integrated_magnification(self, **kwargs):
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-    def get_pspl_with_shear_magnification(self, **kwargs):
+        """Not implemented for Chang-Refsdal"""
         raise NotImplementedError("not implemented for Chang-Refsdal")
 
+    def get_point_lens_limb_darkening_magnification(self, **kwargs):
+        """Not implemented for Chang-Refsdal"""
+        raise NotImplementedError("not implemented for Chang-Refsdal")
+
+    def get_point_lens_uniform_integrated_magnification(self, **kwargs):
+        """Not implemented for Chang-Refsdal"""
+        raise NotImplementedError("not implemented for Chang-Refsdal")
+
+    def get_point_lens_LD_integrated_magnification(self, **kwargs):
+        """Not implemented for Chang-Refsdal"""
+        raise NotImplementedError("not implemented for Chang-Refsdal")
+
+    def get_point_lens_large_finite_source_magnification(self, **kwargs):
+        """Not implemented for Chang-Refsdal"""
+        raise NotImplementedError("not implemented for Chang-Refsdal")
+
+    def get_point_lens_large_LD_integrated_magnification(self, **kwargs):
+        """Not implemented for Chang-Refsdal"""
+        raise NotImplementedError("not implemented for Chang-Refsdal")
+
+    def get_pspl_with_shear_magnification(self, **kwargs):
+        """Not implemented for Chang-Refsdal"""
+        raise NotImplementedError("not implemented for Chang-Refsdal")
