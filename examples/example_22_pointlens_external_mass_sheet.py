@@ -21,23 +21,23 @@ d_t = 475.
 time = np.arange(t_0-d_t, t_0+d_t, 0.5, dtype=float)
 
 no_shear = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
-lens = mm.Model({**no_shear.parameters.parameters,
-                 'convergence_K': K, 'shear_G': G, 'alpha': alpha})
-lens.set_magnification_methods(
-    [min(time), 'point_source_with_shear', max(time)])
+with_shear = mm.Model({**no_shear.parameters.parameters,
+                       'convergence_K': K, 'shear_G': G, 'alpha': alpha})
 
-# Plot magnification curve and caustics
 (_, (ax1, ax2)) = plt.subplots(figsize=(10, 5), ncols=2)
 
+# Plot magnification curves:
 plt.sca(ax1)
-lens.plot_magnification(times=time, color='r')
+with_shear.plot_magnification(times=time, color='r')
 no_shear.plot_magnification(times=time, alpha=0.4)
 
+# Plot trajectories and a caustic:
 plt.sca(ax2)
-lens.plot_trajectory(t_range=[t_0 - d_t, t_0], caustics=True, color='green')
-lens.plot_trajectory(t_range=[t_0, t_0 + d_t], color='blue')
-plt.xlabel("x", fontweight="bold")
-plt.ylabel("y", fontweight="bold")
+with_shear.plot_trajectory(t_range=[t_0 - d_t, t_0], caustics=True,
+                           color='green')
+with_shear.plot_trajectory(t_range=[t_0, t_0 + d_t], color='blue')
+plt.xlabel("x")
+plt.ylabel("y")
 plt.axis('equal')
 
 plt.show()
