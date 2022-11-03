@@ -98,7 +98,3 @@ class PointLensWithShear(PointLens):
     def get_point_lens_large_LD_integrated_magnification(self, **kwargs):
         """Not implemented for Chang-Refsdal"""
         raise NotImplementedError("not implemented for Chang-Refsdal")
-
-    def get_pspl_with_shear_magnification(self, **kwargs):
-        """Not implemented for Chang-Refsdal"""
-        raise NotImplementedError("not implemented for Chang-Refsdal")
