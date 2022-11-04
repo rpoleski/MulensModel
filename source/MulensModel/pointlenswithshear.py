@@ -27,7 +27,7 @@ class PointLensWithShear(PointLens):
                 specified by `trajectory`.
         """
         if not isinstance(trajectory, Trajectory):
-            raise ValueError("trajectory must be a Trajectory object.")
+            raise TypeError("trajectory must be a Trajectory object.")
 
         shear_G = self.parameters.shear_G
         if shear_G is None:
@@ -51,9 +51,9 @@ class PointLensWithShear(PointLens):
              zeta_conj,
              temp * len(zeta)], axis=1)
 
-        pspl_magnification = []
+        magnification = []
         const = (1. - convergence_K)**2
-        for (i, coeffs) in enumerate(coeffs_array):
+        for coeffs in coeffs_array:
             mag = 0.
             roots = np.polynomial.polynomial.polyroots(coeffs)
             for root in roots:
@@ -63,37 +63,53 @@ class PointLensWithShear(PointLens):
                 mag += 1. / abs(
                     const -
                     (root_conj**-2 - shear_G) * (root**-2 - shear_G_conj))
+            magnification.append(mag)
+
+        magnification = np.array(magnification)
+        self._test_maginification_values(magnification, trajectory)
+
+        return magnification
+
+    def _test_maginification_values(self, magnification, trajectory):
+        """
+        Test if all magnifications are > 1 and raise ValueError if not.
+        """
+        if np.all(magnification >= 1.):
+            return
+
+        error = ('PointLensWithShear.get_point_source_magnification() '
+                 'failed for input:\nconvergence_K : {:}\nshear_G : {:}\n\n'
+                 'x y mag\n')
+        error = error.format(
+            self.parameters.convergence_K, self.parameters.shear_G)
+        for (mag, x, y) in zip(magnification, trajectory.x, trajectory.y):
             if mag < 1.:
-                parameters = [trajectory.x[i], trajectory.y[i],
-                              convergence_K, shear_G]
-                raise ValueError(
-                    'PointLens.get_pspl_with_shear_magnification() '
-                    'failed for input:\nx y convergence_K shear_G\n' +
-                    ' '.join([str(p) for p in parameters]))
-            pspl_magnification.append(mag)
+                error += "{:} {:} {:}\n".format(x, y, mag)
 
-        return np.array(pspl_magnification)
+        raise ValueError(error)
 
-    def get_point_lens_finite_source_magnification(self, **kwargs):
+    def get_point_lens_finite_source_magnification(self, *args, **kwargs):
         """Not implemented for Chang-Refsdal"""
         raise NotImplementedError("not implemented for Chang-Refsdal")
 
-    def get_point_lens_limb_darkening_magnification(self, **kwargs):
+    def get_point_lens_limb_darkening_magnification(self, *args, **kwargs):
         """Not implemented for Chang-Refsdal"""
         raise NotImplementedError("not implemented for Chang-Refsdal")
 
-    def get_point_lens_uniform_integrated_magnification(self, **kwargs):
+    def get_point_lens_uniform_integrated_magnification(self, *args, **kwargs):
         """Not implemented for Chang-Refsdal"""
         raise NotImplementedError("not implemented for Chang-Refsdal")
 
-    def get_point_lens_LD_integrated_magnification(self, **kwargs):
+    def get_point_lens_LD_integrated_magnification(self, *args, **kwargs):
         """Not implemented for Chang-Refsdal"""
         raise NotImplementedError("not implemented for Chang-Refsdal")
 
-    def get_point_lens_large_finite_source_magnification(self, **kwargs):
+    def get_point_lens_large_finite_source_magnification(self, *args,
+                                                         **kwargs):
         """Not implemented for Chang-Refsdal"""
         raise NotImplementedError("not implemented for Chang-Refsdal")
 
-    def get_point_lens_large_LD_integrated_magnification(self, **kwargs):
+    def get_point_lens_large_LD_integrated_magnification(self, *args,
+                                                         **kwargs):
         """Not implemented for Chang-Refsdal"""
         raise NotImplementedError("not implemented for Chang-Refsdal")
