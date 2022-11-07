@@ -316,6 +316,23 @@ def test_caustic_for_orbital_motion():
            mm.Caustics(q=q, s=1.55).get_caustics())
 
 
+def test_update_single_lens_with_shear_caustic():
+    """
+    make sure that updating single lens caustic works ok
+    """
+    convergence_K = 0.1
+    shear_G = complex(-0.1, -0.2)
+
+    model = mm.Model(mm.ModelParameters({
+        't_0': 0., 'u_0': 1., 't_E': 2., 'alpha': 3.,
+        'convergence_K': 0., 'shear_G': complex(0, 0)}))
+    model.parameters.convergence_K = convergence_K
+    model.parameters.shear_G = shear_G
+    model.update_caustics()
+    assert model.caustics.convergence_K == convergence_K
+    assert model.caustics.shear_G == shear_G
+
+
 def test_magnifications_for_orbital_motion():
     """
     make sure that orbital motion parameters are properly passed to
