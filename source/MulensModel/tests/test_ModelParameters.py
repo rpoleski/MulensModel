@@ -268,6 +268,13 @@ def test_single_lens_convergence_K_shear_G():
     np.testing.assert_almost_equal(params.convergence_K, convergence_K)
     np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
 
+    convergence_K *= 2.
+    shear_G *= 2.
+    params.convergence_K = convergence_K
+    params.shear_G = shear_G
+    np.testing.assert_almost_equal(params.convergence_K, convergence_K)
+    np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
+
 
 def test_is_finite_source():
     """
@@ -329,7 +336,7 @@ class TestParameters(unittest.TestCase):
                 {**basic, 'convergence_K': K, 'alpha': alpha})
         with self.assertRaises(KeyError):
             mm.ModelParameters({**basic, 'convergence_K': K,
-                                    'alpha': alpha, 'dalpha_dt': -0.3})
+                                'alpha': alpha, 'dalpha_dt': -0.3})
         with self.assertRaises(KeyError):
             mm.ModelParameters(
                 {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': alpha,
@@ -338,3 +345,12 @@ class TestParameters(unittest.TestCase):
         # The case below is missing alpha:
         with self.assertRaises(KeyError):
             _ = mm.ModelParameters({**basic, 'shear_G': G})
+
+        # No access to mass sheet without it's parameters
+        parameters = mm.ModelParameters(basic)
+        with self.assertRaises(KeyError):
+            parameters.convergence_K = 0.
+        with self.assertRaises(KeyError):
+            parameters.convergence_K
+        with self.assertRaises(KeyError):
+            parameters.shear_G = 0.
