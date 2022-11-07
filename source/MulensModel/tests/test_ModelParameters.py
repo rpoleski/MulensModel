@@ -9,7 +9,7 @@ import MulensModel as mm
 class TestModelParameters(unittest.TestCase):
     def test_too_many_parameters_for_init(self):
         """
-        Makre sure that over-defining parallax fails.
+        Make sure that over-defining parallax fails.
         """
         params = {'t_0': 0, 't_E': 1., 'u_0': 0.1}
         with self.assertRaises(KeyError):
@@ -17,6 +17,18 @@ class TestModelParameters(unittest.TestCase):
         with self.assertRaises(KeyError):
             mm.ModelParameters({**params, 'pi_E': (1., 1.), 'pi_E_E': 1.})
 
+    def test_wrong_type_of_parameters(self):
+        """
+        Make sure type of parameters is correct and ranges are also fine
+        """
+        with self.assertRaises(TypeError):
+            mm.ModelParameters({'t_0': 'abc', 'u_0': 1, 't_E': 10.})
+        with self.assertRaises(TypeError):
+            mm.ModelParameters({'t_0': 123., 'u_0': 1, 't_E': 10.,
+                                'shear_G': 0.1, 'alpha': 123.})
+        with self.assertRaises(ValueError):
+            mm.ModelParameters({'t_0': 123., 'u_0': 1, 't_E': 10., 's': 1.2,
+                               'alpha': 34.56, 'q': 1.5})
 
 def test_init_parameters():
     """
