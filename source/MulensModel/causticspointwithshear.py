@@ -6,16 +6,15 @@ from MulensModel.caustics import Caustics
 
 class CausticsPointWithShear(Caustics):
     """
-    Class for the caustic structure corresponding to a given (*q*, *s*),
-    i.e. mass ratio and separation. Implemented for 2-body lenses only.
+    Class for the caustic structure produced by the Chang-Refsdal lens,
+    i.e. single mass with shear and convergence.
 
     Attributes :
-        q: *float*
-            mass ratio between the 2 bodies; always <= 1
+        convergence_K: *float*
+            convergence of the lens system
 
-        s: *float*
-            separation between the 2 bodies (as a fraction of the
-            Einstein ring)
+        shear_G: *complex*
+            shear of the the lens system
     """
 
     def __init__(self, convergence_K, shear_G):

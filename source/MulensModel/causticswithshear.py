@@ -8,15 +8,21 @@ from MulensModel.caustics import Caustics
 
 class CausticsWithShear(Caustics):
     """
-    Class for the caustic structure corresponding to a given (*q*, *s*),
-    i.e. mass ratio and separation. Implemented for 2-body lenses only.
+    Caustics structure for a binary lens with shear and convergence.
 
     Attributes :
         q: *float*
             mass ratio between the 2 bodies; always <= 1
+
         s: *float*
             separation between the 2 bodies (as a fraction of the
             Einstein ring)
+
+        convergence_K: *float*
+            convergence of the lens system
+
+        shear_G: *complex*
+            shear of the the lens system
     """
 
     def __init__(self, q, s, convergence_K=0.0, shear_G=complex(0, 0)):

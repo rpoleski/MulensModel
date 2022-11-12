@@ -10,11 +10,11 @@ import MulensModel as mm
 
 class BinaryLensWithShear(BinaryLens):
     """
-    The binary lens equation - its solutions, images, parities,
-    magnifications, etc.
+    The binary lens with shear and convergence:
+    solutions, images, parities, magnifications, etc.
 
-    The binary lens equation is a 5th order complex polynomial
-    or a 9th order complex polynomial if including external shear.
+    The binary lens with shear and convergence equation is
+    the 9th order complex polynomial.
 
     Attributes :
         mass_1: *float*
