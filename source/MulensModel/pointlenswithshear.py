@@ -8,6 +8,10 @@ class PointLensWithShear(PointLens):
     """
     Lens of point mass plus shear and convergence, i.e., Chang-Refsdal lens.
 
+    This lens was first considered by
+    `Chang and Refsdal (1979; Nature, 282, 561)
+    <https://ui.adsabs.harvard.edu/abs/1979Natur.282..561C/abstract>`_.
+
     Keywords :
         parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
             Parameters of the model.
