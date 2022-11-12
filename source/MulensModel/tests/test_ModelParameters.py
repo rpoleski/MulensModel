@@ -38,11 +38,12 @@ class TestModelParameters(unittest.TestCase):
             mm.ModelParameters({'t_0_1': 1, 'u_0_1': 0.1, 't_E': 10,
                                 't_0_2': 10., 'u_0_2': 0.01, 'rho_2': -3.})
         with self.assertRaises(Exception):
-            mm.ModelParameters({'t_0_1': 1, 'u_0_1': 0.1, 't_E': 10, 'rho_1': -0.1,
-                                't_0_2': 10., 'u_0_2': 0.01,})
+            mm.ModelParameters({'t_0_1': 1, 'u_0_1': 0.1, 't_E': 10,
+                                'rho_1': -0.1, 't_0_2': 10., 'u_0_2': 0.01})
         with self.assertRaises(KeyError):
             mm.ModelParameters({'t_01': 1, 'u_0_1': 0.1, 't_eff_1': 10,
                                 't_0_2': 10., 'u_0_2': 0.01, 't_eff_2': 20.})
+
 
 def test_init_parameters():
     """

@@ -174,4 +174,5 @@ def test_Chang_Refsdal():
         'convergence_K': convergence_K, 'shear_G': shear_G,
         'alpha': 0.})
     mag_curve = mm.MagnificationCurve(times=t_vec, parameters=parameters)
-    np.testing.assert_almost_equal(mag_curve.get_magnification(), 5.556327, decimal=5)
+    magnification = mag_curve.get_magnification()
+    np.testing.assert_almost_equal(magnification, 5.556327, decimal=5)

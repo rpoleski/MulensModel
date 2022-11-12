@@ -33,4 +33,3 @@ def test_caustic():
             x[i], test_caustics['X'][index], decimal=5)
         np.testing.assert_almost_equal(
             y[i], test_caustics['Y'][index], decimal=5)
-

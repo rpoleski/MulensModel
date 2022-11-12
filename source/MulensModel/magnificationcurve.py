@@ -257,13 +257,16 @@ class MagnificationCurve(object):
 
         if self.parameters.is_external_mass_sheet:
             point_lens = PointLensWithShear(self.parameters)
-            magnification = point_lens.get_point_source_magnification(self.trajectory)
+            magnification = point_lens.get_point_source_magnification(
+                self.trajectory)
         else:
             point_lens = PointLens(self.parameters)
             magnification = get_pspl_magnification(self.trajectory)
-        methods = np.array(self._methods_for_epochs())
-        if np.all(methods == None):
+
+        methods = self._methods_for_epochs()
+        if len(set(methods)-set([None, 'point_source'])) == 0:
             return magnification
+        methods_ = np.array(methods)
 
         u2 = self.trajectory.x**2 + self.trajectory.y**2
         u_all = np.sqrt(u2)
@@ -277,7 +280,7 @@ class MagnificationCurve(object):
                     raise ValueError(
                         'Methods parameters passed, but currently ' +
                         'no point lens method accepts the parameters')
-            selection = (methods == method)
+            selection = (methods_ == method)
 
             if method.lower() == 'point_source':
                 pass  # These cases are already taken care of.

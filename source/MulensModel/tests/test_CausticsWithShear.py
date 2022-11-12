@@ -2,7 +2,6 @@ import numpy as np
 import os
 
 import MulensModel as mm
-from MulensModel.caustics import Caustics
 
 
 SAMPLE_FILE_01 = os.path.join(
