@@ -1,57 +1,48 @@
 # This workflow is triggered by a new release on GitHub and then uploads
 # MulensModel package to PyPI.
-#
-# If the publish step finishes succesfully, the source distribution is
-# guaranteed to be published. Binary distributions are published only if
-# their respective build steps passes. If any binary distribution fails,
-# package maintainers may manually debug, build, and publish without the
-# automated workflow.
 name: Upload Python Package to PyPI
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
-  build_binary_manylinux:
-    runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_24_x86_64
-
+  build_wheels:
+    name: Build wheel [${{ matrix.os }} ${{ matrix.cw_archs }} ${{ matrix.cw_build }}]
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version:
-          - cp37-cp37m
-          - cp38-cp38
-          - cp39-cp39
-          - cp310-cp310
+        os: [ubuntu-latest, macos-latest]
+        cw_build: [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
+        include:
+        - {os: ubuntu-latest, cw_archs: x86_64, skip: "pp* *_i686"}  # 64-bit Linux
+        - {os: macos-latest, cw_archs: "x86_64", skip: "pp*"}        # MacOS Intel
+        - {os: macos-latest, cw_archs: "arm64", skip: "pp*"}         # MacOS Silicon
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-    - name: Build Python wheels
-      # Build linux wheels with the image then use auditwheel
-      # to convert to it a manylinux wheel.
-      env:
-        PYTHON_VERSION: ${{ matrix.python-version }}
-      run: |
-         /opt/python/$PYTHON_VERSION/bin/python -m build --wheel
-         find dist/ -type f -name *.whl | xargs -L 1 auditwheel repair --wheel-dir dist/
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.11.2
+        env:
+          CIBW_ARCHS: ${{ matrix.cw_archs }}
+          CIBW_BUILD: ${{ matrix.cw_build }}
 
-    - uses: actions/upload-artifact@v2
-      # Only upload manylinux wheels to artifact.
-      # Normal linux wheels is not allowed in PyPI
-      with:
-        name: dist
-        path: dist/*manylinux*.whl
+      - uses: actions/upload-artifact@v3
+        with:
+          name: bdist
+          path: ./wheelhouse/*.whl
 
   build_source:
+    name: Build sdist
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: "3.10"
 
@@ -65,21 +56,20 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: dist
-        path: dist/*.tar.gz
+        name: sdist
+        path: ./dist/*.tar.gz
 
   publish:
-    # Publish to PyPI and update GitHub release
-    # Here we require only the source build to start publishing
-    needs: [build_source]
+    name: Publish to PyPI
     runs-on: ubuntu-latest
+    needs: [build_source, build_wheels]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - uses: actions/download-artifact@v2
+    - name: Download all artifacts to dist/
+      uses: actions/download-artifact@v3
       with:
-        name: dist
         path: dist/
 
     - name: Publish package to PyPI
