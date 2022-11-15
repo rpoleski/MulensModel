@@ -13,12 +13,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # A matrix of OSs, Python verisons, and architectures
+        # Skips PyPy
         os: [ubuntu-latest, macos-latest]
         cw_build: [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
         include:
-        - {os: ubuntu-latest, cw_archs: x86_64, skip: "pp* *_i686"}  # 64-bit Linux
-        - {os: macos-latest, cw_archs: "x86_64", skip: "pp*"}        # MacOS Intel
-        - {os: macos-latest, cw_archs: "arm64", build: "cp311-*", skip: "pp*"}         # MacOS Silicon
+        # Linux x86_64
+        - {os: ubuntu-latest, cw_archs: x86_64, cw_skip: "pp* *_i686"}         
+        # MacOS Intel
+        - {os: macos-latest, cw_archs: "x86_64", cw_skip: "pp*"}
+        # MacOS Silicon (>= Python 3.8 only)
+        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp38-*, cp39-*, cp310-*, cp311-*", cw_skip: "pp*"}
 
     steps:
       - uses: actions/checkout@v3
@@ -28,6 +33,7 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.cw_archs }}
           CIBW_BUILD: ${{ matrix.cw_build }}
+          CIBW_SKIP: ${{ matrix.cw_skip }}
 
       - uses: actions/upload-artifact@v3
         with:
