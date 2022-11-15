@@ -18,7 +18,7 @@ jobs:
         include:
         - {os: ubuntu-latest, cw_archs: x86_64, skip: "pp* *_i686"}  # 64-bit Linux
         - {os: macos-latest, cw_archs: "x86_64", skip: "pp*"}        # MacOS Intel
-        - {os: macos-latest, cw_archs: "arm64", skip: "pp*"}         # MacOS Silicon
+        - {os: macos-latest, cw_archs: "arm64", build: "cp311-*", skip: "pp*"}         # MacOS Silicon
 
     steps:
       - uses: actions/checkout@v3
