@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: bdist
+          name: wheelhouse
           path: ./wheelhouse/*.whl
 
   build_source:
