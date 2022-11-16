@@ -38,11 +38,8 @@ class CausticsWithShear(Caustics):
         Based on Eq. 6 Cassan 2008 modified so origin is center of
         mass and larger mass is on the left. Uses complex coordinates.
         """
-        # Find number of angles so that 4*n_angles is the multiple of 4 that
-        # is closest to n_points.
         n_angles = int(n_points/4.+.5)
 
-        # Initialize variables
         self._x = []
         self._y = []
         self._critical_curve = self.CriticalCurve()
@@ -50,9 +47,7 @@ class CausticsWithShear(Caustics):
         # Distance between primary mass and center of mass
         xcm_offset = self.q * self.s / (1. + self.q)
 
-        # Solve for the critical curve (and caustic) in complex coordinates.
         for phi in np.linspace(0., 2.*np.pi, n_angles, endpoint=False):
-            # Change the angle to a complex number
             e_iphi = self.shear_G.conjugate() + (
                 1-self.convergence_K) * complex(cos(phi), -sin(phi))
 
@@ -64,10 +59,8 @@ class CausticsWithShear(Caustics):
             # additional parenthesis make it more stable numerically.
             coeff_0 = -self.s**2 * 1/e_iphi * 1 / (1. + self.q)
 
-            # Find roots
             coeff_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4]
             roots = np.polynomial.polynomial.polyroots(coeff_list)
-            # Store results
             shift = -xcm_offset + self.convergence_K + self.shear_G.real
             for root in roots:
                 self._critical_curve.x.append(root.real + shift)
