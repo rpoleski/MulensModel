@@ -26,7 +26,7 @@ jobs:
         - {os: macos-latest, cw_archs: "arm64", cw_skip: "pp*"}
         exclude:
         # Skips MacOS Silicon for Python 3.7 (wheel metadata does not exist)
-        - {os: macos-latest, cw_build: "3.7", cw_archs: "arm64", cw_skip: "pp*"}
+        - {os: macos-latest, cw_build: "cp3.7"}
 
     steps:
       - uses: actions/checkout@v3
