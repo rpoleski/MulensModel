@@ -846,7 +846,7 @@ class Event(object):
         if isinstance(new_value, MulensData):
             index = self.datasets.index(new_value)
             try:
-                ind_2 = self.datasets.index(new_value, index+1)
+                _ = self.datasets.index(new_value, index+1)
             except ValueError:
                 pass
             else:

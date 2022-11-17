@@ -105,8 +105,8 @@ def test_Lee09_and_WittMao94():
                            2.02334097551, 2.13919086656])
     expected_1 = np.array([1.01110609638, 1.07461016241, 1.57232954942,
                            2.21990790526, 2.39458814753])
-    expected_2 = np.array([1.0110829794, 1.07404148634, 1.55620547462,
-                           2.24809136704, 2.44503143812])
+#    expected_2 = np.array([1.0110829794, 1.07404148634, 1.55620547462,
+#                           2.24809136704, 2.44503143812])
 # The last values are for 2-parameter LD with same settings and lambda=0.3.
 # Correction is:
 #  -lambda*(1-1.25*sqrt(costh))
@@ -217,3 +217,41 @@ def test_warning_rho_and_no_finite_source_method():
 
         assert len(warning) == 1
         assert issubclass(warning[0].category, UserWarning)
+
+
+def test_PSPL_with_external_mass_sheet_reduces_to_point_source():
+    """
+    Test for point source with external mass sheet reduces to point source
+    when convergence_K=0 and shear_G=0
+    """
+    t_0 = 1000.
+    t_E = 20.
+    u_0 = 1.
+    t_vec = np.array([10., 100.]) * t_E + t_0
+    params = mm.ModelParameters({
+        't_0': t_0, 'u_0': u_0, 't_E': t_E,
+        'convergence_K': 0.0, 'shear_G': complex(0.0, -0.0), 'alpha': 20.})
+    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
+    mag_curve.set_magnification_methods(None, 'point_source')
+    u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
+    pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())
+
+
+def test_Chang_Refsdal():
+    """
+    Make sure Chang-Refsdal is called properly
+    """
+    t_0 = 1000.
+    t_E = 20.
+    u_0 = 0.1
+    t_vec = np.array([0.]) * t_E + t_0
+    convergence_K = 0.1
+    shear_G = complex(-0.1, 0.2)
+    parameters = mm.ModelParameters({
+        't_0': t_0, 'u_0': u_0, 't_E': t_E,
+        'convergence_K': convergence_K, 'shear_G': shear_G,
+        'alpha': 0.})
+    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=parameters)
+    magnification = mag_curve.get_magnification()
+    np.testing.assert_almost_equal(magnification, 5.556327, decimal=5)

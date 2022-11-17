@@ -3,6 +3,7 @@ from os import path
 from MulensModel.binarylens import BinaryLens
 from MulensModel.binarylenswithshear import BinaryLensWithShear
 from MulensModel.caustics import Caustics
+from MulensModel.causticspointwithshear import CausticsPointWithShear
 from MulensModel.causticswithshear import CausticsWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.event import Event
@@ -15,6 +16,7 @@ from MulensModel.modelparameters import ModelParameters, which_parameters
 from MulensModel.mulensdata import MulensData
 from MulensModel.mulensobjects import *
 from MulensModel.pointlens import PointLens, get_pspl_magnification
+from MulensModel.pointlenswithshear import PointLensWithShear
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
 from MulensModel.uniformcausticsampling import UniformCausticSampling
