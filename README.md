@@ -55,10 +55,8 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) 
 [![Poleski & Yee 2019](https://img.shields.io/badge/ADS-Poleski%20%26%20Yee%202019-brightgreen.svg)](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract)
 [![astro-ph/1803.01003](https://img.shields.io/badge/astro--ph-1803.01003-brightgreen.svg)](https://arxiv.org/abs/1803.01003)
+[![PyPI version](https://badge.fury.io/py/MulensModel.svg)](https://badge.fury.io/py/MulensModel)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
 
-<<<<<<< HEAD
-file revised Oct 2022
-=======
 file revised Nov 2022
->>>>>>> alpv95_chang-refsdal
 
