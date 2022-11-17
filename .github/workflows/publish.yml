@@ -9,22 +9,22 @@ on:
 
 jobs:
   build_wheels:
-    name: ${{ matrix.os }} ${{ matrix.cw_archs }} ${{ matrix.cw_build }}
+    name: ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cw_build }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
         os: [ubuntu-latest, macos-latest]
-        cw_archs: [auto64]
-        cw_build: [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
-        cw_skip: [pp*]
+        cibw_archs: [auto64]
+        cibw_build: [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
+        cibw_skip: [pp*]
         include:
         # MacOS Silicon (Python >= 3.8)
-        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp38-*"}
-        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp39-*"}
-        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp310-*"}
-        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp311-*"}
+        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp38-*"}
+        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp39-*"}
+        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp310-*"}
+        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp311-*"}
 
     steps:
       - uses: actions/checkout@v3
@@ -32,9 +32,9 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.11.2
         env:
-          CIBW_ARCHS: ${{ matrix.cw_archs }}
-          CIBW_BUILD: ${{ matrix.cw_build }}
-          CIBW_SKIP: ${{ matrix.cw_skip }}
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_SKIP: ${{ matrix.cibw_skip }}
 
       - uses: actions/upload-artifact@v3
         with:
