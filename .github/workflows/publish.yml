@@ -16,17 +16,15 @@ jobs:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
         os: [ubuntu-latest, macos-latest]
+        cw_archs: [auto64]
         cw_build: [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
+        cw_skip: [pp*]
         include:
-        # Linux x86_64
-        - {os: ubuntu-latest, cw_archs: x86_64, cw_skip: "pp* *_i686"}         
-        # MacOS Intel
-        - {os: macos-latest, cw_archs: "x86_64", cw_skip: "pp*"}
-        # MacOS Silicon
-        - {os: macos-latest, cw_archs: "arm64", cw_skip: "pp*"}
-        exclude:
-        # Skips MacOS Silicon for Python 3.7 (wheel metadata does not exist)
-        - {os: macos-latest, cw_build: "cp3.7"}
+        # MacOS Silicon (Python >= 3.8)
+        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp38-*"}
+        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp39-*"}
+        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp310-*"}
+        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp311-*"}
 
     steps:
       - uses: actions/checkout@v3
