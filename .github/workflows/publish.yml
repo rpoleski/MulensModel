@@ -9,7 +9,7 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheel [${{ matrix.os }} ${{ matrix.cw_archs }} ${{ matrix.cw_build }}]
+    name: ${{ matrix.os }} ${{ matrix.cw_archs }} ${{ matrix.cw_build }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
