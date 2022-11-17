@@ -19,6 +19,7 @@ Submodules
    MulensModel.binarylensimports
    MulensModel.binarylenswithshear
    MulensModel.caustics
+   MulensModel.causticspointwithshear
    MulensModel.causticswithshear
    MulensModel.coordinates
    MulensModel.event
@@ -30,6 +31,7 @@ Submodules
    MulensModel.modelparameters
    MulensModel.mulensdata
    MulensModel.pointlens
+   MulensModel.pointlenswithshear
    MulensModel.satelliteskycoord
    MulensModel.trajectory
    MulensModel.uniformcausticsampling
