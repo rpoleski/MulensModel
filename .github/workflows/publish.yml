@@ -22,8 +22,11 @@ jobs:
         - {os: ubuntu-latest, cw_archs: x86_64, cw_skip: "pp* *_i686"}         
         # MacOS Intel
         - {os: macos-latest, cw_archs: "x86_64", cw_skip: "pp*"}
-        # MacOS Silicon (>= Python 3.8 only)
-        - {os: macos-latest, cw_archs: "arm64", cw_build: "cp38-*, cp39-*, cp310-*, cp311-*", cw_skip: "pp*"}
+        # MacOS Silicon
+        - {os: macos-latest, cw_archs: "arm64", cw_skip: "pp*"}
+        exclude:
+        # Skips MacOS Silicon for Python 3.7 (wheel metadata does not exist)
+        - {os: macos-latest, cw_build: "3.7", cw_archs: "arm64", cw_skip: "pp*"}
 
     steps:
       - uses: actions/checkout@v3
