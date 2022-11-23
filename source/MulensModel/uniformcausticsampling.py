@@ -303,6 +303,8 @@ class UniformCausticSampling(object):
             self._which_caustic = np.array([0., 1.])
             return
 
+        # XXX DO WE NEED PART BELOW?
+        """
         cusps_z_1 = [self._z_sum_1[i] for i in indexes]
         if self._n_caustics == 2:
             add = self._z_all[indexes[1], 2]
@@ -322,6 +324,7 @@ class UniformCausticSampling(object):
             cusps_z_2 += [cusps_z_2[0].conjugate()]
 
         cusps_zeta_2 = [self._zeta(z) for z in cusps_z_2]
+        """
 
         length_1 = 2. * self._sum_1[-1]
         lengths_sum = length_1
