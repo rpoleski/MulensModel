@@ -15,9 +15,11 @@ We're also open to suggestions, new ideas, and requests. If you have them, then 
 
 Having a code that you want to share is great! We follow coding conventions (e.g., [PEP8](https://github.com/rpoleski/MulensModel/issues/new), docstrings for [sphinx](https://www.sphinx-doc.org/en/master/), [camel case](https://en.wikipedia.org/wiki/Snake_case) names of classes, [snake case](https://en.wikipedia.org/wiki/Snake_case) names of attributes and methods, etc.) but you don't have to follow all of them right away. Just open a new [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) and we will have some discussion on changes that need to be done before merging. Please note that we expect that you will provide a unit test for every new public function that is not plotting. If the function is plotting, then we expect a new example. Sometimes there is significant discussion befor the pull request is accepted (see some [closed ones](https://github.com/rpoleski/MulensModel/pulls?q=is%3Apr+is%3Aclosed) for examples).
 
+An important aspect of adding new code is writing tests that can be run in automated way. The tests are in `source/MulensModel/tests/` directory and you can run them by invoking `pytest` command (it requires pytest package to be installed). If you don't know how to write tests for your code, don't worry - we will help you. We expect that new code is tested in nearly 100% when it's merged.
+
 ### Weekly hack sessions
 
-As of June 2022, we have regular hack sessions (just 2h each week) to work on MulensModel. Contact us if you are interested in joining.
+As of Nov 2022, we have regular hack sessions (just 2h each week) to work on MulensModel. Contact us if you are interested in joining.
 
 
 Thanks!
