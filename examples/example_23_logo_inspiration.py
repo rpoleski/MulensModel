@@ -1,3 +1,7 @@
+"""
+Plots 2 light curves that are intended to be an inspiration for
+a MulensModel logo.
+"""
 import MulensModel as mm
 import matplotlib.pyplot as plt
 
