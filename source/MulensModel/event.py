@@ -113,6 +113,18 @@ class Event(object):
         else:
             self.fix_source_flux_ratio = fix_source_flux_ratio
 
+    def __repr__(self):
+        outstr = 'model:\n'
+        outstr += '{0}\n'.format(self.model)
+        if self.coords is not None:
+            outstr += 'coords: {0}\n'.format(self.coords)
+
+        outstr += 'datasets:\n'
+        for dataset in self.datasets:
+            outstr += '{0}\n'.format(dataset)
+
+        return outstr
+
     def plot(self, t_range=None, residuals=True, show_errorbars=None,
              show_bad=None, legend=True, trajectory=None, title=None,
              subtract_2450000=True, subtract_2460000=False, data_ref=None):
