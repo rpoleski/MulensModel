@@ -7,6 +7,7 @@ from astropy.time import Time
 from MulensModel import utils
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.coordinates import Coordinates
+from MulensModel.orbits.orbit import OrbitCircular
 
 
 class Trajectory(object):
@@ -169,6 +170,26 @@ class Trajectory(object):
             [delta_tau, delta_u] = self._project_delta()
             vector_tau += delta_tau
             vector_u += delta_u
+
+        # If xallarap parameters are provided, apply xallarap effect:
+        parameters = self.parameters.parameters
+        if "xi_period" in parameters:
+            keys_circular = set(
+                "xi_period xi_semimajor_axis xi_Omega_node xi_inclination "
+                "xi_argument_of_latitude_reference".split())
+            intersection = keys_circular.intersection(set(parameters.keys()))
+            if len(intersection) == 5:  # XXXX else
+                orbit_parameters = {
+                    key[3:]: parameters[key] for key in keys_circular}
+                orbit_parameters['epoch_reference'] = parameters['t_0']  # XXXX
+                orbit = OrbitCircular(**orbit_parameters)
+                get_position = orbit.get_reference_plane_position
+                ref_position = get_position(parameters['t_0']).reshape((2, 1))
+                positions = get_position(self.times)
+
+                shifts = positions - ref_position
+                vector_tau += shifts[0]
+                vector_u += shifts[1]
 
         # If 2 lenses, rotate trajectory relative to binary lens axis
         is_mass_sheet = self.parameters.is_external_mass_sheet_with_shear
