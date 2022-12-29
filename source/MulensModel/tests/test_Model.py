@@ -458,7 +458,9 @@ def test_get_lc():
     almost(out, 19.668370500043526)
 
 
-def prepare_xallarap_test(xi_Omega_node=0., xi_argument_of_latitude_reference=0.):
+def prepare_xallarap_test(
+        xi_Omega_node=0., xi_argument_of_latitude_reference=0.,
+        t_0_xi=None):
     """
     prepare data for unit tests of xallarap models
     """
@@ -474,6 +476,12 @@ def prepare_xallarap_test(xi_Omega_node=0., xi_argument_of_latitude_reference=0.
         'xi_Omega_node': xi_Omega_node, 'xi_inclination': 0.,
         'xi_argument_of_latitude_reference': xi_argument_of_latitude_reference
         }
+    if t_0_xi is not None:
+        if t_0_xi == "t_0":
+            t_0_xi = t_0
+        elif t_0_xi == "t_0+d_time":
+            t_0_xi = t_0 + d_time
+        xallarap['t_0_xi'] = t_0_xi
 
     model_1 = mm.Model(common)
     model_2 = mm.Model({**common, **xallarap})
@@ -523,6 +531,31 @@ def test_xallarap_at_t_0_plus_half_of_period_3():
     u2 = u_0**2 + (tau + 2. * xi_a)**2
     expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
     assert expected == model.get_magnification(t_0+d_time)
+
+def test_xallarap_at_t_0_plus_half_of_period_4():
+    """
+    Xallarap - circular orbit, half period after t_0, and Omega+nu_0 = 180.
+    The t_0_xi is provided as a parameter and = t_0.
+    Expected u is from pen and pencil calculations.
+    """
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(90., 90., "t_0")[1:]
+
+    u2 = u_0**2 + (tau + 2. * xi_a)**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    assert expected == model.get_magnification(t_0+d_time)
+
+def test_xallarap_at_t_0_plus_half_of_period_5():
+    """
+    Xallarap - circular orbit, half period after t_0, and Omega+nu_0 = 180.
+    The t_0_xi is provided as a parameter and = t_0.
+    Expected u is from pen and pencil calculations.
+    """
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(90., 90., "t_0+d_time")[1:]
+
+    u2 = u_0**2 + tau**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    assert expected == model.get_magnification(t_0+d_time)
+
 
 
 # Tests to Add:
