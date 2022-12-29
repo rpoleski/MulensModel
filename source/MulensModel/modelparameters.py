@@ -578,7 +578,7 @@ class ModelParameters(object):
             't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
             'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
-            'xi_argument_of_latitude_reference').split())  # XXXX
+            'xi_argument_of_latitude_reference t_0_xi').split())  # XXXX
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
@@ -1273,6 +1273,18 @@ class ModelParameters(object):
     def t_0_kep(self, new):
         self.parameters['t_0_kep'] = new
         self._update_sources('t_0_kep', new)
+
+    @property
+    def t_0_xi(self):
+        """
+        *float*
+
+        XXX XXXX
+        """
+        if 't_0_xi' not in self.parameters.keys():
+            return self.parameters['t_0']
+        else:
+            return self.parameters['t_0_xi']
 
     @property
     def t_0_1(self):
