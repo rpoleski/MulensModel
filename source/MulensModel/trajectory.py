@@ -178,7 +178,7 @@ class Trajectory(object):
                 "xi_period xi_semimajor_axis xi_Omega_node xi_inclination "
                 "xi_argument_of_latitude_reference".split())
             intersection = keys_circular.intersection(set(parameters.keys()))
-            if len(intersection) == 5:  # XXXX else
+            if len(intersection) == len(keys_circular):  # XXXX else
                 orbit_parameters = {
                     key[3:]: parameters[key] for key in keys_circular}
                 orbit_parameters['epoch_reference'] = self.parameters.t_0_xi  # XXXX

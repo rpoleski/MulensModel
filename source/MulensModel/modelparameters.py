@@ -391,6 +391,11 @@ class ModelParameters(object):
             't_caustic_in': {'width': 19, 'precision': 5, 'unit': 'HJD'},
             't_caustic_out': {'width': 19, 'precision': 5, 'unit': 'HJD'},
         }
+        xallarap_keys = ['xi_period', 'xi_semimajor_axis', 'xi_inclination',
+                         'xi_Omega_node', 'xi_argument_of_latitude_reference',
+                         't_0_xi']
+        for key in xallarap_keys:
+            formats[key] = {'width': 13, 'precision': 7}
         # Add binary source parameters with the same settings.
         binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
                               'rho_1', 'rho_2', 't_star_1', 't_star_2']
@@ -408,6 +413,8 @@ class ModelParameters(object):
             'pi_E_N', 'pi_E_E', 's', 'q', 'alpha',
             'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
+            'xi_period', 'xi_semimajor_axis', 'xi_inclination', 'xi_Omega_node',
+            'xi_argument_of_latitude_reference', 't_0_xi'
         ]
 
         variables = ''
@@ -1285,6 +1292,71 @@ class ModelParameters(object):
             return self.parameters['t_0']
         else:
             return self.parameters['t_0_xi']
+
+    @property
+    def xi_period(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['xi_period']
+
+    @xi_period.setter
+    def xi_period(self, new_value):
+        self.parameters['xi_period'] = new_value
+
+    @property
+    def xi_semimajor_axis(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['xi_semimajor_axis']
+
+    @xi_semimajor_axis.setter
+    def xi_semimajor_axis(self, new_value):
+        self.parameters['xi_semimajor_axis'] = new_value
+
+    @property
+    def xi_Omega_node(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['xi_Omega_node']
+
+    @xi_Omega_node.setter
+    def xi_Omega_node(self, new_value):
+        self.parameters['xi_Omega_node'] = new_value
+
+    @property
+    def xi_inclination(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['xi_inclination']
+
+    @xi_inclination.setter
+    def xi_inclination(self, new_value):
+        self.parameters['xi_inclination'] = new_value
+
+    @property
+    def xi_argument_of_latitude_reference(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['xi_argument_of_latitude_reference']
+
+    @xi_argument_of_latitude_reference.setter
+    def xi_argument_of_latitude_reference(self, new_value):
+        self.parameters['xi_argument_of_latitude_reference'] = new_value
 
     @property
     def t_0_1(self):
