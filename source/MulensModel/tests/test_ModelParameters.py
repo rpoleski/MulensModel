@@ -1,4 +1,5 @@
 import unittest
+import pytest
 import numpy as np
 
 from astropy import units as u
@@ -381,3 +382,44 @@ class TestParameters(unittest.TestCase):
             parameters.convergence_K
         with self.assertRaises(KeyError):
             parameters.shear_G = 0.
+
+
+def setup_xallarap(key):
+    """
+    Setup for xallarap tests.
+    """
+    period = 12.345
+    parameters = {'t_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+                  'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
+                  'xi_inclination': 9.8765,
+                  'xi_argument_of_latitude_reference': 24.68}
+    model = mm.ModelParameters(parameters)
+    return (model, parameters[key])
+
+
+tested_keys = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
+               'xi_inclination', 'xi_argument_of_latitude_reference']
+
+
+@pytest.mark.parametrize("key", tested_keys)
+def test_xallarap_period_1(key):
+    """
+    Check if xallarap settings of xallarap are correctly changed via dictionary
+    """
+    (model, value) = setup_xallarap(key)
+    new_value = 2.1234 * value
+    model.parameters[key] = new_value
+    assert model.parameters[key] == new_value
+    assert getattr(model, key) == new_value
+
+
+@pytest.mark.parametrize("key", tested_keys)
+def test_xallarap_period_2(key):
+    """
+    Check if xallarap settings are correctly changed via attribute
+    """
+    (model, value) = setup_xallarap(key)
+    new_value = 1.3579 * value
+    setattr(model, key, new_value)
+    assert model.parameters[key] == new_value
+    assert getattr(model, key) == new_value
