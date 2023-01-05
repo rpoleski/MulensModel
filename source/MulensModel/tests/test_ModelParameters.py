@@ -392,13 +392,14 @@ def setup_xallarap(key):
     parameters = {'t_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
                   'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
                   'xi_inclination': 9.8765,
-                  'xi_argument_of_latitude_reference': 24.68}
+                  'xi_argument_of_latitude_reference': 24.68,
+                  't_0_xi': 1.}
     model = mm.ModelParameters(parameters)
     return (model, parameters[key])
 
 
 tested_keys = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
-               'xi_inclination', 'xi_argument_of_latitude_reference']
+               'xi_inclination', 'xi_argument_of_latitude_reference', 't_0_xi']
 
 
 @pytest.mark.parametrize("key", tested_keys)
