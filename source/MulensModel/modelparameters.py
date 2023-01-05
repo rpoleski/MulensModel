@@ -1286,12 +1286,18 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX XXXX
+        Reference epoch for xallarap orbit.
+        If not provided, then it defaults to :py:attr:`~t_0`.
         """
+        # XXX check if model has xallarap
         if 't_0_xi' not in self.parameters.keys():
             return self.parameters['t_0']
         else:
             return self.parameters['t_0_xi']
+
+    @t_0_xi.setter
+    def t_0_xi(self, new_value):
+        self.parameters['t_0_xi'] = new_value
 
     @property
     def xi_period(self):
