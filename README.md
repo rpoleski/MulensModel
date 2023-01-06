@@ -14,7 +14,7 @@ If you want to learn more about microlensing, please visit [Microlensing Source 
 
 Currently, MulensModel supports:
 * Lens Systems: point lens or binary lens. **New: shear and convergence allowed for both point and binary lenses.**
-* Source Stars: single source or binary source.
+* Source Stars: single source or binary source. **Xallarap effect is currently developed:** [see this branch](https://github.com/rpoleski/MulensModel/tree/xal).
 * Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion, different parametrizations of microlensing models.
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues), start [a discussion](https://github.com/rpoleski/MulensModel/discussions), or send us an e-mail. 
@@ -61,5 +61,5 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
 ![example workflow](https://github.com/alpv95/MulensModel/actions/workflows/tests.yml/badge.svg)
 
-file revised Dec 2022
+file revised Jan 2023
 
