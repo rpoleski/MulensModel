@@ -413,8 +413,8 @@ class ModelParameters(object):
             'pi_E_N', 'pi_E_E', 's', 'q', 'alpha',
             'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
-            'xi_period', 'xi_semimajor_axis', 'xi_inclination', 'xi_Omega_node',
-            'xi_argument_of_latitude_reference', 't_0_xi'
+            'xi_period', 'xi_semimajor_axis', 'xi_inclination',
+            'xi_Omega_node', 'xi_argument_of_latitude_reference', 't_0_xi'
         ]
 
         variables = ''
@@ -1304,12 +1304,13 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        Orbital period of the source system (xallarap) in days.
         """
         return self.parameters['xi_period']
 
     @xi_period.setter
     def xi_period(self, new_value):
+        # XXX has to be positive
         self.parameters['xi_period'] = new_value
 
     @property
@@ -1317,12 +1318,13 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        Semi-major axis of the source orbit (xallarap) in the theta_E units.
         """
         return self.parameters['xi_semimajor_axis']
 
     @xi_semimajor_axis.setter
     def xi_semimajor_axis(self, new_value):
+        # XXX has to be positive
         self.parameters['xi_semimajor_axis'] = new_value
 
     @property
@@ -1343,7 +1345,9 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        The inclination of the xallarap orbit, i.e.,
+        the angle between source-orbit plane and the sky plane.
+        The units are degrees.
         """
         return self.parameters['xi_inclination']
 

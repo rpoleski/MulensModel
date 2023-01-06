@@ -181,10 +181,11 @@ class Trajectory(object):
             if len(intersection) == len(keys_circular):  # XXXX else
                 orbit_parameters = {
                     key[3:]: parameters[key] for key in keys_circular}
-                orbit_parameters['epoch_reference'] = self.parameters.t_0_xi  # XXXX
+                t_0_xi = self.parameters.t_0_xi
+                orbit_parameters['epoch_reference'] = t_0_xi
                 orbit = OrbitCircular(**orbit_parameters)
                 get_position = orbit.get_reference_plane_position
-                ref_position = get_position(self.parameters.t_0_xi).reshape((2, 1))
+                ref_position = get_position(t_0_xi).reshape((2, 1))
                 positions = get_position(self.times)
                 shifts = positions - ref_position
 
