@@ -83,6 +83,9 @@ class Coordinates(SkyCoord):
             north, direction)
         self._north_projected = np.cross(direction, self._east_projected)
 
+    def __repr__(self):
+        return self.to_string(style="hmsdms", sep=":", precision=2)
+
     @property
     def galactic_l(self):
         """
