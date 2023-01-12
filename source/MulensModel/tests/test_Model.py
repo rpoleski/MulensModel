@@ -458,6 +458,22 @@ def test_get_lc():
     almost(out, 19.668370500043526)
 
 
+def test_repr():
+    """Test if printing is Model instance is OK."""
+    parameters = {'t_0': 2454656.4, 'u_0': 0.003,
+                  't_E': 11.1, 't_star': 0.055}
+    begin = ("    t_0 (HJD)       u_0    t_E (d)    t_star (d) \n"
+             "2454656.40000  0.003000    11.1000      0.055000 \n\n")
+    end = "default magnification method: point_source\n"
+    model = mm.Model(parameters)
+    assert str(model) == begin + end
+
+    coords = "17:54:32.10 -30:12:34.99"
+    model = mm.Model(parameters, coords=coords)
+    expected = "{:}coords: {:}\n{:}".format(begin, coords, end)
+    assert str(model) == expected
+
+
 # Tests to Add:
 #
 # test get_trajectory:

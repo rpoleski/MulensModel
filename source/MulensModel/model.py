@@ -118,7 +118,7 @@ class Model(object):
             outstr += 'other magnification methods: {0}\n'.format(
                     self._methods)
 
-        if self.bandpasses is not None:
+        if len(self.bandpasses) > 0:
             outstr += 'limb-darkening coeffs (gamma): {0}\n'.format(
                 self._limb_darkening_coeffs)
 
