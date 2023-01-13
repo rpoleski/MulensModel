@@ -152,22 +152,21 @@ class MulensData(object):
         self._ephemerides_file = ephemerides_file
 
     def __repr__(self):
-        if 'label' in self.plot_properties.keys():
+        if 'label' in self.plot_properties:
             name = self.plot_properties['label']
         else:
             name = self._file_name
 
-        outstr = name
-        outstr += ': band={0} '.format(self.bandpass)
-        outstr += 'n_epochs={0} '.format(self.n_epochs)
-        outstr += 'bad={0}'.format(np.sum(self.bad))
+        out = "{:}: n_epochs={:} n_bad={:}".format(
+            name, self.n_epochs, np.sum(self.bad))
+
+        if self.bandpass is not None:
+            out += ' band={0}'.format(self.bandpass)
         if self._ephemerides_file is not None:
-            outstr += ' eph_file={0}'.format(self.ephemerides_file)
-
-        if 'color' in self.plot_properties.keys():
-            outstr += ' color={0}'.format(self.plot_properties['color'])
-
-        return outstr
+            out += ' eph_file={0}'.format(self.ephemerides_file)
+        if 'color' in self.plot_properties:
+            out += ' color={0}'.format(self.plot_properties['color'])
+        return out
 
     def _import_photometry(self, data_list, **kwargs):
         """import time, brightnes, and its uncertainy"""
