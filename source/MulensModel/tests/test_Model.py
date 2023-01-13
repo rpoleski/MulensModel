@@ -473,6 +473,18 @@ def test_repr():
     expected = "{:}coords: {:}\n{:}".format(begin, coords, end)
     assert str(model) == expected
 
+    model = mm.Model(parameters)
+    methods = [2454656.3, 'finite_source_uniform_Gould94', 2454656.5]
+    model.set_magnification_methods(methods)
+    expected = "{:}{:}other magnification methods: {:}\n".format(
+        begin, end, methods)
+    assert str(model) == expected
+
+    model = mm.Model(parameters)
+    model.set_limb_coeff_gamma("I", 0.5)
+    expected = begin + end + "limb-darkening coeffs (gamma): {'I': 0.5}\n"
+    assert str(model) == expected
+
 
 # Tests to Add:
 #
