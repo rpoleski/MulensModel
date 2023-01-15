@@ -1008,6 +1008,28 @@ class TestFixedFluxRatios(unittest.TestCase):
                 fluxes[i][1] / self.expected_fluxes[i][1], 1.)
             np.testing.assert_almost_equal(event.get_chi2_for_dataset(i), 0.)
 
+
+def test_repr_empty():
+    """
+    Check printing if no input is provided.
+    """
+    event = mm.Event()
+    expected = "No model\nNo datasets"
+    assert str(event) == expected
+
+
+def test_repr_full():
+    """
+    Check printing if model and data are provided.
+    """
+    model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
+                     coords="18:12:34.56 -23:45:55.55")
+    dataset = mm.MulensData(file_name=SAMPLE_FILE_01)
+    event = mm.Event(model=model, datasets=dataset)
+    expected = "model:\n{:}\ndatasets:\n{:}".format(model, dataset)
+    assert str(event) == expected
+
+
 # Tests to add:
 #
 # properties: coords, model, datasets, data_ref, sum_function?
