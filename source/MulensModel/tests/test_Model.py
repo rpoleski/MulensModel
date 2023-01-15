@@ -464,7 +464,7 @@ def test_repr():
                   't_E': 11.1, 't_star': 0.055}
     begin = ("    t_0 (HJD)       u_0    t_E (d)    t_star (d) \n"
              "2454656.40000  0.003000    11.1000      0.055000 \n\n")
-    end = "default magnification method: point_source\n"
+    end = "default magnification method: point_source"
     model = mm.Model(parameters)
     assert str(model) == begin + end
 
@@ -476,13 +476,13 @@ def test_repr():
     model = mm.Model(parameters)
     methods = [2454656.3, 'finite_source_uniform_Gould94', 2454656.5]
     model.set_magnification_methods(methods)
-    expected = "{:}{:}other magnification methods: {:}\n".format(
+    expected = "{:}{:}\nother magnification methods: {:}".format(
         begin, end, methods)
     assert str(model) == expected
 
     model = mm.Model(parameters)
     model.set_limb_coeff_gamma("I", 0.5)
-    expected = begin + end + "limb-darkening coeffs (gamma): {'I': 0.5}\n"
+    expected = begin + end + "\nlimb-darkening coeffs (gamma): {'I': 0.5}"
     assert str(model) == expected
 
 
