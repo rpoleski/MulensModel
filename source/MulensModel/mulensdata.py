@@ -166,6 +166,14 @@ class MulensData(object):
             out += ' eph_file={0}'.format(self.ephemerides_file)
         if 'color' in self.plot_properties:
             out += ' color={0}'.format(self.plot_properties['color'])
+        """ XXX
+        if self._errorbars_scale is not None:
+            out += ' Errorbar scaling:'
+            if self._errorbars_scale['factor'] is not None:
+                out += ' factor={:}'.format(self._errorbars_scale['factor'])
+            if self._errorbars_scale['minimum'] is not None:
+                out += ' minimum={:}'.format(self._errorbars_scale['minimum'])
+        """
         return out
 
     def _import_photometry(self, data_list, **kwargs):
