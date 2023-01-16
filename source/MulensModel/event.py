@@ -122,9 +122,9 @@ class Event(object):
         if self.datasets is None:
             out += "\nNo datasets"
         else:
-            out += '\ndatasets:\n'
+            out += '\ndatasets:'
             for dataset in self.datasets:
-                out += str(dataset)
+                out += "\n" + str(dataset)
 
         return out
 

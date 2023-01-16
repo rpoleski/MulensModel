@@ -69,7 +69,7 @@ def test_repr_parameters():
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     out_1 = "    t_0 (HJD)       u_0    t_E (d) \n"
-    out_2 = "2456141.59300  0.542500    62.6300 \n"
+    out_2 = "2456141.59300  0.542500    62.6300 "
 
     assert (out_1 + out_2) == str(params)
 

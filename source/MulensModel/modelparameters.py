@@ -429,7 +429,7 @@ class ModelParameters(object):
                 value = value.value
             values += fmt_2.format(value)
 
-        return '{0}\n{1}\n'.format(variables, values)
+        return '{0}\n{1}'.format(variables, values)
 
     def _check_valid_combination_2_sources(self, keys):
         """

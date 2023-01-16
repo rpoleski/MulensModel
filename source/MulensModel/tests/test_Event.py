@@ -1025,8 +1025,8 @@ def test_repr_full():
     model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
                      coords="18:12:34.56 -23:45:55.55")
     dataset = mm.MulensData(file_name=SAMPLE_FILE_01)
-    event = mm.Event(model=model, datasets=dataset)
-    expected = "model:\n{:}\ndatasets:\n{:}".format(model, dataset)
+    event = mm.Event(model=model, datasets=[dataset, dataset])
+    expected = "model:\n{0}\ndatasets:\n{1}\n{1}".format(model, dataset)
     assert str(event) == expected
 
 
