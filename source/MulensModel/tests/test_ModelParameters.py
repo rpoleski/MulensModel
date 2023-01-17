@@ -403,7 +403,7 @@ tested_keys = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
 
 
 @pytest.mark.parametrize("key", tested_keys)
-def test_xallarap_period_1(key):
+def test_xallarap_set_value_1(key):
     """
     Check if xallarap settings of xallarap are correctly changed via dictionary
     """
@@ -415,7 +415,7 @@ def test_xallarap_period_1(key):
 
 
 @pytest.mark.parametrize("key", tested_keys)
-def test_xallarap_period_2(key):
+def test_xallarap_set_value_2(key):
     """
     Check if xallarap settings are correctly changed via attribute
     """
@@ -424,3 +424,26 @@ def test_xallarap_period_2(key):
     setattr(model, key, new_value)
     assert model.parameters[key] == new_value
     assert getattr(model, key) == new_value
+
+
+class TestXallarapErrors(unittest.TestCase):
+    def test_negative_period(self):
+        """
+        Make sure that period is positive
+        """
+        key = 'xi_period'
+        (model, value) = setup_xallarap(key)
+        new_value = -3.14 * value
+        with self.assertRaises(ValueError):
+            setattr(model, key, new_value)
+
+    def test_negative_semimajor_axis(self):
+        """
+        Make sure that period is positive
+        """
+        key = 'xi_semimajor_axis'
+        (model, value) = setup_xallarap(key)
+        new_value = -3.14 * value
+        with self.assertRaises(ValueError):
+            setattr(model, key, new_value)
+

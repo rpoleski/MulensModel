@@ -1310,7 +1310,8 @@ class ModelParameters(object):
 
     @xi_period.setter
     def xi_period(self, new_value):
-        # XXX has to be positive
+        if new_value < 0.:
+            raise ValueError('Xallarap period cannot be negative')
         self.parameters['xi_period'] = new_value
 
     @property
@@ -1324,7 +1325,8 @@ class ModelParameters(object):
 
     @xi_semimajor_axis.setter
     def xi_semimajor_axis(self, new_value):
-        # XXX has to be positive
+        if new_value < 0.:
+            raise ValueError('Xallarap semimajor axis cannot be negative')
         self.parameters['xi_semimajor_axis'] = new_value
 
     @property
