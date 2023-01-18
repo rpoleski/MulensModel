@@ -388,14 +388,21 @@ class ModelParameters(object):
                 'name': 'dalpha/dt'},
             'x_caustic_in': {'width': 13, 'precision': 7},
             'x_caustic_out': {'width': 13, 'precision': 7},
-            't_caustic_in': {'width': 19, 'precision': 5, 'unit': 'HJD'},
-            't_caustic_out': {'width': 19, 'precision': 5, 'unit': 'HJD'},
+            't_caustic_in': {'width': 13, 'precision': 5, 'unit': 'HJD'},
+            't_caustic_out': {'width': 13, 'precision': 5, 'unit': 'HJD'},
+            'xi_period': {'width': 10, 'precision': 4,
+                          'unit': 'd', 'name': 'xallarap period'},
+            'xi_semimajor_axis': {'width': 9, 'precision': 6,
+                                  'name': 'xallarap semimajor axis'},
+            'xi_inclination': {'width': 11, 'precision': 5, 'unit': 'deg',
+                               'name': 'xallarap inclination'},
+            'xi_Omega_node': {'width': 11, 'precision': 5, 'unit': 'deg',
+                              'name': 'xallarap Omega_node'},
+            'xi_argument_of_latitude_reference': {
+                'width': 11, 'precision': 5, 'unit': 'deg',
+                'name': 'xallarap argument_of latitude reference'},
+            't_0_xi': {'width': 13, 'precision': 5, 'unit': 'HJD'},  # XXX NAME?
         }
-        xallarap_keys = ['xi_period', 'xi_semimajor_axis', 'xi_inclination',
-                         'xi_Omega_node', 'xi_argument_of_latitude_reference',
-                         't_0_xi']
-        for key in xallarap_keys:
-            formats[key] = {'width': 13, 'precision': 7}
         # Add binary source parameters with the same settings.
         binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
                               'rho_1', 'rho_2', 't_star_1', 't_star_2']
@@ -407,7 +414,7 @@ class ModelParameters(object):
                 formats[key]['unit'] = form['unit']
             if 'name' in form:
                 raise KeyError('internal issue: {:}'.format(key))
-        formats_keys = [
+        ordered_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
             'pi_E_N', 'pi_E_E', 's', 'q', 'alpha',
@@ -419,24 +426,38 @@ class ModelParameters(object):
 
         variables = ''
         values = ''
-
-        for key in formats_keys:
+        for key in ordered_keys:
             if key not in keys:
                 continue
-            form = formats[key]
-            fmt_1 = '{:>' + str(form['width'])
-            fmt_2 = fmt_1 + '.' + str(form['precision']) + 'f} '
-            fmt_1 += '} '
-            full_name = form.get('name', key)
-            if 'unit' in form:
-                full_name += " ({:})".format(form['unit'])
+            (full_name, value) = self._get_values_for_repr(formats[key], key)
+            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key],
+                                                        full_name)
             variables += fmt_1.format(full_name)
-            value = getattr(self, key)
-            if isinstance(value, u.Quantity):
-                value = value.value
             values += fmt_2.format(value)
 
         return '{0}\n{1}\n'.format(variables, values)
+
+    def _get_values_for_repr(self, form, key):
+        """
+        Get full name of the parameter and its value (float)
+        to be used by __rerp__().
+        """
+        full_name = form.get('name', key)
+        if 'unit' in form:
+            full_name += " ({:})".format(form['unit'])
+        value = getattr(self, key)
+        if isinstance(value, u.Quantity):
+            value = value.value
+        return (full_name, value)
+
+    def _get_formats_for_repr(self, form, full_name):
+        """
+        Extract formats to be used by __repr__().
+        """
+        fmt_1 = '{:>' + str(max([form['width'], len(full_name)]))
+        fmt_2 = fmt_1 + '.' + str(form['precision']) + 'f} '
+        fmt_1 += '} '
+        return (fmt_1, fmt_2)
 
     def _check_valid_combination_2_sources(self, keys):
         """
