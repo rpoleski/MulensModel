@@ -28,6 +28,8 @@ class Coordinates(SkyCoord):
     unit=(u.hourangle, u.deg) where u is defined by "import
     astropy.units as u".
 
+    You can print an instance of this class.
+
     .. _astropy.SkyCoord:
       http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
 

@@ -16,6 +16,7 @@ class LimbDarkeningCoeffs(object):
 
     Note that the gamma convention has fixed total flux.
 
+    You can print an instance of this class.
     """
 
     def __init__(self):

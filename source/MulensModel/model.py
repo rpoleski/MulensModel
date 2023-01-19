@@ -65,6 +65,9 @@ class Model(object):
       model = Model(parameters={'t_0': 2456789.0, ....})
       print(model)
 
+    This will provide information on parameter values, coordinates,
+    methods used for magnification calculations, and
+    limb-darkening coefficients.
     """
 
     def __init__(

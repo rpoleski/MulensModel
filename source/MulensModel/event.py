@@ -62,6 +62,9 @@ class Event(object):
     in negative flux, then we calculate chi^2 in flux space but only for the
     epochs with negative model flux.
 
+    You can print an instance of this class. Information on model and datasets
+    will be provided.
+
     .. _astropy.SkyCoord:
       http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
     """

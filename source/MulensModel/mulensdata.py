@@ -107,6 +107,11 @@ class MulensData(object):
         ``**kwargs``:
             Kwargs passed to np.loadtxt(). Works only if ``file_name`` is set.
 
+    You can print an instance of this class, which always provides label and
+    information on the total number of epochs and the number of bad epochs.
+    If applicable, additional information is provided: bandpass,
+    ephemerides file, color used for plotting, and errorbar scaling.
+
     .. _instructions:
         https://github.com/rpoleski/MulensModel/blob/master/documents/Horizons_manual.md
 
