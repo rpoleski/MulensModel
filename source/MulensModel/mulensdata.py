@@ -162,21 +162,28 @@ class MulensData(object):
         else:
             name = self._file_name
 
-        out = "{:}: n_epochs={:} n_bad={:}".format(
+        name += ':'
+
+        out = "{:32} n_epochs ={:>5}, n_bad ={:>5}".format(
             name, self.n_epochs, np.sum(self.bad))
 
         if self.bandpass is not None:
-            out += ' band={0}'.format(self.bandpass)
+            out += ', band = {0}'.format(self.bandpass)
+
         if self._ephemerides_file is not None:
-            out += ' eph_file={0}'.format(self.ephemerides_file)
+            out += ', eph_file = {0}'.format(self.ephemerides_file)
+
         if 'color' in self.plot_properties:
-            out += ' color={0}'.format(self.plot_properties['color'])
+            out += ', color ={0}'.format(self.plot_properties['color'])
+
         if self._errorbars_scale is not None:
-            out += ' Errorbar scaling:'
+            out += ', Errorbar scaling:'
             if self._errorbars_scale['factor'] is not None:
-                out += ' factor={:}'.format(self._errorbars_scale['factor'])
+                out += ' fac = {:}'.format(self._errorbars_scale['factor'])
+
             if self._errorbars_scale['minimum'] is not None:
-                out += ' minimum={:}'.format(self._errorbars_scale['minimum'])
+                out += ' min = {:}'.format(self._errorbars_scale['minimum'])
+
         return out
 
     def _import_photometry(self, data_list, **kwargs):
