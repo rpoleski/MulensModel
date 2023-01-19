@@ -1710,7 +1710,7 @@ class ModelParameters(object):
         """
         *int*
 
-        number of objects in the lens system
+        Number of objects in the lens system.
         """
         return self._n_lenses
 
@@ -1719,7 +1719,8 @@ class ModelParameters(object):
         """
         *int*
 
-        number of luminous sources; it's possible to be 1 for xallarap model
+        Number of luminous sources.
+        It can be be 1 for a xallarap model.
         """
         return self._n_sources
 
