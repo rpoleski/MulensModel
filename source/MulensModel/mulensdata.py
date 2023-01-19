@@ -162,10 +162,8 @@ class MulensData(object):
         else:
             name = self._file_name
 
-        name += ':'
-
-        out = "{:32} n_epochs ={:>5}, n_bad ={:>5}".format(
-            name, self.n_epochs, np.sum(self.bad))
+        out = "{:25} n_epochs ={:>5}, n_bad ={:>5}".format(
+            name+":", self.n_epochs, np.sum(self.bad))
 
         if self.bandpass is not None:
             out += ', band = {0}'.format(self.bandpass)
@@ -174,15 +172,16 @@ class MulensData(object):
             out += ', eph_file = {0}'.format(self.ephemerides_file)
 
         if 'color' in self.plot_properties:
-            out += ', color ={0}'.format(self.plot_properties['color'])
+            out += ', color = {0}'.format(self.plot_properties['color'])
 
         if self._errorbars_scale is not None:
             out += ', Errorbar scaling:'
             if self._errorbars_scale['factor'] is not None:
-                out += ' fac = {:}'.format(self._errorbars_scale['factor'])
+                out += ' factor = {:}'.format(self._errorbars_scale['factor'])
 
             if self._errorbars_scale['minimum'] is not None:
-                out += ' min = {:}'.format(self._errorbars_scale['minimum'])
+                out += ' minimum = {:}'.format(
+                    self._errorbars_scale['minimum'])
 
         return out
 
