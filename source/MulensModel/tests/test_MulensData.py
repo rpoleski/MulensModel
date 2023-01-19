@@ -162,39 +162,80 @@ def test_scale_errorbars():
     assert data.errorbars_scaling_equation == equation_3
 
 
-def test_repr():
+def test_repr_1():
     """
-    Check if one can print dataset nicely
+    Check if one can print dataset nicely - n_bad>0
     """
     random_bad = 33 * [True] + 350 * [False]
     np.random.shuffle(random_bad)
     data = mm.MulensData(file_name=SAMPLE_FILE_01, bad=random_bad)
-    expected = "phot_ob08092_O4.dat: n_epochs=383 n_bad=33"
+    expected = "phot_ob08092_O4.dat:      n_epochs =  383, n_bad =   33"
     assert str(data) == expected
-    data.scale_errorbars(factor=1.234)
-    expected_end = " Errorbar scaling: factor=1.234"
-    assert str(data) == expected + expected_end
 
+
+def test_repr_2():
+    """
+    Check if one can print dataset nicely - errorbar scaling factor
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(factor=1.234)
+    expected = ("phot_ob08092_O4.dat:      n_epochs =  383, n_bad =    0,"
+                " Errorbar scaling: factor = 1.234")
+    assert str(data) == expected
+
+
+def test_repr_3():
+    """
+    Check if one can print dataset nicely - bandpass and label
+    """
     data = mm.MulensData(file_name=SAMPLE_FILE_01, bandpass='I',
                          plot_properties={'label': 'OGLE'})
-    expected = "OGLE: n_epochs=383 n_bad=0 band=I"
+    expected = (
+        "OGLE:                     n_epochs =  383, n_bad =    0, band = I")
     assert str(data) == expected
-    data.scale_errorbars(minimum=0.001)
-    expected_end = " Errorbar scaling: minimum=0.001"
-    assert str(data) == expected + expected_end
 
+
+def test_repr_4():
+    """
+    Check if one can print dataset nicely - errorbar scaling minimum
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(minimum=0.001)
+    expected = ("phot_ob08092_O4.dat:      n_epochs =  383, n_bad =    0,"
+                " Errorbar scaling: minimum = 0.001")
+    assert str(data) == expected
+
+
+def test_repr_5():
+    """
+    Check if one can print dataset nicely - ephemerides file
+    """
     data = mm.MulensData(file_name=SAMPLE_FILE_02,
                          ephemerides_file=SAMPLE_FILE_02_EPH)
-    expected_begin = "ob140939_Spitzer.dat: n_epochs=31 n_bad=0 eph_file="
+    expected_begin = (
+        "ob140939_Spitzer.dat:     n_epochs =   31, n_bad =    0, eph_file = ")
     expected_end = "photometry_files/ephemeris_files/Spitzer_ephemeris_01.dat"
     assert str(data)[:len(expected_begin)] == expected_begin
     assert str(data)[-len(expected_end):] == expected_end
 
+
+def test_repr_6():
+    """
+    Check if one can print dataset nicely - color
+    """
     data = mm.MulensData(file_name=SAMPLE_FILE_01,
                          plot_properties={'color': 'red'})
-    expected = "phot_ob08092_O4.dat: n_epochs=383 n_bad=0 color=red"
+    expected = (
+        "phot_ob08092_O4.dat:      n_epochs =  383, n_bad =    0, color = red")
     assert str(data) == expected
-    data.scale_errorbars(factor=2.34, minimum=0.012)
-    expected_end = " Errorbar scaling: factor=2.34 minimum=0.012"
-    assert str(data) == expected + expected_end
 
+
+def test_repr_7():
+    """
+    Check if one can print dataset nicely - 2-parameter errorbar scaling
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(factor=2.34, minimum=0.012)
+    expected = ("phot_ob08092_O4.dat:      n_epochs =  383, n_bad =    0,"
+                " Errorbar scaling: factor = 2.34 minimum = 0.012")
+    assert str(data) == expected
