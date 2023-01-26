@@ -125,9 +125,16 @@ class Event(object):
         if self.datasets is None:
             out += "\nNo datasets"
         else:
+            if isinstance(self.data_ref, (int)):
+                data_ref = self.datasets[self.data_ref]
+            else:
+                data_ref = self.data_ref
+
             out += '\ndatasets:'
             for dataset in self.datasets:
                 out += "\n" + str(dataset)
+                if dataset == data_ref:
+                    out += " *data_ref*"
 
         return out
 

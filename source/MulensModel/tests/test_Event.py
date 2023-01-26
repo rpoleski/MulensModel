@@ -1024,9 +1024,59 @@ def test_repr_full():
     """
     model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
                      coords="18:12:34.56 -23:45:55.55")
-    dataset = mm.MulensData(file_name=SAMPLE_FILE_01)
-    event = mm.Event(model=model, datasets=[dataset, dataset])
-    expected = "model:\n{0}\ndatasets:\n{1}\n{1}".format(model, dataset)
+    dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_01)
+    dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_02)
+    event = mm.Event(model=model, datasets=[dataset_01, dataset_02])
+    expected = "model:\n{0}\ndatasets:".format(model)
+    for i, dataset in enumerate([dataset_01, dataset_02]):
+        expected += "\n{0}".format(dataset)
+        if i == 0:
+            expected += " *data_ref*"
+
+    assert str(event) == expected
+
+
+def test_repr_data_ref():
+    """
+    Check printing if model and data are provided.
+    """
+    kwargs = {'comments': ["\\", "|"]}
+    model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
+                     coords="18:12:34.56 -23:45:55.55")
+    dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_310_01, **kwargs)
+    dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_310_02, **kwargs)
+    dataset_03 = mm.MulensData(file_name=SAMPLE_FILE_310_03, **kwargs)
+    event = mm.Event(
+        model=model, datasets=[dataset_01, dataset_02, dataset_03])
+    event.data_ref = 1
+    expected = "model:\n{0}\ndatasets:".format(model)
+    for i, dataset in enumerate([dataset_01, dataset_02, dataset_03]):
+        expected += "\n{0}".format(dataset)
+        if i == 1:
+            expected += " *data_ref*"
+
+    assert str(event) == expected
+
+
+def test_repr_data_ref_int():
+    """
+    Check printing if model and data are provided.
+    """
+    kwargs = {'comments': ["\\", "|"]}
+    model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
+                     coords="18:12:34.56 -23:45:55.55")
+    dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_310_01, **kwargs)
+    dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_310_02, **kwargs)
+    dataset_03 = mm.MulensData(file_name=SAMPLE_FILE_310_03, **kwargs)
+    event = mm.Event(
+        model=model, datasets=[dataset_01, dataset_02, dataset_03])
+    event.data_ref = dataset_02
+    expected = "model:\n{0}\ndatasets:".format(model)
+    for i, dataset in enumerate([dataset_01, dataset_02, dataset_03]):
+        expected += "\n{0}".format(dataset)
+        if i == 1:
+            expected += " *data_ref*"
+
     assert str(event) == expected
 
 
