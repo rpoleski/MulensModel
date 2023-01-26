@@ -379,8 +379,9 @@ chi2_gradient_test_1 = Chi2GradientTest(
     gradient={'t_0': 236.206598, 'u_0': 101940.249, 't_E': -1006.88678})
 
 # Not used:
-# f_source and f_blend cannot be gradient parameters in MulensModel, but
-# this test could be moved to sfit_minimizer, which is under development by JCY.
+# f_source and f_blend cannot be gradient parameters in MulensModel,
+# but this test could be moved to sfit_minimizer,
+# which is under development by JCY.
 chi2_gradient_test_2 = Chi2GradientTest(
     parameters={'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
                 'pi_E_N': -0.248, 'pi_E_E': 0.234},
@@ -1036,9 +1037,9 @@ def test_repr_full():
     assert str(event) == expected
 
 
-def test_repr_data_ref():
+def get_event_to_print():
     """
-    Check printing if model and data are provided.
+    Prepare Event instance to check __repr__()
     """
     kwargs = {'comments': ["\\", "|"]}
     model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
@@ -1048,13 +1049,20 @@ def test_repr_data_ref():
     dataset_03 = mm.MulensData(file_name=SAMPLE_FILE_310_03, **kwargs)
     event = mm.Event(
         model=model, datasets=[dataset_01, dataset_02, dataset_03])
-    event.data_ref = 1
     expected = "model:\n{0}\ndatasets:".format(model)
     for i, dataset in enumerate([dataset_01, dataset_02, dataset_03]):
         expected += "\n{0}".format(dataset)
         if i == 1:
             expected += " *data_ref*"
+    return (event, expected, dataset_02)
 
+
+def test_repr_data_ref_data():
+    """
+    Check printing if model and data are provided.
+    """
+    (event, expected, _) = get_event_to_print()
+    event.data_ref = 1
     assert str(event) == expected
 
 
@@ -1062,21 +1070,8 @@ def test_repr_data_ref_int():
     """
     Check printing if model and data are provided.
     """
-    kwargs = {'comments': ["\\", "|"]}
-    model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
-                     coords="18:12:34.56 -23:45:55.55")
-    dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_310_01, **kwargs)
-    dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_310_02, **kwargs)
-    dataset_03 = mm.MulensData(file_name=SAMPLE_FILE_310_03, **kwargs)
-    event = mm.Event(
-        model=model, datasets=[dataset_01, dataset_02, dataset_03])
+    (event, expected, dataset_02) = get_event_to_print()
     event.data_ref = dataset_02
-    expected = "model:\n{0}\ndatasets:".format(model)
-    for i, dataset in enumerate([dataset_01, dataset_02, dataset_03]):
-        expected += "\n{0}".format(dataset)
-        if i == 1:
-            expected += " *data_ref*"
-
     assert str(event) == expected
 
 
