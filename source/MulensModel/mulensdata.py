@@ -186,7 +186,7 @@ class MulensData(object):
         return out
 
     def _import_photometry(self, data_list, **kwargs):
-        """import time, brightnes, and its uncertainy"""
+        """import time, brightness, and its uncertainty"""
         # Import the photometry...
         if data_list is not None and self._file_name is not None:
             raise ValueError(
