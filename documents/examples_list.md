@@ -31,7 +31,7 @@ Tutorials MulensModel:
 * [Example 21](../examples/example_21_external_mass_sheet.py) - binary lens with external mass sheet: shear and convergence as parameters,
 * [Example 22](../examples/example_22_pointlens_external_mass_sheet.py) - point lens with external mass sheet, i.e., Chang-Refsdal approximation,
 * [Example 23](../examples/example_23_logo_inspiration.py) - 2L1S and 1L2S lightcurves plotted as an inspiration for MM logo,
-* [Example 24](../examples/example_24_MB08310.py) - print intesnce of different MM classes,
+* [Example 24](../examples/example_24_repr.py) - print intances of different MM classes,
 * Three files producing plots presented in paper describing MulensModel: [plots_1.py](../examples/plots_1.py), [plots_2.py](../examples/plots_2.py), and [plots_3.py](../examples/plots_3.py).
 
 [MulensModel documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
