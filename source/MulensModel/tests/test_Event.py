@@ -279,13 +279,14 @@ def test_event_get_chi2_double_source_simple():
     u_0 = 0.52298
     t_E = 17.94002
 
-    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data_2 = mm.MulensData(file_name=SAMPLE_FILE_01)
 
     ev = mm.Event()
     mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     ev.model = mod
-    ev.datasets = [data, data]
+    ev.datasets = [data_1, data_2]
 
     chi2 = ev.get_chi2()
 
@@ -351,9 +352,7 @@ def test_event_chi2_binary_source_2datasets():
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
 
 
-# --------
-# Error message tests
-class TestEvent(unittest.TestCase):
+class TestInput(unittest.TestCase):
     def test_event_init_1(self):
         with self.assertRaises(TypeError):
             _ = mm.Event(model=3.14)
@@ -361,6 +360,11 @@ class TestEvent(unittest.TestCase):
     def test_event_init_2(self):
         with self.assertRaises(TypeError):
             _ = mm.Event(datasets='some_string')
+
+    def test_event_init_3(self):
+        data = mm.MulensData(file_name=SAMPLE_FILE_01)
+        with self.assertRaises(ValueError):
+            mm.Event(datasets=[data, data])
 
 
 # ----------
@@ -470,11 +474,12 @@ def test_chi2_gradient_2():
         [chi2_gradient_test_1.gradient[key] for key in
          chi2_gradient_test_1.grad_params])
 
-    data = mm.MulensData(file_name=SAMPLE_FILE_02)
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_02)
+    data_2 = mm.MulensData(file_name=SAMPLE_FILE_02)
     event = mm.Event(
-        datasets=[data, data],
+        datasets=[data_1, data_2],
         model=mm.Model(chi2_gradient_test_1.parameters),
-        fix_blend_flux={data: 0.})
+        fix_blend_flux={data_1: 0., data_2: 0.})
     result_0 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
     result_1 = event.fits[1].chi2_gradient
     np.testing.assert_almost_equal(2. * reference / result_0, 1., decimal=4)
@@ -589,19 +594,6 @@ def test_get_ref_fluxes_binary_source():
     np.testing.assert_almost_equal(blend_flux_1, 50.)
 
 
-class TestDataRef(unittest.TestCase):
-    def test_1(self):
-        """
-        Try get_ref_fluxes() with an event with duplicated data
-        """
-        (model, model_1, model_2) = generate_binary_source_models()
-        (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
-        event_1 = mm.Event([data_1, data_2, data_2], model)
-        with self.assertRaises(ValueError):
-            event_1.data_ref = data_2
-
-
-# --------
 # Event.get_flux_for_dataset() Tests
 def test_get_flux_for_dataset():
     """

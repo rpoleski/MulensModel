@@ -841,6 +841,12 @@ class Event(object):
             self._datasets = None
             return
 
+        if len(set(new_value)) != len(new_value):
+            raise ValueError(
+                'Duplicated instances of MulensData are not allowed in '
+                'the Event class (though you can make 2 identical instances '
+                'and then Event will work).')
+
         self._datasets = new_value
         self._fits = None  # reset the fits if the data changed
 
