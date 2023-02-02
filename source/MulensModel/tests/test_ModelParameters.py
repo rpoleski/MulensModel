@@ -1,4 +1,5 @@
 import unittest
+import warnings
 import pytest
 import numpy as np
 
@@ -388,7 +389,6 @@ def setup_xallarap(key):
     """
     Setup for xallarap tests.
     """
-    period = 12.345
     parameters = {'t_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
                   'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
                   'xi_inclination': 9.8765,
@@ -447,3 +447,25 @@ class TestXallarapErrors(unittest.TestCase):
         with self.assertRaises(ValueError):
             setattr(model, key, new_value)
 
+
+@pytest.mark.parametrize("parameter,value", [
+    ('xi_Omega_node', -361.), ('xi_Omega_node', 541.),
+    ('xi_inclination', -361.), ('xi_inclination', 361.),
+    ('xi_argument_of_latitude_reference', -361.),
+    ('xi_argument_of_latitude_reference', 361.)])
+def test_warnings_for_xallarap_angles(parameter, value):
+    """
+    Check if xallarap angles in somehow strange range give warning
+    """
+    parameters = {
+        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
+        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
+        't_0_xi': 1.}
+    parameters[parameter] = value
+
+    with warnings.catch_warnings(record=True) as warnings_:
+        warnings.simplefilter("always")
+        mm.ModelParameters(parameters)
+        assert len(warnings_) == 1
+        assert issubclass(warnings_[0].category, RuntimeWarning)

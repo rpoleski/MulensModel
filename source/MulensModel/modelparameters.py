@@ -670,6 +670,10 @@ class ModelParameters(object):
             if parameter in self.parameters:
                 self._set_time_quantity(parameter, self.parameters[parameter])
 
+        # XXX - For warnings:
+        for (key, value) in self.parameters.items():
+            setattr(self, key, value)
+
     def _update_sources(self, parameter, value):
         """
         For multi-source models, update the values for all sources.
@@ -1361,6 +1365,9 @@ class ModelParameters(object):
 
     @xi_Omega_node.setter
     def xi_Omega_node(self, new_value):
+        if new_value < -360. or new_value > 540.:
+            warnings.warn("strange value of xi_Omega_node: " + str(new_value),
+                          RuntimeWarning)
         self.parameters['xi_Omega_node'] = new_value
 
     @property
@@ -1376,6 +1383,9 @@ class ModelParameters(object):
 
     @xi_inclination.setter
     def xi_inclination(self, new_value):
+        if new_value < -360. or new_value > 360.:
+            warnings.warn("strange value of xi_inclination: " + str(new_value),
+                          RuntimeWarning)
         self.parameters['xi_inclination'] = new_value
 
     @property
@@ -1389,6 +1399,10 @@ class ModelParameters(object):
 
     @xi_argument_of_latitude_reference.setter
     def xi_argument_of_latitude_reference(self, new_value):
+        if new_value < -360. or new_value > 360.:
+            warnings.warn(
+                "strange value of argument_of_latitude_reference: " +
+                str(new_value), RuntimeWarning)
         self.parameters['xi_argument_of_latitude_reference'] = new_value
 
     @property
