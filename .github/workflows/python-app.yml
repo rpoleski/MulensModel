@@ -31,7 +31,7 @@ jobs:
         pip install flake8 pytest coverage
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         # install MulensModel from local files
-        pip install .
+        pip install -e .
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -40,7 +40,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        coverage run -m pytest
+        coverage run --source=MulensModel -m pytest
     - name: Coverage report
       run: |
         coverage report -m
