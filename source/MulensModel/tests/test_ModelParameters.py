@@ -448,11 +448,10 @@ class TestXallarapErrors(unittest.TestCase):
             setattr(model, key, new_value)
 
 
-@pytest.mark.parametrize("parameter,value", [
-    ('xi_Omega_node', -361.), ('xi_Omega_node', 541.),
-    ('xi_inclination', -361.), ('xi_inclination', 361.),
-    ('xi_argument_of_latitude_reference', -361.),
-    ('xi_argument_of_latitude_reference', 361.)])
+@pytest.mark.parametrize(
+    "parameter",
+    ['xi_Omega_node', 'xi_inclination', 'xi_argument_of_latitude_reference'])
+@pytest.mark.parametrize("value", [-361., 541.])
 def test_warnings_for_xallarap_angles(parameter, value):
     """
     Check if xallarap angles in somehow strange range give warning

@@ -957,7 +957,19 @@ class ModelParameters(object):
             self.parameters['alpha'] = new_alpha
         else:
             self.parameters['alpha'] = new_alpha * u.deg
+        self._warn_if_angle_outside_reasonable_range(
+            self.parameters['alpha'].to(u.deg).value, 'alpha')
         self._update_sources('alpha', new_alpha)
+
+    def _warn_if_angle_outside_reasonable_range(self, value, name):
+        """
+        Check if value of given angle is in reasonable range and warn if not
+        """
+        min_ = -360.
+        max_ = 540.
+        if value < min_ or value > max_:
+            fmt = "Strange value of angle {:}: {:}"
+            warnings.warn(fmt.format(name, value), RuntimeWarning)
 
     @property
     def q(self):
@@ -1365,9 +1377,8 @@ class ModelParameters(object):
 
     @xi_Omega_node.setter
     def xi_Omega_node(self, new_value):
-        if new_value < -360. or new_value > 540.:
-            warnings.warn("strange value of xi_Omega_node: " + str(new_value),
-                          RuntimeWarning)
+        self._warn_if_angle_outside_reasonable_range(new_value,
+                                                     'xi_Omega_node')
         self.parameters['xi_Omega_node'] = new_value
 
     @property
@@ -1383,9 +1394,8 @@ class ModelParameters(object):
 
     @xi_inclination.setter
     def xi_inclination(self, new_value):
-        if new_value < -360. or new_value > 360.:
-            warnings.warn("strange value of xi_inclination: " + str(new_value),
-                          RuntimeWarning)
+        self._warn_if_angle_outside_reasonable_range(new_value,
+                                                     'xi_inclination')
         self.parameters['xi_inclination'] = new_value
 
     @property
@@ -1399,10 +1409,8 @@ class ModelParameters(object):
 
     @xi_argument_of_latitude_reference.setter
     def xi_argument_of_latitude_reference(self, new_value):
-        if new_value < -360. or new_value > 360.:
-            warnings.warn(
-                "strange value of argument_of_latitude_reference: " +
-                str(new_value), RuntimeWarning)
+        self._warn_if_angle_outside_reasonable_range(
+            new_value, 'xi_argument_of_latitude_reference')
         self.parameters['xi_argument_of_latitude_reference'] = new_value
 
     @property
