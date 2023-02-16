@@ -220,25 +220,17 @@ class Trajectory(object):
             raise NotImplementedError(
                 "The topocentric parallax effect not implemented yet")
 
-    def _project_delta(self, delta=None):
+    def _project_delta(self):
         """
         Project N and E parallax offset vector onto the tau, beta plane.
         """
-        if delta is None:
-            delta = self.parallax_delta_N_E
+        delta = self.parallax_delta_N_E
 
         delta_tau = (delta['N'] * self.parameters.pi_E_N +
                      delta['E'] * self.parameters.pi_E_E)
         delta_beta = (-delta['N'] * self.parameters.pi_E_E +
                       delta['E'] * self.parameters.pi_E_N)
         return [delta_tau, delta_beta]
-
-    def _annual_parallax_trajectory(self):
-        """calculate annual parallax component of trajectory"""
-
-        # Calculate the parallax offsets
-        delta_annual = self._get_delta_annual()
-        return self._project_delta(delta_annual)
 
     def _get_delta_annual(self):
         """
@@ -283,11 +275,6 @@ class Trajectory(object):
         Trajectory._get_delta_annual_last_index = index + tuple()
         Trajectory._get_delta_annual_last = out
         return out
-
-    def _satellite_parallax_trajectory(self):
-        """calculate satellite parallax component of trajectory"""
-        delta_satellite = self._get_delta_satellite()
-        return self._project_delta(delta_satellite)
 
     def _get_delta_satellite(self):
         """
