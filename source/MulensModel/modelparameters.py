@@ -364,6 +364,8 @@ class ModelParameters(object):
         if 'pi_E' in keys:
             keys.remove('pi_E')
             keys |= {'pi_E_E', 'pi_E_N'}
+        if 'pi_E_E' in keys or 'pi_E_N' in keys:
+            keys |= {'t_0_par'}
 
         # Below we define dict of dicts. Key of inner ones: 'width',
         # 'precision', and optional: 'unit' and 'name'.
@@ -376,6 +378,7 @@ class ModelParameters(object):
             't_star': {'width': 13, 'precision': 6, 'unit': 'd'},
             'pi_E_N': {'width': 9, 'precision': 5},
             'pi_E_E': {'width': 9, 'precision': 5},
+            't_0_par': {'width': 13, 'precision': 5, 'unit': 'HJD'},
             's': {'width': 9, 'precision': 5},
             'q': {'width': 12, 'precision': 8},
             'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
@@ -402,18 +405,11 @@ class ModelParameters(object):
                 formats[key]['unit'] = form['unit']
             if 'name' in form:
                 raise KeyError('internal issue: {:}'.format(key))
-        formats_keys = [
-            't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
-            'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha',
-            'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
-            'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
-        ]
 
         variables = ''
         values = ''
 
-        for key in formats_keys:
+        for key in formats.keys():
             if key not in keys:
                 continue
             form = formats[key]
@@ -429,7 +425,7 @@ class ModelParameters(object):
                 value = value.value
             values += fmt_2.format(value)
 
-        return '{0}\n{1}\n'.format(variables, values)
+        return '{0}\n{1}'.format(variables, values)
 
     def _check_valid_combination_2_sources(self, keys):
         """

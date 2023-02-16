@@ -65,6 +65,9 @@ class Model(object):
       model = Model(parameters={'t_0': 2456789.0, ....})
       print(model)
 
+    This will provide information on parameter values, coordinates,
+    methods used for magnification calculations, and
+    limb-darkening coefficients.
     """
 
     def __init__(
@@ -108,7 +111,20 @@ class Model(object):
         self._bandpasses = []
 
     def __repr__(self):
-        return '{0}'.format(self.parameters)
+        out = '{0}'.format(self.parameters)
+        if self.coords is not None:
+            out += '\ncoords: {0}'.format(self.coords)
+
+        out += '\ndefault magnification method: {0}'.format(
+            self._default_magnification_method)
+        if self._methods is not None:
+            out += '\nother magnification methods: {0}'.format(self._methods)
+
+        if len(self.bandpasses) > 0:
+            out += '\nlimb-darkening coeffs (gamma): {0}'.format(
+                self._limb_darkening_coeffs)
+
+        return out
 
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,

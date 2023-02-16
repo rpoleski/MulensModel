@@ -458,6 +458,34 @@ def test_get_lc():
     almost(out, 19.668370500043526)
 
 
+def test_repr():
+    """Test if printing is Model instance is OK."""
+    parameters = {'t_0': 2454656.4, 'u_0': 0.003,
+                  't_E': 11.1, 't_star': 0.055}
+    begin = ("    t_0 (HJD)       u_0    t_E (d)    t_star (d) \n"
+             "2454656.40000  0.003000    11.1000      0.055000 \n")
+    end = "default magnification method: point_source"
+    model = mm.Model(parameters)
+    assert str(model) == begin + end
+
+    coords = "17:54:32.10 -30:12:34.99"
+    model = mm.Model(parameters, coords=coords)
+    expected = "{:}coords: {:}\n{:}".format(begin, coords, end)
+    assert str(model) == expected
+
+    model = mm.Model(parameters)
+    methods = [2454656.3, 'finite_source_uniform_Gould94', 2454656.5]
+    model.set_magnification_methods(methods)
+    expected = "{:}{:}\nother magnification methods: {:}".format(
+        begin, end, methods)
+    assert str(model) == expected
+
+    model = mm.Model(parameters)
+    model.set_limb_coeff_gamma("I", 0.5)
+    expected = begin + end + "\nlimb-darkening coeffs (gamma): {'I': 0.5}"
+    assert str(model) == expected
+
+
 # Tests to Add:
 #
 # test get_trajectory:
