@@ -59,7 +59,7 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 [![astro-ph/1803.01003](https://img.shields.io/badge/astro--ph-1803.01003-brightgreen.svg)](https://arxiv.org/abs/1803.01003)
 [![EMAC](https://img.shields.io/badge/EMAC-2207--125-blue)](https://emac.gsfc.nasa.gov?cid=2207-125)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
-![example workflow](https://github.com/alpv95/MulensModel/actions/workflows/tests.yml/badge.svg)
+![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
 
-file revised Jan 2023
+file revised Feb 2023
 
