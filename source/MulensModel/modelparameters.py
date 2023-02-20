@@ -670,9 +670,12 @@ class ModelParameters(object):
             if parameter in self.parameters:
                 self._set_time_quantity(parameter, self.parameters[parameter])
 
-        # XXX - For warnings:
-        for (key, value) in self.parameters.items():
-            setattr(self, key, value)
+        angle_parameters = ['alpha', 'xi_Omega_node', 'xi_inclination',
+                            'xi_argument_of_latitude_reference']
+        for parameter in angle_parameters:
+            if parameter in self.parameters:
+                self._warn_if_angle_outside_reasonable_range(
+                    self.parameters[parameter], parameter)
 
     def _update_sources(self, parameter, value):
         """
@@ -967,6 +970,8 @@ class ModelParameters(object):
         """
         min_ = -360.
         max_ = 540.
+        if isinstance(value, u.Quantity):
+            value = value.to(u.deg).value
         if value < min_ or value > max_:
             fmt = "Strange value of angle {:}: {:}"
             warnings.warn(fmt.format(name, value), RuntimeWarning)
