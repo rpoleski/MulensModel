@@ -9,7 +9,7 @@ on:
 
 jobs:
   build_wheels:
-    name: ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cw_build }}
+    name: ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -79,9 +79,11 @@ jobs:
       with:
         path: dist/
 
-    - name: Publish package to PyPI
-      # All files in dist/ are published
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+    - run: "ls -a dist/"
+
+    # - name: Publish package to PyPI
+    #   # All files in dist/ are published
+    #   uses: pypa/gh-action-pypi-publish@release/v1
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.PYPI_API_TOKEN }}
