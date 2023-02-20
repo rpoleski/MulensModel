@@ -1,0 +1,6 @@
+numpy
+scipy>=0.18.0
+astropy>=1.2.0
+matplotlib
+sympy
+py-cpuinfo

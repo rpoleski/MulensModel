@@ -60,6 +60,6 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 [![EMAC](https://img.shields.io/badge/EMAC-2207--125-blue)](https://emac.gsfc.nasa.gov?cid=2207-125)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
 ![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
+[![Coverage Status](https://codecov.io/gh/rpoleski/MulensModel/branch/master/graph/badge.svg)](https://codecov.io/gh/rpoleski/MulensModel)
 
 file revised Feb 2023
-
