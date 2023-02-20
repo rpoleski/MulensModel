@@ -74,16 +74,21 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Download all artifacts to dist/
+    - name: Download sdist artifacts to dist/
       uses: actions/download-artifact@v3
       with:
+        name: sdist
         path: dist/
 
-    - run: "ls -a dist/"
+    - name: Download wheelhouse artifacts to dist/
+      uses: actions/download-artifact@v3
+      with:
+        name: wheelhouse
+        path: dist/
 
-    # - name: Publish package to PyPI
-    #   # All files in dist/ are published
-    #   uses: pypa/gh-action-pypi-publish@release/v1
-    #   with:
-    #     user: __token__
-    #     password: ${{ secrets.PYPI_API_TOKEN }}
+    - name: Publish package to PyPI
+      # All files in dist/ are published
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
