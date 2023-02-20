@@ -15,9 +15,9 @@ jobs:
       matrix:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
-        os: ubuntu-latest # [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest] # [ubuntu-latest, macos-latest]
         cibw_archs: [auto64]
-        cibw_build: cp37-* # [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
+        cibw_build: [cp37-*] # [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
         cibw_skip: [pp*]
         # include:
         # MacOS Silicon (Python >= 3.8)
