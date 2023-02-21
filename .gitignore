@@ -58,3 +58,12 @@ DEV
 *.aux
 *.log
 
+# IDE files:
+.idea/
+
+# Installation files:
+*.egg-info/
+source/MulensModel/*.so
+
+# Coverage report:
+coverage.xml
