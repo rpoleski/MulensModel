@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.10'
+__version__ = '0.30.11'
 
 
 class UlensModelFit(object):
@@ -2772,6 +2772,8 @@ class UlensModelFit(object):
             (y_value, y_err) = mm.Utils.get_mag_and_err_from_flux(
                 flux, flux_err)
             mask &= np.logical_not(np.isnan(y_value) | (y_err < 0.))
+            if np.sum(mask) == 0:
+                continue
             y_1 = min(y_1, np.min((y_value - y_err)[mask]))
             y_2 = max(y_2, np.max((y_value + y_err)[mask]))
 
