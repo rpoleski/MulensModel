@@ -472,7 +472,7 @@ def test_warnings_for_xallarap_angles(parameter, value):
 
 def test_is_xallarap_1():
     """
-    Make sure that .is_xallarap() works returns True, when it should.
+    Make sure that .is_xallarap() returns True, when it should.
     """
     parameters = {
         't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
@@ -483,4 +483,10 @@ def test_is_xallarap_1():
     assert model_params.is_xallarap
 
 
-
+def test_is_xallarap_2():
+    """
+    Check that is_xallarap() returns False for a (static) binary source model.
+    """
+    parameters = {'t_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9}
+    model_params = mm.ModelParameters(parameters)
+    assert not model_params.is_xallarap

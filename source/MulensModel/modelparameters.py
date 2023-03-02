@@ -283,7 +283,7 @@ class ModelParameters(object):
         sets self._type property, which indicates what type of a model we have
         """
         types = ['finite source', 'parallax', 'Cassan08',
-                 'lens 2-parameter orbital motion', 'mass sheet']
+                 'lens 2-parameter orbital motion', 'mass sheet', 'xallarap']
         out = {type_: False for type_ in types}
 
         temp = {
