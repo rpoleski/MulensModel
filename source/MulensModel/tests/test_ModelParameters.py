@@ -468,3 +468,19 @@ def test_warnings_for_xallarap_angles(parameter, value):
         mm.ModelParameters(parameters)
         assert len(warnings_) == 1
         assert issubclass(warnings_[0].category, RuntimeWarning)
+
+
+def test_is_xallarap_1():
+    """
+    Make sure that .is_xallarap() works returns True, when it should.
+    """
+    parameters = {
+        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
+        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
+        't_0_xi': 1.}
+    model_params = mm.ModelParameters(parameters)
+    assert model_params.is_xallarap
+
+
+

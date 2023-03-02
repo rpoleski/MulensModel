@@ -292,7 +292,9 @@ class ModelParameters(object):
             'Cassan08':
                 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
-            'mass sheet': 'convergence_K shear_G'}
+            'mass sheet': 'convergence_K shear_G',
+            'xallarap': ('xi_period xi_semimajor_axisi xi_inclination '
+                         'xi_Omega_node xi_argument_of_latitude_reference')}
 
         parameter_to_type = dict()
         for (key, values) in temp.items():
@@ -1772,6 +1774,15 @@ class ModelParameters(object):
                 (self.parameters['shear_G'] != 0))
 
     @property
+    def is_xallarap(self):
+        """
+        *bool*
+
+        Whether the parameters include the xallarap or not.
+        """
+        return self._type['xallarap']
+
+    @property
     def source_1_parameters(self):
         """
         :py:class:`~MulensModel.modelparameters.ModelParameters`
@@ -1833,3 +1844,4 @@ class ModelParameters(object):
                 The dictionary of model parameters.
         """
         return self.parameters
+
