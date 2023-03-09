@@ -16,10 +16,14 @@ class LimbDarkeningCoeffs(object):
 
     Note that the gamma convention has fixed total flux.
 
+    You can print an instance of this class.
     """
 
     def __init__(self):
         self._gammas_for_band = dict()
+
+    def __repr__(self):
+        return self._gammas_for_band.__repr__()
 
     def set_limb_coeff_gamma(self, bandpass, gamma):
         """

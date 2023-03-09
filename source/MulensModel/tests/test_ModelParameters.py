@@ -69,7 +69,44 @@ def test_repr_parameters():
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     out_1 = "    t_0 (HJD)       u_0    t_E (d) \n"
-    out_2 = "2456141.59300  0.542500    62.6300 \n"
+    out_2 = "2456141.59300  0.542500    62.6300 "
+
+    assert (out_1 + out_2) == str(params)
+
+
+def test_repr_no_t_0_par():
+    """
+    Make sure that t_0_par is printed even if not provided directly.
+    """
+    t_0 = 2456141.
+    u_0 = 0.01
+    t_E = 62.63
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E,
+                                 'pi_E_E': 0.1, 'pi_E_N': -0.2})
+
+    out_1 = ("    t_0 (HJD)       u_0    t_E (d)    pi_E_N    pi_E_E "
+             "t_0_par (HJD) \n")
+    out_2 = ("2456141.00000  0.010000    62.6300  -0.20000   0.10000 "
+             "2456141.00000 ")
+
+    assert (out_1 + out_2) == str(params)
+
+
+def test_repr_t_0_par():
+    """
+    Make sure that t_0_par is printed properly if provided directly.
+    """
+    t_0 = 2456141.
+    u_0 = 0.01
+    t_E = 62.63
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E,
+                                 'pi_E_E': 0.1, 'pi_E_N': -0.2,
+                                 't_0_par': t_0+1})
+
+    out_1 = ("    t_0 (HJD)       u_0    t_E (d)    pi_E_N    pi_E_E "
+             "t_0_par (HJD) \n")
+    out_2 = ("2456141.00000  0.010000    62.6300  -0.20000   0.10000 "
+             "2456142.00000 ")
 
     assert (out_1 + out_2) == str(params)
 

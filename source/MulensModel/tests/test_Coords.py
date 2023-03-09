@@ -112,3 +112,10 @@ def test_v_Earth_projected():
     np.testing.assert_almost_equal(
         [-3.60, 22.95],
         coords.v_Earth_projected(2455042.34,), decimal=2)
+
+
+def test_repr():
+    """Checks if coords can be printed"""
+    text = "17:53:50.79 -33:59:25.00"
+    coords = mm.Coordinates(text)
+    assert str(coords) == text
