@@ -114,15 +114,44 @@ class BinarySourceTest():
             self, fix_blend_flux=False, fix_source_flux=False,
             fix_q_flux=False):
 
+        def get_expected_blend_flux():
+            if fix_blend_flux is False:
+                expected_blend_flux = self.f_b
+            else:
+                expected_blend_flux = fix_blend_flux
+
+            return expected_blend_flux
+
+        def get_expected_source_flux():
+            if fix_source_flux is False:
+                expected_source_flux = [self.f_s_1, self.f_s_2]
+            else:
+                if fix_source_flux[0] is False:
+                    expected_source_flux = [self.f_s_1]
+                else:
+                    expected_source_flux = [fix_source_flux[0]]
+
+                if fix_source_flux[1] is False:
+                    expected_source_flux.append(self.f_s_2)
+                else:
+                    expected_source_flux.append(fix_source_flux[1])
+
+            return expected_source_flux
+
+        # Need to think more about how to fully test fix_q_flux
+
         self.my_fit = mm.FitData(
             model=self.model, dataset=self.dataset,
             fix_blend_flux=fix_blend_flux,
             fix_source_flux=fix_source_flux, fix_source_flux_ratio=fix_q_flux)
         self.my_fit.fit_fluxes()
 
-        almost(self.my_fit.blend_flux, self.f_b)
-        almost(self.my_fit.source_fluxes[0], self.f_s_1)
-        almost(self.my_fit.source_fluxes[1], self.f_s_2)
+        expected_blend_flux = get_expected_blend_flux()
+        expected_source_flux = get_expected_source_flux()
+
+        almost(self.my_fit.blend_flux, expected_blend_flux)
+        almost(self.my_fit.source_fluxes[0], expected_source_flux[0])
+        almost(self.my_fit.source_fluxes[1], expected_source_flux[1])
 
         # Test get_model_fluxes() for 2 sources
         peak_index = 500
