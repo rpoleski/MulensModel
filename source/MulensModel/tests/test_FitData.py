@@ -77,110 +77,68 @@ def generate_dataset(f_mod, t):
     return my_dataset
 
 
-def execute_test_blend_fixed(f_b):
-    # test for when source flux is to be determined, but blend flux is a
-    # fixed value
+class TestSingleSourceFluxes(unittest.TestCase):
 
-    pspl, t, A = generate_model()
+    def setUp(self):
+        self.pspl, self.t, self.magnification = generate_model()
 
-    # secret source flux
-    f_s = 1.0
-    f_mod = f_s * A + f_b
+        # secrets
+        self.f_s = 1.0
+        self.f_b = 0.5
+        # generate f_mod
+        self.f_mod = self.f_s * self.magnification + self.f_b
 
-    my_dataset = generate_dataset(f_mod, t)
-    my_fit = mm.FitData(
-        model=pspl, dataset=my_dataset, fix_blend_flux=f_b,
-        fix_source_flux=False)
-    my_fit.fit_fluxes()
+        self.my_dataset = generate_dataset(self.f_mod, self.t)
 
-    almost(my_fit.source_flux, f_s)
+    def _run_true_values_test(
+            self, fix_source_flux=False, fix_blend_flux=False):
+        my_fit = mm.FitData(
+            model=self.pspl, dataset=self.my_dataset,
+            fix_blend_flux=fix_blend_flux, fix_source_flux=fix_source_flux)
+        my_fit.fit_fluxes()
 
+        almost(my_fit.blend_flux, self.f_b)
+        almost(my_fit.source_flux, self.f_s)
 
-# *** Actual tests below ***
-def test_default():
-    """
-    test for when blend flux and source flux are to be determined
-    """
-    pspl, t, A = generate_model()
+        # Test get_model_fluxes() for 1 source
+        peak_index = 500
+        mod_fluxes = my_fit.get_model_fluxes()
+        almost(mod_fluxes[peak_index], self.my_dataset.flux[peak_index])
 
-    # secrets
-    f_s = 1.0
-    f_b = 0.5
-    # generate f_mod
-    f_mod = f_s * A + f_b
+    def _run_arbitrary_values_test(
+            self, fix_source_flux=False, fix_blend_flux=False):
+        my_fit = mm.FitData(
+            model=self.pspl, dataset=self.my_dataset,
+            fix_blend_flux=fix_blend_flux, fix_source_flux=fix_source_flux)
+        my_fit.fit_fluxes()
 
-    my_dataset = generate_dataset(f_mod, t)
-    my_fit = mm.FitData(
-        model=pspl, dataset=my_dataset, fix_blend_flux=False,
-        fix_source_flux=False)
-    my_fit.fit_fluxes()
+        if fix_blend_flux is not False:
+            almost(my_fit.blend_flux, fix_blend_flux)
 
-    almost(my_fit.blend_flux, f_b)
-    almost(my_fit.source_flux, f_s)
+        if fix_source_flux is not False:
+            almost(my_fit.source_flux, fix_source_flux)
 
-    # Test get_model_fluxes() for 1 source
-    peak_index = 500
-    mod_fluxes = my_fit.get_model_fluxes()
-    almost(mod_fluxes[peak_index], my_dataset.flux[peak_index])
+    def test_all_free(self):
+        self._run_true_values_test()
+        self._run_true_values_test(fix_source_flux=False, fix_blend_flux=False)
 
+    def test_fixed_blending(self):
+        self._run_true_values_test(fix_blend_flux=0.5)
+        self._run_arbitrary_values_test(fix_blend_flux=0.)
+        self._run_arbitrary_values_test(fix_blend_flux=0.23)
+        self._run_arbitrary_values_test(fix_blend_flux=-0.23)
 
-def test_blend_zero():
-    """
-    test for when source flux is to be determined, but blend flux is zero
-    """
-    execute_test_blend_fixed(f_b=0.)
+    def test_fixed_source_flux(self):
+        self._run_true_values_test(fix_source_flux=1.0)
+        self._run_arbitrary_values_test(fix_source_flux=0.)
+        self._run_arbitrary_values_test(fix_source_flux=0.23)
+        self._run_arbitrary_values_test(fix_source_flux=-0.23)
 
-
-def test_blend_fixed():
-    """
-    test for when source flux is to be determined, but blend flux is
-    zero
-    """
-    execute_test_blend_fixed(f_b=0.5)
-    execute_test_blend_fixed(f_b=-0.5)
-
-
-def test_source_fixed():
-    """
-    test for when blend flux is to be determined, but source flux is a fixed
-    value
-    """
-
-    pspl, t, A = generate_model()
-
-    # secret blend flux, set source flux
-    f_s = 1.0
-    f_b = 0.5
-    f_mod = f_s * A + f_b
-
-    my_dataset = generate_dataset(f_mod, t)
-    my_fit = mm.FitData(
-        model=pspl, dataset=my_dataset, fix_blend_flux=False,
-        fix_source_flux=f_s)
-    my_fit.fit_fluxes()
-
-    almost(my_fit.blend_flux, f_b)
-
-
-def test_both_fixed():
-    """
-    test for when both fluxes are fixed --> evaluate chi2 but not fluxes.
-    """
-    pspl, t, A = generate_model()
-
-    # secret blend flux, set source flux
-    f_s = 1.0
-    f_b = 0.5
-    f_mod = f_s * A + f_b
-
-    my_dataset = generate_dataset(f_mod, t)
-    my_fit = mm.FitData(
-        model=pspl, dataset=my_dataset, fix_blend_flux=f_b,
-        fix_source_flux=f_s)
-    my_fit.update()
-
-    almost(my_fit.blend_flux, f_b)
-    almost(my_fit.source_flux, f_s)
+    def test_all_fixed(self):
+        self._run_true_values_test(fix_source_flux=1.0, fix_blend_flux=0.5)
+        self._run_arbitrary_values_test(
+            fix_source_flux=1.2, fix_blend_flux=-0.5)
+        self._run_arbitrary_values_test(fix_source_flux=1.7, fix_blend_flux=0.)
 
 
 class TestBinarySourceFluxes(unittest.TestCase):
@@ -222,7 +180,7 @@ class TestBinarySourceFluxes(unittest.TestCase):
 
         if fix_source_flux is not False:
             if fix_source_flux[0] is not False:
-               almost(my_fit.source_fluxes[0], fix_source_flux[0])
+                almost(my_fit.source_fluxes[0], fix_source_flux[0])
 
             if fix_source_flux[1] is not False:
                 almost(my_fit.source_fluxes[1], fix_source_flux[1])
@@ -288,7 +246,9 @@ class TestBinarySourceFluxes(unittest.TestCase):
             fix_source_flux=[4.5, 0.67], fix_blend_flux=False)
 
     def test_fixed_blend_arbitrary(self):
+        self._run_arbitrary_value_test(fix_blend_flux=0.)
         self._run_arbitrary_value_test(fix_blend_flux=2.3)
+        self._run_arbitrary_value_test(fix_blend_flux=-0.5)
         self._run_arbitrary_value_test(
             fix_source_flux=[1.2, False], fix_blend_flux=0.78)
         self._run_arbitrary_value_test(
@@ -297,6 +257,8 @@ class TestBinarySourceFluxes(unittest.TestCase):
     def test_all_fixed_arbitrary(self):
         self._run_arbitrary_value_test(
             fix_source_flux=[2.3, 0.45], fix_blend_flux=0.67)
+        self._run_arbitrary_value_test(
+            fix_source_flux=[2.3, 0.45], fix_blend_flux=0.)
 
     def test_q_flux_fixed(self):
         self._run_q_flux_test_true()
@@ -304,6 +266,7 @@ class TestBinarySourceFluxes(unittest.TestCase):
         self._run_q_flux_test_true(fix_q_flux=1.2, fix_blend_flux=0.5)
         self._run_q_flux_test_arbitrary(fix_q_flux=2.1)
         self._run_q_flux_test_arbitrary(fix_q_flux=1.4, fix_blend_flux=0.25)
+        self._run_q_flux_test_arbitrary(fix_q_flux=1.4, fix_blend_flux=0.)
 
 
 def test_fit_fluxes():
