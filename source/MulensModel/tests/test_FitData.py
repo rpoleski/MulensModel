@@ -270,6 +270,10 @@ class TestBinarySourceFluxes(unittest.TestCase):
 
     def test_fixed_blend_true(self):
         self._run_true_value_test(fix_blend_flux=0.5)
+        self._run_true_value_test(
+            fix_source_flux=[1., False], fix_blend_flux=0.5)
+        self._run_true_value_test(
+            fix_source_flux=[False, 1.2], fix_blend_flux=0.5)
 
     def test_all_fixed_true(self):
         self._run_true_value_test(
@@ -285,6 +289,10 @@ class TestBinarySourceFluxes(unittest.TestCase):
 
     def test_fixed_blend_arbitrary(self):
         self._run_arbitrary_value_test(fix_blend_flux=2.3)
+        self._run_arbitrary_value_test(
+            fix_source_flux=[1.2, False], fix_blend_flux=0.78)
+        self._run_arbitrary_value_test(
+            fix_source_flux=[False, 0.53], fix_blend_flux=0.23)
 
     def test_all_fixed_arbitrary(self):
         self._run_arbitrary_value_test(
