@@ -96,82 +96,6 @@ def execute_test_blend_fixed(f_b):
     almost(my_fit.source_flux, f_s)
 
 
-class BinarySourceTest():
-
-    def __init__(self):
-        self.f_s_1 = 1
-        self.f_s_2 = 1.2
-        self.f_b = 0.5
-
-        self.setup_dataset()
-
-    def setup_dataset(self):
-        self.model, self.t, self.A_1, self.A_2 = generate_binary_model()
-        f_mod = self.f_s_1 * self.A_1 + self.f_s_2 * self.A_2 + self.f_b
-        self.dataset = generate_dataset(f_mod, self.t)
-
-    def run_test(
-            self, fix_blend_flux=False, fix_source_flux=False,
-            fix_q_flux=False):
-
-        def get_expected_blend_flux():
-            if fix_blend_flux is False:
-                expected_blend_flux = self.f_b
-            else:
-                expected_blend_flux = fix_blend_flux
-
-            return expected_blend_flux
-
-        def get_expected_source_flux():
-            if fix_source_flux is False:
-                expected_source_flux = [self.f_s_1, self.f_s_2]
-            else:
-                if fix_source_flux[0] is False:
-                    expected_source_flux = [self.f_s_1]
-                else:
-                    expected_source_flux = [fix_source_flux[0]]
-
-                if fix_source_flux[1] is False:
-                    expected_source_flux.append(self.f_s_2)
-                else:
-                    expected_source_flux.append(fix_source_flux[1])
-
-            return expected_source_flux
-
-        # Need to think more about how to fully test fix_q_flux
-
-        self.my_fit = mm.FitData(
-            model=self.model, dataset=self.dataset,
-            fix_blend_flux=fix_blend_flux,
-            fix_source_flux=fix_source_flux, fix_source_flux_ratio=fix_q_flux)
-        self.my_fit.fit_fluxes()
-
-        expected_blend_flux = get_expected_blend_flux()
-        expected_source_flux = get_expected_source_flux()
-
-        almost(self.my_fit.blend_flux, expected_blend_flux)
-        almost(self.my_fit.source_fluxes[0], expected_source_flux[0])
-        almost(self.my_fit.source_fluxes[1], expected_source_flux[1])
-
-        # Test get_model_fluxes() for 2 sources
-        peak_index = 500
-        mod_fluxes = self.my_fit.get_model_fluxes()
-        almost(mod_fluxes[peak_index], self.dataset.flux[peak_index])
-
-
-def execute_test_binary_source(q_flux=False):
-    # test for when blend flux and source flux are to be determined for binary
-    # sources with q-flux
-
-    test = BinarySourceTest()
-    if q_flux:
-        fix_q_flux = test.f_s_2 / test.f_s_1
-    else:
-        fix_q_flux = False
-
-    test.run_test(fix_q_flux=fix_q_flux)
-
-
 # *** Actual tests below ***
 def test_default():
     """
@@ -259,40 +183,119 @@ def test_both_fixed():
     almost(my_fit.source_flux, f_s)
 
 
-def test_binary_source():
-    """Test a binary source model with all free parameters."""
-    execute_test_binary_source(q_flux=False)
+class TestBinarySourceFluxes(unittest.TestCase):
 
+    def setUp(self):
+        self.f_s_1 = 1
+        self.f_s_2 = 1.2
+        self.f_b = 0.5
 
-def test_binary_source_fixed():
-    """
-    Test the three cases for fixing each of the three components of a binary
-    source model
-    """
-    test = BinarySourceTest()
-    test.run_test(fix_source_flux=[False, False])
-    test.run_test(fix_source_flux=[1.0, False])
-    test.run_test(fix_source_flux=[False, 1.2])
-    test.run_test(fix_source_flux=[1.0, 1.2])
-    test.run_test(fix_blend_flux=0.5)
-    test.run_test(fix_source_flux=[1.0, 1.2], fix_blend_flux=0.5)
-    test.run_test(fix_source_flux=[1.0, False], fix_blend_flux=0.5)
+        self.model, self.t, self.A_1, self.A_2 = generate_binary_model()
+        f_mod = self.f_s_1 * self.A_1 + self.f_s_2 * self.A_2 + self.f_b
+        self.dataset = generate_dataset(f_mod, self.t)
 
+    def _run_true_value_test(
+            self, fix_source_flux=False, fix_blend_flux=False):
+        my_fit = mm.FitData(
+            model=self.model, dataset=self.dataset,
+            fix_source_flux=fix_source_flux, fix_blend_flux=fix_blend_flux)
+        my_fit.update()
+        almost(my_fit.blend_flux, self.f_b)
+        almost(my_fit.source_fluxes[0], self.f_s_1)
+        almost(my_fit.source_fluxes[1], self.f_s_2)
 
-class TestFitData(unittest.TestCase):
-    def test_init_1(self):
+        peak_index = 500
+        mod_fluxes = my_fit.get_model_fluxes()
+        almost(mod_fluxes[peak_index], self.dataset.flux[peak_index])
+
+        assert (my_fit.chi2_per_point.shape == (self.dataset.n_epochs, ))
+
+    def _run_arbitrary_value_test(
+            self, fix_source_flux=False, fix_blend_flux=False):
+        my_fit = mm.FitData(
+            model=self.model, dataset=self.dataset,
+            fix_source_flux=fix_source_flux, fix_blend_flux=fix_blend_flux)
+        my_fit.fit_fluxes()
+
+        if fix_blend_flux is not False:
+            almost(my_fit.blend_flux, fix_blend_flux)
+
+        if fix_source_flux is not False:
+            if fix_source_flux[0] is not False:
+               almost(my_fit.source_fluxes[0], fix_source_flux[0])
+
+            if fix_source_flux[1] is not False:
+                almost(my_fit.source_fluxes[1], fix_source_flux[1])
+
+    def _run_q_flux_test_true(self, fix_q_flux=False, fix_blend_flux=False):
+        my_fit = mm.FitData(
+            model=self.model, dataset=self.dataset,
+            fix_source_flux_ratio=fix_q_flux, fix_blend_flux=fix_blend_flux)
+        my_fit.fit_fluxes()
+
+        almost(my_fit.blend_flux, self.f_b)
+        almost(my_fit.source_fluxes[0], self.f_s_1)
+        almost(my_fit.source_fluxes[1], self.f_s_2)
+
+    def _run_q_flux_test_arbitrary(
+            self, fix_q_flux=False, fix_blend_flux=False):
+        my_fit = mm.FitData(
+            model=self.model, dataset=self.dataset,
+            fix_source_flux_ratio=fix_q_flux, fix_blend_flux=fix_blend_flux)
+        my_fit.fit_fluxes()
+
+        if fix_blend_flux is not False:
+            almost(my_fit.blend_flux, fix_blend_flux)
+
+        almost(
+            my_fit.source_fluxes[1]/my_fit.source_fluxes[0],
+            fix_q_flux)
+
+    def test_value_error(self):
         with self.assertRaises(ValueError):
-            test = BinarySourceTest()
-            test.run_test(fix_source_flux=1.0)
+            self._run_true_value_test(fix_source_flux=1.0)
 
+    def test_all_free(self):
+        self._run_true_value_test()
+        self._run_true_value_test(
+            fix_source_flux=[False, False], fix_blend_flux=False)
 
-def test_binary_qflux():
-    """
-    test for when blend flux and source flux are to be determined for binary
-    sources with q-flux
-    """
+    def test_fixed_source_true(self):
+        self._run_true_value_test(
+            fix_source_flux=[1., False], fix_blend_flux=False)
+        self._run_true_value_test(
+            fix_source_flux=[False, 1.2], fix_blend_flux=False)
+        self._run_true_value_test(
+            fix_source_flux=[1., 1.2], fix_blend_flux=False)
 
-    execute_test_binary_source(q_flux=True)
+    def test_fixed_blend_true(self):
+        self._run_true_value_test(fix_blend_flux=0.5)
+
+    def test_all_fixed_true(self):
+        self._run_true_value_test(
+            fix_source_flux=[1., 1.2], fix_blend_flux=0.5)
+
+    def test_fixed_source_arbitrary(self):
+        self._run_arbitrary_value_test(
+            fix_source_flux=[1.2, False], fix_blend_flux=False)
+        self._run_arbitrary_value_test(
+            fix_source_flux=[False, 0.53], fix_blend_flux=False)
+        self._run_arbitrary_value_test(
+            fix_source_flux=[4.5, 0.67], fix_blend_flux=False)
+
+    def test_fixed_blend_arbitrary(self):
+        self._run_arbitrary_value_test(fix_blend_flux=2.3)
+
+    def test_all_fixed_arbitrary(self):
+        self._run_arbitrary_value_test(
+            fix_source_flux=[2.3, 0.45], fix_blend_flux=0.67)
+
+    def test_q_flux_fixed(self):
+        self._run_q_flux_test_true()
+        self._run_q_flux_test_true(fix_q_flux=1.2)
+        self._run_q_flux_test_true(fix_q_flux=1.2, fix_blend_flux=0.5)
+        self._run_q_flux_test_arbitrary(fix_q_flux=2.1)
+        self._run_q_flux_test_arbitrary(fix_q_flux=1.4, fix_blend_flux=0.25)
 
 
 def test_fit_fluxes():
@@ -333,16 +336,6 @@ def test_fit_fluxes():
 
     my_fit.update()
     assert(chi2_1 != my_fit.chi2)
-
-
-def test_chi2_per_point():
-    """Test that the chi2 shape is correct for multiple sources, i.e. = number
-    of epochs, rather than epochs * sources."""
-    test_object = BinarySourceTest()
-    my_fit = mm.FitData(model=test_object.model, dataset=test_object.dataset)
-    my_fit.update()
-
-    assert(my_fit.chi2_per_point.shape == (test_object.dataset.n_epochs,))
 
 
 def test_satellite_and_annual_parallax_calculation():
@@ -629,6 +622,126 @@ class TestGetResiduals(unittest.TestCase):
             phot_fmt='scaled', source_flux=f_source_0, blend_flux=f_blend_0,
             bad=True)
         almost(res_errors, self.dataset.err_mag)
+
+
+# Old Binary Source Tests
+class BinarySourceTest():
+# JCY: This test setup is clunky and redundant
+
+    def __init__(self):
+        self.f_s_1 = 1
+        self.f_s_2 = 1.2
+        self.f_b = 0.5
+
+        self.setup_dataset()
+
+    def setup_dataset(self):
+        self.model, self.t, self.A_1, self.A_2 = generate_binary_model()
+        f_mod = self.f_s_1 * self.A_1 + self.f_s_2 * self.A_2 + self.f_b
+        self.dataset = generate_dataset(f_mod, self.t)
+
+    def run_test(
+            self, fix_blend_flux=False, fix_source_flux=False,
+            fix_q_flux=False):
+
+        def get_expected_blend_flux():
+            if fix_blend_flux is False:
+                expected_blend_flux = self.f_b
+            else:
+                expected_blend_flux = fix_blend_flux
+
+            return expected_blend_flux
+
+        def get_expected_source_flux():
+            if fix_source_flux is False:
+                expected_source_flux = [self.f_s_1, self.f_s_2]
+            else:
+                if fix_source_flux[0] is False:
+                    expected_source_flux = [self.f_s_1]
+                else:
+                    expected_source_flux = [fix_source_flux[0]]
+
+                if fix_source_flux[1] is False:
+                    expected_source_flux.append(self.f_s_2)
+                else:
+                    expected_source_flux.append(fix_source_flux[1])
+
+            return expected_source_flux
+
+        # Need to think more about how to fully test fix_q_flux
+
+        self.my_fit = mm.FitData(
+            model=self.model, dataset=self.dataset,
+            fix_blend_flux=fix_blend_flux,
+            fix_source_flux=fix_source_flux, fix_source_flux_ratio=fix_q_flux)
+        self.my_fit.fit_fluxes()
+
+        expected_blend_flux = get_expected_blend_flux()
+        expected_source_flux = get_expected_source_flux()
+
+        almost(self.my_fit.blend_flux, expected_blend_flux)
+        almost(self.my_fit.source_fluxes[0], expected_source_flux[0])
+        almost(self.my_fit.source_fluxes[1], expected_source_flux[1])
+
+        # Test get_model_fluxes() for 2 sources
+        peak_index = 500
+        mod_fluxes = self.my_fit.get_model_fluxes()
+        almost(mod_fluxes[peak_index], self.dataset.flux[peak_index])
+
+
+def execute_test_binary_source(q_flux=False):
+    # test for when blend flux and source flux are to be determined for binary
+    # sources with q-flux
+
+    test = BinarySourceTest()
+    if q_flux:
+        fix_q_flux = test.f_s_2 / test.f_s_1
+    else:
+        fix_q_flux = False
+
+    test.run_test(fix_q_flux=fix_q_flux)
+
+def test_binary_source_fixed():
+    """
+    Test the three cases for fixing each of the three components of a binary
+    source model
+    """
+    # JCY - Should be redundant
+    test = BinarySourceTest()
+    test.run_test(fix_source_flux=[False, False])
+    test.run_test(fix_source_flux=[1.0, False])
+    test.run_test(fix_source_flux=[False, 1.2])
+    test.run_test(fix_source_flux=[1.0, 1.2])
+    test.run_test(fix_blend_flux=0.5)
+    test.run_test(fix_source_flux=[1.0, 1.2], fix_blend_flux=0.5)
+    test.run_test(fix_source_flux=[1.0, False], fix_blend_flux=0.5)
+
+class TestFitData(unittest.TestCase):
+    def test_init_1(self):
+        with self.assertRaises(ValueError):
+            test = BinarySourceTest()
+            test.run_test(fix_source_flux=1.0)
+
+def test_binary_qflux():
+    """
+    test for when blend flux and source flux are to be determined for binary
+    sources with q-flux
+    """
+
+    execute_test_binary_source(q_flux=True)
+
+def test_binary_source():
+    """Test a binary source model with all free parameters."""
+    execute_test_binary_source(q_flux=False)
+
+def test_chi2_per_point():
+    """Test that the chi2 shape is correct for multiple sources, i.e. = number
+    of epochs, rather than epochs * sources."""
+    test_object = BinarySourceTest()
+    my_fit = mm.FitData(model=test_object.model, dataset=test_object.dataset)
+    my_fit.update()
+
+    assert(my_fit.chi2_per_point.shape == (test_object.dataset.n_epochs,))
 
 # Tests to add:
 #
