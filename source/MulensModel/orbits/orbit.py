@@ -107,7 +107,7 @@ class _OrbitAbstract(object):
         Calculate eccentric anomaly (typically indicated by E).
         """
         mean_anomaly = self._get_mean_anomaly(time)
-        anomaly = self._get_normalized_anomaly(mean_anomaly)
+        anomaly = self._get_normalized_anomaly_minus_pi_pi(mean_anomaly)
         eccentric_anomaly = (
             self._get_eccentric_anomaly_from_normalized_mean_anomaly(anomaly))
         return eccentric_anomaly
@@ -120,13 +120,18 @@ class _OrbitAbstract(object):
         anomaly = 2. * math.pi * (time - self._perihelion_epoch) / self._period
         return anomaly
 
-    def _get_normalized_anomaly(self, anomaly):
+    def _get_normalized_anomaly_minus_pi_pi(self, anomaly):
         """
         get value normalized to (-pi, pi) range
         """
-        return (anomaly + np.pi) % (2 * np.pi) - np.pi
-        # XXX self.m_anomaly = np.fmod(self.m_anomaly, 2 * np.pi)
-        # np.remainder
+        out = self._get_normalized_anomaly_zero_two_pi(anomaly + np.pi) - np.pi
+        return out
+
+    def _get_normalized_anomaly_zero_two_pi(self, anomaly):
+        """
+        get value normalized to (0, 2*pi) range
+        """
+        return np.remainder(anomaly, 2 * np.pi)
 
     def _get_eccentric_anomaly_from_normalized_mean_anomaly(self,
                                                             mean_anomaly):
@@ -287,7 +292,7 @@ class OrbitEccentric(_OrbitAbstract):
         """
         true_anomaly = u_reference - self._omega_periapsis
         mean_anomaly = self._get_mean_anomaly_from_true_anomaly(true_anomaly)
-# XXX - we have to make sure mean_anomaly is in proper range
+        mean_anomaly = self._get_normalized_anomaly_minus_pi_pi(mean_anomaly)
         time_shift = self._period * mean_anomaly / (2. * np.pi)
         return epoch_reference - time_shift
 
