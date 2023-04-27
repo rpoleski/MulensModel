@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.11'
+__version__ = '0.31.0'
 
 
 class UlensModelFit(object):
@@ -276,6 +276,11 @@ class UlensModelFit(object):
             ``'yaml output': {'file name': NAME_OF_FILE}`` where NAME_OF_FILE
             is a *str* that gives a path to YAML-format file to which
             the results will be printed
+
+            ``'residuals': {'files': FILE_1 FILE_2 ...}`` where FILE_X are
+            the names of the files to which residuals will be printed.
+            These files will have three columns: time, residuals, and
+            uncertainties.
     """
     def __init__(
             self, photometry_files,
@@ -397,6 +402,7 @@ class UlensModelFit(object):
             raise ValueError('internal error - task ' + str(self._task))
         self._print_model = False
         self._yaml_results = False
+        self._residuals_output = False
 
         parameters_str = (
             't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
@@ -513,6 +519,7 @@ class UlensModelFit(object):
         self._run_fit()
         self._finish_fit()
         self._parse_results()
+        self._write_residuals()
         self._make_plots()
 
     def plot_best_model(self):
@@ -532,6 +539,7 @@ class UlensModelFit(object):
         self._check_ulens_model_parameters()
         self._check_fixed_parameters()
         self._make_model_and_event()
+        self._write_residuals()
         self._make_plots()
 
     def _check_plots_parameters(self):
@@ -813,6 +821,8 @@ class UlensModelFit(object):
                 self._parse_other_output_parameters_models(value)
             elif key == 'yaml output':
                 self._parse_other_output_parameters_yaml_output(value)
+            elif key == 'residuals':
+                self._parse_other_output_parameters_residuals(value)
             else:
                 raise ValueError('Unrecognized key: ' + str(key) + "\n " +
                                  "Expected keys: models")
@@ -861,6 +871,51 @@ class UlensModelFit(object):
                 raise KeyError("Unrecognized key: " + str(key) +
                                "\nExpected keys: 'file name'.")
 
+    def _parse_other_output_parameters_residuals(self, values):
+        """
+        parse information on "other output" -> "residuals"
+        """
+        if not isinstance(values, dict):
+            raise ValueError('"residuals" value should also be *dict*, '
+                             'got ' + str(type(values)))
+        for (key, value) in values.items():
+            if key == 'files':
+                self._residuals_output = True
+                if isinstance(value, list):
+                    self._residuals_files = value
+                else:
+                    if value.count(" ") == 0:
+                        self._residuals_files = [value]
+                    else:
+                        self._residuals_files = value.split()
+                self._check_residual_files()
+            else:
+                raise KeyError("Unrecognized key: " + str(key) +
+                               "\nExpected keys: 'file name'.")
+
+    def _check_residual_files(self):
+        """
+        Check if provided names of output files with residuals make sense.
+        We do not check here if the number of files provided is the same
+        as the number of input datests.
+        """
+        existing = []
+        names = []
+        for file_name in self._residuals_files:
+            if file_name == '-':
+                continue
+            names.append(file_name)
+            if path.exists(file_name):
+                existing.append(file_name)
+        if len(existing) > 0:
+            raise ValueError(
+                "Residuals cannot be written to existing files: " +
+                str(existing))
+        if len(names) != len(set(names)):
+            duplicates = set([x for x in names if names.count(x) > 1])
+            raise ValueError('some of provided names of residuals files '
+                             'repeat: ' + str(duplicates))
+
     def _get_datasets(self):
         """
         construct a list of MulensModel.MulensData objects
@@ -887,6 +942,13 @@ class UlensModelFit(object):
                       str(file_['file_name']), file=sys.stderr)
                 raise
             self._datasets.append(dataset)
+
+        if self._residuals_output:
+            if len(self._residuals_files) != len(self._datasets):
+                out = '{:} vs {:}'.format(
+                    len(self._datasets), len(self._residuals_files))
+                raise ValueError('The number of datasets and files for '
+                                 'residuals ouptut do not match: ' + out)
 
     def _check_ulens_model_parameters(self):
         """
@@ -2524,6 +2586,24 @@ class UlensModelFit(object):
         data = self._analyzer_data[:, index:]
 
         return data
+
+    def _write_residuals(self):
+        """
+        Write residuals to a file
+        """
+        if not self._residuals_output:
+            return
+
+        zip_ = zip(self._datasets, self._residuals_files, self._event.fits)
+        for (dataset, name, fit) in zip_:
+            if name == "-":
+                continue
+            (residuals, uncertainties) = fit.get_residuals(
+                phot_fmt=dataset.input_fmt)
+            data_out = np.array([dataset.time, residuals, uncertainties]).T
+            np.savetxt(name, data_out)
+            args = [1+self._datasets.index(dataset), name]
+            print("Residuals for file number {:} saved in {:}".format(*args))
 
     def _make_plots(self):
         """
