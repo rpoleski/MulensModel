@@ -309,11 +309,7 @@ def test_fit_fluxes():
     assert(chi2_1 != my_fit.chi2)
 
 
-def test_satellite_and_annual_parallax_calculation():
-    """
-    test that data magnifications are correctly retrieved for Spitzer data.
-    """
-
+def create_0939_parallax_model():
     # Create Model
     model_parameters = {
         't_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
@@ -322,6 +318,14 @@ def test_satellite_and_annual_parallax_calculation():
     model_with_par = mm.Model(model_parameters, coords=coords)
     model_with_par.parallax(satellite=True, earth_orbital=True,
                             topocentric=False)
+    return model_with_par
+
+
+def test_satellite_and_annual_parallax_calculation():
+    """
+    test that data magnifications are correctly retrieved for Spitzer data.
+    """
+    model_with_par = create_0939_parallax_model()
 
     # Load Spitzer data and answers
     data_Spitzer = mm.MulensData(
@@ -332,6 +336,28 @@ def test_satellite_and_annual_parallax_calculation():
     my_fit = mm.FitData(dataset=data_Spitzer, model=model_with_par)
     ratio = my_fit.get_data_magnification() / ref_Spitzer
     np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
+
+
+def test_get_d_u_d_params():
+    """
+    Test that calculating derivatives with an ephemeris file is different from
+    without an ephemeris file.
+    """
+    parameters = ['pi_E_N', 'pi_E_E']
+    model_with_par = create_0939_parallax_model()
+
+    data_ephm = mm.MulensData(
+        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
+    fit_ephm = mm.FitData(dataset=data_ephm, model=model_with_par)
+    derivs_ephm = fit_ephm._get_d_u_d_params(parameters)
+
+    data_no_ephm = mm.MulensData(file_name=SAMPLE_FILE_03)
+    fit_no_ephm = mm.FitData(dataset=data_no_ephm, model=model_with_par)
+    derivs_no_ephm = fit_no_ephm._get_d_u_d_params(parameters)
+
+    for param in parameters:
+        assert (np.abs(
+            (derivs_ephm[param] / derivs_no_ephm[param] - 1.)) > 0.001).all()
 
 
 def test_bad_data():
