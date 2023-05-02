@@ -16,6 +16,8 @@
 // The original Fortran code available on http://www.astrouw.edu.pl/~jskowron/cmplx_roots_sg/
 // has been translated to C++ by Tyler M. Heintz and Ava R. Hoag (2017)
 //
+// The VBBinaryLensing_shear code was written by Lawrence Pierson.
+//
 // GNU Lesser General Public License applies to all parts of this code.
 // Please read the separate LICENSE.txt file for more details.
 
@@ -53,6 +55,7 @@ namespace VBBinaryLensingLibrary {
 	class VBBinaryLensing
 #endif
 	{
+	protected:
 		int *ndatasat;
 		double **tsat,***possat;
 		double Mag0, corrquad, corrquad2, safedist;
@@ -96,7 +99,6 @@ namespace VBBinaryLensingLibrary {
 		void SetObjectCoordinates(char *Coordinates_file, char *Directory_for_satellite_tables);
 
 	// Magnification calculation functions.
-
 		double BinaryMag0(double s,double q,double y1,double y2, _sols **Images);
 		double BinaryMag0(double s, double q, double y1, double y2);
 		double BinaryMag(double s,double q,double y1,double y2,double rho,double accuracy, _sols **Images);
@@ -164,7 +166,7 @@ namespace VBBinaryLensingLibrary {
 		VBBinaryLensing();
 		~VBBinaryLensing();
 
-		private:
+		protected:
 			LDprofiles curLDprofile;
 	};
 
@@ -183,6 +185,15 @@ namespace VBBinaryLensingLibrary {
 #ifndef __unmanaged
 }
 #endif
+
+class VBBinaryLensing_shear : private VBBinaryLensing {
+
+	_curve *NewImages_shear(complex,complex  *,_theta *);
+
+	public:
+		double BinaryMag0_shear(double s, double q, double y1, double y2, double K1, double G1, double Gi, _sols **Images);
+		double BinaryMag0_shear(double s, double q, double y1, double y2, double K1, double G1, double Gi);
+};
 
 
 class _theta{
