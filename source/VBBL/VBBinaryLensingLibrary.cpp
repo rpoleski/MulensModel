@@ -1,7 +1,11 @@
-// VBBinaryLensing v2.0.1 (2018)
+// VBBinaryLensing v3.5 (2023)
 //
-// This code has been developed by Valerio Bozza, University of Salerno.
-// Any use of this code for scientific publications should be acknowledged by a citation to
+// This code has been developed by Valerio Bozza (University of Salerno) and collaborators.
+// Any use of this code for scientific publications should be acknowledged by a citation to:
+// V. Bozza, E. Bachelet, F. Bartolic, T.M. Heintz, A.R. Hoag, M. Hundertmark, MNRAS 479 (2018) 5157
+// If you use astrometry, user-defined limb darkening or Keplerian orbital motion, please cite
+// V. Bozza, E. Khalouei and E. Bachelet (arXiv:2011.04780)
+// The original methods present in v1.0 are described in
 // V. Bozza, MNRAS 408 (2010) 2188
 // Check the repository at http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm
 // for the newest version.
@@ -14,6 +18,8 @@
 //
 // GNU Lesser General Public License applies to all parts of this code.
 // Please read the separate LICENSE.txt file for more details.
+//#define _PRINT_ERRORS2
+//#define _ERRORS_ANALYTIC
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -33,7 +39,6 @@ char systemslash = '/';
 #ifndef __unmanaged
 using namespace VBBinaryLensingLibrary;
 #endif
-
 //////////////////////////////
 //////////////////////////////
 ////////Constructor and destructor
@@ -64,10 +69,15 @@ VBBinaryLensing::VBBinaryLensing() {
 	t0_par_fixed = -1;
 	t0_par = 7000;
 	minannuli = 1;
+	curLDprofile = LDlinear;
 	a1 = 0;
+	npLD = 0;
+	LDtab = rCLDtab = CLDtab=0;
 	Mag0 = 0;
+	NPcrit = 200;
 	ESPLoff = true;
 	multidark = false;
+    astrometry=false;
 }
 
 VBBinaryLensing::~VBBinaryLensing() {
@@ -81,6 +91,10 @@ VBBinaryLensing::~VBBinaryLensing() {
 		free(possat);
 		free(ndatasat);
 	}
+	if (npLD > 0) {
+		free(LDtab);
+		free(rCLDtab);
+	}
 }
 
 
@@ -93,7 +107,6 @@ VBBinaryLensing::~VBBinaryLensing() {
 
 _sols *VBBinaryLensing::PlotCrit(double a1, double q1) {
 	complex  a, q, ej, zr[4], x1, x2;
-	int NPS = 200;
 	_sols *CriticalCurves;
 	_curve *Prov, *Prov2, *isso;
 	_point *pisso;
@@ -109,8 +122,8 @@ _sols *VBBinaryLensing::PlotCrit(double a1, double q1) {
 		CriticalCurves->append(Prov);
 	}
 
-	for (int j = 0; j<NPS; j++) {
-		ej = complex(cos(2 * j*M_PI / NPS), -sin(2 * j*M_PI / NPS));
+	for (int j = 0; j<NPcrit; j++) {
+		ej = complex(cos(2 * j*M_PI / NPcrit), -sin(2 * j*M_PI / NPcrit));
 		complex  coefs[5] = { a*a / 16.0*(4.0 - a*a*ej)*(1.0 + q),a*(q - 1.0),(q + 1.0)*(1.0 + a*a*ej / 2.0),0.0,-(1.0 + q)*ej };
 		cmplx_roots_gen(zr, coefs, 4, true, true);
 		if (j > 0) {
@@ -137,6 +150,7 @@ _sols *VBBinaryLensing::PlotCrit(double a1, double q1) {
 	while (Prov->next) {
 		SD = *(Prov->first) - *(Prov->last);
 		MD = 1.e100;
+		isso = 0;
 		for (Prov2 = Prov->next; Prov2; Prov2 = Prov2->next) {
 			CD = *(Prov2->first) - *(Prov->last);
 			if (CD<MD) {
@@ -167,7 +181,7 @@ _sols *VBBinaryLensing::PlotCrit(double a1, double q1) {
 	return CriticalCurves;
 }
 
-void VBBinaryLensing::PrintCau(double a, double q) {
+void VBBinaryLensing::PrintCau(double a, double q, double y1, double y2, double rho) {
 	_sols *CriticalCurves;
 	_curve *scancurve;
 	_point *scanpoint;
@@ -176,16 +190,17 @@ void VBBinaryLensing::PrintCau(double a, double q) {
 
 	CriticalCurves = PlotCrit(a, q);
 	f = fopen("outcurves.causticdata", "w");
+	fprintf(f, "%.16lf %.16lf %.16lf\n", y1,y2,rho);
 	ncc = CriticalCurves->length / 2;
 	scancurve = CriticalCurves->first;
-	for (int i = 0; i<ncc; i++) {
-		scancurve = scancurve->next;
-	}
+	for (int i = 0; i<2*ncc; i++) {
+	//	scancurve = scancurve->next;
+	//}
 
-	for (int i = 0; i<ncc; i++) {
+	//for (int i = 0; i<ncc; i++) {
 		fprintf(f, "Curve: %d\n", i + 1);
 		for (scanpoint = scancurve->first; scanpoint; scanpoint = scanpoint->next) {
-			fprintf(f, "%lf %lf\n", scanpoint->x1, scanpoint->x2);
+			fprintf(f, "%.16lf %.16lf\n", scanpoint->x1, scanpoint->x2);
 		}
 		scancurve = scancurve->next;
 	}
@@ -487,15 +502,18 @@ void VBBinaryLensing::ComputeParallax(double t, double t0, double *Et) {
 //////////////////////////////
 //////////////////////////////
 
+
 double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v, _sols **Images) {
 	static complex a, q, m1, m2, y;
-	static double av = -1.0, qv = -1.0,cq;
+	static double av = -1.0, qv = -1.0;
 	static complex  coefs[24], d1, d2, dy, dJ, dz;
-	double Mag = -1.0;
-	_theta *stheta;
-	_curve *Prov, *Prov2;
-	_point *scan1, *scan2;
+	static double Mag, Ai;
+    
+	static _theta *stheta;
+	static _curve *Prov, *Prov2;
+	static _point *scan1, *scan2;
 
+	Mag = Ai = -1.0;
 	stheta = new _theta(-1.);
 	if ((a1 != av) || (q1 != qv)) {
 		av = a1;
@@ -528,12 +546,19 @@ double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v,
 	corrquad = corrquad2 = 0;
 	safedist = 10;
 	Prov = NewImages(y, coefs, stheta);
+	if (Prov->length == 0) {
+		delete Prov;
+		delete stheta;
+		return -1;
+	}
 	if (q.re < 0.01) {
 		safedist = y1v + coefs[11].re-1/a.re;
 		safedist *= safedist;
 		safedist += y2v*y2v - 36 * q1/(a1*a1);
 	}
 	Mag = 0.;
+    astrox1=0.;
+    astrox2=0.;
 	nim0 = 0;
 	for (scan1 = Prov->first; scan1; scan1 = scan2) {
 		scan2 = scan1->next;
@@ -545,122 +570,80 @@ double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v,
 		//Prov2->last->J2 = Prov2->first->J2;
 		//Prov2->last->ds = Prov2->first->ds;
 		(*Images)->append(Prov2);
-		Mag += fabs(1 / scan1->dJ);
+        Ai=fabs(1 / scan1->dJ);
+		Mag += Ai;
+		if(astrometry){
+			astrox1 +=scan1->x1*Ai;
+			astrox2 +=(scan1->x2)*Ai;
+		}
 		nim0++;
 	}
 	Prov->length = 0;
 	delete Prov;
 	delete stheta;
-
+    if(astrometry){
+		astrox1 /= (Mag);
+		astrox1 -=coefs[11].re;
+		astrox2 /= (Mag);
+    }
+	NPS = 1;
 	return Mag;
 
 }
 
 double VBBinaryLensing::BinaryMag0(double a1, double q1, double y1v, double y2v) {
-	_sols *images;
-	double mag;
+	static _sols *images;
+	static double mag;
 	mag = BinaryMag0(a1, q1, y1v, y2v, &images);
 	delete images;
 	return mag;
 }
 
-double VBBinaryLensing::BinaryMag0_shear(double a1, double q1, double y1v, double y2v, double K1, double G1, double Gi, _sols **Images) {
-	static complex a, q, m1, m2, y, yc, mdiff, mtot, K, G;
-	static double av = -1.0, qv = -1.0, Kv = -1.0, Gv = -1.0, Giv = -1.0, cq;
-	static complex  coefs[28], d1, d2, dy, dJ, dz;
-	double Mag = -1.0;
-	_theta *stheta;
-	_curve *Prov, *Prov2;
-	_point *scan1, *scan2;
-
-	stheta = new _theta(-1.);
-	if ((a1 != av) || (q1 != qv) || (K1 != Kv) || (G1 != Gv) || (Gi != Giv)) {
-		av = a1;
-		qv = q1;
-		Kv = K1;
-		Gv = G1;
-		Giv = Gi;
-		if (q1<1) {
-			a = complex(-a1, 0);
-			q = complex(q1, 0);
+double VBBinaryLensing::BinaryMagSafe(double s, double q, double y1v, double y2v, double RS, _sols **images) {
+	static double Mag, mag1, mag2, RSi, RSo, delta1,delta2;
+	static int NPSsafe;
+	Mag = BinaryMag(s, q, y1v, y2v, RS,Tol,images);
+	RSi = RS;
+	RSo = RS;
+	NPSsafe = NPS;
+	if (Mag < 0) {
+		mag1 = -1;
+		delta1 = 3.33333333e-8;
+		while (mag1 < 0.1 && RSi>=0) {
+			delete *images;
+			delta1 *= 3.;
+			RSi = RS - delta1;
+			mag1 = (RSi > 0) ? BinaryMag(s, q, y1v, y2v, RSi, Tol, images) : BinaryMag0(s,q,y1v,y2v,images);
+//			printf("\n-safe1 %lf %lf %d", RSi, mag1, NPS);
+			NPSsafe += NPS;
 		}
-		else {
-			a = complex(a1, 0);
-			q = complex(1 / q1, 0);
+		if(mag1<0) mag1=1.0;
+		mag2 = -1;
+		delta2 = 3.33333333e-8;
+		while (mag2 < 0.1) {
+			delta2 *= 3.;
+			RSo = RS + delta2;
+			delete *images;
+			mag2 = BinaryMag(s, q, y1v, y2v, RSo, Tol, images);
+//			printf("\n-safe2 %lf %lf %d", RSo,mag2,NPS);
+			NPSsafe += NPS;
 		}
-		m1 = 1.0 / (1.0 + q);
-		m2 = q*m1;
-		mdiff = (m2 - m1) / 2; //this might be the opposite sign
-		mtot = (m2 + m1) / 2;
-		K = complex(K1,0);
-		G = complex(G1,Gi);
-
-
-		coefs[20] = a;
-		coefs[21] = m1;
-		coefs[22] = m2;
-		coefs[6] = a*a;
-		coefs[7] = coefs[6] * a;
-		coefs[8] = m2*m2;
-		coefs[9] = coefs[6] * coefs[8];
-		coefs[10] = a*m2;
-		coefs[11] = a*m1;
-		coefs[23] = 0;
-		coefs[24] = (m2 - m1) / 2;
-		coefs[25] = (m2 + m1) / 2;
-		coefs[26] = K;
-		coefs[27] = G;
-
+		Mag = (mag1*delta2 + mag2*delta1)/(delta1+delta2);
 	}
-	y = complex(y1v, y2v);
-	(*Images) = new _sols;
-	corrquad = corrquad2 = 0;
-	safedist = 10;
-	Prov = NewImages_shear(y, coefs, stheta);
-	if (q.re < 0.01) {
-		safedist = y1v + coefs[11].re-1/a.re;
-		safedist *= safedist;
-		safedist += y2v*y2v - 36 * q1/(a1*a1);
-	}
-	Mag = 0.;
-	nim0 = 0;
-	for (scan1 = Prov->first; scan1; scan1 = scan2) {
-		scan2 = scan1->next;
-		Prov2 = new _curve(scan1);
-		//Prov2->append(scan1->x1, scan1->x2);
-		//Prov2->last->theta = stheta;
-		//Prov2->last->d = Prov2->first->d;
-		//Prov2->last->dJ = Prov2->first->dJ;
-		//Prov2->last->J2 = Prov2->first->J2;
-		//Prov2->last->ds = Prov2->first->ds;
-		(*Images)->append(Prov2);
-		Mag += fabs(1 / scan1->dJ);
-		nim0++;
-	}
-	Prov->length = 0;
-	delete Prov;
-	delete stheta;
+	NPS = NPSsafe;
+
 	return Mag;
-
 }
-
-double VBBinaryLensing::BinaryMag0_shear(double a1, double q1, double y1v, double y2v, double K1, double G1, double Gi) {
-	_sols *images;
-	double mag;
-	mag = BinaryMag0_shear(a1, q1, y1v, y2v, K1, G1, Gi, &images);
-	delete images;
-	return mag;
-}
-
 
 double VBBinaryLensing::BinaryMag(double a1, double q1, double y1v, double y2v, double RSv, double Tol, _sols **Images) {
 	static complex a, q, m1, m2, y0, y, yc, z, zc;
 	static double av = -1.0, qv = -1.0;
 	static complex coefs[24], d1, d2, dy, dJ, dz;
-	static double thoff = 0.01020304;
-	static double Mag = -1.0, th;
+	static double thoff = 0.01020304,errbuff;
+	static double Mag, th;
+////////////////////////////  
 	static double errimage, maxerr, currerr, Magold;
-	static int NPSmax, flag, NPSold;
+	static int NPSmax, flag, NPSold,flagbad,flagbadmax=3;
 	static _curve *Prov, *Prov2;
 	static _point *scan1, *scan2;
 	static _thetas *Thetas;
@@ -669,7 +652,6 @@ double VBBinaryLensing::BinaryMag(double a1, double q1, double y1v, double y2v, 
 #ifdef _PRINT_TIMES
 	static double tim0, tim1;
 #endif
-
 
 	// Initialization of the equation coefficients
 
@@ -696,7 +678,7 @@ double VBBinaryLensing::BinaryMag(double a1, double q1, double y1v, double y2v, 
 		coefs[9] = coefs[6] * coefs[8];
 		coefs[10] = a*m2;
 		coefs[11] = a*m1;
-
+		
 	}
 	coefs[23] = RSv;
 
@@ -708,8 +690,9 @@ double VBBinaryLensing::BinaryMag(double a1, double q1, double y1v, double y2v, 
 	}
 	else {
 		errimage = Tol*M_PI*RSv*RSv;
-		NPSmax = 32000;
+		NPSmax =10000; // era 32000
 	}
+	errbuff = 0;
 
 	// Calculation of the images
 
@@ -718,20 +701,38 @@ double VBBinaryLensing::BinaryMag(double a1, double q1, double y1v, double y2v, 
 	th = thoff;
 	stheta = Thetas->insert(th);
 	stheta->maxerr = 1.e100;
-	y = y0 + complex(RSv*cos(thoff), RSv*sin(thoff));
+	y = y0 + complex(RSv*cos(thoff), RSv*sin(thoff)); 
 
 
 #ifdef _PRINT_TIMES
 	tim0 = Environment::TickCount;
 #endif
-	Prov = NewImages(y, coefs, stheta);
+	flag = 0;
+	flagbad = 0;
+	while (flag == 0) {
+		Prov = NewImages(y, coefs, stheta);
+		if (Prov->length > 0) {
+			flag = 1;
+		}
+		else {
+			delete Prov;
+			stheta->th += 0.01;
+			if (stheta->th > 2.0 * M_PI) {
+				delete Thetas;
+				return -1;
+			}
+			y = y0 + complex(RSv*cos(stheta->th), RSv*sin(stheta->th));
+		}
+	}
 #ifdef _PRINT_TIMES
 	tim1 = Environment::TickCount;
 	GM += tim1 - tim0;
 #endif
-	stheta = Thetas->insert(2.0*M_PI + thoff);
+	stheta = Thetas->insert(2.0*M_PI + Thetas->first->th);
 	stheta->maxerr = 0.;
 	stheta->Mag = 0.;
+    stheta->astrox1 = 0.;
+    stheta->astrox2 = 0.;
 	stheta->errworst = Thetas->first->errworst;
 	for (scan1 = Prov->first; scan1; scan1 = scan2) {
 		scan2 = scan1->next;
@@ -746,131 +747,182 @@ double VBBinaryLensing::BinaryMag(double a1, double q1, double y1v, double y2v, 
 	Prov->length = 0;
 	delete Prov;
 
-	th = M_PI + thoff;
+	th = M_PI + Thetas->first->th;
 	flag = 0;
 	Magold = -1.;
 	NPSold = 2;
+	currerr = 1.e100;
 	do {
 		stheta = Thetas->insert(th);
 		y = y0 + complex(RSv*cos(th), RSv*sin(th));
 #ifdef _PRINT_TIMES
 		tim0 = Environment::TickCount;
 #endif
+		//if (NPS == 422) {
+		//	NPS = NPS;
+		//}
+
 		Prov = NewImages(y, coefs, stheta);
 #ifdef _PRINT_TIMES
 		tim1 = Environment::TickCount;
 		GM += tim1 - tim0;
 #endif
-		OrderImages((*Images), Prov);
-		if (stheta->th - stheta->prev->th<1.e-8) {
-			stheta->maxerr = 0;
-			stheta->prev->maxerr = 0;
+		if (Prov->length > 0) {
+			flagbad = 0;
+			OrderImages((*Images), Prov);
+			if ((stheta->th - stheta->prev->th)*RSv < 1.e-11/* || stheta->maxerr > jumperrfactor * currerr || stheta->prev->maxerr > jumperrfactor * currerr*/) {
+				errbuff += stheta->maxerr + stheta->prev->maxerr;
+				stheta->maxerr = 0;
+				stheta->prev->maxerr = 0;
+			}
+		} else {
+			delete Prov;
+			flagbad++;
+			if (flagbad == flagbadmax) {
+				if (NPS < 16) {
+					delete Thetas;
+					return -1;
+				}
+				errbuff += stheta->prev->maxerr;
+				stheta->prev->maxerr = 0;
+				NPS--;
+				NPSmax--;
+			}
+			else {
+				th = (th - stheta->prev->th >= stheta->next->th - th) ? (th + flagbad * stheta->prev->th) / (1 + flagbad) : (th + flagbad * stheta->next->th) / (1 + flagbad);
+			}
+			Thetas->remove(stheta);
 		}
-		maxerr = currerr = Mag = 0.;
-		stheta = Thetas->first;
-		while (stheta->next) {
-			currerr += stheta->maxerr;
-			Mag += stheta->Mag;
+
+		if (flagbad == 0 || flagbad == flagbadmax) {
+			maxerr = currerr = Mag = 0.;
+
+			astrox1 = astrox2 = 0.;
+			stheta = Thetas->first;
+
+			while (stheta->next) {
+				currerr += stheta->maxerr;
+				Mag += stheta->Mag;
+
+				if (astrometry) {
+					astrox1 += stheta->astrox1;
+					astrox2 += stheta->astrox2;
+				}
 #ifndef _uniform
-			if (stheta->maxerr>maxerr) {
-				maxerr = stheta->maxerr;
+				if (stheta->maxerr > maxerr) {
+					maxerr = stheta->maxerr;
 #else
-			if (stheta->next->th*0.99999 - stheta->th>maxerr) {
-				maxerr = stheta->next->th - stheta->th;
+				if (stheta->next->th * 0.99999 - stheta->th > maxerr) {
+					maxerr = stheta->next->th - stheta->th;
 #endif
-				itheta = stheta;
+					itheta = stheta;
+				}
+				stheta = stheta->next;
+#ifdef _selectimage
+				if ((NPS == NPSmax - 1) && (fabs(floor(stheta->th / M_PI * _npoints / 2 + 0.5) - stheta->th / M_PI * _npoints / 2) < 1.e-8)) {
+					printf("%d %.15le\n", (int)floor(stheta->th / M_PI * _npoints / 2 + 0.5), Mag);
+				}
+#endif
 			}
 			th = (itheta->th + itheta->next->th) / 2;
-			stheta = stheta->next;
-#ifdef _selectimage
-			if ((NPS == NPSmax - 1) && (fabs(floor(stheta->th / M_PI*_npoints / 2 + 0.5) - stheta->th / M_PI*_npoints / 2)<1.e-8)) {
-				printf("%d %.15le\n", (int)floor(stheta->th / M_PI*_npoints / 2 + 0.5), Mag);
-			}
-#endif
-		}
-		NPS++;
+			NPS++;
 #ifndef _uniform
-		if (fabs(Magold - Mag) * 2<errimage) {
-			flag++;
-		}
-		else {
-			flag = 0;
-			Magold = Mag;
-			NPSold = NPS + 1;
-		}
-#else
-		currerr = 2 * errimage;
-		if (NPS == 2 * NPSold) {
-			if (fabs(Magold - Mag) * 2<errimage) {
-				flag = NPSold;
+			if (fabs(Magold - Mag) * 2 < errimage) {
+				flag++;
 			}
 			else {
 				flag = 0;
-				NPSold = NPS;
 				Magold = Mag;
+				NPSold = NPS + 8;
 			}
-		}
+#else
+			currerr = 2 * errimage;
+			if (NPS == 2 * NPSold) {
+				if (fabs(Magold - Mag) * 2 < errimage) {
+					flag = NPSold;
+				}
+				else {
+					flag = 0;
+					NPSold = NPS;
+					Magold = Mag;
+				}
+			}
 #endif
 #ifdef _PRINT_ERRORS2
-		printf("\nNPS= %d Mag = %lf maxerr= %lg currerr =%lg th = %lf", NPS, Mag / (M_PI*RSv*RSv), maxerr / (M_PI*RSv*RSv), currerr / (M_PI*RSv*RSv), th);
+			printf("\nNPS= %d Mag = %lf maxerr= %lg currerr =%lg th = %lf", NPS, Mag / (M_PI * RSv * RSv), maxerr / (M_PI * RSv * RSv), currerr / (M_PI * RSv * RSv), th);
 #endif
-	} while ((currerr > errimage) && (currerr > RelTol*Mag) && (NPS < NPSmax) && ((flag < NPSold)/* || NPS<8 ||(currerr>10*errimage)*/)/*&&(flagits)*/);
+		}
+	} while ((currerr > errimage) && (currerr > RelTol * Mag) && (NPS < NPSmax) && ((flag < NPSold)/* || NPS<8 ||(currerr>10*errimage)*/)/*&&(flagits)*/);
+    if(astrometry){
+		astrox1 /= (Mag);
+		astrox2 /= (Mag);
+    }
 	Mag /= (M_PI*RSv*RSv);
-	therr = currerr / (M_PI*RSv*RSv);
-
+	therr = (currerr+errbuff) / (M_PI*RSv*RSv);
+ 
 	delete Thetas;
-
-
+//	if (NPS == NPSmax) return 1.e100*Tol; // Only for testing
 	return Mag;
+       
 }
 
-
 double VBBinaryLensing::BinaryMag(double a1, double q1, double y1v, double y2v, double RSv, double Tol) {
-	_sols *images;
-	double mag;
+	static _sols *images;
+	static double mag;
 	mag = BinaryMag(a1, q1, y1v, y2v, RSv, Tol, &images);
 	delete images;
 	return mag;
 }
 
 double VBBinaryLensing::BinaryMag2(double s, double q, double y1v, double y2v, double rho) {
-	double Mag, sms, tn,rho2;
-	int c = 0;
-	_sols *Images;
+	static double Mag, rho2, y2a;//, sms , dy1, dy2;
+	static int c;
+	static _sols *Images;
 
-	sms = s + 1 / s;
-	tn = y1v*y1v + y2v*y2v - sms*sms;
+	c = 0;
 
-	if (tn<0 || tn*tn*Tol < 2) {
-		Mag0 = BinaryMag0(s, q, y1v, y2v, &Images);
-		delete Images;
-		rho2 = rho*rho;
-		corrquad *= 6 * (rho2 + 1.e-4*Tol);
-		corrquad2 *= (rho+1.e-3);
-		if (corrquad<Tol && corrquad2<1 && (rho2*s*s<q || safedist>4*rho2)) {
-			Mag = Mag0;
-		}
-		else {
-			Mag = BinaryMagDark(s, q, y1v, y2v, rho, a1, Tol);
-		}
-		Mag0 = 0;
+
+	y2a = fabs(y2v);
+
+	Mag0 = BinaryMag0(s, q, y1v, y2a, &Images);
+	delete Images;
+	rho2 = rho*rho;
+	corrquad *= 6 * (rho2 + 1.e-4*Tol);
+	corrquad2 *= (rho+1.e-3);
+	if (corrquad<Tol && corrquad2<1 && (/*rho2 * s * s<q || */ safedist>4 * rho2)) {
+		Mag = Mag0;
 	}
 	else {
-		Mag = 1;
+		Mag = BinaryMagDark(s, q, y1v, y2a, rho, a1, Tol);
+	}
+	Mag0 = 0;
+
+	if (y2v < 0) {
+		y_2 = y2v;
+		astrox2 = -astrox2;
 	}
 	return Mag;
 }
 
 
-double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, double RSv, double a1, double Tol) {
-	double Mag = -1.0, Magold = 0., Tolv = Tol;
-	double tc, lb, rb, lc, rc, cb, cc, r2, cr2, scr2;
-	int c = 0, flag;
-	double currerr, maxerr;
-	annulus *first, *scan, *scan2;
-	int nannold, totNPS = 1;
-	_sols *Images;
+double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, double RSv, double a1, double Tolnew) {
+	static double Mag, Magold, Tolv;
+    static double LDastrox1,LDastrox2;
+	static double tc, lc, rc, cb,rb;
+	static int c, flag;
+	static double currerr, maxerr;
+	static annulus *first, *scan, *scan2;
+	static int nannold, totNPS;
+	static _sols *Images;
 
+	Mag = -1.0;
+	Magold = 0.;
+	Tolv = Tol;
+	LDastrox1 = LDastrox2 = 0.0;
+	c = 0;
+	totNPS = 1;
+
+	Tol = Tolnew;
 	y_1 = y1;
 	y_2 = y2;
 	while ((Mag<0.9) && (c<3)) {
@@ -887,7 +939,12 @@ double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, 
 			first->nim = Images->length;
 			delete Images;
 		}
-		first->f = 3 / (3 - a1);
+		if (astrometry) {
+			first->LDastrox1 = astrox1 * first->Mag;
+			first->LDastrox2 = astrox2 * first->Mag;
+		}
+		scr2 = sscr2 = 0;
+		first->f = LDprofile(0);
 		first->err = 0;
 		first->prev = 0;
 
@@ -898,11 +955,16 @@ double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, 
 		scan->next = 0;
 		scan->bin = 1.;
 		scan->cum = 1.;
-		scan->Mag = BinaryMag(a, q, y_1, y_2, RSv, Tolv, &Images);
+		scan->Mag = BinaryMagSafe(a, q, y_1, y_2, RSv, &Images);
+		if(astrometry){
+			scan->LDastrox1 = astrox1*scan->Mag;
+			scan->LDastrox2 = astrox2*scan->Mag;
+		}
 		totNPS += NPS;
 		scan->nim = Images->length;
 		delete Images;
-		scan->f = first->f*(1 - a1);
+		scr2 = sscr2 = 1;
+		scan->f = LDprofile(0.9999999);
 		if (scan->nim == scan->prev->nim) {
 			scan->err = fabs((scan->Mag - scan->prev->Mag)*(scan->prev->f - scan->f) / 4);
 		}
@@ -911,6 +973,10 @@ double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, 
 		}
 
 		Magold = Mag = scan->Mag;
+		if(astrometry){
+			LDastrox1=scan->LDastrox1;
+			LDastrox2=scan->LDastrox2;
+		}
 		//			scan->err+=scan->Mag*Tolv*0.25; //Impose calculation of intermediate annulus at mag>4. Why?
 		currerr = scan->err;
 		flag = 0;
@@ -930,35 +996,27 @@ double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, 
 			nannuli++;
 			Magold = Mag;
 			Mag -= (scan->Mag*scan->bin*scan->bin - scan->prev->Mag*scan->prev->bin*scan->prev->bin)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
+            if(astrometry){
+				LDastrox1 -= (scan->LDastrox1*scan->bin*scan->bin - scan->prev->LDastrox1*scan->prev->bin*scan->prev->bin)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
+				LDastrox2 -= (scan->LDastrox2*scan->bin*scan->bin - scan->prev->LDastrox2*scan->prev->bin*scan->prev->bin)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
+			}
 			currerr -= scan->err;
-			rb = scan->bin;
-			rc = scan->cum;
-			lb = scan->prev->bin;
 			lc = scan->prev->cum;
-			tc = (lc + rc) / 2;
-			do {
-				cb = rb + (tc - rc)*(rb - lb) / (rc - lc);
-				r2 = cb*cb;
-				cr2 = 1 - r2;
-				scr2 = sqrt(cr2);
-				cc = (3 * r2*(1 - a1) - 2 * a1*(scr2*cr2 - 1)) / (3 - a1);
-				if (cc>tc) {
-					rb = cb;
-					rc = cc;
-				}
-				else {
-					lb = cb;
-					lc = cc;
-				}
-			} while (fabs(cc - tc)>1.e-5);
+			rc = scan->cum;
+			tc = (lc + rc) *0.5;
+			cb = rCLDprofile(tc,scan->prev,scan);
 			scan->prev->next = new annulus;
 			scan->prev->next->prev = scan->prev;
 			scan->prev = scan->prev->next;
 			scan->prev->next = scan;
 			scan->prev->bin = cb;
-			scan->prev->cum = cc;
-			scan->prev->f = first->f*(1 - a1*(1 - scr2));
-			scan->prev->Mag = BinaryMag(a, q, y_1, y_2, RSv*cb, Tolv, &Images);
+			scan->prev->cum = tc;
+			scan->prev->f = LDprofile(cb);
+			scan->prev->Mag = BinaryMagSafe(a, q, y_1, y_2, RSv*cb, &Images);
+			if(astrometry){
+				scan->prev->LDastrox1=astrox1*scan->prev->Mag;
+				scan->prev->LDastrox2=astrox2*scan->prev->Mag;
+			}
 			totNPS += NPS;
 			scan->prev->nim = Images->length;
 			if (scan->prev->prev->nim == scan->prev->nim) {
@@ -984,6 +1042,13 @@ double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, 
 			Mag += (scan->bin*scan->bin*scan->Mag - cb*cb*scan->prev->Mag)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
 			Mag += (cb*cb*scan->prev->Mag - scan->prev->prev->bin*scan->prev->prev->bin*scan->prev->prev->Mag)*(scan->prev->cum - scan->prev->prev->cum) / (scan->prev->bin*scan->prev->bin - scan->prev->prev->bin*scan->prev->prev->bin);
 			currerr += scan->err + scan->prev->err;
+            if(astrometry){
+				LDastrox1 += ( scan->bin*scan->bin*scan->LDastrox1 - cb*cb*scan->prev->LDastrox1)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
+				LDastrox1 += ( cb*cb*scan->prev->LDastrox1 - scan->prev->prev->bin*scan->prev->prev->bin*scan->prev->prev->LDastrox1)*(scan->prev->cum - scan->prev->prev->cum) / (scan->prev->bin*scan->prev->bin - scan->prev->prev->bin*scan->prev->prev->bin);
+				LDastrox2 += ( scan->bin*scan->bin*scan->LDastrox2 - cb*cb*scan->prev->LDastrox2)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
+				LDastrox2 += ( cb*cb*scan->prev->LDastrox2 - scan->prev->prev->bin*scan->prev->prev->bin*scan->prev->prev->LDastrox2)*(scan->prev->cum - scan->prev->prev->cum) / (scan->prev->bin*scan->prev->bin - scan->prev->prev->bin*scan->prev->prev->bin);
+			}
+
 
 			if (fabs(Magold - Mag) * 2<Tolv) {
 				flag++;
@@ -1010,7 +1075,12 @@ double VBBinaryLensing::BinaryMagDark(double a, double q, double y1, double y2, 
 	}
 	NPS = totNPS;
 	therr = currerr;
-
+    if(astrometry){
+		LDastrox1/=Mag;
+		LDastrox2/=Mag;
+		astrox1=LDastrox1;
+		astrox2=LDastrox2;
+    }
 	return Mag;
 }
 
@@ -1050,13 +1120,210 @@ void VBBinaryLensing::BinaryMagMultiDark(double a, double q, double y1, double y
 	multidark = false;
 }
 
+double VBBinaryLensing::LDprofile(double r) {
+	static int ir;
+	static double rr,ret;
+	switch(curLDprofile){
+	case LDuser:
+		rr = r * npLD;
+		ir = (int)rr;
+		rr -= ir;
+		ret= LDtab[ir] * (1 - rr) + LDtab[ir + 1] * rr;
+		break;
+	case LDlinear:
+		ret = 3 / (3 - a1)*(1 - a1 * scr2);
+		break;
+	case LDsquareroot:
+		ret= 3 / (3 - a1 - 0.6*a2)*(1 - a1 * scr2 - a2 * sscr2);
+	case LDquadratic:
+		ret = 3 / (3 - a1 - 0.5*a2)*(1 - a1 * scr2 - a2 * sscr2);
+		break;
+	case LDlog:
+		ret = 3 / (3 - a1 + 0.666666666666 * a2)*(1 - a1 * scr2 - a2 * sscr2);
+		break;
+	}
+	return ret;
+}
+
+double VBBinaryLensing::rCLDprofile(double tc,annulus *left,annulus *right) {
+	static int ic;
+	static double rc,cb,lc,r2,cr2,cc,lb,rb;
+
+	switch (curLDprofile) {
+	case LDuser:
+		rc = tc * npLD;
+		ic = (int)rc;
+		rc -= ic;
+		cb = rCLDtab[ic] * (1 - rc) + rCLDtab[ic + 1] * rc;
+		break;
+	case LDlinear:
+		lb = left->bin;
+		rb = right->bin;
+		lc = left->cum;
+		rc = right->cum;
+		do {
+			cb = rb + (tc - rc)*(rb - lb) / (rc - lc);
+			r2 = cb * cb; 
+			cr2 = 1 - r2;
+			scr2 = 1-sqrt(cr2);
+			cc = (3 * r2 - a1 * (r2 - 2 * scr2*cr2)) / (3 - a1);
+			if (cc > tc) {
+				rb = cb;
+				rc = cc;
+			}
+			else {
+				lb = cb;
+				lc = cc;
+			}
+		} while (fabs(cc - tc) > 1.e-5);
+		break;
+	case LDsquareroot:
+		lb = left->bin;
+		rb = right->bin;
+		lc = left->cum;
+		rc = right->cum;
+		do {
+			cb = rb + (tc - rc)*(rb - lb) / (rc - lc);
+			r2 = cb * cb;
+			cr2 = 1 - r2;
+			scr2 = sqrt(cr2);
+			sscr2 = 1 - sqrt(scr2);
+			scr2 = 1 - scr2;
+			cc = (3 * r2 - a1 * (r2 - 2 * scr2*cr2) - 0.6*a2*(r2 - 4 * sscr2*cr2)) / (3 - a1 - 0.6*a2);
+			if (cc > tc) {
+				rb = cb;
+				rc = cc;
+			}
+			else {
+				lb = cb;
+				lc = cc;
+			}
+		} while (fabs(cc - tc) > 1.e-5);
+		break;
+	case LDquadratic:
+		lb = left->bin;
+		rb = right->bin;
+		lc = left->cum;
+		rc = right->cum;
+		do {
+			cb = rb + (tc - rc)*(rb - lb) / (rc - lc);
+			r2 = cb * cb;
+			cr2 = 1 - r2;
+			scr2 = 1- sqrt(cr2);
+			sscr2 = scr2*scr2;
+			cc = (3 * r2 - a1 * (r2 - 2 * scr2*cr2) + a2*(4*scr2-(2+4*scr2)*r2+1.5*r2*r2)) / (3 - a1 - 0.5*a2);
+			if (cc > tc) {
+				rb = cb;
+				rc = cc;
+			}
+			else {
+				lb = cb;
+				lc = cc;
+			}
+		} while (fabs(cc - tc) > 1.e-5);
+		break;
+	case LDlog:
+		lb = left->bin;
+		rb = right->bin;
+		lc = left->cum;
+		rc = right->cum;
+		do {
+			cb = rb + (tc - rc)*(rb - lb) / (rc - lc);
+			r2 = cb * cb;
+			cr2 = 1 - r2;
+			scr2 = sqrt(cr2);
+			sscr2 = scr2*log(scr2);
+			scr2 = 1 - scr2;
+			cc = (3 * r2 - a1 * (r2 - 2 * scr2*cr2) + 2*a2*(scr2*(1+scr2*(scr2/3-1)) + sscr2*cr2)) / (3 - a1 + 0.6666666666666666*a2);
+			if (cc > tc) {
+				rb = cb;
+				rc = cc;
+			}
+			else {
+				lb = cb;
+				lc = cc;
+			}
+		} while (fabs(cc - tc) > 1.e-5);
+		break;
+	}
+
+	return cb;
+}
+
+void VBBinaryLensing::SetLDprofile(double (*UserLDprofile)(double),int newnpLD) {
+	int ic,ir;
+	if (npLD > 0) {
+		free(LDtab);
+		free(rCLDtab);
+	}
+	if (newnpLD > 0) {
+		npLD = newnpLD;
+		double npLD2 = npLD * npLD;
+		LDtab = (double *)malloc(sizeof(double)*(npLD+1));
+		CLDtab = (double *)malloc(sizeof(double)*(npLD + 1));
+		rCLDtab = (double *)malloc(sizeof(double)*(npLD+1));
+
+		LDtab[0] = UserLDprofile(0.);
+		CLDtab[0] = 0.;
+		for (int i = 1; i <= npLD; i++) {
+			LDtab[i] = UserLDprofile(((double) i)/ npLD);
+			CLDtab[i] = CLDtab[i-1]+(LDtab[i]*i + LDtab[i - 1]*(i-1));
+		}
+		for (int i = 0; i <= npLD; i++) {
+			LDtab[i] *= npLD2/CLDtab[npLD];
+			CLDtab[i] /= CLDtab[npLD];
+		}
+		ic = 1;
+		rCLDtab[0] = 0;
+		ir = 1;
+		while (ic < npLD) {
+			while (CLDtab[ir] * npLD < ic && ir<npLD) ir++;
+			rCLDtab[ic] = ((CLDtab[ir] - ((double) ic) / npLD)*(ir-1) + (((double)ic) / npLD - CLDtab[ir-1])*ir) / (CLDtab[ir] - CLDtab[ir - 1])/npLD;
+			ic++;
+		}
+		rCLDtab[npLD] = 1;
+
+
+		//printf("\n\n--------------------");
+		//annulus left, right;
+		//left.cum = left.bin=0;
+		//right.cum = right.bin=1;
+		//for (int i = 0; i <= npLD; i++) {
+		//	double rl, fl;
+		//	rl = ((double)i) / npLD;
+		//	scr2 = 1 - sqrt(1 - rl * rl);
+		//	fl = LDprofile(rl);
+		//	rl = rCLDprofile(((double) i) / npLD,&left,&right);
+		//	printf("\n%lf %lf %lf %lf", fl, LDtab[i], rl, rCLDtab[i]);
+		//}
+		//printf("\n--------------------\n\n");
+
+		free(CLDtab);
+		curLDprofile = LDuser;
+	}
+	else {
+		npLD = 0;
+		curLDprofile = LDlinear;
+	}
+}
+
+void VBBinaryLensing::SetLDprofile(LDprofiles LDval) {
+	if(npLD > 0) {
+		npLD = 0;
+		free(LDtab);
+		free(rCLDtab);
+	}
+	curLDprofile = LDval;
+}
+
 void VBBinaryLensing::LoadESPLTable(char *filename){
 	FILE *f;
-	const int rsize = 101, zsize = 101;
 
 	if((f = fopen(filename, "rb"))!=0){
-		fread(ESPLin, sizeof(double), rsize * zsize, f);
-		fread(ESPLout, sizeof(double), rsize * zsize, f);
+		fread(ESPLin, sizeof(double), __rsize * __zsize, f);
+		fread(ESPLout, sizeof(double), __rsize * __zsize, f);
+        fread(ESPLinastro, sizeof(double), __rsize * __zsize, f);
+		fread(ESPLoutastro, sizeof(double), __rsize * __zsize, f);
 		fclose(f);
 		ESPLoff=false;
 	}else{
@@ -1065,16 +1332,28 @@ void VBBinaryLensing::LoadESPLTable(char *filename){
 }
 
 
+double VBBinaryLensing::PSPLMag(double u) {
+	static double u2,u22;
+	u2 = u * u;
+	u22 = u2 + 2;
+	if (astrometry) {
+		astrox1 = u+u/u22;
+	}
+	return  u22 / sqrt(u2 * (u2 + 4));
+}
+
+
 double VBBinaryLensing::ESPLMag(double u, double RSv) {
 	double mag,z,fr,cz,cr,u2;
 	int iz, ir;
-
+       
 	if (ESPLoff) {
 		printf("\nLoad ESPL table first!");
 		return 0;
 	}
-	fr = -10.857362047581296* log(0.1* RSv);
-	if (fr > 100) fr = 99.99999;
+         
+	fr = -10.857362047581296* log(0.01* RSv);
+	if (fr > __rsize - 1) fr = __rsize -1.000001;
 	if (fr < 0) printf("Source too large!");
 	ir = (int) floor(fr);
 	fr -= ir;
@@ -1083,27 +1362,32 @@ double VBBinaryLensing::ESPLMag(double u, double RSv) {
 	z = u / RSv;
 
 	if (z < 1) {
-		z *= 100;
+		z *= __zsize -1;
 		iz = (int) floor(z);
 		z -= iz;
 		cz = 1 - z;
 		mag = sqrt(1 + 4. / (RSv*RSv));
 		mag *= ESPLin[ir][iz] * cr*cz + ESPLin[ir + 1][iz] * fr*cz + ESPLin[ir][iz + 1] * cr*z + ESPLin[ir + 1][iz + 1] * fr*z;
+                if (astrometry) {
+                	astrox1=(1-1./(4+RSv*RSv))*u;
+                	astrox1 *= ESPLinastro[ir][iz] * cr*cz + ESPLinastro[ir + 1][iz] * fr*cz + ESPLinastro[ir][iz + 1] * cr*z + ESPLinastro[ir + 1][iz + 1] * fr*z;
+                }
 	}
 	else {
 		z = 0.99999999999999 / z;
-		z *= 100;
+		z *= __zsize - 1;
 		iz = (int)floor(z);
 		z -= iz;
 		cz = 1 - z;
-		if(Mag0>0.5){
-			mag=Mag0;
-		}else{
-			u2 = u*u;
-			mag = (u2 + 2) / sqrt(u2*(u2 + 4));
-		}
+
+		u2 = u*u;
+		mag = (u2 + 2) / sqrt(u2*(u2 + 4));
 		mag *= ESPLout[ir][iz] * cr*cz + ESPLout[ir + 1][iz] * fr*cz + ESPLout[ir][iz + 1] * cr*z + ESPLout[ir + 1][iz + 1] * fr*z;
-	}
+		if (astrometry) {
+			astrox1 = u * (u2 + 3) / (u2 + 2);
+			astrox1 *= ESPLoutastro[ir][iz] * cr*cz + ESPLoutastro[ir + 1][iz] * fr*cz + ESPLoutastro[ir][iz + 1] * cr*z + ESPLoutastro[ir + 1][iz + 1] * fr*z;
+		}
+	} 
 
 	return mag;
 }
@@ -1126,6 +1410,9 @@ double VBBinaryLensing::ESPLMag2(double u, double rho) {
 
 	if (u6*(1+0.003*rho2Tol) > 0.027680640625*rho2Tol*rho2Tol) {
 		Mag = (u2+2)/(u*sqrt(u2+4));
+		if (astrometry) {
+			astrox1 = u * (1 + 1 / (u2 + 2));
+		}
 	}
 	else {
 		Mag = ESPLMagDark(u, rho, a1);
@@ -1136,43 +1423,53 @@ double VBBinaryLensing::ESPLMag2(double u, double rho) {
 
 double VBBinaryLensing::ESPLMagDark(double u, double RSv, double a1) {
 	double Mag = -1.0, Magold = 0., Tolv = Tol;
-	double tc, lb, rb, lc, rc, cb, cc, r2, cr2, scr2,u2;
+	double tc, rb, lc, rc, cb,u2;
 	int c = 0, flag;
 	double currerr, maxerr;
 	annulus *first, *scan, *scan2;
 	int nannold, totNPS = 1;
+        double LDastrox1=0.0;
 
-	while ((Mag<0.9) && (c<3)) {
+		while ((Mag < 0.9) && (c < 3)) {
 
-		first = new annulus;
-		first->bin = 0.;
-		first->cum = 0.;
-		if (Mag0 > 0.5) {
-			first->Mag = Mag0;
-			first->nim = nim0;
-		}
-		else {
-			u2 = u*u;
-			first->Mag = Mag0 = (u2+2)/(u*sqrt(u2+4));
+			first = new annulus;
+			first->bin = 0.;
+			first->cum = 0.;
+
+			u2 = u * u;
+			first->Mag = Mag0 = (u2 + 2) / (u*sqrt(u2 + 4));
 			first->nim = 2;
-		}
-		first->f = 3 / (3 - a1);
-		first->err = 0;
-		first->prev = 0;
+			if (astrometry) {
+				astrox1 = u * (u2 + 3) / (u2 + 2);
+				first->LDastrox1 = astrox1 * first->Mag;
+			}
+
+			scr2 = sscr2 = 0;
+			first->f = LDprofile(0);
+			first->err = 0;
+			first->prev = 0;
 
 
-		first->next = new annulus;
-		scan = first->next;
-		scan->prev = first;
-		scan->next = 0;
-		scan->bin = 1.;
-		scan->cum = 1.;
-		scan->Mag = ESPLMag(u, RSv);//ESPLMag(u, RSv, Tolv, &Images);
-		scan->nim = 2;
-		scan->f = first->f*(1 - a1);
+			first->next = new annulus;
+			scan = first->next;
+			scan->prev = first;
+			scan->next = 0;
+			scan->bin = 1.;
+			scan->cum = 1.;
+			scan->Mag = ESPLMag(u, RSv);//ESPLMag(u, RSv, Tolv, &Images);
+			if (astrometry) {
+				scan->LDastrox1 = astrox1 * scan->Mag;
+			}
+			scan->nim = 2;
+			scr2 = sscr2 = 1;
+			scan->f = LDprofile(0.9999999);
 		scan->err = fabs((scan->Mag - scan->prev->Mag)*(scan->prev->f - scan->f) / 4);
 
 		Magold = Mag = scan->Mag;
+		if(astrometry){
+			LDastrox1=scan->LDastrox1;			 
+		}
+		//	
 		//			scan->err+=scan->Mag*Tolv*0.25; //Impose calculation of intermediate annulus at mag>4. Why?
 		currerr = scan->err;
 		flag = 0;
@@ -1192,35 +1489,28 @@ double VBBinaryLensing::ESPLMagDark(double u, double RSv, double a1) {
 			nannuli++;
 			Magold = Mag;
 			Mag -= (scan->Mag*scan->bin*scan->bin - scan->prev->Mag*scan->prev->bin*scan->prev->bin)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
-			currerr -= scan->err;
-			rb = scan->bin;
+	    if(astrometry){
+		        LDastrox1 -= (scan->LDastrox1*scan->bin*scan->bin - scan->prev->LDastrox1*scan->prev->bin*scan->prev->bin)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
+				 
+			}		
+                        currerr -= scan->err;
 			rc = scan->cum;
-			lb = scan->prev->bin;
 			lc = scan->prev->cum;
 			tc = (lc + rc) / 2;
-			do {
-				cb = rb + (tc - rc)*(rb - lb) / (rc - lc);
-				r2 = cb*cb;
-				cr2 = 1 - r2;
-				scr2 = sqrt(cr2);
-				cc = (3 * r2*(1 - a1) - 2 * a1*(scr2*cr2 - 1)) / (3 - a1);
-				if (cc>tc) {
-					rb = cb;
-					rc = cc;
-				}
-				else {
-					lb = cb;
-					lc = cc;
-				}
-			} while (fabs(cc - tc)>1.e-5);
+			cb = rCLDprofile(tc, scan->prev, scan);
+
 			scan->prev->next = new annulus;
 			scan->prev->next->prev = scan->prev;
 			scan->prev = scan->prev->next;
 			scan->prev->next = scan;
 			scan->prev->bin = cb;
-			scan->prev->cum = cc;
-			scan->prev->f = first->f*(1 - a1*(1 - scr2));
+			scan->prev->cum = tc;
+			scan->prev->f = LDprofile(cb);
 			scan->prev->Mag = ESPLMag(u, RSv*cb);
+                        if(astrometry){
+				scan->prev->LDastrox1=astrox1*scan->prev->Mag;
+				 
+			}
 			scan->prev->nim = 2;
 			scan->prev->err = fabs((scan->prev->Mag - scan->prev->prev->Mag)*(scan->prev->prev->f - scan->prev->f)*(scan->prev->bin*scan->prev->bin - scan->prev->prev->bin*scan->prev->prev->bin) / 4);
 			scan->err = fabs((scan->Mag - scan->prev->Mag)*(scan->prev->f - scan->f)*(scan->bin*scan->bin - scan->prev->bin*scan->prev->bin) / 4);
@@ -1233,6 +1523,11 @@ double VBBinaryLensing::ESPLMagDark(double u, double RSv, double a1) {
 
 			Mag += (scan->bin*scan->bin*scan->Mag - cb*cb*scan->prev->Mag)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
 			Mag += (cb*cb*scan->prev->Mag - scan->prev->prev->bin*scan->prev->prev->bin*scan->prev->prev->Mag)*(scan->prev->cum - scan->prev->prev->cum) / (scan->prev->bin*scan->prev->bin - scan->prev->prev->bin*scan->prev->prev->bin);
+                        if(astrometry){
+				LDastrox1 += ( scan->bin*scan->bin*scan->LDastrox1 - cb*cb*scan->prev->LDastrox1)*(scan->cum - scan->prev->cum) / (scan->bin*scan->bin - scan->prev->bin*scan->prev->bin);
+				LDastrox1 += ( cb*cb*scan->prev->LDastrox1 - scan->prev->prev->bin*scan->prev->prev->bin*scan->prev->prev->LDastrox1)*(scan->prev->cum - scan->prev->prev->cum) / (scan->prev->bin*scan->prev->bin - scan->prev->prev->bin*scan->prev->prev->bin);
+				 
+			}
 			currerr += scan->err + scan->prev->err;
 
 			if (fabs(Magold - Mag) * 2<Tolv) {
@@ -1255,7 +1550,11 @@ double VBBinaryLensing::ESPLMagDark(double u, double RSv, double a1) {
 		c++;
 	}
 	therr = currerr;
-
+        if(astrometry){
+		LDastrox1/=Mag;
+		astrox1=LDastrox1;
+		 
+    }
 	return Mag;
 }
 
@@ -1416,7 +1715,7 @@ void VBBinaryLensing::BinaryLightCurveOrbital(double *pr, double *ts, double *ma
 	Cinc = cos(inc);
 	Sinc = sin(inc);
 	den0 = sqrt(Cphi0*Cphi0 + Cinc*Cinc*Sphi0*Sphi0);
-	s_true = s / den0;
+	s_true = s / den0; // orbital radius
 	COm = (Cphi0*calpha + Cinc*salpha*Sphi0) / den0;
 	SOm = (Cphi0*salpha - Cinc*calpha*Sphi0) / den0;
 
@@ -1427,7 +1726,7 @@ void VBBinaryLensing::BinaryLightCurveOrbital(double *pr, double *ts, double *ma
 		Cphi = cos(phi);
 		Sphi = sin(phi);
 		den = sqrt(Cphi*Cphi + Cinc*Cinc*Sphi*Sphi);
-		seps[i] = s_true*den;
+		seps[i] = s_true*den; // projected separation at time ts[i]
 
 		u = u0 + pai1*Et[1] - pai2*Et[0];
 		tn = (ts[i] - t0) * tE_inv + pai1*Et[0] + pai2*Et[1];
@@ -1437,6 +1736,98 @@ void VBBinaryLensing::BinaryLightCurveOrbital(double *pr, double *ts, double *ma
 	}
 }
 
+
+void VBBinaryLensing::BinaryLightCurveKepler(double *pr, double *ts, double *mags, double *y1s, double *y2s, double *seps, int np) {
+	double s = exp(pr[0]), q = exp(pr[1]), u0 = pr[2], alpha = pr[3], rho = exp(pr[4]), tn, tE_inv = exp(-pr[5]), t0 = pr[6], pai1 = pr[7], pai2 = pr[8], w1 = pr[9], w2 = pr[10], w3 = pr[11], szs = pr[12], ar = pr[13]+1.e-8;
+	double Et[2];
+	double u, w22, w11, w33, w12, w23, szs2, ar2, EE, dE;
+	double wt2, smix, sqsmix, e, h, snu, co1EE0, co2EE0,cosE,sinE, co1tperi, tperi, EE0, M, a, St, psi, dM, conu, n;
+	double arm1, arm2;
+	double X[3], Y[3], Z[3],r[2],x[2];
+	t0old = 0;
+
+	smix = 1 + szs * szs;
+	sqsmix = sqrt(smix);
+	w22 = w2 * w2;
+	w11 = w1 * w1;
+	w33 = w3 * w3;
+	w12 = w11 + w22;
+	w23 = w22 + w33;
+	wt2 = w12 + w33;
+
+	szs2 = szs * szs;
+	ar2 = ar * ar;
+	arm1 = ar - 1;
+	arm2 = 2 * ar - 1;
+//	n = sqrt(wt2) / (ar*sqrt(-1 + 2 * ar)*sqrt(smix));
+	n = sqrt(wt2 / arm2 / smix) / ar;
+	Z[0] = -szs * w2;
+	Z[1] = szs * w1 - w3;
+	Z[2] = w2;
+	h = sqrt(Z[0] * Z[0] + Z[1] * Z[1] + Z[2] * Z[2]);
+	for (int i = 0; i < 3; i++) Z[i] /= h;
+	X[0] = -ar * w11 + arm1 * w22 - arm2 * szs*w1*w3 + arm1 * w33;
+	X[1] = -arm2  *w2*(w1 + szs * w3);
+	X[2] = arm1 * szs*w12 - arm2 * w1*w3 - ar * szs*w33;
+	e = sqrt(X[0] * X[0] + X[1] * X[1] + X[2] * X[2]);
+	for (int i = 0; i < 3; i++) X[i] /= e;
+	e /= ar * sqsmix*wt2;
+	Y[0] = Z[1] * X[2] - Z[2] * X[1];
+	Y[1] = Z[2] * X[0] - Z[0] * X[2];
+	Y[2] = Z[0] * X[1] - Z[1] * X[0];
+
+//	h = sqrt((smix)*w22 + (szs*w1 - w3)*(szs*w1 - w3));
+//	co1e = (1 - ar)*(1 - ar) + ar2 * szs2 + (-1 + 2 * ar)*(w11*(1 - szs2) - szs2 * w22 + 2 * szs*w1*w3) / wt2;
+//	co1nu = ar2 * szs2 + arm2 * (w11*(1 - szs2) - szs2 * w22 + 2 * szs*w1*w3) / wt2;
+//	co1e = arm1*arm1 + co1nu;
+//	coe2 = ar2 * smix;
+//	e = sqrt(co1e/coe2);
+//	co1nu = (-1 + 2 * ar)*sqrt(smix)*(w1 + szs * w3)*(szs2*(w12)-2 * szs*w1*w3 + w23);
+//	co2nu = ar * e*h*(smix)*sqrt((smix))*wt2;
+	conu = (X[0] + X[2] * szs) / sqsmix;
+	co1EE0 = conu + e;
+	co2EE0 = 1 + e * conu;
+	cosE = co1EE0 / co2EE0;
+	EE0 = acos(cosE);
+	snu = (Y[0] + Y[2] * szs);
+	EE0 *= (snu > 0) ? 1 : -1;
+	sinE = sqrt(1 - cosE * cosE)*((snu > 0) ? 1 : -1);
+	co1tperi = e * sinE;
+	tperi = t0_par - (EE0 - co1tperi) / n;
+//	coX = ar * e*sqrt(smix)*wt2;
+	//coX1 = -ar * w11 + (-1 + ar)*w22 + (1 - 2 * ar)*szs*w1*w3 + (-1 + ar)*w33;
+	//coX2 = (-1 + 2 * ar)*w1*w23 + szs2 * w1*((-1 + ar)*w12 - ar * w33) + szs * w3*((2 - 3 * ar)*w11 + ar * w23);
+	//coY1 = -(-1 + 2 * ar)*w2*(w1 + szs * w3);
+	//coY2 = w2 * (-szs2 * w12 + 2 * szs*w1*w3 - w23 + ar * (-4 * szs*w1*w3 + szs2 * (w12 - w33) + (-w11 + w23)));
+	for (int i = 0; i < np; i++) {
+		ComputeParallax(ts[i], t0, Et);
+		M = n * (ts[i] - tperi);
+		EE = M + e * sin(M);
+		dE = 1;
+		while (fabs(dE) > 1.e-8) {
+			dM = M - (EE - e * sin(EE));
+			dE = dM / (1 - e * cos(EE));
+			EE += dE;
+		}
+
+		a = ar * s*sqrt(smix);
+
+		r[0] = a * (cos(EE) - e);
+		r[1] = a * sqrt(1 - e * e)*sin(EE);
+		x[0] = r[0] * X[0] + r[1] * Y[0];  // (coX1*x[1] + coX2 * y[1] / h) / coX;
+		x[1] = r[0] * X[1] + r[1] * Y[1];   //(coY1*x[1] + y[1] * coY2 / h) / coX;
+		St = sqrt(x[0] * x[0] + x[1] * x[1]);
+		psi = atan2(x[1], x[0]);// +((ar > 1) ? 0 : M_PI);
+		u = u0 + pai1 * Et[1] - pai2 * Et[0];
+		tn = (ts[i] - t0) * tE_inv + pai1 * Et[0] + pai2 * Et[1];
+		y1s[i] = -tn * cos(alpha + psi) + u * sin(alpha + psi);
+		y2s[i] = -u * cos(alpha + psi) - tn * sin(alpha + psi);
+		seps[i] = St;
+
+		mags[i] = BinaryMag2(seps[i], q, y1s[i], y2s[i], rho);
+
+	}
+}
 
 void VBBinaryLensing::BinSourceLightCurve(double *pr, double *ts, double *mags, double *y1s, double *y2s, int np) {
 	double u1 = pr[2], u2=pr[3], t01 = pr[4], t02 = pr[5], tE_inv = exp(-pr[0]), FR=exp(pr[1]), tn, u;
@@ -1555,6 +1946,100 @@ void VBBinaryLensing::BinSourceLightCurveXallarap(double *pr, double *ts, double
 }
 
 
+void VBBinaryLensing::BinSourceBinLensXallarap(double* pr, double* ts, double* mags, double* y1s, double* y2s, int np) {
+	double s = exp(pr[0]), q = exp(pr[1]), rho = exp(pr[4]), tn, tE_inv = exp(-pr[5]), u0;
+	double salpha = sin(pr[3]), calpha = cos(pr[3]), xi1 = pr[7], xi2 = pr[8], omega = pr[9], inc = pr[10], phi = pr[11], qs = exp(pr[12]);
+
+	double Xal[2], phit, disp[2], Xal2[2], disp2[2];
+	double Mag, Mag2, u02, rho2, tn2, y1s2, y2s2, qs4;
+
+
+
+	if (t0_par_fixed == 0) t0_par = pr[6];
+
+
+	for (int i = 0; i < np; i++) {
+
+		phit = omega * (ts[i] - t0_par);
+
+		disp[0] = sin(inc) * (-cos(phi) + cos(phi + phit) + phit * sin(phi));
+
+		disp[1] = -phit * cos(phi) - sin(phi) + sin(phi + phit);
+
+		Xal[0] = xi1 * disp[0] + xi2 * disp[1];
+		Xal[1] = xi2 * disp[0] - xi1 * disp[1];
+		tn = (ts[i] - pr[6]) * tE_inv + Xal[0];
+		u0 = pr[2] + Xal[1];
+		y1s[i] = u0 * salpha - tn * calpha;
+		y2s[i] = -u0 * calpha - tn * salpha;
+		Mag = BinaryMag2(s, q, y1s[i], y2s[i], rho);
+
+		disp2[0] = -sin(inc) * (cos(phi) + cos(phi + phit) / qs - phit * sin(phi));
+
+		disp2[1] = phit * cos(phi) + sin(phi) + sin(phi + phit) / qs;
+
+		Xal2[0] = xi1 * disp2[0] - xi2 * disp2[1];
+		Xal2[1] = xi2 * disp2[0] + xi1 * disp2[1];
+		tn2 = (ts[i] - pr[6]) * tE_inv + Xal2[0];
+		u02 = pr[2] + Xal2[1];
+		y1s2 = u02 * salpha - tn2 * calpha;
+		y2s2 = -u02 * calpha - tn2 * salpha;
+		rho2 = rho * pow(qs, 0.89);
+		Mag2 = BinaryMag2(s, q, y1s2, y2s2, rho2);
+		qs4 = pow(qs, 4.0);
+		mags[i] = (Mag + qs4 * Mag2) / (1 + qs4);
+	}
+}
+
+void VBBinaryLensing::BinSourceSingleLensXallarap(double* pr, double* ts, double* mags, double* y1s, double* y2s, double* y1s2, double* y2s2, int np) {
+	double  t0 = pr[1], rho = exp(pr[3]), tn, tE_inv = exp(-pr[2]), u0;
+	double  xi1 = pr[4], xi2 = pr[5], omega = pr[6], inc = pr[7], phi = pr[8], qs = exp(pr[9]);
+
+	double Xal[2], phit, disp[2], Xal2[2], disp2[2];
+	double Mag, Mag2, u02, rho2, tn2, qs4, u, u2;
+
+
+
+	if (t0_par_fixed == 0) t0_par = pr[1];
+
+
+	for (int i = 0; i < np; i++) {
+
+		phit = omega * (ts[i] - t0_par);
+
+		disp[0] = sin(inc) * (-cos(phi) + cos(phi + phit) + phit * sin(phi));
+
+		disp[1] = -phit * cos(phi) - sin(phi) + sin(phi + phit);
+
+		Xal[0] = xi1 * disp[0] + xi2 * disp[1];
+		Xal[1] = xi2 * disp[0] - xi1 * disp[1];
+		tn = (ts[i] - pr[1]) * tE_inv + Xal[0];
+		u0 = pr[0] + Xal[1];
+		u = sqrt(tn * tn + u0 * u0);
+
+		y1s[i] = -tn;
+		y2s[i] = -u0;
+		Mag = ESPLMag2(u, rho);  /*If you want only the second source put =0, otherwise replace ESPLMag2(u, rho);*/
+
+
+		disp2[0] = -sin(inc) * (cos(phi) + cos(phi + phit) / qs - phit * sin(phi));
+
+		disp2[1] = phit * cos(phi) + sin(phi) + sin(phi + phit) / qs;
+
+		Xal2[0] = xi1 * disp2[0] - xi2 * disp2[1];
+		Xal2[1] = xi2 * disp2[0] + xi1 * disp2[1];
+		tn2 = (ts[i] - pr[1]) * tE_inv + Xal2[0];
+		u02 = pr[0] + Xal2[1];
+		u2 = sqrt(tn2 * tn2 + u02 * u02);
+		y1s2[i] = -tn2;
+		y2s2[i] = -u02;
+		rho2 = rho * pow(qs, 0.89);
+		Mag2 = ESPLMag2(u2, rho2);  /*If you want only the second source put =0, otherwise replace ESPLMag2(u2, rho2);*/
+		qs4 = pow(qs, 4.0);
+		mags[i] = (Mag + qs4 * Mag2) / (1 + qs4);
+	}
+}
+
 //////////////////////////////
 //////////////////////////////
 ////////Old (v1) light curve functions
@@ -1663,6 +2148,8 @@ double VBBinaryLensing::BinaryLightCurveParallax(double *pr, double t) {
 }
 
 
+
+
 double VBBinaryLensing::BinaryLightCurveOrbital(double *pr, double t) {
 	double s = exp(pr[0]), q = exp(pr[1]), u0 = pr[2], rho = exp(pr[4]), tn, tE_inv = exp(-pr[5]), t0 = pr[6], pai1 = pr[7], pai2 = pr[8], w1 = pr[9], w2 = pr[10], w3 = pr[11];
 	double salpha = sin(pr[3]), calpha = cos(pr[3]);
@@ -1684,6 +2171,7 @@ double VBBinaryLensing::BinaryLightCurveOrbital(double *pr, double t) {
 		inc = 0.;
 		phi0 = 0.;
 	}
+
 	Cphi0 = cos(phi0);
 	Sphi0 = sin(phi0);
 	Cinc = cos(inc);
@@ -1706,9 +2194,149 @@ double VBBinaryLensing::BinaryLightCurveOrbital(double *pr, double t) {
 	y_1 = (Cphi*(u*SOm - tn*COm) + Cinc*Sphi*(u*COm + tn*SOm)) / den;
 	y_2 = (-Cphi*(u*COm + tn*SOm) - Cinc*Sphi*(tn*COm - u*SOm)) / den;
 	return BinaryMag2(av, q, y_1, y_2, rho);
-
 }
 
+double VBBinaryLensing::BinaryLightCurveKepler(double *pr, double t) {
+	double s = exp(pr[0]), q = exp(pr[1]), u0 = pr[2], alpha = pr[3], rho = exp(pr[4]), tn, tE_inv = exp(-pr[5]), t0 = pr[6], pai1 = pr[7], pai2 = pr[8], w1 = pr[9], w2 = pr[10], w3 = pr[11], szs = pr[12], ar = pr[13]+1.e-8;
+	double Et[2];
+	double u, w22, w11, w33, w12, w23, szs2, ar2, EE, dE;
+	double wt2, smix, sqsmix, e, h, snu, co1EE0, co2EE0, cosE, sinE, co1tperi, tperi, EE0, M, a, St, psi, dM, conu, n;
+	double arm1, arm2;
+	double X[3], Y[3], Z[3], r[2], x[2];
+	t0old = 0;
+
+	smix = 1 + szs * szs;
+	sqsmix = sqrt(smix);
+	w22 = w2 * w2;
+	w11 = w1 * w1;
+	w33 = w3 * w3;
+	w12 = w11 + w22;
+	w23 = w22 + w33;
+	wt2 = w12 + w33;
+
+	szs2 = szs * szs;
+	ar2 = ar * ar;
+	arm1 = ar - 1;
+	arm2 = 2 * ar - 1;
+	n = sqrt(wt2 / arm2 / smix) / ar;
+	Z[0] = -szs * w2;
+	Z[1] = szs * w1 - w3;
+	Z[2] = w2;
+	h = sqrt(Z[0] * Z[0] + Z[1] * Z[1] + Z[2] * Z[2]);
+	for (int i = 0; i < 3; i++) Z[i] /= h;
+	X[0] = -ar * w11 + arm1 * w22 - arm2 * szs*w1*w3 + arm1 * w33;
+	X[1] = -arm2 * w2*(w1 + szs * w3);
+	X[2] = arm1 * szs*w12 - arm2 * w1*w3 - ar * szs*w33;
+	e = sqrt(X[0] * X[0] + X[1] * X[1] + X[2] * X[2]);
+	for (int i = 0; i < 3; i++) X[i] /= e;
+	e /= ar * sqsmix*wt2;
+	Y[0] = Z[1] * X[2] - Z[2] * X[1];
+	Y[1] = Z[2] * X[0] - Z[0] * X[2];
+	Y[2] = Z[0] * X[1] - Z[1] * X[0];
+
+	conu = (X[0] + X[2] * szs) / sqsmix;
+	co1EE0 = conu + e;
+	co2EE0 = 1 + e * conu;
+	cosE = co1EE0 / co2EE0;
+	EE0 = acos(cosE);
+	snu = (Y[0] + Y[2] * szs);
+	EE0 *= (snu > 0) ? 1 : -1;
+	sinE = sqrt(1 - cosE * cosE)*((snu > 0) ? 1 : -1);
+	co1tperi = e * sinE;
+	tperi = t0_par - (EE0 - co1tperi) / n;
+
+	ComputeParallax(t, t0, Et);
+	M = n * (t - tperi);
+	EE = M + e * sin(M);
+	dE = 1;
+	while (fabs(dE) > 1.e-8) {
+		dM = M - (EE - e * sin(EE));
+		dE = dM / (1 - e * cos(EE));
+		EE += dE;
+	}
+	
+	a = ar * s*sqrt(smix);
+
+	r[0] = a * (cos(EE) - e);
+	r[1] = a * sqrt(1 - e * e)*sin(EE);
+	x[0] = r[0] * X[0] + r[1] * Y[0];  // (coX1*x[1] + coX2 * y[1] / h) / coX;
+	x[1] = r[0] * X[1] + r[1] * Y[1];   //(coY1*x[1] + y[1] * coY2 / h) / coX;
+	St = sqrt(x[0] * x[0] + x[1] * x[1]);
+	psi = atan2(x[1], x[0]);// +((ar > 1) ? 0 : M_PI);
+
+	u = u0 + pai1 * Et[1] - pai2 * Et[0];
+	tn = (t - t0) * tE_inv + pai1 * Et[0] + pai2 * Et[1];
+	y_1 = -tn * cos(alpha + psi) + u * sin(alpha + psi);
+	y_2 = -u * cos(alpha + psi) - tn * sin(alpha + psi);
+	
+	return BinaryMag2(St, q, y_1, y_2, rho);
+	
+}
+
+//double VBBinaryLensing::BinaryLightCurveKepler(double *pr, double t) {
+//	double s = exp(pr[0]), q = exp(pr[1]), u0 = pr[2], alpha = pr[3], rho = exp(pr[4]), tn, tE_inv = exp(-pr[5]), t0 = pr[6], pai1 = pr[7], pai2 = pr[8], w1 = pr[9], w2 = pr[10], w3 = pr[11], szs = pr[12], ar = pr[13];
+//	double Et[2];
+//	double u, w22, w11, w33, w12, w23, szs2, ar2, coe2, coX, coX1, coX2, coY1, coY2, EE, dE;
+//	double wt2, smix, e, h, co1e, co1nu, co2nu, co1EE0, co2EE0, co1tperi, tperi, EE0, nu, M, a, St, psi, dM, conu, n;
+//	double x[3], y[3];
+//	t0old = 0;
+//
+//	wt2 = w1 * w1 + w2 * w2 + w3 * w3;
+//	smix = 1 + szs * szs;
+//	w22 = w2 * w2;
+//	w11 = w1 * w1;
+//
+//	w33 = w3 * w3;
+//	w12 = w11 + w22;
+//	w23 = w22 + w33;
+//	szs2 = szs * szs;
+//	ar2 = ar * ar;
+//	n = sqrt(wt2) / (ar*sqrt(-1 + 2 * ar)*sqrt(smix));
+//	h = sqrt((smix)*w22 + (szs*w1 - w3)*(szs*w1 - w3));
+//	co1e = (1 - ar)*(1 - ar) + ar2 * szs2 + (-1 + 2 * ar)*(w11*(1 - szs2) - szs2 * w22 + 2 * szs*w1*w3) / wt2;
+//	coe2 = ar2 * (smix);
+//	e = sqrt(co1e) / sqrt(coe2);
+//	co1nu = (-1 + 2 * ar)*sqrt(smix)*(w1 + szs * w3)*(szs2*(w12)-2 * szs*w1*w3 + w23);
+//	co2nu = ar * e*h*(smix)*sqrt((smix))*wt2; 
+//	nu = asin(co1nu / co2nu);
+//	conu = cos(nu);
+//	co1EE0 = conu + e;
+//	co2EE0 = 1 + e * conu;
+//	EE0 = acos(co1EE0 / co2EE0);
+//	co1tperi = e * sin(EE0);
+//	tperi = t0_par - (EE0 - co1tperi) / n;
+//	coX = ar * e*sqrt(smix)*wt2;
+//	coX1 = -ar * w11 + (-1 + ar)*w22 + (1 - 2 * ar)*szs*w1*w3 + (-1 + ar)*w33;
+//	coX2 = (-1 + 2 * ar)*w1*w23 + szs2 * w1*((-1 + ar)*w12 - ar * w33) + szs * w3*((2 - 3 * ar)*w11 + ar * w23);
+//	coY1 = -(-1 + 2 * ar)*w2*(w1 + szs * w3);
+//	coY2 = w2 * (-szs2 * w12 + 2 * szs*w1*w3 - w23 + ar * (-4 * szs*w1*w3 + szs2 * (w12 - w33) + (-w11 + w23)));
+//	
+//	ComputeParallax(t, t0, Et);
+//	M = n * (t - tperi);
+//	EE = M + e * sin(M);
+//	dE = 1;
+//	while (fabs(dE) > 1.e-8) {
+//		dM = M - (EE - e * sin(EE));
+//		dE = dM / (1 - e * cos(EE));
+//		EE += dE;
+//	}
+//
+//	a = ar * s*sqrt(smix);
+//
+//	x[1] = a * (cos(EE) - e);
+//	y[1] = a * sqrt(1 - e * e)*sin(EE);
+//	x[2] = (coX1*x[1] + coX2 * y[1] / h) / coX;
+//	y[2] = (coY1*x[1] + y[1] * coY2 / h) / coX;
+//	St = sqrt(x[2] * x[2] + y[2] * y[2]);
+//	psi = atan2(y[2], x[2])+ ((ar>1)? 0 : M_PI);
+//	u = u0 + pai1 * Et[1] - pai2 * Et[0];
+//	tn = (t - t0) * tE_inv + pai1 * Et[0] + pai2 * Et[1];
+//	y_1 = -tn * cos(alpha + psi) + u * sin(alpha + psi);
+//	y_2 = -u * cos(alpha + psi) - tn * sin(alpha + psi);
+//
+//	return BinaryMag2(St, q, y_1, y_2, rho);
+//
+//}
 
 double VBBinaryLensing::BinSourceLightCurve(double *pr, double t) {
 	double u1 = pr[2], u2 = pr[3], t01 = pr[4], t02 = pr[5], tE_inv = exp(-pr[0]), FR = exp(pr[1]), tn, u,mag;
@@ -1824,6 +2452,186 @@ double VBBinaryLensing::BinSourceLightCurveXallarap(double *pr, double t) {
 }
 
 
+double VBBinaryLensing::BinSourceBinLensXallarap(double* pr, double t) {
+
+	double s = exp(pr[0]), q = exp(pr[1]), rho = exp(pr[4]), tn, tE_inv = exp(-pr[5]), u0;
+	double salpha = sin(pr[3]), calpha = cos(pr[3]), xi1 = pr[7], xi2 = pr[8], omega = pr[9], inc = pr[10], phi = pr[11], qs = exp(pr[12]);
+
+	double Xal[2], phit, disp[2], Xal2[2], disp2[2];
+	double Mag, Mag2, u02, rho2, tn2, y1s2, y2s2, y1s, y2s, mags, qs4;
+
+
+
+	if (t0_par_fixed == 0) t0_par = pr[6];
+
+
+
+
+	phit = omega * (t - t0_par);
+
+	disp[0] = sin(inc) * (-cos(phi) + cos(phi + phit) + phit * sin(phi));
+
+	disp[1] = -phit * cos(phi) - sin(phi) + sin(phi + phit);
+
+	Xal[0] = xi1 * disp[0] + xi2 * disp[1];
+	Xal[1] = xi2 * disp[0] - xi1 * disp[1];
+	tn = (t - pr[6]) * tE_inv + Xal[0];
+	u0 = pr[2] + Xal[1];
+	y1s = u0 * salpha - tn * calpha;
+	y2s = -u0 * calpha - tn * salpha;
+	Mag = BinaryMag2(s, q, y1s, y2s, rho);
+
+	disp2[0] = -sin(inc) * (cos(phi) + cos(phi + phit) / qs - phit * sin(phi));
+
+	disp2[1] = phit * cos(phi) + sin(phi) + sin(phi + phit) / qs;
+
+	Xal2[0] = xi1 * disp2[0] - xi2 * disp2[1];
+	Xal2[1] = xi2 * disp2[0] + xi1 * disp2[1];
+	tn2 = (t - pr[6]) * tE_inv + Xal2[0];
+	u02 = pr[2] + Xal2[1];
+	y1s2 = u02 * salpha - tn2 * calpha;
+	y2s2 = -u02 * calpha - tn2 * salpha;
+	rho2 = rho * pow(qs, 0.89);
+	Mag2 = BinaryMag2(s, q, y1s2, y2s2, rho2);
+	qs4 = pow(qs, 4.0);
+	mags = (Mag + qs4*Mag2) / (1 + qs4);
+
+	return mags;
+
+
+}
+
+double VBBinaryLensing::BinSourceSingleLensXallarap(double* pr, double t) {
+
+	double  t0 = pr[1], rho = exp(pr[3]), tn, tE_inv = exp(-pr[2]), u0;
+	double  xi1 = pr[4], xi2 = pr[5], omega = pr[6], inc = pr[7], phi = pr[8], qs = exp(pr[9]);
+
+	double Xal[2], phit, disp[2], Xal2[2], disp2[2];
+	double Mag, Mag2, u02, rho2, tn2, y1s2, y2s2, qs4, u, y1s, y2s, mags, u2;
+
+
+
+	if (t0_par_fixed == 0) t0_par = pr[1];
+
+	phit = omega * (t - t0_par);
+
+	disp[0] = sin(inc) * (-cos(phi) + cos(phi + phit) + phit * sin(phi));
+
+	disp[1] = -phit * cos(phi) - sin(phi) + sin(phi + phit);
+
+	Xal[0] = xi1 * disp[0] + xi2 * disp[1];
+	Xal[1] = xi2 * disp[0] - xi1 * disp[1];
+	tn = (t - pr[1]) * tE_inv + Xal[0];
+	u0 = pr[0] + Xal[1];
+	u = sqrt(tn * tn + u0 * u0);
+
+	y1s = -tn;
+	y2s = -u0;
+	Mag = ESPLMag2(u, rho); /*If you want only the second source put =0, otherwise replace ESPLMag2(u, rho);*/
+
+
+	disp2[0] = -sin(inc) * (cos(phi) + cos(phi + phit) / qs - phit * sin(phi));
+
+	disp2[1] = phit * cos(phi) + sin(phi) + sin(phi + phit) / qs;
+
+	Xal2[0] = xi1 * disp2[0] - xi2 * disp2[1];
+	Xal2[1] = xi2 * disp2[0] + xi1 * disp2[1];
+	tn2 = (t - pr[1]) * tE_inv + Xal2[0];
+	u02 = pr[0] + Xal2[1];
+	u2 = sqrt(tn2 * tn2 + u02 * u02);
+	y1s2 = -tn2;
+	y2s2 = -u02;
+	rho2 = rho * pow(qs, 0.89);
+	Mag2 = ESPLMag2(u2, rho2); /*If you want only the second source put =0, otherwise replace ESPLMag2(u2, rho2);*/
+	qs4 = pow(qs, 4.0);
+	mags = (Mag + qs4 * Mag2) / (1 + qs4);
+	return mags;
+}
+
+double VBBinaryLensing::BinSourceBinLensPOX(double* pr, double t) {
+	double s = exp(pr[0]), q = exp(pr[1]), u0 = pr[2], rho = exp(pr[4]), tE_inv = exp(-pr[5]), t0 = pr[6];
+	double pai1 = pr[7], pai2 = pr[8], w1 = pr[9], w2 = pr[10], w3 = pr[11];
+	double salpha = sin(pr[3]), calpha = cos(pr[3]);
+	double Et[2];
+	double tn, w, phi0, phil, incl, Cinc, Sinc, Cphi, Sphi, Cphi0, Sphi0, COm, SOm, s_true;
+	double w13, w123, den, den0, u;
+
+	double xi1 = pr[12], xi2 = pr[13], omega = pr[14], inc = pr[15], phi = pr[16], qs = exp(pr[17]);
+	double Xal[2], phit, disp[2], Xal2[2], disp2[2];
+	double Mag, Mag2, u01, u02, rho2, tn1, tn2, mags, qs4;
+
+	w13 = w1 * w1 + w3 * w3;
+	w123 = sqrt(w13 + w2 * w2);
+	w13 = sqrt(w13);
+	if (w13 > 1.e-8) {
+		w3 = (w3 > 1.e-8) ? w3 : 1.e-8;
+		w = w3 * w123 / w13;
+		incl = acos(w2 * w3 / w13 / w123);
+		phi0 = atan2(-w1 * w123, w3 * w13);
+	}
+	else {
+		w = w2;
+		incl = 0.;
+		phi0 = 0.;
+	}
+
+	Cphi0 = cos(phi0);
+	Sphi0 = sin(phi0);
+	Cinc = cos(incl);
+	Sinc = sin(incl);
+	den0 = sqrt(Cphi0 * Cphi0 + Cinc * Cinc * Sphi0 * Sphi0);
+	s_true = s / den0;
+	COm = (Cphi0 * calpha + Cinc * salpha * Sphi0) / den0;
+	SOm = (Cphi0 * salpha - Cinc * calpha * Sphi0) / den0;
+
+	ComputeParallax(t, t0, Et);
+
+	phil = (t - t0_par) * w + phi0;
+	Cphi = cos(phil);
+	Sphi = sin(phil);
+	den = sqrt(Cphi * Cphi + Cinc * Cinc * Sphi * Sphi);
+	av = s_true * den;
+	u = u0 + pai1 * Et[1] - pai2 * Et[0];
+	tn = (t-t0)*tE_inv + pai1 * Et[0] + pai2 * Et[1];
+
+	phit = omega * (t - t0_par);
+
+	disp[0] = sin(inc) * (-cos(phi) + cos(phi + phit) + phit * sin(phi));
+	disp[1] = -phit * cos(phi) - sin(phi) + sin(phi + phit);
+	disp2[0] = -sin(inc) * (cos(phi) + cos(phi + phit) / qs - phit * sin(phi));
+	disp2[1] = phit * cos(phi) + sin(phi) + sin(phi + phit) / qs;
+
+	Xal[0] = xi1 * disp[0] + xi2 * disp[1];
+	Xal[1] = xi2 * disp[0] - xi1 * disp[1];
+	Xal2[0] = xi1 * disp2[0] - xi2 * disp2[1];
+	Xal2[1] = xi2 * disp2[0] + xi1 * disp2[1];
+
+	tn1 = tn + Xal[0];
+	u01 = u + Xal[1];
+	tn2 = tn + Xal2[0];
+	u02 = u + Xal2[1];
+	rho2 = rho * pow(qs, 0.89);
+	qs4 = pow(qs, 4.0);
+
+
+/*	y1s = u01 * salpha - tn1 * calpha;
+	y2s = -u01 * calpha - tn1 * salpha;
+	y1s2 = u02 * salpha - tn2 * calpha;
+	y2s2 = -u02 * calpha - tn2 * salpha;*/
+
+	y_1 = (Cphi * (u02 * SOm - tn2 * COm) + Cinc * Sphi * (u02 * COm + tn2 * SOm)) / den;
+	y_2 = (-Cphi * (u02 * COm + tn2 * SOm) - Cinc * Sphi * (tn2 * COm - u02 * SOm)) / den;
+	Mag2 = BinaryMag2(av, q, y_1, y_2, rho2);
+
+	y_1 = (Cphi * (u01 * SOm - tn1 * COm) + Cinc * Sphi * (u01 * COm + tn1 * SOm)) / den;
+	y_2 = (-Cphi * (u01 * COm + tn1 * SOm) - Cinc * Sphi * (tn1 * COm - u01 * SOm)) / den;
+	Mag = BinaryMag2(av, q, y_1, y_2, rho);
+
+	mags = (Mag + qs4 * Mag2) / (1 + qs4);
+
+	return mags;
+}
+
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 ////////// Internal private functions
@@ -1840,16 +2648,6 @@ double VBBinaryLensing::BinSourceLightCurveXallarap(double *pr, double t) {
 	dJ=1-J1*J1c;\
 	J2=-2.*(coefs[21]/(za2*dza)+coefs[22]/(zb2*z));
 
-#define _Jacobians1_shear \
-	z=conj(zr[i]);\
-	dza=z-coefs[20];\
-	za2 = dza*dza;\
-	zb2=z*z;\
-	J1= coefs[21]/za2+coefs[22]/zb2 - coefs[27];\
-	J1c=conj(J1);\
-	dJ=(1-coefs[26])*(1-coefs[26])-J1*J1c;\
-	J2=-2.*(coefs[21]/(za2*dza)+coefs[22]/(zb2*z));
-
 #define _Jacobians2\
 	dy = complex(-sin(theta->th), cos(theta->th))*coefs[23];\
 	dz = (dy - J1c*conj(dy)) / dJ.re;\
@@ -1858,6 +2656,7 @@ double VBBinaryLensing::BinSourceLightCurveXallarap(double *pr, double t) {
 	Prov->last->d = dz;\
 	Prov->last->J2 = J2;\
 	Prov->last->ds = (imag(dy*dz*dz*J2) + coefs[23].re*coefs[23].re) / dJ.re;
+        
 
 #define _Jacobians3\
 	Prov->last->dJ = dJ.re;\
@@ -1879,14 +2678,15 @@ double VBBinaryLensing::BinSourceLightCurveXallarap(double *pr, double t) {
 	J3=(J3-conj(J3)*Jalt)/(JJalt2*JJalt2*dJ.re);\
 	cq=(J3.re*J3.re+J3.im*J3.im);
 	
-_curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
-	static complex  y, yc, z, zc, J1, J1c, dy, dz, dJ,J2,J3,dza,za2,zb2,zaltc,Jalt,Jaltc,JJalt2;
+
+_curve* VBBinaryLensing::NewImages(complex yi, complex* coefs, _theta* theta) {
+	static complex  y, yc, z, zc, J1, J1c, dy, dz, dJ, J2, J3, dza, za2, zb2, zaltc, Jalt, Jaltc, JJalt2;
 	static complex zr[5] = { 0.,0.,0.,0.,0. };
-	static double dzmax, dlmax = 1.0e-6, good[5], dJ2,ob2,cq;
-	static int worst1, worst2, worst3, bad, f1;
+	static double dlmin = 1.0e-4, dlmax = 1.0e-3, good[5], dJ2, ob2, cq;
+	static int worst1, worst2, worst3, bad, f1, checkJac;
 	static double av = 0.0, m1v = 0.0, disim, disisso;
-	static _curve *Prov;
-	static _point *scan, *prin, *fifth, *left, *right, *center;
+	static _curve* Prov;
+	static _point* scan, * prin, * fifth, * left, * right, * center;
 
 #ifdef _PRINT_TIMES
 	static double tim0, tim1;
@@ -1895,110 +2695,94 @@ _curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
 	y = yi + coefs[11];
 	yc = conj(y);
 
-	/* coefs[6]=a*a; coefs[7]=a*a*a; coefs[8]=m2*m2; coefs[9]=a*a*m2*m2; coefs[10]=a*m2; coefs[11]=a*m1; coefs[20]=a; coefs[21]=m1; coefs[22]=m2;*/
+	// coefs[6]=a*a; coefs[7]=a*a*a; coefs[8]=m2*m2; coefs[9]=a*a*m2*m2; coefs[10]=a*m2; coefs[11]=a*m1; coefs[20]=a; coefs[21]=m1; coefs[22]=m2;
 
 	coefs[0] = coefs[9] * y;
-	coefs[1] = coefs[10] * (coefs[20] * (coefs[21] + y*(2 * yc - coefs[20])) - 2 * y);
-	coefs[2] = y*(1 - coefs[7] * yc) - coefs[20] * (coefs[21] + 2 * y*yc*(1 + coefs[22])) + coefs[6] * (yc*(coefs[21] - coefs[22]) + y*(1 + coefs[22] + yc*yc));
-	coefs[3] = 2 * y*yc + coefs[7] * yc + coefs[6] * (yc*(2 * y - yc) - coefs[21]) - coefs[20] * (y + 2 * yc*(yc*y - coefs[22]));
-	coefs[4] = yc*(2 * coefs[20] + y);
-	coefs[4] = yc*(coefs[4] - 1) - coefs[20] * (coefs[4] - coefs[21]);
-	coefs[5] = yc*(coefs[20] - yc);
+	coefs[1] = coefs[10] * (coefs[20] * (coefs[21] + y * (2 * yc - coefs[20])) - 2 * y);
+	coefs[2] = y * (1 - coefs[7] * yc) - coefs[20] * (coefs[21] + 2 * y * yc * (1 + coefs[22])) + coefs[6] * (yc * (coefs[21] - coefs[22]) + y * (1 + coefs[22] + yc * yc));
+	coefs[3] = 2 * y * yc + coefs[7] * yc + coefs[6] * (yc * (2 * y - yc) - coefs[21]) - coefs[20] * (y + 2 * yc * (yc * y - coefs[22]));
+	coefs[4] = yc * (2 * coefs[20] + y);
+	coefs[4] = yc * (coefs[4] - 1) - coefs[20] * (coefs[4] - coefs[21]);
+	coefs[5] = yc * (coefs[20] - yc);
 
 	bad = 1;
-	dzmax = 1.0e-12;
 	disim = -1.;
 	f1 = 0;
-	while (bad) {
 
 #ifdef _PRINT_TIMES
-		tim0 = Environment::TickCount;
+	tim0 = Environment::TickCount;
 #endif
-		cmplx_roots_gen(zr, coefs, 5, true, true);
+	cmplx_roots_gen(zr, coefs, 5, true, true);
 
 #ifdef _PRINT_TIMES
-		tim1 = Environment::TickCount;
-		inc += tim1 - tim0;
+	tim1 = Environment::TickCount;
+	inc += tim1 - tim0;
 #endif
-		// apply lens equation to check if it is really solved
-		for (int i = 0; i<5; i++) {
-			z = zr[i];
-			zc = conj(z);
-			good[i] = abs(_LL); // Lens equation check
-			switch (i) {
-			case 0:
+	// apply lens equation to check if it is really solved
+	for (int i = 0; i < 5; i++) {
+		z = zr[i];
+		zc = conj(z);
+		good[i] = abs(_LL); // Lens equation check
+		switch (i) {
+		case 0:
+			worst1 = i;
+			break;
+		case 1:
+			if (good[i] > good[worst1]) {
+				worst2 = worst1;
 				worst1 = i;
-				break;
-			case 1:
-				if (good[i]>good[worst1]) {
-					worst2 = worst1;
-					worst1 = i;
-				}
-				else worst2 = i;
-				break;
-			case 2:
-				if (good[i]>good[worst1]) {
-					worst3 = worst2;
-					worst2 = worst1;
-					worst1 = i;
-				}
-				else if (good[i]>good[worst2]) {
-					worst3 = worst2;
-					worst2 = i;
-				}
-				else worst3 = i;
-				break;
-			default:
-				if (good[i]>good[worst1]) {
-					worst3 = worst2;
-					worst2 = worst1;
-					worst1 = i;
-				}
-				else if (good[i]>good[worst2]) {
-					worst3 = worst2;
-					worst2 = i;
-				}
-				else if (good[i]>good[worst3]) {
-					worst3 = i;
-				}
 			}
-		}
-		if ((good[worst3]<dlmax) && ((good[worst1]<dlmax) || (good[worst2]>1.e2*good[worst3]))) {
-			bad = 0;
-		}
-		else {
-			if ((disim>0) && (good[worst3] / disim>0.99)) {
-				if (f1>1) {
-					bad = 0;
-				}
-				else {
-					dzmax /= 10;
-					f1++;
-				}
+			else worst2 = i;
+			break;
+		case 2:
+			if (good[i] > good[worst1]) {
+				worst3 = worst2;
+				worst2 = worst1;
+				worst1 = i;
 			}
-			else {
-				disim = good[worst3];
-				dzmax /= 10;
+			else if (good[i] > good[worst2]) {
+				worst3 = worst2;
+				worst2 = i;
+			}
+			else worst3 = i;
+			break;
+		default:
+			if (good[i] > good[worst1]) {
+				worst3 = worst2;
+				worst2 = worst1;
+				worst1 = i;
+			}
+			else if (good[i] > good[worst2]) {
+				worst3 = worst2;
+				worst2 = i;
+			}
+			else if (good[i] > good[worst3]) {
+				worst3 = i;
 			}
 		}
 	}
 	Prov = new _curve;
-	if (good[worst1]>dlmax) {
-		for (int i = 0; i<5; i++) {
+	checkJac = 0;
+	//	if (!((good[worst3] < dlmin) && ((good[worst1] < dlmin) || (good[worst2] > dlmax)))) {  // old check for unacceptable roots
+
+	// 3 good roots
+	if (good[worst2] * dlmin > good[worst3]+1.e-12 ) {
+		for (int i = 0; i < 5; i++) {
 			if ((i != worst1) && (i != worst2)) {
 				//if((i==worst3)&&(good[i]>dlmax)&&(good[worst2]>1.e2*good[worst3])){
 				//	zr[i]=(coefs[21].re<coefs[22].re)? 0.5*coefs[20]+coefs[21]/(0.5*coefs[20]-yc-coefs[22]/coefs[20]) : -0.5*coefs[20]+coefs[22]/(-0.5*coefs[20]-yc+coefs[21]/coefs[20]);
 				//}
 				Prov->append(zr[i].re, zr[i].im);
 
-				_Jacobians1				
-				if (theta->th >= 0){
-					_Jacobians2
-				}else {
-					_Jacobians3
-					corrquad += cq;
-				}
-
+				_Jacobians1
+					if (theta->th >= 0) {
+						_Jacobians2
+					}
+					else {
+						_Jacobians3
+							corrquad += cq;
+					}
+				checkJac += (fabs(Prov->last->dJ) > 1.e-7) ? _sign(Prov->last->dJ) : 10;
 				Prov->last->theta = theta;
 
 			}
@@ -2008,13 +2792,13 @@ _curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
 
 			int i = worst1;
 			_Jacobians1
-			_Jacobians4
-			corrquad2 = cq;
+				_Jacobians4
+				corrquad2 = cq;
 
 			i = worst2;
 			_Jacobians1
-			_Jacobians4
-			if(cq<corrquad2) corrquad2= cq;
+				_Jacobians4
+				if (cq > corrquad2) corrquad2 = cq;
 			//_Jacobians3
 			//corrquad2 +=  1/cq;
 
@@ -2023,292 +2807,89 @@ _curve *VBBinaryLensing::NewImages(complex yi, complex  *coefs, _theta *theta) {
 			theta->errworst = abs(zr[worst1] - zr[worst2]);
 		}
 
-	}
-	else {
-		f1 = 0;
-		for (int i = 0; i<5; i++) {
-			Prov->append(zr[i].re, zr[i].im);
-
-			_Jacobians1
-			if (theta->th >= 0) {
-				_Jacobians2
-			}else {
-				_Jacobians3
-				corrquad += cq;
-			}
-
-			Prov->last->theta = theta;
-
-			if (fabs(dJ.re)<1.e-5) f1 = 1;
+	} 
+	else { 
+		if (good[worst2]*dlmax > good[worst3] + 1.e-12) { // Dubious cases. Better exclude them
+			return Prov;
 		}
-		theta->errworst = -1.e100;
-		// check Jacobians in ambiguous cases
-		if (f1) {
-			left = right = center = fifth = 0;
-			dJ.re = 0;
-			for (scan = Prov->first; scan; scan = scan->next) {
-				if (_sign(scan->x2) == _sign(y.im)) {
-					prin = scan;
-				}
-				else {
-					dz.re = fabs(scan->dJ);
-					if (dz.re>dJ.re) {
-						fifth = scan;
-						dJ.re = dz.re;
+		else {		// 5 good roots
+			f1 = 0;
+			for (int i = 0; i < 5; i++) {
+				Prov->append(zr[i].re, zr[i].im);
+
+				_Jacobians1
+					if (theta->th >= 0) {
+						_Jacobians2
+					}
+					else {
+						_Jacobians3
+							corrquad += cq;
+					}
+				checkJac += (fabs(Prov->last->dJ) > 1.e-7) ? _sign(Prov->last->dJ) : 10;
+				Prov->last->theta = theta;
+
+				if (fabs(dJ.re) < 1.e-5) f1 = 1;
+			}
+			theta->errworst = -1.e100;
+			// check Jacobians in ambiguous cases
+			if (f1) {
+				left = right = center = fifth = 0;
+				dJ.re = 0;
+				for (scan = Prov->first; scan; scan = scan->next) {
+					if (_sign(scan->x2) == _sign(y.im)) {
+						prin = scan;
+					}
+					else {
+						dz.re = fabs(scan->dJ);
+						if (dz.re > dJ.re) {
+							fifth = scan;
+							dJ.re = dz.re;
+						}
 					}
 				}
-			}
-			for (scan = Prov->first; scan; scan = scan->next) {
-				if ((scan != prin) && (scan != fifth)) {
-					if (left) {
-						if (scan->x1<left->x1) {
-							if (left != right) {
-								center = left;
-							}
-							left = scan;
-						}
-						else {
-							if (scan->x1>right->x1) {
+				for (scan = Prov->first; scan; scan = scan->next) {
+					if ((scan != prin) && (scan != fifth)) {
+						if (left) {
+							if (scan->x1 < left->x1) {
 								if (left != right) {
-									center = right;
+									center = left;
 								}
-								right = scan;
+								left = scan;
 							}
 							else {
-								center = scan;
+								if (scan->x1 > right->x1) {
+									if (left != right) {
+										center = right;
+									}
+									right = scan;
+								}
+								else {
+									center = scan;
+								}
 							}
-						}
-					}
-					else {
-						left = right = center = scan;
-					}
-				}
-			}
-			if (left->dJ>0) left->dJ = -left->dJ;
-			if (center->dJ<0) center->dJ = -center->dJ;
-			if (right->dJ>0) right->dJ = -right->dJ;
-		}
-	}
-	return Prov;
-}
-
-
-_curve *VBBinaryLensing::NewImages_shear(complex yi, complex  *coefs, _theta *theta) {
-	static complex  y, yc, z, zc, Gc, J1, J1c, dy, dz, dJ,J2,J3,dza,za2,zb2,zaltc,Jalt,Jaltc,JJalt2;
-	static complex zr[9] = { 0.,0.,0.,0.,0.,0.,0.,0.,0.};
-	static double dzmax, dlmax = 1.0e-6, good[9], dJ2,ob2,cq;
-	static int worst1, worst2, worst3, bad, f1;
-	static double av = 0.0, m1v = 0.0, disim, disisso;
-	static _curve *Prov;
-	static _point *scan, *prin, *fifth, *left, *right, *center;
-
-#ifdef _PRINT_TIMES
-	static double tim0, tim1;
-#endif
-
-	y = yi + coefs[11]; // Coordinate transformation to centre of mass frame
-	yc = conj(y);
-	Gc = conj(coefs[27]);
-	
-	coefs[9] = -coefs[27]*Gc*Gc*Gc + Gc*Gc*coefs[26]*coefs[26] - 2*Gc*Gc*coefs[26] + Gc*Gc;
-	coefs[8] = y*Gc*Gc*coefs[26] - y*Gc*Gc + 3*coefs[20]*coefs[27]*Gc*Gc*Gc - coefs[20]*coefs[27]*Gc*Gc*coefs[26] + coefs[20]*coefs[27]*Gc*Gc - 3*coefs[20]*Gc*Gc*coefs[26]*coefs[26] + 6*coefs[20]*Gc*Gc*coefs[26] - 3*coefs[20]*Gc*Gc + coefs[20]*Gc*coefs[26]*coefs[26]*coefs[26] - 3*coefs[20]*Gc*coefs[26]*coefs[26] + 3*coefs[20]*Gc*coefs[26] - coefs[20]*Gc - 3*coefs[27]*Gc*Gc*yc + 2*Gc*coefs[26]*coefs[26]*yc - 4*Gc*coefs[26]*yc + 2*Gc*yc;
-	coefs[7] = -6*coefs[25]*coefs[27]*Gc*Gc + 2*coefs[25]*Gc*coefs[26]*coefs[26] - 4*coefs[25]*Gc*coefs[26] + 2*coefs[25]*Gc - 3*y*coefs[20]*Gc*Gc*coefs[26] + 3*y*coefs[20]*Gc*Gc + y*coefs[20]*Gc*coefs[26]*coefs[26] - 2*y*coefs[20]*Gc*coefs[26] + y*coefs[20]*Gc + 2*y*Gc*coefs[26]*yc - 2*y*Gc*yc - 3*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*Gc + 3*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[26] - 3*coefs[20]*coefs[20]*coefs[27]*Gc*Gc + 3*coefs[20]*coefs[20]*Gc*Gc*coefs[26]*coefs[26] - 6*coefs[20]*coefs[20]*Gc*Gc*coefs[26] + 3*coefs[20]*coefs[20]*Gc*Gc - 3*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[26] + 9*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] - 9*coefs[20]*coefs[20]*Gc*coefs[26] + 3*coefs[20]*coefs[20]*Gc + 9*coefs[20]*coefs[27]*Gc*Gc*yc - 2*coefs[20]*coefs[27]*Gc*coefs[26]*yc + 2*coefs[20]*coefs[27]*Gc*yc - 6*coefs[20]*Gc*coefs[26]*coefs[26]*yc + 12*coefs[20]*Gc*coefs[26]*yc - 6*coefs[20]*Gc*yc + coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc - 3*coefs[20]*coefs[26]*coefs[26]*yc + 3*coefs[20]*coefs[26]*yc - coefs[20]*yc - 3*coefs[27]*Gc*yc*yc + coefs[26]*coefs[26]*yc*yc - 2*coefs[26]*yc*yc + yc*yc;
-	coefs[6] = 4*coefs[25]*y*Gc*coefs[26] - 4*coefs[25]*y*Gc + 15*coefs[25]*coefs[20]*coefs[27]*Gc*Gc - 4*coefs[25]*coefs[20]*coefs[27]*Gc*coefs[26] + 4*coefs[25]*coefs[20]*coefs[27]*Gc - 4*coefs[25]*coefs[20]*Gc*coefs[26]*coefs[26] + 8*coefs[25]*coefs[20]*Gc*coefs[26] - 4*coefs[25]*coefs[20]*Gc + coefs[25]*coefs[20]*coefs[26]*coefs[26]*coefs[26] - 3*coefs[25]*coefs[20]*coefs[26]*coefs[26] + 3*coefs[25]*coefs[20]*coefs[26] - coefs[25]*coefs[20] - 12*coefs[25]*coefs[27]*Gc*yc + 2*coefs[25]*coefs[26]*coefs[26]*yc - 4*coefs[25]*coefs[26]*yc + 2*coefs[25]*yc + 3*y*coefs[20]*coefs[20]*Gc*Gc*coefs[26] - 3*y*coefs[20]*coefs[20]*Gc*Gc - 3*y*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] + 6*y*coefs[20]*coefs[20]*Gc*coefs[26] - 3*y*coefs[20]*coefs[20]*Gc - 6*y*coefs[20]*Gc*coefs[26]*yc + 6*y*coefs[20]*Gc*yc + y*coefs[20]*coefs[26]*coefs[26]*yc - 2*y*coefs[20]*coefs[26]*yc + y*coefs[20]*yc + y*coefs[26]*yc*yc - y*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*Gc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[26] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc - coefs[20]*coefs[20]*coefs[20]*Gc*Gc*coefs[26]*coefs[26] + 2*coefs[20]*coefs[20]*coefs[20]*Gc*Gc*coefs[26] - coefs[20]*coefs[20]*coefs[20]*Gc*Gc + 3*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[26] - 9*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] + 9*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] - 3*coefs[20]*coefs[20]*coefs[20]*Gc - 9*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*yc + 6*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*yc - 6*coefs[20]*coefs[20]*coefs[27]*Gc*yc + 6*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*yc - 12*coefs[20]*coefs[20]*Gc*coefs[26]*yc + 6*coefs[20]*coefs[20]*Gc*yc - 3*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc + 9*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 9*coefs[20]*coefs[20]*coefs[26]*yc + 3*coefs[20]*coefs[20]*yc + 3*coefs[20]*coefs[27]*Gc*Gc*coefs[24] + 9*coefs[20]*coefs[27]*Gc*yc*yc - coefs[20]*coefs[27]*coefs[26]*yc*yc + coefs[20]*coefs[27]*yc*yc - 2*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[24] + 4*coefs[20]*Gc*coefs[26]*coefs[24] - 2*coefs[20]*Gc*coefs[24] - coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 3*coefs[20]*coefs[26]*coefs[26]*yc*yc - 3*coefs[20]*coefs[26]*coefs[24] + 6*coefs[20]*coefs[26]*yc*yc + coefs[20]*coefs[24] - 3*coefs[20]*yc*yc - coefs[27]*yc*yc*yc;
-	coefs[5] = -12*coefs[25]*coefs[25]*coefs[27]*Gc - 10*coefs[25]*y*coefs[20]*Gc*coefs[26] + 10*coefs[25]*y*coefs[20]*Gc + 2*coefs[25]*y*coefs[20]*coefs[26]*coefs[26] - 4*coefs[25]*y*coefs[20]*coefs[26] + 2*coefs[25]*y*coefs[20] + 4*coefs[25]*y*coefs[26]*yc - 4*coefs[25]*y*yc - 12*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc + 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26] - 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc + 2*coefs[25]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] - 4*coefs[25]*coefs[20]*coefs[20]*Gc*coefs[26] + 2*coefs[25]*coefs[20]*coefs[20]*Gc - 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 6*coefs[25]*coefs[20]*coefs[20]*coefs[26] + 2*coefs[25]*coefs[20]*coefs[20] + 30*coefs[25]*coefs[20]*coefs[27]*Gc*yc - 4*coefs[25]*coefs[20]*coefs[27]*coefs[26]*yc + 4*coefs[25]*coefs[20]*coefs[27]*yc - 4*coefs[25]*coefs[20]*coefs[26]*coefs[26]*yc + 8*coefs[25]*coefs[20]*coefs[26]*yc - 4*coefs[25]*coefs[20]*yc - 6*coefs[25]*coefs[27]*yc*yc - y*coefs[20]*coefs[20]*coefs[20]*Gc*Gc*coefs[26] + y*coefs[20]*coefs[20]*coefs[20]*Gc*Gc + 3*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] - 6*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] + 3*y*coefs[20]*coefs[20]*coefs[20]*Gc + 6*y*coefs[20]*coefs[20]*Gc*coefs[26]*yc - 6*y*coefs[20]*coefs[20]*Gc*yc - 3*y*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 6*y*coefs[20]*coefs[20]*coefs[26]*yc - 3*y*coefs[20]*coefs[20]*yc - 2*y*coefs[20]*Gc*coefs[26]*coefs[24] + 2*y*coefs[20]*Gc*coefs[24] - 3*y*coefs[20]*coefs[26]*yc*yc + 3*y*coefs[20]*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[26] - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc - coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[26] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] - 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*yc - 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*yc + 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*yc - 2*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*yc + 4*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*yc - 2*coefs[20]*coefs[20]*coefs[20]*Gc*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc - 9*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 9*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc - 3*coefs[20]*coefs[20]*coefs[20]*yc - 6*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[24] + 2*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] - 9*coefs[20]*coefs[20]*coefs[27]*Gc*yc*yc + 3*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc - 3*coefs[20]*coefs[20]*coefs[27]*yc*yc + 4*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[24] - 8*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[24] + 4*coefs[20]*coefs[20]*Gc*coefs[24] + 2*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc*yc + 6*coefs[20]*coefs[20]*coefs[26]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[26]*yc*yc - 2*coefs[20]*coefs[20]*coefs[24] + 3*coefs[20]*coefs[20]*yc*yc + 6*coefs[20]*coefs[27]*Gc*coefs[24]*yc + 3*coefs[20]*coefs[27]*yc*yc*yc - 2*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[24]*yc;
-	coefs[4] = 4*coefs[25]*coefs[25]*y*coefs[26] - 4*coefs[25]*coefs[25]*y + 24*coefs[25]*coefs[25]*coefs[20]*coefs[27]*Gc - 4*coefs[25]*coefs[25]*coefs[20]*coefs[27]*coefs[26] + 4*coefs[25]*coefs[25]*coefs[20]*coefs[27] + 2*coefs[25]*coefs[25]*coefs[20]*coefs[26]*coefs[26] - 4*coefs[25]*coefs[25]*coefs[20]*coefs[26] + 2*coefs[25]*coefs[25]*coefs[20] - 12*coefs[25]*coefs[25]*coefs[27]*yc + 8*coefs[25]*y*coefs[20]*coefs[20]*Gc*coefs[26] - 8*coefs[25]*y*coefs[20]*coefs[20]*Gc - 5*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 10*coefs[25]*y*coefs[20]*coefs[20]*coefs[26] - 5*coefs[25]*y*coefs[20]*coefs[20] - 10*coefs[25]*y*coefs[20]*coefs[26]*yc + 10*coefs[25]*y*coefs[20]*yc + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc - 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26] + 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc + coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26] - 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26] - coefs[25]*coefs[20]*coefs[20]*coefs[20] - 24*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc*yc + 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc - 10*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc + 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 4*coefs[25]*coefs[20]*coefs[20]*coefs[26]*yc + 2*coefs[25]*coefs[20]*coefs[20]*yc + 12*coefs[25]*coefs[20]*coefs[27]*Gc*coefs[24] + 15*coefs[25]*coefs[20]*coefs[27]*yc*yc - 2*coefs[25]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 4*coefs[25]*coefs[20]*coefs[26]*coefs[24] - 2*coefs[25]*coefs[20]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*Gc - 2*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*Gc*yc + 3*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 6*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + 3*y*coefs[20]*coefs[20]*coefs[20]*yc + 4*y*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[24] - 4*y*coefs[20]*coefs[20]*Gc*coefs[24] - y*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 3*y*coefs[20]*coefs[20]*coefs[26]*yc*yc - y*coefs[20]*coefs[20]*coefs[24] - 3*y*coefs[20]*coefs[20]*yc*yc - 2*y*coefs[20]*coefs[26]*coefs[24]*yc + 2*y*coefs[20]*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + coefs[20]*coefs[20]*coefs[20]*coefs[20]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*Gc*coefs[24] - 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*coefs[24] + 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*yc*yc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc - 2*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[26]*coefs[24] + 4*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[26]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc*yc - 3*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc*yc + coefs[20]*coefs[20]*coefs[20]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*yc*yc - 12*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - 3*coefs[20]*coefs[20]*coefs[27]*yc*yc*yc + 4*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc - 8*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[24]*yc + 3*coefs[20]*coefs[27]*coefs[24]*yc*yc;
-	coefs[3] = -8*coefs[25]*coefs[25]*coefs[25]*coefs[27] - 8*coefs[25]*coefs[25]*y*coefs[20]*coefs[26] + 8*coefs[25]*coefs[25]*y*coefs[20] - 15*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc + 8*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26] - 8*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27] - 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 6*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[26] - 3*coefs[25]*coefs[25]*coefs[20]*coefs[20] + 24*coefs[25]*coefs[25]*coefs[20]*coefs[27]*yc - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*Gc + 4*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 8*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26] + 4*coefs[25]*y*coefs[20]*coefs[20]*coefs[20] + 8*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*yc - 8*coefs[25]*y*coefs[20]*coefs[20]*yc - 4*coefs[25]*y*coefs[20]*coefs[26]*coefs[24] + 4*coefs[25]*y*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26] - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*yc - 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc + 8*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc - 18*coefs[25]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] + 4*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] - 4*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24] - 12*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc*yc + 2*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 4*coefs[25]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[24] + 12*coefs[25]*coefs[20]*coefs[27]*coefs[24]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*yc - 2*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*Gc*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] - 4*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[24] + y*coefs[20]*coefs[20]*coefs[20]*yc*yc + 4*y*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc - 4*y*coefs[20]*coefs[20]*coefs[24]*yc + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[26]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc + 6*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24]*yc - 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc + coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*yc + 4*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[24]*yc - 3*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24]*coefs[24] - 6*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc*yc + coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*coefs[24] - 2*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[24]*coefs[24];
-	coefs[2] = 12*coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[27] + 5*coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[26] - 5*coefs[25]*coefs[25]*y*coefs[20]*coefs[20] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc - 5*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] + 5*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] - 2*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[26] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20] - 15*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*yc + 12*coefs[25]*coefs[25]*coefs[20]*coefs[27]*coefs[24] - coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26] - coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[20] - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*yc + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*yc + 6*coefs[25]*y*coefs[20]*coefs[20]*coefs[26]*coefs[24] - 6*coefs[25]*y*coefs[20]*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*yc - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24] - 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc*yc - 18*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24] + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[24] - 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*yc + 2*y*coefs[20]*coefs[20]*coefs[20]*coefs[24]*yc + y*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] - y*coefs[20]*coefs[20]*coefs[24]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*yc - 2*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*Gc*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc*yc - coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[26]*coefs[24]*coefs[24] + 2*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[24]*coefs[24] - 3*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*yc;
-	coefs[1] = -6*coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27] - coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26] + coefs[25]*coefs[25]*y*coefs[20]*coefs[20]*coefs[20] + coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26] - coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*yc - 12*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24] - 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24] + 2*coefs[25]*y*coefs[20]*coefs[20]*coefs[20]*coefs[24] + 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24] - 2*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 6*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*yc - 6*coefs[25]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] - y*coefs[20]*coefs[20]*coefs[20]*coefs[26]*coefs[24]*coefs[24] + y*coefs[20]*coefs[20]*coefs[20]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[26]*coefs[24]*coefs[24] - coefs[20]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + 3*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*yc;
-	coefs[0] = coefs[25]*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27] + 3*coefs[25]*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24] + 3*coefs[25]*coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24] + coefs[20]*coefs[20]*coefs[20]*coefs[27]*coefs[24]*coefs[24]*coefs[24];
-
-	bad = 1;
-	dzmax = 1.0e-12;
-	disim = -1.;
-	f1 = 0;
-	while (bad) {
-
-#ifdef _PRINT_TIMES
-		tim0 = Environment::TickCount;
-#endif
-		cmplx_roots_gen(zr, coefs, 9, true, true);	
-#ifdef _PRINT_TIMES
-		tim1 = Environment::TickCount;
-		inc += tim1 - tim0;
-#endif
-		// apply lens equation to check if it is really solved
-		for (int i = 0; i<9; i++) {
-			z = zr[i];
-			zc = conj(z);
-			good[i] = abs(_LL_shear); // Lens equation check
-			switch (i) {
-			case 0:
-				worst1 = i;
-				break;
-			case 1:
-				if (good[i]>good[worst1]) {
-					worst2 = worst1;
-					worst1 = i;
-				}
-				else worst2 = i;
-				break;
-			case 2:
-				if (good[i]>good[worst1]) {
-					worst3 = worst2;
-					worst2 = worst1;
-					worst1 = i;
-				}
-				else if (good[i]>good[worst2]) {
-					worst3 = worst2;
-					worst2 = i;
-				}
-				else worst3 = i;
-				break;
-			default:
-				if (good[i]>good[worst1]) {
-					worst3 = worst2;
-					worst2 = worst1;
-					worst1 = i;
-				}
-				else if (good[i]>good[worst2]) {
-					worst3 = worst2;
-					worst2 = i;
-				}
-				else if (good[i]>good[worst3]) {
-					worst3 = i;
-				}
-			}
-		}
-		if ((good[worst3]<dlmax) && ((good[worst1]<dlmax) || (good[worst2]>1.e2*good[worst3]))) {
-			bad = 0;
-		}
-		else {
-			if ((disim>0) && (good[worst3] / disim>0.99)) {
-				if (f1>1) {
-					bad = 0;
-				}
-				else {
-					dzmax /= 10;
-					f1++;
-				}
-			}
-			else {
-				disim = good[worst3];
-				dzmax /= 10;
-			}
-		}
-	}
-	Prov = new _curve;
-	// if (good[worst1]>dlmax) {
-	// 	for (int i = 0; i<5; i++) {
-	// 		if ((i != worst1) && (i != worst2)) {
-	// 			//if((i==worst3)&&(good[i]>dlmax)&&(good[worst2]>1.e2*good[worst3])){
-	// 			//	zr[i]=(coefs[21].re<coefs[22].re)? 0.5*coefs[20]+coefs[21]/(0.5*coefs[20]-yc-coefs[22]/coefs[20]) : -0.5*coefs[20]+coefs[22]/(-0.5*coefs[20]-yc+coefs[21]/coefs[20]);
-	// 			//}
-	// 			Prov->append(zr[i].re, zr[i].im);
-	// 			_Jacobians1				
-	// 			if (theta->th >= 0){
-	// 				_Jacobians2
-	// 			}else {
-	// 				_Jacobians3
-	// 				corrquad += cq;
-	// 			}
-
-	// 			Prov->last->theta = theta;
-
-	// 		}
-	// 	}
-	// 	if (theta->th < 0) {
-	// 		dz = zr[worst2] - zr[worst1];
-
-	// 		int i = worst1;
-	// 		_Jacobians1
-	// 		_Jacobians4
-	// 		corrquad2 = cq;
-
-	// 		i = worst2;
-	// 		_Jacobians1
-	// 		_Jacobians4
-	// 		if(cq<corrquad2) corrquad2= cq;
-	// 		//_Jacobians3
-	// 		//corrquad2 +=  1/cq;
-
-	// 	}
-	// 	else {
-	// 		theta->errworst = abs(zr[worst1] - zr[worst2]);
-	// 	}
-
-	// }
-	// else {
-	f1 = 0;
-	for (int i = 0; i<9; i++) { 
-		if ( (good[i] < dlmax) && ((fabs(zr[i].re) > dlmax) || (fabs(zr[i].im) > dlmax)) && ((fabs(zr[i].re - coefs[20].re) > dlmax) || (fabs(zr[i].im) > dlmax)) ) {
-			Prov->append(zr[i].re, zr[i].im);
-
-			_Jacobians1_shear
-			if (theta->th >= 0) {
-				_Jacobians2
-			}else {
-				_Jacobians3
-				corrquad += cq;
-			}
-
-			Prov->last->theta = theta;
-
-			if (fabs(dJ.re)<1.e-5) f1 = 1;
-		}
-	}
-	theta->errworst = -1.e100;
-	// check Jacobians in ambiguous cases
-	if (f1) {
-		left = right = center = fifth = 0;
-		dJ.re = 0;
-		for (scan = Prov->first; scan; scan = scan->next) {
-			if (_sign(scan->x2) == _sign(y.im)) {
-				prin = scan;
-			}
-			else {
-				dz.re = fabs(scan->dJ);
-				if (dz.re>dJ.re) {
-					fifth = scan;
-					dJ.re = dz.re;
-				}
-			}
-		}
-		for (scan = Prov->first; scan; scan = scan->next) {
-			if ((scan != prin) && (scan != fifth)) {
-				if (left) {
-					if (scan->x1<left->x1) {
-						if (left != right) {
-							center = left;
-						}
-						left = scan;
-					}
-					else {
-						if (scan->x1>right->x1) {
-							if (left != right) {
-								center = right;
-							}
-							right = scan;
 						}
 						else {
-							center = scan;
+							left = right = center = scan;
 						}
 					}
 				}
-				else {
-					left = right = center = scan;
-				}
+				if (left->dJ > 0) left->dJ = -left->dJ;
+				if (center->dJ < 0) center->dJ = -center->dJ;
+				if (right->dJ > 0) right->dJ = -right->dJ;
 			}
 		}
-		if (left->dJ>0) left->dJ = -left->dJ;
-		if (center->dJ<0) center->dJ = -center->dJ;
-		if (right->dJ>0) right->dJ = -right->dJ;
 	}
-	// }
+	if (checkJac != -1) {
+//		printf("\ncheckJac!");
+		_point *scan2;
+		for (scan = Prov->first; scan; scan = scan2) {
+			scan2 = scan->next;
+			Prov->drop(scan);
+			delete scan;
+		}
+	}
 	return Prov;
 }
-
-
 
 void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 	static double A[5][5];
@@ -2319,14 +2900,16 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 	static _curve *scurve, *scurve2;
 
 	_theta *theta;
-	double th, mi, cmp, cmp2,cmp_2;
+	static double th, mi, cmp, cmp2,cmp_2,dx2,avgx2,avgx1,avg2x1,pref,d2x2,dx1,d2x1,avgwedgex1,avgwedgex2,parab1,parab2;
+        
 	int nprec = 0, npres, nfoll = 0, issoc[2], ij;
 
 	theta = Newpts->first->theta;
 	th = theta->th;
 	theta->Mag = theta->prev->Mag = theta->maxerr = theta->prev->maxerr = 0;
+        theta->astrox1 = theta->prev->astrox1 = theta->astrox2 = theta->prev->astrox2 = 0;
 	if (Newpts->length == 3) {
-		mi = theta->next->errworst - theta->errworst;
+		mi = theta->next->errworst - theta->errworst;  
 		if ((mi>theta->errworst) && (theta->prev->errworst>0.)) {
 			theta->prev->maxerr = mi*mi;
 		}
@@ -2336,12 +2919,12 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		}
 	}
 
-	// Per ciascuna immagine troviamo il punto in cui inserire i nuovi punti
+	// Per ciascuna immagine troviamo il punto in cui inserire i nuovi punti 
 	scurve = Sols->first;
 	for (int i = 0; i<Sols->length; i++) {
 		if (th<scurve->first->theta->th) {
 			if (th>scurve->first->theta->prev->prev->th) {
-				cfoll[nfoll] = scurve; // immagine coinvolta all'inizio
+				cfoll[nfoll] = scurve; // immagine coinvolta all'inizio   
 				nfoll++;
 				scurve2 = scurve->next;
 				Sols->drop(scurve);
@@ -2355,12 +2938,12 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		else {
 			if (th>scurve->last->theta->th) {
 				if (th<scurve->last->theta->next->next->th) {
-					cprec[nprec] = scurve; // immagine coinvolta alla fine
+					cprec[nprec] = scurve; // immagine coinvolta alla fine  
 					nprec++;
 				}
 			}
 			else {
-				// immagine coinvolta al centro
+				// immagine coinvolta al centro   
 				scan = scurve->last;
 				while (scan->theta->th>th) {
 					scan = scan->prev;
@@ -2383,7 +2966,8 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 	//}
 
 
-	// Caso di creazione nuove immagini
+	// Caso di creazione nuove immagini// 
+
 	if (nprec<npres) {
 		mi = 1.e100;
 		scan = Newpts->first;
@@ -2416,30 +3000,66 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		scan2 = isso[1];
 
 		cmp2 = fabs(scan->d.re*scan2->d.re + scan->d.im*scan2->d.im);
-		cmp = sqrt(mi / cmp2);
+		cmp = sqrt(mi / cmp2);   // Delta theta tilde
+ 
 		cmp_2 = cmp*cmp;
 		mi = cmp_2*cmp*0.04166666667;
-		scurve->parabstart = -(-scan->ds + scan2->ds)*mi;
-
+		parab1 = -(-scan->ds + scan2->ds)*mi; 
+		parab2=-0.0833333333 * ((scan2->x1 - scan->x1) * (scan2->d.im + scan->d.im) - (scan2->x2 - scan->x2) * (scan2->d.re + scan->d.re)) * cmp;
+		scurve->parabstart = 0.5 * (parab1 + parab2);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////astro: created image:
+        if(astrometry){
+			avgwedgex1=-(-scan->x1*scan->ds + scan2->x1*scan2->ds)*mi;
+			avgwedgex2=-(-scan->x2*scan->ds + scan2->x2*scan2->ds)*mi;
+			dx2=-(-scan->d.im+scan2->d.im);
+			d2x2=dx2*dx2;
+			dx1=-(-scan->d.re+scan2->d.re);
+			d2x1=dx1*dx1; 
+			scurve->parabastrox1 =-0.125*d2x1*dx2*mi-avgwedgex1;
+			scurve->parabastrox2 =-0.125*d2x2*dx1*mi+avgwedgex2;
+		}
 #ifdef _PRINT_ERRORS
 		printf("\n%le %le %le %le %le %le %le %le", scan->x1, scan->x2, scan->dJ, (scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2, scurve->parabstart, (scan->ds + scan2->ds)*mi / 2, fabs(scurve->parabstart)*(cmp*cmp) / 10, 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) - 2 * cmp*cmp2)*cmp);
 #endif
 
-		mi = fabs((scan->ds + scan2->ds)*mi *0.5) + fabs(scurve->parabstart)*(cmp_2 *0.1) + 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) - 2 * cmp*cmp2)*cmp;
+		mi = fabs((parab1-parab2)*0.5) + fabs(scurve->parabstart)*(cmp_2 *0.1) + 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) - 2 * cmp*cmp2)*cmp;
 #ifdef _noparab
 		mi = fabs(scurve->parabstart) * 2 + 0 * fabs((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2 * cmp*cmp / 6);
 		scurve->parabstart = 0.;
 #endif
+ 
 #ifdef _selectimage
 		if (_selectionimage)
 #endif
-		theta->prev->Mag -= ((scan->dJ>0) ? -1 : 1)*((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5 + scurve->parabstart);
+		pref=(scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5;
+        theta->prev->Mag -= ((scan->dJ>0) ? -1 : 1)*(pref + scurve->parabstart);
 		theta->prev->maxerr += mi;
+
+#ifdef _ERRORS_ANALYTIC
+		char filnam[32];
+		sprintf(filnam, "%02dprev.txt", NPS);
+		FILE* f = fopen(filnam, "a+");
+		fprintf(f, "%.15le %.15le %.15le\n", -((scan->dJ > 0) ? -1 : 1)* (pref), -((scan->dJ > 0) ? -1 : 1)* (scurve->parabstart), mi);
+		fclose(f);
+#endif
 		scurve2->parabstart = -scurve->parabstart;
+               
+                if(astrometry){
+		        dx2=scan2->x2 - scan->x2;
+		        avgx1=scan->x1 + scan2->x1;
+		        avg2x1=avgx1*avgx1;
+		        avgx2=scan->x2 + scan2->x2;
+		        theta->prev->astrox1 += ((scan->dJ>0) ? -1 : 1)*(avg2x1*dx2*0.125+scurve->parabastrox1);
+		        theta->prev->astrox2 -= ((scan->dJ>0) ? -1 : 1)*(pref*avgx2*0.25+scurve->parabastrox2);
+		        scurve2->parabastrox2=-scurve->parabastrox2;
+		        scurve2->parabastrox1=-scurve->parabastrox1;
+                }
+
+		 
 
 	}
 
-	// Caso di distruzione immagini
+	// Caso di distruzione immagini// 
 	if (nprec>npres) {
 		mi = 1.e100;
 		for (int i = 0; i<nprec - 1; i++) {
@@ -2462,13 +3082,26 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		cmp = sqrt(mi / cmp2);
 		cmp_2 = cmp*cmp;
 		mi = cmp_2*cmp *0.04166666666667;
-		scan->parab = -(scan->ds - scan2->ds)*mi;
-
+		parab1 = -(scan->ds - scan2->ds)*mi;
+		parab2 = 0.0833333333 * ((scan2->x1 - scan->x1) * (scan2->d.im + scan->d.im) - (scan2->x2 - scan->x2) * (scan2->d.re + scan->d.re)) * cmp;
+		scan->parab = 0.5 * (parab1 + parab2);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////astro: destructed image:
+                if(astrometry){
+		        avgwedgex1=-(scan->x1*scan->ds - scan2->x1*scan2->ds)*mi;
+		        avgwedgex2=-(scan->x2*scan->ds - scan2->x2*scan2->ds)*mi;
+			dx2=-(scan->d.im-scan2->d.im);
+		        d2x2=dx2*dx2;
+		        dx1=-(scan->d.re-scan2->d.re);
+		        d2x1=dx1*dx1; 
+		        scan->parabastrox1 =-0.125*d2x1*dx2*mi-avgwedgex1;
+		        scan->parabastrox2 =-0.125*d2x2*dx1*mi+avgwedgex2;
+		       
+               }
 #ifdef _PRINT_ERRORS
 		printf("\n%le %le %le %le %le %le %le %le", scan->x1, scan->x2, scan->dJ, (scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2, scan->parab, (scan->ds + scan2->ds)*mi / 2, fabs(scan->parab)*(cmp*cmp) / 10, 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) + 2 * cmp*cmp2)*cmp);
 #endif
 
-		mi = fabs((scan->ds + scan2->ds)*mi *0.5) + fabs(scan->parab)*(cmp*cmp *0.1) + 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) + 2.0 * cmp*cmp2)*cmp;
+		mi = fabs((parab1-parab2)*0.5) + fabs(scan->parab)*(cmp*cmp *0.1) + 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) + 2.0 * cmp*cmp2)*cmp;
 #ifdef _noparab
 		mi = fabs(scan->parab) * 2 + 0 * fabs((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2 * cmp*cmp / 6);
 		scan->parab = 0.;
@@ -2476,10 +3109,31 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 #ifdef _selectimage
 		if (_selectionimage)
 #endif
-			theta->prev->Mag += ((scan->dJ>0) ? -1 : 1)*((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5 + scan->parab);
+		pref=(scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5;
+		theta->prev->Mag += ((scan->dJ>0) ? -1 : 1)*(pref+ scan->parab);
+#ifdef _ERRORS_ANALYTIC
+		char filnam[32];
+		sprintf(filnam, "%02dprev.txt", NPS);
+		FILE* f = fopen(filnam, "a+");
+		fprintf(f, "%.15le %.15le %.15le\n", ((scan->dJ > 0) ? -1 : 1)* (pref), ((scan->dJ > 0) ? -1 : 1)* (scan->parab), mi);
+		fclose(f);
+#endif
+		if(astrometry){
+			dx2=scan2->x2 - scan->x2;
+			avgx1=scan->x1 + scan2->x1;
+			avg2x1=avgx1*avgx1;
+			avgx2=scan->x2 + scan2->x2;
+			theta->prev->astrox1 -= ((scan->dJ>0) ? -1 : 1)*(avg2x1*dx2*0.125+scan->parabastrox1);
+			theta->prev->astrox2 += ((scan->dJ>0) ? -1 : 1)*(pref*avgx2*0.25+scan->parabastrox2);
+		}
 		theta->prev->maxerr += mi;
 		scan2->parab = -scan->parab;
+        if(astrometry){
+			scan2->parabastrox2 =-scan->parabastrox2;
+			scan2->parabastrox1 =-scan->parabastrox1;
+		}
 
+ 
 		nprec -= 2;
 		ij = 0;
 		for (int i = 0; i<nprec; i++) {
@@ -2489,13 +3143,13 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		}
 	}
 
-	// Costruzione matrice distanze con immagini precedenti
+	// Costruzione matrice distanze con immagini precedenti// 
 	mi = 1.e100;
 	for (int i = 0; i<nprec; i++) {
 		cpres[i] = cprec[i];
 		scan = Newpts->first;
 		for (int j = 0; j<nprec; j++) {
-			A[i][j] = *(cprec[i]->last) - *scan;
+			A[i][j] = (signbit(cprec[i]->last->dJ) == signbit(scan->dJ))? *(cprec[i]->last) - *scan : 100;
 			if (A[i][j]<mi) {
 				mi = A[i][j];
 				issoc[0] = i;
@@ -2506,7 +3160,7 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		}
 	}
 
-	//  Associazione con le immagini che precedono
+	//  Associazione con le immagini che precedono// 
 	while (nprec) {
 		scan = cprec[issoc[0]]->last;
 		scan2 = isso[1];
@@ -2514,14 +3168,27 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		cmp2 = mi / fabs(scan->d.re*scan2->d.re + scan->d.im*scan2->d.im);
 		cmp = (scan->theta->th - scan2->theta->th);
 		cmp_2 = cmp*cmp;
-		mi = cmp_2*cmp *0.0416666666666667;
-		scan->parab = (scan->ds + scan2->ds)*mi; // Correzione parabolica
-
+		mi = cmp_2*cmp *0.0416666666666667;  ////// (1/24 cube(delta Teta))
+		parab1 = (scan->ds + scan2->ds)*mi; // Vecchia Correzione parabolica
+		// Nuova correzione parabolica
+		parab2 = 0.0833333333 * ((scan2->x1 - scan->x1) * (scan2->d.im - scan->d.im) - (scan2->x2 - scan->x2) * (scan2->d.re - scan->d.re)) * cmp;
+		scan->parab = 0.5*(parab1+parab2);
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////astro: ordinary image:
+        if(astrometry){
+			avgwedgex1=(scan->x1*scan->ds + scan2->x1*scan2->ds)*mi;
+		    avgwedgex2=(scan->x2*scan->ds + scan2->x2*scan2->ds)*mi;
+			dx2=scan->d.im+scan2->d.im;
+			d2x2=dx2*dx2;
+			dx1=scan->d.re+scan2->d.re;
+			d2x1=dx1*dx1; 
+			scan->parabastrox1 =-0.125*d2x1*dx2*mi-avgwedgex1;
+			scan->parabastrox2 =-0.125*d2x2*dx1*mi+avgwedgex2;
+		}
 #ifdef _PRINT_ERRORS
 		printf("\n%le %le %le %le %le %le %le %le", scan->x1, scan->x2, scan->dJ, (scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2, scan->parab, (scan->ds - scan2->ds)*mi / 2, fabs(scan->parab)*(cmp2) / 10, fabs(scan->parab)*(1.5*fabs(cmp2 / (cmp*cmp) - 1)));
 #endif
 
-		mi = fabs((scan->ds - scan2->ds)*mi *0.5) + fabs(scan->parab*(cmp2 *0.1 + 1.5*fabs(cmp2 / (cmp_2) - 1)));
+		mi = fabs((parab1 - parab2) *0.5) + fabs(scan->parab*(cmp2 *0.1 + 1.5*fabs(cmp2 / (cmp_2) - 1)));
 #ifdef _noparab
 		mi = fabs(scan->parab) * 2 + 0 * fabs((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2 * cmp*cmp / 6);
 		scan->parab = 0.;
@@ -2529,8 +3196,26 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 #ifdef _selectimage
 		if (_selectionimage)
 #endif
-		theta->prev->Mag += ((scan->dJ>0) ? -1 : 1)*((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5 + scan->parab);
+		pref=(scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5;
+		theta->prev->Mag += ((scan->dJ>0) ? -1 : 1)*( pref+ scan->parab);
+#ifdef _ERRORS_ANALYTIC
+				char filnam[32];
+				sprintf(filnam, "%02dprev.txt", NPS);
+				FILE* f = fopen(filnam, "a+");
+				fprintf(f, "%.15le %.15le %.15le\n", ((scan->dJ > 0) ? -1 : 1)* (pref), ((scan->dJ > 0) ? -1 : 1)* (scan->parab),mi);
+				fclose(f);
+#endif
+		if(astrometry){
+			dx2=scan2->x2 - scan->x2;
+			avgx1=scan->x1 + scan2->x1;
+			avg2x1=avgx1*avgx1;
+			avgx2=scan->x2 + scan2->x2;
+			theta->prev->astrox1 -= ((scan->dJ>0) ? -1 : 1)*(avg2x1*dx2*0.125+scan->parabastrox1);
+			theta->prev->astrox2 += ((scan->dJ>0) ? -1 : 1)*(pref*avgx2*0.25+scan->parabastrox2);
+        }
 		theta->prev->maxerr += mi;
+                 
+
 
 		Newpts->drop(isso[1]);
 		cprec[issoc[0]]->append(isso[1]);
@@ -2568,9 +3253,10 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 	printf("\nN");
 #endif
 
-	// immagini seguenti
+	// immagini seguenti// 
 	if (nfoll) {
 		// Caso di creazione nuove immagini
+ 
 		if (npres<nfoll) {
 			mi = 1.e100;
 			for (int i = 0; i<nfoll - 1; i++) {
@@ -2593,12 +3279,24 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 			cmp = sqrt(mi / cmp2);
 			cmp_2 = cmp*cmp;
 			mi = cmp_2*cmp *0.04166666666666667;
-			cfoll[issoc[0]]->parabstart = (scan->ds - scan2->ds)*mi;
-
+			parab1 = (scan->ds - scan2->ds)*mi;
+			parab2 = -0.0833333333 * ((scan2->x1 - scan->x1) * (scan2->d.im + scan->d.im) - (scan2->x2 - scan->x2) * (scan2->d.re + scan->d.re)) * cmp;
+			cfoll[issoc[0]]->parabstart = 0.5 * (parab1 + parab2);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////astro: created image:
+                if(astrometry){
+		        avgwedgex1=(scan->x1*scan->ds - scan2->x1*scan2->ds)*mi;
+		        avgwedgex2=(scan->x2*scan->ds - scan2->x2*scan2->ds)*mi;
+			dx2=-(-scan->d.im+scan2->d.im);
+		        d2x2=dx2*dx2;
+		        dx1=-(-scan->d.re+scan2->d.re);
+		        d2x1=dx1*dx1;
+		        cfoll[issoc[0]]->parabastrox1 =-0.125*d2x1*dx2*mi-avgwedgex1; 
+		        cfoll[issoc[0]]->parabastrox2 =-0.125*d2x2*dx1*mi+avgwedgex2;
+                }
 #ifdef _PRINT_ERRORS
 			printf("\n%le %le %le %le %le %le %le %le", scan->x1, scan->x2, scan->dJ, (scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2, cfoll[issoc[0]]->parabstart, (scan->ds + scan2->ds)*mi / 2, fabs(cfoll[issoc[0]]->parabstart)*(cmp*cmp) / 10, 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) - 2 * cmp*cmp2)*cmp);
 #endif
-			mi = fabs((scan->ds + scan2->ds)*mi *0.5) + fabs(cfoll[issoc[0]]->parabstart)*(cmp*cmp *0.1) + 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) - 2.0 * cmp*cmp2)*cmp;
+			mi = fabs((parab1-parab2) *0.5) + fabs(cfoll[issoc[0]]->parabstart)*(cmp*cmp *0.1) + 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) - 2.0 * cmp*cmp2)*cmp;
 #ifdef _noparab
 			mi = fabs(cfoll[issoc[0]]->parabstart) * 2 + 0 * fabs((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2 * cmp*cmp / 6);
 			cfoll[issoc[0]]->parabstart = 0.;
@@ -2606,10 +3304,30 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 #ifdef _selectimage
 			if (_selectionimage)
 #endif
-				theta->Mag -= ((scan->dJ>0) ? -1 : 1)*((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5 + cfoll[issoc[0]]->parabstart);
+			pref=(scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5;
+			theta->Mag -= ((scan->dJ>0) ? -1 : 1)*(pref + cfoll[issoc[0]]->parabstart);
+#ifdef _ERRORS_ANALYTIC
+			char filnam[32];
+			sprintf(filnam, "%02dfoll.txt", NPS);
+			FILE* f = fopen(filnam, "a+");
+			fprintf(f, "%.15le %.15le %.15le\n", -((scan->dJ > 0) ? -1 : 1)* (pref), -((scan->dJ > 0) ? -1 : 1)* (cfoll[issoc[0]]->parabstart), mi);
+			fclose(f);
+#endif
+            if(astrometry){
+				dx2=scan2->x2 - scan->x2;
+		      	avgx1=scan->x1 + scan2->x1;
+				avg2x1=avgx1*avgx1;
+				avgx2=scan->x2 + scan2->x2;
+				theta->astrox1 += ((scan->dJ>0) ? -1 : 1)*(avg2x1*dx2*0.125+cfoll[issoc[0]]->parabastrox1);
+				theta->astrox2 -= ((scan->dJ>0) ? -1 : 1)*(pref*avgx2*0.25+cfoll[issoc[0]]->parabastrox2);
+			}
 			theta->maxerr += mi;
-			cfoll[issoc[1]]->parabstart = -cfoll[issoc[0]]->parabstart;
-
+                        
+			cfoll[issoc[1]]->parabstart = -cfoll[issoc[0]]->parabstart; 
+			if(astrometry){
+				cfoll[issoc[1]]->parabastrox2=-cfoll[issoc[0]]->parabastrox2;
+				cfoll[issoc[1]]->parabastrox1=-cfoll[issoc[0]]->parabastrox1;
+			}
 			Sols->append(cfoll[issoc[0]]);
 			Sols->append(cfoll[issoc[1]]);
 			nfoll -= 2;
@@ -2645,13 +3363,26 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 			cmp = sqrt(mi / cmp2);
 			cmp_2 = cmp*cmp;
 			mi = cmp_2*cmp *0.0416666666667;
-			scan->parab = -(scan->ds - scan2->ds)*mi;
+			parab1 = -(scan->ds - scan2->ds)*mi;
+			parab2 = 0.0833333333 * ((scan2->x1 - scan->x1) * (scan2->d.im + scan->d.im) - (scan2->x2 - scan->x2) * (scan2->d.re + scan->d.re)) * cmp;
+			scan->parab = 0.5 * (parab1 + parab2);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////astro: destructed image:
+            if(astrometry){
+		        avgwedgex1=-(scan->x1*scan->ds - scan2->x1*scan2->ds)*mi;
+		        avgwedgex2=-(scan->x2*scan->ds - scan2->x2*scan2->ds)*mi;
+				dx2=-(scan->d.im-scan2->d.im);
+		        d2x2=dx2*dx2;
+		        dx1=-(scan->d.re-scan2->d.re);
+		        d2x1=dx1*dx1; 
+		        scan->parabastrox1 =-0.125*d2x1*dx2*mi-avgwedgex1;
+		        scan->parabastrox2 =-0.125*d2x2*dx1*mi+avgwedgex2;
+            }
 
 #ifdef _PRINT_ERRORS
 			printf("\n%le %le %le %le %le %le %le %le", scan->x1, scan->x2, scan->dJ, (scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2, scan->parab, (scan->ds + scan2->ds)*mi / 2, fabs(scan->parab)*(cmp*cmp) / 10, 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) + 2 * cmp*cmp2)*cmp);
 #endif
 
-			mi = fabs((scan->ds + scan2->ds)*mi *0.5) + fabs(scan->parab)*(cmp*cmp *0.1) + 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) + 2.0 * cmp*cmp2)*cmp;
+			mi = fabs((parab1-parab2) *0.5) + fabs(scan->parab)*(cmp*cmp *0.1) + 1.5*fabs(((scan->d.re - scan2->d.re)*(scan->x1 - scan2->x1) + (scan->d.im - scan2->d.im)*(scan->x2 - scan2->x2)) + 2.0 * cmp*cmp2)*cmp;
 #ifdef _noparab
 			mi = fabs(scan->parab) * 2 + 0 * fabs((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2 * cmp*cmp / 6);
 			scan->parab = 0.;
@@ -2659,10 +3390,29 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 #ifdef _selectimage
 			if (_selectionimage)
 #endif
-				theta->Mag += ((scan->dJ>0) ? -1 : 1)*((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5 + scan->parab);
+			pref=(scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5;
+			theta->Mag += ((scan->dJ>0) ? -1 : 1)*( pref + scan->parab);
+#ifdef _ERRORS_ANALYTIC
+			char filnam[32];
+			sprintf(filnam, "%02dfoll.txt", NPS);
+			FILE* f = fopen(filnam, "a+");
+			fprintf(f, "%.15le %.15le %.15le\n", ((scan->dJ > 0) ? -1 : 1)* (pref), ((scan->dJ > 0) ? -1 : 1)* (scan->parab), mi);
+			fclose(f);
+#endif
+			if(astrometry){
+				dx2=scan2->x2 - scan->x2;
+				avgx1=scan->x1 + scan2->x1;
+				avg2x1=avgx1*avgx1;
+				avgx2=scan->x2 + scan2->x2;
+				theta->astrox1 -= ((scan->dJ>0) ? -1 : 1)*(avg2x1*dx2*0.125+scan->parabastrox1);
+				theta->astrox2 += ((scan->dJ>0) ? -1 : 1)*(pref*avgx2*0.25+scan->parabastrox2);
+			}
 			theta->maxerr += mi;
 			scan2->parab = -scan->parab;
-
+			if(astrometry){
+				scan2->parabastrox2=-scan->parabastrox2;
+				scan2->parabastrox1=-scan->parabastrox1;                        
+			}
 			npres -= 2;
 			ij = 0;
 			for (int i = 0; i<npres; i++) {
@@ -2673,10 +3423,11 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		}
 
 		// Costruzione matrice distanze con immagini seguenti
+ 
 		mi = 1.e100;
 		for (int i = 0; i<npres; i++) {
 			for (int j = 0; j<npres; j++) {
-				A[i][j] = *(cpres[i]->last) - *(cfoll[j]->first);
+				A[i][j] = signbit(cpres[i]->last->dJ) == signbit(cfoll[j]->first->dJ)? *(cpres[i]->last) - *(cfoll[j]->first) : 100;
 				if (A[i][j]<mi) {
 					mi = A[i][j];
 					issoc[0] = i;
@@ -2686,22 +3437,35 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 		}
 
 
-		//  Associazione con le immagini che seguono
+		//  Associazione con le immagini che seguono// 
 		while (npres) {
 			scan = cpres[issoc[0]]->last;
 			scan2 = cfoll[issoc[1]]->first;
-
 			cmp2 = mi / fabs(scan->d.re*scan2->d.re + scan->d.im*scan2->d.im);
 			cmp = (scan->theta->th - scan2->theta->th);
 			cmp_2 = cmp*cmp;
 			mi = cmp_2*cmp *0.041666666667;
-			scan->parab = (scan->ds + scan2->ds)*mi; // Correzione parabolica
+			parab1 = (scan->ds + scan2->ds)*mi; // Vecchia Correzione parabolica
+			// Nuova correzione parabolica
+			parab2 = 0.0833333333 * ((scan2->x1 - scan->x1) * (scan2->d.im - scan->d.im) - (scan2->x2 - scan->x2) * (scan2->d.re - scan->d.re)) * cmp;
+			scan->parab = 0.5*(parab1+parab2);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////astro: ordinary image:
+            if(astrometry){
+		        avgwedgex1=(scan->x1*scan->ds + scan2->x1*scan2->ds)*mi;
+		        avgwedgex2=(scan->x2*scan->ds + scan2->x2*scan2->ds)*mi;
+				dx2=scan->d.im+scan2->d.im;
+		        d2x2=dx2*dx2;
+		        dx1=scan->d.re+scan2->d.re;
+		        d2x1=dx1*dx1; 
+		        scan->parabastrox1 =-0.125*d2x1*dx2*mi-avgwedgex1;
+		        scan->parabastrox2 =-0.125*d2x2*dx1*mi+avgwedgex2;
+            }    
 
 #ifdef _PRINT_ERRORS
 			printf("\n%le %le %le %le %le %le %le %le", scan->x1, scan->x2, scan->dJ, (scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2, scan->parab, (scan->ds - scan2->ds)*mi / 2, fabs(scan->parab)*(cmp2) / 10, fabs(scan->parab)*(1.5*fabs(cmp2 / (cmp*cmp) - 1)));
 #endif
 
-			mi = fabs((scan->ds - scan2->ds)*mi *0.5) + fabs(scan->parab*(cmp2 *0.1 + 1.5*fabs(cmp2 / (cmp_2) - 1)));
+			mi = fabs((parab1-parab2) *0.5) + fabs(scan->parab*(cmp2 *0.1 + 1.5*fabs(cmp2 / (cmp_2) - 1)));
 #ifdef _noparab
 			mi = fabs(scan->parab) * 2 + 0 * fabs((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) / 2 * cmp*cmp / 6);
 			scan->parab = 0.;
@@ -2709,10 +3473,24 @@ void VBBinaryLensing::OrderImages(_sols *Sols, _curve *Newpts) {
 #ifdef _selectimage
 			if (_selectionimage)
 #endif
-				theta->Mag += ((scan->dJ>0) ? -1 : 1)*((scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5 + scan->parab);
-
+            pref=(scan->x2 + scan2->x2)*(scan2->x1 - scan->x1) *0.5;
+			theta->Mag += ((scan->dJ>0) ? -1 : 1)*(pref + scan->parab);
+			if(astrometry){
+				dx2=scan2->x2 - scan->x2;
+				avgx1=scan->x1 + scan2->x1;
+				avg2x1 = avgx1 * avgx1;
+				avgx2=scan->x2 + scan2->x2;
+				theta->astrox1 -= ((scan->dJ>0) ? -1 : 1)*(avg2x1*dx2*0.125+scan->parabastrox1);
+				theta->astrox2 += ((scan->dJ>0) ? -1 : 1)*(pref*avgx2*0.25+scan->parabastrox2);
+			}
 			theta->maxerr += mi;
-
+#ifdef _ERRORS_ANALYTIC
+				char filnam[32];
+				sprintf(filnam, "%02dfoll.txt", NPS);
+				FILE* f = fopen(filnam, "a+");
+				fprintf(f, "%.15le %.15le %.15le\n", ((scan->dJ > 0) ? -1 : 1)* (pref), ((scan->dJ > 0) ? -1 : 1)* (scan->parab), mi);
+				fclose(f);
+#endif
 			cpres[issoc[0]]->join(cfoll[issoc[1]]);
 
 			npres--;
@@ -3153,6 +3931,21 @@ _theta *_thetas::insert(double th) {
 	length++;
 	//	scan2->maxerr=0.;
 	return scan2;
+}
+
+void _thetas::remove(_theta* stheta) {
+	_theta *scan;
+	scan = first;
+	while (scan!=0) {
+		if (scan == stheta) {
+			if(scan!=first) scan->prev->next = stheta->next;
+			if (scan != last) scan->next->prev = stheta->prev;
+			delete stheta;
+			length--;
+			break;
+		}
+		scan = scan->next;
+	}
 }
 
 //////////////////////////////
@@ -3933,7 +4726,7 @@ void VBBinaryLensing::cmplx_laguerre2newton(complex *poly, int degree, complex *
 
 					//NEXT LINE PROBABLY CAN BE COMMENTED OUT 
 					if (real(denom_sqrt) > 0.0) {
-						//real part of a square root is positive for probably all compilers. You can �
+						//real part of a square root is positive for probably all compilers. You can \F9
 						//test this on your compiler and if so, you can omit this check
 						denom = c_one_nth + n_1_nth * denom_sqrt;
 					}
