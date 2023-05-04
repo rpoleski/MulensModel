@@ -310,7 +310,7 @@ def test_fit_fluxes():
 
 
 def create_0939_parallax_model():
-    # Create Model
+    """Create Model instance with parallax"""
     model_parameters = {
         't_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
         'pi_E_N': -0.248, 'pi_E_E': 0.234, 't_0_par': 2456836.2}
@@ -356,8 +356,8 @@ def test_get_d_u_d_params():
     derivs_no_ephm = fit_no_ephm._get_d_u_d_params(parameters)
 
     for param in parameters:
-        assert (np.abs(
-            (derivs_ephm[param] / derivs_no_ephm[param] - 1.)) > 0.001).all()
+        ratio = derivs_ephm[param] / derivs_no_ephm[param]
+        assert (np.abs(ratio - 1.) > 0.001).all()
 
 
 def test_bad_data():
