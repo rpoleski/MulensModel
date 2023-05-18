@@ -364,8 +364,12 @@ class ModelParameters(object):
         if 'pi_E' in keys:
             keys.remove('pi_E')
             keys |= {'pi_E_E', 'pi_E_N'}
+
         if 'pi_E_E' in keys or 'pi_E_N' in keys:
             keys |= {'t_0_par'}
+
+        if 'ds_dt' in keys or 'dalpha_dt' in keys:
+            keys |= {'t_0_kep'}
 
         # Below we define dict of dicts. Key of inner ones: 'width',
         # 'precision', and optional: 'unit' and 'name'.
@@ -389,6 +393,7 @@ class ModelParameters(object):
             'dalpha_dt': {
                 'width': 18, 'precision': 5, 'unit': 'deg/yr',
                 'name': 'dalpha/dt'},
+            't_0_kep': {'width': 13, 'precision': 5, 'unit': 'HJD'},
             'x_caustic_in': {'width': 13, 'precision': 7},
             'x_caustic_out': {'width': 13, 'precision': 7},
             't_caustic_in': {'width': 19, 'precision': 5, 'unit': 'HJD'},

@@ -110,6 +110,28 @@ def test_repr_t_0_par():
 
     assert (out_1 + out_2) == str(params)
 
+def test_repr_t_0_kep():
+    """
+    Make sure that t_0_kep is printed properly if provided directly.
+    """
+    t_0 = 2456145.
+    u_0 = 0.01
+    t_E = 62.63
+    s = 1.0
+    q = 0.003
+    alpha = 30.
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
+         'ds_dt': 0.47, 'dalpha_dt': 3.14,
+        't_0_kep': t_0+1})
+
+    out_1 = ("    t_0 (HJD)       u_0    t_E (d)         s            q alpha (deg) ds/dt (/yr) dalpha/dt (deg/yr) "
+             "t_0_kep (HJD) \n")
+    out_2 = ("2456145.00000  0.010000    62.6300   1.00000   0.00300000    30.00000     0.47000            3.14000 "
+             "2456146.00000 ")
+
+    assert (out_1 + out_2) == str(params)
+
 
 def test_rho_t_e_t_star():
     """check if conversions between rho, t_E, and t_star work ok"""
