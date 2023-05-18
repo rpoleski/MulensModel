@@ -11,6 +11,8 @@ model:
     # For binary source one can specify:
     # methods source 1: ...
     # methods source 2: ...
+    methods parameters:
+        VBBL: {accuracy: 0.01}
     limb darkening u:
         I: 0.42
         g: 0.65
