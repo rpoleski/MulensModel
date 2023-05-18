@@ -447,9 +447,11 @@ class ModelParameters(object):
         full_name = form.get('name', key)
         if 'unit' in form:
             full_name += " ({:})".format(form['unit'])
+
         value = getattr(self, key)
         if isinstance(value, u.Quantity):
             value = value.value
+
         return (full_name, value)
 
     def _get_formats_for_repr(self, form, full_name):
@@ -689,6 +691,7 @@ class ModelParameters(object):
 
         if parameter in self._source_1_parameters.parameters:
             setattr(self._source_1_parameters, parameter, value)
+
         if parameter in self._source_2_parameters.parameters:
             setattr(self._source_2_parameters, parameter, value)
 
@@ -1844,4 +1847,3 @@ class ModelParameters(object):
                 The dictionary of model parameters.
         """
         return self.parameters
-
