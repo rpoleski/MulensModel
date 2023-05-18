@@ -369,132 +369,101 @@ class TestInput(unittest.TestCase):
 
 # ----------
 # Chi2 Gradient Tests
-class Chi2GradientTest():
 
-    def __init__(self, parameters=None, grad_params=None, gradient=None):
-        self.parameters = parameters
-        self.grad_params = grad_params
-        self.gradient = gradient
+class TestChi2Gradient(unittest.TestCase):
 
+    def setUp(self):
+        self.parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
+        self.grad_params = ['t_0', 'u_0', 't_E']
+        self.gradient = {'t_0': 236.206598, 'u_0': 101940.249,
+                         't_E': -1006.88678}
+        self.data = mm.MulensData(file_name=SAMPLE_FILE_02)
+        self.model = mm.Model(self.parameters)
+        self.coords = '17:47:12.25 -21:22:58.7'
+        self.reference = np.array(
+            [self.gradient[key] for key in self.grad_params])
 
-chi2_gradient_test_1 = Chi2GradientTest(
-    parameters={'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87},
-    grad_params=['t_0', 'u_0', 't_E'],
-    gradient={'t_0': 236.206598, 'u_0': 101940.249, 't_E': -1006.88678})
-
-# Not used:
-# f_source and f_blend cannot be gradient parameters in MulensModel,
-# but this test could be moved to sfit_minimizer,
-# which is under development by JCY.
-chi2_gradient_test_2 = Chi2GradientTest(
-    parameters={'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
-                'pi_E_N': -0.248, 'pi_E_E': 0.234},
-    grad_params=['t_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E', 'f_source',
-                 'f_blend'],
-    gradient={'t_0': 568.781786, 'u_0': 65235.3513, 't_E': -491.782005,
-              'pi_E_N': -187878.357, 'pi_E_E': 129162.927,
-              'f_source': -83124.5869, 'f_blend': -78653.242})
-
-
-def test_event_chi2_gradient():
-    """test calculation of chi2 gradient"""
-
-    data = mm.MulensData(file_name=SAMPLE_FILE_02)
-    kwargs = {'datasets': [data], 'coords': '17:47:12.25 -21:22:58.7'}
-
-    # New (v2.0) method for fixing blending
-    for test in [chi2_gradient_test_1]:
+    def _make_event(self):
         event = mm.Event(
-            model=mm.Model(test.parameters), fix_blend_flux={data: 0.},
-            **kwargs)
-        result = event.get_chi2_gradient(test.grad_params)
-        reference = np.array([test.gradient[key] for key in test.grad_params])
-        np.testing.assert_almost_equal(reference/result, 1., decimal=4)
+            datasets=self.data, model=self.model,
+            fix_blend_flux={self.data: 0.}, coords=self.coords)
+        return event
 
+    def test_1(self):
+        """test calculation of chi2 gradient"""
+        event = self._make_event()
+        result = event.get_chi2_gradient(self.grad_params)
+        np.testing.assert_almost_equal(self.reference / result, 1., decimal=4)
         result = event.chi2_gradient
-        np.testing.assert_almost_equal(reference/result, 1., decimal=4)
+        np.testing.assert_almost_equal(self.reference / result, 1., decimal=4)
 
-
-class TestGradient(unittest.TestCase):
-
-    def test_gradient_init_1(self):
+    def test_type_error(self):
         """
         Test that fit_fluxes/update must be run before the gradient is accessed
         """
-        data = mm.MulensData(file_name=SAMPLE_FILE_02)
-        event = mm.Event(
-            datasets=[data],
-            model=mm.Model(chi2_gradient_test_1.parameters),
-            fix_blend_flux={data: 0.})
+        event = self._make_event()
         with self.assertRaises(TypeError):
             event.chi2_gradient()
 
+    def test_3(self):
+        """
+        test that fit_fluxes/update must be run in order to update the gradient
+        """
+        event = self._make_event()
+        result = event.get_chi2_gradient(self.grad_params)
+        np.testing.assert_almost_equal(self.reference / result, 1., decimal=4)
 
-def test_chi2_gradient():
-    """
-    test that fit_fluxes/update must be run in order to update the gradient
-    """
-    data = mm.MulensData(file_name=SAMPLE_FILE_02)
-    event = mm.Event(
-        datasets=[data],
-        model=mm.Model(chi2_gradient_test_1.parameters),
-        fix_blend_flux={data: 0.})
-    result = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
-    reference = np.array(
-        [chi2_gradient_test_1.gradient[key] for key in
-         chi2_gradient_test_1.grad_params])
-    np.testing.assert_almost_equal(reference / result, 1., decimal=4)
+        # changing something w/o updating: gives old values
+        event.model.parameters.t_0 += 0.1
+        result_1 = event.chi2_gradient
+        np.testing.assert_almost_equal(result_1 / result, 1.)
 
-    # changing something w/o updating: gives old values
-    event.model.parameters.t_0 += 0.1
-    result_1 = event.chi2_gradient
-    np.testing.assert_almost_equal(result_1 / result, 1.)
+        # run fit_fluxes: gives new values
+        event.fit_fluxes()
+        result_2 = event.calculate_chi2_gradient(self.grad_params)
+        assert all(result != result_2)
 
-    # run fit_fluxes: gives new values
-    event.fit_fluxes()
-    result_2 = event.calculate_chi2_gradient(chi2_gradient_test_1.grad_params)
-    assert all(result != result_2)
+        # Go back to previous results and test that calculate_chi2_gradient gives
+        # results that don't match anything.
+        event.model.parameters.t_0 -= 0.1
+        result_3 = event.calculate_chi2_gradient(self.grad_params)
+        assert all(result != result_3)
+        assert all(result_2 != result_3)
+        result_4 = event.get_chi2_gradient(self.grad_params)
+        np.testing.assert_almost_equal(result_4 / result, 1.)
 
-    # Go back to previous results and test that calculate_chi2_gradient gives
-    # results that don't match anything.
-    event.model.parameters.t_0 -= 0.1
-    result_3 = event.calculate_chi2_gradient(chi2_gradient_test_1.grad_params)
-    assert all(result != result_3)
-    assert all(result_2 != result_3)
-    result_4 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
-    np.testing.assert_almost_equal(result_4 / result, 1.)
+    def test_4(self):
+        """
+        Double-up on the gradient test, i.e. duplicate the dataset and check
+        that the gradient values double.
+        """
+        data_2 = mm.MulensData(file_name=SAMPLE_FILE_02)
+        event = mm.Event(
+            datasets=[self.data, data_2], model=mm.Model(self.parameters),
+            fix_blend_flux={self.data: 0., data_2: 0.})
+        result_0 = event.get_chi2_gradient(self.grad_params)
+        result_1 = event.fits[1].chi2_gradient
+        np.testing.assert_almost_equal(
+            2. * self.reference / result_0, 1., decimal=4)
+        np.testing.assert_almost_equal(2. * result_1 / result_0, 1.)
+        np.testing.assert_almost_equal(
+            self.reference / result_1, 1., decimal=4)
 
+        # Change something and test fit.get_chi2_gradient
+        event.model.parameters.t_0 += 0.1
+        result_2 = event.fits[1].get_chi2_gradient(self.grad_params)
+        assert result_2[0] != result_1[0]
+        event.model.parameters.t_0 -= 0.1
+        result_3 = event.fits[1].get_chi2_gradient(self.grad_params)
+        np.testing.assert_almost_equal(
+            result_3 / self.reference, 1., decimal=4)
 
-def test_chi2_gradient_2():
-    """
-    Double-up on the gradient test, i.e. duplicate the dataset and check that
-    the gradient values double.
-    """
-    reference = np.array(
-        [chi2_gradient_test_1.gradient[key] for key in
-         chi2_gradient_test_1.grad_params])
-
-    data_1 = mm.MulensData(file_name=SAMPLE_FILE_02)
-    data_2 = mm.MulensData(file_name=SAMPLE_FILE_02)
-    event = mm.Event(
-        datasets=[data_1, data_2],
-        model=mm.Model(chi2_gradient_test_1.parameters),
-        fix_blend_flux={data_1: 0., data_2: 0.})
-    result_0 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
-    result_1 = event.fits[1].chi2_gradient
-    np.testing.assert_almost_equal(2. * reference / result_0, 1., decimal=4)
-    np.testing.assert_almost_equal(2. * result_1 / result_0, 1.)
-    np.testing.assert_almost_equal(reference / result_1, 1., decimal=4)
-
-    # Change something and test fit.get_chi2_gradient
-    event.model.parameters.t_0 += 0.1
-    result_2 = event.fits[1].get_chi2_gradient(
-        chi2_gradient_test_1.grad_params)
-    assert result_2[0] != result_1[0]
-    event.model.parameters.t_0 -= 0.1
-    result_3 = event.fits[1].get_chi2_gradient(
-        chi2_gradient_test_1.grad_params)
-    np.testing.assert_almost_equal(result_3 / reference, 1., decimal=4)
+    def test_1_param(self):
+        """Test the output if gradient is calculated for only one parameter"""
+        event = self._make_event()
+        result = event.get_chi2_gradient('t_0')
+        assert isinstance(result, (float))
+        np.testing.assert_almost_equal(236.206598 / result, 1., decimal=4)
 
 
 def _test_event_chi2_gradient_rho():
@@ -959,34 +928,50 @@ class TestFixedFluxRatios(unittest.TestCase):
         """test the case that q_I is fixed"""
         q_values = {'I': 0.013, 'V': 0.005}
 
-        event = mm.Event(datasets=self.datasets, model=self.model)
-        event.fix_source_flux_ratio = q_values
-        fluxes = self.extract_fluxes(event)
-        for (i, dataset) in enumerate(self.datasets):
-            np.testing.assert_almost_equal(
-                fluxes[i][0][1] / fluxes[i][0][0], q_values[dataset.bandpass])
+        def run_test(event):
+            fluxes = self.extract_fluxes(event)
+            for (i, dataset) in enumerate(self.datasets):
+                np.testing.assert_almost_equal(
+                    fluxes[i][0][1] / fluxes[i][0][0], q_values[dataset.bandpass])
 
-            assert event.get_chi2_for_dataset(i) > 1
+                assert event.get_chi2_for_dataset(i) > 1
+
+        event_1 = mm.Event(datasets=self.datasets, model=self.model)
+        event_1.fix_source_flux_ratio = q_values
+        run_test(event_1)
+        event_2 = mm.Event(
+            datasets=self.datasets, model=self.model,
+            fix_source_flux_ratio=q_values)
+        run_test(event_2)
+
 
     def test_fixed_q_I_flux(self):
         """test the case that q_I is fixed"""
         q_I_value = 0.012
 
-        event = mm.Event(datasets=self.datasets, model=self.model)
-        event.fix_source_flux_ratio = {'I': q_I_value}
-        fluxes = self.extract_fluxes(event)
-        for (i, dataset) in enumerate(self.datasets):
-            if dataset.bandpass == 'I':
-                # the ratio of q_I should be identical to the set value
-                np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], q_I_value)
-                assert event.get_chi2_for_dataset(i) > 1
-            elif dataset.bandpass == 'V':
-                # the ratio of q_V should be the input value
-                np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], self.q_V)
-                np.testing.assert_almost_equal(
-                    event.get_chi2_for_dataset(i), 0.)
+        def run_test(event):
+            fluxes = self.extract_fluxes(event)
+            for (i, dataset) in enumerate(self.datasets):
+                if dataset.bandpass == 'I':
+                    # the ratio of q_I should be identical to the set value
+                    np.testing.assert_almost_equal(
+                        fluxes[i][0][1] / fluxes[i][0][0], q_I_value)
+                    assert event.get_chi2_for_dataset(i) > 1
+                elif dataset.bandpass == 'V':
+                    # the ratio of q_V should be the input value
+                    np.testing.assert_almost_equal(
+                        fluxes[i][0][1] / fluxes[i][0][0], self.q_V)
+                    np.testing.assert_almost_equal(
+                        event.get_chi2_for_dataset(i), 0.)
+
+        event_1 = mm.Event(datasets=self.datasets, model=self.model)
+        event_1.fix_source_flux_ratio = {'I': q_I_value}
+        run_test(event_1)
+        event_2 = mm.Event(
+            datasets=self.datasets, model=self.model,
+            fix_source_flux_ratio={'I': q_I_value})
+        run_test(event_2)
+
 
     def test_free_fluxes(self):
         """test both q_flux free. Should give original values"""
