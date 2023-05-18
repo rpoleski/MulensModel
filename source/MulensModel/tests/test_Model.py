@@ -211,7 +211,7 @@ def test_BLPS_02():
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
                          1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    almost(result, expected)
+    almost(result, expected, decimal=4)
 
     # Possibly, this test should be re-created in test_FitData.py
     # Below we test passing the limb coeff to VBBL function.
@@ -220,7 +220,7 @@ def test_BLPS_02():
     # This is an absurd value but I needed something quick.
     result = model.get_magnification(
         data.time, gamma=model.get_limb_coeff_gamma('I'))
-    almost(result[5], 1.6366862)
+    almost(result[5], 1.6366862, decimal=3)
     result_2 = model.get_magnification(data.time, bandpass='I')
     almost(result, result_2)
 

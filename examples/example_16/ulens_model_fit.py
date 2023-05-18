@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.31.0'
+__version__ = '0.32.0'
 
 
 class UlensModelFit(object):
@@ -116,6 +116,10 @@ class UlensModelFit(object):
             for the second source in binary source models,
 
             ``'default method'`` - default magnification calculation method,
+
+            ``'methods parameters'`` - dict of dicts that add more parameters
+            that are passed to methods calculating magnification; typical call:
+            ``'VBBL': {'accuracy': 0.01}``
 
             ``'limb darkening u'`` - specifies a *dict* that gives limb
             darkening coefficients in "u" convention, e.g.,
@@ -740,9 +744,10 @@ class UlensModelFit(object):
         if self._model_parameters is None:
             self._model_parameters = dict()
 
-        allowed = {'coords', 'default method', 'methods',
-                   'methods source 1', 'methods source 2',
-                   'parameters', 'values', 'limb darkening u'}
+        allowed = {
+            'coords', 'default method', 'methods', 'methods parameters',
+            'methods source 1', 'methods source 2',
+            'parameters', 'values', 'limb darkening u'}
         keys = set(self._model_parameters.keys())
         not_allowed = keys - allowed
         if len(not_allowed) > 0:
@@ -1536,6 +1541,9 @@ class UlensModelFit(object):
             if 'methods' in self._model_parameters:
                 model.set_magnification_methods(
                     self._model_parameters['methods'])
+            if 'methods parameters' in self._model_parameters:
+                model.set_magnification_methods_parameters(
+                    self._model_parameters['methods parameters'])
             if 'methods source 1' in self._model_parameters:
                 self._model.set_magnification_methods(
                     self._model_parameters['methods source 1'], 1)

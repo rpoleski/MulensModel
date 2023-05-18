@@ -79,7 +79,6 @@
 - add option to adjust Y scale to plot model fully
 - in _parse_fit_constraints_prior() add a check if the priors are defined for fit parameters
 - flux constraints for binary source models (note that for plotting it is now set to first dataset)
-- allow Model.set_magnification_methods_parameters()
 - triangle and trace plots - add option to plot burn-in as well
 - methods - if only single string is provided, then this is a default method
 - move _get_weighted_percentile() to a separate file with utils because it doesnt depend on self; maybe there are other similar functions
