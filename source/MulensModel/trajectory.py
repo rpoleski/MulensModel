@@ -172,8 +172,8 @@ class Trajectory(object):
             vector_u += delta_u
 
         # If xallarap parameters are provided, apply xallarap effect:
-        parameters = self.parameters.parameters
-        if "xi_period" in parameters:
+        if self.parameters.is_xallarap:
+            parameters = self.parameters.parameters
             keys_circular = set(
                 "xi_period xi_semimajor_axis xi_Omega_node xi_inclination "
                 "xi_argument_of_latitude_reference".split())
