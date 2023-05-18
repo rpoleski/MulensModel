@@ -152,45 +152,15 @@ class Trajectory(object):
                       self.parameters.t_E)
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
 
-        # If parallax is non-zero, apply parallax effects:
         if self.parameters.pi_E is not None:
-            if self.coords is None:
-                raise ValueError("You're trying to calculate trajectory in " +
-                                 "a parallax model, but event sky " +
-                                 "coordinates were not provided.")
+            shifts = self._get_shifts_parralax()
+            vector_tau += shifts[0]
+            vector_u += shifts[1]
 
-            keys = ['earth_orbital', 'satellite', 'topocentric']
-            if set([self.parallax[k] for k in keys]) == set([False]):
-                raise ValueError(
-                    'If pi_E value is provided then at least one value ' +
-                    'of parallax dict has to be True ' +
-                    '(earth_orbital, satellite, or topocentric)')
-
-            self._calculate_delta_N_E()
-            [delta_tau, delta_u] = self._project_delta()
-            vector_tau += delta_tau
-            vector_u += delta_u
-
-        # If xallarap parameters are provided, apply xallarap effect:
         if self.parameters.is_xallarap:
-            parameters = self.parameters.parameters
-            keys_circular = set(
-                "xi_period xi_semimajor_axis xi_Omega_node xi_inclination "
-                "xi_argument_of_latitude_reference".split())
-            intersection = keys_circular.intersection(set(parameters.keys()))
-            if len(intersection) == len(keys_circular):  # XXXX else
-                orbit_parameters = {
-                    key[3:]: parameters[key] for key in keys_circular}
-                t_0_xi = self.parameters.t_0_xi
-                orbit_parameters['epoch_reference'] = t_0_xi
-                orbit = OrbitCircular(**orbit_parameters)
-                get_position = orbit.get_reference_plane_position
-                ref_position = get_position(t_0_xi).reshape((2, 1))
-                positions = get_position(self.times)
-                shifts = positions - ref_position
-
-                vector_tau += shifts[0]
-                vector_u += shifts[1]
+            shifts = self._get_shifts_xallarap()
+            vector_tau += shifts[0]
+            vector_u += shifts[1]
 
         # If 2 lenses, rotate trajectory relative to binary lens axis
         is_mass_sheet = self.parameters.is_external_mass_sheet_with_shear
@@ -217,6 +187,23 @@ class Trajectory(object):
 
         self._x = vector_x
         self._y = vector_y
+
+    def _get_shifts_parralax(self):
+        """calculate shifts caused by parallax effect"""
+        if self.coords is None:
+            raise ValueError(
+                "You're trying to calculate trajectory in a parallax model, "
+                "but event sky coordinates were not provided.")
+
+        keys = ['earth_orbital', 'satellite', 'topocentric']
+        if set([self.parallax[k] for k in keys]) == set([False]):
+            raise ValueError(
+                'If pi_E value is provided then at least one value of '
+                'parallax dict has to be True '
+                '(earth_orbital, satellite, or topocentric)')
+
+        self._calculate_delta_N_E()
+        return self._project_delta()
 
     def _calculate_delta_N_E(self):
         """
@@ -338,3 +325,24 @@ class Trajectory(object):
 
         Trajectory._get_delta_satellite_results[index] = delta_satellite
         return delta_satellite
+
+    def _get_shifts_xallarap(self):
+        """calculate shifts caused by xallarap effect"""
+        parameters = self.parameters.parameters
+        t_0_xi = self.parameters.t_0_xi
+        keys_circular = set(
+            "xi_period xi_semimajor_axis xi_Omega_node xi_inclination "
+            "xi_argument_of_latitude_reference".split())
+        intersection = keys_circular.intersection(set(parameters.keys()))
+        if len(intersection) == len(keys_circular):
+            orbit_parameters = {
+                key[3:]: parameters[key] for key in keys_circular}
+            orbit_parameters['epoch_reference'] = t_0_xi
+            orbit = OrbitCircular(**orbit_parameters)
+            get_position = orbit.get_reference_plane_position
+        else:
+            raise NotImplementedError('not yet XXXX')
+
+        ref_position = get_position(t_0_xi).reshape((2, 1))
+        positions = get_position(self.times)
+        return positions - ref_position
