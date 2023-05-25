@@ -705,11 +705,17 @@ class Event(object):
         NOTE: Because this is not a 'get' function, it ASSUMES you have ALREADY
         fit for the fluxes, e.g. by calling get_chi2().
         """
+        if isinstance(parameters, str):
+            parameters = [parameters]
+
         gradient = {param: 0 for param in parameters}
         for i, dataset in enumerate(self.datasets):
             data_gradient = self.fits[i].calculate_chi2_gradient(parameters)
-            for j, p in enumerate(parameters):
-                gradient[p] += data_gradient[j]
+            if len(parameters) == 1:
+                gradient[parameters[0]] += data_gradient
+            else:
+                for j, p in enumerate(parameters):
+                    gradient[p] += data_gradient[j]
 
         if len(parameters) == 1:
             out = gradient[parameters[0]]
