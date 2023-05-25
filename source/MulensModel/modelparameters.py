@@ -490,6 +490,7 @@ class ModelParameters(object):
         """
         if 't_0' not in keys:
             raise KeyError('t_0 must be defined')
+
         if ('u_0' not in keys) and ('t_eff' not in keys):
             raise KeyError('not enough information to calculate u_0')
 
@@ -505,8 +506,10 @@ class ModelParameters(object):
         if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
                 ('t_eff' in keys)):
             raise KeyError('You cannot define rho, t_star, u_0, and t_eff')
+
         if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
             raise KeyError('Only 1 or 2 of (t_E, rho, t_star) may be defined.')
+
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
@@ -544,6 +547,7 @@ class ModelParameters(object):
         if ('shear_G' in keys) and ('alpha' not in keys):
             raise KeyError(
                 'A model with external mass sheet shear requires alpha.')
+
         if ('shear_G' not in keys) and ('convergence_K' in keys):
             if 'alpha' in keys:
                 raise KeyError(
