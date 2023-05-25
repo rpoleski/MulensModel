@@ -655,7 +655,7 @@ class FitData(object):
                 'coords': self.model.coords,
                 'satellite_skycoord': self.dataset.satellite_skycoord}
 
-            return mm.Trajectory(parameters=self.model.parameters, **kwargs_)
+            return Trajectory(parameters=self.model.parameters, **kwargs_)
 
     def get_d_A_d_u_for_PSPL_model(self):
         """
@@ -719,8 +719,7 @@ class FitData(object):
                 return magnification_curve
 
             def _get_a_pspl():
-                point_source_params = {key: value for key, value in
-                                       self.model.parameters.parameters.items()}
+                point_source_params = {**self.model.parameters.parameters}
                 point_source_params.pop('rho')
                 point_source_curve = MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
@@ -741,17 +740,18 @@ class FitData(object):
                     self._magnification_curve._methods_for_epochs())
                 for method in set(methods):
                     kwargs = {}
-                    if (self._magnification_curve._methods_parameters is not
-                            None):
-                        if method in self._magnification_curve._methods_parameters.keys():
-                            kwargs = self._magnification_curve._methods_parameters[method]
+                    parameters = self._magnification_curve._methods_parameters
+                    if (parameters is not None):
+                        if method in parameters.keys():
+                            kwargs = parameters[method]
+
                         if kwargs != {}:
                             raise ValueError(
                                 'Methods parameters passed, but currently ' +
                                 'no point lens method accepts the parameters')
 
-                    selection = (methods == method) & (z_ <
-                                                       FitData.FSPLDerivs._z_max)
+                    selection = (
+                        (methods == method) & (z_ < FitData.FSPLDerivs._z_max))
                     if method.lower() == 'point_source':
                         pass  # These cases are already taken care of.
                     elif (method.lower() ==
@@ -766,9 +766,8 @@ class FitData(object):
                             z_[selection])
                         db0_gamma_db1[selection] = self._get_B0_prime(
                             z_[selection])
-                        db0_gamma_db1[selection] -= (self.gamma *
-                                                          self._get_B1_prime(
-                                                              z_[selection]))
+                        db0_gamma_db1[selection] -= (
+                            self.gamma * self._get_B1_prime(z_[selection]))
                     else:
                         msg = "dA/drho only implemented for 'finite_source_"
                         msg += "uniform_ Gould94' and 'finite_source_LD"
@@ -786,10 +785,12 @@ class FitData(object):
             self.model = self.fit.model
             self.gamma = self.fit.gamma
             self.u_ = _get_u()
-            self._dataset_satellite_skycoord = _get_dataset_satellite_skycoord()
+            self._dataset_satellite_skycoord = (
+                _get_dataset_satellite_skycoord())
             self._magnification_curve = _get_magnification_curve()
             self.a_pspl = _get_a_pspl()
-            (self.b0_gamma_b1, self.db0_gamma_db1) = _get_b0_gamma_b1_and_derivs()
+            (self.b0_gamma_b1, self.db0_gamma_db1) = (
+                _get_b0_gamma_b1_and_derivs())
 
         def _read_B0B1_file(self):
             """Read file with pre-computed function values"""
