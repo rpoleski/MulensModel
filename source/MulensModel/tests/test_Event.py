@@ -564,6 +564,59 @@ def test_get_ref_fluxes_binary_source():
     np.testing.assert_almost_equal(blend_flux_1, 50.)
 
 
+class TestBinarySourceFluxes(unittest.TestCase):
+
+    def setUp(self):
+        (self.model, self.model_1, self.model_2) = self._generate_binary_source_models()
+        (self.data_1, self.data_2) = self._generate_binary_source_datasets()
+
+        self.f_s1_1 = 100.
+        self.f_s2_1 = 300.
+        self.f_b_1 = 50.
+        self.f_s1_2 = 20.
+        self.f_s2_2 = 30.
+        self.f_b_2 = 40.
+
+    def _generate_binary_source_models(self):
+        model = mm.Model({
+            't_0_1': 5000., 'u_0_1': 0.05,
+            't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.})
+        model_1 = mm.Model(model.parameters.source_1_parameters)
+        model_2 = mm.Model(model.parameters.source_2_parameters)
+
+        return (model, model_1, model_2)
+
+    def _generate_binary_source_datasets(self):
+        """prepare fake data for binary source model"""
+        time = np.linspace(4900., 5200., 600)
+        mag_1 = self.model_1.get_magnification(time)
+        mag_2 = self.model_2.get_magnification(time)
+        flux = 100. * mag_1 + 300. * mag_2 + 50.
+        data_1 = mm.MulensData(data_list=[time, flux, 1. + 0. * time],
+                               phot_fmt='flux')
+        flux = 20. * mag_1 + 30. * mag_2 + 40.
+        data_2 = mm.MulensData(data_list=[time, flux, 1. + 0. * time],
+                               phot_fmt='flux')
+
+        return (data_1, data_2)
+
+    def test_source_fluxes_1b(self):
+        """1 dataset, 2 sources"""
+        event = mm.Event(datasets=self.data_1, model=self.model)
+        event.fit_fluxes()
+        fluxes = event.source_fluxes
+        np.testing.assert_almost_equal(
+            fluxes, np.array([[self.f_s1_1, self.f_s2_1]]))
+
+    def test_source_fluxes_2b(self):
+        """2 datasets, 1 source"""
+        event = mm.Event(datasets=[self.data_1, self.data_2], model=self.model)
+        event.fit_fluxes()
+        fluxes = event.source_fluxes
+        np.testing.assert_almost_equal(
+            fluxes, np.array([[self.f_s1_1, self.f_s2_1],
+                              [self.f_s1_2, self.f_s2_2]]))
+
 # Event.get_flux_for_dataset() Tests
 def test_get_flux_for_dataset():
     """
@@ -798,6 +851,28 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[0][0], self.f_source_2)
         np.testing.assert_almost_equal(fluxes_2[1], self.f_blend_2)
 
+    def test_source_fluxes_AttributeError(self):
+        event = mm.Event(datasets=self.datasets, model=self.model)
+        with self.assertRaises(AttributeError):
+            fluxes = event.source_fluxes
+
+    def test_source_fluxes_1(self):
+        """1 dataset, 1 source"""
+        event = mm.Event(datasets=self.data_1, model=self.model)
+        event.fit_fluxes()
+        fluxes = event.source_fluxes
+        np.testing.assert_almost_equal(
+            fluxes, np.array([[self.f_source_1]]))
+
+    def test_source_fluxes_2(self):
+        """2 datasets, 2 sources"""
+        event = mm.Event(datasets=self.datasets, model=self.model)
+        event.fit_fluxes()
+        fluxes = event.source_fluxes
+        np.testing.assert_almost_equal(
+            fluxes, np.array(
+                [[self.f_source_1], [self.f_source_2]]))
+
 
 # ---------
 class TestFixedFluxRatios(unittest.TestCase):
@@ -945,7 +1020,6 @@ class TestFixedFluxRatios(unittest.TestCase):
             fix_source_flux_ratio=q_values)
         run_test(event_2)
 
-
     def test_fixed_q_I_flux(self):
         """test the case that q_I is fixed"""
         q_I_value = 0.012
@@ -972,7 +1046,6 @@ class TestFixedFluxRatios(unittest.TestCase):
             datasets=self.datasets, model=self.model,
             fix_source_flux_ratio={'I': q_I_value})
         run_test(event_2)
-
 
     def test_free_fluxes(self):
         """test both q_flux free. Should give original values"""
