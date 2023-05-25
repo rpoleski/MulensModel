@@ -709,8 +709,8 @@ class Event(object):
             parameters = [parameters]
 
         gradient = {param: 0 for param in parameters}
-        for i, dataset in enumerate(self.datasets):
-            data_gradient = self.fits[i].calculate_chi2_gradient(parameters)
+        for fit in self.fits:
+            data_gradient = fit.calculate_chi2_gradient(parameters)
             if len(parameters) == 1:
                 gradient[parameters[0]] += data_gradient
             else:
