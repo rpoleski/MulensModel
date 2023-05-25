@@ -1063,31 +1063,43 @@ class TestFixedFluxRatios(unittest.TestCase):
             np.testing.assert_almost_equal(event.get_chi2_for_dataset(i), 0.)
 
 
-def test_repr_empty():
-    """
-    Check printing if no input is provided.
-    """
-    event = mm.Event()
-    expected = "No model\nNo datasets"
-    assert str(event) == expected
+class TestEvent_repr_(unittest.TestCase):
+
+    def setUp(self):
+        self.model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
+                         coords="18:12:34.56 -23:45:55.55")
+        self.dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_01)
+        self.dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_02)
+
+        self.expected = "model:\n{0}\ndatasets:".format(self.model)
+        for i, dataset in enumerate([self.dataset_01, self.dataset_02]):
+            self.expected += "\n{0}".format(dataset)
+            if i == 0:
+                self.expected += " *data_ref*"
 
 
-def test_repr_full():
-    """
-    Check printing if model and data are provided.
-    """
-    model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
-                     coords="18:12:34.56 -23:45:55.55")
-    dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_01)
-    dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_02)
-    event = mm.Event(model=model, datasets=[dataset_01, dataset_02])
-    expected = "model:\n{0}\ndatasets:".format(model)
-    for i, dataset in enumerate([dataset_01, dataset_02]):
-        expected += "\n{0}".format(dataset)
-        if i == 0:
-            expected += " *data_ref*"
+    def test_repr_empty(self):
+        """
+        Check printing if no input is provided.
+        """
+        event = mm.Event()
+        expected = "No model\nNo datasets"
+        assert str(event) == expected
 
-    assert str(event) == expected
+    def test_repr_full(self):
+        """
+        Check printing if model and data are provided.
+        """
+        event = mm.Event(
+            model=self.model, datasets=[self.dataset_01, self.dataset_02])
+        assert str(event) == self.expected
+
+    def test_repr_data_ref(self):
+        event = mm.Event(
+            model=self.model, datasets=[self.dataset_01, self.dataset_02],
+            data_ref=self.dataset_01)
+        assert event.data_ref == 0
+        assert str(event) == self.expected
 
 
 def get_event_to_print():
