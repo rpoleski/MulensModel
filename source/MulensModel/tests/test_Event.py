@@ -2,6 +2,7 @@ from os.path import join
 import unittest
 import numpy as np
 from astropy import units as u
+from astropy.coordinates import SkyCoord
 
 import MulensModel as mm
 
@@ -1050,6 +1051,47 @@ def test_repr_data_ref_int():
     (event, expected, dataset_02) = get_event_to_print()
     event.data_ref = dataset_02
     assert str(event) == expected
+
+
+class TestModelSetter(unittest.TestCase):
+    """Test various methods of setting event coordinates and pulling them
+    from a model. """
+
+    def setUp(self):
+        self.model_1 = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
+                         coords="18:12:34.56 -23:45:55.55")
+        self.model_2 = mm.Model({'t_0': 1, 'u_0': 1.5, 't_E': 60.},
+                           coords="18:00:00 -30:00:00")
+        self.result_1 = SkyCoord(
+            "18:12:34.56 -23:45:55.55", unit=[u.hourangle, u.deg])
+        self.result_2 = SkyCoord(
+            "18:00:00 -30:00:00", unit=[u.hourangle, u.deg])
+
+    def test_coords_1(self):
+        """Most basic """
+        event_1 = mm.Event()
+        event_1.model = self.model_1
+        assert event_1.coords == self.result_1
+
+    def test_coords_2(self):
+        """changing from original event coords to model coords """
+        event_2 = mm.Event(coords="18:00:00 -30:00:00")
+        assert event_2.coords == self.result_2
+        event_2.model = self.model_1
+        assert event_2.coords == self.result_1
+
+    def test_coords_3(self):
+        """changing from original model coords to new model coords """
+        event_3 = mm.Event(model=self.model_2, coords="18:00:00 -30:00:00")
+        assert event_3.coords == self.result_2
+        event_3.model = self.model_1
+        assert event_3.coords == self.result_1
+
+    def test_TypeError(self):
+        event = mm.Event()
+        with self.assertRaises(TypeError):
+            event.model = 'foo'
+
 
 
 # Tests to add:
