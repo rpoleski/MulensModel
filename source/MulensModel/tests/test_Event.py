@@ -424,8 +424,8 @@ class TestChi2Gradient(unittest.TestCase):
         result_2 = event.calculate_chi2_gradient(self.grad_params)
         assert all(result != result_2)
 
-        # Go back to previous results and test that calculate_chi2_gradient gives
-        # results that don't match anything.
+        # Go back to previous results and test that
+        # calculate_chi2_gradient gives results that don't match anything.
         event.model.parameters.t_0 -= 0.1
         result_3 = event.calculate_chi2_gradient(self.grad_params)
         assert all(result != result_3)
@@ -464,7 +464,8 @@ class TestChi2Gradient(unittest.TestCase):
         event = self._make_event()
         result = event.get_chi2_gradient('t_0')
         assert isinstance(result, (float))
-        np.testing.assert_almost_equal(236.206598 / result, 1., decimal=4)
+        ratio = self.gradient['t_0'] / result
+        np.testing.assert_almost_equal(ratio, 1., decimal=5)
 
 
 def _test_event_chi2_gradient_rho():
@@ -1008,7 +1009,8 @@ class TestFixedFluxRatios(unittest.TestCase):
             fluxes = self.extract_fluxes(event)
             for (i, dataset) in enumerate(self.datasets):
                 np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], q_values[dataset.bandpass])
+                    fluxes[i][0][1] / fluxes[i][0][0],
+                    q_values[dataset.bandpass])
 
                 assert event.get_chi2_for_dataset(i) > 1
 
