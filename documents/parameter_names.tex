@@ -12,7 +12,7 @@
 {\LARGE Microlensing parameters in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Jan 2022
+last update: Jun 2023
 \end{center}
 
 \bigskip
@@ -44,10 +44,18 @@ $x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caust
 $x_{\rm caustic, out}$ & {\tt x\_caustic\_out} & & Curvelinear coordinate of caustic exit for a binary lens model.$^b$ \\
 $t_{\rm caustic, in}$ & {\tt t\_caustic\_in} & & Epoch of caustic exit for a binary lens model.$^b$ \\
 $t_{\rm caustic, out}$ & {\tt t\_caustic\_out} & & Epoch of caustic exit for a binary lens model.$^b$ \\
+
+$\chi_P$ & \texttt{xi\_period} & d & xallarap period \\
+$\chi_a$ & \texttt{xi\_semimajor\_axis} & XXX & xallarap semimajor axis \\
+$\chi_i$ & \texttt{xi\_inclination} & deg & xallarap inclination \\
+$\chi_\Omega$ & \texttt{xi\_Omega\_node} & deg & xallarap Omega\_node \\
+$\chi_{XXX}$ & \texttt{xi\_argument\_of\_latitude\_reference} & deg & xallarap argument of latitude reference \\
+$t_{0,\chi}$ & \texttt{t\_0\_xi} & &  The reference epoch for parameters in xallarap models.$^a$\\
+
 \hline
 \end{tabular}
 \caption{Notes: \newline
-$^a$ -- $t_{0,{\rm par}}$ and $t_{0,{\rm kep}}$ are reference parameters, hence, do not change these during fitting. \newline
+$^a$ -- $t_{0,{\rm par}}$, $t_{0,{\rm kep}}$, and $t_{0,\chi}$ are reference parameters, hence, do not change these during fitting. \newline
 $^b$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x_{\rm caustic, in}$, $x_{\rm caustic, out}$, $t_{\rm caustic, in}$, and $t_{\rm caustic, out}$) are used instead of ($t_0$, $u_0$, $t_{\rm E}$, and $\alpha$).
 %\label{}
 }
