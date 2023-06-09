@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.30.10'
+__version__ = '0.30.10dev'
 
 
 class UlensModelFit(object):
@@ -67,7 +67,23 @@ class UlensModelFit(object):
         starting_parameters: *dict*
             Starting values of the parameters.
             It also indicates the EMCEE fitting mode.
+            There are two possibilities for the information provided.
 
+            First, you can provide a name of file with sets of
+            parameters and names of parameters. For example:
+
+            .. code-block:: python
+
+              {
+                  'file': 'STARTING_POINTS.txt',
+                  'parameters': 't_0 u_0 t_E'
+              }
+
+            In that case the text file has three columns and
+            at least 2 * 3 = 6 rows with values.
+
+            Second, you can provide distribution that defines distributions
+            from which values of parameters will be drawn.
             Keys of this *dict* are microlensing parameters recognized by
             *MulensModel* and values are *str*. First word indicates
             the distribution (allowed: ``gauss``, ``uniform``, and
@@ -286,7 +302,7 @@ class UlensModelFit(object):
             ):
         self._check_MM_version()
         self._photometry_files = photometry_files
-        self._starting_parameters = starting_parameters
+        self._starting_parameters_input = starting_parameters
         self._prior_limits = prior_limits
         self._model_parameters = model
         self._fixed_parameters = fixed_parameters
@@ -301,6 +317,7 @@ class UlensModelFit(object):
         self._set_default_parameters()
         if self._task == 'fit':
             self._guess_fitting_method()
+            self._check_starting_parameters_type()
             self._set_fit_parameters_unsorted()
         self._check_imports()
 
@@ -318,7 +335,7 @@ class UlensModelFit(object):
         Check if input parameters indicate run_fit() or plot_best_model() will
         be run.
         """
-        if self._starting_parameters is not None:
+        if self._starting_parameters_input is not None:
             fit = True
         elif self._prior_limits is not None:
             fit = True
@@ -364,7 +381,7 @@ class UlensModelFit(object):
         Make sure that there arent' too many parameters specified for:
         self._task == 'plot'
         """
-        keys = ['_starting_parameters', '_min_values', '_max_values',
+        keys = ['_starting_parameters_input', '_min_values', '_max_values',
                 '_fitting_parameters', '_prior_limits']
         for key in keys:
             if getattr(self, key) is not None:
@@ -425,7 +442,7 @@ class UlensModelFit(object):
         guess what is the fitting method based on parameters provided
         """
         method = None
-        if self._starting_parameters is not None:
+        if self._starting_parameters_input is not None:
             method = "EMCEE"
         if self._prior_limits is not None:
             if method is not None:
@@ -442,18 +459,53 @@ class UlensModelFit(object):
                 "starting_parameters or prior_limits, respectively.")
         self._fit_method = method
 
+    def _check_starting_parameters_type(self):
+        """
+        Check if starting parameters are read from file or
+        will be drawn from distributions specified.
+        """
+        if 'file' in self._starting_parameters_input:
+            in_type = 'file'
+            keys_expected = {'file', 'parameters'}
+            keys = set(self._starting_parameters_input.keys())
+            if keys != keys_expected:
+                error = ('Wrong starting parameters keys. Expected: ' +
+                         str(keys_expected) + '; Provided: ' + str(keys))
+                raise KeyError(error)
+        else:
+            in_type = 'draw'
+
+        self._starting_parameters_type = in_type
+
     def _set_fit_parameters_unsorted(self):
         """
         Find what are the fitted parameters. It will be sorted later.
         """
         if self._fit_method == "EMCEE":
-            unsorted_keys = self._starting_parameters.keys()
+            if self._starting_parameters_type == 'draw':
+                unsorted_keys = self._starting_parameters_input.keys()
+            elif self._starting_parameters_type == 'file':
+                unsorted_keys = self._get_unsorted_starting_parameters()
+            else:
+                raise ValueError(
+                    'unexpected: ' + str(self._starting_parameters_type))
         elif self._fit_method == "MultiNest":
             unsorted_keys = self._prior_limits.keys()
         else:
             raise ValueError('unexpected method error')
+
         self._fit_parameters_unsorted = list(unsorted_keys)
         self._n_fit_parameters = len(self._fit_parameters_unsorted)
+
+    def _get_unsorted_starting_parameters(self):
+        """
+        Make sure that a list of parameters is provided
+        """
+        parameters = self._starting_parameters_input['parameters']
+        if isinstance(parameters, (str)):
+            parameters = parameters.split()
+
+        return parameters
 
     def _check_imports(self):
         """
@@ -466,6 +518,7 @@ class UlensModelFit(object):
                 required_packages.add('emcee')
             elif self._fit_method == "MultiNest":
                 required_packages.add('pymultinest')
+
             if self._plots is not None and 'triangle' in self._plots:
                 required_packages.add('corner')
 
@@ -480,6 +533,7 @@ class UlensModelFit(object):
                     "\nFor corner package it's enough that you run:\nwget " +
                     "https://raw.githubusercontent.com/dfm/corner.py/" +
                     "v2.0.0/corner/corner.py")
+
             raise ImportError(message)
 
     def run_fit(self):
@@ -505,10 +559,12 @@ class UlensModelFit(object):
         self._parse_fit_constraints()
         if self._fit_method == "EMCEE":
             self._parse_starting_parameters()
+
         self._check_fixed_parameters()
         self._make_model_and_event()
         if self._fit_method == "EMCEE":
-            self._generate_random_parameters()
+            self._get_starting_parameters()
+
         self._setup_fit()
         self._run_fit()
         self._finish_fit()
@@ -1072,7 +1128,13 @@ class UlensModelFit(object):
         if 'n_walkers' in self._fitting_parameters:
             self._n_walkers = self._fitting_parameters['n_walkers']
         else:
-            self._n_walkers = 4 * len(self._starting_parameters)
+            if self._starting_parameters_type == 'file':
+                self._n_walkers = None
+            elif self._starting_parameters_type == 'draw':
+                self._n_walkers = 4 * self._n_fit_parameters
+            else:
+                raise ValueError(
+                    'Unexpected: ' + self._starting_parameters_type)
 
     def _parse_fitting_parameters_MultiNest(self):
         """
@@ -1377,6 +1439,36 @@ class UlensModelFit(object):
 
     def _parse_starting_parameters(self):
         """
+        Read the starting parameters from file or
+        change the format of provided information.
+        """
+        if self._starting_parameters_type == 'file':
+            self._read_starting_parameters_from_file()
+        elif self._starting_parameters_type == 'draw':
+            self._parse_starting_parameters_to_be_drawn()
+        else:
+            raise ValueError(
+                'unexpected: ' + str(self._starting_parameters_type))
+
+    def _read_starting_parameters_from_file(self):
+        """
+        Read starting parameters from a file.
+        """
+        file_name = self._starting_parameters_input['file']
+        try:
+            data = np.loadtxt(file_name, unpack=True)
+        except Exception:
+            raise RuntimeError('Error while reading file: ' + file_name)
+
+        if len(data.shape) != 2 or data.shape[0] != self._n_fit_parameters:
+            raise ValueError(
+                'Something wrong in shape of data read from ' + file_name)
+
+        self._starting_parameters_list = data.T.tolist()
+        self._n_walkers = len(self._starting_parameters_list)
+
+    def _parse_starting_parameters_to_be_drawn(self):
+        """
         replace self._starting_parameters with dict that has values
         [*str*, *float*, ...]
         and make basic checks
@@ -1384,7 +1476,7 @@ class UlensModelFit(object):
         accepted_types = ['gauss', 'uniform', 'log-uniform']
 
         out = dict()
-        for (key, value) in self._starting_parameters.items():
+        for (key, value) in self._starting_parameters_input.items():
             words = value.split()
             if words[0] not in accepted_types:
                 raise ValueError(
@@ -1553,6 +1645,28 @@ class UlensModelFit(object):
         """
         get sample values of parameters for EMCEE - only to make mm.Model
         """
+        if self._starting_parameters_type == 'file':
+            return self._extract_example_parameters_EMCEE()
+        elif self._starting_parameters_type == 'draw':
+            return self._draw_example_parameters_EMCEE()
+        else:
+            raise ValueError(
+                'unexpected: ' + str(self._starting_parameters_type))
+
+    def _extract_example_parameters_EMCEE(self):
+        """
+        Provide example parameters that will be used to initialize
+        MM.Model and MM.Event. Sets of parameters are already read,
+        so we just take 0-th set.
+        """
+        keys = self._fit_parameters_unsorted
+        values = self._starting_parameters_list[0]
+        return dict(zip(keys, values))
+
+    def _draw_example_parameters_EMCEE(self):
+        """
+        Randomly draw parameters or EMCEE - only to make mm.Model.
+        """
         parameters = dict()
         for (key, value) in self._starting_parameters.items():
             # We treat Cassan08 case differently so that
@@ -1574,6 +1688,21 @@ class UlensModelFit(object):
                     raise ValueError('internal error: ' + value[0])
         return parameters
 
+    def _get_starting_parameters(self):
+        """
+        Generate random parameters or read them from file.
+        Check if there are enough of them and store.
+        """
+        if self._starting_parameters_type == 'file':
+            starting = self._starting_parameters_list
+        elif self._starting_parameters_type == 'draw':
+            starting = self._generate_random_parameters()
+        else:
+            raise ValueError(
+                'unexpected: ' + str(self._starting_parameters_type))
+
+        self._check_and_store_generated_random_parameters(starting)
+
     def _generate_random_parameters(self):
         """
         Generate a number of starting parameters values.
@@ -1590,9 +1719,7 @@ class UlensModelFit(object):
                 max_iteration, settings)
             starting.append(values)
 
-        starting = np.array(starting).T.tolist()
-
-        self._check_generated_random_parameters(starting)
+        return np.array(starting).T.tolist()
 
     def _get_samples_from_distribution(self, n, settings):
         """
@@ -1611,7 +1738,27 @@ class UlensModelFit(object):
             values = np.exp(np.random.uniform(beg, end, n))
         else:
             raise ValueError('Unrecognized keyword: ' + settings[0])
+
         return values
+
+    def _check_and_store_generated_random_parameters(self, starting):
+        """
+        Check if the set of points provided has at least self._n_walkers
+        points inside the prior and save these.
+        """
+        verified = self._check_generated_random_parameters(starting)
+
+        if len(verified) < self._n_walkers:
+            raise ValueError(
+                "Couldn't generate required starting points in a prior. "
+                "Most probably you have to correct at least one of: "
+                "starting_parameters, min_values, max_values, or "
+                "fit_constraints.\nGot " + str(len(verified)) + " walkers in "
+                "the prior, but required " + str(self._n_walkers) + ".\n"
+                "If you think the code should work with your settings, "
+                "then please contact Radek Poleski.")
+
+        self._kwargs_EMCEE['initial_state'] = verified
 
     def _check_generated_random_parameters(self, starting):
         """
@@ -1628,16 +1775,7 @@ class UlensModelFit(object):
                 if len(out) == self._n_walkers:
                     break
 
-        if len(out) < self._n_walkers:
-            raise ValueError(
-                "Couldn't generate required starting points in a prior. "
-                "Most probably you have to correct at least one of: "
-                "starting_parameters, min_values, max_values, or "
-                "fit_constraints.\nGot " + str(len(out)) + " walkers in "
-                "the prior, but required " + str(self._n_walkers) + ".\n"
-                "If you think the code should work with your settings, "
-                "then please contact Radek Poleski.")
-        self._kwargs_EMCEE['initial_state'] = out
+        return out
 
     def _ln_prob(self, theta):
         """
