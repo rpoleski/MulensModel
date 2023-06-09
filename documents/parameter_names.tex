@@ -32,12 +32,12 @@ $t_{\star}$ & {\tt t\_star} & d & The source self-crossing time, $t_\star \equiv
 $\pi_{{\rm E}, N}$ & {\tt pi\_E\_N} & & The North component of the microlensing parallax vector. \\
 $\pi_{{\rm E}, E}$ & {\tt pi\_E\_E} & & The East component of the microlensing parallax vector. \\
 $t_{0,{\rm par}}$ & {\tt t\_0\_par} & & The reference time for parameters in parallax models.$^a$ \\
+$K$ & {\tt convergence\_K} & & External mass sheet convergence. \\
+$G$ & {\tt shear\_G} & & External mass sheet shear; complex valued to represent both the magnitude and angle relative to the binary axis. \\
 $s$ & {\tt s} & & The projected separation between the lens primary and its companion as a fraction of the Einstein ring radius. \\
 $q$ & {\tt q} & & The mass ratio between the lens companion and the lens primary $q \equiv m_2/m_1$. \\
 $\alpha$ & {\tt alpha} & deg. & The angle between the source trajectory and the binary axis. \\
 $ds/dt$ & {\tt ds\_dt} & yr$^{-1}$ & The rate of change of the separation. \\
-$K$ (convergence) & {\tt convergence\_K} & & External mass sheet convergence. \\
-$G$ (shear) & {\tt shear\_G} & & External mass sheet shear; complex valued to represent both the magnitude and angle relative to the binary axis. \\
 $d\alpha/dt$ & {\tt dalpha\_dt} & deg.~yr$^{-1}$ & The rate of change of $\alpha$. \\
 $t_{0,{\rm kep}}$ & {\tt t\_0\_kep} & & The reference time for lens orbital motion calculations.$^a$ \\
 $x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caustic entrance for a binary lens model.$^b$ \\
@@ -46,10 +46,12 @@ $t_{\rm caustic, in}$ & {\tt t\_caustic\_in} & & Epoch of caustic exit for a bin
 $t_{\rm caustic, out}$ & {\tt t\_caustic\_out} & & Epoch of caustic exit for a binary lens model.$^b$ \\
 
 $\chi_P$ & \texttt{xi\_period} & d & xallarap period \\
-$\chi_a$ & \texttt{xi\_semimajor\_axis} & XXX & xallarap semimajor axis \\
+$\chi_a$ & \texttt{xi\_semimajor\_axis} & $\theta_\mathrm{E}$ & xallarap semimajor axis \\
 $\chi_i$ & \texttt{xi\_inclination} & deg & xallarap inclination \\
 $\chi_\Omega$ & \texttt{xi\_Omega\_node} & deg & xallarap Omega\_node \\
-$\chi_{XXX}$ & \texttt{xi\_argument\_of\_latitude\_reference} & deg & xallarap argument of latitude reference \\
+$\chi_\nu$ & \texttt{xi\_argument\_of\_} & deg & xallarap argument of latitude reference \\
+ & \texttt{latitude\_} & & \\
+ & \texttt{reference} & & \\
 $t_{0,\chi}$ & \texttt{t\_0\_xi} & &  The reference epoch for parameters in xallarap models.$^a$\\
 
 \hline
