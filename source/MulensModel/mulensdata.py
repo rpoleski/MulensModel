@@ -157,10 +157,7 @@ class MulensData(object):
         self._ephemerides_file = ephemerides_file
 
     def __repr__(self):
-        if 'label' in self.plot_properties:
-            name = self.plot_properties['label']
-        else:
-            name = self._file_name
+        name = self._get_name()
 
         out = "{:25} n_epochs ={:>5}, n_bad ={:>5}".format(
             name+":", self.n_epochs, np.sum(self.bad))
@@ -184,6 +181,15 @@ class MulensData(object):
                     self._errorbars_scale['minimum'])
 
         return out
+
+    def _get_name(self):
+        """extract the name of dataset"""
+        if 'label' in self.plot_properties:
+            name = self.plot_properties['label']
+        else:
+            name = self._file_name
+
+        return name
 
     def _import_photometry(self, data_list, **kwargs):
         """import time, brightness, and its uncertainty"""
@@ -444,14 +450,16 @@ class MulensData(object):
 
         if show_errorbars:
             if np.any(y_err[self.good] < 0.):
-                warnings.warn("Cannot plot errorbars with negative values.")
+                warnings.warn("Cannot plot errorbars with negative values. "
+                              "Skipping dataset: " + self._get_name())
                 return
             container = self._plt_errorbar(time_good, y_good,
                                            y_err[self.good], properties)
             if show_bad:
                 if np.any(y_err[self.bad] < 0.):
-                    warnings.warn("Cannot plot errorbars with negative "
-                                  "values (bad data).")
+                    warnings.warn(
+                        "Cannot plot errorbars with negative values (bad "
+                        "data). Skipping dataset: " + self._get_name())
                     return
                 if not ('color' in properties_bad or 'c' in properties_bad):
                     properties_bad['color'] = container[0].get_color()
