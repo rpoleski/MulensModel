@@ -2,6 +2,9 @@
 
 \usepackage{geometry}
 \geometry{textwidth=500pt,top=20mm,bottom=20mm}
+\usepackage{pdflscape} % for landscape mode
+\usepackage{longtable}
+\usepackage{caption} % for captionsetup
 
 \newcommand\MM{{\tt MulensModel}}
 
@@ -16,12 +19,12 @@ last update: Jun 2023
 \end{center}
 
 \bigskip
-Microlensing parameters in \MM\, class {\tt ModelParameters}:
+Microlensing parameters in \MM\, class {\tt ModelParameters} are presented on the next page:
 
-\begin{table*}[!h]
-\begin{tabular}{l l l p{10cm}}
-Parameter & Name in &  Unit & Description \\
- & \MM &  & \\
+\begin{landscape}
+\captionsetup{width=20cm}
+\begin{longtable}{l l l p{12cm}}
+Parameter & Name in \MM &  Unit & Description \\
 \hline
 $t_0$ & {\tt t\_0} & & The time of the closest approach between the source and the lens. \\
 $u_0$ & {\tt u\_0} & & The impact parameter between the source and the lens center of mass. \\
@@ -44,24 +47,20 @@ $x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caust
 $x_{\rm caustic, out}$ & {\tt x\_caustic\_out} & & Curvelinear coordinate of caustic exit for a binary lens model.$^b$ \\
 $t_{\rm caustic, in}$ & {\tt t\_caustic\_in} & & Epoch of caustic exit for a binary lens model.$^b$ \\
 $t_{\rm caustic, out}$ & {\tt t\_caustic\_out} & & Epoch of caustic exit for a binary lens model.$^b$ \\
-
-$\chi_P$ & \texttt{xi\_period} & d & xallarap period \\
-$\chi_a$ & \texttt{xi\_semimajor\_axis} & $\theta_\mathrm{E}$ & xallarap semimajor axis \\
-$\chi_i$ & \texttt{xi\_inclination} & deg & xallarap inclination \\
-$\chi_\Omega$ & \texttt{xi\_Omega\_node} & deg & xallarap Omega\_node \\
-$\chi_\nu$ & \texttt{xi\_argument\_of\_} & deg & xallarap argument of latitude reference \\
- & \texttt{latitude\_} & & \\
- & \texttt{reference} & & \\
+$\chi_P$ & \texttt{xi\_period} & d & The orbital period of xallarap.\\
+$\chi_a$ & \texttt{xi\_semimajor\_axis} & & The semimajor axis of a xallarap orbit as a fraction of the Einstein ring.\\
+$\chi_i$ & \texttt{xi\_inclination} & deg & The inclination of a xallarap orbit.\\
+$\chi_\Omega$ & \texttt{xi\_Omega\_node} & deg & The longitude of the ascending node of a xallarap orbit.\\
+$\chi_u$ & \texttt{xi\_argument\_of\_latitude\_reference} & deg & The argument of latitude at the reference epoch ($t_{0,\chi}$). The argument of latitude is a sum of true anomaly ($\nu$, changes with time) and the argument of periapsis ($\omega$, orbit parameter, i.e., does not change with time): $u = \nu + \omega$.\\
 $t_{0,\chi}$ & \texttt{t\_0\_xi} & &  The reference epoch for parameters in xallarap models.$^a$\\
-
 \hline
-\end{tabular}
 \caption{Notes: \newline
 $^a$ -- $t_{0,{\rm par}}$, $t_{0,{\rm kep}}$, and $t_{0,\chi}$ are reference parameters, hence, do not change these during fitting. \newline
 $^b$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x_{\rm caustic, in}$, $x_{\rm caustic, out}$, $t_{\rm caustic, in}$, and $t_{\rm caustic, out}$) are used instead of ($t_0$, $u_0$, $t_{\rm E}$, and $\alpha$).
 %\label{}
 }
-\end{table*}
+\end{longtable}
+\end{landscape}
 
 Some of the parameters can be defined separately for each of the sources in binary source models.  
 In that case, add {\tt \_1} or {\tt \_2} to parameter name. These are:
