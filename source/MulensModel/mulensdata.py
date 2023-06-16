@@ -443,9 +443,16 @@ class MulensData(object):
         y_bad = y_value[self.bad]
 
         if show_errorbars:
+            if np.any(y_err[self.good] < 0.):
+                warnings.warn("Cannot plot errorbars with negative values.")
+                return
             container = self._plt_errorbar(time_good, y_good,
                                            y_err[self.good], properties)
             if show_bad:
+                if np.any(y_err[self.bad] < 0.):
+                    warnings.warn("Cannot plot errorbars with negative "
+                                  "values (bad data).")
+                    return
                 if not ('color' in properties_bad or 'c' in properties_bad):
                     properties_bad['color'] = container[0].get_color()
 
