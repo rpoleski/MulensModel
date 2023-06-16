@@ -439,21 +439,20 @@ class MulensData(object):
 
         time_good = self.time[self.good] - subtract
         time_bad = self.time[self.bad] - subtract
+        y_good = y_value[self.good]
+        y_bad = y_value[self.bad]
 
         if show_errorbars:
-            container = self._plt_errorbar(time_good, y_value[self.good],
+            container = self._plt_errorbar(time_good, y_good,
                                            y_err[self.good], properties)
             if show_bad:
-                if 'color' in properties_bad or 'c' in properties_bad:
-                    pass
-                else:
+                if not ('color' in properties_bad or 'c' in properties_bad):
                     properties_bad['color'] = container[0].get_color()
 
-                self._plt_errorbar(time_bad, y_value[self.bad],
-                                   y_err[self.bad], properties_bad)
+                self._plt_errorbar(
+                    time_bad, y_bad, y_err[self.bad], properties_bad)
         else:
-            collection = self._plt_scatter(time_good, y_value[self.good],
-                                           properties)
+            collection = self._plt_scatter(time_good, y_good, properties)
             if show_bad:
                 change = True
                 keys = ['c', 'color', 'facecolor', 'facecolors', 'edgecolors']
@@ -461,7 +460,7 @@ class MulensData(object):
                     change &= key not in properties_bad
                 if change:
                     properties_bad['color'] = collection.get_edgecolor()
-                self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
+                self._plt_scatter(time_bad, y_bad, properties_bad)
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
