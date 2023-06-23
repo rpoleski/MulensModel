@@ -504,3 +504,16 @@ class test_errors(unittest.TestCase):
             'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
         with self.assertRaises(NotImplementedError):
             mm.ModelParameters(parameters)
+
+    def test_xallarap_and_Cassan08(self):
+        """
+        Confirm that xallrap and binary lens in Cassan 2008 parameterization
+        cannot be defined jointly
+        """
+        parameters = {
+            's': 1, 'q': 0.8, 'x_caustic_in': 0.1, 'x_caustic_out': 0.15,
+            't_caustic_in': 1000, 't_caustic_out': 2000.,
+            'xi_period': 12., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 10.,
+            'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
+        with self.assertRaises(NotImplementedError):
+            mm.ModelParameters(parameters)

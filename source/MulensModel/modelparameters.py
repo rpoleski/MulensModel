@@ -319,17 +319,7 @@ class ModelParameters(object):
             raise KeyError('Orbital motion of the lens requires two lens '
                            'components but only one was provided.')
 
-        # Cassan08 prevents some other features:
-        if self._type['Cassan08']:
-            if self._type['parallax']:
-                raise KeyError('Currently we do not allow parallax for '
-                               'Cassan (2008) parameterization.')
-            if self._type['lens 2-parameter orbital motion']:
-                raise KeyError('Cassan (2008) parameterization and parallax '
-                               'are not allowed')
-            if n_sources > 1:
-                raise KeyError("Cassan (2008) parameterization doesn't work"
-                               "for multi sources models")
+        self._check_types_for_Cassan08()
 
         if alpha_defined:
             if self._n_lenses == 1 and not self._type['mass sheet']:
@@ -340,6 +330,26 @@ class ModelParameters(object):
         if n_sources > 1 and self._type['xallarap']:
             raise NotImplementedError('We have not yet implemented xallarap '
                                       'and multiple luminous sources')
+
+    def _check_types_for_Cassan08(self):
+        """
+        Check if Cassan08 is used and if so, then make sure that
+        the trajectory is rectilinear and there is only one source.
+        """
+        if not self._type['Cassan08']:
+            return
+
+        types = ['parallax', 'xallarap', 'lens 2-parameter orbital motion']
+        for type_ in types:
+            if self._type[type_]:
+                raise NotImplementedError(
+                    'Currently we do not allow Cassan (2008) '
+                    'parameterization of binary lens and ' + type_)
+
+        if self._n_sources > 1:
+            raise NotImplementedError(
+                "Cassan (2008) parameterization doesn't work for "
+                "multi sources models")
 
     def _divide_parameters(self, parameters):
         """
