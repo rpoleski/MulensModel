@@ -490,3 +490,17 @@ def test_is_xallarap_2():
     parameters = {'t_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9}
     model_params = mm.ModelParameters(parameters)
     assert not model_params.is_xallarap
+
+
+class test_errors(unittest.TestCase):
+    def test_xallarap_and_binary_source(self):
+        """
+        Confirm that binary source and xallrap cannot be defined in
+        the same model
+        """
+        parameters = {
+            't_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9,
+            'xi_period': 12., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 10.,
+            'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
+        with self.assertRaises(NotImplementedError):
+            mm.ModelParameters(parameters)

@@ -337,6 +337,10 @@ class ModelParameters(object):
                     'You defined alpha for single lens model '
                     'without external mass sheet. This is not allowed.')
 
+        if n_sources > 1 and self._type['xallarap']:
+            raise NotImplementedError('We have not yet implemented xallarap '
+                                      'and multiple luminous sources')
+
     def _divide_parameters(self, parameters):
         """
         Divide an input dict into 2 - each source separately.
