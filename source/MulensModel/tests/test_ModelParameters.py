@@ -385,24 +385,27 @@ class TestParameters(unittest.TestCase):
             parameters.shear_G = 0.
 
 
+xallarap_parameters = {
+    't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+    'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
+    'xi_inclination': 9.8765, 'xi_argument_of_latitude_reference': 24.68,
+    't_0_xi': 1.}
+
+
 def setup_xallarap(key):
     """
     Setup for xallarap tests.
     """
-    parameters = {'t_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
-                  'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
-                  'xi_inclination': 9.8765,
-                  'xi_argument_of_latitude_reference': 24.68,
-                  't_0_xi': 1.}
-    model = mm.ModelParameters(parameters)
-    return (model, parameters[key])
+    model = mm.ModelParameters(xallarap_parameters)
+    return (model, xallarap_parameters[key])
 
 
-tested_keys = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
-               'xi_inclination', 'xi_argument_of_latitude_reference', 't_0_xi']
+tested_keys_1 = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
+                 'xi_inclination', 'xi_argument_of_latitude_reference']
+tested_keys_2 = tested_keys_1 + ['t_0_xi']
 
 
-@pytest.mark.parametrize("key", tested_keys)
+@pytest.mark.parametrize("key", tested_keys_2)
 def test_xallarap_set_value_1(key):
     """
     Check if xallarap settings of xallarap are correctly changed via dictionary
@@ -414,7 +417,7 @@ def test_xallarap_set_value_1(key):
     assert getattr(model, key) == new_value
 
 
-@pytest.mark.parametrize("key", tested_keys)
+@pytest.mark.parametrize("key", tested_keys_2)
 def test_xallarap_set_value_2(key):
     """
     Check if xallarap settings are correctly changed via attribute
@@ -446,6 +449,31 @@ class TestXallarapErrors(unittest.TestCase):
         new_value = -3.14 * value
         with self.assertRaises(ValueError):
             setattr(model, key, new_value)
+
+    def test_xallarap_and_binary_source(self):
+        """
+        Confirm that binary source and xallrap cannot be defined in
+        the same model
+        """
+        parameters = {
+            't_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9,
+            'xi_period': 12., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 10.,
+            'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
+        with self.assertRaises(NotImplementedError):
+            mm.ModelParameters(parameters)
+
+    def test_xallarap_and_Cassan08(self):
+        """
+        Confirm that xallrap and binary lens in Cassan 2008 parameterization
+        cannot be defined jointly
+        """
+        parameters = {
+            's': 1, 'q': 0.8, 'x_caustic_in': 0.1, 'x_caustic_out': 0.15,
+            't_caustic_in': 1000, 't_caustic_out': 2000.,
+            'xi_period': 12., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 10.,
+            'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
+        with self.assertRaises(NotImplementedError):
+            mm.ModelParameters(parameters)
 
 
 @pytest.mark.parametrize(
@@ -490,30 +518,3 @@ def test_is_xallarap_2():
     parameters = {'t_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9}
     model_params = mm.ModelParameters(parameters)
     assert not model_params.is_xallarap
-
-
-class test_errors(unittest.TestCase):
-    def test_xallarap_and_binary_source(self):
-        """
-        Confirm that binary source and xallrap cannot be defined in
-        the same model
-        """
-        parameters = {
-            't_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9,
-            'xi_period': 12., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 10.,
-            'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
-        with self.assertRaises(NotImplementedError):
-            mm.ModelParameters(parameters)
-
-    def test_xallarap_and_Cassan08(self):
-        """
-        Confirm that xallrap and binary lens in Cassan 2008 parameterization
-        cannot be defined jointly
-        """
-        parameters = {
-            's': 1, 'q': 0.8, 'x_caustic_in': 0.1, 'x_caustic_out': 0.15,
-            't_caustic_in': 1000, 't_caustic_out': 2000.,
-            'xi_period': 12., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 10.,
-            'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
-        with self.assertRaises(NotImplementedError):
-            mm.ModelParameters(parameters)
