@@ -430,6 +430,16 @@ def test_xallarap_set_value_2(key):
 
 
 class TestXallarapErrors(unittest.TestCase):
+    def test_missing_xallarap_parameters(self):
+        """Make sure that the required xallarap parameters are all defined"""
+        for parameter in tested_keys_1:
+            parameters = {**xallarap_parameters}
+            parameters.pop(parameter)
+            with self.assertRaises(KeyError):
+                mm.ModelParameters(parameters)
+                print("Test failed (i.e. KeyError was not raised) for ",
+                      parameter)
+
     def test_negative_period(self):
         """
         Make sure that period is positive

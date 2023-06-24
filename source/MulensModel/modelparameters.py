@@ -293,7 +293,7 @@ class ModelParameters(object):
                 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
             'mass sheet': 'convergence_K shear_G',
-            'xallarap': ('xi_period xi_semimajor_axisi xi_inclination '
+            'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
                          'xi_Omega_node xi_argument_of_latitude_reference')}
 
         parameter_to_type = dict()
@@ -497,6 +497,7 @@ class ModelParameters(object):
         self._check_valid_combination_1_source_parallax(keys)
         self._check_valid_combination_1_source_mass_sheet(keys)
         self._check_valid_combination_1_source_binary_lens(keys)
+        self._check_valid_combination_1_source_xallarap(keys)
 
     def _check_valid_combination_1_source_t_0_u_0(self, keys):
         """
@@ -596,6 +597,16 @@ class ModelParameters(object):
             if 'ds_dt' not in keys or 'dalpha_dt' not in keys:
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
+
+    def _check_valid_combination_1_source_xallarap(self, keys):
+        """XXX"""
+        if not self._type['xallarap']:
+            return
+        checked = ('xi_period xi_semimajor_axis xi_inclination '
+                   'xi_Omega_node xi_argument_of_latitude_reference').split()
+        for parameter in checked:
+            if parameter not in keys:
+                raise KeyError(parameter)
 
     def _check_valid_combination_1_source_Cassan08(self, keys):
         """
