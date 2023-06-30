@@ -648,7 +648,8 @@ class FitData(object):
             return self.model.get_trajectory(self.dataset.time)
         else:
             kwargs_ = {
-                'times': self.dataset.time, 'parallax': self.model._parallax,
+                'times': self.dataset.time,
+                'parallax': self.model.get_parallax(),
                 'coords': self.model.coords,
                 'satellite_skycoord': self.dataset.satellite_skycoord}
 
