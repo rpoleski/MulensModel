@@ -672,169 +672,6 @@ class FitData(object):
         d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
         return d_A_d_u
 
-    class FSPLDerivs:
-
-        _B0B1_file_read = False
-
-        def __init__(self, fit):
-            # Another problem with this code: the ephemerides file is tied to
-            # the dataset, so satellite parallax properties need to be defined
-            # relative to the dataset *not* the model (which may not have an
-            # ephemerides file). This creates bookkeeping problems.
-
-            # Define the initialization functions
-            def _get_u():
-                # This calculation gets repeated = Not efficient. Should
-                # trajectory be a property of model? No. Wouldn't include
-                # dataset ephemerides.
-                trajectory = self.fit.get_dataset_trajectory()
-                u_ = np.sqrt(trajectory.x ** 2 + trajectory.y ** 2)
-                return u_
-
-            def _get_dataset_satellite_skycoord():
-                satellite_skycoord = None
-                if self.dataset.ephemerides_file is not None:
-                    satellite_skycoord = self.dataset.satellite_skycoord
-
-                return satellite_skycoord
-
-            def _get_magnification_curve():
-                # This code was copied directly from model.py --> indicates a
-                # refactor is needed.
-                # Also, shouldn't satellite_skycoord be stored as a property of
-                # mm.Model?
-                # We also have to access a lot of private functions of model,
-                # which is bad.
-                magnification_curve = MagnificationCurve(
-                    self.dataset.time, parameters=self.model.parameters,
-                    parallax=self.model._parallax, coords=self.model.coords,
-                    satellite_skycoord=self._dataset_satellite_skycoord,
-                    gamma=self.gamma)
-                magnification_curve.set_magnification_methods(
-                    self.model._methods,
-                    self.model._default_magnification_method)
-                magnification_curve.set_magnification_methods_parameters(
-                    self.model._methods_parameters)
-
-                return magnification_curve
-
-            def _get_a_pspl():
-                point_source_params = {**self.model.parameters.parameters}
-                point_source_params.pop('rho')
-                point_source_curve = MagnificationCurve(
-                    self.dataset.time, parameters=self.model.parameters,
-                    parallax=self.model._parallax, coords=self.model.coords,
-                    satellite_skycoord=self._dataset_satellite_skycoord)
-
-                a_pspl = point_source_curve.get_magnification()
-                return a_pspl
-
-            def _get_b0_gamma_b1_and_derivs():
-                z_ = self.u_ / self.model.parameters.rho
-
-                b0_gamma_b1 = np.ones(len(self.dataset.time))
-                db0_gamma_db1 = np.zeros(len(self.dataset.time))
-                # This section was copied from magnificationcurve.py. Addl
-                # evidence a refactor is needed.
-                methods = np.array(
-                    self._magnification_curve._methods_for_epochs())
-                for method in set(methods):
-                    kwargs = {}
-                    parameters = self._magnification_curve._methods_parameters
-                    if (parameters is not None):
-                        if method in parameters.keys():
-                            kwargs = parameters[method]
-
-                        if kwargs != {}:
-                            raise ValueError(
-                                'Methods parameters passed, but currently ' +
-                                'no point lens method accepts the parameters')
-
-                    selection = (
-                        (methods == method) & (z_ < FitData.FSPLDerivs._z_max))
-                    if method.lower() == 'point_source':
-                        pass  # These cases are already taken care of.
-                    elif (method.lower() ==
-                          'finite_source_uniform_Gould94'.lower()):
-                        b0_gamma_b1[selection] = self._get_B0(z_[selection])
-                        db0_gamma_db1[selection] = self._get_B0_prime(
-                            z_[selection])
-                    elif (method.lower() ==
-                          'finite_source_LD_Yoo04'.lower()):
-                        b0_gamma_b1[selection] = self._get_B0(z_[selection])
-                        b0_gamma_b1[selection] -= self.gamma * self._get_B1(
-                            z_[selection])
-                        db0_gamma_db1[selection] = self._get_B0_prime(
-                            z_[selection])
-                        db0_gamma_db1[selection] -= (
-                            self.gamma * self._get_B1_prime(z_[selection]))
-                    else:
-                        msg = "dA/drho only implemented for 'finite_source_"
-                        msg += "uniform_ Gould94' and 'finite_source_LD"
-                        msg += "_Yoo04'. Your value: {:}"
-                        raise ValueError(msg.format(method))
-
-                return (b0_gamma_b1, db0_gamma_db1)
-
-            # Actual Initializations
-            if not FitData.FSPLDerivs._B0B1_file_read:
-                self._read_B0B1_file()
-
-            self.fit = fit
-            self.dataset = self.fit.dataset
-            self.model = self.fit.model
-            self.gamma = self.fit.gamma
-            self.u_ = _get_u()
-            self._dataset_satellite_skycoord = (
-                _get_dataset_satellite_skycoord())
-            self._magnification_curve = _get_magnification_curve()
-            self.a_pspl = _get_a_pspl()
-            (self.b0_gamma_b1, self.db0_gamma_db1) = (
-                _get_b0_gamma_b1_and_derivs())
-
-        def _read_B0B1_file(self):
-            """Read file with pre-computed function values"""
-            # Adapted from PointLens
-            file_ = os.path.join(
-                mm.DATA_PATH, 'interpolation_table_b0b1_v3.dat')
-            if not os.path.exists(file_):
-                raise ValueError(
-                    'File with FSPL data does not exist.\n' + file_)
-            (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(
-                file_, unpack=True)
-            FitData.FSPLDerivs._z_max = z[-1]
-            FitData.FSPLDerivs._get_B0 = interp1d(
-                z, B0, kind='cubic', bounds_error=False, fill_value=1.0)
-            FitData.FSPLDerivs._get_B1 = interp1d(
-                z, B1, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPLDerivs._get_B0_prime = interp1d(
-                z, B0_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPLDerivs._get_B1_prime = interp1d(
-                z, B1_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPLDerivs._B0B1_file_read = True
-
-        def get_gradient(self, parameters):
-            d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
-            factor = self.a_pspl * self.db0_gamma_db1
-            factor /= self.model.parameters.rho
-            factor += d_A_pspl_d_u * self.b0_gamma_b1
-
-            gradient = self.fit._get_d_u_d_params(parameters)
-            for key in parameters:
-                if key == 'rho':
-                    gradient[key] = self.get_d_A_d_rho()
-                else:
-                    gradient[key] *= factor
-
-            return gradient
-
-        def get_d_A_d_rho(self):
-            d_A_d_rho = self.a_pspl
-            d_A_d_rho *= -self.u_ / self.model.parameters.rho**2
-            d_A_d_rho *= self.db0_gamma_db1
-
-            return d_A_d_rho
-
     def get_d_A_d_u_for_FSPL_model(self):
         """
         Calculate dA/du for FSPL
@@ -1102,3 +939,167 @@ class FitData(object):
         :py:func:`~MulensModel.model.Model.get_limb_coeff_gamma()`.
         """
         return self._gamma
+
+    class FSPLDerivs:
+
+        _B0B1_file_read = False
+
+        def __init__(self, fit):
+            # Another problem with this code: the ephemerides file is tied to
+            # the dataset, so satellite parallax properties need to be defined
+            # relative to the dataset *not* the model (which may not have an
+            # ephemerides file). This creates bookkeeping problems.
+
+            # Define the initialization functions
+            def _get_u():
+                # This calculation gets repeated = Not efficient. Should
+                # trajectory be a property of model? No. Wouldn't include
+                # dataset ephemerides.
+                trajectory = self.fit.get_dataset_trajectory()
+                u_ = np.sqrt(trajectory.x ** 2 + trajectory.y ** 2)
+                return u_
+
+            def _get_dataset_satellite_skycoord():
+                satellite_skycoord = None
+                if self.dataset.ephemerides_file is not None:
+                    satellite_skycoord = self.dataset.satellite_skycoord
+
+                return satellite_skycoord
+
+            def _get_magnification_curve():
+                # This code was copied directly from model.py --> indicates a
+                # refactor is needed.
+                # Also, shouldn't satellite_skycoord be stored as a property of
+                # mm.Model?
+                # We also have to access a lot of private functions of model,
+                # which is bad.
+                magnification_curve = MagnificationCurve(
+                    self.dataset.time, parameters=self.model.parameters,
+                    parallax=self.model._parallax, coords=self.model.coords,
+                    satellite_skycoord=self._dataset_satellite_skycoord,
+                    gamma=self.gamma)
+                magnification_curve.set_magnification_methods(
+                    self.model._methods,
+                    self.model._default_magnification_method)
+                magnification_curve.set_magnification_methods_parameters(
+                    self.model._methods_parameters)
+
+                return magnification_curve
+
+            def _get_a_pspl():
+                point_source_params = {**self.model.parameters.parameters}
+                point_source_params.pop('rho')
+                point_source_curve = MagnificationCurve(
+                    self.dataset.time, parameters=self.model.parameters,
+                    parallax=self.model._parallax, coords=self.model.coords,
+                    satellite_skycoord=self._dataset_satellite_skycoord)
+
+                a_pspl = point_source_curve.get_magnification()
+                return a_pspl
+
+            def _get_b0_gamma_b1_and_derivs():
+                z_ = self.u_ / self.model.parameters.rho
+
+                b0_gamma_b1 = np.ones(len(self.dataset.time))
+                db0_gamma_db1 = np.zeros(len(self.dataset.time))
+                # This section was copied from magnificationcurve.py. Addl
+                # evidence a refactor is needed.
+                methods = np.array(
+                    self._magnification_curve._methods_for_epochs())
+                for method in set(methods):
+                    kwargs = {}
+                    parameters = self._magnification_curve._methods_parameters
+                    if (parameters is not None):
+                        if method in parameters.keys():
+                            kwargs = parameters[method]
+
+                        if kwargs != {}:
+                            raise ValueError(
+                                'Methods parameters passed, but currently ' +
+                                'no point lens method accepts the parameters')
+
+                    selection = (
+                        (methods == method) & (z_ < FitData.FSPLDerivs._z_max))
+                    if method.lower() == 'point_source':
+                        pass  # These cases are already taken care of.
+                    elif (method.lower() ==
+                          'finite_source_uniform_Gould94'.lower()):
+                        b0_gamma_b1[selection] = self._get_B0(z_[selection])
+                        db0_gamma_db1[selection] = self._get_B0_prime(
+                            z_[selection])
+                    elif (method.lower() ==
+                          'finite_source_LD_Yoo04'.lower()):
+                        b0_gamma_b1[selection] = self._get_B0(z_[selection])
+                        b0_gamma_b1[selection] -= self.gamma * self._get_B1(
+                            z_[selection])
+                        db0_gamma_db1[selection] = self._get_B0_prime(
+                            z_[selection])
+                        db0_gamma_db1[selection] -= (
+                            self.gamma * self._get_B1_prime(z_[selection]))
+                    else:
+                        msg = "dA/drho only implemented for 'finite_source_"
+                        msg += "uniform_ Gould94' and 'finite_source_LD"
+                        msg += "_Yoo04'. Your value: {:}"
+                        raise ValueError(msg.format(method))
+
+                return (b0_gamma_b1, db0_gamma_db1)
+
+            # Actual Initializations
+            if not FitData.FSPLDerivs._B0B1_file_read:
+                self._read_B0B1_file()
+
+            self.fit = fit
+            self.dataset = self.fit.dataset
+            self.model = self.fit.model
+            self.gamma = self.fit.gamma
+            self.u_ = _get_u()
+            self._dataset_satellite_skycoord = (
+                _get_dataset_satellite_skycoord())
+            self._magnification_curve = _get_magnification_curve()
+            self.a_pspl = _get_a_pspl()
+            (self.b0_gamma_b1, self.db0_gamma_db1) = (
+                _get_b0_gamma_b1_and_derivs())
+
+        def _read_B0B1_file(self):
+            """Read file with pre-computed function values"""
+            # Adapted from PointLens
+            file_ = os.path.join(
+                mm.DATA_PATH, 'interpolation_table_b0b1_v3.dat')
+            if not os.path.exists(file_):
+                raise ValueError(
+                    'File with FSPL data does not exist.\n' + file_)
+            (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(
+                file_, unpack=True)
+            FitData.FSPLDerivs._z_max = z[-1]
+            FitData.FSPLDerivs._get_B0 = interp1d(
+                z, B0, kind='cubic', bounds_error=False, fill_value=1.0)
+            FitData.FSPLDerivs._get_B1 = interp1d(
+                z, B1, kind='cubic', bounds_error=False, fill_value=0.0)
+            FitData.FSPLDerivs._get_B0_prime = interp1d(
+                z, B0_prime, kind='cubic', bounds_error=False, fill_value=0.0)
+            FitData.FSPLDerivs._get_B1_prime = interp1d(
+                z, B1_prime, kind='cubic', bounds_error=False, fill_value=0.0)
+            FitData.FSPLDerivs._B0B1_file_read = True
+
+        def get_gradient(self, parameters):
+            d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
+            factor = self.a_pspl * self.db0_gamma_db1
+            factor /= self.model.parameters.rho
+            factor += d_A_pspl_d_u * self.b0_gamma_b1
+
+            gradient = self.fit._get_d_u_d_params(parameters)
+            for key in parameters:
+                if key == 'rho':
+                    gradient[key] = self.get_d_A_d_rho()
+                else:
+                    gradient[key] *= factor
+
+            return gradient
+
+        def get_d_A_d_rho(self):
+            d_A_d_rho = self.a_pspl
+            d_A_d_rho *= -self.u_ / self.model.parameters.rho**2
+            d_A_d_rho *= self.db0_gamma_db1
+
+            return d_A_d_rho
+
