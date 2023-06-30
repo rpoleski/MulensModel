@@ -599,12 +599,16 @@ class ModelParameters(object):
                     't_0_kep makes sense only when orbital motion is defined.')
 
     def _check_valid_combination_1_source_xallarap(self, keys):
-        """XXX"""
+        """
+        If xallarap parameters are defined,
+        then make sure there are all required parameters
+        """
         if not self._type['xallarap']:
             return
-        checked = ('xi_period xi_semimajor_axis xi_inclination '
-                   'xi_Omega_node xi_argument_of_latitude_reference').split()
-        for parameter in checked:
+
+        required = ('xi_period xi_semimajor_axis xi_inclination '
+                    'xi_Omega_node xi_argument_of_latitude_reference').split()
+        for parameter in required:
             if parameter not in keys:
                 raise KeyError(parameter)
 
