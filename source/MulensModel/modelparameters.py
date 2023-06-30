@@ -1414,7 +1414,10 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        The longitude of the ascending node of the xallarap orbit, i.e.,
+        the angle from relative lens-source proper motion direction
+        to the ascending node direction.
+        The units are degrees.
         """
         return self.parameters['xi_Omega_node']
 
@@ -1446,7 +1449,12 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        The argument of latitude for the xallarap orbit at :py:attr:`~t_0_xi`.
+        The argument of latitude is a sum of the true anomaly and
+        the argument of periapsis. In standard notation: u = nu + omega.
+        This parameter is internally used to calculate perihelion passage
+        (T_0 in standard notation).
+        The units are degrees.
         """
         return self.parameters['xi_argument_of_latitude_reference']
 
