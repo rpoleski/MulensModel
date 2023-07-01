@@ -940,7 +940,7 @@ class FitData(object):
         """
         return self._gamma
 
-    class FSPLDerivs:
+    class FSPLDerivs(object):
 
         _B0B1_file_read = False
 
@@ -948,7 +948,7 @@ class FitData(object):
             # Another problem with this code: the ephemerides file is tied to
             # the dataset, so satellite parallax properties need to be defined
             # relative to the dataset *not* the model (which may not have an
-            # ephemerides file). This creates bookkeeping problems.
+            # ephemerides file). This creates bookeeping problems.
 
             # Define the initialization functions
             def _get_u():
@@ -975,7 +975,7 @@ class FitData(object):
                 # which is bad.
                 magnification_curve = MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
-                    parallax=self.model._parallax, coords=self.model.coords,
+                    parallax=self.model.get_parallax(), coords=self.model.coords,
                     satellite_skycoord=self._dataset_satellite_skycoord,
                     gamma=self.gamma)
                 magnification_curve.set_magnification_methods(
@@ -991,7 +991,7 @@ class FitData(object):
                 point_source_params.pop('rho')
                 point_source_curve = MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
-                    parallax=self.model._parallax, coords=self.model.coords,
+                    parallax=self.model.get_parallax(), coords=self.model.coords,
                     satellite_skycoord=self._dataset_satellite_skycoord)
 
                 a_pspl = point_source_curve.get_magnification()
@@ -1071,14 +1071,13 @@ class FitData(object):
             (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(
                 file_, unpack=True)
             FitData.FSPLDerivs._z_max = z[-1]
-            FitData.FSPLDerivs._get_B0 = interp1d(
-                z, B0, kind='cubic', bounds_error=False, fill_value=1.0)
-            FitData.FSPLDerivs._get_B1 = interp1d(
-                z, B1, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPLDerivs._get_B0_prime = interp1d(
-                z, B0_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPLDerivs._get_B1_prime = interp1d(
-                z, B1_prime, kind='cubic', bounds_error=False, fill_value=0.0)
+            kwargs = {'kind': 'cubic', 'bounds_error': False,
+                      'fill_value': 1.0}
+            FitData.FSPLDerivs._get_B0 = interp1d(z, B0, **kwargs)
+            kwargs['fill_value'] = 0.0
+            FitData.FSPLDerivs._get_B1 = interp1d(z, B1, **kwargs)
+            FitData.FSPLDerivs._get_B0_prime = interp1d(z, B0_prime, **kwargs)
+            FitData.FSPLDerivs._get_B1_prime = interp1d(z, B1_prime, **kwargs)
             FitData.FSPLDerivs._B0B1_file_read = True
 
         def get_gradient(self, parameters):
