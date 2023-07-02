@@ -1,20 +1,24 @@
 import numpy as np
 from numpy.testing import assert_almost_equal as almost
 import unittest
-import os.path
+from os.path import join
 
 import MulensModel as mm
 
-dir_1 = os.path.join(mm.DATA_PATH, 'photometry_files', 'OB140939')
-dir_2 = os.path.join(mm.DATA_PATH, 'unit_test_files')
-dir_3 = os.path.join(mm.DATA_PATH, 'ephemeris_files')
+dir_1 = join(mm.DATA_PATH, 'photometry_files', 'OB140939')
+dir_2 = join(mm.DATA_PATH, 'unit_test_files')
+dir_3 = join(mm.DATA_PATH, 'ephemeris_files')
+dir_4 = join(dir_2, 'fspl_derivs')
 
-SAMPLE_FILE_02 = os.path.join(dir_1, 'ob140939_OGLE.dat')  # HJD'
-SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
-SAMPLE_FILE_03 = os.path.join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
-SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
-SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
-SAMPLE_FILE_04_WF = os.path.join(mm.DATA_PATH, 'WFIRST_1827.dat')
+SAMPLE_FILE_02 = join(dir_1, 'ob140939_OGLE.dat')  # HJD'
+SAMPLE_FILE_02_REF = join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
+SAMPLE_FILE_03 = join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
+SAMPLE_FILE_03_EPH = join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
+SAMPLE_FILE_03_REF = join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
+SAMPLE_FILE_04_WF = join(mm.DATA_PATH, 'WFIRST_1827.dat')
+SAMPLE_FILE_FSPL_51 = join(dir_4, 'fort.51')
+SAMPLE_FILE_FSPL_61 = join(dir_4, 'fort.61')
+
 
 # Note: default precision for assert_almost_equal (aka almost) is decimal = 7
 
@@ -626,13 +630,12 @@ class TestFSPLGradient(unittest.TestCase):
 
     def setUp(self):
         # Read in sfit comparison file, split by dataset
-        fspl_dir = 'fspl_derivs'
         self.sfit_derivs = np.genfromtxt(
-            os.path.join(dir_2, fspl_dir, 'fort.61'), dtype=None,
+            SAMPLE_FILE_FSPL_61, dtype=None,
             names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
 
         # Create the model
-        self.sfit_mat = FortranSFitFile(os.path.join(dir_2, fspl_dir, 'fort.51'))
+        self.sfit_mat = FortranSFitFile(SAMPLE_FILE_FSPL_51)
         self.sfit_model = mm.Model({
             't_0': self.sfit_mat.a[0] + 2450000., 'u_0': self.sfit_mat.a[1],
             't_E': self.sfit_mat.a[2], 'rho': self.sfit_mat.a[3]})
@@ -651,7 +654,7 @@ class TestFSPLGradient(unittest.TestCase):
         for filename in self.filenames:
             bandpass = filename.split('.')[0][-1]
             dataset = mm.MulensData(
-                file_name=os.path.join(dir_2, fspl_dir, filename),
+                file_name=join(dir_4, filename),
                 phot_fmt='mag', bandpass=bandpass)
             self.datasets.append(dataset)
 
