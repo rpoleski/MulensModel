@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.testing import assert_almost_equal as almost
+from numpy.testing import assert_allclose
 import unittest
 from os.path import join
 
@@ -342,7 +343,7 @@ def test_satellite_and_annual_parallax_calculation():
     # Test FitData.data_magnification()
     my_fit = mm.FitData(dataset=data_Spitzer, model=model_with_par)
     ratio = my_fit.get_data_magnification() / ref_Spitzer
-    np.testing.assert_almost_equal(ratio, [1.]*len(ratio), decimal=4)
+    almost(ratio, [1.]*len(ratio), decimal=4)
 
 
 def test_bad_data():
@@ -638,6 +639,13 @@ class TestFSPLGradient(unittest.TestCase):
         self._set_datasets()
         self._set_fits()
 
+        z_break = 1.3
+        self._indexes = []
+        for zs in self.zs:
+            index_large = (zs > z_break)
+            index_small = (zs <= z_break)
+            self._indexes.append([index_large, index_small])
+
     def _create_model(self):
         self.sfit_mat = FortranSFitFile(SAMPLE_FILE_FSPL_51)
         self.sfit_mat.a[0] += 2450000.
@@ -682,9 +690,9 @@ class TestFSPLGradient(unittest.TestCase):
             sfit_index = np.where(self.sfit_derivs['nob'] == i + 1)
             self.sfit_indices.append(sfit_index)
 
-            traj = fit.model.get_trajectory(dataset.time)
-            z = (np.sqrt(traj.x ** 2 + traj.y ** 2) /
-                 self.sfit_model.parameters.rho)
+            trajectory = fit.model.get_trajectory(dataset.time)
+            u = np.sqrt(trajectory.x**2 + trajectory.y**2)
+            z = u / self.sfit_model.parameters.rho
             self.zs.append(z)
 
     def _db0_test(self, i):
@@ -692,21 +700,12 @@ class TestFSPLGradient(unittest.TestCase):
 
         # sfit not accurate near 1:
         index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-        # transition between absolute and relative accuracy
-        z_break = 1.3
-        index_large = (self.zs[i] > z_break)
-        index_small = (self.zs[i] <= z_break)
-        for j, condition in enumerate([index_large, index_small]):
-            if j == 0:
-                kwargs = {'atol': 0.0005}
-            else:
-                kwargs = {'rtol': 0.01}
 
+        kwargs_ = [{'atol': 0.0005}, {'rtol': 0.01}]
+        for (condition, kwargs) in zip(self._indexes[i], kwargs_):
             index_i = index & condition
-            if np.sum(index_i) > 0:
-                db0 = self.fits[i].FSPLDerivs._get_B0_prime(
-                    self.zs[i][index_i])
-                np.testing.assert_allclose(db0, sfit_db0[index_i], **kwargs)
+            db0 = self.fits[i].FSPLDerivs._get_B0_prime(self.zs[i][index_i])
+            assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
     def test_db0_0(self):
         self._db0_test(0)
@@ -719,20 +718,12 @@ class TestFSPLGradient(unittest.TestCase):
 
         # sfit not accurate near 1:
         index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-        # transition between absolute and relative accuracy
-        z_break = 1.3
-        index_large = (self.zs[i] > z_break)
-        index_small = (self.zs[i] <= z_break)
-        for j, condition in enumerate([index_large, index_small]):
-            if j == 0:
-                kwargs = {'atol': 0.001}
-            else:
-                kwargs = {'rtol': 0.05}
 
+        kwargs_ = [{'atol': 0.001}, {'rtol': 0.05}]
+        for (condition, kwargs) in zip(self._indexes[i], kwargs_):
             index_i = index & condition
-            if np.sum(index_i) > 0:
-                db1 = self.fits[i].FSPLDerivs._get_B1_prime(self.zs[i][index_i])
-                np.testing.assert_allclose(db1, sfit_db1[index_i], **kwargs)
+            db1 = self.fits[i].FSPLDerivs._get_B1_prime(self.zs[i][index_i])
+            assert_allclose(db1, sfit_db1[index_i], **kwargs)
 
     def test_db1_0(self):
         self._db1_test(0)
@@ -743,7 +734,7 @@ class TestFSPLGradient(unittest.TestCase):
     def _mags_test(self, i):
         mags = self.fits[i].get_data_magnification()
         sfit_mags = self.sfit_derivs[self.sfit_indices[i]]['mag']
-        np.testing.assert_allclose(mags, sfit_mags, rtol=0.005)
+        assert_allclose(mags, sfit_mags, rtol=0.005)
 
     def test_mags_0(self):
         self._mags_test(0)
@@ -757,8 +748,7 @@ class TestFSPLGradient(unittest.TestCase):
         derivs = fs * self.fits[i].get_d_A_d_rho()
         sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
         index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-        np.testing.assert_allclose(
-            derivs[index], sfit_da_drho[index], rtol=0.015)
+        assert_allclose(derivs[index], sfit_da_drho[index], rtol=0.015)
 
     def test_dAdrho_0(self):
         self._dA_drho_test(0)
