@@ -636,18 +636,17 @@ class TestFSPLGradient(unittest.TestCase):
 
         # Create the model
         self.sfit_mat = FortranSFitFile(SAMPLE_FILE_FSPL_51)
-        self.sfit_model = mm.Model({
-            't_0': self.sfit_mat.a[0] + 2450000., 'u_0': self.sfit_mat.a[1],
-            't_E': self.sfit_mat.a[2], 'rho': self.sfit_mat.a[3]})
-        self.sfit_model.parameters.t_0_par = self.sfit_mat.a[0] + 2450000.
+        self.sfit_mat.a[0] += 2450000.
+        parameters = ['t_0', 'u_0', 't_E', 'rho']
+        self.sfit_model = mm.Model(dict(zip(parameters, self.sfit_mat.a)))
         t_star = self.sfit_model.parameters.rho * self.sfit_model.parameters.t_E
         n_t_star = 9.
-        self.sfit_model.set_magnification_methods([
-            self.sfit_model.parameters.t_0 - n_t_star * t_star,
-            'finite_source_LD_Yoo04',
-            self.sfit_model.parameters.t_0 + n_t_star * t_star])
-        self.sfit_model.set_limb_coeff_gamma('I', 0.44)
-        self.sfit_model.set_limb_coeff_gamma('V', 0.72)
+        t_lim_1 = self.sfit_model.parameters.t_0 - n_t_star * t_star
+        t_lim_2 = self.sfit_model.parameters.t_0 + n_t_star * t_star
+        self.sfit_model.set_magnification_methods(
+            [t_lim_1, 'finite_source_LD_Yoo04', t_lim_2])
+        self.sfit_model.set_limb_coeff_gamma('I', self.sfit_mat.a[4])
+        self.sfit_model.set_limb_coeff_gamma('V', self.sfit_mat.a[5])
 
         self.filenames = ['FSPL_par_Obs_1_I.pho', 'FSPL_par_Obs_2_V.pho']
         self.datasets = []
@@ -670,10 +669,7 @@ class TestFSPLGradient(unittest.TestCase):
             fit.fit_fluxes()
             self.fits.append(fit)
 
-            index = ((dataset.time >
-                      self.sfit_model.parameters.t_0 - n_t_star * t_star) &
-                     (dataset.time <
-                      self.sfit_model.parameters.t_0 + n_t_star * t_star))
+            index = ((dataset.time > t_lim_1) & (dataset.time < t_lim_2))
             self.indices.append(index)
 
             sfit_index = np.where(self.sfit_derivs['nob'] == i + 1)
