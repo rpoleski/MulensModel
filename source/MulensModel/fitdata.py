@@ -625,7 +625,7 @@ class FitData(object):
                 evaluated at each data point.
         """
         if 'rho' in self.model.parameters.parameters:
-            derivs = self.FSPLDerivs(self)
+            derivs = self._FSPLDerivs(self)
             gradient = derivs.get_gradient(parameters)
         else:
             gradient = self._get_d_u_d_params(parameters)
@@ -672,7 +672,14 @@ class FitData(object):
         d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
         return d_A_d_u
 
-    class FSPLDerivs:
+    class _FSPLDerivs(object):
+        """
+        Calculates derivatives of a FSPL model.
+
+        Arguments :
+            fit: py:class:`FitData` object
+
+        """
 
         _B0B1_file_read = False
 
@@ -684,6 +691,8 @@ class FitData(object):
 
             # Define the initialization functions
             def _get_u():
+                """ Calculate u (lens-source separation) for all dataset
+                epochs."""
                 # This calculation gets repeated = Not efficient. Should
                 # trajectory be a property of model? No. Wouldn't include
                 # dataset ephemerides.
@@ -692,6 +701,8 @@ class FitData(object):
                 return u_
 
             def _get_dataset_satellite_skycoord():
+                """ If set, get satellite_skycoordinates from the dataset.
+                Otherwise, return None."""
                 satellite_skycoord = None
                 if self.dataset.ephemerides_file is not None:
                     satellite_skycoord = self.dataset.satellite_skycoord
@@ -699,6 +710,9 @@ class FitData(object):
                 return satellite_skycoord
 
             def _get_magnification_curve():
+                """ Get the
+                :py:class:`~MulensModel.magnificationcurve.MagnificationCurve.`
+                evaluated at the dataset epochs."""
                 # This code was copied directly from model.py --> indicates a
                 # refactor is needed.
                 # Also, shouldn't satellite_skycoord be stored as a property of
@@ -719,6 +733,7 @@ class FitData(object):
                 return magnification_curve
 
             def _get_a_pspl():
+                """ Calculate and return the point lens magnification. """
                 point_source_params = {key: value for key, value in
                                        self.model.parameters.parameters.items()}
                 point_source_params.pop('rho')
@@ -731,6 +746,8 @@ class FitData(object):
                 return a_pspl
 
             def _get_b0_gamma_b1_and_derivs():
+                """ Retrieve B0 - gamma * B1 and its derivative for each epoch.
+                For uniform source, return B0 and its derivative. """
                 z_ = self.u_ / self.model.parameters.rho
 
                 b0_gamma_b1 = np.ones(len(self.dataset.time))
@@ -751,7 +768,7 @@ class FitData(object):
                                 'no point lens method accepts the parameters')
 
                     selection = (methods == method) & (z_ <
-                                                       FitData.FSPLDerivs._z_max)
+                                                       FitData._FSPLDerivs._z_max)
                     if method.lower() == 'point_source':
                         pass  # These cases are already taken care of.
                     elif (method.lower() ==
@@ -778,7 +795,7 @@ class FitData(object):
                 return (b0_gamma_b1, db0_gamma_db1)
 
             # Actual Initializations
-            if not FitData.FSPLDerivs._B0B1_file_read:
+            if not FitData._FSPLDerivs._B0B1_file_read:
                 self._read_B0B1_file()
 
             self.fit = fit
@@ -801,18 +818,20 @@ class FitData(object):
                     'File with FSPL data does not exist.\n' + file_)
             (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(
                 file_, unpack=True)
-            FitData.FSPLDerivs._z_max = z[-1]
-            FitData.FSPLDerivs._get_B0 = interp1d(
+            FitData._FSPLDerivs._z_max = z[-1]
+            FitData._FSPLDerivs._get_B0 = interp1d(
                 z, B0, kind='cubic', bounds_error=False, fill_value=1.0)
-            FitData.FSPLDerivs._get_B1 = interp1d(
+            FitData._FSPLDerivs._get_B1 = interp1d(
                 z, B1, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPLDerivs._get_B0_prime = interp1d(
+            FitData._FSPLDerivs._get_B0_prime = interp1d(
                 z, B0_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPLDerivs._get_B1_prime = interp1d(
+            FitData._FSPLDerivs._get_B1_prime = interp1d(
                 z, B1_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPLDerivs._B0B1_file_read = True
+            FitData._FSPLDerivs._B0B1_file_read = True
 
         def get_gradient(self, parameters):
+            """ Return the gradient of the magnification with respect to the
+            FSPL parameters. """
             d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
             factor = self.a_pspl * self.db0_gamma_db1
             factor /= self.model.parameters.rho
@@ -828,6 +847,8 @@ class FitData(object):
             return gradient
 
         def get_d_A_d_rho(self):
+            """ Return the derivative of the magnification with respect to rho.
+            """
             d_A_d_rho = self.a_pspl
             d_A_d_rho *= -self.u_ / self.model.parameters.rho**2
             d_A_d_rho *= self.db0_gamma_db1
@@ -913,7 +934,7 @@ class FitData(object):
         """
         Calculate the derivative of the magnification with respect to rho.
         """
-        derivs = self.FSPLDerivs(self)
+        derivs = self._FSPLDerivs(self)
         return derivs.get_d_A_d_rho()
 
     @property
