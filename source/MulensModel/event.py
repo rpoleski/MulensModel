@@ -3,9 +3,7 @@ import numpy as np
 from math import fsum
 from matplotlib import rcParams, gridspec
 import matplotlib.pyplot as plt
-import copy
 
-import MulensModel
 from MulensModel.fitdata import FitData
 from MulensModel.mulensdata import MulensData
 from MulensModel.model import Model
@@ -848,7 +846,7 @@ class Event(object):
         if isinstance(new_value, MulensData):
             index = self.datasets.index(new_value)
             try:
-                ind_2 = self.datasets.index(new_value, index+1)
+                _ = self.datasets.index(new_value, index+1)
             except ValueError:
                 pass
             else:

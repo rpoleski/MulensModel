@@ -655,7 +655,7 @@ class FitData(object):
                 'coords': self.model.coords,
                 'satellite_skycoord': self.dataset.satellite_skycoord}
 
-            return mm.Trajectory(parameters=self.model.parameters, **kwargs_)
+            return Trajectory(parameters=self.model.parameters, **kwargs_)
 
     def get_d_A_d_u_for_PSPL_model(self):
         """
@@ -858,6 +858,10 @@ class FitData(object):
     def get_d_A_d_u_for_FSPL_model(self):
         """
         Calculate dA/du for FSPL
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du.
         """
         d_A_pspl_d_u = self.get_d_A_d_u_for_PSPL_model()
         B_0_gamma_B_1 = self._get_B_0_gamma_B_1()
@@ -871,9 +875,13 @@ class FitData(object):
 
     def get_d_A_d_u_for_point_lens_model(self):
         """
-        Calculate dA/du for PL model
+        Calculate dA/du for point lens model
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du.
         """
-        if 'rho' in self.model.parameters.parameters.keys():
+        if self.model.parameters.is_finite_source():
             d_A_d_u = self.get_d_A_d_u_for_FSPL_model()
         else:
             d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
@@ -933,6 +941,10 @@ class FitData(object):
     def get_d_A_d_rho(self):
         """
         Calculate the derivative of the magnification with respect to rho.
+
+        Returns:
+            d_A_d_rho: *np.ndarray*
+                derivative
         """
         derivs = self._FSPLDerivs(self)
         return derivs.get_d_A_d_rho()

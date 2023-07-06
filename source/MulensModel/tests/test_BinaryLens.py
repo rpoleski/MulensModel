@@ -54,6 +54,9 @@ def test_binary_lens_hexadecapole():
 
 
 def test_vbbl_1():
+    """
+    check basic magnification calculation using VBBL
+    """
     s = 0.8
     q = 0.1
 
