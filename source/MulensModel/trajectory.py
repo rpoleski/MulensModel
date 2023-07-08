@@ -7,7 +7,7 @@ from astropy.time import Time
 from MulensModel import utils
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.coordinates import Coordinates
-from MulensModel.orbits.orbit import OrbitCircular
+from MulensModel.orbits.orbit import Orbit
 
 
 class Trajectory(object):
@@ -338,7 +338,7 @@ class Trajectory(object):
             orbit_parameters = {
                 key[3:]: parameters[key] for key in keys_circular}
             orbit_parameters['epoch_reference'] = t_0_xi
-            orbit = OrbitCircular(**orbit_parameters)
+            orbit = Orbit(**orbit_parameters)
             get_position = orbit.get_reference_plane_position
         else:
             raise NotImplementedError('not yet XXXX')
