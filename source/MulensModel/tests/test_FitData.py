@@ -640,11 +640,16 @@ class TestFSPLGradient(unittest.TestCase):
         self._set_fits()
 
         z_break = 1.3
+        zs_1_margin = 0.003
         self._indexes = []
-        for zs in self.zs:
+        self._indices_and_near_1 = []
+        for (zs, indices) in zip(self.zs, self.indices):
             index_large = (zs > z_break)
             index_small = (zs <= z_break)
             self._indexes.append([index_large, index_small])
+            # The sfit code is not accurate near 1.0.
+            near_1 = (np.abs(zs - 1.) > zs_1_margin)
+            self._indices_and_near_1.append(indices & near_1)
 
     def _create_model(self):
         self.sfit_mat = FortranSFitFile(SAMPLE_FILE_FSPL_51)
@@ -697,13 +702,9 @@ class TestFSPLGradient(unittest.TestCase):
 
     def _db0_test(self, i):
         sfit_db0 = self.sfit_derivs[self.sfit_indices[i]]['db0']
-
-        # sfit not accurate near 1:
-        index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-
         kwargs_ = [{'atol': 0.0005}, {'rtol': 0.01}]
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
-            index_i = index & condition
+            index_i = condition & self._indices_and_near_1[i]
             db0 = self.fits[i]._FSPLDerivs._get_B0_prime(self.zs[i][index_i])
             assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
@@ -715,13 +716,9 @@ class TestFSPLGradient(unittest.TestCase):
 
     def _db1_test(self, i):
         sfit_db1 = self.sfit_derivs[self.sfit_indices[i]]['db1']
-
-        # sfit not accurate near 1:
-        index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-
         kwargs_ = [{'atol': 0.001}, {'rtol': 0.05}]
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
-            index_i = index & condition
+            index_i = condition & self._indices_and_near_1[i]
             db1 = self.fits[i]._FSPLDerivs._get_B1_prime(self.zs[i][index_i])
             assert_allclose(db1, sfit_db1[index_i], **kwargs)
 
@@ -747,8 +744,8 @@ class TestFSPLGradient(unittest.TestCase):
         fs = self.fits[i].source_flux
         derivs = fs * self.fits[i].get_d_A_d_rho()
         sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
-        index = self.indices[i] & (np.abs(self.zs[i] - 1.) > 0.003)
-        assert_allclose(derivs[index], sfit_da_drho[index], rtol=0.015)
+        mask = self._indices_and_near_1[i]
+        assert_allclose(derivs[mask], sfit_da_drho[mask], rtol=0.015)
 
     def test_dAdrho_0(self):
         self._dA_drho_test(0)
