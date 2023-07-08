@@ -328,21 +328,12 @@ class Trajectory(object):
 
     def _get_shifts_xallarap(self):
         """calculate shifts caused by xallarap effect"""
-        parameters = self.parameters.parameters
+        zip_ = self.parameters.parameters.items()
         t_0_xi = self.parameters.t_0_xi
-        keys_circular = set(
-            "xi_period xi_semimajor_axis xi_Omega_node xi_inclination "
-            "xi_argument_of_latitude_reference".split())
-        intersection = keys_circular.intersection(set(parameters.keys()))
-        if len(intersection) == len(keys_circular):
-            orbit_parameters = {
-                key[3:]: parameters[key] for key in keys_circular}
-            orbit_parameters['epoch_reference'] = t_0_xi
-            orbit = Orbit(**orbit_parameters)
-            get_position = orbit.get_reference_plane_position
-        else:
-            raise NotImplementedError('not yet XXXX')
-
-        ref_position = get_position(t_0_xi).reshape((2, 1))
-        positions = get_position(self.times)
-        return positions - ref_position
+        orbit_parameters = {
+            key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
+        orbit_parameters['epoch_reference'] = t_0_xi
+        orbit = Orbit(**orbit_parameters)
+        reference_position = orbit.get_reference_plane_position(t_0_xi)
+        positions = orbit.get_reference_plane_position(self.times)
+        return positions - reference_position.reshape((2, 1))
