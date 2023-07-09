@@ -90,7 +90,8 @@ def test_12_Orbit_class_circular():
 
 def test_13_Orbit_class_eccentric():
     orbit = Orbit(
-        400., 100., 0., 0., 0.9, omega_periapsis=0., perihelion_epoch=0.)
+        period=400., semimajor_axis=100., Omega_node=0., inclination=0.,
+        eccentricity=0.9, omega_periapsis=0., perihelion_epoch=0.)
     true_anomaly = orbit.get_true_anomaly_deg(5.)
     assert_almost_equal(true_anomaly, 101.28599627247006)
 
@@ -98,7 +99,8 @@ def test_13_Orbit_class_eccentric():
 class Test_Orbit_fail(unittest.TestCase):
     def test_14_Orbit_not_enough_params(self):
         with self.assertRaises(RuntimeError):
-            Orbit(10., 10., 0., 0.)
+            Orbit(period=10., semimajor_axis=10., Omega_node=0.,
+                  inclination=0.)
 
 
 def test_15_OrbitCircular_based_on_argument_of_latitude():

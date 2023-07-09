@@ -14,10 +14,10 @@ class Orbit(object):
     Class that combines :py:class:`OrbitCircular` and
     :py:class:`OrbitEccentric`.
     """
-    def __new__(self, *args, **kwargs):
+    def __new__(self, **kwargs):
         for Class_ in [OrbitCircular, OrbitEccentric]:
             try:
-                new = Class_(*args, **kwargs)
+                new = Class_(**kwargs)
             except Exception:
                 pass
             else:
