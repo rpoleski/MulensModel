@@ -232,6 +232,7 @@ class FitData(object):
         return (xT, y)
 
     def _create_arrays(self):
+        """ Create x and y arrays"""
         # Initializations
         self.n_fluxes = 0
         n_epochs = np.sum(self._dataset.good)
@@ -942,7 +943,7 @@ class FitData(object):
 
     class FSPL_Derivatives(object):
         """
-        Calculates derivatives of a FSPL model.
+        Calculates derivatives of an FSPL model for each datapoint.
 
         Arguments :
             fit: py:class:`FitData` object
