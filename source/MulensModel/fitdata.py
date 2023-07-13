@@ -551,6 +551,10 @@ class FitData(object):
             raise NotImplementedError('Event.chi2_gradient() is not working '
                                       'for finite source models yet')
 
+        if self.model.parameters.is_xallarap:
+            raise NotImplementedError('Gradient for xallarap models is not '
+                                      'implemented yet')
+
     def get_chi2_gradient(self, parameters):
         """
         Fits fluxes and calculates chi^2 gradient (also called Jacobian), i.e.,
