@@ -625,7 +625,7 @@ class FitData(object):
                 evaluated at each data point.
         """
         if 'rho' in self.model.parameters.parameters:
-            derivs = self._FSPLDerivs(self)
+            derivs = self.FSPL_Derivatives(self)
             gradient = derivs.get_gradient(parameters)
         else:
             gradient = self._get_d_u_d_params(parameters)
@@ -763,7 +763,7 @@ class FitData(object):
             d_A_d_rho: *np.ndarray*
                 derivative
         """
-        derivs = self._FSPLDerivs(self)
+        derivs = self.FSPL_Derivatives(self)
         return derivs.get_d_A_d_rho()
 
     @property
@@ -940,7 +940,7 @@ class FitData(object):
         """
         return self._gamma
 
-    class _FSPLDerivs(object):
+    class FSPL_Derivatives(object):
         """
         Calculates derivatives of a FSPL model.
 
@@ -1036,7 +1036,7 @@ class FitData(object):
                                 'no point lens method accepts the parameters')
 
                     selection = (methods == method) & (z_ <
-                                                       FitData._FSPLDerivs._z_max)
+                                                       FitData.FSPL_Derivatives._z_max)
                     if method.lower() == 'point_source':
                         pass  # These cases are already taken care of.
                     elif (method.lower() ==
@@ -1063,7 +1063,7 @@ class FitData(object):
                 return (b0_gamma_b1, db0_gamma_db1)
 
             # Actual Initializations
-            if not FitData._FSPLDerivs._B0B1_file_read:
+            if not FitData.FSPL_Derivatives._B0B1_file_read:
                 self._read_B0B1_file()
 
             self.fit = fit
@@ -1086,16 +1086,16 @@ class FitData(object):
                     'File with FSPL data does not exist.\n' + file_)
             (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(
                 file_, unpack=True)
-            FitData._FSPLDerivs._z_max = z[-1]
-            FitData._FSPLDerivs._get_B0 = interp1d(
+            FitData.FSPL_Derivatives._z_max = z[-1]
+            FitData.FSPL_Derivatives._get_B0 = interp1d(
                 z, B0, kind='cubic', bounds_error=False, fill_value=1.0)
-            FitData._FSPLDerivs._get_B1 = interp1d(
+            FitData.FSPL_Derivatives._get_B1 = interp1d(
                 z, B1, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData._FSPLDerivs._get_B0_prime = interp1d(
+            FitData.FSPL_Derivatives._get_B0_prime = interp1d(
                 z, B0_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData._FSPLDerivs._get_B1_prime = interp1d(
+            FitData.FSPL_Derivatives._get_B1_prime = interp1d(
                 z, B1_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData._FSPLDerivs._B0B1_file_read = True
+            FitData.FSPL_Derivatives._B0B1_file_read = True
 
         def get_gradient(self, parameters):
             """ Return the gradient of the magnification with respect to the

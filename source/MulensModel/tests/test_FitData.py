@@ -705,7 +705,7 @@ class TestFSPLGradient(unittest.TestCase):
         kwargs_ = [{'atol': 0.0005}, {'rtol': 0.01}]
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
             index_i = condition & self._indices_and_near_1[i]
-            db0 = self.fits[i]._FSPLDerivs._get_B0_prime(self.zs[i][index_i])
+            db0 = self.fits[i].FSPL_Derivatives._get_B0_prime(self.zs[i][index_i])
             assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
     def test_db0_0(self):
@@ -719,7 +719,7 @@ class TestFSPLGradient(unittest.TestCase):
         kwargs_ = [{'atol': 0.001}, {'rtol': 0.05}]
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
             index_i = condition & self._indices_and_near_1[i]
-            db1 = self.fits[i]._FSPLDerivs._get_B1_prime(self.zs[i][index_i])
+            db1 = self.fits[i].FSPL_Derivatives._get_B1_prime(self.zs[i][index_i])
             assert_allclose(db1, sfit_db1[index_i], **kwargs)
 
     def test_db1_0(self):
