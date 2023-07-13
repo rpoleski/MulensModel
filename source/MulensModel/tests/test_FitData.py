@@ -629,12 +629,15 @@ class FortranSFitFile(object):
 
 
 class TestFSPLGradient(unittest.TestCase):
+    """ Compares various parts of the FSPL Derivative calculations to the
+    results from sfit."""
 
     def setUp(self):
         # Read in sfit comparison file, split by dataset
         self.sfit_derivs = np.genfromtxt(
             SAMPLE_FILE_FSPL_61, dtype=None,
             names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
+        self._read_sfit()
         self._create_model()
         self._set_datasets()
         self._set_fits()
@@ -651,9 +654,13 @@ class TestFSPLGradient(unittest.TestCase):
             near_1 = (np.abs(zs - 1.) > zs_1_margin)
             self._indices_and_near_1.append(indices & near_1)
 
-    def _create_model(self):
+    def _read_sfit(self):
+        """ read in the input parameters and output matrices from sfit"""
         self.sfit_mat = FortranSFitFile(SAMPLE_FILE_FSPL_51)
         self.sfit_mat.a[0] += 2450000.
+
+    def _create_model(self):
+        """ Initialize a model to match sfit parameters """
         parameters = ['t_0', 'u_0', 't_E', 'rho']
         self.sfit_model = mm.Model(dict(zip(parameters, self.sfit_mat.a)))
         t_star = self.sfit_model.parameters.rho * self.sfit_model.parameters.t_E
@@ -666,6 +673,7 @@ class TestFSPLGradient(unittest.TestCase):
         self.sfit_model.set_limb_coeff_gamma('V', self.sfit_mat.a[5])
 
     def _set_datasets(self):
+        """ Read in datasets for test"""
         self.filenames = ['FSPL_par_Obs_1_I.pho', 'FSPL_par_Obs_2_V.pho']
         self.datasets = []
         for filename in self.filenames:
@@ -676,10 +684,11 @@ class TestFSPLGradient(unittest.TestCase):
             self.datasets.append(dataset)
 
     def _set_fits(self):
+        """ Set up fits for each individual dataset."""
         self.fits = []
-        self.zs = []
-        self.indices = []
-        self.sfit_indices = []
+        self.zs = []  # z = u / rho for each data epoch
+        self.indices = []  # restrict to points affected by FS effects
+        self.sfit_indices = []  # select the right parts of the sfit comparison file
         for (i, dataset) in enumerate(self.datasets):
             fit = mm.FitData(
                 dataset=dataset, model=self.sfit_model,
@@ -701,6 +710,8 @@ class TestFSPLGradient(unittest.TestCase):
             self.zs.append(z)
 
     def _db0_test(self, i):
+        """ Test that B0prime is calculated correctly"""
+        # private function check
         sfit_db0 = self.sfit_derivs[self.sfit_indices[i]]['db0']
         kwargs_ = [{'atol': 0.0005}, {'rtol': 0.01}]
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
@@ -709,12 +720,16 @@ class TestFSPLGradient(unittest.TestCase):
             assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
     def test_db0_0(self):
+        """ Check that B0prime is calculated correctly for dataset 0"""
         self._db0_test(0)
 
     def test_db0_1(self):
+        """ Check that B0prime is calculated correctly for dataset 1"""
         self._db0_test(1)
 
     def _db1_test(self, i):
+        """ Check that B1prime is calculated correctly"""
+        # private function check
         sfit_db1 = self.sfit_derivs[self.sfit_indices[i]]['db1']
         kwargs_ = [{'atol': 0.001}, {'rtol': 0.05}]
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
@@ -723,23 +738,29 @@ class TestFSPLGradient(unittest.TestCase):
             assert_allclose(db1, sfit_db1[index_i], **kwargs)
 
     def test_db1_0(self):
+        """ Check that B1prime is calculated correctly for dataset 0"""
         self._db1_test(0)
 
     def test_db1_1(self):
+        """ Check that B1prime is calculated correctly for dataset 1"""
         self._db1_test(1)
 
     def _mags_test(self, i):
+        """ Check that magnification is calculated correctly"""
         mags = self.fits[i].get_data_magnification()
         sfit_mags = self.sfit_derivs[self.sfit_indices[i]]['mag']
         assert_allclose(mags, sfit_mags, rtol=0.005)
 
     def test_mags_0(self):
+        """ Check that magnification is calculated correctly for dataset 0"""
         self._mags_test(0)
 
     def test_mags_1(self):
+        """ Check that magnification is calculated correctly for dataset 1"""
         self._mags_test(1)
 
     def _dA_drho_test(self, i):
+        """ Check that dA / drho is calculated correctly"""
         # compare da_drho
         fs = self.fits[i].source_flux
         derivs = fs * self.fits[i].get_d_A_d_rho()
@@ -748,9 +769,11 @@ class TestFSPLGradient(unittest.TestCase):
         assert_allclose(derivs[mask], sfit_da_drho[mask], rtol=0.015)
 
     def test_dAdrho_0(self):
+        """ Check that dA / drho is calculated correctly for dataset 0"""
         self._dA_drho_test(0)
 
     def test_dAdrho_1(self):
+        """ Check that dA / drho is calculated correctly for dataset 1"""
         self._dA_drho_test(1)
 
 
