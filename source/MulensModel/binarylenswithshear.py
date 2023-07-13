@@ -10,11 +10,11 @@ import MulensModel as mm
 
 class BinaryLensWithShear(BinaryLens):
     """
-    The binary lens equation - its solutions, images, parities,
-    magnifications, etc.
+    The binary lens with shear and convergence:
+    solutions, images, parities, magnifications, etc.
 
-    The binary lens equation is a 5th order complex polynomial
-    or a 9th order complex polynomial if including external shear.
+    The binary lens with shear and convergence equation is
+    the 9th order complex polynomial.
 
     Attributes :
         mass_1: *float*
@@ -54,7 +54,6 @@ class BinaryLensWithShear(BinaryLens):
         """
         calculate coefficients of the polynomial in geometric center frame
         """
-        # Calculate constants
         self._calculate_variables(source_x=source_x, source_y=source_y)
         total_m = self._total_mass
         total_m_pow2 = total_m * total_m
@@ -70,7 +69,6 @@ class BinaryLensWithShear(BinaryLens):
         z1_pow5 = z1_pow2 * z1_pow2 * pos_z1
         z1_pow6 = z1_pow2 * z1_pow2 * z1_pow2
 
-        # Convergence added here
         convergence_K = self.convergence_K
         K_pow2 = convergence_K * convergence_K
         K_pow3 = convergence_K * K_pow2
@@ -126,13 +124,11 @@ class BinaryLensWithShear(BinaryLens):
              * m_diff, -4 * z1_pow5 * convergence_K * m_diff, 2 * z1_pow5 *
              m_diff])
 
-        # Return the coefficients of the polynomial
         coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
         return np.array(coeffs_list).reshape(6)
 
     def _get_polynomial_planet_frame(self, source_x, source_y):
         """calculate coefficients of the polynomial in planet frame"""
-        # Calculate constants
         self._calculate_variables(source_x=source_x, source_y=source_y)
         total_m = self._total_mass
         total_m_pow2 = total_m * total_m
@@ -147,12 +143,10 @@ class BinaryLensWithShear(BinaryLens):
         zeta_conj_pow2 = zeta_conj * zeta_conj
         zeta_conj_pow3 = zeta_conj * zeta_conj_pow2
 
-        # External Convergence added here
         convergence_K = self.convergence_K
         K_pow2 = convergence_K * convergence_K
         K_pow3 = convergence_K * K_pow2
 
-        # External Shear added here
         shear_G = self.shear_G
         Gc = np.conjugate(shear_G)
 
@@ -479,8 +473,6 @@ class BinaryLensWithShear(BinaryLens):
         solutions = (self._zeta + self.shear_G * roots_conj +
                      component2 + component3) / (1 - self.convergence_K)
 
-        # This backs-up the lens equation.
-
         out = []
         distances = []
         for (i, root) in enumerate(roots):
@@ -570,7 +562,6 @@ class BinaryLensWithShear(BinaryLens):
         x_shift *= self.separation
         # We need to add this because in order to shift to correct frame.
 
-        # Run point source using faster VBBL method.
         if _vbbl_wrapped and vbbl_on:
             s = float(self.separation)
             q = float(self.mass_2 / self.mass_1)
@@ -581,7 +572,6 @@ class BinaryLensWithShear(BinaryLens):
                 s, q, x, y, self.convergence_K, self.shear_G.real,
                 self.shear_G.imag)
         else:
-            # Run point source using slower numpy method.
             magnification = self._get_point_source_Witt_Mao_95(
                 source_x=float(source_x)+x_shift, source_y=float(source_y))
 

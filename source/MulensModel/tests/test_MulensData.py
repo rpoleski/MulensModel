@@ -7,8 +7,11 @@ import warnings
 import MulensModel as mm
 
 
-SAMPLE_FILE_01 = os.path.join(
-    mm.DATA_PATH, "photometry_files", "OB08092", "phot_ob08092_O4.dat")
+dir_phot = os.path.join(mm.DATA_PATH, 'photometry_files')
+SAMPLE_FILE_01 = os.path.join(dir_phot, "OB08092", "phot_ob08092_O4.dat")
+SAMPLE_FILE_02 = os.path.join(dir_phot, 'OB140939', 'ob140939_Spitzer.dat')
+SAMPLE_FILE_02_EPH = os.path.join(dir_phot, 'ephemeris_files',
+                                  'Spitzer_ephemeris_01.dat')
 
 
 def test_file_read():
@@ -93,11 +96,15 @@ def test_copy():
     n_epochs = len(np.loadtxt(SAMPLE_FILE_01))
     random_bool = np.random.choice([False, True], n_epochs, p=[0.1, 0.9])
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=FutureWarning)
+    with warnings.catch_warnings(record=True) as warnings_:
+        warnings.simplefilter("always")
         data_1 = mm.MulensData(file_name=SAMPLE_FILE_01, ra="18:00:00",
                                dec="-30:00:00", good=random_bool)
         data_2 = data_1.copy()
+
+        assert len(warnings_) == 2
+        assert issubclass(warnings_[0].category, FutureWarning)
+        assert issubclass(warnings_[1].category, FutureWarning)
 
     data = [data_1.time, 100.+0.*data_1.time, 1.+0.*data_1.time]
     data_3 = mm.MulensData(data, phot_fmt='flux', bad=random_bool)
@@ -153,3 +160,86 @@ def test_scale_errorbars():
     almost(data.err_mag, 0.0125)
     almost(data.errorbars_scale_factors, [factor, minimum])
     assert data.errorbars_scaling_equation == equation_3
+
+
+def test_repr_1():
+    """
+    Check if one can print dataset nicely - n_bad>0
+    """
+    random_bad = 33 * [True] + 350 * [False]
+    np.random.shuffle(random_bad)
+    data = mm.MulensData(file_name=SAMPLE_FILE_01, bad=random_bad)
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}".format(
+        "phot_ob08092_O4.dat:", 383, 33)
+    assert str(data) == expected
+
+
+def test_repr_2():
+    """
+    Check if one can print dataset nicely - errorbar scaling factor
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(factor=1.234)
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5},".format(
+        "phot_ob08092_O4.dat:", 383, 0)
+    expected += " Errorbar scaling: factor = 1.234"
+    assert str(data) == expected
+
+
+def test_repr_3():
+    """
+    Check if one can print dataset nicely - bandpass and label
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01, bandpass='I',
+                         plot_properties={'label': 'OGLE'})
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}, band = I".format(
+        "OGLE:", 383, 0)
+    assert str(data) == expected
+
+
+def test_repr_4():
+    """
+    Check if one can print dataset nicely - errorbar scaling minimum
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(minimum=0.001)
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5},".format(
+        "phot_ob08092_O4.dat:", 383, 0)
+    expected += " Errorbar scaling: minimum = 0.001"
+    assert str(data) == expected
+
+
+def test_repr_5():
+    """
+    Check if one can print dataset nicely - ephemerides file
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_02,
+                         ephemerides_file=SAMPLE_FILE_02_EPH)
+    expected_begin = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}".format(
+        "ob140939_Spitzer.dat:", 31, 0)
+    expected_end = "photometry_files/ephemeris_files/Spitzer_ephemeris_01.dat"
+    assert str(data)[:len(expected_begin)] == expected_begin
+    assert str(data)[-len(expected_end):] == expected_end
+
+
+def test_repr_6():
+    """
+    Check if one can print dataset nicely - color
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01,
+                         plot_properties={'color': 'red'})
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}, color = red".format(
+        "phot_ob08092_O4.dat:", 383, 0)
+    assert str(data) == expected
+
+
+def test_repr_7():
+    """
+    Check if one can print dataset nicely - 2-parameter errorbar scaling
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data.scale_errorbars(factor=2.34, minimum=0.012)
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5},".format(
+        "phot_ob08092_O4.dat:", 383, 0)
+    expected += " Errorbar scaling: factor = 2.34 minimum = 0.012"
+    assert str(data) == expected

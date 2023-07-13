@@ -20,6 +20,7 @@ _valid_parameters = {
         'alternate: ' +
         '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
         'may be substituted for (t_0, u_0, t_E, alpha)',
+    'external_mass_sheet': ['convergence_K', 'shear_G', 'alpha'],
     'binary_lens_shear': ['convergence_K', 'shear_G'],
     'finite source': ['rho', '(for finite source effects)'],
     'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
@@ -219,7 +220,7 @@ class ModelParameters(object):
         self._count_sources(parameters.keys())
         self._count_lenses(parameters.keys())
         self._set_type(parameters.keys())
-        self._check_types()
+        self._check_types('alpha' in parameters.keys())
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
@@ -233,10 +234,18 @@ class ModelParameters(object):
                                'require t_E to be directly defined, i.e., ' +
                                'has to be the same for both sources.')
             (params_1, params_2) = self._divide_parameters(parameters)
-            self._source_1_parameters = ModelParameters(params_1)
-            self._source_2_parameters = ModelParameters(params_2)
-            # This way we force checks from "== 1" above to be run on
-            # each source parameters separately.
+            try:
+                self._source_1_parameters = ModelParameters(params_1)
+            except Exception:
+                print("ERROR IN ITIALIZING SOURCE 1")
+                raise
+            try:
+                self._source_2_parameters = ModelParameters(params_2)
+            except Exception:
+                print("ERROR IN ITIALIZING SOURCE 2")
+                raise
+            # The block above forces checks from "== 1" block above to be
+            # run on each source parameters separately.
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
@@ -274,20 +283,21 @@ class ModelParameters(object):
         sets self._type property, which indicates what type of a model we have
         """
         types = ['finite source', 'parallax', 'Cassan08',
-                 'lens 2-parameter orbital motion']
+                 'lens 2-parameter orbital motion', 'mass sheet']
         out = {type_: False for type_ in types}
 
+        temp = {
+            'finite source': 'rho t_star rho_1 rho_2 t_star_1 t_star_2',
+            'parallax': 'pi_E_N pi_E_E pi_E',
+            'Cassan08':
+                'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
+            'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
+            'mass sheet': 'convergence_K shear_G'}
+
         parameter_to_type = dict()
-        for key in ['rho', 't_star', 'rho_1', 'rho_2', 't_star_1', 't_star_2']:
-            parameter_to_type[key] = 'finite source'
-        for key in ['pi_E', 'pi_E_N', 'pi_E_E']:
-            parameter_to_type[key] = 'parallax'
-        keys_Cassan08 = ['x_caustic_in', 'x_caustic_out',
-                         't_caustic_in', 't_caustic_out']
-        for key in keys_Cassan08:
-            parameter_to_type[key] = 'Cassan08'
-        for key in ['dalpha_dt', 'ds_dt']:
-            parameter_to_type[key] = 'lens 2-parameter orbital motion'
+        for (key, values) in temp.items():
+            for value in values.split():
+                parameter_to_type[value] = key
 
         for key in keys:
             if key in parameter_to_type:
@@ -295,7 +305,7 @@ class ModelParameters(object):
 
         self._type = out
 
-    def _check_types(self):
+    def _check_types(self, alpha_defined):
         """
         Check if self._type values make sense
         """
@@ -319,13 +329,19 @@ class ModelParameters(object):
                 raise KeyError("Cassan (2008) parameterization doesn't work"
                                "for multi sources models")
 
+        if alpha_defined:
+            if self._n_lenses == 1 and not self._type['mass sheet']:
+                raise KeyError(
+                    'You defined alpha for single lens model '
+                    'without external mass sheet. This is not allowed.')
+
     def _divide_parameters(self, parameters):
         """
         Divide an input dict into 2 - each source separately.
         Some of the parameters are copied to both dicts.
         """
-        separate_parameters = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
-                               'rho_1', 'rho_2', 't_star_1', 't_star_2']
+        separate_parameters = (
+            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
         parameters_1 = {}
         parameters_2 = {}
         for (key, value) in parameters.items():
@@ -349,6 +365,12 @@ class ModelParameters(object):
             keys.remove('pi_E')
             keys |= {'pi_E_E', 'pi_E_N'}
 
+        if 'pi_E_E' in keys or 'pi_E_N' in keys:
+            keys |= {'t_0_par'}
+
+        if 'ds_dt' in keys or 'dalpha_dt' in keys:
+            keys |= {'t_0_kep'}
+
         # Below we define dict of dicts. Key of inner ones: 'width',
         # 'precision', and optional: 'unit' and 'name'.
         formats = {
@@ -360,6 +382,7 @@ class ModelParameters(object):
             't_star': {'width': 13, 'precision': 6, 'unit': 'd'},
             'pi_E_N': {'width': 9, 'precision': 5},
             'pi_E_E': {'width': 9, 'precision': 5},
+            't_0_par': {'width': 13, 'precision': 5, 'unit': 'HJD'},
             's': {'width': 9, 'precision': 5},
             'q': {'width': 12, 'precision': 8},
             'alpha': {'width': 11, 'precision': 5, 'unit': 'deg'},
@@ -370,6 +393,7 @@ class ModelParameters(object):
             'dalpha_dt': {
                 'width': 18, 'precision': 5, 'unit': 'deg/yr',
                 'name': 'dalpha/dt'},
+            't_0_kep': {'width': 13, 'precision': 5, 'unit': 'HJD'},
             'x_caustic_in': {'width': 13, 'precision': 7},
             'x_caustic_out': {'width': 13, 'precision': 7},
             't_caustic_in': {'width': 19, 'precision': 5, 'unit': 'HJD'},
@@ -386,18 +410,11 @@ class ModelParameters(object):
                 formats[key]['unit'] = form['unit']
             if 'name' in form:
                 raise KeyError('internal issue: {:}'.format(key))
-        formats_keys = [
-            't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
-            'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
-            'pi_E_N', 'pi_E_E', 's', 'q', 'alpha',
-            'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
-            'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
-        ]
 
         variables = ''
         values = ''
 
-        for key in formats_keys:
+        for key in formats.keys():
             if key not in keys:
                 continue
             form = formats[key]
@@ -413,54 +430,54 @@ class ModelParameters(object):
                 value = value.value
             values += fmt_2.format(value)
 
-        return '{0}\n{1}\n'.format(variables, values)
+        return '{0}\n{1}'.format(variables, values)
 
     def _check_valid_combination_2_sources(self, keys):
         """
         make sure that there is no conflict between t_0 and t_0_1 etc.
         """
-        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-                         't_star_1', 't_star_2']
+        binary_params = (
+            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
         for parameter in binary_params:
-            if parameter in keys:
-                if parameter[:-2] in keys:
-                    raise ValueError('You cannot set {:} and {:}'.format(
-                        parameter, parameter[:-2]))
+            if (parameter in keys) and (parameter[:-2] in keys):
+                raise ValueError('You cannot set {:} and {:}'.format(
+                                 parameter, parameter[:-2]))
 
     def _check_valid_combination_1_source_standard(self, keys):
         """
         Here we check parameters for non-Cassan08 parameterization.
         """
-        self._check_valid_combination_1_source_1_lens(keys)
+        self._check_valid_combination_1_source_t_0_u_0(keys)
+        self._check_valid_combination_1_source_t_E(keys)
         self._check_valid_combination_1_source_parallax(keys)
+        self._check_valid_combination_1_source_mass_sheet(keys)
         self._check_valid_combination_1_source_binary_lens(keys)
 
-    def _check_valid_combination_1_source_1_lens(self, keys):
+    def _check_valid_combination_1_source_t_0_u_0(self, keys):
         """
-        Here we check non-parallax single lens parameters.
+        Make sure that t_0 and u_0 are defined.
         """
-        # Make sure that minimum set of parameters are defined - we need
-        # to know t_0, u_0, and t_E.
         if 't_0' not in keys:
             raise KeyError('t_0 must be defined')
         if ('u_0' not in keys) and ('t_eff' not in keys):
             raise KeyError('not enough information to calculate u_0')
+
+    def _check_valid_combination_1_source_t_E(self, keys):
+        """
+        Make sure that t_E is defined and that it's not overdefined.
+        """
         if (('t_E' not in keys) and
                 (('u_0' not in keys) or ('t_eff' not in keys)) and
                 (('rho' not in keys) or ('t_star' not in keys))):
             raise KeyError('not enough information to calculate t_E')
 
-        # Cannot define all 3 parameters for 2 observables
-        if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
-            raise KeyError('Only 1 or 2 of (t_E, rho, t_star) may be defined.')
-
-        if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
-            raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
-
-        # Cannot define t_E in 2 different ways
         if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
                 ('t_eff' in keys)):
             raise KeyError('You cannot define rho, t_star, u_0, and t_eff')
+        if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
+            raise KeyError('Only 1 or 2 of (t_E, rho, t_star) may be defined.')
+        if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
+            raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
     def _check_valid_combination_1_source_parallax(self, keys):
         """
@@ -488,24 +505,30 @@ class ModelParameters(object):
                     'Parallax is defined, hence either t_0 or t_0_par has ' +
                     'to be set.')
 
+    def _check_valid_combination_1_source_mass_sheet(self, keys):
+        """
+        Make sure that alpha is defined if shear_G is defined,
+        but not if only convergence_K is defined.
+        """
+        if ('shear_G' in keys) and ('alpha' not in keys):
+            raise KeyError(
+                'A model with external mass sheet shear requires alpha.')
+        if ('shear_G' not in keys) and ('convergence_K' in keys):
+            if 'alpha' in keys:
+                raise KeyError(
+                    'A model with external mass sheet convergence and '
+                    'no shear cannot have alpha defined.')
+
     def _check_valid_combination_1_source_binary_lens(self, keys):
         """
         Here we check binary lens parameters for non-Cassan08 parameterization.
         """
-        # s, q, and alpha must all be defined if one is defined
-        if ('s' in keys) or ('q' in keys) or ('alpha' in keys):
+        # s, q, and alpha must all be defined if s or q are defined
+        if ('s' in keys) or ('q' in keys):
             if (('s' not in keys) or
                     ('q' not in keys) or ('alpha' not in keys)):
                 raise KeyError(
                     'A binary model requires all three of (s, q, alpha).')
-
-        # convergence_K and shear_G must both be defined if one is defined
-        if ('convergence_K' in keys) or ('shear_G' in keys):
-            if (('convergence_K' not in keys) or
-                    ('shear_G' not in keys)):
-                raise KeyError(
-                    'A binary model with external shear requires both of '
-                    '(convergence_K, shear_G).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
@@ -550,14 +573,11 @@ class ModelParameters(object):
         Check that the user hasn't over-defined the ModelParameters.
         """
         # Make sure that there are no unwanted keys
-        allowed_keys = set([
-            't_0', 'u_0', 't_E', 't_eff', 'rho', 't_star',
-            'pi_E', 'pi_E_N', 'pi_E_E', 't_0_par',
-            's', 'q', 'alpha', 'convergence_K', 'shear_G',
-            'dalpha_dt', 'ds_dt',
-            't_0_kep', 't_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-            't_star_1', 't_star_2', 'x_caustic_in', 'x_caustic_out',
-            't_caustic_in', 't_caustic_out'])
+        allowed_keys = set((
+            't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
+            's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
+            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
+            'x_caustic_in x_caustic_out t_caustic_in t_caustic_out').split())
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
@@ -582,17 +602,15 @@ class ModelParameters(object):
 
         Also, check that all values are scalars (except pi_E vector).
         """
-        names = ['t_E', 't_star', 'rho', 's', 'convergence_K']
         full_names = {
-            't_E': 'Einstein timescale',
-            't_star': 'Source crossing time', 'rho': 'Source size',
-            's': 'separation', 'convergence_K': 'external convergence'}
+            't_E': 'Einstein timescale', 't_star': 'Source crossing time',
+            'rho': 'Source size', 's': 'separation'}
 
-        for name in names:
+        for (name, full) in full_names.items():
             if name in parameters.keys():
                 if parameters[name] < 0.:
-                    raise ValueError("{:} cannot be negative: {:}".format(
-                        full_names[name], parameters[name]))
+                    fmt = "{:} cannot be negative: {:}"
+                    raise ValueError(fmt.format(full, parameters[name]))
 
         for (key, value) in parameters.items():
             if key == 'pi_E':
@@ -822,10 +840,10 @@ class ModelParameters(object):
             return self.parameters['t_E'].to(u.day).value
         elif ('t_star' in self.parameters.keys() and
               'rho' in self.parameters.keys()):
-            return self.t_star/self.rho
+            return self.t_star / self.rho
         elif ('t_eff' in self.parameters.keys() and
               'u_0' in self.parameters.keys()):
-            return self.t_eff/self.u_0
+            return self.t_eff / self.u_0
         else:
             raise KeyError("You're trying to access t_E that was not set")
 
@@ -1507,7 +1525,8 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        alpha_of_t = (self.alpha + self.dalpha_dt * (epoch - self.t_0_kep)*u.d)
+        alpha_of_t = (self.alpha + self.dalpha_dt *
+                      (epoch - self.t_0_kep) * u.d)
 
         return alpha_of_t.to(u.deg)
 
@@ -1533,7 +1552,7 @@ class ModelParameters(object):
         axis. It has sign opposite to :py:attr:`~dalpha_dt`
         and is in rad/yr, not deg/yr. Cannot be set.
         """
-        return -self.dalpha_dt.to(u.rad/u.yr)
+        return -self.dalpha_dt.to(u.rad / u.yr)
 
     @property
     def gamma(self):
@@ -1543,7 +1562,7 @@ class ModelParameters(object):
         Instantaneous velocity of the secondary relative to the primary in
         1/year. Cannot be set.
         """
-        gamma_perp = (self.gamma_perp / u.rad).to(1/u.yr)
+        gamma_perp = (self.gamma_perp / u.rad).to(1 / u.yr)
         return (self.gamma_parallel**2 + gamma_perp**2)**0.5
 
     def is_finite_source(self):
@@ -1593,8 +1612,18 @@ class ModelParameters(object):
 
         Whether an external mass sheet is included in the model
         """
-        return (('convergence_K' in self.parameters.keys()) or
-                ('shear_G' in self.parameters.keys()))
+        return self._type['mass sheet']
+
+    @property
+    def is_external_mass_sheet_with_shear(self):
+        """
+        *bool*
+
+        Whether an external mass sheet is included in the
+        model with non-zero shear
+        """
+        return (('shear_G' in self.parameters.keys()) and
+                (self.parameters['shear_G'] != 0))
 
     @property
     def source_1_parameters(self):

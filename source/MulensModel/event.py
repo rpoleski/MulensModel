@@ -62,6 +62,9 @@ class Event(object):
     in negative flux, then we calculate chi^2 in flux space but only for the
     epochs with negative model flux.
 
+    You can print an instance of this class. Information on model and datasets
+    will be provided.
+
     .. _astropy.SkyCoord:
       http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
     """
@@ -112,6 +115,28 @@ class Event(object):
             self.fix_source_flux_ratio = {}
         else:
             self.fix_source_flux_ratio = fix_source_flux_ratio
+
+    def __repr__(self):
+        if self.model is None:
+            out = "No model"
+        else:
+            out = 'model:\n{:}'.format(self.model)
+
+        if self.datasets is None:
+            out += "\nNo datasets"
+        else:
+            if isinstance(self.data_ref, (int)):
+                data_ref = self.datasets[self.data_ref]
+            else:
+                data_ref = self.data_ref
+
+            out += '\ndatasets:'
+            for dataset in self.datasets:
+                out += "\n" + str(dataset)
+                if dataset == data_ref:
+                    out += " *data_ref*"
+
+        return out
 
     def plot(self, t_range=None, residuals=True, show_errorbars=None,
              show_bad=None, legend=True, trajectory=None, title=None,
@@ -680,11 +705,17 @@ class Event(object):
         NOTE: Because this is not a 'get' function, it ASSUMES you have ALREADY
         fit for the fluxes, e.g. by calling get_chi2().
         """
+        if isinstance(parameters, str):
+            parameters = [parameters]
+
         gradient = {param: 0 for param in parameters}
-        for i, dataset in enumerate(self.datasets):
-            data_gradient = self.fits[i].calculate_chi2_gradient(parameters)
-            for j, p in enumerate(parameters):
-                gradient[p] += data_gradient[j]
+        for fit in self.fits:
+            data_gradient = fit.calculate_chi2_gradient(parameters)
+            if len(parameters) == 1:
+                gradient[parameters[0]] += data_gradient
+            else:
+                for j, p in enumerate(parameters):
+                    gradient[p] += data_gradient[j]
 
         if len(parameters) == 1:
             out = gradient[parameters[0]]
@@ -815,6 +846,12 @@ class Event(object):
         if new_value is None:
             self._datasets = None
             return
+
+        if len(set(new_value)) != len(new_value):
+            raise ValueError(
+                'Duplicated instances of MulensData are not allowed in '
+                'the Event class (though you can make 2 identical instances '
+                'and then Event will work).')
 
         self._datasets = new_value
         self._fits = None  # reset the fits if the data changed

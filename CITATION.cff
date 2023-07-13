@@ -1,0 +1,43 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: MulensModel
+message: >-
+  If you use this software please cite the paper indicated
+  below and papers that describe specific algorithms used.
+type: software
+authors:
+  - given-names: Radek
+    family-names: Poleski
+    orcid: 'https://orcid.org/0000-0002-9245-6368'
+    affiliation: >-
+      Astronomical Observatory, University of Warsaw
+      (Poland)
+  - given-names: Jennifer
+    family-names: Yee
+    affiliation: Center for Astrophysics ∣ Harvard & Smithsonian
+    orcid: 'https://orcid.org/0000-0001-9481-7123'
+identifiers:
+  - type: url
+    value: 'https://github.com/rpoleski/MulensModel'
+    description: main code repository
+  - type: url
+    value: 'https://pypi.org/project/MulensModel/'
+    description: PyPI link
+  - type: url
+    value: >-
+      https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract
+    description: ADS/NASA record of the paper with software description
+  - type: doi
+    value: 10.1016/j.ascom.2018.11.001
+    description: Peer-reviewed description of the software
+repository-code: 'https://github.com/rpoleski/MulensModel'
+url: 'https://rpoleski.github.io/MulensModel/'
+abstract: 'MulensModel is package for modeling microlensing events. '
+keywords:
+  - microlensing
+  - gravity
+  - gravitational microlensing
+  - planet
+license: MIT

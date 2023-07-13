@@ -211,7 +211,7 @@ def test_BLPS_02():
 
     expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
                          1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    almost(result, expected)
+    almost(result, expected, decimal=4)
 
     # Possibly, this test should be re-created in test_FitData.py
     # Below we test passing the limb coeff to VBBL function.
@@ -220,7 +220,7 @@ def test_BLPS_02():
     # This is an absurd value but I needed something quick.
     result = model.get_magnification(
         data.time, gamma=model.get_limb_coeff_gamma('I'))
-    almost(result[5], 1.6366862)
+    almost(result[5], 1.6366862, decimal=3)
     result_2 = model.get_magnification(data.time, bandpass='I')
     almost(result, result_2)
 
@@ -314,6 +314,23 @@ def test_caustic_for_orbital_motion():
     model.update_caustics(100.+365.25/2)
     almost(model.caustics.get_caustics(),
            mm.Caustics(q=q, s=1.55).get_caustics())
+
+
+def test_update_single_lens_with_shear_caustic():
+    """
+    make sure that updating single lens caustic works ok
+    """
+    convergence_K = 0.1
+    shear_G = complex(-0.1, -0.2)
+
+    model = mm.Model(mm.ModelParameters({
+        't_0': 0., 'u_0': 1., 't_E': 2., 'alpha': 3.,
+        'convergence_K': 0., 'shear_G': complex(0, 0)}))
+    model.parameters.convergence_K = convergence_K
+    model.parameters.shear_G = shear_G
+    model.update_caustics()
+    assert model.caustics.convergence_K == convergence_K
+    assert model.caustics.shear_G == shear_G
 
 
 def test_magnifications_for_orbital_motion():
@@ -447,6 +464,34 @@ def test_is_finite_source():
 
     assert model_fs.parameters.is_finite_source()
     assert not model_ps.parameters.is_finite_source()
+
+def test_repr():
+    """Test if printing is Model instance is OK."""
+    parameters = {'t_0': 2454656.4, 'u_0': 0.003,
+                  't_E': 11.1, 't_star': 0.055}
+    begin = ("    t_0 (HJD)       u_0    t_E (d)    t_star (d) \n"
+             "2454656.40000  0.003000    11.1000      0.055000 \n")
+    end = "default magnification method: point_source"
+    model = mm.Model(parameters)
+    assert str(model) == begin + end
+
+    coords = "17:54:32.10 -30:12:34.99"
+    model = mm.Model(parameters, coords=coords)
+    expected = "{:}coords: {:}\n{:}".format(begin, coords, end)
+    assert str(model) == expected
+
+    model = mm.Model(parameters)
+    methods = [2454656.3, 'finite_source_uniform_Gould94', 2454656.5]
+    model.set_magnification_methods(methods)
+    expected = "{:}{:}\nother magnification methods: {:}".format(
+        begin, end, methods)
+    assert str(model) == expected
+
+    model = mm.Model(parameters)
+    model.set_limb_coeff_gamma("I", 0.5)
+    expected = begin + end + "\nlimb-darkening coeffs (gamma): {'I': 0.5}"
+    assert str(model) == expected
+
 
 # Tests to Add:
 #

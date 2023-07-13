@@ -2,6 +2,7 @@ from os.path import join
 import unittest
 import numpy as np
 from astropy import units as u
+from astropy.coordinates import SkyCoord
 
 import MulensModel as mm
 
@@ -279,13 +280,14 @@ def test_event_get_chi2_double_source_simple():
     u_0 = 0.52298
     t_E = 17.94002
 
-    data = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data_2 = mm.MulensData(file_name=SAMPLE_FILE_01)
 
     ev = mm.Event()
     mod = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     ev.model = mod
-    ev.datasets = [data, data]
+    ev.datasets = [data_1, data_2]
 
     chi2 = ev.get_chi2()
 
@@ -351,9 +353,7 @@ def test_event_chi2_binary_source_2datasets():
     np.testing.assert_almost_equal(event.get_chi2_for_dataset(0), 0.)
 
 
-# --------
-# Error message tests
-class TestEvent(unittest.TestCase):
+class TestInput(unittest.TestCase):
     def test_event_init_1(self):
         with self.assertRaises(TypeError):
             _ = mm.Event(model=3.14)
@@ -362,133 +362,110 @@ class TestEvent(unittest.TestCase):
         with self.assertRaises(TypeError):
             _ = mm.Event(datasets='some_string')
 
+    def test_event_init_3(self):
+        data = mm.MulensData(file_name=SAMPLE_FILE_01)
+        with self.assertRaises(ValueError):
+            mm.Event(datasets=[data, data])
+
 
 # ----------
 # Chi2 Gradient Tests
-class Chi2GradientTest():
 
-    def __init__(self, parameters=None, grad_params=None, gradient=None):
-        self.parameters = parameters
-        self.grad_params = grad_params
-        self.gradient = gradient
+class TestChi2Gradient(unittest.TestCase):
 
+    def setUp(self):
+        self.parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87}
+        self.grad_params = ['t_0', 'u_0', 't_E']
+        self.gradient = {'t_0': 236.206598, 'u_0': 101940.249,
+                         't_E': -1006.88678}
+        self.data = mm.MulensData(file_name=SAMPLE_FILE_02)
+        self.model = mm.Model(self.parameters)
+        self.coords = '17:47:12.25 -21:22:58.7'
+        self.reference = np.array(
+            [self.gradient[key] for key in self.grad_params])
 
-chi2_gradient_test_1 = Chi2GradientTest(
-    parameters={'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87},
-    grad_params=['t_0', 'u_0', 't_E'],
-    gradient={'t_0': 236.206598, 'u_0': 101940.249, 't_E': -1006.88678})
-
-# Not used:
-# f_source and f_blend cannot be gradient parameters in MulensModel, but
-# this test could be moved to sfit_minimizer, which is under development by JCY.
-chi2_gradient_test_2 = Chi2GradientTest(
-    parameters={'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
-                'pi_E_N': -0.248, 'pi_E_E': 0.234},
-    grad_params=['t_0', 'u_0', 't_E', 'pi_E_N', 'pi_E_E', 'f_source',
-                 'f_blend'],
-    gradient={'t_0': 568.781786, 'u_0': 65235.3513, 't_E': -491.782005,
-              'pi_E_N': -187878.357, 'pi_E_E': 129162.927,
-              'f_source': -83124.5869, 'f_blend': -78653.242})
-
-
-def test_event_chi2_gradient():
-    """test calculation of chi2 gradient"""
-
-    data = mm.MulensData(file_name=SAMPLE_FILE_02)
-    kwargs = {'datasets': [data], 'coords': '17:47:12.25 -21:22:58.7'}
-
-    # New (v2.0) method for fixing blending
-    for test in [chi2_gradient_test_1]:
+    def _make_event(self):
         event = mm.Event(
-            model=mm.Model(test.parameters), fix_blend_flux={data: 0.},
-            **kwargs)
-        result = event.get_chi2_gradient(test.grad_params)
-        reference = np.array([test.gradient[key] for key in test.grad_params])
-        np.testing.assert_almost_equal(reference/result, 1., decimal=4)
+            datasets=self.data, model=self.model,
+            fix_blend_flux={self.data: 0.}, coords=self.coords)
+        return event
 
+    def test_1(self):
+        """test calculation of chi2 gradient"""
+        event = self._make_event()
+        result = event.get_chi2_gradient(self.grad_params)
+        np.testing.assert_almost_equal(self.reference / result, 1., decimal=4)
         result = event.chi2_gradient
-        np.testing.assert_almost_equal(reference/result, 1., decimal=4)
+        np.testing.assert_almost_equal(self.reference / result, 1., decimal=4)
 
-
-class TestGradient(unittest.TestCase):
-
-    def test_gradient_init_1(self):
+    def test_type_error(self):
         """
         Test that fit_fluxes/update must be run before the gradient is accessed
         """
-        data = mm.MulensData(file_name=SAMPLE_FILE_02)
-        event = mm.Event(
-            datasets=[data],
-            model=mm.Model(chi2_gradient_test_1.parameters),
-            fix_blend_flux={data: 0.})
+        event = self._make_event()
         with self.assertRaises(TypeError):
             event.chi2_gradient()
 
+    def test_3(self):
+        """
+        test that fit_fluxes/update must be run in order to update the gradient
+        """
+        event = self._make_event()
+        result = event.get_chi2_gradient(self.grad_params)
+        np.testing.assert_almost_equal(self.reference / result, 1., decimal=4)
 
-def test_chi2_gradient():
-    """
-    test that fit_fluxes/update must be run in order to update the gradient
-    """
-    data = mm.MulensData(file_name=SAMPLE_FILE_02)
-    event = mm.Event(
-        datasets=[data],
-        model=mm.Model(chi2_gradient_test_1.parameters),
-        fix_blend_flux={data: 0.})
-    result = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
-    reference = np.array(
-        [chi2_gradient_test_1.gradient[key] for key in
-         chi2_gradient_test_1.grad_params])
-    np.testing.assert_almost_equal(reference / result, 1., decimal=4)
+        # changing something w/o updating: gives old values
+        event.model.parameters.t_0 += 0.1
+        result_1 = event.chi2_gradient
+        np.testing.assert_almost_equal(result_1 / result, 1.)
 
-    # changing something w/o updating: gives old values
-    event.model.parameters.t_0 += 0.1
-    result_1 = event.chi2_gradient
-    np.testing.assert_almost_equal(result_1 / result, 1.)
+        # run fit_fluxes: gives new values
+        event.fit_fluxes()
+        result_2 = event.calculate_chi2_gradient(self.grad_params)
+        assert all(result != result_2)
 
-    # run fit_fluxes: gives new values
-    event.fit_fluxes()
-    result_2 = event.calculate_chi2_gradient(chi2_gradient_test_1.grad_params)
-    assert all(result != result_2)
+        # Go back to previous results and test that
+        # calculate_chi2_gradient gives results that don't match anything.
+        event.model.parameters.t_0 -= 0.1
+        result_3 = event.calculate_chi2_gradient(self.grad_params)
+        assert all(result != result_3)
+        assert all(result_2 != result_3)
+        result_4 = event.get_chi2_gradient(self.grad_params)
+        np.testing.assert_almost_equal(result_4 / result, 1.)
 
-    # Go back to previous results and test that calculate_chi2_gradient gives
-    # results that don't match anything.
-    event.model.parameters.t_0 -= 0.1
-    result_3 = event.calculate_chi2_gradient(chi2_gradient_test_1.grad_params)
-    assert all(result != result_3)
-    assert all(result_2 != result_3)
-    result_4 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
-    np.testing.assert_almost_equal(result_4 / result, 1.)
+    def test_4(self):
+        """
+        Double-up on the gradient test, i.e. duplicate the dataset and check
+        that the gradient values double.
+        """
+        data_2 = mm.MulensData(file_name=SAMPLE_FILE_02)
+        event = mm.Event(
+            datasets=[self.data, data_2], model=mm.Model(self.parameters),
+            fix_blend_flux={self.data: 0., data_2: 0.})
+        result_0 = event.get_chi2_gradient(self.grad_params)
+        result_1 = event.fits[1].chi2_gradient
+        np.testing.assert_almost_equal(
+            2. * self.reference / result_0, 1., decimal=4)
+        np.testing.assert_almost_equal(2. * result_1 / result_0, 1.)
+        np.testing.assert_almost_equal(
+            self.reference / result_1, 1., decimal=4)
 
+        # Change something and test fit.get_chi2_gradient
+        event.model.parameters.t_0 += 0.1
+        result_2 = event.fits[1].get_chi2_gradient(self.grad_params)
+        assert result_2[0] != result_1[0]
+        event.model.parameters.t_0 -= 0.1
+        result_3 = event.fits[1].get_chi2_gradient(self.grad_params)
+        np.testing.assert_almost_equal(
+            result_3 / self.reference, 1., decimal=4)
 
-def test_chi2_gradient_2():
-    """
-    Double-up on the gradient test, i.e. duplicate the dataset and check that
-    the gradient values double.
-    """
-    reference = np.array(
-        [chi2_gradient_test_1.gradient[key] for key in
-         chi2_gradient_test_1.grad_params])
-
-    data = mm.MulensData(file_name=SAMPLE_FILE_02)
-    event = mm.Event(
-        datasets=[data, data],
-        model=mm.Model(chi2_gradient_test_1.parameters),
-        fix_blend_flux={data: 0.})
-    result_0 = event.get_chi2_gradient(chi2_gradient_test_1.grad_params)
-    result_1 = event.fits[1].chi2_gradient
-    np.testing.assert_almost_equal(2. * reference / result_0, 1., decimal=4)
-    np.testing.assert_almost_equal(2. * result_1 / result_0, 1.)
-    np.testing.assert_almost_equal(reference / result_1, 1., decimal=4)
-
-    # Change something and test fit.get_chi2_gradient
-    event.model.parameters.t_0 += 0.1
-    result_2 = event.fits[1].get_chi2_gradient(
-        chi2_gradient_test_1.grad_params)
-    assert result_2[0] != result_1[0]
-    event.model.parameters.t_0 -= 0.1
-    result_3 = event.fits[1].get_chi2_gradient(
-        chi2_gradient_test_1.grad_params)
-    np.testing.assert_almost_equal(result_3 / reference, 1., decimal=4)
+    def test_1_param(self):
+        """Test the output if gradient is calculated for only one parameter"""
+        event = self._make_event()
+        result = event.get_chi2_gradient('t_0')
+        assert isinstance(result, (float))
+        ratio = self.gradient['t_0'] / result
+        np.testing.assert_almost_equal(ratio, 1., decimal=5)
 
 
 def _test_event_chi2_gradient_rho():
@@ -588,19 +565,59 @@ def test_get_ref_fluxes_binary_source():
     np.testing.assert_almost_equal(blend_flux_1, 50.)
 
 
-class TestDataRef(unittest.TestCase):
-    def test_1(self):
-        """
-        Try get_ref_fluxes() with an event with duplicated data
-        """
-        (model, model_1, model_2) = generate_binary_source_models()
-        (data_1, data_2) = generate_binary_source_datasets(model_1, model_2)
-        event_1 = mm.Event([data_1, data_2, data_2], model)
-        with self.assertRaises(ValueError):
-            event_1.data_ref = data_2
+class TestBinarySourceFluxes(unittest.TestCase):
 
+    def setUp(self):
+        (self.model, self.model_1, self.model_2) = self._generate_binary_source_models()
+        (self.data_1, self.data_2) = self._generate_binary_source_datasets()
 
-# --------
+        self.f_s1_1 = 100.
+        self.f_s2_1 = 300.
+        self.f_b_1 = 50.
+        self.f_s1_2 = 20.
+        self.f_s2_2 = 30.
+        self.f_b_2 = 40.
+
+    def _generate_binary_source_models(self):
+        model = mm.Model({
+            't_0_1': 5000., 'u_0_1': 0.05,
+            't_0_2': 5100., 'u_0_2': 0.15, 't_E': 25.})
+        model_1 = mm.Model(model.parameters.source_1_parameters)
+        model_2 = mm.Model(model.parameters.source_2_parameters)
+
+        return (model, model_1, model_2)
+
+    def _generate_binary_source_datasets(self):
+        """prepare fake data for binary source model"""
+        time = np.linspace(4900., 5200., 600)
+        mag_1 = self.model_1.get_magnification(time)
+        mag_2 = self.model_2.get_magnification(time)
+        flux = 100. * mag_1 + 300. * mag_2 + 50.
+        data_1 = mm.MulensData(data_list=[time, flux, 1. + 0. * time],
+                               phot_fmt='flux')
+        flux = 20. * mag_1 + 30. * mag_2 + 40.
+        data_2 = mm.MulensData(data_list=[time, flux, 1. + 0. * time],
+                               phot_fmt='flux')
+
+        return (data_1, data_2)
+
+    def test_source_fluxes_1b(self):
+        """1 dataset, 2 sources"""
+        event = mm.Event(datasets=self.data_1, model=self.model)
+        event.fit_fluxes()
+        fluxes = event.source_fluxes
+        np.testing.assert_almost_equal(
+            fluxes, np.array([[self.f_s1_1, self.f_s2_1]]))
+
+    def test_source_fluxes_2b(self):
+        """2 datasets, 1 source"""
+        event = mm.Event(datasets=[self.data_1, self.data_2], model=self.model)
+        event.fit_fluxes()
+        fluxes = event.source_fluxes
+        np.testing.assert_almost_equal(
+            fluxes, np.array([[self.f_s1_1, self.f_s2_1],
+                              [self.f_s1_2, self.f_s2_2]]))
+
 # Event.get_flux_for_dataset() Tests
 def test_get_flux_for_dataset():
     """
@@ -835,6 +852,28 @@ class TestFixedFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(fluxes_2[0][0], self.f_source_2)
         np.testing.assert_almost_equal(fluxes_2[1], self.f_blend_2)
 
+    def test_source_fluxes_AttributeError(self):
+        event = mm.Event(datasets=self.datasets, model=self.model)
+        with self.assertRaises(AttributeError):
+            fluxes = event.source_fluxes
+
+    def test_source_fluxes_1(self):
+        """1 dataset, 1 source"""
+        event = mm.Event(datasets=self.data_1, model=self.model)
+        event.fit_fluxes()
+        fluxes = event.source_fluxes
+        np.testing.assert_almost_equal(
+            fluxes, np.array([[self.f_source_1]]))
+
+    def test_source_fluxes_2(self):
+        """2 datasets, 2 sources"""
+        event = mm.Event(datasets=self.datasets, model=self.model)
+        event.fit_fluxes()
+        fluxes = event.source_fluxes
+        np.testing.assert_almost_equal(
+            fluxes, np.array(
+                [[self.f_source_1], [self.f_source_2]]))
+
 
 # ---------
 class TestFixedFluxRatios(unittest.TestCase):
@@ -966,34 +1005,49 @@ class TestFixedFluxRatios(unittest.TestCase):
         """test the case that q_I is fixed"""
         q_values = {'I': 0.013, 'V': 0.005}
 
-        event = mm.Event(datasets=self.datasets, model=self.model)
-        event.fix_source_flux_ratio = q_values
-        fluxes = self.extract_fluxes(event)
-        for (i, dataset) in enumerate(self.datasets):
-            np.testing.assert_almost_equal(
-                fluxes[i][0][1] / fluxes[i][0][0], q_values[dataset.bandpass])
+        def run_test(event):
+            fluxes = self.extract_fluxes(event)
+            for (i, dataset) in enumerate(self.datasets):
+                np.testing.assert_almost_equal(
+                    fluxes[i][0][1] / fluxes[i][0][0],
+                    q_values[dataset.bandpass])
 
-            assert event.get_chi2_for_dataset(i) > 1
+                assert event.get_chi2_for_dataset(i) > 1
+
+        event_1 = mm.Event(datasets=self.datasets, model=self.model)
+        event_1.fix_source_flux_ratio = q_values
+        run_test(event_1)
+        event_2 = mm.Event(
+            datasets=self.datasets, model=self.model,
+            fix_source_flux_ratio=q_values)
+        run_test(event_2)
 
     def test_fixed_q_I_flux(self):
         """test the case that q_I is fixed"""
         q_I_value = 0.012
 
-        event = mm.Event(datasets=self.datasets, model=self.model)
-        event.fix_source_flux_ratio = {'I': q_I_value}
-        fluxes = self.extract_fluxes(event)
-        for (i, dataset) in enumerate(self.datasets):
-            if dataset.bandpass == 'I':
-                # the ratio of q_I should be identical to the set value
-                np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], q_I_value)
-                assert event.get_chi2_for_dataset(i) > 1
-            elif dataset.bandpass == 'V':
-                # the ratio of q_V should be the input value
-                np.testing.assert_almost_equal(
-                    fluxes[i][0][1] / fluxes[i][0][0], self.q_V)
-                np.testing.assert_almost_equal(
-                    event.get_chi2_for_dataset(i), 0.)
+        def run_test(event):
+            fluxes = self.extract_fluxes(event)
+            for (i, dataset) in enumerate(self.datasets):
+                if dataset.bandpass == 'I':
+                    # the ratio of q_I should be identical to the set value
+                    np.testing.assert_almost_equal(
+                        fluxes[i][0][1] / fluxes[i][0][0], q_I_value)
+                    assert event.get_chi2_for_dataset(i) > 1
+                elif dataset.bandpass == 'V':
+                    # the ratio of q_V should be the input value
+                    np.testing.assert_almost_equal(
+                        fluxes[i][0][1] / fluxes[i][0][0], self.q_V)
+                    np.testing.assert_almost_equal(
+                        event.get_chi2_for_dataset(i), 0.)
+
+        event_1 = mm.Event(datasets=self.datasets, model=self.model)
+        event_1.fix_source_flux_ratio = {'I': q_I_value}
+        run_test(event_1)
+        event_2 = mm.Event(
+            datasets=self.datasets, model=self.model,
+            fix_source_flux_ratio={'I': q_I_value})
+        run_test(event_2)
 
     def test_free_fluxes(self):
         """test both q_flux free. Should give original values"""
@@ -1007,6 +1061,125 @@ class TestFixedFluxRatios(unittest.TestCase):
             np.testing.assert_almost_equal(
                 fluxes[i][1] / self.expected_fluxes[i][1], 1.)
             np.testing.assert_almost_equal(event.get_chi2_for_dataset(i), 0.)
+
+
+class TestEvent_repr_(unittest.TestCase):
+
+    def setUp(self):
+        self.model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
+                         coords="18:12:34.56 -23:45:55.55")
+        self.dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_01)
+        self.dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_02)
+
+        self.expected = "model:\n{0}\ndatasets:".format(self.model)
+        for i, dataset in enumerate([self.dataset_01, self.dataset_02]):
+            self.expected += "\n{0}".format(dataset)
+            if i == 0:
+                self.expected += " *data_ref*"
+
+
+    def test_repr_empty(self):
+        """
+        Check printing if no input is provided.
+        """
+        event = mm.Event()
+        expected = "No model\nNo datasets"
+        assert str(event) == expected
+
+    def test_repr_full(self):
+        """
+        Check printing if model and data are provided.
+        """
+        event = mm.Event(
+            model=self.model, datasets=[self.dataset_01, self.dataset_02])
+        assert str(event) == self.expected
+
+    def test_repr_data_ref(self):
+        event = mm.Event(
+            model=self.model, datasets=[self.dataset_01, self.dataset_02],
+            data_ref=self.dataset_01)
+        assert event.data_ref == 0
+        assert str(event) == self.expected
+
+
+def get_event_to_print():
+    """
+    Prepare Event instance to check __repr__()
+    """
+    kwargs = {'comments': ["\\", "|"]}
+    model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
+                     coords="18:12:34.56 -23:45:55.55")
+    dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_310_01, **kwargs)
+    dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_310_02, **kwargs)
+    dataset_03 = mm.MulensData(file_name=SAMPLE_FILE_310_03, **kwargs)
+    event = mm.Event(
+        model=model, datasets=[dataset_01, dataset_02, dataset_03])
+    expected = "model:\n{0}\ndatasets:".format(model)
+    for i, dataset in enumerate([dataset_01, dataset_02, dataset_03]):
+        expected += "\n{0}".format(dataset)
+        if i == 1:
+            expected += " *data_ref*"
+    return (event, expected, dataset_02)
+
+
+def test_repr_data_ref_data():
+    """
+    Check printing if model and data are provided.
+    """
+    (event, expected, _) = get_event_to_print()
+    event.data_ref = 1
+    assert str(event) == expected
+
+
+def test_repr_data_ref_int():
+    """
+    Check printing if model and data are provided.
+    """
+    (event, expected, dataset_02) = get_event_to_print()
+    event.data_ref = dataset_02
+    assert str(event) == expected
+
+
+class TestModelSetter(unittest.TestCase):
+    """Test various methods of setting event coordinates and pulling them
+    from a model. """
+
+    def setUp(self):
+        self.model_1 = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
+                         coords="18:12:34.56 -23:45:55.55")
+        self.model_2 = mm.Model({'t_0': 1, 'u_0': 1.5, 't_E': 60.},
+                           coords="18:00:00 -30:00:00")
+        self.result_1 = SkyCoord(
+            "18:12:34.56 -23:45:55.55", unit=[u.hourangle, u.deg])
+        self.result_2 = SkyCoord(
+            "18:00:00 -30:00:00", unit=[u.hourangle, u.deg])
+
+    def test_coords_1(self):
+        """Most basic """
+        event_1 = mm.Event()
+        event_1.model = self.model_1
+        assert event_1.coords == self.result_1
+
+    def test_coords_2(self):
+        """changing from original event coords to model coords """
+        event_2 = mm.Event(coords="18:00:00 -30:00:00")
+        assert event_2.coords == self.result_2
+        event_2.model = self.model_1
+        assert event_2.coords == self.result_1
+
+    def test_coords_3(self):
+        """changing from original model coords to new model coords """
+        event_3 = mm.Event(model=self.model_2, coords="18:00:00 -30:00:00")
+        assert event_3.coords == self.result_2
+        event_3.model = self.model_1
+        assert event_3.coords == self.result_1
+
+    def test_TypeError(self):
+        event = mm.Event()
+        with self.assertRaises(TypeError):
+            event.model = 'foo'
+
+
 
 # Tests to add:
 #

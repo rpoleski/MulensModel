@@ -11,6 +11,8 @@ model:
     # For binary source one can specify:
     # methods source 1: ...
     # methods source 2: ...
+    methods parameters:
+        VBBL: {accuracy: 0.01}
     limb darkening u:
         I: 0.42
         g: 0.65
@@ -101,5 +103,9 @@ other_output:
     models:
         # Value "-" in line below means that the models will be printed to screen instead of a file.
         file name: ob03235_2_all_models.txt
-   yaml output:
+    yaml output:
         file name: ob03235_2_all_results.yaml
+    other_output:
+        residuals:
+            # "-" below means the we don't output residuals for second file
+            files: ob03235_1_res.txt -

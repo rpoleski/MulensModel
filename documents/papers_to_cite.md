@@ -19,6 +19,9 @@ MulensModel incorporates many algorithms from other work, which deserve acknowle
 `finite_source_uniform_Lee09` OR `finite_source_LD_Lee09`:
 [Lee et al. 2009 ApJ, 695, 200](https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract)
 
+#### Point Lens with Shear and Convergence:
+
+[Chang and Refsdal 1979 Nature, 282, 561](https://ui.adsabs.harvard.edu/abs/1979Natur.282..561C/abstract)
 
 ### Binary Lenses
 
@@ -50,6 +53,10 @@ Adaptive Contouring:
 
 Cassan08:
 [Cassan 2008 A&A, 491, 587](https://ui.adsabs.harvard.edu/abs/2008A%26A...491..587C/abstract)
+
+#### Binary Lens with Shear and Convergence:
+
+[Peirson et al. 2022 ApJ, 927, 24](https://ui.adsabs.harvard.edu/abs/2022ApJ...927...24P/abstract)
 
 
 ### Fitting Algorithms:

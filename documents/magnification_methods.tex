@@ -13,7 +13,7 @@
 {\LARGE Methods to calculate magnification in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Mar 2022
+last update: Nov 2022
 \end{center}
 
 \bigskip\bigskip
@@ -40,7 +40,7 @@ providing additional parameters for calculations.  Currently, only
 \bigskip\bigskip
 Point lens methods:
 \begin{itemize}
-\item {\tt point\_source} -- the simplest thing that exists, also called ``Paczy\'nski curve'':\linebreak $A(u) = \left(u^2+2\right)/\left(u\sqrt{u^2+4}\right)$.
+\item {\tt point\_source} -- the simplest thing that exists, also called ``Paczy\'nski curve'':\linebreak $A(u) = \left(u^2+2\right)/\left(u\sqrt{u^2+4}\right)$. Note that if shear and convergence are defined, then calculation follows Chang and Refsdal (1979).
 \item {\tt finite\_source\_uniform\_Gould94} -- for the finite source with uniform profile (i.e., no limb-darkening effect) use approximation presented by Gould (1994).  It works only for small $\rho$, i.e, $\rho\lesssim0.1$.
 \item {\tt finite\_source\_uniform\_WittMao94} -- for the finite source with uniform profile use method presented by Witt and Mao (1994).  It interpolates pre-computed tables.
 \item {\tt finite\_source\_LD\_WittMao94} -- for the finite source with limb darkening integrate many uniform profiles. For each uniform profile, {\tt finite\_source\_uniform\_WittMao94} method is used. For description on how the uniform profiles are combined see, e.g., Bozza et al. (2018).

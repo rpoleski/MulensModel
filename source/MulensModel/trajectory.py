@@ -171,10 +171,12 @@ class Trajectory(object):
             vector_u += delta_u
 
         # If 2 lenses, rotate trajectory relative to binary lens axis
-        if self.parameters.n_lenses == 1:
+        is_mass_sheet = self.parameters.is_external_mass_sheet_with_shear
+        n_lenses = self.parameters.n_lenses
+        if n_lenses == 1 and not is_mass_sheet:
             vector_x = vector_tau
             vector_y = vector_u
-        elif self.parameters.n_lenses == 2:
+        elif n_lenses == 2 or (n_lenses == 1 and is_mass_sheet):
             if self.parameters.is_static():
                 sin_alpha = np.sin(self.parameters.alpha).value
                 cos_alpha = np.cos(self.parameters.alpha).value
@@ -218,25 +220,17 @@ class Trajectory(object):
             raise NotImplementedError(
                 "The topocentric parallax effect not implemented yet")
 
-    def _project_delta(self, delta=None):
+    def _project_delta(self):
         """
         Project N and E parallax offset vector onto the tau, beta plane.
         """
-        if delta is None:
-            delta = self.parallax_delta_N_E
+        delta = self.parallax_delta_N_E
 
         delta_tau = (delta['N'] * self.parameters.pi_E_N +
                      delta['E'] * self.parameters.pi_E_E)
         delta_beta = (-delta['N'] * self.parameters.pi_E_E +
                       delta['E'] * self.parameters.pi_E_N)
         return [delta_tau, delta_beta]
-
-    def _annual_parallax_trajectory(self):
-        """calculate annual parallax component of trajectory"""
-
-        # Calculate the parallax offsets
-        delta_annual = self._get_delta_annual()
-        return self._project_delta(delta_annual)
 
     def _get_delta_annual(self):
         """
@@ -281,11 +275,6 @@ class Trajectory(object):
         Trajectory._get_delta_annual_last_index = index + tuple()
         Trajectory._get_delta_annual_last = out
         return out
-
-    def _satellite_parallax_trajectory(self):
-        """calculate satellite parallax component of trajectory"""
-        delta_satellite = self._get_delta_satellite()
-        return self._project_delta(delta_satellite)
 
     def _get_delta_satellite(self):
         """

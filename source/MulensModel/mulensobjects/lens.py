@@ -416,7 +416,7 @@ class Lens(object):
     @a_proj.setter
     def a_proj(self, new_a_proj):
         raise NotImplementedError('a_proj is not used, e.g. to set s')
-        if not isinstance(new_distance, u.Quantity):
+        if not isinstance(new_a_proj, u.Quantity):
             new_a_proj = new_a_proj * u.au
         self._a_proj = new_a_proj
 

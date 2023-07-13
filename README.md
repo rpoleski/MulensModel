@@ -6,18 +6,20 @@
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
-[Latest release: 2.13.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 2.16.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best-fit parameters.
 
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
 
 Currently, MulensModel supports:
-* Lens Systems: point lens or binary lens.
-* Source Stars: single source or binary source.
+* Lens Systems: point lens or binary lens. **New: shear and convergence allowed for both point and binary lenses.**
+* Source Stars: single source or binary source. **Xallarap effect is currently developed:** [see this branch](https://github.com/rpoleski/MulensModel/tree/xal).
 * Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion, different parametrizations of microlensing models.
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues), start [a discussion](https://github.com/rpoleski/MulensModel/discussions), or send us an e-mail. 
+
+![MulensModel logo](documents/logo/logoMM_crop_4_372x260.png)
 
 ## Acknowledgements
 
@@ -55,6 +57,9 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) 
 [![Poleski & Yee 2019](https://img.shields.io/badge/ADS-Poleski%20%26%20Yee%202019-brightgreen.svg)](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract)
 [![astro-ph/1803.01003](https://img.shields.io/badge/astro--ph-1803.01003-brightgreen.svg)](https://arxiv.org/abs/1803.01003)
+[![EMAC](https://img.shields.io/badge/EMAC-2207--125-blue)](https://emac.gsfc.nasa.gov?cid=2207-125)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
+![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
+[![Coverage Status](https://codecov.io/gh/rpoleski/MulensModel/branch/master/graph/badge.svg)](https://codecov.io/gh/rpoleski/MulensModel)
 
-file revised Oct 2022
-
+file revised May 2023

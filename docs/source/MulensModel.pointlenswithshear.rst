@@ -1,7 +1,7 @@
-MulensModel.mulensobjects.lens module
+MulensModel.pointlenswithshear module
 =====================================
 
-.. automodule:: MulensModel.mulensobjects.lens
+.. automodule:: MulensModel.pointlenswithshear
    :members:
    :undoc-members:
    :show-inheritance:

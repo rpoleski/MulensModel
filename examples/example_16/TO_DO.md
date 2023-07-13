@@ -36,7 +36,7 @@
 - add one more fitting method? scipy.optimize, ultranest, https://lmfit.github.io/lmfit-py/, sfit by Jen, ???
 - add check if 't_0' is covered by data and give warning if not
 - print fixed parameters at begin or "no fixed parameters", so that full model can be extracted without the input file
-- LD coeffs - there should be check who bands there compare to the ones in datasets
+- LD coeffs - there should be check which bands there compare to the ones in datasets
 - random seed - first just print it early on (if used in calculations); then allow setting it for exact reproduction of results
 - all_parameters in _get_parameters_ordered() and _check_fixed_parameters() - combine in a single one
 - note that parameters are re-ordered (maybe in future add option for specifying order)
@@ -46,7 +46,6 @@
 - allow plotting many random models from posterior
 - add beta distribution to allowed distributions (search for "gauss")
 - for plot script add printing chi2 and fluxes
-- EMCEE: starting parameters are read from file (e.g. 100 lines by 7 columns)
 - EMCEE: some of the starting values are calculated based on equation given in yaml file, eg. "s: equation 100 / t_E" and then substitute each value of t_E and then use: "exec('out = 100 / 20.12345')" and use variable 'out'; This requires import from math of log, log10, arcsin etc.; make sure "s" in x_caustic_in is not replaced etc.; 
 - if Cassan08 paramaterization is used then make sure times are >2450000.
 - add automatic "obvious" checks on parameters: t_E>0, rho>0, s>0, 1>q>0 - even if they are not provided, then model should be rejected and warning given
@@ -67,7 +66,6 @@
 - allow log10() of parameter
 - Event.get_chi2() - add fit_blending=False option (actually this is different in MM v2)
 - allow turning off flux printing
-- EMCEE: in self._sampler.run_mcmc() and option for progress=True
 - warnings on time plotting and data limits - checks for add/subtract 245/246
 - if code fails during fitting, then it should still print the best model found so far - add try/except in _run_fit()
 - example how to run fits on a grid of (s,q)
@@ -79,7 +77,6 @@
 - add option to adjust Y scale to plot model fully
 - in _parse_fit_constraints_prior() add a check if the priors are defined for fit parameters
 - flux constraints for binary source models (note that for plotting it is now set to first dataset)
-- allow Model.set_magnification_methods_parameters()
 - triangle and trace plots - add option to plot burn-in as well
 - methods - if only single string is provided, then this is a default method
 - move _get_weighted_percentile() to a separate file with utils because it doesnt depend on self; maybe there are other similar functions

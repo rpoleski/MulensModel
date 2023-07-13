@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from astropy.coordinates import SkyCoord
 
 from MulensModel.caustics import Caustics
+from MulensModel.causticspointwithshear import CausticsPointWithShear
 from MulensModel.causticswithshear import CausticsWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
@@ -64,6 +65,9 @@ class Model(object):
       model = Model(parameters={'t_0': 2456789.0, ....})
       print(model)
 
+    This will provide information on parameter values, coordinates,
+    methods used for magnification calculations, and
+    limb-darkening coefficients.
     """
 
     def __init__(
@@ -107,18 +111,20 @@ class Model(object):
         self._bandpasses = []
 
     def __repr__(self):
-        outstr = '{0}\n'.format(self.parameters)
-        outstr += 'default magnification method: {0}\n'.format(
+        out = '{0}'.format(self.parameters)
+        if self.coords is not None:
+            out += '\ncoords: {0}'.format(self.coords)
+
+        out += '\ndefault magnification method: {0}'.format(
             self._default_magnification_method)
         if self._methods is not None:
-            outstr += 'other magnification methods: {0}\n'.format(
-                    self._methods)
+            out += '\nother magnification methods: {0}'.format(self._methods)
 
-        if self.bandpasses is not None:
-            outstr += 'limb-darkening coeffs (gamma): {0}\n'.format(
+        if len(self.bandpasses) > 0:
+            out += '\nlimb-darkening coeffs (gamma): {0}'.format(
                 self._limb_darkening_coeffs)
 
-        return outstr
+        return out
 
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
@@ -460,7 +466,8 @@ class Model(object):
             ``**kwargs``:
                 keywords accepted by :py:func:`matplotlib.pyplot.scatter()`
         """
-        if self.n_lenses == 1:
+        mass_sheet = self.parameters.is_external_mass_sheet_with_shear
+        if self.n_lenses == 1 and not mass_sheet:
             plt.scatter([0], [0], **kwargs)
         else:
             self.update_caustics(epoch=epoch)
@@ -476,6 +483,27 @@ class Model(object):
                 is calculated to calculate :py:attr:`~caustics`. Defaults
                 to *t_0_kep*, which defaults to *t_0*.
         """
+        if self.n_lenses == 1:
+            self._update_caustics_single_lens()
+        elif self.n_lenses == 2:
+            self._update_caustics_binary_lens(epoch)
+        else:
+            raise ValueError('updating triple lens caustics not yet coded')
+
+    def _update_caustics_single_lens(self):
+        """
+        Update self._caustics for single lens.
+        """
+        convergence_K = self.parameters.parameters.get('convergence_K', 0)
+        shear_G = self.parameters.parameters.get('shear_G', complex(0, 0))
+
+        self._caustics = CausticsPointWithShear(
+            convergence_K=convergence_K, shear_G=shear_G)
+
+    def _update_caustics_binary_lens(self, epoch):
+        """
+        Update self._caustics for binary lens.
+        """
         if epoch is None:
             s = self.parameters.s
         else:
@@ -485,14 +513,14 @@ class Model(object):
             if s == self._caustics.s and self.parameters.q == self._caustics.q:
                 return
 
-        # check if covergence_K and shear_G are in parameters
-        if self.parameters.is_external_mass_sheet:
-            self._caustics = CausticsWithShear(
-                q=self.parameters.q, s=s,
-                convergence_K=self.parameters.convergence_K,
-                shear_G=self.parameters.shear_G)
-        else:
+        if not self.parameters.is_external_mass_sheet:
             self._caustics = Caustics(q=self.parameters.q, s=s)
+        else:
+            convergence_K = self.parameters.parameters.get('convergence_K', 0.)
+            shear_G = self.parameters.parameters.get('shear_G', complex(0, 0))
+            self._caustics = CausticsWithShear(
+                q=self.parameters.q, s=s, shear_G=shear_G,
+                convergence_K=convergence_K)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,

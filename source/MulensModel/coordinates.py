@@ -28,6 +28,8 @@ class Coordinates(SkyCoord):
     unit=(u.hourangle, u.deg) where u is defined by "import
     astropy.units as u".
 
+    You can print an instance of this class.
+
     .. _astropy.SkyCoord:
       http://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html
 
@@ -82,6 +84,9 @@ class Coordinates(SkyCoord):
         self._east_projected = Utils.vector_product_normalized(
             north, direction)
         self._north_projected = np.cross(direction, self._east_projected)
+
+    def __repr__(self):
+        return self.to_string(style="hmsdms", sep=":", precision=2)
 
     @property
     def galactic_l(self):

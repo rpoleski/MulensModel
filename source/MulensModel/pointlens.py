@@ -128,13 +128,14 @@ class PointLens(object):
         """
 
         out = 4. * z / np.pi
-        def function(x): return (1.-value**2*sin(x)**2)**.5
+        def function(x): return (1. - value**2 * sin(x)**2)**.5
 
         for (i, value) in enumerate(z):
             if value < 1.:
-                out[i] *= ellipe(value*value)
+                out[i] *= ellipe(value * value)
             else:
-                out[i] *= integrate.quad(function, 0., np.arcsin(1./value))[0]
+                out[i] *= integrate.quad(function, 0.,
+                                         np.arcsin(1. / value))[0]
         return out
 
     def _B_1_function(self, z, B_0=None):
@@ -155,7 +156,7 @@ class PointLens(object):
         def function(r, theta):
             r_2 = r * r
             val = (1. - r_2) / (
-                r_2 + function.arg_2 + r*function.arg_3*cos(theta))
+                r_2 + function.arg_2 + r * function.arg_3 * cos(theta))
             return r * sqrt(val)
 
         def lim_0(x): return 0
@@ -166,7 +167,7 @@ class PointLens(object):
             function.arg_2 = zz * zz
             function.arg_3 = -2. * zz
             rho_W_1[i] = integrate.dblquad(
-                function, 0., 2.*np.pi, lim_0, lim_1)[0]
+                function, 0., 2. * np.pi, lim_0, lim_1)[0]
 
         rho_W_1 /= np.pi
         return B_0 - 1.5 * z * rho_W_1
@@ -295,7 +296,7 @@ class PointLens(object):
         if np.any(mask):  # Here we use interpolation.
             B_0 = PointLens._B0_interpolation(z[mask])
             B_0_minus_B_1 = PointLens._B0_minus_B1_interpolation(z[mask])
-            magnification[mask] *= (B_0*(1.-gamma) + B_0_minus_B_1*gamma)
+            magnification[mask] *= (B_0 * (1. - gamma) + B_0_minus_B_1 * gamma)
 
         mask = np.logical_not(mask)
         if np.any(mask):  # Here we use direct calculation.
@@ -387,9 +388,10 @@ class PointLens(object):
         if n % 2 != 0:
             raise ValueError('internal error - odd number expected')
         theta_max = np.arcsin(rho / u)
-        out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
-        vector_1 = np.arange(1., (n/2 - 1.) + 1)
-        vector_2 = np.arange(1., n/2 + 1)
+        out = (u + rho) * sqrt((u + rho)**2 + 4.) - \
+            (u - rho) * sqrt((u - rho)**2 + 4.)
+        vector_1 = np.arange(1., (n / 2 - 1.) + 1)
+        vector_2 = np.arange(1., n / 2 + 1)
         arg_1 = 2. * vector_1 * theta_max / n
         arg_2 = (2. * vector_2 - 1.) * theta_max / n
         out += 2. * np.sum(self._f_Lee09(arg_1, u, rho, theta_max))
@@ -403,7 +405,8 @@ class PointLens(object):
         """
         if n % 2 != 0:
             raise ValueError('internal error - odd number expected')
-        out = (u+rho)*sqrt((u+rho)**2+4.)-(u-rho)*sqrt((u-rho)**2+4.)
+        out = (u + rho) * sqrt((u + rho)**2 + 4.) - \
+            (u - rho) * sqrt((u - rho)**2 + 4.)
         vector_1 = np.arange(1., (n - 1.) + 1)
         vector_2 = np.arange(1., n + 1)
         arg_1 = vector_1 * np.pi / n
@@ -467,7 +470,7 @@ class PointLens(object):
             theta_max = np.arcsin(rho / u)
         else:
             theta_max = np.pi
-        theta = np.linspace(0, theta_max-theta_sub, n_theta)
+        theta = np.linspace(0, theta_max - theta_sub, n_theta)
         integrand_values = np.zeros_like(theta)
         u_1 = self._u_1_Lee09(theta, u, rho, theta_max)
         u_1 += u_1_min
@@ -482,7 +485,7 @@ class PointLens(object):
         dx = temp[:, 1] - temp[:, 0]
         for (i, dx_) in enumerate(dx):
             integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
-        out = integrate.simps(integrand_values, dx=theta[1]-theta[0])
+        out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
         out *= 2. / (np.pi * rho**2)
         return out
 
@@ -493,7 +496,7 @@ class PointLens(object):
         u_ and theta_ are np.ndarray, other parameters are scalars.
         theta_ is in fact cos(theta_) here
         """
-        values = 1. - (u_*(u_ - 2. * u * theta_) + u**2) / rho**2
+        values = 1. - (u_ * (u_ - 2. * u * theta_) + u**2) / rho**2
         values[:, -1] = 0.
         if values[-1, 0] < 0.:
             values[-1, 0] = 0.
@@ -501,7 +504,7 @@ class PointLens(object):
                 values[-1, 1] = .5 * values[-1, 2]  # errors above. Using
                 # math.fsum in "values = ..." doesn't help in all cases.
         if np.any(values < 0.):
-            if u/rho < 5.:
+            if u / rho < 5.:
                 raise ValueError(
                     "PointLens.get_point_lens_LD_integrated_magnification() " +
                     "unexpected error for:\nu = {:}\n".format(repr(u)) +
@@ -510,7 +513,7 @@ class PointLens(object):
                 message = (
                     "PointLens.get_point_lens_LD_integrated_magnification() " +
                     "warning! The arguments are strange: u/rho = " +
-                    "{:}.\nThere are numerical issues. You ".format(u/rho) +
+                    "{:}.\nThere are numerical issues. You ".format(u / rho) +
                     "can use other methods for such large u value.")
                 warnings.warn(message, UserWarning)
                 values[values < 0.] = 0.
@@ -549,13 +552,13 @@ class PointLens(object):
         if u == rho:
             u2 = u**2
             a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
-            return (2./u + (1.+u2) * a / u2) / np.pi
+            return (2. / u + (1. + u2) * a / u2) / np.pi
 
         if not PointLens._elliptic_files_read:
             self._read_elliptic_files()
 
-        a_1 = 0.5 * (u + rho) * (4. + (u-rho)**2)**.5 / rho**2
-        a_2 = -(u - rho) * (4. + 0.5 * (u**2-rho**2))
+        a_1 = 0.5 * (u + rho) * (4. + (u - rho)**2)**.5 / rho**2
+        a_2 = -(u - rho) * (4. + 0.5 * (u**2 - rho**2))
         a_2 /= (rho**2 * (4. + (u - rho)**2)**.5)
         a_3 = 2. * (u - rho)**2 * (1. + rho**2)
         a_3 /= (rho**2 * (u + rho) * (4. + (u - rho)**2)**.5)
@@ -569,7 +572,7 @@ class PointLens(object):
         x_3 = self._get_ellip3(n, k)
         (x_1, x_2) = (x_2, x_1)  # WM94 under Eq. 9 are inconsistent with GR80.
 
-        return (a_1*x_1 + a_2*x_2 + a_3*x_3) / np.pi
+        return (a_1 * x_1 + a_2 * x_2 + a_3 * x_3) / np.pi
 
     def _get_ellipk(self, k):
         """
@@ -660,7 +663,7 @@ class PointLens(object):
             if i == 0:
                 continue
             magnification[i] = self._get_magnification_WM94(
-                u=u, rho=a*self.parameters.rho)
+                u=u, rho=a * self.parameters.rho)
 
         cumulative_profile = gamma + (1. - gamma) * r2 - gamma * (1. - r2)**1.5
         d_cumulative_profile = cumulative_profile[1:] - cumulative_profile[:-1]

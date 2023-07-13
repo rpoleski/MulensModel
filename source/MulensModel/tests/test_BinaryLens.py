@@ -68,6 +68,31 @@ def test_vbbl_1():
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
 
+def test_vbbl_2():
+    """
+    Check VBBL magnification calculation for binary lens with finite source
+    that was producing wrong results for VBBL earlier than v3.5
+    """
+    x = [-2.8798499936424813, -2.87980198609534, -2.879750341503788]
+    y = [0.2603315602357186, 0.26034667859291694, 0.26036294250727565]
+    s = 0.3121409537799967
+    q = 0.0018654668855723224
+    rho = 0.002966662955047919
+
+    m_1 = 1. / (1. + q)
+    m_2 = q / (1. + q)
+    bl = mm.BinaryLens(m_1, m_2, s)
+    results = [bl.vbbl_magnification(x_, y_, rho) for (x_, y_) in zip(x, y)]
+    # VBBL 2.0.1 was returning:
+    # [1.345365452870409, 1.368843518228974, 1.3442156685350604]
+    # i.e., the second value was wrong.
+    # VBBL 3.5 returns:
+    # [1.3455151798453464, 1.3449680490180915, 1.344226470628085]
+    np.testing.assert_almost_equal(results[2], 1.344226470628085, decimal=5)
+    mean = (results[0] + results[2]) / 2
+    np.testing.assert_almost_equal(results[1], mean, decimal=4)
+
+
 def test_ac():
     """
     check basic magnification calculation using AdaptiveContouring

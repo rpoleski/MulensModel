@@ -1,28 +1,7 @@
-VBBinaryLensing 2.0.1
-
-Copyright 2021 Valerio Bozza
-
-GNU Lesser General Public License
-
-(full text of licences follows)
-
-[http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm](http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm)
-
-VBBL was written by Valerio Bozza and implements algorithm from his 2010 paper
-[(link)](https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract) which was further improved by [Bozza et al. (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract). Here we use version 2.0.1 of VBBL.
-
-This version of VBBL uses complex polynomial root solver by
-[Skowron and Gould 2012](https://arxiv.org/abs/1203.1034). See also
-[http://www.astrouw.edu.pl/~jskowron/cmplx_roots_sg/](http://www.astrouw.edu.pl/~jskowron/cmplx_roots_sg/).
-
-Please cite the above papers if the VBBL was used for your published research.
-
------------------------------------------------------------------------------
-
-                  GNU LESSER GENERAL PUBLIC LICENSE
+                   GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
- Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
@@ -184,4 +163,3 @@ whether future versions of the GNU Lesser General Public License shall
 apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.
-

@@ -3,7 +3,8 @@ import numpy as np
 from math import fsum, sqrt
 
 from MulensModel.binarylensimports import (
-    _vbbl_wrapped, _adaptive_contouring_wrapped, _vbbl_binary_mag_dark,
+    _vbbl_wrapped, _adaptive_contouring_wrapped,
+    _vbbl_binary_mag_dark, _vbbl_binary_mag_0,
     _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 import MulensModel as mm
 
@@ -333,7 +334,7 @@ class BinaryLens(object):
         Calculate point source magnification using VBBL fully
         """
         args = [self.separation, self.mass_2/self.mass_1, source_x, source_y]
-        return _vbbl_binary_mag(*[float(arg) for arg in args])
+        return _vbbl_binary_mag_0(*[float(arg) for arg in args])
 
     def _point_source_magnification(self, source_x, source_y):
         """

@@ -107,6 +107,11 @@ class MulensData(object):
         ``**kwargs``:
             Kwargs passed to np.loadtxt(). Works only if ``file_name`` is set.
 
+    You can print an instance of this class, which always provides label and
+    information on the total number of epochs and the number of bad epochs.
+    If applicable, additional information is provided: bandpass,
+    ephemerides file, color used for plotting, and errorbar scaling.
+
     .. _instructions:
         https://github.com/rpoleski/MulensModel/blob/master/documents/Horizons_manual.md
 
@@ -151,8 +156,43 @@ class MulensData(object):
         # Set up satellite properties (if applicable)
         self._ephemerides_file = ephemerides_file
 
+    def __repr__(self):
+        name = self._get_name()
+
+        out = "{:25} n_epochs ={:>5}, n_bad ={:>5}".format(
+            name+":", self.n_epochs, np.sum(self.bad))
+
+        if self.bandpass is not None:
+            out += ', band = {0}'.format(self.bandpass)
+
+        if self._ephemerides_file is not None:
+            out += ', eph_file = {0}'.format(self.ephemerides_file)
+
+        if 'color' in self.plot_properties:
+            out += ', color = {0}'.format(self.plot_properties['color'])
+
+        if self._errorbars_scale is not None:
+            out += ', Errorbar scaling:'
+            if self._errorbars_scale['factor'] is not None:
+                out += ' factor = {:}'.format(self._errorbars_scale['factor'])
+
+            if self._errorbars_scale['minimum'] is not None:
+                out += ' minimum = {:}'.format(
+                    self._errorbars_scale['minimum'])
+
+        return out
+
+    def _get_name(self):
+        """extract the name of dataset"""
+        if 'label' in self.plot_properties:
+            name = self.plot_properties['label']
+        else:
+            name = self._file_name
+
+        return name
+
     def _import_photometry(self, data_list, **kwargs):
-        """import time, brightnes, and its uncertainy"""
+        """import time, brightness, and its uncertainty"""
         # Import the photometry...
         if data_list is not None and self._file_name is not None:
             raise ValueError(
@@ -405,21 +445,29 @@ class MulensData(object):
 
         time_good = self.time[self.good] - subtract
         time_bad = self.time[self.bad] - subtract
+        y_good = y_value[self.good]
+        y_bad = y_value[self.bad]
 
         if show_errorbars:
-            container = self._plt_errorbar(time_good, y_value[self.good],
+            if np.any(y_err[self.good] < 0.):
+                warnings.warn("Cannot plot errorbars with negative values. "
+                              "Skipping dataset: " + self._get_name())
+                return
+            container = self._plt_errorbar(time_good, y_good,
                                            y_err[self.good], properties)
             if show_bad:
-                if 'color' in properties_bad or 'c' in properties_bad:
-                    pass
-                else:
+                if np.any(y_err[self.bad] < 0.):
+                    warnings.warn(
+                        "Cannot plot errorbars with negative values (bad "
+                        "data). Skipping dataset: " + self._get_name())
+                    return
+                if not ('color' in properties_bad or 'c' in properties_bad):
                     properties_bad['color'] = container[0].get_color()
 
-                self._plt_errorbar(time_bad, y_value[self.bad],
-                                   y_err[self.bad], properties_bad)
+                self._plt_errorbar(
+                    time_bad, y_bad, y_err[self.bad], properties_bad)
         else:
-            collection = self._plt_scatter(time_good, y_value[self.good],
-                                           properties)
+            collection = self._plt_scatter(time_good, y_good, properties)
             if show_bad:
                 change = True
                 keys = ['c', 'color', 'facecolor', 'facecolors', 'edgecolors']
@@ -427,7 +475,7 @@ class MulensData(object):
                     change &= key not in properties_bad
                 if change:
                     properties_bad['color'] = collection.get_edgecolor()
-                self._plt_scatter(time_bad, y_value[self.bad], properties_bad)
+                self._plt_scatter(time_bad, y_bad, properties_bad)
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
