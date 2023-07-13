@@ -776,6 +776,19 @@ class TestFSPLGradient(unittest.TestCase):
         """ Check that dA / drho is calculated correctly for dataset 1"""
         self._dA_drho_test(1)
 
+    def test_FSPL_Derivatives_tstar(self):
+        """ Make sure that FSPL Derivatives fails for models defined with
+        tstar """
+        model = mm.Model(
+            {'t_0': self.sfit_model.parameters.t_0,
+             'u_0': self.sfit_model.parameters.u_0,
+             't_E': self.sfit_model.parameters.t_E,
+             't_star': self.sfit_model.parameters.t_star})
+        fit = mm.FitData(model=model, dataset=self.datasets[0])
+
+        with self.assertRaises(KeyError):
+            fit.get_d_A_d_rho()
+
 
 # Tests to add:
 #
