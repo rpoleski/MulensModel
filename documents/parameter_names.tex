@@ -5,6 +5,7 @@
 \usepackage{pdflscape} % for landscape mode
 \usepackage{longtable}
 \usepackage{caption} % for captionsetup
+\usepackage{graphicx}
 
 \newcommand\MM{{\tt MulensModel}}
 
@@ -12,10 +13,17 @@
 \begin{document} % ########################################
 
 \begin{center}
+%\centering
+\includegraphics[width=0.5\textwidth]{logo/logoMM_crop_4_744x520.png}
+\end{center}
+
+\vspace*{3cm}
+
+\begin{center}
 {\LARGE Microlensing parameters in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Jun 2023
+last update: Jul 2023
 \end{center}
 
 \bigskip
@@ -82,6 +90,16 @@ Also note that there are properties of the microlensing events that are not cons
  \item methods used to calculate magnification -- \texttt{Model.set\_magnification\_methods},
  \item coordinates of space telescopes -- \texttt{Model.get\_satellite\_coords}.
 \end{itemize}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.58\textwidth]{images/orbit_parameters/Orbit1_svg}
+\rotatebox[origin=l]{90}{\tiny image by Lasunncty/WikiCommons, license: CC BY-SA 3.0}
+\caption{
+Definition of orbital angles. 
+For xallarap, the reference direction is the relative lens-source proper motion direction and the reference plane is the plane of the sky.
+}
+\end{figure}
 
 \end{document}
 
