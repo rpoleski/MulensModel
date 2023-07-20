@@ -1477,6 +1477,39 @@ class ModelParameters(object):
         self.parameters['xi_argument_of_latitude_reference'] = new_value
 
     @property
+    def xi_eccentricity(self):
+        """
+        *float*
+
+        The eccentricity of the xallarap orbit. Has to be in [0, 1) range.
+        """
+        return self.parameters['xi_eccentricity']
+
+    @xi_eccentricity.setter
+    def xi_eccentricity(self, new_value):
+        if new_value < 0. or new_value >= 1.:
+            raise ValueError('xallarap eccentricity has to be between 0 and 1')
+        self.parameters['xi_eccentricity'] = new_value
+
+    @property
+    def xi_omega_periapsis(self):
+        """
+        *float*
+
+        The argument of periapsis of the xallrap orbit, i.e., the angle
+        between the ascending node and periapsis measured in
+        the direction of motion.
+        The units are degrees.
+        """
+        return self.parameters['xi_omega_periapsis']
+
+    @xi_omega_periapsis.setter
+    def xi_omega_periapsis(self, new_value):
+        self._warn_if_angle_outside_reasonable_range(
+            new_value, 'xi_omega_periapsis')
+        self.parameters['xi_omega_periapsis'] = new_value
+
+    @property
     def t_0_1(self):
         """
         *float*
