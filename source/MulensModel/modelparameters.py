@@ -698,10 +698,22 @@ class ModelParameters(object):
                 msg = "{:} must be a scalar: {:}, {:}"
                 raise TypeError(msg.format(key, value, type(value)))
 
-        for name in ['x_caustic_in', 'x_caustic_out', 'q']:
+        for name in ['x_caustic_in', 'x_caustic_out']:
             if name in parameters.keys():
                 if parameters[name] < 0. or parameters[name] > 1.:
+                    msg = "Parameter {:} has to be in [0, 1] range, not {:}"
+                    raise ValueError(msg.format(name, parameters[name]))
+
+        for name in ['q']:
+            if name in parameters.keys():
+                if parameters[name] <= 0. or parameters[name] >= 1.:
                     msg = "Parameter {:} has to be in (0, 1) range, not {:}"
+                    raise ValueError(msg.format(name, parameters[name]))
+
+        for name in ['xi_eccentricity']:
+            if name in parameters.keys():
+                if parameters[name] < 0. or parameters[name] >= 1.:
+                    msg = "Parameter {:} has to be in [0, 1) range, not {:}"
                     raise ValueError(msg.format(name, parameters[name]))
 
         if 'shear_G' in parameters.keys():
@@ -719,8 +731,9 @@ class ModelParameters(object):
             if parameter in self.parameters:
                 self._set_time_quantity(parameter, self.parameters[parameter])
 
-        angle_parameters = ['alpha', 'xi_Omega_node', 'xi_inclination',
-                            'xi_argument_of_latitude_reference']
+        angle_parameters = [
+            'alpha', 'xi_Omega_node', 'xi_inclination',
+            'xi_argument_of_latitude_reference', 'xi_omega_periapsis']
         for parameter in angle_parameters:
             if parameter in self.parameters:
                 self._warn_if_angle_outside_reasonable_range(
