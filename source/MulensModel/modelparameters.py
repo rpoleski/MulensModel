@@ -413,11 +413,14 @@ class ModelParameters(object):
             'xi_inclination': {'width': 11, 'precision': 5, 'unit': 'deg',
                                'name': 'xallarap inclination'},
             'xi_Omega_node': {'width': 11, 'precision': 5, 'unit': 'deg',
-                              'name': 'xallarap Omega_node'},
+                              'name': 'xallarap Omega node'},
             'xi_argument_of_latitude_reference': {
                 'width': 11, 'precision': 5, 'unit': 'deg',
-                'name': 'xallarap argument_of latitude reference'},
-            't_0_xi': {'width': 13, 'precision': 5, 'unit': 'HJD'},  # XXX NAME?
+                'name': 'xallarap argument of latitude reference'},
+            'xi_eccentricity': {'width': 8, 'precision': 6,
+                                'name': 'xallarap eccentricity'},
+            'xi_omega_periapsis': {'width': 11, 'precision': 5, 'unit': 'deg',
+                                   'name': 'xallarap omega periapsis'},
         }
         # Add binary source parameters with the same settings.
         binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
@@ -437,7 +440,8 @@ class ModelParameters(object):
             'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
             'xi_period', 'xi_semimajor_axis', 'xi_inclination',
-            'xi_Omega_node', 'xi_argument_of_latitude_reference', 't_0_xi'
+            'xi_Omega_node', 'xi_argument_of_latitude_reference',
+            'xi_eccentricity', 'xi_omega_periapsis',
         ]
 
         variables = ''
