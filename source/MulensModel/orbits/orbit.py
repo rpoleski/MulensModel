@@ -40,33 +40,33 @@ class _OrbitAbstract(object):
             raise ValueError('Semimajor axis has to be positive.\n'
                              'Provided value: ' + str(semimajor_axis))
 
-    def _check_and_get_for_perihelion_epoch(
-            self, perihelion_epoch, argument_of_latitude_reference,
+    def _check_and_get_for_periapsis_epoch(
+            self, periapsis_epoch, argument_of_latitude_reference,
             epoch_reference):
         """
         Check if arguments properly define epoch of
-        the perihelion/ascending node passage
+        the periapsis/ascending node passage
         """
-        if perihelion_epoch is not None:
+        if periapsis_epoch is not None:
             if argument_of_latitude_reference is not None:
                 raise RuntimeError(
-                    "perihelion_epoch and argument_of_latitude_reference "
+                    "periapsis_epoch and argument_of_latitude_reference "
                     "cannot be both set")
             if epoch_reference is not None:
                 raise RuntimeError(
-                    "perihelion_epoch and epoch_reference cannot be both set")
-            return perihelion_epoch
+                    "periapsis_epoch and epoch_reference cannot be both set")
+            return periapsis_epoch
 
         if argument_of_latitude_reference is None or epoch_reference is None:
             raise RuntimeError("Not enough arguments to define the epoch of "
-                               "perihelion/ascending node")
+                               "periapsis/ascending node")
 
         u_reference = argument_of_latitude_reference * np.pi / 180.
-        return self._get_perihelion_epoch(u_reference, epoch_reference)
+        return self._get_periapsis_epoch(u_reference, epoch_reference)
 
     def _set_circular_orbit_parameters(self, period, semimajor_axis,
                                        Omega_node, inclination,
-                                       perihelion_epoch):
+                                       periapsis_epoch):
         """
         Set parameters that are used for circular orbits.
         """
@@ -75,7 +75,7 @@ class _OrbitAbstract(object):
         self._rotation_matrix = np.array([[math.cos(Omega), -math.sin(Omega)],
                                           [math.sin(Omega), math.cos(Omega)]])
         self._cos_inclination = math.cos(math.pi * inclination / 180.)
-        self._perihelion_epoch = perihelion_epoch
+        self._periapsis_epoch = periapsis_epoch
 
     def get_reference_plane_position(self, time):
         """
@@ -117,7 +117,7 @@ class _OrbitAbstract(object):
         Calculate mean anomaly, i.e., the one that is linear in time and
         typically indicated by M.
         """
-        anomaly = 2. * math.pi * (time - self._perihelion_epoch) / self._period
+        anomaly = 2. * math.pi * (time - self._periapsis_epoch) / self._period
         return anomaly
 
     def _get_normalized_anomaly_minus_pi_pi(self, anomaly):
@@ -179,34 +179,34 @@ class OrbitCircular(_OrbitAbstract):
         inclination: *float*
             Inclination of the orbit relative to plane of the sky.
 
-        perihelion_epoch: *float* or *None*
+        periapsis_epoch: *float* or *None*
             Epoch when body is in
-            the ascending node (perihelion is for eccentric orbits).
+            the ascending node (periapsis is for eccentric orbits).
             It's in days and usually you want to provide full BJD or HJD.
 
         argument_of_latitude_reference: *float* or *None*
             Argument of latitude (i.e., u = omega + nu(t_ref)) for
             *epoch_reference*, which together define
-            *perihelion_epoch* (omega).
+            *periapsis_epoch* (omega).
 
         epoch_reference: *float* or *None*
             Reference epoch that together with
             *argument_of_latitude_reference* defines
-            *perihelion_epoch* (omega).
+            *periapsis_epoch* (omega).
     """
     def __init__(self, period, semimajor_axis, Omega_node, inclination,
-                 perihelion_epoch=None,
+                 periapsis_epoch=None,
                  argument_of_latitude_reference=None, epoch_reference=None):
         self._period = period
         self._check_circular_orbit_parameters(semimajor_axis)
-        perihelion_epoch = self._check_and_get_for_perihelion_epoch(
-            perihelion_epoch, argument_of_latitude_reference, epoch_reference)
+        periapsis_epoch = self._check_and_get_for_periapsis_epoch(
+            periapsis_epoch, argument_of_latitude_reference, epoch_reference)
         self._set_circular_orbit_parameters(
-            period, semimajor_axis, Omega_node, inclination, perihelion_epoch)
+            period, semimajor_axis, Omega_node, inclination, periapsis_epoch)
 
-    def _get_perihelion_epoch(self, u_reference, epoch_reference):
+    def _get_periapsis_epoch(self, u_reference, epoch_reference):
         """
-        Calculate perihelion epoch based on
+        Calculate periapsis epoch based on
         the argument_of_latitude (u) at given epoch
         """
         time_shift = self._period * u_reference / (2. * np.pi)
@@ -257,37 +257,37 @@ class OrbitEccentric(_OrbitAbstract):
         omega_periapsis: *float*
             Argument of periapsis in degrees.
 
-        perihelion_epoch: *float* or *None*
-            Epoch when body is in perihelion.
+        periapsis_epoch: *float* or *None*
+            Epoch when body is in periapsis.
             It's in days and usually you want to provide full BJD or HJD.
 
         argument_of_latitude_reference: *float* or *None*
             Argument of latitude (i.e., u = omega + nu(t_ref)) for
             *epoch_reference*, which together define
-            *perihelion_epoch* (omega).
+            *periapsis_epoch* (omega).
 
         epoch_reference: *float* or *None*
             Reference epoch that together with
             *argument_of_latitude_reference* defines
-            *perihelion_epoch* (omega).
+            *periapsis_epoch* (omega).
 
     """
     def __init__(
             self, period, semimajor_axis, Omega_node, inclination,
-            eccentricity, omega_periapsis, perihelion_epoch=None,
+            eccentricity, omega_periapsis, periapsis_epoch=None,
             argument_of_latitude_reference=None, epoch_reference=None):
         self._period = period
         self._omega_periapsis = omega_periapsis * np.pi / 180.
         self._eccentricity = eccentricity
         self._check_circular_orbit_parameters(semimajor_axis)
-        perihelion_epoch = self._check_and_get_for_perihelion_epoch(
-            perihelion_epoch, argument_of_latitude_reference, epoch_reference)
+        periapsis_epoch = self._check_and_get_for_periapsis_epoch(
+            periapsis_epoch, argument_of_latitude_reference, epoch_reference)
         self._set_circular_orbit_parameters(
-            period, semimajor_axis, Omega_node, inclination, perihelion_epoch)
+            period, semimajor_axis, Omega_node, inclination, periapsis_epoch)
 
-    def _get_perihelion_epoch(self, u_reference, epoch_reference):
+    def _get_periapsis_epoch(self, u_reference, epoch_reference):
         """
-        Calculate perihelion epoch (omega) based on
+        Calculate periapsis epoch (omega) based on
         the argument_of_latitude (u) at given reference epoch
         """
         true_anomaly = u_reference - self._omega_periapsis

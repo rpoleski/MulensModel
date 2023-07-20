@@ -7,7 +7,7 @@ from MulensModel.orbits.orbit import Orbit, OrbitCircular, OrbitEccentric
 
 def test_1_circular():
     orbit = OrbitCircular(period=365., semimajor_axis=1., Omega_node=0.,
-                          inclination=0., perihelion_epoch=0.)
+                          inclination=0., periapsis_epoch=0.)
     position = orbit.get_orbital_plane_position(time=0.)
     assert_almost_equal(position, [1., 0.])
 
@@ -42,7 +42,7 @@ def test_5_time_vector_circular():
 def test_6_eccentric():
     orbit = OrbitEccentric(
         period=400., semimajor_axis=5., Omega_node=0., inclination=0.,
-        eccentricity=0.6, omega_periapsis=0., perihelion_epoch=100.)
+        eccentricity=0.6, omega_periapsis=0., periapsis_epoch=100.)
     position = orbit.get_orbital_plane_position(300.)
     assert_almost_equal(position, [-8., 0.])
 
@@ -83,7 +83,7 @@ def test_11_true_anomaly_huge_eccentricity():
 
 def test_12_Orbit_class_circular():
     orbit = Orbit(period=365., semimajor_axis=1., Omega_node=0.,
-                  inclination=0., perihelion_epoch=0.)
+                  inclination=0., periapsis_epoch=0.)
     position = orbit.get_orbital_plane_position(time=0.)
     assert_almost_equal(position, [1., 0.])
 
@@ -91,7 +91,7 @@ def test_12_Orbit_class_circular():
 def test_13_Orbit_class_eccentric():
     orbit = Orbit(
         period=400., semimajor_axis=100., Omega_node=0., inclination=0.,
-        eccentricity=0.9, omega_periapsis=0., perihelion_epoch=0.)
+        eccentricity=0.9, omega_periapsis=0., periapsis_epoch=0.)
     true_anomaly = orbit.get_true_anomaly_deg(5.)
     assert_almost_equal(true_anomaly, 101.28599627247006)
 
@@ -116,13 +116,13 @@ class Test_OrbitCircular_fail(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             OrbitCircular(
                 period=123., semimajor_axis=5., Omega_node=90., inclination=0.,
-                perihelion_epoch=2450000., epoch_reference=2450000.)
+                periapsis_epoch=2450000., epoch_reference=2450000.)
 
     def test_17_added_u(self):
         with self.assertRaises(RuntimeError):
             OrbitCircular(
                 period=123., semimajor_axis=5., Omega_node=90., inclination=0.,
-                perihelion_epoch=2450000., argument_of_latitude_reference=90.)
+                periapsis_epoch=2450000., argument_of_latitude_reference=90.)
 
 
 def test_18_OrbitEccentric_based_on_argument_of_latitude():
