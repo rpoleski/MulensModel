@@ -331,6 +331,36 @@ class ModelParameters(object):
             raise NotImplementedError('We have not yet implemented xallarap '
                                       'and multiple luminous sources')
 
+    def _check_valid_combination_1_source(self, keys):
+        """
+        Check that the user hasn't over-defined the ModelParameters.
+        """
+        # Make sure that there are no unwanted keys
+        allowed_keys = set((
+            't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
+            's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
+            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
+            'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
+            'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
+            'xi_argument_of_latitude_reference xi_eccentricity '
+            'xi_omega_periapsis t_0_xi').split())
+        difference = set(keys) - allowed_keys
+        if len(difference) > 0:
+            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
+            if set(keys).intersection(derived_1):
+                msg = ('You cannot set gamma, gamma_perp, ' +
+                       'or gamma_parallel. These are derived parameters. ' +
+                       'You can set ds_dt and dalpha_dt instead.\n')
+            else:
+                msg = ""
+            msg += 'Unrecognized parameters: {:}'.format(difference)
+            raise KeyError(msg)
+
+        if self._type['Cassan08']:
+            self._check_valid_combination_1_source_Cassan08(keys)
+        else:
+            self._check_valid_combination_1_source_standard(keys)
+
     def _check_types_for_Cassan08(self):
         """
         Check if Cassan08 is used and if so, then make sure that
@@ -642,36 +672,6 @@ class ModelParameters(object):
         if ('rho' in keys) and ('t_star' in keys):
             raise KeyError('Both rho and t_star cannot be defined for ' +
                            'Cassan 08 parameterization.')
-
-    def _check_valid_combination_1_source(self, keys):
-        """
-        Check that the user hasn't over-defined the ModelParameters.
-        """
-        # Make sure that there are no unwanted keys
-        allowed_keys = set((
-            't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
-            's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
-            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
-            'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
-            'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
-            'xi_argument_of_latitude_reference xi_eccentricity '
-            'xi_omega_periapsis t_0_xi').split())
-        difference = set(keys) - allowed_keys
-        if len(difference) > 0:
-            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
-            if set(keys).intersection(derived_1):
-                msg = ('You cannot set gamma, gamma_perp, ' +
-                       'or gamma_parallel. These are derived parameters. ' +
-                       'You can set ds_dt and dalpha_dt instead.\n')
-            else:
-                msg = ""
-            msg += 'Unrecognized parameters: {:}'.format(difference)
-            raise KeyError(msg)
-
-        if self._type['Cassan08']:
-            self._check_valid_combination_1_source_Cassan08(keys)
-        else:
-            self._check_valid_combination_1_source_standard(keys)
 
     def _check_valid_parameter_values(self, parameters):
         """
@@ -1374,24 +1374,6 @@ class ModelParameters(object):
         self._update_sources('t_0_kep', new)
 
     @property
-    def t_0_xi(self):
-        """
-        *float*
-
-        Reference epoch for xallarap orbit.
-        If not provided, then it defaults to :py:attr:`~t_0`.
-        """
-        # XXX check if model has xallarap
-        if 't_0_xi' not in self.parameters.keys():
-            return self.parameters['t_0']
-        else:
-            return self.parameters['t_0_xi']
-
-    @t_0_xi.setter
-    def t_0_xi(self, new_value):
-        self.parameters['t_0_xi'] = new_value
-
-    @property
     def xi_period(self):
         """
         *float*
@@ -1508,6 +1490,24 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(
             new_value, 'xi_omega_periapsis')
         self.parameters['xi_omega_periapsis'] = new_value
+
+    @property
+    def t_0_xi(self):
+        """
+        *float*
+
+        Reference epoch for xallarap orbit.
+        If not provided, then it defaults to :py:attr:`~t_0`.
+        """
+        # XXX check if model has xallarap
+        if 't_0_xi' not in self.parameters.keys():
+            return self.parameters['t_0']
+        else:
+            return self.parameters['t_0_xi']
+
+    @t_0_xi.setter
+    def t_0_xi(self, new_value):
+        self.parameters['t_0_xi'] = new_value
 
     @property
     def t_0_1(self):
