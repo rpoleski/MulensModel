@@ -460,7 +460,7 @@ def test_get_lc():
 
 def prepare_xallarap_test(
         xi_Omega_node=0., xi_argument_of_latitude_reference=0.,
-        t_0_xi=None):
+        t_0_xi=None, xi_eccentricity=None, xi_omega_periapsis=None):
     """
     prepare data for unit tests of xallarap models
     """
@@ -482,17 +482,33 @@ def prepare_xallarap_test(
         elif t_0_xi == "t_0+d_time":
             t_0_xi = t_0 + d_time
         xallarap['t_0_xi'] = t_0_xi
+    if xi_eccentricity is not None:
+        xallarap['xi_eccentricity'] = xi_eccentricity
+    if xi_omega_periapsis is not None:
+        xallarap['xi_omega_periapsis'] = xi_omega_periapsis
 
     model_1 = mm.Model(common)
     model_2 = mm.Model({**common, **xallarap})
     return (model_1, model_2, t_0, d_time, tau, u_0, xi_a)
 
-def test_xallarap_at_t_0():
+
+def test_xallarap_at_t_0_circular():
     """
-    Make sure that xallarap and non-xallarap 1L1S models produce
-    the same magnifications at t_0.
+    Make sure that xallarap circular and non-xallarap 1L1S models
+    produce the same magnifications at t_0.
     """
     (model_1, model_2, t_0) = prepare_xallarap_test()[:2+1]
+
+    assert model_1.get_magnification(t_0) == model_2.get_magnification(t_0)
+
+
+def test_xallarap_at_t_0_eccentric():
+    """
+    Make sure that xallarap eccentric and non-xallarap 1L1S models
+    produce the same magnifications at t_0.
+    """
+    kwargs = {'xi_eccentricity': 0.5, 'xi_omega_periapsis': 12.3456}
+    (model_1, model_2, t_0) = prepare_xallarap_test(**kwargs)[:2+1]
 
     assert model_1.get_magnification(t_0) == model_2.get_magnification(t_0)
 
