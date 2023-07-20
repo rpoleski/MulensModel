@@ -616,6 +616,13 @@ class ModelParameters(object):
             if parameter not in keys:
                 raise KeyError(parameter)
 
+        allowed = set(['xi_eccentricity', 'xi_omega_periapsis'])
+        n_used = len(set(keys).intersection(allowed))
+        if n_used not in [0, len(allowed)]:
+            raise KeyError(
+                'Error in defining xi_eccentricity and xi_omega_periapsis. '
+                'Both of them or neither should be defined.')
+
     def _check_valid_combination_1_source_Cassan08(self, keys):
         """
         Check parameters defined for Cassan 2008 parameterization.
