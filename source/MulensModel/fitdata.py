@@ -991,12 +991,12 @@ class FitData(object):
                 # which is bad.
                 magnification_curve = MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
-                    parallax=self.model._parallax, coords=self.model.coords,
+                    parallax=self.model.get_parallax(), coords=self.model.coords,
                     satellite_skycoord=self._dataset_satellite_skycoord,
                     gamma=self.gamma)
                 magnification_curve.set_magnification_methods(
                     self.model._methods,
-                    self.model._default_magnification_method)
+                    self.model.default_magnification_method)
                 magnification_curve.set_magnification_methods_parameters(
                     self.model._methods_parameters)
 

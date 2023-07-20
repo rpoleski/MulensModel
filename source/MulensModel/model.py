@@ -884,7 +884,29 @@ class Model(object):
                 Name of the method to be used.
 
         """
-        self._default_magnification_method = method
+        warnings.warn(
+            "set_default_magnification_method() is DEPRECATED. Use default_" +
+            "magnification_method() instead.")
+        self.default_magnification_method(method)
+
+    @property
+    def default_magnification_method(self):
+        """
+        Stores information on method to be used, when no method is
+        directly specified. See
+        :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        for a list of implemented methods.
+
+        Parameters:
+            method: *str*
+                Name of the method to be used.
+
+        """
+        return self._default_magnification_method
+
+    @default_magnification_method.setter
+    def default_magnification_method(self, new_method):
+        self._default_magnification_method = new_method
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
