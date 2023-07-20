@@ -389,7 +389,7 @@ xallarap_parameters = {
     't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
     'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
     'xi_inclination': 9.8765, 'xi_argument_of_latitude_reference': 24.68,
-    't_0_xi': 1.}
+    'xi_eccentricity': 0.5, 'xi_omega_periapsis': 12.3456, 't_0_xi': 1.}
 
 
 def setup_xallarap(key):
@@ -401,7 +401,8 @@ def setup_xallarap(key):
 
 
 tested_keys_1 = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
-                 'xi_inclination', 'xi_argument_of_latitude_reference']
+                 'xi_inclination', 'xi_argument_of_latitude_reference',
+                 'xi_eccentricity', 'xi_omega_periapsis']
 tested_keys_2 = tested_keys_1 + ['t_0_xi']
 
 
