@@ -579,7 +579,7 @@ def test_xallarap_at_t_0_plus_half_of_period_5():
 
 def test_xallarap_at_t_0_plus_half_of_period_6_eccentric():
     """
-    Extremly eccentric xallarap orbit checked half period later
+    Extremely eccentric xallarap orbit checked half period later
     """
     kwargs = {'xi_eccentricity': 0.999, 'xi_omega_periapsis': 0.}
     (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(**kwargs)[1:]
@@ -591,7 +591,7 @@ def test_xallarap_at_t_0_plus_half_of_period_6_eccentric():
 
 def test_xallarap_at_t_0_plus_half_of_period_7_eccentric():
     """
-    Extremly eccentric xallarap orbit with Omega=270 checked half period later
+    Extremely eccentric xallarap orbit with Omega=270 checked half period later
     """
     kwargs = {'xi_eccentricity': 0.999, 'xi_omega_periapsis': 0.,
               'xi_Omega_node': 270.}

@@ -1512,7 +1512,6 @@ class ModelParameters(object):
         Reference epoch for xallarap orbit.
         If not provided, then it defaults to :py:attr:`~t_0`.
         """
-        # XXX check if model has xallarap
         if 't_0_xi' not in self.parameters.keys():
             return self.parameters['t_0']
         else:
