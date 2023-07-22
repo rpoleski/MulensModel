@@ -10,7 +10,7 @@ def test_1_circular():
     circular orbit - simples calculation
     """
     orbit = OrbitCircular(period=365., semimajor_axis=1., Omega_node=0.,
-                          inclination=0., periapsis_epoch=0.)
+                          inclination=0., ascending_node_epoch=0.)
     position = orbit.get_orbital_plane_position(time=0.)
     assert_almost_equal(position, [1., 0.])
 
@@ -119,7 +119,7 @@ def test_12_Orbit_class_circular():
     Orbit class and simplest calculation for circular orbit
     """
     orbit = Orbit(period=365., semimajor_axis=1., Omega_node=0.,
-                  inclination=0., periapsis_epoch=0.)
+                  inclination=0., ascending_node_epoch=0.)
     position = orbit.get_orbital_plane_position(time=0.)
     assert_almost_equal(position, [1., 0.])
 
@@ -164,7 +164,7 @@ class Test_OrbitCircular_fail(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             OrbitCircular(
                 period=123., semimajor_axis=5., Omega_node=90., inclination=0.,
-                periapsis_epoch=2450000., epoch_reference=2450000.)
+                ascending_node_epoch=2450000., epoch_reference=2450000.)
 
     def test_17_added_u(self):
         """
@@ -173,7 +173,8 @@ class Test_OrbitCircular_fail(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             OrbitCircular(
                 period=123., semimajor_axis=5., Omega_node=90., inclination=0.,
-                periapsis_epoch=2450000., argument_of_latitude_reference=90.)
+                ascending_node_epoch=2450000.,
+                argument_of_latitude_reference=90.)
 
 
 def test_18_OrbitEccentric_based_on_argument_of_latitude():
