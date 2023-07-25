@@ -1,4 +1,6 @@
 import unittest
+import warnings
+import pytest
 import numpy as np
 
 from astropy import units as u
@@ -440,3 +442,149 @@ class TestParameters(unittest.TestCase):
             parameters.convergence_K
         with self.assertRaises(KeyError):
             parameters.shear_G = 0.
+
+
+xallarap_parameters = {
+    't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+    'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
+    'xi_inclination': 9.8765, 'xi_argument_of_latitude_reference': 24.68,
+    'xi_eccentricity': 0.5, 'xi_omega_periapsis': 12.3456, 't_0_xi': 1.}
+
+
+def setup_xallarap(key):
+    """
+    Setup for xallarap tests.
+    """
+    model = mm.ModelParameters(xallarap_parameters)
+    return (model, xallarap_parameters[key])
+
+
+tested_keys_1 = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
+                 'xi_inclination', 'xi_argument_of_latitude_reference',
+                 'xi_eccentricity', 'xi_omega_periapsis']
+tested_keys_2 = tested_keys_1 + ['t_0_xi']
+
+
+@pytest.mark.parametrize("key", tested_keys_2)
+def test_xallarap_set_value_1(key):
+    """
+    Check if xallarap settings of xallarap are correctly changed via dictionary
+    """
+    (model, value) = setup_xallarap(key)
+    new_value = 2.1234 * value
+    model.parameters[key] = new_value
+    assert model.parameters[key] == new_value
+    assert getattr(model, key) == new_value
+
+
+@pytest.mark.parametrize("key", tested_keys_2)
+def test_xallarap_set_value_2(key):
+    """
+    Check if xallarap settings are correctly changed via attribute
+    """
+    (model, value) = setup_xallarap(key)
+    new_value = 1.3579 * value
+    setattr(model, key, new_value)
+    assert model.parameters[key] == new_value
+    assert getattr(model, key) == new_value
+
+
+class TestXallarapErrors(unittest.TestCase):
+    def test_missing_xallarap_parameters(self):
+        """Make sure that the required xallarap parameters are all defined"""
+        for parameter in tested_keys_1:
+            parameters = {**xallarap_parameters}
+            parameters.pop(parameter)
+            with self.assertRaises(KeyError):
+                mm.ModelParameters(parameters)
+                print("Test failed (i.e. KeyError was not raised) for ",
+                      parameter)
+
+    def test_negative_period(self):
+        """
+        Make sure that period is positive
+        """
+        key = 'xi_period'
+        (model, value) = setup_xallarap(key)
+        new_value = -3.14 * value
+        with self.assertRaises(ValueError):
+            setattr(model, key, new_value)
+
+    def test_negative_semimajor_axis(self):
+        """
+        Make sure that period is positive
+        """
+        key = 'xi_semimajor_axis'
+        (model, value) = setup_xallarap(key)
+        new_value = -3.14 * value
+        with self.assertRaises(ValueError):
+            setattr(model, key, new_value)
+
+    def test_xallarap_and_binary_source(self):
+        """
+        Confirm that binary source and xallrap cannot be defined in
+        the same model
+        """
+        parameters = {
+            't_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9,
+            'xi_period': 12., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 10.,
+            'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
+        with self.assertRaises(NotImplementedError):
+            mm.ModelParameters(parameters)
+
+    def test_xallarap_and_Cassan08(self):
+        """
+        Confirm that xallrap and binary lens in Cassan 2008 parameterization
+        cannot be defined jointly
+        """
+        parameters = {
+            's': 1, 'q': 0.8, 'x_caustic_in': 0.1, 'x_caustic_out': 0.15,
+            't_caustic_in': 1000, 't_caustic_out': 2000.,
+            'xi_period': 12., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 10.,
+            'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.}
+        with self.assertRaises(NotImplementedError):
+            mm.ModelParameters(parameters)
+
+
+@pytest.mark.parametrize(
+    "parameter",
+    ['xi_Omega_node', 'xi_inclination', 'xi_argument_of_latitude_reference'])
+@pytest.mark.parametrize("value", [-361., 541.])
+def test_warnings_for_xallarap_angles(parameter, value):
+    """
+    Check if xallarap angles in somehow strange range give warning
+    """
+    parameters = {
+        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
+        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
+        't_0_xi': 1.}
+    parameters[parameter] = value
+
+    with warnings.catch_warnings(record=True) as warnings_:
+        warnings.simplefilter("always")
+        mm.ModelParameters(parameters)
+        assert len(warnings_) == 1
+        assert issubclass(warnings_[0].category, RuntimeWarning)
+
+
+def test_is_xallarap_1():
+    """
+    Make sure that .is_xallarap() returns True, when it should.
+    """
+    parameters = {
+        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
+        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
+        't_0_xi': 1.}
+    model_params = mm.ModelParameters(parameters)
+    assert model_params.is_xallarap
+
+
+def test_is_xallarap_2():
+    """
+    Check that is_xallarap() returns False for a (static) binary source model.
+    """
+    parameters = {'t_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9}
+    model_params = mm.ModelParameters(parameters)
+    assert not model_params.is_xallarap

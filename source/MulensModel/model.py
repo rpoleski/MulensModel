@@ -642,27 +642,35 @@ class Model(object):
         self._plt_plot(trajectory.x, trajectory.y, kwargs)
 
         if arrow:
-            if len(times) > 2:
-                index = int(len(times)/2)
-            else:
-                index = 0
-            x_0 = trajectory.x[index]
-            y_0 = trajectory.y[index]
-            d_x = trajectory.x[index+1] - x_0
-            d_y = trajectory.y[index+1] - y_0
-            dd = 1e6 * (d_x*d_x + d_y*d_y)**.5
+            self._plot_arrow(times, trajectory, kwargs, arrow_kwargs)
 
-            xlim = plt.xlim()
-            ylim = plt.ylim()
-            width = np.abs(xlim[1]-xlim[0]) * np.abs(ylim[1]-ylim[0])
-            width = width**.5 / 100.
+    def _plot_arrow(self, times, trajectory, kwargs, arrow_kwargs):
+        """
+        Plot arrow for given trajectory.
+        """
+        width_scaling_factor = 0.01
+        if len(times) > 2:
+            index = int(len(times)/2)
+        else:
+            index = 0
 
-            color = kwargs.get('color', 'black')
-            kwargs_ = {'width': width, 'color': color, 'lw': 0,
-                       'zorder': -np.inf}
-            if arrow_kwargs is not None:
-                kwargs_.update(arrow_kwargs)
-            plt.arrow(x_0, y_0, d_x/dd, d_y/dd, **kwargs_)
+        x_0 = trajectory.x[index]
+        y_0 = trajectory.y[index]
+        d_x = trajectory.x[index+1] - x_0
+        d_y = trajectory.y[index+1] - y_0
+        dd = 1e6 * (d_x*d_x + d_y*d_y)**.5
+
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        width = np.abs(xlim[1]-xlim[0]) * np.abs(ylim[1]-ylim[0])
+        width = width**.5 * width_scaling_factor
+
+        color = kwargs.get('color', 'black')
+        kwargs_ = {'width': width, 'color': color, 'lw': 0, 'zorder': -np.inf}
+        if arrow_kwargs is not None:
+            kwargs_.update(arrow_kwargs)
+
+        plt.arrow(x_0, y_0, d_x/dd, d_y/dd, **kwargs_)
 
     def plot_source(self, times=None, **kwargs):
         """

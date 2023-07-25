@@ -621,6 +621,22 @@ class TestGetResiduals(unittest.TestCase):
         almost(res_errors, self.dataset.err_mag)
 
 
+class TestGradient(unittest.TestCase):
+    def test_no_gradient_for_xallarap(self):
+        """
+        Make sure that gradient for xallarap models in not implemented.
+        """
+        data = mm.MulensData(file_name=SAMPLE_FILE_02)
+        model = mm.Model({
+            't_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+            'xi_period': 100., 'xi_semimajor_axis': 0.5, 'xi_Omega_node': 90.,
+            'xi_inclination': 90., 'xi_argument_of_latitude_reference': 90.})
+        fit = mm.FitData(model, data)
+
+        with self.assertRaises(NotImplementedError):
+            fit.get_chi2_gradient(['t_0', 'u_0', 't_E'])
+
+
 # Tests to add:
 #
 # test get_chi2_gradient(), chi2_gradient:

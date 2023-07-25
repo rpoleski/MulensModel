@@ -7,6 +7,7 @@ from astropy.time import Time
 from MulensModel import utils
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.coordinates import Coordinates
+from MulensModel.orbits.orbit import Orbit
 
 
 class Trajectory(object):
@@ -151,24 +152,15 @@ class Trajectory(object):
                       self.parameters.t_E)
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
 
-        # If parallax is non-zero, apply parallax effects:
         if self.parameters.pi_E is not None:
-            if self.coords is None:
-                raise ValueError("You're trying to calculate trajectory in " +
-                                 "a parallax model, but event sky " +
-                                 "coordinates were not provided.")
+            shifts = self._get_shifts_parralax()
+            vector_tau += shifts[0]
+            vector_u += shifts[1]
 
-            keys = ['earth_orbital', 'satellite', 'topocentric']
-            if set([self.parallax[k] for k in keys]) == set([False]):
-                raise ValueError(
-                    'If pi_E value is provided then at least one value ' +
-                    'of parallax dict has to be True ' +
-                    '(earth_orbital, satellite, or topocentric)')
-
-            self._calculate_delta_N_E()
-            [delta_tau, delta_u] = self._project_delta()
-            vector_tau += delta_tau
-            vector_u += delta_u
+        if self.parameters.is_xallarap:
+            shifts = self._get_shifts_xallarap()
+            vector_tau += shifts[0]
+            vector_u += shifts[1]
 
         # If 2 lenses, rotate trajectory relative to binary lens axis
         is_mass_sheet = self.parameters.is_external_mass_sheet_with_shear
@@ -195,6 +187,23 @@ class Trajectory(object):
 
         self._x = vector_x
         self._y = vector_y
+
+    def _get_shifts_parralax(self):
+        """calculate shifts caused by parallax effect"""
+        if self.coords is None:
+            raise ValueError(
+                "You're trying to calculate trajectory in a parallax model, "
+                "but event sky coordinates were not provided.")
+
+        keys = ['earth_orbital', 'satellite', 'topocentric']
+        if set([self.parallax[k] for k in keys]) == set([False]):
+            raise ValueError(
+                'If pi_E value is provided then at least one value of '
+                'parallax dict has to be True '
+                '(earth_orbital, satellite, or topocentric)')
+
+        self._calculate_delta_N_E()
+        return self._project_delta()
 
     def _calculate_delta_N_E(self):
         """
@@ -303,3 +312,15 @@ class Trajectory(object):
 
         Trajectory._get_delta_satellite_results[index] = delta_satellite
         return delta_satellite
+
+    def _get_shifts_xallarap(self):
+        """calculate shifts caused by xallarap effect"""
+        zip_ = self.parameters.parameters.items()
+        t_0_xi = self.parameters.t_0_xi
+        orbit_parameters = {
+            key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
+        orbit_parameters['epoch_reference'] = t_0_xi
+        orbit = Orbit(**orbit_parameters)
+        reference_position = orbit.get_reference_plane_position(t_0_xi)
+        positions = orbit.get_reference_plane_position(self.times)
+        return positions - reference_position.reshape((2, 1))

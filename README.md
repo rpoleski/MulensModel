@@ -6,16 +6,16 @@
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
-[Latest release: 2.16.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 2.17.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best-fit parameters.
 
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
 
 Currently, MulensModel supports:
-* Lens Systems: point lens or binary lens. **New: shear and convergence allowed for both point and binary lenses.**
-* Source Stars: single source or binary source. **Xallarap effect is currently developed:** [see this branch](https://github.com/rpoleski/MulensModel/tree/xal).
-* Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion, different parametrizations of microlensing models.
+* Lens Systems: point lens or binary lens. Shear and convergence allowed for both point and binary lenses.
+* Source Stars: single source or binary source.
+* Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion, **xallarap effect (new)**, different parametrizations of microlensing models.
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues), start [a discussion](https://github.com/rpoleski/MulensModel/discussions), or send us an e-mail. 
 
