@@ -588,3 +588,20 @@ def test_is_xallarap_2():
     parameters = {'t_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9}
     model_params = mm.ModelParameters(parameters)
     assert not model_params.is_xallarap
+
+
+def test_xallarap_n_sources():
+    """
+    Make sure that number of sources in xallarap models is properly calculated
+    """
+    parameters = {
+        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
+        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
+        't_0_xi': 1.}
+    model_1S = mm.ModelParameters(parameters)
+    assert model_1S.n_sources == 1
+
+    parameters['q_source'] = 1.
+    model_2S = mm.ModelParameters(parameters)
+    assert model_2S.n_sources == 2

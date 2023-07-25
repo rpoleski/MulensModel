@@ -217,7 +217,7 @@ class ModelParameters(object):
                 "as a parameter\ne.g., ModelParameters({'t_0': " +
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
-        self._count_sources(parameters.keys())
+        self._count_sources(set(parameters.keys()))
         self._count_lenses(parameters.keys())
         self._set_type(parameters.keys())
         self._check_types('alpha' in parameters.keys())
@@ -254,9 +254,11 @@ class ModelParameters(object):
         """How many sources there are?"""
         binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
                          't_star_1', 't_star_2']
-        common = set(binary_params).intersection(set(keys))
-        if len(common) == 0:
+        common = set(binary_params).intersection(keys)
+        if len(common) == 0 and 'q_source' not in keys:
             self._n_sources = 1
+        elif len(common) == 0 and 'q_source' in keys:
+            self._n_sources = 2
         elif len(common) == 1:
             raise ValueError('Wrong parameters - the only binary source ' +
                              'parameter is {:}'.format(common))
@@ -269,6 +271,7 @@ class ModelParameters(object):
                 raise ValueError(
                     'Given binary source parameters do not allow defining ' +
                     'the Model: {:}'.format(common))
+
             self._n_sources = 2
 
     def _count_lenses(self, keys):
@@ -327,10 +330,6 @@ class ModelParameters(object):
                     'You defined alpha for single lens model '
                     'without external mass sheet. This is not allowed.')
 
-        if n_sources > 1 and self._type['xallarap']:
-            raise NotImplementedError('We have not yet implemented xallarap '
-                                      'and multiple luminous sources')
-
     def _check_valid_combination_1_source(self, keys):
         """
         Check that the user hasn't over-defined the ModelParameters.
@@ -343,7 +342,7 @@ class ModelParameters(object):
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
             'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
             'xi_argument_of_latitude_reference xi_eccentricity '
-            'xi_omega_periapsis t_0_xi').split())
+            'xi_omega_periapsis t_0_xi q_source').split())
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
@@ -388,6 +387,7 @@ class ModelParameters(object):
         """
         separate_parameters = (
             't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
+        skipped_parameters = ['q_source']
         parameters_1 = {}
         parameters_2 = {}
         for (key, value) in parameters.items():
@@ -398,6 +398,8 @@ class ModelParameters(object):
                     parameters_2[key[:-2]] = value
                 else:
                     raise ValueError('unexpected error')
+            elif key in skipped_parameters:
+                continue # XXX change parameters here
             else:
                 parameters_1[key] = value
                 parameters_2[key] = value
