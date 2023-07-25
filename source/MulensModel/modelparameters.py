@@ -437,6 +437,9 @@ class ModelParameters(object):
         if 'ds_dt' in keys or 'dalpha_dt' in keys:
             keys |= {'t_0_kep'}
 
+        if self.is_xallarap:
+            keys |= {'t_0_xi'}
+
         return keys
 
     def _get_formats_dict_for_repr(self):
