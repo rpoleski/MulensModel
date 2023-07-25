@@ -399,10 +399,15 @@ class ModelParameters(object):
                 else:
                     raise ValueError('unexpected error')
             elif key in skipped_parameters:
-                continue # XXX change parameters here
+                continue
             else:
                 parameters_1[key] = value
                 parameters_2[key] = value
+
+        if self.n_sources == 2 and self._type['xallarap']:
+            parameters_2['xi_semimajor_axis'] *= parameters['q_source']
+            parameters_2['xi_argument_of_latitude_reference'] += 180.
+
         return (parameters_1, parameters_2)
 
     def __repr__(self):

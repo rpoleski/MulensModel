@@ -112,6 +112,7 @@ def test_repr_t_0_par():
 
     assert (out_1 + out_2) == str(params)
 
+
 def test_repr_t_0_kep():
     """
     Make sure that t_0_kep is printed properly if provided directly.
@@ -122,15 +123,17 @@ def test_repr_t_0_kep():
     s = 1.0
     q = 0.003
     alpha = 30.
-    params = mm.ModelParameters(
-        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
-         'ds_dt': 0.47, 'dalpha_dt': 3.14,
+    params = mm.ModelParameters({
+        't_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
+        'ds_dt': 0.47, 'dalpha_dt': 3.14,
         't_0_kep': t_0+1})
 
-    out_1 = ("    t_0 (HJD)       u_0    t_E (d)         s            q alpha (deg) ds/dt (/yr) dalpha/dt (deg/yr) "
-             "t_0_kep (HJD) \n")
-    out_2 = ("2456145.00000  0.010000    62.6300   1.00000   0.00300000    30.00000     0.47000            3.14000 "
-             "2456146.00000 ")
+    out_1 = (
+        "    t_0 (HJD)       u_0    t_E (d)         s            q alpha (deg)"
+        " ds/dt (/yr) dalpha/dt (deg/yr) t_0_kep (HJD) \n")
+    out_2 = (
+        "2456145.00000  0.010000    62.6300   1.00000   0.00300000    30.00000"
+        "     0.47000            3.14000 2456146.00000 ")
 
     assert (out_1 + out_2) == str(params)
 
@@ -605,3 +608,31 @@ def test_xallarap_n_sources():
     parameters['q_source'] = 1.
     model_2S = mm.ModelParameters(parameters)
     assert model_2S.n_sources == 2
+
+
+def test_2S1L_xallarap_individual_source_parameters():
+    """
+    Make sure that parameters of both sources are properly set.
+    Most importantly, xi_u is shifted by 180 deg and xi_a is scaled by
+    q_source.
+    """
+    q_source = 1.23456
+    parameters_1st = {
+        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
+        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
+        't_0_xi': 1.}
+
+    parameters_2nd = {**parameters_1st}
+    parameters_2nd['xi_semimajor_axis'] *= q_source
+    parameters_2nd['xi_argument_of_latitude_reference'] += 180.
+
+    parameters = {**parameters_1st, 'q_source': q_source}
+    model = mm.Model(parameters)
+    check_1st = model.parameters.source_1_parameters.as_dict()
+    check_1st['t_E'] = check_1st['t_E'].value
+    check_2nd = model.parameters.source_2_parameters.as_dict()
+    check_2nd['t_E'] = check_2nd['t_E'].value
+
+    assert check_1st == parameters_1st
+    assert check_2nd == parameters_2nd
