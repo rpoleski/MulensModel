@@ -405,7 +405,27 @@ class ModelParameters(object):
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
+        keys = self._get_keys_for_repr()
+        formats = self._get_formats_dict_for_repr()
+        ordered_keys = self._get_ordered_keys_for_repr()
 
+        variables = ''
+        values = ''
+        for key in ordered_keys:
+            if key not in keys:
+                continue
+            (full_name, value) = self._get_values_for_repr(formats[key], key)
+            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key],
+                                                        full_name)
+            variables += fmt_1.format(full_name)
+            values += fmt_2.format(value)
+
+        return '{0}\n{1}'.format(variables, values)
+
+    def _get_keys_for_repr(self):
+        """
+        get all the keys that will be printed
+        """
         keys = set(self.parameters.keys())
         if 'pi_E' in keys:
             keys.remove('pi_E')
@@ -417,6 +437,12 @@ class ModelParameters(object):
         if 'ds_dt' in keys or 'dalpha_dt' in keys:
             keys |= {'t_0_kep'}
 
+        return keys
+
+    def _get_formats_dict_for_repr(self):
+        """
+        define formats that define how to print the numbers
+        """
         # Below we define dict of dicts. Key of inner ones: 'width',
         # 'precision', and optional: 'unit' and 'name'.
         formats = {
@@ -473,6 +499,12 @@ class ModelParameters(object):
             if 'name' in form:
                 raise KeyError('internal issue: {:}'.format(key))
 
+        return formats
+
+    def _get_ordered_keys_for_repr(self):
+        """
+        define the default order of parameters
+        """
         ordered_keys = [
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
@@ -483,19 +515,7 @@ class ModelParameters(object):
             'xi_Omega_node', 'xi_argument_of_latitude_reference',
             'xi_eccentricity', 'xi_omega_periapsis', 't_0_xi'
         ]
-
-        variables = ''
-        values = ''
-        for key in ordered_keys:
-            if key not in keys:
-                continue
-            (full_name, value) = self._get_values_for_repr(formats[key], key)
-            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key],
-                                                        full_name)
-            variables += fmt_1.format(full_name)
-            values += fmt_2.format(value)
-
-        return '{0}\n{1}'.format(variables, values)
+        return ordered_keys
 
     def _get_values_for_repr(self, form, key):
         """

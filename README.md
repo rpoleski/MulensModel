@@ -62,4 +62,4 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
 [![Coverage Status](https://codecov.io/gh/rpoleski/MulensModel/branch/master/graph/badge.svg)](https://codecov.io/gh/rpoleski/MulensModel)
 
-file revised May 2023
+file revised Jul 2023
