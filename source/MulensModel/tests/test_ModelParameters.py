@@ -631,11 +631,15 @@ def test_2S1L_xallarap_individual_source_parameters():
 
 
 tested_keys_3 = tested_keys_2 + ['q_source']
-@pytest.mark.parametrize("key", tested_keys_2) # XXX TO BE CHANGE TO _3
+@pytest.mark.parametrize("key", tested_keys_3)
+
+
 def test_changes_of_xallrap_parameters_for_both_sources(key):
     """
     Make sure that chainging a xallarap parameter in a binary source event
     with binary sources model properly changes parameters of each parameter.
+    For q_source make sure that it actually it's not passed to the parameters
+    of each source.
     """
     q_source = 1.23456
     factor = 1.1
@@ -646,6 +650,12 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
     setattr(model, key, new_value)
 
     assert getattr(model, key) == new_value
+
+    if key == 'q_source':
+        assert 'q_source' not in model.source_1_parameters.parameters
+        assert 'q_source' not in model.source_2_parameters.parameters
+        return
+
     assert getattr(model.source_1_parameters, key) == new_value
 
     new_value_2 = new_value

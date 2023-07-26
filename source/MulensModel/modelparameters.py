@@ -1575,6 +1575,22 @@ class ModelParameters(object):
         self._update_sources('t_0_xi', new_value)
 
     @property
+    def q_source(self):
+        """
+        *float*
+
+        The mass ratio of the second and the first source.
+        This is value must be positive and can be > 1.
+        Defined only for xallarap binary-source models because it does not
+        affect the magnification for binary-source models without xallrap.
+        """
+        return self.parameters['q_source']
+
+    @q_source.setter
+    def q_source(self, new_value):
+        self.parameters['q_source'] = new_value
+
+    @property
     def t_0_1(self):
         """
         *float*
