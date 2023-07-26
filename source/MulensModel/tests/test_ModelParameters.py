@@ -448,7 +448,7 @@ class TestParameters(unittest.TestCase):
 
 
 xallarap_parameters = {
-    't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+    't_0': 2., 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
     'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
     'xi_inclination': 9.8765, 'xi_argument_of_latitude_reference': 24.68,
     'xi_eccentricity': 0.5, 'xi_omega_periapsis': 12.3456, 't_0_xi': 1.}
@@ -458,7 +458,7 @@ def setup_xallarap(key):
     """
     Setup for xallarap tests.
     """
-    model = mm.ModelParameters(xallarap_parameters)
+    model = mm.ModelParameters({**xallarap_parameters})
     return (model, xallarap_parameters[key])
 
 
@@ -597,11 +597,7 @@ def test_xallarap_n_sources():
     """
     Make sure that number of sources in xallarap models is properly calculated
     """
-    parameters = {
-        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
-        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
-        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
-        't_0_xi': 1.}
+    parameters = {**xallarap_parameters}
     model_1S = mm.ModelParameters(parameters)
     assert model_1S.n_sources == 1
 
@@ -617,11 +613,7 @@ def test_2S1L_xallarap_individual_source_parameters():
     q_source.
     """
     q_source = 1.23456
-    parameters_1st = {
-        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
-        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
-        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
-        't_0_xi': 1.}
+    parameters_1st = {**xallarap_parameters}
 
     parameters_2nd = {**parameters_1st}
     parameters_2nd['xi_semimajor_axis'] *= q_source
