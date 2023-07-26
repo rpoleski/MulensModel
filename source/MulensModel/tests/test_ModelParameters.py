@@ -619,12 +619,39 @@ def test_2S1L_xallarap_individual_source_parameters():
     parameters_2nd['xi_semimajor_axis'] *= q_source
     parameters_2nd['xi_argument_of_latitude_reference'] += 180.
 
-    parameters = {**parameters_1st, 'q_source': q_source}
-    model = mm.Model(parameters)
-    check_1st = model.parameters.source_1_parameters.as_dict()
+    parameters = {'q_source': q_source, **parameters_1st}
+    model = mm.ModelParameters(parameters)
+    check_1st = model.source_1_parameters.as_dict()
     check_1st['t_E'] = check_1st['t_E'].value
-    check_2nd = model.parameters.source_2_parameters.as_dict()
+    check_2nd = model.source_2_parameters.as_dict()
     check_2nd['t_E'] = check_2nd['t_E'].value
 
     assert check_1st == parameters_1st
     assert check_2nd == parameters_2nd
+
+
+tested_keys_3 = tested_keys_2 + ['q_source']
+@pytest.mark.parametrize("key", tested_keys_2) # XXX TO BE CHANGE TO _3
+def test_changes_of_xallrap_parameters_for_both_sources(key):
+    """
+    Make sure that chainging a xallarap parameter in a binary source event
+    with binary sources model properly changes parameters of each parameter.
+    """
+    q_source = 1.23456
+    factor = 1.1
+    parameters = {'q_source': q_source, **xallarap_parameters}
+    model = mm.ModelParameters(parameters)
+    old_value = getattr(model, key)
+    new_value = factor * old_value
+    setattr(model, key, new_value)
+
+    assert getattr(model, key) == new_value
+    assert getattr(model.source_1_parameters, key) == new_value
+
+    new_value_2 = new_value
+    if key == 'xi_argument_of_latitude_reference':
+        new_value_2 += 180.
+    elif key == 'xi_semimajor_axis':
+        new_value_2 *= q_source
+
+    assert getattr(model.source_2_parameters, key) == new_value_2

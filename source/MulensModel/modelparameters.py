@@ -790,6 +790,11 @@ class ModelParameters(object):
         if parameter in self._source_1_parameters.parameters:
             setattr(self._source_1_parameters, parameter, value)
 
+        if parameter == 'xi_semimajor_axis':
+            value *= self.parameters['q_source']
+        elif parameter == 'xi_argument_of_latitude_reference':
+            value += 180.
+
         if parameter in self._source_2_parameters.parameters:
             setattr(self._source_2_parameters, parameter, value)
 
@@ -1440,6 +1445,7 @@ class ModelParameters(object):
         if new_value < 0.:
             raise ValueError('Xallarap period cannot be negative')
         self.parameters['xi_period'] = new_value
+        self._update_sources('xi_period', new_value)
 
     @property
     def xi_semimajor_axis(self):
@@ -1455,6 +1461,7 @@ class ModelParameters(object):
         if new_value < 0.:
             raise ValueError('Xallarap semimajor axis cannot be negative')
         self.parameters['xi_semimajor_axis'] = new_value
+        self._update_sources('xi_semimajor_axis', new_value)
 
     @property
     def xi_Omega_node(self):
@@ -1473,6 +1480,7 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(new_value,
                                                      'xi_Omega_node')
         self.parameters['xi_Omega_node'] = new_value
+        self._update_sources('xi_Omega_node', new_value)
 
     @property
     def xi_inclination(self):
@@ -1490,6 +1498,7 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(new_value,
                                                      'xi_inclination')
         self.parameters['xi_inclination'] = new_value
+        self._update_sources('xi_inclination', new_value)
 
     @property
     def xi_argument_of_latitude_reference(self):
@@ -1510,6 +1519,7 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(
             new_value, 'xi_argument_of_latitude_reference')
         self.parameters['xi_argument_of_latitude_reference'] = new_value
+        self._update_sources('xi_argument_of_latitude_reference', new_value)
 
     @property
     def xi_eccentricity(self):
@@ -1525,6 +1535,7 @@ class ModelParameters(object):
         if new_value < 0. or new_value >= 1.:
             raise ValueError('xallarap eccentricity has to be between 0 and 1')
         self.parameters['xi_eccentricity'] = new_value
+        self._update_sources('xi_eccentricity', new_value)
 
     @property
     def xi_omega_periapsis(self):
@@ -1543,6 +1554,7 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(
             new_value, 'xi_omega_periapsis')
         self.parameters['xi_omega_periapsis'] = new_value
+        self._update_sources('xi_omega_periapsis', new_value)
 
     @property
     def t_0_xi(self):
@@ -1560,6 +1572,7 @@ class ModelParameters(object):
     @t_0_xi.setter
     def t_0_xi(self, new_value):
         self.parameters['t_0_xi'] = new_value
+        self._update_sources('t_0_xi', new_value)
 
     @property
     def t_0_1(self):
