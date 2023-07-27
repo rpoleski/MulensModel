@@ -145,6 +145,19 @@ class TestSingleSourceFluxes(unittest.TestCase):
             fix_source_flux=1.2, fix_blend_flux=-0.5)
         self._run_arbitrary_values_test(fix_source_flux=1.7, fix_blend_flux=0.)
 
+    def test_data_magnification(self):
+        dataset = self.my_dataset.copy()
+        dataset.bad = (dataset.time < self.pspl.parameters.t_0)
+        magnification = np.zeros(len(dataset.time))
+        magnification[dataset.good] = self.pspl.get_magnification(
+            dataset.time[dataset.good])
+
+        my_fit = mm.FitData(model=self.pspl, dataset=dataset)
+        assert my_fit.data_magnification is None
+        my_fit.get_data_magnification()
+        np.testing.assert_equal(
+            my_fit.data_magnification, magnification)
+
 
 class TestBinarySourceFluxes(unittest.TestCase):
 
