@@ -945,20 +945,50 @@ class Model(object):
 
         self._methods_parameters = parameters
 
-    def set_limb_coeff_gamma(self, bandpass, coeff):
+    def get_magnification_methods_parameters(self, method):
         """
-        Store gamma limb darkening coefficient for given band. See
-        also
-        :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+        Get additional parameters for a specific magnification calculation
+        method or methods.
 
         Parameters :
-            bandpass: *str*
-                Bandpass for the coefficient you provide.
+            methods_parameters: *str*, *list*
 
-            coeff: *float*
-                Value of the coefficient.
-
+        Returns :
+            method_parameters: *dict*,
+                see :py:func:`set_magnification_methods_parameters`
         """
+        if isinstance(method, (str)):
+            parameters = {method.lower(): self._methods_parameters[method.lower()]}
+        else:
+            parameters = {key.lower(): self._methods_parameters[key.lower()]
+                          for key in method}
+
+        return parameters
+
+    @property
+    def methods_parameters(self):
+        """
+        Returns:
+            Dictionary of methods and their respective dictionaries
+                in the form of ``**kwargs`` that are passed to given method,
+                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
+        """
+        return self._methods_parameters
+
+    def set_limb_coeff_gamma(self, bandpass, coeff):
+        """
+           Store gamma limb darkening coefficient for given band. See
+           also
+           :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
+           Parameters :
+               bandpass: *str*
+                   Bandpass for the coefficient you provide.
+
+               coeff: *float*
+                   Value of the coefficient.
+
+           """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
         self._limb_darkening_coeffs.set_limb_coeff_gamma(bandpass, coeff)

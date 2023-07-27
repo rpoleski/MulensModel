@@ -225,75 +225,126 @@ def test_BLPS_02():
     almost(result, result_2)
 
 
-def test_BLPS_02_AC():
+class TestBLPS02AC(unittest.TestCase):
     """
     simple binary lens with extended source and different methods to evaluate
     magnification - version with adaptivecontouring
     """
 
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-        'q': q, 'rho': rho})
-    model = mm.Model(parameters=params)
+    def setUp(self):
+        t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
+        t += 2450000.
+        self.data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
 
-    t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
-    t += 2450000.
-    ac_name = 'Adaptive_Contouring'
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
-               ac_name, 2456117.5]
-    accuracy_1 = {'accuracy': 0.04}
-    accuracy_2 = {'accuracy': 0.01, 'ld_accuracy': 0.00001}
-    model.set_magnification_methods(methods)
-    model.set_magnification_methods_parameters({ac_name: accuracy_1})
+        ac_name = 'Adaptive_Contouring'
+        methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                   2456116.5,
+                   ac_name, 2456117.5]
+        accuracy_1 = {'accuracy': 0.04}
+        accuracy_2 = {'accuracy': 0.01, 'ld_accuracy': 0.00001}
 
-    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    result = model.get_magnification(data.time)
+        params = mm.ModelParameters({
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+            'q': q, 'rho': rho})
+        self.model_ac_1 = mm.Model(parameters=params)
+        self.model_ac_1.set_magnification_methods(methods)
+        self.model_ac_1.set_magnification_methods_parameters(
+            {ac_name: accuracy_1})
 
-    expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
-                         1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    almost(result, expected, decimal=3)
+        self.model_ac_2 = mm.Model(parameters=params)
+        # data.bandpass = 'I'
+        self.model_ac_2.set_limb_coeff_u('I', 10.)
+        # This is an absurd value but I needed something quick.
+        self.model_ac_2.set_magnification_methods(methods)
+        self.model_ac_2.set_magnification_methods_parameters(
+            {ac_name: accuracy_2})
 
-    # Below we test passing the limb coeff to VBBL function.
-    # data.bandpass = 'I'
-    model.set_limb_coeff_u('I', 10.)
-    # This is an absurd value but I needed something quick.
-    model.set_magnification_methods_parameters({ac_name: accuracy_2})
-    # result = model.data_magnification[0]
-    result = model.get_magnification(
-        data.time, gamma=model.get_limb_coeff_gamma('I'))
-    almost(result[5], 1.6366862, decimal=3)
+    def test_methods_parameters_1(self):
+        # test get_magnification_methods_parameters()
+        assert (self.model_ac_1.get_magnification_methods_parameters(
+            'Adaptive_Contouring') ==
+                {'adaptive_contouring': {'accuracy': 0.04}})
+        # test methods_parameters()
+        assert (self.model_ac_1.methods_parameters ==
+                {'adaptive_contouring': {'accuracy': 0.04}})
+
+    def test_mag_calculation_1(self):
+        # Test calculation:
+        result = self.model_ac_1.get_magnification(self.data.time)
+        expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
+                             1.61038135, 1.63603122, 1.69045492, 1.77012807])
+        almost(result, expected, decimal=3)
+
+    def test_methods_parameters_2(self):
+        # test get_magnification_methods_parameters()
+        assert (self.model_ac_2.get_magnification_methods_parameters(
+            'Adaptive_Contouring') ==
+                {'adaptive_contouring':
+                     {'accuracy': 0.01, 'ld_accuracy': 0.00001}})
+        # test methods_parameters()
+        assert (self.model_ac_2.methods_parameters ==
+                {'adaptive_contouring':
+                     {'accuracy': 0.01, 'ld_accuracy': 0.00001}})
+
+    def test_mag_calculation_2(self):
+        # Test calculation:
+        result = self.model_ac_2.get_magnification(
+            self.data.time, gamma=self.model_ac_2.get_limb_coeff_gamma('I'))
+        almost(result[5], 1.6366862, decimal=3)
 
 
-def test_methods_parameters():
+class TestMethodsParameters(unittest.TestCase):
     """
     make sure additional parameters are properly passed to very inner functions
     """
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-        'q': q, 'rho': rho})
-    model = mm.Model(parameters=params)
+    def setUp(self):
+        t = np.array([2456117.])
+        self.data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
 
-    t = np.array([2456117.])
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
-               'VBBL', 2456117.5]
-    model.set_magnification_methods(methods)
+        params = mm.ModelParameters({
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+            'q': q, 'rho': rho})
+        methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
+                   'VBBL', 2456117.5]
+        self.model_1 = mm.Model(parameters=params)
+        self.model_1.set_magnification_methods(methods)
 
-    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    result_1 = model.get_magnification(data.time)
+        vbbl_options_2 = {'accuracy': 0.1}
+        methods_parameters_2 = {'VBBL': vbbl_options_2}
+        self.model_2 = mm.Model(parameters=params)
+        self.model_2.set_magnification_methods(methods)
+        self.model_2.set_magnification_methods_parameters(methods_parameters_2)
 
-    vbbl_options = {'accuracy': 0.1}
-    methods_parameters = {'VBBL': vbbl_options}
-    model.set_magnification_methods_parameters(methods_parameters)
-    result_2 = model.get_magnification(data.time)
+        vbbl_options_3 = {'accuracy': 1.e-5}
+        methods_parameters_3 = {'VBBL': vbbl_options_3}
+        self.model_3 = mm.Model(parameters=params)
+        self.model_3.set_magnification_methods(methods)
+        self.model_3.set_magnification_methods_parameters(methods_parameters_3)
 
-    vbbl_options = {'accuracy': 1.e-5}
-    methods_parameters = {'VBBL': vbbl_options}
-    model.set_magnification_methods_parameters(methods_parameters)
-    result_3 = model.get_magnification(data.time)
+    def test_mag_calculations(self):
+        result_1 = self.model_1.get_magnification(self.data.time)
+        result_2 = self.model_2.get_magnification(self.data.time)
+        result_3 = self.model_3.get_magnification(self.data.time)
 
-    assert result_1[0] != result_2[0]
-    assert result_1[0] != result_3[0]
-    assert result_2[0] != result_3[0]
+        assert result_1[0] != result_2[0]
+        assert result_1[0] != result_3[0]
+        assert result_2[0] != result_3[0]
+
+    def test_methods_parameters(self):
+        assert (self.model_1.methods_parameters == {})
+        assert (self.model_2.methods_parameters ==
+                {'vbbl':  {'accuracy': 0.1}})
+        assert (self.model_3.methods_parameters ==
+                {'vbbl':  {'accuracy': 1.e-5}})
+
+    def test_get_magnification_methods_parameters(self):
+        with self.assertRaises(KeyError):
+            self.model_1.get_magnification_methods_parameters('vbbl')
+
+        assert (self.model_2.get_magnification_methods_parameters(
+            'vbbl') == {'vbbl': {'accuracy': 0.1}})
+        assert (self.model_3.get_magnification_methods_parameters(
+            'vbbl') == {'vbbl': {'accuracy': 1.e-5}})
 
 
 def test_caustic_for_orbital_motion():
