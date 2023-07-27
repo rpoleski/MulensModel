@@ -205,6 +205,11 @@ def test_BLPS_02():
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
                'VBBL', 2456117.5]
     model.set_magnification_methods(methods)
+    assert (model.default_magnification_method == 'point_source')
+    assert (model.methods ==
+            [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
+             'VBBL', 2456117.5])
+
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     result = model.get_magnification(data.time)
@@ -258,6 +263,17 @@ class TestBLPS02AC(unittest.TestCase):
         self.model_ac_2.set_magnification_methods(methods)
         self.model_ac_2.set_magnification_methods_parameters(
             {ac_name: accuracy_2})
+
+    def test_methods(self):
+        def test_model_methods(model):
+            assert (model.default_magnification_method == 'point_source')
+            assert (model.methods ==
+                    [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                     2456116.5,
+                     'Adaptive_Contouring', 2456117.5])
+
+        test_model_methods(self.model_ac_1)
+        test_model_methods(self.model_ac_2)
 
     def test_methods_parameters_1(self):
         # test get_magnification_methods_parameters()
@@ -320,6 +336,30 @@ class TestMethodsParameters(unittest.TestCase):
         self.model_3 = mm.Model(parameters=params)
         self.model_3.set_magnification_methods(methods)
         self.model_3.set_magnification_methods_parameters(methods_parameters_3)
+
+    def test_methods(self):
+        def test_model_methods(model):
+            assert (model.default_magnification_method == 'point_source')
+            assert (model.methods ==
+                    [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                     2456116.5,
+                     'VBBL', 2456117.5])
+
+        test_model_methods(self.model_1)
+        test_model_methods(self.model_2)
+        test_model_methods(self.model_3)
+
+    def test_get_magnification_methods(self):
+        assert (self.model_1.get_magnification_methods() ==
+                [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                 2456116.5,
+                 'VBBL', 2456117.5])
+        assert (self.model_1.get_magnification_methods(source=1) ==
+                [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                 2456116.5,
+                 'VBBL', 2456117.5])
+        with self.assertRaises(IndexError):
+            self.model_1.get_magnification_methods(source=2)
 
     def test_mag_calculations(self):
         result_1 = self.model_1.get_magnification(self.data.time)
@@ -427,6 +467,15 @@ def test_model_binary_and_finite_sources():
     model_2.set_magnification_methods(
         [t1, finite, t2, 'point_source', t3, finite, t4])
 
+    def test_model_methods(test_model):
+        assert (test_model.default_magnification_method == 'point_source')
+        assert (test_model.methods ==
+                [t1, finite, t2, 'point_source', t3, finite, t4])
+
+    test_model_methods(model)
+    test_model_methods(model_1)
+    test_model_methods(model_2)
+
     (f_s_1, f_s_2, f_b) = (100., 300., 50.)
     time = np.linspace(4900., 5200., 4200)
     mag_1 = model_1.get_magnification(time)
@@ -475,29 +524,49 @@ def test_binary_source_and_fluxes_for_bands():
     almost(result_V, effective_mag_V)
 
 
-def test_separate_method_for_each_source():
+class TestSeparateMethodForEachSource(unittest.TestCase):
     """
     Checks if setting separate magnification method for each source in
     binary source models works properly.
     """
-    model = mm.Model({'t_0_1': 5000., 'u_0_1': 0.01, 'rho_1': 0.005,
-                      't_0_2': 5100., 'u_0_2': 0.001, 'rho_2': 0.005,
-                      't_E': 1000.})
+    def setUp(self):
+        self.model = mm.Model({'t_0_1': 5000., 'u_0_1': 0.01, 'rho_1': 0.005,
+                          't_0_2': 5100., 'u_0_2': 0.001, 'rho_2': 0.005,
+                          't_E': 1000.})
 
-    model.set_magnification_methods(
-        [4999., 'finite_source_uniform_Gould94', 5101.], source=1)
-    # In order not to get "no FS method" warning:
-    model.set_magnification_methods(
-        [0., 'finite_source_uniform_Gould94', 1.], source=2)
-    out = model.get_magnification(5000., separate=True)
-    almost([out[0][0], out[1][0]], [103.46704167, 10.03696291])
+    def test_1(self):
+        self.model.set_magnification_methods(
+            [4999., 'finite_source_uniform_Gould94', 5101.], source=1)
+        # In order not to get "no FS method" warning:
+        self.model.set_magnification_methods(
+            [0., 'finite_source_uniform_Gould94', 1.], source=2)
+        out = self.model.get_magnification(5000., separate=True)
+        almost([out[0][0], out[1][0]], [103.46704167, 10.03696291])
+        assert self.model.default_magnification_method == 'point_source'
+        assert (self.model.methods[1] ==
+                [4999., 'finite_source_uniform_Gould94', 5101.])
+        assert (self.model.methods[2] ==
+                [0., 'finite_source_uniform_Gould94', 1.])
+        assert (self.model.get_magnification_methods(source=1) ==
+                [4999., 'finite_source_uniform_Gould94', 5101.])
+        assert (self.model.get_magnification_methods(source=2) ==
+                [0., 'finite_source_uniform_Gould94', 1.])
+        assert (self.model.get_magnification_methods() ==
+                {1: [4999., 'finite_source_uniform_Gould94', 5101.],
+                 2: [0., 'finite_source_uniform_Gould94', 1.]})
 
-    model.set_magnification_methods(
-        [4999., 'finite_source_uniform_Gould94', 5001.], source=1)
-    model.set_magnification_methods(
-        [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
-    out = model.get_magnification(5100., separate=True)
-    almost([out[0][0], out[1][0]], [9.98801936, 395.96963727])
+    def test_2(self):
+        self.model.set_magnification_methods(
+            [4999., 'finite_source_uniform_Gould94', 5001.], source=1)
+        self.model.set_magnification_methods(
+            [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
+        out = self.model.get_magnification(5100., separate=True)
+        almost([out[0][0], out[1][0]], [9.98801936, 395.96963727])
+        assert self.model.default_magnification_method == 'point_source'
+        assert (self.model.methods[1] ==
+                [4999., 'finite_source_uniform_Gould94', 5001.])
+        assert (self.model.methods[2] ==
+                [5099., 'finite_source_uniform_Gould94', 5101.])
 
 
 def test_get_lc():

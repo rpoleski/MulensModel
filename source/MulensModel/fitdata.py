@@ -995,7 +995,7 @@ class FitData(object):
                     satellite_skycoord=self._dataset_satellite_skycoord,
                     gamma=self.gamma)
                 magnification_curve.set_magnification_methods(
-                    self.model._methods,
+                    self.model.methods,
                     self.model.default_magnification_method)
                 magnification_curve.set_magnification_methods_parameters(
                     self.model.methods_parameters)

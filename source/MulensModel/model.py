@@ -845,9 +845,9 @@ class Model(object):
                       2455746.7, 'VBBL', 2455747., 'Hexadecapole',
                       2455747.15, 'Quadrupole', 2455748.]
 
-            source: *int* or *None*
-                Which source given methods apply to? Accepts 1, 2, or *None*
-                (i.e., all sources).
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*
         """
         if not isinstance(methods, list):
             raise TypeError('Parameter methods has to be a list.')
@@ -855,22 +855,54 @@ class Model(object):
             raise ValueError('In Model.set_magnification_methods() ' +
                              'the parameter source, has to be 1, 2 or None.')
 
-        if source is None:
+        if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
                 raise ValueError('You cannot set methods for all sources ' +
                                  'after setting them for a single source')
+
             self._methods = methods
         else:
             if isinstance(self._methods, list):
                 raise ValueError('You cannot set methods for a single ' +
                                  'source after setting them for all sources.')
+
             if source > self.n_sources:
                 msg = ('Cannot set methods for source {:} for model with ' +
                        'only {:} sources.')
                 raise ValueError(msg.format(source, self.n_sources))
+
             if self._methods is None:
                 self._methods = {}
             self._methods[source] = methods
+
+    def get_magnification_methods(self, source=None):
+        """
+        Gets methods used for magnification calculation. See
+        :py:func:`set_magnification_methods`
+
+        Parameters :
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*.
+        """
+        if (source is None):
+            return self.methods
+        elif (self.n_sources == 1):
+            if source > 1:
+                raise IndexError(
+                    'Your model only has 1 source, but you requested ' +
+                    'magnification methods for source {0}'.format(source))
+            else:
+                return self.methods
+
+        else:
+            return self.methods[source]
+
+    @property
+    def methods(self):
+        """*list* of methods used for magnification calculation or *dict* of
+        *lists* if there are multiple sources."""
+        return self._methods
 
     def set_default_magnification_method(self, method):
         """
