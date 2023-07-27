@@ -317,23 +317,23 @@ class TestMethodsParameters(unittest.TestCase):
         t = np.array([2456117.])
         self.data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
 
-        params = mm.ModelParameters({
+        self.params = mm.ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
             'q': q, 'rho': rho})
         methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
                    'VBBL', 2456117.5]
-        self.model_1 = mm.Model(parameters=params)
+        self.model_1 = mm.Model(parameters=self.params)
         self.model_1.set_magnification_methods(methods)
 
         vbbl_options_2 = {'accuracy': 0.1}
         methods_parameters_2 = {'VBBL': vbbl_options_2}
-        self.model_2 = mm.Model(parameters=params)
+        self.model_2 = mm.Model(parameters=self.params)
         self.model_2.set_magnification_methods(methods)
         self.model_2.set_magnification_methods_parameters(methods_parameters_2)
 
         vbbl_options_3 = {'accuracy': 1.e-5}
         methods_parameters_3 = {'VBBL': vbbl_options_3}
-        self.model_3 = mm.Model(parameters=params)
+        self.model_3 = mm.Model(parameters=self.params)
         self.model_3.set_magnification_methods(methods)
         self.model_3.set_magnification_methods_parameters(methods_parameters_3)
 
@@ -385,6 +385,14 @@ class TestMethodsParameters(unittest.TestCase):
             'vbbl') == {'vbbl': {'accuracy': 0.1}})
         assert (self.model_3.get_magnification_methods_parameters(
             'vbbl') == {'vbbl': {'accuracy': 1.e-5}})
+
+    def test_default_magnification_methods(self):
+        model = mm.Model(self.params)
+        assert model.default_magnification_method == 'point_source'
+        model.set_default_magnification_method('point_source_point_lens')
+        assert model.default_magnification_method == 'point_source_point_lens'
+        model.default_magnification_method = 'VBBL'
+        assert model.default_magnification_method == 'VBBL'
 
 
 def test_caustic_for_orbital_motion():
