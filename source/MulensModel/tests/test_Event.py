@@ -467,49 +467,6 @@ class TestChi2Gradient(unittest.TestCase):
         ratio = self.gradient['t_0'] / result
         np.testing.assert_almost_equal(ratio, 1., decimal=5)
 
-
-def _test_event_chi2_gradient_rho():
-    """
-    test calculation of chi2 gradient including finite source effects
-    MB08310 is used as an example
-    """
-    kwargs = {'comments': ["\\", "|"]}
-    datasets = [
-        mm.MulensData(file_name=SAMPLE_FILE_310_01, bandpass='R', **kwargs),
-        mm.MulensData(file_name=SAMPLE_FILE_310_02, bandpass='U', **kwargs),
-        mm.MulensData(file_name=SAMPLE_FILE_310_03, bandpass='I', **kwargs)]
-
-    (gamma_I, gamma_V) = (0.44, 0.72)
-    t_0 = 2454656.39975
-    u_0 = 0.00300
-    t_E = 11.14
-    rho = 0.00492549
-    t_star = rho * t_E
-    parameters = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho}
-    model = mm.Model(parameters)
-    method = 'finite_source_LD_Yoo04'
-    model.set_magnification_methods(
-        [t_0 - 2. * t_star, method, t_0 + 2. * t_star])
-    model.set_limb_coeff_gamma('R', (gamma_V + gamma_I) / 2.)
-    model.set_limb_coeff_gamma('U', (gamma_V + gamma_I) / 2.)
-    model.set_limb_coeff_gamma('I', gamma_I)
-
-    # Set expected values
-    # JCY - see sandbox/rho_gradient on pink laptop
-    params = parameters.keys()
-    gradient = {'t_0': 1283513.3068849628, 'u_0': 20492801.742886964,
-                't_E': -9573.3589902395161, 'rho': -1503911.2409404013}
-    reference = np.array([gradient[key] for key in params])
-
-    # Create event and run test
-    event = mm.Event(model=model, datasets=datasets)
-    # result = event.get_chi2_gradient(list(params), fit_blending=False)
-
-    # print(result)
-    # print(reference)
-    # np.testing.assert_almost_equal(reference / result, 1., decimal=2)
-
-
 # ----------
 # Event.get_ref_fluxes() Tests
 def test_get_ref_fluxes():
