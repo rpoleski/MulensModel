@@ -660,12 +660,14 @@ class FortranSFitFile(object):
                 self.__setattr__(key, value)
 
 
+
 class TestFSPLGradient(unittest.TestCase):
     """ Compares various parts of the FSPL Derivative calculations to the
     results from sfit."""
 
     def setUp(self):
         # Read in sfit comparison file, split by dataset
+        self.filenames = ['FSPL_par_Obs_1_I.pho', 'FSPL_par_Obs_2_V.pho']
         self.sfit_derivs = np.genfromtxt(
             SAMPLE_FILE_FSPL_61, dtype=None,
             names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
@@ -673,18 +675,7 @@ class TestFSPLGradient(unittest.TestCase):
         self._create_model()
         self._set_datasets()
         self._set_fits()
-
-        z_break = 1.3
-        zs_1_margin = 0.003
-        self._indexes = []
-        self._indices_and_near_1 = []
-        for (zs, indices) in zip(self.zs, self.indices):
-            index_large = (zs > z_break)
-            index_small = (zs <= z_break)
-            self._indexes.append([index_large, index_small])
-            # The sfit code is not accurate near 1.0.
-            near_1 = (np.abs(zs - 1.) > zs_1_margin)
-            self._indices_and_near_1.append(indices & near_1)
+        self._set_indices()
 
     def _read_sfit(self):
         """ read in the input parameters and output matrices from sfit"""
@@ -706,7 +697,6 @@ class TestFSPLGradient(unittest.TestCase):
 
     def _set_datasets(self):
         """ Read in datasets for test"""
-        self.filenames = ['FSPL_par_Obs_1_I.pho', 'FSPL_par_Obs_2_V.pho']
         self.datasets = []
         for filename in self.filenames:
             bandpass = filename.split('.')[0][-1]
@@ -740,6 +730,19 @@ class TestFSPLGradient(unittest.TestCase):
             u = np.sqrt(trajectory.x**2 + trajectory.y**2)
             z = u / self.sfit_model.parameters.rho
             self.zs.append(z)
+
+    def _set_indices(self):
+        z_break = 1.3
+        zs_1_margin = 0.003
+        self._indexes = []
+        self._indices_and_near_1 = []
+        for (zs, indices) in zip(self.zs, self.indices):
+            index_large = (zs > z_break)
+            index_small = (zs <= z_break)
+            self._indexes.append([index_large, index_small])
+            # The sfit code is not accurate near 1.0.
+            near_1 = (np.abs(zs - 1.) > zs_1_margin)
+            self._indices_and_near_1.append(indices & near_1)
 
     def _db0_test(self, i):
         """ Test that B0prime is calculated correctly"""
@@ -821,6 +824,78 @@ class TestFSPLGradient(unittest.TestCase):
         with self.assertRaises(KeyError):
             fit.get_d_A_d_rho()
 
+class TestFSPLGradient2(TestFSPLGradient):
+
+    def setUp(self):
+        fort_61 = join(dir_4, 'test_2', 'fort.61')
+        fort_62 = join(dir_4, 'test_2', 'fort.62')
+        fort_51 = join(dir_4, 'test_2', 'fort.51')
+        self.filenames = [join('test_2', 'FSPL_Obs_1_I.pho'),
+                          join('test_2', 'FSPL_Obs_2_V.pho')]
+
+        self.sfit_derivs = np.genfromtxt(
+            fort_61, dtype=None, encoding='utf-8',
+            names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
+        self.sfit_partials = np.genfromtxt(
+            fort_62, dtype=None, encoding='utf-8',
+            names=['nob', 'k', 't', 'dfdt0', 'dfdu0', 'dfdtE', 'dfdrho', 'dAdu',
+                   'df', 'res', 'sig2'])
+        self.sfit_mat = FortranSFitFile(fort_51)
+        self.sfit_mat.a[0] += 2450000.
+
+        self._create_model()
+        self._set_datasets()
+        self._set_fits()
+        self._set_indices()
+
+    def test_dA_dparams(self):
+        params = ['t_0', 'u_0', 't_E', 'rho']
+        for i, fit in enumerate(self.fits):
+            dA_dparam = fit.get_d_A_d_params_for_point_lens_model(params)
+            for j, param in enumerate(params):
+                short_param = param.replace('_', '')
+                df_dparam = fit.source_flux * dA_dparam[param]
+                sfit_df_dparam = self.sfit_partials[
+                    self.sfit_indices[i]]['dfd{0}'.format(short_param)]
+                mask = self._indices_and_near_1[i]
+                assert_allclose(df_dparam[mask], sfit_df_dparam[mask], rtol=0.015)
+
+    def test_chi2_gradient(self):
+        params = ['t_0', 'u_0', 't_E', 'rho']
+        for i, fit in enumerate(self.fits):
+            gradient = fit.get_chi2_gradient(params)
+            res = self.sfit_partials[self.sfit_indices[i]]['res']
+            sig2 = self.sfit_partials[self.sfit_indices[i]]['sig2']
+            for j, param in enumerate(params):
+                short_param = param.replace('_', '')
+                partials = self.sfit_partials[
+                    self.sfit_indices[i]]['dfd{0}'.format(short_param)]
+                sfit_gradient = np.sum(2. * res * partials / sig2)
+                assert_allclose(gradient[i], sfit_gradient, rtol=0.01)
+
+    def test_dAdu_FSPLError(self):
+        for i, fit in enumerate(self.fits):
+            with self.assertRaises(NotImplementedError):
+                fit.get_d_A_d_u_for_point_lens_model()
+
+    def test_dAdu_PSPL(self):
+        params = ['t_0', 'u_0', 't_E']
+        sfit_PSPL_model = mm.Model(dict(zip(params, self.sfit_mat.a)))
+        for (i, dataset) in enumerate(self.datasets):
+            fit = mm.FitData(
+                dataset=dataset, model=sfit_PSPL_model,
+                fix_source_flux=self.sfit_mat.a[9 + i * 3],
+                fix_blend_flux=self.sfit_mat.a[9 + i * 3 + 1])
+            fit.fit_fluxes()
+            dAdu = fit.get_d_A_d_u_for_point_lens_model()
+            assert_allclose(
+                dAdu, self.sfit_partials[self.sfit_indices[i]]['dAdu'],
+                rtol=0.005)
+
+# NOTES TO SELF:
+# 1. DONE Need to revise this unit test so there can be inheritance that uses different files.
+# 2. Need to add a child class that tests chi2_gradient and DONE dfdparams. (fort.62)
+# 3. DONE Modify test_sfit to produce fort.62 output for dA/du and add a test.
 
 # Tests to add:
 #

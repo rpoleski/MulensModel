@@ -542,7 +542,7 @@ class FitData(object):
         # Implemented for the requested parameters?
         if not isinstance(parameters, list):
             parameters = [parameters]
-        implemented = {'t_0', 't_E', 'u_0', 't_eff', 'pi_E_N', 'pi_E_E'}
+        implemented = {'t_0', 't_E', 'u_0', 't_eff', 'pi_E_N', 'pi_E_E', 'rho'}
         if len(set(parameters) - implemented) > 0:
             raise NotImplementedError((
                 "chi^2 gradient is implemented only for {:}\nCannot work " +
@@ -630,7 +630,7 @@ class FitData(object):
             gradient = derivs.get_gradient(parameters)
         else:
             gradient = self._get_d_u_d_params(parameters)
-            d_A_d_u = self.get_d_A_d_u_for_point_lens_model()
+            d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
             for (key, value) in gradient.items():
                 gradient[key] *= d_A_d_u
 
@@ -661,7 +661,7 @@ class FitData(object):
 
     def get_d_A_d_u_for_PSPL_model(self):
         """
-        Calculate dA/du for PSPL
+        Calculate dA/du for PSPL point-source--point-lens model.
 
         No parameters.
 
@@ -674,34 +674,39 @@ class FitData(object):
         d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
         return d_A_d_u
 
-    def get_d_A_d_u_for_FSPL_model(self):
-        """
-        Calculate dA/du for FSPL
-
-        Returns :
-            dA_du: *np.ndarray*
-                Derivative dA/du.
-        """
-        d_A_pspl_d_u = self.get_d_A_d_u_for_PSPL_model()
-        B_0_gamma_B_1 = self._get_B_0_gamma_B_1()
-        A_pspl = self._get_A_pspl()
-        d_B_0_gamma_dB_1 = self._get_dB_0_gamma_dB_1()
-
-        d_A_d_u = d_A_pspl_d_u * B_0_gamma_B_1
-        d_A_d_u += (A_pspl / self.model.parameters.rho) * d_B_0_gamma_dB_1
-
-        return d_A_d_u
+    # def get_d_A_d_u_for_FSPL_model(self):
+    #     """
+    #     Calculate dA/du for FSPL
+    #
+    #     Returns :
+    #         dA_du: *np.ndarray*
+    #             Derivative dA/du.
+    #     """
+    #     d_A_pspl_d_u = self.get_d_A_d_u_for_PSPL_model()
+    #     B_0_gamma_B_1 = self._get_B_0_gamma_B_1()
+    #     A_pspl = self._get_A_pspl()
+    #     d_B_0_gamma_dB_1 = self._get_dB_0_gamma_dB_1()
+    #
+    #     d_A_d_u = d_A_pspl_d_u * B_0_gamma_B_1
+    #     d_A_d_u += (A_pspl / self.model.parameters.rho) * d_B_0_gamma_dB_1
+    #
+    #     return d_A_d_u
 
     def get_d_A_d_u_for_point_lens_model(self):
         """
-        Calculate dA/du for point lens model
+        Calculate dA/du for point-source--point-lens model. For finite source
+        models see :py:class:`FSPLDerivs` or
+        py:func:`get_d_A_d_params_for_point_lens_model()`
 
         Returns :
             dA_du: *np.ndarray*
                 Derivative dA/du.
         """
         if self.model.parameters.is_finite_source():
-            d_A_d_u = self.get_d_A_d_u_for_FSPL_model()
+            # Something that will hopefully be fixed in Version 3:
+            raise NotImplementedError(
+                'd_A_d_u for FSPL models is implemented through the ' +
+                'FSPLDerivs class.')
         else:
             d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
 
@@ -954,6 +959,9 @@ class FitData(object):
         _B0B1_file_read = False
 
         def __init__(self, fit):
+            # The fact that this takes a FitData object as an argument seems
+            # circular.
+            #
             # Another problem with this code: the ephemerides file is tied to
             # the dataset, so satellite parallax properties need to be defined
             # relative to the dataset *not* the model (which may not have an
