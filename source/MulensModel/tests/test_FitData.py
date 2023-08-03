@@ -660,7 +660,6 @@ class FortranSFitFile(object):
                 self.__setattr__(key, value)
 
 
-
 class TestFSPLGradient(unittest.TestCase):
     """ Compares various parts of the FSPL Derivative calculations to the
     results from sfit."""
@@ -710,7 +709,8 @@ class TestFSPLGradient(unittest.TestCase):
         self.fits = []
         self.zs = []  # z = u / rho for each data epoch
         self.indices = []  # restrict to points affected by FS effects
-        self.sfit_indices = []  # select the right parts of the sfit comparison file
+        self.sfit_indices = []  # select the right parts of the sfit comparison
+        # file
         for (i, dataset) in enumerate(self.datasets):
             fit = mm.FitData(
                 dataset=dataset, model=self.sfit_model,
@@ -735,14 +735,17 @@ class TestFSPLGradient(unittest.TestCase):
         z_break = 1.3
         zs_1_margin = 0.003
         self._indexes = []
-        self._indices_and_near_1 = []
+        self._indices_not_near_1 = []
+        self._indices_not_near_1_db = []
         for (zs, indices) in zip(self.zs, self.indices):
             index_large = (zs > z_break)
             index_small = (zs <= z_break)
             self._indexes.append([index_large, index_small])
             # The sfit code is not accurate near 1.0.
             near_1 = (np.abs(zs - 1.) > zs_1_margin)
-            self._indices_and_near_1.append(indices & near_1)
+            self._indices_not_near_1.append(indices & near_1)
+            near_1_db = (zs < 0.88) | (zs > 1.1)
+            self._indices_not_near_1_db.append(indices & near_1_db)
 
     def _db0_test(self, i):
         """ Test that B0prime is calculated correctly"""
@@ -750,8 +753,9 @@ class TestFSPLGradient(unittest.TestCase):
         sfit_db0 = self.sfit_derivs[self.sfit_indices[i]]['db0']
         kwargs_ = [{'atol': 0.0005}, {'rtol': 0.01}]
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
-            index_i = condition & self._indices_and_near_1[i]
-            db0 = self.fits[i].FSPL_Derivatives._get_B0_prime(self.zs[i][index_i])
+            index_i = condition & self._indices_not_near_1_db[i]
+            db0 = self.fits[i].FSPL_Derivatives._get_B0_prime(
+                self.zs[i][index_i])
             assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
     def test_db0_0(self):
@@ -768,8 +772,9 @@ class TestFSPLGradient(unittest.TestCase):
         sfit_db1 = self.sfit_derivs[self.sfit_indices[i]]['db1']
         kwargs_ = [{'atol': 0.001}, {'rtol': 0.05}]
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
-            index_i = condition & self._indices_and_near_1[i]
-            db1 = self.fits[i].FSPL_Derivatives._get_B1_prime(self.zs[i][index_i])
+            index_i = condition & self._indices_not_near_1_db[i]
+            db1 = self.fits[i].FSPL_Derivatives._get_B1_prime(
+                self.zs[i][index_i])
             assert_allclose(db1, sfit_db1[index_i], **kwargs)
 
     def test_db1_0(self):
@@ -800,7 +805,7 @@ class TestFSPLGradient(unittest.TestCase):
         fs = self.fits[i].source_flux
         derivs = fs * self.fits[i].get_d_A_d_rho()
         sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
-        mask = self._indices_and_near_1[i]
+        mask = self._indices_not_near_1[i]
         assert_allclose(derivs[mask], sfit_da_drho[mask], rtol=0.015)
 
     def test_dAdrho_0(self):
@@ -823,6 +828,7 @@ class TestFSPLGradient(unittest.TestCase):
 
         with self.assertRaises(KeyError):
             fit.get_d_A_d_rho()
+
 
 class TestFSPLGradient2(TestFSPLGradient):
 
@@ -857,8 +863,9 @@ class TestFSPLGradient2(TestFSPLGradient):
                 df_dparam = fit.source_flux * dA_dparam[param]
                 sfit_df_dparam = self.sfit_partials[
                     self.sfit_indices[i]]['dfd{0}'.format(short_param)]
-                mask = self._indices_and_near_1[i]
-                assert_allclose(df_dparam[mask], sfit_df_dparam[mask], rtol=0.015)
+                mask = self._indices_not_near_1[i]
+                assert_allclose(
+                    df_dparam[mask], sfit_df_dparam[mask], rtol=0.015)
 
     def test_chi2_gradient(self):
         params = ['t_0', 'u_0', 't_E', 'rho']
@@ -891,11 +898,6 @@ class TestFSPLGradient2(TestFSPLGradient):
             assert_allclose(
                 dAdu, self.sfit_partials[self.sfit_indices[i]]['dAdu'],
                 rtol=0.005)
-
-# NOTES TO SELF:
-# 1. DONE Need to revise this unit test so there can be inheritance that uses different files.
-# 2. Need to add a child class that tests chi2_gradient and DONE dfdparams. (fort.62)
-# 3. DONE Modify test_sfit to produce fort.62 output for dA/du and add a test.
 
 # Tests to add:
 #
