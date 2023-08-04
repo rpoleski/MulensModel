@@ -689,8 +689,14 @@ class TestFSPLGradient(unittest.TestCase):
         n_t_star = 9.
         self._t_lim_1 = self.sfit_model.parameters.t_0 - n_t_star * t_star
         self._t_lim_2 = self.sfit_model.parameters.t_0 + n_t_star * t_star
+        n_t_star_2 = 50.
+        self._t_lim_3 = self.sfit_model.parameters.t_0 - n_t_star_2 * t_star
+        self._t_lim_4 = self.sfit_model.parameters.t_0 + n_t_star_2 * t_star
         self.sfit_model.set_magnification_methods(
-            [self._t_lim_1, 'finite_source_LD_Yoo04', self._t_lim_2])
+            [self._t_lim_3, 'finite_source_uniform_Gould94',
+             self._t_lim_1, 'finite_source_LD_Yoo04',
+             self._t_lim_2, 'finite_source_uniform_Gould94',
+             self._t_lim_4])
         self.sfit_model.set_limb_coeff_gamma('I', self.sfit_mat.a[4])
         self.sfit_model.set_limb_coeff_gamma('V', self.sfit_mat.a[5])
 
@@ -699,9 +705,14 @@ class TestFSPLGradient(unittest.TestCase):
         self.datasets = []
         for filename in self.filenames:
             bandpass = filename.split('.')[0][-1]
+            mag_data = np.genfromtxt(
+                join(dir_4, filename), dtype=None, encoding='utf-8',
+            names=['time', 'mag', 'err'])
+            (flux, err) = mm.Utils.get_flux_and_err_from_mag(
+                mag_data['mag'], mag_data['err'], zeropoint=18.)
             dataset = mm.MulensData(
-                file_name=join(dir_4, filename),
-                phot_fmt='mag', bandpass=bandpass)
+                [mag_data['time'], flux, err], phot_fmt='flux',
+                bandpass=bandpass)
             self.datasets.append(dataset)
 
     def _set_fits(self):
@@ -871,14 +882,24 @@ class TestFSPLGradient2(TestFSPLGradient):
         params = ['t_0', 'u_0', 't_E', 'rho']
         for i, fit in enumerate(self.fits):
             gradient = fit.get_chi2_gradient(params)
-            res = self.sfit_partials[self.sfit_indices[i]]['res']
+            sfit_res = self.sfit_partials[self.sfit_indices[i]]['res']
+
+            # Test residuals from model & Errors
+            res, err = fit.get_residuals(phot_fmt='flux')
+            index_peak = (self.zs[i] < 15.)
+            index_wings = (self.zs[i] > 15.)
+            assert_allclose(res[index_peak], sfit_res[index_peak], rtol=0.01)
+            assert_allclose(res[index_wings], sfit_res[index_wings], atol=0.01)
             sig2 = self.sfit_partials[self.sfit_indices[i]]['sig2']
+            assert_allclose(err**2, sig2, rtol=0.01)
+
+            # Test gradient
             for j, param in enumerate(params):
                 short_param = param.replace('_', '')
                 partials = self.sfit_partials[
                     self.sfit_indices[i]]['dfd{0}'.format(short_param)]
-                sfit_gradient = np.sum(2. * res * partials / sig2)
-                assert_allclose(gradient[i], sfit_gradient, rtol=0.01)
+                sfit_gradient = np.sum(-2. * sfit_res * partials / sig2)
+                assert_allclose(gradient[j], sfit_gradient, rtol=0.01)
 
     def test_dAdu_FSPLError(self):
         for i, fit in enumerate(self.fits):
