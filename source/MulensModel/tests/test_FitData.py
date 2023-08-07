@@ -840,6 +840,37 @@ class TestFSPLGradient(unittest.TestCase):
         with self.assertRaises(KeyError):
             fit.get_d_A_d_rho()
 
+    def test_check_FSPLDerivs_errors_1(self):
+        parameters = ['t_0', 'u_0', 't_E', 'rho']
+        model = mm.Model(dict(zip(parameters, self.sfit_mat.a)))
+        t_star = model.parameters.rho * model.parameters.t_E
+        n_t_star = 9.
+        t_lim_1 = model.parameters.t_0 - n_t_star * t_star
+        t_lim_2 = model.parameters.t_0 + n_t_star * t_star
+        model.set_magnification_methods(
+            [t_lim_1, 'finite_source_uniform_WittMao94', t_lim_2])
+        fit = mm.FitData(model=model, dataset=self.datasets[0])
+        with self.assertRaises(ValueError):
+            fit.get_d_A_d_rho()
+
+    def test_magnification_methods_parameters(self):
+        parameters = ['t_0', 'u_0', 't_E', 'rho']
+        model = mm.Model(dict(zip(parameters, self.sfit_mat.a)))
+        t_star = model.parameters.rho * model.parameters.t_E
+        n_t_star = 9.
+        t_lim_1 = model.parameters.t_0 - n_t_star * t_star
+        t_lim_2 = model.parameters.t_0 + n_t_star * t_star
+        model.set_magnification_methods(
+            [t_lim_1, 'finite_source_uniform_Gould94', t_lim_2])
+        with self.assertRaises(KeyError):
+            model.set_magnification_methods_parameters(
+                {'vbbl': {'accuracy': 0.005}})
+
+        model.set_magnification_methods_parameters(
+            {'finite_source_uniform_Gould94': {'accuracy': 0.005}})
+        with self.assertRaises(ValueError):
+            model.get_magnification(np.arange(t_lim_1, t_lim_2, 0.1))
+
 
 class TestFSPLGradient2(TestFSPLGradient):
 
@@ -919,6 +950,7 @@ class TestFSPLGradient2(TestFSPLGradient):
             assert_allclose(
                 dAdu, self.sfit_partials[self.sfit_indices[i]]['dAdu'],
                 rtol=0.005)
+
 
 # Tests to add:
 #

@@ -960,6 +960,9 @@ class Model(object):
                 'finite_source_LD_Yoo04_direct'.lower(),
                 'finite_source_uniform_Lee09'.lower(),
                 'finite_source_LD_Lee09'.lower()]
+            # 1. Why is Witt & Mao not on this list?
+            # 2. Why are these "ok" if methods_parameters is not allowed for
+            # point lenses?
         elif self.n_lenses == 2:
             methods_ok = [
                 'point_source', 'quadrupole', 'hexadecapole', 'vbbl',

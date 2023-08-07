@@ -274,8 +274,9 @@ class MagnificationCurve(object):
         for method in set(methods):
             kwargs = {}
             if self._methods_parameters is not None:
-                if method in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method]
+                if method.lower() in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method.lower()]
+
                 if kwargs != {}:
                     raise ValueError(
                         'Methods parameters passed, but currently ' +

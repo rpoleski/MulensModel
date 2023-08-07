@@ -1035,15 +1035,15 @@ class FitData(object):
                 methods = np.array(
                     self._magnification_curve._methods_for_epochs())
                 for method in set(methods):
-                    kwargs = {}
-                    if (self._magnification_curve._methods_parameters is not
-                            None):
-                        if method in self._magnification_curve._methods_parameters.keys():
-                            kwargs = self._magnification_curve._methods_parameters[method]
-                        if kwargs != {}:
-                            raise ValueError(
-                                'Methods parameters passed, but currently ' +
-                                'no point lens method accepts the parameters')
+                    # kwargs = {}
+                    # if (self._magnification_curve._methods_parameters is not
+                    #         None):
+                    #     if method in self._magnification_curve._methods_parameters.keys():
+                    #         kwargs = self._magnification_curve._methods_parameters[method]
+                    #     if kwargs != {}:
+                    #         raise ValueError(
+                    #             'Methods parameters passed, but currently ' +
+                    #             'no point lens method accepts the parameters')
 
                     selection = (methods == method) & (z_ <
                                                        FitData.FSPL_Derivatives._z_max)
@@ -1066,7 +1066,7 @@ class FitData(object):
                                                               z_[selection]))
                     else:
                         msg = "dA/drho only implemented for 'finite_source_"
-                        msg += "uniform_ Gould94' and 'finite_source_LD"
+                        msg += "uniform_Gould94' and 'finite_source_LD"
                         msg += "_Yoo04'. Your value: {:}"
                         raise ValueError(msg.format(method))
 
