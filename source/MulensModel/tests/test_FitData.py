@@ -952,6 +952,33 @@ class TestFSPLGradient2(TestFSPLGradient):
                 rtol=0.005)
 
 
+def test_FSPLDerivs_get_satellite_coords():
+    times = [2456445.0, 2457328.0]
+    mags = [16., 15.]
+    errs = [0.01, 0.02]
+
+    dataset = mm.MulensData(
+        [times, mags, errs], phot_fmt='mag',
+        ephemerides_file=SAMPLE_FILE_03_EPH)
+    model = mm.Model({'t_0': 2457000., 'u_0': 0.01, 't_E': 100., 'rho': 0.02})
+    model.set_default_magnification_method('finite_source_uniform_Gould94')
+    fit = mm.FitData(dataset=dataset, model=model)
+    derivs_obj = fit.FSPL_Derivatives(fit)
+    print(derivs_obj._dataset_satellite_skycoord)
+    result_1 = derivs_obj._dataset_satellite_skycoord[0]
+    result_2 = derivs_obj._dataset_satellite_skycoord[-1]
+
+    ra_1 = 15 * (8 + 26 / 60. + 37.19 / 3600.)
+    dec_1 = 18 + 30 / 60. + 37.4 / 3600.
+    np.testing.assert_almost_equal(result_1.ra.value, ra_1, decimal=3)
+    np.testing.assert_almost_equal(result_1.dec.value, dec_1, decimal=3)
+
+    ra_2 = 15 * (17 + 40 / 60. + 4.98 / 3600.)
+    dec_2 = -23 - 26 / 60. - 38.2 / 3600.
+    np.testing.assert_almost_equal(result_2.ra.value, ra_2, decimal=3)
+    np.testing.assert_almost_equal(result_2.dec.value, dec_2, decimal=3)
+
+
 # Tests to add:
 #
 # test get_chi2_gradient(), chi2_gradient:

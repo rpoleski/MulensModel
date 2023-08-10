@@ -1005,8 +1005,8 @@ class FitData(object):
                 magnification_curve.set_magnification_methods(
                     self.model.methods,
                     self.model.default_magnification_method)
-                magnification_curve.set_magnification_methods_parameters(
-                    self.model.methods_parameters)
+                #magnification_curve.set_magnification_methods_parameters(
+                #    self.model.methods_parameters)
 
                 return magnification_curve
 
