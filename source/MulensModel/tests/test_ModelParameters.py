@@ -616,7 +616,7 @@ def test_2S1L_xallarap_individual_source_parameters():
     parameters_1st = {**xallarap_parameters}
 
     parameters_2nd = {**parameters_1st}
-    parameters_2nd['xi_semimajor_axis'] *= q_source
+    parameters_2nd['xi_semimajor_axis'] /= q_source
     parameters_2nd['xi_argument_of_latitude_reference'] += 180.
 
     parameters = {'q_source': q_source, **parameters_1st}
@@ -631,9 +631,9 @@ def test_2S1L_xallarap_individual_source_parameters():
 
 
 tested_keys_3 = tested_keys_2 + ['q_source']
+
+
 @pytest.mark.parametrize("key", tested_keys_3)
-
-
 def test_changes_of_xallrap_parameters_for_both_sources(key):
     """
     Make sure that chainging a xallarap parameter in a binary source event

@@ -3,6 +3,7 @@ import numpy as np
 import warnings
 
 from MulensModel.uniformcausticsampling import UniformCausticSampling
+from MulensModel.orbits.orbit import Orbit
 
 
 # For definition of class ModelParameters see below.
@@ -227,6 +228,11 @@ class ModelParameters(object):
             if self._type['Cassan08']:
                 self._uniform_caustic = None
                 self._standard_parameters = None
+            if self.is_xallarap:
+                orbit_1 = self._get_xallarap_orbit({**parameters})
+                t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
+                position_1 = orbit_1.get_reference_plane_position(t_0_xi)
+                self.xallarap_reference_position = position_1
         elif self.n_sources == 2:
             self._check_valid_combination_2_sources(parameters.keys())
             if 't_E' not in parameters.keys():
@@ -241,14 +247,41 @@ class ModelParameters(object):
                 raise
             try:
                 self._source_2_parameters = ModelParameters(params_2)
+
             except Exception:
                 print("ERROR IN ITIALIZING SOURCE 2")
                 raise
             # The block above forces checks from "== 1" block above to be
             # run on each source parameters separately.
+
+            if self.is_xallarap:
+                orbit_1 = self._source_1_parameters._get_xallarap_orbit()
+                t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
+                position_1 = orbit_1.get_reference_plane_position(t_0_xi)
+                position_2 = position_1 / -parameters['q_source']
+                self._source_1_parameters.xallarap_reference_position = (
+                    position_1)
+                orbit_2 = self._source_2_parameters._get_xallarap_orbit()
+                position_2 -= orbit_2.get_reference_plane_position(t_0_xi)
+                self._source_2_parameters.xallarap_reference_position = (
+                    position_1 - position_2)
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
+
+    def _get_xallarap_orbit(self, parameters=None):
+        """
+        Get Orbit object that defines the xallarap orbit.
+        """
+        if parameters is None:
+            parameters = self.parameters
+        zip_ = parameters.items()
+        orbit_parameters = {key[3:]: value
+                            for (key, value) in zip_ if key[:3] == "xi_"}
+        orbit_parameters['epoch_reference'] = parameters.get(
+            't_0_xi', parameters['t_0'])
+        orbit = Orbit(**orbit_parameters)
+        return orbit
 
     def _count_sources(self, keys):
         """How many sources there are?"""
@@ -405,7 +438,7 @@ class ModelParameters(object):
                 parameters_2[key] = value
 
         if self.n_sources == 2 and self._type['xallarap']:
-            parameters_2['xi_semimajor_axis'] *= parameters['q_source']
+            parameters_2['xi_semimajor_axis'] /= parameters['q_source']
             parameters_2['xi_argument_of_latitude_reference'] += 180.
 
         return (parameters_1, parameters_2)
