@@ -223,6 +223,9 @@ class ModelParameters(object):
         self._set_type(parameters.keys())
         self._check_types('alpha' in parameters.keys())
 
+        if self.is_xallarap:
+            t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
+
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
             if self._type['Cassan08']:
@@ -230,7 +233,6 @@ class ModelParameters(object):
                 self._standard_parameters = None
             if self.is_xallarap:
                 orbit_1 = self._get_xallarap_orbit({**parameters})
-                t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
                 position_1 = orbit_1.get_reference_plane_position([t_0_xi])
                 self.xallarap_reference_position = position_1
         elif self.n_sources == 2:
@@ -256,7 +258,6 @@ class ModelParameters(object):
 
             if self.is_xallarap:
                 orbit_1 = self._source_1_parameters._get_xallarap_orbit()
-                t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
                 position_1 = orbit_1.get_reference_plane_position([t_0_xi])
                 position_2 = position_1 / -parameters['q_source']
                 self._source_1_parameters.xallarap_reference_position = (
@@ -272,6 +273,10 @@ class ModelParameters(object):
     def _get_xallarap_orbit(self, parameters=None):
         """
         Get Orbit object that defines the xallarap orbit.
+
+        Note: this function is called in 2 different ways:
+        - directly, i.e., self._get_xallarap_orbit(), and
+        - indirectly, i.e., self._source_1_parameters._get_xallarap_orbit().
         """
         if parameters is None:
             parameters = self.parameters
