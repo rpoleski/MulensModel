@@ -231,7 +231,7 @@ class ModelParameters(object):
             if self.is_xallarap:
                 orbit_1 = self._get_xallarap_orbit({**parameters})
                 t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
-                position_1 = orbit_1.get_reference_plane_position(t_0_xi)
+                position_1 = orbit_1.get_reference_plane_position([t_0_xi])
                 self.xallarap_reference_position = position_1
         elif self.n_sources == 2:
             self._check_valid_combination_2_sources(parameters.keys())
@@ -257,12 +257,12 @@ class ModelParameters(object):
             if self.is_xallarap:
                 orbit_1 = self._source_1_parameters._get_xallarap_orbit()
                 t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
-                position_1 = orbit_1.get_reference_plane_position(t_0_xi)
+                position_1 = orbit_1.get_reference_plane_position([t_0_xi])
                 position_2 = position_1 / -parameters['q_source']
                 self._source_1_parameters.xallarap_reference_position = (
                     position_1)
                 orbit_2 = self._source_2_parameters._get_xallarap_orbit()
-                position_2 -= orbit_2.get_reference_plane_position(t_0_xi)
+                position_2 -= orbit_2.get_reference_plane_position([t_0_xi])
                 self._source_2_parameters.xallarap_reference_position = (
                     position_1 - position_2)
         else:
