@@ -229,8 +229,8 @@ class ModelParameters(object):
                 self._uniform_caustic = None
                 self._standard_parameters = None
             if self.is_xallarap:
-                position_1 = self._get_xallarap_position({**parameters})
-                self.xallarap_reference_position = position_1
+                delta_1 = self._get_xallarap_position(parameters)
+                self.xallarap_reference_position = delta_1
         elif self.n_sources == 2:
             self._check_valid_combination_2_sources(parameters.keys())
             if 't_E' not in parameters.keys():
@@ -253,13 +253,11 @@ class ModelParameters(object):
             # run on each source parameters separately.
 
             if self.is_xallarap:
-                position_1 = self._source_1_parameters._get_xallarap_position()
-                position_2 = position_1 / -parameters['q_source']
-                self._source_1_parameters.xallarap_reference_position = (
-                    position_1)
-                position_2 -= self._source_2_parameters._get_xallarap_position()
-                self._source_2_parameters.xallarap_reference_position = (
-                    position_1 - position_2)
+                delta_1 = self._source_1_parameters._get_xallarap_position()
+                delta_2 = self._source_2_parameters._get_xallarap_position()
+                delta = delta_1 * (1. + 1. / parameters['q_source']) + delta_2
+                self._source_1_parameters.xallarap_reference_position = delta_1
+                self._source_2_parameters.xallarap_reference_position = delta_2
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
