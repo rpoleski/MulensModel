@@ -761,7 +761,7 @@ class Model(object):
 
         Parameters :
             times:  *np.ndarray*, *list of floats*, or *float*
-                Times for which magnification values are requested.
+                Epochs for which source positions are requested.
 
         Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object.
 
