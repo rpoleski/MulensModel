@@ -223,17 +223,13 @@ class ModelParameters(object):
         self._set_type(parameters.keys())
         self._check_types('alpha' in parameters.keys())
 
-        if self.is_xallarap:
-            t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
-
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
             if self._type['Cassan08']:
                 self._uniform_caustic = None
                 self._standard_parameters = None
             if self.is_xallarap:
-                orbit_1 = self._get_xallarap_orbit({**parameters})
-                position_1 = orbit_1.get_reference_plane_position([t_0_xi])
+                position_1 = self._get_xallarap_position({**parameters})
                 self.xallarap_reference_position = position_1
         elif self.n_sources == 2:
             self._check_valid_combination_2_sources(parameters.keys())
@@ -257,22 +253,20 @@ class ModelParameters(object):
             # run on each source parameters separately.
 
             if self.is_xallarap:
-                orbit_1 = self._source_1_parameters._get_xallarap_orbit()
-                position_1 = orbit_1.get_reference_plane_position([t_0_xi])
+                position_1 = self._source_1_parameters._get_xallarap_position()
                 position_2 = position_1 / -parameters['q_source']
                 self._source_1_parameters.xallarap_reference_position = (
                     position_1)
-                orbit_2 = self._source_2_parameters._get_xallarap_orbit()
-                position_2 -= orbit_2.get_reference_plane_position([t_0_xi])
+                position_2 -= self._source_2_parameters._get_xallarap_position()
                 self._source_2_parameters.xallarap_reference_position = (
                     position_1 - position_2)
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
 
-    def _get_xallarap_orbit(self, parameters=None):
+    def _get_xallarap_position(self, parameters=None):
         """
-        Get Orbit object that defines the xallarap orbit.
+        Get position at t_0_xi from xallarap Orbit object.
 
         Note: this function is called in 2 different ways:
         - directly, i.e., self._get_xallarap_orbit(), and
@@ -280,13 +274,14 @@ class ModelParameters(object):
         """
         if parameters is None:
             parameters = self.parameters
+        t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
+
         zip_ = parameters.items()
         orbit_parameters = {key[3:]: value
                             for (key, value) in zip_ if key[:3] == "xi_"}
-        orbit_parameters['epoch_reference'] = parameters.get(
-            't_0_xi', parameters['t_0'])
+        orbit_parameters['epoch_reference'] = t_0_xi
         orbit = Orbit(**orbit_parameters)
-        return orbit
+        return orbit.get_reference_plane_position([t_0_xi])
 
     def _count_sources(self, keys):
         """How many sources there are?"""
