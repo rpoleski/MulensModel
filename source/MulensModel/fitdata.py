@@ -1076,8 +1076,9 @@ class FitData(object):
                 _get_dataset_satellite_skycoord())
             self._magnification_curve = _get_magnification_curve()
             self.a_pspl = _get_a_pspl()
-            (b0_gamma_b1, db0_gamma_db1) = _get_b0_gamma_b1_and_derivs()
-            (b0_gamma_b1, db0_gamma_db1) = _get_b0_gamma_b1_and_derivs()
+            b0_gamma_b1_and_derivs = _get_b0_gamma_b1_and_derivs()
+            self.b0_gamma_b1 = b0_gamma_b1_and_derivs[0]
+            self.db0_gamma_db1 = b0_gamma_b1_and_derivs[1]
 
         def _read_B0B1_file(self):
             """Read file with pre-computed function values"""
