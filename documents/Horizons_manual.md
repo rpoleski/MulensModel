@@ -1,6 +1,6 @@
 # How to get satellite ephemeris using JPL Horizons service?
 
-The [JPL Horizons service](http://ssd.jpl.nasa.gov/?horizons) allows retrieving 
+The [JPL Horizons service](https://ssd.jpl.nasa.gov/horizons/) allows retrieving 
 highly accurate positions of satellites. We need these positions to calculate 
 how microlensing parallax affects event magnification seen by the satellite. 
 This file explains how to access Horizons via e-mail.
@@ -17,7 +17,7 @@ a few settings that one will modify on normal basis. These are:
 This is set by keyword `COMMAND` and has a numerical value. There are many 
 natural and many artificial Solar System objects, but we are interested in 
 just a few. Let's have a look at 
-[this list](http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/FORTRAN/req/naif_ids.html)
+[this list](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/FORTRAN/req/naif_ids.html)
 Some particular choices:
 
 * Hubble Space Telescope `-48`
@@ -29,11 +29,12 @@ Some particular choices:
 
 Oops... Gaia is not there! And yes, Gaia is observing the microlensing events. 
 In that case let's go to 
-[another website](http://ssd.jpl.nasa.gov/horizons.cgi). 
+[another website](https://ssd.jpl.nasa.gov/horizons/app.html#/). 
 By querying it, we can find:
 
 * Gaia `-139479`
 * Swift `-128485`
+* Euclid `-680`
 
 Note that all the values are __negative__ and as long as we don't start observing 
 microlensing events from other planets or Moon, we will only use negative 
@@ -106,5 +107,5 @@ If you send default or only slightly modified settings, then you can compare the
 
 ---
 
-(C) R. Poleski, March 2017
+(C) R. Poleski, Mar 2017, last changes: Aug 2023
 
