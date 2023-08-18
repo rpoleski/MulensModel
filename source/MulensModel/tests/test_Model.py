@@ -456,8 +456,6 @@ def test_model_binary_and_finite_sources():
     test if model magnification calculation for binary source works with
     finite sources (both rho and t_star given)
     """
-    # Currently, this test fails because of the difference between
-    # interpolation_table_v3 and v1.
     model = mm.Model({
         't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001,
         't_0_2': 5100., 'u_0_2': 0.0003, 't_star_2': 0.03, 't_E': 25.})
