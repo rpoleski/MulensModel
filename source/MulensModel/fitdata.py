@@ -631,7 +631,7 @@ class FitData(object):
         else:
             gradient = self._get_d_u_d_params(parameters)
             d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
-            for (key, value) in gradient.items():
+            for key in gradient.keys():
                 gradient[key] *= d_A_d_u
 
         return gradient
@@ -969,8 +969,9 @@ class FitData(object):
 
             # Define the initialization functions
             def _get_u():
-                """ Calculate u (lens-source separation) for all dataset
-                epochs."""
+                """
+                Calculate u (lens-source separation) for all dataset epochs.
+                """
                 # This calculation gets repeated = Not efficient. Should
                 # trajectory be a property of model? No. Wouldn't include
                 # dataset ephemerides.
@@ -979,8 +980,10 @@ class FitData(object):
                 return u_
 
             def _get_dataset_satellite_skycoord():
-                """ If set, get satellite_skycoordinates from the dataset.
-                Otherwise, return None."""
+                """
+                If set, get satellite_skycoordinates from the dataset.
+                Otherwise, return None.
+                """
                 satellite_skycoord = None
                 if self.dataset.ephemerides_file is not None:
                     satellite_skycoord = self.dataset.satellite_skycoord
@@ -988,15 +991,15 @@ class FitData(object):
                 return satellite_skycoord
 
             def _get_magnification_curve():
-                """ Get the
+                """
+                Get the
                 :py:class:`~MulensModel.magnificationcurve.MagnificationCurve.`
-                evaluated at the dataset epochs."""
+                evaluated at the dataset epochs.
+                """
                 # This code was copied directly from model.py --> indicates a
                 # refactor is needed.
                 # Also, shouldn't satellite_skycoord be stored as a property of
                 # mm.Model?
-                # We also have to access a lot of private functions of model,
-                # which is bad.
                 magnification_curve = MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
                     parallax=self.model.get_parallax(),
@@ -1006,8 +1009,6 @@ class FitData(object):
                 magnification_curve.set_magnification_methods(
                     self.model.methods,
                     self.model.default_magnification_method)
-                #magnification_curve.set_magnification_methods_parameters(
-                #    self.model.methods_parameters)
 
                 return magnification_curve
 
@@ -1025,8 +1026,10 @@ class FitData(object):
                 return a_pspl
 
             def _get_b0_gamma_b1_and_derivs():
-                """ Retrieve B0 - gamma * B1 and its derivative for each epoch.
-                For uniform source, return B0 and its derivative. """
+                """
+                Retrieve B0 - gamma * B1 and its derivative for each epoch.
+                For uniform source, return B0 and its derivative.
+                """
                 z_ = self.u_ / self.model.parameters.rho
 
                 b0_gamma_b1 = np.ones(len(self.dataset.time))
