@@ -387,7 +387,8 @@ class TestMethodsParameters(unittest.TestCase):
 
     def test_default_magnification_methods(self):
         """
-        Test if methods are properly changed and the warning is raised for deprecated method.
+        Test if methods are properly changed and
+        the warning is raised for deprecated method.
         """
         model = mm.Model(self.params)
         assert model.default_magnification_method == 'point_source'
