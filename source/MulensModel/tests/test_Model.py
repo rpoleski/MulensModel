@@ -3,6 +3,7 @@ from numpy.testing import assert_almost_equal as almost
 from math import isclose
 import unittest
 from astropy import units as u
+import warnings
 
 import MulensModel as mm
 
@@ -385,10 +386,20 @@ class TestMethodsParameters(unittest.TestCase):
             'vbbl') == {'vbbl': {'accuracy': 1.e-5}})
 
     def test_default_magnification_methods(self):
+        """
+        Test if methods are properly changed and the warning is raised for deprecated method.
+        """
         model = mm.Model(self.params)
         assert model.default_magnification_method == 'point_source'
-        model.set_default_magnification_method('point_source_point_lens')
+
+        with warnings.catch_warnings(record=True) as warnings_:
+            warnings.simplefilter("always")
+            model.set_default_magnification_method('point_source_point_lens')
+            assert len(warnings_) == 1
+            assert issubclass(warnings_[0].category, DeprecationWarning)
+
         assert model.default_magnification_method == 'point_source_point_lens'
+
         model.default_magnification_method = 'VBBL'
         assert model.default_magnification_method == 'VBBL'
 
