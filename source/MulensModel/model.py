@@ -993,7 +993,8 @@ class Model(object):
                 see :py:func:`set_magnification_methods_parameters`
         """
         if isinstance(method, (str)):
-            parameters = {method.lower(): self._methods_parameters[method.lower()]}
+            parameters = {
+                method.lower(): self._methods_parameters[method.lower()]}
         else:
             parameters = {key.lower(): self._methods_parameters[key.lower()]
                           for key in method}
@@ -1012,18 +1013,17 @@ class Model(object):
 
     def set_limb_coeff_gamma(self, bandpass, coeff):
         """
-           Store gamma limb darkening coefficient for given band. See
-           also
-           :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+        Store gamma limb darkening coefficient for given band. See
+        also
+        :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
 
-           Parameters :
-               bandpass: *str*
-                   Bandpass for the coefficient you provide.
+        Parameters :
+           bandpass: *str*
+               Bandpass for the coefficient you provide.
 
-               coeff: *float*
-                   Value of the coefficient.
-
-           """
+           coeff: *float*
+               Value of the coefficient.
+        """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
         self._limb_darkening_coeffs.set_limb_coeff_gamma(bandpass, coeff)
