@@ -1020,7 +1020,8 @@ class FitData(object):
                 point_source_curve = MagnificationCurve(
                     self.dataset.time,
                     parameters=mm.ModelParameters(point_source_params),
-                    parallax=self.model.get_parallax(), coords=self.model.coords,
+                    parallax=self.model.get_parallax(),
+                    coords=self.model.coords,
                     satellite_skycoord=self._dataset_satellite_skycoord)
 
                 a_pspl = point_source_curve.get_magnification()

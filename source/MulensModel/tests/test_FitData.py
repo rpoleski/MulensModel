@@ -830,8 +830,8 @@ class TestFSPLGradient(unittest.TestCase):
 
     def _set_limb_coeffs(self, model):
         for band in ['I', 'V']:
-            model.set_limb_coeff_gamma(
-                band, self.sfit_model.get_limb_coeff_gamma(band))
+            gamma = self.sfit_model.get_limb_coeff_gamma(band)
+            model.set_limb_coeff_gamma(band, gamma)
 
     def test_FSPL_Derivatives_tstar(self):
         """ Make sure that FSPL Derivatives fails for models defined with
@@ -971,7 +971,7 @@ def test_FSPLDerivs_get_satellite_coords():
         [times, mags, errs], phot_fmt='mag',
         ephemerides_file=SAMPLE_FILE_03_EPH)
     model = mm.Model({'t_0': 2457000., 'u_0': 0.01, 't_E': 100., 'rho': 0.02})
-    model.default_magnification_method='finite_source_uniform_Gould94'
+    model.default_magnification_method = 'finite_source_uniform_Gould94'
 
     fit = mm.FitData(dataset=dataset, model=model)
 
