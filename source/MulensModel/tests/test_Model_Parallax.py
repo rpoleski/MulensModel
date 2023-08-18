@@ -326,7 +326,7 @@ def test_d_perp():
     model_prime = mm.Model(
         params, coords=coords, ephemerides_file=SAMPLE_FILE_04_EPH)
     model_prime.parameters.t_E = 3.
-    model_prime.parameters.t_0 = 0.
+    model_prime.parameters.t_0 = 2450000.
     trajectory_prime = model_prime.get_trajectory(ref_data['HJD'] + 2450000.)
     d_perp_prime = trajectory_prime.d_perp
     np.testing.assert_allclose(d_perp, d_perp_prime)
