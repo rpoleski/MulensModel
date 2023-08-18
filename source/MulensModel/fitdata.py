@@ -1019,7 +1019,7 @@ class FitData(object):
                 point_source_params.pop('rho')
                 point_source_curve = MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
-                    parallax=self.model._parallax, coords=self.model.coords,
+                    parallax=self.model.get_parallax(), coords=self.model.coords,
                     satellite_skycoord=self._dataset_satellite_skycoord)
 
                 a_pspl = point_source_curve.get_magnification()
@@ -1037,7 +1037,7 @@ class FitData(object):
                 # This section was copied from magnificationcurve.py. Addl
                 # evidence a refactor is needed.
                 methods = np.array(
-                    self._magnification_curve._methods_for_epochs())
+                    self._magnification_curve.methods_for_epochs)
                 for method in set(methods):
                     selection = (methods == method) & (
                                  z_ < FitData.FSPL_Derivatives._z_max)

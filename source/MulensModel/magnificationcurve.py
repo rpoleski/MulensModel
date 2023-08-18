@@ -479,6 +479,16 @@ class MagnificationCurve(object):
 
         return np.array(magnification)
 
+    @property
+    def methods_for_epochs(self):
+        """
+        *list*
+
+        for each epochs, decide which methods should be used to
+        calculate magnification, but don't run the calculations
+        """
+        return self._methods_for_epochs()
+
     def _methods_for_epochs(self):
         """
         for given epochs, decide which methods should be used to
