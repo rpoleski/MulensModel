@@ -316,7 +316,7 @@ def test_d_perp():
         coords = line.split('=')[1]
 
     params = {'t_0': 2458310.7772,  'u_0': -0.006877, 't_E': 15.931,
-              'pi_E_N': 0., 'pi_E_E': 0., 't_0_par': 2458310.7772}
+              'pi_E_N': 0., 'pi_E_E': 0.}
     model = mm.Model(
         params, coords=coords, ephemerides_file=SAMPLE_FILE_04_EPH)
     trajectory = model.get_trajectory(ref_data['HJD'] + 2450000.)
