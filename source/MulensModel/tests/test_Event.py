@@ -467,6 +467,7 @@ class TestChi2Gradient(unittest.TestCase):
         ratio = self.gradient['t_0'] / result
         np.testing.assert_almost_equal(ratio, 1., decimal=5)
 
+
 # ----------
 # Event.get_ref_fluxes() Tests
 def test_get_ref_fluxes():
@@ -525,7 +526,8 @@ def test_get_ref_fluxes_binary_source():
 class TestBinarySourceFluxes(unittest.TestCase):
 
     def setUp(self):
-        (self.model, self.model_1, self.model_2) = self._generate_binary_source_models()
+        models = self._generate_binary_source_models()
+        (self.model, self.model_1, self.model_2) = models
         (self.data_1, self.data_2) = self._generate_binary_source_datasets()
 
         self.f_s1_1 = 100.
@@ -574,6 +576,7 @@ class TestBinarySourceFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(
             fluxes, np.array([[self.f_s1_1, self.f_s2_1],
                               [self.f_s1_2, self.f_s2_2]]))
+
 
 # Event.get_flux_for_dataset() Tests
 def test_get_flux_for_dataset():
@@ -812,7 +815,7 @@ class TestFixedFluxes(unittest.TestCase):
     def test_source_fluxes_AttributeError(self):
         event = mm.Event(datasets=self.datasets, model=self.model)
         with self.assertRaises(AttributeError):
-            fluxes = event.source_fluxes
+            _ = event.source_fluxes
 
     def test_source_fluxes_1(self):
         """1 dataset, 1 source"""
@@ -1024,7 +1027,7 @@ class TestEvent_repr_(unittest.TestCase):
 
     def setUp(self):
         self.model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
-                         coords="18:12:34.56 -23:45:55.55")
+                              coords="18:12:34.56 -23:45:55.55")
         self.dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_01)
         self.dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_02)
 
@@ -1033,7 +1036,6 @@ class TestEvent_repr_(unittest.TestCase):
             self.expected += "\n{0}".format(dataset)
             if i == 0:
                 self.expected += " *data_ref*"
-
 
     def test_repr_empty(self):
         """
@@ -1103,9 +1105,9 @@ class TestModelSetter(unittest.TestCase):
 
     def setUp(self):
         self.model_1 = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
-                         coords="18:12:34.56 -23:45:55.55")
+                                coords="18:12:34.56 -23:45:55.55")
         self.model_2 = mm.Model({'t_0': 1, 'u_0': 1.5, 't_E': 60.},
-                           coords="18:00:00 -30:00:00")
+                                coords="18:00:00 -30:00:00")
         self.result_1 = SkyCoord(
             "18:12:34.56 -23:45:55.55", unit=[u.hourangle, u.deg])
         self.result_2 = SkyCoord(
@@ -1135,7 +1137,6 @@ class TestModelSetter(unittest.TestCase):
         event = mm.Event()
         with self.assertRaises(TypeError):
             event.model = 'foo'
-
 
 
 # Tests to add:

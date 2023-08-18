@@ -631,7 +631,7 @@ class FitData(object):
         else:
             gradient = self._get_d_u_d_params(parameters)
             d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
-            for (key, value) in gradient.items():
+            for key in gradient.keys():
                 gradient[key] *= d_A_d_u
 
         return gradient
@@ -969,8 +969,9 @@ class FitData(object):
 
             # Define the initialization functions
             def _get_u():
-                """ Calculate u (lens-source separation) for all dataset
-                epochs."""
+                """
+                Calculate u (lens-source separation) for all dataset epochs.
+                """
                 # This calculation gets repeated = Not efficient. Should
                 # trajectory be a property of model? No. Wouldn't include
                 # dataset ephemerides.
@@ -979,8 +980,10 @@ class FitData(object):
                 return u_
 
             def _get_dataset_satellite_skycoord():
-                """ If set, get satellite_skycoordinates from the dataset.
-                Otherwise, return None."""
+                """
+                If set, get satellite_skycoordinates from the dataset.
+                Otherwise, return None.
+                """
                 satellite_skycoord = None
                 if self.dataset.ephemerides_file is not None:
                     satellite_skycoord = self.dataset.satellite_skycoord
@@ -988,32 +991,31 @@ class FitData(object):
                 return satellite_skycoord
 
             def _get_magnification_curve():
-                """ Get the
+                """
+                Get the
                 :py:class:`~MulensModel.magnificationcurve.MagnificationCurve.`
-                evaluated at the dataset epochs."""
+                evaluated at the dataset epochs.
+                """
                 # This code was copied directly from model.py --> indicates a
                 # refactor is needed.
                 # Also, shouldn't satellite_skycoord be stored as a property of
                 # mm.Model?
-                # We also have to access a lot of private functions of model,
-                # which is bad.
                 magnification_curve = MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
-                    parallax=self.model.get_parallax(), coords=self.model.coords,
+                    parallax=self.model.get_parallax(),
+                    coords=self.model.coords,
                     satellite_skycoord=self._dataset_satellite_skycoord,
                     gamma=self.gamma)
                 magnification_curve.set_magnification_methods(
                     self.model.methods,
                     self.model.default_magnification_method)
-                #magnification_curve.set_magnification_methods_parameters(
-                #    self.model.methods_parameters)
 
                 return magnification_curve
 
             def _get_a_pspl():
                 """ Calculate and return the point lens magnification. """
-                point_source_params = {key: value for key, value in
-                                       self.model.parameters.parameters.items()}
+                zip_ = self.model.parameters.parameters.items()
+                point_source_params = {key: value for (key, value) in zip_}
                 point_source_params.pop('rho')
                 point_source_curve = MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
@@ -1024,8 +1026,10 @@ class FitData(object):
                 return a_pspl
 
             def _get_b0_gamma_b1_and_derivs():
-                """ Retrieve B0 - gamma * B1 and its derivative for each epoch.
-                For uniform source, return B0 and its derivative. """
+                """
+                Retrieve B0 - gamma * B1 and its derivative for each epoch.
+                For uniform source, return B0 and its derivative.
+                """
                 z_ = self.u_ / self.model.parameters.rho
 
                 b0_gamma_b1 = np.ones(len(self.dataset.time))
@@ -1035,18 +1039,8 @@ class FitData(object):
                 methods = np.array(
                     self._magnification_curve._methods_for_epochs())
                 for method in set(methods):
-                    # kwargs = {}
-                    # if (self._magnification_curve._methods_parameters is not
-                    #         None):
-                    #     if method in self._magnification_curve._methods_parameters.keys():
-                    #         kwargs = self._magnification_curve._methods_parameters[method]
-                    #     if kwargs != {}:
-                    #         raise ValueError(
-                    #             'Methods parameters passed, but currently ' +
-                    #             'no point lens method accepts the parameters')
-
-                    selection = (methods == method) & (z_ <
-                                                       FitData.FSPL_Derivatives._z_max)
+                    selection = (methods == method) & (
+                                 z_ < FitData.FSPL_Derivatives._z_max)
                     if method.lower() == 'point_source':
                         pass  # These cases are already taken care of.
                     elif (method.lower() ==
@@ -1056,14 +1050,14 @@ class FitData(object):
                             z_[selection])
                     elif (method.lower() ==
                           'finite_source_LD_Yoo04'.lower()):
-                        b0_gamma_b1[selection] = self._get_B0(z_[selection])
-                        b0_gamma_b1[selection] -= self.gamma * self._get_B1(
-                            z_[selection])
-                        db0_gamma_db1[selection] = self._get_B0_prime(
-                            z_[selection])
-                        db0_gamma_db1[selection] -= (self.gamma *
-                                                          self._get_B1_prime(
-                                                              z_[selection]))
+                        B0 = self._get_B0(z_[selection])
+                        B0_prime = self._get_B0_prime(z_[selection])
+                        B1 = self._get_B1(z_[selection])
+                        B1_prime = self._get_B1_prime(z_[selection])
+
+                        b0_gamma_b1[selection] = B0 - self.gamma * B1
+                        db0_gamma_db1[selection] = (
+                            B0_prime - self.gamma * B1_prime)
                     else:
                         msg = "dA/drho only implemented for 'finite_source_"
                         msg += "uniform_Gould94' and 'finite_source_LD"
@@ -1081,10 +1075,13 @@ class FitData(object):
             self.model = self.fit.model
             self.gamma = self.fit.gamma
             self.u_ = _get_u()
-            self._dataset_satellite_skycoord = _get_dataset_satellite_skycoord()
+            self._dataset_satellite_skycoord = (
+                _get_dataset_satellite_skycoord())
             self._magnification_curve = _get_magnification_curve()
             self.a_pspl = _get_a_pspl()
-            (self.b0_gamma_b1, self.db0_gamma_db1) = _get_b0_gamma_b1_and_derivs()
+            b0_gamma_b1_and_derivs = _get_b0_gamma_b1_and_derivs()
+            self.b0_gamma_b1 = b0_gamma_b1_and_derivs[0]
+            self.db0_gamma_db1 = b0_gamma_b1_and_derivs[1]
 
         def _read_B0B1_file(self):
             """Read file with pre-computed function values"""
@@ -1108,8 +1105,10 @@ class FitData(object):
             FitData.FSPL_Derivatives._B0B1_file_read = True
 
         def get_gradient(self, parameters):
-            """ Return the gradient of the magnification with respect to the
-            FSPL parameters. """
+            """
+            Return the gradient of the magnification with respect to the
+            FSPL parameters.
+            """
             d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
             factor = self.a_pspl * self.db0_gamma_db1
             factor /= self.model.parameters.rho
@@ -1125,7 +1124,8 @@ class FitData(object):
             return gradient
 
         def get_d_A_d_rho(self):
-            """ Return the derivative of the magnification with respect to rho.
+            """
+            Return the derivative of the magnification with respect to rho.
             """
             d_A_d_rho = self.a_pspl
             d_A_d_rho *= -self.u_ / self.model.parameters.rho**2

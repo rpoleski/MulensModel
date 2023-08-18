@@ -732,7 +732,7 @@ class Event(object):
         """
 
         self._fits = []
-        for i, dataset in enumerate(self.datasets):
+        for dataset in self.datasets:
             if dataset in self.fix_blend_flux.keys():
                 fix_blend_flux = self.fix_blend_flux[dataset]
             else:
