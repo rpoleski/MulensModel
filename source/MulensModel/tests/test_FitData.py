@@ -965,7 +965,6 @@ def test_FSPLDerivs_get_satellite_coords():
     model.set_default_magnification_method('finite_source_uniform_Gould94')
     fit = mm.FitData(dataset=dataset, model=model)
     derivs_obj = fit.FSPL_Derivatives(fit)
-    print(derivs_obj._dataset_satellite_skycoord)
     result_1 = derivs_obj._dataset_satellite_skycoord[0]
     result_2 = derivs_obj._dataset_satellite_skycoord[-1]
 

@@ -205,10 +205,8 @@ def test_BLPS_02():
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
                'VBBL', 2456117.5]
     model.set_magnification_methods(methods)
-    assert (model.default_magnification_method == 'point_source')
-    assert (model.methods ==
-            [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
-             'VBBL', 2456117.5])
+    assert model.default_magnification_method == 'point_source'
+    assert model.methods == methods
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     result = model.get_magnification(data.time)
@@ -265,11 +263,11 @@ class TestBLPS02AC(unittest.TestCase):
 
     def test_methods(self):
         def test_model_methods(model):
-            assert (model.default_magnification_method == 'point_source')
-            assert (model.methods ==
-                    [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
-                     2456116.5,
-                     'Adaptive_Contouring', 2456117.5])
+            assert model.default_magnification_method == 'point_source'
+            methods_compare = [
+                2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                2456116.5, 'Adaptive_Contouring', 2456117.5]
+            assert model.methods == methods_compare
 
         test_model_methods(self.model_ac_1)
         test_model_methods(self.model_ac_2)
@@ -284,7 +282,7 @@ class TestBLPS02AC(unittest.TestCase):
                 {'adaptive_contouring': {'accuracy': 0.04}})
 
     def test_mag_calculation_1(self):
-        # Test calculation:
+        """Test calculation of magnification"""
         result = self.model_ac_1.get_magnification(self.data.time)
         expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
                              1.61038135, 1.63603122, 1.69045492, 1.77012807])
@@ -303,7 +301,7 @@ class TestBLPS02AC(unittest.TestCase):
         assert self.model_ac_2.methods_parameters == reference
 
     def test_mag_calculation_2(self):
-        # Test calculation:
+        """Test calculation of magnification with limb darkening"""
         result = self.model_ac_2.get_magnification(
             self.data.time, gamma=self.model_ac_2.get_limb_coeff_gamma('I'))
         almost(result[5], 1.6366862, decimal=3)
@@ -469,12 +467,10 @@ def test_model_binary_and_finite_sources():
     (t1, t2) = (4999.95, 5000.05)
     (t3, t4) = (5099.95, 5100.05)
     finite = 'finite_source_uniform_Gould94'
-    model.set_magnification_methods(
-        [t1, finite, t2, 'point_source', t3, finite, t4])
-    model_1.set_magnification_methods(
-        [t1, finite, t2, 'point_source', t3, finite, t4])
-    model_2.set_magnification_methods(
-        [t1, finite, t2, 'point_source', t3, finite, t4])
+    methods = [t1, finite, t2, 'point_source', t3, finite, t4]
+    model.set_magnification_methods(methods)
+    model_1.set_magnification_methods(methods)
+    model_2.set_magnification_methods(methods)
 
     def test_model_methods(test_model):
         assert (test_model.default_magnification_method == 'point_source')
@@ -592,8 +588,7 @@ def test_get_lc():
 
 
 def test_is_finite_source():
-    model_fs = mm.Model(
-        {'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
+    model_fs = mm.Model({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
     model_ps = mm.Model({'t_0': 10, 'u_0': 1, 't_E': 3})
 
     assert model_fs.parameters.is_finite_source()
