@@ -49,7 +49,7 @@ def test_model_init_1():
 class TestModel(unittest.TestCase):
     def test_negative_t_E(self):
         with self.assertRaises(ValueError):
-            my_model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
+            _ = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
 
 
 def test_model_parallax_definition():
@@ -210,7 +210,6 @@ def test_BLPS_02():
             [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
              'VBBL', 2456117.5])
 
-
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     result = model.get_magnification(data.time)
 
@@ -292,15 +291,16 @@ class TestBLPS02AC(unittest.TestCase):
         almost(result, expected, decimal=3)
 
     def test_methods_parameters_2(self):
-        # test get_magnification_methods_parameters()
-        assert (self.model_ac_2.get_magnification_methods_parameters(
-            'Adaptive_Contouring') ==
-                {'adaptive_contouring':
-                     {'accuracy': 0.01, 'ld_accuracy': 0.00001}})
-        # test methods_parameters()
-        assert (self.model_ac_2.methods_parameters ==
-                {'adaptive_contouring':
-                     {'accuracy': 0.01, 'ld_accuracy': 0.00001}})
+        """
+        test get_magnification_methods_parameters()
+        and methods_parameters()
+        """
+        AC = 'Adaptive_Contouring'
+        dict_1 = self.model_ac_2.get_magnification_methods_parameters(AC)
+        reference = {AC.lower(): {'accuracy': 0.01, 'ld_accuracy': 0.00001}}
+        assert dict_1 == reference
+
+        assert self.model_ac_2.methods_parameters == reference
 
     def test_mag_calculation_2(self):
         # Test calculation:
@@ -320,8 +320,8 @@ class TestMethodsParameters(unittest.TestCase):
         self.params = mm.ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
             'q': q, 'rho': rho})
-        methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
-                   'VBBL', 2456117.5]
+        methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                   2456116.5, 'VBBL', 2456117.5]
         self.model_1 = mm.Model(parameters=self.params)
         self.model_1.set_magnification_methods(methods)
 
@@ -458,7 +458,8 @@ def test_model_binary_and_finite_sources():
     test if model magnification calculation for binary source works with
     finite sources (both rho and t_star given)
     """
-    # Currently, this test fails because of the difference between interpolation_table_v3 and v1.
+    # Currently, this test fails because of the difference between
+    # interpolation_table_v3 and v1.
     model = mm.Model({
         't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001,
         't_0_2': 5100., 'u_0_2': 0.0003, 't_star_2': 0.03, 't_E': 25.})
@@ -484,7 +485,7 @@ def test_model_binary_and_finite_sources():
     test_model_methods(model_1)
     test_model_methods(model_2)
 
-    (f_s_1, f_s_2, f_b) = (100., 300., 50.)
+    (f_s_1, f_s_2) = (100., 300.)
     time = np.linspace(4900., 5200., 4200)
     mag_1 = model_1.get_magnification(time)
     mag_2 = model_2.get_magnification(time)
@@ -511,16 +512,16 @@ def test_binary_source_and_fluxes_for_bands():
 
     times_I = np.linspace(4900., 5200., 3000)
     times_V = np.linspace(4800., 5300., 250)
-    (f_s_1_I, f_s_2_I, f_b_I) = (10., 20., 3.)
-    (f_s_1_V, f_s_2_V, f_b_V) = (15., 5., 30.)
+    (f_s_1_I, f_s_2_I) = (10., 20.)
+    (f_s_1_V, f_s_2_V) = (15., 5.)
     q_f_I = f_s_2_I / f_s_1_I
     q_f_V = f_s_2_V / f_s_1_V
     (mag_1_I, mag_2_I) = model.get_magnification(times_I, separate=True)
     (mag_1_V, mag_2_V) = model.get_magnification(times_V, separate=True)
     effective_mag_I = (mag_1_I + mag_2_I * q_f_I) / (1. + q_f_I)
     effective_mag_V = (mag_1_V + mag_2_V * q_f_V) / (1. + q_f_V)
-    flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
-    flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
+    # flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
+    # flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
 
     # model.set_source_flux_ratio_for_band('I', q_f_I)
     # model.set_source_flux_ratio_for_band('V', q_f_V)
@@ -538,9 +539,10 @@ class TestSeparateMethodForEachSource(unittest.TestCase):
     binary source models works properly.
     """
     def setUp(self):
-        self.model = mm.Model({'t_0_1': 5000., 'u_0_1': 0.01, 'rho_1': 0.005,
-                          't_0_2': 5100., 'u_0_2': 0.001, 'rho_2': 0.005,
-                          't_E': 1000.})
+        parameters = {'t_0_1': 5000., 'u_0_1': 0.01, 'rho_1': 0.005,
+                      't_0_2': 5100., 'u_0_2': 0.001, 'rho_2': 0.005,
+                      't_E': 1000.}
+        self.model = mm.Model(parameters)
 
     def test_1(self):
         self.model.set_magnification_methods(
@@ -588,6 +590,7 @@ def test_get_lc():
     out = model.get_lc(5050., source_flux=[1., 2.], blend_flux=3.)
     almost(out, 19.668370500043526)
 
+
 def test_is_finite_source():
     model_fs = mm.Model(
         {'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
@@ -595,6 +598,7 @@ def test_is_finite_source():
 
     assert model_fs.parameters.is_finite_source()
     assert not model_ps.parameters.is_finite_source()
+
 
 def test_repr():
     """Test if printing is Model instance is OK."""

@@ -685,7 +685,8 @@ class TestFSPLGradient(unittest.TestCase):
         """ Initialize a model to match sfit parameters """
         parameters = ['t_0', 'u_0', 't_E', 'rho']
         self.sfit_model = mm.Model(dict(zip(parameters, self.sfit_mat.a)))
-        t_star = self.sfit_model.parameters.rho * self.sfit_model.parameters.t_E
+        t_star = (
+            self.sfit_model.parameters.rho * self.sfit_model.parameters.t_E)
         n_t_star = 9.
         self._t_lim_1 = self.sfit_model.parameters.t_0 - n_t_star * t_star
         self._t_lim_2 = self.sfit_model.parameters.t_0 + n_t_star * t_star
@@ -707,7 +708,7 @@ class TestFSPLGradient(unittest.TestCase):
             bandpass = filename.split('.')[0][-1]
             mag_data = np.genfromtxt(
                 join(dir_4, filename), dtype=None, encoding='utf-8',
-            names=['time', 'mag', 'err'])
+                names=['time', 'mag', 'err'])
             (flux, err) = mm.Utils.get_flux_and_err_from_mag(
                 mag_data['mag'], mag_data['err'], zeropoint=18.)
             dataset = mm.MulensData(
@@ -886,8 +887,8 @@ class TestFSPLGradient2(TestFSPLGradient):
             names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
         self.sfit_partials = np.genfromtxt(
             fort_62, dtype=None, encoding='utf-8',
-            names=['nob', 'k', 't', 'dfdt0', 'dfdu0', 'dfdtE', 'dfdrho', 'dAdu',
-                   'df', 'res', 'sig2'])
+            names=['nob', 'k', 't', 'dfdt0', 'dfdu0', 'dfdtE', 'dfdrho',
+                   'dAdu', 'df', 'res', 'sig2'])
         self.sfit_mat = FortranSFitFile(fort_51)
         self.sfit_mat.a[0] += 2450000.
 

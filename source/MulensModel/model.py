@@ -1018,11 +1018,11 @@ class Model(object):
         :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
 
         Parameters :
-           bandpass: *str*
-               Bandpass for the coefficient you provide.
+            bandpass: *str*
+                Bandpass for the coefficient you provide.
 
-           coeff: *float*
-               Value of the coefficient.
+            coeff: *float*
+                Value of the coefficient.
         """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
