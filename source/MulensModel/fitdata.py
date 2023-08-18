@@ -1018,7 +1018,8 @@ class FitData(object):
                 point_source_params = {key: value for (key, value) in zip_}
                 point_source_params.pop('rho')
                 point_source_curve = MagnificationCurve(
-                    self.dataset.time, parameters=self.model.parameters,
+                    self.dataset.time,
+                    parameters=mm.ModelParameters(point_source_params),
                     parallax=self.model.get_parallax(), coords=self.model.coords,
                     satellite_skycoord=self._dataset_satellite_skycoord)
 

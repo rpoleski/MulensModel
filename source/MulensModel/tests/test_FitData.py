@@ -828,6 +828,11 @@ class TestFSPLGradient(unittest.TestCase):
         """ Check that dA / drho is calculated correctly for dataset 1"""
         self._dA_drho_test(1)
 
+    def _set_limb_coeffs(self, model):
+        for band in ['I', 'V']:
+            model.set_limb_coeff_gamma(
+                band, self.sfit_model.get_limb_coeff_gamma(band))
+
     def test_FSPL_Derivatives_tstar(self):
         """ Make sure that FSPL Derivatives fails for models defined with
         tstar """
@@ -836,6 +841,8 @@ class TestFSPLGradient(unittest.TestCase):
              'u_0': self.sfit_model.parameters.u_0,
              't_E': self.sfit_model.parameters.t_E,
              't_star': self.sfit_model.parameters.t_star})
+        self._set_limb_coeffs(model)
+
         fit = mm.FitData(model=model, dataset=self.datasets[0])
 
         with self.assertRaises(KeyError):
@@ -844,6 +851,8 @@ class TestFSPLGradient(unittest.TestCase):
     def test_check_FSPLDerivs_errors_1(self):
         parameters = ['t_0', 'u_0', 't_E', 'rho']
         model = mm.Model(dict(zip(parameters, self.sfit_mat.a)))
+        self._set_limb_coeffs(model)
+
         t_star = model.parameters.rho * model.parameters.t_E
         n_t_star = 9.
         t_lim_1 = model.parameters.t_0 - n_t_star * t_star
@@ -962,8 +971,10 @@ def test_FSPLDerivs_get_satellite_coords():
         [times, mags, errs], phot_fmt='mag',
         ephemerides_file=SAMPLE_FILE_03_EPH)
     model = mm.Model({'t_0': 2457000., 'u_0': 0.01, 't_E': 100., 'rho': 0.02})
-    model.set_default_magnification_method('finite_source_uniform_Gould94')
+    model.default_magnification_method='finite_source_uniform_Gould94'
+
     fit = mm.FitData(dataset=dataset, model=model)
+
     derivs_obj = fit.FSPL_Derivatives(fit)
     result_1 = derivs_obj._dataset_satellite_skycoord[0]
     result_2 = derivs_obj._dataset_satellite_skycoord[-1]
