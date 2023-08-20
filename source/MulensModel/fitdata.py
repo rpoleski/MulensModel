@@ -1043,15 +1043,14 @@ class FitData(object):
                 for method in set(methods):
                     selection = (methods == method) & (
                                  z_ < FitData.FSPL_Derivatives._z_max)
-                    if method.lower() == 'point_source':
+                    method_ = method.lower()
+                    if method_ == 'point_source':
                         pass  # These cases are already taken care of.
-                    elif (method.lower() ==
-                          'finite_source_uniform_Gould94'.lower()):
+                    elif method_ == 'finite_source_uniform_Gould94'.lower():
                         b0_gamma_b1[selection] = self._get_B0(z_[selection])
                         db0_gamma_db1[selection] = self._get_B0_prime(
                             z_[selection])
-                    elif (method.lower() ==
-                          'finite_source_LD_Yoo04'.lower()):
+                    elif method_ == 'finite_source_LD_Yoo04'.lower():
                         B0 = self._get_B0(z_[selection])
                         B0_prime = self._get_B0_prime(z_[selection])
                         B1 = self._get_B1(z_[selection])
