@@ -662,6 +662,6 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
     if key == 'xi_argument_of_latitude_reference':
         new_value_2 += 180.
     elif key == 'xi_semimajor_axis':
-        new_value_2 *= q_source
+        new_value_2 /= q_source
 
     assert getattr(model.source_2_parameters, key) == new_value_2

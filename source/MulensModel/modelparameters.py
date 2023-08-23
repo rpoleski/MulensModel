@@ -822,7 +822,7 @@ class ModelParameters(object):
             setattr(self._source_1_parameters, parameter, value)
 
         if parameter == 'xi_semimajor_axis':
-            value *= self.parameters['q_source']
+            value /= self.parameters['q_source']
         elif parameter == 'xi_argument_of_latitude_reference':
             value += 180.
 
