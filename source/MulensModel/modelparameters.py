@@ -353,7 +353,6 @@ class ModelParameters(object):
         Check if self._type values make sense
         """
         n_lenses = self._n_lenses
-        n_sources = self._n_sources
 
         # Lens orbital motion requires binary lens:
         if self._type['lens 2-parameter orbital motion'] and n_lenses == 1:
@@ -837,8 +836,8 @@ class ModelParameters(object):
             setattr(self._source_2_parameters, parameter, value)
 
         if parameter == 'q_source':
-            value = self.parameters['xi_semimajor_axis'] / self.parameters['q_source']
-            setattr(self._source_2_parameters, 'xi_semimajor_axis', value)
+            value_ = self.parameters['xi_semimajor_axis'] / value
+            setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
 
         if self.is_xallarap and self.n_sources > 1:
             self._update_sources_xallarap_reference()
