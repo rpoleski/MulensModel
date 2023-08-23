@@ -829,6 +829,10 @@ class ModelParameters(object):
         if parameter in self._source_2_parameters.parameters:
             setattr(self._source_2_parameters, parameter, value)
 
+        if parameter == 'q_source':
+            value = self.parameters['xi_semimajor_axis'] / self.parameters['q_source']
+            setattr(self._source_2_parameters, 'xi_semimajor_axis', value)
+
     def _set_time_quantity(self, key, new_time):
         """
         Save a variable with units of time (e.g. t_E, t_star,
@@ -1620,6 +1624,7 @@ class ModelParameters(object):
     @q_source.setter
     def q_source(self, new_value):
         self.parameters['q_source'] = new_value
+        self._update_sources('q_source', new_value)
 
     @property
     def t_0_1(self):

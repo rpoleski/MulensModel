@@ -654,6 +654,10 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
     if key == 'q_source':
         assert 'q_source' not in model.source_1_parameters.parameters
         assert 'q_source' not in model.source_2_parameters.parameters
+        key_a = 'xi_semimajor_axis'
+        xi_a = xallarap_parameters[key_a]
+        assert model.source_1_parameters.parameters[key_a] == xi_a
+        assert model.source_2_parameters.parameters[key_a] == xi_a / new_value
         return
 
     assert getattr(model.source_1_parameters, key) == new_value
