@@ -253,14 +253,21 @@ class ModelParameters(object):
             # run on each source parameters separately.
 
             if self.is_xallarap:
-                delta_1 = self._source_1_parameters._get_xallarap_position()
-                delta_2 = self._source_2_parameters._get_xallarap_position()
-                delta = delta_1 * (1. + 1. / parameters['q_source']) + delta_2
-                self._source_1_parameters.xallarap_reference_position = delta_1
-                self._source_2_parameters.xallarap_reference_position = delta_2
+                self._update_sources_xallarap_reference(parameters['q_source'])
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
+
+    def _update_sources_xallarap_reference(self, q_source=None):
+        """
+        Update .xallarap_reference_position for each source parameters
+        """
+        if q_source is None:
+            q_source = self.q_source
+
+        delta_1 = self._source_1_parameters._get_xallarap_position()
+        self._source_1_parameters.xallarap_reference_position = delta_1
+        self._source_2_parameters.xallarap_reference_position = delta_1
 
     def _get_xallarap_position(self, parameters=None):
         """
@@ -832,6 +839,9 @@ class ModelParameters(object):
         if parameter == 'q_source':
             value = self.parameters['xi_semimajor_axis'] / self.parameters['q_source']
             setattr(self._source_2_parameters, 'xi_semimajor_axis', value)
+
+        if self.is_xallarap and self.n_sources > 1:
+            self._update_sources_xallarap_reference()
 
     def _set_time_quantity(self, key, new_time):
         """
