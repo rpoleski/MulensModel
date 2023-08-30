@@ -218,9 +218,9 @@ class ModelParameters(object):
                 "as a parameter\ne.g., ModelParameters({'t_0': " +
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
+        self._set_type(parameters.keys())
         self._count_sources(set(parameters.keys()))
         self._count_lenses(parameters.keys())
-        self._set_type(parameters.keys())
         self._check_types('alpha' in parameters.keys())
 
         if self.n_sources == 1:
@@ -298,8 +298,12 @@ class ModelParameters(object):
         elif len(common) == 0 and 'q_source' in keys:
             self._n_sources = 2
         elif len(common) == 1:
-            raise ValueError('Wrong parameters - the only binary source ' +
-                             'parameter is {:}'.format(common))
+            finite_source_params = ['rho_1', 'rho_2', 't_star_1', 't_star_2']
+            if self.is_xallarap and list(common)[0] in finite_source_params:
+                self._n_sources = 2
+            else:
+                raise ValueError('Wrong parameters - the only binary ' +
+                                 'source parameter is {:}'.format(common))
         else:
             common_no_1_2 = {param[:-2] for param in common}
             condition_1 = (len(common_no_1_2) == len(common))
