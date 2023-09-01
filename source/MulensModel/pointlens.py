@@ -231,9 +231,7 @@ class PointLens(object):
         """
         Get mask that desides if z is in range covered by B0B1 file
         """
-        mask = (z > self._B0B1_data.z_min_interpolation)
-        mask &= (z < self._B0B1_data.z_max_interpolation)
-        return mask
+        return self._B0B1_data.get_interpolation_mask(z)
 
     def get_point_lens_limb_darkening_magnification(
             self, u, pspl_magnification, gamma, direct=False):

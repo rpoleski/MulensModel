@@ -955,9 +955,6 @@ class FitData(object):
             fit: py:class:`FitData` object
 
         """
-
-        _B0B1_file_read = False
-
         def __init__(self, fit):
             # The fact that this takes a FitData object as an argument seems
             # circular.
@@ -1042,19 +1039,19 @@ class FitData(object):
                     self._magnification_curve.methods_for_epochs)
                 for method in set(methods):
                     selection = (methods == method) & (
-                                 z_ < FitData.FSPL_Derivatives._z_max)
+                                 z_ < self._B0B1_data.z_max_interpolation)
                     method_ = method.lower()
                     if method_ == 'point_source':
                         pass  # These cases are already taken care of.
                     elif method_ == 'finite_source_uniform_Gould94'.lower():
-                        b0_gamma_b1[selection] = self._get_B0(z_[selection])
-                        db0_gamma_db1[selection] = self._get_B0_prime(
+                        b0_gamma_b1[selection] = self._B0B1_data.interpolate_B0(z_[selection])
+                        db0_gamma_db1[selection] = self._B0B1_data.interpolate_B0prime(
                             z_[selection])
                     elif method_ == 'finite_source_LD_Yoo04'.lower():
-                        B0 = self._get_B0(z_[selection])
-                        B0_prime = self._get_B0_prime(z_[selection])
-                        B1 = self._get_B1(z_[selection])
-                        B1_prime = self._get_B1_prime(z_[selection])
+                        B0 = self._B0B1_data.interpolate_B0(z_[selection])
+                        B0_prime = self._B0B1_data.interpolate_B0prime(z_[selection])
+                        B1 = self._B0B1_data.interpolate_B1(z_[selection])
+                        B1_prime = self._B0B1_data.interpolate_B1prime(z_[selection])
 
                         b0_gamma_b1[selection] = B0 - self.gamma * B1
                         db0_gamma_db1[selection] = (
@@ -1068,13 +1065,12 @@ class FitData(object):
                 return (b0_gamma_b1, db0_gamma_db1)
 
             # Actual Initializations
-            if not FitData.FSPL_Derivatives._B0B1_file_read:
-                self._read_B0B1_file()
-
             self.fit = fit
             self.dataset = self.fit.dataset
             self.model = self.fit.model
             self.gamma = self.fit.gamma
+
+            self._B0B1_data = mm.PointLensFiniteSource()
             self.u_ = _get_u()
             self._dataset_satellite_skycoord = (
                 _get_dataset_satellite_skycoord())
@@ -1083,27 +1079,6 @@ class FitData(object):
             b0_gamma_b1_and_derivs = _get_b0_gamma_b1_and_derivs()
             self.b0_gamma_b1 = b0_gamma_b1_and_derivs[0]
             self.db0_gamma_db1 = b0_gamma_b1_and_derivs[1]
-
-        def _read_B0B1_file(self):
-            """Read file with pre-computed function values"""
-            # Adapted from PointLens
-            file_ = os.path.join(
-                mm.DATA_PATH, 'interpolation_table_b0b1_v3.dat')
-            if not os.path.exists(file_):
-                raise ValueError(
-                    'File with FSPL data does not exist.\n' + file_)
-            (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = np.loadtxt(
-                file_, unpack=True)
-            FitData.FSPL_Derivatives._z_max = z[-1]
-            FitData.FSPL_Derivatives._get_B0 = interp1d(
-                z, B0, kind='cubic', bounds_error=False, fill_value=1.0)
-            FitData.FSPL_Derivatives._get_B1 = interp1d(
-                z, B1, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPL_Derivatives._get_B0_prime = interp1d(
-                z, B0_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPL_Derivatives._get_B1_prime = interp1d(
-                z, B1_prime, kind='cubic', bounds_error=False, fill_value=0.0)
-            FitData.FSPL_Derivatives._B0B1_file_read = True
 
         def get_gradient(self, parameters):
             """

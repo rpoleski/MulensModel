@@ -27,12 +27,19 @@ class PointLensFiniteSource(object):
             raise ValueError(
                 'File with FSPL data does not exist.\n' + self._B0B1_file)
 
-        kwargs = dict(usecols=range(3), unpack=True)
-        (z, B0, B0_minus_B1) = np.loadtxt(self._B0B1_file, **kwargs)
+        file_info = np.loadtxt(self._B0B1_file, unpack=True)
+        (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = file_info
 
-        PointLensFiniteSource._B0_interpolation = interp1d(z, B0, kind='cubic')
+        kwargs = {'kind': 'cubic', 'bounds_error': False, 'fill_value': 1.}
+        PointLensFiniteSource._B0_interpolation = interp1d(z, B0, **kwargs)
+        kwargs['fill_value'] = 0.
         PointLensFiniteSource._B0_minus_B1_interpolation = interp1d(
-            z, B0_minus_B1, kind='cubic')
+            z, B0_minus_B1, **kwargs)
+        PointLensFiniteSource._B1_interpolation = interp1d(z, B1, **kwargs)
+        PointLensFiniteSource._B0_prime_interpolation = interp1d(
+            z, B0_prime, **kwargs)
+        PointLensFiniteSource._B1_prime_interpolation = interp1d(
+            z, B1_prime, **kwargs)
         PointLensFiniteSource._z_min = np.min(z)
         PointLensFiniteSource._z_max = np.max(z)
         PointLensFiniteSource._B0B1_file_read = True
@@ -49,14 +56,31 @@ class PointLensFiniteSource(object):
         """
         return PointLensFiniteSource._B0_minus_B1_interpolation(x)
 
-    @property
-    def z_min_interpolation(self):
+    def interpolate_B1(self, x):
         """
         XXX
-
-        *float*
         """
-        return PointLensFiniteSource._z_min
+        return PointLensFiniteSource._B1_interpolation(x)
+
+    def interpolate_B0prime(self, x):
+        """
+        XXX
+        """
+        return PointLensFiniteSource._B0_prime_interpolation(x)
+
+    def interpolate_B1prime(self, x):
+        """
+        XXX
+        """
+        return PointLensFiniteSource._B1_prime_interpolation(x)
+
+    def get_interpolation_mask(self, z):
+        """
+        XXX
+        """
+        mask = (z > PointLensFiniteSource._z_min)
+        mask &= (z < PointLensFiniteSource._z_max)
+        return mask
 
     @property
     def z_max_interpolation(self):
@@ -66,3 +90,4 @@ class PointLensFiniteSource(object):
         *float*
         """
         return PointLensFiniteSource._z_max
+
