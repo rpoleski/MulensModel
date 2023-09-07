@@ -208,8 +208,6 @@ class PointLens(object):
         except TypeError:
             z = np.array([z])
 
-
-
         if direct:
             mask = np.zeros_like(z, dtype=bool)
         else:

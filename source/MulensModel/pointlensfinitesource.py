@@ -44,39 +44,88 @@ class PointLensFiniteSource(object):
         PointLensFiniteSource._z_max = np.max(z)
         PointLensFiniteSource._B0B1_file_read = True
 
-    def interpolate_B0(self, x):
+    def interpolate_B0(self, z):
         """
-        XXX
-        """
-        return PointLensFiniteSource._B0_interpolation(x)
+        Interpolate B_0(z) function.
 
-    def interpolate_B0minusB1(self, x):
-        """
-        XXX
-        """
-        return PointLensFiniteSource._B0_minus_B1_interpolation(x)
+        Parameters :
+            z: *np.ndarray*
+                Values of u/rho.
 
-    def interpolate_B1(self, x):
+        Returns :
+            B0: *np.ndarray*
+                Values of B_0.
         """
-        XXX
-        """
-        return PointLensFiniteSource._B1_interpolation(x)
+        return PointLensFiniteSource._B0_interpolation(z)
 
-    def interpolate_B0prime(self, x):
+    def interpolate_B0minusB1(self, z):
         """
-        XXX
-        """
-        return PointLensFiniteSource._B0_prime_interpolation(x)
+        Interpolate B_0(z)-B_1(z) function.
 
-    def interpolate_B1prime(self, x):
+        Parameters :
+            z: *np.ndarray*
+                Values of u/rho.
+
+        Returns :
+            B0_minus_B1: *np.ndarray*
+                Values of B_0(z)-B_1(z).
         """
-        XXX
+        return PointLensFiniteSource._B0_minus_B1_interpolation(z)
+
+    def interpolate_B1(self, z):
         """
-        return PointLensFiniteSource._B1_prime_interpolation(x)
+        Interpolate B_1(z) function.
+
+        Parameters :
+            z: *np.ndarray*
+                Values of u/rho.
+
+        Returns :
+            B1: *np.ndarray*
+                Values of B_1(z).
+        """
+        return PointLensFiniteSource._B1_interpolation(z)
+
+    def interpolate_B0prime(self, z):
+        """
+        Interpolate derivative of B_0(z), i.e., d B_0(z)/d z.
+
+        Parameters :
+            z: *np.ndarray*
+                Values of u/rho.
+
+        Returns :
+            dB0_dz: *np.ndarray*
+                Values of d B_0(z)/d z.
+        """
+        return PointLensFiniteSource._B0_prime_interpolation(z)
+
+    def interpolate_B1prime(self, z):
+        """
+        Interpolate derivative of B_1(z), i.e., d B_1(z)/d z.
+
+        Parameters :
+            z: *np.ndarray*
+                Values of u/rho.
+
+        Returns :
+            dB1_dz: *np.ndarray*
+                Values of d B_1(z)/d z.
+        """
+        return PointLensFiniteSource._B1_prime_interpolation(z)
 
     def get_interpolation_mask(self, z):
         """
-        XXX
+        Get mask of z values for which interpolation of B_0(z), B_1(z) etc.
+        is allowed
+
+        Parameters :
+            z: *np.ndarray*
+                Values of u/rho.
+
+        Returns :
+            mask: *np.ndarray*
+                Mask indicating for which z values interpolation is allowed.
         """
         mask = (z > PointLensFiniteSource._z_min)
         mask &= (z < PointLensFiniteSource._z_max)
@@ -85,9 +134,8 @@ class PointLensFiniteSource(object):
     @property
     def z_max_interpolation(self):
         """
-        XXX
+        Maximum value of z for which interpolation is allowed.
 
         *float*
         """
         return PointLensFiniteSource._z_max
-
