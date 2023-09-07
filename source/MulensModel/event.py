@@ -401,9 +401,6 @@ class Event(object):
         t_max = 0.
         subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
-        # Plot zeropoint line
-        plt.plot([0., 3000000.], [0., 0.], color='black')
-
         # Plot residuals
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         for i, data in enumerate(self._datasets):
