@@ -432,6 +432,7 @@ class Event(object):
         if y_lim > 1.:
             y_lim = 0.5
 
+        plt.axhline(0, color='black', zorder=0)
         plt.ylim(y_lim, -y_lim)
         plt.xlim(t_min-subtract, t_max-subtract)
         plt.ylabel('Residuals')
