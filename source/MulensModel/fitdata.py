@@ -1,12 +1,6 @@
 import numpy as np
-import os.path
 import warnings
-from scipy.interpolate import interp1d
 
-from MulensModel.mulensdata import MulensData
-from MulensModel.magnificationcurve import MagnificationCurve
-from MulensModel.trajectory import Trajectory
-from MulensModel.utils import Utils
 import MulensModel as mm
 
 
@@ -417,7 +411,7 @@ class FitData(object):
                 The model magnitude evaluated for each datapoint.
         """
         model_flux = self.get_model_fluxes(**kwargs)
-        model_mag = Utils.get_mag_from_flux(model_flux)
+        model_mag = mm.Utils.get_mag_from_flux(model_flux)
 
         return model_mag
 
@@ -523,9 +517,10 @@ class FitData(object):
                 model_flux = source_flux[0] * magnification[0]
                 model_flux += source_flux[1] * magnification[1]
             model_flux += blend_flux
-            model_mag = Utils.get_mag_from_flux(model_flux)
+            model_mag = mm.Utils.get_mag_from_flux(model_flux)
             (flux, err_flux) = self.scale_fluxes(source_flux, blend_flux)
-            (mag, errorbars) = Utils.get_mag_and_err_from_flux(flux, err_flux)
+            (mag, errorbars) = mm.Utils.get_mag_and_err_from_flux(
+                flux, err_flux)
             residuals = mag - model_mag
         else:
             raise ValueError(
@@ -657,7 +652,7 @@ class FitData(object):
                 'coords': self.model.coords,
                 'satellite_skycoord': self.dataset.satellite_skycoord}
 
-            return Trajectory(parameters=self.model.parameters, **kwargs_)
+            return mm.Trajectory(parameters=self.model.parameters, **kwargs_)
 
     def get_d_A_d_u_for_PSPL_model(self):
         """
@@ -903,7 +898,7 @@ class FitData(object):
 
     @dataset.setter
     def dataset(self, new_value):
-        if not isinstance(new_value, MulensData):
+        if not isinstance(new_value, mm.MulensData):
             raise TypeError("Dataset has to of MulensData type, not: " +
                             str(type(new_value)))
         self._dataset = new_value
@@ -997,7 +992,7 @@ class FitData(object):
                 # refactor is needed.
                 # Also, shouldn't satellite_skycoord be stored as a property of
                 # mm.Model?
-                magnification_curve = MagnificationCurve(
+                magnification_curve = mm.MagnificationCurve(
                     self.dataset.time, parameters=self.model.parameters,
                     parallax=self.model.get_parallax(),
                     coords=self.model.coords,
@@ -1014,7 +1009,7 @@ class FitData(object):
                 zip_ = self.model.parameters.parameters.items()
                 point_source_params = {key: value for (key, value) in zip_}
                 point_source_params.pop('rho')
-                point_source_curve = MagnificationCurve(
+                point_source_curve = mm.MagnificationCurve(
                     self.dataset.time,
                     parameters=mm.ModelParameters(point_source_params),
                     parallax=self.model.get_parallax(),
@@ -1033,25 +1028,26 @@ class FitData(object):
 
                 b0_gamma_b1 = np.ones(len(self.dataset.time))
                 db0_gamma_db1 = np.zeros(len(self.dataset.time))
+                B0B1 = self._B0B1_data
                 # This section was copied from magnificationcurve.py. Addl
                 # evidence a refactor is needed.
                 methods = np.array(
                     self._magnification_curve.methods_for_epochs)
                 for method in set(methods):
                     selection = (methods == method) & (
-                                 z_ < self._B0B1_data.z_max_interpolation)
+                                 z_ < B0B1.z_max_interpolation)
+                    z = z_[selection]
                     method_ = method.lower()
                     if method_ == 'point_source':
                         pass  # These cases are already taken care of.
                     elif method_ == 'finite_source_uniform_Gould94'.lower():
-                        b0_gamma_b1[selection] = self._B0B1_data.interpolate_B0(z_[selection])
-                        db0_gamma_db1[selection] = self._B0B1_data.interpolate_B0prime(
-                            z_[selection])
+                        b0_gamma_b1[selection] = B0B1.interpolate_B0(z)
+                        db0_gamma_db1[selection] = B0B1.interpolate_B0prime(z)
                     elif method_ == 'finite_source_LD_Yoo04'.lower():
-                        B0 = self._B0B1_data.interpolate_B0(z_[selection])
-                        B0_prime = self._B0B1_data.interpolate_B0prime(z_[selection])
-                        B1 = self._B0B1_data.interpolate_B1(z_[selection])
-                        B1_prime = self._B0B1_data.interpolate_B1prime(z_[selection])
+                        B0 = B0B1.interpolate_B0(z)
+                        B0_prime = B0B1.interpolate_B0prime(z)
+                        B1 = B0B1.interpolate_B1(z)
+                        B1_prime = B0B1.interpolate_B1prime(z)
 
                         b0_gamma_b1[selection] = B0 - self.gamma * B1
                         db0_gamma_db1[selection] = (
