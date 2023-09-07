@@ -392,30 +392,22 @@ class Event(object):
 
         """
         self._set_default_colors()
-
         if data_ref is None:
             data_ref = self.data_ref
 
-        # Plot limit parameters
-        t_min = 3000000.
-        t_max = 0.
         subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
-        # Plot residuals
-        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
-        for i, data in enumerate(self._datasets):
-            # Evaluate whether or nor it is necessary to calculate the model
-            # for bad datapoints.
-            if show_bad:
-                bad = True
-            else:
-                bad = False
+        fluxes = self.get_flux_for_dataset(data_ref)
+        kwargs_residuals = {'phot_fmt': 'scaled', 'bad': False,
+                            'source_flux': fluxes[0], 'blend_flux': fluxes[1]}
+        if show_bad:
+            kwargs_residuals['bad']: True
 
-            (residuals, errorbars) = self.fits[i].get_residuals(
-                phot_fmt='scaled', source_flux=f_source_0,
-                blend_flux=f_blend_0, bad=bad)
-            y_value = residuals
-            y_err = errorbars
+        # Plot residuals
+        t_min = np.min(self._datasets[0].time)
+        t_max = np.max(self._datasets[0].time)
+        for (fit, data) in zip(self.fits, self._datasets):
+            (y_value, y_err) = fit.get_residuals(**kwargs_residuals)
             data._plot_datapoints(
                 (y_value, y_err), subtract_2450000=subtract_2450000,
                 subtract_2460000=subtract_2460000,
