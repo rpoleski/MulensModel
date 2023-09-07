@@ -918,7 +918,7 @@ class Model(object):
         """
         warnings.warn(
             "set_default_magnification_method() is DEPRECATED. Use default_" +
-            "magnification_method() instead.")
+            "magnification_method() instead.", DeprecationWarning)
         self.default_magnification_method = method
 
     @property
