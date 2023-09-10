@@ -981,10 +981,12 @@ class Model(object):
         method or methods.
 
         Parameters :
-            methods_parameters: *str*, *list*
+            method: *str*, *list*
+                Name of method or a list of the names for which parameters
+                will be returned.
 
         Returns :
-            method_parameters: *dict*,
+            method_parameters: *dict*
                 see :py:func:`set_magnification_methods_parameters`
         """
         if isinstance(method, (str)):
