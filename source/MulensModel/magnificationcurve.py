@@ -274,8 +274,9 @@ class MagnificationCurve(object):
         for method in set(methods):
             kwargs = {}
             if self._methods_parameters is not None:
-                if method in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method]
+                if method.lower() in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method.lower()]
+
                 if kwargs != {}:
                     raise ValueError(
                         'Methods parameters passed, but currently ' +
@@ -477,6 +478,16 @@ class MagnificationCurve(object):
             magnification.append(m)
 
         return np.array(magnification)
+
+    @property
+    def methods_for_epochs(self):
+        """
+        *list*
+
+        for each epochs, decide which methods should be used to
+        calculate magnification, but don't run the calculations
+        """
+        return self._methods_for_epochs()
 
     def _methods_for_epochs(self):
         """

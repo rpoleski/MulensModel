@@ -468,48 +468,6 @@ class TestChi2Gradient(unittest.TestCase):
         np.testing.assert_almost_equal(ratio, 1., decimal=5)
 
 
-def _test_event_chi2_gradient_rho():
-    """
-    test calculation of chi2 gradient including finite source effects
-    MB08310 is used as an example
-    """
-    kwargs = {'comments': ["\\", "|"]}
-    datasets = [
-        mm.MulensData(file_name=SAMPLE_FILE_310_01, bandpass='R', **kwargs),
-        mm.MulensData(file_name=SAMPLE_FILE_310_02, bandpass='U', **kwargs),
-        mm.MulensData(file_name=SAMPLE_FILE_310_03, bandpass='I', **kwargs)]
-
-    (gamma_I, gamma_V) = (0.44, 0.72)
-    t_0 = 2454656.39975
-    u_0 = 0.00300
-    t_E = 11.14
-    rho = 0.00492549
-    t_star = rho * t_E
-    parameters = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho}
-    model = mm.Model(parameters)
-    method = 'finite_source_LD_Yoo04'
-    model.set_magnification_methods(
-        [t_0 - 2. * t_star, method, t_0 + 2. * t_star])
-    model.set_limb_coeff_gamma('R', (gamma_V + gamma_I) / 2.)
-    model.set_limb_coeff_gamma('U', (gamma_V + gamma_I) / 2.)
-    model.set_limb_coeff_gamma('I', gamma_I)
-
-    # Set expected values
-    # JCY - see sandbox/rho_gradient on pink laptop
-    params = parameters.keys()
-    gradient = {'t_0': 1283513.3068849628, 'u_0': 20492801.742886964,
-                't_E': -9573.3589902395161, 'rho': -1503911.2409404013}
-    reference = np.array([gradient[key] for key in params])
-
-    # Create event and run test
-    event = mm.Event(model=model, datasets=datasets)
-    # result = event.get_chi2_gradient(list(params), fit_blending=False)
-
-    # print(result)
-    # print(reference)
-    # np.testing.assert_almost_equal(reference / result, 1., decimal=2)
-
-
 # ----------
 # Event.get_ref_fluxes() Tests
 def test_get_ref_fluxes():
@@ -568,7 +526,8 @@ def test_get_ref_fluxes_binary_source():
 class TestBinarySourceFluxes(unittest.TestCase):
 
     def setUp(self):
-        (self.model, self.model_1, self.model_2) = self._generate_binary_source_models()
+        models = self._generate_binary_source_models()
+        (self.model, self.model_1, self.model_2) = models
         (self.data_1, self.data_2) = self._generate_binary_source_datasets()
 
         self.f_s1_1 = 100.
@@ -617,6 +576,7 @@ class TestBinarySourceFluxes(unittest.TestCase):
         np.testing.assert_almost_equal(
             fluxes, np.array([[self.f_s1_1, self.f_s2_1],
                               [self.f_s1_2, self.f_s2_2]]))
+
 
 # Event.get_flux_for_dataset() Tests
 def test_get_flux_for_dataset():
@@ -855,7 +815,7 @@ class TestFixedFluxes(unittest.TestCase):
     def test_source_fluxes_AttributeError(self):
         event = mm.Event(datasets=self.datasets, model=self.model)
         with self.assertRaises(AttributeError):
-            fluxes = event.source_fluxes
+            _ = event.source_fluxes
 
     def test_source_fluxes_1(self):
         """1 dataset, 1 source"""
@@ -1067,7 +1027,7 @@ class TestEvent_repr_(unittest.TestCase):
 
     def setUp(self):
         self.model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
-                         coords="18:12:34.56 -23:45:55.55")
+                              coords="18:12:34.56 -23:45:55.55")
         self.dataset_01 = mm.MulensData(file_name=SAMPLE_FILE_01)
         self.dataset_02 = mm.MulensData(file_name=SAMPLE_FILE_02)
 
@@ -1076,7 +1036,6 @@ class TestEvent_repr_(unittest.TestCase):
             self.expected += "\n{0}".format(dataset)
             if i == 0:
                 self.expected += " *data_ref*"
-
 
     def test_repr_empty(self):
         """
@@ -1146,9 +1105,9 @@ class TestModelSetter(unittest.TestCase):
 
     def setUp(self):
         self.model_1 = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.},
-                         coords="18:12:34.56 -23:45:55.55")
+                                coords="18:12:34.56 -23:45:55.55")
         self.model_2 = mm.Model({'t_0': 1, 'u_0': 1.5, 't_E': 60.},
-                           coords="18:00:00 -30:00:00")
+                                coords="18:00:00 -30:00:00")
         self.result_1 = SkyCoord(
             "18:12:34.56 -23:45:55.55", unit=[u.hourangle, u.deg])
         self.result_2 = SkyCoord(
@@ -1178,7 +1137,6 @@ class TestModelSetter(unittest.TestCase):
         event = mm.Event()
         with self.assertRaises(TypeError):
             event.model = 'foo'
-
 
 
 # Tests to add:

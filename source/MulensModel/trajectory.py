@@ -138,6 +138,23 @@ class Trajectory(object):
         """
         return self._delta_N_E
 
+    @property
+    def d_perp(self):
+        """
+        *np.ndarray*
+
+        Projection of the Earth-Satellite
+        separation vector (in AU) on the sky.
+        """
+        if (self.parallax['satellite'] and
+                self.satellite_skycoord is not None):
+            delta_satellite = self._get_delta_satellite()
+            return np.sqrt(delta_satellite['N']**2 + delta_satellite['E']**2)
+        else:
+            raise AttributeError(
+                'Only valid for satellite parallax. ' +
+                'satellite_skycoord must be provided.')
+
     def get_xy(self):
         """
         For a given set of parameters

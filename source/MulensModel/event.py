@@ -357,7 +357,7 @@ class Event(object):
         # Get fluxes for the reference dataset
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         for (i, data) in enumerate(self._datasets):
-            # Scale the data flue
+            # Scale the data flux
             (flux, err_flux) = self.fits[i].scale_fluxes(f_source_0, f_blend_0)
             (y_value, y_err) = PlotUtils.get_y_value_y_err(
                 phot_fmt, flux, err_flux)
@@ -392,33 +392,22 @@ class Event(object):
 
         """
         self._set_default_colors()
-
         if data_ref is None:
             data_ref = self.data_ref
 
-        # Plot limit parameters
-        t_min = 3000000.
-        t_max = 0.
         subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
-        # Plot zeropoint line
-        plt.plot([0., 3000000.], [0., 0.], color='black')
+        fluxes = self.get_flux_for_dataset(data_ref)
+        kwargs_residuals = {'phot_fmt': 'scaled', 'bad': False,
+                            'source_flux': fluxes[0], 'blend_flux': fluxes[1]}
+        if show_bad:
+            kwargs_residuals['bad']: True
 
         # Plot residuals
-        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
-        for i, data in enumerate(self._datasets):
-            # Evaluate whether or nor it is necessary to calculate the model
-            # for bad datapoints.
-            if show_bad:
-                bad = True
-            else:
-                bad = False
-
-            (residuals, errorbars) = self.fits[i].get_residuals(
-                phot_fmt='scaled', source_flux=f_source_0,
-                blend_flux=f_blend_0, bad=bad)
-            y_value = residuals
-            y_err = errorbars
+        t_min = np.min(self._datasets[0].time)
+        t_max = np.max(self._datasets[0].time)
+        for (fit, data) in zip(self.fits, self._datasets):
+            (y_value, y_err) = fit.get_residuals(**kwargs_residuals)
             data._plot_datapoints(
                 (y_value, y_err), subtract_2450000=subtract_2450000,
                 subtract_2460000=subtract_2460000,
@@ -432,6 +421,7 @@ class Event(object):
         if y_lim > 1.:
             y_lim = 0.5
 
+        plt.axhline(0, color='black', zorder=0)
         plt.ylim(y_lim, -y_lim)
         plt.xlim(t_min-subtract, t_max-subtract)
         plt.ylabel('Residuals')

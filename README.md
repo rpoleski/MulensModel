@@ -6,9 +6,9 @@
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
-[Latest release: 2.17.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 2.18.0](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
-MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 can then be input into an arbitrary likelihood function to find the best-fit parameters.
+MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 (and its gradient in some cases) can then be input into an arbitrary likelihood function to find the best-fit parameters.
 
 If you want to learn more about microlensing, please visit [Microlensing Source website](http://microlensing-source.org/).
 
@@ -62,4 +62,4 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
 [![Coverage Status](https://codecov.io/gh/rpoleski/MulensModel/branch/master/graph/badge.svg)](https://codecov.io/gh/rpoleski/MulensModel)
 
-file revised Jul 2023
+file revised Sep 2023

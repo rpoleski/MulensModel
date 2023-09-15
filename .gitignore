@@ -53,6 +53,7 @@ examples/example_16/*_out.yaml
 
 # Temporary tasks:
 DEV
+sandbox
 
 # Latex files:
 *.aux

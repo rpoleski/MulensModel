@@ -16,6 +16,8 @@ SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
 SAMPLE_FILE_03 = os.path.join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
 SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
 SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
+SAMPLE_FILE_04_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_03.dat')  # UTC
+SAMPLE_FILE_04_REF = os.path.join(dir_2, 'gets_70.dat')
 
 # All in HJD':
 SAMPLE_ANNUAL_PARALLAX_FILE_01 = os.path.join(dir_2, 'parallax_test_1.dat')
@@ -300,3 +302,35 @@ def test_horizons_3d():
     np.testing.assert_almost_equal(vec_x, output.x)
     np.testing.assert_almost_equal(vec_y, output.y)
     np.testing.assert_almost_equal(vec_z, output.z)
+
+
+def test_d_perp():
+    """
+    Test that the calculation of d_perp works correctly.
+    """
+    ref_data = np.genfromtxt(
+        SAMPLE_FILE_04_REF, dtype=None, encoding='utf-8',
+        names=['HJD', 'qn', 'qe', 'qr'])
+    with open(SAMPLE_FILE_04_REF, 'r') as data_file:
+        line = data_file.readline()
+        coords = line.split('=')[1]
+
+    params = {'t_0': 2458310.7772,  'u_0': -0.006877, 't_E': 15.931,
+              'pi_E_N': 0., 'pi_E_E': 0.}
+    model = mm.Model(
+        params, coords=coords, ephemerides_file=SAMPLE_FILE_04_EPH)
+    trajectory = model.get_trajectory(ref_data['HJD'] + 2450000.)
+    d_perp = trajectory.d_perp
+
+    # PSPL parameters shouldn't matter, so double-check that's true
+    model_prime = mm.Model(
+        params, coords=coords, ephemerides_file=SAMPLE_FILE_04_EPH)
+    model_prime.parameters.t_E = 3.
+    model_prime.parameters.t_0 = 2450000.
+    trajectory_prime = model_prime.get_trajectory(ref_data['HJD'] + 2450000.)
+    d_perp_prime = trajectory_prime.d_perp
+    np.testing.assert_allclose(d_perp, d_perp_prime)
+
+    # Real d_perp test.
+    np.testing.assert_allclose(
+        d_perp, np.sqrt(ref_data['qn']**2 + ref_data['qe']**2), rtol=0.01)
