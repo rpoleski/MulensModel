@@ -998,16 +998,6 @@ class Model(object):
 
         return parameters
 
-    @property
-    def methods_parameters(self):
-        """
-        Returns:
-            Dictionary of methods and their respective dictionaries
-                in the form of ``**kwargs`` that are passed to given method,
-                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
-        """
-        return self._methods_parameters
-
     def set_limb_coeff_gamma(self, bandpass, coeff):
         """
         Store gamma limb darkening coefficient for given band. See

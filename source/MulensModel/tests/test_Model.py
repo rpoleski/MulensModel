@@ -278,9 +278,6 @@ class TestBLPS02AC(unittest.TestCase):
         assert (self.model_ac_1.get_magnification_methods_parameters(
             'Adaptive_Contouring') ==
                 {'adaptive_contouring': {'accuracy': 0.04}})
-        # test methods_parameters()
-        assert (self.model_ac_1.methods_parameters ==
-                {'adaptive_contouring': {'accuracy': 0.04}})
 
     def test_mag_calculation_1(self):
         """Test calculation of magnification"""
@@ -298,8 +295,6 @@ class TestBLPS02AC(unittest.TestCase):
         dict_1 = self.model_ac_2.get_magnification_methods_parameters(AC)
         reference = {AC.lower(): {'accuracy': 0.01, 'ld_accuracy': 0.00001}}
         assert dict_1 == reference
-
-        assert self.model_ac_2.methods_parameters == reference
 
     def test_mag_calculation_2(self):
         """Test calculation of magnification with limb darkening"""
@@ -368,13 +363,6 @@ class TestMethodsParameters(unittest.TestCase):
         assert result_1[0] != result_2[0]
         assert result_1[0] != result_3[0]
         assert result_2[0] != result_3[0]
-
-    def test_methods_parameters(self):
-        assert (self.model_1.methods_parameters == {})
-        assert (self.model_2.methods_parameters ==
-                {'vbbl':  {'accuracy': 0.1}})
-        assert (self.model_3.methods_parameters ==
-                {'vbbl':  {'accuracy': 1.e-5}})
 
     def test_get_magnification_methods_parameters(self):
         with self.assertRaises(KeyError):
