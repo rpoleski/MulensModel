@@ -255,3 +255,14 @@ def test_Chang_Refsdal():
     mag_curve = mm.MagnificationCurve(times=t_vec, parameters=parameters)
     magnification = mag_curve.get_magnification()
     np.testing.assert_almost_equal(magnification, 5.556327, decimal=5)
+
+
+class FSMethodWarningsTest(unittest.TestCase):
+
+    def test_finite_source_warning(self):
+        parameters = mm.ModelParameters({
+            't_0': 2457000., 'u_0': 0.01, 't_E': 100., 'rho': 0.02})
+        mag_curve = mm.MagnificationCurve(2457000.1, parameters)
+
+        with self.assertWarns(UserWarning):
+            mag_curve.get_magnification()

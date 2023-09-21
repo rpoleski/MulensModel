@@ -283,7 +283,7 @@ class ModelParameters(object):
         sets self._type property, which indicates what type of a model we have
         """
         types = ['finite source', 'parallax', 'Cassan08',
-                 'lens 2-parameter orbital motion', 'mass sheet']
+                 'lens 2-parameter orbital motion', 'mass sheet', 'xallarap']
         out = {type_: False for type_ in types}
 
         temp = {
@@ -292,7 +292,9 @@ class ModelParameters(object):
             'Cassan08':
                 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
-            'mass sheet': 'convergence_K shear_G'}
+            'mass sheet': 'convergence_K shear_G',
+            'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
+                         'xi_Omega_node xi_argument_of_latitude_reference')}
 
         parameter_to_type = dict()
         for (key, values) in temp.items():
@@ -317,23 +319,67 @@ class ModelParameters(object):
             raise KeyError('Orbital motion of the lens requires two lens '
                            'components but only one was provided.')
 
-        # Cassan08 prevents some other features:
-        if self._type['Cassan08']:
-            if self._type['parallax']:
-                raise KeyError('Currently we do not allow parallax for '
-                               'Cassan (2008) parameterization.')
-            if self._type['lens 2-parameter orbital motion']:
-                raise KeyError('Cassan (2008) parameterization and parallax '
-                               'are not allowed')
-            if n_sources > 1:
-                raise KeyError("Cassan (2008) parameterization doesn't work"
-                               "for multi sources models")
+        self._check_types_for_Cassan08()
 
         if alpha_defined:
             if self._n_lenses == 1 and not self._type['mass sheet']:
                 raise KeyError(
                     'You defined alpha for single lens model '
                     'without external mass sheet. This is not allowed.')
+
+        if n_sources > 1 and self._type['xallarap']:
+            raise NotImplementedError('We have not yet implemented xallarap '
+                                      'and multiple luminous sources')
+
+    def _check_valid_combination_1_source(self, keys):
+        """
+        Check that the user hasn't over-defined the ModelParameters.
+        """
+        # Make sure that there are no unwanted keys
+        allowed_keys = set((
+            't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
+            's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
+            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
+            'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
+            'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
+            'xi_argument_of_latitude_reference xi_eccentricity '
+            'xi_omega_periapsis t_0_xi').split())
+        difference = set(keys) - allowed_keys
+        if len(difference) > 0:
+            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
+            if set(keys).intersection(derived_1):
+                msg = ('You cannot set gamma, gamma_perp, ' +
+                       'or gamma_parallel. These are derived parameters. ' +
+                       'You can set ds_dt and dalpha_dt instead.\n')
+            else:
+                msg = ""
+            msg += 'Unrecognized parameters: {:}'.format(difference)
+            raise KeyError(msg)
+
+        if self._type['Cassan08']:
+            self._check_valid_combination_1_source_Cassan08(keys)
+        else:
+            self._check_valid_combination_1_source_standard(keys)
+
+    def _check_types_for_Cassan08(self):
+        """
+        Check if Cassan08 is used and if so, then make sure that
+        the trajectory is rectilinear and there is only one source.
+        """
+        if not self._type['Cassan08']:
+            return
+
+        types = ['parallax', 'xallarap', 'lens 2-parameter orbital motion']
+        for type_ in types:
+            if self._type[type_]:
+                raise NotImplementedError(
+                    'Currently we do not allow Cassan (2008) '
+                    'parameterization of binary lens and ' + type_)
+
+        if self._n_sources > 1:
+            raise NotImplementedError(
+                "Cassan (2008) parameterization doesn't work for "
+                "multi sources models")
 
     def _divide_parameters(self, parameters):
         """
@@ -359,7 +405,27 @@ class ModelParameters(object):
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
+        keys = self._get_keys_for_repr()
+        formats = self._get_formats_dict_for_repr()
+        ordered_keys = self._get_ordered_keys_for_repr()
 
+        variables = ''
+        values = ''
+        for key in ordered_keys:
+            if key not in keys:
+                continue
+            (full_name, value) = self._get_values_for_repr(formats[key], key)
+            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key],
+                                                        full_name)
+            variables += fmt_1.format(full_name)
+            values += fmt_2.format(value)
+
+        return '{0}\n{1}'.format(variables, values)
+
+    def _get_keys_for_repr(self):
+        """
+        get all the keys that will be printed
+        """
         keys = set(self.parameters.keys())
         if 'pi_E' in keys:
             keys.remove('pi_E')
@@ -371,6 +437,15 @@ class ModelParameters(object):
         if 'ds_dt' in keys or 'dalpha_dt' in keys:
             keys |= {'t_0_kep'}
 
+        if self.is_xallarap:
+            keys |= {'t_0_xi'}
+
+        return keys
+
+    def _get_formats_dict_for_repr(self):
+        """
+        define formats that define how to print the numbers
+        """
         # Below we define dict of dicts. Key of inner ones: 'width',
         # 'precision', and optional: 'unit' and 'name'.
         formats = {
@@ -396,8 +471,24 @@ class ModelParameters(object):
             't_0_kep': {'width': 13, 'precision': 5, 'unit': 'HJD'},
             'x_caustic_in': {'width': 13, 'precision': 7},
             'x_caustic_out': {'width': 13, 'precision': 7},
-            't_caustic_in': {'width': 19, 'precision': 5, 'unit': 'HJD'},
-            't_caustic_out': {'width': 19, 'precision': 5, 'unit': 'HJD'},
+            't_caustic_in': {'width': 13, 'precision': 5, 'unit': 'HJD'},
+            't_caustic_out': {'width': 13, 'precision': 5, 'unit': 'HJD'},
+            'xi_period': {'width': 10, 'precision': 4,
+                          'unit': 'd', 'name': 'xallarap period'},
+            'xi_semimajor_axis': {'width': 9, 'precision': 6,
+                                  'name': 'xallarap semimajor axis'},
+            'xi_inclination': {'width': 11, 'precision': 5, 'unit': 'deg',
+                               'name': 'xallarap inclination'},
+            'xi_Omega_node': {'width': 11, 'precision': 5, 'unit': 'deg',
+                              'name': 'xallarap Omega node'},
+            'xi_argument_of_latitude_reference': {
+                'width': 11, 'precision': 5, 'unit': 'deg',
+                'name': 'xallarap argument of latitude reference'},
+            'xi_eccentricity': {'width': 8, 'precision': 6,
+                                'name': 'xallarap eccentricity'},
+            'xi_omega_periapsis': {'width': 11, 'precision': 5, 'unit': 'deg',
+                                   'name': 'xallarap omega periapsis'},
+            't_0_xi': {'width': 13, 'precision': 5, 'unit': 'HJD'},
         }
         # Add binary source parameters with the same settings.
         binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
@@ -411,26 +502,47 @@ class ModelParameters(object):
             if 'name' in form:
                 raise KeyError('internal issue: {:}'.format(key))
 
-        variables = ''
-        values = ''
+        return formats
 
-        for key in formats.keys():
-            if key not in keys:
-                continue
-            form = formats[key]
-            fmt_1 = '{:>' + str(form['width'])
-            fmt_2 = fmt_1 + '.' + str(form['precision']) + 'f} '
-            fmt_1 += '} '
-            full_name = form.get('name', key)
-            if 'unit' in form:
-                full_name += " ({:})".format(form['unit'])
-            variables += fmt_1.format(full_name)
-            value = getattr(self, key)
-            if isinstance(value, u.Quantity):
-                value = value.value
-            values += fmt_2.format(value)
+    def _get_ordered_keys_for_repr(self):
+        """
+        define the default order of parameters
+        """
+        ordered_keys = [
+            't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
+            'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
+            'pi_E_N', 'pi_E_E', 't_0_par', 's', 'q', 'alpha',
+            'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt', 't_0_kep',
+            'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
+            'xi_period', 'xi_semimajor_axis', 'xi_inclination',
+            'xi_Omega_node', 'xi_argument_of_latitude_reference',
+            'xi_eccentricity', 'xi_omega_periapsis', 't_0_xi'
+        ]
+        return ordered_keys
 
-        return '{0}\n{1}'.format(variables, values)
+    def _get_values_for_repr(self, form, key):
+        """
+        Get full name of the parameter and its value (float)
+        to be used by __rerp__().
+        """
+        full_name = form.get('name', key)
+        if 'unit' in form:
+            full_name += " ({:})".format(form['unit'])
+
+        value = getattr(self, key)
+        if isinstance(value, u.Quantity):
+            value = value.value
+
+        return (full_name, value)
+
+    def _get_formats_for_repr(self, form, full_name):
+        """
+        Extract formats to be used by __repr__().
+        """
+        fmt_1 = '{:>' + str(max([form['width'], len(full_name)]))
+        fmt_2 = fmt_1 + '.' + str(form['precision']) + 'f} '
+        fmt_1 += '} '
+        return (fmt_1, fmt_2)
 
     def _check_valid_combination_2_sources(self, keys):
         """
@@ -452,6 +564,7 @@ class ModelParameters(object):
         self._check_valid_combination_1_source_parallax(keys)
         self._check_valid_combination_1_source_mass_sheet(keys)
         self._check_valid_combination_1_source_binary_lens(keys)
+        self._check_valid_combination_1_source_xallarap(keys)
 
     def _check_valid_combination_1_source_t_0_u_0(self, keys):
         """
@@ -459,6 +572,7 @@ class ModelParameters(object):
         """
         if 't_0' not in keys:
             raise KeyError('t_0 must be defined')
+
         if ('u_0' not in keys) and ('t_eff' not in keys):
             raise KeyError('not enough information to calculate u_0')
 
@@ -474,8 +588,10 @@ class ModelParameters(object):
         if (('rho' in keys) and ('t_star' in keys) and ('u_0' in keys) and
                 ('t_eff' in keys)):
             raise KeyError('You cannot define rho, t_star, u_0, and t_eff')
+
         if ('t_E' in keys) and ('rho' in keys) and ('t_star' in keys):
             raise KeyError('Only 1 or 2 of (t_E, rho, t_star) may be defined.')
+
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
@@ -513,6 +629,7 @@ class ModelParameters(object):
         if ('shear_G' in keys) and ('alpha' not in keys):
             raise KeyError(
                 'A model with external mass sheet shear requires alpha.')
+
         if ('shear_G' not in keys) and ('convergence_K' in keys):
             if 'alpha' in keys:
                 raise KeyError(
@@ -548,6 +665,27 @@ class ModelParameters(object):
                 raise KeyError(
                     't_0_kep makes sense only when orbital motion is defined.')
 
+    def _check_valid_combination_1_source_xallarap(self, keys):
+        """
+        If xallarap parameters are defined,
+        then make sure there are all required parameters
+        """
+        if not self._type['xallarap']:
+            return
+
+        required = ('xi_period xi_semimajor_axis xi_inclination '
+                    'xi_Omega_node xi_argument_of_latitude_reference').split()
+        for parameter in required:
+            if parameter not in keys:
+                raise KeyError(parameter)
+
+        allowed = set(['xi_eccentricity', 'xi_omega_periapsis'])
+        n_used = len(set(keys).intersection(allowed))
+        if n_used not in [0, len(allowed)]:
+            raise KeyError(
+                'Error in defining xi_eccentricity and xi_omega_periapsis. '
+                'Both of them or neither should be defined.')
+
     def _check_valid_combination_1_source_Cassan08(self, keys):
         """
         Check parameters defined for Cassan 2008 parameterization.
@@ -567,33 +705,6 @@ class ModelParameters(object):
         if ('rho' in keys) and ('t_star' in keys):
             raise KeyError('Both rho and t_star cannot be defined for ' +
                            'Cassan 08 parameterization.')
-
-    def _check_valid_combination_1_source(self, keys):
-        """
-        Check that the user hasn't over-defined the ModelParameters.
-        """
-        # Make sure that there are no unwanted keys
-        allowed_keys = set((
-            't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
-            's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
-            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
-            'x_caustic_in x_caustic_out t_caustic_in t_caustic_out').split())
-        difference = set(keys) - allowed_keys
-        if len(difference) > 0:
-            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
-            if set(keys).intersection(derived_1):
-                msg = ('You cannot set gamma, gamma_perp, ' +
-                       'or gamma_parallel. These are derived parameters. ' +
-                       'You can set ds_dt and dalpha_dt instead.\n')
-            else:
-                msg = ""
-            msg += 'Unrecognized parameters: {:}'.format(difference)
-            raise KeyError(msg)
-
-        if self._type['Cassan08']:
-            self._check_valid_combination_1_source_Cassan08(keys)
-        else:
-            self._check_valid_combination_1_source_standard(keys)
 
     def _check_valid_parameter_values(self, parameters):
         """
@@ -620,10 +731,22 @@ class ModelParameters(object):
                 msg = "{:} must be a scalar: {:}, {:}"
                 raise TypeError(msg.format(key, value, type(value)))
 
-        for name in ['x_caustic_in', 'x_caustic_out', 'q']:
+        for name in ['x_caustic_in', 'x_caustic_out']:
             if name in parameters.keys():
                 if parameters[name] < 0. or parameters[name] > 1.:
+                    msg = "Parameter {:} has to be in [0, 1] range, not {:}"
+                    raise ValueError(msg.format(name, parameters[name]))
+
+        for name in ['q']:
+            if name in parameters.keys():
+                if parameters[name] <= 0. or parameters[name] >= 1.:
                     msg = "Parameter {:} has to be in (0, 1) range, not {:}"
+                    raise ValueError(msg.format(name, parameters[name]))
+
+        for name in ['xi_eccentricity']:
+            if name in parameters.keys():
+                if parameters[name] < 0. or parameters[name] >= 1.:
+                    msg = "Parameter {:} has to be in [0, 1) range, not {:}"
                     raise ValueError(msg.format(name, parameters[name]))
 
         if 'shear_G' in parameters.keys():
@@ -641,6 +764,14 @@ class ModelParameters(object):
             if parameter in self.parameters:
                 self._set_time_quantity(parameter, self.parameters[parameter])
 
+        angle_parameters = [
+            'alpha', 'xi_Omega_node', 'xi_inclination',
+            'xi_argument_of_latitude_reference', 'xi_omega_periapsis']
+        for parameter in angle_parameters:
+            if parameter in self.parameters:
+                self._warn_if_angle_outside_reasonable_range(
+                    self.parameters[parameter], parameter)
+
     def _update_sources(self, parameter, value):
         """
         For multi-source models, update the values for all sources.
@@ -651,6 +782,7 @@ class ModelParameters(object):
 
         if parameter in self._source_1_parameters.parameters:
             setattr(self._source_1_parameters, parameter, value)
+
         if parameter in self._source_2_parameters.parameters:
             setattr(self._source_2_parameters, parameter, value)
 
@@ -924,7 +1056,21 @@ class ModelParameters(object):
             self.parameters['alpha'] = new_alpha
         else:
             self.parameters['alpha'] = new_alpha * u.deg
+        self._warn_if_angle_outside_reasonable_range(
+            self.parameters['alpha'].to(u.deg).value, 'alpha')
         self._update_sources('alpha', new_alpha)
+
+    def _warn_if_angle_outside_reasonable_range(self, value, name):
+        """
+        Check if value of given angle is in reasonable range and warn if not
+        """
+        min_ = -360.
+        max_ = 540.
+        if isinstance(value, u.Quantity):
+            value = value.to(u.deg).value
+        if value < min_ or value > max_:
+            fmt = "Strange value of angle {:}: {:}"
+            warnings.warn(fmt.format(name, value), RuntimeWarning)
 
     @property
     def q(self):
@@ -1274,6 +1420,141 @@ class ModelParameters(object):
         self._update_sources('t_0_kep', new)
 
     @property
+    def xi_period(self):
+        """
+        *float*
+
+        Orbital period of the source system (xallarap) in days.
+        """
+        return self.parameters['xi_period']
+
+    @xi_period.setter
+    def xi_period(self, new_value):
+        if new_value < 0.:
+            raise ValueError('Xallarap period cannot be negative')
+        self.parameters['xi_period'] = new_value
+
+    @property
+    def xi_semimajor_axis(self):
+        """
+        *float*
+
+        Semi-major axis of the source orbit (xallarap) in the theta_E units.
+        """
+        return self.parameters['xi_semimajor_axis']
+
+    @xi_semimajor_axis.setter
+    def xi_semimajor_axis(self, new_value):
+        if new_value < 0.:
+            raise ValueError('Xallarap semimajor axis cannot be negative')
+        self.parameters['xi_semimajor_axis'] = new_value
+
+    @property
+    def xi_Omega_node(self):
+        """
+        *float*
+
+        The longitude of the ascending node of the xallarap orbit, i.e.,
+        the angle from relative lens-source proper motion direction
+        to the ascending node direction.
+        The units are degrees.
+        """
+        return self.parameters['xi_Omega_node']
+
+    @xi_Omega_node.setter
+    def xi_Omega_node(self, new_value):
+        self._warn_if_angle_outside_reasonable_range(new_value,
+                                                     'xi_Omega_node')
+        self.parameters['xi_Omega_node'] = new_value
+
+    @property
+    def xi_inclination(self):
+        """
+        *float*
+
+        The inclination of the xallarap orbit, i.e.,
+        the angle between source-orbit plane and the sky plane.
+        The units are degrees.
+        """
+        return self.parameters['xi_inclination']
+
+    @xi_inclination.setter
+    def xi_inclination(self, new_value):
+        self._warn_if_angle_outside_reasonable_range(new_value,
+                                                     'xi_inclination')
+        self.parameters['xi_inclination'] = new_value
+
+    @property
+    def xi_argument_of_latitude_reference(self):
+        """
+        *float*
+
+        The argument of latitude for the xallarap orbit at :py:attr:`~t_0_xi`.
+        The argument of latitude is a sum of the true anomaly and
+        the argument of periapsis. In standard notation: u = nu + omega.
+        This parameter is internally used to calculate perihelion passage
+        (T_0 in standard notation).
+        The units are degrees.
+        """
+        return self.parameters['xi_argument_of_latitude_reference']
+
+    @xi_argument_of_latitude_reference.setter
+    def xi_argument_of_latitude_reference(self, new_value):
+        self._warn_if_angle_outside_reasonable_range(
+            new_value, 'xi_argument_of_latitude_reference')
+        self.parameters['xi_argument_of_latitude_reference'] = new_value
+
+    @property
+    def xi_eccentricity(self):
+        """
+        *float*
+
+        The eccentricity of the xallarap orbit. Has to be in [0, 1) range.
+        """
+        return self.parameters['xi_eccentricity']
+
+    @xi_eccentricity.setter
+    def xi_eccentricity(self, new_value):
+        if new_value < 0. or new_value >= 1.:
+            raise ValueError('xallarap eccentricity has to be between 0 and 1')
+        self.parameters['xi_eccentricity'] = new_value
+
+    @property
+    def xi_omega_periapsis(self):
+        """
+        *float*
+
+        The argument of periapsis of the xallrap orbit, i.e., the angle
+        between the ascending node and periapsis measured in
+        the direction of motion.
+        The units are degrees.
+        """
+        return self.parameters['xi_omega_periapsis']
+
+    @xi_omega_periapsis.setter
+    def xi_omega_periapsis(self, new_value):
+        self._warn_if_angle_outside_reasonable_range(
+            new_value, 'xi_omega_periapsis')
+        self.parameters['xi_omega_periapsis'] = new_value
+
+    @property
+    def t_0_xi(self):
+        """
+        *float*
+
+        Reference epoch for xallarap orbit.
+        If not provided, then it defaults to :py:attr:`~t_0`.
+        """
+        if 't_0_xi' not in self.parameters.keys():
+            return self.parameters['t_0']
+        else:
+            return self.parameters['t_0_xi']
+
+    @t_0_xi.setter
+    def t_0_xi(self, new_value):
+        self.parameters['t_0_xi'] = new_value
+
+    @property
     def t_0_1(self):
         """
         *float*
@@ -1592,7 +1873,7 @@ class ModelParameters(object):
         """
         *int*
 
-        number of objects in the lens system
+        Number of objects in the lens system.
         """
         return self._n_lenses
 
@@ -1601,7 +1882,8 @@ class ModelParameters(object):
         """
         *int*
 
-        number of luminous sources; it's possible to be 1 for xallarap model
+        Number of luminous sources.
+        It can be be 1 for a xallarap model.
         """
         return self._n_sources
 
@@ -1624,6 +1906,15 @@ class ModelParameters(object):
         """
         return (('shear_G' in self.parameters.keys()) and
                 (self.parameters['shear_G'] != 0))
+
+    @property
+    def is_xallarap(self):
+        """
+        *bool*
+
+        Whether the parameters include the xallarap or not.
+        """
+        return self._type['xallarap']
 
     @property
     def source_1_parameters(self):

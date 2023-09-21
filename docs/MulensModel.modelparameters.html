@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.modelparameters module &#8212; MulensModel 2.15.0 documentation</title>
+    <title>MulensModel.modelparameters module &#8212; MulensModel 2.18.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -279,6 +279,76 @@ It is best to fix it at the begin of calculations.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xi_period">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xi_period</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xi_period" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Orbital period of the source system (xallarap) in days.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xi_semimajor_axis">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xi_semimajor_axis</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xi_semimajor_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Semi-major axis of the source orbit (xallarap) in the theta_E units.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xi_Omega_node">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xi_Omega_node</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xi_Omega_node" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The longitude of the ascending node of the xallarap orbit, i.e.,
+the angle from relative lens-source proper motion direction
+to the ascending node direction.
+The units are degrees.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xi_inclination">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xi_inclination</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xi_inclination" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The inclination of the xallarap orbit, i.e.,
+the angle between source-orbit plane and the sky plane.
+The units are degrees.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xi_argument_of_latitude_reference">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xi_argument_of_latitude_reference</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xi_argument_of_latitude_reference" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The argument of latitude for the xallarap orbit at <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.t_0_xi" title="MulensModel.modelparameters.ModelParameters.t_0_xi"><code class="xref py py-attr docutils literal notranslate"><span class="pre">t_0_xi</span></code></a>.
+The argument of latitude is a sum of the true anomaly and
+the argument of periapsis. In standard notation: u = nu + omega.
+This parameter is internally used to calculate perihelion passage
+(T_0 in standard notation).
+The units are degrees.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xi_eccentricity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xi_eccentricity</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xi_eccentricity" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The eccentricity of the xallarap orbit. Has to be in [0, 1) range.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xi_omega_periapsis">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xi_omega_periapsis</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xi_omega_periapsis" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The argument of periapsis of the xallrap orbit, i.e., the angle
+between the ascending node and periapsis measured in
+the direction of motion.
+The units are degrees.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_0_xi">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0_xi</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_xi" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Reference epoch for xallarap orbit.
+If not provided, then it defaults to <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.t_0" title="MulensModel.modelparameters.ModelParameters.t_0"><code class="xref py py-attr docutils literal notranslate"><span class="pre">t_0</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_0_1">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0_1</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_1" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
@@ -439,14 +509,15 @@ if either of the sources is finite.</p>
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.n_lenses">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_lenses</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_lenses" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
-<p>number of objects in the lens system</p>
+<p>Number of objects in the lens system.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.n_sources">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_sources</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.n_sources" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
-<p>number of luminous sources; it’s possible to be 1 for xallarap model</p>
+<p>Number of luminous sources.
+It can be be 1 for a xallarap model.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -462,6 +533,13 @@ if either of the sources is finite.</p>
 <dd><p><em>bool</em></p>
 <p>Whether an external mass sheet is included in the
 model with non-zero shear</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.is_xallarap">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_xallarap</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.is_xallarap" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em></p>
+<p>Whether the parameters include the xallarap or not.</p>
 </dd></dl>
 
 <dl class="py property">

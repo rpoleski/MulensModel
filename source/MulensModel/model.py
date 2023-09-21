@@ -642,27 +642,35 @@ class Model(object):
         self._plt_plot(trajectory.x, trajectory.y, kwargs)
 
         if arrow:
-            if len(times) > 2:
-                index = int(len(times)/2)
-            else:
-                index = 0
-            x_0 = trajectory.x[index]
-            y_0 = trajectory.y[index]
-            d_x = trajectory.x[index+1] - x_0
-            d_y = trajectory.y[index+1] - y_0
-            dd = 1e6 * (d_x*d_x + d_y*d_y)**.5
+            self._plot_arrow(times, trajectory, kwargs, arrow_kwargs)
 
-            xlim = plt.xlim()
-            ylim = plt.ylim()
-            width = np.abs(xlim[1]-xlim[0]) * np.abs(ylim[1]-ylim[0])
-            width = width**.5 / 100.
+    def _plot_arrow(self, times, trajectory, kwargs, arrow_kwargs):
+        """
+        Plot arrow for given trajectory.
+        """
+        width_scaling_factor = 0.01
+        if len(times) > 2:
+            index = int(len(times)/2)
+        else:
+            index = 0
 
-            color = kwargs.get('color', 'black')
-            kwargs_ = {'width': width, 'color': color, 'lw': 0,
-                       'zorder': -np.inf}
-            if arrow_kwargs is not None:
-                kwargs_.update(arrow_kwargs)
-            plt.arrow(x_0, y_0, d_x/dd, d_y/dd, **kwargs_)
+        x_0 = trajectory.x[index]
+        y_0 = trajectory.y[index]
+        d_x = trajectory.x[index+1] - x_0
+        d_y = trajectory.y[index+1] - y_0
+        dd = 1e6 * (d_x*d_x + d_y*d_y)**.5
+
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        width = np.abs(xlim[1]-xlim[0]) * np.abs(ylim[1]-ylim[0])
+        width = width**.5 * width_scaling_factor
+
+        color = kwargs.get('color', 'black')
+        kwargs_ = {'width': width, 'color': color, 'lw': 0, 'zorder': -np.inf}
+        if arrow_kwargs is not None:
+            kwargs_.update(arrow_kwargs)
+
+        plt.arrow(x_0, y_0, d_x/dd, d_y/dd, **kwargs_)
 
     def plot_source(self, times=None, **kwargs):
         """
@@ -753,7 +761,7 @@ class Model(object):
 
         Parameters :
             times:  *np.ndarray*, *list of floats*, or *float*
-                Times for which magnification values are requested.
+                Epochs for which source positions are requested.
 
         Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object.
 
@@ -855,9 +863,9 @@ class Model(object):
                       2455746.7, 'VBBL', 2455747., 'Hexadecapole',
                       2455747.15, 'Quadrupole', 2455748.]
 
-            source: *int* or *None*
-                Which source given methods apply to? Accepts 1, 2, or *None*
-                (i.e., all sources).
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*
         """
         if not isinstance(methods, list):
             raise TypeError('Parameter methods has to be a list.')
@@ -865,22 +873,54 @@ class Model(object):
             raise ValueError('In Model.set_magnification_methods() ' +
                              'the parameter source, has to be 1, 2 or None.')
 
-        if source is None:
+        if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
                 raise ValueError('You cannot set methods for all sources ' +
                                  'after setting them for a single source')
+
             self._methods = methods
         else:
             if isinstance(self._methods, list):
                 raise ValueError('You cannot set methods for a single ' +
                                  'source after setting them for all sources.')
+
             if source > self.n_sources:
                 msg = ('Cannot set methods for source {:} for model with ' +
                        'only {:} sources.')
                 raise ValueError(msg.format(source, self.n_sources))
+
             if self._methods is None:
                 self._methods = {}
             self._methods[source] = methods
+
+    def get_magnification_methods(self, source=None):
+        """
+        Gets methods used for magnification calculation. See
+        :py:func:`set_magnification_methods`
+
+        Parameters :
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*.
+        """
+        if (source is None):
+            return self.methods
+        elif (self.n_sources == 1):
+            if source > 1:
+                raise IndexError(
+                    'Your model only has 1 source, but you requested ' +
+                    'magnification methods for source {0}'.format(source))
+            else:
+                return self.methods
+
+        else:
+            return self.methods[source]
+
+    @property
+    def methods(self):
+        """*list* of methods used for magnification calculation or *dict* of
+        *lists* if there are multiple sources."""
+        return self._methods
 
     def set_default_magnification_method(self, method):
         """
@@ -894,7 +934,29 @@ class Model(object):
                 Name of the method to be used.
 
         """
-        self._default_magnification_method = method
+        warnings.warn(
+            "set_default_magnification_method() is DEPRECATED. Use default_" +
+            "magnification_method() instead.", DeprecationWarning)
+        self.default_magnification_method = method
+
+    @property
+    def default_magnification_method(self):
+        """
+        Stores information on method to be used, when no method is
+        directly specified. See
+        :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        for a list of implemented methods.
+
+        Parameters:
+            method: *str*
+                Name of the method to be used.
+
+        """
+        return self._default_magnification_method
+
+    @default_magnification_method.setter
+    def default_magnification_method(self, new_method):
+        self._default_magnification_method = new_method
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
@@ -908,30 +970,51 @@ class Model(object):
 
         """
         if self.n_lenses == 1:
-            methods_ok = [
-                'point_source',
-                'finite_source_uniform_Gould94'.lower(),
-                'finite_source_uniform_Gould94_direct'.lower(),
-                'finite_source_LD_Yoo04'.lower(),
-                'finite_source_LD_Yoo04_direct'.lower(),
-                'finite_source_uniform_Lee09'.lower(),
-                'finite_source_LD_Lee09'.lower()]
+            methods_all_str = (
+                'point_source finite_source_uniform_Gould94 '
+                'finite_source_uniform_Gould94_direct '
+                'finite_source_uniform_WittMao94 finite_source_LD_WittMao94 '
+                'finite_source_LD_Yoo04 finite_source_LD_Yoo04_direct '
+                'finite_source_uniform_Lee09 finite_source_LD_Lee09')
         elif self.n_lenses == 2:
-            methods_ok = [
-                'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
-                'adaptive_contouring', 'point_source_point_lens']
+            methods_all_str = ('point_source quadrupole hexadecapole vbbl '
+                               'adaptive_contouring point_source_point_lens')
         else:
             msg = 'wrong value of Model.n_lenses: {:}'
             raise ValueError(msg.format(self.n_lenses))
 
         parameters = {
             key.lower(): value for (key, value) in methods_parameters.items()}
-        methods = set(parameters.keys()) - set(methods_ok)
+        methods_all = set([m.lower() for m in methods_all_str.split()])
+        methods = set(parameters.keys()) - methods_all
 
         if len(methods):
             raise KeyError('Unknown methods provided: {:}'.format(methods))
 
         self._methods_parameters = parameters
+
+    def get_magnification_methods_parameters(self, method):
+        """
+        Get additional parameters for a specific magnification calculation
+        method or methods.
+
+        Parameters :
+            method: *str*, *list*
+                Name of method or a list of the names for which parameters
+                will be returned.
+
+        Returns :
+            method_parameters: *dict*
+                see :py:func:`set_magnification_methods_parameters`
+        """
+        if isinstance(method, (str)):
+            parameters = {
+                method.lower(): self._methods_parameters[method.lower()]}
+        else:
+            parameters = {key.lower(): self._methods_parameters[key.lower()]
+                          for key in method}
+
+        return parameters
 
     def set_limb_coeff_gamma(self, bandpass, coeff):
         """
@@ -945,7 +1028,6 @@ class Model(object):
 
             coeff: *float*
                 Value of the coefficient.
-
         """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)

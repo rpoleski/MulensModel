@@ -4,6 +4,7 @@ from math import isclose
 import unittest
 from astropy import units as u
 import os.path
+import warnings
 
 import MulensModel as mm
 
@@ -56,7 +57,7 @@ def test_model_init_1():
 class TestModel(unittest.TestCase):
     def test_negative_t_E(self):
         with self.assertRaises(ValueError):
-            my_model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
+            mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
 
 
 def test_model_parallax_definition():
@@ -212,6 +213,8 @@ def test_BLPS_02():
     methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
                'VBBL', 2456117.5]
     model.set_magnification_methods(methods)
+    assert model.default_magnification_method == 'point_source'
+    assert model.methods == methods
 
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     result = model.get_magnification(data.time)
@@ -232,75 +235,169 @@ def test_BLPS_02():
     almost(result, result_2)
 
 
-def test_BLPS_02_AC():
+class TestBLPS02AC(unittest.TestCase):
     """
     simple binary lens with extended source and different methods to evaluate
     magnification - version with adaptivecontouring
     """
 
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-        'q': q, 'rho': rho})
-    model = mm.Model(parameters=params)
+    def setUp(self):
+        t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
+        t += 2450000.
+        self.data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
 
-    t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
-    t += 2450000.
-    ac_name = 'Adaptive_Contouring'
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
-               ac_name, 2456117.5]
-    accuracy_1 = {'accuracy': 0.04}
-    accuracy_2 = {'accuracy': 0.01, 'ld_accuracy': 0.00001}
-    model.set_magnification_methods(methods)
-    model.set_magnification_methods_parameters({ac_name: accuracy_1})
+        ac_name = 'Adaptive_Contouring'
+        methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                   2456116.5,
+                   ac_name, 2456117.5]
+        accuracy_1 = {'accuracy': 0.04}
+        accuracy_2 = {'accuracy': 0.01, 'ld_accuracy': 0.00001}
 
-    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    result = model.get_magnification(data.time)
+        params = mm.ModelParameters({
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+            'q': q, 'rho': rho})
+        self.model_ac_1 = mm.Model(parameters=params)
+        self.model_ac_1.set_magnification_methods(methods)
+        self.model_ac_1.set_magnification_methods_parameters(
+            {ac_name: accuracy_1})
 
-    expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
-                         1.61038135, 1.63603122, 1.69045492, 1.77012807])
-    almost(result, expected, decimal=3)
+        self.model_ac_2 = mm.Model(parameters=params)
+        # data.bandpass = 'I'
+        self.model_ac_2.set_limb_coeff_u('I', 10.)
+        # This is an absurd value but I needed something quick.
+        self.model_ac_2.set_magnification_methods(methods)
+        self.model_ac_2.set_magnification_methods_parameters(
+            {ac_name: accuracy_2})
 
-    # Below we test passing the limb coeff to VBBL function.
-    # data.bandpass = 'I'
-    model.set_limb_coeff_u('I', 10.)
-    # This is an absurd value but I needed something quick.
-    model.set_magnification_methods_parameters({ac_name: accuracy_2})
-    # result = model.data_magnification[0]
-    result = model.get_magnification(
-        data.time, gamma=model.get_limb_coeff_gamma('I'))
-    almost(result[5], 1.6366862, decimal=3)
+    def test_methods(self):
+        def test_model_methods(model):
+            assert model.default_magnification_method == 'point_source'
+            methods_compare = [
+                2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                2456116.5, 'Adaptive_Contouring', 2456117.5]
+            assert model.methods == methods_compare
+
+        test_model_methods(self.model_ac_1)
+        test_model_methods(self.model_ac_2)
+
+    def test_methods_parameters_1(self):
+        # test get_magnification_methods_parameters()
+        assert (self.model_ac_1.get_magnification_methods_parameters(
+            'Adaptive_Contouring') ==
+                {'adaptive_contouring': {'accuracy': 0.04}})
+
+    def test_mag_calculation_1(self):
+        """Test calculation of magnification"""
+        result = self.model_ac_1.get_magnification(self.data.time)
+        expected = np.array([4.69183078, 2.87659723, 1.83733975, 1.63865704,
+                             1.61038135, 1.63603122, 1.69045492, 1.77012807])
+        almost(result, expected, decimal=3)
+
+    def test_methods_parameters_2(self):
+        """
+        test get_magnification_methods_parameters()
+        and methods_parameters()
+        """
+        AC = 'Adaptive_Contouring'
+        dict_1 = self.model_ac_2.get_magnification_methods_parameters(AC)
+        reference = {AC.lower(): {'accuracy': 0.01, 'ld_accuracy': 0.00001}}
+        assert dict_1 == reference
+
+    def test_mag_calculation_2(self):
+        """Test calculation of magnification with limb darkening"""
+        result = self.model_ac_2.get_magnification(
+            self.data.time, gamma=self.model_ac_2.get_limb_coeff_gamma('I'))
+        almost(result[5], 1.6366862, decimal=3)
 
 
-def test_methods_parameters():
+class TestMethodsParameters(unittest.TestCase):
     """
     make sure additional parameters are properly passed to very inner functions
     """
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-        'q': q, 'rho': rho})
-    model = mm.Model(parameters=params)
+    def setUp(self):
+        t = np.array([2456117.])
+        self.data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
 
-    t = np.array([2456117.])
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
-               'VBBL', 2456117.5]
-    model.set_magnification_methods(methods)
+        self.params = mm.ModelParameters({
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+            'q': q, 'rho': rho})
+        methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                   2456116.5, 'VBBL', 2456117.5]
+        self.model_1 = mm.Model(parameters=self.params)
+        self.model_1.set_magnification_methods(methods)
 
-    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    result_1 = model.get_magnification(data.time)
+        vbbl_options_2 = {'accuracy': 0.1}
+        methods_parameters_2 = {'VBBL': vbbl_options_2}
+        self.model_2 = mm.Model(parameters=self.params)
+        self.model_2.set_magnification_methods(methods)
+        self.model_2.set_magnification_methods_parameters(methods_parameters_2)
 
-    vbbl_options = {'accuracy': 0.1}
-    methods_parameters = {'VBBL': vbbl_options}
-    model.set_magnification_methods_parameters(methods_parameters)
-    result_2 = model.get_magnification(data.time)
+        vbbl_options_3 = {'accuracy': 1.e-5}
+        methods_parameters_3 = {'VBBL': vbbl_options_3}
+        self.model_3 = mm.Model(parameters=self.params)
+        self.model_3.set_magnification_methods(methods)
+        self.model_3.set_magnification_methods_parameters(methods_parameters_3)
 
-    vbbl_options = {'accuracy': 1.e-5}
-    methods_parameters = {'VBBL': vbbl_options}
-    model.set_magnification_methods_parameters(methods_parameters)
-    result_3 = model.get_magnification(data.time)
+    def test_methods(self):
+        def test_model_methods(model):
+            assert (model.default_magnification_method == 'point_source')
+            assert (model.methods ==
+                    [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                     2456116.5,
+                     'VBBL', 2456117.5])
 
-    assert result_1[0] != result_2[0]
-    assert result_1[0] != result_3[0]
-    assert result_2[0] != result_3[0]
+        test_model_methods(self.model_1)
+        test_model_methods(self.model_2)
+        test_model_methods(self.model_3)
+
+    def test_get_magnification_methods(self):
+        assert (self.model_1.get_magnification_methods() ==
+                [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                 2456116.5,
+                 'VBBL', 2456117.5])
+        assert (self.model_1.get_magnification_methods(source=1) ==
+                [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
+                 2456116.5,
+                 'VBBL', 2456117.5])
+        with self.assertRaises(IndexError):
+            self.model_1.get_magnification_methods(source=2)
+
+    def test_mag_calculations(self):
+        result_1 = self.model_1.get_magnification(self.data.time)
+        result_2 = self.model_2.get_magnification(self.data.time)
+        result_3 = self.model_3.get_magnification(self.data.time)
+
+        assert result_1[0] != result_2[0]
+        assert result_1[0] != result_3[0]
+        assert result_2[0] != result_3[0]
+
+    def test_get_magnification_methods_parameters(self):
+        with self.assertRaises(KeyError):
+            self.model_1.get_magnification_methods_parameters('vbbl')
+
+        assert (self.model_2.get_magnification_methods_parameters(
+            'vbbl') == {'vbbl': {'accuracy': 0.1}})
+        assert (self.model_3.get_magnification_methods_parameters(
+            'vbbl') == {'vbbl': {'accuracy': 1.e-5}})
+
+    def test_default_magnification_methods(self):
+        """
+        Test if methods are properly changed and
+        the warning is raised for deprecated method.
+        """
+        model = mm.Model(self.params)
+        assert model.default_magnification_method == 'point_source'
+
+        with warnings.catch_warnings(record=True) as warnings_:
+            warnings.simplefilter("always")
+            model.set_default_magnification_method('point_source_point_lens')
+            assert len(warnings_) == 1
+            assert issubclass(warnings_[0].category, DeprecationWarning)
+
+        assert model.default_magnification_method == 'point_source_point_lens'
+
+        model.default_magnification_method = 'VBBL'
+        assert model.default_magnification_method == 'VBBL'
 
 
 def test_caustic_for_orbital_motion():
@@ -375,12 +472,21 @@ def test_model_binary_and_finite_sources():
     (t1, t2) = (4999.95, 5000.05)
     (t3, t4) = (5099.95, 5100.05)
     finite = 'finite_source_uniform_Gould94'
-    model.set_magnification_methods(
-        [t1, finite, t2, 'point_source', t3, finite, t4])
-    model_1.set_magnification_methods([t1, finite, t2])
-    model_2.set_magnification_methods([t3, finite, t4])
+    methods = [t1, finite, t2, 'point_source', t3, finite, t4]
+    model.set_magnification_methods(methods)
+    model_1.set_magnification_methods(methods)
+    model_2.set_magnification_methods(methods)
 
-    (f_s_1, f_s_2, f_b) = (100., 300., 50.)
+    def test_model_methods(test_model):
+        assert (test_model.default_magnification_method == 'point_source')
+        assert (test_model.methods ==
+                [t1, finite, t2, 'point_source', t3, finite, t4])
+
+    test_model_methods(model)
+    test_model_methods(model_1)
+    test_model_methods(model_2)
+
+    (f_s_1, f_s_2) = (100., 300.)
     time = np.linspace(4900., 5200., 4200)
     mag_1 = model_1.get_magnification(time)
     mag_2 = model_2.get_magnification(time)
@@ -407,16 +513,16 @@ def test_binary_source_and_fluxes_for_bands():
 
     times_I = np.linspace(4900., 5200., 3000)
     times_V = np.linspace(4800., 5300., 250)
-    (f_s_1_I, f_s_2_I, f_b_I) = (10., 20., 3.)
-    (f_s_1_V, f_s_2_V, f_b_V) = (15., 5., 30.)
+    (f_s_1_I, f_s_2_I) = (10., 20.)
+    (f_s_1_V, f_s_2_V) = (15., 5.)
     q_f_I = f_s_2_I / f_s_1_I
     q_f_V = f_s_2_V / f_s_1_V
     (mag_1_I, mag_2_I) = model.get_magnification(times_I, separate=True)
     (mag_1_V, mag_2_V) = model.get_magnification(times_V, separate=True)
     effective_mag_I = (mag_1_I + mag_2_I * q_f_I) / (1. + q_f_I)
     effective_mag_V = (mag_1_V + mag_2_V * q_f_V) / (1. + q_f_V)
-    flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
-    flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
+    # flux_I = mag_1_I * f_s_1_I + mag_2_I * f_s_2_I + f_b_I
+    # flux_V = mag_1_V * f_s_1_V + mag_2_V * f_s_2_V + f_b_V
 
     # model.set_source_flux_ratio_for_band('I', q_f_I)
     # model.set_source_flux_ratio_for_band('V', q_f_V)
@@ -428,29 +534,50 @@ def test_binary_source_and_fluxes_for_bands():
     almost(result_V, effective_mag_V)
 
 
-def test_separate_method_for_each_source():
+class TestSeparateMethodForEachSource(unittest.TestCase):
     """
     Checks if setting separate magnification method for each source in
     binary source models works properly.
     """
-    model = mm.Model({'t_0_1': 5000., 'u_0_1': 0.01, 'rho_1': 0.005,
+    def setUp(self):
+        parameters = {'t_0_1': 5000., 'u_0_1': 0.01, 'rho_1': 0.005,
                       't_0_2': 5100., 'u_0_2': 0.001, 'rho_2': 0.005,
-                      't_E': 1000.})
+                      't_E': 1000.}
+        self.model = mm.Model(parameters)
 
-    model.set_magnification_methods(
-        [4999., 'finite_source_uniform_Gould94', 5101.], source=1)
-    # In order not to get "no FS method" warning:
-    model.set_magnification_methods(
-        [0., 'finite_source_uniform_Gould94', 1.], source=2)
-    out = model.get_magnification(5000., separate=True)
-    almost([out[0][0], out[1][0]], [103.46704167, 10.03696291])
+    def test_1(self):
+        self.model.set_magnification_methods(
+            [4999., 'finite_source_uniform_Gould94', 5101.], source=1)
+        # In order not to get "no FS method" warning:
+        self.model.set_magnification_methods(
+            [0., 'finite_source_uniform_Gould94', 1.], source=2)
+        out = self.model.get_magnification(5000., separate=True)
+        almost([out[0][0], out[1][0]], [103.46704167, 10.03696291])
+        assert self.model.default_magnification_method == 'point_source'
+        assert (self.model.methods[1] ==
+                [4999., 'finite_source_uniform_Gould94', 5101.])
+        assert (self.model.methods[2] ==
+                [0., 'finite_source_uniform_Gould94', 1.])
+        assert (self.model.get_magnification_methods(source=1) ==
+                [4999., 'finite_source_uniform_Gould94', 5101.])
+        assert (self.model.get_magnification_methods(source=2) ==
+                [0., 'finite_source_uniform_Gould94', 1.])
+        assert (self.model.get_magnification_methods() ==
+                {1: [4999., 'finite_source_uniform_Gould94', 5101.],
+                 2: [0., 'finite_source_uniform_Gould94', 1.]})
 
-    model.set_magnification_methods(
-        [4999., 'finite_source_uniform_Gould94', 5001.], source=1)
-    model.set_magnification_methods(
-        [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
-    out = model.get_magnification(5100., separate=True)
-    almost([out[0][0], out[1][0]], [9.98801936, 395.96963727])
+    def test_2(self):
+        self.model.set_magnification_methods(
+            [4999., 'finite_source_uniform_Gould94', 5001.], source=1)
+        self.model.set_magnification_methods(
+            [5099., 'finite_source_uniform_Gould94', 5101.], source=2)
+        out = self.model.get_magnification(5100., separate=True)
+        almost([out[0][0], out[1][0]], [9.98801936, 395.96963727])
+        assert self.model.default_magnification_method == 'point_source'
+        assert (self.model.methods[1] ==
+                [4999., 'finite_source_uniform_Gould94', 5001.])
+        assert (self.model.methods[2] ==
+                [5099., 'finite_source_uniform_Gould94', 5101.])
 
 
 def test_get_lc():
@@ -463,6 +590,14 @@ def test_get_lc():
                       't_E': 100.})
     out = model.get_lc(5050., source_flux=[1., 2.], blend_flux=3.)
     almost(out, 19.668370500043526)
+
+
+def test_is_finite_source():
+    model_fs = mm.Model({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
+    model_ps = mm.Model({'t_0': 10, 'u_0': 1, 't_E': 3})
+
+    assert model_fs.parameters.is_finite_source()
+    assert not model_ps.parameters.is_finite_source()
 
 
 def test_repr():
@@ -492,6 +627,148 @@ def test_repr():
     expected = begin + end + "\nlimb-darkening coeffs (gamma): {'I': 0.5}"
     assert str(model) == expected
 
+def prepare_xallarap_test(
+        xi_Omega_node=0., xi_argument_of_latitude_reference=0.,
+        t_0_xi=None, xi_eccentricity=None, xi_omega_periapsis=None):
+    """
+    prepare data for unit tests of xallarap models
+    """
+    t_0 = 2459876.0
+    d_time = 4.
+    u_0 = 0.01357
+    xi_a = 0.0123456789
+    tau = 0.03838383
+
+    common = {'t_0': t_0, 't_E': d_time / tau, 'u_0': u_0}
+    xallarap = {
+        'xi_period': 2.*d_time, 'xi_semimajor_axis': xi_a,
+        'xi_Omega_node': xi_Omega_node, 'xi_inclination': 0.,
+        'xi_argument_of_latitude_reference': xi_argument_of_latitude_reference
+        }
+    if t_0_xi is not None:
+        if t_0_xi == "t_0":
+            t_0_xi = t_0
+        elif t_0_xi == "t_0+d_time":
+            t_0_xi = t_0 + d_time
+        xallarap['t_0_xi'] = t_0_xi
+    if xi_eccentricity is not None:
+        xallarap['xi_eccentricity'] = xi_eccentricity
+    if xi_omega_periapsis is not None:
+        xallarap['xi_omega_periapsis'] = xi_omega_periapsis
+
+    model_1 = mm.Model(common)
+    model_2 = mm.Model({**common, **xallarap})
+    return (model_1, model_2, t_0, d_time, tau, u_0, xi_a)
+
+
+def test_xallarap_at_t_0_circular():
+    """
+    Make sure that xallarap circular and non-xallarap 1L1S models
+    produce the same magnifications at t_0.
+    """
+    (model_1, model_2, t_0) = prepare_xallarap_test()[:2+1]
+
+    assert model_1.get_magnification(t_0) == model_2.get_magnification(t_0)
+
+
+def test_xallarap_at_t_0_eccentric():
+    """
+    Make sure that xallarap eccentric and non-xallarap 1L1S models
+    produce the same magnifications at t_0.
+    """
+    kwargs = {'xi_eccentricity': 0.5, 'xi_omega_periapsis': 12.3456}
+    (model_1, model_2, t_0) = prepare_xallarap_test(**kwargs)[:2+1]
+
+    assert model_1.get_magnification(t_0) == model_2.get_magnification(t_0)
+
+
+def test_xallarap_at_t_0_plus_half_of_period_1():
+    """
+    Xallarap - circular orbit, half period after t_0, and Omega+nu_0 = 0.
+    Expected u is from pen and pencil calculations.
+    """
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test()[1:]
+
+    u2 = u_0**2 + (tau - 2. * xi_a)**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    assert expected == model.get_magnification(t_0+d_time)
+
+
+def test_xallarap_at_t_0_plus_half_of_period_2():
+    """
+    Xallarap - circular orbit, half period after t_0, and Omega+nu_0 = 90.
+    Expected u is from pen and pencil calculations.
+    """
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(90., 0.)[1:]
+
+    u2 = (u_0 - 2. * xi_a)**2 + tau**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    assert expected == model.get_magnification(t_0+d_time)
+
+
+def test_xallarap_at_t_0_plus_half_of_period_3():
+    """
+    Xallarap - circular orbit, half period after t_0, and Omega+nu_0 = 180.
+    Expected u is from pen and pencil calculations.
+    """
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(90., 90.)[1:]
+
+    u2 = u_0**2 + (tau + 2. * xi_a)**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    assert expected == model.get_magnification(t_0+d_time)
+
+
+def test_xallarap_at_t_0_plus_half_of_period_4():
+    """
+    Xallarap - circular orbit, half period after t_0, and Omega+nu_0 = 180.
+    The t_0_xi is provided as a parameter and = t_0.
+    Expected u is from pen and pencil calculations.
+    """
+    args = [90., 90., "t_0"]
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(*args)[1:]
+
+    u2 = u_0**2 + (tau + 2. * xi_a)**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    assert expected == model.get_magnification(t_0+d_time)
+
+
+def test_xallarap_at_t_0_plus_half_of_period_5():
+    """
+    Xallarap - circular orbit, half period after t_0, and Omega+nu_0 = 180.
+    The t_0_xi is provided as a parameter and = t_0.
+    Expected u is from pen and pencil calculations.
+    """
+    args = [90., 90., "t_0+d_time"]
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(*args)[1:]
+
+    u2 = u_0**2 + tau**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    assert expected == model.get_magnification(t_0+d_time)
+
+
+def test_xallarap_at_t_0_plus_half_of_period_6_eccentric():
+    """
+    Extremely eccentric xallarap orbit checked half period later
+    """
+    kwargs = {'xi_eccentricity': 0.999, 'xi_omega_periapsis': 0.}
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(**kwargs)[1:]
+
+    u2 = u_0**2 + (tau - 2. * xi_a)**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    assert expected == model.get_magnification(t_0+d_time)
+
+
+def test_xallarap_at_t_0_plus_half_of_period_7_eccentric():
+    """
+    Extremely eccentric xallarap orbit with Omega=270 checked half period later
+    """
+    kwargs = {'xi_eccentricity': 0.999, 'xi_omega_periapsis': 0.,
+              'xi_Omega_node': 270.}
+    (model, t_0, d_time, tau, u_0, xi_a) = prepare_xallarap_test(**kwargs)[1:]
+
+    u2 = (u_0 + 2. * xi_a)**2 + tau**2
+    expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+    almost(expected, model.get_magnification(t_0+d_time))
 
 class TestGetTrajectory(unittest.TestCase):
 
@@ -582,15 +859,9 @@ class TestGetTrajectory(unittest.TestCase):
 
         traj_2_1L1S = model_2.get_trajectory(time)
         np.testing.assert_equal(traj_2_1L2S.x == traj_2_1L1S.x)
-        np.testing.assert_equal(traj_2_1L2S.y == traj_2_1L1S.y)
-
+        np.testing.assert_equal(traj_2_1L2S.y == traj_2_1L1S.y)\
+        
 # Tests to Add:
-#
-# test get_trajectory:
-#   straight-up trajectory
-#   case with annual parallax (check test_Model_Parallax.py)
-#   case with satellite parallax (check test_Model_Parallax.py)
-#   coords is propagating correctly (check test_Model_Parallax.py)
 #
 # test set_times:
 #   keywords to test:
