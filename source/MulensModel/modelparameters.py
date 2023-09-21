@@ -253,18 +253,15 @@ class ModelParameters(object):
             # run on each source parameters separately.
 
             if self.is_xallarap:
-                self._update_sources_xallarap_reference(parameters['q_source'])
+                self._update_sources_xallarap_reference()
         else:
             raise ValueError('wrong number of sources')
         self._set_parameters(parameters)
 
-    def _update_sources_xallarap_reference(self, q_source=None):
+    def _update_sources_xallarap_reference(self):
         """
         Update .xallarap_reference_position for each source parameters
         """
-        if q_source is None:
-            q_source = self.q_source
-
         delta_1 = self._source_1_parameters._get_xallarap_position()
         self._source_1_parameters.xallarap_reference_position = delta_1
         self._source_2_parameters.xallarap_reference_position = delta_1
