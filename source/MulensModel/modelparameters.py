@@ -594,14 +594,21 @@ class ModelParameters(object):
 
     def _check_valid_combination_2_sources(self, keys):
         """
-        make sure that there is no conflict between t_0 and t_0_1 etc.
+        Make sure that there is no conflict between t_0 and t_0_1 etc.
+        Also make sure that xallarap is not mixed with t_0_1, u_0_1 etc.
         """
-        binary_params = (
-            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
+        binary_params_nonFS = 't_0_1 t_0_2 u_0_1 u_0_2'.split()
+        binary_params_FS = 'rho_1 rho_2 t_star_1 t_star_2'.split()
+        binary_params = binary_params_nonFS + binary_params_FS
         for parameter in binary_params:
             if (parameter in keys) and (parameter[:-2] in keys):
                 raise ValueError('You cannot set {:} and {:}'.format(
                                  parameter, parameter[:-2]))
+
+        common = set(keys).intersection(binary_params_nonFS)
+        if self.is_xallarap and len(common) > 0:
+            msg = 'xallarap parameters cannot be mixed with {:}'
+            raise NotImplementedError(msg.format(common))
 
     def _check_valid_combination_1_source_standard(self, keys):
         """
