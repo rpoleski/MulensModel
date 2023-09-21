@@ -94,4 +94,9 @@ plt.title('Event() Model + Data')
 my_event.plot_model(zorder=10, color='black')
 my_event.plot_data()
 
+# Plot the source trajectories
+plt.figure()
+plt.title('Model Source Trajectories')
+my_model.plot_trajectory()
+
 plt.show()

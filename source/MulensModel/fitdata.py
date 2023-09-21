@@ -647,13 +647,9 @@ class FitData(object):
         if self.dataset.ephemerides_file is None:
             return self.model.get_trajectory(self.dataset.time)
         else:
-            kwargs_ = {
-                'times': self.dataset.time,
-                'parallax': self.model.get_parallax(),
-                'coords': self.model.coords,
-                'satellite_skycoord': self.dataset.satellite_skycoord}
+            return self.model.get_trajectory(
+                self.dataset.time, satellite_skycoord=self.dataset.satellite_skycoord)
 
-            return Trajectory(parameters=self.model.parameters, **kwargs_)
 
     def get_d_A_d_u_for_point_lens_model(self):
         """

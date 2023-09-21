@@ -621,6 +621,31 @@ class TestGetResiduals(unittest.TestCase):
         almost(res_errors, self.dataset.err_mag)
 
 
+def test_get_trajectory_1L2S_satellite_parallax():
+    """test parallax calculation with Spitzer data"""
+    model_parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                        'pi_E_N': -0.248, 'pi_E_E': 0.234,
+                        't_0_par': 2456836.2}
+    coords = "17:47:12.25 -21:22:58.2"
+
+    model_with_par = mm.Model(model_parameters, coords=coords)
+    model_with_par.parallax(satellite=True, earth_orbital=True,
+                            topocentric=False)
+
+    data_Spitzer = mm.MulensData(
+        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
+
+    fit = mm.FitData(model=model_with_par, dataset=data_Spitzer)
+
+    ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True)
+
+    trajectory = fit.get_dataset_trajectory()
+
+    ratio_x = trajectory.x / ref_Spitzer[6]
+    ratio_y = trajectory.x / ref_Spitzer[7]
+    np.testing.assert_almost_equal(ratio_x, [1.]*len(ratio_x), decimal=4)
+    np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
+
 # Tests to add:
 #
 # test get_chi2_gradient(), chi2_gradient:

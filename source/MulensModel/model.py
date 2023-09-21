@@ -747,7 +747,7 @@ class Model(object):
             for (x, y) in zip(trajectory.x, trajectory.y):
                 axis.add_artist(plt.Circle((x, y), **kwargs))
 
-    def get_trajectory(self, times):
+    def get_trajectory(self, times, satellite_skycoord=None):
         """
         Get the source trajectory for the given set of times.
 
@@ -758,10 +758,20 @@ class Model(object):
         Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object.
 
         """
+        if satellite_skycoord is None:
+            satellite_skycoord = self.get_satellite_coords(times)
+
         kwargs_ = {
             'times': times, 'parallax': self._parallax, 'coords': self._coords,
-            'satellite_skycoord': self.get_satellite_coords(times)}
-        return Trajectory(parameters=self.parameters, **kwargs_)
+            'satellite_skycoord': satellite_skycoord}
+        if self.n_sources == 1:
+            return Trajectory(parameters=self.parameters, **kwargs_)
+        elif self.n_sources == 1:
+            trajectory_1 = Trajectory(
+                parameters=self.parameters.source_1_parameters, **kwargs_)
+            trajectory_2 = Trajectory(
+                parameters=self.parameters.source_2_parameters, **kwargs_)
+            return (trajectory_1, trajectory_2)
 
     def set_times(
             self, t_range=None, t_start=None, t_stop=None, dt=None,

@@ -19,10 +19,10 @@ def test_coords_format():
     coords = [None, coords_txt, mm.Coordinates(coords_txt),
               SkyCoord(coords_txt, unit=(u.hourangle, u.deg))]
 
-    trajecotories = [mm.Trajectory(times, params, coords=c) for c in coords]
-    for trajectory in trajecotories:
-        assert np.all(trajectory.x == trajecotories[0].x)
-        assert np.all(trajectory.y == trajecotories[0].y)
+    trajectories = [mm.Trajectory(times, params, coords=c) for c in coords]
+    for trajectory in trajectories:
+        assert np.all(trajectory.x == trajectories[0].x)
+        assert np.all(trajectory.y == trajectories[0].y)
 
     parameters['pi_E_E'] = 0.1
     parameters['pi_E_N'] = -0.15
@@ -31,7 +31,7 @@ def test_coords_format():
     coords = coords[1:]
     p = {'earth_orbital': True, 'satellite': False, 'topocentric': False}
     kwargs = {'times': times, 'parameters': params, 'parallax': p}
-    trajecotories = [mm.Trajectory(coords=c, **kwargs) for c in coords]
-    for trajectory in trajecotories:
-        assert np.all(trajectory.x == trajecotories[0].x)
-        assert np.all(trajectory.y == trajecotories[0].y)
+    trajectories = [mm.Trajectory(coords=c, **kwargs) for c in coords]
+    for trajectory in trajectories:
+        assert np.all(trajectory.x == trajectories[0].x)
+        assert np.all(trajectory.y == trajectories[0].y)
