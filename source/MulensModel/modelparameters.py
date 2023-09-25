@@ -975,7 +975,7 @@ class ModelParameters(object):
             return self.t_star / self.rho
         elif ('t_eff' in self.parameters.keys() and
               'u_0' in self.parameters.keys()):
-            return self.t_eff / self.u_0
+            return self.t_eff / abs(self.u_0)
         else:
             raise KeyError("You're trying to access t_E that was not set")
 
