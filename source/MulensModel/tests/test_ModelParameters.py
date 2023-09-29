@@ -135,6 +135,19 @@ def test_repr_t_0_kep():
     assert (out_1 + out_2) == str(params)
 
 
+def test_positive_t_E():
+    """
+    Check if t_E is positive when t_eff is given, even if u_0 is negative.
+    """
+    t_0 = 10205.1
+    u_0 = -0.50
+    t_eff = 12.5
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_eff': t_eff})
+
+    assert params.t_E >= 0.
+    assert params.t_E == params.t_eff / abs(params.u_0)
+
+
 def test_rho_t_e_t_star():
     """check if conversions between rho, t_E, and t_star work ok"""
     t_0 = 2450000.
