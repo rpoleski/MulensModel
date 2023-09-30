@@ -286,11 +286,16 @@ class ModelParameters(object):
         return orbit.get_reference_plane_position([t_0_xi])
 
     def _count_sources(self, keys):
-        """How many luminous sources there are?"""
+        """
+        How many luminous sources there are?
+        We're also checking for ill-defined xallarap with
+        *_1 and *_2 binary source parameters.
+        """
         finite_source_params = ['rho_1', 'rho_2', 't_star_1', 't_star_2']
         binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
         binary_params += finite_source_params
         common = set(binary_params).intersection(keys)
+        common_finite_source = common.intersection(finite_source_params)
         if len(common) == 0 and 'q_source' not in keys:
             self._n_sources = 1
         elif len(common) == 0 and 'q_source' in keys:
@@ -301,6 +306,11 @@ class ModelParameters(object):
             else:
                 raise ValueError('Wrong parameters - the only binary ' +
                                  'source parameter is {:}'.format(common))
+        elif len(common) == 2 and len(common_finite_source) == 2 and 'q_source' in keys:
+            if common in [{'rho_1', 't_star_1'}, {'rho_2', 't_star_2'}]:
+                raise ValueError('source size overdefined: {:}'.format(common))
+            else:
+                self._n_sources = 2
         else:
             common_no_1_2 = {param[:-2] for param in common}
             condition_1 = (len(common_no_1_2) == len(common))
