@@ -286,16 +286,16 @@ class ModelParameters(object):
         return orbit.get_reference_plane_position([t_0_xi])
 
     def _count_sources(self, keys):
-        """How many sources there are?"""
-        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-                         't_star_1', 't_star_2']
+        """How many luminous sources there are?"""
+        finite_source_params = ['rho_1', 'rho_2', 't_star_1', 't_star_2']
+        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
+        binary_params += finite_source_params
         common = set(binary_params).intersection(keys)
         if len(common) == 0 and 'q_source' not in keys:
             self._n_sources = 1
         elif len(common) == 0 and 'q_source' in keys:
             self._n_sources = 2
         elif len(common) == 1:
-            finite_source_params = ['rho_1', 'rho_2', 't_star_1', 't_star_2']
             if self.is_xallarap and list(common)[0] in finite_source_params:
                 self._n_sources = 2
             else:
