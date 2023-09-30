@@ -443,6 +443,8 @@ class ModelParameters(object):
                 parameters_2[key] = value
 
         if self.n_sources == 2 and self._type['xallarap']:
+            if parameters['q_source'] < 0.:
+                raise ValueError('q_source cannot be negative')
             parameters_2['xi_semimajor_axis'] /= parameters['q_source']
             parameters_2['xi_argument_of_latitude_reference'] += 180.
 
@@ -1640,6 +1642,8 @@ class ModelParameters(object):
 
     @q_source.setter
     def q_source(self, new_value):
+        if new_value < 0.:
+            raise ValueError('q_source cannot be negative')
         self.parameters['q_source'] = new_value
         self._update_sources('q_source', new_value)
 

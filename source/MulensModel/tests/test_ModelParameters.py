@@ -548,6 +548,23 @@ class TestXallarapErrors(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             mm.ModelParameters(parameters)
 
+    def test_negative_source_mass_ratio_1(self):
+        """
+        q_source must be positive in __init__()
+        """
+        parameters = {**xallarap_parameters, 'q_source': -0.12345}
+        with self.assertRaises(ValueError):
+            model = mm.ModelParameters(parameters)
+
+    def test_negative_source_mass_ratio_2(self):
+        """
+        q_source must be positive
+        """
+        parameters = {**xallarap_parameters, 'q_source': 0.12345}
+        model = mm.ModelParameters(parameters)
+        with self.assertRaises(ValueError):
+            setattr(model, 'q_source', -0.12345)
+
 
 @pytest.mark.parametrize(
     "parameter",
