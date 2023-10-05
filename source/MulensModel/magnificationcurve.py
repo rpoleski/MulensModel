@@ -174,7 +174,8 @@ class MagnificationCurve(object):
         if len(set(methods)-set_) == 0:
             path = join(
                 mm.MODULE_PATH, "documents", "magnification_methods.pdf")
-            msg = ("No finite-source method is set.\n"
+            msg = ("A finite source parameter (rho or t_star) is set and no "
+                   "finite-source method is set.\n"
                    "For possible magnification methods see\n" + path + "or\n"
                    "https://github.com/rpoleski/MulensModel/blob/master/"
                    "documents/magnification_methods.pdf")
