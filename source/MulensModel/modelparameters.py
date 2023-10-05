@@ -302,7 +302,11 @@ class ModelParameters(object):
             self._n_sources = 2
         elif len(common) == 1:
             if self.is_xallarap and n_finite == 1:
-                self._n_sources = 2
+                finite_param = list(common.intersection(finite_source_params))[0]
+                if finite_param in ['rho_2', 't_star_2']:
+                    self._n_sources = 2
+                else:
+                    self._n_sources = 1
             else:
                 raise ValueError('Wrong parameters - the only binary ' +
                                  'source parameter is {:}'.format(common))
