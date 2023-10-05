@@ -1,14 +1,9 @@
 import math
 import warnings
-
+from os.path import join
 import numpy as np
 
-from MulensModel.binarylens import BinaryLens
-from MulensModel.binarylenswithshear import BinaryLensWithShear
-from MulensModel.modelparameters import ModelParameters
-from MulensModel.pointlens import PointLens, get_pspl_magnification
-from MulensModel.pointlenswithshear import PointLensWithShear
-from MulensModel.trajectory import Trajectory
+import MulensModel as mm
 
 
 class MagnificationCurve(object):
@@ -54,7 +49,7 @@ class MagnificationCurve(object):
         self.times = np.atleast_1d(times)
 
         # Check for ModelParameters and set.
-        if isinstance(parameters, ModelParameters):
+        if isinstance(parameters, mm.ModelParameters):
             self.parameters = parameters
         else:
             raise TypeError(
@@ -62,7 +57,7 @@ class MagnificationCurve(object):
                 'ModelParameters object')
 
         # Calculate the source trajectory (i.e. u(t))
-        self.trajectory = Trajectory(
+        self.trajectory = mm.Trajectory(
             self.times, parameters=parameters, parallax=parallax,
             coords=coords, satellite_skycoord=satellite_skycoord)
 
@@ -177,7 +172,13 @@ class MagnificationCurve(object):
         methods = self._methods_names + [self._default_method]
         set_ = set(['point_source', 'point_source_point_lens', None])
         if len(set(methods)-set_) == 0:
-            warnings.warn('no finite-source method is set', UserWarning)
+            path = join(
+                mm.MODULE_PATH, "documents", "magnification_methods.pdf")
+            msg = ("No finite-source method is set.\n"
+                   "For possible magnification methods see\n" + path + "or\n"
+                   "https://github.com/rpoleski/MulensModel/blob/master/"
+                   "documents/magnification_methods.pdf")
+            warnings.warn(msg, UserWarning)
             return
 
     def get_point_lens_magnification(self):
@@ -256,12 +257,12 @@ class MagnificationCurve(object):
                 " lenses")
 
         if self.parameters.is_external_mass_sheet:
-            point_lens = PointLensWithShear(self.parameters)
+            point_lens = mm.PointLensWithShear(self.parameters)
             magnification = point_lens.get_point_source_magnification(
                 self.trajectory)
         else:
-            point_lens = PointLens(self.parameters)
-            magnification = get_pspl_magnification(self.trajectory)
+            point_lens = mm.PointLens(self.parameters)
+            magnification = mm.get_pspl_magnification(self.trajectory)
 
         methods = self._methods_for_epochs()
         if len(set(methods)-set([None, 'point_source'])) == 0:
@@ -389,10 +390,10 @@ class MagnificationCurve(object):
                 " lenses")
 
         if not self.parameters.is_external_mass_sheet:
-            binary_lens_class = BinaryLens
+            binary_lens_class = mm.BinaryLens
             kwargs = dict()
         else:
-            binary_lens_class = BinaryLensWithShear
+            binary_lens_class = mm.BinaryLensWithShear
             K = self.parameters.parameters.get('convergence_K', 0)
             G = self.parameters.parameters.get('shear_G', complex(0, 0))
             kwargs = {'convergence_K': K, 'shear_G': G}
@@ -460,20 +461,20 @@ class MagnificationCurve(object):
                 m = binary_lens.hexadecapole_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma)
             elif method == 'vbbl':
-                if isinstance(binary_lens, BinaryLensWithShear):
+                if isinstance(binary_lens, mm.BinaryLensWithShear):
                     raise ValueError("Finite source VBBL is not available "
                                      "for BinaryLensWithShear")
                 m = binary_lens.vbbl_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'adaptive_contouring':
-                if isinstance(binary_lens, BinaryLensWithShear):
+                if isinstance(binary_lens, mm.BinaryLensWithShear):
                     raise ValueError("Adaptive contouring is not available "
                                      "for BinaryLensWithShear")
                 m = binary_lens.adaptive_contouring_magnification(
                     x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
             elif method == 'point_source_point_lens':
                 u = math.sqrt(x**2 + y**2)
-                m = get_pspl_magnification(u)
+                m = mm.get_pspl_magnification(u)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
