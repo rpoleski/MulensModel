@@ -419,6 +419,9 @@ class MagnificationCurve(object):
 
         magnification = []
         for index in range(len(self.times)):
+            if methods[index] is None:
+                raise ValueError("method for calculating binary lens "
+                                 "magnification is not specified properly")
             x = self.trajectory.x[index]
             y = self.trajectory.y[index]
             method = methods[index].lower()
