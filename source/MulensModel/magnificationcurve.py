@@ -151,9 +151,6 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
-        if self.parameters.rho is not None:
-            self._check_for_finite_source_method()
-
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -161,6 +158,7 @@ class MagnificationCurve(object):
         else:
             raise NotImplementedError(
                 "magnification for more than 2 lenses not handled yet")
+
         self._magnification = magnification
         return self._magnification
 
@@ -251,6 +249,9 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        if self.parameters.is_finite_source():
+            self._check_for_finite_source_method()
+
         if self.parameters.n_lenses != 1:
             raise ValueError(
                 "You're trying to calculate single lens magnification, but "
@@ -384,6 +385,9 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        if self.parameters.is_finite_source():
+            self._check_for_finite_source_method()
+
         if self.parameters.n_lenses != 2:
             raise ValueError(
                 "You're trying to calculate binary lens magnification, but "
