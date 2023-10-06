@@ -7,7 +7,7 @@ import numpy as np
 import MulensModel as mm
 
 
-raise raise NotImplementedError(
+raise NotImplementedError(
     "We don't know how to enable this functionality.")
 
 data = mm.MulensData(file_name="my_data.dat")
