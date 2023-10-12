@@ -787,10 +787,10 @@ class TestGetTrajectory(unittest.TestCase):
                                      topocentric=False)
 
         self.ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True)
-        self.times_OGLE = self.ref_OGLE[0]
+        self.times_OGLE = self.ref_OGLE[0] + 2450000.
         self.ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True)
         self.ephemerides_file = SAMPLE_FILE_03_EPH
-        self.times_spz = self.ref_Spitzer[0]
+        self.times_spz = self.ref_Spitzer[0] + 2450000.
 
     def test_1L1S(self):
         # straight-up trajectory for static point-lens model
