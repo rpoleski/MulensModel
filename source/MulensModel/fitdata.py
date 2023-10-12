@@ -647,12 +647,11 @@ class FitData(object):
             trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
                 Trajectory for given dataset.
         """
-        if self.dataset.ephemerides_file is None:
-            return self.model.get_trajectory(self.dataset.time)
-        else:
-            return self.model.get_trajectory(
-                self.dataset.time, satellite_skycoord=self.dataset.satellite_skycoord)
-          
+        kwargs = dict()
+        if self.dataset.ephemerides_file is not None:
+            kwargs['satellite_skycoord'] = self.dataset.satellite_skycoord
+
+        return self.model.get_trajectory(self.dataset.time, **kwargs)
 
     def get_d_A_d_u_for_PSPL_model(self):
         """
