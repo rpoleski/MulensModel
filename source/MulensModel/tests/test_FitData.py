@@ -1028,9 +1028,9 @@ def test_get_trajectory_1L2S_satellite_parallax():
 
     ratio_x = trajectory.x / ref_Spitzer[6]
     ratio_y = trajectory.x / ref_Spitzer[7]
-    np.testing.assert_almost_equal(ratio_x, [1.]*len(ratio_x), decimal=4)
-    np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
-    
+    np.testing.assert_almost_equal(ratio_x, 1., decimal=4)
+    np.testing.assert_almost_equal(ratio_y, 1., decimal=4)
+
 # Tests to add:
 #
 # test get_chi2_gradient(), chi2_gradient:

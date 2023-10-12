@@ -627,6 +627,7 @@ def test_repr():
     expected = begin + end + "\nlimb-darkening coeffs (gamma): {'I': 0.5}"
     assert str(model) == expected
 
+
 def prepare_xallarap_test(
         xi_Omega_node=0., xi_argument_of_latitude_reference=0.,
         t_0_xi=None, xi_eccentricity=None, xi_omega_periapsis=None):
@@ -770,19 +771,20 @@ def test_xallarap_at_t_0_plus_half_of_period_7_eccentric():
     expected = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
     almost(expected, model.get_magnification(t_0+d_time))
 
+
 class TestGetTrajectory(unittest.TestCase):
 
     def setUp(self):
         # Parallax model parameters
-        self.model_parameters_par = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
-                            'pi_E_N': -0.248, 'pi_E_E': 0.234,
-                            't_0_par': 2456836.2}
+        self.model_parameters_par = {
+            't_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+            'pi_E_N': -0.248, 'pi_E_E': 0.234, 't_0_par': 2456836.2}
         self.coords = "17:47:12.25 -21:22:58.2"
 
         self.model_with_par = mm.Model(
             self.model_parameters_par, coords=self.coords)
         self.model_with_par.parallax(satellite=True, earth_orbital=True,
-                                topocentric=False)
+                                     topocentric=False)
 
         self.ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True)
         self.times_OGLE = self.ref_OGLE[0]
@@ -807,7 +809,7 @@ class TestGetTrajectory(unittest.TestCase):
         np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
 
     def test_1L1S_annual_parallax(self):
-        # case with annual parallax
+        """case with annual parallax"""
         trajectory = self.model_with_par.get_trajectory(
             self.times_OGLE)
 
@@ -817,7 +819,7 @@ class TestGetTrajectory(unittest.TestCase):
         np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
 
     def test_1L1S_satellite_parallax_1(self):
-        # case with satellite parallax (check test_Model_Parallax.py)
+        """Case with satellite parallax (check test_Model_Parallax.py)"""
         satellite_skycoord_obj = mm.SatelliteSkyCoord(
             ephemerides_file=self.ephemerides_file)
         satellite_skycoord = satellite_skycoord_obj.get_satellite_coords(
@@ -831,7 +833,7 @@ class TestGetTrajectory(unittest.TestCase):
         np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
 
     def test_1L1S_satellite_parallax_2(self):
-        # case with satellite parallax (check test_Model_Parallax.py)
+        """Case with satellite parallax (check test_Model_Parallax.py)"""
         model_with_sat_par = mm.Model(
             self.model_parameters_par, ephemerides_file=self.ephemerides_file,
             coords=self.coords)
@@ -843,7 +845,7 @@ class TestGetTrajectory(unittest.TestCase):
         np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
 
     def test_1L2S(self):
-        # Binary source trajectories
+        """Binary source trajectories"""
         model = mm.Model({
             't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001,
             't_0_2': 5100., 'u_0_2': 0.0003, 't_star_2': 0.03, 't_E': 25.})
@@ -859,8 +861,8 @@ class TestGetTrajectory(unittest.TestCase):
 
         traj_2_1L1S = model_2.get_trajectory(time)
         np.testing.assert_equal(traj_2_1L2S.x == traj_2_1L1S.x)
-        np.testing.assert_equal(traj_2_1L2S.y == traj_2_1L1S.y)\
-        
+        np.testing.assert_equal(traj_2_1L2S.y == traj_2_1L1S.y)
+
 # Tests to Add:
 #
 # test set_times:
