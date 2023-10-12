@@ -856,12 +856,12 @@ class TestGetTrajectory(unittest.TestCase):
 
         (traj_1_1L2S, traj_2_1L2S) = model.get_trajectory(time)
         traj_1_1L1S = model_1.get_trajectory(time)
-        np.testing.assert_equal(traj_1_1L2S.x == traj_1_1L1S.x)
-        np.testing.assert_equal(traj_1_1L2S.y == traj_1_1L1S.y)
+        np.testing.assert_equal(traj_1_1L2S.x, traj_1_1L1S.x)
+        np.testing.assert_equal(traj_1_1L2S.y, traj_1_1L1S.y)
 
         traj_2_1L1S = model_2.get_trajectory(time)
-        np.testing.assert_equal(traj_2_1L2S.x == traj_2_1L1S.x)
-        np.testing.assert_equal(traj_2_1L2S.y == traj_2_1L1S.y)
+        np.testing.assert_equal(traj_2_1L2S.x, traj_2_1L1S.x)
+        np.testing.assert_equal(traj_2_1L2S.y, traj_2_1L1S.y)
 
 # Tests to Add:
 #

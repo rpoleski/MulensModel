@@ -774,12 +774,15 @@ class Model(object):
             'satellite_skycoord': satellite_skycoord}
         if self.n_sources == 1:
             return Trajectory(parameters=self.parameters, **kwargs_)
-        elif self.n_sources == 1:
+        elif self.n_sources == 2:
             trajectory_1 = Trajectory(
                 parameters=self.parameters.source_1_parameters, **kwargs_)
             trajectory_2 = Trajectory(
                 parameters=self.parameters.source_2_parameters, **kwargs_)
             return (trajectory_1, trajectory_2)
+        else:
+            raise NotImplementedError(
+                "only 1 or 2 sources allowed here at this point")
 
     def set_times(
             self, t_range=None, t_start=None, t_stop=None, dt=None,
