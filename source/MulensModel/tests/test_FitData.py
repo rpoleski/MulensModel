@@ -979,6 +979,7 @@ class TestFSPLGradient2(TestFSPLGradient):
 
 
 def test_FSPLDerivs_get_satellite_coords():
+    # Version 3 should make this test unnecessary
     times = [2456445.0, 2457328.0]
     mags = [16., 15.]
     errs = [0.01, 0.02]
