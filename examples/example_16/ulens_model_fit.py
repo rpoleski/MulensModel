@@ -710,7 +710,8 @@ class UlensModelFit(object):
         This function assumes that the second Y scale will be plotted.
         """
         settings = self._plots['best model']['second Y scale']
-        allowed = set(['color', 'label', 'labels', 'magnifications'])
+        allowed = set(['color', 'label', 'labels', 'magnifications',
+                       'recalculate magnification ticks'])
         unknown = set(settings.keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -3102,8 +3103,15 @@ class UlensModelFit(object):
                    "the second scale is not plotted")
             args = [min(magnifications), max(magnifications),
                     A_min[0], A_max[0]]
-            warnings.warn(msg.format(*args))
-            return
+            if settings.get("recalculate magnification ticks") is True:
+                magnifications = np.linspace(A_min[0], A_max[0], 8)
+                magnifications = np.unique(magnifications.round(2))
+                flux = total_source_flux * magnifications.tolist() + blend_flux
+                labels = [str(x) for x in magnifications]
+                print(" - New magnifications:", magnifications)
+            else:
+                warnings.warn(msg.format(*args))
+                return
 
         ticks = mm.Utils.get_mag_from_flux(flux)
 
