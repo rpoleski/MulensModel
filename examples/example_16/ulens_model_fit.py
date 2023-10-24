@@ -334,6 +334,7 @@ class UlensModelFit(object):
         """
         Check if MulensModel is new enough
         """
+        print('\nMulensModel version:', mm.__version__, end='\n\n')
         if int(mm.__version__.split('.')[0]) < 2:
             raise RuntimeError(
                 "ulens_model_fit.py requires MulensModel in version "
@@ -1118,7 +1119,7 @@ class UlensModelFit(object):
                     warnings.warn(msg)
                 else:
                     raise ValueError("The path provided for posterior (" +
-                                     name + ") exsists and is a directory")
+                                     name + ") exists and is a directory")
             self._posterior_file_name = name[:-4]
             self._posterior_file_fluxes = None
 
