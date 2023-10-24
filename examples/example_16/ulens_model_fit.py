@@ -3094,6 +3094,7 @@ class UlensModelFit(object):
             warnings.warn(msg.format(np.sum(np.logical_not(mask))))
         A_min = (flux_min - blend_flux) / total_source_flux
         A_max = (flux_max - blend_flux) / total_source_flux
+        ax2 = plt.gca().twinx()
 
         if (np.min(magnifications) < A_min or np.max(magnifications) > A_max or
                 np.any(flux < 0.)):
@@ -3103,19 +3104,19 @@ class UlensModelFit(object):
                    "the second scale is not plotted")
             args = [min(magnifications), max(magnifications),
                     A_min[0], A_max[0]]
-            if settings.get("recalculate magnification ticks") is True:
-                magnifications = np.linspace(A_min[0], A_max[0], 8)
-                magnifications = np.unique(magnifications.round(2))
-                flux = total_source_flux * magnifications.tolist() + blend_flux
-                labels = [str(x) for x in magnifications]
-                print(" - New magnifications:", magnifications)
-            else:
+            if settings.get("recalculate magnification ticks") is not True:
                 warnings.warn(msg.format(*args))
+                ax2.get_yaxis().set_visible(False)
                 return
+            else:
+                ax2.set_ylim(A_min, A_max)
+                ticks = ax2.yaxis.get_ticklocs()[1:-1]
+                flux = total_source_flux * ticks.tolist() + blend_flux
+                max_n = max([len(str(x))-str(x).find('.')-1 for x in ticks])
+                labels = [f"%0.{max_n}f" % x for x in ticks]
 
         ticks = mm.Utils.get_mag_from_flux(flux)
 
-        ax2 = plt.gca().twinx()
         ax2.set_ylabel(label).set_color(color)
         ax2.spines['right'].set_color(color)
         ax2.set_ylim(ylim[0], ylim[1])
