@@ -334,7 +334,8 @@ class UlensModelFit(object):
         """
         Check if MulensModel is new enough
         """
-        print('\nMulensModel version:', mm.__version__, end='\n\n')
+        code_versions = f"{mm.__version__} and {__version__}"
+        print('\nMulensModel and script versions:', code_versions, end='\n\n')
         if int(mm.__version__.split('.')[0]) < 2:
             raise RuntimeError(
                 "ulens_model_fit.py requires MulensModel in version "
@@ -2311,6 +2312,11 @@ class UlensModelFit(object):
 
         This version works with EMCEE version 2.X and 3.0.
         """
+        lst = [mm.__version__, __version__]
+        code_version = f"MulensModel and example versions: {lst}"
+        if self._yaml_results:
+            print(code_version, **self._yaml_kwargs)
+
         accept_rate = np.mean(self._sampler.acceptance_fraction)
         out = "Mean acceptance fraction: {0:.3f}".format(accept_rate)
         print(out)
