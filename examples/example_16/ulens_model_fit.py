@@ -334,8 +334,8 @@ class UlensModelFit(object):
         """
         Check if MulensModel is new enough
         """
-        code_versions = f"{mm.__version__} and {__version__}"
-        print('\nMulensModel and script versions:', code_versions, end='\n\n')
+        code_version = "{:} and {:}".format(mm.__version__, __version__)
+        print('\nMulensModel and script versions:', code_version, end='\n\n')
         if int(mm.__version__.split('.')[0]) < 2:
             raise RuntimeError(
                 "ulens_model_fit.py requires MulensModel in version "
@@ -2312,9 +2312,9 @@ class UlensModelFit(object):
 
         This version works with EMCEE version 2.X and 3.0.
         """
-        lst = [mm.__version__, __version__]
-        code_version = f"MulensModel and example versions: {lst}"
         if self._yaml_results:
+            lst = [mm.__version__, __version__]
+            code_version = "MulensModel and script versions: {:}".format(lst)
             print(code_version, **self._yaml_kwargs)
 
         accept_rate = np.mean(self._sampler.acceptance_fraction)
@@ -2836,6 +2836,9 @@ class UlensModelFit(object):
             kwargs = dict()
             if dpi is not None:
                 kwargs = {'dpi': dpi}
+            if path.isfile(file_name):
+                msg = "Exisiting file " + file_name + " will be overwritten"
+                warnings.warn(msg)
             caller.savefig(file_name, **kwargs)
         plt.close()
 
