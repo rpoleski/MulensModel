@@ -2325,6 +2325,11 @@ class UlensModelFit(object):
             print(out, **self._yaml_kwargs)
         self._extract_posterior_samples_EMCEE()
 
+        if self._yaml_results:
+            print("Fixed parameters:", **self._yaml_kwargs)
+            for (key, value) in self._fixed_parameters.items():
+                print("    {:} : {:}".format(key, value), **self._yaml_kwargs)
+
         print("Fitted parameters:")
         self._print_results(self._samples_flat)
         if self._yaml_results:
