@@ -2356,6 +2356,10 @@ class UlensModelFit(object):
         if self._yaml_results:
             self._print_yaml_best_model()
 
+        if self._shift_t_0 and self._yaml_results:
+            print("Plots shift_t_0 : {:}".format(self._shift_t_0_value),
+                  **self._yaml_kwargs)
+
     def _extract_posterior_samples_EMCEE(self):
         """
         set self._samples_flat and self._samples for EMCEE
@@ -2500,6 +2504,7 @@ class UlensModelFit(object):
                 index = self._fit_parameters.index(name)
                 values = self._samples_flat[:, index]
                 mean = np.mean(values)
+                self._shift_t_0_value = int(mean)
                 try:
                     self._samples_flat[:, index] -= int(mean)
                     if 'trace' in self._plots:
