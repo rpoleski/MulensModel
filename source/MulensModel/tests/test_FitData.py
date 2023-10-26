@@ -1027,7 +1027,7 @@ def test_get_trajectory_1L2S_satellite_parallax():
     trajectory = fit.get_dataset_trajectory()
 
     ratio_x = trajectory.x / ref_Spitzer[6]
-    ratio_y = trajectory.x / ref_Spitzer[7]
+    ratio_y = trajectory.y / ref_Spitzer[7]
     np.testing.assert_almost_equal(ratio_x, 1., decimal=4)
     np.testing.assert_almost_equal(ratio_y, 1., decimal=4)
 
