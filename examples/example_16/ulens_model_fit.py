@@ -334,8 +334,8 @@ class UlensModelFit(object):
         """
         Check if MulensModel is new enough
         """
-        code_version = "{:} and {:}".format(mm.__version__, __version__)
-        print('\nMulensModel and script versions:', code_version, end='\n\n')
+        # code_version = "{:} and {:}".format(mm.__version__, __version__)
+        # print('\nMulensModel and script versions:', code_version, end='\n\n')
         if int(mm.__version__.split('.')[0]) < 2:
             raise RuntimeError(
                 "ulens_model_fit.py requires MulensModel in version "
@@ -712,25 +712,34 @@ class UlensModelFit(object):
         This function assumes that the second Y scale will be plotted.
         """
         settings = self._plots['best model']['second Y scale']
-        allowed = set(['color', 'label', 'labels', 'magnifications',
-                       'recalculate magnification ticks'])
+        allowed = set(['color', 'label', 'labels', 'magnifications'])
         unknown = set(settings.keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "second Y scale" in '
                 '"best model": {:}'.format(unknown))
         if not isinstance(settings['magnifications'], list):
-            raise TypeError(
-                '"best model" -> "second Y scale" -> "magnifications" has to '
-                'be a list, not ' + str(type(settings['magnifications'])))
-        for value in settings['magnifications']:
-            if not isinstance(value, (int, float)):
+            if settings['magnifications'] != 'optimal':
                 raise TypeError(
-                    'Wrong value in magnifications: ' + str(value))
-        if 'labels' not in settings:
-            settings['labels'] = [
-                str(x) for x in settings['magnifications']]
+                    '"best model" -> "second Y scale" -> "magnifications" has '
+                    'to be a list or "optimal", not ' +
+                    str(type(settings['magnifications'])))
         else:
+            for value in settings['magnifications']:
+                if not isinstance(value, (int, float)):
+                    raise TypeError(
+                        'Wrong value in magnifications: ' + str(value))
+        if 'labels' not in settings:
+            if settings['magnifications'] != 'optimal':
+                settings['labels'] = [
+                    str(x) for x in settings['magnifications']]
+            else:
+                settings['labels'] = []
+        else:
+            if settings['magnifications'] == 'optimal':
+                raise ValueError(
+                    'In "best model" -> "second Y scale", labels can not be '
+                    'provided if "magnifications" is defined as "optimal"')
             if not isinstance(settings['labels'], list):
                 raise TypeError(
                     '"best model" -> "second Y scale" -> "labels" has to be '
@@ -2355,7 +2364,7 @@ class UlensModelFit(object):
         self._print_best_model()
         if self._yaml_results:
             self._print_yaml_best_model()
-
+        
         if self._shift_t_0 and self._yaml_results:
             print("Plots shift_t_0 : {:}".format(self._shift_t_0_value),
                   **self._yaml_kwargs)
@@ -3095,14 +3104,34 @@ class UlensModelFit(object):
         labels = settings['labels']
 
         ylim = plt.ylim()
+        ax2 = plt.gca().twinx()
         flux_min = mm.Utils.get_flux_from_mag(ylim[0])
         flux_max = mm.Utils.get_flux_from_mag(ylim[1])
-
         (source_flux, blend_flux) = self._event.get_ref_fluxes()
         if self._model.n_sources == 1:
             total_source_flux = source_flux
         else:
             total_source_flux = sum(source_flux)
+        A_min = (flux_min - blend_flux) / total_source_flux
+        A_max = (flux_max - blend_flux) / total_source_flux
+        
+        if magnifications == "optimal":
+            ax2.set_ylim(A_min, A_max)
+            ticks = ax2.yaxis.get_ticklocs()[1:-1]
+            magnifications = ticks.tolist()
+            is_integer = [mag.is_integer for mag in magnifications]
+            if all(is_integer):
+                labels = [f"%d" % int(x) for x in ticks]
+            else:
+                max_n = max([len(str(x))-str(x).find('.')-1 for x in ticks])
+                labels = [f"%0.{max_n}f" % x for x in ticks]
+                if max_n > 3:
+                    msg = ("The computed magnifications for the second Y scale"
+                           " cover a range too small to be shown: {:}")
+                    warnings.warn(msg.format(magnifications))
+                    ax2.get_yaxis().set_visible(False)
+                    return
+        
         flux = total_source_flux * magnifications + blend_flux
         if np.any(flux < 0.):
             mask = (flux > 0.)
@@ -3112,10 +3141,7 @@ class UlensModelFit(object):
                    "because they correspond to negative flux which cannot "
                    "be translated to magnitudes.")
             warnings.warn(msg.format(np.sum(np.logical_not(mask))))
-        A_min = (flux_min - blend_flux) / total_source_flux
-        A_max = (flux_max - blend_flux) / total_source_flux
-        ax2 = plt.gca().twinx()
-
+        
         if (np.min(magnifications) < A_min or np.max(magnifications) > A_max or
                 np.any(flux < 0.)):
             msg = ("Provided magnifications for the second (i.e., right-hand "
@@ -3124,16 +3150,9 @@ class UlensModelFit(object):
                    "the second scale is not plotted")
             args = [min(magnifications), max(magnifications),
                     A_min[0], A_max[0]]
-            if settings.get("recalculate magnification ticks") is not True:
-                warnings.warn(msg.format(*args))
-                ax2.get_yaxis().set_visible(False)
-                return
-            else:
-                ax2.set_ylim(A_min, A_max)
-                ticks = ax2.yaxis.get_ticklocs()[1:-1]
-                flux = total_source_flux * ticks.tolist() + blend_flux
-                max_n = max([len(str(x))-str(x).find('.')-1 for x in ticks])
-                labels = [f"%0.{max_n}f" % x for x in ticks]
+            warnings.warn(msg.format(*args))
+            ax2.get_yaxis().set_visible(False)
+            return
 
         ticks = mm.Utils.get_mag_from_flux(flux)
 
