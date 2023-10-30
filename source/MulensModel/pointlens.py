@@ -428,6 +428,9 @@ class PointLens(object):
             magnification: *np.array*
                 The finite source magnification.
         """
+        ### JCY - if parameters is a property of PointLens, why do we pass rho
+        # separately?
+
         n_theta = 90
         n_u = 1000
 
