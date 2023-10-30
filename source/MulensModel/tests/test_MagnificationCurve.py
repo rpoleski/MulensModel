@@ -94,17 +94,26 @@ def test_fspl():
     np.testing.assert_almost_equal(expected/results, 1., decimal=4)
 
 
-def test_Lee09_and_WittMao94():
+class Test_Lee09_and_WittMao94(unittest.TestCase):
     """
     test Lee et al. 2009 and Witt & Mao 1994 finite source calculation
     """
-    t_vec = np.array([3.5, 2., 1., 0.5, 0.])
+
+    def setUp(self):
+        self.t_vec = np.array([3.5, 2., 1., 0.5, 0.])
+
+        self.params_0 = mm.ModelParameters(
+            {'t_0': 0., 'u_0': 0.5, 't_E': 1., 'rho': 1.})
+        self.params_1 = mm.ModelParameters(
+            {'t_0': 0., 'u_0': 0.1, 't_E': 1., 'rho': 1.})
 
 # The values below were calculated using code developed by P. Mroz.
-    expected_0 = np.array([1.01084060513, 1.06962639343, 1.42451408166,
-                           2.02334097551, 2.13919086656])
-    expected_1 = np.array([1.01110609638, 1.07461016241, 1.57232954942,
-                           2.21990790526, 2.39458814753])
+        self.expected_0 = np.array(
+            [1.01084060513, 1.06962639343, 1.42451408166, 2.02334097551,
+             2.13919086656])
+        self.expected_1 = np.array(
+            [1.01110609638, 1.07461016241, 1.57232954942, 2.21990790526,
+             2.39458814753])
 #    expected_2 = np.array([1.0110829794, 1.07404148634, 1.55620547462,
 #                           2.24809136704, 2.44503143812])
 # The last values are for 2-parameter LD with same settings and lambda=0.3.
@@ -113,35 +122,40 @@ def test_Lee09_and_WittMao94():
 # and for 1-parameter LD we used:
 #  1-gamma*(1-1.5*costh)
 
-    # Test uniform source first.
-    params_0 = mm.ModelParameters(
-        {'t_0': 0., 'u_0': 0.5, 't_E': 1., 'rho': 1.})
-    mag_curve_0 = mm.MagnificationCurve(times=t_vec, parameters=params_0)
-    methods_0 = [-5., 'finite_source_uniform_Lee09', 5.]
-    mag_curve_0.set_magnification_methods(methods_0, 'point_source')
-    results_0 = mag_curve_0.get_point_lens_magnification()
-    np.testing.assert_almost_equal(expected_0, results_0, decimal=4)
+    def test_uniform_source(self):
+        # Test uniform source first.
+        mag_curve_0 = mm.MagnificationCurve(
+            times=self.t_vec, parameters=self.params_0)
+        methods_0 = [-5., 'finite_source_uniform_Lee09', 5.]
+        mag_curve_0.set_magnification_methods(methods_0, 'point_source')
+        results_0 = mag_curve_0.get_point_lens_magnification()
+        np.testing.assert_almost_equal(self.expected_0, results_0, decimal=4)
 
-    # Then test 1-parameter limb-darkening.
-    params_1 = mm.ModelParameters(
-        {'t_0': 0., 'u_0': 0.1, 't_E': 1., 'rho': 1.})
-    mag_curve_1 = mm.MagnificationCurve(times=t_vec, parameters=params_1,
-                                        gamma=0.5)
-    methods_1 = [-5., 'finite_source_LD_Lee09', 5.]
-    mag_curve_1.set_magnification_methods(methods_1, 'point_source')
-    results_1 = mag_curve_1.get_point_lens_magnification()
-    np.testing.assert_almost_equal(expected_1, results_1, decimal=3)
+    def test_1parm_LD(self):
+        # Then test 1-parameter limb-darkening.
+        mag_curve_1 = mm.MagnificationCurve(
+            times=self.t_vec, parameters=self.params_1, gamma=0.5)
+        methods_1 = [-5., 'finite_source_LD_Lee09', 5.]
+        mag_curve_1.set_magnification_methods(methods_1, 'point_source')
+        results_1 = mag_curve_1.get_point_lens_magnification()
+        np.testing.assert_almost_equal(self.expected_1, results_1, decimal=3)
 
-    # Tests for Witt & Mao 1994 start here
-    methods_2 = [-5., 'finite_source_uniform_WittMao94', 5.]
-    mag_curve_0.set_magnification_methods(methods_2, 'point_source')
-    results_2 = mag_curve_0.get_point_lens_magnification()
-    np.testing.assert_almost_equal(expected_0, results_2, decimal=4)
+    def test_WittMao94_0(self):
+        # Tests for Witt & Mao 1994 start here
+        methods_2 = [-5., 'finite_source_uniform_WittMao94', 5.]
+        mag_curve_0 = mm.MagnificationCurve(
+            times=self.t_vec, parameters=self.params_0)
+        mag_curve_0.set_magnification_methods(methods_2, 'point_source')
+        results_2 = mag_curve_0.get_point_lens_magnification()
+        np.testing.assert_almost_equal(self.expected_0, results_2, decimal=4)
 
-    methods_3 = [-5., 'finite_source_LD_WittMao94', 5.]
-    mag_curve_1.set_magnification_methods(methods_3, 'point_source')
-    results_3 = mag_curve_1.get_point_lens_magnification()
-    np.testing.assert_almost_equal(expected_1, results_3, decimal=3)
+    def test_WittMao94_1(self):
+        mag_curve_1 = mm.MagnificationCurve(
+            times=self.t_vec, parameters=self.params_1, gamma=0.5)
+        methods_3 = [-5., 'finite_source_LD_WittMao94', 5.]
+        mag_curve_1.set_magnification_methods(methods_3, 'point_source')
+        results_3 = mag_curve_1.get_point_lens_magnification()
+        np.testing.assert_almost_equal(self.expected_1, results_3, decimal=3)
 
 
 def test_PSPL_for_binary():
