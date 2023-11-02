@@ -63,13 +63,13 @@ class TestMagnificationCurve(unittest.TestCase):
         self.gamma = 0.56789
         self.t_vec = np.array([-(rho ** 2 - u_0 ** 2) ** 0.5, 0.,
                           ((0.5 * rho) ** 2 - u_0 ** 2) ** 0.5])
-        self.t_vec = t_vec * t_E + t_0
+        self.t_vec = self.t_vec * t_E + t_0
 
         self.params = mm.ModelParameters(
             {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
 
         self.mag_curve = mm.MagnificationCurve(
-            times=t_vec, parameters=params, gamma=self.gamma)
+            times=self.t_vec, parameters=self.params, gamma=self.gamma)
         methods = [t_0 - t_E, 'finite_source_uniform_Gould94', t_0 + t_E]
         self.mag_curve.set_magnification_methods(methods, 'point_source')
 
