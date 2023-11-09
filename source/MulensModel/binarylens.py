@@ -1,6 +1,7 @@
 import warnings
 import numpy as np
 from math import fsum, sqrt
+from ctypes import c_double, byref
 
 from MulensModel.binarylensimports import (
     _vbbl_wrapped, _adaptive_contouring_wrapped,
@@ -587,15 +588,19 @@ class BinaryLens(object):
         For coordinate system convention see
         :py:func:`point_source_magnification()`
 
+        For most of the parameters you can provide either a single *float*,
+        or a *list* of *floats* and you can mix them, but the lists have to
+        have the same length.
+
         Parameters :
-            source_x: *float*
-                X-axis coordinate of the source.
+            source_x: *float* or *list*
+                X-axis coordinates of the source.
 
-            source_y: *float*
-                Y-axis coordinate of the source.
+            source_y: *float* or *list*
+                Y-axis coordinates of the source.
 
-            rho: *float*
-                Source size relative to Einstein ring radius.
+            rho: *float* or *list*
+                Source sizes relative to Einstein ring radius.
 
             gamma: *float*, optional
                 Linear limb-darkening coefficient in gamma convention.
@@ -606,8 +611,8 @@ class BinaryLens(object):
                 set.  If neither of them is provided then limb
                 darkening is ignored.
 
-            accuracy: *float*, optional
-                Requested accuracy of the result.
+            accuracy: *float* or *list*
+                Requested accuracy of the results.
 
         Returns :
             magnification: *float*
@@ -635,12 +640,48 @@ class BinaryLens(object):
 
         s = float(self.separation)
         q = float(self.mass_2 / self.mass_1)
-        x = float(source_x)
-        y = float(source_y)
-        rho = float(rho)
-        accuracy = float(accuracy)
+        try:
+            (x, y, rho, accuracy) = self._get_float_lists_same_length(source_x, source_y, rho, accuracy)
+        except Exception as err:
+            err = "(X, Y, rho, accuracy)\n" + repr(err)
+            raise RuntimeError(err)
 
-        magnification = _vbbl_binary_mag_dark(
-            s, q, x, y, rho, u_limb_darkening, accuracy)
+        magnifications =  _vbbl_binary_mag_dark(
+            s, q, x, y, rho, u_limb_darkening, accuracy, len(x))
 
-        return magnification
+        return magnifications
+
+    def _get_float_lists_same_length(self, *args):
+        """
+        turn the inputs to the lists of the same length
+        """
+        lists = []
+        for arg in args:
+            lists.append(self._make_a_list_of_floats(arg))
+
+        lengths_ = [len(list_) for list_ in lists]
+        lengths = set(lengths_)
+        if len(lengths) > 2 or (len(lengths) == 2 and 1 not in lengths):
+            raise ValueError('lists with wrong lengths: {:}'.format(lengths_))
+
+        max_length = max(lengths)
+        out = []
+        for arg in lists:
+            if len(arg) == 1:
+                out.append(arg * max_length)
+            else:
+                out.append(arg)
+        return out
+
+    def _make_a_list_of_floats(self, variable):
+        """
+        if variable is a non-iterable, then return a list with length 1,
+        otherwise return a list of floats
+
+        Do NOT remove float() in that function!
+        They're needed to pass proper type to C++ code.
+        """
+        try:
+            return [float(variable)]
+        except Exception:
+            return [float(v) for v in variable]

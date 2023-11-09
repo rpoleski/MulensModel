@@ -82,7 +82,7 @@ def test_vbbl_2():
     m_1 = 1. / (1. + q)
     m_2 = q / (1. + q)
     bl = mm.BinaryLens(m_1, m_2, s)
-    results = [bl.vbbl_magnification(x_, y_, rho) for (x_, y_) in zip(x, y)]
+    results = bl.vbbl_magnification(x, y, rho)
     # VBBL 2.0.1 was returning:
     # [1.345365452870409, 1.368843518228974, 1.3442156685350604]
     # i.e., the second value was wrong.
