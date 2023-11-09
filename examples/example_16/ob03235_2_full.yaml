@@ -84,6 +84,7 @@ plots:
         second Y scale:
         # This adds second Y axis on the right-hand side. Only first line below is required.
             magnifications: [2, 3, 4, 5, 6, 7, 8, 9]
+            # magnifications: optimal
             # If you don't know what will be the range of magnifications on your plot, then make
             # a test run with some very small and very large values and a warning will tell you
             # what is exact range. Another option is to set it to "optimal", where this range

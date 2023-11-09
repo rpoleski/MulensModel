@@ -1125,7 +1125,7 @@ class UlensModelFit(object):
                                  'got: ' + name)
             if path.exists(name):
                 if path.isfile(name):
-                    msg = "Exisiting file " + name + " will be overwritten"
+                    msg = "Existing file " + name + " will be overwritten"
                     warnings.warn(msg)
                 else:
                     raise ValueError("The path provided for posterior (" +
@@ -1296,7 +1296,7 @@ class UlensModelFit(object):
                 existing.append(file_name)
 
         if len(existing) > 0:
-            message = "\n\n Exisiting files will be overwritten "
+            message = "\n\n Existing files will be overwritten "
             message += "(unless you kill this process)!!!\n"
             warnings.warn(message + str(existing) + "\n")
 
@@ -2340,7 +2340,7 @@ class UlensModelFit(object):
             print(out, **self._yaml_kwargs)
         self._extract_posterior_samples_EMCEE()
 
-        if self._yaml_results:
+        if self._yaml_results and isinstance(self._fixed_parameters, dict):
             print("Fixed parameters:", **self._yaml_kwargs)
             for (key, value) in self._fixed_parameters.items():
                 print("    {:} : {:}".format(key, value), **self._yaml_kwargs)
@@ -2366,7 +2366,7 @@ class UlensModelFit(object):
             self._print_yaml_best_model()
         
         if self._shift_t_0 and self._yaml_results:
-            print("Plots shift_t_0 : {:}".format(self._shift_t_0_value),
+            print("Plots shift_t_0 : {:}".format(self._shift_t_0_val),
                   **self._yaml_kwargs)
 
     def _extract_posterior_samples_EMCEE(self):
@@ -2512,21 +2512,20 @@ class UlensModelFit(object):
             if name in self._fit_parameters:
                 index = self._fit_parameters.index(name)
                 values = self._samples_flat[:, index]
-                mean = np.mean(values)
-                self._shift_t_0_value = int(mean)
+                self._shift_t_0_val = int(np.mean(values))
                 try:
-                    self._samples_flat[:, index] -= int(mean)
+                    self._samples_flat[:, index] -= self._shift_t_0_val
                     if 'trace' in self._plots:
-                        self._samples[:, :, index] -= int(mean)
+                        self._samples[:, :, index] -= self._shift_t_0_val
                 except TypeError:
                     fmt = ("Warning: extremely wide range of posterior {:}: "
                            "from {:} to {:}")
                     warnings.warn(
                         fmt.format(name, np.min(values), np.max(values)))
-                    self._samples_flat[:, index] = values - int(mean)
+                    self._samples_flat[:, index] = values - self._shift_t_0_val
                     if 'trace' in self._plots:
                         self._samples[:, :, index] = (
-                            self._samples[:, :, index] - int(mean))
+                            self._samples[:, :, index] - self._shift_t_0_val)
 
     def _get_fluxes_to_print_EMCEE(self):
         """
@@ -2851,7 +2850,7 @@ class UlensModelFit(object):
             if dpi is not None:
                 kwargs = {'dpi': dpi}
             if path.isfile(file_name):
-                msg = "Exisiting file " + file_name + " will be overwritten"
+                msg = "Existing file " + file_name + " will be overwritten"
                 warnings.warn(msg)
             caller.savefig(file_name, **kwargs)
         plt.close()
@@ -3101,10 +3100,30 @@ class UlensModelFit(object):
         magnifications = settings['magnifications']
         color = settings.get("color", "red")
         label = settings.get("label", "magnification")
-        labels = settings['labels']
-
+        labels = settings.get("labels")
+        
         ylim = plt.ylim()
         ax2 = plt.gca().twinx()
+        (A_min, A_max, sb_fluxes) = self._second_Y_axis_get_fluxes(ylim)
+        if magnifications == "optimal":
+            (magnifications, labels, out1) = self._second_Y_axis_optimal(
+                ax2, A_min, A_max)
+        flux = sb_fluxes[0] * magnifications + sb_fluxes[1]
+        out2 = self._second_Y_axis_warnings(flux, labels, magnifications,
+                                            A_min, A_max)
+        if out1 or out2:
+            ax2.get_yaxis().set_visible(False)
+            return
+        
+        ticks = mm.Utils.get_mag_from_flux(flux)
+        ax2.set_ylabel(label).set_color(color)
+        ax2.spines['right'].set_color(color)
+        ax2.set_ylim(ylim[0], ylim[1])
+        ax2.tick_params(axis='y', colors=color)
+        plt.yticks(ticks, labels, color=color)
+
+    def _second_Y_axis_get_fluxes(self, ylim):
+
         flux_min = mm.Utils.get_flux_from_mag(ylim[0])
         flux_max = mm.Utils.get_flux_from_mag(ylim[1])
         (source_flux, blend_flux) = self._event.get_ref_fluxes()
@@ -3115,24 +3134,28 @@ class UlensModelFit(object):
         A_min = (flux_min - blend_flux) / total_source_flux
         A_max = (flux_max - blend_flux) / total_source_flux
         
-        if magnifications == "optimal":
-            ax2.set_ylim(A_min, A_max)
-            ticks = ax2.yaxis.get_ticklocs()[1:-1]
-            magnifications = ticks.tolist()
-            is_integer = [mag.is_integer for mag in magnifications]
-            if all(is_integer):
-                labels = [f"%d" % int(x) for x in ticks]
-            else:
-                max_n = max([len(str(x))-str(x).find('.')-1 for x in ticks])
-                labels = [f"%0.{max_n}f" % x for x in ticks]
-                if max_n > 3:
-                    msg = ("The computed magnifications for the second Y scale"
-                           " cover a range too small to be shown: {:}")
-                    warnings.warn(msg.format(magnifications))
-                    ax2.get_yaxis().set_visible(False)
-                    return
+        return A_min, A_max, (total_source_flux, blend_flux)
+
+    def _second_Y_axis_optimal(self, ax2, A_min, A_max):
+
+        ax2.set_ylim(A_min, A_max)
+        magnifications = ax2.yaxis.get_ticklocs()[1:-1].round(7).tolist()
+        is_integer = [mag.is_integer() for mag in magnifications]
+        if all(is_integer):
+            labels = [f"%d" % int(x) for x in magnifications]
+        else:
+            fnum = [len(str(x))-str(x).find('.')-1 for x in magnifications]
+            labels = [f"%0.{max(fnum)}f" % x for x in magnifications]
+            if fnum > 3:
+                msg = ("The computed magnifications for the second Y scale"
+                        " cover a range too small to be shown: {:}")
+                warnings.warn(msg.format(magnifications))
+                return magnifications, labels, True
+
+        return magnifications, labels, False
+
+    def _second_Y_axis_warnings(self, flux, labels, A_values, A_min, A_max):
         
-        flux = total_source_flux * magnifications + blend_flux
         if np.any(flux < 0.):
             mask = (flux > 0.)
             flux = flux[mask]
@@ -3142,25 +3165,17 @@ class UlensModelFit(object):
                    "be translated to magnitudes.")
             warnings.warn(msg.format(np.sum(np.logical_not(mask))))
         
-        if (np.min(magnifications) < A_min or np.max(magnifications) > A_max or
+        if (np.min(A_values) < A_min or np.max(A_values) > A_max or
                 np.any(flux < 0.)):
             msg = ("Provided magnifications for the second (i.e., right-hand "
                    "side) Y-axis scale are from {:} to {:},\nbut the range "
                    "of plotted magnifications is from {:} to {:}, hence, "
                    "the second scale is not plotted")
-            args = [min(magnifications), max(magnifications),
-                    A_min[0], A_max[0]]
+            args = [min(A_values), max(A_values), A_min[0], A_max[0]]
             warnings.warn(msg.format(*args))
-            ax2.get_yaxis().set_visible(False)
-            return
+            return True
 
-        ticks = mm.Utils.get_mag_from_flux(flux)
-
-        ax2.set_ylabel(label).set_color(color)
-        ax2.spines['right'].set_color(color)
-        ax2.set_ylim(ylim[0], ylim[1])
-        ax2.tick_params(axis='y', colors=color)
-        plt.yticks(ticks, labels, color=color)
+        return False
 
     def _make_trajectory_plot(self):
         """
