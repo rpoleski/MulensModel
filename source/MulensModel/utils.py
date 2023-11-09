@@ -149,6 +149,7 @@ class Utils(object):
                 UserWarning)
         mag = zeropoint - 2.5 * np.log10(flux)
         err_mag = (err_flux / flux) * 2.5 / np.log(10.)
+
         return (mag, err_mag)
     get_mag_and_err_from_flux = staticmethod(get_mag_and_err_from_flux)
 
