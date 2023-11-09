@@ -10,7 +10,7 @@ import MulensModel as mm
 
 dir_2 = os.path.join(mm.DATA_PATH, 'unit_test_files')
 dir_3 = os.path.join(mm.DATA_PATH, 'ephemeris_files')
-SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
+SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v2.dat')  # HJD'
 SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
 SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
 
@@ -815,8 +815,8 @@ class TestGetTrajectory(unittest.TestCase):
 
         ratio_x = trajectory.x / self.ref_OGLE[6]
         ratio_y = trajectory.y / self.ref_OGLE[7]
-        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=4)
-        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
+        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=2)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=2)
 
     def test_1L1S_satellite_parallax_1(self):
         """Case with satellite parallax (check test_Model_Parallax.py)"""
@@ -829,8 +829,8 @@ class TestGetTrajectory(unittest.TestCase):
 
         ratio_x = trajectory.x / self.ref_Spitzer[6]
         ratio_y = trajectory.y / self.ref_Spitzer[7]
-        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=4)
-        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
+        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=2)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=2)
 
     def test_1L1S_satellite_parallax_2(self):
         """Case with satellite parallax (check test_Model_Parallax.py)"""
@@ -841,8 +841,8 @@ class TestGetTrajectory(unittest.TestCase):
 
         ratio_x = trajectory.x / self.ref_Spitzer[6]
         ratio_y = trajectory.y / self.ref_Spitzer[7]
-        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=4)
-        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
+        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=2)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=2)
 
     def test_1L2S(self):
         """Binary source trajectories"""

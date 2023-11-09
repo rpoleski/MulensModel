@@ -12,7 +12,7 @@ dir_3 = join(mm.DATA_PATH, 'ephemeris_files')
 dir_4 = join(dir_2, 'fspl_derivs')
 
 SAMPLE_FILE_02 = join(dir_1, 'ob140939_OGLE.dat')  # HJD'
-SAMPLE_FILE_02_REF = join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
+SAMPLE_FILE_02_REF = join(dir_2, 'ob140939_OGLE_ref_v2.dat')  # HJD'
 SAMPLE_FILE_03 = join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
 SAMPLE_FILE_03_EPH = join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
 SAMPLE_FILE_03_REF = join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
