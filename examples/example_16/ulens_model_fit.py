@@ -11,8 +11,8 @@ import math
 import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
-from matplotlib import gridspec, rc, rcParams, rcParamsDefault
-from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib import gridspec, rcParams, rcParamsDefault
+# from matplotlib.backends.backend_pdf import PdfPages
 
 import_failed = set()
 try:
@@ -2364,7 +2364,7 @@ class UlensModelFit(object):
         self._print_best_model()
         if self._yaml_results:
             self._print_yaml_best_model()
-        
+
         if self._shift_t_0 and self._yaml_results:
             print("Plots shift_t_0 : {:}".format(self._shift_t_0_val),
                   **self._yaml_kwargs)
@@ -3101,7 +3101,7 @@ class UlensModelFit(object):
         color = settings.get("color", "red")
         label = settings.get("label", "magnification")
         labels = settings.get("labels")
-        
+
         ylim = plt.ylim()
         ax2 = plt.gca().twinx()
         (A_min, A_max, sb_fluxes) = self._second_Y_axis_get_fluxes(ylim)
@@ -3115,7 +3115,7 @@ class UlensModelFit(object):
         if out1 or out2:
             ax2.get_yaxis().set_visible(False)
             return
-        
+
         ticks = mm.Utils.get_mag_from_flux(flux)
         ax2.set_ylabel(label).set_color(color)
         ax2.spines['right'].set_color(color)
@@ -3134,7 +3134,7 @@ class UlensModelFit(object):
             total_source_flux = sum(source_flux)
         A_min = (flux_min - blend_flux) / total_source_flux
         A_max = (flux_max - blend_flux) / total_source_flux
-        
+
         return A_min, A_max, (total_source_flux, blend_flux)
 
     def _second_Y_axis_optimal(self, ax2, A_min, A_max):
@@ -3144,23 +3144,23 @@ class UlensModelFit(object):
         A_values = A_values[(A_values >= 1.) & (A_values < A_max)]
         is_integer = [mag.is_integer() for mag in A_values]
         if all(is_integer):
-            labels = [f"%d" % int(x) for x in A_values]
+            labels = ["%d" % int(x) for x in A_values]
             return A_values.tolist(), labels, False
 
         fnum = np.array([str(x)[::-1].find(".") for x in A_values])
         labels = np.array([f"%0.{max(fnum)}f" % x for x in A_values])
         if max(fnum) > 3 and len(fnum[fnum <= 3]) < 3:
             msg = ("The computed magnifications for the second Y scale cover"
-                    " a range too small to be shown: {:}")
+                   " a range too small to be shown: {:}")
             warnings.warn(msg.format(A_values))
             return A_values.tolist(), labels.tolist(), True
         if max(fnum) > 3:
-            labels = np.array([f"%0.3f" % x for x in A_values])
+            labels = np.array(["%0.3f" % x for x in A_values])
 
         return A_values[fnum <= 3].tolist(), labels[fnum <= 3].tolist(), False
 
     def _second_Y_axis_warnings(self, flux, labels, A_values, A_min, A_max):
-        
+
         if np.any(flux < 0.):
             mask = (flux > 0.)
             flux = flux[mask]
@@ -3169,7 +3169,7 @@ class UlensModelFit(object):
                    "because they correspond to negative flux which cannot "
                    "be translated to magnitudes.")
             warnings.warn(msg.format(np.sum(np.logical_not(mask))))
-        
+
         if (np.min(A_values) < A_min or np.max(A_values) > A_max or
                 np.any(flux < 0.)):
             msg = ("Provided magnifications for the second (i.e., right-hand "
