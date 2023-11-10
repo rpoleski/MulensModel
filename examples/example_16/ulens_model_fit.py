@@ -3105,6 +3105,7 @@ class UlensModelFit(object):
         ylim = plt.ylim()
         ax2 = plt.gca().twinx()
         (A_min, A_max, sb_fluxes) = self._second_Y_axis_get_fluxes(ylim)
+        out1, out2 = False, False
         if magnifications == "optimal":
             (magnifications, labels, out1) = self._second_Y_axis_optimal(
                 ax2, A_min, A_max)
@@ -3139,20 +3140,24 @@ class UlensModelFit(object):
     def _second_Y_axis_optimal(self, ax2, A_min, A_max):
 
         ax2.set_ylim(A_min, A_max)
-        magnifications = ax2.yaxis.get_ticklocs()[1:-1].round(7).tolist()
-        is_integer = [mag.is_integer() for mag in magnifications]
+        A_values = ax2.yaxis.get_ticklocs().round(7)
+        A_values = A_values[(A_values >= 1.) & (A_values < A_max)]
+        is_integer = [mag.is_integer() for mag in A_values]
         if all(is_integer):
-            labels = [f"%d" % int(x) for x in magnifications]
-        else:
-            fnum = [len(str(x))-str(x).find('.')-1 for x in magnifications]
-            labels = [f"%0.{max(fnum)}f" % x for x in magnifications]
-            if fnum > 3:
-                msg = ("The computed magnifications for the second Y scale"
-                        " cover a range too small to be shown: {:}")
-                warnings.warn(msg.format(magnifications))
-                return magnifications, labels, True
+            labels = [f"%d" % int(x) for x in A_values]
+            return A_values.tolist(), labels, False
 
-        return magnifications, labels, False
+        fnum = np.array([str(x)[::-1].find(".") for x in A_values])
+        labels = np.array([f"%0.{max(fnum)}f" % x for x in A_values])
+        if max(fnum) > 3 and len(fnum[fnum <= 3]) < 3:
+            msg = ("The computed magnifications for the second Y scale cover"
+                    " a range too small to be shown: {:}")
+            warnings.warn(msg.format(A_values))
+            return A_values.tolist(), labels.tolist(), True
+        if max(fnum) > 3:
+            labels = np.array([f"%0.3f" % x for x in A_values])
+
+        return A_values[fnum <= 3].tolist(), labels[fnum <= 3].tolist(), False
 
     def _second_Y_axis_warnings(self, flux, labels, A_values, A_min, A_max):
         

@@ -87,8 +87,7 @@ plots:
             # magnifications: optimal
             # If you don't know what will be the range of magnifications on your plot, then make
             # a test run with some very small and very large values and a warning will tell you
-            # what is exact range. Another option is to set it to "optimal", where this range
-            # will be obtained automatically, but labels cannot be given in this case.
+            # what is exact range. If "optimal" is provided, labels can not be given.
             labels: [a, b, c, d, e, f, g, h]
             # If you remove the line above, then magnification values will be printed.
             label: What is shown on this axis?
