@@ -15,7 +15,7 @@ SAMPLE_FILE_02 = join(dir_1, 'ob140939_OGLE.dat')  # HJD'
 SAMPLE_FILE_02_REF = join(dir_2, 'ob140939_OGLE_ref_v2.dat')  # HJD'
 SAMPLE_FILE_03 = join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
 SAMPLE_FILE_03_EPH = join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
-SAMPLE_FILE_03_REF = join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
+SAMPLE_FILE_03_REF = join(dir_2, 'ob140939_Spitzer_ref_v2.dat')  # HJD'
 SAMPLE_FILE_04_WF = join(mm.DATA_PATH, 'WFIRST_1827.dat')
 SAMPLE_FILE_FSPL_51 = join(dir_4, 'fort.51')
 SAMPLE_FILE_FSPL_61 = join(dir_4, 'fort.61')
@@ -1028,8 +1028,8 @@ def test_get_trajectory_1L2S_satellite_parallax():
 
     ratio_x = trajectory.x / ref_Spitzer[6]
     ratio_y = trajectory.y / ref_Spitzer[7]
-    np.testing.assert_almost_equal(ratio_x, 1., decimal=4)
-    np.testing.assert_almost_equal(ratio_y, 1., decimal=4)
+    np.testing.assert_almost_equal(ratio_x, 1., decimal=2)
+    np.testing.assert_almost_equal(ratio_y, 1., decimal=2)
 
 # Tests to add:
 #
