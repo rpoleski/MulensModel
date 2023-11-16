@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.33.0'
+__version__ = '0.34.0'
 
 
 class UlensModelFit(object):
@@ -3124,10 +3124,13 @@ class UlensModelFit(object):
         plt.yticks(ticks, labels, color=color)
 
     def _second_Y_axis_get_fluxes(self, ylim):
-
+        """
+        Get fluxes and limiting magnification values for the second Y axis
+        """
         flux_min = mm.Utils.get_flux_from_mag(ylim[0])
         flux_max = mm.Utils.get_flux_from_mag(ylim[1])
         (source_flux, blend_flux) = self._event.get_ref_fluxes()
+
         if self._model.n_sources == 1:
             total_source_flux = source_flux
         else:
@@ -3135,34 +3138,38 @@ class UlensModelFit(object):
         A_min = (flux_min - blend_flux) / total_source_flux
         A_max = (flux_max - blend_flux) / total_source_flux
 
-        return A_min, A_max, (total_source_flux, blend_flux)
+        return (A_min, A_max, (total_source_flux, blend_flux))
 
     def _second_Y_axis_optimal(self, ax2, A_min, A_max):
-
+        """
+        Get optimal values of magnifications and labels
+        """
         ax2.set_ylim(A_min, A_max)
         A_values = ax2.yaxis.get_ticklocs().round(7)
         A_values = A_values[(A_values >= 1.) & (A_values < A_max)]
         is_integer = [mag.is_integer() for mag in A_values]
         if all(is_integer):
-            labels = ["%d" % int(x) for x in A_values]
-            return A_values.tolist(), labels, False
+            labels = [f"{int(x):d}" for x in A_values]
+            return (A_values.tolist(), labels, False)
 
         fnum = np.array([str(x)[::-1].find(".") for x in A_values])
         labels = np.array([f"%0.{max(fnum)}f" % x for x in A_values])
-        if max(fnum) > 3 and len(fnum[fnum <= 3]) < 3:
+        if max(fnum) >= 4 and len(fnum[fnum < 4]) < 3:
             msg = ("The computed magnifications for the second Y scale cover"
                    " a range too small to be shown: {:}")
             warnings.warn(msg.format(A_values))
-            return A_values.tolist(), labels.tolist(), True
-        if max(fnum) > 3:
-            labels = np.array(["%0.3f" % x for x in A_values])
+            return (A_values.tolist(), labels.tolist(), True)
+        if max(fnum) >= 4:
+            labels = np.array([f"{x:0.3f}" for x in A_values])
 
-        return A_values[fnum <= 3].tolist(), labels[fnum <= 3].tolist(), False
+        return (A_values[fnum < 4].tolist(), labels[fnum < 4].tolist(), False)
 
     def _second_Y_axis_warnings(self, flux, labels, A_values, A_min, A_max):
-
+        """
+        Issue warnings for negative flux or bad range of magnificaitons
+        """
         if np.any(flux < 0.):
-            mask = (flux > 0.)
+            mask = flux > 0.
             flux = flux[mask]
             labels = [l for (l, m) in zip(labels, mask) if m]
             msg = ("\n\n{:} label/s on the second Y scale will not be shown "
