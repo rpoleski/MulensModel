@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.34.1'
+__version__ = '0.34.2'
 
 
 class UlensModelFit(object):
@@ -3180,7 +3180,7 @@ class UlensModelFit(object):
                    "side) Y-axis scale are from {:} to {:},\nbut the range "
                    "of plotted magnifications is from {:} to {:}, hence, "
                    "the second scale is not plotted")
-            args = [np.min(A_values), np.max(A_values), A_min[0], A_max[0]]
+            args = [np.min(A_values), np.max(A_values), A_min, A_max]
             warnings.warn(msg.format(*args))
             return True
 
