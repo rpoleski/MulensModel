@@ -646,10 +646,16 @@ class BinaryLens(object):
             err = "(X, Y, rho, accuracy)\n" + repr(err)
             raise RuntimeError(err)
 
-        magnifications =  _vbbl_binary_mag_dark(
-            s, q, x, y, rho, u_limb_darkening, accuracy, len(x))
+        # THE PART BELOW IS FOR CTYPES:
+        def get_c_array(x):
+            return (c_double * len(x))(*x)
 
-        return magnifications
+        out_ = get_c_array([0.] * len(x))
+
+        magnifications =  _vbbl_binary_mag_dark(
+            s, q, get_c_array(x), get_c_array(y), get_c_array(rho), u_limb_darkening, get_c_array(accuracy), len(x), out_)
+
+        return list(out_)
 
     def _get_float_lists_same_length(self, *args):
         """

@@ -423,6 +423,7 @@ class MagnificationCurve(object):
                                             **binary_kwargs)
         methods = self._methods_for_epochs()
 
+        vbbl_indexes = []
         magnification = []
         for index in range(len(self.times)):
             if methods[index] is None:
@@ -469,8 +470,8 @@ class MagnificationCurve(object):
                 if isinstance(binary_lens, mm.BinaryLensWithShear):
                     raise ValueError("Finite source VBBL is not available "
                                      "for BinaryLensWithShear")
-                m = binary_lens.vbbl_magnification(
-                    x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
+                m = 0.
+                vbbl_indexes.append(index)
             elif method == 'adaptive_contouring':
                 if isinstance(binary_lens, mm.BinaryLensWithShear):
                     raise ValueError("Adaptive contouring is not available "
@@ -485,6 +486,13 @@ class MagnificationCurve(object):
                 raise ValueError(msg.format(method))
 
             magnification.append(m)
+
+        if len(vbbl_indexes) > 0:
+            m = binary_lens.vbbl_magnification(
+                self.trajectory.x[vbbl_indexes], self.trajectory.y[vbbl_indexes],
+                rho=self.parameters.rho, gamma=self._gamma, **kwargs)
+            for (index, m_) in zip(vbbl_indexes, m):
+                magnification[index] = m_
 
         return np.array(magnification)
 

@@ -51,7 +51,7 @@ def _import_compiled_VBBL():
     if not _vbbl_wrapped:
         return (_vbbl_wrapped, None, None, None, None)
 
-    vbbl.VBBinaryLensing_BinaryMagDark.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_double, ctypes.POINTER(ctypes.c_double), ctypes.c_int]
+    vbbl.VBBinaryLensing_BinaryMagDark.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_double, ctypes.POINTER(ctypes.c_double), ctypes.c_int, ctypes.POINTER(ctypes.c_double)]
     vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
 
     vbbl.VBBinaryLensing_BinaryMag0.argtypes = 7 * [ctypes.c_double]
