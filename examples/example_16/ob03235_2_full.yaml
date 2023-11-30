@@ -82,13 +82,14 @@ plots:
             # makes legend in 2 columns
             loc: lower center
         second Y scale:
-        # This adds second Y axis on the right-hand side. Only first line below is required.
-            magnifications: [2, 3, 4, 5, 6, 7, 8, 9]
-            # If you don't know what will be the range of magnifications on your plot, then make
-            # a test run with some very small and very large values and a warning will tell you
-            # what is exact range on the plot.
-            labels: [a, b, c, d, e, f, g, h]
-            # If you remove the line above, then magnification values will be printed.
+        # This adds second Y axis to the right side. Only magnifications key is required.
+            magnifications: optimal
+            # magnifications: [2, 3, 4, 5, 6, 7, 8, 9]
+            # If you want to provide magnification values but don't know what will be the range
+            # of magnifications on your plot, then make a test with very small and large numbers
+            # and a warning will tell you the exact range.
+            # labels: [a, b, c, d, e, f, g, h]
+            # The list of labels above can not be given if magnifications = "optimal"
             label: What is shown on this axis?
             color: magenta
     trajectory:
