@@ -1,0 +1,24 @@
+Fitted parameters:
+t_0 : 2454656.39908 0.00004 0.00003
+u_0 : 0.00311 0.00014 0.00014
+t_E : 10.78598 0.50061 0.45567
+t_star : 0.05311 0.00010 0.00011
+Fluxes (source and blending):
+flux_s_1 : 16.2724 0.7504 0.7533
+flux_b_1 : 19.4651 0.7343 0.7324
+flux_s_2 : 1.5269 0.0686 0.0675
+flux_b_2 : 13.8875 0.0471 0.0446
+flux_s_3 : 15.9354 0.7181 0.6964
+flux_b_3 : 30.6087 4.3688 3.9172
+
+Smallest chi2 model:
+
+Smallest chi2 model:
+2454656.3990747104 0.003140471938847057 10.687652809215646 0.05310677368499168
+chi2 =  4488.397319300576
+
+Now let's plot the best model
+~/MulensModel/source/MulensModel/utils.py:149: UserWarning: Flux to magnitude conversion approached negative flux
+  UserWarning)
+~/MulensModel/source/MulensModel/utils.py:150: RuntimeWarning: invalid value encountered in log10
+  mag = zeropoint - 2.5 * np.log10(flux)
