@@ -76,7 +76,6 @@ for (color, file_) in zip(color_list, sorted(files)):
     datasets_custom.append(data)
 
 event_custom = mm.Event(datasets=datasets_custom, model=plens_model)
-#event_custom.data_ref = 6
 
 t_start = t_0 - 3.
 t_stop = t_0 + 1.
