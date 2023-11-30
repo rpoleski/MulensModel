@@ -85,16 +85,34 @@ def _import_compiled_AdaptiveContouring():
             adaptive_contour.Adaptive_Contouring_Linear)
 
 
-# Check import and try manually compiled versions.
+def _get_c_array(x):
+    """
+    change the list of floats to object that can be passed to C/C++ via ctypes
+    """
+    return (c_double * len(x))(*x)
+
+
 if _vbbl_wrapped:
     _vbbl_binary_mag_dark = mm_vbbl.VBBinaryLensing_BinaryMagDark
     _vbbl_binary_mag_0 = mm_vbbl.VBBinaryLensing_BinaryMag0
     _vbbl_SG12_5 = mm_vbbl.VBBL_SG12_5
     _vbbl_SG12_9 = mm_vbbl.VBBL_SG12_9
-else:
+else:  # This is for ctypes import:
     out = _import_compiled_VBBL()
+    compiled_1 = out[1]
+
+    def _vbbl_binary_mag_dark_inner(s, q, x, y, rho, u_LD, accuracy):
+        """
+        A wrapper for passing arrays to C code using ctypes library.
+        """
+        out_ = _get_c_array([0.] * len(x))
+        _ = compiled_1(
+            s, q, _get_c_array(x), _get_c_array(y), _get_c_array(rho),
+            u_LD, _get_c_array(accuracy), len(x), out_)
+        return list(out_)
+
     _vbbl_wrapped = out[0]
-    _vbbl_binary_mag_dark = out[1]
+    _vbbl_binary_mag_dark = _vbbl_binary_mag_dark_inner
     _vbbl_SG12_5 = out[2]
     _vbbl_binary_mag_0 = out[3]
     _vbbl_SG12_9 = out[4]

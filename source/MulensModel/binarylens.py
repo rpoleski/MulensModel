@@ -1,7 +1,6 @@
 import warnings
 import numpy as np
 from math import fsum, sqrt
-from ctypes import c_double, byref
 
 from MulensModel.binarylensimports import (
     _vbbl_wrapped, _adaptive_contouring_wrapped,
@@ -641,21 +640,16 @@ class BinaryLens(object):
         s = float(self.separation)
         q = float(self.mass_2 / self.mass_1)
         try:
-            (x, y, rho, accuracy) = self._get_float_lists_same_length(source_x, source_y, rho, accuracy)
+            (x, y, rho, accuracy) = self._get_float_lists_same_length(
+                source_x, source_y, rho, accuracy)
         except Exception as err:
             err = "(X, Y, rho, accuracy)\n" + repr(err)
             raise RuntimeError(err)
 
-        # THE PART BELOW IS FOR CTYPES:
-        def get_c_array(x):
-            return (c_double * len(x))(*x)
+        out = _vbbl_binary_mag_dark(s, q, x, y, rho, u_limb_darkening,
+                                    accuracy)
 
-        out_ = get_c_array([0.] * len(x))
-
-        magnifications =  _vbbl_binary_mag_dark(
-            s, q, get_c_array(x), get_c_array(y), get_c_array(rho), u_limb_darkening, get_c_array(accuracy), len(x), out_)
-
-        return list(out_)
+        return out
 
     def _get_float_lists_same_length(self, *args):
         """
