@@ -1,5 +1,5 @@
 import os
-import ctypes
+from ctypes import c_double, c_int, cdll, POINTER
 import numpy as np
 
 try:
@@ -25,7 +25,7 @@ def _try_load(path, name):
         path = [path]
     for path_ in path:
         try:
-            out = ctypes.cdll.LoadLibrary(path_)
+            out = cdll.LoadLibrary(path_)
         except OSError:
             print("WARNING - File not loaded:", path_)
             print("Everything should work except:", name)
@@ -51,19 +51,21 @@ def _import_compiled_VBBL():
     if not _vbbl_wrapped:
         return (_vbbl_wrapped, None, None, None, None)
 
-    vbbl.VBBinaryLensing_BinaryMagDark.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_double, ctypes.POINTER(ctypes.c_double), ctypes.c_int, ctypes.POINTER(ctypes.c_double)]
-    vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
+    vbbl.VBBinaryLensing_BinaryMagDark.argtypes = (
+        [c_double] * 2 + [POINTER(c_double)] * 3 +
+        [c_double, POINTER(c_double), c_int, POINTER(c_double)])
+    vbbl.VBBinaryLensing_BinaryMagDark.restype = c_double
 
-    vbbl.VBBinaryLensing_BinaryMag0.argtypes = 7 * [ctypes.c_double]
-    vbbl.VBBinaryLensing_BinaryMag0.restype = ctypes.c_double
+    vbbl.VBBinaryLensing_BinaryMag0.argtypes = 7 * [c_double]
+    vbbl.VBBinaryLensing_BinaryMag0.restype = c_double
 
-    vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
+    vbbl.VBBL_SG12_5.argtypes = 12 * [c_double]
     vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
-        dtype=ctypes.c_double, shape=(10,))
+        dtype=c_double, shape=(10,))
 
-    vbbl.VBBL_SG12_9.argtypes = 20 * [ctypes.c_double]
+    vbbl.VBBL_SG12_9.argtypes = 20 * [c_double]
     vbbl.VBBL_SG12_9.restype = np.ctypeslib.ndpointer(
-        dtype=ctypes.c_double, shape=(18,))
+        dtype=c_double, shape=(18,))
 
     return (_vbbl_wrapped,
             vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5,
@@ -77,9 +79,8 @@ def _import_compiled_AdaptiveContouring():
     _adaptive_contouring_wrapped = (adaptive_contour is not None)
     if not _adaptive_contouring_wrapped:
         return (_adaptive_contouring_wrapped, None)
-    adaptive_contour.Adaptive_Contouring_Linear.argtypes = (
-        8 * [ctypes.c_double])
-    adaptive_contour.Adaptive_Contouring_Linear.restype = ctypes.c_double
+    adaptive_contour.Adaptive_Contouring_Linear.argtypes = (8 * [c_double])
+    adaptive_contour.Adaptive_Contouring_Linear.restype = c_double
     return (_adaptive_contouring_wrapped,
             adaptive_contour.Adaptive_Contouring_Linear)
 
