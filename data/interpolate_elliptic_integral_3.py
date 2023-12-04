@@ -49,27 +49,6 @@ while len(add_x) > 0 or len(add_y) > 0:
     # interp_p = interp2d(x, y, p.T, kind='cubic')
     interp_rgi = RGI((x, y), p, method='cubic', bounds_error=False)
 
-    # Testing the change between scipy's interp2d and RGI
-    # xnew = np.arange(min(x), max(x), 1e-2)
-    # ynew = np.arange(min(y), max(y), 1e-2)
-    # xxnew, yynew = np.meshgrid(xnew, ynew, indexing='ij', sparse=True)
-    # znew_interp2d = interp_p(xnew, ynew)
-    # znew_rgi = interp_rgi((xxnew, yynew)).T
-    # diff = abs(znew_interp2d - znew_rgi).flatten()
-    # diff_max, diff_mean = diff.max(), diff.mean()  # maximum: 1e-10, 1e-12
-
-    # Plotting to check difference
-    # import matplotlib.pyplot as plt
-    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
-    # ax1.plot(x, p.T[0, :], 'ro-', xnew, znew_interp2d[0, :], 'b-')
-    # im = ax2.imshow(znew)
-    # plt.colorbar(im, ax=ax2)
-    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
-    # ax1.plot(x, p.T[0, :], 'ro-', xnew, znew_rgi[0, :], 'b-')
-    # im = ax2.imshow(znew_rgi)
-    # plt.colorbar(im, ax=ax2)
-    # plt.show()
-
     check_x = []
     for i in range(len(x)-1):
         check_ = np.logspace(np.log10(x[i]), np.log10(x[i+1]), n_divide)
