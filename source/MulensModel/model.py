@@ -599,6 +599,7 @@ class Model(object):
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
+
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
         else:
@@ -763,7 +764,15 @@ class Model(object):
             times:  *np.ndarray*, *list of floats*, or *float*
                 Epochs for which source positions are requested.
 
-        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object.
+            satellite_skycoord: *astropy.SkyCoord*
+                Allows the user to specify that the trajectory is calculated
+                for a satellite. If *astropy.SkyCoord* object is provided,
+                then these are satellite positions for all epochs.
+                See also :py:func:`get_satellite_coords()`
+
+        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object. If
+            n_sources > 1, returns a tuple of
+            `:py:class:`~MulensModel.trajectory.Trajectory`s
 
         """
         if satellite_skycoord is None:
