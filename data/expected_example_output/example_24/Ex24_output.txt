@@ -1,0 +1,32 @@
+Printing datasets:
+Auck_0300089_PLC_001.tbl: n_epochs =   76, n_bad =    0, band = R
+Bron_0300089_PLC_002.tbl: n_epochs =  149, n_bad =    0, band = R
+CTIO_H_0300089_PLC_004.tbl: n_epochs =  286, n_bad =    0, band = H
+CTIO_I_0300089_PLC_005.tbl: n_epochs =   46, n_bad =    0, band = I
+Canopus_0300089_PLC_003.tbl: n_epochs =   12, n_bad =    0, band = I
+Danish_0300089_PLC_006.tbl: n_epochs =   51, n_bad =    0, band = I
+MOA_0300089_PLC_007.tbl:  n_epochs = 2862, n_bad =    0, band = R, Errorbar scaling: factor = 1.6 minimum = 0.001
+
+Printing model:
+    t_0 (HJD)       u_0    t_E (d)    t_star (d)
+2454656.39975  0.003000    11.1400      0.054870
+default magnification method: point_source
+other magnification methods: [2454656.2900099996, 'finite_source_uniform_Gould94', 2454656.50949]
+limb-darkening coeffs (gamma): {'I': 0.4459845087647779, 'V': 0.6246719160104987, 'R': 0.5348542458808618, 'H': 0.2796352583586626}
+
+Printing event:
+model:
+    t_0 (HJD)       u_0    t_E (d)    t_star (d)
+2454656.39975  0.003000    11.1400      0.054870
+coords: 17:54:14.53 -34:46:40.99
+default magnification method: point_source
+other magnification methods: [2454656.2900099996, 'finite_source_uniform_Gould94', 2454656.50949]
+limb-darkening coeffs (gamma): {'I': 0.4459845087647779, 'V': 0.6246719160104987, 'R': 0.5348542458808618, 'H': 0.2796352583586626}
+datasets:
+Auck_0300089_PLC_001.tbl: n_epochs =   76, n_bad =    0, band = R
+Bron_0300089_PLC_002.tbl: n_epochs =  149, n_bad =    0, band = R
+CTIO_H_0300089_PLC_004.tbl: n_epochs =  286, n_bad =    0, band = H
+CTIO_I_0300089_PLC_005.tbl: n_epochs =   46, n_bad =    0, band = I
+Canopus_0300089_PLC_003.tbl: n_epochs =   12, n_bad =    0, band = I
+Danish_0300089_PLC_006.tbl: n_epochs =   51, n_bad =    0, band = I
+MOA_0300089_PLC_007.tbl:  n_epochs = 2862, n_bad =    0, band = R, Errorbar scaling: factor = 1.6 minimum = 0.001 *data_ref*
