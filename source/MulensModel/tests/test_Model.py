@@ -3,9 +3,16 @@ from numpy.testing import assert_almost_equal as almost
 from math import isclose
 import unittest
 from astropy import units as u
+import os.path
 import warnings
 
 import MulensModel as mm
+
+dir_2 = os.path.join(mm.DATA_PATH, 'unit_test_files')
+dir_3 = os.path.join(mm.DATA_PATH, 'ephemeris_files')
+SAMPLE_FILE_02_REF = os.path.join(dir_2, 'ob140939_OGLE_ref_v2.dat')  # HJD'
+SAMPLE_FILE_03_EPH = os.path.join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
+SAMPLE_FILE_03_REF = os.path.join(dir_2, 'ob140939_Spitzer_ref_v2.dat')  # HJD'
 
 
 def test_n_lenses():
@@ -765,13 +772,98 @@ def test_xallarap_at_t_0_plus_half_of_period_7_eccentric():
     almost(expected, model.get_magnification(t_0+d_time))
 
 
+class TestGetTrajectory(unittest.TestCase):
+
+    def setUp(self):
+        # Parallax model parameters
+        self.model_parameters_par = {
+            't_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+            'pi_E_N': -0.248, 'pi_E_E': 0.234, 't_0_par': 2456836.2}
+        self.coords = "17:47:12.25 -21:22:58.2"
+
+        self.model_with_par = mm.Model(
+            self.model_parameters_par, coords=self.coords)
+        self.model_with_par.parallax(satellite=True, earth_orbital=True,
+                                     topocentric=False)
+
+        self.ref_OGLE = np.loadtxt(SAMPLE_FILE_02_REF, unpack=True)
+        self.times_OGLE = self.ref_OGLE[0] + 2450000.
+        self.ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True)
+        self.ephemerides_file = SAMPLE_FILE_03_EPH
+        self.times_spz = self.ref_Spitzer[0] + 2450000.
+
+    def test_1L1S(self):
+        # straight-up trajectory for static point-lens model
+        t_0 = self.model_parameters_par['t_0']
+        u_0 = self.model_parameters_par['u_0']
+        t_E = self.model_parameters_par['t_E']
+        times = np.arange(t_0 - t_E, t_0 + t_E, 1.)
+
+        model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
+        trajectory = model.get_trajectory(times)
+        y = np.ones(len(times)) * u_0
+        x = (times - t_0) / t_E
+        ratio_x = trajectory.x / x
+        ratio_y = trajectory.y / y
+        np.testing.assert_almost_equal(ratio_x, 1.)
+        np.testing.assert_almost_equal(ratio_y, 1.)
+
+    def test_1L1S_annual_parallax(self):
+        """case with annual parallax"""
+        trajectory = self.model_with_par.get_trajectory(
+            self.times_OGLE)
+
+        ratio_x = trajectory.x / self.ref_OGLE[6]
+        ratio_y = trajectory.y / self.ref_OGLE[7]
+        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=3)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=3)
+
+    def test_1L1S_satellite_parallax_1(self):
+        """Case with satellite parallax (check test_Model_Parallax.py)"""
+        satellite_skycoord_obj = mm.SatelliteSkyCoord(
+            ephemerides_file=self.ephemerides_file)
+        satellite_skycoord = satellite_skycoord_obj.get_satellite_coords(
+            self.times_spz)
+        trajectory = self.model_with_par.get_trajectory(
+            self.times_spz, satellite_skycoord=satellite_skycoord)
+
+        ratio_x = trajectory.x / self.ref_Spitzer[6]
+        ratio_y = trajectory.y / self.ref_Spitzer[7]
+        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=2)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=3)
+
+    def test_1L1S_satellite_parallax_2(self):
+        """Case with satellite parallax (check test_Model_Parallax.py)"""
+        model_with_sat_par = mm.Model(
+            self.model_parameters_par, ephemerides_file=self.ephemerides_file,
+            coords=self.coords)
+        trajectory = model_with_sat_par.get_trajectory(self.times_spz)
+
+        ratio_x = trajectory.x / self.ref_Spitzer[6]
+        ratio_y = trajectory.y / self.ref_Spitzer[7]
+        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=2)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=3)
+
+    def test_1L2S(self):
+        """Binary source trajectories"""
+        model = mm.Model({
+            't_0_1': 5000., 'u_0_1': 0.005, 'rho_1': 0.001,
+            't_0_2': 5100., 'u_0_2': 0.0003, 't_star_2': 0.03, 't_E': 25.})
+        model_1 = mm.Model(model.parameters.source_1_parameters)
+        model_2 = mm.Model(model.parameters.source_2_parameters)
+
+        time = np.linspace(4900., 5200., 4200)
+
+        (traj_1_1L2S, traj_2_1L2S) = model.get_trajectory(time)
+        traj_1_1L1S = model_1.get_trajectory(time)
+        np.testing.assert_equal(traj_1_1L2S.x, traj_1_1L1S.x)
+        np.testing.assert_equal(traj_1_1L2S.y, traj_1_1L1S.y)
+
+        traj_2_1L1S = model_2.get_trajectory(time)
+        np.testing.assert_equal(traj_2_1L2S.x, traj_2_1L1S.x)
+        np.testing.assert_equal(traj_2_1L2S.y, traj_2_1L1S.y)
+
 # Tests to Add:
-#
-# test get_trajectory:
-#   straight-up trajectory
-#   case with annual parallax (check test_Model_Parallax.py)
-#   case with satellite parallax (check test_Model_Parallax.py)
-#   coords is propagating correctly (check test_Model_Parallax.py)
 #
 # test set_times:
 #   keywords to test:
