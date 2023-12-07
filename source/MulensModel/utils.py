@@ -371,22 +371,13 @@ class PlotUtils(object):
 
         """
         if phot_fmt == 'mag':
-            (y_value, y_err) = Utils.get_mag_and_err_from_flux(flux, flux_err)
+            return Utils.get_mag_and_err_from_flux(flux, flux_err)
         elif phot_fmt == 'flux':
-            (y_value, y_err) = (flux, flux_err)
+            return (flux, flux_err)
         else:
             raise ValueError(
                 'Unrecognized photometry format: {:}, '.format(phot_fmt) +
                 'allowed values are "mag" and "flux"')
-
-        index = (y_err < 0)
-        if np.sum(index) > 0:
-            if not isinstance(y_err, np.ndarray):
-                y_err = np.array(y_err)
-
-            y_err[index] = 0
-
-        return (y_value, y_err)
 
     get_y_value_y_err = staticmethod(get_y_value_y_err)
 

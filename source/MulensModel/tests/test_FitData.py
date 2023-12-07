@@ -12,10 +12,10 @@ dir_3 = join(mm.DATA_PATH, 'ephemeris_files')
 dir_4 = join(dir_2, 'fspl_derivs')
 
 SAMPLE_FILE_02 = join(dir_1, 'ob140939_OGLE.dat')  # HJD'
-SAMPLE_FILE_02_REF = join(dir_2, 'ob140939_OGLE_ref_v1.dat')  # HJD'
+SAMPLE_FILE_02_REF = join(dir_2, 'ob140939_OGLE_ref_v2.dat')  # HJD'
 SAMPLE_FILE_03 = join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
 SAMPLE_FILE_03_EPH = join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
-SAMPLE_FILE_03_REF = join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
+SAMPLE_FILE_03_REF = join(dir_2, 'ob140939_Spitzer_ref_v2.dat')  # HJD'
 SAMPLE_FILE_04_WF = join(mm.DATA_PATH, 'WFIRST_1827.dat')
 SAMPLE_FILE_FSPL_51 = join(dir_4, 'fort.51')
 SAMPLE_FILE_FSPL_61 = join(dir_4, 'fort.61')
@@ -1005,6 +1005,31 @@ def test_FSPLDerivs_get_satellite_coords():
     np.testing.assert_almost_equal(result_2.ra.value, ra_2, decimal=3)
     np.testing.assert_almost_equal(result_2.dec.value, dec_2, decimal=3)
 
+
+def test_get_trajectory_1L2S_satellite_parallax():
+    """test parallax calculation with Spitzer data"""
+    model_parameters = {'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87,
+                        'pi_E_N': -0.248, 'pi_E_E': 0.234,
+                        't_0_par': 2456836.2}
+    coords = "17:47:12.25 -21:22:58.2"
+
+    model_with_par = mm.Model(model_parameters, coords=coords)
+    model_with_par.parallax(satellite=True, earth_orbital=True,
+                            topocentric=False)
+
+    data_Spitzer = mm.MulensData(
+        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
+
+    fit = mm.FitData(model=model_with_par, dataset=data_Spitzer)
+
+    ref_Spitzer = np.loadtxt(SAMPLE_FILE_03_REF, unpack=True)
+
+    trajectory = fit.get_dataset_trajectory()
+
+    ratio_x = trajectory.x / ref_Spitzer[6]
+    ratio_y = trajectory.y / ref_Spitzer[7]
+    np.testing.assert_almost_equal(ratio_x, 1., decimal=2)
+    np.testing.assert_almost_equal(ratio_y, 1., decimal=3)
 
 # Tests to add:
 #

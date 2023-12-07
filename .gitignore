@@ -68,3 +68,4 @@ source/MulensModel/*.so
 
 # Coverage report:
 coverage.xml
+/source/MulensModel/htmlcov/

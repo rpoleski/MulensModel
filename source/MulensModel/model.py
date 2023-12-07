@@ -599,6 +599,7 @@ class Model(object):
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
+
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
         else:
@@ -755,7 +756,7 @@ class Model(object):
             for (x, y) in zip(trajectory.x, trajectory.y):
                 axis.add_artist(plt.Circle((x, y), **kwargs))
 
-    def get_trajectory(self, times):
+    def get_trajectory(self, times, satellite_skycoord=None):
         """
         Get the source trajectory for the given set of times.
 
@@ -763,13 +764,34 @@ class Model(object):
             times:  *np.ndarray*, *list of floats*, or *float*
                 Epochs for which source positions are requested.
 
-        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object.
+            satellite_skycoord: *astropy.SkyCoord*
+                Allows the user to specify that the trajectory is calculated
+                for a satellite. If *astropy.SkyCoord* object is provided,
+                then these are satellite positions for all epochs.
+                See also :py:func:`get_satellite_coords()`
+
+        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object. If
+            n_sources > 1, returns a tuple of
+            `:py:class:`~MulensModel.trajectory.Trajectory`s
 
         """
+        if satellite_skycoord is None:
+            satellite_skycoord = self.get_satellite_coords(times)
+
         kwargs_ = {
             'times': times, 'parallax': self._parallax, 'coords': self._coords,
-            'satellite_skycoord': self.get_satellite_coords(times)}
-        return Trajectory(parameters=self.parameters, **kwargs_)
+            'satellite_skycoord': satellite_skycoord}
+        if self.n_sources == 1:
+            return Trajectory(parameters=self.parameters, **kwargs_)
+        elif self.n_sources == 2:
+            trajectory_1 = Trajectory(
+                parameters=self.parameters.source_1_parameters, **kwargs_)
+            trajectory_2 = Trajectory(
+                parameters=self.parameters.source_2_parameters, **kwargs_)
+            return (trajectory_1, trajectory_2)
+        else:
+            raise NotImplementedError(
+                "only 1 or 2 sources allowed here at this point")
 
     def set_times(
             self, t_range=None, t_start=None, t_stop=None, dt=None,
