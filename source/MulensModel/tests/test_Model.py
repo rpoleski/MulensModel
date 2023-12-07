@@ -805,8 +805,8 @@ class TestGetTrajectory(unittest.TestCase):
         x = (times - t_0) / t_E
         ratio_x = trajectory.x / x
         ratio_y = trajectory.y / y
-        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=4)
-        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=4)
+        np.testing.assert_almost_equal(ratio_x, 1.)
+        np.testing.assert_almost_equal(ratio_y, 1.)
 
     def test_1L1S_annual_parallax(self):
         """case with annual parallax"""
@@ -815,8 +815,8 @@ class TestGetTrajectory(unittest.TestCase):
 
         ratio_x = trajectory.x / self.ref_OGLE[6]
         ratio_y = trajectory.y / self.ref_OGLE[7]
-        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=2)
-        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=2)
+        np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=3)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=3)
 
     def test_1L1S_satellite_parallax_1(self):
         """Case with satellite parallax (check test_Model_Parallax.py)"""
@@ -830,7 +830,7 @@ class TestGetTrajectory(unittest.TestCase):
         ratio_x = trajectory.x / self.ref_Spitzer[6]
         ratio_y = trajectory.y / self.ref_Spitzer[7]
         np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=2)
-        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=2)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=3)
 
     def test_1L1S_satellite_parallax_2(self):
         """Case with satellite parallax (check test_Model_Parallax.py)"""
@@ -842,7 +842,7 @@ class TestGetTrajectory(unittest.TestCase):
         ratio_x = trajectory.x / self.ref_Spitzer[6]
         ratio_y = trajectory.y / self.ref_Spitzer[7]
         np.testing.assert_almost_equal(ratio_x, [1.] * len(ratio_x), decimal=2)
-        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=2)
+        np.testing.assert_almost_equal(ratio_y, [1.] * len(ratio_y), decimal=3)
 
     def test_1L2S(self):
         """Binary source trajectories"""
