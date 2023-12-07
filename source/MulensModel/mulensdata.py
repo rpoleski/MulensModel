@@ -450,17 +450,26 @@ class MulensData(object):
 
         if show_errorbars:
             if np.any(y_err[self.good] < 0.):
-                warnings.warn("Cannot plot errorbars with negative values. "
-                              "Skipping dataset: " + self._get_name())
-                return
+                ind_neg_err = np.where((y_err < 0.) & self.good)
+                warnings.warn(
+                    "Some points have errorbars with negative values. " +
+                    "Setting to zero. \n" +
+                    "Dataset: " + self._get_name() +
+                    "\nEpochs: {0}".format(self.time[ind_neg_err]))
+                y_err[ind_neg_err] = 0.
+
             container = self._plt_errorbar(time_good, y_good,
                                            y_err[self.good], properties)
             if show_bad:
                 if np.any(y_err[self.bad] < 0.):
+                    ind_neg_err = np.where((y_err < 0.) & self.bad)
                     warnings.warn(
-                        "Cannot plot errorbars with negative values (bad "
-                        "data). Skipping dataset: " + self._get_name())
-                    return
+                        "Some (bad data) points have errorbars with " +
+                        "negative values. Setting to zero. \n" +
+                        "Dataset: " + self._get_name() +
+                        "\nEpochs: {0}".format(self.time[ind_neg_err]))
+                    y_err[ind_neg_err] = 0.
+
                 if not ('color' in properties_bad or 'c' in properties_bad):
                     properties_bad['color'] = container[0].get_color()
 
