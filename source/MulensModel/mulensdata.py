@@ -449,26 +449,11 @@ class MulensData(object):
         y_bad = y_value[self.bad]
 
         if show_errorbars:
-            if np.any(y_err[self.good] < 0.):
-                ind_neg_err = np.where((y_err < 0.) & self.good)
-                warnings.warn(
-                    "Some points have errorbars with negative values. " +
-                    "Setting to zero. \n" +
-                    "Dataset: " + self._get_name() +
-                    "\nEpochs: {0}".format(self.time[ind_neg_err]))
-                y_err[ind_neg_err] = 0.
-
+            self._mask_negative_errorbars(y_err, kind='good')
             container = self._plt_errorbar(time_good, y_good,
                                            y_err[self.good], properties)
             if show_bad:
-                if np.any(y_err[self.bad] < 0.):
-                    ind_neg_err = np.where((y_err < 0.) & self.bad)
-                    warnings.warn(
-                        "Some (bad data) points have errorbars with " +
-                        "negative values. Setting to zero. \n" +
-                        "Dataset: " + self._get_name() +
-                        "\nEpochs: {0}".format(self.time[ind_neg_err]))
-                    y_err[ind_neg_err] = 0.
+                self._mask_negative_errorbars(y_err, kind='bad')
 
                 if not ('color' in properties_bad or 'c' in properties_bad):
                     properties_bad['color'] = container[0].get_color()
@@ -546,6 +531,28 @@ class MulensData(object):
             properties.pop(remove_key, None)
 
         return properties
+
+    def _mask_negative_errorbars(self, y_err, kind):
+        """
+        Change negative uncertainties to 0.
+        Parameters kind should be 'good' or 'bad'.
+        """
+        if kind == 'good':
+            mask = self.good
+        elif kind == 'bad':
+            mask = self.bad
+        else:
+            raise ValueError('internal error: {:}'.format(kind))
+
+        if not np.any(y_err[mask] < 0.):
+            return
+
+        indexes = ((y_err < 0.) & mask)
+        msg = ("Some {:} data points have scaled errorbars with negative "
+               "values. Setting them to zero for plotting.\nDataset: {:}\n"
+               "Epochs: {:}")
+        warnings.warn(msg.format(kind, self._get_name(), self.time[indexes]))
+        y_err[indexes] = 0.
 
     def _plt_errorbar(self, time, y, yerr, kwargs):
         """
