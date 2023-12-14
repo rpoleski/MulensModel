@@ -1,11 +1,20 @@
 import unittest
 from os.path import join
-from test_FitData import create_0939_parallax_model, SAMPLE_FILE_03, SAMPLE_FILE_03_EPH
+import numpy as np
+from numpy.testing import assert_allclose
+from test_FitData import create_0939_parallax_model
 
 import MulensModel as mm
 
+dir_1 = join(mm.DATA_PATH, 'photometry_files', 'OB140939')
 dir_2 = join(mm.DATA_PATH, 'unit_test_files')
+dir_3 = join(mm.DATA_PATH, 'ephemeris_files')
 dir_4 = join(dir_2, 'fspl_derivs')
+
+SAMPLE_FILE_02 = join(dir_1, 'ob140939_OGLE.dat')  # HJD'
+SAMPLE_FILE_03 = join(dir_1, 'ob140939_Spitzer.dat')  # HJD'
+SAMPLE_FILE_03_EPH = join(dir_3, 'Spitzer_ephemeris_01.dat')  # UTC
+SAMPLE_FILE_03_REF = join(dir_2, 'ob140939_Spitzer_ref_v1.dat')  # HJD'
 SAMPLE_FILE_FSPL_51 = join(dir_4, 'fort.51')
 SAMPLE_FILE_FSPL_61 = join(dir_4, 'fort.61')
 
