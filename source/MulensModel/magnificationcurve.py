@@ -7,6 +7,7 @@ from MulensModel.binarylens import BinaryLens
 from MulensModel.binarylenswithshear import BinaryLensWithShear
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.pointlens import PointLens, get_pspl_magnification
+from MulensModel import pointlens
 from MulensModel.pointlenswithshear import PointLensWithShear
 from MulensModel.trajectory import Trajectory
 
@@ -262,9 +263,10 @@ class MagnificationCurve(object):
             magnification = point_lens.get_point_source_magnification(
                 self.trajectory)
         else:
-            pass
+            magnification = np.zeros(self.times.shape)
             #point_lens = PointLens(self.parameters)
             #magnification = get_pspl_magnification(self.trajectory)
+
 
         methods = self._methods_for_epochs()
         #if len(set(methods)-set([None, 'point_source'])) == 0:
@@ -287,27 +289,27 @@ class MagnificationCurve(object):
             selection = (methods_ == method)
 
             if method.lower() == 'point_source':
-                lens = PointSourcePointLens(self.parameters)
+                lens = pointlens.PointSourcePointLens(self.parameters)
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
-                lens = FiniteSourceUniformGould94(self.parameters)
+                lens = pointlens.FiniteSourceUniformGould94(self.parameters)
             elif (method.lower() ==
                   'finite_source_uniform_Gould94_direct'.lower()):
-                lens = FiniteSourceUniformGould94(self.parameters, direct=True)
+                lens = pointlens.FiniteSourceUniformGould94(self.parameters, direct=True)
             elif method.lower() == 'finite_source_uniform_WittMao94'.lower():
-                lens = FiniteSourceUniformWittMao94(self.parameters)
+                lens = pointlens.FiniteSourceUniformWittMao94(self.parameters)
             elif method.lower() == 'finite_source_LD_WittMao94'.lower():
-                lens = FiniteSourceLDWittMao94(
+                lens = pointlens.FiniteSourceLDWittMao94(
                     self.parameters, gamma=self._gamma)
             elif method.lower() == 'finite_source_LD_Yoo04'.lower():
-                lens = FiniteSourceLDYoo04(
+                lens = pointlens.FiniteSourceLDYoo04(
                     self.parameters, gamma=self._gamma)
             elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
-                lens = FiniteSourceLDYoo04(
+                lens = pointlens.FiniteSourceLDYoo04(
                     self.parameters, gamma=self._gamma, direct=True)
             elif method.lower() == 'finite_source_uniform_Lee09'.lower():
-                lens = FiniteSourceUniformLee09(self.parameters)
+                lens = pointlens.FiniteSourceUniformLee09(self.parameters)
             elif method.lower() == 'finite_source_LD_Lee09'.lower():
-                lens = FiniteSourceLDLee09(self.parameters, gamma=self._gamma)
+                lens = pointlens.FiniteSourceLDLee09(self.parameters, gamma=self._gamma)
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))
