@@ -672,6 +672,8 @@ class PointSourcePointLens():
                 str(type(parameters)))
 
         self.parameters = parameters
+        self._pspl_magnification = None
+        self._magnification = None
 
     def get_pspl_magnification(self, u):
         """
@@ -698,6 +700,20 @@ class PointSourcePointLens():
 
         return self._pspl_magnification
 
+    @property
+    def pspl_magnification(self):
+        """
+        *float*
+
+        Last calculated value of PSPL magnification.
+
+        Note this is a static property. It is only updated when
+        :py:func:`~get_pspl_magnification()`is run. So, if you
+        change one of the settings be sure to run one of those functions to
+        update the magnification.
+        """
+        return self._pspl_magnification
+
     def get_magnification(self, u):
         """
         Arguments :
@@ -710,7 +726,23 @@ class PointSourcePointLens():
                 The magnification for each point
                 specified by `u.
         """
-        return self.get_pspl_magnification(u)
+        self._magnification = self.get_pspl_magnification(u)
+
+        return self._magnificaiton
+
+    @property
+    def magnification(self):
+        """
+        *float*
+
+        Last calculated value of the magnification.
+
+        Note this is a static property. It is only updated when
+        :py:func:`~get_magnification()`is run. So, if you
+        change one of the settings be sure to run one of those functions to
+        update the magnification.
+        """
+        return self._magnification
 
 
 class FiniteSourceUniformGould94(PointSourcePointLens):
@@ -774,10 +806,10 @@ class FiniteSourceUniformGould94(PointSourcePointLens):
             B0[mask] = self._B_0_function(z[mask])
 
         pspl_magnification = get_pspl_magnification(u)
-        magnification = pspl_magnification * B0
+        self._magnification = pspl_magnification * B0
         # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
 
-        return magnification
+        return self._magnification
 
     def _get_mask_B0B1_data(self, z):
         """
