@@ -186,8 +186,10 @@ class MulensData(object):
         """extract the name of dataset"""
         if 'label' in self.plot_properties:
             name = self.plot_properties['label']
-        else:
+        elif self._file_name is not None:
             name = self._file_name
+        else:
+            name = 'Unlabeled Dataset'
 
         return name
 
