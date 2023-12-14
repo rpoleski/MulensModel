@@ -67,7 +67,7 @@ class PointLens(object):
                 str(type(parameters)))
 
         self.parameters = parameters
-        self._B0B1_data = mm.PointLensFiniteSource()
+        self._B0B1_data = mm.B0B1Utils()
 
     def _read_elliptic_files(self):
         """
@@ -661,3 +661,152 @@ class PointLens(object):
         d_mag_r2 = temp[1:] - temp[:-1]
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
+
+
+class PointSourcePointLens():
+
+    def __init__(self, parameters=None):
+        if not isinstance(parameters, mm.ModelParameters):
+            raise TypeError(
+                "PointLens* argument has to be of ModelParameters type, not " +
+                str(type(parameters)))
+
+        self.parameters = parameters
+
+    def get_pspl_magnification(self, u):
+        """
+        This is Paczynski equation, i.e., point-source--point-lens (PSPL)
+        magnification.
+
+        Arguments :
+         Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+        Returns :
+            pspl_magnification: *float* or *np.ndarray*
+                The point-source--point-lens magnification for each point
+                specified by `u`.
+
+        """
+        u2 = u**2
+
+        if isinstance(u, float):
+            self._pspl_magnification = (u2 + 2.) / sqrt(u2 * (u2 + 4.))
+        else:
+            self._pspl_magnification = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+
+        return self._pspl_magnification
+
+    def get_magnification(self, u):
+        """
+        Arguments :
+         Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+        Returns :
+            magnification: *float* or *np.ndarray*
+                The magnification for each point
+                specified by `u.
+        """
+        return self.get_pspl_magnification(u)
+
+
+class FiniteSourceUniformGould94(PointSourcePointLens):
+
+    def __init__(self, direct=False, **kwargs):
+        PointSourcePointLens.__init__(**kwargs)
+        self.direct = direct
+        self._B0B1_data = mm.B0B1Utils()
+
+    def get_magnification(self, u):
+        """
+        Calculate magnification for point lens and finite source (for
+        a *uniform* source).  The approximation was proposed by:
+
+        `Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
+
+        and later the integral calculation was simplified by:
+
+        `Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
+        Effects from a Point-Mass Lens"
+        <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_
+
+        This approach assumes rho is small (rho < 0.1). For larger sources
+        use :py:func:`get_point_lens_uniform_integrated_magnification`.
+
+        Parameters :
+            u: *float*, *np.array*
+                The instantaneous source-lens separation.
+                Multiple values can be provided.
+
+            pspl_magnification: *float*, *np.array*
+                The point source, point lens magnification at each value of u.
+
+            direct: *boolean*
+                Use direct calculation (slow) instead of interpolation.
+
+        Returns :
+            magnification: *float*, *np.array*
+                The finite source source magnification.
+                Type is the same as of u parameter.
+
+         """
+        z = u / self.parameters.rho
+        try:
+            _ = iter(z)
+        except TypeError:
+            z = np.array([z])
+
+        if self.direct:
+            mask = np.zeros_like(z, dtype=bool)
+        else:
+            mask = self._get_mask_B0B1_data(z)
+
+        B0 = 0. * z
+        if np.any(mask):  # Here we use interpolation.
+            B0[mask] = self._B0B1_data.interpolate_B0(z[mask])
+
+        mask = np.logical_not(mask)
+        if np.any(mask):  # Here we use direct calculation.
+            B0[mask] = self._B_0_function(z[mask])
+
+        pspl_magnification = get_pspl_magnification(u)
+        magnification = pspl_magnification * B0
+        # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
+
+        return magnification
+
+        def _get_mask_B0B1_data(self, z):
+            """
+            Get mask that desides if z is in range covered by B0B1 file
+            """
+            return self._B0B1_data.get_interpolation_mask(z)
+
+        def _B_0_function(self, z):
+            """
+            calculate B_0(z) function defined in:
+
+            Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
+            https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract
+
+            Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
+            Effects from a Point-Mass Lens"
+            https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
+
+            """
+
+            out = 4. * z / np.pi
+
+            def function(x):
+                return (1. - value ** 2 * sin(x) ** 2) ** .5
+
+            for (i, value) in enumerate(z):
+                if value < 1.:
+                    out[i] *= ellipe(value * value)
+                else:
+                    out[i] *= integrate.quad(function, 0.,
+                                             np.arcsin(1. / value))[0]
+            return out

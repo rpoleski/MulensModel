@@ -70,14 +70,16 @@ class PointLensTestCase(unittest.TestCase):
         # point_lens_finite_source
         # -->
         # finite_source_uniform_Gould94
+        # ***DEPRECATE???***
         test_FSPL_0 = self.point_lens_obj.get_finite_source_uniform_Gould94_magnification(
             self.u)
         np.testing.assert_almost_equal(
             test_FSPL_0, self.data['Mag_FS'], decimal=5)
 
         # Which one(s)?
-        test_FSPL = self.FS_uniform_obj.get_fspl_magnification(
-            self.u)
+        test_FSPL = self.FS_uniform_obj.get_magnification(self.u)
+        # test_FSPL = self.FS_uniform_obj.get_fspl_magnification(
+        #    self.u)
         # test_FSPL = obj.get_finite_source_magnification(
         #     self.u)
         # test_FSPL = obj.get_finite_source_point_lens_magnification(
@@ -91,12 +93,13 @@ class PointLensTestCase(unittest.TestCase):
         # point_lens_limb_darkening
         # -->
         # finite_source_LD_Yoo94
+        # ***DEPRECATE???***
         test_FSPL_0 = self.point_lens_obj.get_finite_source_LD_Yoo94_magnification(
             self.u, self.gamma)
         np.testing.assert_almost_equal(
             test_FSPL_0 / self.data['Mag_LD'], 1., decimal=4)
 
-        test_FSPL_LD = self.FS_LD_obj.get_fspl_magnification(self.u)
+        test_FSPL_LD = self.FS_LD_obj.get_magnification(self.u)
         np.testing.assert_almost_equal(
             test_FSPL_LD / self.data['Mag_LD'], 1., decimal=4)
 
@@ -140,13 +143,15 @@ class Test_Lee09_and_WittMao94(unittest.TestCase):
         # Test uniform source first.
         test_0 = mm.PointLensFiniteSourceUniformLee09(
             parameters=self.params_0)
-        results_0 = test_0.get_fspl_magnification(self.u_0)
+        #results_0 = test_0.get_fspl_magnification(self.u_0)
+        results_0 = test_0.get_magnification(self.u_0)
         np.testing.assert_almost_equal(self.expected_0, results_0, decimal=4)
 
         # rename:
         # point_lens_uniform_integrated
         # -->
         # finite_source_uniform_Lee09
+        # ***DEPRECATE???***
         results_2 = self.point_lens_0.get_finite_source_uniform_Lee09_magnification(
             self.u_0)
         np.testing.assert_almost_equal(self.expected_0, results_2, decimal=4)
@@ -155,13 +160,14 @@ class Test_Lee09_and_WittMao94(unittest.TestCase):
         # Then test 1-parameter limb-darkening.
         test_1 = mm.PointLensFiniteSourceLDLee09(
             parameters=self.params_1)
-        results_1 = test_1.get_fspl_magnification(self.u_1)
+        results_1 = test_1.get_magnification(self.u_1)
         np.testing.assert_almost_equal(self.expected_1, results_1, decimal=3)
 
         # rename:
         # point_lens_LD_integrated
         # -->
         # finite_source_LD_Lee09
+        # ***DEPRECATE???***
         results_2 = self.point_lens_1.get_finite_source_LD_Lee09_magnification(
             self.u_1, self.gamma)
         np.testing.assert_almost_equal(self.expected_1, results_2, decimal=4)
@@ -170,13 +176,14 @@ class Test_Lee09_and_WittMao94(unittest.TestCase):
         # Tests for Witt & Mao 1994 start here
         test_0 = mm.PointLensFiniteSourceUniformWittMao94(
             parameters=self.params_0)
-        results_0 = test_0.get_fspl_magnification(self.u_0)
+        results_0 = test_0.get_magnification(self.u_0)
         np.testing.assert_almost_equal(self.expected_0, results_0, decimal=4)
 
         # rename:
         # point_lens_large_finite_source
         # -->
         # finite_source_uniform_WittMao94
+        # ***DEPRECATE???***
         results_2 = self.point_lens_0.get_finite_source_uniform_WittMao94_magnification(
             self.u_0)
         np.testing.assert_almost_equal(self.expected_0, results_2, decimal=4)
@@ -184,13 +191,14 @@ class Test_Lee09_and_WittMao94(unittest.TestCase):
     def test_WittMao94_1(self):
         test_1 = mm.PointLensFiniteSourceLDWittMao94(
             parameters=self.params_1)
-        results_3 = test_1.get_fspl_magnification(self.u_1)
+        results_3 = test_1.get_magnification(self.u_1)
         np.testing.assert_almost_equal(self.expected_1, results_3, decimal=3)
 
         # rename:
         # point_lens_large_LD_integrated
         # -->
         # finite_source_LD_WittMao94
+        # ***DEPRECATE???***
         results_2 = self.point_lens_1.get_finite_source_LD_WittMao94_magnification(
             self.u_1, self.gamma)
         np.testing.assert_almost_equal(self.expected_1, results_2, decimal=4)

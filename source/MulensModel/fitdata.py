@@ -1070,7 +1070,7 @@ class FitData(object):
             self.model = self.fit.model
             self.gamma = self.fit.gamma
 
-            self._B0B1_data = mm.PointLensFiniteSource()
+            self._B0B1_data = mm.B0B1Utils()
             self.u_ = _get_u()
             self._dataset_satellite_skycoord = (
                 _get_dataset_satellite_skycoord())
