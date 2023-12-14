@@ -47,10 +47,10 @@ while len(add_x) > 0 or len(add_y) > 0:
     add_y = []
     p = get_ellip(x, y)
 
-    if scipy.__version__ >= "1.9.0":
-        interp_p = RGI((x, y), p, method='cubic', bounds_error=False)
-    else:
-        interp_p = interp2d(x, y, p.T, kind='cubic')
+    try:
+        interp_p = RGI((x, y), p, method="cubic", bounds_error=False)
+    except ValueError:
+        interp_p = interp2d(x, y, p.T, kind="cubic")
 
     check_x = []
     for i in range(len(x)-1):
@@ -66,7 +66,7 @@ while len(add_x) > 0 or len(add_y) > 0:
         cond = np.array(check_y) > cx
         check_p[ix, cond] = 1.
         check_true_p[ix, cond] = 1.
-        if scipy.__version__ >= "1.9.0":
+        if isinstance(interp_p, RGI):
             check_p[ix, ~cond] = interp_p((cx, np.array(check_y)[~cond]))
         else:
             check_p[ix, ~cond] = interp_p(cx, np.array(check_y)[~cond]).T[0]
