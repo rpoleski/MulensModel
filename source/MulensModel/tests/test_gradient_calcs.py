@@ -4,6 +4,7 @@ from test_FitData import create_0939_parallax_model, SAMPLE_FILE_03, SAMPLE_FILE
 
 import MulensModel as mm
 
+dir_2 = join(mm.DATA_PATH, 'unit_test_files')
 dir_4 = join(dir_2, 'fspl_derivs')
 SAMPLE_FILE_FSPL_51 = join(dir_4, 'fort.51')
 SAMPLE_FILE_FSPL_61 = join(dir_4, 'fort.61')
