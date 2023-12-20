@@ -87,6 +87,7 @@ class FitData(object):
         self._chi2 = None
 
         self._data_magnification = None
+        self._magnification_curve = None
 
     def _check_for_flux_ratio_errors(self):
         """
@@ -141,6 +142,8 @@ class FitData(object):
         magnification_kwargs = {
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
 
+        # Is it more efficient to create (and store) a MagnificationCurve
+        # instead of accessing the magnification through model.get_magnification()?
         if self._model.n_sources == 1:
             mag_matrix = self._model.get_magnification(
                 time=self._dataset.time[select],
@@ -628,8 +631,8 @@ class FitData(object):
             derivs = self.FSPL_Derivatives(self)
             gradient = derivs.get_gradient(parameters)
         else:
-            gradient = self._get_d_u_d_params(parameters)
-            d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
+            gradient = self.magnification_curve.get_d_u_d_params(parameters)
+            d_A_d_u = self.magnification_curve.get_d_A_d_u_for_PSPL_model()
             for key in gradient.keys():
                 gradient[key] *= d_A_d_u
 
@@ -659,6 +662,7 @@ class FitData(object):
             return mm.Trajectory(parameters=self.model.parameters, **kwargs_)
 
     def get_d_A_d_u_for_PSPL_model(self):
+        # *** MOVE TO MAGNIFICATION CURVE ***
         """
         Calculate dA/du for PSPL point-source--point-lens model.
 
@@ -712,6 +716,7 @@ class FitData(object):
         return d_A_d_u
 
     def _get_d_u_d_params(self, parameters):
+        # *** MOVE TO MAGNIFICATION CURVE ***
         """
         Calculate d u / d parameters
 
@@ -934,6 +939,18 @@ class FitData(object):
                 reported separately.
         """
         return self._data_magnification
+
+    @property
+    def magnification_curve(self):
+        # *** NEED to consider behavior with 2 sources ***
+        """
+        Returns previously calculated magnification curve.
+
+        Returns :
+            magnification_curve: *:py:class:`~MulensModel.magnification.MagnificationCurve* object
+                The model magnification curve evaluated for each datapoint.
+        """
+        return self._magnification_curve()
 
     @property
     def gamma(self):

@@ -346,9 +346,10 @@ class TestFSPLGradient2(TestFSPLGradient):
                     df_dparam[mask], sfit_df_dparam[mask], rtol=0.015)
 
     def test_dAdu_FSPLError(self):
+        # *** JCY Is this stil not implemented? ***
         for i, fit in enumerate(self.fits):
             with self.assertRaises(NotImplementedError):
-                fit.magnification_curve.d_A_d_u_for_point_lens_model
+                fit.magnification_curve.d_A_d_u_for_point_lens_model()
 
     def test_dAdu_PSPL(self):
         params = ['t_0', 'u_0', 't_E']

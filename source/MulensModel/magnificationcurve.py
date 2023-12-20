@@ -66,6 +66,7 @@ class MagnificationCurve(object):
         self.trajectory = Trajectory(
             self.times, parameters=parameters, parallax=parallax,
             coords=coords, satellite_skycoord=satellite_skycoord)
+        self._u_2 = None # u^2 (for use in calculating gradients
 
         # Initialize the magnification vector
         self._magnification = None
@@ -318,6 +319,77 @@ class MagnificationCurve(object):
                 u=u_all[selection])
 
         return magnification
+
+    def get_d_A_d_u_for_PSPL_model(self):
+        """
+        Calculate dA/du for PSPL point-source--point-lens model.
+
+        No parameters.
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du.
+        """
+        if self._u_2 is None:
+            self._u_2 = self.trajectory.x**2 + self.trajectory.y**2
+
+        d_A_d_u = -8. / (self._u_2 * (self._u_2 + 4) * np.sqrt(self._u_2 + 4))
+        return d_A_d_u
+
+    def get_d_u_d_params(self, parameters):
+        """
+        Calculate d u / d parameters.
+
+        Parameters :
+            parameters: *list*
+                Parameters for which to calculate du/dparams
+
+        Returns:
+              du_dparams: *dict*
+                Derivatives of u with respect to the input parameters
+        """
+        # Setup
+        du_dparams = {param: 0 for param in parameters}
+        as_dict = self.parameters.as_dict()
+
+        # Get source location
+        u_ = np.sqrt(self._u_2)
+
+        # Calculate derivatives
+        d_u_d_x = self.trajectory.x / u_
+        d_u_d_y = self.trajectory.y / u_
+        dt = self.times - as_dict['t_0']
+
+        # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
+        # gradient depends on which ones are defined.
+        t_E = self.parameters.t_E
+        t_eff = self.parameters.t_eff
+        if 't_eff' not in as_dict:
+            du_dparams['t_0'] = -d_u_d_x / t_E
+            du_dparams['u_0'] = d_u_d_y
+            du_dparams['t_E'] = d_u_d_x * -dt / t_E**2
+        elif 't_E' not in as_dict:
+            du_dparams['t_0'] = -d_u_d_x * as_dict['u_0'] / t_eff
+            du_dparams['u_0'] = (d_u_d_y + d_u_d_x * dt / t_eff)
+            du_dparams['t_eff'] = (d_u_d_x * -dt * as_dict['u_0'] / t_eff**2)
+        elif 'u_0' not in as_dict:
+            du_dparams['t_0'] = -d_u_d_x / t_E
+            du_dparams['t_E'] = (d_u_d_x * dt - d_u_d_y * t_eff) / t_E**2
+            du_dparams['t_eff'] = d_u_d_y / t_E
+        else:
+            raise KeyError(
+                'Something is wrong with ModelParameters in ' +
+                'FitData.calculate_chi2_gradient():\n', as_dict)
+
+        # Below we deal with parallax only.
+        if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
+            delta_N = self.trajectory.parallax_delta_N_E['N']
+            delta_E = self.trajectory.parallax_delta_N_E['E']
+
+            du_dparams['pi_E_N'] = d_u_d_x * delta_N + d_u_d_y * delta_E
+            du_dparams['pi_E_E'] = d_u_d_x * delta_E - d_u_d_y * delta_N
+
+        return du_dparams
 
     def get_binary_lens_magnification(self):
         """
