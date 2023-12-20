@@ -88,6 +88,8 @@ class FitData(object):
 
         self._data_magnification = None
         self._magnification_curve = None
+        self._magnification_curve_1 = None
+        self._magnification_curve_2 = None
 
     def _check_for_flux_ratio_errors(self):
         """
@@ -145,13 +147,20 @@ class FitData(object):
         # Is it more efficient to create (and store) a MagnificationCurve
         # instead of accessing the magnification through model.get_magnification()?
         if self._model.n_sources == 1:
-            mag_matrix = self._model.get_magnification(
-                time=self._dataset.time[select],
-                **magnification_kwargs)
+            #mag_matrix = self._model.get_magnification(
+            #    time=self._dataset.time[select],
+            #    **magnification_kwargs)
+            self._magnification_curve = self._model.get_magnification_curve(
+                time=self._dataset.time[select], **magnification_kwargs)
+            mag_matrix = self._magnification_curve.get_magnification()
         elif self._model.n_sources == 2:
-            mag_matrix = self._model.get_magnification(
-                time=self._dataset.time[select], separate=True,
-                **magnification_kwargs)
+            #mag_matrix = self._model.get_magnification(
+            #    time=self._dataset.time[select], separate=True,
+            #    **magnification_kwargs)
+            (self._magnification_curve_1, self._magnification_curve_2) = self._model.get_magnification_curves(
+                time=self._dataset.time[select], **magnification_kwargs)
+            mag_matrix = (self._magnification_curve_1.get_magnification,
+                          self._magnification_curve_2.get_magnification())
         else:
             msg = ("{0} ".format(self._model.n_sources) +
                    "sources used. Function model.get_magnification can " +
@@ -942,7 +951,6 @@ class FitData(object):
 
     @property
     def magnification_curve(self):
-        # *** NEED to consider behavior with 2 sources ***
         """
         Returns previously calculated magnification curve.
 
@@ -951,6 +959,18 @@ class FitData(object):
                 The model magnification curve evaluated for each datapoint.
         """
         return self._magnification_curve()
+
+    @property
+    def magnification_curves(self):
+        """
+        Returns previously calculated magnification curves.
+
+        Returns :
+            *tuple* of
+            *:py:class:`~MulensModel.magnification.MagnificationCurve* objects,
+            i.e., the model magnification curve evaluated for each datapoint.
+        """
+        return self._magnification_curves()
 
     @property
     def gamma(self):
