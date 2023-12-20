@@ -33,7 +33,7 @@ def test_get_d_u_d_params():
 
     data_no_ephm = mm.MulensData(file_name=SAMPLE_FILE_03)
     fit_no_ephm = mm.FitData(dataset=data_no_ephm, model=model_with_par)
-    derivs_no_ephm = fit_no_ephm.magnification_curve.get_d_u_d_params(
+    derivs_no_ephm = fit_no_ephm.magnification_curve.get_d_u_d_params_PSPL(
         parameters)
 
     for param in parameters:

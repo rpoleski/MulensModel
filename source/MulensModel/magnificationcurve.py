@@ -67,6 +67,7 @@ class MagnificationCurve(object):
             self.times, parameters=parameters, parallax=parallax,
             coords=coords, satellite_skycoord=satellite_skycoord)
         self._u_2 = None # u^2 (for use in calculating gradients
+        self._u = None
 
         # Initialize the magnification vector
         self._magnification = None
@@ -274,8 +275,8 @@ class MagnificationCurve(object):
         #    return magnification
         methods_ = np.array(methods)
 
-        u2 = self.trajectory.x**2 + self.trajectory.y**2
-        u_all = np.sqrt(u2)
+        #u2 = self.trajectory.x**2 + self.trajectory.y**2
+        #u_all = np.sqrt(u2)
 
         for method in set(methods):
             kwargs = {}
@@ -316,7 +317,7 @@ class MagnificationCurve(object):
                 raise ValueError(msg.format(method))
 
             magnification[selection] = lens.get_magnification(
-                u=u_all[selection])
+                u=self.u_[selection])
 
         return magnification
 
@@ -330,13 +331,10 @@ class MagnificationCurve(object):
             dA_du: *np.ndarray*
                 Derivative dA/du.
         """
-        if self._u_2 is None:
-            self._u_2 = self.trajectory.x**2 + self.trajectory.y**2
-
-        d_A_d_u = -8. / (self._u_2 * (self._u_2 + 4) * np.sqrt(self._u_2 + 4))
+        d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
         return d_A_d_u
 
-    def get_d_u_d_params(self, parameters):
+    def get_d_u_d_params_PSPL(self, parameters):
         """
         Calculate d u / d parameters.
 
@@ -353,11 +351,11 @@ class MagnificationCurve(object):
         as_dict = self.parameters.as_dict()
 
         # Get source location
-        u_ = np.sqrt(self._u_2)
+        #u_ = np.sqrt(self._u_2)
 
         # Calculate derivatives
-        d_u_d_x = self.trajectory.x / u_
-        d_u_d_y = self.trajectory.y / u_
+        d_u_d_x = self.trajectory.x / self.u_
+        d_u_d_y = self.trajectory.y / self.u_
         dt = self.times - as_dict['t_0']
 
         # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
@@ -390,6 +388,37 @@ class MagnificationCurve(object):
             du_dparams['pi_E_E'] = d_u_d_x * delta_E - d_u_d_y * delta_N
 
         return du_dparams
+
+    def get_d_A_d_rho(self):
+        """
+        Return the derivative of the magnification with respect to rho.
+        """
+        d_A_d_rho = self.pspl_magnification
+        d_A_d_rho *= -self.u_ / self.model.parameters.rho ** 2
+        d_A_d_rho *= self.db0_gamma_db1
+
+        return d_A_d_rho
+    def get_gradient(self, parameters):
+        if 'rho' in self.parameters.parameters:
+            d_A_pspl_d_u = self.get_d_A_d_u_for_PSPL_model()
+            factor = self.pspl_magnification * self.db0_gamma_db1
+            factor /= self.parameters.rho
+            factor += d_A_pspl_d_u * self.b0_gamma_b1
+
+            gradient = self.get_d_u_d_params_PSPL(parameters)
+            for key in parameters:
+                if key == 'rho':
+                    gradient[key] = self.get_d_A_d_rho()
+                else:
+                    gradient[key] *= factor
+        else:
+            gradient = self.get_d_u_d_params_PSPL(
+                parameters)
+            d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
+            for key in gradient.keys():
+                gradient[key] *= d_A_d_u
+
+        return gradient
 
     def get_binary_lens_magnification(self):
         """
@@ -562,3 +591,21 @@ class MagnificationCurve(object):
                if (value > 0 and value < n_max) else self._default_method
                for value in brackets]
         return out
+
+    @property
+    def u_(self):
+        """ Magnitude of lens-source separation for each epoch."""
+        if self._u is None:
+            self._u = np.sqrt(self.u_2)
+
+        return self._u
+
+    @property
+    def u_2(self):
+        """
+        Square of the magnitude of lens-source separation for each epoch.
+        """
+        if self._u_2 is None:
+            self._u_2 = self.trajectory.x**2 + self.trajectory.y**2
+
+        return self._u_2

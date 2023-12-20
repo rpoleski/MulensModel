@@ -640,7 +640,7 @@ class FitData(object):
             derivs = self.FSPL_Derivatives(self)
             gradient = derivs.get_gradient(parameters)
         else:
-            gradient = self.magnification_curve.get_d_u_d_params(parameters)
+            gradient = self.magnification_curve.get_d_u_d_params_PSPL(parameters)
             d_A_d_u = self.magnification_curve.get_d_A_d_u_for_PSPL_model()
             for key in gradient.keys():
                 gradient[key] *= d_A_d_u
