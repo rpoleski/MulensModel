@@ -1,11 +1,7 @@
 """
 Calculates interpolation tables for elliptical integral of the third kind.
 """
-# import math
 import numpy as np
-# from math import sin, cos, sqrt
-import scipy
-# from scipy import integrate
 from scipy.interpolate import interp2d  # , interp1d
 from scipy.interpolate import RegularGridInterpolator as RGI
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
@@ -24,7 +20,6 @@ file_out_name = "interpolate_elliptic_integral_3.dat"
 
 
 def get_ellip(x, y):
-    p = []
     z = np.zeros((len(x), len(y)))
     for (i, x_) in enumerate(x):
         for (j, y_) in enumerate(y):
