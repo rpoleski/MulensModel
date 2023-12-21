@@ -1,11 +1,9 @@
 """
 Calculates interpolation tables for elliptical integral of the third kind.
 """
-import math
 import numpy as np
-from math import sin, cos, sqrt
-from scipy import integrate
-from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import interp2d  # , interp1d
+from scipy.interpolate import RegularGridInterpolator as RGI
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
 
@@ -22,7 +20,6 @@ file_out_name = "interpolate_elliptic_integral_3.dat"
 
 
 def get_ellip(x, y):
-    p = []
     z = np.zeros((len(x), len(y)))
     for (i, x_) in enumerate(x):
         for (j, y_) in enumerate(y):
@@ -45,7 +42,10 @@ while len(add_x) > 0 or len(add_y) > 0:
     add_y = []
     p = get_ellip(x, y)
 
-    interp_p = interp2d(x, y, p.T, kind='cubic')
+    try:
+        interp_p = RGI((x, y), p, method="cubic", bounds_error=False)
+    except ValueError:
+        interp_p = interp2d(x, y, p.T, kind="cubic")
 
     check_x = []
     for i in range(len(x)-1):
@@ -58,12 +58,13 @@ while len(add_x) > 0 or len(add_y) > 0:
     check_true_p = get_ellip(check_x, check_y)
     check_p = np.zeros((len(check_x), len(check_y)))
     for (ix, cx) in enumerate(check_x):
-        for (iy, cy) in enumerate(check_y):
-            if cy > cx:
-                check_p[ix, iy] = 1.
-                check_true_p[ix, iy] = 1.
-            else:
-                check_p[ix, iy] = interp_p(cx, cy)[0]
+        cond = np.array(check_y) > cx
+        check_p[ix, cond] = 1.
+        check_true_p[ix, cond] = 1.
+        if isinstance(interp_p, RGI):
+            check_p[ix, ~cond] = interp_p((cx, np.array(check_y)[~cond]))
+        else:
+            check_p[ix, ~cond] = interp_p(cx, np.array(check_y)[~cond]).T[0]
     relative_diff_p = np.abs(check_p - check_true_p) / check_true_p
     index = np.unravel_index(relative_diff_p.argmax(), relative_diff_p.shape)
 
