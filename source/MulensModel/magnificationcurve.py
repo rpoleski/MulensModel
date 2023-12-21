@@ -407,6 +407,11 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        # Temporarily necessary until this section can be refactored
+        self.trajectory = mm.Trajectory(
+            self.times, parameters=self.parameters, parallax=self.parallax,
+            coords=self.coords, satellite_skycoord=self.satellite_skycoord)
+
         if self.parameters.is_finite_source():
             self._check_for_finite_source_method()
 
