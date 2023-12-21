@@ -834,6 +834,7 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLens):
 
         self._z = None
         self._b0 = None
+        self._db0 = None
 
     def get_magnification(self):
         """
@@ -860,30 +861,11 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLens):
                 The finite source source magnification.
                 Type is the same as of u parameter.
          """
-        if self.direct:
-            mask = np.zeros_like(self.z_, dtype=bool)
-        else:
-            mask = self._get_mask_B0B1_data(z)
-
-        self._b0 = 0. * self.z_
-        if np.any(mask):  # Here we use interpolation.
-            self._b0[mask] = self._B0B1_data.interpolate_B0(self.z_[mask])
-
-        mask = np.logical_not(mask)
-        if np.any(mask):  # Here we use direct calculation.
-            self._b0[mask] = self._B_0_function(self.z_[mask])
-
         pspl_magnification = self.get_pspl_magnification()
-        self._magnification = pspl_magnification * self._b0
+        self._magnification = pspl_magnification * self.b0
         # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
 
         return self._magnification
-
-    def _get_mask_B0B1_data(self, z):
-        """
-        Get mask that desides if z is in range covered by B0B1 file
-        """
-        return self._B0B1_data.get_interpolation_mask(z)
 
     def _B_0_function(self, z):
         """
@@ -908,6 +890,35 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLens):
                                          np.arcsin(1. / value))[0]
         return out
 
+    def get_d_u_d_params(self, parameters):
+        """
+        Return the gradient of the magnification with respect to the
+        FSPL parameters.
+        """
+        d_u_d_params = PointSourcePointLens._get_d_u_d_params(parameters)
+
+        d_A_pspl_d_u = PointSourcePointLens.get_d_A_d_u()
+        factor = self.pspl_magnification * self.db0
+        factor /= self.trajectory.parameters.rho
+        factor += d_A_pspl_d_u * self.b0
+        for key in parameters:
+            if key == 'rho':
+                d_u_d_params[key] = self.get_d_A_d_rho()
+            else:
+                d_u_d_params[key] *= factor
+
+        return d_u_d_params
+
+    def get_d_A_d_rho(self):
+        """
+        Return the derivative of the magnification with respect to rho.
+        """
+        d_A_d_rho = self.pspl_magnification
+        d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
+        d_A_d_rho *= self.db0
+
+        return d_A_d_rho
+
     @property
     def z_(self):
         """ Magnitude of lens-source separation scaled to rho for each epoch."""
@@ -915,3 +926,44 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLens):
             self._z = self.u_ / self.trajectory.parameters.rho
 
         return self._z
+
+    @property
+    def b0(self):
+        """
+        Return B0 and its derivative.
+        """
+        if self._b0 is None:
+            if self.direct:
+                mask = np.zeros_like(self.z_, dtype=bool)
+            else:
+                mask = self._B0B1_data.get_interpolation_mask(self.z_)
+
+            self._b0 = 0. * self.z_
+            if np.any(mask):  # Here we use interpolation.
+                self._b0[mask] = self._B0B1_data.interpolate_B0(self.z_[mask])
+
+            mask = np.logical_not(mask)
+            if np.any(mask):  # Here we use direct calculation.
+                self._b0[mask] = self._B_0_function(self.z_[mask])
+
+        return self._b0
+
+    @property
+    def db0(self):
+        """
+        Retrieve derivative of B0 for each epoch.
+        """
+        if self._db0 is None:
+            if self.direct:
+                raise NotImplementedError(
+                    'B0 derivatives not implements for direct method.')
+            else:
+                mask = self._B0B1_data.get_interpolation_mask(self.z_)
+
+            self._db0 = 0. * self.z_
+            if np.any(mask):  # Here we use interpolation.
+                self._db0[mask] = self._B0B1_data.interpolate_B0prime(
+                    self.z_[mask])
+
+
+        return self._db0
