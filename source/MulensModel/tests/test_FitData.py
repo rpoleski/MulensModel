@@ -783,7 +783,7 @@ class TestFSPLGradient(unittest.TestCase):
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
             index_i = condition & self._indices_not_near_1_db[i]
             z = self.zs[i][index_i]
-            db0 = mm.PointLensFiniteSource().interpolate_B0prime(z)
+            db0 = mm.B0B1Utils().interpolate_B0prime(z)
             assert_allclose(db0, sfit_db0[index_i], **kwargs)
 
     def test_db0_0(self):
@@ -802,7 +802,7 @@ class TestFSPLGradient(unittest.TestCase):
         for (condition, kwargs) in zip(self._indexes[i], kwargs_):
             index_i = condition & self._indices_not_near_1_db[i]
             z = self.zs[i][index_i]
-            db1 = mm.PointLensFiniteSource().interpolate_B1prime(z)
+            db1 = mm.B0B1Utils().interpolate_B1prime(z)
             assert_allclose(db1, sfit_db1[index_i], **kwargs)
 
     def test_db1_0(self):

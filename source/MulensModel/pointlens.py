@@ -67,7 +67,7 @@ class PointLens(object):
                 str(type(parameters)))
 
         self.parameters = parameters
-        self._B0B1_data = mm.PointLensFiniteSource()
+        self._B0B1_data = mm.B0B1Utils()
 
     def _read_elliptic_files(self):
         """
@@ -658,3 +658,5 @@ class PointLens(object):
         d_mag_r2 = temp[1:] - temp[:-1]
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
         return out
+
+
