@@ -510,7 +510,7 @@ class MagnificationCurve(object):
 
         return np.array(magnification)
 
-    def _get_d_A_d_params(self, parameters):
+    def get_d_A_d_params(self, parameters):
         d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
         for method, selection in self._methods_indices.items():
             d_A_d_params[selection] = \
