@@ -43,7 +43,7 @@ import MulensModel as mm
 #     return pspl_magnification
 #
 #
-# class PointLens(object):
+class PointLens(object):
 #     """
 #     Equations for calculating finite source effects for a point lens.
 #
@@ -60,7 +60,8 @@ import MulensModel as mm
 #
 #     _elliptic_files_read = False
 #
-#     def __init__(self, parameters=None):
+     def __init__(self, parameters=None):
+         pass
 #         if not isinstance(parameters, mm.ModelParameters):
 #             raise TypeError(
 #                 "PointLens argument has to be of ModelParameters type, not " +
