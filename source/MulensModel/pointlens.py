@@ -708,6 +708,95 @@ class PointSourcePointLensMagnification():
         self._magnification = self.get_pspl_magnification()
         return self._magnification
 
+    def get_d_A_d_params(self, parameters):
+        """
+        Calculate d A / d parameters for a point lens model.
+
+        Parameters :
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns :
+            dA_dparam: *dict*
+                Keys are parameter names from *parameters* argument above.
+                Values are the partial derivatives for that parameter
+                evaluated at each epoch.
+        """
+        d_A_d_params = {}
+        d_u_d_params = self.get_d_u_d_params(parameters)
+        d_A_d_u = self.get_d_A_d_u()
+        for key in parameters:
+            d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
+
+        return d_A_d_params
+
+    def get_d_u_d_params(self, parameters):
+        """
+        Calculate d u / d parameters
+
+        Parameters :
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns :
+            du_dparam: *dict*
+                Keys are parameter names from *parameters* argument above.
+                Values are the partial derivatives for that parameter
+                evaluated at each epoch.
+        """
+        # Setup
+        d_u_d_params = {param: 0 for param in parameters}
+        as_dict = self.model.parameters.as_dict()
+
+        # Calculate derivatives
+        d_u_d_x = self.trajectory.x / self.u_
+        d_u_d_y = self.trajectory.y / self.u_
+        dt = self.trajectory.times - as_dict['t_0']
+
+        # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
+        # gradient depends on which ones are defined.
+        t_E = self.trajectory.parameters.t_E
+        t_eff = self.trajectory.parameters.t_eff
+        if 't_eff' not in as_dict:
+            d_u_d_params['t_0'] = -d_u_d_x / t_E
+            d_u_d_params['u_0'] = d_u_d_y
+            d_u_d_params['t_E'] = d_u_d_x * -dt / t_E**2
+        elif 't_E' not in as_dict:
+            d_u_d_params['t_0'] = -d_u_d_x * as_dict['u_0'] / t_eff
+            d_u_d_params['u_0'] = (d_u_d_y + d_u_d_x * dt / t_eff)
+            d_u_d_params['t_eff'] = (d_u_d_x * -dt * as_dict['u_0'] / t_eff**2)
+        elif 'u_0' not in as_dict:
+            d_u_d_params['t_0'] = -d_u_d_x / t_E
+            d_u_d_params['t_E'] = (d_u_d_x * dt - d_u_d_y * t_eff) / t_E**2
+            d_u_d_params['t_eff'] = d_u_d_y / t_E
+        else:
+            raise KeyError(
+                'Something is wrong with ModelParameters in ' +
+                'FitData.calculate_chi2_gradient():\n', as_dict)
+
+        # Below we deal with parallax only.
+        if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
+            delta_N = self.trajectory.parallax_delta_N_E['N']
+            delta_E = self.trajectory.parallax_delta_N_E['E']
+
+            d_u_d_params['pi_E_N'] = d_u_d_x * delta_N + d_u_d_y * delta_E
+            d_u_d_params['pi_E_E'] = d_u_d_x * delta_E - d_u_d_y * delta_N
+
+        return d_u_d_params
+
+    def get_d_A_d_u(self):
+        """
+        Calculate dA/du for PSPL point-source--point-lens model.
+
+        No parameters.
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du evaluated at each epoch.
+        """
+        d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
+        return d_A_d_u
+
     @property
     def pspl_magnification(self):
         return self._pspl_magnification

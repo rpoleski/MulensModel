@@ -510,30 +510,33 @@ class MagnificationCurve(object):
 
         return np.array(magnification)
 
-    def get_d_A_d_params(self, parameters):
-        d_A_d_params = {}
-        d_u_d_params = self._get_d_u_d_params(parameters)
-        d_A_d_u = self._get_d_A_d_u()
-        for key in parameters:
-             d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
+    def _get_d_A_d_params(self, parameters):
+        d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
+        for method, selection in self._methods_indices.items():
+            d_A_d_params[selection] = \
+                self._magnification_objects[method].get_d_A_d_params(parameters)
+        #d_u_d_params = self._get_d_u_d_params(parameters)
+        #d_A_d_u = self._get_d_A_d_u()
+        #for key in parameters:
+        #     d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
 
         return d_A_d_params
 
-    def _get_d_u_d_params(self, parameters):
-        d_u_d_params = np.zeros(len(self.times))
-        for method, selection in self._methods_indices.items():
-            d_u_d_params[selection] = \
-                self._magnification_objects[method].get_d_u_d_params(parameters)
-
-        return d_u_d_params
-
-    def _get_d_A_d_u(self):
-        d_A_d_u = np.zeros(len(self.times))
-        for method, selection in self._methods_indices.items():
-            d_A_d_u[selection] = \
-                self._magnification_objects[method]._get_d_A_d_u()
-
-        return d_A_d_u
+    # def _get_d_u_d_params(self, parameters):
+    #     d_u_d_params = np.zeros(len(self.times))
+    #     for method, selection in self._methods_indices.items():
+    #         d_u_d_params[selection] = \
+    #             self._magnification_objects[method].get_d_u_d_params(parameters)
+    #
+    #     return d_u_d_params
+    #
+    # def _get_d_A_d_u(self):
+    #     d_A_d_u = np.zeros(len(self.times))
+    #     for method, selection in self._methods_indices.items():
+    #         d_A_d_u[selection] = \
+    #             self._magnification_objects[method].get_d_A_d_u()
+    #
+    #     return d_A_d_u
 
 
     @property

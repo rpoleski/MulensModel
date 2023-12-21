@@ -630,7 +630,7 @@ class FitData(object):
                 Values are the partial derivatives for that parameter
                 evaluated at each data point.
         """
-        d_A_d_params = self._data_magnification_curve.get_d_A_d_params(parameters)
+        d_A_d_params = self._data_magnification_curve._get_d_A_d_params(parameters)
         # if 'rho' in self.model.parameters.parameters:
         #     derivs = self.FSPL_Derivatives(self)
         #     gradient = derivs.get_gradient(parameters)
