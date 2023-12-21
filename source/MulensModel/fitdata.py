@@ -87,6 +87,10 @@ class FitData(object):
         self._chi2 = None
 
         self._data_magnification = None
+        self._data_magnification_curve = None
+        self._data_magnification_curves = None
+        self._data_magnification_curve_1 = None
+        self._data_magnification_curve_2 = None
 
     def _check_for_flux_ratio_errors(self):
         """
@@ -142,13 +146,15 @@ class FitData(object):
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
 
         if self._model.n_sources == 1:
-            mag_matrix = self._model.get_magnification(
-                time=self._dataset.time[select],
-                **magnification_kwargs)
+            self._magnification_curve = self._model.get_magnification_curve(
+                time=self._dataset.time[select], **magnification_kwargs)
+            mag_matrix = self._data_magnification_curve.get_magnification()
         elif self._model.n_sources == 2:
-            mag_matrix = self._model.get_magnification(
-                time=self._dataset.time[select], separate=True,
-                **magnification_kwargs)
+            (self._data_magnification_curve_1, self._data_magnification_curve_2) = self._model.get_magnification_curves(
+                time=self._dataset.time[select], **magnification_kwargs)
+            self._data_magnification_curves = (self._data_magnification_curve_1, self._data_magnification_curve_2)
+            mag_matrix = (self._data_magnification_curve_1.get_magnification,
+                          self._data_magnification_curve_2.get_magnification())
         else:
             msg = ("{0} ".format(self._model.n_sources) +
                    "sources used. Function model.get_magnification can " +
@@ -624,16 +630,17 @@ class FitData(object):
                 Values are the partial derivatives for that parameter
                 evaluated at each data point.
         """
+        d_A_d_params = self._data_magnification_curve.get_d_A_d_params(parameters)
         # if 'rho' in self.model.parameters.parameters:
         #     derivs = self.FSPL_Derivatives(self)
         #     gradient = derivs.get_gradient(parameters)
         # else:
-        #     gradient = self._get_d_u_d_params(parameters)
-        #     d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
-        #     for key in gradient.keys():
-        #         gradient[key] *= d_A_d_u
-        #
-        return gradient
+        # d_u_d_params = self._get_d_u_d_params(parameters)
+        # d_A_d_u = self._data_magnification_curve.get_d_A_d_u()
+        # for key in parameters:
+        #      d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
+
+        return d_A_d_params
 
     def get_dataset_trajectory(self):
         """
@@ -686,32 +693,34 @@ class FitData(object):
     #
     #     return d_A_d_u
 
-    def get_d_A_d_u_for_point_lens_model(self):
-        """
-        Calculate dA/du for point-source--point-lens model. For finite source
-        models see :py:class:`FSPLDerivs` or
-        py:func:`get_d_A_d_params_for_point_lens_model()`
-
-        Returns :
-            dA_du: *np.ndarray*
-                Derivative dA/du.
-        """
-        if self.model.parameters.is_finite_source():
-            # Something that will hopefully be fixed in Version 3:
-            raise NotImplementedError(
-                'd_A_d_u for FSPL models is implemented through the ' +
-                'FSPLDerivs class.')
-        else:
-            d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
-
-        return d_A_d_u
+    # def get_d_A_d_u_for_point_lens_model(self):
+    #     """
+    #     Calculate dA/du for point-source--point-lens model. For finite source
+    #     models see :py:class:`FSPLDerivs` or
+    #     py:func:`get_d_A_d_params_for_point_lens_model()`
+    #
+    #     Returns :
+    #         dA_du: *np.ndarray*
+    #             Derivative dA/du.
+    #     """
+    #     if self.model.parameters.is_finite_source():
+    #         # Something that will hopefully be fixed in Version 3:
+    #         raise NotImplementedError(
+    #             'd_A_d_u for FSPL models is implemented through the ' +
+    #             'FSPLDerivs class.')
+    #     else:
+    #         d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
+    #
+    #     return d_A_d_u
 
     # def _get_d_u_d_params(self, parameters):
-    #     """
-    #     Calculate d u / d parameters
+    #      """
+    #      Calculate d u / d parameters
     #
-    #     Returns a *dict*.
-    #     """
+    #      Returns a *dict*.
+    #      """
+    #      du_d_params = self._data_magnification_curve.get_du_d_params(
+    #         parameters)
     #     # Setup
     #     gradient = {param: 0 for param in parameters}
     #     as_dict = self.model.parameters.as_dict()
@@ -723,7 +732,9 @@ class FitData(object):
     #     # Calculate derivatives
     #     d_u_d_x = trajectory.x / u_
     #     d_u_d_y = trajectory.y / u_
+    #     d_u_d_x, d_u_d_y = self._data_magnification_curve.get_du_dxy()
     #     dt = self.dataset.time - as_dict['t_0']
+
     #
     #     # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
     #     # gradient depends on which ones are defined.
@@ -929,6 +940,25 @@ class FitData(object):
                 reported separately.
         """
         return self._data_magnification
+
+        @property
+        def magnification_curve(self):
+            """
+            Returns previously calculated magnification curve.
+            """
+            return self._magnification_curve()
+
+        @property
+        def magnification_curves(self):
+            """
+            Returns previously calculated magnification curves.
+
+            Returns :
+                *tuple* of
+                *:py:class:`~MulensModel.magnification.MagnificationCurve* objects,
+                i.e., the model magnification curve evaluated for each datapoint.
+            """
+            return self._magnification_curves()
 
     @property
     def gamma(self):
