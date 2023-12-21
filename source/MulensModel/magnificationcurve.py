@@ -73,6 +73,7 @@ class MagnificationCurve(object):
         self._methods_names = []
         self._default_method = None
         self._methods_parameters = None
+        self._methods_indices = None
 
         self._gamma = gamma
 
@@ -132,6 +133,7 @@ class MagnificationCurve(object):
 
         self._methods_epochs = np.array(epochs)
         self._methods_names = names
+        self._methods_indices = self._get_method_indices()
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
@@ -559,6 +561,7 @@ class MagnificationCurve(object):
         for given epochs, decide which methods should be used to
         calculate magnification, but don't run the calculations
         """
+        #***Why isn't this saved?***
         out = [self._default_method] * len(self.times)
         if self._methods_epochs is None:
             return out
@@ -570,3 +573,24 @@ class MagnificationCurve(object):
                if (value > 0 and value < n_max) else self._default_method
                for value in brackets]
         return out
+
+    def _get_method_indices(self):
+        _methods_indices = {}
+        methods = self._methods_for_epochs()
+        methods_ = np.array(methods)
+
+        for method in set(methods):
+            kwargs = {}
+            if self._methods_parameters is not None:
+                if method.lower() in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method.lower()]
+
+                if kwargs != {}:
+                    raise ValueError(
+                        'Methods parameters passed, but currently ' +
+                        'no point lens method accepts the parameters')
+
+            selection = (methods_ == method)
+            _methods_indices[method] = selection
+
+        return _methods_indices
