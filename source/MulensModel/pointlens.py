@@ -660,3 +660,169 @@ class PointLens(object):
         return out
 
 
+class PointSourcePointLensMagnification():
+
+    def __init__(self, trajectory=None):
+        if not isinstance(trajectory, mm.Trajectory):
+            raise TypeError(
+                "PointLens* argument has to be of Trajectory type, not " +
+                str(type(trajectory)))
+
+        self.trajectory = trajectory
+
+        self._u_2 = None # u^2
+        self._u = None
+
+        self._pspl_magnification = None
+        self._magnification = None
+
+    def get_pspl_magnification(self):
+        """
+        This is Paczynski equation, i.e., point-source--point-lens (PSPL)
+        magnification.
+        Arguments :
+         Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+        Returns :
+            pspl_magnification: *float* or *np.ndarray*
+                The point-source--point-lens magnification for each point
+                specified by `u`.
+        """
+        self._pspl_magnification = \
+            (self.u_2 + 2.) / np.sqrt(self.u_2  * (self.u_2  + 4.))
+
+        return self._pspl_magnification
+
+    def get_magnification(self):
+        """
+        Arguments :
+         Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+        Returns :
+            magnification: *float* or *np.ndarray*
+                The magnification for each point
+                specified by `u.
+        """
+        self._magnification = self.get_pspl_magnification()
+        return self._magnification
+
+    @property
+    def pspl_magnification(self):
+        return self._pspl_magnification
+
+    @property
+    def magnification(self):
+        return self._magnification
+
+    @property
+    def u_(self):
+        """ Magnitude of lens-source separation for each epoch."""
+        if self._u is None:
+            self._u = np.sqrt(self.u_2)
+
+        return self._u
+
+    @property
+    def u_2(self):
+        """
+        Square of the magnitude of lens-source separation for each epoch.
+        """
+        if self._u_2 is None:
+            self._u_2 = self.trajectory.x ** 2 + self.trajectory.y ** 2
+
+        return self._u_2
+
+
+class FiniteSourceUniformGould94Magnification(PointSourcePointLens):
+
+    def __init__(self, direct=False, **kwargs):
+        PointSourcePointLens.__init__(**kwargs)
+
+        self.direct = direct
+        self._B0B1_data = mm.B0B1Utils()
+
+        self._z = None
+        self._b0 = None
+
+    def get_magnification(self):
+        """
+        Calculate magnification for point lens and finite source (for
+        a *uniform* source).  The approximation was proposed by:
+        `Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
+        and later the integral calculation was simplified by:
+        `Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
+        Effects from a Point-Mass Lens"
+        <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_
+        This approach assumes rho is small (rho < 0.1). For larger sources
+        use :py:func:`get_point_lens_uniform_integrated_magnification`.
+        Parameters :
+            u: *float*, *np.array*
+                The instantaneous source-lens separation.
+                Multiple values can be provided.
+            pspl_magnification: *float*, *np.array*
+                The point source, point lens magnification at each value of u.
+            direct: *boolean*
+                Use direct calculation (slow) instead of interpolation.
+        Returns :
+            magnification: *float*, *np.array*
+                The finite source source magnification.
+                Type is the same as of u parameter.
+         """
+        if self.direct:
+            mask = np.zeros_like(self.z_, dtype=bool)
+        else:
+            mask = self._get_mask_B0B1_data(z)
+
+        self._b0 = 0. * self.z_
+        if np.any(mask):  # Here we use interpolation.
+            self._b0[mask] = self._B0B1_data.interpolate_B0(self.z_[mask])
+
+        mask = np.logical_not(mask)
+        if np.any(mask):  # Here we use direct calculation.
+            self._b0[mask] = self._B_0_function(self.z_[mask])
+
+        pspl_magnification = self.get_pspl_magnification()
+        self._magnification = pspl_magnification * self._b0
+        # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
+
+        return self._magnification
+
+        def _get_mask_B0B1_data(self, z):
+            """
+            Get mask that desides if z is in range covered by B0B1 file
+            """
+            return self._B0B1_data.get_interpolation_mask(z)
+
+        def _B_0_function(self, z):
+            """
+            calculate B_0(z) function defined in:
+            Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
+            https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract
+            Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
+            Effects from a Point-Mass Lens"
+            https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
+            """
+
+            out = 4. * z / np.pi
+
+            def function(x):
+                return (1. - value ** 2 * sin(x) ** 2) ** .5
+
+            for (i, value) in enumerate(z):
+                if value < 1.:
+                    out[i] *= ellipe(value * value)
+                else:
+                    out[i] *= integrate.quad(function, 0.,
+                                             np.arcsin(1. / value))[0]
+            return out
+
+        @property
+        def z_(self):
+            """ Magnitude of lens-source separation scaled to rho for each epoch."""
+            if self._z is None:
+                self._z = self.u_ / self.trajectory.parameters.rho
+
+            return self._z
