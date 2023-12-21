@@ -205,11 +205,11 @@ class MagnificationCurve(object):
 
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
-                    PointSourcePointLensMagnification(
+                    mm.pointlens.PointSourcePointLensMagnification(
                         trajectory)
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 self._magnification_objects[method] = \
-                    FiniteSourceUniformGould94Magnification(
+                    mm.pointlens.FiniteSourceUniformGould94Magnification(
                         trajectory)
 
     def get_point_lens_magnification(self):
