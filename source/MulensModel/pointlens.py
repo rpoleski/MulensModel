@@ -879,39 +879,39 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLens):
 
         return self._magnification
 
-        def _get_mask_B0B1_data(self, z):
-            """
-            Get mask that desides if z is in range covered by B0B1 file
-            """
-            return self._B0B1_data.get_interpolation_mask(z)
+    def _get_mask_B0B1_data(self, z):
+        """
+        Get mask that desides if z is in range covered by B0B1 file
+        """
+        return self._B0B1_data.get_interpolation_mask(z)
 
-        def _B_0_function(self, z):
-            """
-            calculate B_0(z) function defined in:
-            Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
-            https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract
-            Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
-            Effects from a Point-Mass Lens"
-            https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
-            """
+    def _B_0_function(self, z):
+        """
+        calculate B_0(z) function defined in:
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
+        https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract
+        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
+        Effects from a Point-Mass Lens"
+        https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
+        """
 
-            out = 4. * z / np.pi
+        out = 4. * z / np.pi
 
-            def function(x):
-                return (1. - value ** 2 * sin(x) ** 2) ** .5
+        def function(x):
+            return (1. - value ** 2 * sin(x) ** 2) ** .5
 
-            for (i, value) in enumerate(z):
-                if value < 1.:
-                    out[i] *= ellipe(value * value)
-                else:
-                    out[i] *= integrate.quad(function, 0.,
-                                             np.arcsin(1. / value))[0]
-            return out
+        for (i, value) in enumerate(z):
+            if value < 1.:
+                out[i] *= ellipe(value * value)
+            else:
+                out[i] *= integrate.quad(function, 0.,
+                                         np.arcsin(1. / value))[0]
+        return out
 
-        @property
-        def z_(self):
-            """ Magnitude of lens-source separation scaled to rho for each epoch."""
-            if self._z is None:
-                self._z = self.u_ / self.trajectory.parameters.rho
+    @property
+    def z_(self):
+        """ Magnitude of lens-source separation scaled to rho for each epoch."""
+        if self._z is None:
+            self._z = self.u_ / self.trajectory.parameters.rho
 
-            return self._z
+        return self._z
