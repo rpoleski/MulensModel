@@ -747,7 +747,7 @@ class PointSourcePointLensMagnification():
         """
         # Setup
         d_u_d_params = {param: 0 for param in parameters}
-        as_dict = self.model.parameters.as_dict()
+        as_dict = self.trajectory.parameters.as_dict()
 
         # Calculate derivatives
         d_u_d_x = self.trajectory.x / self.u_
