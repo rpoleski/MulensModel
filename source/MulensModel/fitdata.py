@@ -150,10 +150,14 @@ class FitData(object):
                 time=self._dataset.time[select], **magnification_kwargs)
             mag_matrix = self._data_magnification_curve.get_magnification()
         elif self._model.n_sources == 2:
-            (self._data_magnification_curve_1, self._data_magnification_curve_2) = self._model.get_magnification_curves(
-                time=self._dataset.time[select], **magnification_kwargs)
-            self._data_magnification_curves = (self._data_magnification_curve_1, self._data_magnification_curve_2)
-            mag_matrix = (self._data_magnification_curve_1.get_magnification,
+            (self._data_magnification_curve_1,
+             self._data_magnification_curve_2) = \
+                self._model.get_magnification_curves(
+                    time=self._dataset.time[select], **magnification_kwargs)
+            self._data_magnification_curves = (
+                self._data_magnification_curve_1,
+                self._data_magnification_curve_2)
+            mag_matrix = (self._data_magnification_curve_1.get_magnification(),
                           self._data_magnification_curve_2.get_magnification())
         else:
             msg = ("{0} ".format(self._model.n_sources) +
