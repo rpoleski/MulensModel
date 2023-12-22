@@ -73,6 +73,7 @@ class MagnificationCurve(object):
         self._methods_names = []
         self._default_method = None
         self._methods_parameters = None
+        self._methods_for_epochs = None
         self._methods_indices = None
 
         self._gamma = gamma
@@ -133,7 +134,6 @@ class MagnificationCurve(object):
 
         self._methods_epochs = np.array(epochs)
         self._methods_names = names
-        self._methods_indices = self._get_method_indices()
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
@@ -188,7 +188,7 @@ class MagnificationCurve(object):
 
     def _set_magnification_objects(self):
         self._magnification_objects = {}
-        for method, selection in self._methods_indices.items():
+        for method, selection in self.methods_indices.items():
             kwargs = {}
             if self._methods_parameters is not None:
                 if method.lower() in self._methods_parameters.keys():
@@ -296,7 +296,7 @@ class MagnificationCurve(object):
             self._set_magnification_objects()
 
         magnification = np.zeros(len(self.times))
-        for method, selection in self._methods_indices.items():
+        for method, selection in self.methods_indices.items():
             magnification[selection] = self._magnification_objects[method].get_magnification()
 
         # if self.parameters.is_external_mass_sheet:
@@ -450,7 +450,7 @@ class MagnificationCurve(object):
         if is_static:
             binary_lens = binary_lens_class(separation=self.parameters.s,
                                             **binary_kwargs)
-        methods = self._methods_for_epochs()
+        methods = self.methods_for_epochs
 
         magnification = []
         for index in range(len(self.times)):
@@ -519,7 +519,7 @@ class MagnificationCurve(object):
 
     def get_d_A_d_params(self, parameters):
         d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
-        for method, selection in self._methods_indices.items():
+        for method, selection in self.methods_indices.items():
             d_A_d_params[selection] = \
                 self._magnification_objects[method].get_d_A_d_params(parameters)
         #d_u_d_params = self._get_d_u_d_params(parameters)
@@ -554,43 +554,41 @@ class MagnificationCurve(object):
         for each epochs, decide which methods should be used to
         calculate magnification, but don't run the calculations
         """
-        return self._methods_for_epochs()
+        if self._methods_for_epochs is None:
+            out = [self._default_method] * len(self.times)
+            if self._methods_epochs is None:
+                return out
 
-    def _methods_for_epochs(self):
-        """
-        for given epochs, decide which methods should be used to
-        calculate magnification, but don't run the calculations
-        """
-        #***Why isn't this saved?***
-        out = [self._default_method] * len(self.times)
-        if self._methods_epochs is None:
-            return out
+            brackets = np.searchsorted(self._methods_epochs, self.times)
+            n_max = len(self._methods_epochs)
 
-        brackets = np.searchsorted(self._methods_epochs, self.times)
-        n_max = len(self._methods_epochs)
+            out = [self._methods_names[value - 1]
+                   if (value > 0 and value < n_max) else self._default_method
+                   for value in brackets]
+            self._methods_for_epochs = out
 
-        out = [self._methods_names[value - 1]
-               if (value > 0 and value < n_max) else self._default_method
-               for value in brackets]
-        return out
+        return self._methods_for_epochs
 
-    def _get_method_indices(self):
-        _methods_indices = {}
-        methods = self._methods_for_epochs()
-        methods_ = np.array(methods)
 
-        for method in set(methods):
-            kwargs = {}
-            if self._methods_parameters is not None:
-                if method.lower() in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method.lower()]
+    @property
+    def methods_indices(self):
+        if self._methods_indices is None:
+            self._methods_indices = {}
+            methods = self.methods_for_epochs
+            methods_ = np.array(methods)
 
-                if kwargs != {}:
-                    raise ValueError(
-                        'Methods parameters passed, but currently ' +
-                        'no point lens method accepts the parameters')
+            for method in set(methods):
+                kwargs = {}
+                if self._methods_parameters is not None:
+                    if method.lower() in self._methods_parameters.keys():
+                        kwargs = self._methods_parameters[method.lower()]
 
-            selection = (methods_ == method)
-            _methods_indices[method] = selection
+                    if kwargs != {}:
+                        raise ValueError(
+                            'Methods parameters passed, but currently ' +
+                            'no point lens method accepts the parameters')
 
-        return _methods_indices
+                selection = (methods_ == method)
+                self._methods_indices[method] = selection
+
+        return self._methods_indices
