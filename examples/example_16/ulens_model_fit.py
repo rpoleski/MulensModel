@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.34.2'
+__version__ = '0.34.3'
 
 
 class UlensModelFit(object):
@@ -3119,7 +3119,7 @@ class UlensModelFit(object):
         ticks = mm.Utils.get_mag_from_flux(flux)
         ax2.set_ylabel(label).set_color(color)
         ax2.spines['right'].set_color(color)
-        ax2.set_ylim(ticks[0], ylim[1])
+        ax2.set_ylim(ylim[0], ylim[1])
         ax2.tick_params(axis='y', colors=color)
         plt.yticks(ticks, labels, color=color)
 
@@ -3144,7 +3144,7 @@ class UlensModelFit(object):
         ax2.set_ylim(A_min, A_max)
         A_values = ax2.yaxis.get_ticklocs().round(7)
         A_values = A_values[(A_values >= max(1, A_min)) & (A_values < A_max)]
-        if 1. not in A_values:
+        if 1. not in A_values and A_min <= 1:
             A_values = np.insert(A_values, 0, 1.)
         is_integer = [mag.is_integer() for mag in A_values]
         if all(is_integer):
@@ -3176,7 +3176,7 @@ class UlensModelFit(object):
                    "be translated to magnitudes.")
             warnings.warn(msg.format(np.sum(np.logical_not(mask))))
 
-        if (np.min(A_values) < min(A_min, 1) or np.max(A_values) > A_max or
+        if (np.min(A_values) < A_min or np.max(A_values) > A_max or
                 np.any(flux < 0.)):
             msg = ("Provided magnifications for the second (i.e., right-hand "
                    "side) Y-axis scale are from {:} to {:},\nbut the range "
