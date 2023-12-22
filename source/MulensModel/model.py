@@ -1314,10 +1314,27 @@ class Model(object):
             raise ValueError(msg)
         return magnification
 
-    def _magnification_1_source(self, time, satellite_skycoord, gamma):
+    def get_magnification_curve(self, time, satellite_skycoord, gamma):
         """
-        calculate model magnification for given times for model with
-        a single source
+        Create a :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        object for a given set of times.
+
+        Parameters :
+            time: *np.ndarray*, *list of floats*, or *float*
+                Times for which magnification values are requested.
+
+            satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
+                *SkyCoord* object that gives satellite positions. Must be
+                the same length as time parameter. Use only for satellite
+                parallax calculations.
+
+            gamma: *float*, optional
+                The limb-darkening coefficient in gamma convention. Default is
+                0 which means no limb darkening effect.
+
+        Return:
+            py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+
         """
         magnification_curve = MagnificationCurve(
             time, parameters=self.parameters,
@@ -1328,6 +1345,16 @@ class Model(object):
             self._methods, self._default_magnification_method)
         magnification_curve.set_magnification_methods_parameters(
             self._methods_parameters)
+
+        return magnification_curve
+
+    def _magnification_1_source(self, time, satellite_skycoord, gamma):
+        """
+        calculate model magnification for given times for model with
+        a single source
+        """
+        magnification_curve = self.get_magnification_curve(
+            time, satellite_skycoord, gamma)
 
         return magnification_curve.get_magnification()
 
