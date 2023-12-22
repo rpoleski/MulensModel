@@ -662,6 +662,14 @@ class PointLens(object):
 #
 
 class PointSourcePointLensMagnification():
+    """
+    Equations for calculating point-source--point-lens magnification and
+    its derivatives.
+
+    Keywords :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+
+    """
 
     def __init__(self, trajectory=None):
         if not isinstance(trajectory, mm.Trajectory):
@@ -800,15 +808,29 @@ class PointSourcePointLensMagnification():
 
     @property
     def pspl_magnification(self):
+        """
+        *np.ndarray*
+
+        Point-source--point-lens magnification for each epoch.
+        """
         return self._pspl_magnification
 
     @property
     def magnification(self):
+        """
+        *np.ndarray*
+
+        Magnification for each epoch.
+        """
         return self._magnification
 
     @property
     def u_(self):
-        """ Magnitude of lens-source separation for each epoch."""
+        """
+        *np.ndarray*
+
+        Magnitude of lens-source separation for each epoch.
+        """
         if self._u is None:
             self._u = np.sqrt(self.u_2)
 
@@ -817,6 +839,8 @@ class PointSourcePointLensMagnification():
     @property
     def u_2(self):
         """
+        *np.ndarray*
+
         Square of the magnitude of lens-source separation for each epoch.
         """
         if self._u_2 is None:
@@ -826,6 +850,16 @@ class PointSourcePointLensMagnification():
 
 
 class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification):
+    """
+    Equations for calculating finite-source--point-lens magnification and
+    its derivatives following the `Gould 1994 ApJ, 421L, 71
+    <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
+    prescription assuming a *uniform* (and circular) source.
+
+    Keywords :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+
+    """
 
     def __init__(self, direct=False, **kwargs):
         PointSourcePointLensMagnification.__init__(self, **kwargs)
@@ -849,6 +883,7 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
         <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_
         This approach assumes rho is small (rho < 0.1). For larger sources
         use :py:func:`get_point_lens_uniform_integrated_magnification`.
+
         Parameters :
             u: *float*, *np.array*
                 The instantaneous source-lens separation.
@@ -857,10 +892,12 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
                 The point source, point lens magnification at each value of u.
             direct: *boolean*
                 Use direct calculation (slow) instead of interpolation.
+
         Returns :
             magnification: *float*, *np.array*
                 The finite source source magnification.
                 Type is the same as of u parameter.
+
          """
         pspl_magnification = self.get_pspl_magnification()
         self._magnification = pspl_magnification * self.b0
@@ -898,7 +935,17 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
     def get_d_u_d_params(self, parameters):
         """
         Return the gradient of the magnification with respect to the
-        FSPL parameters.
+        FSPL parameters for each epoch.
+
+        Parameters :
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns:
+            du_dparams: *dict*
+                Keys are parameter names from *parameters* argument above.
+                Values are the partial derivatives for that parameter
+                evaluated at each epoch.
         """
         d_u_d_params = PointSourcePointLensMagnification._get_d_u_d_params(parameters)
 
@@ -916,7 +963,15 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
 
     def get_d_A_d_rho(self):
         """
-        Return the derivative of the magnification with respect to rho.
+        Return the derivative of the magnification with respect to rho
+        for each epoch.
+
+        No parameters.
+
+        Returns :
+            dA_drho: *np.ndarray*
+                Derivative dA/drho evaluated at each epoch.
+
         """
         d_A_d_rho = self.pspl_magnification
         d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
@@ -935,7 +990,9 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
     @property
     def b0(self):
         """
-        Return B0 and its derivative.
+        *np.ndarray*
+
+        Return the value of B_0(z) function for each epoch.
         """
         if self._b0 is None:
             if self.direct:
@@ -956,12 +1013,14 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
     @property
     def db0(self):
         """
-        Retrieve derivative of B0 for each epoch.
+        *np.ndarray*
+
+        Retrieve derivative of B_0(z) function for each epoch.
         """
         if self._db0 is None:
             if self.direct:
                 raise NotImplementedError(
-                    'B0 derivatives not implements for direct method.')
+                    'B0 derivatives not implemented for direct method.')
             else:
                 mask = self._B0B1_data.get_interpolation_mask(self.z_)
 

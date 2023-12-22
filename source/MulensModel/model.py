@@ -1386,7 +1386,8 @@ class Model(object):
 
     def get_magnification_curves(self, time, satellite_skycoord, gamma):
         """
-        Create a tuple of :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        Create a tuple of
+        :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
         objects for multiple sources, given a set of times.
 
         Parameters :
@@ -1403,7 +1404,8 @@ class Model(object):
                 0 which means no limb darkening effect.
 
         Return:
-            *tuple* of py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+            *tuple* of
+            py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
 
         """
         kwargs = {'times': time, 'parallax': self._parallax,

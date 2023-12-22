@@ -302,7 +302,8 @@ class MagnificationCurve(object):
 
         magnification = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():
-            magnification[selection] = self._magnification_objects[method].get_magnification()
+            magnification[selection] = \
+                self._magnification_objects[method].get_magnification()
 
         # if self.parameters.is_external_mass_sheet:
         #     point_lens = mm.PointLensWithShear(self.parameters)
@@ -320,8 +321,6 @@ class MagnificationCurve(object):
         # u2 = self.trajectory.x**2 + self.trajectory.y**2
         # u_all = np.sqrt(u2)
         #
-
-
         #     elif (method.lower() ==
         #           'finite_source_uniform_Gould94_direct'.lower()):
         #         magnification[selection] = (
@@ -523,17 +522,25 @@ class MagnificationCurve(object):
         return np.array(magnification)
 
     def get_d_A_d_params(self, parameters):
+        """
+        Calculate d A / d parameters for a point lens model.
+
+        Parameters :
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns :
+            dA_dparam: *dict*
+                Keys are parameter names from *parameters* argument above.
+                Values are the partial derivatives for that parameter
+                evaluated at each epoch.
+        """
         d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
         for method, selection in self.methods_indices.items():
             d_A_d_params_selection = \
                 self._magnification_objects[method].get_d_A_d_params(parameters)
             for key in parameters:
                 d_A_d_params[key][selection] = d_A_d_params_selection[key]
-
-        #d_u_d_params = self._get_d_u_d_params(parameters)
-        #d_A_d_u = self._get_d_A_d_u()
-        #for key in parameters:
-        #     d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
 
         return d_A_d_params
 
@@ -553,13 +560,12 @@ class MagnificationCurve(object):
     #
     #     return d_A_d_u
 
-
     @property
     def methods_for_epochs(self):
         """
         *list*
 
-        for each epochs, decide which methods should be used to
+        for each epoch, decide which methods should be used to
         calculate magnification, but don't run the calculations
         """
         if self._methods_for_epochs is None:
@@ -577,9 +583,14 @@ class MagnificationCurve(object):
 
         return self._methods_for_epochs
 
-
     @property
     def methods_indices(self):
+        """
+        *dict*
+
+        Keys are the magnification methods. Values are a boolean index that
+        indicate which epochs should be calculated with each method.
+        """
         if self._methods_indices is None:
             self._methods_indices = {}
             methods = self.methods_for_epochs

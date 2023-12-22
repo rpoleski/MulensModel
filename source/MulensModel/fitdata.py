@@ -85,6 +85,7 @@ class FitData(object):
         # chi2 parameters
         self._chi2_per_point = None
         self._chi2 = None
+        self._chi2_gradient = None
 
         self._data_magnification = None
         self._data_magnification_curve = None
@@ -146,8 +147,9 @@ class FitData(object):
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
 
         if self._model.n_sources == 1:
-            self._data_magnification_curve = self._model.get_magnification_curve(
-                time=self._dataset.time[select], **magnification_kwargs)
+            self._data_magnification_curve = \
+                self._model.get_magnification_curve(
+                    time=self._dataset.time[select], **magnification_kwargs)
             mag_matrix = self._data_magnification_curve.get_magnification()
         elif self._model.n_sources == 2:
             (self._data_magnification_curve_1,
@@ -634,7 +636,8 @@ class FitData(object):
                 Values are the partial derivatives for that parameter
                 evaluated at each data point.
         """
-        d_A_d_params = self._data_magnification_curve.get_d_A_d_params(parameters)
+        d_A_d_params = self._data_magnification_curve.get_d_A_d_params(
+            parameters)
         # if 'rho' in self.model.parameters.parameters:
         #     derivs = self.FSPL_Derivatives(self)
         #     gradient = derivs.get_gradient(parameters)
@@ -945,24 +948,25 @@ class FitData(object):
         """
         return self._data_magnification
 
-        @property
-        def magnification_curve(self):
-            """
-            Returns previously calculated magnification curve.
-            """
-            return self._magnification_curve()
+    @property
+    def magnification_curve(self):
+        """
+        Returns previously calculated magnification curve.
+        """
+        return self._data_magnification_curve
 
-        @property
-        def magnification_curves(self):
-            """
-            Returns previously calculated magnification curves.
+    @property
+    def magnification_curves(self):
+        """
+        Returns previously calculated magnification curves.
 
-            Returns :
-                *tuple* of
-                *:py:class:`~MulensModel.magnification.MagnificationCurve* objects,
-                i.e., the model magnification curve evaluated for each datapoint.
-            """
-            return self._magnification_curves()
+        Returns :
+            *tuple* of
+            *:py:class:`~MulensModel.magnification.MagnificationCurve* objects,
+            i.e., the model magnification curve evaluated for each datapoint.
+        """
+        return (self._data_magnification_curve_1,
+                self._data_magnification_curve_2)
 
     @property
     def gamma(self):
@@ -1023,7 +1027,8 @@ class FitData(object):
     #             """
     #             # This code was copied directly from model.py --> indicates a
     #             # refactor is needed.
-    #             # Also, shouldn't satellite_skycoord be stored as a property of
+    #             # Also, shouldn't satellite_skycoord be stored as a property
+    #             of
     #             # mm.Model?
     #             magnification_curve = mm.MagnificationCurve(
     #                 self.dataset.time, parameters=self.model.parameters,
