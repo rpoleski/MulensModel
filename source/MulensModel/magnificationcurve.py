@@ -188,10 +188,7 @@ class MagnificationCurve(object):
 
     def _set_magnification_objects(self):
         self._magnification_objects = {}
-        print(self.methods_indices)
         for method, selection in self.methods_indices.items():
-            print(method)
-            print(selection)
             kwargs = {}
             if self._methods_parameters is not None:
                 if method.lower() in self._methods_parameters.keys():
