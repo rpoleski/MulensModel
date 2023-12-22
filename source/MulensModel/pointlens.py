@@ -828,7 +828,7 @@ class PointSourcePointLensMagnification():
 class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification):
 
     def __init__(self, direct=False, **kwargs):
-        PointSourcePointLens.__init__(**kwargs)
+        PointSourcePointLensMagnification.__init__(self, **kwargs)
 
         self.direct = direct
         self._B0B1_data = mm.B0B1Utils()
@@ -900,9 +900,9 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
         Return the gradient of the magnification with respect to the
         FSPL parameters.
         """
-        d_u_d_params = PointSourcePointLens._get_d_u_d_params(parameters)
+        d_u_d_params = PointSourcePointLensMagnification._get_d_u_d_params(parameters)
 
-        d_A_pspl_d_u = PointSourcePointLens.get_d_A_d_u()
+        d_A_pspl_d_u = PointSourcePointLensMagnification.get_d_A_d_u()
         factor = self.pspl_magnification * self.db0
         factor /= self.trajectory.parameters.rho
         factor += d_A_pspl_d_u * self.b0

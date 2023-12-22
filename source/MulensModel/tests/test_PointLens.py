@@ -55,7 +55,7 @@ def test_get_point_lens_finite_source_magnification():
     test_FSPL = mm.FiniteSourceUniformGould94Magnification(
         trajectory=trajectory)
     fspl_magnification = test_FSPL.get_magnification()
-    np.testing.assert_almost_equal(fspl_magnificationL, data['Mag_FS'], decimal=5)
+    np.testing.assert_almost_equal(fspl_magnification, data['Mag_FS'], decimal=5)
 
 
 def test_get_point_lens_limb_darkening_magnification():
