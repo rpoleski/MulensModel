@@ -55,7 +55,8 @@ def test_get_point_lens_finite_source_magnification():
     test_FSPL = mm.FiniteSourceUniformGould94Magnification(
         trajectory=trajectory)
     fspl_magnification = test_FSPL.get_magnification()
-    np.testing.assert_almost_equal(fspl_magnification, data['Mag_FS'], decimal=5)
+    np.testing.assert_almost_equal(
+        fspl_magnification, data['Mag_FS'], decimal=5)
 
 
 def test_get_point_lens_limb_darkening_magnification():
@@ -64,4 +65,32 @@ def test_get_point_lens_limb_darkening_magnification():
     test_FSPL_LD = mm.FiniteSourceLDYoo04Magnification(
         trajectory=trajectory, gamma=gamma)
     fspl_magnification = test_FSPL_LD.get_magnification()
-    np.testing.assert_almost_equal(fspl_magnification/data['Mag_LD'], 1., decimal=4)
+    np.testing.assert_almost_equal(
+        fspl_magnification/data['Mag_LD'], 1., decimal=4)
+
+def test_fspl_noLD():
+    """
+    check if FSPL magnification is calculate properly
+    """
+    t_0 = 2456789.012345
+    t_E = 23.4567
+    u_0 = 1e-4
+    rho = 1e-3
+    t_vec = np.array([-(rho**2-u_0**2)**0.5, 0., ((0.5*rho)**2-u_0**2)**0.5])
+    t_vec = t_vec * t_E + t_0
+
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho})
+
+    trajectory = mm.Trajectory(t_vec, params)
+
+    mag_curve = mm.FiniteSourceUniformGould94Magnification(trajectory=trajectory)
+    results = mag_curve.get_magnification()
+
+    u = np.array([rho, u_0, 0.5*rho])
+    pspl = (u**2 + 2.) / np.sqrt(u**2 * (u**2 + 4.))
+    expected = np.array([1.27323965, 0.19949906, 0.93421546])
+    # These values were calculated by Andy Gould (file b0b1.dat).
+    expected *= pspl
+
+    np.testing.assert_almost_equal(expected, results, decimal=4)
