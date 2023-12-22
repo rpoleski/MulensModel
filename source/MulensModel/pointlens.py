@@ -868,7 +868,7 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
 
         return self._magnification
 
-    def _B_0_function(self, z):
+    def _B_0_function(self, mask=None):
         """
         calculate B_0(z) function defined in:
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
@@ -877,6 +877,10 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
         Effects from a Point-Mass Lens"
         https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
         """
+        if mask is not None:
+            z = self.z_[mask]
+        else:
+            z = self.z_
 
         out = 4. * z / np.pi
 
@@ -945,7 +949,7 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
 
             mask = np.logical_not(mask)
             if np.any(mask):  # Here we use direct calculation.
-                self._b0[mask] = self._B_0_function(self.z_[mask])
+                self._b0[mask] = self._B_0_function(mask)
 
         return self._b0
 
