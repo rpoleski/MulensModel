@@ -146,7 +146,7 @@ class FitData(object):
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
 
         if self._model.n_sources == 1:
-            self._magnification_curve = self._model.get_magnification_curve(
+            self._data_magnification_curve = self._model.get_magnification_curve(
                 time=self._dataset.time[select], **magnification_kwargs)
             mag_matrix = self._data_magnification_curve.get_magnification()
         elif self._model.n_sources == 2:

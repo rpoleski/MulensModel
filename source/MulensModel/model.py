@@ -1384,9 +1384,27 @@ class Model(object):
             magnification /= (1. + source_flux_ratio)
             return magnification
 
-    def _separate_magnifications(self, time, satellite_skycoord, gamma):
+    def get_magnification_curves(self, time, satellite_skycoord, gamma):
         """
-        Calculate magnification separately for each source.
+        Create a tuple of :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        objects for multiple sources, given a set of times.
+
+        Parameters :
+            time: *np.ndarray*, *list of floats*, or *float*
+                Times for which magnification values are requested.
+
+            satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
+                *SkyCoord* object that gives satellite positions. Must be
+                the same length as time parameter. Use only for satellite
+                parallax calculations.
+
+            gamma: *float*, optional
+                The limb-darkening coefficient in gamma convention. Default is
+                0 which means no limb darkening effect.
+
+        Return:
+            *tuple* of py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+
         """
         kwargs = {'times': time, 'parallax': self._parallax,
                   'coords': self._coords,
@@ -1399,13 +1417,13 @@ class Model(object):
             methods_1 = self._methods
             methods_2 = self._methods
 
+
         self._magnification_curve_1 = MagnificationCurve(
             parameters=self.parameters.source_1_parameters, **kwargs)
         self._magnification_curve_1.set_magnification_methods(
             methods_1, self._default_magnification_method)
         self._magnification_curve_1.set_magnification_methods_parameters(
             self._methods_parameters)
-        mag_1 = self._magnification_curve_1.get_magnification()
 
         self._magnification_curve_2 = MagnificationCurve(
             parameters=self.parameters.source_2_parameters, **kwargs)
@@ -1413,6 +1431,17 @@ class Model(object):
             methods_2, self._default_magnification_method)
         self._magnification_curve_2.set_magnification_methods_parameters(
             self._methods_parameters)
+
+        return (self._magnification_curve_1, self._magnification_curve_2)
+
+    def _separate_magnifications(self, time, satellite_skycoord, gamma):
+        """
+        Calculate magnification separately for each source.
+        """
+        (self._magnification_curve_1,
+         self._magnification_curve_2) = self.get_magnification_curves(
+            time, satellite_skycoord, gamma)
+        mag_1 = self._magnification_curve_1.get_magnification()
         mag_2 = self._magnification_curve_2.get_magnification()
 
         return (mag_1, mag_2)
