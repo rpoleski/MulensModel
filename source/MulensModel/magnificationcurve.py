@@ -200,10 +200,15 @@ class MagnificationCurve(object):
                         'no point lens method accepts the parameters')
             # selection = (methods_ == method)
 
+            if self.satellite_skycoord is not None:
+                satellite_skycoord = self.satellite_skycoord[selection]
+            else:
+                satellite_skycoord = None
+
             trajectory = mm.Trajectory(
                 self.times[selection], parameters=self.parameters,
                 parallax=self.parallax, coords=self.coords,
-                satellite_skycoord=self.satellite_skycoord[selection])
+                satellite_skycoord=satellite_skycoord)
 
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
