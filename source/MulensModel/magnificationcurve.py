@@ -71,7 +71,7 @@ class MagnificationCurve(object):
         # Set methods' variables:
         self._methods_epochs = None
         self._methods_names = []
-        self._default_method = None
+        self._default_method = 'point_source'
         self._methods_parameters = None
         self._methods_for_epochs = None
         self._methods_indices = None
@@ -188,7 +188,10 @@ class MagnificationCurve(object):
 
     def _set_magnification_objects(self):
         self._magnification_objects = {}
+        print(self.methods_indices)
         for method, selection in self.methods_indices.items():
+            print(method)
+            print(selection)
             kwargs = {}
             if self._methods_parameters is not None:
                 if method.lower() in self._methods_parameters.keys():
@@ -213,11 +216,11 @@ class MagnificationCurve(object):
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
                     mm.pointlens.PointSourcePointLensMagnification(
-                        trajectory)
+                        trajectory=trajectory)
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 self._magnification_objects[method] = \
                     mm.pointlens.FiniteSourceUniformGould94Magnification(
-                        trajectory)
+                        trajectory=trajectory)
 
     def get_point_lens_magnification(self):
         """
