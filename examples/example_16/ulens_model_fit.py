@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.34.2'
+__version__ = '0.34.3'
 
 
 class UlensModelFit(object):
@@ -3144,6 +3144,8 @@ class UlensModelFit(object):
         ax2.set_ylim(A_min, A_max)
         A_values = ax2.yaxis.get_ticklocs().round(7)
         A_values = A_values[(A_values >= max(1, A_min)) & (A_values < A_max)]
+        if 1. not in A_values and A_min <= 1:
+            A_values = np.insert(A_values, 0, 1.)
         is_integer = [mag.is_integer() for mag in A_values]
         if all(is_integer):
             labels = [f"{int(x):d}" for x in A_values]

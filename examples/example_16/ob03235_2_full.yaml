@@ -106,7 +106,6 @@ other_output:
         file name: ob03235_2_all_models.txt
     yaml output:
         file name: ob03235_2_all_results.yaml
-    other_output:
-        residuals:
-            # "-" below means the we don't output residuals for second file
-            files: ob03235_1_res.txt -
+    residuals:
+        # "-" below means the we don't output residuals for second file
+        files: ob03235_2_res.txt -
