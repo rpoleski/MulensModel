@@ -1018,9 +1018,17 @@ class TestFSPLGradient2(TestFSPLGradient):
 
 
 def test_FSPLDerivs_get_satellite_coords():
+    """Test that satellite_skycoord propagate correctly through the code."""
+    # Inputs
     times = [2456445.0, 2457328.0]
     mags = [16., 15.]
     errs = [0.01, 0.02]
+
+    # Expected results
+    ra_1 = 15 * (8 + 26 / 60. + 37.19 / 3600.)
+    dec_1 = 18 + 30 / 60. + 37.4 / 3600.
+    ra_2 = 15 * (17 + 40 / 60. + 4.98 / 3600.)
+    dec_2 = -23 - 26 / 60. - 38.2 / 3600.
 
     dataset = mm.MulensData(
         [times, mags, errs], phot_fmt='mag',
@@ -1029,20 +1037,22 @@ def test_FSPLDerivs_get_satellite_coords():
     model.default_magnification_method = 'finite_source_uniform_Gould94'
 
     fit = mm.FitData(dataset=dataset, model=model)
+    fit._set_data_magnification_curves()
 
-    derivs_obj = fit.FSPL_Derivatives(fit)
-    result_1 = derivs_obj._dataset_satellite_skycoord[0]
-    result_2 = derivs_obj._dataset_satellite_skycoord[-1]
+    mag_curve = fit._data_magnification_curve
+    mag_curve._set_magnification_objects()
+    assert len(mag_curve._magnification_objects) == 1
 
-    ra_1 = 15 * (8 + 26 / 60. + 37.19 / 3600.)
-    dec_1 = 18 + 30 / 60. + 37.4 / 3600.
-    np.testing.assert_almost_equal(result_1.ra.value, ra_1, decimal=3)
-    np.testing.assert_almost_equal(result_1.dec.value, dec_1, decimal=3)
+    for derivs_obj in mag_curve._magnification_objects.values():
+        if times[0] in derivs_obj.trajectory.times:
+            result_1 = derivs_obj.trajectory.satellite_skycoord[0]
+            np.testing.assert_almost_equal(result_1.ra.value, ra_1, decimal=3)
+            np.testing.assert_almost_equal(result_1.dec.value, dec_1, decimal=3)
 
-    ra_2 = 15 * (17 + 40 / 60. + 4.98 / 3600.)
-    dec_2 = -23 - 26 / 60. - 38.2 / 3600.
-    np.testing.assert_almost_equal(result_2.ra.value, ra_2, decimal=3)
-    np.testing.assert_almost_equal(result_2.dec.value, dec_2, decimal=3)
+        if times[-1] in derivs_obj.trajectory.times:
+            result_2 = derivs_obj.trajectory.satellite_skycoord[-1]
+            np.testing.assert_almost_equal(result_2.ra.value, ra_2, decimal=3)
+            np.testing.assert_almost_equal(result_2.dec.value, dec_2, decimal=3)
 
 
 def test_get_trajectory_1L2S_satellite_parallax():
