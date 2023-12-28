@@ -980,10 +980,14 @@ class TestFSPLGradient2(TestFSPLGradient):
                 fix_source_flux=self.sfit_mat.a[9 + i * 3],
                 fix_blend_flux=self.sfit_mat.a[9 + i * 3 + 1])
             fit.fit_fluxes()
-            dAdu = fit.get_d_A_d_u_for_point_lens_model()
-            assert_allclose(
-                dAdu, self.sfit_partials[self.sfit_indices[i]]['dAdu'],
-                rtol=0.005)
+            #dAdu = fit.get_d_A_d_u_for_point_lens_model()
+            for test_class in [mm.PointSourcePointLensMagnification,
+                               mm.FiniteSourceLDYoo04Magnification]:
+                pl = test_class(trajectory=fit.get_dataset_trajectory())
+                dAdu = pl.get_d_A_d_u()
+                assert_allclose(
+                    dAdu, self.sfit_partials[self.sfit_indices[i]]['dAdu'],
+                    rtol=0.005)
 
 
 def test_FSPLDerivs_get_satellite_coords():
