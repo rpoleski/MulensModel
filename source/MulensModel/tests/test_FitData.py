@@ -844,6 +844,8 @@ class TestFSPLGradient(unittest.TestCase):
         print(self.fits[i].dataset.time[mask])
         assert_allclose(dA_drho[mask], sfit_da_drho[mask], rtol=0.015)
 
+
+
     def test_dAdrho_0(self):
         """ Check that dA / drho is calculated correctly for dataset 0"""
         self._dA_drho_test(0)
@@ -851,6 +853,29 @@ class TestFSPLGradient(unittest.TestCase):
     def test_dAdrho_1(self):
         """ Check that dA / drho is calculated correctly for dataset 1"""
         self._dA_drho_test(1)
+
+    def _dA_drho_test_PLMagnification(self, i):
+        """ Check that dA / drho is calculated correctly"""
+        # compare da_drho
+        fs = self.fits[i].source_flux
+        traj = self.fits[i].get_dataset_trajectory()
+        print('traj params', traj.parameters)
+        pl = mm.FiniteSourceLDYoo04Magnification(
+            trajectory=traj, gamma=self.fits[i].gamma)
+
+        dA_drho = fs * pl.get_d_A_d_rho()
+        sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
+        mask = self._indices_not_near_1[i]
+
+        assert_allclose(dA_drho[mask], sfit_da_drho[mask], rtol=0.015)
+
+    def test_dAdrho_PLMagnification_0(self):
+        """ Check that dA / drho is calculated correctly for dataset 0"""
+        self._dA_drho_test_PLMagnification(0)
+
+    def test_dAdrho_PLMagnification_1(self):
+        """ Check that dA / drho is calculated correctly for dataset 1"""
+        self._dA_drho_test_PLMagnification(1)
 
     def _set_limb_coeffs(self, model):
         for band in ['I', 'V']:

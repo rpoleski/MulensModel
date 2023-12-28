@@ -813,6 +813,9 @@ class PointSourcePointLensMagnification():
 
         Point-source--point-lens magnification for each epoch.
         """
+        if self._pspl_magnification is None:
+            self.get_pspl_magnification()
+
         return self._pspl_magnification
 
     @property
@@ -1064,6 +1067,8 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         print('Yoo04 Calculation')
         print('rho', self.trajectory.parameters.rho)
         print('gamma', self._gamma)
+        print('u_', self.u_[0])
+        print('pspl', self.pspl_magnification[0])
 
         d_A_d_rho = self.pspl_magnification
         d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
