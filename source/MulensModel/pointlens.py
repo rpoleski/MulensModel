@@ -699,7 +699,7 @@ class PointSourcePointLensMagnification():
                 specified by `u`.
         """
         self._pspl_magnification = \
-            (self.u_2 + 2.) / np.sqrt(self.u_2  * (self.u_2  + 4.))
+            (self.u_2 + 2.) / np.sqrt(self.u_2 * (self.u_2 + 4.))
 
         return self._pspl_magnification
 
@@ -984,7 +984,8 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
                 Derivative dA/drho evaluated at each epoch.
 
         """
-        d_A_d_rho = self.pspl_magnification
+        d_A_d_rho = np.ones(len(self.trajectory.times))
+        d_A_d_rho *= self.pspl_magnification
         d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
         d_A_d_rho *= self.db0
 
@@ -1077,18 +1078,11 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
                 Derivative dA/drho evaluated at each epoch.
 
         """
-        print('Yoo04 Calculation')
-        print('rho', self.trajectory.parameters.rho)
-        print('gamma', self._gamma)
-        print('u_', self.u_[0])
-        print('pspl', self.pspl_magnification[0])
-
-        d_A_d_rho = self.pspl_magnification
+        d_A_d_rho = np.ones(len(self.trajectory.times))
+        d_A_d_rho *= self.pspl_magnification
         d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
         d_A_d_rho *= (self.db0 - self._gamma * self.db1)
-
         return d_A_d_rho
-
 
     def _B_1_function(self, mask=None):
         """
