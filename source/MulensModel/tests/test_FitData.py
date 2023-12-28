@@ -890,6 +890,12 @@ class TestFSPLGradient(unittest.TestCase):
 
         fit = mm.FitData(model=model, dataset=self.datasets[0])
 
+        print('JCY: This is supposed to fail because the model is defined by '+
+              'tstar. It actually fails because no finite source '+
+              'magnification method is set. Should consider desired behavior. '+
+              'Relatedly, what happens when there is a mix of PS and FS '+
+              'methods?')
+
         with self.assertRaises(KeyError):
             fit.get_d_A_d_rho()
 
