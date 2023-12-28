@@ -863,11 +863,14 @@ class TestFSPLGradient(unittest.TestCase):
         pl = mm.FiniteSourceLDYoo04Magnification(
             trajectory=traj, gamma=self.fits[i].gamma)
 
-        dA_drho = fs * pl.get_d_A_d_rho()
         sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
         mask = self._indices_not_near_1[i]
 
+        dA_drho = fs * pl.get_d_A_d_rho()
         assert_allclose(dA_drho[mask], sfit_da_drho[mask], rtol=0.015)
+
+        dA_drho_params = fs * pl.get_d_A_d_params(['rho'])['rho']
+        assert_allclose(dA_drho_params[mask], sfit_da_drho[mask], rtol=0.015)
 
     def test_dAdrho_PLMagnification_0(self):
         """ Check that dA / drho is calculated correctly for dataset 0"""
