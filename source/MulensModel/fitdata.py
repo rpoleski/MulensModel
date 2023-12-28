@@ -659,6 +659,33 @@ class FitData(object):
 
         return d_A_d_params
 
+    def get_d_A_d_rho(self):
+        """
+        Calculate d A / d rho for a point lens model.
+
+        No Inputs
+
+        Returns :
+            dA_drho: *np.array*
+                Values are the partial derivatives for rho
+                evaluated at each data point.
+        """
+        # Need to consider what happens when we move to 2 sources.
+        if self._data_magnification_curve is None:
+            self._set_data_magnification_curves()
+
+        d_A_d_params = self._data_magnification_curve.get_d_A_d_rho()
+        # if 'rho' in self.model.parameters.parameters:
+        #     derivs = self.FSPL_Derivatives(self)
+        #     gradient = derivs.get_gradient(parameters)
+        # else:
+        # d_u_d_params = self._get_d_u_d_params(parameters)
+        # d_A_d_u = self._data_magnification_curve.get_d_A_d_u()
+        # for key in parameters:
+        #      d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
+
+        return d_A_d_params
+
     def get_dataset_trajectory(self):
         """
         Retrieve a :py:class:`~MulensModel.trajectory.Trajectory` object. If
@@ -784,19 +811,19 @@ class FitData(object):
     #
     #     return gradient
     #
-    def get_d_A_d_rho(self):
-        """
-        Calculate the derivative of the magnification with respect to rho.
-
-        Returns:
-            d_A_d_rho: *np.ndarray*
-                derivative
-        """
-        d_A_d_rho = self._data_magnification_curve.get_d_A_d_rho()
-    #     derivs = self.FSPL_Derivatives(self)
-    #     return derivs.get_d_A_d_rho()
-
-        return d_A_d_rho
+    # def get_d_A_d_rho(self):
+    #     """
+    #     Calculate the derivative of the magnification with respect to rho.
+    #
+    #     Returns:
+    #         d_A_d_rho: *np.ndarray*
+    #             derivative
+    #     """
+    #     d_A_d_rho = self._data_magnification_curve.get_d_A_d_rho()
+    # #     derivs = self.FSPL_Derivatives(self)
+    # #     return derivs.get_d_A_d_rho()
+    #
+    #     return d_A_d_rho
 
     @property
     def chi2_gradient(self):

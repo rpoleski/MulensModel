@@ -564,6 +564,28 @@ class MagnificationCurve(object):
 
         return d_A_d_params
 
+    def get_d_A_d_rho(self):
+        """
+        Calculate d A / d rho for a point lens model.
+
+        No Inputs
+
+        Returns :
+            dA_drho: *np.array*
+                Values are the partial derivatives for rho
+                evaluated at each data point.
+        """
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
+
+        d_A_d_rho = np.zeros(len(self.times))
+        for method, selection in self.methods_indices.items():
+            d_A_d_rho_selection = \
+                self._magnification_objects[method].get_d_A_d_rho()
+            d_A_d_rho[selection] = d_A_d_rho_selection
+
+        return d_A_d_rho
+
     # def _get_d_u_d_params(self, parameters):
     #     d_u_d_params = np.zeros(len(self.times))
     #     for method, selection in self._methods_indices.items():
