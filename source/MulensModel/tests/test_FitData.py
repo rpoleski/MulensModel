@@ -980,7 +980,7 @@ class TestFSPLGradient2(TestFSPLGradient):
                 fix_source_flux=self.sfit_mat.a[9 + i * 3],
                 fix_blend_flux=self.sfit_mat.a[9 + i * 3 + 1])
             fit.fit_fluxes()
-            #dAdu = fit.get_d_A_d_u_for_point_lens_model()
+
             for test_class in [mm.PointSourcePointLensMagnification,
                                mm.FiniteSourceLDYoo04Magnification]:
                 pl = test_class(trajectory=fit.get_dataset_trajectory())
