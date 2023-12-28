@@ -1031,3 +1031,80 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
 
 
         return self._db0
+
+
+class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
+
+    def __init__(self, gamma=None, **kwargs):
+        FiniteSourceUniformGould94Magnification.__init__(self, **kwargs)
+
+        self._gamma = gamma
+        self._b1 = None
+        self._db1 = None
+
+    def get_magnification(self):
+        FiniteSourceUniformGould94Magnification.get_magnification(self)
+        self._magnification -= self.pspl_magnification * self.b1 * self._gamma
+
+    def _B_1_function(self, mask=None):
+        """
+        calculate B_1(z) function defined in:
+        Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
+        https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract
+        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
+        Effects from a Point-Mass Lens"
+        https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
+        """
+        if mask is not None:
+            z = self.z_[mask]
+        else:
+            z = self.z_
+
+        raise NotImplementedError()
+
+        return out
+
+    @property
+    def b1(self):
+        """
+        *np.ndarray*
+
+        Return the value of B_1(z) function for each epoch.
+        """
+        if self._b1 is None:
+            if self.direct:
+                mask = np.zeros_like(self.z_, dtype=bool)
+            else:
+                mask = self._B0B1_data.get_interpolation_mask(self.z_)
+
+            self._b1 = 0. * self.z_
+            if np.any(mask):  # Here we use interpolation.
+                self._b1[mask] = self._B0B1_data.interpolate_B1(self.z_[mask])
+
+            mask = np.logical_not(mask)
+            if np.any(mask):  # Here we use direct calculation.
+                self._b1[mask] = self._B_1_function(mask)
+
+        return self._b1
+
+    @property
+    def db1(self):
+        """
+        *np.ndarray*
+
+        Retrieve derivative of B_1(z) function for each epoch.
+        """
+        if self._db1 is None:
+            if self.direct:
+                raise NotImplementedError(
+                    'B0 derivatives not implemented for direct method.')
+            else:
+                mask = self._B0B1_data.get_interpolation_mask(self.z_)
+
+            self._db1 = 0. * self.z_
+            if np.any(mask):  # Here we use interpolation.
+                self._db1[mask] = self._B0B1_data.interpolate_B1prime(
+                    self.z_[mask])
+
+
+        return self._db1

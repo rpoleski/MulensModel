@@ -218,6 +218,23 @@ class MagnificationCurve(object):
                 self._magnification_objects[method] = \
                     mm.pointlens.FiniteSourceUniformGould94Magnification(
                         trajectory=trajectory)
+            elif (method.lower() ==
+                  'finite_source_uniform_Gould94_direct'.lower()):
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceUniformGould94Magnification(
+                        trajectory=trajectory, direct=True)
+            elif method.lower() == 'finite_source_LD_Yoo04'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceLDYoo04Magnification(
+                        trajectory=trajectory, gamma=self._gamma)
+            elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceLDYoo04Magnification(
+                        trajectory=trajectory, gamma=self._gamma,
+                        direct=True)
+            else:
+                msg = 'Unknown method specified for single lens: {:}'
+                raise ValueError(msg.format(method))
 
     def get_point_lens_magnification(self):
         """
