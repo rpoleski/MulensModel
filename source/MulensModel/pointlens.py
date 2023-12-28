@@ -1046,6 +1046,27 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         FiniteSourceUniformGould94Magnification.get_magnification(self)
         self._magnification -= self.pspl_magnification * self.b1 * self._gamma
 
+        return self._magnification
+
+    def get_d_A_d_rho(self):
+        """
+        Return the derivative of the magnification with respect to rho
+        for each epoch.
+
+        No parameters.
+
+        Returns :
+            dA_drho: *np.ndarray*
+                Derivative dA/drho evaluated at each epoch.
+
+        """
+        d_A_d_rho = self.pspl_magnification
+        d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
+        d_A_d_rho *= (self.db0 - self._gamma * self.db1)
+
+        return d_A_d_rho
+
+
     def _B_1_function(self, mask=None):
         """
         calculate B_1(z) function defined in:

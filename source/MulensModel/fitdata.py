@@ -774,16 +774,19 @@ class FitData(object):
     #
     #     return gradient
     #
-    # def get_d_A_d_rho(self):
-    #     """
-    #     Calculate the derivative of the magnification with respect to rho.
-    #
-    #     Returns:
-    #         d_A_d_rho: *np.ndarray*
-    #             derivative
-    #     """
+    def get_d_A_d_rho(self):
+        """
+        Calculate the derivative of the magnification with respect to rho.
+
+        Returns:
+            d_A_d_rho: *np.ndarray*
+                derivative
+        """
+        d_A_d_rho = self._data_magnification_curve.get_d_A_d_rho()
     #     derivs = self.FSPL_Derivatives(self)
     #     return derivs.get_d_A_d_rho()
+
+        return d_A_d_rho
 
     @property
     def chi2_gradient(self):

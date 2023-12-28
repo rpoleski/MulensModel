@@ -82,6 +82,7 @@ def test_fspl():
     methods = [t_0-t_E, 'finite_source_LD_Yoo04', t_0+t_E]
     mag_curve.set_magnification_methods(methods, 'point_source')
     results = mag_curve.get_point_lens_magnification()
+    print(results)
 
     u = np.array([rho, u_0, 0.5*rho])
     pspl = (u**2 + 2.) / np.sqrt(u**2 * (u**2 + 4.))
