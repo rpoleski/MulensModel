@@ -42,7 +42,7 @@ def test_B_0_function():
 
 def test_B_1_function():
     """test private _B_1_function"""
-    (data, gamma, trajetory) = get_variables()
+    (data, gamma, trajectory) = get_variables()
     test_FSPL_LD = mm.FiniteSourceLDYoo04Magnification(
         trajectory=trajectory, gamma=gamma)
     test_b_1 =  test_FSPL_LD._B_1_function()
@@ -61,7 +61,7 @@ def test_get_point_lens_finite_source_magnification():
 
 def test_get_point_lens_limb_darkening_magnification():
     """test PLFS+LD"""
-    (data, gamma, trajetory) = get_variables()
+    (data, gamma, trajectory) = get_variables()
     test_FSPL_LD = mm.FiniteSourceLDYoo04Magnification(
         trajectory=trajectory, gamma=gamma)
     fspl_magnification = test_FSPL_LD.get_magnification()
