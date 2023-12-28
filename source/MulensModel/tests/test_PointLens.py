@@ -1,8 +1,10 @@
 import numpy as np
 import os
 
-import MulensModel as mm
 
+import MulensModel as mm
+from test_FitData import create_0939_parallax_model, SAMPLE_FILE_03, \
+    SAMPLE_FILE_03_EPH
 
 SAMPLE_FILE = os.path.join(mm.DATA_PATH, 'unit_test_files', 'FSPL_test_1.dat')
 
@@ -94,3 +96,33 @@ def test_fspl_noLD():
     expected *= pspl
 
     np.testing.assert_almost_equal(expected, results, decimal=4)
+
+def test_get_d_u_d_params():
+    """
+    Test that calculating derivatives with an ephemeris file is different from
+    without an ephemeris file.
+    """
+    parameters = ['pi_E_N', 'pi_E_E']
+    model_with_par = create_0939_parallax_model()
+    data_ephm = mm.MulensData(
+        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
+    parallax = {'earth_orbital': True,
+                'satellite': True,
+                'topocentric': True}
+
+    traj_ephm = mm.Trajectory(
+        data_ephm.time, parameters=model_with_par.parameters,
+        satellite_skycoord=data_ephm.satellite_skycoord,
+        coords=model_with_par.coords, parallax=parallax)
+    pl_ephm = mm.PointSourcePointLensMagnification(traj_ephm)
+    derivs_ephm = pl_ephm.get_d_u_d_params(parameters)
+
+    traj_no_ephm = mm.Trajectory(
+        data_ephm.time, parameters=model_with_par.parameters,
+        coords=model_with_par.coords, parallax=parallax)
+    pl_no_ephm = mm.PointSourcePointLensMagnification(traj_no_ephm)
+    derivs_no_ephm = pl_no_ephm.get_d_u_d_params(parameters)
+
+    for param in parameters:
+        ratio = derivs_ephm[param] / derivs_no_ephm[param]
+        assert (np.abs(ratio - 1.) > 0.001).all()

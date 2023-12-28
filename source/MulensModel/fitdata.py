@@ -129,10 +129,7 @@ class FitData(object):
         diff = self._dataset.flux - model_flux
         self._chi2_per_point = (diff / self._dataset.err_flux)**2
 
-    def _calculate_magnifications(self, bad=True):
-        """
-        Calculate the model magnifications for the epochs of the dataset.
-        """
+    def _set_data_magnification_curves(self, bad=True):
         if bad:
             select = np.ones(self._dataset.n_epochs, dtype=bool)
         else:
@@ -150,7 +147,6 @@ class FitData(object):
             self._data_magnification_curve = \
                 self._model.get_magnification_curve(
                     time=self._dataset.time[select], **magnification_kwargs)
-            mag_matrix = self._data_magnification_curve.get_magnification()
         elif self._model.n_sources == 2:
             (self._data_magnification_curve_1,
              self._data_magnification_curve_2) = \
@@ -159,6 +155,16 @@ class FitData(object):
             self._data_magnification_curves = (
                 self._data_magnification_curve_1,
                 self._data_magnification_curve_2)
+
+    def _calculate_magnifications(self, bad=True):
+        """
+        Calculate the model magnifications for the epochs of the dataset.
+        """
+        self._set_data_magnification_curves(bad=bad)
+
+        if self._model.n_sources == 1:
+            mag_matrix = self._data_magnification_curve.get_magnification()
+        elif self._model.n_sources == 2:
             mag_matrix = (self._data_magnification_curve_1.get_magnification(),
                           self._data_magnification_curve_2.get_magnification())
         else:
@@ -636,6 +642,10 @@ class FitData(object):
                 Values are the partial derivatives for that parameter
                 evaluated at each data point.
         """
+        # Need to consider what happens when we move to 2 sources.
+        if self._data_magnification_curve is None:
+            self._set_data_magnification_curves()
+
         d_A_d_params = self._data_magnification_curve.get_d_A_d_params(
             parameters)
         # if 'rho' in self.model.parameters.parameters:

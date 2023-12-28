@@ -552,6 +552,9 @@ class MagnificationCurve(object):
                 Values are the partial derivatives for that parameter
                 evaluated at each epoch.
         """
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
+
         d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
         for method, selection in self.methods_indices.items():
             d_A_d_params_selection = \

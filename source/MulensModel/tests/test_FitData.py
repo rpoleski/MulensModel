@@ -356,7 +356,7 @@ def test_satellite_and_annual_parallax_calculation():
     almost(ratio, [1.]*len(ratio), decimal=4)
 
 
-def test_get_d_u_d_params():
+def test_get_d_A_d_params_for_point_lens_model():
     """
     Test that calculating derivatives with an ephemeris file is different from
     without an ephemeris file.
@@ -367,11 +367,12 @@ def test_get_d_u_d_params():
     data_ephm = mm.MulensData(
         file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
     fit_ephm = mm.FitData(dataset=data_ephm, model=model_with_par)
-    derivs_ephm = fit_ephm._get_d_u_d_params(parameters)
+    derivs_ephm = fit_ephm.get_d_A_d_params_for_point_lens_model(parameters)
 
     data_no_ephm = mm.MulensData(file_name=SAMPLE_FILE_03)
     fit_no_ephm = mm.FitData(dataset=data_no_ephm, model=model_with_par)
-    derivs_no_ephm = fit_no_ephm._get_d_u_d_params(parameters)
+    derivs_no_ephm = fit_no_ephm.get_d_A_d_params_for_point_lens_model(
+        parameters)
 
     for param in parameters:
         ratio = derivs_ephm[param] / derivs_no_ephm[param]
