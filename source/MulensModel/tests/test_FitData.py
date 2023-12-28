@@ -832,11 +832,17 @@ class TestFSPLGradient(unittest.TestCase):
         """ Check that dA / drho is calculated correctly"""
         # compare da_drho
         fs = self.fits[i].source_flux
-        derivs = fs * self.fits[i].get_d_A_d_params_for_point_lens_model(
-            ['rho'])['rho']
+        derivs = self.fits[i].get_d_A_d_params_for_point_lens_model(
+            ['rho'])
+        dA_drho = fs * derivs['rho']
         sfit_da_drho = self.sfit_derivs[self.sfit_indices[i]]['dAdrho']
         mask = self._indices_not_near_1[i]
-        assert_allclose(derivs[mask], sfit_da_drho[mask], rtol=0.015)
+
+        print(derivs['rho'][mask])
+        print(dA_drho[mask])
+        print(self.sfit_model.get_magnification_methods())
+        print(self.fits[i].dataset.time[mask])
+        assert_allclose(dA_drho[mask], sfit_da_drho[mask], rtol=0.015)
 
     def test_dAdrho_0(self):
         """ Check that dA / drho is calculated correctly for dataset 0"""

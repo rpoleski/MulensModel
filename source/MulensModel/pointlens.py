@@ -1061,6 +1061,10 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
                 Derivative dA/drho evaluated at each epoch.
 
         """
+        print('Yoo04 Calculation')
+        print('rho', self.trajectory.parameters.rho)
+        print('gamma', self._gamma)
+
         d_A_d_rho = self.pspl_magnification
         d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
         d_A_d_rho *= (self.db0 - self._gamma * self.db1)
