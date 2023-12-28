@@ -935,7 +935,14 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
                                          np.arcsin(1. / value))[0]
         return out
 
-    def get_d_u_d_params(self, parameters):
+    def _get_fspl_deriv_factor(self):
+        factor = self.pspl_magnification * self.db0
+        factor /= self.trajectory.parameters.rho
+        factor += self.get_d_A_d_u() * self.b0
+
+        return factor
+
+    def get_d_A_d_params(self, parameters):
         """
         Return the gradient of the magnification with respect to the
         FSPL parameters for each epoch.
@@ -950,20 +957,20 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
                 Values are the partial derivatives for that parameter
                 evaluated at each epoch.
         """
+
         d_u_d_params = PointSourcePointLensMagnification.get_d_u_d_params(
             self, parameters)
 
-        d_A_pspl_d_u = PointSourcePointLensMagnification.get_d_A_d_u(self)
-        factor = self.pspl_magnification * self.db0
-        factor /= self.trajectory.parameters.rho
-        factor += d_A_pspl_d_u * self.b0
+        factor = self._get_fspl_deriv_factor()
+
+        d_A_d_params = {}
         for key in parameters:
             if key == 'rho':
-                d_u_d_params[key] = self.get_d_A_d_rho()
+                d_A_d_params[key] = self.get_d_A_d_rho()
             else:
-                d_u_d_params[key] *= factor
+                d_A_d_params[key] = d_u_d_params[key] * factor
 
-        return d_u_d_params
+        return d_A_d_params
 
     def get_d_A_d_rho(self):
         """
@@ -1033,7 +1040,6 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
                 self._db0[mask] = self._B0B1_data.interpolate_B0prime(
                     self.z_[mask])
 
-
         return self._db0
 
 
@@ -1051,6 +1057,13 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         self._magnification -= self.pspl_magnification * self.b1 * self._gamma
 
         return self._magnification
+
+    def _get_fspl_deriv_factor(self):
+        factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1)
+        factor /= self.trajectory.parameters.rho
+        factor += self.get_d_A_d_u() * (self.b0 - self._gamma * self.b1)
+
+        return factor
 
     def get_d_A_d_rho(self):
         """
