@@ -947,9 +947,10 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
                 Values are the partial derivatives for that parameter
                 evaluated at each epoch.
         """
-        d_u_d_params = PointSourcePointLensMagnification._get_d_u_d_params(parameters)
+        d_u_d_params = PointSourcePointLensMagnification.get_d_u_d_params(
+            self, parameters)
 
-        d_A_pspl_d_u = PointSourcePointLensMagnification.get_d_A_d_u()
+        d_A_pspl_d_u = PointSourcePointLensMagnification.get_d_A_d_u(self)
         factor = self.pspl_magnification * self.db0
         factor /= self.trajectory.parameters.rho
         factor += d_A_pspl_d_u * self.b0
