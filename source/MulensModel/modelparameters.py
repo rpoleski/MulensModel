@@ -247,7 +247,9 @@ class ModelParameters(object):
             # The block above forces checks from "== 1" block above to be
             # run on each source parameters separately.
         else:
-            raise ValueError('wrong number of sources')
+            raise ValueError(
+                'wrong number of sources. Your parameters:', parameters)
+
         self._set_parameters(parameters)
 
     def _count_sources(self, keys):
