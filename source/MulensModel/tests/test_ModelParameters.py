@@ -601,3 +601,16 @@ def test_is_xallarap_2():
     parameters = {'t_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9}
     model_params = mm.ModelParameters(parameters)
     assert not model_params.is_xallarap
+
+
+def test_3L1S_models():
+    """
+    Test that we can define Triple source models.
+    """
+    parameters = {'t_0_1': 0, 'u_0_1': 1,
+                  't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                  't_0_3': 2, 'u_0_3': 0.3,
+                  't_E': 9}
+    model_params = mm.ModelParameters(parameters)
+    assert model_params.n_sources == 3
+    
