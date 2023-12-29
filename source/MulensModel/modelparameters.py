@@ -212,6 +212,7 @@ class ModelParameters(object):
 
     # parameters that may be defined for a given source
     source_params_head = ['t_0', 'u_0', 'rho', 't_star']
+    t_0_ref_types = ['par', 'kep']
 
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
@@ -230,25 +231,23 @@ class ModelParameters(object):
             if self._type['Cassan08']:
                 self._uniform_caustic = None
                 self._standard_parameters = None
-        elif self.n_sources == 2:
-            self._check_valid_combination_2_sources(parameters.keys())
+        elif self.n_sources > 1:
+            self._check_valid_combination_of_sources(parameters.keys())
             if 't_E' not in parameters.keys():
                 raise KeyError('Currently, the binary source calculations ' +
                                'require t_E to be directly defined, i.e., ' +
                                'has to be the same for both sources.')
-            (params_1, params_2) = self._divide_parameters(parameters)
-            try:
-                self._source_1_parameters = ModelParameters(params_1)
-            except Exception:
-                print("ERROR IN ITIALIZING SOURCE 1")
-                raise
-            try:
-                self._source_2_parameters = ModelParameters(params_2)
-            except Exception:
-                print("ERROR IN ITIALIZING SOURCE 2")
-                raise
-            # The block above forces checks from "== 1" block above to be
-            # run on each source parameters separately.
+
+            source_params = self._divide_parameters(parameters)
+            for i, params_i in enumerate(source_params):
+                try:
+                    self.__setattr__(
+                        '_source_{0}_parameters'.format(i + 1),
+                        ModelParameters(params_i))
+                except Exception:
+                    print("ERROR IN ITIALIZING SOURCE {0}".format(i + 1))
+                    raise
+
         else:
             raise ValueError(
                 'wrong number of sources. Your parameters:', parameters)
@@ -400,22 +399,23 @@ class ModelParameters(object):
         Divide an input dict into 2 - each source separately.
         Some of the parameters are copied to both dicts.
         """
-        separate_parameters = (
-            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
-        parameters_1 = {}
-        parameters_2 = {}
-        for (key, value) in parameters.items():
-            if key in separate_parameters:
-                if key[-2:] == "_1":
-                    parameters_1[key[:-2]] = value
-                elif key[-2:] == "_2":
-                    parameters_2[key[:-2]] = value
+        #separate_parameters = (
+        #    't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
+        #parameters_1 = {}
+        #parameters_2 = {}
+        source_parameters = []
+        for i in range(self.n_sources):
+            params_i = {}
+            for (key, value) in parameters.items():
+                if key[0:3] in ModelParameters.source_params_head:
+                    n = key.split('_')[-1]
+                    if str(i + 1) == n:
+                        params_i[key[0:3]] = value
+
                 else:
-                    raise ValueError('unexpected error')
-            else:
-                parameters_1[key] = value
-                parameters_2[key] = value
-        return (parameters_1, parameters_2)
+                    params_i[key] = value
+
+        return source_parameters
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
