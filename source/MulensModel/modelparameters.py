@@ -210,6 +210,9 @@ class ModelParameters(object):
 
     """
 
+    # parameters that may be defined for a given source
+    source_params_head = ['t_0', 'u_0', 'rho', 't_star']
+
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
             raise TypeError(
@@ -254,24 +257,33 @@ class ModelParameters(object):
 
     def _count_sources(self, keys):
         """How many sources there are?"""
-        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-                         't_star_1', 't_star_2']
-        common = set(binary_params).intersection(set(keys))
-        if len(common) == 0:
-            self._n_sources = 1
-        elif len(common) == 1:
-            raise ValueError('Wrong parameters - the only binary source ' +
-                             'parameter is {:}'.format(common))
-        else:
-            common_no_1_2 = {param[:-2] for param in common}
-            condition_1 = (len(common_no_1_2) == len(common))
-            condition_2 = not (
-                'rho' in common_no_1_2 and 't_star' in common_no_1_2)
-            if condition_1 and condition_2:
-                raise ValueError(
-                    'Given binary source parameters do not allow defining ' +
-                    'the Model: {:}'.format(common))
-            self._n_sources = 2
+        self._n_sources = 1
+        for key in keys:
+            # Check max number of sources based on u_0
+            # (t_0 is potentially confused with t_0_par, etc).
+            if (len(key) > 3) & (key[0:3] == 'u_0'):
+                n = key.split('_')[-1]
+                if int(n) > self._n_sources:
+                    self._n_sources = int(n)
+
+       # binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
+        #                  't_star_1', 't_star_2']
+        # common = set(binary_params).intersection(set(keys))
+        # if len(common) == 0:
+        #     self._n_sources = 1
+        # elif len(common) == 1:
+        #     raise ValueError('Wrong parameters - the only binary source ' +
+        #                      'parameter is {:}'.format(common))
+        # else:
+        #     common_no_1_2 = {param[:-2] for param in common}
+        #     condition_1 = (len(common_no_1_2) == len(common))
+        #     condition_2 = not (
+        #         'rho' in common_no_1_2 and 't_star' in common_no_1_2)
+        #     if condition_1 and condition_2:
+        #         raise ValueError(
+        #             'Given binary source parameters do not allow defining ' +
+        #             'the Model: {:}'.format(common))
+        #     self._n_sources = 2
 
     def _count_lenses(self, keys):
         """How many lenses there are?"""

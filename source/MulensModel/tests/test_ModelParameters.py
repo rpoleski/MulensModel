@@ -613,4 +613,3 @@ def test_3L1S_models():
                   't_E': 9}
     model_params = mm.ModelParameters(parameters)
     assert model_params.n_sources == 3
-    
