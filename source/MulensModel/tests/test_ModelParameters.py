@@ -623,9 +623,10 @@ class Test1L3SModels(unittest.TestCase):
         n_sources = 16
         parameters = {'t_E': 9}
         for i in range(n_sources):
-            parameters['t_0_{0}'.format(i)] = 2. + i
-            parameters['u_0_{0}'.format(i)] = 1. / (i + 1)
+            parameters['t_0_{0}'.format(i + 1)] = 2. + i
+            parameters['u_0_{0}'.format(i + 1)] = 1. / (i + 1)
 
+        print(parameters)
         model_params = mm.ModelParameters(parameters)
         assert model_params.n_sources == n_sources
 
