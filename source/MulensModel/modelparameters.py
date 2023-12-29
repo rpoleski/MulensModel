@@ -517,17 +517,23 @@ class ModelParameters(object):
                                    'name': 'xallarap omega periapsis'},
             't_0_xi': {'width': 13, 'precision': 5, 'unit': 'HJD'},
         }
-        # Add binary source parameters with the same settings.
-        binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
-                              'rho_1', 'rho_2', 't_star_1', 't_star_2']
-        for key in binary_source_keys:
-            form = formats[key[:-2]]
-            formats[key] = {'width': form['width'],
-                            'precision': form['precision']}
-            if 'unit' in form:
-                formats[key]['unit'] = form['unit']
-            if 'name' in form:
-                raise KeyError('internal issue: {:}'.format(key))
+        # Add multiple source parameters with the same settings.
+        #binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
+        #                      'rho_1', 'rho_2', 't_star_1', 't_star_2']
+        # for key in binary_source_keys:
+        #     form = formats[key[:-2]]
+
+        if self.n_sources > 1:
+            for i in range(self.n_sources):
+                for param_head in ModelParameters.source_params_head:
+                    form = formats[param_head]
+                    key = '{0}_{1}'.format(param_head, i+1)
+                    formats[key] = {'width': form['width'],
+                                    'precision': form['precision']}
+                    if 'unit' in form:
+                        formats[key]['unit'] = form['unit']
+                    if 'name' in form:
+                        raise KeyError('internal issue: {:}'.format(key))
 
         return formats
 
