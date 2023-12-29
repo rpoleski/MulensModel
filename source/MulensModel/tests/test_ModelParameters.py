@@ -603,13 +603,54 @@ def test_is_xallarap_2():
     assert not model_params.is_xallarap
 
 
-def test_3L1S_models():
-    """
-    Test that we can define Triple source models.
-    """
-    parameters = {'t_0_1': 0, 'u_0_1': 1,
-                  't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
-                  't_0_3': 2, 'u_0_3': 0.3,
-                  't_E': 9}
-    model_params = mm.ModelParameters(parameters)
-    assert model_params.n_sources == 3
+class Test1L3SModels(unittest.TestCase):
+
+    def test_basic_1L3S(self):
+        """
+        Test that we can define Triple source models.
+        """
+        parameters = {'t_0_1': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        model_params = mm.ModelParameters(parameters)
+        assert model_params.n_sources == 3
+
+    def test_arbitrary_number_of_sources(self):
+        """
+        Test that we can define Triple source models.
+        """
+        n_sources = 16
+        parameters = {'t_E': 9}
+        for i in range(n_sources):
+            parameters['t_0_{0}'.format(i)] = 2. + i
+            parameters['u_0_{0}'.format(i)] = 1. / (i + 1)
+
+        model_params = mm.ModelParameters(parameters)
+        assert model_params.n_sources == n_sources
+
+    def test_incomplete_1L3S_params(self):
+        """
+        Check error is raised for missing source parameters.
+        """
+        parameters = {'t_0_1': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            model_params = mm.ModelParameters(parameters)
+
+        parameters = {'t_0_1': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            model_params = mm.ModelParameters(parameters)
+
+
+        parameters = {'t_0_1': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      'rho_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            model_params = mm.ModelParameters(parameters)
