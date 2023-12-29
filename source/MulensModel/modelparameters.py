@@ -239,6 +239,7 @@ class ModelParameters(object):
                                'has to be the same for both sources.')
 
             source_params = self._divide_parameters(parameters)
+            print(source_params)
             for i, params_i in enumerate(source_params):
                 try:
                     self.__setattr__(
@@ -407,13 +408,25 @@ class ModelParameters(object):
         for i in range(self.n_sources):
             params_i = {}
             for (key, value) in parameters.items():
-                if key[0:3] in ModelParameters.source_params_head:
-                    n = key.split('_')[-1]
-                    if str(i + 1) == n:
-                        params_i[key[0:3]] = value
-
-                else:
+                key_parts = key.split('_')
+                if len(key_parts) == 1:
                     params_i[key] = value
+                else:
+                    is_source = False
+                    for param_head in ModelParameters.source_params_head:
+                        try:
+                            if key[0:len(param_head)] == param_head:
+                                is_source = True
+                                if str(i + 1) == key_parts[-1]:
+                                    params_i[key[0:len(param_head)]] = value
+
+                        except IndexError:
+                            pass
+
+                    if not is_source:
+                        params_i[key] = value
+
+            source_parameters.append(params_i)
 
         return source_parameters
 

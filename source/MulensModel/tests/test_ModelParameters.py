@@ -309,6 +309,8 @@ def test_binary_source():
         't_0_1': 2455000.1, 'u_0_1': 0.05, 't_star_1': 0.025,
         't_0_2': 2455123.4, 'u_0_2': 0.15, 't_star_2': 0.050,
         't_E': 25.})
+    print(vars(params))
+
     assert params.t_E == 25.
     assert params.source_1_parameters.rho == 0.001
     assert params.source_2_parameters.rho == 0.002
