@@ -558,16 +558,53 @@ class ModelParameters(object):
         fmt_1 += '} '
         return (fmt_1, fmt_2)
 
-    def _check_valid_combination_2_sources(self, keys):
+    def _check_valid_combination_of_sources(self, keys):
         """
         make sure that there is no conflict between t_0 and t_0_1 etc.
+        Also make sure that t_0 and u_0 are defined for all sources.
         """
-        binary_params = (
-            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
-        for parameter in binary_params:
-            if (parameter in keys) and (parameter[:-2] in keys):
-                raise ValueError('You cannot set {:} and {:}'.format(
-                                 parameter, parameter[:-2]))
+        for parameter in ModelParameters.source_params_head:
+            if parameter in keys:
+                raise KeyError(
+                    'You cannot set {0} for multiple sources.'.format(parameter) +
+                    'Each source must have its own value.' +
+                    'Your parameters: {0}'.format(keys))
+
+        for i in range(self.n_sources):
+            if 't_0_{0}'.format(i + 1) not in keys:
+                raise KeyError(
+                    't_0_{0} is missing from parameters.'.format(i+1) +
+                    'Your parameters: {0}'.format(keys))
+
+        for i in range(self.n_sources):
+            if 'u_0_{0}'.format(i + 1) not in keys:
+                raise KeyError(
+                    'u_0_{0} is missing from parameters.'.format(i+1) +
+                    'Your parameters: {0}'.format(keys))
+
+        self._check_for_extra_source_parameters(keys)
+
+        # binary_params = (
+        #     't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
+        # for parameter in binary_params:
+        #     if (parameter in keys) and (parameter[:-2] in keys):
+        #         raise ValueError('You cannot set {:} and {:}'.format(
+        #                          parameter, parameter[:-2]))
+
+    def _check_for_extra_source_parameters(self, keys):
+        """
+        Check if parameters have been set for sources that don't exist.
+        """
+        for key in keys:
+            key_parts = key.split('_')
+            if len(key_parts) > 1:
+                try:
+                    if int(key_parts[1]) > self.n_sources:
+                        raise KeyError(
+                            '{0} is defined but there are only '.format(key) +
+                            '{0} sources.'.format(self.n_sources))
+                except ValueError:
+                    pass
 
     def _check_valid_combination_1_source_standard(self, keys):
         """

@@ -611,7 +611,7 @@ class Test1L3SModels(unittest.TestCase):
         """
         parameters = {'t_0_1': 0, 'u_0_1': 1,
                       't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
-                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_0_3': 2, 'u_0_3': 0.3, 't_star_3': 0.02,
                       't_E': 9}
         model_params = mm.ModelParameters(parameters)
         assert model_params.n_sources == 3
@@ -651,6 +651,39 @@ class Test1L3SModels(unittest.TestCase):
         parameters = {'t_0_1': 0, 'u_0_1': 1,
                       't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
                       'rho_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            model_params = mm.ModelParameters(parameters)
+
+    def test_bad_1L3S_params(self):
+        """
+        Check error is raised if parameter is not associated with a
+        specific source.
+        """
+        parameters = {'t_0': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            model_params = mm.ModelParameters(parameters)
+
+        parameters = {'t_0': 0, 'u_0': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            model_params = mm.ModelParameters(parameters)
+
+        parameters = {'t_0': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            model_params = mm.ModelParameters(parameters)
+
+        parameters = {'t_0': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3, 't_star': 0.02,
                       't_E': 9}
         with self.assertRaises(KeyError):
             model_params = mm.ModelParameters(parameters)
