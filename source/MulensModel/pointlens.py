@@ -1171,7 +1171,93 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
 
 class FiniteSourceUniformWittMao94Magnification(
     PointSourcePointLensMagnification):
-    pass
+    """
+    Calculate magnification for the point lens and *uniform* source.
+    This approach works well for small and large
+    sources (e.g., rho~0.5). The method was presented by:
+
+    `Witt and Mao 1994 ApJ 430, 505 "Can Lensed Stars Be Regarded as
+    Pointlike for Microlensing by MACHOs?"
+    <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
+    """
+
+    def __init__(self, **kwargs):
+        PointSourcePointLensMagnification.__init__(self, **kwargs)
+
+        self._B0B1_data = mm.B0B1Utils()
+
+    def get_magnification(self):
+        out = [self._get_magnification_WM94(u_) for u_ in self.u_]
+        return np.array(out)
+
+    def _get_magnification_WM94(self, u):
+        """
+        Get point-lens finite-source magnification without LD.
+        """
+        rho = self.trajectory.parameters.rho
+
+        if u == rho:
+            u2 = u**2
+            a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
+            return (2. / u + (1. + u2) * a / u2) / np.pi
+
+        if not PointLens._elliptic_files_read:
+            self._read_elliptic_files()
+
+        a_1 = 0.5 * (u + rho) * (4. + (u - rho)**2)**.5 / rho**2
+        a_2 = -(u - rho) * (4. + 0.5 * (u**2 - rho**2))
+        a_2 /= (rho**2 * (4. + (u - rho)**2)**.5)
+        a_3 = 2. * (u - rho)**2 * (1. + rho**2)
+        a_3 /= (rho**2 * (u + rho) * (4. + (u - rho)**2)**.5)
+
+        n = 4. * u * rho / (u + rho)**2
+        k = 4. * n / (4. + (u - rho)**2)
+        # We omit sqrt, because all python packages use k^2 convention.
+
+        x_1 = self._get_ellipk(k)
+        x_2 = self._get_ellipe(k)
+        x_3 = self._get_ellip3(n, k)
+        (x_1, x_2) = (x_2, x_1)  # WM94 under Eq. 9 are inconsistent with GR80.
+
+        return (a_1 * x_1 + a_2 * x_2 + a_3 * x_3) / np.pi
+
+    def _get_ellipk(self, k):
+        """
+        Get value of elliptic integral of the first kind.
+        Use interpolation if possible.
+        """
+        x = log10(k)
+        condition_1 = (x >= PointLens._interpolate_1_2_x_min)
+        condition_2 = (x <= PointLens._interpolate_1_2_x_max)
+        if condition_1 and condition_2:
+            return PointLens._interpolate_1(x)
+        return ellipk(k)
+
+    def _get_ellipe(self, k):
+        """
+        Get value of elliptic integral of the second kind.
+        Use interpolation if possible.
+        """
+        x = log10(k)
+        condition_1 = (x >= PointLens._interpolate_1_2_x_min)
+        condition_2 = (x <= PointLens._interpolate_1_2_x_max)
+        if condition_1 and condition_2:
+            return PointLens._interpolate_2(x)
+        return ellipe(k)
+
+    def _get_ellip3(self, n, k):
+        """
+        Get value of elliptic integral of the third kind.
+        Use interpolation if possible.
+        """
+        cond_1 = (n >= PointLens._interpolate_3_min_x)
+        cond_2 = (n <= PointLens._interpolate_3_max_x)
+        cond_3 = (k >= PointLens._interpolate_3_min_y)
+        cond_4 = (k <= PointLens._interpolate_3_max_y)
+
+        if cond_1 and cond_2 and cond_3 and cond_4:
+            return PointLens._interpolate_3(n, k)[0]
+        return ellip3(n, k)
 
 
 class FiniteSourceLDWittMao94Magnification(
