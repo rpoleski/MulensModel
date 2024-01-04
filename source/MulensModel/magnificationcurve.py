@@ -183,7 +183,7 @@ class MagnificationCurve(object):
             warnings.warn(msg, UserWarning)
             return
 
-    def _set_magnification_objects(self):
+    def _set_point_lens_magnification_objects(self):
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
             kwargs = {}
@@ -327,7 +327,7 @@ class MagnificationCurve(object):
                 " lenses")
 
         if self._magnification_objects is None:
-            self._set_magnification_objects()
+            self._set_point_lens_magnification_objects()
 
         magnification = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():
@@ -335,6 +335,56 @@ class MagnificationCurve(object):
                 self._magnification_objects[method].get_magnification()
 
         return magnification
+
+    def _set_binary_lens_magnification_objects(self):
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            kwargs = {}
+            if self._methods_parameters is not None:
+                if method.lower() in self._methods_parameters.keys():
+                    kwargs = self._methods_parameters[method.lower()]
+
+            if self.satellite_skycoord is not None:
+                satellite_skycoord = self.satellite_skycoord[selection]
+            else:
+                satellite_skycoord = None
+
+            trajectory = mm.Trajectory(
+                self.times[selection], parameters=self.parameters,
+                parallax=self.parallax, coords=self.coords,
+                satellite_skycoord=satellite_skycoord)
+
+            if method == 'point_source':
+                self._magnification_objects[method] = \
+                    mm.binarylens.PointSourceBinaryLensMagnification(
+                        trajectory=trajectory)
+            elif method == 'quadrupole':
+                self._magnification_objects[method] = \
+                    mm.binarylens.PointSourceBinaryLensQuadrupoleMagnification(
+                    trajectory=trajectory, gamma=self._gamma)
+            elif method == 'hexadecapole':
+                self._magnification_objects[method] = \
+                    mm.binarylens.\
+                        PointSourceBinaryLensHexadecapoleMagnification(
+                    trajectory=trajectory, gamma=self._gamma)
+            elif method == 'vbbl':
+                print('JCY - Need to figure out how to stop VBBL + shear.')
+                self._magnification_objects[method] = \
+                    mm.binarylens. \
+                        VBBLMagnification(
+                        trajectory=trajectory, gamma=self._gamma, **kwargs)
+            elif method == 'adaptive_contouring':
+                self._magnification_objects[method] = \
+                    mm.binarylens. \
+                        AdaptiveContouringMagnification(
+                        trajectory=trajectory, gamma=self._gamma, **kwargs)
+            elif method == 'point_source_point_lens':
+                self._magnification_objects[method] = \
+                    mm.pointlens.PointSourcePointLensMagnification(
+                        trajectory=trajectory)
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
 
     def get_binary_lens_magnification(self):
         """
@@ -507,7 +557,7 @@ class MagnificationCurve(object):
                 evaluated at each epoch.
         """
         if self._magnification_objects is None:
-            self._set_magnification_objects()
+            self._set_point_lens_magnification_objects()
 
         d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
         for method, selection in self.methods_indices.items():
@@ -530,7 +580,7 @@ class MagnificationCurve(object):
                 evaluated at each data point.
         """
         if self._magnification_objects is None:
-            self._set_magnification_objects()
+            self._set_point_lens_magnification_objects()
 
         d_A_d_rho = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():

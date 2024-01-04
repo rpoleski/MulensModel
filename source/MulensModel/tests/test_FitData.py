@@ -1040,7 +1040,7 @@ def test_FSPLDerivs_get_satellite_coords():
     fit._set_data_magnification_curves()
 
     mag_curve = fit._data_magnification_curve
-    mag_curve._set_magnification_objects()
+    mag_curve._set_point_lens_magnification_objects()
     assert len(mag_curve._magnification_objects) == 1
 
     for derivs_obj in mag_curve._magnification_objects.values():
