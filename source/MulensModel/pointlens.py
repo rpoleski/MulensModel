@@ -1497,5 +1497,112 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
         return out
 
 
-class FiniteSourceLDLee09Magnification(PointSourcePointLensMagnification):
-    pass
+class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
+    """
+    Calculate magnification for the point lens and *finite source with
+    limb-darkening*. This approach works well for small and large
+    sources (e.g., rho~0.5). Uses the method presented by:
+
+    `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
+    Microlensing: A Precise, Easy to Implement, Fast, and Numerically
+    Stable Formalism"
+    <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+    """
+
+    def __init__(self, gamma=None, **kwargs):
+        PointSourcePointLensMagnification.__init__(self, **kwargs)
+
+        self.gamma = gamma
+
+        self.n_theta = 90
+        self.n_u = 1000
+
+    def get_magnification(self):
+         mag = np.zeros_like(self.u_)
+
+         for i in range(len(self.u_)):
+             mag[i] = self._LD_Lee09(self.u_[i])
+
+         return mag
+
+    def _LD_Lee09(self, u):
+        """
+        Calculates Equation 13 from Lee et al. 2009.
+
+        Accuracy of these calculations is on the order of 1e-4
+        """
+        n_theta = self.n_theta
+        n_u = self.n_u
+        rho = self.trajectory.parameters.rho
+
+        theta_sub = 1.e-12
+        u_1_min = 1.e-13
+
+        if n_theta % 2 != 0:
+            raise ValueError('internal error - even number expected')
+        if n_u % 2 != 0:
+            raise ValueError('internal error - even number expected')
+
+        if u > rho:
+            theta_max = np.arcsin(rho / u)
+        else:
+            theta_max = np.pi
+
+        theta = np.linspace(0, theta_max - theta_sub, n_theta)
+        integrand_values = np.zeros_like(theta)
+        u_1 = self._u_1_Lee09(theta, u, theta_max)
+        u_1 += u_1_min
+        u_2 = self._u_2_Lee09(theta, u, theta_max)
+
+        size = (len(theta), n_u)
+        temp = np.zeros(size)
+        temp2 = (np.zeros(size).T + np.cos(theta)).T
+        for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
+            temp[i] = np.linspace(u_1_, u_2_, n_u)
+
+        integrand = self._integrand_Lee09_v2(temp, u, temp2)
+        dx = temp[:, 1] - temp[:, 0]
+        for (i, dx_) in enumerate(dx):
+            integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
+
+        out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
+        out *= 2. / (np.pi * rho**2)
+
+        return out
+
+    def _integrand_Lee09_v2(self, u_, u, theta_):
+        """
+        Integrand in Equation 13 in Lee et al. 2009.
+
+        u_ and theta_ are np.ndarray, other parameters are scalars.
+        theta_ is in fact cos(theta_) here
+        """
+        rho = self.trajectory.parameters.rho
+        gamma = self.gamma
+
+        values = 1. - (u_ * (u_ - 2. * u * theta_) + u**2) / rho**2
+        values[:, -1] = 0.
+        if values[-1, 0] < 0.:
+            values[-1, 0] = 0.
+            if values[-1, 1] < 0.:  # This sometimes happens due to rounding
+                values[-1, 1] = .5 * values[-1, 2]  # errors above. Using
+                # math.fsum in "values = ..." doesn't help in all cases.
+
+        if np.any(values < 0.):
+            if u / rho < 5.:
+                raise ValueError(
+                    "PointLens.get_point_lens_LD_integrated_magnification() " +
+                    "unexpected error for:\nu = {:}\n".format(repr(u)) +
+                    "rho = {:}\ngamma = {:}".format(repr(rho), repr(gamma)))
+            else:
+                message = (
+                    "PointLens.get_point_lens_LD_integrated_magnification() " +
+                    "warning! The arguments are strange: u/rho = " +
+                    "{:}.\nThere are numerical issues. You ".format(u / rho) +
+                    "can use other methods for such large u value.")
+                warnings.warn(message, UserWarning)
+                values[values < 0.] = 0.
+
+        out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
+
+        return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
