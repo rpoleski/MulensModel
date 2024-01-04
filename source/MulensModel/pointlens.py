@@ -1259,10 +1259,124 @@ class FiniteSourceUniformWittMao94Magnification(
 
         return ellip3(n, k)
 
+    def get_d_A_d_params(self, parameters):
+        """
+        Calculate d A / d parameters for a point lens model.
+
+        Parameters :
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns :
+            dA_dparam: *dict*
+                Keys are parameter names from *parameters* argument above.
+                Values are the partial derivatives for that parameter
+                evaluated at each epoch.
+        """
+        raise NotImplementedError(
+            'Derivative calculations Not Implemented for WittMao94')
+
+    def get_d_u_d_params(self, parameters):
+        """
+        Calculate d u / d parameters
+
+        Parameters :
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns :
+            du_dparam: *dict*
+                Keys are parameter names from *parameters* argument above.
+                Values are the partial derivatives for that parameter
+                evaluated at each epoch.
+        """
+        raise NotImplementedError(
+            'Derivative calculations Not Implemented for WittMao94')
+
+    def get_d_A_d_u(self):
+        """
+        Calculate dA/du for PSPL point-source--point-lens model.
+
+        No parameters.
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du evaluated at each epoch.
+        """
+        raise NotImplementedError(
+            'Derivative calculations Not Implemented for WittMao94')
+
 
 class FiniteSourceLDWittMao94Magnification(
-    PointSourcePointLensMagnification):
-    pass
+    FiniteSourceUniformWittMao94Magnification):
+    """
+    Calculate magnification for the point lens and *finite source with
+    limb-darkening*. This approach works well for small and large
+    sources (e.g., rho~0.5). Here multiple annuli
+    (each with uniform source) are used to approximate finite source with
+    limb-darkening. For uniform source calculation see:
+
+    `Witt and Mao 1994 ApJ 430, 505 "Can Lensed Stars Be Regarded as
+    Pointlike for Microlensing by MACHOs?"
+    <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
+
+    The approximation of multiple sources in presented by, e.g.,:
+
+    `Bozza et al. 2018 MNRAS 479, 5157 "VBBINARYLENSING:
+    a public package for microlensing light-curve computation"
+    <https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract>`_
+
+    Parameters :
+        u: *np.array*
+            The instantaneous source-lens separation.
+
+        gamma: *float*
+            Gamma limb darkening coefficient. See also
+            :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
+    Returns :
+        magnification: *np.array*
+            The finite source magnification.
+    """
+
+    def __init__(self, gamma=None, **kwargs):
+        FiniteSourceUniformWittMao94Magnification.__init__(self, **kwargs)
+
+        self._gamma = gamma
+        self.n_annuli = 30  # This value could be tested better.
+
+    def get_magnification(self):
+        out = [
+            self._get_magnification_WM94_B18(u_)
+            for u_ in self.u_]
+
+        return np.array(out)
+
+    def _get_magnification_WM94_B18(self, u):
+        """
+        Get point-lens finite-source magnification with LD using
+        Witt & Mao 1994 approach and equations 16-19 from Bozza et al. 2018.
+        """
+        n_annuli = self.n_annuli + 1  # It's easier to have r=0 ring as well.
+        annuli = np.linspace(0, 1., n_annuli)
+        r2 = annuli**2
+
+        magnification = np.zeros(n_annuli)
+        for (i, a) in enumerate(annuli):
+            if i == 0:
+                continue
+            magnification[i] = self._get_magnification_WM94(
+                u=u, rho=a * self.trajectory.parameters.rho)
+
+        cumulative_profile = (self.gamma + (1. - self.gamma) * r2 -
+                              self.gamma * (1. - r2)**1.5)
+        d_cumulative_profile = cumulative_profile[1:] - cumulative_profile[:-1]
+        d_r2 = r2[1:] - r2[:-1]
+        temp = magnification * r2
+        d_mag_r2 = temp[1:] - temp[:-1]
+        out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
+
+        return out
 
 
 class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
