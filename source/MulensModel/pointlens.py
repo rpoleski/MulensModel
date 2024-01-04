@@ -546,7 +546,9 @@ class FiniteSourceUniformWittMao94Magnification(
 
     def get_magnification(self):
         out = [self._get_magnification_WM94(u_) for u_ in self.u_]
-        return np.array(out)
+        self._magnification = np.array(out)
+
+        return self._magnification
 
     def _get_magnification_WM94(self, u):
         """
@@ -688,7 +690,8 @@ class FiniteSourceLDWittMao94Magnification(
             self._get_magnification_WM94_B18(u_)
             for u_ in self.u_]
 
-        return np.array(out)
+        self._magnification = np.array(out)
+        return self._magnification
 
     def _get_magnification_WM94_B18(self, u):
         """
@@ -756,7 +759,9 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
             else:
                 mag[i] = self._noLD_Lee09_small_u(u[i])
 
-        return mag
+        self._magnification = mag
+
+        return self._magnification
 
     def _u_1_Lee09(self, theta, u, theta_max=None):
         """
@@ -881,7 +886,9 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
          for i in range(len(self.u_)):
              mag[i] = self._LD_Lee09(self.u_[i])
 
-         return mag
+         self._magnification = mag
+
+         return self._magnification
 
     def _LD_Lee09(self, u):
         """
