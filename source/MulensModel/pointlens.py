@@ -1261,62 +1261,28 @@ class FiniteSourceUniformWittMao94Magnification(
 
     def get_d_A_d_params(self, parameters):
         """
-        Calculate d A / d parameters for a point lens model.
-
-        Parameters :
-            parameters: *list*
-                List of the parameters to take derivatives with respect to.
-
-        Returns :
-            dA_dparam: *dict*
-                Keys are parameter names from *parameters* argument above.
-                Values are the partial derivatives for that parameter
-                evaluated at each epoch.
+        Derivative calculations Not Implemented for WittMao94
         """
         raise NotImplementedError(
             'Derivative calculations Not Implemented for WittMao94')
 
     def get_d_u_d_params(self, parameters):
         """
-        Calculate d u / d parameters
-
-        Parameters :
-            parameters: *list*
-                List of the parameters to take derivatives with respect to.
-
-        Returns :
-            du_dparam: *dict*
-                Keys are parameter names from *parameters* argument above.
-                Values are the partial derivatives for that parameter
-                evaluated at each epoch.
+        Derivative calculations Not Implemented for WittMao94
         """
         raise NotImplementedError(
             'Derivative calculations Not Implemented for WittMao94')
 
     def get_d_A_d_u(self):
         """
-        Calculate dA/du for PSPL point-source--point-lens model.
-
-        No parameters.
-
-        Returns :
-            dA_du: *np.ndarray*
-                Derivative dA/du evaluated at each epoch.
+        Derivative calculations Not Implemented for WittMao94
         """
         raise NotImplementedError(
             'Derivative calculations Not Implemented for WittMao94')
 
     def get_d_A_d_rho(self):
         """
-        Return the derivative of the magnification with respect to rho
-        for each epoch.
-
-        No parameters.
-
-        Returns :
-            dA_drho: *np.ndarray*
-                Derivative dA/drho evaluated at each epoch.
-
+        Derivative calculations Not Implemented for WittMao94
         """
         raise NotImplementedError(
             'Derivative calculations Not Implemented for WittMao94')
