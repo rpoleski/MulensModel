@@ -852,7 +852,8 @@ class PointSourcePointLensMagnification():
         return self._u_2
 
 
-class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification):
+class FiniteSourceUniformGould94Magnification(
+    PointSourcePointLensMagnification):
     """
     Equations for calculating finite-source--point-lens magnification and
     its derivatives following the `Gould 1994 ApJ, 421L, 71

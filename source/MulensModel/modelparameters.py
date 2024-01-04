@@ -266,7 +266,7 @@ class ModelParameters(object):
                 if int(n) > self._n_sources:
                     self._n_sources = int(n)
 
-       # binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
+        # binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
         #                  't_star_1', 't_star_2']
         # common = set(binary_params).intersection(set(keys))
         # if len(common) == 0:
@@ -585,7 +585,8 @@ class ModelParameters(object):
         for parameter in ModelParameters.source_params_head:
             if parameter in keys:
                 raise KeyError(
-                    'You cannot set {0} for multiple sources.'.format(parameter) +
+                    'You cannot set {0} for multiple sources.'.format(
+                        parameter) +
                     'Each source must have its own value.' +
                     'Your parameters: {0}'.format(keys))
 
