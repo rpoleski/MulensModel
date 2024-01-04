@@ -595,10 +595,7 @@ class MagnificationCurve(object):
             self._set_magnification_objects()
 
         d_A_d_rho = np.zeros(len(self.times))
-        print('method keys', self.methods_indices.keys())
-        print('mag_obj keys', self._magnification_objects.keys())
         for method, selection in self.methods_indices.items():
-            print('method', method)
             if method.lower() == 'point_source':
                 d_A_d_rho_selection = np.zeros(np.sum(selection))
             else:
