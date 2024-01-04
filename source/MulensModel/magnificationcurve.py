@@ -233,10 +233,12 @@ class MagnificationCurve(object):
                         trajectory=trajectory, gamma=self._gamma,
                         direct=True)
             elif method.lower() == 'finite_source_uniform_WittMao94'.lower():
-                mm.pointlens.FiniteSourceUniformWittMao94Magnification(
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceUniformWittMao94Magnification(
                     trajectory=trajectory)
             elif method.lower() == 'finite_source_LD_WittMao94'.lower():
-                mm.pointlens.FiniteSourceLDWittMao94Magnification(
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceLDWittMao94Magnification(
                     trajectory=trajectory, gamma=self._gamma)
             elif method.lower() == 'finite_source_uniform_Lee09'.lower():
                 self._magnification_objects[method] = \
@@ -593,9 +595,16 @@ class MagnificationCurve(object):
             self._set_magnification_objects()
 
         d_A_d_rho = np.zeros(len(self.times))
+        print('method keys', self.methods_indices.keys())
+        print('mag_obj keys', self._magnification_objects.keys())
         for method, selection in self.methods_indices.items():
-            d_A_d_rho_selection = \
-                self._magnification_objects[method].get_d_A_d_rho()
+            print('method', method)
+            if method.lower() == 'point_source':
+                d_A_d_rho_selection = np.zeros(np.sum(selection))
+            else:
+                d_A_d_rho_selection = \
+                    self._magnification_objects[method].get_d_A_d_rho()
+
             d_A_d_rho[selection] = d_A_d_rho_selection
 
         return d_A_d_rho

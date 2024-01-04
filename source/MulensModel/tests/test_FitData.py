@@ -911,7 +911,7 @@ class TestFSPLGradient(unittest.TestCase):
         model.set_magnification_methods(
             [t_lim_1, 'finite_source_uniform_WittMao94', t_lim_2])
         fit = mm.FitData(model=model, dataset=self.datasets[0])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(NotImplementedError):
             fit.get_d_A_d_rho()
 
     def test_magnification_methods_parameters(self):

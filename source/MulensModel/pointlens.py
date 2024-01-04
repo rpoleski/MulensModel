@@ -1306,6 +1306,20 @@ class FiniteSourceUniformWittMao94Magnification(
         raise NotImplementedError(
             'Derivative calculations Not Implemented for WittMao94')
 
+    def get_d_A_d_rho(self):
+        """
+        Return the derivative of the magnification with respect to rho
+        for each epoch.
+
+        No parameters.
+
+        Returns :
+            dA_drho: *np.ndarray*
+                Derivative dA/drho evaluated at each epoch.
+
+        """
+        raise NotImplementedError(
+            'Derivative calculations Not Implemented for WittMao94')
 
 class FiniteSourceLDWittMao94Magnification(
     FiniteSourceUniformWittMao94Magnification):
