@@ -36,10 +36,22 @@ class Coordinates(SkyCoord):
     """
 
     def __init__(self,  *args, **kwargs):
-        if not isinstance(args[0], (SkyCoord, u.quantity.Quantity)):
+        if isinstance(args[0], str):
             if 'unit' not in kwargs and len(args) > 0:
                 self._check_for_ra_in_degrees(args[0])
                 kwargs['unit'] = (u.hourangle, u.deg)
+            if kwargs.get('frame') not in [None, 'icrs', 'fk4', 'fk5']:
+                raise ValueError("Only ICRS, FK4 and FK5 frames are allowed" +
+                                 " to Coordinates().")
+
+        elif isinstance(args[0], (SkyCoord, u.quantity.Quantity)):
+            test = '18h00m00s -30d00m00s'
+            is_icrs = args[0].is_equivalent_frame(SkyCoord(test, frame='icrs'))
+            is_fk4 = args[0].is_equivalent_frame(SkyCoord(test, frame='fk4'))
+            is_fk5 = args[0].is_equivalent_frame(SkyCoord(test, frame='fk5'))
+            if not (is_icrs | is_fk4 | is_fk5):
+                raise ValueError("Provided SkyCoord is not in allowed frame.")
+
         SkyCoord.__init__(self, *args, **kwargs)
         if self.cartesian.xyz.shape not in [(3,), (3, 1)]:
             raise ValueError(
