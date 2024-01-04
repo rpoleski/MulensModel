@@ -232,6 +232,20 @@ class MagnificationCurve(object):
                     mm.pointlens.FiniteSourceLDYoo04Magnification(
                         trajectory=trajectory, gamma=self._gamma,
                         direct=True)
+            elif method.lower() == 'finite_source_uniform_WittMao94'.lower():
+                mm.pointlens.FiniteSourceUniformWittMao94Magnification(
+                    trajectory=trajectory)
+            elif method.lower() == 'finite_source_LD_WittMao94'.lower():
+                mm.pointlens.FiniteSourceLDWittMao94Magnification(
+                    trajectory=trajectory, gamma=self._gamma)
+            elif method.lower() == 'finite_source_uniform_Lee09'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceUniformLee09Magnification(
+                        trajectory=trajectory)
+            elif method.lower() == 'finite_source_LD_Lee09'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceLDLee09Magnification(
+                        trajectory=trajectory, gamma=self._gamma)
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))

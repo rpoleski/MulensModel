@@ -670,6 +670,7 @@ class ModelParameters(object):
         """
         Here we check parallax parameters for non-Cassan08 parameterization.
         """
+        # 1# mode
         # Parallax is either pi_E or (pi_E_N, pi_E_E)
         if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
             raise KeyError(

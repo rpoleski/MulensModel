@@ -1167,3 +1167,21 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
 
 
         return self._db1
+
+
+class FiniteSourceUniformWittMao94Magnification(
+    PointSourcePointLensMagnification):
+    pass
+
+
+class FiniteSourceLDWittMao94Magnification(
+    PointSourcePointLensMagnification):
+    pass
+
+
+class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
+    pass
+
+
+class FiniteSourceLDLee09Magnification(PointSourcePointLensMagnification):
+    pass
