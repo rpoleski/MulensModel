@@ -648,14 +648,6 @@ class FitData(object):
 
         d_A_d_params = self._data_magnification_curve.get_d_A_d_params(
             parameters)
-        # if 'rho' in self.model.parameters.parameters:
-        #     derivs = self.FSPL_Derivatives(self)
-        #     gradient = derivs.get_gradient(parameters)
-        # else:
-        # d_u_d_params = self._get_d_u_d_params(parameters)
-        # d_A_d_u = self._data_magnification_curve.get_d_A_d_u()
-        # for key in parameters:
-        #      d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
 
         return d_A_d_params
 
@@ -675,14 +667,6 @@ class FitData(object):
             self._set_data_magnification_curves()
 
         d_A_d_params = self._data_magnification_curve.get_d_A_d_rho()
-        # if 'rho' in self.model.parameters.parameters:
-        #     derivs = self.FSPL_Derivatives(self)
-        #     gradient = derivs.get_gradient(parameters)
-        # else:
-        # d_u_d_params = self._get_d_u_d_params(parameters)
-        # d_A_d_u = self._data_magnification_curve.get_d_A_d_u()
-        # for key in parameters:
-        #      d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
 
         return d_A_d_params
 
@@ -704,126 +688,17 @@ class FitData(object):
 
         return self.model.get_trajectory(self.dataset.time, **kwargs)
 
-    # def get_d_A_d_u_for_PSPL_model(self):
-    #     """
-    #     Calculate dA/du for PSPL point-source--point-lens model.
-    #
-    #     No parameters.
-    #
-    #     Returns :
-    #         dA_du: *np.ndarray*
-    #             Derivative dA/du.
-    #     """
-    #     trajectory = self.get_dataset_trajectory()
-    #     u_2 = trajectory.x**2 + trajectory.y**2
-    #     d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
-    #     return d_A_d_u
+    def get_d_A_d_u_for_PSPL_model(self):
+        raise NotImplementedError('This function was deprecated in Version 3.')
 
-    # def get_d_A_d_u_for_FSPL_model(self):
-    #     """
-    #     Calculate dA/du for FSPL
-    #
-    #     Returns :
-    #         dA_du: *np.ndarray*
-    #             Derivative dA/du.
-    #     """
-    #     d_A_pspl_d_u = self.get_d_A_d_u_for_PSPL_model()
-    #     B_0_gamma_B_1 = self._get_B_0_gamma_B_1()
-    #     A_pspl = self._get_A_pspl()
-    #     d_B_0_gamma_dB_1 = self._get_dB_0_gamma_dB_1()
-    #
-    #     d_A_d_u = d_A_pspl_d_u * B_0_gamma_B_1
-    #     d_A_d_u += (A_pspl / self.model.parameters.rho) * d_B_0_gamma_dB_1
-    #
-    #     return d_A_d_u
+    def get_d_A_d_u_for_FSPL_model(self):
+        raise NotImplementedError('This function was deprecated in Version 3.')
 
-    # def get_d_A_d_u_for_point_lens_model(self):
-    #     """
-    #     Calculate dA/du for point-source--point-lens model. For finite source
-    #     models see :py:class:`FSPLDerivs` or
-    #     py:func:`get_d_A_d_params_for_point_lens_model()`
-    #
-    #     Returns :
-    #         dA_du: *np.ndarray*
-    #             Derivative dA/du.
-    #     """
-    #     if self.model.parameters.is_finite_source():
-    #         # Something that will hopefully be fixed in Version 3:
-    #         raise NotImplementedError(
-    #             'd_A_d_u for FSPL models is implemented through the ' +
-    #             'FSPLDerivs class.')
-    #     else:
-    #         d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
-    #
-    #     return d_A_d_u
+    def get_d_A_d_u_for_point_lens_model(self):
+        raise NotImplementedError('This function was deprecated in Version 3.')
 
-    # def _get_d_u_d_params(self, parameters):
-    #      """
-    #      Calculate d u / d parameters
-    #
-    #      Returns a *dict*.
-    #      """
-    #      du_d_params = self._data_magnification_curve.get_du_d_params(
-    #         parameters)
-    #     # Setup
-    #     gradient = {param: 0 for param in parameters}
-    #     as_dict = self.model.parameters.as_dict()
-    #
-    #     # Get source location
-    #     trajectory = self.get_dataset_trajectory()
-    #     u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
-    #
-    #     # Calculate derivatives
-    #     d_u_d_x = trajectory.x / u_
-    #     d_u_d_y = trajectory.y / u_
-    #     d_u_d_x, d_u_d_y = self._data_magnification_curve.get_du_dxy()
-    #     dt = self.dataset.time - as_dict['t_0']
-
-    #
-    #     # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
-    #     # gradient depends on which ones are defined.
-    #     t_E = self.model.parameters.t_E
-    #     t_eff = self.model.parameters.t_eff
-    #     if 't_eff' not in as_dict:
-    #         gradient['t_0'] = -d_u_d_x / t_E
-    #         gradient['u_0'] = d_u_d_y
-    #         gradient['t_E'] = d_u_d_x * -dt / t_E**2
-    #     elif 't_E' not in as_dict:
-    #         gradient['t_0'] = -d_u_d_x * as_dict['u_0'] / t_eff
-    #         gradient['u_0'] = (d_u_d_y + d_u_d_x * dt / t_eff)
-    #         gradient['t_eff'] = (d_u_d_x * -dt * as_dict['u_0'] / t_eff**2)
-    #     elif 'u_0' not in as_dict:
-    #         gradient['t_0'] = -d_u_d_x / t_E
-    #         gradient['t_E'] = (d_u_d_x * dt - d_u_d_y * t_eff) / t_E**2
-    #         gradient['t_eff'] = d_u_d_y / t_E
-    #     else:
-    #         raise KeyError(
-    #             'Something is wrong with ModelParameters in ' +
-    #             'FitData.calculate_chi2_gradient():\n', as_dict)
-    #
-    #     # Below we deal with parallax only.
-    #     if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-    #         delta_N = trajectory.parallax_delta_N_E['N']
-    #         delta_E = trajectory.parallax_delta_N_E['E']
-    #
-    #         gradient['pi_E_N'] = d_u_d_x * delta_N + d_u_d_y * delta_E
-    #         gradient['pi_E_E'] = d_u_d_x * delta_E - d_u_d_y * delta_N
-    #
-    #     return gradient
-    #
-    # def get_d_A_d_rho(self):
-    #     """
-    #     Calculate the derivative of the magnification with respect to rho.
-    #
-    #     Returns:
-    #         d_A_d_rho: *np.ndarray*
-    #             derivative
-    #     """
-    #     d_A_d_rho = self._data_magnification_curve.get_d_A_d_rho()
-    # #     derivs = self.FSPL_Derivatives(self)
-    # #     return derivs.get_d_A_d_rho()
-    #
-    #     return d_A_d_rho
+    def get_d_A_d_rho(self):
+        raise NotImplementedError('This function was deprecated in Version 3.')
 
     @property
     def chi2_gradient(self):
@@ -1019,166 +894,10 @@ class FitData(object):
         """
         return self._gamma
 
-    # class FSPL_Derivatives(object):
-    #     """
-    #     Calculates derivatives of an FSPL model for each datapoint.
-    #
-    #     Arguments :
-    #         fit: py:class:`FitData` object
-    #
-    #     """
-    #     def __init__(self, fit):
-    #         # The fact that this takes a FitData object as an argument seems
-    #         # circular.
-    #         #
-    #         # Another problem with this code: the ephemerides file is tied to
-    #         # the dataset, so satellite parallax properties need to be defined
-    #         # relative to the dataset *not* the model (which may not have an
-    #         # ephemerides file). This creates bookkeeping problems.
-    #
-    #         # Define the initialization functions
-    #         def _get_u():
-    #             """
-    #             Calculate u (lens-source separation) for all dataset epochs.
-    #             """
-    #             # This calculation gets repeated = Not efficient. Should
-    #             # trajectory be a property of model? No. Wouldn't include
-    #             # dataset ephemerides.
-    #             trajectory = self.fit.get_dataset_trajectory()
-    #             u_ = np.sqrt(trajectory.x ** 2 + trajectory.y ** 2)
-    #             return u_
-    #
-    #         def _get_dataset_satellite_skycoord():
-    #             """
-    #             If set, get satellite_skycoordinates from the dataset.
-    #             Otherwise, return None.
-    #             """
-    #             satellite_skycoord = None
-    #             if self.dataset.ephemerides_file is not None:
-    #                 satellite_skycoord = self.dataset.satellite_skycoord
-    #
-    #             return satellite_skycoord
-    #
-    #         def _get_magnification_curve():
-    #             """
-    #             Get the
-    #             :py:class:`~MulensModel.magnificationcurve.MagnificationCurve.`
-    #             evaluated at the dataset epochs.
-    #             """
-    #             # This code was copied directly from model.py --> indicates a
-    #             # refactor is needed.
-    #             # Also, shouldn't satellite_skycoord be stored as a property
-    #             of
-    #             # mm.Model?
-    #             magnification_curve = mm.MagnificationCurve(
-    #                 self.dataset.time, parameters=self.model.parameters,
-    #                 parallax=self.model.get_parallax(),
-    #                 coords=self.model.coords,
-    #                 satellite_skycoord=self._dataset_satellite_skycoord,
-    #                 gamma=self.gamma)
-    #             magnification_curve.set_magnification_methods(
-    #                 self.model.methods,
-    #                 self.model.default_magnification_method)
-    #
-    #             return magnification_curve
-    #
-    #         def _get_a_pspl():
-    #             """ Calculate and return the point lens magnification. """
-    #             zip_ = self.model.parameters.parameters.items()
-    #             point_source_params = {key: value for (key, value) in zip_}
-    #             point_source_params.pop('rho')
-    #             point_source_curve = mm.MagnificationCurve(
-    #                 self.dataset.time,
-    #                 parameters=mm.ModelParameters(point_source_params),
-    #                 parallax=self.model.get_parallax(),
-    #                 coords=self.model.coords,
-    #                 satellite_skycoord=self._dataset_satellite_skycoord)
-    #
-    #             a_pspl = point_source_curve.get_magnification()
-    #             return a_pspl
-    #
-    #         def _get_b0_gamma_b1_and_derivs():
-    #             """
-    #             Retrieve B0 - gamma * B1 and its derivative for each epoch.
-    #             For uniform source, return B0 and its derivative.
-    #             """
-    #             z_ = self.u_ / self.model.parameters.rho
-    #
-    #             b0_gamma_b1 = np.ones(len(self.dataset.time))
-    #             db0_gamma_db1 = np.zeros(len(self.dataset.time))
-    #             B0B1 = self._B0B1_data
-    #             # This section was copied from magnificationcurve.py. Addl
-    #             # evidence a refactor is needed.
-    #             methods = np.array(
-    #                 self._magnification_curve.methods_for_epochs)
-    #             for method in set(methods):
-    #                 selection = (methods == method) & (
-    #                              z_ < B0B1.z_max_interpolation)
-    #                 z = z_[selection]
-    #                 method_ = method.lower()
-    #                 if method_ == 'point_source':
-    #                     pass  # These cases are already taken care of.
-    #                 elif method_ == 'finite_source_uniform_Gould94'.lower():
-    #                     b0_gamma_b1[selection] = B0B1.interpolate_B0(z)
-    #                     db0_gamma_db1[selection] = B0B1.interpolate_B0prime(z)
-    #                 elif method_ == 'finite_source_LD_Yoo04'.lower():
-    #                     B0 = B0B1.interpolate_B0(z)
-    #                     B0_prime = B0B1.interpolate_B0prime(z)
-    #                     B1 = B0B1.interpolate_B1(z)
-    #                     B1_prime = B0B1.interpolate_B1prime(z)
-    #
-    #                     b0_gamma_b1[selection] = B0 - self.gamma * B1
-    #                     db0_gamma_db1[selection] = (
-    #                         B0_prime - self.gamma * B1_prime)
-    #                 else:
-    #                     msg = "dA/drho only implemented for 'finite_source_"
-    #                     msg += "uniform_Gould94' and 'finite_source_LD"
-    #                     msg += "_Yoo04'. Your value: {:}"
-    #                     raise ValueError(msg.format(method))
-    #
-    #             return (b0_gamma_b1, db0_gamma_db1)
-    #
-    #         # Actual Initializations
-    #         self.fit = fit
-    #         self.dataset = self.fit.dataset
-    #         self.model = self.fit.model
-    #         self.gamma = self.fit.gamma
-    #
-    #         self._B0B1_data = mm.PointLensFiniteSource()
-    #         self.u_ = _get_u()
-    #         self._dataset_satellite_skycoord = (
-    #             _get_dataset_satellite_skycoord())
-    #         self._magnification_curve = _get_magnification_curve()
-    #         self.a_pspl = _get_a_pspl()
-    #         b0_gamma_b1_and_derivs = _get_b0_gamma_b1_and_derivs()
-    #         self.b0_gamma_b1 = b0_gamma_b1_and_derivs[0]
-    #         self.db0_gamma_db1 = b0_gamma_b1_and_derivs[1]
-    #
-    #     def get_gradient(self, parameters):
-    #         """
-    #         Return the gradient of the magnification with respect to the
-    #         FSPL parameters.
-    #         """
-    #         d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
-    #         factor = self.a_pspl * self.db0_gamma_db1
-    #         factor /= self.model.parameters.rho
-    #         factor += d_A_pspl_d_u * self.b0_gamma_b1
-    #
-    #         gradient = self.fit._get_d_u_d_params(parameters)
-    #         for key in parameters:
-    #             if key == 'rho':
-    #                 gradient[key] = self.get_d_A_d_rho()
-    #             else:
-    #                 gradient[key] *= factor
-    #
-    #         return gradient
-    #
-    #     def get_d_A_d_rho(self):
-    #         """
-    #         Return the derivative of the magnification with respect to rho.
-    #         """
-    #         d_A_d_rho = self.a_pspl
-    #         d_A_d_rho *= -self.u_ / self.model.parameters.rho**2
-    #         d_A_d_rho *= self.db0_gamma_db1
-    #
-    #         return d_A_d_rho
+    class FSPL_Derivatives(object):
+
+        def __init__(self, fit):
+             raise NotImplementedError(
+                 'The FSPL_Derivatives class was deprecated in Version 3. ' +
+                 'Its various functions were incorporated into the new ' +
+                 'PointLens classes.')
