@@ -1360,7 +1360,141 @@ class FiniteSourceLDWittMao94Magnification(
 
 
 class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
-    pass
+
+    def __init__(self, **kwargs):
+        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        self.n = 100
+
+    def get_magnification(self):
+        """
+        Calculate magnification for the point lens and *uniform* finite source.
+        This approach works well for small and large sources
+        (e.g., rho~0.5). Uses the method presented by:
+
+        `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
+        Microlensing: A Precise, Easy to Implement, Fast, and Numerically
+        Stable Formalism"
+        <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+
+        Parameters :
+            u: *np.array*
+                The instantaneous source-lens separation.
+
+            rho: *float*
+                Source size as a fraction of the Einstein radius.
+
+        Returns :
+            magnification: *np.array*
+                The finite source magnification.
+        """
+
+        u = self.u_
+
+        mag = np.zeros_like(u)
+
+        for i in range(len(u)):
+            if u[i] > self.trajectory.parameters.rho:
+                mag[i] = self._noLD_Lee09_large_u(u[i])
+            else:
+                mag[i] = self._noLD_Lee09_small_u(u[i])
+
+        return mag
+
+    def _u_1_Lee09(self, theta, u, theta_max=None):
+        """
+        Calculates Equation 4 of Lee et al. 2009.
+        The u variable is float, theta is np.ndarray.
+        """
+        rho = self.trajectory.parameters.rho
+
+        if u <= rho:
+            return 0. * theta
+
+        out = np.zeros_like(theta)
+        mask = (theta <= theta_max)
+        if np.any(mask):
+            ucos = u * np.cos(theta[mask])
+            out[mask] = ucos - np.sqrt(rho * rho - u * u + ucos**2)
+
+        return out
+
+    def _u_2_Lee09(self, theta, u, theta_max=None):
+        """
+        Calculates Equation 5 of Lee et al. 2009.
+        The u variable is float, theta is np.ndarray.
+        """
+        rho = self.trajectory.parameters.rho
+
+        if u <= rho:
+            ucos = u * np.cos(theta)
+
+            return ucos + np.sqrt(rho * rho - u * u + ucos**2)
+        else:
+            out = np.zeros_like(theta)
+            mask = (theta <= theta_max)
+            if np.any(mask):
+                ucos = u * np.cos(theta[mask])
+                out[mask] = ucos + np.sqrt(rho * rho - u * u + ucos**2)
+
+            return out
+
+    def _f_Lee09(self, theta, u, theta_max=None):
+        """
+        Calculates equation in text between Eq. 7 and 8 from
+        Lee et al. 2009.
+        """
+
+        u_1_ = self._u_1_Lee09(theta, u, theta_max)
+        u_2_ = self._u_2_Lee09(theta, u, theta_max)
+
+        f_u_1 = u_1_ * np.sqrt(u_1_**2 + 4.)
+        f_u_2 = u_2_ * np.sqrt(u_2_**2 + 4.)
+
+        return f_u_2 - f_u_1
+
+    def _noLD_Lee09_large_u(self, u):
+        """
+        Calculates Equation 7 from Lee et al. 2009 in case u > rho.
+        """
+        rho = self.trajectory.parameters.rho
+        n = self.n
+
+        if n % 2 != 0:
+            raise ValueError('internal error - odd number expected')
+
+        theta_max = np.arcsin(rho / u)
+        out = (u + rho) * sqrt((u + rho)**2 + 4.) - \
+            (u - rho) * sqrt((u - rho)**2 + 4.)
+        vector_1 = np.arange(1., (n / 2 - 1.) + 1)
+        vector_2 = np.arange(1., n / 2 + 1)
+        arg_1 = 2. * vector_1 * theta_max / n
+        arg_2 = (2. * vector_2 - 1.) * theta_max / n
+        out += 2. * np.sum(self._f_Lee09(arg_1, u, theta_max))
+        out += 4. * np.sum(self._f_Lee09(arg_2, u, theta_max))
+        out *= theta_max / (3. * np.pi * rho * rho * n)
+
+        return out
+
+    def _noLD_Lee09_small_u(self, u):
+        """
+        Calculates Equation 7 from Lee et al. 2009 in case u < rho.
+        """
+        rho = self.trajectory.parameters.rho
+        n = self.n
+
+        if n % 2 != 0:
+            raise ValueError('internal error - odd number expected')
+        out = (u + rho) * sqrt((u + rho)**2 + 4.) - \
+            (u - rho) * sqrt((u - rho)**2 + 4.)
+        vector_1 = np.arange(1., (n - 1.) + 1)
+        vector_2 = np.arange(1., n + 1)
+        arg_1 = vector_1 * np.pi / n
+        arg_2 = (2. * vector_2 - 1.) * np.pi / (2. * n)
+        out += 2. * np.sum(self._f_Lee09(arg_1, u, rho))
+        out += 4. * np.sum(self._f_Lee09(arg_2, u, rho))
+        out /= 2. * 3. * n * rho * rho
+
+        return out
 
 
 class FiniteSourceLDLee09Magnification(PointSourcePointLensMagnification):
