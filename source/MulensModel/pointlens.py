@@ -1201,9 +1201,6 @@ class FiniteSourceUniformWittMao94Magnification(
             a = np.pi / 2. + np.arcsin((u2 - 1.) / (u2 + 1.))
             return (2. / u + (1. + u2) * a / u2) / np.pi
 
-        if not PointLens._elliptic_files_read:
-            self._read_elliptic_files()
-
         a_1 = 0.5 * (u + rho) * (4. + (u - rho)**2)**.5 / rho**2
         a_2 = -(u - rho) * (4. + 0.5 * (u**2 - rho**2))
         a_2 /= (rho**2 * (4. + (u - rho)**2)**.5)
@@ -1227,10 +1224,11 @@ class FiniteSourceUniformWittMao94Magnification(
         Use interpolation if possible.
         """
         x = log10(k)
-        condition_1 = (x >= PointLens._interpolate_1_2_x_min)
-        condition_2 = (x <= PointLens._interpolate_1_2_x_max)
+        condition_1 = (x >= mm.EllipUtils._interpolate_1_2_x_min)
+        condition_2 = (x <= mm.EllipUtils._interpolate_1_2_x_max)
         if condition_1 and condition_2:
-            return PointLens._interpolate_1(x)
+            return mm.EllipUtils._interpolate_1(x)
+
         return ellipk(k)
 
     def _get_ellipe(self, k):
@@ -1239,10 +1237,11 @@ class FiniteSourceUniformWittMao94Magnification(
         Use interpolation if possible.
         """
         x = log10(k)
-        condition_1 = (x >= PointLens._interpolate_1_2_x_min)
-        condition_2 = (x <= PointLens._interpolate_1_2_x_max)
+        condition_1 = (x >= mm.EllipUtils._interpolate_1_2_x_min)
+        condition_2 = (x <= mm.EllipUtils._interpolate_1_2_x_max)
         if condition_1 and condition_2:
-            return PointLens._interpolate_2(x)
+            return mm.EllipUtils._interpolate_2(x)
+
         return ellipe(k)
 
     def _get_ellip3(self, n, k):
@@ -1250,13 +1249,14 @@ class FiniteSourceUniformWittMao94Magnification(
         Get value of elliptic integral of the third kind.
         Use interpolation if possible.
         """
-        cond_1 = (n >= PointLens._interpolate_3_min_x)
-        cond_2 = (n <= PointLens._interpolate_3_max_x)
-        cond_3 = (k >= PointLens._interpolate_3_min_y)
-        cond_4 = (k <= PointLens._interpolate_3_max_y)
+        cond_1 = (n >= mm.EllipUtils._interpolate_3_min_x)
+        cond_2 = (n <= mm.EllipUtils._interpolate_3_max_x)
+        cond_3 = (k >= mm.EllipUtils._interpolate_3_min_y)
+        cond_4 = (k <= mm.EllipUtils._interpolate_3_max_y)
 
         if cond_1 and cond_2 and cond_3 and cond_4:
-            return PointLens._interpolate_3(n, k)[0]
+            return mm.EllipUtils._interpolate_3(n, k)[0]
+
         return ellip3(n, k)
 
 
