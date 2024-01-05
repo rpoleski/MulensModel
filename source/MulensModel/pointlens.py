@@ -542,7 +542,7 @@ class FiniteSourceUniformWittMao94Magnification(
     def __init__(self, **kwargs):
         PointSourcePointLensMagnification.__init__(self, **kwargs)
 
-        self._B0B1_data = mm.B0B1Utils()
+        self._B0B1_data = mm.B0B1Utils() # This seems wrong...
 
     def get_magnification(self):
         out = [self._get_magnification_WM94(u_) for u_ in self.u_]
