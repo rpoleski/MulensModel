@@ -542,7 +542,7 @@ class FiniteSourceUniformWittMao94Magnification(
     def __init__(self, **kwargs):
         PointSourcePointLensMagnification.__init__(self, **kwargs)
 
-        self._B0B1_data = mm.B0B1Utils() # This seems wrong...
+        self._ellip_data = mm.EllipUtils()
 
     def get_magnification(self):
         out = [self._get_magnification_WM94(u_) for u_ in self.u_]
@@ -584,10 +584,10 @@ class FiniteSourceUniformWittMao94Magnification(
         Use interpolation if possible.
         """
         x = log10(k)
-        condition_1 = (x >= mm.EllipUtils._interpolate_1_2_x_min)
-        condition_2 = (x <= mm.EllipUtils._interpolate_1_2_x_max)
+        condition_1 = (x >= self._ellip_data._interpolate_1_2_x_min)
+        condition_2 = (x <= self._ellip_data._interpolate_1_2_x_max)
         if condition_1 and condition_2:
-            return mm.EllipUtils._interpolate_1(x)
+            return self._ellip_data._interpolate_1(x)
 
         return ellipk(k)
 
@@ -597,10 +597,10 @@ class FiniteSourceUniformWittMao94Magnification(
         Use interpolation if possible.
         """
         x = log10(k)
-        condition_1 = (x >= mm.EllipUtils._interpolate_1_2_x_min)
-        condition_2 = (x <= mm.EllipUtils._interpolate_1_2_x_max)
+        condition_1 = (x >= self._ellip_data._interpolate_1_2_x_min)
+        condition_2 = (x <= self._ellip_data._interpolate_1_2_x_max)
         if condition_1 and condition_2:
-            return mm.EllipUtils._interpolate_2(x)
+            return self._ellip_data._interpolate_2(x)
 
         return ellipe(k)
 
@@ -609,13 +609,13 @@ class FiniteSourceUniformWittMao94Magnification(
         Get value of elliptic integral of the third kind.
         Use interpolation if possible.
         """
-        cond_1 = (n >= mm.EllipUtils._interpolate_3_min_x)
-        cond_2 = (n <= mm.EllipUtils._interpolate_3_max_x)
-        cond_3 = (k >= mm.EllipUtils._interpolate_3_min_y)
-        cond_4 = (k <= mm.EllipUtils._interpolate_3_max_y)
+        cond_1 = (n >= self._ellip_data._interpolate_3_min_x)
+        cond_2 = (n <= self._ellip_data._interpolate_3_max_x)
+        cond_3 = (k >= self._ellip_data._interpolate_3_min_y)
+        cond_4 = (k <= self._ellip_data._interpolate_3_max_y)
 
         if cond_1 and cond_2 and cond_3 and cond_4:
-            return mm.EllipUtils._interpolate_3(n, k)[0]
+            return self._ellip_data._interpolate_3(n, k)[0]
 
         return ellip3(n, k)
 
