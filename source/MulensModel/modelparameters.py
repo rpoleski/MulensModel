@@ -250,8 +250,8 @@ class ModelParameters(object):
                     raise
 
         else:
-            raise ValueError(
-                'wrong number of sources. Your parameters:', parameters)
+            msg = 'wrong number of sources. Your parameters: {0:}'
+            raise ValueError(msg.format(parameters))
 
         self._set_parameters(parameters)
 
