@@ -1,6 +1,7 @@
 import os
+import unittest
 import numpy as np
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, ICRS, FK4, FK5, Galactic
 import astropy.units as u
 
 import MulensModel as mm
@@ -47,6 +48,25 @@ def test_event_coords():
     event_3.model.coords = '5:10:15 20:25:30'
     new_coord_str = '05h10m15s +20d25m30s'
     assert event_3.model.coords.to_string('hmsdms') == new_coord_str
+
+
+def test_coord_validation():
+
+    c_test = '18h00m00s -30d00m00s'
+    tests = [mm.Coordinates(c_test, usr=True),
+             mm.Coordinates(c_test, frame='fk4', usr=True),
+             mm.Coordinates(SkyCoord(c_test, frame='fk5'), usr=True),
+             mm.Coordinates(ICRS(*c_test.split()), usr=True),
+             mm.Coordinates(FK4(*c_test.split()), usr=True),
+             mm.Coordinates(FK5(*c_test.split()), usr=True)]
+    t_errors = [(c_test, 'galactic'),
+                (SkyCoord(c_test, frame='galactic'), None),
+                (Galactic(*c_test.split()), None)]
+    for test in tests:
+        assert test.to_string('hmsdms') == c_test
+    for error in t_errors:
+        with unittest.TestCase().assertRaises(ValueError):
+            mm.Coordinates(error[0], frame=error[1], usr=True)
 
 
 def check_event_coords(event, ra, dec):

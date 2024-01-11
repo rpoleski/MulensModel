@@ -40,7 +40,8 @@ class Coordinates(SkyCoord):
             if 'unit' not in kwargs and len(args) > 0:
                 self._check_for_ra_in_degrees(args[0])
                 kwargs['unit'] = (u.hourangle, u.deg)
-        self._validate_input(args[0], kwargs.get('frame'))
+        frame, usr = kwargs.get('frame'), kwargs.pop('usr', False)
+        self._validate_input(args[0], frame, usr)
 
         SkyCoord.__init__(self, *args, **kwargs)
         if self.cartesian.xyz.shape not in [(3,), (3, 1)]:
@@ -75,16 +76,15 @@ class Coordinates(SkyCoord):
                 "a default unit for RA is hours (not degrees). " + str(value))
             warnings.warn(warning, UserWarning)
 
-    def _validate_input(self, arg, frame):
+    def _validate_input(self, arg, frame, usr):
         """
         Validate input for coordinates, checking if format is allowed (ICRS,
         FK4 or FK5) or raising ValueError otherwise. If SkyCoord() instance
         is provided, the frame should be allowed as well.
         """
         allowed_fmts = (str, SkyCoord, ICRS, FK4, FK5)
-        if not isinstance(arg, allowed_fmts):
-            class_ = type(arg)
-            raise ValueError(f'Coordinate format {class_} is not allowed.')
+        if usr and not isinstance(arg, allowed_fmts):
+            raise ValueError(f'Coordinate format {type(arg)} is not allowed.')
 
         if isinstance(arg, str):
             if frame not in [None, 'icrs', 'fk4', 'fk5']:
