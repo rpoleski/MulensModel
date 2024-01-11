@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, ICRS, FK4, FK5
 from astropy import units as u
 
 from MulensModel.utils import Utils
@@ -40,17 +40,7 @@ class Coordinates(SkyCoord):
             if 'unit' not in kwargs and len(args) > 0:
                 self._check_for_ra_in_degrees(args[0])
                 kwargs['unit'] = (u.hourangle, u.deg)
-            if kwargs.get('frame') not in [None, 'icrs', 'fk4', 'fk5']:
-                raise ValueError("Only ICRS, FK4 and FK5 frames are allowed" +
-                                 " to Coordinates().")
-
-        elif isinstance(args[0], (SkyCoord, u.quantity.Quantity)):
-            test = '18h00m00s -30d00m00s'
-            is_icrs = args[0].is_equivalent_frame(SkyCoord(test, frame='icrs'))
-            is_fk4 = args[0].is_equivalent_frame(SkyCoord(test, frame='fk4'))
-            is_fk5 = args[0].is_equivalent_frame(SkyCoord(test, frame='fk5'))
-            if not (is_icrs | is_fk4 | is_fk5):
-                raise ValueError("Provided SkyCoord is not in allowed frame.")
+        self._validate_input(args[0], kwargs.get('frame'))
 
         SkyCoord.__init__(self, *args, **kwargs)
         if self.cartesian.xyz.shape not in [(3,), (3, 1)]:
@@ -84,6 +74,30 @@ class Coordinates(SkyCoord):
                 "It's very uncommon to use negative RA. Please remember that "
                 "a default unit for RA is hours (not degrees). " + str(value))
             warnings.warn(warning, UserWarning)
+
+    def _validate_input(self, arg, frame):
+        """
+        Validate input for coordinates, checking if format is allowed (ICRS,
+        FK4 or FK5) or raising ValueError otherwise. If SkyCoord() instance
+        is provided, the frame should be allowed as well.
+        """
+        allowed_fmts = (str, SkyCoord, ICRS, FK4, FK5)
+        if not isinstance(arg, allowed_fmts):
+            class_ = type(arg)
+            raise ValueError(f'Coordinate format {class_} is not allowed.')
+
+        if isinstance(arg, str):
+            if frame not in [None, 'icrs', 'fk4', 'fk5']:
+                raise ValueError("Only ICRS, FK4 and FK5 frames are allowed" +
+                                 " to Coordinates().")
+
+        elif isinstance(arg, (SkyCoord, u.quantity.Quantity)):
+            test = '18h00m00s -30d00m00s'
+            is_icrs = arg.is_equivalent_frame(SkyCoord(test, frame='icrs'))
+            is_fk4 = arg.is_equivalent_frame(SkyCoord(test, frame='fk4'))
+            is_fk5 = arg.is_equivalent_frame(SkyCoord(test, frame='fk5'))
+            if not (is_icrs | is_fk4 | is_fk5):
+                raise ValueError("Provided SkyCoord is not in allowed frame.")
 
     def _calculate_projected(self):
         """
