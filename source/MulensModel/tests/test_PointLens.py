@@ -1,3 +1,5 @@
+import unittest
+
 import numpy as np
 import os
 
@@ -126,3 +128,32 @@ def test_get_d_u_d_params():
     for param in parameters:
         ratio = derivs_ephm[param] / derivs_no_ephm[param]
         assert (np.abs(ratio - 1.) > 0.001).all()
+
+# Make sure every element of the PointLensMagnification classes are tested.
+
+class TestPointSourcePointLensMagnification(unittest.TestCase):
+
+    def test_get_pspl_magnification(self):
+        assert 1 == 2
+
+    def test_get_magnification(self):
+        assert 1 == 2
+
+    def test_get_d_A_d_params(self):
+        assert 1 == 2
+
+    def test_get_d_u_d_params(self):
+        assert 1 == 2
+
+    def test_pspl_magnification(self):
+        assert 1 == 2
+
+    def test_magnification(self):
+        assert 1 == 2
+
+    def test_u_(self):
+        assert 1 == 2
+
+    def test_u_2(self):
+        assert 1 == 2
+
