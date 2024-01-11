@@ -211,8 +211,8 @@ class ModelParameters(object):
     """
 
     # parameters that may be defined for a given source
-    source_params_head = ['t_0', 'u_0', 'rho', 't_star']
-    t_0_ref_types = ['par', 'kep']
+    _source_params_head = ['t_0', 'u_0', 'rho', 't_star']
+    _t_0_ref_types = ['par', 'kep']
 
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
@@ -413,7 +413,7 @@ class ModelParameters(object):
                     params_i[key] = value
                 else:
                     is_source = False
-                    for param_head in ModelParameters.source_params_head:
+                    for param_head in ModelParameters._source_params_head:
                         try:
                             if key[0:len(param_head)] == param_head:
                                 is_source = True
@@ -525,7 +525,7 @@ class ModelParameters(object):
 
         if self.n_sources > 1:
             for i in range(self.n_sources):
-                for param_head in ModelParameters.source_params_head:
+                for param_head in ModelParameters._source_params_head:
                     form = formats[param_head]
                     key = '{0}_{1}'.format(param_head, i+1)
                     formats[key] = {'width': form['width'],
@@ -582,7 +582,7 @@ class ModelParameters(object):
         make sure that there is no conflict between t_0 and t_0_1 etc.
         Also make sure that t_0 and u_0 are defined for all sources.
         """
-        for parameter in ModelParameters.source_params_head:
+        for parameter in ModelParameters._source_params_head:
             if parameter in keys:
                 raise KeyError(
                     'You cannot set {0} for multiple sources.'.format(
