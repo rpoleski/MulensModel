@@ -5,11 +5,13 @@ import os
 
 
 import MulensModel as mm
+import fortran_files
 from test_FitData import create_0939_parallax_model, SAMPLE_FILE_03, \
     SAMPLE_FILE_03_EPH
 
 SAMPLE_FILE = os.path.join(mm.DATA_PATH, 'unit_test_files', 'FSPL_test_1.dat')
-
+PSPL_SAMPLE_DIR = os.path.join(
+    mm.DATA_PATH, 'unit_test_files', 'fspl_derivs', 'test_PointLensClasses')
 
 def get_file_params(filename):
     """Read in the model parameters used to create the file"""
@@ -133,11 +135,25 @@ def test_get_d_u_d_params():
 
 class TestPointSourcePointLensMagnification(unittest.TestCase):
 
+    def setUp(self):
+        self.sfit_files = fortran_files.read_sfit_files(PSPL_SAMPLE_DIR)
+
+        parameters = ['t_0', 'u_0', 't_E', 'rho']
+        self.parameters = mm.ModelParameters(
+            dict(zip(parameters, self.sfit_files['51'].a)))
+        self.trajectory = mm.Trajectory(
+            self.sfit_files['63'].t, self.parameters)
+        self.mag_obj = mm.PointSourcePointLensMagnification(self.trajectory)
+
     def test_get_pspl_magnification(self):
-        assert 1 == 2
+        pspl_mag = self.mag_obj.get_pspl_magnification()
+        np.testing.assert_allclose(
+            pspl_mag, self.sfit_files['63'].amp, rtol=0.0001)
 
     def test_get_magnification(self):
-        assert 1 == 2
+        mag = self.mag_obj.get_magnification()
+        np.testing.assert_allclose(
+            mag, self.sfit_files['63'].amp, rtol=0.0001)
 
     def test_get_d_A_d_params(self):
         assert 1 == 2
@@ -146,14 +162,26 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         assert 1 == 2
 
     def test_pspl_magnification(self):
-        assert 1 == 2
+        np.testing.assert_allclose(
+            self.mag_obj.pspl_magnification, self.sfit_files['63'].amp,
+            rtol=0.0001)
 
     def test_magnification(self):
-        assert 1 == 2
+        with self.assertRaises(AttributeError):
+            self.mag_obj.magnification
+
+        self.mag_obj.get_magnification()
+        np.testing.assert_allclose(
+            self.mag_obj.magnification, self.sfit_files['63'].amp,
+            rtol=0.0001)
 
     def test_u_(self):
-        assert 1 == 2
+        np.testing.assert_allclose(
+            self.mag_obj.u_, self.sfit_files['63'].x,
+            rtol=0.0001)
 
     def test_u_2(self):
-        assert 1 == 2
+        np.testing.assert_allclose(
+            self.mag_obj.u_2, self.sfit_files['63'].x2,
+            rtol=0.0001)
 

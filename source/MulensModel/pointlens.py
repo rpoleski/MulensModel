@@ -183,6 +183,11 @@ class PointSourcePointLensMagnification():
 
         Magnification for each epoch.
         """
+        if self._magnification is None:
+            raise AttributeError(
+                'Magnification has not been calculated. Run ' +
+                'get_magnification() first.')
+
         return self._magnification
 
     @property
