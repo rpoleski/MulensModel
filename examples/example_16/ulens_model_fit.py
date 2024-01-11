@@ -3098,8 +3098,8 @@ class UlensModelFit(object):
         """
         settings = self._plots['best model']["second Y scale"]
         magnifications = settings['magnifications']
-        color = settings.get("color", "red")
-        label = settings.get("label", "magnification")
+        color = settings.get("color", "black")
+        label = settings.get("label", "Magnification")
         labels = settings.get("labels")
 
         ylim = plt.ylim()
