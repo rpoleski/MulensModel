@@ -122,7 +122,7 @@ class Coordinates(SkyCoord):
         Galactic longitude. Note that for connivance, the values l >
         180 degrees are represented as 360-l.
         """
-        gal_l = self.galactic.l
+        gal_l = SkyCoord(self).galactic.l
         if gal_l > 180. * u.deg:
             gal_l = gal_l - 360. * u.deg
         return gal_l
@@ -134,7 +134,7 @@ class Coordinates(SkyCoord):
 
         Galactic latitude calculated from (RA, Dec)
         """
-        return self.galactic.b
+        return SkyCoord(self).galactic.b
 
     @property
     def ecliptic_lon(self):
