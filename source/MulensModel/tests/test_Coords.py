@@ -53,12 +53,12 @@ def test_event_coords():
 def test_coord_validation():
 
     c_test = '18h00m00s -30d00m00s'
-    tests = [mm.Coordinates(c_test, usr=True),
-             mm.Coordinates(c_test, frame='fk4', usr=True),
-             mm.Coordinates(SkyCoord(c_test, frame='fk5'), usr=True),
-             mm.Coordinates(ICRS(*c_test.split()), usr=True),
-             mm.Coordinates(FK4(*c_test.split()), usr=True),
-             mm.Coordinates(FK5(*c_test.split()), usr=True)]
+    tests = [mm.Coordinates(c_test),
+             mm.Coordinates(c_test, frame='fk4'),
+             mm.Coordinates(SkyCoord(c_test, frame='fk5')),
+             mm.Coordinates(ICRS(*c_test.split())),
+             mm.Coordinates(FK4(*c_test.split())),
+             mm.Coordinates(FK5(*c_test.split()))]
     t_errors = [(c_test, 'galactic'),
                 (SkyCoord(c_test, frame='galactic'), None),
                 (Galactic(*c_test.split()), None)]
@@ -66,8 +66,7 @@ def test_coord_validation():
         assert test.to_string('hmsdms') == c_test
     for error in t_errors:
         with unittest.TestCase().assertRaises(ValueError):
-            mm.Coordinates(error[0], frame=error[1], usr=True)
-
+            mm.Coordinates(error[0], frame=error[1])
 
 def check_event_coords(event, ra, dec):
     """
