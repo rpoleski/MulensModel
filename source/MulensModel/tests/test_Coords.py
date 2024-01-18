@@ -1,6 +1,8 @@
 import os
+import unittest
 import numpy as np
-from astropy.coordinates import SkyCoord
+import pytest
+from astropy.coordinates import SkyCoord, ICRS, FK4, FK5, Galactic
 import astropy.units as u
 
 import MulensModel as mm
@@ -47,6 +49,32 @@ def test_event_coords():
     event_3.model.coords = '5:10:15 20:25:30'
     new_coord_str = '05h10m15s +20d25m30s'
     assert event_3.model.coords.to_string('hmsdms') == new_coord_str
+
+
+cval = '18h00m00s -30d00m00s'
+tested_cs = [(cval, None), (cval, 'fk4'),
+             (SkyCoord(cval, frame='fk5'), None), (ICRS(*cval.split()), None),
+             (FK4(*cval.split()), None), (FK5(*cval.split()), None)]
+tested_cs2 = [(cval, 'galactic'), (SkyCoord(cval, frame='galactic'), None),
+              (Galactic(*cval.split()), None)]
+
+
+@pytest.mark.parametrize("coord_test", tested_cs)
+def test_coord_validation(coord_test):
+    """
+    Test Coordinates input to accept frames than icrs, fk4 and fk5.
+    """
+    coord_instance = mm.Coordinates(coord_test[0], frame=coord_test[1])
+    assert coord_instance.to_string('hmsdms') == cval
+
+
+@pytest.mark.parametrize("coord_test2", tested_cs2)
+def test_coord_validation_error(coord_test2):
+    """
+    Test Coordinates input to reject frames different than icrs, fk4 and fk5.
+    """
+    with unittest.TestCase().assertRaises(ValueError):
+        mm.Coordinates(coord_test2[0], frame=coord_test2[1])
 
 
 def check_event_coords(event, ra, dec):
