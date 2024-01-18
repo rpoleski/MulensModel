@@ -131,8 +131,8 @@ def test_get_d_u_d_params():
         ratio = derivs_ephm[param] / derivs_no_ephm[param]
         assert (np.abs(ratio - 1.) > 0.001).all()
 
-# Make sure every element of the PointLensMagnification classes are tested.
 
+# Make sure every element of the PointLensMagnification classes are tested.
 class TestPointSourcePointLensMagnification(unittest.TestCase):
 
     def setUp(self):
@@ -207,7 +207,6 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 np.testing.assert_allclose(
                     dA_dparam[param], sfit_dA_dparam, rtol=0.015)
 
-
     def test_get_d_u_d_params(self):
         """
         PSPL
@@ -246,7 +245,6 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 sfit_dA_dparam = sfit_df_dparam / source_flux / fspl_factor
                 np.testing.assert_allclose(
                     du_dparam[param], sfit_dA_dparam, rtol=0.015)
-
 
     def test_get_d_A_d_u(self):
         for (nob_indices, mag_obj) in zip(
