@@ -40,8 +40,7 @@ class Coordinates(SkyCoord):
             if 'unit' not in kwargs and len(args) > 0:
                 self._check_for_ra_in_degrees(args[0])
                 kwargs['unit'] = (u.hourangle, u.deg)
-        frame = kwargs.get('frame')
-        self._validate_input(args[0], frame)
+        self._validate_input(args[0], kwargs.get('frame'))
 
         SkyCoord.__init__(self, *args, **kwargs)
         if self.cartesian.xyz.shape not in [(3,), (3, 1)]:
@@ -144,7 +143,7 @@ class Coordinates(SkyCoord):
         ecliptic longitude calculated from (RA, Dec)
         """
         from astropy.coordinates import GeocentricTrueEcliptic
-        return self.transform_to(GeocentricTrueEcliptic).lon
+        return SkyCoord(self).transform_to(GeocentricTrueEcliptic).lon
 
     @property
     def ecliptic_lat(self):
@@ -154,7 +153,7 @@ class Coordinates(SkyCoord):
         ecliptic latitude calculated from (RA, Dec)
         """
         from astropy.coordinates import GeocentricTrueEcliptic
-        return self.transform_to(GeocentricTrueEcliptic).lat
+        return SkyCoord(self).transform_to(GeocentricTrueEcliptic).lat
 
     @property
     def north_projected(self):
