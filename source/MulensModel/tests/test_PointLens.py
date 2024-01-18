@@ -167,6 +167,29 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 mag, self.sfit_files['63'].amp[nob_indices], rtol=0.0001)
 
     def test_get_d_A_d_params(self):
+        assert 1 == 2
+
+
+    def test_get_d_u_d_params(self):
+        """
+        PSPL
+        d_A_d_params[key] = d_A_d_u * d_u_d_params[key]
+
+        FSPL
+        if key == 'rho':
+            d_A_d_params[key] = self.get_d_A_d_rho()
+        else:
+            d_A_d_params[key] = d_u_d_params[key] * factor
+
+        sfit returns: FSPL:
+            61 dA/drho
+            62 df/dparams, dAdu
+
+        df/dparams = fs * dA/dparams
+
+        So, df/dparams / fs / factor = d_u_d_params
+        """
+
         params = ['t_0', 'u_0', 't_E']
 
         for (nob_indices, source_flux, gamma, mag_obj) in zip(
@@ -174,7 +197,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 self.sfit_files['51'].source_fluxes,
                 self.gammas, self.mag_objs):
 
-            dA_dparam = mag_obj.get_d_A_d_params(params)
+            dA_dparam = mag_obj.get_d_u_d_params(params)
 
             fspl_factor = self.sfit_files['63'].amp[nob_indices] * (
                         self.sfit_files['61'].db0[nob_indices] -
@@ -192,8 +215,6 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 np.testing.assert_allclose(
                     dA_dparam[param], sfit_dA_dparam, rtol=0.015)
 
-    def test_get_d_u_d_params(self):
-        assert 1 == 2
 
     def test_get_d_A_d_u(self):
         for (nob_indices, mag_obj) in zip(
