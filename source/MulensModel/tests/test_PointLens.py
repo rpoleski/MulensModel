@@ -196,7 +196,12 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         assert 1 == 2
 
     def test_get_d_A_d_u(self):
-        assert 1 == 2
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['62'].sfit_nob_indices, self.mag_objs):
+
+            dA_du = mag_obj.get_d_A_d_u()
+            np.testing.assert_allclose(
+                dA_du, self.sfit_files['62'].dAdu[nob_indices], rtol=0.015)
 
     def test_pspl_magnification(self):
         for (nob_indices, mag_obj) in zip(
