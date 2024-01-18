@@ -141,47 +141,77 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         parameters = ['t_0', 'u_0', 't_E', 'rho']
         self.parameters = mm.ModelParameters(
             dict(zip(parameters, self.sfit_files['51'].a)))
-        self.trajectory = mm.Trajectory(
-            self.sfit_files['63'].t, self.parameters)
-        self.mag_obj = mm.PointSourcePointLensMagnification(self.trajectory)
+
+        self.trajectories = []
+        self.mag_objs = []
+        for nob_indices in self.sfit_files['63'].sfit_nob_indices:
+            trajectory = mm.Trajectory(
+                self.sfit_files['63'].t[nob_indices], self.parameters)
+            mag_obj = mm.PointSourcePointLensMagnification(trajectory)
+            self.trajectories.append(trajectory)
+            self.mag_objs.append(mag_obj)
 
     def test_get_pspl_magnification(self):
-        pspl_mag = self.mag_obj.get_pspl_magnification()
-        np.testing.assert_allclose(
-            pspl_mag, self.sfit_files['63'].amp, rtol=0.0001)
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
+            pspl_mag = mag_obj.get_pspl_magnification()
+            np.testing.assert_allclose(
+                pspl_mag, self.sfit_files['63'].amp[nob_indices], rtol=0.0001)
 
     def test_get_magnification(self):
-        mag = self.mag_obj.get_magnification()
-        np.testing.assert_allclose(
-            mag, self.sfit_files['63'].amp, rtol=0.0001)
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
+            mag = mag_obj.get_magnification()
+            np.testing.assert_allclose(
+                mag, self.sfit_files['63'].amp[nob_indices], rtol=0.0001)
 
     def test_get_d_A_d_params(self):
         assert 1 == 2
+        # params = ['t_0', 'u_0', 't_E']
+        # dA_dparam = self.mag_obj.get_d_A_d_params(params)
+        # for j, param in enumerate(params):
+        #     short_param = param.replace('_', '')
+        #     df_dparam = source_flux * dA_dparam[param]
+        #     sfit_df_dparam = self.sfit_partials[
+        #         self.sfit_indices[i]]['dfd{0}'.format(short_param)]
+        #     mask = self._indices_not_near_1[i]
+        #     assert_allclose(
+        #         df_dparam[mask], sfit_df_dparam[mask], rtol=0.015)
 
     def test_get_d_u_d_params(self):
         assert 1 == 2
 
     def test_pspl_magnification(self):
-        np.testing.assert_allclose(
-            self.mag_obj.pspl_magnification, self.sfit_files['63'].amp,
-            rtol=0.0001)
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
+            np.testing.assert_allclose(
+                mag_obj.pspl_magnification,
+                self.sfit_files['63'].amp[nob_indices],
+                rtol=0.0001)
 
     def test_magnification(self):
-        with self.assertRaises(AttributeError):
-            self.mag_obj.magnification
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
+            with self.assertRaises(AttributeError):
+                mag_obj.magnification
 
-        self.mag_obj.get_magnification()
-        np.testing.assert_allclose(
-            self.mag_obj.magnification, self.sfit_files['63'].amp,
-            rtol=0.0001)
+            mag_obj.get_magnification()
+            np.testing.assert_allclose(
+                mag_obj.magnification,
+                self.sfit_files['63'].amp[nob_indices],
+                rtol=0.0001)
 
     def test_u_(self):
-        np.testing.assert_allclose(
-            self.mag_obj.u_, self.sfit_files['63'].x,
-            rtol=0.0001)
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
+            np.testing.assert_allclose(
+                mag_obj.u_, self.sfit_files['63'].x[nob_indices],
+                rtol=0.0001)
 
     def test_u_2(self):
-        np.testing.assert_allclose(
-            self.mag_obj.u_2, self.sfit_files['63'].x2,
-            rtol=0.0001)
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
+            np.testing.assert_allclose(
+                mag_obj.u_2, self.sfit_files['63'].x2[nob_indices],
+                rtol=0.0001)
 
