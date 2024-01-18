@@ -471,9 +471,8 @@ class FitData(object):
 
         return (flux, err_flux)
 
-    def get_residuals(
-            self, phot_fmt=None, source_flux=None, blend_flux=None, bad=False,
-            type=None):
+    def get_residuals(self, phot_fmt=None, source_flux=None, blend_flux=None,
+                      bad=False):
         """
         Calculate the residuals for each datapoint relative to the model.
 
@@ -492,9 +491,6 @@ class FitData(object):
                 magnification for each point to ensure that there are values
                 even for bad datapoints.
 
-            type:
-                DEPRECATED, see "phot_fmt" above.
-
         Returns :
             residuals: *np.ndarray*
                 the residuals for the corresponding dataset.
@@ -503,20 +499,13 @@ class FitData(object):
                 the scaled errorbars for each point. For plotting
                 errorbars for the residuals.
         """
-        if type is not None:
-            if type == 'mag':
-                warnings.warn(
-                    '"mag" returns residuals in the original data flux' +
-                    'system. To scale the residuals, use "scaled".')
-            warnings.warn(
-                'type keyword will be deprecated. Use "phot_fmt" instead.',
-                FutureWarning)
-            phot_fmt = type
-
         if bad:
             self._calculate_magnifications(bad=True)
 
         if phot_fmt == 'mag':
+            warnings.warn(
+                '"mag" returns residuals in the original data flux system.' +
+                ' To scale the residuals, use "scaled".')
             residuals = self._dataset.mag - self.get_model_magnitudes()
             errorbars = self._dataset.err_mag
         elif phot_fmt == 'flux':
@@ -651,24 +640,24 @@ class FitData(object):
 
         return d_A_d_params
 
-    def get_d_A_d_rho(self):
-        """
-        Calculate d A / d rho for a point lens model.
+    # def get_d_A_d_rho(self):
+    #     """
+    #     Calculate d A / d rho for a point lens model.
 
-        No Inputs
+    #     No Inputs
 
-        Returns :
-            dA_drho: *np.array*
-                Values are the partial derivatives for rho
-                evaluated at each data point.
-        """
-        # Need to consider what happens when we move to 2 sources.
-        if self._data_magnification_curve is None:
-            self._set_data_magnification_curves()
+    #     Returns :
+    #         dA_drho: *np.array*
+    #             Values are the partial derivatives for rho
+    #             evaluated at each data point.
+    #     """
+    #     # Need to consider what happens when we move to 2 sources.
+    #     if self._data_magnification_curve is None:
+    #         self._set_data_magnification_curves()
 
-        d_A_d_params = self._data_magnification_curve.get_d_A_d_rho()
+    #     d_A_d_params = self._data_magnification_curve.get_d_A_d_rho()
 
-        return d_A_d_params
+    #     return d_A_d_params
 
     def get_dataset_trajectory(self):
         """
@@ -897,7 +886,7 @@ class FitData(object):
     class FSPL_Derivatives(object):
 
         def __init__(self, fit):
-             raise NotImplementedError(
-                 'The FSPL_Derivatives class was deprecated in Version 3. ' +
-                 'Its various functions were incorporated into the new ' +
-                 'PointLens classes.')
+            raise NotImplementedError(
+                'The FSPL_Derivatives class was deprecated in Version 3. ' +
+                'Its various functions were incorporated into the new ' +
+                'PointLens classes.')
