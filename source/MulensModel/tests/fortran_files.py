@@ -28,6 +28,8 @@ class FortranSFitFile51(object):
 
                 self.__setattr__(key, value)
 
+        self.source_fluxes = [fs for fs in self.a[9::3]]
+
 
 class FortranSFitFile61(object):
     """

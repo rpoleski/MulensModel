@@ -142,6 +142,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         self.parameters = mm.ModelParameters(
             dict(zip(parameters, self.sfit_files['51'].a)))
 
+        self.gammas = self.sfit_files['51'].a[4:5]
         self.trajectories = []
         self.mag_objs = []
         for nob_indices in self.sfit_files['63'].sfit_nob_indices:
@@ -166,19 +167,35 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 mag, self.sfit_files['63'].amp[nob_indices], rtol=0.0001)
 
     def test_get_d_A_d_params(self):
-        assert 1 == 2
-        # params = ['t_0', 'u_0', 't_E']
-        # dA_dparam = self.mag_obj.get_d_A_d_params(params)
-        # for j, param in enumerate(params):
-        #     short_param = param.replace('_', '')
-        #     df_dparam = source_flux * dA_dparam[param]
-        #     sfit_df_dparam = self.sfit_partials[
-        #         self.sfit_indices[i]]['dfd{0}'.format(short_param)]
-        #     mask = self._indices_not_near_1[i]
-        #     assert_allclose(
-        #         df_dparam[mask], sfit_df_dparam[mask], rtol=0.015)
+        params = ['t_0', 'u_0', 't_E']
+
+        for (nob_indices, source_flux, gamma, mag_obj) in zip(
+                self.sfit_files['62'].sfit_nob_indices,
+                self.sfit_files['51'].source_fluxes,
+                self.gammas, self.mag_objs):
+
+            dA_dparam = mag_obj.get_d_A_d_params(params)
+
+            fspl_factor = self.sfit_files['63'].amp[nob_indices] * (
+                        self.sfit_files['61'].db0[nob_indices] -
+                        gamma * self.sfit_files['61'].db1[nob_indices])
+            fspl_factor /= self.sfit_files['51'].a[3]  # rho
+            fspl_factor += self.sfit_files['62'].dAdu[nob_indices] * (
+                    self.sfit_files['63'].b0[nob_indices] -
+                    gamma * self.sfit_files['63'].b1[nob_indices])
+
+            for j, param in enumerate(params):
+                short_param = param.replace('_', '')
+                sfit_df_dparam = self.sfit_files['62'].data[
+                    'dfd{0}'.format(short_param)][nob_indices]
+                sfit_dA_dparam = sfit_df_dparam / source_flux / fspl_factor
+                np.testing.assert_allclose(
+                    dA_dparam[param], sfit_dA_dparam, rtol=0.015)
 
     def test_get_d_u_d_params(self):
+        assert 1 == 2
+
+    def test_get_d_A_d_u(self):
         assert 1 == 2
 
     def test_pspl_magnification(self):
