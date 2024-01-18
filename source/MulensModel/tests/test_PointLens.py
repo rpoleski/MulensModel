@@ -142,14 +142,19 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         self.parameters = mm.ModelParameters(
             dict(zip(parameters, self.sfit_files['51'].a)))
 
-        self.gammas = self.sfit_files['51'].a[4:5]
+        self.gammas = self.sfit_files['51'].a[4:5] # Cludgy and inflexible.
         self.trajectories = []
-        self.mag_objs = []
         for nob_indices in self.sfit_files['63'].sfit_nob_indices:
             trajectory = mm.Trajectory(
                 self.sfit_files['63'].t[nob_indices], self.parameters)
-            mag_obj = mm.PointSourcePointLensMagnification(trajectory)
             self.trajectories.append(trajectory)
+
+        self.mag_objs = []
+        self._set_mag_objs()
+
+    def _set_mag_objs(self):
+        for trajectory in self.trajectories:
+            mag_obj = mm.PointSourcePointLensMagnification(trajectory)
             self.mag_objs.append(mag_obj)
 
     def test_get_pspl_magnification(self):
@@ -288,3 +293,72 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 mag_obj.u_2, self.sfit_files['63'].x2[nob_indices],
                 rtol=0.0001)
 
+
+class TestFiniteSourceUniformGould94Magnification(
+    TestPointSourcePointLensMagnification):
+
+    def setUp(self):
+        TestPointSourcePointLensMagnification.setUp(self)
+
+    def _set_mag_objs(self):
+        for trajectory in self.trajectories:
+            mag_obj = mm.FiniteSourceUniformGould94Magnification(
+                trajectory=trajectory)
+            self.mag_objs.append(mag_obj)
+
+
+class TestFiniteSourceUniformGould94DirectMagnification(
+    TestFiniteSourceUniformGould94Magnification):
+
+    def setUp(self):
+        TestPointSourcePointLensMagnification.setUp(self)
+
+    def _set_mag_objs(self):
+        for trajectory in self.trajectories:
+            mag_obj = mm.FiniteSourceUniformGould94Magnification(
+                trajectory=trajectory, direct=True)
+            self.mag_objs.append(mag_obj)
+
+
+class TestFiniteSourceLDYoo04Magnification(
+    TestPointSourcePointLensMagnification):
+
+    def setUp(self):
+        TestPointSourcePointLensMagnification.setUp(self)
+
+    def _set_mag_objs(self):
+        for (trajectory, gamma) in zip(self.trajectories, self.gammas):
+            mag_obj = mm.FiniteSourceLDYoo04Magnification(
+                trajectory=trajectory, gamma=gamma)
+            self.mag_objs.append(mag_obj)
+
+    def test_get_magnification(self):
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices, self.mag_objs):
+            mag = mag_obj.get_magnification()
+            np.testing.assert_allclose(
+                mag, self.sfit_files['61'].mag[nob_indices], rtol=0.0001)
+
+    def test_magnification(self):
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices, self.mag_objs):
+            with self.assertRaises(AttributeError):
+                mag_obj.magnification
+
+            mag_obj.get_magnification()
+            np.testing.assert_allclose(
+                mag_obj.magnification,
+                self.sfit_files['61'].mag[nob_indices],
+                rtol=0.0001)
+
+class TestFiniteSourceLDYoo04DirectMagnification(
+    TestFiniteSourceLDYoo04Magnification):
+
+    def setUp(self):
+        TestPointSourcePointLensMagnification.setUp(self)
+
+    def _set_mag_objs(self):
+        for (trajectory, gamma) in zip(self.trajectories, self.gammas):
+            mag_obj = mm.FiniteSourceLDYoo04Magnification(
+                trajectory=trajectory, gamma=gamma, direct=True)
+            self.mag_objs.append(mag_obj)
