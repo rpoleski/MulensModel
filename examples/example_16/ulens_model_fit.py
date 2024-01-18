@@ -3120,8 +3120,8 @@ class UlensModelFit(object):
         ax2.set_ylabel(label).set_color(color)
         ax2.spines['right'].set_color(color)
         ax2.set_ylim(ylim[0], ylim[1])
-        ax2.tick_params(axis='y', colors=color)
-        plt.yticks(ticks, labels, color=color)
+        ax2.tick_params(axis='y', direction="in", which="major", colors=color)
+        plt.yticks(ticks, labels, color=color)  # , minor=True)
 
     def _second_Y_axis_get_fluxes(self, ylim):
         """
