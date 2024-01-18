@@ -166,8 +166,46 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
             np.testing.assert_allclose(
                 mag, self.sfit_files['63'].amp[nob_indices], rtol=0.0001)
 
+    def _get_factor(self, nob_indices, gamma):
+        fspl_factor = self.sfit_files['63'].amp[nob_indices] * (
+                self.sfit_files['61'].db0[nob_indices] -
+                gamma * self.sfit_files['61'].db1[nob_indices])
+        fspl_factor /= self.sfit_files['51'].a[3]  # rho
+        fspl_factor += self.sfit_files['62'].dAdu[nob_indices] * (
+                self.sfit_files['63'].b0[nob_indices] -
+                gamma * self.sfit_files['63'].b1[nob_indices])
+
+        return fspl_factor
+
     def test_get_d_A_d_params(self):
-        assert 1 == 2
+        """
+        df/dparams = fs * dA/dparams (FSPL)
+
+        dA/dparams (PSPL) = d_A_d_u * d_u_d_params[key]
+        dA/dparams (FSPL) = d_u_d_params[key] * factor = factor * dA/dparams(PSPL) / dA_du
+
+        dA_dparams(PSPL) = df/dparams * dA_du / fs / factor
+        """
+        params = ['t_0', 'u_0', 't_E']
+
+        for (nob_indices, source_flux, gamma, mag_obj) in zip(
+                self.sfit_files['62'].sfit_nob_indices,
+                self.sfit_files['51'].source_fluxes,
+                self.gammas, self.mag_objs):
+
+            dA_dparam = mag_obj.get_d_A_d_params(params)
+
+            fspl_factor = self._get_factor(nob_indices, gamma)
+
+            for j, param in enumerate(params):
+                short_param = param.replace('_', '')
+                sfit_df_dparam = self.sfit_files['62'].data[
+                    'dfd{0}'.format(short_param)][nob_indices]
+                sfit_dA_dparam = (sfit_df_dparam *
+                                  self.sfit_files['62'].dAdu[nob_indices] /
+                                  source_flux / fspl_factor)
+                np.testing.assert_allclose(
+                    dA_dparam[param], sfit_dA_dparam, rtol=0.015)
 
 
     def test_get_d_u_d_params(self):
@@ -185,7 +223,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
             61 dA/drho
             62 df/dparams, dAdu
 
-        df/dparams = fs * dA/dparams
+        df/dparams = fs * dA/dparams (FSPL)
 
         So, df/dparams / fs / factor = d_u_d_params
         """
@@ -197,15 +235,9 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 self.sfit_files['51'].source_fluxes,
                 self.gammas, self.mag_objs):
 
-            dA_dparam = mag_obj.get_d_u_d_params(params)
+            du_dparam = mag_obj.get_d_u_d_params(params)
 
-            fspl_factor = self.sfit_files['63'].amp[nob_indices] * (
-                        self.sfit_files['61'].db0[nob_indices] -
-                        gamma * self.sfit_files['61'].db1[nob_indices])
-            fspl_factor /= self.sfit_files['51'].a[3]  # rho
-            fspl_factor += self.sfit_files['62'].dAdu[nob_indices] * (
-                    self.sfit_files['63'].b0[nob_indices] -
-                    gamma * self.sfit_files['63'].b1[nob_indices])
+            fspl_factor = self._get_factor(nob_indices, gamma)
 
             for j, param in enumerate(params):
                 short_param = param.replace('_', '')
@@ -213,7 +245,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                     'dfd{0}'.format(short_param)][nob_indices]
                 sfit_dA_dparam = sfit_df_dparam / source_flux / fspl_factor
                 np.testing.assert_allclose(
-                    dA_dparam[param], sfit_dA_dparam, rtol=0.015)
+                    du_dparam[param], sfit_dA_dparam, rtol=0.015)
 
 
     def test_get_d_A_d_u(self):
