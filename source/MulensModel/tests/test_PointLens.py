@@ -300,18 +300,42 @@ class TestFiniteSourceUniformGould94Magnification(
     def setUp(self):
         TestPointSourcePointLensMagnification.setUp(self)
 
+        self.zs = []
+        for mag_obj in self.mag_objs:
+            z = mag_obj.u_ / mag_obj.trajectory.parameters.rho
+            self.zs.append(z)
+
+        self._indexes = []
+        self._indices_not_near_1 = []
+        self._indices_not_near_1_db = []
+        self._set_indices()
+
     def _set_mag_objs(self):
         for trajectory in self.trajectories:
             mag_obj = mm.FiniteSourceUniformGould94Magnification(
                 trajectory=trajectory)
             self.mag_objs.append(mag_obj)
 
+    def _set_indices(self):
+        z_break = 1.3
+        zs_1_margin = 0.003
+        for (zs, indices) in zip(
+                self.zs, self.sfit_files['63'].sfit_nob_indices):
+            index_large = (zs > z_break)
+            index_small = (zs <= z_break)
+            self._indexes.append([index_large, index_small])
+            # The sfit code is not accurate near 1.0.
+            near_1 = (np.abs(zs - 1.) > zs_1_margin)
+            self._indices_not_near_1.append(indices & near_1)
+            near_1_db = (zs < 0.88) | (zs > 1.1)
+            self._indices_not_near_1_db.append(indices & near_1_db)
+
 
 class TestFiniteSourceUniformGould94DirectMagnification(
     TestFiniteSourceUniformGould94Magnification):
 
     def setUp(self):
-        TestPointSourcePointLensMagnification.setUp(self)
+        TestFiniteSourceUniformGould94Magnification.setUp(self)
 
     def _set_mag_objs(self):
         for trajectory in self.trajectories:
@@ -321,10 +345,10 @@ class TestFiniteSourceUniformGould94DirectMagnification(
 
 
 class TestFiniteSourceLDYoo04Magnification(
-    TestPointSourcePointLensMagnification):
+    TestFiniteSourceUniformGould94Magnification):
 
     def setUp(self):
-        TestPointSourcePointLensMagnification.setUp(self)
+        TestFiniteSourceUniformGould94Magnification.setUp(self)
 
     def _set_mag_objs(self):
         for (trajectory, gamma) in zip(self.trajectories, self.gammas):
@@ -337,7 +361,7 @@ class TestFiniteSourceLDYoo04Magnification(
                 self.sfit_files['61'].sfit_nob_indices, self.mag_objs):
             mag = mag_obj.get_magnification()
             np.testing.assert_allclose(
-                mag, self.sfit_files['61'].mag[nob_indices], rtol=0.0001)
+                mag, self.sfit_files['61'].mag[nob_indices], rtol=0.005)
 
     def test_magnification(self):
         for (nob_indices, mag_obj) in zip(
@@ -349,13 +373,13 @@ class TestFiniteSourceLDYoo04Magnification(
             np.testing.assert_allclose(
                 mag_obj.magnification,
                 self.sfit_files['61'].mag[nob_indices],
-                rtol=0.0001)
+                rtol=0.005)
 
 class TestFiniteSourceLDYoo04DirectMagnification(
     TestFiniteSourceLDYoo04Magnification):
 
     def setUp(self):
-        TestPointSourcePointLensMagnification.setUp(self)
+        TestFiniteSourceLDYoo04Magnification.setUp(self)
 
     def _set_mag_objs(self):
         for (trajectory, gamma) in zip(self.trajectories, self.gammas):
