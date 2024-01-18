@@ -1,6 +1,7 @@
 import os
 import unittest
 import numpy as np
+import pytest
 from astropy.coordinates import SkyCoord, ICRS, FK4, FK5, Galactic
 import astropy.units as u
 
@@ -50,23 +51,31 @@ def test_event_coords():
     assert event_3.model.coords.to_string('hmsdms') == new_coord_str
 
 
-def test_coord_validation():
+cval = '18h00m00s -30d00m00s'
+tested_cs = [(cval, None), (cval, 'fk4'),
+             (SkyCoord(cval, frame='fk5'), None), (ICRS(*cval.split()), None),
+             (FK4(*cval.split()), None), (FK5(*cval.split()), None)]
+tested_cs2 = [(cval, 'galactic'), (SkyCoord(cval, frame='galactic'), None),
+              (Galactic(*cval.split()), None)]
 
-    c_test = '18h00m00s -30d00m00s'
-    tests = [mm.Coordinates(c_test),
-             mm.Coordinates(c_test, frame='fk4'),
-             mm.Coordinates(SkyCoord(c_test, frame='fk5')),
-             mm.Coordinates(ICRS(*c_test.split())),
-             mm.Coordinates(FK4(*c_test.split())),
-             mm.Coordinates(FK5(*c_test.split()))]
-    t_errors = [(c_test, 'galactic'),
-                (SkyCoord(c_test, frame='galactic'), None),
-                (Galactic(*c_test.split()), None)]
-    for test in tests:
-        assert test.to_string('hmsdms') == c_test
-    for error in t_errors:
-        with unittest.TestCase().assertRaises(ValueError):
-            mm.Coordinates(error[0], frame=error[1])
+
+@pytest.mark.parametrize("coord_test", tested_cs)
+def test_coord_validation(coord_test):
+    """
+    Test Coordinates input to accept frames than icrs, fk4 and fk5.
+    """
+    coord_instance = mm.Coordinates(coord_test[0], frame=coord_test[1])
+    assert coord_instance.to_string('hmsdms') == cval
+
+
+@pytest.mark.parametrize("coord_test2", tested_cs2)
+def test_coord_validation_error(coord_test2):
+    """
+    Test Coordinates input to reject frames different than icrs, fk4 and fk5.
+    """
+    with unittest.TestCase().assertRaises(ValueError):
+        mm.Coordinates(coord_test2[0], frame=coord_test2[1])
+
 
 def check_event_coords(event, ra, dec):
     """

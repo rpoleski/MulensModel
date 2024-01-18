@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 
 from astropy.coordinates import SkyCoord, ICRS, FK4, FK5
+from astropy.coordinates import GeocentricTrueEcliptic
 from astropy import units as u
 
 from MulensModel.utils import Utils
@@ -142,7 +143,6 @@ class Coordinates(SkyCoord):
 
         ecliptic longitude calculated from (RA, Dec)
         """
-        from astropy.coordinates import GeocentricTrueEcliptic
         return SkyCoord(self).transform_to(GeocentricTrueEcliptic).lon
 
     @property
@@ -152,7 +152,6 @@ class Coordinates(SkyCoord):
 
         ecliptic latitude calculated from (RA, Dec)
         """
-        from astropy.coordinates import GeocentricTrueEcliptic
         return SkyCoord(self).transform_to(GeocentricTrueEcliptic).lat
 
     @property
