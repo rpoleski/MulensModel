@@ -396,6 +396,7 @@ class TestFiniteSourceLDYoo04Magnification(
 
 class TestFiniteSourceLDYoo04DirectMagnification(
     TestFiniteSourceLDYoo04Magnification):
+    # This test is very slow. Should it be REMOVED???
 
     def setUp(self):
         TestFiniteSourceLDYoo04Magnification.setUp(self)
