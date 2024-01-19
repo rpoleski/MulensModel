@@ -53,7 +53,7 @@ class FortranSFitFile61(object):
         nobs = np.unique(self.data['nob'])
         nob_indices = []
         for nob in np.sort(nobs):
-            sfit_index = np.where(self.data['nob'] == nob)
+            sfit_index = (self.data['nob'] == nob)
             nob_indices.append(sfit_index)
 
         return nob_indices

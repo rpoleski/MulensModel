@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 import os
 
+import matplotlib.pyplot as plt
 
 import MulensModel as mm
 import fortran_files
@@ -308,6 +309,8 @@ class TestFiniteSourceUniformGould94Magnification(
         self._indexes = []
         self._indices_not_near_1 = []
         self._indices_not_near_1_db = []
+        self.indices_mag_test = []
+
         self._set_indices()
 
     def _set_mag_objs(self):
@@ -318,17 +321,27 @@ class TestFiniteSourceUniformGould94Magnification(
 
     def _set_indices(self):
         z_break = 1.3
-        zs_1_margin = 0.003
+        zs_1_margin = 0.001
+
         for (zs, indices) in zip(
                 self.zs, self.sfit_files['63'].sfit_nob_indices):
+
+            # sfit uses different calculations for z < 0.001 and z > 10.
+            index_10 = (zs < 10.)
+            index_001 = (zs < 0.001)
+            # The sfit code is not accurate near 1.0.
+            not_near_1 = (np.abs(zs - 1.) > 0.03)
+            self.indices_mag_test.append(index_10 & ~index_001 & not_near_1)
+
             index_large = (zs > z_break)
             index_small = (zs <= z_break)
             self._indexes.append([index_large, index_small])
+
             # The sfit code is not accurate near 1.0.
             near_1 = (np.abs(zs - 1.) > zs_1_margin)
-            self._indices_not_near_1.append(indices & near_1)
+            self._indices_not_near_1.append(near_1)
             near_1_db = (zs < 0.88) | (zs > 1.1)
-            self._indices_not_near_1_db.append(indices & near_1_db)
+            self._indices_not_near_1_db.append(near_1_db)
 
 
 class TestFiniteSourceUniformGould94DirectMagnification(
@@ -357,22 +370,28 @@ class TestFiniteSourceLDYoo04Magnification(
             self.mag_objs.append(mag_obj)
 
     def test_get_magnification(self):
-        for (nob_indices, mag_obj) in zip(
-                self.sfit_files['61'].sfit_nob_indices, self.mag_objs):
+        for (nob_indices, mag_test_indices, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices,
+                self.indices_mag_test, self.mag_objs):
             mag = mag_obj.get_magnification()
+
             np.testing.assert_allclose(
-                mag, self.sfit_files['61'].mag[nob_indices], rtol=0.005)
+                mag[mag_test_indices],
+                self.sfit_files['61'].mag[nob_indices][mag_test_indices],
+                rtol=0.005)
 
     def test_magnification(self):
-        for (nob_indices, mag_obj) in zip(
-                self.sfit_files['61'].sfit_nob_indices, self.mag_objs):
+        for (nob_indices, mag_test_indices, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices,
+                self.indices_mag_test, self.mag_objs):
+
             with self.assertRaises(AttributeError):
                 mag_obj.magnification
 
             mag_obj.get_magnification()
             np.testing.assert_allclose(
-                mag_obj.magnification,
-                self.sfit_files['61'].mag[nob_indices],
+                mag_obj.magnification[mag_test_indices],
+                self.sfit_files['61'].mag[nob_indices][mag_test_indices],
                 rtol=0.005)
 
 class TestFiniteSourceLDYoo04DirectMagnification(
@@ -386,3 +405,9 @@ class TestFiniteSourceLDYoo04DirectMagnification(
             mag_obj = mm.FiniteSourceLDYoo04Magnification(
                 trajectory=trajectory, gamma=gamma, direct=True)
             self.mag_objs.append(mag_obj)
+
+
+if __name__ == '__main__':
+        test = TestFiniteSourceLDYoo04Magnification()
+        test.setUp()
+        test.test_get_magnification()
