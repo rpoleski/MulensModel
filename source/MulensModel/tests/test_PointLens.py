@@ -432,6 +432,11 @@ class TestFiniteSourceLDYoo04DirectMagnification(
                 trajectory=trajectory, gamma=gamma, direct=True)
             self.mag_objs.append(mag_obj)
 
+    def test_db1(self):
+        for mag_obj in self.mag_objs:
+            with self.assertRaises(NotImplementedError):
+                mag_obj.db1
+
 
 if __name__ == '__main__':
         test = TestFiniteSourceLDYoo04Magnification()
