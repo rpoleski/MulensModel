@@ -394,6 +394,31 @@ class TestFiniteSourceLDYoo04Magnification(
                 self.sfit_files['61'].mag[nob_indices][mag_test_indices],
                 rtol=0.005)
 
+    def test_get_d_A_d_rho(self):
+        assert 1 == 2
+
+    def test_b1(self):
+        for (nob_indices, mag_test_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices,
+                self.indices_mag_test, self.mag_objs):
+
+            np.testing.assert_allclose(
+                mag_obj.b1[mag_test_indices],
+                self.sfit_files['63'].b1[nob_indices][mag_test_indices],
+                atol=0.0001)
+
+    def test_db1(self):
+        for (nob_indices, mag_test_indices, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices,
+                self.indices_mag_test, self.mag_objs):
+
+            np.testing.assert_allclose(
+                mag_obj.db1[mag_test_indices],
+                self.sfit_files['61'].db1[nob_indices][mag_test_indices],
+                atol=0.001)
+
+
+
 class TestFiniteSourceLDYoo04DirectMagnification(
     TestFiniteSourceLDYoo04Magnification):
     # This test is very slow. Should it be REMOVED???
