@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.34.3'
+__version__ = '0.34.4'
 
 
 class UlensModelFit(object):
@@ -3109,7 +3109,10 @@ class UlensModelFit(object):
         if magnifications == "optimal":
             (magnifications, labels, out1) = self._second_Y_axis_optimal(
                 ax2, A_min, A_max)
-        flux = sb_fluxes[0] * magnifications + sb_fluxes[1]
+            minor_ticks = self._second_Y_axis_minor_ticks(ax2, magnifications,
+                                                          sb_fluxes)
+            ax2.set_yticks(minor_ticks, color=color, minor=True)
+        flux = sb_fluxes[0] * np.array(magnifications) + sb_fluxes[1]
         out2 = self._second_Y_axis_warnings(flux, labels, magnifications,
                                             A_min, A_max)
         if out1 or out2:
@@ -3120,8 +3123,8 @@ class UlensModelFit(object):
         ax2.set_ylabel(label).set_color(color)
         ax2.spines['right'].set_color(color)
         ax2.set_ylim(ylim[0], ylim[1])
-        ax2.tick_params(axis='y', direction="in", which="major", colors=color)
-        plt.yticks(ticks, labels, color=color)  # , minor=True)
+        ax2.tick_params(axis='y', direction="in", which="both", colors=color)
+        ax2.set_yticks(ticks, labels, color=color)
 
     def _second_Y_axis_get_fluxes(self, ylim):
         """
@@ -3187,6 +3190,19 @@ class UlensModelFit(object):
             return True
 
         return False
+
+    def _second_Y_axis_minor_ticks(self, ax2, A_values, sb_fluxes):
+        """
+        Get minor ticks for magnification axis from matplotlib
+        """
+        ax2.minorticks_on()
+        minor_ticks_A = ax2.yaxis.get_ticklocs(minor=True)
+        minor_ticks_A = minor_ticks_A[~np.isin(minor_ticks_A, A_values)]
+
+        minor_ticks_flux = sb_fluxes[0] * minor_ticks_A + sb_fluxes[1]
+        minor_ticks_mag = mm.Utils.get_mag_from_flux(minor_ticks_flux)
+
+        return minor_ticks_mag
 
     def _make_trajectory_plot(self):
         """
