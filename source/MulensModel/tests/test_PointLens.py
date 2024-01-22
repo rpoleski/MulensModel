@@ -172,7 +172,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
             np.testing.assert_allclose(
                 mag, self.sfit_files['63'].amp[nob_indices], rtol=0.0001)
 
-    def _get_factor(self, nob_indices, gamma):
+    def _get_factor_b1(self, nob_indices, gamma):
         fspl_factor = self.sfit_files['63'].amp[nob_indices] * (
                 self.sfit_files['61'].db0[nob_indices] -
                 gamma * self.sfit_files['61'].db1[nob_indices])
@@ -201,7 +201,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
 
             dA_dparam = mag_obj.get_d_A_d_params(params)
 
-            fspl_factor = self._get_factor(nob_indices, gamma)
+            fspl_factor = self._get_factor_b1(nob_indices, gamma)
 
             for j, param in enumerate(params):
                 short_param = param.replace('_', '')
@@ -242,7 +242,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
 
             du_dparam = mag_obj.get_d_u_d_params(params)
 
-            fspl_factor = self._get_factor(nob_indices, gamma)
+            fspl_factor = self._get_factor_b1(nob_indices, gamma)
 
             for j, param in enumerate(params):
                 short_param = param.replace('_', '')
@@ -379,11 +379,88 @@ class TestFiniteSourceUniformGould94Magnification(
                 mag_obj.magnification[mag_test_indices],
                 sfit_mag, rtol=0.005)
 
+    def _get_factor_b0(self, nob_indices, gamma):
+        fspl_factor_b0 = (self.sfit_files['63'].amp[nob_indices] *
+                self.sfit_files['61'].db0[nob_indices])
+        fspl_factor_b0 /= self.sfit_files['51'].a[3]  # rho
+        fspl_factor_b0 += (self.sfit_files['62'].dAdu[nob_indices] *
+                self.sfit_files['63'].b0[nob_indices])
+
+        return fspl_factor_b0
+
     def test_get_d_A_d_params(self):
-        assert 1 == 2
+        """
+        df/dparams = fs * dA/dparams (FSPL)
+
+        dA/dparams (PSPL) = d_A_d_u * d_u_d_params[key]
+        dA/dparams (FSPL) = d_u_d_params[key] * factor = factor * dA/dparams(PSPL) / dA_du
+
+        dA/dparams (b0) = d_u_d_params * factor_b0
+        dA/dparams (FSPL) = d_u_d_params * factor_b1
+
+        dA/dparams (b0) = dA/dparams (FSPL) * factor_b1 / factor_b0
+         = df/dparams * factor_b1 / factor_b0 / fs
+
+        b0:
+        factor = self.pspl_magnification * self.db0
+        factor /= self.trajectory.parameters.rho
+        factor += self.get_d_A_d_u() * self.b0
+
+        b0, b1:
+        factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1)
+        factor /= self.trajectory.parameters.rho
+        factor += self.get_d_A_d_u() * (self.b0 - self._gamma * self.b1)
+        """
+        params = ['t_0', 'u_0', 't_E']
+
+        for (nob_indices, source_flux, gamma, mag_test_indices, not_near_1,
+             mag_obj) in zip(
+                self.sfit_files['62'].sfit_nob_indices,
+                self.sfit_files['51'].source_fluxes,
+                self.gammas,
+                self.indices_mag_test, self._indices_not_near_1_db,
+                self.mag_objs):
+
+            dA_dparam = mag_obj.get_d_A_d_params(params)
+            fspl_factor_b1 = self._get_factor_b1(nob_indices, gamma)
+            fspl_factor_b0 = self._get_factor_b0(nob_indices, gamma)
+
+            for j, param in enumerate(params):
+                short_param = param.replace('_', '')
+                sfit_df_dparam = self.sfit_files['62'].data[
+                    'dfd{0}'.format(short_param)][nob_indices]
+
+                sfit_dA_dparam = (sfit_df_dparam * fspl_factor_b0 /
+                                  fspl_factor_b1 / source_flux)
+
+                np.testing.assert_allclose(
+                    dA_dparam[param][mag_test_indices & not_near_1],
+                    sfit_dA_dparam[mag_test_indices & not_near_1], rtol=0.015)
 
     def test_get_d_A_d_rho(self):
-        assert 1 == 2
+        """
+        d_A_d_rho = np.ones(len(self.trajectory.times))
+        d_A_d_rho *= self.pspl_magnification
+        d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
+        d_A_d_rho *= (self.db0 - self._gamma * self.db1)
+
+        dA_drho_b0 = db0 * dA_drho_b1 /(db0 - gamma*db1)
+        """
+        for (nob_indices, source_flux,  gamma, mag_test_indices, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices,
+                self.sfit_files['51'].source_fluxes, self.gammas,
+                self.indices_mag_test, self.mag_objs):
+
+            sfit_df_dparam = self.sfit_files['61'].data['dfdrho'][nob_indices]
+            factor = self.sfit_files['61'].data['db0'][nob_indices]
+            factor /= (self.sfit_files['61'].data['db0'][nob_indices] -
+                      gamma * self.sfit_files['61'].data['db1'][nob_indices])
+            sfit_dA_drho = factor * sfit_df_dparam / source_flux
+            dAdrho = mag_obj.get_d_A_d_rho()
+
+            np.testing.assert_allclose(
+                dAdrho[mag_test_indices], sfit_dA_drho[mag_test_indices],
+                rtol=0.015)
 
     def test_b0(self):
         for (nob_indices, mag_test_indices, mag_obj) in zip(
@@ -431,6 +508,20 @@ class TestFiniteSourceUniformGould94DirectMagnification(
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):
                 mag_obj.db0
+
+    def test_get_d_A_d_params(self):
+        """
+        df/dparams = fs * dA/dparams (FSPL)
+        """
+        params = ['t_0', 'u_0', 't_E', 'rho']
+        for mag_obj in self.mag_objs:
+            with self.assertRaises(NotImplementedError):
+                mag_obj.get_d_A_d_params(params)
+
+    def test_get_d_A_d_rho(self):
+        for mag_obj in self.mag_objs:
+            with self.assertRaises(NotImplementedError):
+                mag_obj.get_d_A_d_rho()
 
 
 class TestFiniteSourceLDYoo04Magnification(
@@ -568,6 +659,6 @@ class TestFiniteSourceLDYoo04DirectMagnification(
 
 
 if __name__ == '__main__':
-        test = TestFiniteSourceLDYoo04Magnification()
+        test = TestFiniteSourceUniformGould94Magnification()
         test.setUp()
-        test.test_get_d_A_d_rho()
+        test.test_get_d_A_d_params()
