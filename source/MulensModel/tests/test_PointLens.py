@@ -143,7 +143,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         self.parameters = mm.ModelParameters(
             dict(zip(parameters, self.sfit_files['51'].a)))
 
-        self.gammas = self.sfit_files['51'].a[4:5] # Cludgy and inflexible.
+        self.gammas = self.sfit_files['51'].a[4:5]  # Cludgy and inflexible.
         self.trajectories = []
         for nob_indices in self.sfit_files['63'].sfit_nob_indices:
             trajectory = mm.Trajectory(
@@ -417,12 +417,11 @@ class TestFiniteSourceLDYoo04Magnification(
                     dA_dparam[param], sfit_dA_dparam, rtol=0.015)
 
     def test_get_d_A_d_rho(self):
-        for (nob_indices, source_flux, gamma, mag_obj) in zip(
+        for (nob_indices, source_flux, mag_obj) in zip(
                 self.sfit_files['61'].sfit_nob_indices,
-                self.sfit_files['51'].source_fluxes,
-                self.gammas, self.mag_objs):
-            sfit_df_dparam = self.sfit_files['61'].data[
-                'dfdrho'][nob_indices]
+                self.sfit_files['51'].source_fluxes, self.mag_objs):
+            print(mag_obj.gamma)
+            sfit_df_dparam = self.sfit_files['61'].data['dfdrho'][nob_indices]
             sfit_dA_dparam = sfit_df_dparam / source_flux
             dAdrho = mag_obj.get_d_A_d_rho()
             np.testing.assert_allclose(

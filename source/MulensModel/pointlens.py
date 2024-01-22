@@ -531,6 +531,15 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
 
         return self._db1
 
+    @property
+    def gamma(self):
+        """
+        *float*
+
+        Limb-darkening gamma coefficient.
+        """
+        return self._gamma
+
 
 class FiniteSourceUniformWittMao94Magnification(
     PointSourcePointLensMagnification):
@@ -723,6 +732,15 @@ class FiniteSourceLDWittMao94Magnification(
         out = np.sum(d_mag_r2 * d_cumulative_profile / d_r2)
 
         return out
+
+    @property
+    def gamma(self):
+        """
+        *float*
+
+        Limb-darkening gamma coefficient.
+        """
+        return self._gamma
 
 
 class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
@@ -976,3 +994,12 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
         out = 1. - gamma * (1. - 1.5 * np.sqrt(values))
 
         return out * (u_**2 + 2.) / np.sqrt(u_**2 + 4.)
+
+    @property
+    def gamma(self):
+        """
+        *float*
+
+        Limb-darkening gamma coefficient.
+        """
+        return self._gamma
