@@ -379,6 +379,26 @@ class TestFiniteSourceUniformGould94Magnification(
                 mag_obj.magnification[mag_test_indices],
                 sfit_mag, rtol=0.005)
 
+    def test_b0(self):
+        for (nob_indices, mag_test_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices,
+                self.indices_mag_test, self.mag_objs):
+
+            np.testing.assert_allclose(
+                mag_obj.b0[mag_test_indices],
+                self.sfit_files['63'].b0[nob_indices][mag_test_indices],
+                atol=0.0001)
+
+    def test_db0(self):
+        for (nob_indices, mag_test_indices, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices,
+                self.indices_mag_test, self.mag_objs):
+
+            np.testing.assert_allclose(
+                mag_obj.db0[mag_test_indices],
+                self.sfit_files['61'].db0[nob_indices][mag_test_indices],
+                atol=0.005)
+
 
 class TestFiniteSourceUniformGould94DirectMagnification(
     TestFiniteSourceUniformGould94Magnification):
@@ -391,6 +411,12 @@ class TestFiniteSourceUniformGould94DirectMagnification(
             mag_obj = mm.FiniteSourceUniformGould94Magnification(
                 trajectory=trajectory, direct=True)
             self.mag_objs.append(mag_obj)
+
+    def test_db0(self):
+        for mag_obj in self.mag_objs:
+            with self.assertRaises(NotImplementedError):
+                mag_obj.db0
+
 
 class TestFiniteSourceLDYoo04Magnification(
     TestFiniteSourceUniformGould94Magnification):
