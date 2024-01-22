@@ -3,8 +3,6 @@ import unittest
 import numpy as np
 import os
 
-import matplotlib.pyplot as plt
-
 import MulensModel as mm
 import fortran_files
 from test_FitData import create_0939_parallax_model, SAMPLE_FILE_03, \
@@ -13,6 +11,7 @@ from test_FitData import create_0939_parallax_model, SAMPLE_FILE_03, \
 SAMPLE_FILE = os.path.join(mm.DATA_PATH, 'unit_test_files', 'FSPL_test_1.dat')
 PSPL_SAMPLE_DIR = os.path.join(
     mm.DATA_PATH, 'unit_test_files', 'fspl_derivs', 'test_PointLensClasses')
+
 
 def get_file_params(filename):
     """Read in the model parameters used to create the file"""
@@ -52,7 +51,7 @@ def test_B_1_function():
     (data, gamma, trajectory) = get_variables()
     test_FSPL_LD = mm.FiniteSourceLDYoo04Magnification(
         trajectory=trajectory, gamma=gamma)
-    test_b_1 =  test_FSPL_LD._B_1_function()
+    test_b_1 = test_FSPL_LD._B_1_function()
     np.testing.assert_almost_equal(test_b_1, data['b_1'], decimal=4)
 
 
@@ -75,6 +74,7 @@ def test_get_point_lens_limb_darkening_magnification():
     np.testing.assert_almost_equal(
         fspl_magnification/data['Mag_LD'], 1., decimal=4)
 
+
 def test_fspl_noLD():
     """
     check if FSPL magnification is calculate properly
@@ -91,7 +91,8 @@ def test_fspl_noLD():
 
     trajectory = mm.Trajectory(t_vec, params)
 
-    mag_curve = mm.FiniteSourceUniformGould94Magnification(trajectory=trajectory)
+    mag_curve = mm.FiniteSourceUniformGould94Magnification(
+        trajectory=trajectory)
     results = mag_curve.get_magnification()
 
     u = np.array([rho, u_0, 0.5*rho])
@@ -101,6 +102,7 @@ def test_fspl_noLD():
     expected *= pspl
 
     np.testing.assert_almost_equal(expected, results, decimal=4)
+
 
 def test_get_d_u_d_params():
     """
@@ -188,7 +190,8 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         df/dparams = fs * dA/dparams (FSPL)
 
         dA/dparams (PSPL) = d_A_d_u * d_u_d_params[key]
-        dA/dparams (FSPL) = d_u_d_params[key] * factor = factor * dA/dparams(PSPL) / dA_du
+        dA/dparams (FSPL) = d_u_d_params[key] * factor =
+            factor * dA/dparams(PSPL) / dA_du
 
         dA_dparams(PSPL) = df/dparams * dA_du / fs / factor
         """
@@ -272,7 +275,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         for (nob_indices, mag_obj) in zip(
                 self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
             with self.assertRaises(AttributeError):
-                mag_obj.magnification
+                x = mag_obj.magnification
 
             mag_obj.get_magnification()
             np.testing.assert_allclose(
@@ -365,7 +368,7 @@ class TestFiniteSourceUniformGould94Magnification(
                 self.indices_mag_test, self.gammas, self.mag_objs):
 
             with self.assertRaises(AttributeError):
-                mag_obj.magnification
+                x = mag_obj.magnification
 
             sfit_mag = self.sfit_files['61'].mag[nob_indices][mag_test_indices]
             b1_factor = (self.sfit_files['63'].amp[nob_indices][
@@ -379,12 +382,12 @@ class TestFiniteSourceUniformGould94Magnification(
                 mag_obj.magnification[mag_test_indices],
                 sfit_mag, rtol=0.005)
 
-    def _get_factor_b0(self, nob_indices, gamma):
+    def _get_factor_b0(self, nob_indices):
         fspl_factor_b0 = (self.sfit_files['63'].amp[nob_indices] *
-                self.sfit_files['61'].db0[nob_indices])
+                          self.sfit_files['61'].db0[nob_indices])
         fspl_factor_b0 /= self.sfit_files['51'].a[3]  # rho
         fspl_factor_b0 += (self.sfit_files['62'].dAdu[nob_indices] *
-                self.sfit_files['63'].b0[nob_indices])
+                           self.sfit_files['63'].b0[nob_indices])
 
         return fspl_factor_b0
 
@@ -393,7 +396,8 @@ class TestFiniteSourceUniformGould94Magnification(
         df/dparams = fs * dA/dparams (FSPL)
 
         dA/dparams (PSPL) = d_A_d_u * d_u_d_params[key]
-        dA/dparams (FSPL) = d_u_d_params[key] * factor = factor * dA/dparams(PSPL) / dA_du
+        dA/dparams (FSPL) = d_u_d_params[key] * factor
+            = factor * dA/dparams(PSPL) / dA_du
 
         dA/dparams (b0) = d_u_d_params * factor_b0
         dA/dparams (FSPL) = d_u_d_params * factor_b1
@@ -423,7 +427,7 @@ class TestFiniteSourceUniformGould94Magnification(
 
             dA_dparam = mag_obj.get_d_A_d_params(params)
             fspl_factor_b1 = self._get_factor_b1(nob_indices, gamma)
-            fspl_factor_b0 = self._get_factor_b0(nob_indices, gamma)
+            fspl_factor_b0 = self._get_factor_b0(nob_indices)
 
             for j, param in enumerate(params):
                 short_param = param.replace('_', '')
@@ -446,7 +450,8 @@ class TestFiniteSourceUniformGould94Magnification(
 
         dA_drho_b0 = db0 * dA_drho_b1 /(db0 - gamma*db1)
         """
-        for (nob_indices, source_flux,  gamma, mag_test_indices, mag_obj) in zip(
+        for (nob_indices, source_flux,  gamma, mag_test_indices,
+             mag_obj) in zip(
                 self.sfit_files['61'].sfit_nob_indices,
                 self.sfit_files['51'].source_fluxes, self.gammas,
                 self.indices_mag_test, self.mag_objs):
@@ -454,7 +459,7 @@ class TestFiniteSourceUniformGould94Magnification(
             sfit_df_dparam = self.sfit_files['61'].data['dfdrho'][nob_indices]
             factor = self.sfit_files['61'].data['db0'][nob_indices]
             factor /= (self.sfit_files['61'].data['db0'][nob_indices] -
-                      gamma * self.sfit_files['61'].data['db1'][nob_indices])
+                       gamma * self.sfit_files['61'].data['db1'][nob_indices])
             sfit_dA_drho = factor * sfit_df_dparam / source_flux
             dAdrho = mag_obj.get_d_A_d_rho()
 
@@ -507,7 +512,7 @@ class TestFiniteSourceUniformGould94DirectMagnification(
     def test_db0(self):
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):
-                mag_obj.db0
+                x = mag_obj.db0
 
     def test_get_d_A_d_params(self):
         """
@@ -553,7 +558,7 @@ class TestFiniteSourceLDYoo04Magnification(
                 self.indices_mag_test, self.mag_objs):
 
             with self.assertRaises(AttributeError):
-                mag_obj.magnification
+                x = mag_obj.magnification
 
             mag_obj.get_magnification()
             np.testing.assert_allclose(
@@ -636,12 +641,14 @@ class TestFiniteSourceLDYoo04DirectMagnification(
             self.mag_objs.append(mag_obj)
 
     def test_db0(self):
-        TestFiniteSourceUniformGould94DirectMagnification.test_db0(self)
+        for mag_obj in self.mag_objs:
+            with self.assertRaises(NotImplementedError):
+                x = mag_obj.db0
 
     def test_db1(self):
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):
-                mag_obj.db1
+                x = mag_obj.db1
 
     def test_get_d_A_d_params(self):
         """
@@ -656,9 +663,3 @@ class TestFiniteSourceLDYoo04DirectMagnification(
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):
                 mag_obj.get_d_A_d_rho()
-
-
-if __name__ == '__main__':
-        test = TestFiniteSourceUniformGould94Magnification()
-        test.setUp()
-        test.test_get_d_A_d_params()
