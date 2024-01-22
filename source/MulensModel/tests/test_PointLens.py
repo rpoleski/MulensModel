@@ -379,6 +379,12 @@ class TestFiniteSourceUniformGould94Magnification(
                 mag_obj.magnification[mag_test_indices],
                 sfit_mag, rtol=0.005)
 
+    def test_get_d_A_d_params(self):
+        assert 1 == 2
+
+    def test_get_d_A_d_rho(self):
+        assert 1 == 2
+
     def test_b0(self):
         for (nob_indices, mag_test_indices, mag_obj) in zip(
                 self.sfit_files['63'].sfit_nob_indices,
@@ -398,6 +404,15 @@ class TestFiniteSourceUniformGould94Magnification(
                 mag_obj.db0[mag_test_indices],
                 self.sfit_files['61'].db0[nob_indices][mag_test_indices],
                 atol=0.005)
+
+    def test_z_(self):
+        for (nob_indices, mag_obj) in zip(
+                self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
+            np.testing.assert_allclose(
+                mag_obj.z_,
+                self.sfit_files['63'].x[nob_indices] /
+                self.sfit_files['51'].a[3],
+                rtol=0.0001)
 
 
 class TestFiniteSourceUniformGould94DirectMagnification(
