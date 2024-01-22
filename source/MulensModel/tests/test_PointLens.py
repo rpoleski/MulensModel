@@ -447,6 +447,10 @@ class TestFiniteSourceLDYoo04Magnification(
                 self.sfit_files['61'].db1[nob_indices][mag_test_indices],
                 atol=0.001)
 
+    def test_gamma(self):
+        for (gamma, mag_obj) in zip(self.gammas, self.mag_objs):
+            np.testing.assert_almost_equal(gamma, mag_obj.gamma)
+
 
 class TestFiniteSourceLDYoo04DirectMagnification(
     TestFiniteSourceLDYoo04Magnification):
