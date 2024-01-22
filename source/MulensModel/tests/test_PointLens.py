@@ -394,8 +394,39 @@ class TestFiniteSourceLDYoo04Magnification(
                 self.sfit_files['61'].mag[nob_indices][mag_test_indices],
                 rtol=0.005)
 
+    def test_get_d_A_d_params(self):
+        """
+        df/dparams = fs * dA/dparams (FSPL)
+        """
+        params = ['t_0', 'u_0', 't_E', 'rho']
+
+        for (nob_indices, source_flux, gamma, mag_obj) in zip(
+                self.sfit_files['62'].sfit_nob_indices,
+                self.sfit_files['51'].source_fluxes,
+                self.gammas, self.mag_objs):
+
+            dA_dparam = mag_obj.get_d_A_d_params(params)
+
+            for j, param in enumerate(params):
+                print(param)
+                short_param = param.replace('_', '')
+                sfit_df_dparam = self.sfit_files['62'].data[
+                    'dfd{0}'.format(short_param)][nob_indices]
+                sfit_dA_dparam = sfit_df_dparam / source_flux
+                np.testing.assert_allclose(
+                    dA_dparam[param], sfit_dA_dparam, rtol=0.015)
+
     def test_get_d_A_d_rho(self):
-        assert 1 == 2
+        for (nob_indices, source_flux, gamma, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices,
+                self.sfit_files['51'].source_fluxes,
+                self.gammas, self.mag_objs):
+            sfit_df_dparam = self.sfit_files['61'].data[
+                'dfdrho'][nob_indices]
+            sfit_dA_dparam = sfit_df_dparam / source_flux
+            dAdrho = mag_obj.get_d_A_d_rho()
+            np.testing.assert_allclose(
+                dAdrho, sfit_dA_dparam, rtol=0.015)
 
     def test_b1(self):
         for (nob_indices, mag_test_indices, mag_obj) in zip(
@@ -418,7 +449,6 @@ class TestFiniteSourceLDYoo04Magnification(
                 atol=0.001)
 
 
-
 class TestFiniteSourceLDYoo04DirectMagnification(
     TestFiniteSourceLDYoo04Magnification):
     # This test is very slow. Should it be REMOVED???
@@ -436,6 +466,20 @@ class TestFiniteSourceLDYoo04DirectMagnification(
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):
                 mag_obj.db1
+
+    def test_get_d_A_d_params(self):
+        """
+        df/dparams = fs * dA/dparams (FSPL)
+        """
+        params = ['t_0', 'u_0', 't_E', 'rho']
+        for mag_obj in self.mag_objs:
+            with self.assertRaises(NotImplementedError):
+                mag_obj.get_d_A_d_params(params)
+
+    def test_get_d_A_d_rho(self):
+        for mag_obj in self.mag_objs:
+            with self.assertRaises(NotImplementedError):
+                mag_obj.get_d_A_d_rho()
 
 
 if __name__ == '__main__':

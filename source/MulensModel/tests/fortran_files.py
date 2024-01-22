@@ -43,7 +43,7 @@ class FortranSFitFile61(object):
 
         self.data = np.genfromtxt(
             filename, dtype=None, encoding='utf-8',
-            names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
+            names=['nob', 'k', 't', 'dfdrho', 'mag', 'db0', 'db1'])
         for name in self.data.dtype.names:
             self.__setattr__(name, self.data[name])
 
