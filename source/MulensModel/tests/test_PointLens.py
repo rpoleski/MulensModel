@@ -343,6 +343,42 @@ class TestFiniteSourceUniformGould94Magnification(
             near_1_db = (zs < 0.88) | (zs > 1.1)
             self._indices_not_near_1_db.append(near_1_db)
 
+    def test_get_magnification(self):
+        for (nob_indices, mag_test_indices, gamma, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices,
+                self.indices_mag_test, self.gammas, self.mag_objs):
+            mag = mag_obj.get_magnification()
+
+            sfit_mag = self.sfit_files['61'].mag[nob_indices][mag_test_indices]
+            b1_factor = (self.sfit_files['63'].amp[nob_indices][
+                             mag_test_indices] *
+                         self.sfit_files['63'].b1[nob_indices][
+                             mag_test_indices] * gamma)
+            sfit_mag = sfit_mag + b1_factor
+
+            np.testing.assert_allclose(
+                mag[mag_test_indices], sfit_mag, rtol=0.005)
+
+    def test_magnification(self):
+        for (nob_indices, mag_test_indices, gamma, mag_obj) in zip(
+                self.sfit_files['61'].sfit_nob_indices,
+                self.indices_mag_test, self.gammas, self.mag_objs):
+
+            with self.assertRaises(AttributeError):
+                mag_obj.magnification
+
+            sfit_mag = self.sfit_files['61'].mag[nob_indices][mag_test_indices]
+            b1_factor = (self.sfit_files['63'].amp[nob_indices][
+                             mag_test_indices] *
+                         self.sfit_files['63'].b1[nob_indices][
+                             mag_test_indices] * gamma)
+            sfit_mag += b1_factor
+
+            mag_obj.get_magnification()
+            np.testing.assert_allclose(
+                mag_obj.magnification[mag_test_indices],
+                sfit_mag, rtol=0.005)
+
 
 class TestFiniteSourceUniformGould94DirectMagnification(
     TestFiniteSourceUniformGould94Magnification):
@@ -355,7 +391,6 @@ class TestFiniteSourceUniformGould94DirectMagnification(
             mag_obj = mm.FiniteSourceUniformGould94Magnification(
                 trajectory=trajectory, direct=True)
             self.mag_objs.append(mag_obj)
-
 
 class TestFiniteSourceLDYoo04Magnification(
     TestFiniteSourceUniformGould94Magnification):
@@ -398,7 +433,7 @@ class TestFiniteSourceLDYoo04Magnification(
         """
         df/dparams = fs * dA/dparams (FSPL)
         """
-        params = ['t_0', 'u_0', 't_E', 'rho']
+        params = ['t_0', 'u_0', 't_E']
 
         for (nob_indices, source_flux, gamma, mag_obj) in zip(
                 self.sfit_files['62'].sfit_nob_indices,
