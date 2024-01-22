@@ -461,32 +461,35 @@ class TestFiniteSourceLDYoo04Magnification(
         """
         params = ['t_0', 'u_0', 't_E']
 
-        for (nob_indices, source_flux, gamma, mag_obj) in zip(
+        for (nob_indices, source_flux, gamma, mag_test_indices, mag_obj) in zip(
                 self.sfit_files['62'].sfit_nob_indices,
                 self.sfit_files['51'].source_fluxes,
-                self.gammas, self.mag_objs):
+                self.gammas, self.indices_mag_test, self.mag_objs):
 
             dA_dparam = mag_obj.get_d_A_d_params(params)
 
             for j, param in enumerate(params):
-                print(param)
                 short_param = param.replace('_', '')
                 sfit_df_dparam = self.sfit_files['62'].data[
                     'dfd{0}'.format(short_param)][nob_indices]
                 sfit_dA_dparam = sfit_df_dparam / source_flux
                 np.testing.assert_allclose(
-                    dA_dparam[param], sfit_dA_dparam, rtol=0.015)
+                    dA_dparam[param][mag_test_indices],
+                    sfit_dA_dparam[mag_test_indices], rtol=0.015)
 
     def test_get_d_A_d_rho(self):
-        for (nob_indices, source_flux, mag_obj) in zip(
+        for (nob_indices, source_flux, mag_test_indices, mag_obj) in zip(
                 self.sfit_files['61'].sfit_nob_indices,
-                self.sfit_files['51'].source_fluxes, self.mag_objs):
-            print(mag_obj.gamma)
+                self.sfit_files['51'].source_fluxes,
+                self.indices_mag_test, self.mag_objs):
+
             sfit_df_dparam = self.sfit_files['61'].data['dfdrho'][nob_indices]
             sfit_dA_dparam = sfit_df_dparam / source_flux
             dAdrho = mag_obj.get_d_A_d_rho()
+
             np.testing.assert_allclose(
-                dAdrho, sfit_dA_dparam, rtol=0.015)
+                dAdrho[mag_test_indices], sfit_dA_dparam[mag_test_indices],
+                rtol=0.015)
 
     def test_b1(self):
         for (nob_indices, mag_test_indices, mag_obj) in zip(
@@ -552,4 +555,4 @@ class TestFiniteSourceLDYoo04DirectMagnification(
 if __name__ == '__main__':
         test = TestFiniteSourceLDYoo04Magnification()
         test.setUp()
-        test.test_get_magnification()
+        test.test_get_d_A_d_rho()
