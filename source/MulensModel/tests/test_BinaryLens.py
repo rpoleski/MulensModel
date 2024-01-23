@@ -1,4 +1,5 @@
 import numpy as np
+import unittest
 
 import MulensModel as mm
 
@@ -114,6 +115,26 @@ def test_ac():
 
 
 # Magnification Object Tests
+
+def _make_trajectory(pos, params):
+    times = pos[0]
+    u0 = pos[1]
+
+    t0 = 0
+    tE = 1
+    alpha = 0.
+    ulens_params = {
+        't_0': t0, 'u_0': u0, 't_E': tE,
+        's': params['s'], 'q': params['q'], 'alpha': alpha}
+    if 'rho' in params:
+        ulens_params['rho'] = params['rho']
+
+    trajectory = mm.Trajectory(
+        times=times, parameters=mm.ModelParameters(ulens_params))
+
+    return trajectory
+
+
 def test_BinaryLensPointSourceMagnification():
     """
     run calculations with small mass-ratio
@@ -123,45 +144,50 @@ def test_BinaryLensPointSourceMagnification():
     x = s - 1. / s
     y = 5.e-7 * 0.
 
-    m_1 = 1. / (1. + q)
-    m_2 = q / (1. + q)
-
-    lens = mm.BinaryLens(m_1, m_2, s)
-    result = lens.point_source_magnification(x, y)
+    trajectory = _make_trajectory([x, y], {'s': s, 'q': q})
+    lens = mm.BinaryLensPointSourceMagnification(trajectory)
+    result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
 
-def test_BinaryLensHexadecapoleMagnification():
+class TestBinaryLensHexadecapoleMagnification(unittest.UnitTest):
     """
     tests hexadecapole and quadrupole calculation for planetary case
     with rho=0.001 and 3 values of gamma: 0, 0.5, and 1.0
     """
-    s = 1.35
-    q = 0.00578
-    rho = 0.001
-    x = 0.7142010570568691 - s * q / (1. + q)
-    y = 0.00189679191923936
 
-    pspl_mag = 4.691830779895085
-    reference_00 = [5.017252440557196, 4.9587638949353146, pspl_mag]
-    reference_05 = [4.981368071884021, 4.932070583431292, pspl_mag]
-    reference_10 = [4.9454837032108445, 4.905377271927269, pspl_mag]
+    def setUp(self):
+        self.s = 1.35
+        self.q = 0.00578
+        self.rho = 0.001
+        self.x = 0.7142010570568691 - s * q / (1. + q)
+        self.y = 0.00189679191923936
 
-    m1 = 1. / (1. + q)
-    m2 = q / (1. + q)
+        self.trajectory = _make_trajectory(
+            [self.x, self.y], {'s': self.s, 'q': self.q, 'rho': self.rho})
 
-    bl = mm.BinaryLens(m1, m2, s)
+        self.pspl_mag = 4.691830779895085
+        self.reference_00 = [5.017252440557196, 4.9587638949353146, pspl_mag]
+        self.reference_05 = [4.981368071884021, 4.932070583431292, pspl_mag]
+        self.reference_10 = [4.9454837032108445, 4.905377271927269, pspl_mag]
 
-    result_00 = bl.hexadecapole_magnification(
-        x, y, rho=rho, gamma=0.0, all_approximations=True)
-    result_05 = bl.hexadecapole_magnification(
-        x, y, rho=rho, gamma=0.5, all_approximations=True)
-    result_10 = bl.hexadecapole_magnification(
-        x, y, rho=rho, gamma=1.0, all_approximations=True)
+    def test_gamma_00(self):
+        lens = mm.BinaryLensHexadecapoleMagnification(
+            self.trajectory, gamma=0.0, all_approximations=True)
+        result = lens.get_magnification()
+        np.testing.assert_almost_equal(result, self.reference_00)
 
-    np.testing.assert_almost_equal(result_00, reference_00)
-    np.testing.assert_almost_equal(result_05, reference_05)
-    np.testing.assert_almost_equal(result_10, reference_10)
+    def test_gamma_05(self):
+        lens = mm.BinaryLensHexadecapoleMagnification(
+            self.trajectory, gamma=0.5, all_approximations=True)
+        result = lens.get_magnification()
+        np.testing.assert_almost_equal(result, self.reference_05)
+
+    def test_gamma_10(self):
+        lens = mm.BinaryLensHexadecapoleMagnification(
+            self.trajectory, gamma=1.0, all_approximations=True)
+        result = lens.get_magnification()
+        np.testing.assert_almost_equal(result, self.reference_10)
 
 
 def test_BinaryLensVBBLMagnification_1():
@@ -170,12 +196,13 @@ def test_BinaryLensVBBLMagnification_1():
     """
     s = 0.8
     q = 0.1
+    x = 0.01
+    y = 0.01
+    rho = 0.01
 
-    m_1 = 1. / (1. + q)
-    m_2 = q / (1. + q)
-    bl = mm.BinaryLens(m_1, m_2, s)
-
-    result = bl.vbbl_magnification(0.01, 0.01, 0.01)
+    trajectory = _make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
+    lens = mm.BinaryLensVBBLMagnification(trajectory)
+    result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
 
@@ -190,10 +217,13 @@ def test_BinaryLensVBBLMagnification_2():
     q = 0.0018654668855723224
     rho = 0.002966662955047919
 
-    m_1 = 1. / (1. + q)
-    m_2 = q / (1. + q)
-    bl = mm.BinaryLens(m_1, m_2, s)
-    results = [bl.vbbl_magnification(x_, y_, rho) for (x_, y_) in zip(x, y)]
+    results = []
+    for (x_, y_) in zip(x, y):
+        trajectory = _make_trajectory([x_, y_], {'s': s, 'q': q, 'rho': rho})
+        lens = mm.BinaryLensVBBLMagnification(trajectory)
+        result = lens.get_magnification()
+        results.append(result)
+
     # VBBL 2.0.1 was returning:
     # [1.345365452870409, 1.368843518228974, 1.3442156685350604]
     # i.e., the second value was wrong.
@@ -204,21 +234,27 @@ def test_BinaryLensVBBLMagnification_2():
     np.testing.assert_almost_equal(results[1], mean, decimal=4)
 
 
-def test_BinaryLensACMagnification():
+def test_BinaryLensVBBLMagnification_LD():
+    raise NotImplementedError('No tests defined for VBBL + gamma!')
+    assert 1 == 2
+
+
+def test_BinaryLensAdaptiveContouringMagnification():
     """
     check basic magnification calculation using AdaptiveContouring
     """
     s = 0.8
     q = 0.1
-
-    m_1 = 1. / (1. + q)
-    m_2 = q / (1. + q)
-    bl = mm.BinaryLens(m_1, m_2, s)
+    x = 0.06
+    y = 0.01
+    rho = 0.01
 
     # Previous version was failing because of bug in AC:
     # result = bl.adaptive_contouring_magnification(
     #     0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
     # np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
-    result = bl.adaptive_contouring_magnification(
-        0.06, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
+    trajectory = _make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
+    lens = mm.BinaryLensAdaptiveContouringMagnification(
+        trajectory,  accuracy=0.019, ld_accuracy=1e-3)
+    result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 11.403036510555962, decimal=3)
