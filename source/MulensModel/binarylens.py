@@ -666,12 +666,12 @@ class BinaryLensHexadecapoleMagnification(
 
 class BinaryLensVBBLMagnification(BinaryLensPointSourceMagnification):
 
-    def __init__(self, trajectory=trajectory, gamma=self._gamma, **kwargs):
+    def __init__(self, trajectory=None, gamma=None, **kwargs):
         pass
 
 
 class BinaryLensAdaptiveContouringMagnification(
     BinaryLensPointSourceMagnification):
 
-    def __init__(self, trajectory=trajectory, gamma=self._gamma, **kwargs):
+    def __init__(self, trajectory=None, gamma=None, **kwargs):
         pass
