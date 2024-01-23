@@ -1,6 +1,9 @@
 from os import path
 
-from MulensModel.binarylens import BinaryLens
+from MulensModel.binarylens import BinaryLensPointSourceMagnification, \
+    BinaryLensQuadrupoleMagnification, BinaryLensHexadecapoleMagnification, \
+    BinaryLensVBBLMagnification, BinaryLensAdaptiveContouringMagnification
+from MulensModel.binarylens import BinaryLens # to be deprecated.
 from MulensModel.binarylenswithshear import BinaryLensWithShear
 from MulensModel.caustics import Caustics
 from MulensModel.causticspointwithshear import CausticsPointWithShear

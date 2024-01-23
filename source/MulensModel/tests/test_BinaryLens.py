@@ -165,16 +165,19 @@ class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
         self.s = 1.35
         self.q = 0.00578
         self.rho = 0.001
-        self.x = 0.7142010570568691 - s * q / (1. + q)
+        self.x = 0.7142010570568691 - self.s * self.q / (1. + self.q)
         self.y = 0.00189679191923936
 
         self.trajectory = _make_trajectory(
             [self.x, self.y], {'s': self.s, 'q': self.q, 'rho': self.rho})
 
         self.pspl_mag = 4.691830779895085
-        self.reference_00 = [5.017252440557196, 4.9587638949353146, pspl_mag]
-        self.reference_05 = [4.981368071884021, 4.932070583431292, pspl_mag]
-        self.reference_10 = [4.9454837032108445, 4.905377271927269, pspl_mag]
+        self.reference_00 = [5.017252440557196, 4.9587638949353146,
+                             self.pspl_mag]
+        self.reference_05 = [4.981368071884021, 4.932070583431292,
+                             self.pspl_mag]
+        self.reference_10 = [4.9454837032108445, 4.905377271927269,
+                             self.pspl_mag]
 
     def test_gamma_00(self):
         lens = mm.BinaryLensHexadecapoleMagnification(
