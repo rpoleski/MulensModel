@@ -155,7 +155,7 @@ def test_BinaryLensQuadrupoleMagnification():
     assert 1 == 2
 
 
-class TestBinaryLensHexadecapoleMagnification(unittest.UnitTest):
+class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
     """
     tests hexadecapole and quadrupole calculation for planetary case
     with rho=0.001 and 3 values of gamma: 0, 0.5, and 1.0
