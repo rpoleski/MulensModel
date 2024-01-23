@@ -356,7 +356,7 @@ class MagnificationCurve(object):
 
             if method == 'point_source':
                 self._magnification_objects[method] = \
-                    mm.binarylens.PointSourceBinaryLensMagnification(
+                    mm.binarylens.BinaryLensPointSourceMagnification(
                         trajectory=trajectory)
             elif method == 'quadrupole':
                 self._magnification_objects[method] = \
@@ -376,7 +376,7 @@ class MagnificationCurve(object):
             elif method == 'adaptive_contouring':
                 self._magnification_objects[method] = \
                     mm.binarylens. \
-                        AdaptiveContouringMagnification(
+                        BinaryLensAdaptiveContouringMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
             elif method == 'point_source_point_lens':
                 self._magnification_objects[method] = \

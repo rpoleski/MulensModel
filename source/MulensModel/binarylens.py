@@ -644,3 +644,34 @@ class BinaryLens(object):
             s, q, x, y, rho, u_limb_darkening, accuracy)
 
         return magnification
+
+
+class BinaryLensPointSourceMagnification():
+
+    def __init__(self, trajectory=None):
+        pass
+
+
+class BinaryLensQuadrupoleMagnification(
+    BinaryLensPointSourceMagnification):
+
+    def __init__(self, gamma=None, **kwargs):
+        pass
+
+
+class BinaryLensHexadecapoleMagnification(
+    BinaryLensQuadrupoleMagnification):
+    pass
+
+
+class BinaryLensVBBLMagnification(BinaryLensPointSourceMagnification):
+
+    def __init__(self, trajectory=trajectory, gamma=self._gamma, **kwargs):
+        pass
+
+
+class BinaryLensAdaptiveContouringMagnification(
+    BinaryLensPointSourceMagnification):
+
+    def __init__(self, trajectory=trajectory, gamma=self._gamma, **kwargs):
+        pass

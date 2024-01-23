@@ -150,6 +150,11 @@ def test_BinaryLensPointSourceMagnification():
     np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
 
+def test_BinaryLensQuadrupoleMagnification():
+    raise NotImplementedError('No tests defined for quadrupole approximation!')
+    assert 1 == 2
+
+
 class TestBinaryLensHexadecapoleMagnification(unittest.UnitTest):
     """
     tests hexadecapole and quadrupole calculation for planetary case
