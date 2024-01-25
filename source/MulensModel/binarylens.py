@@ -320,6 +320,7 @@ class BinaryLens(object):
                 Point source magnification.
         """
         repeat = False
+        # VBBL is faster b/c it does more calcs in C, but it sometimes fails.
         try:
             out = self._point_source_magnification_VBBL(source_x, source_y)
         except Exception:
@@ -327,6 +328,7 @@ class BinaryLens(object):
 
         if repeat or out < 1.:
             out = self._point_source_magnification(source_x, source_y)
+
         return out
 
     def _point_source_magnification_VBBL(self, source_x, source_y):
@@ -645,11 +647,222 @@ class BinaryLens(object):
 
         return magnification
 
+class BinaryLensPointSourceMagnification(mm.PointSourcePointLensMagnification):
 
-class BinaryLensPointSourceMagnification():
+    def __init__(self, **kwargs):
+        mm.PointSourcePointLensMagnification.__init__(self, **kwargs)
 
-    def __init__(self, trajectory=None):
-        pass
+    def get_d_A_d_params(self, parameters):
+        """
+        Derivative calculations Not Implemented for BinaryLenses
+        """
+        raise NotImplementedError(
+            'Derivative calculations Not Implemented for BinaryLenses')
+
+    def get_d_u_d_params(self, parameters):
+        """
+        Derivative calculations Not Implemented for BinaryLenses
+        """
+        raise NotImplementedError(
+            'Derivative calculations Not Implemented for BinaryLenses')
+
+    def get_d_A_d_u(self):
+        """
+        Derivative calculations Not Implemented for BinaryLenses
+        """
+        raise NotImplementedError(
+            'Derivative calculations Not Implemented for BinaryLenses')
+
+
+class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
+
+    def __init__(self, **kwargs):
+        mm.PointSourcePointLensMagnification.__init__(self, **kwargs)
+
+    def get_magnification(self):
+
+        """
+        Calculate point source magnification for given position. The
+        origin of the coordinate system is at the center of mass and
+        both masses are on X axis with higher mass at negative X; this
+        means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
+        the lower mass is at (s/(1+q), 0).
+
+        Returns :
+            magnification: *float*
+                Point source magnification.
+        """
+        magnification = self._point_source_magnification()
+        return magnification
+
+    def _point_source_magnification(self):
+        """
+        Calculate point source magnification using VBBL for solving
+        the polynomial and MM code for rest.
+        """
+        # Move to __init__?
+        if self._use_planet_frame:
+            #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
+            x_shift = -1. / (1. + self.trajectory.parameters.q)
+        else:
+            #x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
+            x_shift = (self.trajectory.parameters.q /
+                       (1. + self.trajectory.params.q) -
+                       0.5)
+
+        x_shift *= self.separation
+
+        # We need to add this because in order to shift to correct frame.
+        return self._get_point_source_Witt_Mao_95()
+        # Casting to float speeds-up code for np.float input.
+
+    def _get_polynomial_roots(self):
+        """roots of the polynomial"""
+        polynomial_input = [self.mass_1, self.mass_2, self.separation,
+                            self.trajectory.x, self.trajectory.y]
+
+        if polynomial_input == self._last_polynomial_input:
+            return self._polynomial_roots
+
+        polynomial = self._get_polynomial(
+            source_x=source_x, source_y=source_y)
+
+        np_polyroots = np.polynomial.polynomial.polyroots
+        if self._solver == 'numpy':
+            self._polynomial_roots = np_polyroots(polynomial)
+        elif self._solver == 'Skowron_and_Gould_12':
+            args = polynomial.real.tolist() + polynomial.imag.tolist()
+            try:
+                out = _vbbl_SG12_5(*args)
+            except ValueError as err:
+                err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
+                warnings.warn(str(err) + err2, UserWarning)
+                self._solver = 'numpy'
+                self._polynomial_roots = np_polyroots(polynomial)
+            else:
+                self._polynomial_roots = np.array([
+                    out[0]+out[5]*1.j, out[1]+out[6]*1.j, out[2]+out[7]*1.j,
+                    out[3]+out[8]*1.j, out[4]+out[9]*1.j])
+        else:
+            raise ValueError('Unknown solver: {:}'.format(self._solver))
+        self._last_polynomial_input = polynomial_input
+
+        return self._polynomial_roots
+
+    def _verify_polynomial_roots(self, return_distances=False):
+        """verified roots of polynomial i.e. roots of lens equation"""
+        roots = self._get_polynomial_roots()
+
+        # Two lines below are simplified assuming
+        # self._position_z1.imag = 0 and same for z2.
+        roots_conj = np.conjugate(roots)
+        solutions = (self._zeta +
+                     self.mass_1 / (roots_conj - self._position_z1) +
+                     self.mass_2 / (roots_conj - self._position_z2))
+        # This backs-up the lens equation.
+
+        out = []
+        distances = []
+        for (i, root) in enumerate(roots):
+            distances_from_root = abs((solutions - root) ** 2)
+            min_distance_arg = np.argmin(distances_from_root)
+
+            if i == min_distance_arg:
+                out.append(root)
+                distances.append(distances_from_root[min_distance_arg])
+            # The values in distances[] are a diagnostic on how good the
+            # numerical accuracy is.
+
+        # If the lens equation is solved correctly, there should be
+        # either 3 or 5 solutions (corresponding to 3 or 5 images)
+        if len(out) not in [3, 5]:
+            msg = ("Wrong number of solutions to the lens equation of binary" +
+                   " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
+                   "(m1, m2, s, source_x, source_y, solver) are:\n" +
+                   "{:} {:} {:} {:} {:}  {:}\n\n" +
+                   "Consider using 'point_source_point_lens' method for " +
+                   "epochs when the source is very far from the lens. Note " +
+                   "that it's different from 'point_source' method.")
+            txt = msg.format(
+                len(out), repr(self.mass_1), repr(self.mass_2),
+                repr(self.separation), repr(source_x), repr(source_y),
+                self._solver)
+
+            if self._solver != "Skowron_and_Gould_12":
+                txt += (
+                        "\n\nYou should switch to using Skowron_and_Gould_12" +
+                        " polynomial root solver. It is much more accurate than " +
+                        "numpy.polynomial.polynomial.polyroots(). " +
+                        "Skowron_and_Gould_12 method is selected in automated " +
+                        "way if VBBL is imported properly.")
+            distance = sqrt(source_x ** 2 + source_y ** 2)
+            if (self.mass_2 > 1.e-6 * self.mass_1 and
+                    (distance < 15. or distance < 2. * self.separation)):
+                txt += ("\n\nThis is surprising error - please contact code " +
+                        "authors and provide the above error message.")
+            elif distance > 200.:
+                txt += ("\n\nYou try to calculate magnification at huge " +
+                        "distance from the source and this is causing an " +
+                        "error.")
+            txt += "\nMulensModel version: {:}".format(mm.__version__)
+
+            raise ValueError(txt)
+
+        if return_distances:
+            return (np.array(out), np.array(distances))
+        else:
+            return np.array(out)
+
+    def _get_point_source_Witt_Mao_95(self):
+        """calculate point source magnification"""
+        poly_roots = self._verify_polynomial_roots()
+        roots_ok_bar = np.conjugate(poly_roots)
+        # Variable X_bar is conjugate of variable X.
+        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
+        derivative = add_1 + add_2
+
+        jacobian_determinant = 1. - derivative * np.conjugate(derivative)
+        signed_magnification = 1. / jacobian_determinant
+        magnification = fsum(abs(signed_magnification))
+
+        return magnification
+
+
+# This is the primary PointSource Calculation
+class BinaryLensPointSourceVBBLMagnification(
+    BinaryLensPointSourceWM95Magnification):
+
+    def get_magnification(self):
+
+        """
+        Calculate point source magnification for given position. The
+        origin of the coordinate system is at the center of mass and
+        both masses are on X axis with higher mass at negative X; this
+        means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
+        the lower mass is at (s/(1+q), 0).
+
+        Returns :
+            magnification: *float*
+                Point source magnification.
+        """
+        repeat = False
+        try:
+            magnification = self._point_source_magnification_VBBL()
+        except Exception:
+            repeat = True
+
+        if repeat or magnification < 1.:
+            magnification = self._point_source_magnification()
+        return magnification
+
+    def _point_source_magnification_VBBL(self):
+        """
+        Calculate point source magnification using VBBL fully
+        """
+        args = [self.trajectory.parameters.s, self.trajectory.parameters.q,
+                self.trajectory.parameters.x, self.trajectory.parameters.y]
+        return _vbbl_binary_mag_0(*[float(arg) for arg in args])
 
 
 class BinaryLensQuadrupoleMagnification(
