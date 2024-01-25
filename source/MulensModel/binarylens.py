@@ -6,8 +6,9 @@ from MulensModel.binarylensimports import (
     _vbbl_wrapped, _adaptive_contouring_wrapped,
     _vbbl_binary_mag_dark, _vbbl_binary_mag_0,
     _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
-import MulensModel as mm
 
+import MulensModel as mm
+from MulensModel.pointlens import PointSourcePointLensMagnification
 
 class BinaryLens(object):
     """
@@ -647,10 +648,12 @@ class BinaryLens(object):
 
         return magnification
 
-class BinaryLensPointSourceMagnification(mm.PointSourcePointLensMagnification):
+class BinaryLensPointSourceMagnification(
+    PointSourcePointLensMagnification):
 
     def __init__(self, **kwargs):
-        mm.PointSourcePointLensMagnification.__init__(self, **kwargs)
+        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        self._solver = _solver
         self._use_planet_frame = True
 
     def get_magnification(self):
@@ -684,16 +687,20 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
     def __init__(self, **kwargs):
         BinaryLensPointSourceMagnification.__init__(self, **kwargs)
 
-        # We need to add this because in order to shift to correct frame.
-        if self._use_planet_frame: # JCY: is this ever not true?
-            #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
-            self.x_shift = -1. / (1. + self.trajectory.parameters.q)
-        else:
-            #x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
-            self.x_shift = (self.trajectory.parameters.q /
-                       (1. + self.trajectory.params.q) -
-                       0.5)
+        self.mass_1 = float(1.)  # This speeds-up code for np.float input.
+        self.mass_2 = float(self.trajectory.parameters.q)
+        self.separation = float(self.trajectory.parameters.s)
+        self._total_mass = None
+        self._mass_difference = None
+        self._position_z1 = None
+        self._position_z2 = None
 
+        self._last_polynomial_input = None
+        self._polynomial_roots = None
+
+        # We need to add this because in order to shift to correct frame.
+        #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
+        self.x_shift = -1. / (1. + self.trajectory.parameters.q)
         self.x_shift *= self.separation
 
     def get_magnification(self):
@@ -722,18 +729,77 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
 
         return magnification
 
+    def _calculate_variables(self):
+        """calculates values of constants needed for polynomial coefficients"""
+        self._total_mass = 0.5 * (self.mass_1 + self.mass_2)
+        # This is total_mass in WM95 paper.
+
+        self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
+        self._zeta = self.trajectory.x + self.x_shift + self.trajectory.y * 1.j
+        if self._use_planet_frame:
+            self._position_z1 = -self.separation + 0.j
+            self._position_z2 = 0. + 0.j
+        else:
+            self._position_z1 = -0.5 * self.separation + 0.j
+            self._position_z2 = 0.5 * self.separation + 0.j
+
+    def _get_polynomial(self, ):
+        """calculate coefficients of the polynomial in planet frame"""
+        # Calculate constants
+        self._calculate_variables()
+        total_m = self._total_mass
+        m_diff = self._mass_difference
+        zeta = self._zeta
+        zeta_conj = zeta.conjugate()
+
+        c_sum = mm.Utils.complex_fsum
+
+        z1 = self._position_z1
+
+        coeff_5 = c_sum([z1, -zeta_conj]) * zeta_conj
+        coeff_4 = c_sum([
+            (-m_diff + total_m) * z1,
+            -c_sum([2. * total_m, z1 * c_sum([2. * z1, zeta])]) * zeta_conj,
+            c_sum([2. * z1 + zeta]) * zeta_conj**2
+        ])
+        coeff_3 = c_sum([
+            z1 * c_sum([m_diff * z1, -total_m * c_sum([z1, 2. * zeta])]),
+            zeta_conj * c_sum([
+                2. * m_diff * z1,
+                c_sum([2. * total_m, z1**2]) * c_sum([z1, 2. * zeta])
+            ]),
+            -z1 * c_sum([z1, 2. * zeta]) * zeta_conj**2
+        ])
+        coeff_2 = c_sum([
+            m_diff * z1 * c_sum([2. * total_m, z1 * zeta]),
+            total_m * c_sum([
+                -2. * total_m * z1, 4. * total_m * zeta, 3. * z1**2 * zeta]),
+            -z1 * zeta_conj * c_sum([
+                zeta * c_sum([6. * total_m, z1**2]),
+                2. * m_diff * c_sum([z1, zeta])
+            ]),
+            z1**2 * zeta * zeta_conj**2
+        ])
+        coeff_1 = -z1 * (m_diff + total_m) * c_sum([
+            m_diff * z1, -total_m * z1, 4. * total_m * zeta, z1**2 * zeta,
+            -2. * z1 * zeta * zeta_conj
+        ])
+        coeff_0 = (m_diff + total_m)**2 * z1**2 * zeta
+
+        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
+        return np.array(coeffs_list).reshape(6)
+
     def _get_polynomial_roots(self):
         """roots of the polynomial"""
         # ***Casting to float speeds-up code for np.float input.***
 
         polynomial_input = [self.mass_1, self.mass_2, self.separation,
-                            self.trajectory.x, self.trajectory.y]
+                            self.trajectory.x + self.x_shift, self.trajectory.y]
 
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
 
-        polynomial = self._get_polynomial(
-            source_x=source_x, source_y=source_y)
+        polynomial = self._get_polynomial()
 
         np_polyroots = np.polynomial.polynomial.polyroots
         if self._solver == 'numpy':
@@ -793,7 +859,8 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
                    "that it's different from 'point_source' method.")
             txt = msg.format(
                 len(out), repr(self.mass_1), repr(self.mass_2),
-                repr(self.separation), repr(source_x), repr(source_y),
+                repr(self.separation), repr(self.trajectory.x + self.x_shift),
+                repr(self.trajectory.y),
                 self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
@@ -803,7 +870,8 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
                         "numpy.polynomial.polynomial.polyroots(). " +
                         "Skowron_and_Gould_12 method is selected in automated " +
                         "way if VBBL is imported properly.")
-            distance = sqrt(source_x ** 2 + source_y ** 2)
+            distance = sqrt((self.trajectory.x + self.x_shift)**2 +
+                            self.trajectory.y**2)
             if (self.mass_2 > 1.e-6 * self.mass_1 and
                     (distance < 15. or distance < 2. * self.separation)):
                 txt += ("\n\nThis is surprising error - please contact code " +
