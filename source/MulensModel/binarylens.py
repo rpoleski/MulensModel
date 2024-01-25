@@ -654,7 +654,6 @@ class BinaryLensPointSourceMagnification(
     def __init__(self, **kwargs):
         PointSourcePointLensMagnification.__init__(self, **kwargs)
         self._solver = _solver
-        self._use_planet_frame = True
 
     def get_magnification(self):
         raise NotImplementedError(
@@ -737,13 +736,11 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         # This is total_mass in WM95 paper.
 
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
+
         self._zeta = self.source_x + self.source_y * 1.j
-        if self._use_planet_frame:
-            self._position_z1 = -self.separation + 0.j
-            self._position_z2 = 0. + 0.j
-        else:
-            self._position_z1 = -0.5 * self.separation + 0.j
-            self._position_z2 = 0.5 * self.separation + 0.j
+        self._position_z1 = -self.separation + 0.j
+        self._position_z2 = 0. + 0.j
+
 
     def _get_polynomial(self, ):
         """calculate coefficients of the polynomial in planet frame"""
