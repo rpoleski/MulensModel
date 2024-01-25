@@ -651,6 +651,7 @@ class BinaryLensPointSourceMagnification(mm.PointSourcePointLensMagnification):
 
     def __init__(self, **kwargs):
         mm.PointSourcePointLensMagnification.__init__(self, **kwargs)
+        self._use_planet_frame = True
 
     def get_magnification(self):
         raise NotImplementedError(
@@ -681,7 +682,19 @@ class BinaryLensPointSourceMagnification(mm.PointSourcePointLensMagnification):
 class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
 
     def __init__(self, **kwargs):
-        mm.PointSourcePointLensMagnification.__init__(self, **kwargs)
+        BinaryLensPointSourceMagnification.__init__(self, **kwargs)
+
+        # We need to add this because in order to shift to correct frame.
+        if self._use_planet_frame: # JCY: is this ever not true?
+            #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
+            self.x_shift = -1. / (1. + self.trajectory.parameters.q)
+        else:
+            #x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
+            self.x_shift = (self.trajectory.parameters.q /
+                       (1. + self.trajectory.params.q) -
+                       0.5)
+
+        self.x_shift *= self.separation
 
     def get_magnification(self):
 
@@ -696,32 +709,23 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             magnification: *float*
                 Point source magnification.
         """
-        magnification = self._point_source_magnification()
+        poly_roots = self._verify_polynomial_roots()
+        roots_ok_bar = np.conjugate(poly_roots)
+        # Variable X_bar is conjugate of variable X.
+        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
+        derivative = add_1 + add_2
+
+        jacobian_determinant = 1. - derivative * np.conjugate(derivative)
+        signed_magnification = 1. / jacobian_determinant
+        magnification = fsum(abs(signed_magnification))
+
         return magnification
-
-    def _point_source_magnification(self):
-        """
-        Calculate point source magnification using VBBL for solving
-        the polynomial and MM code for rest.
-        """
-        # Move to __init__?
-        if self._use_planet_frame:
-            #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
-            x_shift = -1. / (1. + self.trajectory.parameters.q)
-        else:
-            #x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
-            x_shift = (self.trajectory.parameters.q /
-                       (1. + self.trajectory.params.q) -
-                       0.5)
-
-        x_shift *= self.separation
-
-        # We need to add this because in order to shift to correct frame.
-        return self._get_point_source_Witt_Mao_95()
-        # Casting to float speeds-up code for np.float input.
 
     def _get_polynomial_roots(self):
         """roots of the polynomial"""
+        # ***Casting to float speeds-up code for np.float input.***
+
         polynomial_input = [self.mass_1, self.mass_2, self.separation,
                             self.trajectory.x, self.trajectory.y]
 
@@ -816,21 +820,6 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             return (np.array(out), np.array(distances))
         else:
             return np.array(out)
-
-    def _get_point_source_Witt_Mao_95(self):
-        """calculate point source magnification"""
-        poly_roots = self._verify_polynomial_roots()
-        roots_ok_bar = np.conjugate(poly_roots)
-        # Variable X_bar is conjugate of variable X.
-        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
-        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
-        derivative = add_1 + add_2
-
-        jacobian_determinant = 1. - derivative * np.conjugate(derivative)
-        signed_magnification = 1. / jacobian_determinant
-        magnification = fsum(abs(signed_magnification))
-
-        return magnification
 
 
 # This is the primary PointSource Calculation
