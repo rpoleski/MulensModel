@@ -702,6 +702,8 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
         self.x_shift = -1. / (1. + self.trajectory.parameters.q)
         self.x_shift *= self.separation
+        self.source_x = self.trajectory.x + self.x_shift
+        self.source_y = self.trajectory.y
 
     def get_magnification(self):
 
@@ -735,7 +737,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         # This is total_mass in WM95 paper.
 
         self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
-        self._zeta = self.trajectory.x + self.x_shift + self.trajectory.y * 1.j
+        self._zeta = self.source_x + self.source_y * 1.j
         if self._use_planet_frame:
             self._position_z1 = -self.separation + 0.j
             self._position_z2 = 0. + 0.j
@@ -794,7 +796,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         # ***Casting to float speeds-up code for np.float input.***
 
         polynomial_input = [self.mass_1, self.mass_2, self.separation,
-                            self.trajectory.x + self.x_shift, self.trajectory.y]
+                            self.source_x, self.source_y]
 
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
@@ -807,7 +809,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         elif self._solver == 'Skowron_and_Gould_12':
             args = polynomial.real.tolist() + polynomial.imag.tolist()
             try:
-                out = _vbbl_SG12_5(*args)
+                out = _vbbl_SG12_5(self.source_x, self.source_y)
             except ValueError as err:
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
                 warnings.warn(str(err) + err2, UserWarning)
@@ -859,8 +861,8 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
                    "that it's different from 'point_source' method.")
             txt = msg.format(
                 len(out), repr(self.mass_1), repr(self.mass_2),
-                repr(self.separation), repr(self.trajectory.x + self.x_shift),
-                repr(self.trajectory.y),
+                repr(self.separation), repr(self.source_x),
+                repr(self.source_y),
                 self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
@@ -870,8 +872,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
                         "numpy.polynomial.polynomial.polyroots(). " +
                         "Skowron_and_Gould_12 method is selected in automated " +
                         "way if VBBL is imported properly.")
-            distance = sqrt((self.trajectory.x + self.x_shift)**2 +
-                            self.trajectory.y**2)
+            distance = sqrt(self.source_x**2 + self.source_y**2)
             if (self.mass_2 > 1.e-6 * self.mass_1 and
                     (distance < 15. or distance < 2. * self.separation)):
                 txt += ("\n\nThis is surprising error - please contact code " +
