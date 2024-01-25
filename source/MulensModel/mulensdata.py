@@ -352,8 +352,7 @@ class MulensData(object):
         return self._plot_properties
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
-             subtract_2450000=False, subtract_2460000=False,
-             model=None, plot_residuals=False, **kwargs):
+             subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data.
 
@@ -383,14 +382,6 @@ class MulensData(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
-            model: :py:class:`~MulensModel.model.Model`
-                DEPRECATED. Use :py:func:`~MulensModel.model.Event.plot_data()`
-                to plot a dataset scaled to a model.
-
-            plot_residuals: *boolean*
-                If *True* then residuals are plotted (*model* is required).
-                Default is *False*, i.e., plot the data.
-
             ``**kwargs``:
                 passed to matplotlib plotting functions.
         """
@@ -398,18 +389,9 @@ class MulensData(object):
             phot_fmt = self.input_fmt
         if phot_fmt not in ['mag', 'flux']:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
-        if plot_residuals and model is None:
-            raise ValueError(
-                'MulensData.plot() requires model to plot residuals')
 
-        if model is None:
-            (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
-                                                       self.flux,
-                                                       self.err_flux)
-        else:
-            raise KeyError(
-                'Passing a model to MulensData.plot will be depracated. Use ' +
-                'Event.plot_data() or Event.plot_residuals() instead.')
+        (y_value, y_err) = self._get_y_value_y_err(phot_fmt, self.flux,
+                                                   self.err_flux)
 
         self._plot_datapoints(
             (y_value, y_err), subtract_2450000=subtract_2450000,
