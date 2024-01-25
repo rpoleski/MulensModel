@@ -135,7 +135,7 @@ def _make_trajectory(pos, params):
     return trajectory
 
 
-class TestBinaryLensPointSourceMagnification():
+class TestBinaryLensPointSourceMagnification(unittest.TestCase):
 
     def setUp(self):
         """
@@ -145,23 +145,22 @@ class TestBinaryLensPointSourceMagnification():
         self.s = 1.8
         self.x = self.s - 1. / self.s
         self.y = 5.e-7 * 0.
+        self.expected = 3.6868957
 
         self.trajectory = _make_trajectory(
             [self.x, self.y], {'s': self.s, 'q': self.q})
-
-        self.expected = 3.6868957
 
     def test_BLPS_WittMao95(self):
         lens = mm.BinaryLensPointSourceWM95Magnification(
             trajectory=self.trajectory)
         result = lens.get_magnification()
-        np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
+        np.testing.assert_almost_equal(result, self.expected, decimal=3)
 
     def test_BLPS_VBBL(self):
         lens = mm.BinaryLensPointSourceVBBLMagnification(
             trajectory=self.trajectory)
         result = lens.get_magnification()
-        np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
+        np.testing.assert_almost_equal(result, self.expected, decimal=3)
 
 
 def test_BinaryLensQuadrupoleMagnification():
