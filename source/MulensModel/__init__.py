@@ -1,6 +1,8 @@
 from os import path
 
 from MulensModel.binarylens import BinaryLensPointSourceMagnification, \
+    BinaryLensPointSourceWM95Magnification,\
+    BinaryLensPointSourceVBBLMagnification, \
     BinaryLensQuadrupoleMagnification, BinaryLensHexadecapoleMagnification, \
     BinaryLensVBBLMagnification, BinaryLensAdaptiveContouringMagnification
 from MulensModel.binarylens import BinaryLens # to be deprecated.
