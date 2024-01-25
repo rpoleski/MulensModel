@@ -152,12 +152,14 @@ class TestBinaryLensPointSourceMagnification():
         self.expected = 3.6868957
 
     def test_BLPS_WittMao95(self):
-        lens = mm.BinaryLensPointSourceWM95Magnification(self.trajectory)
+        lens = mm.BinaryLensPointSourceWM95Magnification(
+            trajectory=self.trajectory)
         result = lens.get_magnification()
         np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
     def test_BLPS_VBBL(self):
-        lens = mm.BinaryLensPointSourceVBBLMagnification(self.trajectory)
+        lens = mm.BinaryLensPointSourceVBBLMagnification(
+            trajectory=self.trajectory)
         result = lens.get_magnification()
         np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
