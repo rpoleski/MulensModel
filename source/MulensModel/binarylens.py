@@ -652,6 +652,10 @@ class BinaryLensPointSourceMagnification(mm.PointSourcePointLensMagnification):
     def __init__(self, **kwargs):
         mm.PointSourcePointLensMagnification.__init__(self, **kwargs)
 
+    def get_magnification(self):
+        raise NotImplementedError(
+            'This is a placeholder class. Use the child classes.')
+
     def get_d_A_d_params(self, parameters):
         """
         Derivative calculations Not Implemented for BinaryLenses
