@@ -135,19 +135,31 @@ def _make_trajectory(pos, params):
     return trajectory
 
 
-def test_BinaryLensPointSourceMagnification():
-    """
-    run calculations with small mass-ratio
-    """
-    q = 1.e-8
-    s = 1.8
-    x = s - 1. / s
-    y = 5.e-7 * 0.
+class TestBinaryLensPointSourceMagnification():
 
-    trajectory = _make_trajectory([x, y], {'s': s, 'q': q})
-    lens = mm.BinaryLensPointSourceMagnification(trajectory)
-    result = lens.get_magnification()
-    np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
+    def setUp(self):
+        """
+        run calculations with small mass-ratio
+        """
+        self.q = 1.e-8
+        self.s = 1.8
+        self.x = self.s - 1. / self.s
+        self.y = 5.e-7 * 0.
+
+        self.trajectory = _make_trajectory(
+            [self.x, self.y], {'s': self.s, 'q': self.q})
+
+        self.expected = 3.6868957
+
+    def test_BLPS_WittMao95(self):
+        lens = mm.BinaryLensPointSourceWM95Magnification(self.trajectory)
+        result = lens.get_magnification()
+        np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
+
+    def test_BLPS_VBBL(self):
+        lens = mm.BinaryLensPointSourceVBBLMagnification(self.trajectory)
+        result = lens.get_magnification()
+        np.testing.assert_almost_equal(result, 3.6868957, decimal=3)
 
 
 def test_BinaryLensQuadrupoleMagnification():
