@@ -702,8 +702,8 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
         self.x_shift = -1. / (1. + self.trajectory.parameters.q)
         self.x_shift *= self.separation
-        self.source_x = self.trajectory.x + self.x_shift
-        self.source_y = self.trajectory.y
+        self.source_x = float(self.trajectory.x + self.x_shift)
+        self.source_y = float(self.trajectory.y)
 
     def get_magnification(self):
 
@@ -808,8 +808,9 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             self._polynomial_roots = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
             args = polynomial.real.tolist() + polynomial.imag.tolist()
+            print(args)
             try:
-                out = _vbbl_SG12_5(self.source_x, self.source_y)
+                out = _vbbl_SG12_5(*args)
             except ValueError as err:
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
                 warnings.warn(str(err) + err2, UserWarning)
