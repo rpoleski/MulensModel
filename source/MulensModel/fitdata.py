@@ -640,24 +640,24 @@ class FitData(object):
 
         return d_A_d_params
 
-    # def get_d_A_d_rho(self):
-    #     """
-    #     Calculate d A / d rho for a point lens model.
+    def get_d_A_d_rho(self):
+        """
+        Calculate d A / d rho for a point lens model.
 
-    #     No Inputs
+        No Inputs
 
-    #     Returns :
-    #         dA_drho: *np.array*
-    #             Values are the partial derivatives for rho
-    #             evaluated at each data point.
-    #     """
-    #     # Need to consider what happens when we move to 2 sources.
-    #     if self._data_magnification_curve is None:
-    #         self._set_data_magnification_curves()
+        Returns :
+            dA_drho: *np.array*
+                Values are the partial derivatives for rho
+                evaluated at each data point.
+        """
+        # Need to consider what happens when we move to 2 sources.
+        if self._data_magnification_curve is None:
+            self._set_data_magnification_curves()
 
-    #     d_A_d_params = self._data_magnification_curve.get_d_A_d_rho()
+        d_A_d_params = self._data_magnification_curve.get_d_A_d_rho()
 
-    #     return d_A_d_params
+        return d_A_d_params
 
     def get_dataset_trajectory(self):
         """
