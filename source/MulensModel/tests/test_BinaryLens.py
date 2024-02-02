@@ -183,6 +183,7 @@ class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
 
         self.trajectory = _make_trajectory(
             [self.x, self.y], {'s': self.s, 'q': self.q, 'rho': self.rho})
+        print('setUp', self.trajectory)
 
         self.pspl_mag = 4.691830779895085
         self.reference_00 = [5.017252440557196, 4.9587638949353146,
@@ -193,23 +194,42 @@ class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
                              self.pspl_mag]
 
     def test_gamma_00(self):
+        print('gamma00', self.trajectory)
         lens = mm.BinaryLensHexadecapoleMagnification(
-            self.trajectory, gamma=0.0, all_approximations=True)
+            trajectory=self.trajectory, gamma=0.0, all_approximations=True)
         result = lens.get_magnification()
         np.testing.assert_almost_equal(result, self.reference_00)
 
     def test_gamma_05(self):
         lens = mm.BinaryLensHexadecapoleMagnification(
-            self.trajectory, gamma=0.5, all_approximations=True)
+            trajectory=self.trajectory, gamma=0.5, all_approximations=True)
         result = lens.get_magnification()
         np.testing.assert_almost_equal(result, self.reference_05)
 
     def test_gamma_10(self):
         lens = mm.BinaryLensHexadecapoleMagnification(
-            self.trajectory, gamma=1.0, all_approximations=True)
+            trajectory=self.trajectory, gamma=1.0, all_approximations=True)
         result = lens.get_magnification()
         np.testing.assert_almost_equal(result, self.reference_10)
 
+
+class TestBinaryLensQuadrupoleMagnification(
+    TestBinaryLensHexadecapoleMagnification):
+
+    def setUp(self):
+        TestBinaryLensHexadecapoleMagnification.setUp(self)
+
+    def test_gamma_00(self):
+        print('gamma00', self.trajectory)
+        lens = mm.BinaryLensQuadrupoleMagnification(trajectory=self.trajectory)
+        result = lens.get_magnification()
+        np.testing.assert_almost_equal(result, self.reference_00)
+
+    def test_gamma_05(self):
+        pass
+
+    def test_gamma_10(self):
+        pass
 
 def test_BinaryLensVBBLMagnification_1():
     """

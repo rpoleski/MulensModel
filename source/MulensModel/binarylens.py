@@ -681,7 +681,8 @@ class BinaryLensPointSourceMagnification(
             'Derivative calculations Not Implemented for BinaryLenses')
 
 
-class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
+class BinaryLensPointSourceWM95Magnification(
+    BinaryLensPointSourceMagnification):
 
     def __init__(self, **kwargs):
         BinaryLensPointSourceMagnification.__init__(self, **kwargs)
@@ -907,13 +908,16 @@ class BinaryLensPointSourceVBBLMagnification(
                 Point source magnification.
         """
         repeat = False
-        try:
-            magnification = self._point_source_magnification_VBBL()
-        except Exception:
-            repeat = True
+        magnification = self._point_source_magnification_VBBL()
+        # try:
+        #     magnification = self._point_source_magnification_VBBL()
+        # except Exception:
+        #     repeat = True
 
-        if repeat or magnification < 1.:
-            magnification = self._point_source_magnification()
+        # if repeat or magnification < 1.:
+        #     magnification = BinaryLensPointSourceWM95Magnification.\
+        #         get_magnification(self)
+
         return magnification
 
     def _point_source_magnification_VBBL(self):
@@ -921,20 +925,133 @@ class BinaryLensPointSourceVBBLMagnification(
         Calculate point source magnification using VBBL fully
         """
         args = [self.trajectory.parameters.s, self.trajectory.parameters.q,
-                self.trajectory.parameters.x, self.trajectory.parameters.y]
+                self.source_x, self.source_y]
         return _vbbl_binary_mag_0(*[float(arg) for arg in args])
 
 
 class BinaryLensQuadrupoleMagnification(
-    BinaryLensPointSourceMagnification):
+    BinaryLensPointSourceVBBLMagnification):
 
-    def __init__(self, gamma=None, **kwargs):
-        pass
+    def __init__(self, **kwargs):
+        BinaryLensPointSourceVBBLMagnification.__init__(self, **kwargs)
+        self._check_rho()
+        self._a_center = None
+
+    def _check_rho(self):
+        """
+        Check if rho is float and positive.
+        """
+        rho = self.trajectory.parameters.rho
+        if rho is None:
+            raise TypeError(
+                'rho must be positive float, but None was provided')
+        if not isinstance(rho, float):
+            raise TypeError(
+                'rho must be positive float, but ' + str(rho) +
+                str(type(rho)) + ' was provided')
+        if rho < 0:
+            raise ValueError(
+                'rho must be positive, got: {:}'.format(rho))
+
+    def _get_magnification_w_plus(self, radius):
+        """Evaluates Gould (2008) eq. 7"""
+        if self._a_center is None:
+            raise ValueError('self._a_center is not set.')
+
+        dx = [1., 0., -1., 0.]
+        dy = [0., 1., 0., -1.]
+        out = []
+        for (i, dxval) in enumerate(dx):
+            # Does this use the correct X, Y origin? Should it be traj.x instead?
+            x = self.source_x + dxval * radius
+            y = self.source_y + dy[i] * radius
+            # These values need to be passed to the magnification calculation...
+            out.append(self.point_source_magnification())
+
+        return 0.25 * fsum(out) - self._a_center
+
+    def get_magnification(self):
+        # In this function, variables named a_* depict magnification.
+        rho = self.trajectory.parameters.rho
+        self._a_center = BinaryLensPointSourceVBBLMagnification.\
+            get_magnification(self)
+        a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * rho)
+        a_rho_plus = self._get_magnification_w_plus(radius=rho)
+
+        # This is Gould 2008 eq. 9:
+        a_2_rho_square = (16. * a_rho_half_plus - a_rho_plus) / 3.
+
+        # Gould 2008 eq. 6 (part 1/2):
+        a_quadrupole = (self._a_center +
+                        a_2_rho_square * (1. - 0.2 * self.gamma))
+
+        # At this point is quadrupole approximation is finished
+        return a_quadrupole
 
 
 class BinaryLensHexadecapoleMagnification(
     BinaryLensQuadrupoleMagnification):
-    pass
+    """
+    Magnification in hexadecapole approximation of the
+    binary-lens/finite-source event - based on `Gould 2008 ApJ
+    681, 1593
+    <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
+
+    For coordinate system convention see
+    :py:func:`point_source_magnification()`
+
+    Parameters :
+        source_x: *float*
+            X-axis coordinate of the source.
+
+        source_y: *float*
+            Y-axis coordinate of the source.
+
+        rho: *float*
+            Source size relative to Einstein ring radius.
+
+        gamma: *float*
+            Linear limb-darkening coefficient in gamma convention.
+
+        quadrupole: *boolean*, optional
+            Return quadrupole approximation instead of hexadecapole?
+            Default is *False*.
+
+        all_approximations: *boolean*, optional
+            Return hexadecapole, quadrupole, and point source
+            approximations? Default is *False*.
+
+    Returns :
+        magnification: *float* or *sequence* of three *floats*
+            Hexadecapole approximation (*float*) by default.
+            Quadrupole approximation (*float*) if *quadrupole*
+            parameter is *True*. Hexadecapole, quadrupole, and
+            point source approximations (*sequence* of three
+            *floats*) if *all_approximations* parameter is *True*.
+    """
+
+    def __init__(self, gamma=None, **kwargs):
+        BinaryLensQuadrupoleMagnification.__init__(self, **kwargs)
+        self.gamma = gamma
+
+    def get_magnification(self, all_approximations = False):
+        # In this function, variables named a_* depict magnification.
+        a_quadrupole = BinaryLensQuadrupoleMagnification.get_magnification()
+
+        a_rho_times = self._get_magnification_w_times(
+            source_x=source_x, source_y=source_y, radius=rho,
+            magnification_center=a_center)
+
+        # This is Gould (2008) eq. 9:
+        a_4_rho_power4 = 0.5 * (a_rho_plus + a_rho_times) - a_2_rho_square
+        # This is Gould (2008) eq. 6 (part 2/2):
+        a_add = a_4_rho_power4 * (1. - 11. * gamma / 35.)
+        a_hexadecapole = a_quadrupole + a_add
+
+        if all_approximations:
+            return (a_hexadecapole, a_quadrupole, a_center)
+        else:
+            return a_hexadecapole
 
 
 class BinaryLensVBBLMagnification(BinaryLensPointSourceMagnification):
