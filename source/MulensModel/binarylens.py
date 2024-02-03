@@ -1001,6 +1001,21 @@ class BinaryLensQuadrupoleMagnification(
         # At this point is quadrupole approximation is finished
         return a_quadrupole
 
+    @property
+    def source_x(self):
+        if self._source_x is None:
+            self._source_x = float(self.trajectory.x)
+
+        return self._source_x
+
+    @property
+    def source_y(self):
+
+        if self._source_y is None:
+            self._source_y = float(self.trajectory.y)
+
+        return self._source_y
+
 
 class BinaryLensHexadecapoleMagnification(
     BinaryLensQuadrupoleMagnification):
@@ -1067,10 +1082,75 @@ class BinaryLensHexadecapoleMagnification(
             return a_hexadecapole
 
 
-class BinaryLensVBBLMagnification(BinaryLensPointSourceMagnification):
+class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
+    """
+    Binary lens finite source magnification calculated using VBBL
+    library that implements advanced contour integration algorithm
+    presented by `Bozza 2010 MNRAS, 408, 2188
+    <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_.
+    See also `VBBL website by Valerio Bozza
+    <http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm>`_.
 
-    def __init__(self, trajectory=None, gamma=None, **kwargs):
-        pass
+    For coordinate system convention see
+    :py:func:`point_source_magnification()`
+
+    Parameters :
+        source_x: *float*
+            X-axis coordinate of the source.
+
+        source_y: *float*
+            Y-axis coordinate of the source.
+
+        rho: *float*
+            Source size relative to Einstein ring radius.
+
+        gamma: *float*, optional
+            Linear limb-darkening coefficient in gamma convention.
+
+        u_limb_darkening: *float*
+            Linear limb-darkening coefficient in u convention.
+            Note that either *gamma* or *u_limb_darkening* can be
+            set.  If neither of them is provided then limb
+            darkening is ignored.
+
+        accuracy: *float*, optional
+            Requested accuracy of the result.
+
+    Returns :
+        magnification: *float*
+            Magnification.
+
+    """
+
+    def __init__(self, u_limb_darkening=None, accuracy=0.001, **kwargs):
+        BinaryLensHexadecapoleMagnification.__init__(self, **kwargs)
+        if accuracy <= 0.:
+            raise ValueError(
+                "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
+                "\n{:} was  provided".format(accuracy))
+
+        if not _vbbl_wrapped:
+            raise ValueError('VBBL was not imported properly')
+
+        if self.gamma is not None and u_limb_darkening is not None:
+            raise ValueError('Only one limb darkening parameters can be set' +
+                         ' in BinaryLens.vbbl_magnification()')
+        elif self.gamma is not None:
+            self.u_limb_darkening = float(mm.Utils.gamma_to_u(self.gamma))
+        elif u_limb_darkening is not None:
+            self.u_limb_darkening = float(u_limb_darkening)
+        else:
+            self.u_limb_darkening = float(0.0)
+
+        self.accuracy = float(accuracy)
+
+    def get_magnification(self):
+        magnification = _vbbl_binary_mag_dark(
+            self.trajectory.parameters.s, self.trajectory.parameters.q,
+            self.source_x, self.source_y, self.trajectory.parameters.rho,
+            self.u_limb_darkening, self.accuracy)
+
+        return magnification
 
 
 class BinaryLensAdaptiveContouringMagnification(
@@ -1134,6 +1214,7 @@ class BinaryLensAdaptiveContouringMagnification(
     def __init__(self, u_limb_darkening=None,
             accuracy=0.1, ld_accuracy=0.001, **kwargs):
         BinaryLensHexadecapoleMagnification.__init__(self, **kwargs )
+
         # Note that this accuracy is not guaranteed.
         if accuracy <= 0.:
             raise ValueError('adaptive_contouring requires accuracy > 0')
@@ -1154,10 +1235,6 @@ class BinaryLensAdaptiveContouringMagnification(
         else:
             self.gamma = float(0.0)
 
-        #s = float(self.separation)
-        #q = float(self.mass_2 / self.mass_1)
-
-        self.rho = self.trajectory.parameters.rho
         self.accuracy = float(accuracy)
         self.ld_accuracy = float(ld_accuracy)
 
