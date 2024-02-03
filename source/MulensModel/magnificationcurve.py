@@ -354,31 +354,31 @@ class MagnificationCurve(object):
                 parallax=self.parallax, coords=self.coords,
                 satellite_skycoord=satellite_skycoord)
 
-            if method == 'point_source':
+            if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
                     mm.binarylens.BinaryLensPointSourceMagnification(
                         trajectory=trajectory)
-            elif method == 'quadrupole':
+            elif method.lower() == 'quadrupole':
                 self._magnification_objects[method] = \
                     mm.binarylens.PointSourceBinaryLensQuadrupoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
-            elif method == 'hexadecapole':
+            elif method.lower() == 'hexadecapole':
                 self._magnification_objects[method] = \
                     mm.binarylens.\
                         PointSourceBinaryLensHexadecapoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
-            elif method == 'vbbl':
+            elif method.lower() == 'vbbl':
                 print('JCY - Need to figure out how to stop VBBL + shear.')
                 self._magnification_objects[method] = \
                     mm.binarylens. \
-                        VBBLMagnification(
+                        BinaryLensVBBLMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
-            elif method == 'adaptive_contouring':
+            elif method.lower() == 'adaptive_contouring':
                 self._magnification_objects[method] = \
                     mm.binarylens. \
                         BinaryLensAdaptiveContouringMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
-            elif method == 'point_source_point_lens':
+            elif method.lower() == 'point_source_point_lens':
                 self._magnification_objects[method] = \
                     mm.pointlens.PointSourcePointLensMagnification(
                         trajectory=trajectory)
@@ -648,16 +648,6 @@ class MagnificationCurve(object):
             methods_ = np.array(methods)
 
             for method in set(methods):
-                kwargs = {}
-                if self._methods_parameters is not None:
-                    if method.lower() in self._methods_parameters.keys():
-                        kwargs = self._methods_parameters[method.lower()]
-
-                    if kwargs != {}:
-                        raise ValueError(
-                            'Methods parameters passed, but currently ' +
-                            'no point lens method accepts the parameters')
-
                 selection = (methods_ == method)
                 self._methods_indices[method] = selection
 
