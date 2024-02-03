@@ -322,9 +322,13 @@ class BinaryLens(object):
         """
         repeat = False
         # VBBL is faster b/c it does more calcs in C, but it sometimes fails.
+        warnings.warn(
+            '_point_source_matnification_VBBL is not implemented correctly!' +
+            'but the try/except just bypasses it!')
         try:
             out = self._point_source_magnification_VBBL(source_x, source_y)
-        except Exception:
+        except Exception as err:
+            print(str(err))
             repeat = True
 
         if repeat or out < 1.:
@@ -654,6 +658,8 @@ class BinaryLensPointSourceMagnification(
     def __init__(self, **kwargs):
         PointSourcePointLensMagnification.__init__(self, **kwargs)
         self._solver = _solver
+        self._source_x = None
+        self._source_y = None
 
     def get_magnification(self):
         raise NotImplementedError(
@@ -680,6 +686,20 @@ class BinaryLensPointSourceMagnification(
         raise NotImplementedError(
             'Derivative calculations Not Implemented for BinaryLenses')
 
+    @property
+    def source_x(self):
+        if self._source_x is None:
+            self._source_x = float(self.trajectory.x)
+
+        return self._source_x
+
+    @property
+    def source_y(self):
+
+        if self._source_y is None:
+            self._source_y = float(self.trajectory.y)
+
+        return self._source_y
 
 class BinaryLensPointSourceWM95Magnification(
     BinaryLensPointSourceMagnification):
@@ -697,9 +717,6 @@ class BinaryLensPointSourceWM95Magnification(
 
         self._last_polynomial_input = None
         self._polynomial_roots = None
-
-        self._source_x = None
-        self._source_y = None
 
     def get_magnification(self):
 
@@ -905,7 +922,10 @@ class BinaryLensPointSourceWM95Magnification(
 
 # This is the primary PointSource Calculation
 class BinaryLensPointSourceVBBLMagnification(
-    BinaryLensPointSourceWM95Magnification):
+    BinaryLensPointSourceMagnification):
+
+    def __init__(self, **kwargs):
+        BinaryLensPointSourceMagnification.__init__(self, **kwargs)
 
     def get_magnification(self):
 
@@ -921,15 +941,20 @@ class BinaryLensPointSourceVBBLMagnification(
                 Point source magnification.
         """
         repeat = False
-        magnification = self._point_source_magnification_VBBL()
-        # try:
-        #     magnification = self._point_source_magnification_VBBL()
-        # except Exception:
-        #     repeat = True
+        warnings.warn(
+            '_point_source_matnification_VBBL is not implemented correctly!' +
+            'but the try/except just bypasses it!')
+        # magnification = self._point_source_magnification_VBBL()
+        try:
+            magnification = self._point_source_magnification_VBBL()
+        except Exception as err:
+            print('VBBL PS calc has failed:', str(err))
+            repeat = True
 
-        # if repeat or magnification < 1.:
-        #     magnification = BinaryLensPointSourceWM95Magnification.\
-        #         get_magnification(self)
+        if repeat or magnification < 1.:
+            wm95 = BinaryLensPointSourceWM95Magnification(
+                trajectory=self.trajectory)
+            magnification = wm95.get_magnification()
 
         return magnification
 
@@ -940,21 +965,6 @@ class BinaryLensPointSourceVBBLMagnification(
         args = [self.trajectory.parameters.s, self.trajectory.parameters.q,
                 self.source_x, self.source_y]
         return _vbbl_binary_mag_0(*[float(arg) for arg in args])
-
-    @property
-    def source_x(self):
-        if self._source_x is None:
-            self._source_x = float(self.trajectory.x)
-
-        return self._source_x
-
-    @property
-    def source_y(self):
-
-        if self._source_y is None:
-            self._source_y = float(self.trajectory.y)
-
-        return self._source_y
 
 class BinaryLensQuadrupoleMagnification(
     BinaryLensPointSourceVBBLMagnification):
@@ -1057,11 +1067,12 @@ class BinaryLensHexadecapoleMagnification(
             *floats*) if *all_approximations* parameter is *True*.
     """
 
-    def __init__(self, gamma=None, **kwargs):
+    def __init__(self, gamma=None, all_approximations=False, **kwargs):
         BinaryLensQuadrupoleMagnification.__init__(self, **kwargs)
         self.gamma = gamma
+        self.all_approximations = all_approximations
 
-    def get_magnification(self, all_approximations = False):
+    def get_magnification(self):
         # In this function, variables named a_* depict magnification.
         a_quadrupole = BinaryLensQuadrupoleMagnification.get_magnification()
 
