@@ -1096,7 +1096,7 @@ class BinaryLensHexadecapoleMagnification(
 
     def get_magnification(self):
         # In this function, variables named a_* depict magnification.
-        a_quadrupole = BinaryLensQuadrupoleMagnification.get_magnification()
+        a_quadrupole = BinaryLensQuadrupoleMagnification.get_magnification(self)
 
         a_rho_times = self._get_magnification_w_times(
             source_x=source_x, source_y=source_y, radius=rho,
