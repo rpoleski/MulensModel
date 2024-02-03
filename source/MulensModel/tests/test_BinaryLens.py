@@ -242,7 +242,7 @@ def test_BinaryLensVBBLMagnification_1():
     rho = 0.01
 
     trajectory = _make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
-    lens = mm.BinaryLensVBBLMagnification(trajectory)
+    lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
     result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
 
@@ -261,7 +261,7 @@ def test_BinaryLensVBBLMagnification_2():
     results = []
     for (x_, y_) in zip(x, y):
         trajectory = _make_trajectory([x_, y_], {'s': s, 'q': q, 'rho': rho})
-        lens = mm.BinaryLensVBBLMagnification(trajectory)
+        lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
         result = lens.get_magnification()
         results.append(result)
 
@@ -296,7 +296,7 @@ def test_BinaryLensAdaptiveContouringMagnification():
     # np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
     trajectory = _make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
     lens = mm.BinaryLensAdaptiveContouringMagnification(
-        trajectory,  accuracy=0.019, ld_accuracy=1e-3)
+        trajectory=trajectory,  accuracy=0.019, ld_accuracy=1e-3)
     result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 11.403036510555962, decimal=3)
 

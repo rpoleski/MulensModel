@@ -552,7 +552,7 @@ class BinaryLens(object):
 
         if gamma is not None and u_limb_darkening is not None:
             raise ValueError(
-                'Only one limb darkening parameters can be set' +
+                'Only one limb darkening parameter can be set' +
                 ' in BinaryLens.adaptive_contouring_magnification()')
         elif gamma is not None:
             gamma = float(gamma)
@@ -1061,7 +1061,122 @@ class BinaryLensVBBLMagnification(BinaryLensPointSourceMagnification):
 
 
 class BinaryLensAdaptiveContouringMagnification(
-    BinaryLensPointSourceMagnification):
+    BinaryLensHexadecapoleMagnification):
+    """
+    Binary lens finite source magnification calculated using
+    Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
+    <https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract>`_
 
-    def __init__(self, trajectory=None, gamma=None, **kwargs):
-        pass
+    See also
+    `AdaptiveContouring website by Martin Dominik
+    <http://star-www.st-and.ac.uk/~md35/Software.html>`_
+
+    For coordinate system convention see
+    :py:func:`point_source_magnification()`
+
+    Parameters :
+        source_x: *float*
+            X-axis coordinate of the source.
+
+        source_y: *float*
+            Y-axis coordinate of the source.
+
+        rho: *float*
+            Source size relative to Einstein ring radius.
+
+        gamma: *float*, optional
+            Linear limb-darkening coefficient in gamma convention.
+
+        u_limb_darkening: *float*
+            Linear limb-darkening coefficient in u convention.
+            Note that either *gamma* or *u_limb_darkening* can be
+            set.  If neither of them is provided then limb
+            darkening is ignored.
+
+        accuracy: *float*, optional
+            Requested accuracy of the result defined as the sum of
+            the area of the squares that determine the contour
+            line and the estimated total enclosed area (see sec. 4
+            of the paper).  As M. Dominik states: *"this vastly
+            overestimates the fractional error, and a suitable
+            value should be chosen by testing how its variation
+            affects the final results - I recommend starting at
+            acc = 0.1."* It significantly affects execution time.
+
+        ld_accuracy: *float*, optional
+            Requested limb-darkening accuracy. As M. Dominik
+            states: *" Fractional uncertainty for the adaptive
+            Simpson integration of the limb-darkening
+            profile-related function during application of Green's
+            theorem."* It does not add execution time so can be
+            set to very small value.
+
+    Returns :
+        magnification: *float*
+            Magnification.
+
+
+    """
+
+    def __init__(self, u_limb_darkening=None,
+            accuracy=0.1, ld_accuracy=0.001, **kwargs):
+        BinaryLensHexadecapoleMagnification.__init__(self, **kwargs )
+        # Note that this accuracy is not guaranteed.
+        if accuracy <= 0.:
+            raise ValueError('adaptive_contouring requires accuracy > 0')
+        if ld_accuracy <= 0.:
+            raise ValueError('adaptive_contouring requires ld_accuracy > 0')
+
+        if not _adaptive_contouring_wrapped:
+            raise ValueError('Adaptive Contouring was not imported properly')
+
+        if self.gamma is not None and u_limb_darkening is not None:
+            raise ValueError(
+                'Only one limb darkening parameter can be set' +
+                ' in BinaryLens.adaptive_contouring_magnification()')
+        elif self.gamma is not None:
+            self.gamma = float(self.gamma)
+        elif u_limb_darkening is not None:
+            self.gamma = float(mm.Utils.u_to_gamma(u_limb_darkening))
+        else:
+            self.gamma = float(0.0)
+
+        #s = float(self.separation)
+        #q = float(self.mass_2 / self.mass_1)
+
+        # Temp
+        self._source_x = None
+        self._source_y = None
+
+        #self.source_x = float(-self.source_x)
+        #self.source_y = float(-self.source_y)
+
+        self.rho = self.trajectory.parameters.rho
+        self.accuracy = float(accuracy)
+        self.ld_accuracy = float(ld_accuracy)
+
+    def get_magnification(self):
+        magnification = _adaptive_contouring_linear(
+            self.trajectory.parameters.s, self.trajectory.parameters.q,
+            self.source_x, self.source_y, self.trajectory.parameters.rho,
+            self.gamma, self.accuracy, self.ld_accuracy)
+
+        return magnification
+
+    @property
+    def source_x(self):
+        # AdaptiveContouring uses different coordinates conventions,
+        # so we have to transform the coordinates below.
+        if self._source_x is None:
+            self._source_x = float(-self.trajectory.x)
+
+        return self._source_x
+
+    @property
+    def source_y(self):
+        # AdaptiveContouring uses different coordinates conventions,
+        # so we have to transform the coordinates below.
+        if self._source_y is None:
+            self._source_y = float(-self.trajectory.y)
+
+        return self._source_y
