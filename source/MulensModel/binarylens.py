@@ -693,6 +693,10 @@ class BinaryLensPointSourceMagnification(
 
         return self._source_x
 
+    @source_x.setter
+    def source_x(self, value):
+        self._source_x = value
+
     @property
     def source_y(self):
 
@@ -700,6 +704,10 @@ class BinaryLensPointSourceMagnification(
             self._source_y = float(self.trajectory.y)
 
         return self._source_y
+
+    @source_y.setter
+    def source_y(self, value):
+        self._source_y = value
 
 class BinaryLensPointSourceWM95Magnification(
     BinaryLensPointSourceMagnification):
@@ -754,7 +762,6 @@ class BinaryLensPointSourceWM95Magnification(
         self._zeta = self.source_x + self.source_y * 1.j
         self._position_z1 = -self.separation + 0.j
         self._position_z2 = 0. + 0.j
-
 
     def _get_polynomial(self, ):
         """calculate coefficients of the polynomial in planet frame"""
@@ -969,8 +976,9 @@ class BinaryLensPointSourceVBBLMagnification(
 class BinaryLensQuadrupoleMagnification(
     BinaryLensPointSourceVBBLMagnification):
 
-    def __init__(self, **kwargs):
+    def __init__(self, gamma=None, **kwargs):
         BinaryLensPointSourceVBBLMagnification.__init__(self, **kwargs)
+        self.gamma = gamma
         self._check_rho()
         self._a_center = None
 
@@ -1003,8 +1011,14 @@ class BinaryLensQuadrupoleMagnification(
             x = self.source_x + dxval * radius
             y = self.source_y + dy[i] * radius
             # These values need to be passed to the magnification calculation...
-            out.append(self.point_source_magnification())
+            #out.append(self.point_source_magnification())
+            temp_trajectory = mm.Trajectory(
+                parameters=self.trajectory.parameters, x=x, y=y)
+            ps = BinaryLensPointSourceVBBLMagnification(
+                trajectory=temp_trajectory)
+            out.append(ps.get_magnification())
 
+        print('out', out)
         return 0.25 * fsum(out) - self._a_center
 
     def get_magnification(self):
@@ -1014,9 +1028,15 @@ class BinaryLensQuadrupoleMagnification(
             get_magnification(self)
         a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * rho)
         a_rho_plus = self._get_magnification_w_plus(radius=rho)
+        print('a_rho_half', a_rho_half_plus)
+        print('a_rho', a_rho_plus)
 
         # This is Gould 2008 eq. 9:
         a_2_rho_square = (16. * a_rho_half_plus - a_rho_plus) / 3.
+
+        print('a_center', self._a_center)
+        print('a2', a_2_rho_square)
+        print('gamma', self.gamma)
 
         # Gould 2008 eq. 6 (part 1/2):
         a_quadrupole = (self._a_center +
@@ -1024,6 +1044,9 @@ class BinaryLensQuadrupoleMagnification(
 
         # At this point is quadrupole approximation is finished
         return a_quadrupole
+
+    def point_source_magnification(self):
+        return BinaryLensPointSourceVBBLMagnification.get_magnification(self)
 
 
 class BinaryLensHexadecapoleMagnification(
@@ -1067,9 +1090,8 @@ class BinaryLensHexadecapoleMagnification(
             *floats*) if *all_approximations* parameter is *True*.
     """
 
-    def __init__(self, gamma=None, all_approximations=False, **kwargs):
+    def __init__(self, all_approximations=False, **kwargs):
         BinaryLensQuadrupoleMagnification.__init__(self, **kwargs)
-        self.gamma = gamma
         self.all_approximations = all_approximations
 
     def get_magnification(self):

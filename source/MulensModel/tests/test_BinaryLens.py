@@ -221,7 +221,8 @@ class TestBinaryLensQuadrupoleMagnification(
 
     def test_gamma_00(self):
         print('gamma00', self.trajectory)
-        lens = mm.BinaryLensQuadrupoleMagnification(trajectory=self.trajectory)
+        lens = mm.BinaryLensQuadrupoleMagnification(
+            trajectory=self.trajectory, gamma=0.0)
         result = lens.get_magnification()
         np.testing.assert_almost_equal(result, self.reference_00)
 

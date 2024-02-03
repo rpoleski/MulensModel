@@ -77,10 +77,9 @@ class Trajectory(object):
     _get_delta_annual_last_index = None
     _get_delta_satellite_results = dict()
 
-    def __init__(self, times, parameters, parallax=None,
+    def __init__(self,
+                 times=None, parameters=None, x=None, y=None, parallax=None,
                  coords=None, satellite_skycoord=None, earth_coords=None):
-        self.times = np.atleast_1d(times)
-
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
@@ -106,8 +105,18 @@ class Trajectory(object):
                 "topocentric parallax is not implemented yet")
         self._earth_coords = None
 
-        # Calculate trajectory
-        self.get_xy()
+        if times is None:
+            if (x is None) and (y is None):
+                raise KeyError(
+                    'Either times or (x AND y) must be defined.')
+            self.times = None
+            self._x = x
+            self._y = y
+        else:
+            self.times = np.atleast_1d(times)
+            # Calculate trajectory
+            self.get_xy()
+
 
     @property
     def x(self):
