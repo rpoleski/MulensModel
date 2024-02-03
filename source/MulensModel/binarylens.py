@@ -698,12 +698,8 @@ class BinaryLensPointSourceWM95Magnification(
         self._last_polynomial_input = None
         self._polynomial_roots = None
 
-        # We need to add this because in order to shift to correct frame.
-        #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
-        self.x_shift = -1. / (1. + self.trajectory.parameters.q)
-        self.x_shift *= self.separation
-        self.source_x = float(self.trajectory.x + self.x_shift)
-        self.source_y = float(self.trajectory.y)
+        self._source_x = None
+        self._source_y = None
 
     def get_magnification(self):
 
@@ -889,6 +885,23 @@ class BinaryLensPointSourceWM95Magnification(
         else:
             return np.array(out)
 
+    @property
+    def source_x(self):
+        # We need to add this because in order to shift to correct frame.
+        #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
+        if self._source_x is None:
+            x_shift = -1. / (1. + self.trajectory.parameters.q)
+            x_shift *= self.separation
+            self._source_x = float(self.trajectory.x + x_shift)
+
+        return self._source_x
+
+    @property
+    def source_y(self):
+        if self._source_y is None:
+            self._source_y = float(self.trajectory.y)
+
+        return self._source_y
 
 # This is the primary PointSource Calculation
 class BinaryLensPointSourceVBBLMagnification(
@@ -1143,13 +1156,6 @@ class BinaryLensAdaptiveContouringMagnification(
 
         #s = float(self.separation)
         #q = float(self.mass_2 / self.mass_1)
-
-        # Temp
-        self._source_x = None
-        self._source_y = None
-
-        #self.source_x = float(-self.source_x)
-        #self.source_y = float(-self.source_y)
 
         self.rho = self.trajectory.parameters.rho
         self.accuracy = float(accuracy)
