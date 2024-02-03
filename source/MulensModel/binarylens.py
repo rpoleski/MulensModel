@@ -941,6 +941,20 @@ class BinaryLensPointSourceVBBLMagnification(
                 self.source_x, self.source_y]
         return _vbbl_binary_mag_0(*[float(arg) for arg in args])
 
+    @property
+    def source_x(self):
+        if self._source_x is None:
+            self._source_x = float(self.trajectory.x)
+
+        return self._source_x
+
+    @property
+    def source_y(self):
+
+        if self._source_y is None:
+            self._source_y = float(self.trajectory.y)
+
+        return self._source_y
 
 class BinaryLensQuadrupoleMagnification(
     BinaryLensPointSourceVBBLMagnification):
@@ -1000,21 +1014,6 @@ class BinaryLensQuadrupoleMagnification(
 
         # At this point is quadrupole approximation is finished
         return a_quadrupole
-
-    @property
-    def source_x(self):
-        if self._source_x is None:
-            self._source_x = float(self.trajectory.x)
-
-        return self._source_x
-
-    @property
-    def source_y(self):
-
-        if self._source_y is None:
-            self._source_y = float(self.trajectory.y)
-
-        return self._source_y
 
 
 class BinaryLensHexadecapoleMagnification(
@@ -1134,7 +1133,7 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
 
         if self.gamma is not None and u_limb_darkening is not None:
             raise ValueError('Only one limb darkening parameters can be set' +
-                         ' in BinaryLens.vbbl_magnification()')
+                         ' in BinaryLens.BinaryLensVBBLMagnification()')
         elif self.gamma is not None:
             self.u_limb_darkening = float(mm.Utils.gamma_to_u(self.gamma))
         elif u_limb_darkening is not None:
