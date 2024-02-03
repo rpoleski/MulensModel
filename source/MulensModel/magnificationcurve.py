@@ -360,12 +360,12 @@ class MagnificationCurve(object):
                         trajectory=trajectory)
             elif method.lower() == 'quadrupole':
                 self._magnification_objects[method] = \
-                    mm.binarylens.PointSourceBinaryLensQuadrupoleMagnification(
+                    mm.binarylens.BinaryLensQuadrupoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
             elif method.lower() == 'hexadecapole':
                 self._magnification_objects[method] = \
                     mm.binarylens.\
-                        PointSourceBinaryLensHexadecapoleMagnification(
+                       BinaryLensHexadecapoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
             elif method.lower() == 'vbbl':
                 print('JCY - Need to figure out how to stop VBBL + shear.')
