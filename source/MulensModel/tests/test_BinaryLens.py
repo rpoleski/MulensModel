@@ -186,6 +186,7 @@ class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
         print('setUp', self.trajectory)
 
         self.pspl_mag = 4.691830779895085
+        # [hexa, quad, pspl]
         self.reference_00 = [5.017252440557196, 4.9587638949353146,
                              self.pspl_mag]
         self.reference_05 = [4.981368071884021, 4.932070583431292,
@@ -224,7 +225,7 @@ class TestBinaryLensQuadrupoleMagnification(
         lens = mm.BinaryLensQuadrupoleMagnification(
             trajectory=self.trajectory, gamma=0.0)
         result = lens.get_magnification()
-        np.testing.assert_almost_equal(result, self.reference_00)
+        np.testing.assert_almost_equal(result, self.reference_00[1])
 
     def test_gamma_05(self):
         pass
