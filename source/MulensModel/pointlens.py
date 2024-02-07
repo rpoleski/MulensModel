@@ -1,9 +1,7 @@
-import os
 import warnings
 import numpy as np
 from math import sin, cos, sqrt, log10
 from scipy import integrate
-from scipy.interpolate import interp1d, interp2d
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
@@ -13,13 +11,13 @@ import MulensModel as mm
 
 class PointLens(object):
 
-     def __init__(self, parameters=None):
-         raise NotImplementedError(
-             'In version 3, the PointLens class has been replaced with a ' +
-             'variety of classes with inheritance.')
+    def __init__(self, parameters=None):
+        raise NotImplementedError(
+            'In version 3, the PointLens class has been replaced with a ' +
+            'variety of classes with inheritance.')
 
 
-class PointSourcePointLensMagnification():
+class PointSourcePointLensMagnification(object):
     """
     Equations for calculating point-source--point-lens magnification and
     its derivatives.
@@ -37,7 +35,7 @@ class PointSourcePointLensMagnification():
 
         self.trajectory = trajectory
 
-        self._u_2 = None # u^2
+        self._u_2 = None  # u^2
         self._u = None
 
         self._pspl_magnification = None
@@ -216,7 +214,7 @@ class PointSourcePointLensMagnification():
 
 
 class FiniteSourceUniformGould94Magnification(
-    PointSourcePointLensMagnification):
+        PointSourcePointLensMagnification):
     """
     Equations for calculating finite-source--point-lens magnification and
     its derivatives following the `Gould 1994 ApJ, 421L, 71
@@ -528,7 +526,6 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
                 self._db1[mask] = self._B0B1_data.interpolate_B1prime(
                     self.z_[mask])
 
-
         return self._db1
 
     @property
@@ -542,7 +539,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
 
 
 class FiniteSourceUniformWittMao94Magnification(
-    PointSourcePointLensMagnification):
+        PointSourcePointLensMagnification):
     """
     Calculate magnification for the point lens and *uniform* source.
     This approach works well for small and large
@@ -661,8 +658,9 @@ class FiniteSourceUniformWittMao94Magnification(
         raise NotImplementedError(
             'Derivative calculations Not Implemented for WittMao94')
 
+
 class FiniteSourceLDWittMao94Magnification(
-    FiniteSourceUniformWittMao94Magnification):
+        FiniteSourceUniformWittMao94Magnification):
     """
     Calculate magnification for the point lens and *finite source with
     limb-darkening*. This approach works well for small and large
@@ -898,20 +896,19 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
     def __init__(self, gamma=None, **kwargs):
         PointSourcePointLensMagnification.__init__(self, **kwargs)
 
-        self.gamma = gamma
-
+        self._gamma = gamma
         self.n_theta = 90
         self.n_u = 1000
 
     def get_magnification(self):
-         mag = np.zeros_like(self.u_)
+        mag = np.zeros_like(self.u_)
 
-         for i in range(len(self.u_)):
-             mag[i] = self._LD_Lee09(self.u_[i])
+        for i in range(len(self.u_)):
+            mag[i] = self._LD_Lee09(self.u_[i])
 
-         self._magnification = mag
+        self._magnification = mag
 
-         return self._magnification
+        return self._magnification
 
     def _LD_Lee09(self, u):
         """
