@@ -116,7 +116,7 @@ def test_ac():
 
 # Magnification Object Tests
 
-def _make_trajectory(pos, params):
+def make_trajectory(pos, params):
     times = pos[0]
     u0 = pos[1]
 
@@ -147,7 +147,7 @@ class TestBinaryLensPointSourceMagnification(unittest.TestCase):
         self.y = 5.e-7 * 0.
         self.expected = 3.6868957
 
-        self.trajectory = _make_trajectory(
+        self.trajectory = make_trajectory(
             [self.x, self.y], {'s': self.s, 'q': self.q})
 
     def test_BLPS_WittMao95(self):
@@ -181,7 +181,7 @@ class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
         self.x = 0.7142010570568691 - self.s * self.q / (1. + self.q)
         self.y = 0.00189679191923936
 
-        self.trajectory = _make_trajectory(
+        self.trajectory = make_trajectory(
             [self.x, self.y], {'s': self.s, 'q': self.q, 'rho': self.rho})
         print('setUp', self.trajectory)
 
@@ -243,7 +243,7 @@ def test_BinaryLensVBBLMagnification_1():
     y = 0.01
     rho = 0.01
 
-    trajectory = _make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
+    trajectory = make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
     lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
     result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
@@ -262,7 +262,7 @@ def test_BinaryLensVBBLMagnification_2():
 
     results = []
     for (x_, y_) in zip(x, y):
-        trajectory = _make_trajectory([x_, y_], {'s': s, 'q': q, 'rho': rho})
+        trajectory = make_trajectory([x_, y_], {'s': s, 'q': q, 'rho': rho})
         lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
         result = lens.get_magnification()
         results.append(result)
@@ -296,7 +296,7 @@ def test_BinaryLensAdaptiveContouringMagnification():
     # result = bl.adaptive_contouring_magnification(
     #     0.01, 0.01, 0.01, accuracy=0.019, ld_accuracy=1e-3)
     # np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
-    trajectory = _make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
+    trajectory = make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
     lens = mm.BinaryLensAdaptiveContouringMagnification(
         trajectory=trajectory,  accuracy=0.019, ld_accuracy=1e-3)
     result = lens.get_magnification()
