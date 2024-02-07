@@ -100,12 +100,13 @@ def test_standard_vs_shear():
     x = s - 1. / s
     y = 0.
 
-    m_1 = 1. / (1. + q)
-    m_2 = q / (1. + q)
+    trajectory = make_trajectory((x, y), {'s': s, 'q': q})
 
-    lens = mm.BinaryLensWithShear(m_1, m_2, s,
-                                  convergence_K=0.0, shear_G=complex(0, 0))
-    lens_standard = mm.BinaryLens(m_1, m_2, s)
-    result = lens.point_source_magnification(x, y)
-    result_standard = lens_standard.point_source_magnification(x, y)
+    lens = mm.BinaryLensPointSourceWithShearVBBLMagnification(
+        trajectory=trajectory, convergence_K=0.0, shear_G=complex(0, 0))
+    lens_standard = mm.BinaryLensPointSourceWM95Magnification(
+        trajectory=trajectory)
+
+    result = lens.get_magnification()
+    result_standard = lens_standard.get_magnification()
     np.testing.assert_almost_equal(result, result_standard, decimal=5)
