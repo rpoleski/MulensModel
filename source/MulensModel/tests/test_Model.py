@@ -167,34 +167,53 @@ def test_BLPS_01():
 # This value comes from Andy's getbinp().
 
 
-def test_BLPS_shear_active():
+class TestBLPS_ShearActive(unittest.TestCase):
     """
     simple binary lens with point source and external convergence and shear
     """
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-        'q': q, 'convergence_K': 0.08, 'shear_G': complex(0.1, -0.1)})
+    def setUp(self):
+        self.params = mm.ModelParameters({
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+            'q': q, 'convergence_K': 0.08, 'shear_G': complex(0.1, -0.1)})
 
-    model = mm.Model(parameters=params)
-    t = np.array([2456112.5])
-    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    magnification = model.get_magnification(data.time[0])
-    assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
+        self.model = mm.Model(parameters=self.params)
+        self.t = np.array([2456112.5])
+        self.data = mm.MulensData(data_list=[self.t, self.t*0.+16., self.t*0.+0.01])
+
+    def test_vbbl_fail(self):
+        self.model.set_default_magnification_method('point_source')
+        magnification = self.model.get_magnification(self.data.time[0])
+        assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
+
+    def test_wm95_fail(self):
+        self.model.set_default_magnification_method('point_source_WM95')
+        magnification = self.model.get_magnification(self.data.time[0])
+        assert not isclose(self.magnification, 4.691830781584699, abs_tol=1e-2)
 
 
-def test_BLPS_shear():
+class TestBLPS_Shear(unittest.TestCase):
     """
     simple binary lens with point source and external convergence and shear
     """
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-        'q': q, 'convergence_K': 0.0, 'shear_G': complex(0, 0)})
 
-    model = mm.Model(parameters=params)
-    t = np.array([2456112.5])
-    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    magnification = model.get_magnification(data.time[0])
-    almost(magnification, 4.691830781584699)
+    def setUp(self) :
+        self.params = mm.ModelParameters({
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+            'q': q, 'convergence_K': 0.0, 'shear_G': complex(0, 0)})
+
+        self.model = mm.Model(parameters=self.params)
+        self.t = np.array([2456112.5])
+        self.data = mm.MulensData(data_list=[self.t, self.t*0.+16., self.t*0.+0.01])
+
+    def test_vbbl(self):
+        self.model.set_default_magnification_method('point_source')
+        magnification = self.model.get_magnification(self.data.time[0])
+        almost(magnification, 4.691830781584699)
+
+    def test_wm95(self):
+        self.model.set_default_magnification_method('point_source_WM95')
+        magnification = self.model.get_magnification(self.data.time[0])
+        almost(magnification, 4.691830781584699)
 
 
 def test_BLPS_02():
