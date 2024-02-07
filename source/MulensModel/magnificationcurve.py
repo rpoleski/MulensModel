@@ -207,9 +207,14 @@ class MagnificationCurve(object):
                 satellite_skycoord=satellite_skycoord)
 
             if method.lower() == 'point_source':
-                self._magnification_objects[method] = \
-                    mm.pointlens.PointSourcePointLensMagnification(
-                        trajectory=trajectory)
+                if not(self.parameters.is_external_mass_sheet):
+                    self._magnification_objects[method] = \
+                        mm.pointlens.PointSourcePointLensMagnification(
+                            trajectory=trajectory)
+                else:
+                    self._magnification_objects[method] = \
+                        mm.PointSourcePointLensWithShearMagnification(
+                            trajectory=trajectory)
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 self._magnification_objects[method] = \
                     mm.pointlens.FiniteSourceUniformGould94Magnification(
