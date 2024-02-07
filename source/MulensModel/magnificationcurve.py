@@ -432,7 +432,7 @@ class MagnificationCurve(object):
                     mm.binarylenswithshear. \
                         BinaryLensPointSourceWithShearVBBLMagnification(
                             trajectory=trajectory, **kwargs)
-            elif method.lower() == 'point_source_WM95':
+            elif method.lower() == 'point_source_wm95':
                 self._magnification_objects[method] = \
                     mm.binarylenswithshear. \
                         BinaryLensPointSourceWithShearWM95Magnification(

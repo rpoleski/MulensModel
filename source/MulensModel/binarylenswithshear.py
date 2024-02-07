@@ -536,7 +536,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(
         return (1. - self.convergence_K)**2 - (derivative *
                                                np.conjugate(derivative))
 
-    def get_magnification(self, source_x, source_y, vbbl_on=True):
+    def get_magnification(self):
         """
         Calculate point source magnification for given position. The
         origin of the coordinate system is at the center of mass and
@@ -566,7 +566,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(
         # We need to add this because in order to shift to correct frame.
 
         if _vbbl_wrapped and vbbl_on:
-            pass.
+            pass
         else:
             magnification = self._get_point_source_Witt_Mao_95(
                 source_x=float(source_x)+x_shift, source_y=float(source_y))
@@ -595,3 +595,6 @@ class BinaryLensPointSourceWithShearVBBLMagnification(
             s, q, self.source_x, self.source_y, self.convergence_K,
             self.shear_G.real,
             self.shear_G.imag)
+
+        return magnification
+

@@ -6,7 +6,9 @@ from MulensModel.binarylens import BinaryLensPointSourceMagnification, \
     BinaryLensQuadrupoleMagnification, BinaryLensHexadecapoleMagnification, \
     BinaryLensVBBLMagnification, BinaryLensAdaptiveContouringMagnification
 from MulensModel.binarylens import BinaryLens # to be deprecated.
-from MulensModel.binarylenswithshear import BinaryLensWithShear
+from MulensModel.binarylenswithshear import \
+    BinaryLensPointSourceWithShearWM95Magnification, \
+    BinaryLensPointSourceWithShearVBBLMagnification
 from MulensModel.caustics import Caustics
 from MulensModel.causticspointwithshear import CausticsPointWithShear
 from MulensModel.causticswithshear import CausticsWithShear
