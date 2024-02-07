@@ -23,7 +23,7 @@ from MulensModel.mulensobjects import *
 from MulensModel.orbits import *
 from MulensModel.pointlens import PointSourcePointLensMagnification, \
     FiniteSourceUniformGould94Magnification, FiniteSourceLDYoo04Magnification
-from MulensModel.pointlenswithshear import PointLensWithShear
+from MulensModel.pointlenswithshear import PointSourcePointLensWithShearMagnification
 from MulensModel.b0b1utils import B0B1Utils
 from MulensModel.elliputils import EllipUtils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
