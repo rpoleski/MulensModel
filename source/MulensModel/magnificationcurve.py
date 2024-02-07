@@ -383,7 +383,7 @@ class MagnificationCurve(object):
             trajectory = self._setup_trajectory(selection)
             kwargs = self._setup_kwargs(method)
 
-            if method not in ['vbbl', 'adaptive_contouring']:
+            if method.lower() not in ['vbbl', 'adaptive_contouring']:
                 msg = ('Methods parameters passed for method {:}' +
                        ' which does not accept any parameters')
                 raise ValueError(msg.format(method))
