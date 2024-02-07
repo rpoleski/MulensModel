@@ -154,6 +154,7 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        # Do we still need separate get_point_lens_magnification and bl methods?
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -183,6 +184,11 @@ class MagnificationCurve(object):
             warnings.warn(msg, UserWarning)
             return
 
+    def _set_magnification_objects(self):
+        # High-level function that separations PL/BL and shear/no shear
+        pass
+
+
     def _set_point_lens_magnification_objects(self):
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
@@ -207,6 +213,7 @@ class MagnificationCurve(object):
                 satellite_skycoord=satellite_skycoord)
 
             if method.lower() == 'point_source':
+                # I think there should be a separate set_pl_shear_objects
                 if not(self.parameters.is_external_mass_sheet):
                     self._magnification_objects[method] = \
                         mm.pointlens.PointSourcePointLensMagnification(
