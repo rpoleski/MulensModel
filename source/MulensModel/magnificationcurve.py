@@ -1,4 +1,3 @@
-import math
 import warnings
 from os.path import join
 import numpy as np
@@ -187,12 +186,12 @@ class MagnificationCurve(object):
     def _set_magnification_objects(self):
         # High-level function that separations PL/BL and shear/no shear
         if self.parameters.n_lenses == 1:
-            if not(self.parameters.is_external_mass_sheet):
+            if not self.parameters.is_external_mass_sheet:
                 self._set_point_lens_magnification_objects()
             else:
                 self._set_point_lens_w_shear_magnification_objects()
         elif self.parameters.n_lenses == 2:
-            if not(self.parameters.is_external_mass_sheet):
+            if not self.parameters.is_external_mass_sheet:
                 self._set_binary_lens_magnification_objects()
             else:
                 self._set_binary_lens_w_shear_magnification_objects()
@@ -215,7 +214,7 @@ class MagnificationCurve(object):
             if method.lower() in self._methods_parameters.keys():
                 kwargs = self._methods_parameters[method.lower()]
 
-        return  kwargs
+        return kwargs
 
     def _set_point_lens_magnification_objects(self):
         self._magnification_objects = {}
@@ -383,7 +382,8 @@ class MagnificationCurve(object):
             trajectory = self._setup_trajectory(selection)
             kwargs = self._setup_kwargs(method)
 
-            if method.lower() not in ['vbbl', 'adaptive_contouring']:
+            if ((kwargs != {}) and
+                    (method.lower() not in ['vbbl', 'adaptive_contouring'])):
                 msg = ('Methods parameters passed for method {:}' +
                        ' which does not accept any parameters')
                 raise ValueError(msg.format(method))
@@ -399,17 +399,17 @@ class MagnificationCurve(object):
             elif method.lower() == 'hexadecapole':
                 self._magnification_objects[method] = \
                     mm.binarylens.\
-                       BinaryLensHexadecapoleMagnification(
+                    BinaryLensHexadecapoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
             elif method.lower() == 'vbbl':
                 self._magnification_objects[method] = \
                     mm.binarylens. \
-                        BinaryLensVBBLMagnification(
+                    BinaryLensVBBLMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
             elif method.lower() == 'adaptive_contouring':
                 self._magnification_objects[method] = \
                     mm.binarylens. \
-                        BinaryLensAdaptiveContouringMagnification(
+                    BinaryLensAdaptiveContouringMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
             elif method.lower() == 'point_source_point_lens':
                 self._magnification_objects[method] = \
@@ -430,12 +430,12 @@ class MagnificationCurve(object):
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
                     mm.binarylenswithshear. \
-                        BinaryLensPointSourceWithShearVBBLMagnification(
+                    BinaryLensPointSourceWithShearVBBLMagnification(
                             trajectory=trajectory, **kwargs)
             elif method.lower() == 'point_source_wm95':
                 self._magnification_objects[method] = \
                     mm.binarylenswithshear. \
-                        BinaryLensPointSourceWithShearWM95Magnification(
+                    BinaryLensPointSourceWithShearWM95Magnification(
                             trajectory=trajectory, **kwargs)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
@@ -503,7 +503,6 @@ class MagnificationCurve(object):
                 "You're trying to calculate binary lens magnification, but "
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
-
 
         if self._magnification_objects is None:
             self._set_magnification_objects()
