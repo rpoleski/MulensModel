@@ -8,7 +8,7 @@ from MulensModel.binarylensimports import (_vbbl_wrapped,
 import MulensModel as mm
 
 
-class BinaryLensWithShearWM95Magnification(
+class BinaryLensPointSourceWithShearWM95Magnification(
     BinaryLensPointSourceWM95Magnification):
     """
     The binary lens with shear and convergence:
@@ -583,8 +583,8 @@ class BinaryLensWithShearWM95Magnification(
 
         return magnification
 
-class BinaryLensWithShearVBBLMagnification(
-    BinaryLensWithShearWM95Magnification):
+class BinaryLensPointSourceWithShearVBBLMagnification(
+    BinaryLensPointSourceWithShearWM95Magnification):
 
 
     def get_magnification(self):
