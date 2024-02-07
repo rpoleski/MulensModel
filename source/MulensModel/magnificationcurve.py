@@ -186,42 +186,53 @@ class MagnificationCurve(object):
 
     def _set_magnification_objects(self):
         # High-level function that separations PL/BL and shear/no shear
-        pass
+        if self.parameters.n_lenses == 1:
+            if not(self.parameters.is_external_mass_sheet):
+                self._set_point_lens_magnification_objects()
+            else:
+                self._set_point_lens_w_shear_magnification_objects()
+        elif self.parameters.n_lenses == 2:
+            if not(self.parameters.is_external_mass_sheet):
+                self._set_binary_lens_magnification_objects()
+            else:
+                self._set_binary_lens_w_shear_magnification_objects()
 
+
+    def _setup_trajectory(self, selection):
+        if self.satellite_skycoord is not None:
+            satellite_skycoord = self.satellite_skycoord[selection]
+        else:
+            satellite_skycoord = None
+
+        trajectory = mm.Trajectory(
+            self.times[selection], parameters=self.parameters,
+            parallax=self.parallax, coords=self.coords,
+            satellite_skycoord=satellite_skycoord)
+        return trajectory
+
+    def _setup_kwargs(self, method):
+        kwargs = {}
+        if self._methods_parameters is not None:
+            if method.lower() in self._methods_parameters.keys():
+                kwargs = self._methods_parameters[method.lower()]
+
+        return  kwargs
 
     def _set_point_lens_magnification_objects(self):
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
-            kwargs = {}
-            if self._methods_parameters is not None:
-                if method.lower() in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method.lower()]
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
 
-                if kwargs != {}:
-                    raise ValueError(
-                        'Methods parameters passed, but currently ' +
-                        'no point lens method accepts the parameters')
-
-            if self.satellite_skycoord is not None:
-                satellite_skycoord = self.satellite_skycoord[selection]
-            else:
-                satellite_skycoord = None
-
-            trajectory = mm.Trajectory(
-                self.times[selection], parameters=self.parameters,
-                parallax=self.parallax, coords=self.coords,
-                satellite_skycoord=satellite_skycoord)
+            if kwargs != {}:
+                raise ValueError(
+                    'Methods parameters passed, but currently ' +
+                    'no point lens method accepts the parameters')
 
             if method.lower() == 'point_source':
-                # I think there should be a separate set_pl_shear_objects
-                if not(self.parameters.is_external_mass_sheet):
-                    self._magnification_objects[method] = \
-                        mm.pointlens.PointSourcePointLensMagnification(
-                            trajectory=trajectory)
-                else:
-                    self._magnification_objects[method] = \
-                        mm.PointSourcePointLensWithShearMagnification(
-                            trajectory=trajectory)
+                self._magnification_objects[method] = \
+                    mm.pointlens.PointSourcePointLensMagnification(
+                        trajectory=trajectory)
             elif method.lower() == 'finite_source_uniform_Gould94'.lower():
                 self._magnification_objects[method] = \
                     mm.pointlens.FiniteSourceUniformGould94Magnification(
@@ -258,6 +269,25 @@ class MagnificationCurve(object):
                         trajectory=trajectory, gamma=self._gamma)
             else:
                 msg = 'Unknown method specified for single lens: {:}'
+                raise ValueError(msg.format(method))
+
+    def _set_point_lens_w_shear_magnification_objects(self):
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
+
+            if kwargs != {}:
+                raise ValueError(
+                    'Methods parameters passed, but currently ' +
+                    'no point lens method accepts the parameters')
+
+            if method.lower() == 'point_source':
+                self._magnification_objects[method] = \
+                    mm.PointSourcePointLensWithShearMagnification(
+                        trajectory=trajectory)
+            else:
+                msg = 'Unknown method specified for single lens with shear: {:}'
                 raise ValueError(msg.format(method))
 
     def get_point_lens_magnification(self):
@@ -339,7 +369,7 @@ class MagnificationCurve(object):
                 " lenses")
 
         if self._magnification_objects is None:
-            self._set_point_lens_magnification_objects()
+            self._set_magnification_objects()
 
         magnification = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():
@@ -351,20 +381,8 @@ class MagnificationCurve(object):
     def _set_binary_lens_magnification_objects(self):
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
-            kwargs = {}
-            if self._methods_parameters is not None:
-                if method.lower() in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method.lower()]
-
-            if self.satellite_skycoord is not None:
-                satellite_skycoord = self.satellite_skycoord[selection]
-            else:
-                satellite_skycoord = None
-
-            trajectory = mm.Trajectory(
-                self.times[selection], parameters=self.parameters,
-                parallax=self.parallax, coords=self.coords,
-                satellite_skycoord=satellite_skycoord)
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
 
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
@@ -380,7 +398,6 @@ class MagnificationCurve(object):
                        BinaryLensHexadecapoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
             elif method.lower() == 'vbbl':
-                print('JCY - Need to figure out how to stop VBBL + shear.')
                 self._magnification_objects[method] = \
                     mm.binarylens. \
                         BinaryLensVBBLMagnification(
@@ -394,6 +411,18 @@ class MagnificationCurve(object):
                 self._magnification_objects[method] = \
                     mm.pointlens.PointSourcePointLensMagnification(
                         trajectory=trajectory)
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
+
+    def _set_binary_lens_w_shear_magnification_objects(self):
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
+
+            if method.lower() == 'point_source':
+                pass
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
@@ -463,7 +492,7 @@ class MagnificationCurve(object):
 
         if not self.parameters.is_external_mass_sheet:
             if self._magnification_objects is None:
-                self._set_binary_lens_magnification_objects()
+                self._set_magnification_objects()
 
             magnification = np.zeros(len(self.times))
             for method, selection in self.methods_indices.items():
@@ -488,7 +517,7 @@ class MagnificationCurve(object):
         some kwargs (optional_kwargs of type *dict*).
         """
         if self._magnification_objects is None:
-            self._set_binary_lens_magnification_objects()
+            self._set_magnification_objects()
 
         magnification = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():
@@ -586,7 +615,7 @@ class MagnificationCurve(object):
                 evaluated at each epoch.
         """
         if self._magnification_objects is None:
-            self._set_point_lens_magnification_objects()
+            self._set_magnification_objects()
 
         d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
         for method, selection in self.methods_indices.items():
@@ -609,7 +638,7 @@ class MagnificationCurve(object):
                 evaluated at each data point.
         """
         if self._magnification_objects is None:
-            self._set_point_lens_magnification_objects()
+            self._set_magnification_objects()
 
         d_A_d_rho = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():
