@@ -197,7 +197,6 @@ class MagnificationCurve(object):
             else:
                 self._set_binary_lens_w_shear_magnification_objects()
 
-
     def _setup_trajectory(self, selection):
         if self.satellite_skycoord is not None:
             satellite_skycoord = self.satellite_skycoord[selection]
@@ -384,6 +383,11 @@ class MagnificationCurve(object):
             trajectory = self._setup_trajectory(selection)
             kwargs = self._setup_kwargs(method)
 
+            if method not in ['vbbl', 'adaptive_contouring']:
+                msg = ('Methods parameters passed for method {:}' +
+                       ' which does not accept any parameters')
+                raise ValueError(msg.format(method))
+
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
                     mm.binarylens.BinaryLensPointSourceMagnification(
@@ -419,10 +423,20 @@ class MagnificationCurve(object):
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
             trajectory = self._setup_trajectory(selection)
-            kwargs = self._setup_kwargs(method)
+            K = self.parameters.parameters.get('convergence_K', 0)
+            G = self.parameters.parameters.get('shear_G', complex(0, 0))
+            kwargs = {'convergence_K': K, 'shear_G': G}
 
             if method.lower() == 'point_source':
-                pass
+                self._magnification_objects[method] = \
+                    mm.binarylenswithshear. \
+                        BinaryLensWithShearVBBLMagnification(
+                            trajectory=trajectory, **kwargs)
+            elif method.lower() == 'point_source_WM95':
+                self._magnification_objects[method] = \
+                    mm.binarylenswithshear. \
+                        BinaryLensWithShearWM95Magnification(
+                            trajectory=trajectory, **kwargs)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
@@ -490,23 +504,14 @@ class MagnificationCurve(object):
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        if not self.parameters.is_external_mass_sheet:
-            if self._magnification_objects is None:
-                self._set_magnification_objects()
 
-            magnification = np.zeros(len(self.times))
-            for method, selection in self.methods_indices.items():
-                magnification[selection] = \
-                    self._magnification_objects[method].get_magnification()
-        else:
-            raise NotImplementedError(
-                'BinaryLensWithShear not implemented for V3, YET.')
-            # binary_lens_class = mm.BinaryLensWithShear
-            # K = self.parameters.parameters.get('convergence_K', 0)
-            # G = self.parameters.parameters.get('shear_G', complex(0, 0))
-            # kwargs = {'convergence_K': K, 'shear_G': G}
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
 
-       # out = self._get_binary_lens_magnification(binary_lens_class, kwargs)
+        magnification = np.zeros(len(self.times))
+        for method, selection in self.methods_indices.items():
+            magnification[selection] = \
+                self._magnification_objects[method].get_magnification()
 
         return magnification
 

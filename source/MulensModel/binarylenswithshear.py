@@ -2,13 +2,14 @@ import warnings
 import numpy as np
 from math import sqrt
 
-from MulensModel.binarylens import BinaryLens
+from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification
 from MulensModel.binarylensimports import (_vbbl_wrapped,
                                            _vbbl_binary_mag_0, _vbbl_SG12_9)
 import MulensModel as mm
 
 
-class BinaryLensWithShear(BinaryLens):
+class BinaryLensWithShearWM95Magnification(
+    BinaryLensPointSourceWM95Magnification):
     """
     The binary lens with shear and convergence:
     solutions, images, parities, magnifications, etc.
@@ -44,9 +45,8 @@ class BinaryLensWithShear(BinaryLens):
     Peirson et al. (2022; ApJ 927, 24).
     """
 
-    def __init__(self, mass_1=None, mass_2=None, separation=None,
-                 convergence_K=None, shear_G=None):
-        BinaryLens.__init__(self, mass_1, mass_2, separation)
+    def __init__(self, convergence_K=None, shear_G=None, **kwargs):
+        BinaryLensPointSourceWM95Magnification.__init__(**kwargs)
         self.convergence_K = convergence_K
         self.shear_G = shear_G
 
@@ -536,7 +536,7 @@ class BinaryLensWithShear(BinaryLens):
         return (1. - self.convergence_K)**2 - (derivative *
                                                np.conjugate(derivative))
 
-    def point_source_magnification(self, source_x, source_y, vbbl_on=True):
+    def get_magnification(self, source_x, source_y, vbbl_on=True):
         """
         Calculate point source magnification for given position. The
         origin of the coordinate system is at the center of mass and
@@ -555,6 +555,9 @@ class BinaryLensWithShear(BinaryLens):
             magnification: *float*
                 Point source magnification.
         """
+
+
+
         if self._use_planet_frame:
             x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
         else:
@@ -563,14 +566,7 @@ class BinaryLensWithShear(BinaryLens):
         # We need to add this because in order to shift to correct frame.
 
         if _vbbl_wrapped and vbbl_on:
-            s = float(self.separation)
-            q = float(self.mass_2 / self.mass_1)
-            x = float(source_x)
-            y = float(source_y)
-
-            magnification = _vbbl_binary_mag_0(
-                s, q, x, y, self.convergence_K, self.shear_G.real,
-                self.shear_G.imag)
+            pass.
         else:
             magnification = self._get_point_source_Witt_Mao_95(
                 source_x=float(source_x)+x_shift, source_y=float(source_y))
@@ -586,3 +582,16 @@ class BinaryLensWithShear(BinaryLens):
             raise ValueError(msg)
 
         return magnification
+
+class BinaryLensWithShearVBBLMagnification(
+    BinaryLensWithShearWM95Magnification):
+
+
+    def get_magnification(self):
+        s = float(self.separation)
+        q = float(self.mass_2 / self.mass_1)
+
+        magnification = _vbbl_binary_mag_0(
+            s, q, self.source_x, self.source_y, self.convergence_K,
+            self.shear_G.real,
+            self.shear_G.imag)

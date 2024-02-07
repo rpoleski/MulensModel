@@ -709,6 +709,7 @@ class BinaryLensPointSourceMagnification(
     def source_y(self, value):
         self._source_y = value
 
+
 class BinaryLensPointSourceWM95Magnification(
     BinaryLensPointSourceMagnification):
 
