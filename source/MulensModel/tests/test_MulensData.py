@@ -96,16 +96,8 @@ def test_copy():
     n_epochs = len(np.loadtxt(SAMPLE_FILE_01))
     random_bool = np.random.choice([False, True], n_epochs, p=[0.1, 0.9])
 
-    with warnings.catch_warnings(record=True) as warnings_:
-        warnings.simplefilter("always")
-        data_1 = mm.MulensData(file_name=SAMPLE_FILE_01, ra="18:00:00",
-                               dec="-30:00:00", good=random_bool)
-        data_2 = data_1.copy()
-
-        assert len(warnings_) == 2
-        assert issubclass(warnings_[0].category, FutureWarning)
-        assert issubclass(warnings_[1].category, FutureWarning)
-
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01, good=random_bool)
+    data_2 = data_1.copy()
     data = [data_1.time, 100.+0.*data_1.time, 1.+0.*data_1.time]
     data_3 = mm.MulensData(data, phot_fmt='flux', bad=random_bool)
     data_4 = data_3.copy()
@@ -125,10 +117,8 @@ def test_copy():
         assert value_1 is not value_2
         assert np.all(value_1 == value_2)
 
+    assert data_1.coords is None
     assert data_1.coords == data_2.coords
-    assert data_1.coords is not data_2.coords
-    assert data_3.coords is None
-    assert data_4.coords is None
 
 
 def test_scale_errorbars():
