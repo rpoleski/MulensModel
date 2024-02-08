@@ -1,4 +1,3 @@
-import math
 import warnings
 from os.path import join
 import numpy as np
@@ -154,6 +153,7 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        # Do we still need separate get_point_lens_magnification and bl methods?
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -183,28 +183,49 @@ class MagnificationCurve(object):
             warnings.warn(msg, UserWarning)
             return
 
+    def _set_magnification_objects(self):
+        # High-level function that separations PL/BL and shear/no shear
+        if self.parameters.n_lenses == 1:
+            if not self.parameters.is_external_mass_sheet:
+                self._set_point_lens_magnification_objects()
+            else:
+                self._set_point_lens_w_shear_magnification_objects()
+        elif self.parameters.n_lenses == 2:
+            if not self.parameters.is_external_mass_sheet:
+                self._set_binary_lens_magnification_objects()
+            else:
+                self._set_binary_lens_w_shear_magnification_objects()
+
+    def _setup_trajectory(self, selection):
+        if self.satellite_skycoord is not None:
+            satellite_skycoord = self.satellite_skycoord[selection]
+        else:
+            satellite_skycoord = None
+
+        trajectory = mm.Trajectory(
+            self.times[selection], parameters=self.parameters,
+            parallax=self.parallax, coords=self.coords,
+            satellite_skycoord=satellite_skycoord)
+        return trajectory
+
+    def _setup_kwargs(self, method):
+        kwargs = {}
+        if self._methods_parameters is not None:
+            if method.lower() in self._methods_parameters.keys():
+                kwargs = self._methods_parameters[method.lower()]
+
+        return kwargs
+
     def _set_point_lens_magnification_objects(self):
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
-            kwargs = {}
-            if self._methods_parameters is not None:
-                if method.lower() in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method.lower()]
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
 
-                if kwargs != {}:
-                    raise ValueError(
-                        'Methods parameters passed, but currently ' +
-                        'no point lens method accepts the parameters')
-
-            if self.satellite_skycoord is not None:
-                satellite_skycoord = self.satellite_skycoord[selection]
-            else:
-                satellite_skycoord = None
-
-            trajectory = mm.Trajectory(
-                self.times[selection], parameters=self.parameters,
-                parallax=self.parallax, coords=self.coords,
-                satellite_skycoord=satellite_skycoord)
+            if kwargs != {}:
+                raise ValueError(
+                    'Methods parameters passed, but currently ' +
+                    'no point lens method accepts the parameters')
 
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
@@ -246,6 +267,25 @@ class MagnificationCurve(object):
                         trajectory=trajectory, gamma=self._gamma)
             else:
                 msg = 'Unknown method specified for single lens: {:}'
+                raise ValueError(msg.format(method))
+
+    def _set_point_lens_w_shear_magnification_objects(self):
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
+
+            if kwargs != {}:
+                raise ValueError(
+                    'Methods parameters passed, but currently ' +
+                    'no point lens method accepts the parameters')
+
+            if method.lower() == 'point_source':
+                self._magnification_objects[method] = \
+                    mm.PointSourcePointLensWithShearMagnification(
+                        trajectory=trajectory)
+            else:
+                msg = 'Unknown method specified for single lens with shear: {:}'
                 raise ValueError(msg.format(method))
 
     def get_point_lens_magnification(self):
@@ -327,7 +367,7 @@ class MagnificationCurve(object):
                 " lenses")
 
         if self._magnification_objects is None:
-            self._set_point_lens_magnification_objects()
+            self._set_magnification_objects()
 
         magnification = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():
@@ -339,49 +379,64 @@ class MagnificationCurve(object):
     def _set_binary_lens_magnification_objects(self):
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
-            kwargs = {}
-            if self._methods_parameters is not None:
-                if method.lower() in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method.lower()]
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
 
-            if self.satellite_skycoord is not None:
-                satellite_skycoord = self.satellite_skycoord[selection]
-            else:
-                satellite_skycoord = None
+            if ((kwargs != {}) and
+                    (method.lower() not in ['vbbl', 'adaptive_contouring'])):
+                msg = ('Methods parameters passed for method {:}' +
+                       ' which does not accept any parameters')
+                raise ValueError(msg.format(method))
 
-            trajectory = mm.Trajectory(
-                self.times[selection], parameters=self.parameters,
-                parallax=self.parallax, coords=self.coords,
-                satellite_skycoord=satellite_skycoord)
-
-            if method == 'point_source':
+            if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
-                    mm.binarylens.PointSourceBinaryLensMagnification(
+                    mm.binarylens.BinaryLensPointSourceMagnification(
                         trajectory=trajectory)
-            elif method == 'quadrupole':
+            elif method.lower() == 'quadrupole':
                 self._magnification_objects[method] = \
-                    mm.binarylens.PointSourceBinaryLensQuadrupoleMagnification(
+                    mm.binarylens.BinaryLensQuadrupoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
-            elif method == 'hexadecapole':
+            elif method.lower() == 'hexadecapole':
                 self._magnification_objects[method] = \
                     mm.binarylens.\
-                        PointSourceBinaryLensHexadecapoleMagnification(
+                    BinaryLensHexadecapoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
-            elif method == 'vbbl':
-                print('JCY - Need to figure out how to stop VBBL + shear.')
+            elif method.lower() == 'vbbl':
                 self._magnification_objects[method] = \
                     mm.binarylens. \
-                        VBBLMagnification(
+                    BinaryLensVBBLMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
-            elif method == 'adaptive_contouring':
+            elif method.lower() == 'adaptive_contouring':
                 self._magnification_objects[method] = \
                     mm.binarylens. \
-                        AdaptiveContouringMagnification(
+                    BinaryLensAdaptiveContouringMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
-            elif method == 'point_source_point_lens':
+            elif method.lower() == 'point_source_point_lens':
                 self._magnification_objects[method] = \
                     mm.pointlens.PointSourcePointLensMagnification(
                         trajectory=trajectory)
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
+
+    def _set_binary_lens_w_shear_magnification_objects(self):
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            trajectory = self._setup_trajectory(selection)
+            K = self.parameters.parameters.get('convergence_K', 0)
+            G = self.parameters.parameters.get('shear_G', complex(0, 0))
+            kwargs = {'convergence_K': K, 'shear_G': G}
+
+            if method.lower() == 'point_source':
+                self._magnification_objects[method] = \
+                    mm.binarylenswithshear. \
+                    BinaryLensPointSourceWithShearVBBLMagnification(
+                            trajectory=trajectory, **kwargs)
+            elif method.lower() == 'point_source_wm95':
+                self._magnification_objects[method] = \
+                    mm.binarylenswithshear. \
+                    BinaryLensPointSourceWithShearWM95Magnification(
+                            trajectory=trajectory, **kwargs)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
@@ -435,10 +490,11 @@ class MagnificationCurve(object):
 
         """
         # Temporarily necessary until this section can be refactored
-        self.trajectory = mm.Trajectory(
-            self.times, parameters=self.parameters, parallax=self.parallax,
-            coords=self.coords, satellite_skycoord=self.satellite_skycoord)
+        # self.trajectory = mm.Trajectory(
+        #     self.times, parameters=self.parameters, parallax=self.parallax,
+        #     coords=self.coords, satellite_skycoord=self.satellite_skycoord)
 
+        # JCY: Is this still needed?
         if self.parameters.is_finite_source():
             self._check_for_finite_source_method()
 
@@ -448,17 +504,15 @@ class MagnificationCurve(object):
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        if not self.parameters.is_external_mass_sheet:
-            binary_lens_class = mm.BinaryLens
-            kwargs = dict()
-        else:
-            binary_lens_class = mm.BinaryLensWithShear
-            K = self.parameters.parameters.get('convergence_K', 0)
-            G = self.parameters.parameters.get('shear_G', complex(0, 0))
-            kwargs = {'convergence_K': K, 'shear_G': G}
-        out = self._get_binary_lens_magnification(binary_lens_class, kwargs)
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
 
-        return out
+        magnification = np.zeros(len(self.times))
+        for method, selection in self.methods_indices.items():
+            magnification[selection] = \
+                self._magnification_objects[method].get_magnification()
+
+        return magnification
 
     def _get_binary_lens_magnification(self, binary_lens_class,
                                        optional_kwargs):
@@ -466,81 +520,89 @@ class MagnificationCurve(object):
         Run binary lens calculation with proper class (binary_lens_class) and
         some kwargs (optional_kwargs of type *dict*).
         """
-        q = self.parameters.q
-        binary_kwargs = optional_kwargs
-        binary_kwargs['mass_1'] = 1. / (1. + q)
-        binary_kwargs['mass_2'] = q / (1. + q)
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
 
-        is_static = self.parameters.is_static()
-        if is_static:
-            binary_lens = binary_lens_class(separation=self.parameters.s,
-                                            **binary_kwargs)
-        methods = self.methods_for_epochs
+        magnification = np.zeros(len(self.times))
+        for method, selection in self.methods_indices.items():
+            magnification[selection] = \
+                self._magnification_objects[method].get_magnification()
 
-        magnification = []
-        for index in range(len(self.times)):
-            if methods[index] is None:
-                raise ValueError("method for calculating binary lens "
-                                 "magnification is not specified properly")
-            x = self.trajectory.x[index]
-            y = self.trajectory.y[index]
-            method = methods[index].lower()
-            if not is_static:
-                binary_lens = binary_lens_class(
-                    separation=self.parameters.get_s(self.times[index]),
-                    **binary_kwargs)
+        # q = self.parameters.q
+        # binary_kwargs = optional_kwargs
+        # binary_kwargs['mass_1'] = 1. / (1. + q)
+        # binary_kwargs['mass_2'] = q / (1. + q)
+        #
+        # is_static = self.parameters.is_static()
+        # if is_static:
+        #     binary_lens = binary_lens_class(separation=self.parameters.s,
+        #                                     **binary_kwargs)
+        # methods = self.methods_for_epochs
+        #
+        # magnification = []
+        # for index in range(len(self.times)):
+        #     if methods[index] is None:
+        #         raise ValueError("method for calculating binary lens "
+        #                          "magnification is not specified properly")
+        #     x = self.trajectory.x[index]
+        #     y = self.trajectory.y[index]
+        #     method = methods[index].lower()
+        #     if not is_static:
+        #         binary_lens = binary_lens_class(
+        #             separation=self.parameters.get_s(self.times[index]),
+        #             **binary_kwargs)
+        #
+        #     kwargs = {}
+        #     if self._methods_parameters is not None:
+        #         if method in self._methods_parameters.keys():
+        #             kwargs = self._methods_parameters[method]
+        #             if method not in ['vbbl', 'adaptive_contouring']:
+        #                 msg = ('Methods parameters passed for method {:}' +
+        #                        ' which does not accept any parameters')
+        #                 raise ValueError(msg.format(method))
+        #
+        #     if method == 'point_source':
+        #         try:
+        #             m = binary_lens.point_source_magnification(x, y)
+        #         except Exception as e:
+        #             text = "\nmagnificationcurve.py: Error for 'point_source' "
+        #             text += "method. "
+        #             text += "\n{0}\n".format(e)
+        #             text += "Model parameters for above exception:\n"
+        #             text += str(self.parameters)
+        #             raise ValueError(text) from e
+        #             # The code above is based on
+        #             # https://stackoverflow.com/questions/6062576/
+        #             # adding-information-to-an-exception/6062799
+        #     elif method == 'quadrupole':
+        #         m = binary_lens.hexadecapole_magnification(
+        #             x, y, rho=self.parameters.rho, quadrupole=True,
+        #             gamma=self._gamma)
+        #     elif method == 'hexadecapole':
+        #         m = binary_lens.hexadecapole_magnification(
+        #             x, y, rho=self.parameters.rho, gamma=self._gamma)
+        #     elif method == 'vbbl':
+        #         if isinstance(binary_lens, mm.BinaryLensWithShear):
+        #             raise ValueError("Finite source VBBL is not available "
+        #                              "for BinaryLensWithShear")
+        #         m = binary_lens.vbbl_magnification(
+        #             x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
+        #     elif method == 'adaptive_contouring':
+        #         if isinstance(binary_lens, mm.BinaryLensWithShear):
+        #             raise ValueError("Adaptive contouring is not available "
+        #                              "for BinaryLensWithShear")
+        #         m = binary_lens.adaptive_contouring_magnification(
+        #             x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
+        #     elif method == 'point_source_point_lens':
+        #         u = math.sqrt(x**2 + y**2)
+        #         m = mm.get_pspl_magnification(u)
+        #     else:
+        #         msg = 'Unknown method specified for binary lens: {:}'
+        #         raise ValueError(msg.format(method))
+        #
+        #     magnification.append(m)
 
-            kwargs = {}
-            if self._methods_parameters is not None:
-                if method in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method]
-                    if method not in ['vbbl', 'adaptive_contouring']:
-                        msg = ('Methods parameters passed for method {:}' +
-                               ' which does not accept any parameters')
-                        raise ValueError(msg.format(method))
-
-            if method == 'point_source':
-                try:
-                    m = binary_lens.point_source_magnification(x, y)
-                except Exception as e:
-                    text = "\nmagnificationcurve.py: Error for 'point_source' "
-                    text += "method. "
-                    text += "\n{0}\n".format(e)
-                    text += "Model parameters for above exception:\n"
-                    text += str(self.parameters)
-                    raise ValueError(text) from e
-                    # The code above is based on
-                    # https://stackoverflow.com/questions/6062576/
-                    # adding-information-to-an-exception/6062799
-            elif method == 'quadrupole':
-                m = binary_lens.hexadecapole_magnification(
-                    x, y, rho=self.parameters.rho, quadrupole=True,
-                    gamma=self._gamma)
-            elif method == 'hexadecapole':
-                m = binary_lens.hexadecapole_magnification(
-                    x, y, rho=self.parameters.rho, gamma=self._gamma)
-            elif method == 'vbbl':
-                if isinstance(binary_lens, mm.BinaryLensWithShear):
-                    raise ValueError("Finite source VBBL is not available "
-                                     "for BinaryLensWithShear")
-                m = binary_lens.vbbl_magnification(
-                    x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
-            elif method == 'adaptive_contouring':
-                if isinstance(binary_lens, mm.BinaryLensWithShear):
-                    raise ValueError("Adaptive contouring is not available "
-                                     "for BinaryLensWithShear")
-                m = binary_lens.adaptive_contouring_magnification(
-                    x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
-            elif method == 'point_source_point_lens':
-                u = math.sqrt(x**2 + y**2)
-                m = mm.get_pspl_magnification(u)
-            else:
-                msg = 'Unknown method specified for binary lens: {:}'
-                raise ValueError(msg.format(method))
-
-            magnification.append(m)
-
-        return np.array(magnification)
+        return magnification
 
     def get_d_A_d_params(self, parameters):
         """
@@ -557,7 +619,7 @@ class MagnificationCurve(object):
                 evaluated at each epoch.
         """
         if self._magnification_objects is None:
-            self._set_point_lens_magnification_objects()
+            self._set_magnification_objects()
 
         d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
         for method, selection in self.methods_indices.items():
@@ -580,7 +642,7 @@ class MagnificationCurve(object):
                 evaluated at each data point.
         """
         if self._magnification_objects is None:
-            self._set_point_lens_magnification_objects()
+            self._set_magnification_objects()
 
         d_A_d_rho = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():
@@ -631,16 +693,6 @@ class MagnificationCurve(object):
             methods_ = np.array(methods)
 
             for method in set(methods):
-                kwargs = {}
-                if self._methods_parameters is not None:
-                    if method.lower() in self._methods_parameters.keys():
-                        kwargs = self._methods_parameters[method.lower()]
-
-                    if kwargs != {}:
-                        raise ValueError(
-                            'Methods parameters passed, but currently ' +
-                            'no point lens method accepts the parameters')
-
                 selection = (methods_ == method)
                 self._methods_indices[method] = selection
 

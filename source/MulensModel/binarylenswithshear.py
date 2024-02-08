@@ -2,13 +2,14 @@ import warnings
 import numpy as np
 from math import sqrt
 
-from MulensModel.binarylens import BinaryLens
+from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification
 from MulensModel.binarylensimports import (_vbbl_wrapped,
                                            _vbbl_binary_mag_0, _vbbl_SG12_9)
 import MulensModel as mm
 
 
-class BinaryLensWithShear(BinaryLens):
+class BinaryLensPointSourceWithShearWM95Magnification(
+    BinaryLensPointSourceWM95Magnification):
     """
     The binary lens with shear and convergence:
     solutions, images, parities, magnifications, etc.
@@ -44,92 +45,14 @@ class BinaryLensWithShear(BinaryLens):
     Peirson et al. (2022; ApJ 927, 24).
     """
 
-    def __init__(self, mass_1=None, mass_2=None, separation=None,
-                 convergence_K=None, shear_G=None):
-        BinaryLens.__init__(self, mass_1, mass_2, separation)
+    def __init__(self, convergence_K=None, shear_G=None, **kwargs):
+        BinaryLensPointSourceWM95Magnification.__init__(self, **kwargs)
         self.convergence_K = convergence_K
         self.shear_G = shear_G
 
-    def _get_polynomial_WM95(self, source_x, source_y):
-        """
-        calculate coefficients of the polynomial in geometric center frame
-        """
-        self._calculate_variables(source_x=source_x, source_y=source_y)
-        total_m = self._total_mass
-        total_m_pow2 = total_m * total_m
-
-        m_diff = self._mass_difference
-        m_diff_pow2 = m_diff * m_diff
-
-        pos_z1 = self._position_z1
-
-        z1_pow2 = pos_z1 * pos_z1
-        z1_pow3 = z1_pow2 * pos_z1
-        z1_pow4 = z1_pow2 * z1_pow2
-        z1_pow5 = z1_pow2 * z1_pow2 * pos_z1
-        z1_pow6 = z1_pow2 * z1_pow2 * z1_pow2
-
-        convergence_K = self.convergence_K
-        K_pow2 = convergence_K * convergence_K
-        K_pow3 = convergence_K * K_pow2
-
-        zeta = self._zeta
-        zeta_conj = zeta.conjugate()
-        zeta_conj_pow2 = zeta_conj * zeta_conj
-
-        # Calculate the coefficients of the 5th order complex polynomial now
-        # with external convergence
-        coeff_5 = mm.Utils.complex_fsum(
-            [-z1_pow2 * K_pow3, 3 * z1_pow2 * K_pow2, -3 * z1_pow2 *
-             convergence_K, z1_pow2, convergence_K * zeta_conj_pow2, -
-             zeta_conj_pow2])
-        coeff_4 = mm.Utils.complex_fsum(
-            [2 * total_m * convergence_K *
-             zeta_conj, -2 * total_m * zeta_conj, -
-             zeta * z1_pow2 * K_pow2, 2 * zeta *
-             z1_pow2 * convergence_K, -zeta *
-             z1_pow2, zeta * zeta_conj_pow2, 2 *
-             pos_z1 * K_pow2 * m_diff, -4 * pos_z1
-             * convergence_K * m_diff, 2 * pos_z1 *
-             m_diff])
-        coeff_3 = mm.Utils.complex_fsum(
-            [4 * total_m * zeta * zeta_conj, 2 * z1_pow4 * K_pow3, -6 * z1_pow4
-             * K_pow2, 6 * z1_pow4 * convergence_K, -2 * z1_pow4, -2 * z1_pow2
-             * convergence_K * zeta_conj_pow2, 2 * z1_pow2 * zeta_conj_pow2, 4
-             * pos_z1 * convergence_K * m_diff * zeta_conj, -4 * pos_z1 *
-             m_diff * zeta_conj])
-        coeff_2 = mm.Utils.complex_fsum(
-            [4 * total_m_pow2 * zeta, 4 * total_m * pos_z1 * convergence_K *
-             m_diff, -4 * total_m * pos_z1 * m_diff, 2 * zeta * z1_pow4 *
-             K_pow2, -4 * zeta * z1_pow4 * convergence_K, 2 * zeta * z1_pow4, -
-             2 * zeta * z1_pow2 * zeta_conj_pow2, 4 * zeta * pos_z1 * m_diff *
-             zeta_conj, -4 * z1_pow3 * K_pow2 * m_diff, 8 * z1_pow3 *
-             convergence_K * m_diff, -4 * z1_pow3 * m_diff])
-        coeff_1 = mm.Utils.complex_fsum(
-            [4 * total_m_pow2 * z1_pow2 * convergence_K, -4 * total_m_pow2 *
-             z1_pow2, -4 * total_m * zeta * z1_pow2 * zeta_conj, 8 * total_m *
-             zeta * pos_z1 * m_diff, -z1_pow6 * K_pow3, 3 * z1_pow6 * K_pow2, -
-             3 * z1_pow6 * convergence_K, z1_pow6, z1_pow4 * convergence_K *
-             zeta_conj_pow2, -z1_pow4 * zeta_conj_pow2, -4 * z1_pow3 *
-             convergence_K * m_diff * zeta_conj, 4 * z1_pow3 * m_diff *
-             zeta_conj, 4 * z1_pow2 * convergence_K * m_diff_pow2, -4 * z1_pow2
-             * m_diff_pow2])
-        coeff_0 = mm.Utils.complex_fsum(
-            [-2 * total_m * z1_pow4 * convergence_K * zeta_conj, 2 * total_m *
-             z1_pow4 * zeta_conj, 4 * total_m * z1_pow3 * convergence_K *
-             m_diff, -4 * total_m * z1_pow3 * m_diff, -zeta * z1_pow6 * K_pow2,
-             2 * zeta * z1_pow6 * convergence_K, -zeta * z1_pow6, zeta *
-             z1_pow4 * zeta_conj_pow2, -4 * zeta * z1_pow3 * m_diff *
-             zeta_conj, 4 * zeta * z1_pow2 * m_diff_pow2, 2 * z1_pow5 * K_pow2
-             * m_diff, -4 * z1_pow5 * convergence_K * m_diff, 2 * z1_pow5 *
-             m_diff])
-
-        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
-        return np.array(coeffs_list).reshape(6)
-
-    def _get_polynomial_planet_frame(self, source_x, source_y):
+    def _get_polynomial(self):
         """calculate coefficients of the polynomial in planet frame"""
-        self._calculate_variables(source_x=source_x, source_y=source_y)
+        self._calculate_variables()
         total_m = self._total_mass
         total_m_pow2 = total_m * total_m
         total_m_pow3 = total_m * total_m_pow2
@@ -423,17 +346,16 @@ class BinaryLensWithShear(BinaryLens):
                        coeff_6, coeff_7, coeff_8, coeff_9]
         return np.array(coeffs_list).reshape(10)
 
-    def _get_polynomial_roots(self, source_x, source_y):
+    def _get_polynomial_roots(self):
         """roots of the polynomial"""
         polynomial_input = [
             self.mass_1, self.mass_2, self.separation, self.convergence_K,
-            self.shear_G, source_x, source_y]
+            self.shear_G, self.source_x, self.source_y]
 
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
 
-        polynomial = self._get_polynomial(
-            source_x=source_x, source_y=source_y)
+        polynomial = self._get_polynomial()
 
         np_polyroots = np.polynomial.polynomial.polyroots
         if self._solver == 'numpy':
@@ -462,10 +384,9 @@ class BinaryLensWithShear(BinaryLens):
         return self._polynomial_roots
 
     def _verify_polynomial_roots(
-            self, source_x, source_y, return_distances=False):
+            self, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
-        roots = self._get_polynomial_roots(
-            source_x=source_x, source_y=source_y)
+        roots = self._get_polynomial_roots()
 
         roots_conj = np.conjugate(roots)
         component2 = self.mass_1 / (roots_conj - self._position_z1)
@@ -497,7 +418,7 @@ class BinaryLensWithShear(BinaryLens):
                    "that it's different from 'point_source' method.")
             txt = msg.format(
                 len(out), repr(self.mass_1), repr(self.mass_2),
-                repr(self.separation), repr(source_x), repr(source_y),
+                repr(self.separation), repr(self.source_x), repr(self.source_y),
                 self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
@@ -507,7 +428,7 @@ class BinaryLensWithShear(BinaryLens):
                     "numpy.polynomial.polynomial.polyroots(). " +
                     "Skowron_and_Gould_12 method is selected in automated " +
                     "way if VBBL is imported properly.")
-            distance = sqrt(source_x**2 + source_y**2)
+            distance = sqrt(self.source_x**2 + self.source_y**2)
             if (self.mass_2 > 1.e-6 * self.mass_1 and
                     (distance < 15. or distance < 2. * self.separation)):
                 txt += ("\n\nThis is surprising error - please contact code " +
@@ -524,10 +445,9 @@ class BinaryLensWithShear(BinaryLens):
         else:
             return np.array(out)
 
-    def _get_jacobian_determinant(self, source_x, source_y):
+    def _get_jacobian_determinant(self):
         """determinants of lens equation Jacobian for verified roots"""
-        roots_ok_bar = np.conjugate(self._verify_polynomial_roots(
-            source_x=source_x, source_y=source_y))
+        roots_ok_bar = np.conjugate(self._verify_polynomial_roots())
         # Variable X_bar is conjugate of variable X.
         add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
         add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
@@ -536,53 +456,103 @@ class BinaryLensWithShear(BinaryLens):
         return (1. - self.convergence_K)**2 - (derivative *
                                                np.conjugate(derivative))
 
-    def point_source_magnification(self, source_x, source_y, vbbl_on=True):
+
+class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
+    BinaryLensPointSourceWithShearWM95Magnification):
+
+    def __init__(self):
+        raise NotImplementedError()
+
+    def _get_polynomial(self):
         """
-        Calculate point source magnification for given position. The
-        origin of the coordinate system is at the center of mass and
-        both masses are on X axis with higher mass at negative X; this
-        means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-        the lower mass is at (s/(1+q), 0).
-
-        Parameters :
-            source_x: *float*
-                X-axis coordinate of the source.
-
-            source_y: *float*
-                Y-axis coordinate of the source.
-
-        Returns :
-            magnification: *float*
-                Point source magnification.
+        calculate coefficients of the polynomial in geometric center frame
         """
-        if self._use_planet_frame:
-            x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
-        else:
-            x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
-        x_shift *= self.separation
-        # We need to add this because in order to shift to correct frame.
+        self._calculate_variables(source_x=source_x, source_y=source_y)
+        total_m = self._total_mass
+        total_m_pow2 = total_m * total_m
 
-        if _vbbl_wrapped and vbbl_on:
-            s = float(self.separation)
-            q = float(self.mass_2 / self.mass_1)
-            x = float(source_x)
-            y = float(source_y)
+        m_diff = self._mass_difference
+        m_diff_pow2 = m_diff * m_diff
 
-            magnification = _vbbl_binary_mag_0(
-                s, q, x, y, self.convergence_K, self.shear_G.real,
-                self.shear_G.imag)
-        else:
-            magnification = self._get_point_source_Witt_Mao_95(
-                source_x=float(source_x)+x_shift, source_y=float(source_y))
+        pos_z1 = self._position_z1
 
-        if magnification < 1.:
-            msg = (
-                "error in BinaryLensWithShear.point_source_magnification()\n"
-                "input:\n")
-            params = [s, q, x, y, self.convergence_K, self.shear_G.real,
-                      self.shear_G.imag, vbbl_on, _vbbl_wrapped]
-            msg += " ".join([str(p) for p in params])
-            msg += "\noutput: {:}".format(magnification)
-            raise ValueError(msg)
+        z1_pow2 = pos_z1 * pos_z1
+        z1_pow3 = z1_pow2 * pos_z1
+        z1_pow4 = z1_pow2 * z1_pow2
+        z1_pow5 = z1_pow2 * z1_pow2 * pos_z1
+        z1_pow6 = z1_pow2 * z1_pow2 * z1_pow2
+
+        convergence_K = self.convergence_K
+        K_pow2 = convergence_K * convergence_K
+        K_pow3 = convergence_K * K_pow2
+
+        zeta = self._zeta
+        zeta_conj = zeta.conjugate()
+        zeta_conj_pow2 = zeta_conj * zeta_conj
+
+        # Calculate the coefficients of the 5th order complex polynomial now
+        # with external convergence
+        coeff_5 = mm.Utils.complex_fsum(
+            [-z1_pow2 * K_pow3, 3 * z1_pow2 * K_pow2, -3 * z1_pow2 *
+             convergence_K, z1_pow2, convergence_K * zeta_conj_pow2, -
+             zeta_conj_pow2])
+        coeff_4 = mm.Utils.complex_fsum(
+            [2 * total_m * convergence_K *
+             zeta_conj, -2 * total_m * zeta_conj, -
+             zeta * z1_pow2 * K_pow2, 2 * zeta *
+             z1_pow2 * convergence_K, -zeta *
+             z1_pow2, zeta * zeta_conj_pow2, 2 *
+             pos_z1 * K_pow2 * m_diff, -4 * pos_z1
+             * convergence_K * m_diff, 2 * pos_z1 *
+             m_diff])
+        coeff_3 = mm.Utils.complex_fsum(
+            [4 * total_m * zeta * zeta_conj, 2 * z1_pow4 * K_pow3, -6 * z1_pow4
+             * K_pow2, 6 * z1_pow4 * convergence_K, -2 * z1_pow4, -2 * z1_pow2
+             * convergence_K * zeta_conj_pow2, 2 * z1_pow2 * zeta_conj_pow2, 4
+             * pos_z1 * convergence_K * m_diff * zeta_conj, -4 * pos_z1 *
+             m_diff * zeta_conj])
+        coeff_2 = mm.Utils.complex_fsum(
+            [4 * total_m_pow2 * zeta, 4 * total_m * pos_z1 * convergence_K *
+             m_diff, -4 * total_m * pos_z1 * m_diff, 2 * zeta * z1_pow4 *
+             K_pow2, -4 * zeta * z1_pow4 * convergence_K, 2 * zeta * z1_pow4, -
+             2 * zeta * z1_pow2 * zeta_conj_pow2, 4 * zeta * pos_z1 * m_diff *
+             zeta_conj, -4 * z1_pow3 * K_pow2 * m_diff, 8 * z1_pow3 *
+             convergence_K * m_diff, -4 * z1_pow3 * m_diff])
+        coeff_1 = mm.Utils.complex_fsum(
+            [4 * total_m_pow2 * z1_pow2 * convergence_K, -4 * total_m_pow2 *
+             z1_pow2, -4 * total_m * zeta * z1_pow2 * zeta_conj, 8 * total_m *
+             zeta * pos_z1 * m_diff, -z1_pow6 * K_pow3, 3 * z1_pow6 * K_pow2, -
+             3 * z1_pow6 * convergence_K, z1_pow6, z1_pow4 * convergence_K *
+             zeta_conj_pow2, -z1_pow4 * zeta_conj_pow2, -4 * z1_pow3 *
+             convergence_K * m_diff * zeta_conj, 4 * z1_pow3 * m_diff *
+             zeta_conj, 4 * z1_pow2 * convergence_K * m_diff_pow2, -4 * z1_pow2
+             * m_diff_pow2])
+        coeff_0 = mm.Utils.complex_fsum(
+            [-2 * total_m * z1_pow4 * convergence_K * zeta_conj, 2 * total_m *
+             z1_pow4 * zeta_conj, 4 * total_m * z1_pow3 * convergence_K *
+             m_diff, -4 * total_m * z1_pow3 * m_diff, -zeta * z1_pow6 * K_pow2,
+             2 * zeta * z1_pow6 * convergence_K, -zeta * z1_pow6, zeta *
+             z1_pow4 * zeta_conj_pow2, -4 * zeta * z1_pow3 * m_diff *
+             zeta_conj, 4 * zeta * z1_pow2 * m_diff_pow2, 2 * z1_pow5 * K_pow2
+             * m_diff, -4 * z1_pow5 * convergence_K * m_diff, 2 * z1_pow5 *
+             m_diff])
+
+        coeffs_list = [coeff_0, coeff_1, coeff_2, coeff_3, coeff_4, coeff_5]
+        return np.array(coeffs_list).reshape(6)
+
+
+class BinaryLensPointSourceWithShearVBBLMagnification(
+    BinaryLensPointSourceWithShearWM95Magnification):
+
+
+    def get_magnification(self):
+        s = float(self.separation)
+        q = float(self.mass_2 / self.mass_1)
+
+        magnification = _vbbl_binary_mag_0(
+            s, q, self.source_x, self.source_y, self.convergence_K,
+            self.shear_G.real,
+            self.shear_G.imag)
 
         return magnification
+

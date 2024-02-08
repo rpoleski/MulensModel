@@ -1,7 +1,14 @@
 from os import path
 
-from MulensModel.binarylens import BinaryLens
-from MulensModel.binarylenswithshear import BinaryLensWithShear
+from MulensModel.binarylens import BinaryLensPointSourceMagnification, \
+    BinaryLensPointSourceWM95Magnification,\
+    BinaryLensPointSourceVBBLMagnification, \
+    BinaryLensQuadrupoleMagnification, BinaryLensHexadecapoleMagnification, \
+    BinaryLensVBBLMagnification, BinaryLensAdaptiveContouringMagnification
+from MulensModel.binarylens import BinaryLens # to be deprecated.
+from MulensModel.binarylenswithshear import \
+    BinaryLensPointSourceWithShearWM95Magnification, \
+    BinaryLensPointSourceWithShearVBBLMagnification
 from MulensModel.caustics import Caustics
 from MulensModel.causticspointwithshear import CausticsPointWithShear
 from MulensModel.causticswithshear import CausticsWithShear
@@ -18,7 +25,7 @@ from MulensModel.mulensobjects import *
 from MulensModel.orbits import *
 from MulensModel.pointlens import PointSourcePointLensMagnification, \
     FiniteSourceUniformGould94Magnification, FiniteSourceLDYoo04Magnification
-from MulensModel.pointlenswithshear import PointLensWithShear
+from MulensModel.pointlenswithshear import PointSourcePointLensWithShearMagnification
 from MulensModel.b0b1utils import B0B1Utils
 from MulensModel.elliputils import EllipUtils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord

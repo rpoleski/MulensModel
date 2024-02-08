@@ -43,7 +43,7 @@ class FortranSFitFile61(object):
 
         self.data = np.genfromtxt(
             filename, dtype=None, encoding='utf-8',
-            names=['nob', 'k', 't', 'dAdrho', 'mag', 'db0', 'db1'])
+            names=['nob', 'k', 't', 'dfdrho', 'mag', 'db0', 'db1'])
         for name in self.data.dtype.names:
             self.__setattr__(name, self.data[name])
 
@@ -53,7 +53,7 @@ class FortranSFitFile61(object):
         nobs = np.unique(self.data['nob'])
         nob_indices = []
         for nob in np.sort(nobs):
-            sfit_index = np.where(self.data['nob'] == nob)
+            sfit_index = (self.data['nob'] == nob)
             nob_indices.append(sfit_index)
 
         return nob_indices
