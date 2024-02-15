@@ -12,9 +12,11 @@ class PointSourcePointLensWithShearMagnification(PointSourcePointLensMagnificati
     `Chang and Refsdal (1979; Nature, 282, 561)
     <https://ui.adsabs.harvard.edu/abs/1979Natur.282..561C/abstract>`_.
 
-    Keywords :
-        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
-            Parameters of the model.
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
     """
 
     def get_magnification(self):
