@@ -22,8 +22,10 @@ class PointSourcePointLensMagnification(object):
     Equations for calculating point-source--point-lens magnification and
     its derivatives.
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
     """
 
@@ -60,11 +62,14 @@ class PointSourcePointLensMagnification(object):
 
     def get_magnification(self):
         """
+        Calculate the magnification
+
         Parameters : None
+
         Returns :
             magnification: *float* or *np.ndarray*
                 The magnification for each point
-                specified by `u.
+                specified by `u` in :py:attr:`~trajectory`.
         """
         self._magnification = self.get_pspl_magnification()
         return self._magnification
@@ -217,8 +222,10 @@ class FiniteSourceUniformGould94Magnification(
     <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
     prescription assuming a *uniform* (and circular) source.
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
         direct: *bool*
             Use direct calculation (slow) instead of interpolation. Default is
@@ -413,8 +420,10 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
     <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
     prescription assuming a *limb-darkened* (and circular) source.
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
         direct: *bool*
             Use direct calculation (slow) instead of interpolation. Default is
@@ -589,8 +598,10 @@ class FiniteSourceUniformWittMao94Magnification(
     Pointlike for Microlensing by MACHOs?"
     <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
     """
 
@@ -731,8 +742,10 @@ class FiniteSourceLDWittMao94Magnification(
     <https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract>`_
 
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
         gamma: *float*
             Gamma limb darkening coefficient. See also
@@ -811,8 +824,10 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
     <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
 
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
     """
 
@@ -951,8 +966,10 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
     Stable Formalism"
     <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
         gamma: *float*
             Gamma limb darkening coefficient. See also
