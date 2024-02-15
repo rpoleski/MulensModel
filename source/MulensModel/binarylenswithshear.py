@@ -456,6 +456,15 @@ class BinaryLensPointSourceWithShearWM95Magnification(
         return (1. - self.convergence_K)**2 - (derivative *
                                                np.conjugate(derivative))
 
+    # @property
+    # def source_x(self):
+    #     if self._source_x is None:
+    #         x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
+    #         self._source_x = float(self.trajectory.x + x_shift)
+    #
+    #     return self._source_x
+
+
 
 class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
     BinaryLensPointSourceWithShearWM95Magnification):
@@ -556,3 +565,9 @@ class BinaryLensPointSourceWithShearVBBLMagnification(
 
         return magnification
 
+    @property
+    def source_x(self):
+        if self._source_x is None:
+            self._source_x = float(self.trajectory.x)
+
+        return self._source_x
