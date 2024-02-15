@@ -624,6 +624,7 @@ class Test1L3SModels(unittest.TestCase):
                       't_E': self.t_E}
         self.model_params = mm.ModelParameters(parameters)
 
+    # Basic 1L3S Tests
     def test_basic_1L3S_n_sources(self):
         """
         Test that we can define Triple source models.
@@ -678,6 +679,9 @@ class Test1L3SModels(unittest.TestCase):
             assert (self.model_params.__getattribute__(
                 'source_{0}_parameters'.format(i+1)).t_star == self.t_star[i])
 
+
+class Test1LNSModels(unittest.TestCase):
+
     def test_arbitrary_number_of_sources(self):
         """
         Test that we can define Triple source models.
@@ -691,6 +695,9 @@ class Test1L3SModels(unittest.TestCase):
         print(parameters)
         model_params = mm.ModelParameters(parameters)
         assert model_params.n_sources == n_sources
+
+
+class Test1L3SModelErrors(unittest.TestCase):
 
     def test_incomplete_1L3S_params(self):
         """
