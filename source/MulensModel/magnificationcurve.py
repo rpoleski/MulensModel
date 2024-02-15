@@ -184,7 +184,7 @@ class MagnificationCurve(object):
             return
 
     def _set_magnification_objects(self):
-        # High-level function that separations PL/BL and shear/no shear
+        """ High-level function that separations PL/BL and shear/no shear """
         if self.parameters.n_lenses == 1:
             if not self.parameters.is_external_mass_sheet:
                 self._set_point_lens_magnification_objects()
@@ -197,6 +197,8 @@ class MagnificationCurve(object):
                 self._set_binary_lens_w_shear_magnification_objects()
 
     def _setup_trajectory(self, selection):
+        """ Create a trajectory object for a given subset of the data
+        specified by *selection*. """
         if self.satellite_skycoord is not None:
             satellite_skycoord = self.satellite_skycoord[selection]
         else:
@@ -209,6 +211,7 @@ class MagnificationCurve(object):
         return trajectory
 
     def _setup_kwargs(self, method):
+        """ Setup the kwargs for a given magnification object."""
         kwargs = {}
         if self._methods_parameters is not None:
             if method.lower() in self._methods_parameters.keys():
@@ -217,6 +220,8 @@ class MagnificationCurve(object):
         return kwargs
 
     def _set_point_lens_magnification_objects(self):
+        """ For simple point lens models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods."""
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
             trajectory = self._setup_trajectory(selection)
@@ -270,6 +275,8 @@ class MagnificationCurve(object):
                 raise ValueError(msg.format(method))
 
     def _set_point_lens_w_shear_magnification_objects(self):
+        """ For point lens + shear models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods."""
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
             trajectory = self._setup_trajectory(selection)
@@ -377,6 +384,8 @@ class MagnificationCurve(object):
         return magnification
 
     def _set_binary_lens_magnification_objects(self):
+        """ For simple binary lens models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods."""
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
             trajectory = self._setup_trajectory(selection)
@@ -420,6 +429,8 @@ class MagnificationCurve(object):
                 raise ValueError(msg.format(method))
 
     def _set_binary_lens_w_shear_magnification_objects(self):
+        """ For binary lens + shear models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods."""
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
             trajectory = self._setup_trajectory(selection)
