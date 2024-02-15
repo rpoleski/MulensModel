@@ -607,16 +607,40 @@ def test_is_xallarap_2():
 
 class Test1L3SModels(unittest.TestCase):
 
-    def test_basic_1L3S(self):
+    def setUp(self):
+        self.t_0 = [0., 5., 2.]
+        self.u_0 = [1., 0.1, 0.3]
+        self.t_E = 9.
+        rho_2 = 0.001
+        t_star_3 = 0.02
+        self.rho = [0., rho_2, t_star_3 / self.t_E]
+        self.t_star = np.array(self.rho) * self.t_E
+
+        parameters = {'t_0_1': self.t_0[0], 'u_0_1': self.u_0[0],
+                      't_0_2': self.t_0[1], 'u_0_2': self.u_0[1],
+                      'rho_2': rho_2,
+                      't_0_3': self.t_0[0], 'u_0_3': self.u_0[2],
+                      't_star_3': t_star_3,
+                      't_E': self.t_E}
+        self.model_params = mm.ModelParameters(parameters)
+
+    def test_basic_1L3S_n_sources(self):
         """
         Test that we can define Triple source models.
         """
-        parameters = {'t_0_1': 0, 'u_0_1': 1,
-                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
-                      't_0_3': 2, 'u_0_3': 0.3, 't_star_3': 0.02,
-                      't_E': 9}
-        model_params = mm.ModelParameters(parameters)
-        assert model_params.n_sources == 3
+        assert self.model_params.n_sources == 3
+
+    def test_basic_1L3S_t_0(self):
+        """
+        Test that we can access attributes of Triple source models.
+        """
+        for i in range(3):
+            assert (self.model_params.__getattribute__(
+                't_0_{0}'.format(i+1)) == self.t_0[i])
+
+        for i in range(3):
+            assert (self.model_params.__getattribute__(
+                'source_{0}_parameters'.format(i+1)).t_0 == self.t_0[i])
 
     def test_arbitrary_number_of_sources(self):
         """
