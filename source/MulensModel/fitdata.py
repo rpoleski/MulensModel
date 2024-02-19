@@ -686,9 +686,6 @@ class FitData(object):
     def get_d_A_d_u_for_point_lens_model(self):
         raise NotImplementedError('This function was deprecated in Version 3.')
 
-    def get_d_A_d_rho(self):
-        raise NotImplementedError('This function was deprecated in Version 3.')
-
     @property
     def chi2_gradient(self):
         """

@@ -26,14 +26,18 @@ class Trajectory(object):
     except the definition of *alpha*, which is shifted by 180 deg.
 
     Arguments :
-        times: [*float*, *list*, *np.ndarray*], required
+        times: [*float*, *list*, *np.ndarray*]
             the times at which to generate the source trajectory,
-            e.g. a vector.
+            e.g. a vector. Either *times* OR (*x* AND *y*) are required.
 
         parameters: instance of
         :py:class:`~MulensModel.modelparameters.ModelParameters`, required
 
             a ModelParameters object specifying the microlensing parameters
+
+        x, y: [*float*, *list*, *np.ndarray*]
+            Dimensionless X, Y coordinates of trajectory. Either *times* OR
+            (*x* AND *y*) are required.
 
         parallax: *boolean dictionary*, optional
             specifies what parallax effects should be used. Default is
@@ -41,6 +45,7 @@ class Trajectory(object):
             *'topocentric'*. (differs from
             :py:class:`~MulensModel.model.Model` which defaults to
             *True*)
+
 
         coords: *str*, or
         :py:class:`~MulensModel.coordinates.Coordinates`,

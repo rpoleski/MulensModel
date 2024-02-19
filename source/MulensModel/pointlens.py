@@ -22,8 +22,10 @@ class PointSourcePointLensMagnification(object):
     Equations for calculating point-source--point-lens magnification and
     its derivatives.
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
     """
 
@@ -43,12 +45,11 @@ class PointSourcePointLensMagnification(object):
 
     def get_pspl_magnification(self):
         """
-        This is Paczynski equation, i.e., point-source--point-lens (PSPL)
+        This is the Paczynski equation, i.e., point-source--point-lens (PSPL)
         magnification.
-        Arguments :
-         Parameters :
-            u: *np.array*
-                The instantaneous source-lens separation.
+
+        Parameters : None
+
         Returns :
             pspl_magnification: *float* or *np.ndarray*
                 The point-source--point-lens magnification for each point
@@ -61,14 +62,14 @@ class PointSourcePointLensMagnification(object):
 
     def get_magnification(self):
         """
-        Arguments :
-         Parameters :
-            u: *np.array*
-                The instantaneous source-lens separation.
+        Calculate the magnification
+
+        Parameters : None
+
         Returns :
             magnification: *float* or *np.ndarray*
                 The magnification for each point
-                specified by `u.
+                specified by `u` in :py:attr:`~trajectory`.
         """
         self._magnification = self.get_pspl_magnification()
         return self._magnification
@@ -221,8 +222,14 @@ class FiniteSourceUniformGould94Magnification(
     <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
     prescription assuming a *uniform* (and circular) source.
 
-    Keywords :
+    Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+        direct: *bool*
+            Use direct calculation (slow) instead of interpolation. Default is
+            False.
 
     """
 
@@ -247,21 +254,12 @@ class FiniteSourceUniformGould94Magnification(
         Effects from a Point-Mass Lens"
         <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_
         This approach assumes rho is small (rho < 0.1). For larger sources
-        use :py:func:`get_point_lens_uniform_integrated_magnification`.
+        use :py:class:`FiniteSourceUniformLee09Magnification`.
 
-        Parameters :
-            u: *float*, *np.array*
-                The instantaneous source-lens separation.
-                Multiple values can be provided.
-            pspl_magnification: *float*, *np.array*
-                The point source, point lens magnification at each value of u.
-            direct: *boolean*
-                Use direct calculation (slow) instead of interpolation.
 
         Returns :
             magnification: *float*, *np.array*
-                The finite source source magnification.
-                Type is the same as of u parameter.
+                The finite-source source magnification for each epoch.
 
          """
         pspl_magnification = self.get_pspl_magnification()
@@ -298,6 +296,11 @@ class FiniteSourceUniformGould94Magnification(
         return out
 
     def _get_fspl_deriv_factor(self):
+        """
+        Finite-source modification to derivatives of other parameters.
+        = Factor due to rho for multiplying derivatives due to non-rho
+        parameters.
+        """
         factor = self.pspl_magnification * self.db0
         factor /= self.trajectory.parameters.rho
         factor += self.get_d_A_d_u() * self.b0
@@ -355,7 +358,11 @@ class FiniteSourceUniformGould94Magnification(
 
     @property
     def z_(self):
-        """ Magnitude of lens-source separation scaled to rho for each epoch."""
+        """
+        *np.ndarray*
+
+        Magnitude of lens-source separation scaled to rho for each epoch.
+        """
         if self._z is None:
             self._z = self.u_ / self.trajectory.parameters.rho
 
@@ -366,7 +373,7 @@ class FiniteSourceUniformGould94Magnification(
         """
         *np.ndarray*
 
-        Return the value of B_0(z) function for each epoch.
+        The value of the B_0(z) function for each epoch.
         """
         if self._b0 is None:
             if self.direct:
@@ -389,7 +396,7 @@ class FiniteSourceUniformGould94Magnification(
         """
         *np.ndarray*
 
-        Retrieve derivative of B_0(z) function for each epoch.
+        Derivative of the B_0(z) function for each epoch.
         """
         if self._db0 is None:
             if self.direct:
@@ -407,6 +414,25 @@ class FiniteSourceUniformGould94Magnification(
 
 
 class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
+    """
+    Equations for calculating finite-source--point-lens magnification and
+    its derivatives following the `Gould 1994 ApJ, 421L, 71
+    <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
+    prescription assuming a *limb-darkened* (and circular) source.
+
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+        direct: *bool*
+            Use direct calculation (slow) instead of interpolation. Default is
+            False.
+
+        gamma: *float*
+            The limb-darkening coefficient. See also
+            :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`
+    """
 
     def __init__(self, gamma=None, **kwargs):
         FiniteSourceUniformGould94Magnification.__init__(self, **kwargs)
@@ -416,12 +442,35 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         self._db1 = None
 
     def get_magnification(self):
+        """
+        Calculate magnification for point lens and finite source (for
+        a *uniform* source).  The approximation was proposed by:
+        `Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
+        <https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract>`_
+        and later the integral calculation was simplified by:
+        `Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
+        Effects from a Point-Mass Lens"
+        <https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract>`_
+        This approach assumes rho is small (rho < 0.1). For larger sources
+        use :py:class:`FiniteSourceLDLee09Magnification`.
+
+
+        Returns :
+            magnification: *float*, *np.array*
+                The finite-source source magnification for each epoch.
+
+         """
         FiniteSourceUniformGould94Magnification.get_magnification(self)
         self._magnification -= self.pspl_magnification * self.b1 * self._gamma
 
         return self._magnification
 
     def _get_fspl_deriv_factor(self):
+        """
+        Finite-source modification to derivatives of other parameters.
+        = Factor due to rho for multiplying derivatives due to
+        non-rho parameters.
+        """
         factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1)
         factor /= self.trajectory.parameters.rho
         factor += self.get_d_A_d_u() * (self.b0 - self._gamma * self.b1)
@@ -489,7 +538,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         """
         *np.ndarray*
 
-        Return the value of B_1(z) function for each epoch.
+        Value of the B_1(z) function for each epoch.
         """
         if self._b1 is None:
             if self.direct:
@@ -512,7 +561,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         """
         *np.ndarray*
 
-        Retrieve derivative of B_1(z) function for each epoch.
+        Derivative of the B_1(z) function for each epoch.
         """
         if self._db1 is None:
             if self.direct:
@@ -548,6 +597,12 @@ class FiniteSourceUniformWittMao94Magnification(
     `Witt and Mao 1994 ApJ 430, 505 "Can Lensed Stars Be Regarded as
     Pointlike for Microlensing by MACHOs?"
     <https://ui.adsabs.harvard.edu/abs/1994ApJ...430..505W/abstract>`_
+
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
     """
 
     def __init__(self, **kwargs):
@@ -556,6 +611,14 @@ class FiniteSourceUniformWittMao94Magnification(
         self._ellip_data = mm.EllipUtils()
 
     def get_magnification(self):
+        """
+        Calculate magnification for the point lens and *uniform* source.
+
+        Returns :
+            magnification: *float*, *np.array*
+                The finite-source source magnification for each epoch.
+
+        """
         out = [self._get_magnification_WM94(u_) for u_ in self.u_]
         self._magnification = np.array(out)
 
@@ -678,17 +741,16 @@ class FiniteSourceLDWittMao94Magnification(
     a public package for microlensing light-curve computation"
     <https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract>`_
 
-    Parameters :
-        u: *np.array*
-            The instantaneous source-lens separation.
+
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
 
         gamma: *float*
             Gamma limb darkening coefficient. See also
             :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
 
-    Returns :
-        magnification: *np.array*
-            The finite source magnification.
     """
 
     def __init__(self, gamma=None, **kwargs):
@@ -698,6 +760,15 @@ class FiniteSourceLDWittMao94Magnification(
         self.n_annuli = 30  # This value could be tested better.
 
     def get_magnification(self):
+        """
+        Calculate magnification for the point lens and finite source with
+        limb-darkening.
+
+        Returns :
+            magnification: *float*, *np.array*
+                The finite-source source magnification for each epoch.
+
+        """
         out = [
             self._get_magnification_WM94_B18(u_)
             for u_ in self.u_]
@@ -742,6 +813,23 @@ class FiniteSourceLDWittMao94Magnification(
 
 
 class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
+    """
+    Calculate magnification for the point lens and *uniform* finite source.
+    This approach works well for small and large sources
+    (e.g., rho~0.5). Uses the method presented by:
+
+    `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
+    Microlensing: A Precise, Easy to Implement, Fast, and Numerically
+    Stable Formalism"
+    <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+
+
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+    """
 
     def __init__(self, **kwargs):
         PointSourcePointLensMagnification.__init__(self, **kwargs)
@@ -750,20 +838,6 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
     def get_magnification(self):
         """
         Calculate magnification for the point lens and *uniform* finite source.
-        This approach works well for small and large sources
-        (e.g., rho~0.5). Uses the method presented by:
-
-        `Lee, C.-H. et al. 2009 ApJ 695, 200 "Finite-Source Effects in
-        Microlensing: A Precise, Easy to Implement, Fast, and Numerically
-        Stable Formalism"
-        <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
-
-        Parameters :
-            u: *np.array*
-                The instantaneous source-lens separation.
-
-            rho: *float*
-                Source size as a fraction of the Einstein radius.
 
         Returns :
             magnification: *np.array*
@@ -891,6 +965,16 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
     Microlensing: A Precise, Easy to Implement, Fast, and Numerically
     Stable Formalism"
     <https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract>`_
+
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+        gamma: *float*
+            Gamma limb darkening coefficient. See also
+            :py:class:`~MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
+
     """
 
     def __init__(self, gamma=None, **kwargs):
@@ -901,6 +985,15 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
         self.n_u = 1000
 
     def get_magnification(self):
+        """
+        Calculate magnification for the point lens and finite source with
+        limb-darkening.
+
+        Returns :
+            magnification: *float*, *np.array*
+                The finite-source source magnification for each epoch.
+
+        """
         mag = np.zeros_like(self.u_)
 
         for i in range(len(self.u_)):
