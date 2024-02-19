@@ -535,32 +535,25 @@ class Event(object):
 
         return (source_flux, blend_flux)
 
-    def get_ref_fluxes(self, fit_blending=None):
+    def get_ref_fluxes(self):
         """
         Get source and blending fluxes for the reference dataset. See
         :py:func:`~get_flux_for_dataset()`. If the reference dataset is not
         set, uses the first dataset as default. See :py:obj:`~data_ref`.
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
 
         return self.get_flux_for_dataset(self.data_ref)
 
-    def get_chi2(self, fit_blending=None):
+    def get_chi2(self):
         """
         Calculates chi^2 of current model by fitting for source and
         blending fluxes.
-
-        Parameters :
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blend_flux` instead.
 
         Returns :
             chi2: *float*
                 Chi^2 value
 
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
 
         self.fit_fluxes()
         chi2 = []
@@ -572,7 +565,7 @@ class Event(object):
 
         return self.chi2
 
-    def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
+    def get_chi2_for_dataset(self, index_dataset):
         """
         Calculates chi^2 for a single dataset
 
@@ -580,28 +573,21 @@ class Event(object):
             index_dataset: *int*
                 index that specifies for which dataset the chi^2 is requested
 
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
-
         Returns :
             chi2: *float*
                 chi2 for dataset[index_dataset].
 
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
-
         self.fit_fluxes()
 
         return self.fits[index_dataset].chi2
 
-    def get_chi2_per_point(self, fit_blending=None, bad=False):
+    def get_chi2_per_point(self, bad=False):
         """
         Calculates chi^2 for each data point of the current model by
         fitting for source and blending fluxes.
 
         Parameters :
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
-
             bad: *bool*
                 Should chi2 be also caclulated for points marked as bad in
                 MulensData? If `False` (default), then bad epochs have chi2 of
@@ -623,9 +609,6 @@ class Event(object):
                print(chi2[0][10])
 
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
-
         self.fit_fluxes(bad=bad)
 
         # Calculate chi^2 given the fit
@@ -638,7 +621,7 @@ class Event(object):
 
         return chi2_per_point
 
-    def get_chi2_gradient(self, parameters, fit_blending=None):
+    def get_chi2_gradient(self, parameters):
         """
         Fit for fluxes and calculate chi^2 gradient (also called Jacobian),
         i.e., :math:`d chi^2/d parameter`.
@@ -650,18 +633,14 @@ class Event(object):
                 ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
                 which you request gradient must be defined in py:attr:`~model`.
 
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
-
         Returns :
             gradient: *float* or *np.ndarray*
                 chi^2 gradient
 
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
-
         self.fit_fluxes()
         self.calculate_chi2_gradient(parameters)
+
         return self.chi2_gradient
 
     def calculate_chi2_gradient(self, parameters):
@@ -988,15 +967,3 @@ class Event(object):
     @sum_function.setter
     def sum_function(self, new_value):
         self._sum_function = new_value
-
-    def _apply_fit_blending(self, fit_blending):
-        warnings.warn(
-            'fit_blending option will be deprecated in future.' +
-            'To fix the blending, set Event.fix_blend_flux instead.',
-            FutureWarning)
-        self._fits = None
-        if fit_blending is True:
-            self.fix_blend_flux = {}
-        else:
-            for dataset in self.datasets:
-                self.fix_blend_flux[dataset] = 0.
