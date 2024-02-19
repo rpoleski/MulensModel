@@ -49,8 +49,6 @@ class Event(object):
             :py:class:`~MulensModel.mulensdata.MulensData` object is specified,
             it will take precedence over a band.
 
-        fit: DEPRECATED
-
         data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`
             Reference dataset. If *int* then gives index of reference dataset
             in :py:attr:`~datasets`. Default is the first dataset.
@@ -433,10 +431,6 @@ class Event(object):
         Plot the trajectory of the source. See
         :py:func:`MulensModel.model.Model.plot_trajectory()` for details.
         """
-        if 'show_data' in kwargs:
-            raise AttributeError('Parameter show_data is deprecated. Use '
-                                 'plot_source_for_datasets() instead.')
-
         self.model.plot_trajectory(**kwargs)
 
     def plot_source_for_datasets(self, **kwargs):
@@ -541,18 +535,12 @@ class Event(object):
 
         return (source_flux, blend_flux)
 
-    def get_ref_fluxes(self, data_ref=None, fit_blending=None):
+    def get_ref_fluxes(self, fit_blending=None):
         """
         Get source and blending fluxes for the reference dataset. See
         :py:func:`~get_flux_for_dataset()`. If the reference dataset is not
         set, uses the first dataset as default. See :py:obj:`~data_ref`.
         """
-        if data_ref is not None:
-            warnings.warn(
-                'data_ref will be deprecated. It is redundant for getting ' +
-                'the flux of the reference dataset. For the flux of an ' +
-                'arbitrary dataset, use get_flux_for_dataset')
-
         if fit_blending is not None:
             self._apply_fit_blending(fit_blending)
 
@@ -1000,40 +988,6 @@ class Event(object):
     @sum_function.setter
     def sum_function(self, new_value):
         self._sum_function = new_value
-
-    # ----Stuff that Doesn't Work (or is Deprecated)---- #
-    def reset_best_chi2(self):
-        """
-        DEPRECATED
-
-        Reset :py:attr:`~best_chi2` attribute and its parameters
-        (:py:attr:`~best_chi2_parameters`).
-        """
-        raise AttributeError(
-            'reset_best_chi2 (and best_chi2) has been deprecated.')
-
-    @property
-    def best_chi2(self):
-        """
-        DEPRECATED
-
-        *float*
-
-        The smallest value returned by :py:func:`get_chi2()`.
-        """
-        raise AttributeError('best_chi2 has been deprecated.')
-
-    @property
-    def best_chi2_parameters(self):
-        """
-        DEPRECATED
-
-        *dict*
-
-        Parameters that gave the smallest chi2.
-        """
-        raise AttributeError(
-            'best_chi2_parameters (and best_chi2) has been deprecated.')
 
     def _apply_fit_blending(self, fit_blending):
         warnings.warn(
