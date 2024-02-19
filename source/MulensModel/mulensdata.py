@@ -47,12 +47,6 @@ class MulensData(object):
            'mag' or 'flux'. Default is 'flux' because almost always
            the errors are gaussian in flux space.
 
-        coords: *astropy.SkyCoord*, optional
-           sky coordinates of the event
-
-        ra, dec: *str*, optional
-           sky coordinates of the event
-
         ephemerides_file: *str*, optional
            Specify the ephemerides of a satellite over the period when
            the data were taken. You may want to extend the time range
@@ -119,7 +113,6 @@ class MulensData(object):
 
     def __init__(self, data_list=None, file_name=None,
                  phot_fmt="mag", chi2_fmt="flux",
-                 coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
                  plot_properties=None, **kwargs):
@@ -216,7 +209,7 @@ class MulensData(object):
             (vector_1, vector_2, vector_3) = list(data_list)
             self._initialize(
                 time=np.array(vector_1), brightness=np.array(vector_2),
-                err_brightness=np.array(vector_3), coords=self._coords)
+                err_brightness=np.array(vector_3))
         elif self._file_name is not None:  # ...from a file
             usecols = kwargs.pop('usecols', (0, 1, 2))
             if not exists(self._file_name):
@@ -233,7 +226,7 @@ class MulensData(object):
                 raise
             self._initialize(
                 time=vector_1, brightness=vector_2,
-                err_brightness=vector_3, coords=self._coords)
+                err_brightness=vector_3)
 
             # Check if data label specified, if not use file_name.
             if 'label' not in self.plot_properties.keys():
@@ -246,8 +239,7 @@ class MulensData(object):
                 'MulensData cannot be initialized with ' +
                 'data_list or file_name')
 
-    def _initialize(self, time=None, brightness=None,
-                    err_brightness=None, coords=None):
+    def _initialize(self, time=None, brightness=None, err_brightness=None):
         """
         Internal function to import photometric data into the correct
         form using a few numpy ndarrays.
@@ -256,7 +248,6 @@ class MulensData(object):
             time - Date vector of the data
             brightness - vector of the photometric measurements
             err_brightness - vector of the errors in the phot measurements.
-            coords - Sky coordinates of the event, optional
 
         """
         if self._init_keys['add245'] and self._init_keys['add246']:
@@ -812,7 +803,7 @@ class MulensData(object):
         kwargs = {
             'data_list': [self.time, *list(data_and_err)],
             'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
-            'coords': self.coords, 'ephemerides_file': self._ephemerides_file,
+            'ephemerides_file': self._ephemerides_file,
             'add_2450000': self._init_keys['add245'],
             'add_2460000': self._init_keys['add246'],
             'bandpass': self.bandpass, 'bad': np.array(self.bad),
