@@ -4,7 +4,6 @@ from math import isclose
 import unittest
 from astropy import units as u
 import os.path
-import warnings
 
 import MulensModel as mm
 
@@ -178,15 +177,16 @@ class TestBLPS_ShearActive(unittest.TestCase):
 
         self.model = mm.Model(parameters=self.params)
         self.t = np.array([2456112.5])
-        self.data = mm.MulensData(data_list=[self.t, self.t*0.+16., self.t*0.+0.01])
+        self.data = mm.MulensData(data_list=[self.t, self.t*0.+16.,
+                                             self.t*0.+0.01])
 
     def test_vbbl_fail(self):
-        self.model.set_default_magnification_method('point_source')
+        self.model.default_magnification_method = 'point_source'
         magnification = self.model.get_magnification(self.data.time[0])
         assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
 
     def test_wm95_fail(self):
-        self.model.set_default_magnification_method('point_source_WM95')
+        self.model.default_magnification_method = 'point_source_WM95'
         magnification = self.model.get_magnification(self.data.time[0])
         assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
 
@@ -196,22 +196,23 @@ class TestBLPS_Shear(unittest.TestCase):
     simple binary lens with point source and external convergence and shear
     """
 
-    def setUp(self) :
+    def setUp(self):
         self.params = mm.ModelParameters({
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
             'q': q, 'convergence_K': 0.0, 'shear_G': complex(0, 0)})
 
         self.model = mm.Model(parameters=self.params)
         self.t = np.array([2456112.5])
-        self.data = mm.MulensData(data_list=[self.t, self.t*0.+16., self.t*0.+0.01])
+        self.data = mm.MulensData(data_list=[self.t, self.t*0.+16.,
+                                             self.t*0.+0.01])
 
     def test_vbbl(self):
-        self.model.set_default_magnification_method('point_source')
+        self.model.default_magnification_method = 'point_source'
         magnification = self.model.get_magnification(self.data.time[0])
         almost(magnification, 4.691830781584699)
 
     def test_wm95(self):
-        self.model.set_default_magnification_method('point_source_WM95')
+        self.model.default_magnification_method = 'point_source_WM95'
         magnification = self.model.get_magnification(self.data.time[0])
         almost(magnification, 4.691830781584699)
 
@@ -401,18 +402,12 @@ class TestMethodsParameters(unittest.TestCase):
 
     def test_default_magnification_methods(self):
         """
-        Test if methods are properly changed and
-        the warning is raised for deprecated method.
+        Test if methods are properly changed, no deprecated method.
         """
         model = mm.Model(self.params)
         assert model.default_magnification_method == 'point_source'
 
-        with warnings.catch_warnings(record=True) as warnings_:
-            warnings.simplefilter("always")
-            model.set_default_magnification_method('point_source_point_lens')
-            assert len(warnings_) == 1
-            assert issubclass(warnings_[0].category, DeprecationWarning)
-
+        model.default_magnification_method = 'point_source_point_lens'
         assert model.default_magnification_method == 'point_source_point_lens'
 
         model.default_magnification_method = 'VBBL'

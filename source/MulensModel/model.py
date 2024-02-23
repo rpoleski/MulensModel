@@ -11,7 +11,6 @@ from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.modelparameters import ModelParameters
-from MulensModel.mulensdata import MulensData
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils, PlotUtils
