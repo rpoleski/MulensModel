@@ -130,7 +130,6 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
             satellite_skycoord=None, gamma=None, source_flux_ratio=None,
-            flux_ratio_constraint=None,
             **kwargs):
         """
         Plot the model magnification curve.
@@ -148,27 +147,15 @@ class Model(object):
                 If the model has two sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1
 
-            flux_ratio_constraint: DEPRECATED. Use source_flux_ratio instead.
-
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
 
         """
-        if flux_ratio_constraint is not None:
-            warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use ' +
-                'source_flux_ratio instead')
-            source_flux_ratio = flux_ratio_constraint
-
         if self.n_sources > 1 and source_flux_ratio is None:
             raise ValueError(
                 'For binary source model you have to provide ' +
                 'source_flux_ratio. Note that plotted magnification will ' +
                 'be the effective magnification of the two sources.')
-
-        if 'fit_blending' in kwargs:
-            raise AttributeError(
-                'fit_blending is deprecated. See Event() class instead.')
 
         self._check_gamma_for_2_sources(gamma)
 
@@ -341,8 +328,6 @@ class Model(object):
             dt=None, n_epochs=None, source_flux=None, blend_flux=None,
             source_flux_ratio=None, gamma=None, bandpass=None,
             subtract_2450000=False, subtract_2460000=False,
-            data_ref=None, flux_ratio_constraint=None,
-            fit_blending=None, f_source=None, f_blend=None,
             **kwargs):
         """
         Plot the model light curve in magnitudes.
@@ -366,48 +351,9 @@ class Model(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_data()`)
 
-            data_ref: DEPRECATED
-                Specify source_flux and blend_flux instead or use plotting
-                functions in py:class:`~MulensModel.Event()`
-
-            flux_ratio_constraint: DEPRECATED
-                Use source_flux_ratio instead
-
-            fit_blending: DEPRECATED
-                Use py:class:`~MulensModel.Event()` for fitting.
-
-            f_source, f_blend: DEPRECATED
-                use *source_flux* or *blend_flux* instead.
-
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
         """
-
-        if flux_ratio_constraint is not None:
-            warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use ' +
-                'source_flux_ratio instead')
-            source_flux_ratio = flux_ratio_constraint
-
-        if data_ref is not None:
-            raise AttributeError(
-                'data_ref keyword has been deprecated. Specify source_flux ' +
-                'and blend_flux instead or use plotting functions in Event().')
-
-        if fit_blending is not None:
-            raise AttributeError(
-                'fit_blending keyword has been deprecated. Use Event() ' +
-                'instead.')
-
-        if f_source is not None:
-            warnings.warn(
-                'f_source will be deprecated. Use source_flux instead')
-            source_flux = f_source
-
-        if f_blend is not None:
-            warnings.warn(
-                'f_blend will be deprecated. Use blend_flux instead')
-            blend_flux = f_blend
 
         fluxes = self._parse_fluxes_for_get_lc(
             source_flux, source_flux_ratio, blend_flux)
@@ -526,7 +472,7 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, caustics=False,
             arrow=True, satellite_skycoord=None, arrow_kwargs=None,
-            show_data=None, **kwargs):
+            **kwargs):
         """
         Plot the source trajectory.
 
@@ -564,10 +510,6 @@ class Model(object):
                 *arrow_kwargs* are of *dict* type and are different than
                 ``**kwargs``.
 
-            show_data: DEPRECATED
-                Use py:class:`~MulensModel.Event()` for plotting data with
-                models.
-
             ``**kwargs``
                 Controls plotting features of the trajectory. It's passed to
                 :py:func:`pyplot.plot()`.
@@ -586,11 +528,6 @@ class Model(object):
         They have slightly different behavior.
 
         """
-        if show_data is not None:
-            raise AttributeError(
-                'show_data is deprecated. datasets are no longer part of ' +
-                'Model. See Event.plot_source_for_datasets() instead.')
-
         if not arrow and arrow_kwargs is not None:
             raise ValueError(
                 "arrow_kwargs can be only given if arrow is True")
@@ -1418,7 +1355,6 @@ class Model(object):
         else:
             methods_1 = self._methods
             methods_2 = self._methods
-
 
         self._magnification_curve_1 = MagnificationCurve(
             parameters=self.parameters.source_1_parameters, **kwargs)
