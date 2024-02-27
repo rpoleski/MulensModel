@@ -239,7 +239,7 @@ class ModelParameters(object):
                                'has to be the same for both sources.')
 
             source_params = self._divide_parameters(parameters)
-            print(source_params)
+            print('L242 source params', source_params)
             for i, params_i in enumerate(source_params):
                 try:
                     self.__setattr__(
@@ -412,7 +412,7 @@ class ModelParameters(object):
 
     def _divide_parameters(self, parameters):
         """
-        Divide an input dict into 2 - each source separately.
+        Divide an input dict into each source separately.
         Some of the parameters are copied to both dicts.
         """
         #separate_parameters = (
