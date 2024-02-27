@@ -635,10 +635,12 @@ class Test1L3SModels(unittest.TestCase):
         """
         Test that we can access attributes of Triple source models.
         """
+        assert(self.model_params.t_0_3 == self.t_0[2])
         for i in range(3):
             assert (self.model_params.__getattribute__(
                 't_0_{0}'.format(i+1)) == self.t_0[i])
 
+        assert (self.model_params.source_3_parameters.t_0 == self.t_0[2])
         for i in range(3):
             assert (self.model_params.__getattribute__(
                 'source_{0}_parameters'.format(i+1)).t_0 == self.t_0[i])
