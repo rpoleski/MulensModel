@@ -767,7 +767,7 @@ class TestSourceParameters(unittest.TestCase):
         parameters = {'t_0': 0, 'u_0': 1, 't_E': 9}
         src_par = mm.SourceParameters(parameters)
         for key, value in parameters.items():
-            assert src_par.__getattr__(key) == value
+            assert getattr(src_par, key) == value
 
         assert src_par.t_eff == parameters['t_E'] * parameters['u_0']
 
@@ -775,6 +775,6 @@ class TestSourceParameters(unittest.TestCase):
         parameters = {'t_0': 0, 'u_0': 1, 't_E': 9, 'rho': 0.001}
         src_par = mm.SourceParameters(parameters)
         for key, value in parameters.items():
-            assert src_par.__getattr__(key) == value
+            assert getattr(src_par, key) == value
 
         assert src_par.t_star == parameters['t_E'] * parameters['rho']

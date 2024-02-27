@@ -274,6 +274,31 @@ class SourceParameters(object):
         if ('t_E' in keys) and ('u_0' in keys) and ('t_eff' in keys):
             raise KeyError('Only 1 or 2 of (u_0, t_E, t_eff) may be defined.')
 
+    def _check_valid_parameter_values(self, parameters):
+        """
+        Prevent user from setting negative (unphysical) values for
+        t_E, t_star, rho etc. Shear_G should be complex.
+
+        Also, check that all values are scalars (except pi_E vector).
+        """
+        full_names = {
+            't_E': 'Einstein timescale', 't_star': 'Source crossing time',
+            'rho': 'Source size',}
+
+        for (name, full) in full_names.items():
+            if name in parameters.keys():
+                if parameters[name] < 0.:
+                    fmt = "{:} cannot be negative: {:}"
+                    raise ValueError(fmt.format(full, parameters[name]))
+
+        for (key, value) in parameters.items():
+            if key == 'pi_E':
+                continue
+            check = (not np.isscalar(value) or isinstance(value, str))
+            if not isinstance(value, u.Quantity) and check:
+                msg = "{:} must be a scalar: {:}, {:}"
+                raise TypeError(msg.format(key, value, type(value)))
+
     @property
     def t_0(self):
         """
