@@ -265,6 +265,9 @@ class ModelParameters(object):
                     print('parameter', self.parameters)
                     return self.parameters[item]
 
+            if (len(item) > 6) and item[0:7] == 'source_':
+                return object.__getattribute__(self, '_{0}'.format(item))
+
             return object.__getattribute__(self, item)
 
     def _count_sources(self, keys):
