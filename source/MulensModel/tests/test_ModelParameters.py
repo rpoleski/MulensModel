@@ -619,7 +619,7 @@ class Test1L3SModels(unittest.TestCase):
         parameters = {'t_0_1': self.t_0[0], 'u_0_1': self.u_0[0],
                       't_0_2': self.t_0[1], 'u_0_2': self.u_0[1],
                       'rho_2': rho_2,
-                      't_0_3': self.t_0[0], 'u_0_3': self.u_0[2],
+                      't_0_3': self.t_0[2], 'u_0_3': self.u_0[2],
                       't_star_3': t_star_3,
                       't_E': self.t_E}
         self.model_params = mm.ModelParameters(parameters)
@@ -637,12 +637,12 @@ class Test1L3SModels(unittest.TestCase):
         """
         assert(self.model_params.t_0_3 == self.t_0[2])
         for i in range(3):
-            assert (self.model_params.__getattribute__(
+            assert (self.model_params.__getattr__(
                 't_0_{0}'.format(i+1)) == self.t_0[i])
 
         assert (self.model_params.source_3_parameters.t_0 == self.t_0[2])
         for i in range(3):
-            assert (self.model_params.__getattribute__(
+            assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).t_0 == self.t_0[i])
 
     def test_basic_1L3S_u_0(self):
@@ -650,11 +650,11 @@ class Test1L3SModels(unittest.TestCase):
         Test that we can access attributes of Triple source models.
         """
         for i in range(3):
-            assert (self.model_params.__getattribute__(
+            assert (self.model_params.__getattr__(
                 'u_0_{0}'.format(i+1)) == self.u_0[i])
 
         for i in range(3):
-            assert (self.model_params.__getattribute__(
+            assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).u_0 == self.u_0[i])
 
     def test_basic_1L3S_rho(self):
@@ -662,11 +662,11 @@ class Test1L3SModels(unittest.TestCase):
         Test that we can access attributes of Triple source models.
         """
         for i in range(1, 3):
-            assert (self.model_params.__getattribute__(
+            assert (self.model_params.__getattr__(
                 'rho_{0}'.format(i+1)) == self.rho[i])
 
         for i in range(1, 3):
-            assert (self.model_params.__getattribute__(
+            assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).rho == self.rho[i])
 
     def test_basic_1L3S_t_star(self):
@@ -674,11 +674,11 @@ class Test1L3SModels(unittest.TestCase):
         Test that we can access attributes of Triple source models.
         """
         for i in range(1, 3):
-            assert (self.model_params.__getattribute__(
+            assert (self.model_params.__getattr__(
                 't_star_{0}'.format(i+1)) == self.t_star[i])
 
         for i in range(1, 3):
-            assert (self.model_params.__getattribute__(
+            assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).t_star == self.t_star[i])
 
 

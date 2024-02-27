@@ -246,7 +246,7 @@ class ModelParameters(object):
                         '_source_{0}_parameters'.format(i + 1),
                         ModelParameters(params_i))
                 except Exception:
-                    print("ERROR IN ITIALIZING SOURCE {0}".format(i + 1))
+                    print("ERROR IN INITIALIZING SOURCE {0}".format(i + 1))
                     raise
 
         else:
@@ -254,6 +254,18 @@ class ModelParameters(object):
             raise ValueError(msg.format(parameters))
 
         self._set_parameters(parameters)
+
+    def __getattr__(self, item):
+        if self.n_sources <= 2:
+            return object.__getattribute__(self, item)
+        else:
+            for source_param in ModelParameters._source_params_head:
+                if item[0:len(source_param)] == source_param:
+                    print('item, source_param', item, source_param)
+                    print('parameter', self.parameters)
+                    return self.parameters[item]
+
+            return object.__getattribute__(self, item)
 
     def _count_sources(self, keys):
         """How many sources there are?"""
@@ -851,12 +863,17 @@ class ModelParameters(object):
         """
         if self.n_sources == 1:
             return
+        else:
+            for i in range(self.n_sources):
+                self.__getattr__(
+                    '_source_{0}_parameters'.format(i+1)).__setattr__(
+                    parameter, value)
 
-        if parameter in self._source_1_parameters.parameters:
-            setattr(self._source_1_parameters, parameter, value)
-
-        if parameter in self._source_2_parameters.parameters:
-            setattr(self._source_2_parameters, parameter, value)
+        #if parameter in self._source_1_parameters.parameters:
+        #    setattr(self._source_1_parameters, parameter, value)
+        #
+        #if parameter in self._source_2_parameters.parameters:
+        #    setattr(self._source_2_parameters, parameter, value)
 
     def _set_time_quantity(self, key, new_time):
         """
