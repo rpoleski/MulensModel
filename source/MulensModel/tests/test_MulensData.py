@@ -116,9 +116,6 @@ def test_copy():
         assert value_1 is not value_2
         assert np.all(value_1 == value_2)
 
-    assert data_1.coords is None
-    assert data_2.coords is None
-
 
 def test_scale_errorbars():
     """

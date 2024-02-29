@@ -5,7 +5,6 @@ import warnings
 
 from MulensModel.utils import Utils, PlotUtils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
-from MulensModel.coordinates import Coordinates
 
 
 class MulensData(object):
@@ -128,8 +127,6 @@ class MulensData(object):
         self._chi2_fmt = chi2_fmt
         self._file_name = file_name
         self._input_fmt = phot_fmt
-
-        self._coords = None
 
         if plot_properties is None:
             plot_properties = dict()
@@ -565,20 +562,6 @@ class MulensData(object):
                 "parameter has to be dict, not {:}".format(type(weights)))
 
         self._limb_darkening_weights = weights
-
-    @property
-    def coords(self):
-        """
-        :py:class:`~MulensModel.coordinates.Coordinates`
-
-        Sky coordinates of data.
-        See :py:class:`~MulensModel.coordinates.Coordinates`.
-        """
-        return self._coords
-
-    @coords.setter
-    def coords(self, new_value):
-        self._coords = Coordinates(new_value)
 
     @property
     def time(self):

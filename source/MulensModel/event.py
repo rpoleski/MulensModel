@@ -745,14 +745,6 @@ class Event(object):
         if self._model is not None:
             self._model.coords = self._coords
 
-        # We run the command below with try, because _update_coords() is called
-        # by _set_datasets before self._datasets is set.
-        try:
-            for dataset in self._datasets:
-                dataset.coords = self._coords
-        except Exception:
-            pass
-
     @property
     def model(self):
         """an instance of :py:class:`~MulensModel.model.Model`"""
@@ -789,15 +781,7 @@ class Event(object):
         can be called by __init__ or @datasets.setter
         passes datasets to property self._model
         """
-        if isinstance(new_value, list):
-            for dataset in new_value:
-                if dataset.coords is not None:
-                    self._update_coords(coords=dataset.coords)
-
         if isinstance(new_value, MulensData):
-            if new_value.coords is not None:
-                self._update_coords(coords=new_value.coords)
-
             new_value = [new_value]
 
         if new_value is None:
