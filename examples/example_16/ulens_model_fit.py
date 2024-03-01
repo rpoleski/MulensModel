@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.34.3'
+__version__ = '0.34.4'
 
 
 class UlensModelFit(object):
@@ -432,6 +432,7 @@ class UlensModelFit(object):
             't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
             'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
         self._all_MM_parameters = parameters_str.split()
+        self._MM_fixed_only_parameters = ['t_0_par']
         self._other_parameters = []
 
         self._latex_conversion = dict(
@@ -1592,7 +1593,9 @@ class UlensModelFit(object):
 
         fixed = set(self._fixed_parameters.keys())
 
-        unknown = fixed - set(self._all_MM_parameters + ['t_0_par'])
+        allowed = set(self._all_MM_parameters + self._MM_fixed_only_parameters +
+                      self._other_parameters)
+        unknown = fixed - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
