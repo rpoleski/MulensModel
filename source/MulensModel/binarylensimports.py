@@ -49,13 +49,17 @@ def _import_compiled_VBBL():
         _get_path_2('VBBL', "VBBinaryLensingLibrary_wrapper.so"), "VBBL")
     _vbbl_wrapped = (vbbl is not None)
     if not _vbbl_wrapped:
-        return (_vbbl_wrapped, None, None, None, None)
+        return (_vbbl_wrapped, None, None, None, None, None, None)
 
-    vbbl.VBBinaryLensing_BinaryMagDark.argtypes = 7 * [ctypes.c_double]
-    vbbl.VBBinaryLensing_BinaryMagDark.restype = ctypes.c_double
+    def _set_in_out(function, n_double):
+        """set input to n_double doubles and output to double"""
+        function.argtypes = n_double * [ctypes.c_double]
+        function.restype = ctypes.c_double
 
-    vbbl.VBBinaryLensing_BinaryMag0.argtypes = 7 * [ctypes.c_double]
-    vbbl.VBBinaryLensing_BinaryMag0.restype = ctypes.c_double
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMagDark, 7)
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMagFinite, 5)
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMag0, 4)
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMag0_shear, 7)
 
     vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
     vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
@@ -66,8 +70,11 @@ def _import_compiled_VBBL():
         dtype=ctypes.c_double, shape=(18,))
 
     return (_vbbl_wrapped,
-            vbbl.VBBinaryLensing_BinaryMagDark, vbbl.VBBL_SG12_5,
-            vbbl.VBBinaryLensing_BinaryMag0, vbbl.VBBL_SG12_9)
+            vbbl.VBBinaryLensing_BinaryMagDark,
+            vbbl.VBBinaryLensing_BinaryMagFinite,
+            vbbl.VBBinaryLensing_BinaryMag0,
+            vbbl.VBBinaryLensing_BinaryMag0_shear,
+            vbbl.VBBL_SG12_5, vbbl.VBBL_SG12_9)
 
 
 def _import_compiled_AdaptiveContouring():
