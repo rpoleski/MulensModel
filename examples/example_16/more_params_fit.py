@@ -11,7 +11,11 @@ class UlensModelFitVariableBaseline(UlensModelFit):
         """
         super()._set_default_parameters()
         self._other_parameters = ['amplitude', 'baseline_period', 'baseline_t0']
-        self._latex_conversion_other = {'amplitude': 'amp_{\\rm base}'}
+        self._latex_conversion_other = {
+            'amplitude': 'amp_{\\rm base}',
+            'baseline_period': 'P_{\\rm base}',
+            'baseline_t0': 'epoch_{\\rm base}',
+            }
 
     def _get_ln_probability_for_other_parameters(self):
         """
@@ -27,19 +31,18 @@ class UlensModelFitVariableBaseline(UlensModelFit):
         self._set_model_parameters(theta)
 
         # changed - getting parameters:
-        params = []
-        for name in ['amplitude', 'baseline_period', 'baseline_t0']:
-            try:
-                value = self._other_parameters_dict[name]
-            except Exception:
-                value = self._fixed_parameters[name]
-            params.append(value)
+        params = {**self._other_parameters_dict}
+        if self._fixed_parameters is not None:
+            params = {**params, **self._fixed_parameters}
+        amp = params['amplitude']
+        period = params['baseline_period']
+        t0 = params['baseline_t0']
 
         # changed - correcting fluxes:
         orig_fluxes = []
         for dataset in self._datasets:
             orig_fluxes.append(np.copy(dataset._flux))
-            dataset._flux -= params[0] * np.sin(2*np.pi*(dataset.time-params[2])/params[1])
+            dataset._flux -= amp * np.sin(2*np.pi*(dataset.time-t0)/period)
             dataset._mag = None
             dataset._err_mag = None
 
@@ -65,6 +68,8 @@ class UlensModelFitVariableBaseline(UlensModelFit):
 # _get_samples_for_triangle_plot
 # _get_labels_for_triangle_plot
 # _get_parameters
+# Wrong chi2 is printed
+# wrong model is plotted
 
 
 if __name__ == '__main__':
