@@ -14,12 +14,12 @@ extern "C" {
   double VBBinaryLensing_BinaryMagFinite(double a, double q, double y1, double y2, double RSv) {
     static VBBinaryLensing VBBL;
 
-    return VBBL.BinaryMagDark2(a, q, y1, y2, RSv);
+    return VBBL.BinaryMag2(a, q, y1, y2, RSv);
   }
 }
 
 extern "C" {
-  double VBBinaryLensing_BinaryMag0(double a, double q, double y1, double y2) {
+  double VBBinaryLensing_BinaryMagPoint(double a, double q, double y1, double y2) {
     static VBBinaryLensing VBBL;
 
     return VBBL.BinaryMag0(a, q, y1, y2);
@@ -27,7 +27,7 @@ extern "C" {
 }
 
 extern "C" {
-  double VBBinaryLensing_BinaryMag0_shear(double a,double q,double y1,double y2, double K, double G, double Gi) {
+  double VBBinaryLensing_BinaryMagPointShear(double a,double q,double y1,double y2, double K, double G, double Gi) {
     static VBBinaryLensing_shear VBBL;
     
     return VBBL.BinaryMag0_shear(a, q, y1, y2, K, G, Gi);

@@ -4,7 +4,7 @@ from math import fsum, sqrt
 
 from MulensModel.binarylensimports import (
     _vbbl_wrapped, _adaptive_contouring_wrapped,
-    _vbbl_binary_mag_dark, _vbbl_binary_mag_0,
+    _vbbl_binary_mag_dark, _vbbl_binary_mag_point,
     _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 import MulensModel as mm
 
@@ -335,9 +335,7 @@ class BinaryLens(object):
         """
         args = [self.separation, self.mass_2/self.mass_1, source_x, source_y]
 
-        args += [0., 0., 0.]  # THIS IS A HACK THAT SHOULD BE REMOVED BY PROPER IMPORT OF VBBL
-
-        return _vbbl_binary_mag_0(*[float(arg) for arg in args])
+        return _vbbl_binary_mag_point(*[float(arg) for arg in args])
 
     def _point_source_magnification(self, source_x, source_y):
         """

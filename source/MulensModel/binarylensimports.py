@@ -58,8 +58,8 @@ def _import_compiled_VBBL():
 
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagDark, 7)
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagFinite, 5)
-    _set_in_out(vbbl.VBBinaryLensing_BinaryMag0, 4)
-    _set_in_out(vbbl.VBBinaryLensing_BinaryMag0_shear, 7)
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMagPoint, 4)
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMagPointShear, 7)
 
     vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
     vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
@@ -72,8 +72,8 @@ def _import_compiled_VBBL():
     return (_vbbl_wrapped,
             vbbl.VBBinaryLensing_BinaryMagDark,
             vbbl.VBBinaryLensing_BinaryMagFinite,
-            vbbl.VBBinaryLensing_BinaryMag0,
-            vbbl.VBBinaryLensing_BinaryMag0_shear,
+            vbbl.VBBinaryLensing_BinaryMagPoint,
+            vbbl.VBBinaryLensing_BinaryMagPointShear,
             vbbl.VBBL_SG12_5, vbbl.VBBL_SG12_9)
 
 
@@ -101,9 +101,12 @@ else:
     out = _import_compiled_VBBL()
     _vbbl_wrapped = out[0]
     _vbbl_binary_mag_dark = out[1]
-    _vbbl_SG12_5 = out[2]
-    _vbbl_binary_mag_0 = out[3]
-    _vbbl_SG12_9 = out[4]
+    # VBBinaryLensing_BinaryMagFinite -> 2
+    _vbbl_binary_mag_point = out[3]
+    _vbbl_binary_mag_point_shear = out[4]
+    _vbbl_SG12_5 = out[5]
+    _vbbl_SG12_9 = out[6]
+
 
 if not _vbbl_wrapped:
     _solver = 'numpy'
