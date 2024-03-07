@@ -334,6 +334,9 @@ class BinaryLens(object):
         Calculate point source magnification using VBBL fully
         """
         args = [self.separation, self.mass_2/self.mass_1, source_x, source_y]
+
+        args += [0., 0., 0.]  # THIS IS A HACK THAT SHOULD BE REMOVED BY PROPER IMPORT OF VBBL
+
         return _vbbl_binary_mag_0(*[float(arg) for arg in args])
 
     def _point_source_magnification(self, source_x, source_y):

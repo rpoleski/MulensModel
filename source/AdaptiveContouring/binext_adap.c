@@ -8,6 +8,7 @@
 /* RP 02-02-18 */
 /* RP 16-03-18 */
 /* RP 15-11-18 */
+/* RP 25-01-24 ifndef M_PI; sin/cos */
 
 #define _GNU_SOURCE
 #include <math.h>
@@ -25,6 +26,10 @@ typedef enum {FALSE,TRUE} boolean;
 #define SQ(a) ((a)*(a))
 
 #define BIGG 1e37
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 typedef struct ptlist {
 	FLOAT x1,x2;
@@ -182,11 +187,9 @@ FLOAT magt_binext(FLOAT t, FLOAT t0, FLOAT tE, FLOAT alpha, FLOAT u0,
 
 	p = (t-t0)/tE;
 
-#ifdef __APPLE__
-        __sincos(alpha,&sa,&ca);
-#else
-	sincos(alpha,&sa,&ca);
-#endif
+    sa = sin(alpha);
+    ca = cos(alpha);
+
 	y1 = p*ca-u0*sa;
 	y2 = p*sa+u0*ca;
 
