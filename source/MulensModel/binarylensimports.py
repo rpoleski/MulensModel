@@ -101,7 +101,7 @@ else:
     out = _import_compiled_VBBL()
     _vbbl_wrapped = out[0]
     _vbbl_binary_mag_dark = out[1]
-    # VBBinaryLensing_BinaryMagFinite -> 2
+    _vbbl_binary_mag_finite = out[2]
     _vbbl_binary_mag_point = out[3]
     _vbbl_binary_mag_point_shear = out[4]
     _vbbl_SG12_5 = out[5]
