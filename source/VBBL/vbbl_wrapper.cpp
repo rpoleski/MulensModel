@@ -19,7 +19,7 @@ VBBinaryLensing_BinaryMagDark_wrapper(PyObject *self, PyObject *args) {
   return Py_BuildValue("d", mag);
 }
 
-static PyObject * 
+/*static PyObject * 
 VBBinaryLensing_BinaryMag0_wrapper(PyObject *self, PyObject *args) {
   double a, q, y1, y2, K, G, Gi, mag;
   static VBBinaryLensing_shear VBBL;
@@ -29,7 +29,7 @@ VBBinaryLensing_BinaryMag0_wrapper(PyObject *self, PyObject *args) {
   mag = VBBL.BinaryMag0_shear(a, q, y1, y2, K, G, Gi);
 
   return Py_BuildValue("d", mag);
-}
+}*/
 
 PyObject * makelist(double *array, size_t size) {
     PyObject *l = PyList_New(size);
@@ -111,7 +111,7 @@ VBBL_SG12_9_wrapper(PyObject *self, PyObject *args) {
 
 static PyMethodDef VBBLMethods[] = {
     {"VBBinaryLensing_BinaryMagDark", VBBinaryLensing_BinaryMagDark_wrapper, METH_VARARGS, "some notes here"},
-    {"VBBinaryLensing_BinaryMag0", VBBinaryLensing_BinaryMag0_wrapper, METH_VARARGS, "some notes here"},
+    //{"VBBinaryLensing_BinaryMag0", VBBinaryLensing_BinaryMag0_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_SG12_5", VBBL_SG12_5_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_BinaryMag", VBBinaryLensing_BinaryMag_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_SG12_9", VBBL_SG12_9_wrapper, METH_VARARGS, "some notes here"},
