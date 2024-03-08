@@ -179,7 +179,7 @@ def test_BLPS_shear_active():
     t = np.array([2456112.5])
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     magnification = model.get_magnification(data.time[0])
-    assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
+    assert not isclose(magnification[0], 4.691830781584699, abs_tol=1e-2)
 
 
 def test_BLPS_shear():

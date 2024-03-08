@@ -2,7 +2,6 @@ import os
 import warnings
 import numpy as np
 from math import sin, cos, sqrt, log10
-import scipy
 from scipy import integrate
 from scipy.interpolate import interp1d, interp2d
 from scipy.interpolate import RegularGridInterpolator as RGI
@@ -477,8 +476,8 @@ class PointLens(object):
         integrand = self._integrand_Lee09_v2(temp, u, temp2, rho, gamma)
         dx = temp[:, 1] - temp[:, 0]
         for (i, dx_) in enumerate(dx):
-            integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
-        out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
+            integrand_values[i] = integrate.simpson(integrand[i], dx=dx_)
+        out = integrate.simpson(integrand_values, dx=theta[1] - theta[0])
         out *= 2. / (np.pi * rho**2)
         return out
 
