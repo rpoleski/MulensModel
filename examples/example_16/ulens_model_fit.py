@@ -3172,7 +3172,7 @@ class UlensModelFit(object):
 
         return (A_values[fnum < 4], labels[fnum < 4].tolist(), False)
 
-    def _second_Y_axis_minor_ticks(self, ax2, A_values, sb_fluxes):
+    def _second_Y_axis_minor_ticks(self, ax2, A_values, ref_fluxes):
         """
         Get minor ticks for magnification axis from matplotlib
         """
@@ -3180,7 +3180,7 @@ class UlensModelFit(object):
         minor_ticks_A = ax2.yaxis.get_ticklocs(minor=True)
         minor_ticks_A = minor_ticks_A[~np.isin(minor_ticks_A, A_values)]
 
-        minor_ticks_flux = sb_fluxes[0] * minor_ticks_A + sb_fluxes[1]
+        minor_ticks_flux = ref_fluxes[0] * minor_ticks_A + ref_fluxes[1]
         minor_ticks_mag = mm.Utils.get_mag_from_flux(minor_ticks_flux)
         ax2.set_yticks(minor_ticks_mag, minor=True)
 
