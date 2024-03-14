@@ -625,13 +625,13 @@ class BinaryLens(object):
             raise ValueError('VBBL was not imported properly')
 
         args = [float(self.separation), float(self.mass_2 / self.mass_1),
-                float(source_x), float(source_y), float(rho)]
+                float(source_x), float(source_y), float(rho), float(accuracy)]
 
         u_limb_darkening = self._get_u(gamma, u_limb_darkening)
         if u_limb_darkening is None:
             _vbbl_function = _vbbl_binary_mag_finite
         else:
-            args += [u_limb_darkening, float(accuracy)]
+            args += [u_limb_darkening]
             _vbbl_function = _vbbl_binary_mag_dark
 
         return _vbbl_function(*args)

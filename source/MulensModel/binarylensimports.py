@@ -57,7 +57,7 @@ def _import_compiled_VBBL():
         function.restype = ctypes.c_double
 
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagDark, 7)
-    _set_in_out(vbbl.VBBinaryLensing_BinaryMagFinite, 5)
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMagFinite, 6)
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagPoint, 4)
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagPointShear, 7)
 
