@@ -94,7 +94,9 @@ def _import_compiled_AdaptiveContouring():
 # Check import and try manually compiled versions.
 if _vbbl_wrapped:
     _vbbl_binary_mag_dark = mm_vbbl.VBBinaryLensing_BinaryMagDark
-    _vbbl_binary_mag_0 = mm_vbbl.VBBinaryLensing_BinaryMag0
+    _vbbl_binary_mag_finite = mm_vbbl.VBBinaryLensing_BinaryMagFinite
+    _vbbl_binary_mag_point = mm_vbbl.VBBinaryLensing_BinaryMagPoint
+    _vbbl_binary_mag_point_shear = mm_vbbl.VBBinaryLensing_BinaryMagPointShear
     _vbbl_SG12_5 = mm_vbbl.VBBL_SG12_5
     _vbbl_SG12_9 = mm_vbbl.VBBL_SG12_9
 else:
