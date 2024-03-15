@@ -48,7 +48,7 @@ VBBinaryLensing_BinaryMagPoint_wrapper(PyObject *self, PyObject *args) {
 static PyObject *
 VBBinaryLensing_BinaryMagPointShear_wrapper(PyObject *self, PyObject *args) {
   double a, q, y1, y2, K, G, Gi, mag;
-  static VBBinaryLensing VBBL;
+  static VBBinaryLensing_shear VBBL;
 
   if (!PyArg_ParseTuple(args, "ddddddd", &a, &q, &y1, &y2, &K, &G, &Gi)) return NULL;
 
