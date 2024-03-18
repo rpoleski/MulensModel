@@ -3,8 +3,8 @@ import numpy as np
 from math import sqrt
 
 from MulensModel.binarylens import BinaryLens
-from MulensModel.binarylensimports import (_vbbl_wrapped,
-                                           _vbbl_binary_mag_0, _vbbl_SG12_9)
+from MulensModel.binarylensimports import (
+    _vbbl_wrapped, _vbbl_binary_mag_point_shear, _vbbl_SG12_9)
 import MulensModel as mm
 
 
@@ -568,7 +568,7 @@ class BinaryLensWithShear(BinaryLens):
             x = float(source_x)
             y = float(source_y)
 
-            magnification = _vbbl_binary_mag_0(
+            magnification = _vbbl_binary_mag_point_shear(
                 s, q, x, y, self.convergence_K, self.shear_G.real,
                 self.shear_G.imag)
         else:
