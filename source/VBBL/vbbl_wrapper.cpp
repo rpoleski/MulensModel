@@ -140,7 +140,6 @@ static PyMethodDef VBBLMethods[] = {
     {"VBBinaryLensing_BinaryMagFinite", VBBinaryLensing_BinaryMagFinite_wrapper, METH_VARARGS, "some notes here"},
     {"VBBinaryLensing_BinaryMagPoint", VBBinaryLensing_BinaryMagPoint_wrapper, METH_VARARGS, "some notes here"},
     {"VBBinaryLensing_BinaryMagPointShear", VBBinaryLensing_BinaryMagPointShear_wrapper, METH_VARARGS, "some notes here"},
-    //{"VBBinaryLensing_BinaryMag0", VBBinaryLensing_BinaryMag0_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_SG12_5", VBBL_SG12_5_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_BinaryMag", VBBinaryLensing_BinaryMag_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_SG12_9", VBBL_SG12_9_wrapper, METH_VARARGS, "some notes here"},

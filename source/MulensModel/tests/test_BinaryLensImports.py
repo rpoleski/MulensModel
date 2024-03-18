@@ -4,6 +4,12 @@ import warnings
 import MulensModel as mm
 
 
+# The test presented check if VBBL code was imported properly and
+# they intentionally call private functions from mm.binarylensimports.
+
+# The values for tests were copied from other tests.
+
+
 def test_VBBL_dark():
     """
     Directly (hence, calling private function) test imported VBBL function:
