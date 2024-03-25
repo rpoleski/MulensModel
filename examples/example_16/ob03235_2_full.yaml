@@ -33,9 +33,18 @@ starting_parameters:
     s: uniform 1.09 1.11
     alpha: gauss 224.0 1.0
 fit_constraints:
-    negative_blending_flux_sigma_mag: 20.
+    negative_blending_flux_sigma_mag: 20. 
+    #you can specific which source flux should be constrain : sigma source_number(s)
+    #negative_blending_flux_sigma_mag: 20. 2
     # Alternative sharp constraint:
     # no_negative_blending_flux: True
+    #color constrains: gauss mu sigma flux_in_numerator flux_in_denominator
+    color : gauss 25. 5. 1 2 
+    #Alternative 
+    #color source 1 :  gauss 25. 5. 1 2 
+    #and/or 
+    #color source 2 :  gauss 25. 5. 1 2 
+    
     prior:
         t_E: Mroz et al. 2017
         # Other possibility:
