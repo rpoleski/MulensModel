@@ -433,7 +433,8 @@ class UlensModelFit(object):
             'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
         self._all_MM_parameters = parameters_str.split()
         self._other_parameters = []
-
+        self._fixed_only_MM_parameters = ['t_0_par']
+        
         self._latex_conversion = dict(
             t_0='t_0', u_0='u_0',
             t_0_1='t_{0,1}', u_0_1='u_{0,1}',
@@ -1591,8 +1592,10 @@ class UlensModelFit(object):
             return
 
         fixed = set(self._fixed_parameters.keys())
-
-        unknown = fixed - set(self._all_MM_parameters + ['t_0_par'])
+        allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters +
+                      self._other_parameters)
+        unknown = fixed - allowed
+        
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
@@ -2074,9 +2077,11 @@ class UlensModelFit(object):
         """
         fluxes = []
         for (i, dataset) in enumerate(self._datasets):
-            fluxes += self._event.fits[i].source_fluxes.tolist()
+            if isinstance(self._event.fits[i].source_fluxes, list):
+                fluxes += self._event.fits[i].source_fluxes
+            else:
+                fluxes += self._event.fits[i].source_fluxes.tolist()
             fluxes.append(self._event.fits[i].blend_flux)
-
         return fluxes
 
     def _run_flux_checks_ln_prior(self, fluxes):
@@ -2537,7 +2542,7 @@ class UlensModelFit(object):
             raise ValueError('There was some issue with blobs:\n' +
                              str(exception))
         blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
-        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
+        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :self._n_fluxes]
         blob_samples = blob_samples.reshape((-1, self._n_fluxes))
 
         return blob_samples
