@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.34.4'
+__version__ = '0.35.0'
 
 
 class UlensModelFit(object):
@@ -430,7 +430,10 @@ class UlensModelFit(object):
         parameters_str = (
             't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
             't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
-            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
+            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in ' +
+            't_caustic_out xi_period xi_semimajor_axis xi_Omega_node ' +
+            'xi_inclination xi_argument_of_latitude_reference ' +
+            'xi_eccentricity xi_omega_periapsis')
         self._all_MM_parameters = parameters_str.split()
         self._other_parameters = []
 
@@ -446,7 +449,15 @@ class UlensModelFit(object):
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
-            t_caustic_out='t_{\\rm caustic,out}')
+            t_caustic_out='t_{\\rm caustic,out}',
+            xi_period='\\xi_P',
+            xi_semimajor_axis='\\xi_a',
+            xi_Omega_node='\\xi_{\\Omega}',
+            xi_inclination='\\xi_i',
+            xi_argument_of_latitude_reference='\\xi_u',
+            xi_eccentricity='\\xi_e',
+            xi_omega_periapsis='\\xi_{\\omege}',
+            )
         self._latex_conversion_other = dict()
 
     def _guess_fitting_method(self):
@@ -1592,7 +1603,7 @@ class UlensModelFit(object):
 
         fixed = set(self._fixed_parameters.keys())
 
-        unknown = fixed - set(self._all_MM_parameters + ['t_0_par'])
+        unknown = fixed - set(self._all_MM_parameters + ['t_0_par', 't_0_xi'])
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
