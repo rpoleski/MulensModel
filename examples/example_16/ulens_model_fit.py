@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.35.0'
+__version__ = '0.35.1'
 
 
 class UlensModelFit(object):
@@ -435,6 +435,7 @@ class UlensModelFit(object):
             'xi_inclination xi_argument_of_latitude_reference ' +
             'xi_eccentricity xi_omega_periapsis')
         self._all_MM_parameters = parameters_str.split()
+        self._fixed_only_MM_parameters = ['t_0_par', 't_0_xi']
         self._other_parameters = []
 
         self._latex_conversion = dict(
@@ -1603,7 +1604,9 @@ class UlensModelFit(object):
 
         fixed = set(self._fixed_parameters.keys())
 
-        unknown = fixed - set(self._all_MM_parameters + ['t_0_par', 't_0_xi'])
+        allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters +
+                      self._other_parameters)
+        unknown = fixed - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
