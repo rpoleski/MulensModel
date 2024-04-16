@@ -1640,8 +1640,8 @@ class UlensModelFit(object):
                 for (band, u_value) in self._model_parameters[key].items():
                     model.set_limb_coeff_u(band, u_value)
             if 'default method' in self._model_parameters:
-                model.set_default_magnification_method(
-                    self._model_parameters['default method'])
+                model.default_magnification_method = \
+                    self._model_parameters['default method']
             if 'methods' in self._model_parameters:
                 model.set_magnification_methods(
                     self._model_parameters['methods'])
