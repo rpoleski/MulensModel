@@ -8,7 +8,9 @@ People who have written parts of the code:
 * [Lawrence Peirson](https://github.com/alpv95) - point and binary lens models with shear and convergence
 * [Keto Zhang](https://github.com/ketozhang) - PyPI installation, Extensions etc.
 * [Mateusz Mroz](https://github.com/mjmroz) - YAML output in example 16
+* [Raphael A. P. Oliveira](https://github.com/rapoliveira) - small updates in various places
 * [Hariharan Srinivasulu](https://github.com/meethari) - for helping with development of FitData class
+* [Justyna Wojtczak](https://github.com/justi) - github actions
 
 The code would not be in the state it is without modules that are imported by MulensModel. Special thanks to:
 * [Valerio Bozza](https://github.com/valboz) - for VBBL
@@ -18,12 +20,13 @@ The code would not be in the state it is without modules that are imported by Mu
 * [Dan Foreman-Mackey](https://github.com/dfm) - for EMCEE
 * AstroPy Team - for AstroPy
 
-We also thank those who have not directly contributed to the code, but their suggestions and comments helped in code development. We thus thank (no particular order):
+We also thank those who have not directly contributed to the code, but their suggestions and comments helped in code development. We thus thank (random order):
 * [Kasia Kruszynska](https://github.com/KKruszynska)
 * David Specht
 * [Demitri Muna](https://github.com/demitri) - for giving excellent suggestions just before the code was born
 * Zoey Samples
 * [Jan Skowron](https://github.com/jskowron) - for spotting bugs and letting us know about them
+* [Jason Eastman](https://github.com/jdeast)
 * Samson Johnson - for requesting improvements in FSPL calculations
 * Adrian Hernandez
 * [Przemek Mroz](https://github.com/przemekmroz)
