@@ -179,6 +179,7 @@ class TestBinarySourceFluxes(unittest.TestCase):
         almost(my_fit.blend_flux, self.f_b)
         almost(my_fit.source_fluxes[0], self.f_s_1)
         almost(my_fit.source_fluxes[1], self.f_s_2)
+        assert isinstance(my_fit.source_fluxes, (np.ndarray))
 
         peak_index = 500
         mod_fluxes = my_fit.get_model_fluxes()
@@ -226,6 +227,7 @@ class TestBinarySourceFluxes(unittest.TestCase):
         almost(
             my_fit.source_fluxes[1]/my_fit.source_fluxes[0],
             fix_q_flux)
+        assert isinstance(my_fit.source_fluxes, (np.ndarray))
 
     def test_value_error(self):
         with self.assertRaises(ValueError):
