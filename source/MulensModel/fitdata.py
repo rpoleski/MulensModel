@@ -604,9 +604,8 @@ class FitData(object):
         flux_factor *= 2. * self.source_flux / self.dataset.err_flux**2
 
         gradient = self.get_d_A_d_params_for_point_lens_model(parameters)
-
         for (key, value) in gradient.items():
-            gradient[key] = np.sum((flux_factor * value)[self.dataset.good])
+            gradient[key] = np.sum((flux_factor[self.dataset.good] * value))
 
         if len(parameters) == 1:
             out = gradient[parameters[0]]
