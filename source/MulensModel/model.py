@@ -301,7 +301,7 @@ class Model(object):
         return (source_flux, source_flux_ratio, blend_flux)
 
     def _get_lc(self, times, t_range, t_start, t_stop, dt, n_epochs, gamma,
-                source_flux, blend_flux, return_times=False):
+                source_flux, blend_flux, phot_fmt='mag', return_times=False):
         """
         calculate magnitudes without making checks on input parameters
 
@@ -329,17 +329,25 @@ class Model(object):
 
             flux += blend_flux
 
-        magnitudes = Utils.get_mag_from_flux(flux)
+        if phot_fmt == 'mag':
+            mag_or_flux = Utils.get_mag_from_flux(flux)
+        elif phot_fmt == 'flux':
+            mag_or_flux = flux
+        else:
+            raise ValueError(
+                'phot_fmt must be one of "mag", "flux", or "scaled". Your ' +
+                'value: {0}'.format(phot_fmt))
 
         if return_times:
-            return (times, magnitudes)
+            return (times, mag_or_flux)
         else:
-            return magnitudes
+            return mag_or_flux
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, source_flux=None, blend_flux=None,
             source_flux_ratio=None, gamma=None, bandpass=None,
+            phot_fmt='mag',
             subtract_2450000=False, subtract_2460000=False,
             data_ref=None, flux_ratio_constraint=None,
             fit_blending=None, f_source=None, f_blend=None,
@@ -416,16 +424,19 @@ class Model(object):
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
         self._check_gamma_for_2_sources(gamma)
 
-        (times, magnitudes) = self._get_lc(
+        (times, mag_or_flux) = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
             dt=dt, n_epochs=n_epochs, gamma=gamma, source_flux=source_flux,
-            blend_flux=blend_flux, return_times=True)
+            blend_flux=blend_flux, phot_fmt=phot_fmt, return_times=True)
 
         subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
                                            subtract_2460000=subtract_2460000)
 
-        self._plt_plot(times-subtract, magnitudes, kwargs)
-        plt.ylabel('Magnitude')
+        self._plt_plot(times-subtract, mag_or_flux, kwargs)
+        if phot_fmt == 'mag':
+            plt.ylabel('Magnitude')
+        elif phot_fmt == 'flux':
+            plt.ylabel('Flux')
         plt.xlabel(
             PlotUtils.find_subtract_xlabel(
                 subtract_2450000=subtract_2450000,
