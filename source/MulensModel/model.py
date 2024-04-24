@@ -301,7 +301,7 @@ class Model(object):
         return (source_flux, source_flux_ratio, blend_flux)
 
     def _get_lc(self, times, t_range, t_start, t_stop, dt, n_epochs, gamma,
-                source_flux, blend_flux, phot_fmt='mag', return_times=False):
+                source_flux, blend_flux, return_times=False, phot_fmt="mag"):
         """
         calculate magnitudes without making checks on input parameters
 
@@ -347,10 +347,9 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, source_flux=None, blend_flux=None,
             source_flux_ratio=None, gamma=None, bandpass=None,
-            phot_fmt='mag',
             subtract_2450000=False, subtract_2460000=False,
             data_ref=None, flux_ratio_constraint=None,
-            fit_blending=None, f_source=None, f_blend=None,
+            fit_blending=None, f_source=None, f_blend=None, phot_fmt="mag",
             **kwargs):
         """
         Plot the model light curve in magnitudes.
@@ -386,6 +385,10 @@ class Model(object):
 
             f_source, f_blend: DEPRECATED
                 use *source_flux* or *blend_flux* instead.
+
+            phot_fmt: *str*
+                Specifies whether the photometry is provided in magnitude or
+                flux space. Accepts either 'mag' or 'flux'. Default = 'mag'.
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
@@ -427,7 +430,7 @@ class Model(object):
         (times, mag_or_flux) = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
             dt=dt, n_epochs=n_epochs, gamma=gamma, source_flux=source_flux,
-            blend_flux=blend_flux, phot_fmt=phot_fmt, return_times=True)
+            blend_flux=blend_flux, return_times=True, phot_fmt=phot_fmt)
 
         subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
                                            subtract_2460000=subtract_2460000)
@@ -443,7 +446,7 @@ class Model(object):
                 subtract_2460000=subtract_2460000))
 
         (ymin, ymax) = plt.gca().get_ylim()
-        if ymax > ymin:
+        if ymax > ymin and phot_fmt == 'mag':
             plt.gca().invert_yaxis()
 
     def _plt_plot(self, x, y, kwargs):
