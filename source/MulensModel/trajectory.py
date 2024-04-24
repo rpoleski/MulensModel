@@ -7,7 +7,7 @@ from astropy.time import Time
 from MulensModel import utils
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.coordinates import Coordinates
-from MulensModel.orbits.orbit import Orbit
+from MulensModel.orbits import Orbit
 
 
 class Trajectory(object):
