@@ -230,7 +230,7 @@ class ModelParameters(object):
                 self._standard_parameters = None
             if self.is_xallarap:
                 delta_1 = self._get_xallarap_position(parameters)
-                self.xallarap_reference_position = delta_1
+                self._xallarap_reference_position = delta_1
         elif self.n_sources == 2:
             self._check_valid_combination_2_sources(parameters.keys())
             if 't_E' not in parameters.keys():
@@ -261,10 +261,14 @@ class ModelParameters(object):
     def _update_sources_xallarap_reference(self):
         """
         Update .xallarap_reference_position for each source parameters
+
+        Note: below we're calling private function and set private
+        properties NOT of self, but self._source_X_parameters,
+        which both are of the same type as self.
         """
         delta_1 = self._source_1_parameters._get_xallarap_position()
-        self._source_1_parameters.xallarap_reference_position = delta_1
-        self._source_2_parameters.xallarap_reference_position = delta_1
+        self._source_1_parameters._xallarap_reference_position = delta_1
+        self._source_2_parameters._xallarap_reference_position = delta_1
 
     def _get_xallarap_position(self, parameters=None):
         """
@@ -1660,6 +1664,18 @@ class ModelParameters(object):
             raise ValueError('q_source cannot be negative')
         self.parameters['q_source'] = new_value
         self._update_sources('q_source', new_value)
+
+    @property
+    def xallarap_reference_position(self):
+        """
+        *np.ndarray* of shape (2, 1)
+
+        The position of the first source at :py:attr:`~t_0_xi` relative to
+        the source center of mass. It is a 2D vector that is subtracted from
+        the source position along the orbit in order to calculate the shift
+        caused by xallarap.
+        """
+        return self._xallarap_reference_position
 
     @property
     def t_0_1(self):
