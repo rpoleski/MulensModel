@@ -554,7 +554,7 @@ class TestXallarapErrors(unittest.TestCase):
         """
         parameters = {**xallarap_parameters, 'q_source': -0.12345}
         with self.assertRaises(ValueError):
-            model = mm.ModelParameters(parameters)
+            _ = mm.ModelParameters(parameters)
 
     def test_negative_source_mass_ratio_2(self):
         """
@@ -564,6 +564,25 @@ class TestXallarapErrors(unittest.TestCase):
         model = mm.ModelParameters(parameters)
         with self.assertRaises(ValueError):
             setattr(model, 'q_source', -0.12345)
+
+
+def test_print_xallarap():
+    """
+    Test if printing of printing of xallarap model works as expected.
+    """
+    model = setup_xallarap('t_0')[0]
+    expected = (
+        "    t_0 (HJD)       u_0    t_E (d) xallarap period (d) xallarap "
+        "semimajor axis xallarap inclination (deg) xallarap Omega node (deg) "
+        "xallarap argument of latitude reference (deg) xallarap eccentricity "
+        "xallarap omega periapsis (deg)  t_0_xi (HJD) "
+        "\n      2.00000  0.100000     9.0000             12.3450            "
+        "    0.543210                    9.87650                   0.12300   "
+        "                                   24.68000              0.500000   "
+        "                    12.34560       1.00000 "
+        "\nxallarap reference position: (0.2673, 0.0582)"
+        )
+    assert model.__repr__() == expected
 
 
 @pytest.mark.parametrize(
