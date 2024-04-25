@@ -313,18 +313,16 @@ class ModelParameters(object):
         binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
         binary_params += finite_source_params
         common = set(binary_params).intersection(keys)
-        n_finite = len(common.intersection(finite_source_params))
+        finite_params = common.intersection(finite_source_params)
+        n_finite = len(finite_params)
+
         if len(common) == 0 and 'q_source' not in keys:
             self._n_sources = 1
         elif len(common) == 0 and 'q_source' in keys:
             self._n_sources = 2
         elif len(common) == 1:
             if self.is_xallarap and n_finite == 1:
-                finite_param = list(common.intersection(finite_source_params))[0]
-                if finite_param in ['rho_2', 't_star_2']:
-                    self._n_sources = 2
-                else:
-                    self._n_sources = 1
+                self._n_sources = int(list(finite_params)[0][-1])
             else:
                 raise ValueError('Wrong parameters - the only binary ' +
                                  'source parameter is {:}'.format(common))
@@ -334,6 +332,11 @@ class ModelParameters(object):
             else:
                 self._n_sources = 2
         else:
+            self._check_for_overdefined_source(common)
+            self._n_sources = 2
+
+    def _check_for_overdefined_source(self, common):
+            """XXX"""
             common_no_1_2 = {param[:-2] for param in common}
             condition_1 = (len(common_no_1_2) == len(common))
             condition_2 = not (
@@ -342,8 +345,6 @@ class ModelParameters(object):
                 raise ValueError(
                     'Given binary source parameters do not allow defining ' +
                     'the Model: {:}'.format(common))
-
-            self._n_sources = 2
 
     def _count_lenses(self, keys):
         """How many lenses there are?"""
