@@ -224,6 +224,18 @@ class ModelParameters(object):
         self._check_types('alpha' in parameters.keys())
 
         if self.n_sources == 1:
+            self._init_1_source(parameters)
+        elif self.n_sources == 2:
+            self._init_2_sources(parameters)
+        else:
+            raise ValueError('wrong number of sources')
+
+        self._set_parameters(parameters)
+
+    def _init_1_source(self, parameters):
+            """
+            initialize model with 1 source
+            """
             self._check_valid_combination_1_source(parameters.keys())
             if self._type['Cassan08']:
                 self._uniform_caustic = None
@@ -231,7 +243,11 @@ class ModelParameters(object):
             if self.is_xallarap:
                 delta_1 = self._get_xallarap_position(parameters)
                 self._xallarap_reference_position = delta_1
-        elif self.n_sources == 2:
+
+    def _init_2_sources(self, parameters):
+            """
+            initialize model with s sources
+            """
             self._check_valid_combination_2_sources(parameters.keys())
             if 't_E' not in parameters.keys():
                 raise KeyError('Currently, the binary source calculations ' +
@@ -254,9 +270,6 @@ class ModelParameters(object):
 
             if self.is_xallarap:
                 self._update_sources_xallarap_reference()
-        else:
-            raise ValueError('wrong number of sources')
-        self._set_parameters(parameters)
 
     def _update_sources_xallarap_reference(self):
         """
