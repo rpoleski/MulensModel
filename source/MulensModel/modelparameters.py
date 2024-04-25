@@ -336,15 +336,18 @@ class ModelParameters(object):
             self._n_sources = 2
 
     def _check_for_overdefined_source(self, common):
-            """XXX"""
-            common_no_1_2 = {param[:-2] for param in common}
-            condition_1 = (len(common_no_1_2) == len(common))
-            condition_2 = not (
-                'rho' in common_no_1_2 and 't_star' in common_no_1_2)
-            if condition_1 and condition_2:
-                raise ValueError(
-                    'Given binary source parameters do not allow defining ' +
-                    'the Model: {:}'.format(common))
+        """
+        Make sure that finite source size in binary source model
+        is not overdefined.
+        """
+        common_no_1_2 = {param[:-2] for param in common}
+        condition_1 = (len(common_no_1_2) == len(common))
+        condition_2 = not (
+            'rho' in common_no_1_2 and 't_star' in common_no_1_2)
+        if condition_1 and condition_2:
+            raise ValueError(
+                'Given binary source parameters do not allow defining ' +
+                'the Model: {:}'.format(common))
 
     def _count_lenses(self, keys):
         """How many lenses there are?"""
