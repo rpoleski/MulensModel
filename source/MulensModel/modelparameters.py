@@ -233,43 +233,44 @@ class ModelParameters(object):
         self._set_parameters(parameters)
 
     def _init_1_source(self, parameters):
-            """
-            initialize model with 1 source
-            """
-            self._check_valid_combination_1_source(parameters.keys())
-            if self._type['Cassan08']:
-                self._uniform_caustic = None
-                self._standard_parameters = None
-            if self.is_xallarap:
-                delta_1 = self._get_xallarap_position(parameters)
-                self._xallarap_reference_position = delta_1
+        """
+        initialize model with 1 source
+        """
+        self._check_valid_combination_1_source(parameters.keys())
+        if self._type['Cassan08']:
+            self._uniform_caustic = None
+            self._standard_parameters = None
+        if self.is_xallarap:
+            delta_1 = self._get_xallarap_position(parameters)
+            self._xallarap_reference_position = delta_1
 
     def _init_2_sources(self, parameters):
-            """
-            initialize model with s sources
-            """
-            self._check_valid_combination_2_sources(parameters.keys())
-            if 't_E' not in parameters.keys():
-                raise KeyError('Currently, the binary source calculations ' +
-                               'require t_E to be directly defined, i.e., ' +
-                               'has to be the same for both sources.')
-            (params_1, params_2) = self._divide_parameters(parameters)
-            try:
-                self._source_1_parameters = ModelParameters(params_1)
-            except Exception:
-                print("ERROR IN ITIALIZING SOURCE 1")
-                raise
-            try:
-                self._source_2_parameters = ModelParameters(params_2)
+        """
+        initialize model with s sources
+        """
+        self._check_valid_combination_2_sources(parameters.keys())
+        if 't_E' not in parameters.keys():
+            raise KeyError('Currently, the binary source calculations ' +
+                           'require t_E to be directly defined, i.e., ' +
+                           'has to be the same for both sources.')
 
-            except Exception:
-                print("ERROR IN ITIALIZING SOURCE 2")
-                raise
-            # The block above forces checks from "== 1" block above to be
-            # run on each source parameters separately.
+        (params_1, params_2) = self._divide_parameters(parameters)
 
-            if self.is_xallarap:
-                self._update_sources_xallarap_reference()
+        try:
+            self._source_1_parameters = ModelParameters(params_1)
+        except Exception:
+            print("ERROR IN ITIALIZING SOURCE 1")
+            raise
+        try:
+            self._source_2_parameters = ModelParameters(params_2)
+        except Exception:
+            print("ERROR IN ITIALIZING SOURCE 2")
+            raise
+        # The try/except blocks above force checks from ._init_1_source()
+        # to be run on each source parameters separately.
+
+        if self.is_xallarap:
+            self._update_sources_xallarap_reference()
 
     def _update_sources_xallarap_reference(self):
         """
