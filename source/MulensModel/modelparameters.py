@@ -470,6 +470,19 @@ class ModelParameters(object):
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
+        out = self._get_main_parameters_to_print()
+
+        if self.is_xallarap:
+            fmt = "\nxallarap reference position: ({:.4f}, {:.4f})"
+            position = self.xallarap_reference_position
+            out += fmt.format(position[0, 0], position[1, 0])
+
+        return out
+
+    def _get_main_parameters_to_print(self):
+        """
+        prepare all the standard parameters to be printed
+        """
         keys = self._get_keys_for_repr()
         formats = self._get_formats_dict_for_repr()
         ordered_keys = self._get_ordered_keys_for_repr()
@@ -485,14 +498,7 @@ class ModelParameters(object):
             variables += fmt_1.format(full_name)
             values += fmt_2.format(value)
 
-        out = '{0}\n{1}'.format(variables, values)
-
-        if self.is_xallarap:
-            fmt = "\nxallarap reference position: ({:.4f}, {:.4f})"
-            position = self.xallarap_reference_position
-            out += fmt.format(position[0, 0], position[1, 0])
-
-        return out
+        return '{0}\n{1}'.format(variables, values)
 
     def _get_keys_for_repr(self):
         """
