@@ -303,7 +303,7 @@ class Model(object):
     def _get_lc(self, times, t_range, t_start, t_stop, dt, n_epochs, gamma,
                 source_flux, blend_flux, return_times=False, phot_fmt="mag"):
         """
-        calculate magnitudes without making checks on input parameters
+        calculate magnitude or flux without making checks on input parameters
 
         source_flux is a *float* (for single source model) or
         an iterable (for multiple sources)
@@ -329,6 +329,13 @@ class Model(object):
 
             flux += blend_flux
 
+        return self._return_mag_or_flux(times, flux, return_times, phot_fmt)
+
+    def _return_mag_or_flux(self, times, flux, return_times, phot_fmt):
+        """
+        Obtain what is returned in function _get_lc, where phot_fmt and
+        return_times are explicitly given
+        """
         if phot_fmt == 'mag':
             mag_or_flux = Utils.get_mag_from_flux(flux)
         elif phot_fmt == 'flux':
@@ -387,7 +394,7 @@ class Model(object):
                 use *source_flux* or *blend_flux* instead.
 
             phot_fmt: *str*
-                Specifies whether the photometry is provided in magnitude or
+                Specifies whether the photometry is plotted in magnitude or
                 flux space. Accepts either 'mag' or 'flux'. Default = 'mag'.
 
             ``**kwargs``:
@@ -436,6 +443,23 @@ class Model(object):
                                            subtract_2460000=subtract_2460000)
 
         self._plt_plot(times-subtract, mag_or_flux, kwargs)
+        self._plt_settings(phot_fmt, subtract_2450000, subtract_2460000)
+
+    def _plt_plot(self, x, y, kwargs):
+        """
+        safe run of matplotlib.pyplot.plot()
+        """
+        try:
+            plt.plot(x, y, **kwargs)
+        except Exception:
+            print("kwargs passed to plt.plot():")
+            print(kwargs)
+            raise
+
+    def _plt_settings(self, phot_fmt, subtract_2450000, subtract_2460000):
+        """
+        Arrange the plot settings, regarding axes labels and ranges
+        """
         if phot_fmt == 'mag':
             plt.ylabel('Magnitude')
         elif phot_fmt == 'flux':
@@ -448,17 +472,6 @@ class Model(object):
         (ymin, ymax) = plt.gca().get_ylim()
         if ymax > ymin and phot_fmt == 'mag':
             plt.gca().invert_yaxis()
-
-    def _plt_plot(self, x, y, kwargs):
-        """
-        safe run of matplotlib.pyplot.plot()
-        """
-        try:
-            plt.plot(x, y, **kwargs)
-        except Exception:
-            print("kwargs passed to plt.plot():")
-            print(kwargs)
-            raise
 
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
