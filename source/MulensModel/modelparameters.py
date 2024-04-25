@@ -474,7 +474,11 @@ class ModelParameters(object):
 
         if self.is_xallarap:
             fmt = "\nxallarap reference position: ({:.4f}, {:.4f})"
-            position = self.xallarap_reference_position
+            if self.n_sources == 1:
+                source = self
+            else:
+                source = self._source_1_parameters
+            position = source.xallarap_reference_position
             out += fmt.format(position[0, 0], position[1, 0])
 
         return out
@@ -566,6 +570,7 @@ class ModelParameters(object):
                                 'name': 'xallarap eccentricity'},
             'xi_omega_periapsis': {'width': 11, 'precision': 5, 'unit': 'deg',
                                    'name': 'xallarap omega periapsis'},
+            'q_source': {'width': 12, 'precision': 8},
             't_0_xi': {'width': 13, 'precision': 5, 'unit': 'HJD'},
         }
         # Add binary source parameters with the same settings.
@@ -594,7 +599,7 @@ class ModelParameters(object):
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
             'xi_period', 'xi_semimajor_axis', 'xi_inclination',
             'xi_Omega_node', 'xi_argument_of_latitude_reference',
-            'xi_eccentricity', 'xi_omega_periapsis', 't_0_xi'
+            'xi_eccentricity', 'xi_omega_periapsis', 'q_source', 't_0_xi'
         ]
         return ordered_keys
 

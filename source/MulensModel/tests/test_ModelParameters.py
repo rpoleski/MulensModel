@@ -570,7 +570,7 @@ def test_print_xallarap():
     """
     Test if printing of printing of xallarap model works as expected.
     """
-    model = setup_xallarap('t_0')[0]
+    model = mm.ModelParameters(xallarap_parameters)
     expected = (
         "    t_0 (HJD)       u_0    t_E (d) xallarap period (d) xallarap "
         "semimajor axis xallarap inclination (deg) xallarap Omega node (deg) "
@@ -583,6 +583,20 @@ def test_print_xallarap():
         "\nxallarap reference position: (0.2673, 0.0582)"
         )
     assert model.__repr__() == expected
+
+
+def test_print_xallarap_with_q_source():
+    """
+    Test if printing of printing of xallarap model with q_source works
+    as expected. Most stuff was tested in test_print_xallarap(), so we
+    check only the parts that are important here.
+    """
+    parameters = {**xallarap_parameters, 'q_source': 0.12345}
+    model = mm.ModelParameters(parameters)
+    lines = model.__repr__().split("\n")
+    assert lines[0][-27:] == "    q_source  t_0_xi (HJD) "
+    assert lines[1][-27:] == "  0.12345000       1.00000 "
+    assert lines[2] == "xallarap reference position: (0.2673, 0.0582)"
 
 
 @pytest.mark.parametrize(
