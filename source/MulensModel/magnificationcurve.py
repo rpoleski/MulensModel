@@ -174,7 +174,8 @@ class MagnificationCurve(object):
                 mm.MODULE_PATH, "documents", "magnification_methods.pdf")
             msg = ("A finite source parameter (rho or t_star) is set and no "
                    "finite-source method is set.\n"
-                   "For possible magnification methods see\n" + path + "or\n"
+                   "For possible magnification methods see\n" +
+                   path + "\nor\n"
                    "https://github.com/rpoleski/MulensModel/blob/master/"
                    "documents/magnification_methods.pdf")
             warnings.warn(msg, UserWarning)
