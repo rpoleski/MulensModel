@@ -372,7 +372,8 @@ class ModelParameters(object):
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
-                         'xi_Omega_node xi_argument_of_latitude_reference')}
+                         'xi_Omega_node xi_argument_of_latitude_reference '
+                         'xi_eccentricity xi_omega_periapsis q_source')}
 
         parameter_to_type = dict()
         for (key, values) in temp.items():

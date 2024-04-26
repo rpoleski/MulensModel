@@ -45,6 +45,8 @@ class TestModelParameters(unittest.TestCase):
         with self.assertRaises(KeyError):
             mm.ModelParameters({'t_01': 1, 'u_0_1': 0.1, 't_eff_1': 10,
                                 't_0_2': 10., 'u_0_2': 0.01, 't_eff_2': 20.})
+        with self.assertRaises(Exception):
+            mm.ModelParameters({'t_0_1': 1, 'u_0_2': 0.1, 't_E': 10})
 
 
 def test_init_parameters():
@@ -565,6 +567,15 @@ class TestXallarapErrors(unittest.TestCase):
         with self.assertRaises(ValueError):
             setattr(model, 'q_source', -0.12345)
 
+    def test_overdefined_source_size(self):
+        """
+        overdefine first sourece size
+        """
+        parameters = {**xallarap_parameters,
+                      'rho_1': 0.1, 't_star_1': 0.1, 'q_source': 1.0}
+        with self.assertRaises(ValueError):
+            mm.ModelParameters(parameters)
+
 
 def test_print_xallarap():
     """
@@ -654,6 +665,16 @@ def test_xallarap_n_sources():
     parameters['q_source'] = 1.
     model_2S = mm.ModelParameters(parameters)
     assert model_2S.n_sources == 2
+
+    parameters['rho_1'] = 0.1
+    parameters['rho_2'] = 0.2
+    model_3 = mm.ModelParameters(parameters)
+    assert model_3.n_sources == 2
+
+    parameters = {**xallarap_parameters, 't_star_1': 2.}
+    model_4 = mm.ModelParameters(parameters)
+    assert model_4.n_sources == 1
+
 
 
 def test_2S1L_xallarap_individual_source_parameters():
