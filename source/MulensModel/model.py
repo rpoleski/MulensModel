@@ -443,7 +443,7 @@ class Model(object):
                                            subtract_2460000=subtract_2460000)
 
         self._plt_plot(times-subtract, mag_or_flux, kwargs)
-        self._plt_settings(phot_fmt, subtract_2450000, subtract_2460000)
+        self._plot_axes(phot_fmt, subtract_2450000, subtract_2460000)
 
     def _plt_plot(self, x, y, kwargs):
         """
@@ -456,9 +456,9 @@ class Model(object):
             print(kwargs)
             raise
 
-    def _plt_settings(self, phot_fmt, subtract_2450000, subtract_2460000):
+    def _plot_axes(self, phot_fmt, subtract_2450000, subtract_2460000):
         """
-        Arrange the plot settings, regarding axes labels and ranges
+        Adjust axes labels and ranges, given the inputs phot_fmt and subtract
         """
         if phot_fmt == 'mag':
             plt.ylabel('Magnitude')
