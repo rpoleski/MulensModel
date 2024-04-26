@@ -301,9 +301,9 @@ class Model(object):
         return (source_flux, source_flux_ratio, blend_flux)
 
     def _get_lc(self, times, t_range, t_start, t_stop, dt, n_epochs, gamma,
-                source_flux, blend_flux, return_times=False):
+                source_flux, blend_flux, return_times=False, phot_fmt="mag"):
         """
-        calculate magnitudes without making checks on input parameters
+        calculate magnitude or flux without making checks on input parameters
 
         source_flux is a *float* (for single source model) or
         an iterable (for multiple sources)
@@ -329,12 +329,26 @@ class Model(object):
 
             flux += blend_flux
 
-        magnitudes = Utils.get_mag_from_flux(flux)
+        return self._return_mag_or_flux(times, flux, return_times, phot_fmt)
+
+    def _return_mag_or_flux(self, times, flux, return_times, phot_fmt):
+        """
+        Obtain what is returned in function _get_lc, where phot_fmt and
+        return_times are explicitly given
+        """
+        if phot_fmt == 'mag':
+            mag_or_flux = Utils.get_mag_from_flux(flux)
+        elif phot_fmt == 'flux':
+            mag_or_flux = flux
+        else:
+            raise ValueError(
+                'phot_fmt must be one of "mag", "flux", or "scaled". Your ' +
+                'value: {0}'.format(phot_fmt))
 
         if return_times:
-            return (times, magnitudes)
+            return (times, mag_or_flux)
         else:
-            return magnitudes
+            return mag_or_flux
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -342,7 +356,7 @@ class Model(object):
             source_flux_ratio=None, gamma=None, bandpass=None,
             subtract_2450000=False, subtract_2460000=False,
             data_ref=None, flux_ratio_constraint=None,
-            fit_blending=None, f_source=None, f_blend=None,
+            fit_blending=None, f_source=None, f_blend=None, phot_fmt="mag",
             **kwargs):
         """
         Plot the model light curve in magnitudes.
@@ -378,6 +392,10 @@ class Model(object):
 
             f_source, f_blend: DEPRECATED
                 use *source_flux* or *blend_flux* instead.
+
+            phot_fmt: *str*
+                Specifies whether the photometry is plotted in magnitude or
+                flux space. Accepts either 'mag' or 'flux'. Default = 'mag'.
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
@@ -416,24 +434,16 @@ class Model(object):
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
         self._check_gamma_for_2_sources(gamma)
 
-        (times, magnitudes) = self._get_lc(
+        (times, mag_or_flux) = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
             dt=dt, n_epochs=n_epochs, gamma=gamma, source_flux=source_flux,
-            blend_flux=blend_flux, return_times=True)
+            blend_flux=blend_flux, return_times=True, phot_fmt=phot_fmt)
 
         subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
                                            subtract_2460000=subtract_2460000)
 
-        self._plt_plot(times-subtract, magnitudes, kwargs)
-        plt.ylabel('Magnitude')
-        plt.xlabel(
-            PlotUtils.find_subtract_xlabel(
-                subtract_2450000=subtract_2450000,
-                subtract_2460000=subtract_2460000))
-
-        (ymin, ymax) = plt.gca().get_ylim()
-        if ymax > ymin:
-            plt.gca().invert_yaxis()
+        self._plt_plot(times-subtract, mag_or_flux, kwargs)
+        self._plot_axes(phot_fmt, subtract_2450000, subtract_2460000)
 
     def _plt_plot(self, x, y, kwargs):
         """
@@ -445,6 +455,23 @@ class Model(object):
             print("kwargs passed to plt.plot():")
             print(kwargs)
             raise
+
+    def _plot_axes(self, phot_fmt, subtract_2450000, subtract_2460000):
+        """
+        Adjust axes labels and ranges, given the inputs phot_fmt and subtract
+        """
+        if phot_fmt == 'mag':
+            plt.ylabel('Magnitude')
+        elif phot_fmt == 'flux':
+            plt.ylabel('Flux')
+        plt.xlabel(
+            PlotUtils.find_subtract_xlabel(
+                subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000))
+
+        (ymin, ymax) = plt.gca().get_ylim()
+        if ymax > ymin and phot_fmt == 'mag':
+            plt.gca().invert_yaxis()
 
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
@@ -599,6 +626,7 @@ class Model(object):
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
                 n_epochs=n_epochs)
+
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
         else:
@@ -755,21 +783,42 @@ class Model(object):
             for (x, y) in zip(trajectory.x, trajectory.y):
                 axis.add_artist(plt.Circle((x, y), **kwargs))
 
-    def get_trajectory(self, times):
+    def get_trajectory(self, times, satellite_skycoord=None):
         """
         Get the source trajectory for the given set of times.
 
         Parameters :
             times:  *np.ndarray*, *list of floats*, or *float*
-                Times for which magnification values are requested.
+                Epochs for which source positions are requested.
 
-        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object.
+            satellite_skycoord: *astropy.SkyCoord*
+                Allows the user to specify that the trajectory is calculated
+                for a satellite. If *astropy.SkyCoord* object is provided,
+                then these are satellite positions for all epochs.
+                See also :py:func:`get_satellite_coords()`
+
+        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object. If
+            n_sources > 1, returns a tuple of
+            `:py:class:`~MulensModel.trajectory.Trajectory`s
 
         """
+        if satellite_skycoord is None:
+            satellite_skycoord = self.get_satellite_coords(times)
+
         kwargs_ = {
             'times': times, 'parallax': self._parallax, 'coords': self._coords,
-            'satellite_skycoord': self.get_satellite_coords(times)}
-        return Trajectory(parameters=self.parameters, **kwargs_)
+            'satellite_skycoord': satellite_skycoord}
+        if self.n_sources == 1:
+            return Trajectory(parameters=self.parameters, **kwargs_)
+        elif self.n_sources == 2:
+            trajectory_1 = Trajectory(
+                parameters=self.parameters.source_1_parameters, **kwargs_)
+            trajectory_2 = Trajectory(
+                parameters=self.parameters.source_2_parameters, **kwargs_)
+            return (trajectory_1, trajectory_2)
+        else:
+            raise NotImplementedError(
+                "only 1 or 2 sources allowed here at this point")
 
     def set_times(
             self, t_range=None, t_start=None, t_stop=None, dt=None,
@@ -853,9 +902,9 @@ class Model(object):
                       2455746.7, 'VBBL', 2455747., 'Hexadecapole',
                       2455747.15, 'Quadrupole', 2455748.]
 
-            source: *int* or *None*
-                Which source given methods apply to? Accepts 1, 2, or *None*
-                (i.e., all sources).
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*
         """
         if not isinstance(methods, list):
             raise TypeError('Parameter methods has to be a list.')
@@ -863,22 +912,54 @@ class Model(object):
             raise ValueError('In Model.set_magnification_methods() ' +
                              'the parameter source, has to be 1, 2 or None.')
 
-        if source is None:
+        if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
                 raise ValueError('You cannot set methods for all sources ' +
                                  'after setting them for a single source')
+
             self._methods = methods
         else:
             if isinstance(self._methods, list):
                 raise ValueError('You cannot set methods for a single ' +
                                  'source after setting them for all sources.')
+
             if source > self.n_sources:
                 msg = ('Cannot set methods for source {:} for model with ' +
                        'only {:} sources.')
                 raise ValueError(msg.format(source, self.n_sources))
+
             if self._methods is None:
                 self._methods = {}
             self._methods[source] = methods
+
+    def get_magnification_methods(self, source=None):
+        """
+        Gets methods used for magnification calculation. See
+        :py:func:`set_magnification_methods`
+
+        Parameters :
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*.
+        """
+        if (source is None):
+            return self.methods
+        elif (self.n_sources == 1):
+            if source > 1:
+                raise IndexError(
+                    'Your model only has 1 source, but you requested ' +
+                    'magnification methods for source {0}'.format(source))
+            else:
+                return self.methods
+
+        else:
+            return self.methods[source]
+
+    @property
+    def methods(self):
+        """*list* of methods used for magnification calculation or *dict* of
+        *lists* if there are multiple sources."""
+        return self._methods
 
     def set_default_magnification_method(self, method):
         """
@@ -892,7 +973,29 @@ class Model(object):
                 Name of the method to be used.
 
         """
-        self._default_magnification_method = method
+        warnings.warn(
+            "set_default_magnification_method() is DEPRECATED. Use default_" +
+            "magnification_method() instead.", DeprecationWarning)
+        self.default_magnification_method = method
+
+    @property
+    def default_magnification_method(self):
+        """
+        Stores information on method to be used, when no method is
+        directly specified. See
+        :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        for a list of implemented methods.
+
+        Parameters:
+            method: *str*
+                Name of the method to be used.
+
+        """
+        return self._default_magnification_method
+
+    @default_magnification_method.setter
+    def default_magnification_method(self, new_method):
+        self._default_magnification_method = new_method
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
@@ -906,30 +1009,51 @@ class Model(object):
 
         """
         if self.n_lenses == 1:
-            methods_ok = [
-                'point_source',
-                'finite_source_uniform_Gould94'.lower(),
-                'finite_source_uniform_Gould94_direct'.lower(),
-                'finite_source_LD_Yoo04'.lower(),
-                'finite_source_LD_Yoo04_direct'.lower(),
-                'finite_source_uniform_Lee09'.lower(),
-                'finite_source_LD_Lee09'.lower()]
+            methods_all_str = (
+                'point_source finite_source_uniform_Gould94 '
+                'finite_source_uniform_Gould94_direct '
+                'finite_source_uniform_WittMao94 finite_source_LD_WittMao94 '
+                'finite_source_LD_Yoo04 finite_source_LD_Yoo04_direct '
+                'finite_source_uniform_Lee09 finite_source_LD_Lee09')
         elif self.n_lenses == 2:
-            methods_ok = [
-                'point_source', 'quadrupole', 'hexadecapole', 'vbbl',
-                'adaptive_contouring', 'point_source_point_lens']
+            methods_all_str = ('point_source quadrupole hexadecapole vbbl '
+                               'adaptive_contouring point_source_point_lens')
         else:
             msg = 'wrong value of Model.n_lenses: {:}'
             raise ValueError(msg.format(self.n_lenses))
 
         parameters = {
             key.lower(): value for (key, value) in methods_parameters.items()}
-        methods = set(parameters.keys()) - set(methods_ok)
+        methods_all = set([m.lower() for m in methods_all_str.split()])
+        methods = set(parameters.keys()) - methods_all
 
         if len(methods):
             raise KeyError('Unknown methods provided: {:}'.format(methods))
 
         self._methods_parameters = parameters
+
+    def get_magnification_methods_parameters(self, method):
+        """
+        Get additional parameters for a specific magnification calculation
+        method or methods.
+
+        Parameters :
+            method: *str*, *list*
+                Name of method or a list of the names for which parameters
+                will be returned.
+
+        Returns :
+            method_parameters: *dict*
+                see :py:func:`set_magnification_methods_parameters`
+        """
+        if isinstance(method, (str)):
+            parameters = {
+                method.lower(): self._methods_parameters[method.lower()]}
+        else:
+            parameters = {key.lower(): self._methods_parameters[key.lower()]
+                          for key in method}
+
+        return parameters
 
     def set_limb_coeff_gamma(self, bandpass, coeff):
         """
@@ -943,7 +1067,6 @@ class Model(object):
 
             coeff: *float*
                 Value of the coefficient.
-
         """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)

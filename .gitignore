@@ -53,6 +53,7 @@ examples/example_16/*_out.yaml
 
 # Temporary tasks:
 DEV
+sandbox
 
 # Latex files:
 *.aux
@@ -67,3 +68,4 @@ source/MulensModel/*.so
 
 # Coverage report:
 coverage.xml
+/source/MulensModel/htmlcov/

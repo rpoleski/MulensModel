@@ -125,19 +125,29 @@ def test_repr_t_0_kep():
     s = 1.0
     q = 0.003
     alpha = 30.
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
-        'ds_dt': 0.47, 'dalpha_dt': 3.14,
-        't_0_kep': t_0+1})
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
+         'ds_dt': 0.47, 'dalpha_dt': 3.14, 't_0_kep': t_0+1})
 
-    out_1 = (
-        "    t_0 (HJD)       u_0    t_E (d)         s            q alpha (deg)"
-        " ds/dt (/yr) dalpha/dt (deg/yr) t_0_kep (HJD) \n")
-    out_2 = (
-        "2456145.00000  0.010000    62.6300   1.00000   0.00300000    30.00000"
-        "     0.47000            3.14000 2456146.00000 ")
+    out_1 = ("    t_0 (HJD)       u_0    t_E (d)         s            q "
+             "alpha (deg) ds/dt (/yr) dalpha/dt (deg/yr) t_0_kep (HJD) \n")
+    out_2 = ("2456145.00000  0.010000    62.6300   1.00000   0.00300000 "
+             "   30.00000     0.47000            3.14000 2456146.00000 ")
 
     assert (out_1 + out_2) == str(params)
+
+
+def test_positive_t_E():
+    """
+    Check if t_E is positive when t_eff is given, even if u_0 is negative.
+    """
+    t_0 = 10205.1
+    u_0 = -0.50
+    t_eff = 12.5
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_eff': t_eff})
+
+    assert params.t_E >= 0.
+    assert params.t_E == params.t_eff / abs(params.u_0)
 
 
 def test_rho_t_e_t_star():

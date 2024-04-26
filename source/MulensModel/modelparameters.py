@@ -782,17 +782,26 @@ class ModelParameters(object):
         if not self._type['xallarap']:
             return
 
-        required = ('xi_period xi_semimajor_axis xi_inclination '
-                    'xi_Omega_node xi_argument_of_latitude_reference').split()
+        self._check_orbit_parameters(keys, "xi_")
+
+    def _check_orbit_parameters(self, keys, prefix):
+        """
+        check if orbit is properly defined; prefix is added to
+        checked orbit parameters
+        """
+        required = ('period semimajor_axis inclination '
+                    'Omega_node argument_of_latitude_reference').split()
+        required = [prefix + req for req in required]
         for parameter in required:
             if parameter not in keys:
                 raise KeyError(parameter)
 
-        allowed = set(['xi_eccentricity', 'xi_omega_periapsis'])
+        allowed = set([prefix + 'eccentricity', prefix + 'omega_periapsis'])
         n_used = len(set(keys).intersection(allowed))
         if n_used not in [0, len(allowed)]:
             raise KeyError(
-                'Error in defining xi_eccentricity and xi_omega_periapsis. '
+                'Error in defining ' + prefix + 'eccentricity and ' +
+                prefix + 'omega_periapsis. ' +
                 'Both of them or neither should be defined.')
 
     def _check_valid_combination_1_source_Cassan08(self, keys):
@@ -1096,7 +1105,7 @@ class ModelParameters(object):
             return self.t_star / self.rho
         elif ('t_eff' in self.parameters.keys() and
               'u_0' in self.parameters.keys()):
-            return self.t_eff / self.u_0
+            return self.t_eff / abs(self.u_0)
         else:
             raise KeyError("You're trying to access t_E that was not set")
 

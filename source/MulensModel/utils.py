@@ -149,6 +149,7 @@ class Utils(object):
                 UserWarning)
         mag = zeropoint - 2.5 * np.log10(flux)
         err_mag = (err_flux / flux) * 2.5 / np.log(10.)
+
         return (mag, err_mag)
     get_mag_and_err_from_flux = staticmethod(get_mag_and_err_from_flux)
 
@@ -365,7 +366,9 @@ class PlotUtils(object):
                 Values in the requested format
 
             uncertainties: *np.ndarray*
-                Uncertainties in the requested format
+                Uncertainties in the requested format. Any negative
+                uncertainties are set to zero.
+
         """
         if phot_fmt == 'mag':
             return Utils.get_mag_and_err_from_flux(flux, flux_err)
@@ -375,6 +378,7 @@ class PlotUtils(object):
             raise ValueError(
                 'Unrecognized photometry format: {:}, '.format(phot_fmt) +
                 'allowed values are "mag" and "flux"')
+
     get_y_value_y_err = staticmethod(get_y_value_y_err)
 
     def find_subtract(subtract_2450000=False, subtract_2460000=False):

@@ -1,5 +1,4 @@
 # Next big tasks - think about the order:
-1. xallarap
 2. full Keplerian motion of the lens (because 2-parameter approximation is unphysical and is already implemented)
 3. triple sources
 4. triple lenses
@@ -8,17 +7,12 @@
 7. terrestial parallax
 
 # Next smaller tasks:
-1. gradient for parallax model issue
 2. ModelParameters - note that t_0_1 etc. are for "binary source" models
-2. update VBBL
 3. make directory with reference plots from examples
 4. remove unused branches
 5. UC40 - finish it and implement Event.get\_lc and plot\_lc
-6. example 16
 7. UC38 - finish it
-8. chi2 gradient for rho or t_star - first move code from FitData to Trajectory and PointLens (which means new minor version)
 9. faster FFP calculations
-10. print Model/ModelParameters: add t\_0\_par somewhere - maybe only when it is != t\_0
 11. "import MulensModel as mm" everywhere: use_cases/->30,31,34 examples/run_time_tests/check_system.py examples/checks.py TUTORIALS
 12. satellite positions read from a file similar to data challenge files
 13. check open issues on github
@@ -42,7 +36,7 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
   * more on setup.py: [link](https://github.com/kennethreitz/setup.py)
   * compile with "pedantic" flags for compilers
 * Documentation
-  * magnification\_methods.pdf - add full references there and link this file in the code
+  * magnification\_methods.pdf - add full references there
   * Sagan workshop hands-on activity in MM
   * examples as ipython notebooks
   * Add \_\_repr\_\_ functions to Lens and Source
@@ -61,8 +55,6 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
     * Fit.fit\_fluxes docstring to be updated
     * which\_parameters() - note that it doesnt work for binary source parameters, but the parameters work properly; just BSPL and rho\_2 etc. are optional
     * parallax models
-    * binary source - there should be one Fit less in Event.get\_chi2xxx functions - if there are 2 sources, then calculate magnification and use F\_S = F\_S\_1+F\_S\_2 and get it from self.model.fit; most probably adding some function to Fit would help
-    * test binary-lens binary-source 
     * different t\_E for each source (correct Model.set\_times)
     * test binary source with exactly one rho\_X defined
     * add t\_eff\_1, t\_eff\_2
@@ -83,7 +75,6 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
     * get gamma/u LD coeffs from Claret papers etc.
     * [Lee+09](https://ui.adsabs.harvard.edu/abs/2009ApJ...695..200L/abstract) - gradient calculations for uniform source, also faster calculations - profile
     * FSPL for large sources using [Agol 2003](https://ui.adsabs.harvard.edu/abs/2003ApJ...594..449A/abstract)
-  * Xallarap (see below for references)
   * Quadratic limb darkening
   * Multi-lens ray shooting:
     * mapmaking version which adds new rays as needed (but remember that it runs for fixed (s,q) only!)
@@ -132,7 +123,6 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
     * Event should sync information on which of the 3 types of parallax are used, so that if it is specified for event, then there will be exception if one dataset is missing earth\_coords etc. In general there should be some way to make sure which parallax types are used in which calculation of magnification.
     * Class Event should have not only set\_datasets() methods but also add\_datasets(), i.e. a similar method that appends datasets to self.\_datasets.
     * reduce calls to Fit.fit\_fluxes()
-    * add finite source in chi2\_gradient()
     * chi2\_gradient() should cope NaN values in a way similar to get\_chi2()
     * **check all functions that should pass** fit\_blending parameter - Event.plot\_model, what else??? Already done: Event.get\_ref\_fluxes()
     * chi2 with maximum value provided - if the chi2 for point-source gives chi2 larger than specified limit, then finite source calculations are not undertaken (this should significantly speed-up MultiNest)
@@ -214,7 +204,7 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
     * when plotting data, make sure that max/min limits on Y axis include errorbars, if the errorbars are shown
     * export/save given data file in scale of other dataset and model
     * this line may be wrong for some values of char: kwargs['fmt'] = kwargs['fmt'].replace(char, "")
-    * for plt.scatter() the color can be set as 'facecolor', 'facecolors', or 'edgecolors' and this should be dealt with in _set_plot_properties()
+    * for plt.scatter() the color can be set as 'facecolor', 'facecolors', or 'edgecolors' and this should be dealt with in \_set\_plot\_properties()
     * for plotting X for bad data use large size and/or thinner line
     * separate colors (or even kwargs) for X-es as an option (to get contrasting colors see https://itsphbytes.wordpress.com/2016/08/29/complementary-colors-python-code/)
   * PointLens class:
@@ -230,7 +220,6 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
     * _warning when too many annual parallax calculations are conducted_
     * _\_get\_delta\_satellite() should be using self.times_
     * annual parallax caching - if moved to MulensData, then would be faster because hashing of coords and time vector takes time
-    * maybe Trajectory should be able to plot itself, and Model.plot\_trajectory() should call it - it would be easier for binary sources etc.
     * colorscale time or magnification (see Fig 2 in [Ranc+19](https://arxiv.org/abs/1810.00014))
     * plot in units of theta\_star (or even days) instead of theta\_E
   * UniformCausticSampling class:
@@ -263,7 +252,6 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
     * _Hamiltonian MCMC [link 1](http://arogozhnikov.github.io/2016/12/19/markov_chain_monte_carlo.html) and [link 2](https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/) and [link 3](https://colindcarroll.com/2019/04/11/hamiltonian-monte-carlo-from-scratch/)_
     * example with [parallel EMCEE](https://emcee.readthedocs.io/en/stable/tutorials/parallel/)
     * _plot many models from posterior_
-    * **chi2 per dataset**
     * **scipy.curve\_fit() and print parameter uncertainties**
     * **corner plots; they require [corner](https://github.com/dfm/corner.py), [pyhdust](https://github.com/danmoser/pyhdust), or [pyGTC](https://pypi.org/project/pyGTC/)**
     * _F\_s for MOA data for MB08310 differs from Janczak paper - is it caused by FSPL vs. FSBL models?_
@@ -277,8 +265,6 @@ Changes for planned v3 are here: [documents/MM\_v3.md](documents/MM_v3.md)
     * note in PSPL tutorial about plotting data in MulensData
     * add example that after calling Event.get\_chi2() use Event.fit to get e.g. magnifications so that the magnification is not calculated twice
     * **satellite data fitted and plotted - what is missing now?**
-    * use ast.literal\_eval() for .cfg files to read dict or list, e.g., for MulensData options.
-    * _high-level fitting example where we dont care how complicated it is, we just want to make it simple and useful for the user_
     * some cfg files use "../data/..." - change it to MM.DATA\_PATH somehow
     * in emcee we should check if all the starting points are in prior
     * check if MM correctly interacts with scipy.optimize.leastsq and maybe add an example

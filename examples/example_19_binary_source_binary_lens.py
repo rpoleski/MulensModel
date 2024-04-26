@@ -33,6 +33,7 @@ model_1.set_magnification_methods([t_start, 'VBBL', t_stop])
 model_2.set_magnification_methods([t_start, 'VBBL', t_stop])
 
 # Make magnification plots:
+plt.figure()
 plot_kwargs = {'t_start': t_start, 't_stop': t_stop}
 
 model.plot_magnification(source_flux_ratio=1., label='flux ratio = 1',
@@ -46,16 +47,15 @@ model_2.plot_magnification(label='only source 2', ls='--', **plot_kwargs)
 
 plt.title('Binary-source binary-lens light curves')
 plt.legend()
-plt.show()
 
 # Make trajectory plots:
+plt.figure()
 model.plot_trajectory(caustics=True, label='both_sources', **plot_kwargs)
 model_2.plot_trajectory(label='source 2', ls='--', lw=4, **plot_kwargs)
 model_1.plot_trajectory(label='source 1', ls='--', lw=4, **plot_kwargs)
 
 plt.title('Caustic and trajectories of both sources')
 plt.legend()
-plt.show()
 
 # Combine it with a dataset (that doesn't show any caustic crossing),
 # calculate chi^2, and make a plot of data and model:
@@ -64,6 +64,7 @@ file_name = os.path.join(mm.DATA_PATH, "photometry_files", "OB08092",
 data = mm.MulensData(file_name=file_name)
 event = mm.Event(datasets=data, model=model)
 print("chi2 = ", event.get_chi2())
+plt.figure()
 event.plot_data()
 event.plot_model(c='red', **plot_kwargs)
 plt.xlim(t_start, t_stop)

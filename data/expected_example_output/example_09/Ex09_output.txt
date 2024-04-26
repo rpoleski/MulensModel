@@ -1,0 +1,19 @@
+Initial Trial
+    t_0 (HJD)       u_0    t_E (d)
+   5380.00000  0.100000    18.0000
+Chi2 = 32241.84124710082
+
+Best Fit: t_0 =   5379.57091, u_0 = 0.5230, t_E =   17.940
+Chi2 =       427.20
+
+scipy.optimize.minimize result:
+     fun: 427.2038219878052
+     jac: array([-0.03365149, -3.52971227, -0.1673083 ])
+ message: 'Optimization terminated successfully.'
+    nfev: 11
+    nhev: 0
+     nit: 9
+    njev: 28
+  status: 0
+ success: True
+       x: array([5.37957091e+03, 5.22985608e-01, 1.79398771e+01])

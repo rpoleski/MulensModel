@@ -4,6 +4,7 @@ import numpy as np
 from math import sin, cos, sqrt, log10
 from scipy import integrate
 from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import RegularGridInterpolator as RGI
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
@@ -58,7 +59,6 @@ class PointLens(object):
             input parameters
     """
 
-    _B0B1_file_read = False
     _elliptic_files_read = False
 
     def __init__(self, parameters=None):
@@ -66,22 +66,9 @@ class PointLens(object):
             raise TypeError(
                 "PointLens argument has to be of ModelParameters type, not " +
                 str(type(parameters)))
+
         self.parameters = parameters
-
-    def _read_B0B1_file(self):
-        """Read file with pre-computed function values"""
-        file_ = os.path.join(
-            mm.DATA_PATH, 'interpolation_table_b0b1_v1.dat')
-        if not os.path.exists(file_):
-            raise ValueError('File with FSPL data does not exist.\n' + file_)
-        (z, B0, B0_minus_B1) = np.loadtxt(file_, unpack=True)
-        PointLens._B0_interpolation = interp1d(z, B0, kind='cubic')
-        PointLens._B0_minus_B1_interpolation = interp1d(
-            z, B0_minus_B1, kind='cubic')
-        PointLens._z_min = np.min(z)
-        PointLens._z_max = np.max(z)
-
-        PointLens._B0B1_file_read = True
+        self._B0B1_data = mm.PointLensFiniteSource()
 
     def _read_elliptic_files(self):
         """
@@ -106,7 +93,12 @@ class PointLens(object):
                 if line[:3] == "# Y":
                     yy = np.array([float(t) for t in line.split()[2:]])
         pp = np.loadtxt(file_3)
-        PointLens._interpolate_3 = interp2d(xx, yy, pp.T, kind='cubic')
+
+        try:
+            PointLens._interpolate_3 = RGI((xx, yy), pp, method='cubic',
+                                           bounds_error=False)
+        except ValueError:
+            PointLens._interpolate_3 = interp2d(xx, yy, pp.T, kind='cubic')
         PointLens._interpolate_3_min_x = np.min(xx)
         PointLens._interpolate_3_max_x = np.max(xx)
         PointLens._interpolate_3_min_y = np.min(yy)
@@ -222,17 +214,14 @@ class PointLens(object):
         except TypeError:
             z = np.array([z])
 
-        if not PointLens._B0B1_file_read:
-            self._read_B0B1_file()
-
         if direct:
             mask = np.zeros_like(z, dtype=bool)
         else:
-            mask = (z > PointLens._z_min) & (z < PointLens._z_max)
+            mask = self._get_mask_B0B1_data(z)
 
         B0 = 0. * z
         if np.any(mask):  # Here we use interpolation.
-            B0[mask] = PointLens._B0_interpolation(z[mask])
+            B0[mask] = self._B0B1_data.interpolate_B0(z[mask])
 
         mask = np.logical_not(mask)
         if np.any(mask):  # Here we use direct calculation.
@@ -241,6 +230,12 @@ class PointLens(object):
         magnification = pspl_magnification * B0
         # More accurate calculations can be performed - see Yoo+04 eq. 11 & 12.
         return magnification
+
+    def _get_mask_B0B1_data(self, z):
+        """
+        Get mask that desides if z is in range covered by B0B1 file
+        """
+        return self._B0B1_data.get_interpolation_mask(z)
 
     def get_point_lens_limb_darkening_magnification(
             self, u, pspl_magnification, gamma, direct=False):
@@ -284,18 +279,15 @@ class PointLens(object):
         except TypeError:
             z = np.array([z])
 
-        if not PointLens._B0B1_file_read:
-            self._read_B0B1_file()
-
         if direct:
             mask = np.zeros_like(z, dtype=bool)
         else:
-            mask = (z > PointLens._z_min) & (z < PointLens._z_max)
+            mask = self._get_mask_B0B1_data(z)
 
         magnification = 0. * z + pspl_magnification
         if np.any(mask):  # Here we use interpolation.
-            B_0 = PointLens._B0_interpolation(z[mask])
-            B_0_minus_B_1 = PointLens._B0_minus_B1_interpolation(z[mask])
+            B_0 = self._B0B1_data.interpolate_B0(z[mask])
+            B_0_minus_B_1 = self._B0B1_data.interpolate_B0minusB1(z[mask])
             magnification[mask] *= (B_0 * (1. - gamma) + B_0_minus_B_1 * gamma)
 
         mask = np.logical_not(mask)
@@ -484,8 +476,14 @@ class PointLens(object):
         integrand = self._integrand_Lee09_v2(temp, u, temp2, rho, gamma)
         dx = temp[:, 1] - temp[:, 0]
         for (i, dx_) in enumerate(dx):
-            integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
-        out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
+            try:
+                integrand_values[i] = integrate.simpson(integrand[i], dx=dx_)
+            except AttributeError:
+                integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
+        try:
+            out = integrate.simpson(integrand_values, dx=theta[1] - theta[0])
+        except AttributeError:
+            out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
         out *= 2. / (np.pi * rho**2)
         return out
 
@@ -609,7 +607,10 @@ class PointLens(object):
         cond_4 = (k <= PointLens._interpolate_3_max_y)
 
         if cond_1 and cond_2 and cond_3 and cond_4:
-            return PointLens._interpolate_3(n, k)[0]
+            if isinstance(PointLens._interpolate_3, RGI):
+                return float(PointLens._interpolate_3((n, k)).T)
+            else:
+                return PointLens._interpolate_3(n, k)[0]
         return ellip3(n, k)
 
     def get_point_lens_large_LD_integrated_magnification(self, u, gamma):

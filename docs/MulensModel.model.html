@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.model module &#8212; MulensModel 2.17.0 documentation</title>
+    <title>MulensModel.model module &#8212; MulensModel 2.18.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -310,7 +310,7 @@ be plotted as ellipses. To mitigate it, use:
 <dd><p>Get the source trajectory for the given set of times.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
-<dt>times:  <em>np.ndarray</em>, <em>list of floats</em>, or <em>float</em></dt><dd><p>Times for which magnification values are requested.</p>
+<dt>times:  <em>np.ndarray</em>, <em>list of floats</em>, or <em>float</em></dt><dd><p>Epochs for which source positions are requested.</p>
 </dd>
 </dl>
 </dd>
@@ -365,8 +365,8 @@ between which it is on the list, e.g.,</p>
 </pre></div>
 </div>
 </dd>
-<dt>source: <em>int</em> or <em>None</em></dt><dd><p>Which source given methods apply to? Accepts 1, 2, or <em>None</em>
-(i.e., all sources).</p>
+<dt>source: <em>int</em> or <em>None</em>, optional</dt><dd><p>Which source do the given methods apply to? Accepts 1, 2, or
+<em>None</em> (i.e., all sources). Default is <em>None</em></p>
 </dd>
 </dl>
 </dd>
@@ -374,8 +374,46 @@ between which it is on the list, e.g.,</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.model.Model.get_magnification_methods">
+<span class="sig-name descname"><span class="pre">get_magnification_methods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_magnification_methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets methods used for magnification calculation. See
+<a class="reference internal" href="#MulensModel.model.Model.set_magnification_methods" title="MulensModel.model.Model.set_magnification_methods"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_magnification_methods()</span></code></a></p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>source: <em>int</em> or <em>None</em>, optional</dt><dd><p>Which source do the given methods apply to? Accepts 1, 2, or
+<em>None</em> (i.e., all sources). Default is <em>None</em>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.model.Model.methods">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">methods</span></span><a class="headerlink" href="#MulensModel.model.Model.methods" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> of methods used for magnification calculation or <em>dict</em> of
+<em>lists</em> if there are multiple sources.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="MulensModel.model.Model.set_default_magnification_method">
 <span class="sig-name descname"><span class="pre">set_default_magnification_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.set_default_magnification_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores information on method to be used, when no method is
+directly specified. See
+<a class="reference internal" href="MulensModel.magnificationcurve.html#MulensModel.magnificationcurve.MagnificationCurve" title="MulensModel.magnificationcurve.MagnificationCurve"><code class="xref py py-class docutils literal notranslate"><span class="pre">MagnificationCurve</span></code></a>
+for a list of implemented methods.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>method: <em>str</em></dt><dd><p>Name of the method to be used.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.model.Model.default_magnification_method">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_magnification_method</span></span><a class="headerlink" href="#MulensModel.model.Model.default_magnification_method" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores information on method to be used, when no method is
 directly specified. See
 <a class="reference internal" href="MulensModel.magnificationcurve.html#MulensModel.magnificationcurve.MagnificationCurve" title="MulensModel.magnificationcurve.MagnificationCurve"><code class="xref py py-class docutils literal notranslate"><span class="pre">MagnificationCurve</span></code></a>
@@ -398,6 +436,26 @@ for a list of implemented methods.</p>
 <dt>methods_parameters: <em>dict</em></dt><dd><p>Dictionary that for method names (keys) returns dictionary
 in the form of <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> that are passed to given method,
 e.g., <code class="docutils literal notranslate"><span class="pre">{'VBBL':</span> <span class="pre">{'accuracy':</span> <span class="pre">0.005}}</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.model.Model.get_magnification_methods_parameters">
+<span class="sig-name descname"><span class="pre">get_magnification_methods_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.model.Model.get_magnification_methods_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get additional parameters for a specific magnification calculation
+method or methods.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>method: <em>str</em>, <em>list</em></dt><dd><p>Name of method or a list of the names for which parameters
+will be returned.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>method_parameters: <em>dict</em></dt><dd><p>see <a class="reference internal" href="#MulensModel.model.Model.set_magnification_methods_parameters" title="MulensModel.model.Model.set_magnification_methods_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_magnification_methods_parameters()</span></code></a></p>
 </dd>
 </dl>
 </dd>

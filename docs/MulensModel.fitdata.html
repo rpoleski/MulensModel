@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.fitdata module &#8212; MulensModel 2.17.0 documentation</title>
+    <title>MulensModel.fitdata module &#8212; MulensModel 2.18.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -305,13 +305,41 @@ Trajectory, even if it is not part of the <a class="reference internal" href="#M
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model">
-<span class="sig-name descname"><span class="pre">get_d_A_d_u_for_point_lens_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate dA/du for PSPL</p>
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_d_A_d_u_for_PSPL_model">
+<span class="sig-name descname"><span class="pre">get_d_A_d_u_for_PSPL_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_u_for_PSPL_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate dA/du for PSPL point-source–point-lens model.</p>
 <p>No parameters.</p>
 <dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
 <dt>dA_du: <em>np.ndarray</em></dt><dd><p>Derivative dA/du.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model">
+<span class="sig-name descname"><span class="pre">get_d_A_d_u_for_point_lens_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_u_for_point_lens_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate dA/du for point-source–point-lens model. For finite source
+models see <code class="xref py py-class docutils literal notranslate"><span class="pre">FSPLDerivs</span></code> or
+py:func:<cite>get_d_A_d_params_for_point_lens_model()</cite></p>
+<dl class="simple">
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>dA_du: <em>np.ndarray</em></dt><dd><p>Derivative dA/du.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.get_d_A_d_rho">
+<span class="sig-name descname"><span class="pre">get_d_A_d_rho</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.get_d_A_d_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the derivative of the magnification with respect to rho.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>d_A_d_rho: <em>np.ndarray</em></dt><dd><p>derivative</p>
 </dd>
 </dl>
 </dd>
@@ -407,12 +435,53 @@ fix_source_flux_ratio (see <a class="reference external" href="https://docs.pyth
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.data_magnification">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data_magnification</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.data_magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns previously calculated magnifications. To calculate the
+magnifications (e.g., if something changed in the model), use
+<a class="reference internal" href="#MulensModel.fitdata.FitData.get_data_magnification" title="MulensModel.fitdata.FitData.get_data_magnification"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_data_magnification()</span></code></a>.</p>
+<dl class="simple">
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>data_magnification: <em>np.ndarray</em></dt><dd><p>The model magnification evaluated for each datapoint. If there
+is more than one source, the magnification of each source is
+reported separately.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.fitdata.FitData.gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma</span></span><a class="headerlink" href="#MulensModel.fitdata.FitData.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>Limb-darkening coefficient for this fit. Set by
 <a class="reference internal" href="MulensModel.mulensdata.html#MulensModel.mulensdata.MulensData.bandpass" title="MulensModel.mulensdata.MulensData.bandpass"><code class="xref py py-attr docutils literal notranslate"><span class="pre">bandpass</span></code></a> and
 <a class="reference internal" href="MulensModel.model.html#MulensModel.model.Model.get_limb_coeff_gamma" title="MulensModel.model.Model.get_limb_coeff_gamma"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_limb_coeff_gamma()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.FSPL_Derivatives">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FSPL_Derivatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.FSPL_Derivatives" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Calculates derivatives of an FSPL model for each datapoint.</p>
+<dl class="simple">
+<dt>Arguments :</dt><dd><p>fit: py:class:<cite>FitData</cite> object</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.FSPL_Derivatives.get_gradient">
+<span class="sig-name descname"><span class="pre">get_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.FSPL_Derivatives.get_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the gradient of the magnification with respect to the
+FSPL parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.fitdata.FitData.FSPL_Derivatives.get_d_A_d_rho">
+<span class="sig-name descname"><span class="pre">get_d_A_d_rho</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.fitdata.FitData.FSPL_Derivatives.get_d_A_d_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the derivative of the magnification with respect to rho.</p>
+</dd></dl>
+
 </dd></dl>
 
 </dd></dl>

@@ -63,17 +63,20 @@ event_default.plot_source_for_datasets()
 datasets_custom = []
 color_list = ['black', 'red', 'yellow', 'green', 'cyan', 'blue', 'purple']
 for (color, file_) in zip(color_list, sorted(files)):
+    label = os.path.basename(file_).split('_', maxsplit=2)[0]
+    if label == 'CTIO':
+        label += ' ' + os.path.basename(file_).split('_', maxsplit=2)[1]
+
     data = mm.MulensData(
         file_name=file_, comments=["\\", "|"],
         plot_properties={
             'color': color,
-            'label': os.path.basename(file_).split('_', maxsplit=2)[0]})
+            'label': label})
+
     datasets_custom.append(data)
 
 event_custom = mm.Event(datasets=datasets_custom, model=plens_model)
 
-plt.figure()
-ax31 = plt.subplot(gs[0])
 t_start = t_0 - 3.
 t_stop = t_0 + 1.
 n_star = 2.
@@ -82,6 +85,9 @@ t_star_stop = t_0 + n_star * t_star
 times = np.arange(t_start, t_star_start, 0.01)
 times = np.concatenate((times, np.arange(t_star_start, t_star_stop, 0.0001)))
 times = np.concatenate((times, np.arange(t_star_stop, t_stop, 0.01)))
+
+plt.figure()
+ax31 = plt.subplot(gs[0])
 event_custom.plot_model(
     times=times, color='black', subtract_2450000=True)
 event_custom.plot_data(marker='s', markersize=3, subtract_2450000=True)

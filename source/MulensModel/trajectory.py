@@ -7,7 +7,7 @@ from astropy.time import Time
 from MulensModel import utils
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.coordinates import Coordinates
-from MulensModel.orbits.orbit import Orbit
+from MulensModel.orbits import Orbit
 
 
 class Trajectory(object):
@@ -138,6 +138,23 @@ class Trajectory(object):
         """
         return self._delta_N_E
 
+    @property
+    def d_perp(self):
+        """
+        *np.ndarray*
+
+        Projection of the Earth-Satellite
+        separation vector (in AU) on the sky.
+        """
+        if (self.parallax['satellite'] and
+                self.satellite_skycoord is not None):
+            delta_satellite = self._get_delta_satellite()
+            return np.sqrt(delta_satellite['N']**2 + delta_satellite['E']**2)
+        else:
+            raise AttributeError(
+                'Only valid for satellite parallax. ' +
+                'satellite_skycoord must be provided.')
+
     def get_xy(self):
         """
         For a given set of parameters
@@ -153,7 +170,7 @@ class Trajectory(object):
         vector_u = self.parameters.u_0 * np.ones(self.times.size)
 
         if self.parameters.pi_E is not None:
-            shifts = self._get_shifts_parralax()
+            shifts = self._get_shifts_parallax()
             vector_tau += shifts[0]
             vector_u += shifts[1]
 
@@ -188,7 +205,7 @@ class Trajectory(object):
         self._x = vector_x
         self._y = vector_y
 
-    def _get_shifts_parralax(self):
+    def _get_shifts_parallax(self):
         """calculate shifts caused by parallax effect"""
         if self.coords is None:
             raise ValueError(
