@@ -332,13 +332,13 @@ class ModelParameters(object):
             else:
                 self._n_sources = 2
         else:
-            self._check_for_overdefined_source(common)
+            self._check_for_underdefined_source(common)
             self._n_sources = 2
 
-    def _check_for_overdefined_source(self, common):
+    def _check_for_underdefined_source(self, common):
         """
         Make sure that finite source size in binary source model
-        is not overdefined.
+        is not underdefined.
         """
         common_no_1_2 = {param[:-2] for param in common}
         condition_1 = (len(common_no_1_2) == len(common))
@@ -1660,7 +1660,7 @@ class ModelParameters(object):
         """
         *float*
 
-        The argument of periapsis of the xallrap orbit, i.e., the angle
+        The argument of periapsis of the xallarap orbit, i.e., the angle
         between the ascending node and periapsis measured in
         the direction of motion.
         The units are degrees.
@@ -1700,7 +1700,7 @@ class ModelParameters(object):
         The mass ratio of the second and the first source.
         This is value must be positive and can be > 1.
         Defined only for xallarap binary-source models because it does not
-        affect the magnification for binary-source models without xallrap.
+        affect the magnification for binary-source models without xallarap.
         """
         return self.parameters['q_source']
 
