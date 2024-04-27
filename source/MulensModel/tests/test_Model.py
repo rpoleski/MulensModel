@@ -59,6 +59,16 @@ class TestModel(unittest.TestCase):
         with self.assertRaises(ValueError):
             mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
 
+    def test_finite_source_method_without_rho(self):
+        """
+        Test method that requires fintie source to run on model that
+        has point source.
+        """
+        model = mm.Model({'t_0': 10, 'u_0': 0.2, 't_E': 50})
+        with self.assertRaises(ValueError):
+            model.set_magnification_methods(
+                [9, "finite_source_uniform_Gould94", 11])
+
 
 def test_model_parallax_definition():
     """Update parameters in an existing model"""

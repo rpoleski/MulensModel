@@ -912,6 +912,8 @@ class Model(object):
             raise ValueError('In Model.set_magnification_methods() ' +
                              'the parameter source, has to be 1, 2 or None.')
 
+        self._check_methods(methods, source)
+
         if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
                 raise ValueError('You cannot set methods for all sources ' +
@@ -931,6 +933,23 @@ class Model(object):
             if self._methods is None:
                 self._methods = {}
             self._methods[source] = methods
+
+    def _check_methods(self, methods, source):
+        """
+        Check consistency of methods:
+        - are finite source methods used for poitn sources?
+        """
+        used_methods = set(methods[1::2])
+        allowed = set(['point_source', 'point_source_point_lens'])
+        difference = used_methods - allowed
+        if len(difference) == 0:
+            return
+
+        if self.n_sources == 1:
+            if not self.parameters.is_finite_source():
+                raise ValueError(
+                    'It is impossible to use finite source method for '
+                    'a point source: ' + str(difference))
 
     def get_magnification_methods(self, source=None):
         """
