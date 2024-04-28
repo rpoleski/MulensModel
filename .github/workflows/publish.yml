@@ -15,7 +15,7 @@ on:
         type: boolean
 
 env:
-  PUBLISH: ${{ inputs.publish || true }} # Default true for automatic runs
+  PUBLISH: ${{ inputs.publish == '' && true || inputs.publish }} # Default true for automatic runs
 
 jobs:
 
