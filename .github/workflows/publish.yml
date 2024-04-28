@@ -18,10 +18,12 @@ env:
   PUBLISH: ${{ inputs.publish || true }} # Default true for automatic runs
 
 jobs:
+
   build_wheels:
     name: ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false # If false, continue with other matrix even if one fails
       matrix:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
