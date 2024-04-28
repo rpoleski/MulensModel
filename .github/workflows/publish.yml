@@ -28,15 +28,12 @@ jobs:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
         os: [ubuntu-latest, macos-latest]
-        cibw_archs: [auto64]
+        cibw_archs: [auto64, arm64]
         cibw_build: [cp38-*, cp39-*, cp310-*, cp311-*]
         cibw_skip: [pp*]
-        include:
-        # MacOS Silicon (Python >= 3.8)
-        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp38-*"}
-        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp39-*"}
-        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp310-*"}
-        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp311-*"}
+        exclude:
+        - os: ubuntu-latest
+          cibw_archs: "arm64"
 
     steps:
       - uses: actions/checkout@v4
