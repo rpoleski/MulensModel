@@ -6,31 +6,40 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: |
+          Should publish to PyPA (default false for manual runs). Artifacts are
+          available in both cases.
+        default: false
+        type: boolean
+
+env:
+  PUBLISH: ${{ inputs.publish == '' && true || inputs.publish }} # Default true for automatic runs
 
 jobs:
+
   build_wheels:
     name: ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false # If false, continue with other matrix even if one fails
       matrix:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
         os: [ubuntu-latest, macos-latest]
-        cibw_archs: [auto64]
-        cibw_build: [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
+        cibw_archs: [auto64, arm64]
+        cibw_build: [cp38-*, cp39-*, cp310-*, cp311-*]
         cibw_skip: [pp*]
-        include:
-        # MacOS Silicon (Python >= 3.8)
-        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp38-*"}
-        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp39-*"}
-        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp310-*"}
-        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp311-*"}
+        exclude:
+        - os: ubuntu-latest
+          cibw_archs: "arm64"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.2
+        uses: pypa/cibuildwheel@v2.17
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -46,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -72,7 +81,7 @@ jobs:
     needs: [build_source, build_wheels]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Download sdist artifacts to dist/
       uses: actions/download-artifact@v3
@@ -87,6 +96,7 @@ jobs:
         path: dist/
 
     - name: Publish package to PyPI
+      if: ${{ env.PUBLISH }}
       # All files in dist/ are published
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
