@@ -6,6 +6,16 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: |
+          Should publish to PyPA (default false for manual runs). Artifacts will
+          still be made available in both cases.
+        default: false
+        type: boolean
+
+env:
+  PUBLISH: ${{ inputs.publish || true }} # Default true for automatic runs
 
 jobs:
   build_wheels:
@@ -15,22 +25,22 @@ jobs:
       matrix:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
-        os: [ubuntu-latest] # [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
         cibw_archs: [auto64]
-        cibw_build: [cp37-*] # [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
+        cibw_build: [cp37-*, cp38-*, cp39-*, cp310-*, cp311-*]
         cibw_skip: [pp*]
-        # include:
+        include:
         # MacOS Silicon (Python >= 3.8)
-        # - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp38-*"}
-        # - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp39-*"}
-        # - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp310-*"}
-        # - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp311-*"}
+        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp38-*"}
+        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp39-*"}
+        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp310-*"}
+        - {os: macos-latest, cibw_archs: "arm64", cw_build: "cp311-*"}
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.2
+        uses: pypa/cibuildwheel@v2.17
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -87,6 +97,7 @@ jobs:
         path: dist/
 
     - name: Publish package to PyPI
+      if: ${{ env.PUBLISH }}
       # All files in dist/ are published
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
