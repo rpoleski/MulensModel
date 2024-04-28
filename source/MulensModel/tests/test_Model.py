@@ -69,6 +69,35 @@ class TestModel(unittest.TestCase):
             model.set_magnification_methods(
                 [9, "finite_source_uniform_Gould94", 11])
 
+    def test_finite_source_method_without_rho_1(self):
+        """
+        2 source, only source 1 is finite, but we set finite method for both.
+        """
+        model = mm.Model({'t_0_1': 10, 'u_0_1': 0.2, 't_0_2': 30,
+                          'u_0_2': 0.4, 't_E': 50, 'rho_1': 0.6})
+        with self.assertRaises(ValueError):
+            model.set_magnification_methods(
+                [9, "finite_source_uniform_Gould94", 11])
+
+    def test_finite_source_method_without_rho_2(self):
+        """
+        2 source, only source 1 is finite, but we set finite method for both.
+        """
+        model = mm.Model({'t_0_1': 10, 'u_0_1': 0.2, 't_0_2': 30,
+                          'u_0_2': 0.4, 't_E': 50, 'rho_2': 0.6})
+        with self.assertRaises(ValueError):
+            model.set_magnification_methods(
+                [29, "finite_source_uniform_Gould94", 31])
+
+
+def test_model_methods():
+    """
+    Simplest model and setting point_source method.
+    It obviously should work but it's worth to check it.
+    """
+    model = mm.Model({'t_0': 10, 'u_0': 0.2, 't_E': 50})
+    model.set_magnification_methods([9, "point_source", 11])
+
 
 def test_model_parallax_definition():
     """Update parameters in an existing model"""

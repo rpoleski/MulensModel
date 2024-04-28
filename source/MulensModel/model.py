@@ -945,11 +945,20 @@ class Model(object):
         if len(difference) == 0:
             return
 
+        fmt = ('It is impossible to use finite source method for '
+               'a point source {:}: {:}')
         if self.n_sources == 1:
             if not self.parameters.is_finite_source():
-                raise ValueError(
-                    'It is impossible to use finite source method for '
-                    'a point source: ' + str(difference))
+                raise ValueError(fmt.format("", difference))
+        elif self.n_sources == 2:
+            if source in [1, None]:
+                if not self.parameters.source_1_parameters.is_finite_source():
+                    raise ValueError(fmt.format("no. 1", difference))
+            if source in [2, None]:
+                if not self.parameters.source_2_parameters.is_finite_source():
+                    raise ValueError(fmt.format("no. 2", difference))
+        else:
+            raise ValueError('internal error - too many sources')
 
     def get_magnification_methods(self, source=None):
         """
