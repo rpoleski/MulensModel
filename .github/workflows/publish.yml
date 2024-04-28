@@ -9,8 +9,8 @@ on:
     inputs:
       publish:
         description: |
-          Should publish to PyPA (default false for manual runs). Artifacts will
-          still be made available in both cases.
+          Should publish to PyPA (default false for manual runs). Artifacts are
+          available in both cases.
         default: false
         type: boolean
 
