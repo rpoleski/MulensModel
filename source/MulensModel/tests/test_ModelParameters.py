@@ -176,12 +176,12 @@ def test_rho_t_e_t_star():
 
 class test(unittest.TestCase):
     def test_too_much_rho_t_e_t_star(self):
+        t_0 = 2450000.
+        u_0 = 0.1
+        t_E = 20. * u.day
+        rho = 0.001
+        t_star = t_E * rho
         with self.assertRaises(KeyError):
-            t_0 = 2450000.
-            u_0 = 0.1
-            t_E = 20. * u.day
-            rho = 0.001
-            t_star = t_E * rho
             mm.ModelParameters({
                 't_0': t_0, 'u_0': u_0, 't_E': t_E,
                 'rho': rho, 't_star': t_star})
@@ -512,8 +512,6 @@ class TestXallarapErrors(unittest.TestCase):
             parameters.pop(parameter)
             with self.assertRaises(KeyError):
                 mm.ModelParameters(parameters)
-                print("Test failed (i.e. KeyError was not raised) for ",
-                      parameter)
 
     def test_negative_period(self):
         """
@@ -583,6 +581,15 @@ class TestXallarapErrors(unittest.TestCase):
         """
         parameters = {**xallarap_parameters,
                       'rho_1': 0.1, 't_star_1': 0.1, 'q_source': 1.0}
+        with self.assertRaises(ValueError):
+            mm.ModelParameters(parameters)
+
+    def test_mixed_binary_source_and_xallarap(self):
+        """
+        Xallarap cannot be combined with just
+        one stardard binary source parameter.
+        """
+        parameters = {**xallarap_parameters, 'u_0_2': 0.123}
         with self.assertRaises(ValueError):
             mm.ModelParameters(parameters)
 
@@ -684,7 +691,6 @@ def test_xallarap_n_sources():
     parameters = {**xallarap_parameters, 't_star_1': 2.}
     model_4 = mm.ModelParameters(parameters)
     assert model_4.n_sources == 1
-
 
 
 def test_2S1L_xallarap_individual_source_parameters():
