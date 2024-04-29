@@ -74,6 +74,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
+    if:  ${{ !(inputs.disable-publish || false) }} # Only skips if inputs.disable-publish is true
     runs-on: ubuntu-latest
     needs: [build_source, build_wheels]
 
@@ -93,7 +94,6 @@ jobs:
         path: dist/
 
     - name: Publish package to PyPI
-      if:  ${{ !(inputs.disable-publish || false) }} # Only skips if inputs.disable-publish is true
       # All files in dist/ are published
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
