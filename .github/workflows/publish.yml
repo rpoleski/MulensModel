@@ -7,15 +7,12 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
-      publish:
+      disable-publish:
         description: |
-          Should publish to PyPA (default false for manual runs). Artifacts are
+          Disables publish to PyPA (default, true for manual runs). Artifacts are
           available in both cases.
-        default: false
+        default: true
         type: boolean
-
-env:
-  PUBLISH: ${{ inputs.publish == '' && true || inputs.publish }} # Default true for automatic runs
 
 jobs:
 
@@ -77,6 +74,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
+    if:  ${{ !(inputs.disable-publish || false) }} # Only skips if inputs.disable-publish is true
     runs-on: ubuntu-latest
     needs: [build_source, build_wheels]
 
@@ -96,7 +94,6 @@ jobs:
         path: dist/
 
     - name: Publish package to PyPI
-      if: ${{ env.PUBLISH }}
       # All files in dist/ are published
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
