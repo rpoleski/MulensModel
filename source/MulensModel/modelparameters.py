@@ -201,10 +201,11 @@ class SourceParameters(object):
         """
 
     def __init__(self, parameters):
+        print('WARNING: THERE IS A LOT OF DUPLICATED CODE IN THE SOURCEPARAMETERS CLASS!')
         if not isinstance(parameters, dict):
             raise TypeError(
-                'ModelParameters must be initialized with dict ' +
-                "as a parameter\ne.g., ModelParameters({'t_0': " +
+                'SourceParameters must be initialized with dict ' +
+                "as a parameter\ne.g., SourceParameters({'t_0': " +
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
         self._check_valid_combination_1_source(parameters.keys())
@@ -523,9 +524,14 @@ class ModelParameters(object):
             print('L242 source params', source_params)
             for i, params_i in enumerate(source_params):
                 try:
+                    print('L526', i+1, params_i)
                     self.__setattr__(
                         '_source_{0}_parameters'.format(i + 1),
-                        ModelParameters(params_i))
+                        SourceParameters(params_i))
+                    print(
+                        'source_parameters',
+                        self.__getattr__(
+                            '_source_{0}_parameters'.format(i + 1)))
                 except Exception:
                     print("ERROR IN INITIALIZING SOURCE {0}".format(i + 1))
                     raise
@@ -542,9 +548,14 @@ class ModelParameters(object):
         else:
             for source_param in ModelParameters._source_params_head:
                 if item[0:len(source_param)] == source_param:
+                    print('ModelParameters.__getattr__')
                     print('item, source_param', item, source_param)
                     print('parameter', self.parameters)
-                    return self.parameters[item]
+                    #return self.parameters[item]
+                    source_num = item.split('_')[-1]
+                    return self.__getattr__(
+                        '_source_{0}_parameters'.format(
+                            source_num)).__getattribute__(source_param)
 
             if (len(item) > 6) and item[0:7] == 'source_':
                 return object.__getattribute__(self, '_{0}'.format(item))
