@@ -1961,6 +1961,8 @@ class ModelParameters(object):
         The time of minimum projected separation between the source no. 2
         and the lens center of mass.
         """
+        # JCY: SHOULD THIS (AND OTHER _N) PARAMETERS BE REFACTORED TO ACCESS
+        # THE _SOURCE_N_PARAMETERS OBJECTS?
         return self.parameters['t_0_2']
 
     @t_0_2.setter
