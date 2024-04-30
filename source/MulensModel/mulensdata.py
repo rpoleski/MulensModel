@@ -81,6 +81,16 @@ class MulensData(object):
             Flags for good data, should be the same length as the
             number of data points.
 
+        errorbars_scale: *dict*, optional
+            Scales magnitude error bars according to the function:
+            sigma_mag_new = sqrt((factor * sigma_mag)^2 + minimum^2)
+            Accepted keys:
+
+            ``'factor'`` - *float*, Default: 1.0
+
+            ``'minimum'`` - *float*, Default: 0.0
+
+
         plot_properties: *dict*, optional
             Specify properties for plotting, e.g. ``color``, ``marker``,
             ``label``, ``alpha``, ``zorder``, ``markersize``, ``visible``,
@@ -122,7 +132,7 @@ class MulensData(object):
                  coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
-                 plot_properties=None, **kwargs):
+                 errorbars_scale=None, plot_properties=None, **kwargs):
 
         self._n_epochs = None
         self._horizons = None
@@ -155,6 +165,10 @@ class MulensData(object):
 
         # Set up satellite properties (if applicable)
         self._ephemerides_file = ephemerides_file
+
+        if errorbars_scale is not None:
+            self.scale_errorbars(
+                factor=errorbars_scale['factor'], minimum=errorbars_scale['minimum'])
 
     def __repr__(self):
         name = self._get_name()
@@ -857,7 +871,7 @@ class MulensData(object):
             'add_2460000': self._init_keys['add246'],
             'bandpass': self.bandpass, 'bad': np.array(self.bad),
             'plot_properties': {**self.plot_properties}
-            }
+        }
 
         out = MulensData(**kwargs)
         out._file_name = self._file_name
@@ -904,7 +918,7 @@ class MulensData(object):
 
         self._err_mag = new_err_mag
         self._err_flux = Utils.get_flux_and_err_from_mag(
-                mag=self.mag, err_mag=self.err_mag)[1]
+            mag=self.mag, err_mag=self.err_mag)[1]
 
     @property
     def errorbars_scale_factors(self):
