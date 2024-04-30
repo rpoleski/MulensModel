@@ -89,7 +89,6 @@ class MulensData(object):
 
             ``'minimum'`` - *float*, Default: 0.0
 
-
         plot_properties: *dict*, optional
             Specify properties for plotting, e.g. ``color``, ``marker``,
             ``label``, ``alpha``, ``zorder``, ``markersize``, ``visible``,
