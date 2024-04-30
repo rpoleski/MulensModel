@@ -82,10 +82,9 @@ class MulensData(object):
             number of data points.
 
         errorbars_scale: *dict*, optional
-            Scales magnitude error bars according to the function:
+            Scales magnitude error bars using the equation:
             sigma_mag_new = sqrt((factor * sigma_mag)^2 + minimum^2)
             Accepted keys:
-
             ``'factor'`` - *float*, Default: 1.0
 
             ``'minimum'`` - *float*, Default: 0.0
