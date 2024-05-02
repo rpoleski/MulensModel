@@ -764,3 +764,15 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
         new_value_2 /= q_source
 
     assert getattr(model.source_2_parameters, key) == new_value_2
+
+
+def test_reference_position():
+    """
+    Make sure that for xallarap model bith sources have the same
+    reference position.
+    """
+    parameters = {**xallarap_parameters, 'q_source': 0.12345}
+    model = mm.ModelParameters(parameters)
+    text_1 = model.source_1_parameters.__repr__().split("\n")[-1]
+    text_2 = model.source_2_parameters.__repr__().split("\n")[-1]
+    assert text_1 == text_2
