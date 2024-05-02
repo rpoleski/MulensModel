@@ -601,6 +601,13 @@ class TestXallarapErrors(unittest.TestCase):
         with self.assertRaises(KeyError):
             mm.ModelParameters(parameters)
 
+    def test_PSPL_and_q_source(self):
+        """
+        Make sure one cannot provide only PSPL parameters and q_source.
+        """
+        with self.assertRaises(KeyError):
+            mm.ModelParameters({'t_0': 1, 'u_0': 2, 't_E': 3, 'q_source': 1})
+
 
 def test_print_xallarap():
     """

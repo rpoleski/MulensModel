@@ -480,12 +480,27 @@ class ModelParameters(object):
                 parameters_2[key] = value
 
         if self.n_sources == 2 and self._type['xallarap']:
-            if parameters['q_source'] < 0.:
-                raise ValueError('q_source cannot be negative')
-            parameters_2['xi_semimajor_axis'] /= parameters['q_source']
-            parameters_2['xi_argument_of_latitude_reference'] += 180.
+            self._set_changed_parameters_2nd_source(parameters['q_source'],
+                                                    parameters_2)
 
         return (parameters_1, parameters_2)
+
+    def _set_changed_parameters_2nd_source(self, q_source, parameters_2):
+        """
+        For xallarap model with 2 sources, the orbit of the second source
+        must have 2 parameters changed.
+        Functions starts with tests of input
+        """
+        if q_source <= 0.:
+            raise ValueError('q_source cannot be negative')
+
+        check_keys = ['xi_semimajor_axis', 'xi_argument_of_latitude_reference']
+        for key in check_keys:
+            if key not in parameters_2:
+                raise KeyError('xallarap model with 2 sources requires ' + key)
+
+        parameters_2['xi_semimajor_axis'] /= q_source
+        parameters_2['xi_argument_of_latitude_reference'] += 180.
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
