@@ -652,7 +652,8 @@ class ModelParameters(object):
         Also make sure that xallarap is not mixed with t_0_1, u_0_1 etc.
         """
         binary_params_nonFS = 't_0_1 t_0_2 u_0_1 u_0_2'.split()
-        binary_params_FS = 'rho_1 rho_2 t_star_1 t_star_2'.split()
+        binary_params_FS_2 = ['rho_2', 't_star_2']
+        binary_params_FS = ['rho_1', 't_star_1'] + binary_params_FS_2
         binary_params = binary_params_nonFS + binary_params_FS
         for parameter in binary_params:
             if (parameter in keys) and (parameter[:-2] in keys):
@@ -663,6 +664,11 @@ class ModelParameters(object):
         if self.is_xallarap and len(common) > 0:
             msg = 'xallarap parameters cannot be mixed with {:}'
             raise NotImplementedError(msg.format(common))
+
+        common = set(keys).intersection(binary_params_FS_2)
+        if self.is_xallarap and len(common) > 0 and 'q_source' not in keys:
+            raise KeyError('You cannot define xallarap model without '
+                           'q_star but with rho_2 or t_star_2')
 
     def _check_valid_combination_1_source_standard(self, keys):
         """

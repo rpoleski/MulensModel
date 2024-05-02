@@ -593,6 +593,14 @@ class TestXallarapErrors(unittest.TestCase):
         with self.assertRaises(ValueError):
             mm.ModelParameters(parameters)
 
+    def test_no_q_source_but_with_rho_2(self):
+        """
+        xallarap model without q_source cannot have rho_2
+        """
+        parameters = {**xallarap_parameters, 'rho_2': 0.1}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(parameters)
+
 
 def test_print_xallarap():
     """
