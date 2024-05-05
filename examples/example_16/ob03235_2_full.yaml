@@ -1,5 +1,5 @@
 photometry_files:
-    - {file_name: data/OB03235/OB03235_OGLE.txt, bandpass: I, plot_properties: {zorder: 10., color: red, label: "OGLE I-band"}}
+    - {file_name: data/OB03235/OB03235_OGLE.txt, bandpass: I, plot_properties: {zorder: 10., color: red, label: "OGLE I-band"}, scale_errorbars: {factor: 1.5, minimum: 0.001}}
     - {file_name: data/OB03235/OB03235_MOA.txt, phot_fmt: flux}
 # To add satellite ephemeris:
 #    - {file_name: some_K2_data.txt, phot_fmt: flux, bandpass: 'Kp', ephemerides_file: K2_ephemeris_01.dat}
