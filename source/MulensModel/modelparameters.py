@@ -527,7 +527,7 @@ class ModelParameters(object):
                     print('L526', i+1, params_i)
                     self.__setattr__(
                         '_source_{0}_parameters'.format(i + 1),
-                        SourceParameters(params_i))
+                        ModelParameters(params_i))
                     print(
                         'source_parameters',
                         self.__getattr__(
