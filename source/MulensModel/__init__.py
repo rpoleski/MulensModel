@@ -19,8 +19,8 @@ from MulensModel.horizons import Horizons
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.model import Model
-from MulensModel.modelparameters import ModelParameters, which_parameters, \
-    SourceParameters
+from MulensModel.modelparameters import ModelParameters, which_parameters
+#    SourceParameters
 from MulensModel.mulensdata import MulensData
 from MulensModel.mulensobjects import *
 from MulensModel.orbits import *
