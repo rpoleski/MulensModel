@@ -30,7 +30,7 @@ class TestModelParameters(unittest.TestCase):
                                 'shear_G': 0.1, 'alpha': 123.})
         with self.assertRaises(ValueError):
             mm.ModelParameters({'t_0': 123., 'u_0': 1, 't_E': 10., 's': 1.2,
-                               'alpha': 34.56, 'q': 1.5})
+                               'alpha': 34.56, 'q': -0.5})
 
     def test_init_for_2_sources(self):
         """
