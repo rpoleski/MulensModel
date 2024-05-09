@@ -182,6 +182,31 @@ def test_q_gt_1_is_good():
     assert max(magnifications_1 - magnifications_3) < 1e-10
 
 
+def test_q_gt_1_is_smooth():
+    """
+    Check that there is a smooth transition from q = 0.99 and q = 1.01.
+    """
+    t_0 = 3583.
+    u_0 = 0.3
+    t_E = 12.
+    s = 2.18
+    q = 0.99  # 0.999 also works fine
+    alpha = 339.0
+    rho = 0.001
+    planet = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
+                       'alpha': alpha, 'rho': rho})
+    planet_2 = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': 1/q,
+                        'alpha': alpha+180., 'rho': rho})
+
+    planet.set_magnification_methods([3590., 'VBBL', 3595.])
+    planet_2.set_magnification_methods([3590., 'VBBL', 3595.])
+    t_range = np.arange(3580., 3600., 0.1)
+    magnifications_1 = planet.get_magnification(time=t_range)
+    magnifications_2 = planet_2.get_magnification(time=t_range)
+
+    assert max(magnifications_1 - magnifications_2) < 1e-10
+
+
 def test_rho_t_e_t_star():
     """check if conversions between rho, t_E, and t_star work ok"""
     t_0 = 2450000.
