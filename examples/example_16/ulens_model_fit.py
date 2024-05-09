@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.35.1'
+__version__ = '0.36.0'
 
 
 class UlensModelFit(object):
@@ -63,6 +63,10 @@ class UlensModelFit(object):
               [{'file_name': 'data_1.dat'}, 'data_2.dat']
 
             Currently, keyword ``'add_2450000'`` is turned on by default.
+            Except standard parameters of MulensData, one can additionally
+            pass
+            ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
+            to scale uncertainties.
 
         starting_parameters: *dict*
             Starting values of the parameters.
@@ -1016,16 +1020,7 @@ class UlensModelFit(object):
                  for f in self._photometry_files]
         self._datasets = []
         for file_ in files:
-            try:
-                dataset = mm.MulensData(**{**kwargs, **file_})
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    'Provided file path does not exist: ' +
-                    str(file_['file_name']))
-            except Exception:
-                print('Something went wrong while reading file ' +
-                      str(file_['file_name']), file=sys.stderr)
-                raise
+            dataset = self._get_1_dataset(file_, kwargs)
             self._datasets.append(dataset)
 
         if self._residuals_output:
@@ -1034,6 +1029,27 @@ class UlensModelFit(object):
                     len(self._datasets), len(self._residuals_files))
                 raise ValueError('The number of datasets and files for '
                                  'residuals ouptut do not match: ' + out)
+
+    def _get_1_dataset(self, file_, kwargs):
+        """
+        Construct a single dataset and possibly rescale uncertainties in it.
+        """
+        scaling = file_.pop("scale_errorbars", None)
+        try:
+            dataset = mm.MulensData(**{**kwargs, **file_})
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                'Provided file path does not exist: ' +
+                str(file_['file_name']))
+        except Exception:
+            print('Something went wrong while reading file ' +
+                  str(file_['file_name']), file=sys.stderr)
+            raise
+
+        if scaling is not None:
+            dataset.scale_errorbars(**scaling)
+
+        return dataset
 
     def _check_ulens_model_parameters(self):
         """
@@ -1604,7 +1620,8 @@ class UlensModelFit(object):
 
         fixed = set(self._fixed_parameters.keys())
 
-        allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters +
+        allowed = set(self._all_MM_parameters +
+                      self._fixed_only_MM_parameters +
                       self._other_parameters)
         unknown = fixed - allowed
         if len(unknown) > 0:

@@ -213,7 +213,7 @@ class OrbitCircular(_OrbitAbstract):
         the argument_of_latitude (u) at given epoch
         """
         time_shift = self._period * u_reference / (2. * np.pi)
-        return epoch_reference - time_shift
+        return np.float64(epoch_reference - time_shift)
 
     def get_orbital_plane_position(self, time):
         """
