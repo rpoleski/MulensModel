@@ -150,6 +150,38 @@ def test_positive_t_E():
     assert params.t_E == params.t_eff / abs(params.u_0)
 
 
+def test_q_gt_1_is_good():
+    """
+    Check if the magnification is reproduced by transforming q -> 1/q and
+    alpha -> alpha +/- 180, including for q > 1. See issue #84.
+    """
+    t_0 = 3583.
+    u_0 = 0.3
+    t_E = 12.
+    s = 1.65
+    q = 0.25
+    alpha = 339.0
+    rho = 0.001
+
+    planet = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
+                       'alpha': alpha, 'rho': rho})
+    planet_2 = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': 1/q,
+                         'alpha': alpha+180., 'rho': rho})
+    planet_3 = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': 1/q,
+                         'alpha': alpha-180., 'rho': rho})
+    list_of_methods = [3588., 'VBBL', 3594., 'hexadecapole', 3598.0]
+    planet.set_magnification_methods(list_of_methods)
+    planet_2.set_magnification_methods(list_of_methods)
+    planet_3.set_magnification_methods(list_of_methods)
+    t_range = np.arange(3580., 3600., 0.1)
+    magnifications_1 = planet.get_magnification(time=t_range)
+    magnifications_2 = planet_2.get_magnification(time=t_range)
+    magnifications_3 = planet_3.get_magnification(time=t_range)
+
+    assert max(magnifications_1 - magnifications_2) < 1e-10
+    assert max(magnifications_1 - magnifications_3) < 1e-10
+
+
 def test_rho_t_e_t_star():
     """check if conversions between rho, t_E, and t_star work ok"""
     t_0 = 2450000.
