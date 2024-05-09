@@ -1,4 +1,5 @@
 from pathlib import Path
+import platform
 
 from setuptools import Extension, find_packages, setup
 
@@ -28,17 +29,16 @@ source_MM = SOURCE_PATH / "MulensModel"
 source_MMmo = source_MM / "mulensobjects"
 
 # C/C++ Extensions
+kwargs = dict()
+if platform.system().upper() != "WINDOWS":
+    kwargs['libraries'] = ["m"]
 ext_AC = Extension(
-    "MulensModel.AdaptiveContouring",
-    sources=[str(f.relative_to(PROJECT_PATH)) for f in source_AC.glob("*.c")],
-    libraries=["m"],
-)
+    "MulensModel.AdaptiveContouring", **kwargs,
+    sources=[str(f.relative_to(PROJECT_PATH)) for f in source_AC.glob("*.c")])
 ext_VBBL = Extension(
-    "MulensModel.VBBL",
+    "MulensModel.VBBL", **kwargs,
     sources=[
-        str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")],
-    libraries=["m"],
-)
+        str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")])
 
 setup(
     name='MulensModel',

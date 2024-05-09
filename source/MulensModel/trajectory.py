@@ -7,7 +7,7 @@ from astropy.time import Time
 from MulensModel import utils
 from MulensModel.modelparameters import ModelParameters
 from MulensModel.coordinates import Coordinates
-from MulensModel.orbits.orbit import Orbit
+from MulensModel.orbits import Orbit
 
 
 class Trajectory(object):
@@ -338,6 +338,5 @@ class Trajectory(object):
             key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
         orbit_parameters['epoch_reference'] = t_0_xi
         orbit = Orbit(**orbit_parameters)
-        reference_position = orbit.get_reference_plane_position(t_0_xi)
         positions = orbit.get_reference_plane_position(self.times)
-        return positions - reference_position.reshape((2, 1))
+        return positions - self.parameters.xallarap_reference_position

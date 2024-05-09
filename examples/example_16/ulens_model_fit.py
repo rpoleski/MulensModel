@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.34.2'
+__version__ = '0.36.0'
 
 
 class UlensModelFit(object):
@@ -63,6 +63,10 @@ class UlensModelFit(object):
               [{'file_name': 'data_1.dat'}, 'data_2.dat']
 
             Currently, keyword ``'add_2450000'`` is turned on by default.
+            Except standard parameters of MulensData, one can additionally
+            pass
+            ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
+            to scale uncertainties.
 
         starting_parameters: *dict*
             Starting values of the parameters.
@@ -430,8 +434,12 @@ class UlensModelFit(object):
         parameters_str = (
             't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
             't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
-            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in t_caustic_out')
+            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in ' +
+            't_caustic_out xi_period xi_semimajor_axis xi_Omega_node ' +
+            'xi_inclination xi_argument_of_latitude_reference ' +
+            'xi_eccentricity xi_omega_periapsis')
         self._all_MM_parameters = parameters_str.split()
+        self._fixed_only_MM_parameters = ['t_0_par', 't_0_xi']
         self._other_parameters = []
 
         self._latex_conversion = dict(
@@ -446,7 +454,15 @@ class UlensModelFit(object):
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
-            t_caustic_out='t_{\\rm caustic,out}')
+            t_caustic_out='t_{\\rm caustic,out}',
+            xi_period='\\xi_P',
+            xi_semimajor_axis='\\xi_a',
+            xi_Omega_node='\\xi_{\\Omega}',
+            xi_inclination='\\xi_i',
+            xi_argument_of_latitude_reference='\\xi_u',
+            xi_eccentricity='\\xi_e',
+            xi_omega_periapsis='\\xi_{\\omege}',
+            )
         self._latex_conversion_other = dict()
 
     def _guess_fitting_method(self):
@@ -1004,16 +1020,7 @@ class UlensModelFit(object):
                  for f in self._photometry_files]
         self._datasets = []
         for file_ in files:
-            try:
-                dataset = mm.MulensData(**{**kwargs, **file_})
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    'Provided file path does not exist: ' +
-                    str(file_['file_name']))
-            except Exception:
-                print('Something went wrong while reading file ' +
-                      str(file_['file_name']), file=sys.stderr)
-                raise
+            dataset = self._get_1_dataset(file_, kwargs)
             self._datasets.append(dataset)
 
         if self._residuals_output:
@@ -1022,6 +1029,27 @@ class UlensModelFit(object):
                     len(self._datasets), len(self._residuals_files))
                 raise ValueError('The number of datasets and files for '
                                  'residuals ouptut do not match: ' + out)
+
+    def _get_1_dataset(self, file_, kwargs):
+        """
+        Construct a single dataset and possibly rescale uncertainties in it.
+        """
+        scaling = file_.pop("scale_errorbars", None)
+        try:
+            dataset = mm.MulensData(**{**kwargs, **file_})
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                'Provided file path does not exist: ' +
+                str(file_['file_name']))
+        except Exception:
+            print('Something went wrong while reading file ' +
+                  str(file_['file_name']), file=sys.stderr)
+            raise
+
+        if scaling is not None:
+            dataset.scale_errorbars(**scaling)
+
+        return dataset
 
     def _check_ulens_model_parameters(self):
         """
@@ -1662,7 +1690,10 @@ class UlensModelFit(object):
 
         fixed = set(self._fixed_parameters.keys())
 
-        unknown = fixed - set(self._all_MM_parameters + ['t_0_par'])
+        allowed = set(self._all_MM_parameters +
+                      self._fixed_only_MM_parameters +
+                      self._other_parameters)
+        unknown = fixed - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
@@ -3225,32 +3256,41 @@ class UlensModelFit(object):
         Mark the second (right-hand side) scale for Y axis in
         the best model plot
         """
-        settings = self._plots['best model']["second Y scale"]
-        magnifications = settings['magnifications']
-        color = settings.get("color", "red")
-        label = settings.get("label", "magnification")
-        labels = settings.get("labels")
-
-        ylim = plt.ylim()
-        ax2 = plt.gca().twinx()
-        (A_min, A_max, sb_fluxes) = self._second_Y_axis_get_fluxes(ylim)
+        (magnifications, labels, ylim, ax2) = self._second_Y_axis_settings()
+        (A_range, ref_fluxes) = self._second_Y_axis_get_fluxes(ylim)
         out1, out2 = False, False
         if magnifications == "optimal":
             (magnifications, labels, out1) = self._second_Y_axis_optimal(
-                ax2, A_min, A_max)
-        flux = sb_fluxes[0] * magnifications + sb_fluxes[1]
+                ax2, *A_range)
+            self._second_Y_axis_minor_ticks(ax2, magnifications, ref_fluxes)
+        flux = ref_fluxes[0] * np.array(magnifications) + ref_fluxes[1]
         out2 = self._second_Y_axis_warnings(flux, labels, magnifications,
-                                            A_min, A_max)
+                                            *A_range)
         if out1 or out2:
             ax2.get_yaxis().set_visible(False)
             return
 
         ticks = mm.Utils.get_mag_from_flux(flux)
+        ax2.set_yticks(ticks, labels)
+        ax2.set_ylim(ylim[0], ylim[1])
+
+    def _second_Y_axis_settings(self):
+        """
+        Get and apply settings for the second Y axis
+        """
+        settings = self._plots['best model']["second Y scale"]
+        magnifications = settings['magnifications']
+        color = settings.get("color", "black")
+        label = settings.get("label", "Magnification")
+        labels = settings.get("labels")
+        ylim = plt.ylim()
+
+        ax2 = plt.gca().twinx()
         ax2.set_ylabel(label).set_color(color)
         ax2.spines['right'].set_color(color)
-        ax2.set_ylim(ylim[0], ylim[1])
-        ax2.tick_params(axis='y', colors=color)
-        plt.yticks(ticks, labels, color=color)
+        ax2.tick_params(axis='y', direction="in", which="both", colors=color)
+
+        return (magnifications, labels, ylim, ax2)
 
     def _second_Y_axis_get_fluxes(self, ylim):
         """
@@ -3264,7 +3304,7 @@ class UlensModelFit(object):
         A_min = (flux_min - blend_flux) / total_source_flux
         A_max = (flux_max - blend_flux) / total_source_flux
 
-        return (A_min, A_max, [total_source_flux, blend_flux])
+        return ([A_min, A_max], [total_source_flux, blend_flux])
 
     def _second_Y_axis_optimal(self, ax2, A_min, A_max):
         """
@@ -3273,6 +3313,8 @@ class UlensModelFit(object):
         ax2.set_ylim(A_min, A_max)
         A_values = ax2.yaxis.get_ticklocs().round(7)
         A_values = A_values[(A_values >= max(1, A_min)) & (A_values < A_max)]
+        if 1. not in A_values and A_min <= 1:
+            A_values = np.insert(A_values, 0, 1.)
         is_integer = [mag.is_integer() for mag in A_values]
         if all(is_integer):
             labels = [f"{int(x):d}" for x in A_values]
@@ -3289,6 +3331,18 @@ class UlensModelFit(object):
             labels = np.array([f"{x:0.3f}" for x in A_values])
 
         return (A_values[fnum < 4], labels[fnum < 4].tolist(), False)
+
+    def _second_Y_axis_minor_ticks(self, ax2, A_values, ref_fluxes):
+        """
+        Get minor ticks for magnification axis from matplotlib
+        """
+        ax2.minorticks_on()
+        minor_ticks_A = ax2.yaxis.get_ticklocs(minor=True)
+        minor_ticks_A = minor_ticks_A[~np.isin(minor_ticks_A, A_values)]
+
+        minor_ticks_flux = ref_fluxes[0] * minor_ticks_A + ref_fluxes[1]
+        minor_ticks_mag = mm.Utils.get_mag_from_flux(minor_ticks_flux)
+        ax2.set_yticks(minor_ticks_mag, minor=True)
 
     def _second_Y_axis_warnings(self, flux, labels, A_values, A_min, A_max):
         """

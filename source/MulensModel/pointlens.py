@@ -4,6 +4,7 @@ import numpy as np
 from math import sin, cos, sqrt, log10
 from scipy import integrate
 from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import RegularGridInterpolator as RGI
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
@@ -92,7 +93,12 @@ class PointLens(object):
                 if line[:3] == "# Y":
                     yy = np.array([float(t) for t in line.split()[2:]])
         pp = np.loadtxt(file_3)
-        PointLens._interpolate_3 = interp2d(xx, yy, pp.T, kind='cubic')
+
+        try:
+            PointLens._interpolate_3 = RGI((xx, yy), pp, method='cubic',
+                                           bounds_error=False)
+        except ValueError:
+            PointLens._interpolate_3 = interp2d(xx, yy, pp.T, kind='cubic')
         PointLens._interpolate_3_min_x = np.min(xx)
         PointLens._interpolate_3_max_x = np.max(xx)
         PointLens._interpolate_3_min_y = np.min(yy)
@@ -470,8 +476,14 @@ class PointLens(object):
         integrand = self._integrand_Lee09_v2(temp, u, temp2, rho, gamma)
         dx = temp[:, 1] - temp[:, 0]
         for (i, dx_) in enumerate(dx):
-            integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
-        out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
+            try:
+                integrand_values[i] = integrate.simpson(integrand[i], dx=dx_)
+            except AttributeError:
+                integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
+        try:
+            out = integrate.simpson(integrand_values, dx=theta[1] - theta[0])
+        except AttributeError:
+            out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
         out *= 2. / (np.pi * rho**2)
         return out
 
@@ -595,7 +607,10 @@ class PointLens(object):
         cond_4 = (k <= PointLens._interpolate_3_max_y)
 
         if cond_1 and cond_2 and cond_3 and cond_4:
-            return PointLens._interpolate_3(n, k)[0]
+            if isinstance(PointLens._interpolate_3, RGI):
+                return float(PointLens._interpolate_3((n, k)).T)
+            else:
+                return PointLens._interpolate_3(n, k)[0]
         return ellip3(n, k)
 
     def get_point_lens_large_LD_integrated_magnification(self, u, gamma):

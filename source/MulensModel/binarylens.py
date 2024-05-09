@@ -4,7 +4,7 @@ from math import fsum, sqrt
 
 from MulensModel.binarylensimports import (
     _vbbl_wrapped, _adaptive_contouring_wrapped,
-    _vbbl_binary_mag_dark, _vbbl_binary_mag_0,
+    _vbbl_binary_mag_dark, _vbbl_binary_mag_finite, _vbbl_binary_mag_point,
     _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 import MulensModel as mm
 
@@ -334,7 +334,8 @@ class BinaryLens(object):
         Calculate point source magnification using VBBL fully
         """
         args = [self.separation, self.mass_2/self.mass_1, source_x, source_y]
-        return _vbbl_binary_mag_0(*[float(arg) for arg in args])
+
+        return _vbbl_binary_mag_point(*[float(arg) for arg in args])
 
     def _point_source_magnification(self, source_x, source_y):
         """
@@ -623,24 +624,31 @@ class BinaryLens(object):
         if not _vbbl_wrapped:
             raise ValueError('VBBL was not imported properly')
 
+        args = [float(self.separation), float(self.mass_2 / self.mass_1),
+                float(source_x), float(source_y), float(rho), float(accuracy)]
+
+        u_limb_darkening = self._get_u(gamma, u_limb_darkening)
+        if u_limb_darkening is None:
+            _vbbl_function = _vbbl_binary_mag_finite
+        else:
+            args += [u_limb_darkening]
+            _vbbl_function = _vbbl_binary_mag_dark
+
+        return _vbbl_function(*args)
+
+    def _get_u(self, gamma, u_limb_darkening):
+        """
+        Check if one one parameter is defined, extract the u value,
+        and make sure it's a float.
+        """
         if gamma is not None and u_limb_darkening is not None:
             raise ValueError('Only one limb darkening parameters can be set' +
                              ' in BinaryLens.vbbl_magnification()')
         elif gamma is not None:
-            u_limb_darkening = float(mm.Utils.gamma_to_u(gamma))
+            out = float(mm.Utils.gamma_to_u(gamma))
         elif u_limb_darkening is not None:
-            u_limb_darkening = float(u_limb_darkening)
+            out = float(u_limb_darkening)
         else:
-            u_limb_darkening = float(0.0)
+            out = None
 
-        s = float(self.separation)
-        q = float(self.mass_2 / self.mass_1)
-        x = float(source_x)
-        y = float(source_y)
-        rho = float(rho)
-        accuracy = float(accuracy)
-
-        magnification = _vbbl_binary_mag_dark(
-            s, q, x, y, rho, u_limb_darkening, accuracy)
-
-        return magnification
+        return out

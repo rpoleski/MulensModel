@@ -3,6 +3,7 @@ import numpy as np
 import warnings
 
 from MulensModel.uniformcausticsampling import UniformCausticSampling
+from MulensModel.orbits.orbit import Orbit
 
 
 # For definition of class ModelParameters see below.
@@ -217,59 +218,136 @@ class ModelParameters(object):
                 "as a parameter\ne.g., ModelParameters({'t_0': " +
                 "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
-        self._count_sources(parameters.keys())
-        self._count_lenses(parameters.keys())
         self._set_type(parameters.keys())
+        self._count_sources(set(parameters.keys()))
+        self._count_lenses(parameters.keys())
         self._check_types('alpha' in parameters.keys())
 
         if self.n_sources == 1:
-            self._check_valid_combination_1_source(parameters.keys())
-            if self._type['Cassan08']:
-                self._uniform_caustic = None
-                self._standard_parameters = None
+            self._init_1_source(parameters)
         elif self.n_sources == 2:
-            self._check_valid_combination_2_sources(parameters.keys())
-            if 't_E' not in parameters.keys():
-                raise KeyError('Currently, the binary source calculations ' +
-                               'require t_E to be directly defined, i.e., ' +
-                               'has to be the same for both sources.')
-            (params_1, params_2) = self._divide_parameters(parameters)
-            try:
-                self._source_1_parameters = ModelParameters(params_1)
-            except Exception:
-                print("ERROR IN ITIALIZING SOURCE 1")
-                raise
-            try:
-                self._source_2_parameters = ModelParameters(params_2)
-            except Exception:
-                print("ERROR IN ITIALIZING SOURCE 2")
-                raise
-            # The block above forces checks from "== 1" block above to be
-            # run on each source parameters separately.
+            self._init_2_sources(parameters)
         else:
             raise ValueError('wrong number of sources')
+
         self._set_parameters(parameters)
 
+    def _init_1_source(self, parameters):
+        """
+        initialize model with 1 source
+        """
+        self._check_valid_combination_1_source(parameters.keys())
+        if self._type['Cassan08']:
+            self._uniform_caustic = None
+            self._standard_parameters = None
+        if self.is_xallarap:
+            delta_1 = self._get_xallarap_position(parameters)
+            self._xallarap_reference_position = delta_1
+
+    def _init_2_sources(self, parameters):
+        """
+        initialize model with s sources
+        """
+        self._check_valid_combination_2_sources(parameters.keys())
+        if 't_E' not in parameters.keys():
+            raise KeyError('Currently, the binary source calculations ' +
+                           'require t_E to be directly defined, i.e., ' +
+                           'has to be the same for both sources.')
+
+        (params_1, params_2) = self._divide_parameters(parameters)
+
+        try:
+            self._source_1_parameters = ModelParameters(params_1)
+        except Exception:
+            print("ERROR IN ITIALIZING SOURCE 1")
+            raise
+        try:
+            self._source_2_parameters = ModelParameters(params_2)
+        except Exception:
+            print("ERROR IN ITIALIZING SOURCE 2")
+            raise
+        # The try/except blocks above force checks from ._init_1_source()
+        # to be run on each source parameters separately.
+
+        if self.is_xallarap:
+            self._update_sources_xallarap_reference()
+
+    def _update_sources_xallarap_reference(self):
+        """
+        Update .xallarap_reference_position for each source parameters
+
+        Note: below we're calling private function and set private
+        properties NOT of self, but self._source_X_parameters,
+        which both are of the same type as self.
+        """
+        delta_1 = self._source_1_parameters._get_xallarap_position()
+        self._source_1_parameters._xallarap_reference_position = delta_1
+        self._source_2_parameters._xallarap_reference_position = delta_1
+
+    def _get_xallarap_position(self, parameters=None):
+        """
+        Get position at t_0_xi from xallarap Orbit object.
+
+        Note: this function is called in 2 different ways:
+        - directly, i.e., self._get_xallarap_orbit(), and
+        - indirectly, i.e., self._source_1_parameters._get_xallarap_orbit().
+        """
+        if parameters is None:
+            parameters = self.parameters
+        t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
+
+        zip_ = parameters.items()
+        orbit_parameters = {key[3:]: value
+                            for (key, value) in zip_ if key[:3] == "xi_"}
+        orbit_parameters['epoch_reference'] = t_0_xi
+        orbit = Orbit(**orbit_parameters)
+        return orbit.get_reference_plane_position([t_0_xi])
+
     def _count_sources(self, keys):
-        """How many sources there are?"""
-        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2', 'rho_1', 'rho_2',
-                         't_star_1', 't_star_2']
-        common = set(binary_params).intersection(set(keys))
-        if len(common) == 0:
+        """
+        How many luminous sources there are?
+        We're also checking for ill-defined xallarap with
+        *_1 and *_2 binary source parameters.
+        """
+        finite_source_params = ['rho_1', 'rho_2', 't_star_1', 't_star_2']
+        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
+        binary_params += finite_source_params
+        common = set(binary_params).intersection(keys)
+        finite_params = common.intersection(finite_source_params)
+        n_finite = len(finite_params)
+
+        if len(common) == 0 and 'q_source' not in keys:
             self._n_sources = 1
-        elif len(common) == 1:
-            raise ValueError('Wrong parameters - the only binary source ' +
-                             'parameter is {:}'.format(common))
-        else:
-            common_no_1_2 = {param[:-2] for param in common}
-            condition_1 = (len(common_no_1_2) == len(common))
-            condition_2 = not (
-                'rho' in common_no_1_2 and 't_star' in common_no_1_2)
-            if condition_1 and condition_2:
-                raise ValueError(
-                    'Given binary source parameters do not allow defining ' +
-                    'the Model: {:}'.format(common))
+        elif len(common) == 0 and 'q_source' in keys:
             self._n_sources = 2
+        elif len(common) == 1:
+            if self.is_xallarap and n_finite == 1:
+                self._n_sources = int(list(finite_params)[0][-1])
+            else:
+                raise ValueError('Wrong parameters - the only binary ' +
+                                 'source parameter is {:}'.format(common))
+        elif len(common) == 2 and n_finite == 2 and 'q_source' in keys:
+            if common in [{'rho_1', 't_star_1'}, {'rho_2', 't_star_2'}]:
+                raise ValueError('source size overdefined: {:}'.format(common))
+            else:
+                self._n_sources = 2
+        else:
+            self._check_for_underdefined_source(common)
+            self._n_sources = 2
+
+    def _check_for_underdefined_source(self, common):
+        """
+        Make sure that finite source size in binary source model
+        is not underdefined.
+        """
+        common_no_1_2 = {param[:-2] for param in common}
+        condition_1 = (len(common_no_1_2) == len(common))
+        condition_2 = not (
+            'rho' in common_no_1_2 and 't_star' in common_no_1_2)
+        if condition_1 and condition_2:
+            raise ValueError(
+                'Given binary source parameters do not allow defining ' +
+                'the Model: {:}'.format(common))
 
     def _count_lenses(self, keys):
         """How many lenses there are?"""
@@ -294,7 +372,8 @@ class ModelParameters(object):
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
-                         'xi_Omega_node xi_argument_of_latitude_reference')}
+                         'xi_Omega_node xi_argument_of_latitude_reference '
+                         'xi_eccentricity xi_omega_periapsis q_source')}
 
         parameter_to_type = dict()
         for (key, values) in temp.items():
@@ -312,7 +391,6 @@ class ModelParameters(object):
         Check if self._type values make sense
         """
         n_lenses = self._n_lenses
-        n_sources = self._n_sources
 
         # Lens orbital motion requires binary lens:
         if self._type['lens 2-parameter orbital motion'] and n_lenses == 1:
@@ -327,10 +405,6 @@ class ModelParameters(object):
                     'You defined alpha for single lens model '
                     'without external mass sheet. This is not allowed.')
 
-        if n_sources > 1 and self._type['xallarap']:
-            raise NotImplementedError('We have not yet implemented xallarap '
-                                      'and multiple luminous sources')
-
     def _check_valid_combination_1_source(self, keys):
         """
         Check that the user hasn't over-defined the ModelParameters.
@@ -343,7 +417,7 @@ class ModelParameters(object):
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
             'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
             'xi_argument_of_latitude_reference xi_eccentricity '
-            'xi_omega_periapsis t_0_xi').split())
+            'xi_omega_periapsis t_0_xi q_source').split())
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
@@ -388,6 +462,7 @@ class ModelParameters(object):
         """
         separate_parameters = (
             't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
+        skipped_parameters = ['q_source']
         parameters_1 = {}
         parameters_2 = {}
         for (key, value) in parameters.items():
@@ -398,13 +473,54 @@ class ModelParameters(object):
                     parameters_2[key[:-2]] = value
                 else:
                     raise ValueError('unexpected error')
+            elif key in skipped_parameters:
+                continue
             else:
                 parameters_1[key] = value
                 parameters_2[key] = value
+
+        if self.n_sources == 2 and self._type['xallarap']:
+            self._set_changed_parameters_2nd_source(parameters['q_source'],
+                                                    parameters_2)
+
         return (parameters_1, parameters_2)
+
+    def _set_changed_parameters_2nd_source(self, q_source, parameters_2):
+        """
+        For xallarap model with 2 sources, the orbit of the second source
+        must have 2 parameters changed.
+        Functions starts with tests of input
+        """
+        if q_source <= 0.:
+            raise ValueError('q_source cannot be negative')
+
+        check_keys = ['xi_semimajor_axis', 'xi_argument_of_latitude_reference']
+        for key in check_keys:
+            if key not in parameters_2:
+                raise KeyError('xallarap model with 2 sources requires ' + key)
+
+        parameters_2['xi_semimajor_axis'] /= q_source
+        parameters_2['xi_argument_of_latitude_reference'] += 180.
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
+        out = self._get_main_parameters_to_print()
+
+        if self.is_xallarap:
+            fmt = "\nxallarap reference position: ({:.4f}, {:.4f})"
+            if self.n_sources == 1:
+                source = self
+            else:
+                source = self._source_1_parameters
+            position = source.xallarap_reference_position
+            out += fmt.format(position[0, 0], position[1, 0])
+
+        return out
+
+    def _get_main_parameters_to_print(self):
+        """
+        prepare all the standard parameters to be printed
+        """
         keys = self._get_keys_for_repr()
         formats = self._get_formats_dict_for_repr()
         ordered_keys = self._get_ordered_keys_for_repr()
@@ -488,6 +604,7 @@ class ModelParameters(object):
                                 'name': 'xallarap eccentricity'},
             'xi_omega_periapsis': {'width': 11, 'precision': 5, 'unit': 'deg',
                                    'name': 'xallarap omega periapsis'},
+            'q_source': {'width': 12, 'precision': 8},
             't_0_xi': {'width': 13, 'precision': 5, 'unit': 'HJD'},
         }
         # Add binary source parameters with the same settings.
@@ -516,7 +633,7 @@ class ModelParameters(object):
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
             'xi_period', 'xi_semimajor_axis', 'xi_inclination',
             'xi_Omega_node', 'xi_argument_of_latitude_reference',
-            'xi_eccentricity', 'xi_omega_periapsis', 't_0_xi'
+            'xi_eccentricity', 'xi_omega_periapsis', 'q_source', 't_0_xi'
         ]
         return ordered_keys
 
@@ -546,14 +663,27 @@ class ModelParameters(object):
 
     def _check_valid_combination_2_sources(self, keys):
         """
-        make sure that there is no conflict between t_0 and t_0_1 etc.
+        Make sure that there is no conflict between t_0 and t_0_1 etc.
+        Also make sure that xallarap is not mixed with t_0_1, u_0_1 etc.
         """
-        binary_params = (
-            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
+        binary_params_nonFS = 't_0_1 t_0_2 u_0_1 u_0_2'.split()
+        binary_params_FS_2 = ['rho_2', 't_star_2']
+        binary_params_FS = ['rho_1', 't_star_1'] + binary_params_FS_2
+        binary_params = binary_params_nonFS + binary_params_FS
         for parameter in binary_params:
             if (parameter in keys) and (parameter[:-2] in keys):
                 raise ValueError('You cannot set {:} and {:}'.format(
                                  parameter, parameter[:-2]))
+
+        common = set(keys).intersection(binary_params_nonFS)
+        if self.is_xallarap and len(common) > 0:
+            msg = 'xallarap parameters cannot be mixed with {:}'
+            raise NotImplementedError(msg.format(common))
+
+        common = set(keys).intersection(binary_params_FS_2)
+        if self.is_xallarap and len(common) > 0 and 'q_source' not in keys:
+            raise KeyError('You cannot define xallarap model without '
+                           'q_star but with rho_2 or t_star_2')
 
     def _check_valid_combination_1_source_standard(self, keys):
         """
@@ -673,17 +803,26 @@ class ModelParameters(object):
         if not self._type['xallarap']:
             return
 
-        required = ('xi_period xi_semimajor_axis xi_inclination '
-                    'xi_Omega_node xi_argument_of_latitude_reference').split()
+        self._check_orbit_parameters(keys, "xi_")
+
+    def _check_orbit_parameters(self, keys, prefix):
+        """
+        check if orbit is properly defined; prefix is added to
+        checked orbit parameters
+        """
+        required = ('period semimajor_axis inclination '
+                    'Omega_node argument_of_latitude_reference').split()
+        required = [prefix + req for req in required]
         for parameter in required:
             if parameter not in keys:
                 raise KeyError(parameter)
 
-        allowed = set(['xi_eccentricity', 'xi_omega_periapsis'])
+        allowed = set([prefix + 'eccentricity', prefix + 'omega_periapsis'])
         n_used = len(set(keys).intersection(allowed))
         if n_used not in [0, len(allowed)]:
             raise KeyError(
-                'Error in defining xi_eccentricity and xi_omega_periapsis. '
+                'Error in defining ' + prefix + 'eccentricity and ' +
+                prefix + 'omega_periapsis. ' +
                 'Both of them or neither should be defined.')
 
     def _check_valid_combination_1_source_Cassan08(self, keys):
@@ -783,8 +922,20 @@ class ModelParameters(object):
         if parameter in self._source_1_parameters.parameters:
             setattr(self._source_1_parameters, parameter, value)
 
+        if parameter == 'xi_semimajor_axis':
+            value /= self.parameters['q_source']
+        elif parameter == 'xi_argument_of_latitude_reference':
+            value += 180.
+
         if parameter in self._source_2_parameters.parameters:
             setattr(self._source_2_parameters, parameter, value)
+
+        if parameter == 'q_source':
+            value_ = self.parameters['xi_semimajor_axis'] / value
+            setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
+
+        if self.is_xallarap and self.n_sources > 1:
+            self._update_sources_xallarap_reference()
 
     def _set_time_quantity(self, key, new_time):
         """
@@ -1433,6 +1584,7 @@ class ModelParameters(object):
         if new_value < 0.:
             raise ValueError('Xallarap period cannot be negative')
         self.parameters['xi_period'] = new_value
+        self._update_sources('xi_period', new_value)
 
     @property
     def xi_semimajor_axis(self):
@@ -1448,6 +1600,7 @@ class ModelParameters(object):
         if new_value < 0.:
             raise ValueError('Xallarap semimajor axis cannot be negative')
         self.parameters['xi_semimajor_axis'] = new_value
+        self._update_sources('xi_semimajor_axis', new_value)
 
     @property
     def xi_Omega_node(self):
@@ -1466,6 +1619,7 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(new_value,
                                                      'xi_Omega_node')
         self.parameters['xi_Omega_node'] = new_value
+        self._update_sources('xi_Omega_node', new_value)
 
     @property
     def xi_inclination(self):
@@ -1483,6 +1637,7 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(new_value,
                                                      'xi_inclination')
         self.parameters['xi_inclination'] = new_value
+        self._update_sources('xi_inclination', new_value)
 
     @property
     def xi_argument_of_latitude_reference(self):
@@ -1503,6 +1658,7 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(
             new_value, 'xi_argument_of_latitude_reference')
         self.parameters['xi_argument_of_latitude_reference'] = new_value
+        self._update_sources('xi_argument_of_latitude_reference', new_value)
 
     @property
     def xi_eccentricity(self):
@@ -1518,13 +1674,14 @@ class ModelParameters(object):
         if new_value < 0. or new_value >= 1.:
             raise ValueError('xallarap eccentricity has to be between 0 and 1')
         self.parameters['xi_eccentricity'] = new_value
+        self._update_sources('xi_eccentricity', new_value)
 
     @property
     def xi_omega_periapsis(self):
         """
         *float*
 
-        The argument of periapsis of the xallrap orbit, i.e., the angle
+        The argument of periapsis of the xallarap orbit, i.e., the angle
         between the ascending node and periapsis measured in
         the direction of motion.
         The units are degrees.
@@ -1536,6 +1693,7 @@ class ModelParameters(object):
         self._warn_if_angle_outside_reasonable_range(
             new_value, 'xi_omega_periapsis')
         self.parameters['xi_omega_periapsis'] = new_value
+        self._update_sources('xi_omega_periapsis', new_value)
 
     @property
     def t_0_xi(self):
@@ -1553,6 +1711,38 @@ class ModelParameters(object):
     @t_0_xi.setter
     def t_0_xi(self, new_value):
         self.parameters['t_0_xi'] = new_value
+        self._update_sources('t_0_xi', new_value)
+
+    @property
+    def q_source(self):
+        """
+        *float*
+
+        The mass ratio of the second and the first source.
+        This is value must be positive and can be > 1.
+        Defined only for xallarap binary-source models because it does not
+        affect the magnification for binary-source models without xallarap.
+        """
+        return self.parameters['q_source']
+
+    @q_source.setter
+    def q_source(self, new_value):
+        if new_value < 0.:
+            raise ValueError('q_source cannot be negative')
+        self.parameters['q_source'] = new_value
+        self._update_sources('q_source', new_value)
+
+    @property
+    def xallarap_reference_position(self):
+        """
+        *np.ndarray* of shape (2, 1)
+
+        The position of the first source at :py:attr:`~t_0_xi` relative to
+        the source center of mass. It is a 2D vector that is subtracted from
+        the source position along the orbit in order to calculate the shift
+        caused by xallarap.
+        """
+        return self._xallarap_reference_position
 
     @property
     def t_0_1(self):

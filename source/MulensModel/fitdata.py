@@ -301,7 +301,7 @@ class FitData(object):
                 if not proceed:
                     self._calculate_magnifications(bad=False)
                     self._blend_flux = self.fix_blend_flux
-                    self._source_fluxes = self.fix_source_flux
+                    self._source_fluxes = np.array(self.fix_source_flux)
                     return
 
         (xT, y) = self._setup_linalg_arrays()
@@ -324,20 +324,21 @@ class FitData(object):
         # Record the results
         if self.fix_source_flux_ratio is False:
             if self.fix_source_flux is False:
-                self._source_fluxes = results[0:self._model.n_sources]
+                source_fluxes = results[0:self._model.n_sources]
             else:
-                self._source_fluxes = []
+                source_fluxes = []
                 index = 0
                 for i in range(self._model.n_sources):
                     if self.fix_source_flux[i] is False:
-                        self._source_fluxes.append(results[index])
+                        source_fluxes.append(results[index])
                         index += 1
                     else:
-                        self._source_fluxes.append(self.fix_source_flux[i])
+                        source_fluxes.append(self.fix_source_flux[i])
 
         else:
-            self._source_fluxes = [results[0],
-                                   results[0] * self.fix_source_flux_ratio]
+            source_fluxes = [results[0], results[0]*self.fix_source_flux_ratio]
+
+        self._source_fluxes = np.array(source_fluxes)
 
         if self.fix_blend_flux is False:
             self._blend_flux = results[-1]

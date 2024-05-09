@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.modelparameters module &#8212; MulensModel 2.18.0 documentation</title>
+    <title>MulensModel.modelparameters module &#8212; MulensModel 2.23.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -52,7 +52,7 @@ one argument referring to a specific model (e.g. PSPL) or effect
 <dl class="py class">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.modelparameters.</span></span><span class="sig-name descname"><span class="pre">ModelParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A class for the basic microlensing model parameters (t_0, u_0,
 t_E, s, q, alpha, etc.). Can handle point lens or binary lens.
 The pi_E assumes NE coordinates (Parallel, Perpendicular
@@ -334,7 +334,7 @@ The units are degrees.</p>
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xi_omega_periapsis">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xi_omega_periapsis</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xi_omega_periapsis" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>The argument of periapsis of the xallrap orbit, i.e., the angle
+<p>The argument of periapsis of the xallarap orbit, i.e., the angle
 between the ascending node and periapsis measured in
 the direction of motion.
 The units are degrees.</p>
@@ -346,6 +346,26 @@ The units are degrees.</p>
 <dd><p><em>float</em></p>
 <p>Reference epoch for xallarap orbit.
 If not provided, then it defaults to <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.t_0" title="MulensModel.modelparameters.ModelParameters.t_0"><code class="xref py py-attr docutils literal notranslate"><span class="pre">t_0</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.q_source">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_source</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.q_source" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The mass ratio of the second and the first source.
+This is value must be positive and can be &gt; 1.
+Defined only for xallarap binary-source models because it does not
+affect the magnification for binary-source models without xallarap.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.xallarap_reference_position">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xallarap_reference_position</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.xallarap_reference_position" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>np.ndarray</em> of shape (2, 1)</p>
+<p>The position of the first source at <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.t_0_xi" title="MulensModel.modelparameters.ModelParameters.t_0_xi"><code class="xref py py-attr docutils literal notranslate"><span class="pre">t_0_xi</span></code></a> relative to
+the source center of mass. It is a 2D vector that is subtracted from
+the source position along the orbit in order to calculate the shift
+caused by xallarap.</p>
 </dd></dl>
 
 <dl class="py property">

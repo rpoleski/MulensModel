@@ -3,15 +3,33 @@
 #include "VBBinaryLensingLibrary.h"
 
 extern "C" {
-  double VBBinaryLensing_BinaryMagDark(double a, double q, double y1, double y2, double RSv, double a1, double Tol) {
+  double VBBinaryLensing_BinaryMagDark(double a, double q, double y1, double y2, double RSv, double tolerance, double a1) {
     static VBBinaryLensing VBBL;
-    
-    return VBBL.BinaryMagDark(a, q, y1, y2, RSv, a1, Tol);
+
+    return VBBL.BinaryMagDark(a, q, y1, y2, RSv, a1, tolerance);
   }
 }
 
 extern "C" {
-  double VBBinaryLensing_BinaryMag0(double a,double q,double y1,double y2, double K, double G, double Gi) {
+  double VBBinaryLensing_BinaryMagFinite(double a, double q, double y1, double y2, double RSv, double tolerance) {
+    static VBBinaryLensing VBBL;
+
+    VBBL.Tol = tolerance;
+
+    return VBBL.BinaryMag2(a, q, y1, y2, RSv);
+  }
+}
+
+extern "C" {
+  double VBBinaryLensing_BinaryMagPoint(double a, double q, double y1, double y2) {
+    static VBBinaryLensing VBBL;
+
+    return VBBL.BinaryMag0(a, q, y1, y2);
+  }
+}
+
+extern "C" {
+  double VBBinaryLensing_BinaryMagPointShear(double a,double q,double y1,double y2, double K, double G, double Gi) {
     static VBBinaryLensing_shear VBBL;
     
     return VBBL.BinaryMag0_shear(a, q, y1, y2, K, G, Gi);
@@ -42,15 +60,6 @@ extern "C" double* VBBL_SG12_5(double p0, double p1,
 
     return roots;
 }
-
-extern "C" {
-  double VBBL_BinaryMag(double a, double q, double y1, double y2) {
-    static VBBinaryLensing VBBL;
-
-    return VBBL.BinaryMag0(a, q, y1, y2);
-  }
-}
-
 
 extern "C" double* VBBL_SG12_9(double p0, double p1, 
                     double p2, double p3, double p4, double p5, double p6, 

@@ -45,6 +45,8 @@ class TestModelParameters(unittest.TestCase):
         with self.assertRaises(KeyError):
             mm.ModelParameters({'t_01': 1, 'u_0_1': 0.1, 't_eff_1': 10,
                                 't_0_2': 10., 'u_0_2': 0.01, 't_eff_2': 20.})
+        with self.assertRaises(Exception):
+            mm.ModelParameters({'t_0_1': 1, 'u_0_2': 0.1, 't_E': 10})
 
 
 def test_init_parameters():
@@ -174,12 +176,12 @@ def test_rho_t_e_t_star():
 
 class test(unittest.TestCase):
     def test_too_much_rho_t_e_t_star(self):
+        t_0 = 2450000.
+        u_0 = 0.1
+        t_E = 20. * u.day
+        rho = 0.001
+        t_star = t_E * rho
         with self.assertRaises(KeyError):
-            t_0 = 2450000.
-            u_0 = 0.1
-            t_E = 20. * u.day
-            rho = 0.001
-            t_star = t_E * rho
             mm.ModelParameters({
                 't_0': t_0, 'u_0': u_0, 't_E': t_E,
                 'rho': rho, 't_star': t_star})
@@ -458,7 +460,7 @@ class TestParameters(unittest.TestCase):
 
 
 xallarap_parameters = {
-    't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
+    't_0': 2., 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
     'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 0.123,
     'xi_inclination': 9.8765, 'xi_argument_of_latitude_reference': 24.68,
     'xi_eccentricity': 0.5, 'xi_omega_periapsis': 12.3456, 't_0_xi': 1.}
@@ -468,7 +470,7 @@ def setup_xallarap(key):
     """
     Setup for xallarap tests.
     """
-    model = mm.ModelParameters(xallarap_parameters)
+    model = mm.ModelParameters({**xallarap_parameters})
     return (model, xallarap_parameters[key])
 
 
@@ -510,8 +512,6 @@ class TestXallarapErrors(unittest.TestCase):
             parameters.pop(parameter)
             with self.assertRaises(KeyError):
                 mm.ModelParameters(parameters)
-                print("Test failed (i.e. KeyError was not raised) for ",
-                      parameter)
 
     def test_negative_period(self):
         """
@@ -558,6 +558,89 @@ class TestXallarapErrors(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             mm.ModelParameters(parameters)
 
+    def test_negative_source_mass_ratio_1(self):
+        """
+        q_source must be positive in __init__()
+        """
+        parameters = {**xallarap_parameters, 'q_source': -0.12345}
+        with self.assertRaises(ValueError):
+            _ = mm.ModelParameters(parameters)
+
+    def test_negative_source_mass_ratio_2(self):
+        """
+        q_source must be positive
+        """
+        parameters = {**xallarap_parameters, 'q_source': 0.12345}
+        model = mm.ModelParameters(parameters)
+        with self.assertRaises(ValueError):
+            setattr(model, 'q_source', -0.12345)
+
+    def test_overdefined_source_size(self):
+        """
+        overdefine first sourece size
+        """
+        parameters = {**xallarap_parameters,
+                      'rho_1': 0.1, 't_star_1': 0.1, 'q_source': 1.0}
+        with self.assertRaises(ValueError):
+            mm.ModelParameters(parameters)
+
+    def test_mixed_binary_source_and_xallarap(self):
+        """
+        Xallarap cannot be combined with just
+        one stardard binary source parameter.
+        """
+        parameters = {**xallarap_parameters, 'u_0_2': 0.123}
+        with self.assertRaises(ValueError):
+            mm.ModelParameters(parameters)
+
+    def test_no_q_source_but_with_rho_2(self):
+        """
+        xallarap model without q_source cannot have rho_2
+        """
+        parameters = {**xallarap_parameters, 'rho_2': 0.1}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(parameters)
+
+    def test_PSPL_and_q_source(self):
+        """
+        Make sure one cannot provide only PSPL parameters and q_source.
+        """
+        with self.assertRaises(KeyError):
+            mm.ModelParameters({'t_0': 1, 'u_0': 2, 't_E': 3, 'q_source': 1})
+
+
+def test_print_xallarap():
+    """
+    Test if printing of printing of xallarap model works as expected.
+    """
+    model = mm.ModelParameters(xallarap_parameters)
+    expected = (
+        "    t_0 (HJD)       u_0    t_E (d) xallarap period (d) xallarap "
+        "semimajor axis xallarap inclination (deg) xallarap Omega node (deg) "
+        "xallarap argument of latitude reference (deg) xallarap eccentricity "
+        "xallarap omega periapsis (deg)  t_0_xi (HJD) "
+        "\n      2.00000  0.100000     9.0000             12.3450            "
+        "    0.543210                    9.87650                   0.12300   "
+        "                                   24.68000              0.500000   "
+        "                    12.34560       1.00000 "
+        "\nxallarap reference position: (0.2673, 0.0582)"
+        )
+    assert model.__repr__() == expected
+
+
+def test_print_xallarap_with_q_source():
+    """
+    Test if printing of printing of xallarap model with q_source works
+    as expected. Most stuff was tested in test_print_xallarap(), so we
+    check only the parts that are important here.
+    """
+    parameters = {**xallarap_parameters, 'q_source': 0.12345}
+    model = mm.ModelParameters(parameters)
+    lines = model.__repr__().split("\n")
+    assert lines[0][-27:] == "    q_source  t_0_xi (HJD) "
+    assert lines[1][-27:] == "  0.12345000       1.00000 "
+    assert lines[2] == "xallarap reference position: (0.2673, 0.0582)"
+
 
 @pytest.mark.parametrize(
     "parameter",
@@ -601,3 +684,102 @@ def test_is_xallarap_2():
     parameters = {'t_0_1': 0, 'u_0_1': 1, 't_0_2': 5, 'u_0_2': 0.1, 't_E': 9}
     model_params = mm.ModelParameters(parameters)
     assert not model_params.is_xallarap
+
+
+def test_xallarap_n_sources():
+    """
+    Make sure that number of sources in xallarap models is properly calculated
+    """
+    parameters = {**xallarap_parameters}
+    model_1S = mm.ModelParameters(parameters)
+    assert model_1S.n_sources == 1
+
+    parameters['q_source'] = 1.
+    model_2S = mm.ModelParameters(parameters)
+    assert model_2S.n_sources == 2
+
+    parameters['rho_1'] = 0.1
+    parameters['rho_2'] = 0.2
+    model_3 = mm.ModelParameters(parameters)
+    assert model_3.n_sources == 2
+
+    parameters = {**xallarap_parameters, 't_star_1': 2.}
+    model_4 = mm.ModelParameters(parameters)
+    assert model_4.n_sources == 1
+
+
+def test_2S1L_xallarap_individual_source_parameters():
+    """
+    Make sure that parameters of both sources are properly set.
+    Most importantly, xi_u is shifted by 180 deg and xi_a is scaled by
+    q_source.
+    """
+    q_source = 1.23456
+    parameters_1st = {**xallarap_parameters}
+
+    parameters_2nd = {**parameters_1st}
+    parameters_2nd['xi_semimajor_axis'] /= q_source
+    parameters_2nd['xi_argument_of_latitude_reference'] += 180.
+
+    parameters = {'q_source': q_source, **parameters_1st}
+    model = mm.ModelParameters(parameters)
+    check_1st = model.source_1_parameters.as_dict()
+    check_1st['t_E'] = check_1st['t_E'].value
+    check_2nd = model.source_2_parameters.as_dict()
+    check_2nd['t_E'] = check_2nd['t_E'].value
+
+    assert check_1st == parameters_1st
+    assert check_2nd == parameters_2nd
+
+
+tested_keys_3 = tested_keys_2 + ['q_source']
+
+
+@pytest.mark.parametrize("key", tested_keys_3)
+def test_changes_of_xallrap_parameters_for_both_sources(key):
+    """
+    Make sure that chainging a xallarap parameter in a binary source event
+    with binary sources model properly changes parameters of each parameter.
+    For q_source make sure that it actually it's not passed to the parameters
+    of each source.
+    """
+    q_source = 1.23456
+    factor = 1.1
+    parameters = {'q_source': q_source, **xallarap_parameters}
+    model = mm.ModelParameters(parameters)
+    old_value = getattr(model, key)
+    new_value = factor * old_value
+    setattr(model, key, new_value)
+
+    assert getattr(model, key) == new_value
+
+    if key == 'q_source':
+        assert 'q_source' not in model.source_1_parameters.parameters
+        assert 'q_source' not in model.source_2_parameters.parameters
+        key_a = 'xi_semimajor_axis'
+        xi_a = xallarap_parameters[key_a]
+        assert model.source_1_parameters.parameters[key_a] == xi_a
+        assert model.source_2_parameters.parameters[key_a] == xi_a / new_value
+        return
+
+    assert getattr(model.source_1_parameters, key) == new_value
+
+    new_value_2 = new_value
+    if key == 'xi_argument_of_latitude_reference':
+        new_value_2 += 180.
+    elif key == 'xi_semimajor_axis':
+        new_value_2 /= q_source
+
+    assert getattr(model.source_2_parameters, key) == new_value_2
+
+
+def test_reference_position():
+    """
+    Make sure that for xallarap model bith sources have the same
+    reference position.
+    """
+    parameters = {**xallarap_parameters, 'q_source': 0.12345}
+    model = mm.ModelParameters(parameters)
+    text_1 = model.source_1_parameters.__repr__().split("\n")[-1]
+    text_2 = model.source_2_parameters.__repr__().split("\n")[-1]
+    assert text_1 == text_2

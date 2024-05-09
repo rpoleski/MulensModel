@@ -301,9 +301,9 @@ class Model(object):
         return (source_flux, source_flux_ratio, blend_flux)
 
     def _get_lc(self, times, t_range, t_start, t_stop, dt, n_epochs, gamma,
-                source_flux, blend_flux, return_times=False):
+                source_flux, blend_flux, return_times=False, phot_fmt="mag"):
         """
-        calculate magnitudes without making checks on input parameters
+        calculate magnitude or flux without making checks on input parameters
 
         source_flux is a *float* (for single source model) or
         an iterable (for multiple sources)
@@ -329,12 +329,26 @@ class Model(object):
 
             flux += blend_flux
 
-        magnitudes = Utils.get_mag_from_flux(flux)
+        return self._return_mag_or_flux(times, flux, return_times, phot_fmt)
+
+    def _return_mag_or_flux(self, times, flux, return_times, phot_fmt):
+        """
+        Obtain what is returned in function _get_lc, where phot_fmt and
+        return_times are explicitly given
+        """
+        if phot_fmt == 'mag':
+            mag_or_flux = Utils.get_mag_from_flux(flux)
+        elif phot_fmt == 'flux':
+            mag_or_flux = flux
+        else:
+            raise ValueError(
+                'phot_fmt must be one of "mag", "flux", or "scaled". Your ' +
+                'value: {0}'.format(phot_fmt))
 
         if return_times:
-            return (times, magnitudes)
+            return (times, mag_or_flux)
         else:
-            return magnitudes
+            return mag_or_flux
 
     def plot_lc(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -342,7 +356,7 @@ class Model(object):
             source_flux_ratio=None, gamma=None, bandpass=None,
             subtract_2450000=False, subtract_2460000=False,
             data_ref=None, flux_ratio_constraint=None,
-            fit_blending=None, f_source=None, f_blend=None,
+            fit_blending=None, f_source=None, f_blend=None, phot_fmt="mag",
             **kwargs):
         """
         Plot the model light curve in magnitudes.
@@ -378,6 +392,10 @@ class Model(object):
 
             f_source, f_blend: DEPRECATED
                 use *source_flux* or *blend_flux* instead.
+
+            phot_fmt: *str*
+                Specifies whether the photometry is plotted in magnitude or
+                flux space. Accepts either 'mag' or 'flux'. Default = 'mag'.
 
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
@@ -416,24 +434,16 @@ class Model(object):
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
         self._check_gamma_for_2_sources(gamma)
 
-        (times, magnitudes) = self._get_lc(
+        (times, mag_or_flux) = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
             dt=dt, n_epochs=n_epochs, gamma=gamma, source_flux=source_flux,
-            blend_flux=blend_flux, return_times=True)
+            blend_flux=blend_flux, return_times=True, phot_fmt=phot_fmt)
 
         subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
                                            subtract_2460000=subtract_2460000)
 
-        self._plt_plot(times-subtract, magnitudes, kwargs)
-        plt.ylabel('Magnitude')
-        plt.xlabel(
-            PlotUtils.find_subtract_xlabel(
-                subtract_2450000=subtract_2450000,
-                subtract_2460000=subtract_2460000))
-
-        (ymin, ymax) = plt.gca().get_ylim()
-        if ymax > ymin:
-            plt.gca().invert_yaxis()
+        self._plt_plot(times-subtract, mag_or_flux, kwargs)
+        self._plot_axes(phot_fmt, subtract_2450000, subtract_2460000)
 
     def _plt_plot(self, x, y, kwargs):
         """
@@ -445,6 +455,23 @@ class Model(object):
             print("kwargs passed to plt.plot():")
             print(kwargs)
             raise
+
+    def _plot_axes(self, phot_fmt, subtract_2450000, subtract_2460000):
+        """
+        Adjust axes labels and ranges, given the inputs phot_fmt and subtract
+        """
+        if phot_fmt == 'mag':
+            plt.ylabel('Magnitude')
+        elif phot_fmt == 'flux':
+            plt.ylabel('Flux')
+        plt.xlabel(
+            PlotUtils.find_subtract_xlabel(
+                subtract_2450000=subtract_2450000,
+                subtract_2460000=subtract_2460000))
+
+        (ymin, ymax) = plt.gca().get_ylim()
+        if ymax > ymin and phot_fmt == 'mag':
+            plt.gca().invert_yaxis()
 
     def plot_caustics(self, n_points=5000, epoch=None, **kwargs):
         """
@@ -885,6 +912,8 @@ class Model(object):
             raise ValueError('In Model.set_magnification_methods() ' +
                              'the parameter source, has to be 1, 2 or None.')
 
+        self._check_methods(methods, source)
+
         if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
                 raise ValueError('You cannot set methods for all sources ' +
@@ -904,6 +933,32 @@ class Model(object):
             if self._methods is None:
                 self._methods = {}
             self._methods[source] = methods
+
+    def _check_methods(self, methods, source):
+        """
+        Check consistency of methods:
+        - are finite source methods used for poitn sources?
+        """
+        used_methods = set(methods[1::2])
+        allowed = set(['point_source', 'point_source_point_lens'])
+        difference = used_methods - allowed
+        if len(difference) == 0:
+            return
+
+        fmt = ('It is impossible to use finite source method for '
+               'a point source {:}: {:}')
+        if self.n_sources == 1:
+            if not self.parameters.is_finite_source():
+                raise ValueError(fmt.format("", difference))
+        elif self.n_sources == 2:
+            if source in [1, None]:
+                if not self.parameters.source_1_parameters.is_finite_source():
+                    raise ValueError(fmt.format("no. 1", difference))
+            if source in [2, None]:
+                if not self.parameters.source_2_parameters.is_finite_source():
+                    raise ValueError(fmt.format("no. 2", difference))
+        else:
+            raise ValueError('internal error - too many sources')
 
     def get_magnification_methods(self, source=None):
         """

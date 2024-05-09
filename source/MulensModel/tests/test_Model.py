@@ -59,6 +59,45 @@ class TestModel(unittest.TestCase):
         with self.assertRaises(ValueError):
             mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': -100.})
 
+    def test_finite_source_method_without_rho(self):
+        """
+        Test method that requires fintie source to run on model that
+        has point source.
+        """
+        model = mm.Model({'t_0': 10, 'u_0': 0.2, 't_E': 50})
+        with self.assertRaises(ValueError):
+            model.set_magnification_methods(
+                [9, "finite_source_uniform_Gould94", 11])
+
+    def test_finite_source_method_without_rho_1(self):
+        """
+        2 source, only source 1 is finite, but we set finite method for both.
+        """
+        model = mm.Model({'t_0_1': 10, 'u_0_1': 0.2, 't_0_2': 30,
+                          'u_0_2': 0.4, 't_E': 50, 'rho_1': 0.6})
+        with self.assertRaises(ValueError):
+            model.set_magnification_methods(
+                [9, "finite_source_uniform_Gould94", 11])
+
+    def test_finite_source_method_without_rho_2(self):
+        """
+        2 source, only source 1 is finite, but we set finite method for both.
+        """
+        model = mm.Model({'t_0_1': 10, 'u_0_1': 0.2, 't_0_2': 30,
+                          'u_0_2': 0.4, 't_E': 50, 'rho_2': 0.6})
+        with self.assertRaises(ValueError):
+            model.set_magnification_methods(
+                [29, "finite_source_uniform_Gould94", 31])
+
+
+def test_model_methods():
+    """
+    Simplest model and setting point_source method.
+    It obviously should work but it's worth to check it.
+    """
+    model = mm.Model({'t_0': 10, 'u_0': 0.2, 't_E': 50})
+    model.set_magnification_methods([9, "point_source", 11])
+
 
 def test_model_parallax_definition():
     """Update parameters in an existing model"""
@@ -179,7 +218,7 @@ def test_BLPS_shear_active():
     t = np.array([2456112.5])
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     magnification = model.get_magnification(data.time[0])
-    assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
+    assert not isclose(magnification[0], 4.691830781584699, abs_tol=1e-2)
 
 
 def test_BLPS_shear():

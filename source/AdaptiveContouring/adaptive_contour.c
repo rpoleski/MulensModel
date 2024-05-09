@@ -12,6 +12,7 @@
 /* Revision RP 02-02-18 */
 /* Revision RP 24-02-18 */
 /* Revision RP 15-11-18 */
+/* Revision RP 25-01-24 ifndef M_LN2 */
 
 
 #include <math.h>
@@ -35,6 +36,10 @@ typedef enum {FALSE,TRUE} boolean;
 #define LVLOFF 63 
 
 #define BIGG 1e37
+
+#ifndef M_LN2
+#define M_LN2 0.693147180559945309417
+#endif
 
 typedef struct region {
 	int level;
