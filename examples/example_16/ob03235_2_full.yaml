@@ -34,7 +34,7 @@ starting_parameters:
     alpha: gauss 224.0 1.0
 fit_constraints:
     negative_blending_flux_sigma_mag: 20. 
-    #one can specify for which dateset soft constrain on blending flux should be applied: sigma dataset_number(s)
+    #one can specify for which dataset soft constrain on blending flux should be applied: sigma dataset_number(s)
     #negative_blending_flux_sigma_mag: 20. 1 3  
     # Alternative sharp constraint:
     # no_negative_blending_flux: True
