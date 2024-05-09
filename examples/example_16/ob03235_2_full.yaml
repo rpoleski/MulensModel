@@ -34,13 +34,13 @@ starting_parameters:
     alpha: gauss 224.0 1.0
 fit_constraints:
     negative_blending_flux_sigma_mag: 20. 
-    #you can specific which source flux should be constrain : sigma source_number(s)
-    #negative_blending_flux_sigma_mag: 20. 2
+    #one can specify for which dateset soft prior on blending flux should be applied: sigma dataset_number(s)
+    #negative_blending_flux_sigma_mag: 20. 1 3  
     # Alternative sharp constraint:
     # no_negative_blending_flux: True
-    #color constrains: gauss mu sigma flux_in_numerator flux_in_denominator
+    #color constrains, where color=flux_S_dataset_no._k/flux_S_dataset_no._m: gauss mu sigma k m 
     color : gauss 25. 5. 1 2 
-    #Alternative 
+    #Alternative for binary source models: 
     #color source 1 :  gauss 25. 5. 1 2 
     #and/or 
     #color source 2 :  gauss 25. 5. 1 2 

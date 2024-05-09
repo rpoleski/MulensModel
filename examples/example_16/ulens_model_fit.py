@@ -306,13 +306,14 @@ class UlensModelFit(object):
             These files will have three columns: time, residuals, and
             uncertainties.
     """
+
     def __init__(
             self, photometry_files,
             starting_parameters=None, prior_limits=None, model=None,
             fixed_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
             fit_constraints=None, plots=None, other_output=None
-            ):
+    ):
         self._check_MM_version()
         self._photometry_files = photometry_files
         self._starting_parameters_input = starting_parameters
@@ -462,7 +463,7 @@ class UlensModelFit(object):
             xi_argument_of_latitude_reference='\\xi_u',
             xi_eccentricity='\\xi_e',
             xi_omega_periapsis='\\xi_{\\omege}',
-            )
+        )
         self._latex_conversion_other = dict()
 
     def _guess_fitting_method(self):
@@ -1442,12 +1443,11 @@ class UlensModelFit(object):
 
         allowed_keys_flux = {
             "no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
-        
-        allowed_keys_color={'color',
-                        'color source 1',
-                        'color source 2',}
-        
-        
+
+        allowed_keys_color = {'color',
+                              'color source 1',
+                              'color source 2', }
+
         allowed_keys = {*allowed_keys_flux,
                         *allowed_keys_color,
                         "prior"}
@@ -1462,70 +1462,54 @@ class UlensModelFit(object):
         if "no_negative_blending_flux" not in self._fit_constraints:
             self._fit_constraints["no_negative_blending_flux"] = False
 
-        if len(used_keys.intersection(allowed_keys_color))>=2 and ('color' in used_keys):
+        if len(used_keys.intersection(allowed_keys_color)) >= 2 and ('color' in used_keys):
             raise ValueError(
-               'you cannot specify both color and '+ str(used_keys.intersection(allowed_keys_color)-{'color'}))
+                'you cannot specify both color and ' + str(used_keys.intersection(allowed_keys_color)-{'color'}))
 
-        for key in self._fit_constraints.keys():  
-            value=self._fit_constraints[key]
-           
-            if key == "negative_blending_flux_sigma_mag" :
-                
-                if isinstance(value, float):
-                    words=[value]
-                else:    
-                    words=value.split()
-    
-                if len(words)==1:    
-                    sets=[]
-                    for (j,idset) in enumerate(self._datasets):
-                        sets.append(int(j)+1)
-             
-                elif 2<=len(words)<=(len(self._datasets)+1):
-                    sets=[]
-                    for (j,idset) in enumerate(words[1:]):
-                        if 0<int(idset)<=len(self._datasets):
-                            sets.append(int(idset))
-                            
-                        else :
-                            raise ValueError(
-                   'dataset number specified in negative_blending_flux_sigma_mag do not match with provided datasets')
-                            
-                
-                
-                self._fit_constraints[key] =[mm.Utils.get_flux_from_mag(float(words[0])),sets]
-                
-                
-                
-                
-                
-            elif key in ['color','color source 1','color source 2']:
-                  
-                  words = value.split()
-                  if len(words) != 5 or words[0] != 'gauss':
-                      msg = "Something went wrong in parsing prior for "
-                      msg += "{:}: {:}"
-                      if len(words) == 3 and words[0] == 'gauss' :
-                          msg+=' color priors require the specification of datasets that should be used for color calculation  '
-                      raise ValueError(msg.format(key, value))
-                  try:
-                      settings = [words[0], float(words[1]), float(words[2]), int(words[3]), int(words[4])]
-                  except Exception:
-                      raise ValueError('error in parsing: ' + words[1] + " " +
-                                       words[2]+ " " + words[3]+ " " +words[4])
-                  if settings[2] < 0.:
-                      raise ValueError('sigma cannot be negative: ' + words[2])
-                  if settings[3]==settings[4] :
-                      raise ValueError( "in " + key +  " fluxes have to be from different datasets")
-                      
-                  if  (0>=settings[3]>=len(self._datasets)+1) or  (0>=settings[4]>=len(self._datasets)+1):
-                      raise ValueError(
-             'dataset number specified in color prior do not match with provided datasets')
-                     
-                      
-                  self._fit_constraints[key]  = settings
-                  
-            
+        for key in self._fit_constraints.keys():
+            value = self._fit_constraints[key]
+
+            if key == "negative_blending_flux_sigma_mag":
+
+                if isinstance(value, (float, int)):
+                    sigma = float(value)
+                    sets = list(range(1, len(self._datasets) + 1))
+                else:
+                    sigma = float(value.split()[0])
+                    sets = list(map(int, value.split()[1:]))
+                    if len(sets) > len(self._datasets):
+                        raise ValueError(
+                            'dataset number specified in negative_blending_flux_sigma_mag do not match with provided datasets')
+
+                self._fit_constraints[key] = [
+                    mm.Utils.get_flux_from_mag(sigma), sets]
+
+            elif key in ['color', 'color source 1', 'color source 2']:
+
+                words = value.split()
+                if len(words) != 5 or words[0] != 'gauss':
+                    msg = "Something went wrong in parsing prior for "
+                    msg += "{:}: {:}"
+                    if len(words) == 3 and words[0] == 'gauss':
+                        msg += ' color priors require the specification of datasets that should be used for color calculation  '
+                    raise ValueError(msg.format(key, value))
+                try:
+                    settings = [words[0], float(words[1]), float(
+                        words[2]), int(words[3]), int(words[4])]
+                except Exception:
+                    raise ValueError('error in parsing: ' + words[1] + " " +
+                                     words[2] + " " + words[3] + " " + words[4])
+                if settings[2] < 0.:
+                    raise ValueError('sigma cannot be negative: ' + words[2])
+                if settings[3] == settings[4]:
+                    raise ValueError(
+                        "in " + key + " fluxes have to be from different datasets")
+
+                if (0 >= settings[3] >= len(self._datasets)+1) or (0 >= settings[4] >= len(self._datasets)+1):
+                    raise ValueError(
+                        'dataset number specified in color prior do not match with provided datasets')
+
+                self._fit_constraints[key] = settings
 
         if 'prior' in self._fit_constraints:
             self._parse_fit_constraints_prior()
@@ -1558,8 +1542,7 @@ class UlensModelFit(object):
                 if settings[2] < 0.:
                     raise ValueError('sigma cannot be negative: ' + words[2])
                 priors[key] = settings
-                
-                
+
             else:
                 raise KeyError(
                     "Unrecognized key in fit_constraints/prior: " + key)
@@ -2067,7 +2050,7 @@ class UlensModelFit(object):
                     value = self._model.parameters.parameters[parameter]
                     ln_prior += self._get_ln_prior_for_1_parameter(
                         value, prior_settings)
-                                     
+
                 else:
                     raise ValueError('prior not handled: ' + parameter)
 
@@ -2080,8 +2063,8 @@ class UlensModelFit(object):
         """
         sampling = self._model.parameters.uniform_caustic_sampling
         valid = sampling.check_valid_trajectory(
-                self._model.parameters.x_caustic_in,
-                self._model.parameters.x_caustic_out)
+            self._model.parameters.x_caustic_in,
+            self._model.parameters.x_caustic_out)
         return valid
 
     def _get_ln_prior_for_1_parameter(self, value, settings):
@@ -2181,6 +2164,16 @@ class UlensModelFit(object):
 
         return fluxes
 
+    def _sumup_inside_prior(self, fluxes, key, inside, idx_plus):
+
+        settings = self._fit_constraints[key]
+        index1 = (settings[3]-1)*self._n_fluxes_per_dataset + idx_plus
+        index2 = (settings[4]-1)*self._n_fluxes_per_dataset + idx_plus
+        value = fluxes[index1]/fluxes[index2]
+        inside += self._get_ln_prior_for_1_parameter(value, settings[:-2])
+
+        return inside
+
     def _run_flux_checks_ln_prior(self, fluxes):
         """
         Run the checks on fluxes - are they in the prior?
@@ -2194,69 +2187,34 @@ class UlensModelFit(object):
                 return outside
 
         key = "negative_blending_flux_sigma_mag"
-                  
-        
+
         if key in self._fit_constraints:
-                   
+
             for (i, dataset) in enumerate(self._datasets):
-                if i+1 in  self._fit_constraints[key][1]:
-                    blend_index = ((i+1)*self._n_fluxes_per_dataset )- 1
+                if i+1 in self._fit_constraints[key][1]:
+                    blend_index = ((i+1)*self._n_fluxes_per_dataset) - 1
                     if fluxes[blend_index] < 0.:
                         sigma = self._fit_constraints[key][0]
                         inside += -0.5 * (fluxes[blend_index] / sigma)**2
-        
-        key='color'
+
+        key = 'color'
 
         if key in self._fit_constraints:
-            settings=self._fit_constraints[key]
-            if  self._n_fluxes_per_dataset == 2 :
-                index1=(settings[3]-1)*self._n_fluxes_per_dataset
-                index2=(settings[4]-1)*self._n_fluxes_per_dataset
-                value=fluxes[index1]/fluxes[index2]
-                inside +=self._get_ln_prior_for_1_parameter(
-                    value, settings[:-2])
+            settings = self._fit_constraints[key]
+            if self._n_fluxes_per_dataset == 2:
+                inside = self._sumup_inside_prior(fluxes, key, inside, 0)
 
-            if  self._n_fluxes_per_dataset == 3 :
-                index1=(settings[3]-1)*self._n_fluxes_per_dataset
-                index2=(settings[4]-1)*self._n_fluxes_per_dataset
-                value=fluxes[index1]/fluxes[index2]
-                inside +=self._get_ln_prior_for_1_parameter(
-                    value, settings[:-2])
-                
-                
-                index1=((settings[3]-1)*self._n_fluxes_per_dataset)+1
-                index2=((settings[4]-1)*self._n_fluxes_per_dataset)+1
-                value=fluxes[index1]/fluxes[index2]
-                inside +=self._get_ln_prior_for_1_parameter(
-                    value, settings[:-2])
+            if self._n_fluxes_per_dataset == 3:
+                inside = self._sumup_inside_prior(fluxes, key, inside, 0)
+                inside = self._sumup_inside_prior(fluxes, key, inside, 1)
 
-                
-            
-        key= 'color source 1'
+        key = 'color source 1'
         if key in self._fit_constraints:
-            settings=self._fit_constraints[key]
-            index1=(settings[3]-1)*self._n_fluxes_per_dataset
-            index2=(settings[4]-1)*self._n_fluxes_per_dataset
-            value=fluxes[index1]/fluxes[index2]
-            inside +=self._get_ln_prior_for_1_parameter(
-                value, settings[:-2])
-            
-            
-            
-              
-        key= 'color source 2'
+            inside = self._sumup_inside_prior(fluxes, key, inside, 0)
+
+        key = 'color source 2'
         if key in self._fit_constraints:
-            settings=self._fit_constraints[key]
-            index1=(settings[3]-1)*self._n_fluxes_per_dataset+1
-            index2=(settings[4]-1)*self._n_fluxes_per_dataset+1
-            value=fluxes[index1]/fluxes[index2]
-            inside +=self._get_ln_prior_for_1_parameter(
-                value, settings[:-2])
-            
-            
-             
-             
-                
+            inside = self._sumup_inside_prior(fluxes, key, inside, 1)
 
         return inside
 
