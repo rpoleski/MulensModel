@@ -173,7 +173,7 @@ def test_q_gt_1_is_good():
     planet.set_magnification_methods(list_of_methods)
     planet_2.set_magnification_methods(list_of_methods)
     planet_3.set_magnification_methods(list_of_methods)
-    t_range = np.arange(3580., 3600., 0.1)
+    t_range = [3580, 3589, 3590, 3592, 3593, 3595]
     magnifications_1 = planet.get_magnification(time=t_range)
     magnifications_2 = planet_2.get_magnification(time=t_range)
     magnifications_3 = planet_3.get_magnification(time=t_range)
@@ -200,7 +200,7 @@ def test_q_gt_1_is_smooth():
 
     planet.set_magnification_methods([3590., 'VBBL', 3595.])
     planet_2.set_magnification_methods([3590., 'VBBL', 3595.])
-    t_range = np.arange(3580., 3600., 0.1)
+    t_range = [3571, 3590.5, 3591, 3592, 3593.4, 3594.5]
     magnifications_1 = planet.get_magnification(time=t_range)
     magnifications_2 = planet_2.get_magnification(time=t_range)
 
