@@ -721,6 +721,8 @@ class BinaryLensPointSourceMagnification(
         magnification calculation.
         """
         if self._source_x is None:
+            print('traj.x', self.trajectory.x)
+            print('type', type(self.trajectory.x))
             self._source_x = float(self.trajectory.x)
 
         return self._source_x
@@ -972,6 +974,9 @@ class BinaryLensPointSourceWM95Magnification(
         if self._source_x is None:
             x_shift = -1. / (1. + self.trajectory.parameters.q)
             x_shift *= self.separation
+            print('traj.x', self.trajectory.x)
+            print('type(traj.x)', type(self.trajectory.x))
+            print('x_shift', x_shift)
             self._source_x = float(self.trajectory.x + x_shift)
 
         return self._source_x
