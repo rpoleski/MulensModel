@@ -1483,12 +1483,15 @@ class UlensModelFit(object):
         """
         Check if soft fit constraint on blending flux are correctly defined.
         """
-        if isinstance(value, (float, int)):
+        if isinstance(value,  float):
             sigma = float(value)
-            sets = list(range(1, len(self._datasets) + 1))
+            sets = list(range(len(self._datasets)))
+
         else:
+
             sigma = float(value.split()[0])
-            sets = list(map(int, value.split()[1:]))
+            sets = list(map(self._get_no_of_dataset,
+                        shlex.split(value, posix=False)[1:]))
             if len(sets) > len(self._datasets):
                 raise ValueError(
                     'dataset number specified in negative_blending_flux_sigma_mag do not match with provided datasets')
@@ -1515,20 +1518,17 @@ class UlensModelFit(object):
                              words[2] + " " + words[3] + " " + words[4])
         if settings[2] < 0.:
             raise ValueError('sigma cannot be negative: ' + words[2])
+
+        settings[3] = self._get_no_of_dataset(settings[3])
+        settings[4] = self._get_no_of_dataset(settings[4])
+
         if settings[3] == settings[4]:
             raise ValueError(
                 "in " + key + " fluxes have to be from different datasets")
 
-        if isinstance(settings[3], str) and isinstance(settings[4], str):
-            settings[3] = settings[3].strip('"')
-            settings[4] = settings[4].strip('"')
-            settings[3] = self._get_no_of_dataset_by_lable(settings[3])
-            settings[4] = self._get_no_of_dataset_by_lable(settings[4])
-
-        if isinstance(settings[3], int) and isinstance(settings[4], int):
-            if (0 >= settings[3] >= len(self._datasets)-1) or (0 >= settings[4] >= len(self._datasets)-1):
-                raise ValueError(
-                    'dataset specified in color prior do not match with provided datasets')
+        if (0 >= settings[3] >= len(self._datasets)-1) or (0 >= settings[4] >= len(self._datasets)-1):
+            raise ValueError(
+                'dataset specified in color prior do not match with provided datasets')
 
         self._fit_constraints[key] = settings
 
@@ -1569,24 +1569,36 @@ class UlensModelFit(object):
         if len(priors) > 0:
             self._priors = priors
 
-    def _get_no_of_dataset_by_lable(self, label):
+    def _get_no_of_dataset(self, label):
         """
         Returns the index of a dataset with a specific label.
 
         Parameters
         ----------
         label : str
-            Label of the dataset defined by MulensData.plot_properties['label'].
+            Label of the dataset defined by MulensData.plot_properties['label']
+            or sequential index of the dataset
 
         Returns
         -------
         int
-            Sequential index of the dataset [1,2,...,n_datasets]
+            Sequential index of the dataset from [0,1,...,n_datasets-1]
+
         """
-        for (i, dataset) in enumerate(self._datasets):
-            if dataset.plot_properties['label'] == label:
-                return i
-        return -99
+        if '"' in label:
+            label = label.strip('"')
+
+        try:
+            ind = int(label)
+            if 0 <= ind <= len(self._datasets)-1:
+                return ind
+        except:
+            for (i, dataset) in enumerate(self._datasets):
+
+                if dataset.plot_properties['label'] == label:
+                    return i
+            raise KeyError(
+                "Unrecognized dataset lable in fit_constraints/prior: " + label)
 
     def _read_prior_t_E_data(self):
         """
@@ -2244,7 +2256,7 @@ class UlensModelFit(object):
         if key in self._fit_constraints:
 
             for (i, dataset) in enumerate(self._datasets):
-                if i+1 in self._fit_constraints[key][1]:
+                if i in self._fit_constraints[key][1]:
                     blend_index = ((i+1)*self._n_fluxes_per_dataset) - 1
                     if fluxes[blend_index] < 0.:
                         sigma = self._fit_constraints[key][0]
