@@ -20,8 +20,8 @@ from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.model import Model
 from MulensModel.modelparameters import ModelParameters, which_parameters
 from MulensModel.mulensdata import MulensData
-from MulensModel.mulensobjects import *
-from MulensModel.orbits import *
+from MulensModel.mulensobjects import Lens, Source, MulensSystem
+from MulensModel import orbits
 from MulensModel.pointlens import PointSourcePointLensMagnification, \
     FiniteSourceUniformGould94Magnification, FiniteSourceLDYoo04Magnification
 from MulensModel.pointlenswithshear import PointSourcePointLensWithShearMagnification
@@ -34,7 +34,7 @@ from MulensModel.utils import MAG_ZEROPOINT, Utils
 
 from .version import __version__
 
-__all__ = ['mulensobjects', 'MODULE_PATH', 'DATA_PATH']
+__all__ = ['mulensobjects', 'MODULE_PATH', 'DATA_PATH', 'BinaryLens']
 
 MODULE_PATH = path.abspath(__file__)
 for i in range(3):

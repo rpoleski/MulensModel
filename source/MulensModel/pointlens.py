@@ -2,6 +2,8 @@ import warnings
 import numpy as np
 from math import sin, cos, sqrt, log10
 from scipy import integrate
+from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import RegularGridInterpolator as RGI
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
@@ -1041,9 +1043,14 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
         integrand = self._integrand_Lee09_v2(temp, u, temp2)
         dx = temp[:, 1] - temp[:, 0]
         for (i, dx_) in enumerate(dx):
-            integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
-
-        out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
+            try:
+                integrand_values[i] = integrate.simpson(integrand[i], dx=dx_)
+            except AttributeError:
+                integrand_values[i] = integrate.simps(integrand[i], dx=dx_)
+        try:
+            out = integrate.simpson(integrand_values, dx=theta[1] - theta[0])
+        except AttributeError:
+            out = integrate.simps(integrand_values, dx=theta[1] - theta[0])
         out *= 2. / (np.pi * rho**2)
 
         return out

@@ -56,7 +56,7 @@ class Horizons(object):
 
         if file_type == 'Horizons':
             self._read_horizons_file()
-        else:
+        elif file_type == 'np.array':
             (time, x, y, z) = np.loadtxt(
                 self._file_properties['file_name'],
                 usecols=(0, 1, 2, 3), unpack=True)
@@ -65,6 +65,8 @@ class Horizons(object):
             if int(astropy_version[0]) >= 4:
                 key = "representation_type"
             self._xyz = SkyCoord(x=x, y=y, z=z, **{key: 'cartesian'})
+        else:
+            raise ValueError("unexpected file_type: " + str(file_type))
 
     def _get_start_end(self):
         """

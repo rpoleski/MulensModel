@@ -1,7 +1,8 @@
 import numpy as np
 import warnings
 
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, ICRS, FK4, FK5
+from astropy.coordinates import GeocentricTrueEcliptic
 from astropy import units as u
 
 from MulensModel.utils import Utils
@@ -36,10 +37,12 @@ class Coordinates(SkyCoord):
     """
 
     def __init__(self,  *args, **kwargs):
-        if not isinstance(args[0], (SkyCoord, u.quantity.Quantity)):
+        if isinstance(args[0], str):
             if 'unit' not in kwargs and len(args) > 0:
                 self._check_for_ra_in_degrees(args[0])
                 kwargs['unit'] = (u.hourangle, u.deg)
+        self._validate_input(args[0], kwargs.get('frame'))
+
         SkyCoord.__init__(self, *args, **kwargs)
         if self.cartesian.xyz.shape not in [(3,), (3, 1)]:
             raise ValueError(
@@ -73,6 +76,29 @@ class Coordinates(SkyCoord):
                 "a default unit for RA is hours (not degrees). " + str(value))
             warnings.warn(warning, UserWarning)
 
+    def _validate_input(self, arg, frame):
+        """
+        Validate input for coordinates, checking if format is allowed (ICRS,
+        FK4 or FK5) or raising ValueError otherwise. If SkyCoord() instance
+        is provided, the frame should be allowed as well.
+        """
+        allowed_fmts = (str, SkyCoord, ICRS, FK4, FK5)
+        if not isinstance(arg, allowed_fmts):
+            raise ValueError(f'Coordinate format {type(arg)} is not allowed.')
+
+        if isinstance(arg, str):
+            if frame not in [None, 'icrs', 'fk4', 'fk5']:
+                raise ValueError("Only ICRS, FK4 and FK5 frames are allowed" +
+                                 " to Coordinates().")
+
+        elif isinstance(arg, (SkyCoord, u.quantity.Quantity)):
+            test = '18h00m00s -30d00m00s'
+            is_icrs = arg.is_equivalent_frame(SkyCoord(test, frame='icrs'))
+            is_fk4 = arg.is_equivalent_frame(SkyCoord(test, frame='fk4'))
+            is_fk5 = arg.is_equivalent_frame(SkyCoord(test, frame='fk5'))
+            if not (is_icrs | is_fk4 | is_fk5):
+                raise ValueError("Provided SkyCoord is not in allowed frame.")
+
     def _calculate_projected(self):
         """
         Calculate North and East directions projected on the plane of the sky.
@@ -96,7 +122,7 @@ class Coordinates(SkyCoord):
         Galactic longitude. Note that for connivance, the values l >
         180 degrees are represented as 360-l.
         """
-        gal_l = self.galactic.l
+        gal_l = SkyCoord(self).galactic.l
         if gal_l > 180. * u.deg:
             gal_l = gal_l - 360. * u.deg
         return gal_l
@@ -108,7 +134,7 @@ class Coordinates(SkyCoord):
 
         Galactic latitude calculated from (RA, Dec)
         """
-        return self.galactic.b
+        return SkyCoord(self).galactic.b
 
     @property
     def ecliptic_lon(self):
@@ -117,8 +143,7 @@ class Coordinates(SkyCoord):
 
         ecliptic longitude calculated from (RA, Dec)
         """
-        from astropy.coordinates import GeocentricTrueEcliptic
-        return self.transform_to(GeocentricTrueEcliptic).lon
+        return SkyCoord(self).transform_to(GeocentricTrueEcliptic).lon
 
     @property
     def ecliptic_lat(self):
@@ -127,8 +152,7 @@ class Coordinates(SkyCoord):
 
         ecliptic latitude calculated from (RA, Dec)
         """
-        from astropy.coordinates import GeocentricTrueEcliptic
-        return self.transform_to(GeocentricTrueEcliptic).lat
+        return SkyCoord(self).transform_to(GeocentricTrueEcliptic).lat
 
     @property
     def north_projected(self):

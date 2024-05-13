@@ -3,8 +3,8 @@ import numpy as np
 from math import sqrt
 
 from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification
-from MulensModel.binarylensimports import (_vbbl_wrapped,
-                                           _vbbl_binary_mag_0, _vbbl_SG12_9)
+from MulensModel.binarylensimports import (
+    _vbbl_wrapped, _vbbl_binary_mag_point_shear, _vbbl_SG12_9)
 import MulensModel as mm
 
 
@@ -383,8 +383,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(
 
         return self._polynomial_roots
 
-    def _verify_polynomial_roots(
-            self, return_distances=False):
+    def _verify_polynomial_roots(self, return_distances=False):
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots()
 
@@ -456,15 +455,6 @@ class BinaryLensPointSourceWithShearWM95Magnification(
         return (1. - self.convergence_K)**2 - (derivative *
                                                np.conjugate(derivative))
 
-    # @property
-    # def source_x(self):
-    #     if self._source_x is None:
-    #         x_shift = self.mass_2 / (self.mass_1 + self.mass_2) - 0.5
-    #         self._source_x = float(self.trajectory.x + x_shift)
-    #
-    #     return self._source_x
-
-
 
 class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
     BinaryLensPointSourceWithShearWM95Magnification):
@@ -476,7 +466,7 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
         """
         calculate coefficients of the polynomial in geometric center frame
         """
-        self._calculate_variables(source_x=source_x, source_y=source_y)
+        self._calculate_variables()
         total_m = self._total_mass
         total_m_pow2 = total_m * total_m
 
@@ -558,10 +548,20 @@ class BinaryLensPointSourceWithShearVBBLMagnification(
         s = float(self.separation)
         q = float(self.mass_2 / self.mass_1)
 
-        magnification = _vbbl_binary_mag_0(
+        magnification = _vbbl_binary_mag_point_shear(
             s, q, self.source_x, self.source_y, self.convergence_K,
             self.shear_G.real,
             self.shear_G.imag)
+
+        if magnification < 1.:
+            msg = (
+                "error in BinaryLensWithShear.point_source_magnification()\n"
+                "input:\n")
+            params = [s, q, self.source_x, self.source_y, self.convergence_K, self.shear_G.real,
+                      self.shear_G.imag, self.vbbl_on, _vbbl_wrapped]
+            msg += " ".join([str(p) for p in params])
+            msg += "\noutput: {:}".format(magnification)
+            raise ValueError(msg)
 
         return magnification
 

@@ -2,10 +2,7 @@
 Calculates interpolation tables for elliptical integral of
 the first and second kind.
 """
-import math
 import numpy as np
-from math import sin, cos, sqrt
-from scipy import integrate
 from scipy.interpolate import interp1d
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.

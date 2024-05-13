@@ -9,18 +9,44 @@ Based on code written by Przemek Mroz
 
 static PyObject * 
 VBBinaryLensing_BinaryMagDark_wrapper(PyObject *self, PyObject *args) {
-  double a, q, y1, y2, RSv, a1, Tol, mag;
+  double a, q, y1, y2, RSv, a1, tolerance, mag;
   static VBBinaryLensing VBBL;
 
-  if (!PyArg_ParseTuple(args, "ddddddd", &a, &q, &y1, &y2, &RSv, &a1, &Tol)) return NULL;
+  if (!PyArg_ParseTuple(args, "ddddddd", &a, &q, &y1, &y2, &RSv, &tolerance, &a1)) return NULL;
 
-  mag = VBBL.BinaryMagDark(a, q, y1, y2, RSv, a1, Tol);
+  mag = VBBL.BinaryMagDark(a, q, y1, y2, RSv, a1, tolerance);
 
   return Py_BuildValue("d", mag);
 }
 
-static PyObject * 
-VBBinaryLensing_BinaryMag0_wrapper(PyObject *self, PyObject *args) {
+static PyObject *
+VBBinaryLensing_BinaryMagFinite_wrapper(PyObject *self, PyObject *args) {
+  double a, q, y1, y2, RSv, tolerance, mag;
+  static VBBinaryLensing VBBL;
+
+  if (!PyArg_ParseTuple(args, "dddddd", &a, &q, &y1, &y2, &RSv, &tolerance)) return NULL;
+
+  VBBL.Tol = tolerance;
+
+  mag = VBBL.BinaryMag2(a, q, y1, y2, RSv);
+
+  return Py_BuildValue("d", mag);
+}
+
+static PyObject *
+VBBinaryLensing_BinaryMagPoint_wrapper(PyObject *self, PyObject *args) {
+  double a, q, y1, y2, mag;
+  static VBBinaryLensing VBBL;
+
+  if (!PyArg_ParseTuple(args, "dddd", &a, &q, &y1, &y2)) return NULL;
+
+  mag = VBBL.BinaryMag0(a, q, y1, y2);
+
+  return Py_BuildValue("d", mag);
+}
+
+static PyObject *
+VBBinaryLensing_BinaryMagPointShear_wrapper(PyObject *self, PyObject *args) {
   double a, q, y1, y2, K, G, Gi, mag;
   static VBBinaryLensing_shear VBBL;
 
@@ -111,7 +137,9 @@ VBBL_SG12_9_wrapper(PyObject *self, PyObject *args) {
 
 static PyMethodDef VBBLMethods[] = {
     {"VBBinaryLensing_BinaryMagDark", VBBinaryLensing_BinaryMagDark_wrapper, METH_VARARGS, "some notes here"},
-    {"VBBinaryLensing_BinaryMag0", VBBinaryLensing_BinaryMag0_wrapper, METH_VARARGS, "some notes here"},
+    {"VBBinaryLensing_BinaryMagFinite", VBBinaryLensing_BinaryMagFinite_wrapper, METH_VARARGS, "some notes here"},
+    {"VBBinaryLensing_BinaryMagPoint", VBBinaryLensing_BinaryMagPoint_wrapper, METH_VARARGS, "some notes here"},
+    {"VBBinaryLensing_BinaryMagPointShear", VBBinaryLensing_BinaryMagPointShear_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_SG12_5", VBBL_SG12_5_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_BinaryMag", VBBinaryLensing_BinaryMag_wrapper, METH_VARARGS, "some notes here"},
     {"VBBL_SG12_9", VBBL_SG12_9_wrapper, METH_VARARGS, "some notes here"},
