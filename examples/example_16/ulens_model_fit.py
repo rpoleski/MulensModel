@@ -1570,21 +1570,15 @@ class UlensModelFit(object):
             self._priors = priors
 
     def _get_no_of_dataset(self, label):
-        """
+        """        
         Returns the index of a dataset with a specific label.
-
-        Parameters
-        ----------
-        label : str
-            Label of the dataset defined by MulensData.plot_properties['label']
+        :param label: Label of the dataset defined by MulensData.plot_properties['label']
             or sequential index of the dataset
-
-        Returns
-        -------
-        int
-            Sequential index of the dataset from [0,1,...,n_datasets-1]
-
+        :type label: str
+        :return: Sequential index of the dataset from [0,1,...,n_datasets-1]
+        :rtype: int
         """
+
         if '"' in label:
             label = label.strip('"')
 
@@ -2214,23 +2208,19 @@ class UlensModelFit(object):
         return fluxes
 
     def _sumup_inside_prior(self, fluxes, key, inside, idx_plus):
+        """Calculates the contribution to the ln_prior from specified color constraints
+        
+        :param fluxes:  Array with fluxes of the current model.
+        :type fluxes: array 
+        :param key: constrain key
+        :type key: str
+        :param inside: ln_prior contribution
+        :type inside: float
+        :param idx_plus:  For a single source, idx_plus=0; for a binary source, idx_plus=0 or 1. 
+        :type idx_plus: int
+        :return: evaluated ln_prior contribution
+        :rtype: float
         """
-        Calculates the contribution to the ln_prior from specified color constraints
-        Parameters
-        ----------
-        fluxes : array 
-            Array with fluxes of the current model.
-        key : str
-        inside : float
-        idx_plus : int
-            For a single source, idx_plus=0; 
-            for a binary source, idx_plus=0 or 1. 
-
-        Returns
-        -------
-        inside : float
-        """
-
         settings = self._fit_constraints[key]
         index1 = (settings[3])*self._n_fluxes_per_dataset + idx_plus
         index2 = (settings[4])*self._n_fluxes_per_dataset + idx_plus
