@@ -716,9 +716,7 @@ class ModelParameters(object):
         """
         make sure that there is no conflict between t_0 and t_0_1 etc.
         """
-        print('incompatible')
         for parameter in self._all_source_params_head:
-            print(parameter)
             if parameter in keys:
                 for i in range(self.n_sources):
                     if '{0}_{1}'.format(parameter, i+1) in keys:
@@ -730,7 +728,6 @@ class ModelParameters(object):
         """
         Also make sure that t_0 and u_0 are defined for all sources.
         """
-        print('missing')
         if (self.n_sources > 1) and ('q_source' not in keys):
             for i in range(self.n_sources):
                 if 't_0_{0}'.format(i + 1) not in keys:
@@ -748,7 +745,6 @@ class ModelParameters(object):
         """
         Check if parameters have been set for sources that don't exist.
         """
-        print('extra')
         for key in keys:
             key_parts = key.split('_')
             if len(key_parts) > 1:
