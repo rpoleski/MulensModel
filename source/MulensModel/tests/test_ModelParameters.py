@@ -479,10 +479,6 @@ tested_keys_1 = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
                  'xi_eccentricity', 'xi_omega_periapsis']
 tested_keys_2 = tested_keys_1 + ['t_0_xi']
 
-# Are there tests for xallarap + q_source + rho2?
-# and xallarap + q_source + rho (not allowed)
-# really all combinations of xallarap + second source parameters?
-
 @pytest.mark.parametrize("key", tested_keys_2)
 def test_xallarap_set_value_1(key):
     """
@@ -586,6 +582,14 @@ class TestXallarapErrors(unittest.TestCase):
         """
         parameters = {**xallarap_parameters,
                       'rho_1': 0.1, 't_star_1': 0.1, 'q_source': 1.0}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(parameters)
+
+    def test_rho_with_source_unspecified(self):
+        """
+        overdefine first sourece size
+        """
+        parameters = {**xallarap_parameters, 'rho': 0.1}
         with self.assertRaises(KeyError):
             mm.ModelParameters(parameters)
 
@@ -695,23 +699,19 @@ def test_xallarap_n_sources():
     """
     Make sure that number of sources in xallarap models is properly calculated
     """
-    print('### test 1')
     parameters = {**xallarap_parameters}
     model_1S = mm.ModelParameters(parameters)
     assert model_1S.n_sources == 1
 
-    print('### test 2')
     parameters['q_source'] = 1.
     model_2S = mm.ModelParameters(parameters)
     assert model_2S.n_sources == 2
 
-    print('### test 3')
     parameters['rho_1'] = 0.1
     parameters['rho_2'] = 0.2
     model_3 = mm.ModelParameters(parameters)
     assert model_3.n_sources == 2
 
-    print('### test 4')
     parameters = {**xallarap_parameters, 't_star_1': 2.}
     model_4 = mm.ModelParameters(parameters)
     assert model_4.n_sources == 1
@@ -756,17 +756,9 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
     factor = 1.1
     parameters = {'q_source': q_source, **xallarap_parameters}
     model = mm.ModelParameters(parameters)
-    print('')
-    print('old', model)
-    print('source 1', model.source_1_parameters)
-    print('source 2', model.source_2_parameters)
     old_value = getattr(model, key)
     new_value = factor * old_value
-    print('key', key, new_value)
     setattr(model, key, new_value)
-    print('new', model)
-    print('source 1', model.source_1_parameters)
-    print('source 2', model.source_2_parameters)
 
     assert getattr(model, key) == new_value
 
