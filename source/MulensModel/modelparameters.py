@@ -719,11 +719,33 @@ class ModelParameters(object):
         """
         for parameter in self._all_source_params_head:
             if parameter in keys:
+                # conflict between t_0 and t_0_1
                 for i in range(self.n_sources):
                     if '{0}_{1}'.format(parameter, i+1) in keys:
                         raise KeyError(
                             'You cannot set both {:} and {:}'.format(
                                 parameter,'{0}_{1}'.format(parameter, i+1)))
+
+        if self.is_xallarap:
+            self._check_for_parameters_incompatible_with_xallarap(keys)
+
+
+    def _check_for_parameters_incompatible_with_xallarap(self, keys):
+        """
+        Check for additional source parameters with xallarap (bad).
+        """
+
+        for parameter in keys:
+            try:
+                key_num = parameter.split('_')[-1]
+                if ((int(key_num) > 1) and
+                    (parameter[0:-len(key_num) - 1] in
+                     self._primary_source_params_head)):
+                    msg = 'xallarap parameters cannot be mixed with {:}'
+                    raise NotImplementedError(msg.format(parameter))
+
+            except ValueError:
+                pass
 
     def _check_for_missing_source_parameters(self, keys):
         """
