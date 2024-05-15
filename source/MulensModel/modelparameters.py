@@ -237,6 +237,7 @@ class ModelParameters(object):
                 self._standard_parameters = None
 
             if self.is_xallarap:
+                self._check_for_extra_source_parameters(parameters.keys())
                 delta_1 = self._get_xallarap_position(parameters)
                 self._xallarap_reference_position = delta_1
 
