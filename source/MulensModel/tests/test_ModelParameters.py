@@ -586,10 +586,7 @@ class TestXallarapErrors(unittest.TestCase):
             mm.ModelParameters(parameters)
 
     def test_rho_with_source_unspecified(self):
-        """
-        overdefine first sourece size
-        """
-        parameters = {**xallarap_parameters, 'rho': 0.1}
+        parameters = {**xallarap_parameters, 'q_source': 1.3, 'rho': 0.1}
         with self.assertRaises(KeyError):
             mm.ModelParameters(parameters)
 

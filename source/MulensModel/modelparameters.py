@@ -718,7 +718,7 @@ class ModelParameters(object):
         """
         make sure that there is no conflict between t_0 and t_0_1 etc.
         """
-        for parameter in self._all_source_params_head:
+        for parameter in self._primary_source_params_head:
             if parameter in keys:
                 # conflict between t_0 and t_0_1
                 for i in range(self.n_sources):
@@ -726,6 +726,13 @@ class ModelParameters(object):
                         raise KeyError(
                             'You cannot set both {:} and {:}'.format(
                                 parameter,'{0}_{1}'.format(parameter, i+1)))
+
+        for parameter in self._finite_source_params_head:
+            if parameter in keys:
+                raise KeyError(
+                    'You must specify which source {0} goes with'.format(
+                        parameter)
+                )
 
         if self.is_xallarap:
             self._check_for_parameters_incompatible_with_xallarap(keys)
