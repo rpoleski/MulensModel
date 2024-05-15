@@ -479,6 +479,9 @@ tested_keys_1 = ['xi_period', 'xi_semimajor_axis', 'xi_Omega_node',
                  'xi_eccentricity', 'xi_omega_periapsis']
 tested_keys_2 = tested_keys_1 + ['t_0_xi']
 
+# Are there tests for xallarap + q_source + rho2?
+# and xallarap + q_source + rho (not allowed)
+# really all combinations of xallarap + second source parameters?
 
 @pytest.mark.parametrize("key", tested_keys_2)
 def test_xallarap_set_value_1(key):
@@ -583,7 +586,7 @@ class TestXallarapErrors(unittest.TestCase):
         """
         parameters = {**xallarap_parameters,
                       'rho_1': 0.1, 't_star_1': 0.1, 'q_source': 1.0}
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             mm.ModelParameters(parameters)
 
     def test_mixed_binary_source_and_xallarap(self):
@@ -592,7 +595,7 @@ class TestXallarapErrors(unittest.TestCase):
         one stardard binary source parameter.
         """
         parameters = {**xallarap_parameters, 'u_0_2': 0.123}
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             mm.ModelParameters(parameters)
 
     def test_no_q_source_but_with_rho_2(self):
@@ -692,19 +695,23 @@ def test_xallarap_n_sources():
     """
     Make sure that number of sources in xallarap models is properly calculated
     """
+    print('### test 1')
     parameters = {**xallarap_parameters}
     model_1S = mm.ModelParameters(parameters)
     assert model_1S.n_sources == 1
 
+    print('### test 2')
     parameters['q_source'] = 1.
     model_2S = mm.ModelParameters(parameters)
     assert model_2S.n_sources == 2
 
+    print('### test 3')
     parameters['rho_1'] = 0.1
     parameters['rho_2'] = 0.2
     model_3 = mm.ModelParameters(parameters)
     assert model_3.n_sources == 2
 
+    print('### test 4')
     parameters = {**xallarap_parameters, 't_star_1': 2.}
     model_4 = mm.ModelParameters(parameters)
     assert model_4.n_sources == 1
@@ -777,7 +784,7 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
 
 def test_reference_position():
     """
-    Make sure that for xallarap model bith sources have the same
+    Make sure that for xallarap model, both sources have the same
     reference position.
     """
     parameters = {**xallarap_parameters, 'q_source': 0.12345}

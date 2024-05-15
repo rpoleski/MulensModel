@@ -212,11 +212,11 @@ class ModelParameters(object):
     """
 
     # parameters that may be defined for a given source
-    _binary_params_head = ['t_0', 'u_0']
+    _primary_source_params_head = ['t_0', 'u_0']
     _finite_source_params_head = ['rho', 't_star']
-    _source_params_head = np.hstack(
-        (_binary_params_head, _finite_source_params_head))
-    _t_0_ref_types = ['par', 'kep']
+    _all_source_params_head = np.hstack(
+        (_primary_source_params_head, _finite_source_params_head))
+    _t_0_ref_types = ['par', 'kep', 'xi']
 
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
@@ -229,18 +229,24 @@ class ModelParameters(object):
         self._count_lenses(parameters.keys())
         self._set_type(parameters.keys())
         self._check_types('alpha' in parameters.keys())
+        print('n_source', self.n_sources)
+        print('n_lens', self.n_lenses)
+        print('type', self._type)
 
         if self.n_sources == 1:
+            print('There is 1 source.')
             self._check_valid_combination_1_source(parameters.keys())
             if self._type['Cassan08']:
                 self._uniform_caustic = None
                 self._standard_parameters = None
 
             if self.is_xallarap:
+                print('This is a xallarap model.')
                 delta_1 = self._get_xallarap_position(parameters)
                 self._xallarap_reference_position = delta_1
 
         elif self.n_sources > 1:
+            print('There are 2 sources')
             self._check_valid_combination_of_sources(parameters.keys())
             if 't_E' not in parameters.keys():
                 raise KeyError('Currently, the binary source calculations ' +
@@ -249,6 +255,10 @@ class ModelParameters(object):
 
             source_params = self._divide_parameters(parameters)
             for i, params_i in enumerate(source_params):
+                print('source_params', source_params)
+                # This is the problem. dividing the parameters in a xallarap model
+                # doesn't result in fewer parameters. So, making a new ModelParameters
+                # object leads to an infinite loop..
                 try:
                     self.__setattr__(
                         '_source_{0}_parameters'.format(i + 1),
@@ -258,13 +268,16 @@ class ModelParameters(object):
                     raise
 
             if self.is_xallarap:
+                print('This is a xallarap model with 2 sources.')
                 self._update_sources_xallarap_reference()
 
         else:
             msg = 'wrong number of sources. Your parameters: {0:}'
             raise ValueError(msg.format(parameters))
 
+        print('Setting parameters')
         self._set_parameters(parameters)
+        print('parameters have been set.')
 
         # The try/except blocks above force checks from ._init_1_source()
         # to be run on each source parameters separately.
@@ -304,7 +317,7 @@ class ModelParameters(object):
         if self.n_sources <= 2:
             return object.__getattribute__(self, item)
         else:
-            for source_param in ModelParameters._source_params_head:
+            for source_param in ModelParameters._all_source_params_head:
                 if item[0:len(source_param)] == source_param:
                     source_num = item.split('_')[-1]
                     return self.__getattr__(
@@ -492,26 +505,30 @@ class ModelParameters(object):
         Divide an input dict into each source separately.
         Some of the parameters are copied to both dicts.
         """
+        skipped_parameters = ['q_source']
+
         source_parameters = []
         for i in range(self.n_sources):
             params_i = {}
+            num = '{0}'.format(i+1)
             for (key, value) in parameters.items():
-                key_parts = key.split('_')
-                if len(key_parts) == 1:
-                    params_i[key] = value
+                if key in skipped_parameters:
+                    continue
                 else:
-                    is_source = False
-                    for param_head in ModelParameters._source_params_head:
-                        try:
-                            if key[0:len(param_head)] == param_head:
-                                is_source = True
-                                if str(i + 1) == key_parts[-1]:
-                                    params_i[key[0:len(param_head)]] = value
-
-                        except IndexError:
-                            pass
-
-                    if not is_source:
+                    key_num = key.split('_')[-1]
+                    try:
+                        if int(key_num) == 0:
+                            # source parameter, general = t_0, u_0
+                            params_i[key] = value
+                        elif int(key_num) == i + 1:
+                            # source parameter, specific
+                            #   = t_0_X, u_0_X, rho_X, t_star_X
+                            params_i[key[0:-len(num) - 1]] = value
+                        else:
+                            continue
+                            
+                    except ValueError:
+                        # global parameter = tE, piE, xiE, etc.
                         params_i[key] = value
 
             source_parameters.append(params_i)
@@ -647,7 +664,7 @@ class ModelParameters(object):
         # Add multiple source parameters with the same settings.
         if self.n_sources > 1:
             for i in range(self.n_sources):
-                for param_head in ModelParameters._source_params_head:
+                for param_head in ModelParameters._all_source_params_head:
                     form = formats[param_head]
                     key = '{0}_{1}'.format(param_head, i+1)
                     formats[key] = {'width': form['width'],
@@ -704,27 +721,35 @@ class ModelParameters(object):
         make sure that there is no conflict between t_0 and t_0_1 etc.
         Also make sure that t_0 and u_0 are defined for all sources.
         """
-        for parameter in ModelParameters._source_params_head:
-            if parameter in keys:
-                raise KeyError(
-                    'You cannot set {0} for multiple sources.'.format(
-                        parameter) +
-                    'Each source must have its own value.' +
-                    'Your parameters: {0}'.format(keys))
-
-        for i in range(self.n_sources):
-            if 't_0_{0}'.format(i + 1) not in keys:
-                raise KeyError(
-                    't_0_{0} is missing from parameters.'.format(i+1) +
-                    'Your parameters: {0}'.format(keys))
-
-        for i in range(self.n_sources):
-            if 'u_0_{0}'.format(i + 1) not in keys:
-                raise KeyError(
-                    'u_0_{0} is missing from parameters.'.format(i+1) +
-                    'Your parameters: {0}'.format(keys))
-
+        print('keys', keys)
+        self._check_for_incompatible_source_parameters(keys)
+        self._check_for_missing_source_parameters(keys)
         self._check_for_extra_source_parameters(keys)
+
+        #print('L707 keys', keys)
+        #if 'q_source' in keys:
+        #    raise NotImplementedError(
+        #        'Still working on checks for the q_source case.')
+        #else:
+        #    for parameter in ModelParameters._source_params_head:
+        #        if parameter in keys:
+        #            raise KeyError(
+        #                'You cannot set {0} for multiple sources. '.format(
+        #                    parameter) +
+        #                'Each source must have its own value.' +
+        #                'Your parameters: {0}'.format(keys))
+        #
+        #    for i in range(self.n_sources):
+        #        if 't_0_{0}'.format(i + 1) not in keys:
+        #            raise KeyError(
+        #                't_0_{0} is missing from parameters.'.format(i+1) +
+        #                'Your parameters: {0}'.format(keys))
+        #
+        #    for i in range(self.n_sources):
+        #        if 'u_0_{0}'.format(i + 1) not in keys:
+        #            raise KeyError(
+        #                'u_0_{0} is missing from parameters.'.format(i+1) +
+        #                'Your parameters: {0}'.format(keys))
 
     # Xallarap checks not adopted from master.
     #binary_params_nonFS = 't_0_1 t_0_2 u_0_1 u_0_2'.split()
@@ -746,10 +771,44 @@ class ModelParameters(object):
     #    raise KeyError('You cannot define xallarap model without '
     #                   'q_star but with rho_2 or t_star_2')
     #
+
+    def _check_for_incompatible_source_parameters(self, keys):
+        """
+        make sure that there is no conflict between t_0 and t_0_1 etc.
+        """
+        print('incompatible')
+        for parameter in self._all_source_params_head:
+            print(parameter)
+            if parameter in keys:
+                for i in range(self.n_sources):
+                    if '{0}_{1}'.format(parameter, i+1) in keys:
+                        raise KeyError(
+                            'You cannot set both {:} and {:}'.format(
+                                parameter,'{0}_{1}'.format(parameter, i+1)))
+
+    def _check_for_missing_source_parameters(self, keys):
+        """
+        Also make sure that t_0 and u_0 are defined for all sources.
+        """
+        print('missing')
+        if (self.n_sources > 1) and ('q_source' not in keys):
+            for i in range(self.n_sources):
+                if 't_0_{0}'.format(i + 1) not in keys:
+                    raise KeyError(
+                        't_0_{0} is missing from parameters.'.format(i+1) +
+                        'Your parameters: {0}'.format(keys))
+
+            for i in range(self.n_sources):
+                if 'u_0_{0}'.format(i + 1) not in keys:
+                    raise KeyError(
+                        'u_0_{0} is missing from parameters.'.format(i+1) +
+                        'Your parameters: {0}'.format(keys))
+
     def _check_for_extra_source_parameters(self, keys):
         """
         Check if parameters have been set for sources that don't exist.
         """
+        print('extra')
         for key in keys:
             key_parts = key.split('_')
             if len(key_parts) > 1:
