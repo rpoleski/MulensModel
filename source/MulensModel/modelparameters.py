@@ -278,6 +278,7 @@ class ModelParameters(object):
         properties NOT of self, but self._source_X_parameters,
         which both are of the same type as self.
         """
+        print('_update_sources_xallarap_reference()')
         delta_1 = self._source_1_parameters._get_xallarap_position()
         self._source_1_parameters._xallarap_reference_position = delta_1
         self._source_2_parameters._xallarap_reference_position = delta_1
@@ -729,7 +730,6 @@ class ModelParameters(object):
         if self.is_xallarap:
             self._check_for_parameters_incompatible_with_xallarap(keys)
 
-
     def _check_for_parameters_incompatible_with_xallarap(self, keys):
         """
         Check for additional source parameters with xallarap (bad).
@@ -1015,20 +1015,27 @@ class ModelParameters(object):
             return
         else:
             for i in range(self.n_sources):
-                self.__getattr__(
-                    '_source_{0}_parameters'.format(i+1)).__setattr__(
-                    parameter, value)
+                try:
+                    self.__getattr__(
+                        '_source_{0}_parameters'.format(i+1)).__getattr__(
+                        parameter)
+                    self.__getattr__(
+                        '_source_{0}_parameters'.format(i + 1)).__setattr__(
+                        parameter, value)
+                except KeyError:
+                    continue
 
-        if parameter == 'xi_semimajor_axis':
-            value /= self.parameters['q_source']
-        elif parameter == 'xi_argument_of_latitude_reference':
-            value += 180.
+        if (self.is_xallarap) and (self.n_sources > 1):
+            if parameter == 'q_source':
+                value_ = self.parameters['xi_semimajor_axis'] / value
+                setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
+            elif parameter == 'xi_semimajor_axis':
+                value /= self.parameters['q_source']
+                setattr(self._source_2_parameters, parameter, value)
+            elif parameter == 'xi_argument_of_latitude_reference':
+                value += 180.
+                setattr(self._source_2_parameters, parameter, value)
 
-        if parameter == 'q_source':
-            value_ = self.parameters['xi_semimajor_axis'] / value
-            setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
-
-        if self.is_xallarap and self.n_sources > 1:
             self._update_sources_xallarap_reference()
 
     def _set_time_quantity(self, key, new_time):

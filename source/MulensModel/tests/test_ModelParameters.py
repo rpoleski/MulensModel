@@ -756,9 +756,17 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
     factor = 1.1
     parameters = {'q_source': q_source, **xallarap_parameters}
     model = mm.ModelParameters(parameters)
+    print('')
+    print('old', model)
+    print('source 1', model.source_1_parameters)
+    print('source 2', model.source_2_parameters)
     old_value = getattr(model, key)
     new_value = factor * old_value
+    print('key', key, new_value)
     setattr(model, key, new_value)
+    print('new', model)
+    print('source 1', model.source_1_parameters)
+    print('source 2', model.source_2_parameters)
 
     assert getattr(model, key) == new_value
 
