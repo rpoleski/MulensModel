@@ -222,12 +222,12 @@ class TestBLPS_ShearActive(unittest.TestCase):
     def test_vbbl_fail(self):
         self.model.default_magnification_method = 'point_source'
         magnification = self.model.get_magnification(self.data.time[0])
-        assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
+        assert not isclose(magnification[0], 4.691830781584699, abs_tol=1e-2)
 
     def test_wm95_fail(self):
         self.model.default_magnification_method = 'point_source_WM95'
         magnification = self.model.get_magnification(self.data.time[0])
-        assert not isclose(magnification, 4.691830781584699, abs_tol=1e-2)
+        assert not isclose(magnification[0], 4.691830781584699, abs_tol=1e-2)
 
 
 class TestBLPS_Shear(unittest.TestCase):
