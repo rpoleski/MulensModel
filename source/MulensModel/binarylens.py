@@ -656,7 +656,7 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
             raise ValueError('VBBL was not imported properly')
 
         self.u_limb_darkening = self._get_u(u_limb_darkening)
-        if u_limb_darkening is None:
+        if self.u_limb_darkening is None:
             self._vbbl_function = _vbbl_binary_mag_finite
         else:
             self._vbbl_function = _vbbl_binary_mag_dark
