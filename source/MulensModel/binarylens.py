@@ -132,8 +132,9 @@ class BinaryLensPointSourceWM95Magnification(
     def __init__(self, **kwargs):
         BinaryLensPointSourceMagnification.__init__(self, **kwargs)
 
-        self.mass_1 = float(1.)  # This speeds-up code for np.float input.
-        self.mass_2 = float(self.trajectory.parameters.q)
+        q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
+        self.mass_1 = 1. / (1. + q)
+        self.mass_2 = q / (1. + q)
         self.separation = float(self.trajectory.parameters.s)
         self._total_mass = None
         self._mass_difference = None
