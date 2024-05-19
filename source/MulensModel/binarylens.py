@@ -19,8 +19,7 @@ class BinaryLens(object):
             'variety of classes with inheritance.')
 
 
-class BinaryLensPointSourceMagnification(
-    PointSourcePointLensMagnification):
+class BinaryLensPointSourceMagnification(PointSourcePointLensMagnification):
     """
     Equations for calculating point-source--binary-lens magnification.
     This is a placeholder class to establish the basic methods and attributes
@@ -116,8 +115,7 @@ class BinaryLensPointSourceMagnification(
         self._source_y = value
 
 
-class BinaryLensPointSourceWM95Magnification(
-    BinaryLensPointSourceMagnification):
+class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification following
     the `Witt & Mao 1995 NEEDS COMPLETE CITATION <NEEDS URL>`_
@@ -338,7 +336,7 @@ class BinaryLensPointSourceWM95Magnification(
         FRAME].
         """
         # We need to add this because in order to shift to correct frame.
-        #x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
+        # x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
         if self._source_x is None:
             x_shift = -1. / (1. + self.trajectory.parameters.q)
             x_shift *= self.separation
@@ -351,8 +349,7 @@ class BinaryLensPointSourceWM95Magnification(
 
 
 # This is the primary PointSource Calculation
-class BinaryLensPointSourceVBBLMagnification(
-    BinaryLensPointSourceMagnification):
+class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification using
     VBBL for point sources.
@@ -407,8 +404,7 @@ class BinaryLensPointSourceVBBLMagnification(
         return _vbbl_binary_mag_point(*[float(arg) for arg in args])
 
 
-class BinaryLensQuadrupoleMagnification(
-    BinaryLensPointSourceVBBLMagnification):
+class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
     """
     Magnification in quadrupole approximation of the
     binary-lens/finite-source event - based on `Gould 2008 ApJ
@@ -465,7 +461,7 @@ class BinaryLensQuadrupoleMagnification(
             x = self.source_x + dxval * radius
             y = self.source_y + dy[i] * radius
             # These values need to be passed to the magnification calculation...
-            #out.append(self.point_source_magnification())
+            # out.append(self.point_source_magnification())
             temp_trajectory = mm.Trajectory(
                 parameters=self.trajectory.parameters, x=x, y=y)
             ps = BinaryLensPointSourceVBBLMagnification(
@@ -501,8 +497,8 @@ class BinaryLensQuadrupoleMagnification(
         print('gamma', self.gamma)
 
         # Gould 2008 eq. 6 (part 1/2):
-        self._quadupole_magnification= (self.point_source_magnification +
-                        self.a_2_rho_square * (1. - 0.2 * self.gamma))
+        self._quadupole_magnification = (
+            self.point_source_magnification + self.a_2_rho_square * (1. - 0.2 * self.gamma))
 
         # At this point is quadrupole approximation is finished
         return self._quadupole_magnification
@@ -535,8 +531,7 @@ class BinaryLensQuadrupoleMagnification(
         return self._quadupole_magnification
 
 
-class BinaryLensHexadecapoleMagnification(
-    BinaryLensQuadrupoleMagnification):
+class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
     """
     Magnification in hexadecapole approximation of the
     binary-lens/finite-source event - based on `Gould 2008 ApJ
@@ -680,7 +675,8 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
                 The magnification for each point
                 specified by `u` in :py:attr:`~trajectory`.
         """
-        args = [self.trajectory.parameters.s, self.trajectory.parameters.q,
+        args = [
+            self.trajectory.parameters.s, self.trajectory.parameters.q,
             self.source_x, self.source_y, self.trajectory.parameters.rho,
             self.accuracy]
 
@@ -707,8 +703,7 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
         return out
 
 
-class BinaryLensAdaptiveContouringMagnification(
-    BinaryLensHexadecapoleMagnification):
+class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnification):
     """
     Binary lens finite source magnification calculated using
     Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
@@ -755,9 +750,8 @@ class BinaryLensAdaptiveContouringMagnification(
 
     """
 
-    def __init__(self, u_limb_darkening=None,
-            accuracy=0.1, ld_accuracy=0.001, **kwargs):
-        BinaryLensHexadecapoleMagnification.__init__(self, **kwargs )
+    def __init__(self, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
+        BinaryLensHexadecapoleMagnification.__init__(self, **kwargs)
 
         # Note that this accuracy is not guaranteed.
         if accuracy <= 0.:

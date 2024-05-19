@@ -341,35 +341,35 @@ class ModelParameters(object):
             self._n_sources = 2
 
         # JCY: code not adopted from master:
-        #finite_source_params = ['rho_1', 'rho_2', 't_star_1', 't_star_2']
-        #binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
-        #binary_params += finite_source_params
-        #common = set(binary_params).intersection(keys)
-        #finite_params = common.intersection(finite_source_params)
-        #n_finite = len(finite_params)
+        # finite_source_params = ['rho_1', 'rho_2', 't_star_1', 't_star_2']
+        # binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
+        # binary_params += finite_source_params
+        # common = set(binary_params).intersection(keys)
+        # finite_params = common.intersection(finite_source_params)
+        # n_finite = len(finite_params)
         #
-        #if len(common) == 0 and 'q_source' not in keys:
+        # if len(common) == 0 and 'q_source' not in keys:
         #    self._n_sources = 1
-        #elif len(common) == 0 and 'q_source' in keys:
+        # elif len(common) == 0 and 'q_source' in keys:
         #    self._n_sources = 2
-        #elif len(common) == 1:
+        # elif len(common) == 1:
         #    if self.is_xallarap and n_finite == 1:
         #        self._n_sources = int(list(finite_params)[0][-1])
         #    else:
         #        raise ValueError('Wrong parameters - the only binary ' +
         #                         'source parameter is {:}'.format(common))
-        #elif len(common) == 2 and n_finite == 2 and 'q_source' in keys:
+        # elif len(common) == 2 and n_finite == 2 and 'q_source' in keys:
         #    if common in [{'rho_1', 't_star_1'}, {'rho_2', 't_star_2'}]:
         #        raise ValueError(
         #            'source size overdefined: {:}'.format(common))
         #    else:
         #        self._n_sources = 2
-        #else:
+        # else:
         #    self._check_for_underdefined_source(common)
         #    self._n_sources = 2
         #
     # Not adopted from master:
-    #def _check_for_underdefined_source(self, common):
+    # def _check_for_underdefined_source(self, common):
     #    """
     #    Make sure that finite source size in binary source model
     #    is not underdefined.
@@ -515,7 +515,6 @@ class ModelParameters(object):
                             params_i[key[0:-len(num) - 1]] = value
                         else:
                             continue
-                            
                     except ValueError:
                         # global parameter = tE, piE, xiE, etc.
                         params_i[key] = value
@@ -725,7 +724,7 @@ class ModelParameters(object):
                     if '{0}_{1}'.format(parameter, i+1) in keys:
                         raise KeyError(
                             'You cannot set both {:} and {:}'.format(
-                                parameter,'{0}_{1}'.format(parameter, i+1)))
+                                parameter, '{0}_{1}'.format(parameter, i+1)))
 
         for parameter in self._finite_source_params_head:
             if parameter in keys:

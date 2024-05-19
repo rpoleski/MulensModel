@@ -8,8 +8,7 @@ from MulensModel.binarylensimports import (
 import MulensModel as mm
 
 
-class BinaryLensPointSourceWithShearWM95Magnification(
-    BinaryLensPointSourceWM95Magnification):
+class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95Magnification):
     """
     The binary lens with shear and convergence:
     solutions, images, parities, magnifications, etc.
@@ -456,8 +455,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(
                                                np.conjugate(derivative))
 
 
-class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
-    BinaryLensPointSourceWithShearWM95Magnification):
+class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPointSourceWithShearWM95Magnification):
 
     def __init__(self):
         raise NotImplementedError()
@@ -540,9 +538,7 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
         return np.array(coeffs_list).reshape(6)
 
 
-class BinaryLensPointSourceWithShearVBBLMagnification(
-    BinaryLensPointSourceWithShearWM95Magnification):
-
+class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithShearWM95Magnification):
 
     def get_magnification(self):
         s = float(self.separation)

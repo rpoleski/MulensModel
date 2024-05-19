@@ -122,7 +122,6 @@ class Trajectory(object):
             # Calculate trajectory
             self.get_xy()
 
-
     @property
     def x(self):
         """

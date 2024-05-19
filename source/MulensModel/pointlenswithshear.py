@@ -1,7 +1,6 @@
 import numpy as np
 
 from MulensModel.pointlens import PointSourcePointLensMagnification
-from MulensModel.trajectory import Trajectory
 
 
 class PointSourcePointLensWithShearMagnification(PointSourcePointLensMagnification):
@@ -101,7 +100,7 @@ class PointSourcePointLensWithShearMagnification(PointSourcePointLensMagnificati
     # def get_point_lens_uniform_integrated_magnification(self, *args, **kwargs):
     #     """Not implemented for Chang-Refsdal"""
     #     raise NotImplementedError("not implemented for Chang-Refsdal")
-    # 
+    #
     # def get_point_lens_LD_integrated_magnification(self, *args, **kwargs):
     #     """Not implemented for Chang-Refsdal"""
     #     raise NotImplementedError("not implemented for Chang-Refsdal")

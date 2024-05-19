@@ -2,8 +2,6 @@ import warnings
 import numpy as np
 from math import sin, cos, sqrt, log10
 from scipy import integrate
-from scipy.interpolate import interp1d, interp2d
-from scipy.interpolate import RegularGridInterpolator as RGI
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3

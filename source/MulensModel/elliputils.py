@@ -14,7 +14,7 @@ class EllipUtils(object):
     directly used by a user.
     """
     _elliptic_files_read = False
-    
+
     def __init__(self):
         self.file_1_2 = os.path.join(
             mm.DATA_PATH, 'interpolate_elliptic_integral_1_2.dat')
@@ -34,7 +34,7 @@ class EllipUtils(object):
         EllipUtils._interpolate_2 = interp1d(np.log10(x), y2, kind='cubic')
         EllipUtils._interpolate_1_2_x_min = np.min(np.log10(x))
         EllipUtils._interpolate_1_2_x_max = np.max(np.log10(x))
-    
+
         with open(self.file_3) as file_in:
             for line in file_in.readlines():
                 if line[:3] == "# X":
@@ -47,4 +47,3 @@ class EllipUtils(object):
         EllipUtils._interpolate_3_max_x = np.max(xx)
         EllipUtils._interpolate_3_min_y = np.min(yy)
         EllipUtils._interpolate_3_max_y = np.max(yy)
-
