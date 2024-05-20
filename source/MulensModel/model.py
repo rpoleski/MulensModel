@@ -6,7 +6,7 @@ from astropy.coordinates import SkyCoord
 
 from MulensModel.causticsbinary import CausticsBinary
 from MulensModel.causticspointwithshear import CausticsPointWithShear
-from MulensModel.causticswithshear import CausticsBinaryWithShear
+from MulensModel.causticsbinarywithshear import CausticsBinaryWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve

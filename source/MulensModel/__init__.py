@@ -10,7 +10,7 @@ from MulensModel.binarylenswithshear import \
     BinaryLensPointSourceWithShearVBBLMagnification
 from MulensModel.causticsbinary import CausticsBinary
 from MulensModel.causticspointwithshear import CausticsPointWithShear
-from MulensModel.causticswithshear import CausticsBinaryWithShear
+from MulensModel.causticsbinarywithshear import CausticsBinaryWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.event import Event
 from MulensModel.fitdata import FitData
