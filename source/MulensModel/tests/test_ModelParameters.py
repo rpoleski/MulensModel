@@ -30,7 +30,7 @@ class TestModelParameters(unittest.TestCase):
                                 'shear_G': 0.1, 'alpha': 123.})
         with self.assertRaises(ValueError):
             mm.ModelParameters({'t_0': 123., 'u_0': 1, 't_E': 10., 's': 1.2,
-                               'alpha': 34.56, 'q': 1.5})
+                               'alpha': 34.56, 'q': -0.5})
 
     def test_init_for_2_sources(self):
         """
@@ -148,6 +148,70 @@ def test_positive_t_E():
 
     assert params.t_E >= 0.
     assert params.t_E == params.t_eff / abs(params.u_0)
+
+
+def test_q_gt_1_is_good():
+    """
+    Check if the magnification is reproduced by transforming q -> 1/q and
+    alpha -> alpha +/- 180, including for q > 1. See issue #84.
+    """
+    t_0 = 3583.
+    u_0 = 0.3
+    t_E = 12.
+    s = 1.65
+    q = 0.25
+    alpha = 339.0
+    rho = 0.001
+
+    planet = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
+                       'alpha': alpha, 'rho': rho})
+    planet_2 = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': 1/q,
+                         'alpha': alpha+180., 'rho': rho})
+    planet_3 = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': 1/q,
+                         'alpha': alpha-180., 'rho': rho})
+    list_of_methods = [3588., 'VBBL', 3594., 'hexadecapole', 3598.0]
+    planet.set_magnification_methods(list_of_methods)
+    planet_2.set_magnification_methods(list_of_methods)
+    planet_3.set_magnification_methods(list_of_methods)
+    t_checks = [3580, 3589, 3590, 3592, 3593, 3595]
+    magnifications_1 = planet.get_magnification(time=t_checks)
+    magnifications_2 = planet_2.get_magnification(time=t_checks)
+    magnifications_3 = planet_3.get_magnification(time=t_checks)
+
+    assert max(magnifications_1 - magnifications_2) < 1e-10
+    assert max(magnifications_1 - magnifications_3) < 1e-10
+
+
+def test_q_gt_1_is_smooth():
+    """
+    Check that there is a smooth transition between q = 0.97, 0.99 and 1.01.
+    In this case, a trajectory with caustic approaching is adopted.
+    """
+    t_0 = 3583.
+    u_0 = 0.3
+    t_E = 12.
+    s = 2.18
+    q = 0.99
+    alpha = 310.
+    rho = 0.001
+    planet = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
+                       'alpha': alpha, 'rho': rho})
+    q_min = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q-0.02,
+                      'alpha': alpha, 'rho': rho})
+    q_max = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q+0.02,
+                      'alpha': alpha, 'rho': rho})
+
+    planet.set_magnification_methods([3580., 'VBBL', 3595.])
+    q_min.set_magnification_methods([3580., 'VBBL', 3595.])
+    q_max.set_magnification_methods([3580., 'VBBL', 3595.])
+    t_checks = [3571, 3583, 3585.5, 3586, 3586.5, 3592.5]
+    magnification = planet.get_magnification(time=t_checks)
+    diff_min = magnification - q_min.get_magnification(time=t_checks)
+    diff_max = magnification - q_max.get_magnification(time=t_checks)
+    limits = np.array([0.01, 0.01, 0.01, 0.56, 0.01, 0.03])
+
+    assert np.all(abs(diff_min) < limits)
+    assert np.all(abs(diff_max) < limits)
 
 
 def test_rho_t_e_t_star():
