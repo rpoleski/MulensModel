@@ -317,7 +317,7 @@ class FiniteSourceUniformGould94Magnification(
                 List of the parameters to take derivatives with respect to.
 
         Returns:
-            du_dparams: *dict*
+            dA_dparams: *dict*
                 Keys are parameter names from *parameters* argument above.
                 Values are the partial derivatives for that parameter
                 evaluated at each epoch.
@@ -361,7 +361,8 @@ class FiniteSourceUniformGould94Magnification(
         """
         *np.ndarray*
 
-        Magnitude of lens-source separation scaled to rho for each epoch.
+        Magnitude of lens-source separation scaled to rho for each epoch
+        (i.e., z = u/rho).
         """
         if self._z is None:
             self._z = self.u_ / self.trajectory.parameters.rho
