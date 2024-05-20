@@ -8,9 +8,9 @@ from MulensModel.binarylens import BinaryLensPointSourceMagnification, \
 from MulensModel.binarylenswithshear import \
     BinaryLensPointSourceWithShearWM95Magnification, \
     BinaryLensPointSourceWithShearVBBLMagnification
-from MulensModel.caustics import Caustics
+from MulensModel.causticsbinary import CausticsBinary
 from MulensModel.causticspointwithshear import CausticsPointWithShear
-from MulensModel.causticswithshear import CausticsWithShear
+from MulensModel.causticswithshear import CausticsBinaryWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.event import Event
 from MulensModel.fitdata import FitData

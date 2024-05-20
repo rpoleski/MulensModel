@@ -2,10 +2,10 @@ import numpy as np
 from math import cos, sin
 
 from MulensModel.utils import Utils
-from MulensModel.caustics import Caustics
+from MulensModel.causticsbinary import CausticsBinary
 
 
-class CausticsWithShear(Caustics):
+class CausticsBinaryWithShear(CausticsBinary):
     """
     Caustics structure for a binary lens with shear and convergence.
 
@@ -25,7 +25,7 @@ class CausticsWithShear(Caustics):
     """
 
     def __init__(self, q, s, convergence_K=0.0, shear_G=complex(0, 0)):
-        Caustics.__init__(self, q, s)
+        CausticsBinary.__init__(self, q, s)
         self.convergence_K = convergence_K
         self.shear_G = shear_G
 

@@ -23,7 +23,7 @@ def test_caustic():
     s = 0.548
     q = 0.0053
 
-    caustics = mm.Caustics(q=q, s=s)
+    caustics = mm.CausticsBinary(q=q, s=s)
 
     x, y = caustics.get_caustics(n_points=1000)
     for i in range(0, len(x), 100):

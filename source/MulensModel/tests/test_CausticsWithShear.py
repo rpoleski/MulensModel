@@ -17,7 +17,7 @@ def test_caustic_shear():
     s = 0.548
     q = 0.0053
 
-    caustics = mm.CausticsWithShear(
+    caustics = mm.CausticsBinaryWithShear(
         q=q, s=s, convergence_K=0.0, shear_G=complex(0, 0))
 
     x, y = caustics.get_caustics(n_points=1000)

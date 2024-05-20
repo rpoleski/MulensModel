@@ -1,10 +1,10 @@
 import numpy as np
 from cmath import sqrt
 
-from MulensModel.caustics import Caustics
+from MulensModel.causticsbinary import CausticsBinary
 
 
-class CausticsPointWithShear(Caustics):
+class CausticsPointWithShear(CausticsBinary):
     """
     Class for the caustic structure produced by the Chang-Refsdal lens,
     i.e. single mass with shear and convergence.

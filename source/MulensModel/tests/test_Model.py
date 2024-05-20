@@ -466,11 +466,11 @@ def test_caustic_for_orbital_motion():
 
     model.update_caustics()
     almost(model.caustics.get_caustics(),
-           mm.Caustics(q=q, s=s).get_caustics())
+           mm.CausticsBinary(q=q, s=s).get_caustics())
 
     model.update_caustics(100.+365.25/2)
     almost(model.caustics.get_caustics(),
-           mm.Caustics(q=q, s=1.55).get_caustics())
+           mm.CausticsBinary(q=q, s=1.55).get_caustics())
 
 
 def test_update_single_lens_with_shear_caustic():
