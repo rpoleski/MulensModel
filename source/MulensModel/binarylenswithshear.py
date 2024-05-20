@@ -13,6 +13,9 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
     The binary lens with shear and convergence:
     solutions, images, parities, magnifications, etc.
 
+    Uses Witt & Mao 1995 for the binary lens magnification calculation. See
+    `py:class:binarylens.BinaryLensPointSourceWM95Magnification`
+
     The binary lens with shear and convergence equation is
     the 9th order complex polynomial.
 
@@ -455,8 +458,14 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                                                np.conjugate(derivative))
 
 
-class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPointSourceWithShearWM95Magnification):
+class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
+    BinaryLensPointSourceWithShearWM95Magnification):
+    """
+    *NOT IMPLEMENTED*
 
+    Binary-Lens--Point-Source+Shear magnification calculation in the
+    planet frame.
+    """
     def __init__(self):
         raise NotImplementedError()
 
@@ -539,6 +548,39 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPoint
 
 
 class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithShearWM95Magnification):
+    """
+    The binary lens with shear and convergence:
+    solutions, images, parities, magnifications, etc.
+
+    Uses VBBL.
+
+    The binary lens with shear and convergence equation is
+    the 9th order complex polynomial.
+
+    Attributes :
+        mass_1: *float*
+            mass of the primary (left-hand object) as a fraction of
+            the total mass.
+
+        mass_2: *float*
+            mass of the secondary (right-hand object) as a fraction of the
+            total mass.
+
+        separation: *float*
+            separation between the two bodies as a fraction of the Einstein
+            ring.
+
+        convergence_K: *float*
+            External mass sheet convergence.
+
+        shear_G: *complex*
+            External mass sheat shear.
+
+    Note: mass_1 and mass_2 may be defined as a fraction of some other
+    mass than the total mass. This is possible but not recommended -
+    make sure you know what you're doing before you start using this
+    possibility.
+    """
 
     def get_magnification(self):
         s = float(self.separation)
