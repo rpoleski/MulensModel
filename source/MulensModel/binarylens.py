@@ -12,6 +12,12 @@ from MulensModel.pointlens import PointSourcePointLensMagnification
 
 
 class BinaryLens(object):
+    """
+    *DEPRECATED*
+
+    The BinaryLens class has been replaced with separate classes for each
+    magnification method.
+    """
 
     def __init__(self, parameters=None):
         raise NotImplementedError(

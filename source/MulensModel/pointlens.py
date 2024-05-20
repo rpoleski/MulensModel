@@ -10,6 +10,12 @@ import MulensModel as mm
 
 
 class PointLens(object):
+    """
+    *DEPRECATED*
+
+    The PointLens class has been replaced with separate classes for each
+    magnification method.
+    """
 
     def __init__(self, parameters=None):
         raise NotImplementedError(
