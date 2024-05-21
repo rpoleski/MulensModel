@@ -1570,13 +1570,16 @@ class UlensModelFit(object):
             self._priors = priors
 
     def _get_no_of_dataset(self, label):
-        """        
+        """       
         Returns the index of a dataset with a specific label.
-        :param label: Label of the dataset defined by MulensData.plot_properties['label']
-            or sequential index of the dataset
-        :type label: str
-        :return: Sequential index of the dataset from [0,1,...,n_datasets-1]
-        :rtype: int
+        Parameters :
+            label: *str* ,*int*
+              Label of the dataset defined by MulensData.plot_properties['label'], or name of the data file if label is not specified, 
+              or a sequential index of the dataset.
+      
+        Returns :
+          idx: *int* Sequential index of the dataset from [0,1,...,n_datasets-1]
+
         """
 
         if '"' in label:
@@ -2208,18 +2211,20 @@ class UlensModelFit(object):
         return fluxes
 
     def _sumup_inside_prior(self, fluxes, key, inside, idx_plus):
-        """Calculates the contribution to the ln_prior from specified color constraints
-        
-        :param fluxes:  Array with fluxes of the current model.
-        :type fluxes: array 
-        :param key: constrain key
-        :type key: str
-        :param inside: ln_prior contribution
-        :type inside: float
-        :param idx_plus:  For a single source, idx_plus=0; for a binary source, idx_plus=0 or 1. 
-        :type idx_plus: int
-        :return: evaluated ln_prior contribution
-        :rtype: float
+        """
+        Calculates the contribution to the ln_prior from specified color constraints
+        Parameters :
+            fluxes: *array*  
+                Array with fluxes of the current model.
+            key: *str*
+                constrain key.
+            inside: *float*
+                ln_prior contribution
+            idx_plus: *int*
+                For a single source, idx_plus=0; for a binary source, idx_plus=0 or 1.
+        Returns :
+            inside: *float*
+                Evaluated ln_prior contribution
         """
         settings = self._fit_constraints[key]
         index1 = (settings[3])*self._n_fluxes_per_dataset + idx_plus
@@ -2699,6 +2704,10 @@ class UlensModelFit(object):
                     if 'trace' in self._plots:
                         self._samples[:, :, index] = (
                             self._samples[:, :, index] - self._shift_t_0_val)
+            
+            if name in self._fixed_parameters.keys() :
+                 self._shift_t_0_val = int(self._fixed_parameters[name])
+
 
     def _get_fluxes_to_print_EMCEE(self):
         """
