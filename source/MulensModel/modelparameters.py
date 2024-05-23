@@ -878,8 +878,8 @@ class ModelParameters(object):
 
         for name in ['q']:
             if name in parameters.keys():
-                if parameters[name] <= 0. or parameters[name] >= 1.:
-                    msg = "Parameter {:} has to be in (0, 1) range, not {:}"
+                if parameters[name] <= 0.:
+                    msg = "Parameter {:} has to be larger than 0, not {:}"
                     raise ValueError(msg.format(name, parameters[name]))
 
         for name in ['xi_eccentricity']:
@@ -1234,8 +1234,8 @@ class ModelParameters(object):
 
     @q.setter
     def q(self, new_q):
-        if new_q < 0. or new_q > 1.:
-            raise ValueError('mass ratio q has to be between 0 and 1')
+        if new_q <= 0.:
+            raise ValueError('mass ratio q has to be larger than 0')
         self.parameters['q'] = new_q
         self._update_sources('q', new_q)
 
