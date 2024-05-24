@@ -1074,8 +1074,8 @@ class UlensModelFit(object):
         is always the same.
         """
         order = self._all_MM_parameters + self._other_parameters
-        indexes = [order.index(p) for p in self._fit_parameters_unsorted]
-
+        indexes = sorted([order.index(p) for p in self._fit_parameters_unsorted])
+        
         self._fit_parameters = [order[i] for i in indexes]
         self._fit_parameters_other = [
             order[i] for i in indexes if order[i] in self._other_parameters]
