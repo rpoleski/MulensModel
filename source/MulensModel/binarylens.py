@@ -95,7 +95,11 @@ class BinaryLensPointSourceMagnification(PointSourcePointLensMagnification):
         if self._source_x is None:
             print('traj.x', self.trajectory.x)
             print('type', type(self.trajectory.x))
-            self._source_x = float(self.trajectory.x)
+            if isinstance(self.trajectory.x, np.ndarray):
+                self._source_x = float(self.trajectory.x[0])
+            else:
+                print("RAPHAEL: type(self.trajectory.x)", type(self.trajectory.x))
+                self._source_x = float(self.trajectory.x)
 
         return self._source_x
 
@@ -112,7 +116,7 @@ class BinaryLensPointSourceMagnification(PointSourcePointLensMagnification):
         magnification calculation.
         """
         if self._source_y is None:
-            self._source_y = float(self.trajectory.y)
+            self._source_y = float(self.trajectory.y[0])
 
         return self._source_y
 
@@ -354,7 +358,11 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             print('traj.x', self.trajectory.x)
             print('type(traj.x)', type(self.trajectory.x))
             print('x_shift', x_shift)
-            self._source_x = float(self.trajectory.x + x_shift)
+            if isinstance(self.trajectory.x, np.ndarray):
+                self._source_x = float(self.trajectory.x[0] + x_shift)
+            else:
+                print("RAPHAEL: type(self.trajectory.x)", type(self.trajectory.x))
+                self._source_x = float(self.trajectory.x + x_shift)
 
         return self._source_x
 
@@ -815,7 +823,11 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
         # AdaptiveContouring uses different coordinates conventions,
         # so we have to transform the coordinates below.
         if self._source_x is None:
-            self._source_x = float(-self.trajectory.x)
+            if isinstance(self.trajectory.x, np.ndarray):
+                self._source_x = float(self.trajectory.x[0])
+            else:
+                print("RAPHAEL: type(self.trajectory.x)", type(self.trajectory.x))
+                self._source_x = float(self.trajectory.x)
 
         return self._source_x
 
@@ -829,6 +841,6 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
         # AdaptiveContouring uses different coordinates conventions,
         # so we have to transform the coordinates below.
         if self._source_y is None:
-            self._source_y = float(-self.trajectory.y)
+            self._source_y = float(-self.trajectory.y[0])
 
         return self._source_y

@@ -606,6 +606,6 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
     @property
     def source_x(self):
         if self._source_x is None:
-            self._source_x = float(self.trajectory.x)
+            self._source_x = float(self.trajectory.x[0])
 
         return self._source_x
