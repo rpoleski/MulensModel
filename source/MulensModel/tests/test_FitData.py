@@ -1062,6 +1062,22 @@ def test_get_trajectory_1L2S_satellite_parallax():
     np.testing.assert_almost_equal(ratio_x, 1., decimal=2)
     np.testing.assert_almost_equal(ratio_y, 1., decimal=3)
 
+
+def test_bad_data_w_ephemerides():
+    """
+    Test that satellite_skycoords is correctly masked when there are bad data.
+    """
+    pass
+
+
+def test_multiple_sources():
+    """
+    Test that we can fit fluxes for N sources.
+    """
+    pass
+
+
+
 # Tests to add:
 #
 # test get_chi2_gradient(), chi2_gradient:
