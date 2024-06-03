@@ -138,7 +138,7 @@ class FitData(object):
         if self.dataset.ephemerides_file is None:
             satellite_skycoord = None
         else:
-            satellite_skycoord = self.dataset.satellite_skycoord
+            satellite_skycoord = self.dataset.satellite_skycoord[select]
 
         magnification_kwargs = {
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
@@ -148,6 +148,7 @@ class FitData(object):
                 self._model.get_magnification_curve(
                     time=self._dataset.time[select], **magnification_kwargs)
         elif self._model.n_sources == 2:
+            # Does this need to be updated for multiple sources?
             (self._data_magnification_curve_1,
              self._data_magnification_curve_2) = \
                 self._model.get_magnification_curves(
