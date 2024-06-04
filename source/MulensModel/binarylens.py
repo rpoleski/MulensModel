@@ -98,7 +98,6 @@ class BinaryLensPointSourceMagnification(PointSourcePointLensMagnification):
             if isinstance(self.trajectory.x, np.ndarray):
                 self._source_x = float(self.trajectory.x[0])
             else:
-                print("RAPHAEL: type(self.trajectory.x)", type(self.trajectory.x))
                 self._source_x = float(self.trajectory.x)
 
         return self._source_x
@@ -116,7 +115,10 @@ class BinaryLensPointSourceMagnification(PointSourcePointLensMagnification):
         magnification calculation.
         """
         if self._source_y is None:
-            self._source_y = float(self.trajectory.y[0])
+            if isinstance(self.trajectory.x, np.ndarray):
+                self._source_y = float(self.trajectory.y[0])
+            else:
+                self._source_y = float(self.trajectory.y)
 
         return self._source_y
 
@@ -361,7 +363,6 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             if isinstance(self.trajectory.x, np.ndarray):
                 self._source_x = float(self.trajectory.x[0] + x_shift)
             else:
-                print("RAPHAEL: type(self.trajectory.x)", type(self.trajectory.x))
                 self._source_x = float(self.trajectory.x + x_shift)
 
         return self._source_x
@@ -824,10 +825,9 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
         # so we have to transform the coordinates below.
         if self._source_x is None:
             if isinstance(self.trajectory.x, np.ndarray):
-                self._source_x = float(self.trajectory.x[0])
+                self._source_x = float(-self.trajectory.x[0])
             else:
-                print("RAPHAEL: type(self.trajectory.x)", type(self.trajectory.x))
-                self._source_x = float(self.trajectory.x)
+                self._source_x = float(-self.trajectory.x)
 
         return self._source_x
 
@@ -841,6 +841,9 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
         # AdaptiveContouring uses different coordinates conventions,
         # so we have to transform the coordinates below.
         if self._source_y is None:
-            self._source_y = float(-self.trajectory.y[0])
+            if isinstance(self.trajectory.y, np.ndarray):
+                self._source_y = float(-self.trajectory.y[0])
+            else:
+                self._source_y = float(-self.trajectory.y)
 
         return self._source_y
