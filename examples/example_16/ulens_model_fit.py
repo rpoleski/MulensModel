@@ -38,7 +38,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.36.2'
+__version__ = '0.36.3'
 
 
 class UlensModelFit(object):
@@ -492,6 +492,9 @@ class UlensModelFit(object):
         Check if starting parameters are read from file or
         will be drawn from distributions specified.
         """
+        if self._fit_method == "MultiNest":
+            return
+
         if 'file' in self._starting_parameters_input:
             in_type = 'file'
             keys_expected = {'file', 'parameters'}
