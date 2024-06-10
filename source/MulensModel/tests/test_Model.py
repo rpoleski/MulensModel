@@ -199,7 +199,7 @@ def test_BLPS_01():
     t = np.array([2456112.5])
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     magnification = model.get_magnification(data.time[0])
-    almost(magnification, 4.691830781584699)
+    almost(magnification[0], 4.691830781584699)
 # This value comes from early version of this code.
 # almost(m, 4.710563917)
 # This value comes from Andy's getbinp().
@@ -248,12 +248,12 @@ class TestBLPS_Shear(unittest.TestCase):
     def test_vbbl(self):
         self.model.default_magnification_method = 'point_source'
         magnification = self.model.get_magnification(self.data.time[0])
-        almost(magnification, 4.691830781584699)
+        almost(magnification[0], 4.691830781584699)
 
     def test_wm95(self):
         self.model.default_magnification_method = 'point_source_WM95'
         magnification = self.model.get_magnification(self.data.time[0])
-        almost(magnification, 4.691830781584699)
+        almost(magnification[0], 4.691830781584699)
 
 
 def test_BLPS_02():
