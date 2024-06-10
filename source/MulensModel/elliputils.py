@@ -1,6 +1,7 @@
 import os.path
 import numpy as np
 from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import RegularGridInterpolator as RGI
 
 import MulensModel as mm
 
@@ -41,8 +42,13 @@ class EllipUtils(object):
                     xx = np.array([float(t) for t in line.split()[2:]])
                 if line[:3] == "# Y":
                     yy = np.array([float(t) for t in line.split()[2:]])
-        pp = np.loadtxt(self.file_3)
-        EllipUtils._interpolate_3 = interp2d(xx, yy, pp.T, kind='cubic')
+
+        values = np.loadtxt(self.file_3)
+        try:
+            EllipUtils._interpolate_3 = RGI((xx, yy), values.T, method='cubic', bounds_error=False)
+        except ValueError:
+            EllipUtils._interpolate_3 = interp2d(xx, yy, values.T, kind='cubic')
+
         EllipUtils._interpolate_3_min_x = np.min(xx)
         EllipUtils._interpolate_3_max_x = np.max(xx)
         EllipUtils._interpolate_3_min_y = np.min(yy)
