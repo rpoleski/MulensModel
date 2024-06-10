@@ -44,7 +44,7 @@ class BinaryLensPointSourceMagnification(PointSourcePointLensMagnification):
     # trajectory) + get_magnification.
 
     def __init__(self, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._solver = _solver
         self._source_x = None
         self._source_y = None
@@ -135,7 +135,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
     """
 
     def __init__(self, **kwargs):
-        BinaryLensPointSourceMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
         self.mass_1 = 1. / (1. + q)
@@ -372,7 +372,7 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
     """
 
     def __init__(self, **kwargs):
-        BinaryLensPointSourceMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def get_magnification(self):
 
@@ -438,7 +438,7 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
     """
 
     def __init__(self, gamma=None, **kwargs):
-        BinaryLensPointSourceVBBLMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.gamma = gamma
         self._check_rho()
 
@@ -568,7 +568,7 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
     """
 
     def __init__(self, all_approximations=False, **kwargs):
-        BinaryLensQuadrupoleMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.all_approximations = all_approximations
 
     def get_magnification(self):
@@ -653,7 +653,7 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
     """
 
     def __init__(self, u_limb_darkening=None, accuracy=0.001, **kwargs):
-        BinaryLensHexadecapoleMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
@@ -762,7 +762,7 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
     """
 
     def __init__(self, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
-        BinaryLensHexadecapoleMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         # Note that this accuracy is not guaranteed.
         if accuracy <= 0.:
