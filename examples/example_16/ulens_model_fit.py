@@ -39,7 +39,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.36.0'
+__version__ = '0.36.3'
 
 
 class UlensModelFit(object):
@@ -494,6 +494,9 @@ class UlensModelFit(object):
         Check if starting parameters are read from file or
         will be drawn from distributions specified.
         """
+        if self._fit_method == "MultiNest":
+            return
+
         if 'file' in self._starting_parameters_input:
             in_type = 'file'
             keys_expected = {'file', 'parameters'}
@@ -1076,7 +1079,8 @@ class UlensModelFit(object):
         is always the same.
         """
         order = self._all_MM_parameters + self._other_parameters
-        indexes = [order.index(p) for p in self._fit_parameters_unsorted]
+        indexes = sorted(
+            [order.index(p) for p in self._fit_parameters_unsorted])
 
         self._fit_parameters = [order[i] for i in indexes]
         self._fit_parameters_other = [
@@ -3293,7 +3297,12 @@ class UlensModelFit(object):
             return
 
         ticks = mm.Utils.get_mag_from_flux(flux)
-        ax2.set_yticks(ticks, labels)
+        try:  # matplotlib version 3.5 or later
+            ax2.set_yticks(ticks=ticks, labels=labels)
+        except Exception:  # matplotlib version 3.4.X or smaller
+            ax2.set_yticks(ticks=ticks)
+            ax2.set_yticklabels(labels=labels)
+
         ax2.set_ylim(ylim[0], ylim[1])
 
     def _second_Y_axis_settings(self):
@@ -3359,7 +3368,7 @@ class UlensModelFit(object):
         Get minor ticks for magnification axis from matplotlib
         """
         ax2.minorticks_on()
-        minor_ticks_A = ax2.yaxis.get_ticklocs(minor=True)
+        minor_ticks_A = np.array(ax2.yaxis.get_ticklocs(minor=True))
         minor_ticks_A = minor_ticks_A[~np.isin(minor_ticks_A, A_values)]
 
         minor_ticks_flux = ref_fluxes[0] * minor_ticks_A + ref_fluxes[1]

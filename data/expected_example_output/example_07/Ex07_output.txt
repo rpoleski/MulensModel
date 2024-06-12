@@ -1,0 +1,30 @@
+ *****************************************************
+ MultiNest v3.10
+ Copyright Farhan Feroz & Mike Hobson
+ Release Jul 2015
+
+ no. of live points =  400
+ dimensionality =    5
+ *****************************************************
+ ln(ev)=  -168.15315872044039      +/-  0.18208715777224116     
+ Total Likelihood Evaluations:        16364
+ Sampling finished. Exiting MultiNest
+  analysing data from chains/example_07_fit_parallax_MN_.txt
+  analysing data from chains/example_07_fit_parallax_MN_.txt
+
+Mode 0 parameters:
+t_0    = 2453630.3876 +- 0.1952
+u_0    = 0.4907 +- 0.0183
+t_E    = 93.5474 +- 2.0909
+pi_E_N = 0.2722 +- 0.0314
+pi_E_E = 0.1028 +- 0.0077
+local log-evidence: -169.708 +- 0.186
+
+Mode 1 parameters:
+t_0    = 2453630.7064 +- 0.2812
+u_0    = -0.4150 +- 0.0137
+t_E    = 110.6814 +- 3.5346
+pi_E_N = -0.2995 +- 0.0265
+pi_E_E = 0.1109 +- 0.0081
+local log-evidence: -168.390 +- 0.185
+
