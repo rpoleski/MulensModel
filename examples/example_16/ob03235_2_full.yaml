@@ -38,16 +38,16 @@ starting_parameters:
     # See also ob08092-o4_starting_file.yaml
 fit_constraints:
     negative_blending_flux_sigma_mag: 20.  
-    #one can specify for which dataset soft constrain on blending flux should be applied: sigma dataset_number(s)
-    #negative_blending_flux_sigma_mag: [20., "OGLE I-band", "OB03235_MOA.txt"]
+    #one can specify for which dataset soft constrain on blending flux should be applied: sigma dataset_label(s)
+    negative_blending_flux_sigma_mag: 20.  "OGLE I-band"  "OB03235_MOA.txt"
     # Alternative sharp constraint:
     # no_negative_blending_flux: True
-    #color constrains, where color=flux_S_dataset_k/flux_S_dataset_m: [gauss, mu ,sigma, k, m ,]
-    color : ["gauss", 25., 5. , "OGLE I-band" ,"OB03235_MOA.txt" ]
+    #color constrains, where color=source_mag_from_dataset_k-source_mag_from_dataset_m: gauss, mu ,sigma, k, m 
+    color : gauss 0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
     #Alternative for binary source models: 
-    #color source 1 :  gauss 25. 5. "OGLE I-band" "OB03235_MOA.txt" 
+    #color source 1 :  gauss  0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
     #and/or 
-    #color source 2 :  gauss 25. 5. 0 1
+    #color source 2 :  gauss 0.3 0.01  "OGLE I-band" "OB03235_MOA.txt" 
         
     prior:
         t_E: Mroz et al. 2017

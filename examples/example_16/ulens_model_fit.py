@@ -198,14 +198,14 @@ class UlensModelFit(object):
             saved to temporary files and deleted at the end.
 
             ``multimodal`` (*bool*) - do you want multiple modes in
-            the prosterior to be detected and reported separately?
+            the posterior to be detected and reported separately?
 
             ``n_live_points`` (*int*) - number of live points, default value
             is 400.
 
             ``sampling efficiency`` (*float*) - requested sampling efficiency.
             MultiNest documentation suggests 0.8 (default value) for parameter
-            estimatrion and 0.3 for evidence evalutation.
+            estimation and 0.3 for evidence evaluation.
 
             ``evidence tolerance`` (*float*) - requested tolerance of ln(Z)
             calculation; default is 0.5 and should work well in most cases.
@@ -219,9 +219,30 @@ class UlensModelFit(object):
             blending flux if *True*
 
             ``'negative_blending_flux_sigma_mag'`` - impose a prior that
-            disfavours models with negative blending flux using gaussian prior
+            disfavors models with negative blending flux using gaussian prior
             for negative values; the value provided should be on the order of
             *20.*
+
+            ``'color'`` - specify gaussian prior for colors of the sources.
+            Parameters:
+                *mean* and *sigma* are floats in magnitudes.
+
+            ``'color'`` - specify gaussian prior for colors of the sources.
+            Parameters:
+                *mean* and *sigma* are floats in magnitudes, *dataset_label*
+                are str defined in MulensData.plot_properties['label']
+
+            ``'color source 1'`` - specify gaussian prior for color of
+            the primary source in binary source model.
+            Parameters:
+                *mean* and *sigma* are floats in magnitudes, *dataset_label*
+                are str defined in MulensData.plot_properties['label']
+
+            ``'color source 2'`` - specify gaussian prior for color of
+            the secondary source in binary source model.
+            Parameters:
+                *mean* and *sigma* are floats in magnitudes, *dataset_label*
+                are str defined in MulensData.plot_properties['label']
 
             ``'prior'`` - specifies the priors for quantities. It's also
             a *dict*. Possible key-value pairs:
@@ -480,7 +501,7 @@ class UlensModelFit(object):
                     "Both starting_parameters and prior_limits were defined "
                     "which makes impossible to choose the fitting method. "
                     "These settings indicate EMCEE and pyMultiNest "
-                    "rescpectively, and cannot be both set.")
+                    "respectively, and cannot be both set.")
             method = "MultiNest"
         if method is None:
             raise ValueError(
@@ -699,7 +720,7 @@ class UlensModelFit(object):
         for key in ['legend', 'rcParams', 'second Y scale']:
             if key in self._plots['best model']:
                 if not isinstance(self._plots['best model'][key], dict):
-                    msg = ('The value of {:} (in best model setttings)'
+                    msg = ('The value of {:} (in best model settings)'
                            'must be a dictionary, but you provided {:}')
                     args = [key, type(self._plots['best model'][key])]
                     raise TypeError(msg.format(*args))
@@ -870,7 +891,7 @@ class UlensModelFit(object):
 
     def _check_other_fit_parameters(self):
         """
-        Check if there aren't any other inconsistenties between settings
+        Check if there aren't any other inconsistencies between settings
         """
         if self._fit_method == "MultiNest":
             if self._min_values is not None or self._max_values is not None:
@@ -991,7 +1012,7 @@ class UlensModelFit(object):
         """
         Check if provided names of output files with residuals make sense.
         We do not check here if the number of files provided is the same
-        as the number of input datests.
+        as the number of input datasets.
         """
         existing = []
         names = []
@@ -1033,7 +1054,7 @@ class UlensModelFit(object):
                 out = '{:} vs {:}'.format(
                     len(self._datasets), len(self._residuals_files))
                 raise ValueError('The number of datasets and files for '
-                                 'residuals ouptut do not match: ' + out)
+                                 'residuals output do not match: ' + out)
 
     def _get_1_dataset(self, file_, kwargs):
         """
@@ -1301,7 +1322,7 @@ class UlensModelFit(object):
 
     def _check_output_files_MultiNest(self):
         """
-        Check if output files exist and warn about overwrtting them.
+        Check if output files exist and warn about overwriting them.
 
         If they directory doesn't exist then raise error.
         """
@@ -1436,7 +1457,7 @@ class UlensModelFit(object):
         self._priors = None
 
         if self._fit_constraints is None:
-            self._fit_constraints = {"no_negative_blending_flux": False}
+            self._set_default_fit_constraints()
             return
 
         if isinstance(self._fit_constraints, list):
@@ -1446,6 +1467,16 @@ class UlensModelFit(object):
                 "the code. Most probably what you need is:\n" +
                 "fit_constraints = {'no_negative_blending_flux': True}")
 
+        self._parse_fit_constraints_keys()
+        self._parse_fit_constraints_fluxes()
+
+        if 'prior' in self._fit_constraints:
+            self._parse_fit_constraints_prior()
+
+    def _parse_fit_constraints_keys(self):
+        """
+        Validate the keys in the provided fit_constraints.
+        """
         allowed_keys_flux = {
             "no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
 
@@ -1467,21 +1498,36 @@ class UlensModelFit(object):
         if "no_negative_blending_flux" not in self._fit_constraints:
             self._fit_constraints["no_negative_blending_flux"] = False
 
-        if len(used_keys.intersection(allowed_keys_color)) >= 2 and ('color' in used_keys):
-            raise ValueError(
-                'you cannot specify both color and ' + str(used_keys.intersection(allowed_keys_color)-{'color'}))
+        self._check_color_constraints_conflict(allowed_keys_color)
 
-        for key in self._fit_constraints.keys():
-            value = self._fit_constraints[key]
+    def _set_default_fit_constraints(self):
+        """
+        Set default fitting constraints if none are provided.
 
+        """
+        self._fit_constraints = {"no_negative_blending_flux": False}
+
+    def _check_color_constraints_conflict(self, allowed_keys_color):
+        """
+        Check for conflicts among color constraints.
+        """
+        used_keys = set(self._fit_constraints.keys())
+
+        if len(used_keys.intersection(allowed_keys_color)) >= 2:
+            if 'color' in used_keys:
+                raise ValueError(
+                    'You cannot specify both color and ' +
+                    str(used_keys.intersection(allowed_keys_color)-{'color'}))
+
+    def _parse_fit_constraints_fluxes(self):
+        """msg +=
+        Process each constraint fit_constraints.
+        """
+        for key, value in self._fit_constraints.items():
             if key == "negative_blending_flux_sigma_mag":
                 self._parse_fit_constraints_soft_blending(key, value)
-
             elif key in ['color', 'color source 1', 'color source 2']:
                 self._parse_fit_constraints_color(key, value)
-
-        if 'prior' in self._fit_constraints:
-            self._parse_fit_constraints_prior()
 
     def _parse_fit_constraints_soft_blending(self, key, value):
         """
@@ -1498,7 +1544,9 @@ class UlensModelFit(object):
                         shlex.split(value, posix=False)[1:]))
             if len(sets) > len(self._datasets):
                 raise ValueError(
-                    'dataset number specified in negative_blending_flux_sigma_mag do not match with provided datasets')
+                    "dataset number specified in" +
+                    "negative_blending_flux_sigma_mag" +
+                    "do not match with provided datasets")
 
         self._fit_constraints[key] = [
             mm.Utils.get_flux_from_mag(sigma), sets]
@@ -1507,12 +1555,15 @@ class UlensModelFit(object):
         """
         Check if fit constraint on color are correctly defined.
         """
+        self._check_unique_datasets_labels()
         words = shlex.split(value, posix=False)
+
         if len(words) != 5 or words[0] != 'gauss':
             msg = "Something went wrong in parsing prior for "
             msg += "{:}: {:}"
             if len(words) == 3 and words[0] == 'gauss':
-                msg += ' color priors require the specification of datasets that should be used for color calculation  '
+                msg += "color priors require the specification"
+                msg += "of datasets that should be used for color calculation"
             raise ValueError(msg.format(key, value))
         try:
             settings = [words[0], float(words[1]), float(
@@ -1528,13 +1579,25 @@ class UlensModelFit(object):
 
         if settings[3] == settings[4]:
             raise ValueError(
-                "in " + key + " fluxes have to be from different datasets")
-
-        if (0 >= settings[3] >= len(self._datasets)-1) or (0 >= settings[4] >= len(self._datasets)-1):
+                "in " + key + " color have to be from different datasets")
+        n = len(self._datasets)-1
+        if (0 >= settings[3] >= n) or (0 >= settings[4] >= n):
             raise ValueError(
-                'dataset specified in color prior do not match with provided datasets')
+                "label specified in color prior" +
+                "do not match with provided datasets")
 
         self._fit_constraints[key] = settings
+
+    def _check_unique_datasets_labels(self):
+        """
+        Check if the labels of datasets are unique.
+        """
+        labels = [
+            dataset.plot_properties['label']
+            for dataset in self._datasets
+        ]
+        if len(labels) != len(set(labels)):
+            raise ValueError("Declared labels of datasets must be unique.")
 
     def _parse_fit_constraints_prior(self):
         """
@@ -1574,32 +1637,28 @@ class UlensModelFit(object):
             self._priors = priors
 
     def _get_no_of_dataset(self, label):
-        """       
+        """
         Returns the index of a dataset with a specific label.
         Parameters :
             label: *str* ,*int*
-              Label of the dataset defined by MulensData.plot_properties['label'], or name of the data file if label is not specified, 
+              Label of the dataset defined by
+              MulensData.plot_properties['label'],
+              or name of the data file if label is not specified,
               or a sequential index of the dataset.
-      
+
         Returns :
-          idx: *int* Sequential index of the dataset from [0,1,...,n_datasets-1]
+          index: *int*
+          Sequential index of the dataset from [0,1,...,n_datasets-1]
 
         """
 
         if '"' in label:
             label = label.strip('"')
-
-        try:
-            ind = int(label)
-            if 0 <= ind <= len(self._datasets)-1:
-                return ind
-        except:
-            for (i, dataset) in enumerate(self._datasets):
-
-                if dataset.plot_properties['label'] == label:
-                    return i
-            raise KeyError(
-                "Unrecognized dataset lable in fit_constraints/prior: " + label)
+        for (i, dataset) in enumerate(self._datasets):
+            if dataset.plot_properties['label'] == label:
+                return i
+        raise KeyError(
+            "Unrecognized dataset label in fit_constraints/prior: " + label)
 
     def _read_prior_t_E_data(self):
         """
@@ -2214,26 +2273,29 @@ class UlensModelFit(object):
 
         return fluxes
 
-    def _sumup_inside_prior(self, fluxes, key, inside, idx_plus):
+    def _sumup_inside_prior(self, fluxes, key, inside, index_plus):
         """
-        Calculates the contribution to the ln_prior from specified color constraints
+        Calculates the contribution to the ln_prior
+        from specified color constraints
         Parameters :
-            fluxes: *array*  
+            fluxes: *array*
                 Array with fluxes of the current model.
             key: *str*
                 constrain key.
             inside: *float*
                 ln_prior contribution
-            idx_plus: *int*
-                For a single source, idx_plus=0; for a binary source, idx_plus=0 or 1.
+            index_plus: *int*
+                For a single source, index_plus=0;
+                for a binary source, index_plus=0 or 1.
         Returns :
             inside: *float*
                 Evaluated ln_prior contribution
         """
         settings = self._fit_constraints[key]
-        index1 = (settings[3])*self._n_fluxes_per_dataset + idx_plus
-        index2 = (settings[4])*self._n_fluxes_per_dataset + idx_plus
-        value = fluxes[index1]/fluxes[index2]
+        index1 = (settings[3])*self._n_fluxes_per_dataset + index_plus
+        index2 = (settings[4])*self._n_fluxes_per_dataset + index_plus
+        value = mm.Utils.get_mag_from_flux(
+            fluxes[index1])-mm.Utils.get_mag_from_flux(fluxes[index2])
         inside += self._get_ln_prior_for_1_parameter(value, settings[:-2])
 
         return inside
@@ -2250,36 +2312,45 @@ class UlensModelFit(object):
             if fluxes[blend_index] < 0.:
                 return outside
 
+        inside += self._apply_negative_blending_flux_sigma_mag_prior(fluxes)
+        inside += self._apply_color_prior(fluxes)
+
+        return inside
+
+    def _apply_negative_blending_flux_sigma_mag_prior(self, fluxes):
+        """
+        Apply the negative blending flux sigma magnitude priotr.
+        """
+        inside = 0.0
         key = "negative_blending_flux_sigma_mag"
 
         if key in self._fit_constraints:
+            sigma, datasets = self._fit_constraints[key]
+            for i, dataset in enumerate(self._datasets):
+                if i in datasets:
+                    blend_index = ((i + 1) * self._n_fluxes_per_dataset) - 1
+                    if fluxes[blend_index] < 0.0:
+                        inside += -0.5 * (fluxes[blend_index] / sigma) ** 2
 
-            for (i, dataset) in enumerate(self._datasets):
-                if i in self._fit_constraints[key][1]:
-                    blend_index = ((i+1)*self._n_fluxes_per_dataset) - 1
-                    if fluxes[blend_index] < 0.:
-                        sigma = self._fit_constraints[key][0]
-                        inside += -0.5 * (fluxes[blend_index] / sigma)**2
+        return inside
 
+    def _apply_color_prior(self, fluxes):
+        """
+        Apply the color constraints.
+        """
+        inside = 0.0
         key = 'color'
-
         if key in self._fit_constraints:
-            settings = self._fit_constraints[key]
-            if self._n_fluxes_per_dataset == 2:
-                inside = self._sumup_inside_prior(fluxes, key, inside, 0)
-
-            if self._n_fluxes_per_dataset == 3:
-                inside = self._sumup_inside_prior(fluxes, key, inside, 0)
-                inside = self._sumup_inside_prior(fluxes, key, inside, 1)
+            for i in range(self._n_fluxes_per_dataset - 1):
+                inside += self._sumup_inside_prior(fluxes, key, inside, i)
 
         key = 'color source 1'
         if key in self._fit_constraints:
-            inside = self._sumup_inside_prior(fluxes, key, inside, 0)
+            inside += self._sumup_inside_prior(fluxes, key, inside, 0)
 
         key = 'color source 2'
         if key in self._fit_constraints:
-            inside = self._sumup_inside_prior(fluxes, key, inside, 1)
-
+            inside += self._sumup_inside_prior(fluxes, key, inside, 1)
         return inside
 
     def _update_best_model_EMCEE(self, ln_prob, theta, fluxes):
@@ -2708,10 +2779,9 @@ class UlensModelFit(object):
                     if 'trace' in self._plots:
                         self._samples[:, :, index] = (
                             self._samples[:, :, index] - self._shift_t_0_val)
-            
-            if name in self._fixed_parameters.keys() :
-                 self._shift_t_0_val = int(self._fixed_parameters[name])
 
+            if name in self._fixed_parameters.keys():
+                self._shift_t_0_val = int(self._fixed_parameters[name])
 
     def _get_fluxes_to_print_EMCEE(self):
         """
