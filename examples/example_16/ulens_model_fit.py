@@ -222,7 +222,7 @@ class UlensModelFit(object):
             disfavors models with negative blending flux using gaussian prior
             for negative values; the value provided should be on the order of
             *20.*
-            
+
             ``'color'`` - specify gaussian prior for colors of the sources.
             Parameters:
                 *mean* and *sigma* are floats in magnitudes, *dataset_label*
