@@ -39,7 +39,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.37.0'
+__version__ = '0.37.1'
 
 
 class UlensModelFit(object):
@@ -2776,8 +2776,9 @@ class UlensModelFit(object):
                         self._samples[:, :, index] = (
                             self._samples[:, :, index] - self._shift_t_0_val)
 
-            if name in self._fixed_parameters.keys():
-                self._shift_t_0_val = int(self._fixed_parameters[name])
+            if self._fixed_parameters is not None:
+                if name in self._fixed_parameters.keys():
+                    self._shift_t_0_val = int(self._fixed_parameters[name])
 
     def _get_fluxes_to_print_EMCEE(self):
         """
