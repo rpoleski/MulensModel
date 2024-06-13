@@ -39,7 +39,7 @@ starting_parameters:
 fit_constraints:
     negative_blending_flux_sigma_mag: 20.  
     #one can specify for which dataset soft constrain on blending flux should be applied: sigma dataset_label(s)
-    negative_blending_flux_sigma_mag: 20.  "OGLE I-band"  "OB03235_MOA.txt"
+    #negative_blending_flux_sigma_mag: 20.  "OGLE I-band"  "OB03235_MOA.txt"
     # Alternative sharp constraint:
     # no_negative_blending_flux: True
     #color constrains, where color=source_mag_from_dataset_k-source_mag_from_dataset_m: gauss, mu ,sigma, k, m 
