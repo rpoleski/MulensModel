@@ -34,7 +34,15 @@ from MulensModel.utils import MAG_ZEROPOINT, Utils
 
 from .version import __version__
 
-__all__ = ['mulensobjects', 'MODULE_PATH', 'DATA_PATH', 'BinaryLens']
+__all__ = ['mulensobjects', 'MODULE_PATH', 'DATA_PATH', 'BinaryLens',
+           'BinaryLensWithShear', 'Caustics', 'CausticsPointWithShear',
+           'CausticsWithShear', 'Coordinates', 'Event', 'FitData', 'Horizons',
+           'LimbDarkeningCoeffs', 'MagnificationCurve', 'Model',
+           'ModelParameters', 'which_parameters', 'MulensData', 'Lens',
+           'Source', 'MulensSystem', 'orbits', 'PointLens',
+           'get_pspl_magnification', 'PointLensWithShear',
+           'PointLensFiniteSource', 'SatelliteSkyCoord', 'Trajectory',
+           'UniformCausticSampling', 'MAG_ZEROPOINT',  'Utils', '__version__']
 
 MODULE_PATH = path.abspath(__file__)
 for i in range(3):

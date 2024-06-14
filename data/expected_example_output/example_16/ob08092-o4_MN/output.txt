@@ -1,0 +1,30 @@
+  analysing data from out_ob08092_O4_MN-.txt
+Number of modes found: 1
+Fitted parameters and fluxes (source and blending) plus best model info:
+ MODE 1 probability: 1.000 +- 0.066
+t_0 : 2455379.57028 +0.04464 -0.04464
+u_0 : 0.52374 +0.02643 -0.02413
+t_E : 17.92285 +0.52759 -0.52992
+flux_s_1 : 1668.89670 +131.88952 -115.61129
+flux_b_1 : 22.86467 +115.44979 -131.67331
+427.2220
+2455379.572397579 0.5237263954096472 17.914998516867556
+1668.7160093139482 23.107673315698307
+ END OF MODES
+Best model:
+chi2: 427.2220
+t_0 u_0 t_E
+2455379.572397579 0.5237263954096472 17.914998516867556
+Fluxes:
+1668.7160093139482 23.107673315698307
+ *****************************************************
+ MultiNest v3.10
+ Copyright Farhan Feroz & Mike Hobson
+ Release Jul 2015
+
+ no. of live points = 1000
+ dimensionality =    3
+ *****************************************************
+ ln(ev)=  -219.50132377828734      +/-   6.6368862452230490E-002
+ Total Likelihood Evaluations:        11894
+ Sampling finished. Exiting MultiNest

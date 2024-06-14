@@ -1,0 +1,66 @@
+/usr/local/lib/python3.8/site-packages/emcee/autocorr.py:38: RuntimeWarning: invalid value encountered in true_divide
+  acf /= acf[0]
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+WARNING:root:Too few points to create valid contours
+/home/data/caustic/rpoleski/MulensModel/source/MulensModel/utils.py:147: UserWarning: Flux to magnitude conversion approached negative flux
+  warnings.warn(
+/home/data/caustic/rpoleski/MulensModel/source/MulensModel/utils.py:150: RuntimeWarning: invalid value encountered in log10
+  mag = zeropoint - 2.5 * np.log10(flux)
+/home/data/caustic/rpoleski/MulensModel/source/MulensModel/utils.py:147: UserWarning: Flux to magnitude conversion approached negative flux
+  warnings.warn(
+/home/data/caustic/rpoleski/MulensModel/source/MulensModel/utils.py:150: RuntimeWarning: invalid value encountered in log10
+  mag = zeropoint - 2.5 * np.log10(flux)
+/home/data/caustic/rpoleski/MulensModel/source/MulensModel/mulensdata.py:556: UserWarning: Some good data points have scaled errorbars with negative values. Setting them to zero for plotting.
+Dataset: OB03235_MOA.txt
+Epochs: [2451713.964947 2451724.984743 2451735.999816 2451816.931292
+ 2451817.868943 2451820.876226 2452068.114436 2452176.880222
+ 2452185.913052 2452379.124465 2452420.970783 2452438.97773
+ 2452458.914235 2452533.873316 2452547.926567 2452551.909314
+ 2452551.924018 2452754.082603 2452759.235935 2452920.846153]
+  warnings.warn(msg.format(kind, self._get_name(), self.time[indexes]))
+/home/data/caustic/rpoleski/MulensModel/source/MulensModel/utils.py:147: UserWarning: Flux to magnitude conversion approached negative flux
+  warnings.warn(
+/home/data/caustic/rpoleski/MulensModel/source/MulensModel/utils.py:150: RuntimeWarning: invalid value encountered in log10
+  mag = zeropoint - 2.5 * np.log10(flux)
+/home/data/caustic/rpoleski/MulensModel/source/MulensModel/mulensdata.py:556: UserWarning: Some good data points have scaled errorbars with negative values. Setting them to zero for plotting.
+Dataset: OB03235_MOA.txt
+Epochs: [2451713.964947 2451724.984743 2451735.999816 2451816.931292
+ 2451817.868943 2451820.876226 2452068.114436 2452176.880222
+ 2452185.913052 2452379.124465 2452420.970783 2452438.97773
+ 2452458.914235 2452533.873316 2452547.926567 2452551.909314
+ 2452551.924018 2452754.082603 2452759.235935 2452920.846153]
+  warnings.warn(msg.format(kind, self._get_name(), self.time[indexes]))
