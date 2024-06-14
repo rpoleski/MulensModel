@@ -2,7 +2,6 @@ import numpy as np
 from numpy.testing import assert_almost_equal as almost
 from math import isclose
 import unittest
-from astropy import units as u
 import os.path
 
 import MulensModel as mm
@@ -137,12 +136,12 @@ def test_init_parameters():
     """are parameters properly passed between Model and ModelParameters?"""
     t_0 = 6141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     model = mm.Model(parameters=params)
     almost(model.parameters.t_0, t_0)
     almost(model.parameters.u_0, u_0)
-    almost(model.parameters.t_E, t_E.value)
+    almost(model.parameters.t_E, t_E)
 
 
 def test_limb_darkening():
@@ -174,17 +173,17 @@ def test_t_E():
 
 # Binary Lens tests
 # Binary lens parameters:
-alpha = 229.58 * u.deg
+alpha = 229.58
 s = 1.3500
 q = 0.00578
 # Other parameters
-t_E = 62.63 * u.day
+t_E = 62.63
 rho = 0.01
 
 # Adjust t_0, u_0 from primary to CM
 shift_x = -s * q / (1. + q)
-delta_t_0 = -t_E.value * shift_x * np.cos(alpha).value
-delta_u_0 = -shift_x * np.sin(alpha).value
+delta_t_0 = -t_E * shift_x * np.cos(alpha * np.pi / 180.)
+delta_u_0 = -shift_x * np.sin(alpha * np.pi / 180.)
 t_0 = 2456141.593 + delta_t_0
 u_0 = 0.5425 + delta_u_0
 
