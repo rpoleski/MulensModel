@@ -23,18 +23,10 @@ class PointLens(object):
             'variety of classes with inheritance.')
 
 
-class PointSourcePointLensMagnification(object):
+class _PointLensMagnification(object):
     """
-    Equations for calculating point-source--point-lens magnification and
-    its derivatives.
-
-    Arguments :
-        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
-            Including trajectory.parameters =
-            :py:class:`~MulensModel.modelparameters.ModelParameters`
-
+    Abstract class for point lens magnification calculations.
     """
-
     def __init__(self, trajectory=None):
         if not isinstance(trajectory, mm.Trajectory):
             raise TypeError(
@@ -77,8 +69,7 @@ class PointSourcePointLensMagnification(object):
                 The magnification for each point
                 specified by `u` in :py:attr:`~trajectory`.
         """
-        self._magnification = self.get_pspl_magnification()
-        return self._magnification
+        raise NotImplementedError("Method not implemented in abstract class")
 
     def get_d_A_d_params(self, parameters):
         """
@@ -166,8 +157,7 @@ class PointSourcePointLensMagnification(object):
             dA_du: *np.ndarray*
                 Derivative dA/du evaluated at each epoch.
         """
-        d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
-        return d_A_d_u
+        raise NotImplementedError("Method not implemented in abstract class")
 
     @property
     def pspl_magnification(self):
@@ -218,6 +208,45 @@ class PointSourcePointLensMagnification(object):
             self._u_2 = self.trajectory.x ** 2 + self.trajectory.y ** 2
 
         return self._u_2
+
+
+class PointSourcePointLensMagnification(_PointLensMagnification):
+    """
+    Equations for calculating point-source--point-lens magnification and
+    its derivatives.
+
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+    """
+    def get_magnification(self):
+        """
+        Calculate the magnification
+
+        Parameters : None
+
+        Returns :
+            magnification: *float* or *np.ndarray*
+                The magnification for each point
+                specified by `u` in :py:attr:`~trajectory`.
+        """
+        self._magnification = self.get_pspl_magnification()
+        return self._magnification
+
+    def get_d_A_d_u(self):
+        """
+        Calculate dA/du for PSPL point-source--point-lens model.
+
+        No parameters.
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du evaluated at each epoch.
+        """
+        d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
+        return d_A_d_u
 
 
 class FiniteSourceUniformGould94Magnification(
