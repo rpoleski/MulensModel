@@ -249,8 +249,7 @@ class PointSourcePointLensMagnification(_PointLensMagnification):
         return d_A_d_u
 
 
-class FiniteSourceUniformGould94Magnification(
-        PointSourcePointLensMagnification):
+class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification):
     """
     Equations for calculating finite-source--point-lens magnification and
     its derivatives following the `Gould 1994 ApJ, 421L, 71
@@ -269,7 +268,7 @@ class FiniteSourceUniformGould94Magnification(
     """
 
     def __init__(self, direct=False, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self.direct = direct
         self._B0B1_data = mm.B0B1Utils()
@@ -358,8 +357,7 @@ class FiniteSourceUniformGould94Magnification(
                 evaluated at each epoch.
         """
 
-        d_u_d_params = PointSourcePointLensMagnification.get_d_u_d_params(
-            self, parameters)
+        d_u_d_params = super().get_d_u_d_params(parameters)
 
         factor = self._get_fspl_deriv_factor()
 
@@ -623,8 +621,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         return self._gamma
 
 
-class FiniteSourceUniformWittMao94Magnification(
-        PointSourcePointLensMagnification):
+class FiniteSourceUniformWittMao94Magnification(_PointLensMagnification):
     """
     Calculate magnification for the point lens and *uniform* source.
     This approach works well for small and large
@@ -642,7 +639,7 @@ class FiniteSourceUniformWittMao94Magnification(
     """
 
     def __init__(self, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._ellip_data = mm.EllipUtils()
 
@@ -848,7 +845,7 @@ class FiniteSourceLDWittMao94Magnification(
         return self._gamma
 
 
-class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
+class FiniteSourceUniformLee09Magnification(_PointLensMagnification):
     """
     Calculate magnification for the point lens and *uniform* finite source.
     This approach works well for small and large sources
@@ -868,7 +865,7 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
     """
 
     def __init__(self, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.n = 100
 
     def get_magnification(self):
@@ -1014,7 +1011,7 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
     """
 
     def __init__(self, gamma=None, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._gamma = gamma
         self.n_theta = 90
