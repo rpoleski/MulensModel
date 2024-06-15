@@ -53,8 +53,7 @@ class _PointLensMagnification(object):
                 The point-source--point-lens magnification for each point
                 specified by `u`.
         """
-        self._pspl_magnification = \
-            (self.u_2 + 2.) / np.sqrt(self.u_2 * (self.u_2 + 4.))
+        self._pspl_magnification = (self.u_2 + 2.) / np.sqrt(self.u_2 * (self.u_2 + 4.))
 
         return self._pspl_magnification
 
@@ -159,6 +158,13 @@ class _PointLensMagnification(object):
         """
         raise NotImplementedError("Method not implemented in abstract class")
 
+    def _get_d_A_d_u_PSPL(self):
+        """
+        Calculate dA/du assuming PSPL.
+        """
+        d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
+        return d_A_d_u
+
     @property
     def pspl_magnification(self):
         """
@@ -245,11 +251,10 @@ class PointSourcePointLensMagnification(_PointLensMagnification):
             dA_du: *np.ndarray*
                 Derivative dA/du evaluated at each epoch.
         """
-        d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
-        return d_A_d_u
+        return self._get_d_A_d_u_PSPL()
 
 
-class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification):
+class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
     """
     Equations for calculating finite-source--point-lens magnification and
     its derivatives following the `Gould 1994 ApJ, 421L, 71
@@ -276,6 +281,18 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
         self._z = None
         self._b0 = None
         self._db0 = None
+
+    def get_d_A_d_u(self):
+        """
+        Calculate dA/du for PSPL point-source--point-lens model.
+
+        No parameters.
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du evaluated at each epoch.
+        """
+        return self._get_d_A_d_u_PSPL()
 
     def get_magnification(self):
         """
@@ -337,7 +354,7 @@ class FiniteSourceUniformGould94Magnification(PointSourcePointLensMagnification)
         """
         factor = self.pspl_magnification * self.db0
         factor /= self.trajectory.parameters.rho
-        factor += self.get_d_A_d_u() * self.b0
+        factor += self._get_d_A_d_u_PSPL() * self.b0
 
         return factor
 
@@ -507,7 +524,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         """
         factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1)
         factor /= self.trajectory.parameters.rho
-        factor += self.get_d_A_d_u() * (self.b0 - self._gamma * self.b1)
+        factor += self._get_d_A_d_u_PSPL() * (self.b0 - self._gamma * self.b1)
 
         return factor
 
