@@ -486,7 +486,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
     """
 
     def __init__(self, gamma=None, **kwargs):
-        FiniteSourceUniformGould94Magnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._gamma = gamma
         self._b1 = None
@@ -511,7 +511,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
                 The finite-source source magnification for each epoch.
 
          """
-        FiniteSourceUniformGould94Magnification.get_magnification(self)
+        super().get_magnification()
         self._magnification -= self.pspl_magnification * self.b1 * self._gamma
 
         return self._magnification
@@ -772,8 +772,7 @@ class FiniteSourceUniformWittMao94Magnification(_PointLensMagnification):
             'Derivative calculations Not Implemented for WittMao94')
 
 
-class FiniteSourceLDWittMao94Magnification(
-        FiniteSourceUniformWittMao94Magnification):
+class FiniteSourceLDWittMao94Magnification(FiniteSourceUniformWittMao94Magnification):
     """
     Calculate magnification for the point lens and *finite source with
     limb-darkening*. This approach works well for small and large
@@ -804,7 +803,7 @@ class FiniteSourceLDWittMao94Magnification(
     """
 
     def __init__(self, gamma=None, **kwargs):
-        FiniteSourceUniformWittMao94Magnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._gamma = gamma
         self.n_annuli = 30  # This value could be tested better.
