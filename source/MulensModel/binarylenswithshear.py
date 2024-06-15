@@ -5,7 +5,8 @@ from math import sqrt
 from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification
 from MulensModel.binarylensimports import (
     _vbbl_wrapped, _vbbl_binary_mag_point_shear, _vbbl_SG12_9)
-import MulensModel as mm
+from MulensModel.utils import Utils
+from MulensModel.version import __version__ as mm_version
 
 
 class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95Magnification):
@@ -78,7 +79,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         Gc_pow2 = Gc * Gc
         Gc_pow3 = Gc * Gc_pow2
 
-        c_sum = mm.Utils.complex_fsum
+        c_sum = Utils.complex_fsum
 
         z1 = self._position_z1
         z1_pow2 = z1 * z1
@@ -438,7 +439,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                 txt += ("\n\nYou try to calculate magnification at huge " +
                         "distance from the source and this is causing an " +
                         "error.")
-            txt += "\nMulensModel version: {:}".format(mm.__version__)
+            txt += "\nMulensModel version: {:}".format(mm_version)
 
             raise ValueError(txt)
         if return_distances:
@@ -458,8 +459,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                                                np.conjugate(derivative))
 
 
-class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
-    BinaryLensPointSourceWithShearWM95Magnification):
+class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPointSourceWithShearWM95Magnification):
     """
     *NOT IMPLEMENTED*
 
@@ -498,11 +498,11 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
 
         # Calculate the coefficients of the 5th order complex polynomial now
         # with external convergence
-        coeff_5 = mm.Utils.complex_fsum(
+        coeff_5 = Utils.complex_fsum(
             [-z1_pow2 * K_pow3, 3 * z1_pow2 * K_pow2, -3 * z1_pow2 *
              convergence_K, z1_pow2, convergence_K * zeta_conj_pow2, -
              zeta_conj_pow2])
-        coeff_4 = mm.Utils.complex_fsum(
+        coeff_4 = Utils.complex_fsum(
             [2 * total_m * convergence_K *
              zeta_conj, -2 * total_m * zeta_conj, -
              zeta * z1_pow2 * K_pow2, 2 * zeta *
@@ -511,20 +511,20 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
              pos_z1 * K_pow2 * m_diff, -4 * pos_z1
              * convergence_K * m_diff, 2 * pos_z1 *
              m_diff])
-        coeff_3 = mm.Utils.complex_fsum(
+        coeff_3 = Utils.complex_fsum(
             [4 * total_m * zeta * zeta_conj, 2 * z1_pow4 * K_pow3, -6 * z1_pow4
              * K_pow2, 6 * z1_pow4 * convergence_K, -2 * z1_pow4, -2 * z1_pow2
              * convergence_K * zeta_conj_pow2, 2 * z1_pow2 * zeta_conj_pow2, 4
              * pos_z1 * convergence_K * m_diff * zeta_conj, -4 * pos_z1 *
              m_diff * zeta_conj])
-        coeff_2 = mm.Utils.complex_fsum(
+        coeff_2 = Utils.complex_fsum(
             [4 * total_m_pow2 * zeta, 4 * total_m * pos_z1 * convergence_K *
              m_diff, -4 * total_m * pos_z1 * m_diff, 2 * zeta * z1_pow4 *
              K_pow2, -4 * zeta * z1_pow4 * convergence_K, 2 * zeta * z1_pow4, -
              2 * zeta * z1_pow2 * zeta_conj_pow2, 4 * zeta * pos_z1 * m_diff *
              zeta_conj, -4 * z1_pow3 * K_pow2 * m_diff, 8 * z1_pow3 *
              convergence_K * m_diff, -4 * z1_pow3 * m_diff])
-        coeff_1 = mm.Utils.complex_fsum(
+        coeff_1 = Utils.complex_fsum(
             [4 * total_m_pow2 * z1_pow2 * convergence_K, -4 * total_m_pow2 *
              z1_pow2, -4 * total_m * zeta * z1_pow2 * zeta_conj, 8 * total_m *
              zeta * pos_z1 * m_diff, -z1_pow6 * K_pow3, 3 * z1_pow6 * K_pow2, -
@@ -533,7 +533,7 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(
              convergence_K * m_diff * zeta_conj, 4 * z1_pow3 * m_diff *
              zeta_conj, 4 * z1_pow2 * convergence_K * m_diff_pow2, -4 * z1_pow2
              * m_diff_pow2])
-        coeff_0 = mm.Utils.complex_fsum(
+        coeff_0 = Utils.complex_fsum(
             [-2 * total_m * z1_pow4 * convergence_K * zeta_conj, 2 * total_m *
              z1_pow4 * zeta_conj, 4 * total_m * z1_pow3 * convergence_K *
              m_diff, -4 * total_m * z1_pow3 * m_diff, -zeta * z1_pow6 * K_pow2,
