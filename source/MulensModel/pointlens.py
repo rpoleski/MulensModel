@@ -352,8 +352,7 @@ class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
         = Factor due to rho for multiplying derivatives due to non-rho
         parameters.
         """
-        factor = self.pspl_magnification * self.db0
-        factor /= self.trajectory.parameters.rho
+        factor = self.pspl_magnification * self.db0 / self.trajectory.parameters.rho
         factor += self._get_d_A_d_u_PSPL() * self.b0
 
         return factor
@@ -399,10 +398,8 @@ class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
                 Derivative dA/drho evaluated at each epoch.
 
         """
-        d_A_d_rho = np.ones(len(self.trajectory.times))
-        d_A_d_rho *= self.pspl_magnification
-        d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
-        d_A_d_rho *= self.db0
+        d_A_d_rho = self.pspl_magnification
+        d_A_d_rho *= -self.u_ * self.db0 / self.trajectory.parameters.rho**2
 
         return d_A_d_rho
 
@@ -510,7 +507,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
             magnification: *float*, *np.array*
                 The finite-source source magnification for each epoch.
 
-         """
+        """
         super().get_magnification()
         self._magnification -= self.pspl_magnification * self.b1 * self._gamma
 
@@ -522,8 +519,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         = Factor due to rho for multiplying derivatives due to
         non-rho parameters.
         """
-        factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1)
-        factor /= self.trajectory.parameters.rho
+        factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1) / self.trajectory.parameters.rho
         factor += self._get_d_A_d_u_PSPL() * (self.b0 - self._gamma * self.b1)
 
         return factor
@@ -540,10 +536,8 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
                 Derivative dA/drho evaluated at each epoch.
 
         """
-        d_A_d_rho = np.ones(len(self.trajectory.times))
-        d_A_d_rho *= self.pspl_magnification
+        d_A_d_rho = self.pspl_magnification * (self.db0 - self._gamma * self.db1)
         d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
-        d_A_d_rho *= (self.db0 - self._gamma * self.db1)
         return d_A_d_rho
 
     def _B_1_function(self, mask=None):
@@ -565,8 +559,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
 
         def function(r, theta):
             r_2 = r * r
-            val = (1. - r_2) / (
-                r_2 + function.arg_2 + r * function.arg_3 * cos(theta))
+            val = (1. - r_2) / (r_2 + function.arg_2 + r * function.arg_3 * cos(theta))
             return r * sqrt(val)
 
         def lim_0(x): return 0
@@ -818,10 +811,7 @@ class FiniteSourceLDWittMao94Magnification(FiniteSourceUniformWittMao94Magnifica
                 The finite-source source magnification for each epoch.
 
         """
-        out = [
-            self._get_magnification_WM94_B18(u_)
-            for u_ in self.u_]
-
+        out = [self._get_magnification_WM94_B18(u_) for u_ in self.u_]
         self._magnification = np.array(out)
         return self._magnification
 
@@ -835,14 +825,13 @@ class FiniteSourceLDWittMao94Magnification(FiniteSourceUniformWittMao94Magnifica
         r2 = annuli**2
 
         magnification = np.zeros(n_annuli)
-        for (i, a) in enumerate(annuli):
+        for (i, a) in enumerate(annuli * self.trajectory.parameters.rho):
             if i == 0:
                 continue
-            magnification[i] = self._get_magnification_WM94(
-                u=u, rho=a * self.trajectory.parameters.rho)
 
-        cumulative_profile = (self.gamma + (1. - self.gamma) * r2 -
-                              self.gamma * (1. - r2)**1.5)
+            magnification[i] = self._get_magnification_WM94(u=u, rho=a)
+
+        cumulative_profile = self.gamma + (1. - self.gamma) * r2 - self.gamma * (1. - r2)**1.5
         d_cumulative_profile = cumulative_profile[1:] - cumulative_profile[:-1]
         d_r2 = r2[1:] - r2[:-1]
         temp = magnification * r2
@@ -934,7 +923,6 @@ class FiniteSourceUniformLee09Magnification(_PointLensMagnification):
 
         if u <= rho:
             ucos = u * np.cos(theta)
-
             return ucos + np.sqrt(rho * rho - u * u + ucos**2)
         else:
             out = np.zeros_like(theta)
@@ -947,10 +935,8 @@ class FiniteSourceUniformLee09Magnification(_PointLensMagnification):
 
     def _f_Lee09(self, theta, u, theta_max=None):
         """
-        Calculates equation in text between Eq. 7 and 8 from
-        Lee et al. 2009.
+        Calculates equation in text between Eq. 7 and 8 from Lee et al. 2009.
         """
-
         u_1_ = self._u_1_Lee09(theta, u, theta_max)
         u_2_ = self._u_2_Lee09(theta, u, theta_max)
 
@@ -970,8 +956,7 @@ class FiniteSourceUniformLee09Magnification(_PointLensMagnification):
             raise ValueError('internal error - odd number expected')
 
         theta_max = np.arcsin(rho / u)
-        out = (u + rho) * sqrt((u + rho)**2 + 4.) - \
-            (u - rho) * sqrt((u - rho)**2 + 4.)
+        out = (u + rho) * sqrt((u + rho)**2 + 4.) - (u - rho) * sqrt((u - rho)**2 + 4.)
         vector_1 = np.arange(1., (n / 2 - 1.) + 1)
         vector_2 = np.arange(1., n / 2 + 1)
         arg_1 = 2. * vector_1 * theta_max / n
@@ -991,8 +976,7 @@ class FiniteSourceUniformLee09Magnification(_PointLensMagnification):
 
         if n % 2 != 0:
             raise ValueError('internal error - odd number expected')
-        out = (u + rho) * sqrt((u + rho)**2 + 4.) - \
-            (u - rho) * sqrt((u - rho)**2 + 4.)
+        out = (u + rho) * sqrt((u + rho)**2 + 4.) - (u - rho) * sqrt((u - rho)**2 + 4.)
         vector_1 = np.arange(1., (n - 1.) + 1)
         vector_2 = np.arange(1., n + 1)
         arg_1 = vector_1 * np.pi / n
@@ -1077,14 +1061,13 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
 
         theta = np.linspace(0, theta_max - theta_sub, n_theta)
         integrand_values = np.zeros_like(theta)
-        u_1 = self._u_1_Lee09(theta, u, theta_max)
-        u_1 += u_1_min
+        u_1 = self._u_1_Lee09(theta, u, theta_max) + u_1_min
         u_2 = self._u_2_Lee09(theta, u, theta_max)
 
         size = (len(theta), n_u)
         temp = np.zeros(size)
         temp2 = (np.zeros(size).T + np.cos(theta)).T
-        for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
+        for (i, (u_1_, u_2_)) in enumerate(zip(u_1, u_2)):
             temp[i] = np.linspace(u_1_, u_2_, n_u)
 
         integrand = self._integrand_Lee09_v2(temp, u, temp2)
