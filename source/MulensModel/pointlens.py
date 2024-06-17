@@ -23,17 +23,62 @@ class PointLens(object):
             'variety of classes with inheritance.')
 
 
-class _PointLensMagnification(object):
+class _AbstractMagnification(object):
+    """
+    Abstract class for magnification calculations.
+
+    Parameters :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Trajectory for which magnification will be calculated. Parameters of the model
+            are passed via its :py:attr:`~MulensModel.trajectory.Trajectory.parameters` property.
+    """
+    def __init__(self, trajectory):
+        if not isinstance(trajectory, mm.Trajectory):
+            raise TypeError(
+                "PointLens* argument has to be of Trajectory type, not " + str(type(trajectory)))
+
+        self._trajectory = trajectory
+
+    @property
+    def trajectory(self):
+        """
+        :py:class:`~MulensModel.trajectory.Trajectory`
+
+        Trajectory for which magnification is calculated.
+        """
+        return self._trajectory
+
+    def get_magnification(self):
+        """
+        Calculate the magnification
+
+        Parameters : None
+
+        Returns :
+            magnification: *np.ndarray*
+                The magnification for each epoch specified in :py:attr:`~trajectory`.
+        """
+        raise NotImplementedError("Method not implemented in abstract class")
+
+    @property
+    def magnification(self):
+        """
+        *np.ndarray*
+
+        Magnification for each epoch.
+        """
+        if self._magnification is None:
+            raise AttributeError('Magnification has not been calculated. Run get_magnification() first.')
+
+        return self._magnification
+
+
+class _PointLensMagnification(_AbstractMagnification):
     """
     Abstract class for point lens magnification calculations.
     """
-    def __init__(self, trajectory=None):
-        if not isinstance(trajectory, mm.Trajectory):
-            raise TypeError(
-                "PointLens* argument has to be of Trajectory type, not " +
-                str(type(trajectory)))
-
-        self.trajectory = trajectory
+    def __init__(self, trajectory):
+        super().__init__(trajectory=trajectory)
 
         self._u_2 = None  # u^2
         self._u = None
@@ -56,19 +101,6 @@ class _PointLensMagnification(object):
         self._pspl_magnification = (self.u_2 + 2.) / np.sqrt(self.u_2 * (self.u_2 + 4.))
 
         return self._pspl_magnification
-
-    def get_magnification(self):
-        """
-        Calculate the magnification
-
-        Parameters : None
-
-        Returns :
-            magnification: *float* or *np.ndarray*
-                The magnification for each point
-                specified by `u` in :py:attr:`~trajectory`.
-        """
-        raise NotImplementedError("Method not implemented in abstract class")
 
     def get_d_A_d_params(self, parameters):
         """
@@ -176,20 +208,6 @@ class _PointLensMagnification(object):
             self.get_pspl_magnification()
 
         return self._pspl_magnification
-
-    @property
-    def magnification(self):
-        """
-        *np.ndarray*
-
-        Magnification for each epoch.
-        """
-        if self._magnification is None:
-            raise AttributeError(
-                'Magnification has not been calculated. Run ' +
-                'get_magnification() first.')
-
-        return self._magnification
 
     @property
     def u_(self):
