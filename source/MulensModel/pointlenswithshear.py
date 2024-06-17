@@ -1,9 +1,9 @@
 import numpy as np
 
-from MulensModel.pointlens import PointSourcePointLensMagnification
+from MulensModel.pointlens import _PointLensMagnification
 
 
-class PointSourcePointLensWithShearMagnification(PointSourcePointLensMagnification):
+class PointSourcePointLensWithShearMagnification(_PointLensMagnification):
     """
     Lens of point mass plus shear and convergence, i.e., Chang-Refsdal lens.
 
@@ -66,11 +66,11 @@ class PointSourcePointLensWithShearMagnification(PointSourcePointLensMagnificati
             magnification.append(mag)
 
         magnification = np.array(magnification)
-        self._test_maginification_values(magnification)
+        self._test_magnification_values(magnification)
 
         return magnification
 
-    def _test_maginification_values(self, magnification):
+    def _test_magnification_values(self, magnification):
         """
         Test if all magnifications are > 1 and raise ValueError if not.
         """
