@@ -353,7 +353,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         """roots of the polynomial"""
         polynomial_input = [
             self._mass_1, self._mass_2, self._separation, self.convergence_K,
-            self.shear_G, self.source_x, self.source_y]
+            self.shear_G, self._source_x, self._source_y]
 
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
@@ -420,7 +420,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                    "that it's different from 'point_source' method.")
             txt = msg.format(
                 len(out), repr(self._mass_1), repr(self._mass_2),
-                repr(self._separation), repr(self.source_x), repr(self.source_y),
+                repr(self._separation), repr(self._source_x), repr(self._source_y),
                 self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
@@ -430,7 +430,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                     "numpy.polynomial.polynomial.polyroots(). " +
                     "Skowron_and_Gould_12 method is selected in automated " +
                     "way if VBBL is imported properly.")
-            distance = sqrt(self.source_x**2 + self.source_y**2)
+            distance = sqrt(self._source_x**2 + self._source_y**2)
             if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * self._separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
                         "authors and provide the above error message.")
@@ -580,13 +580,16 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
     make sure you know what you're doing before you start using this
     possibility.
     """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._source_x = float(self.trajectory.x)
 
     def get_magnification(self):
         s = float(self._separation)
         q = float(self._mass_2 / self._mass_1)
 
         magnification = _vbbl_binary_mag_point_shear(
-            s, q, self.source_x, self.source_y, self.convergence_K,
+            s, q, self._source_x, self._source_y, self.convergence_K,
             self.shear_G.real,
             self.shear_G.imag)
 
@@ -594,17 +597,10 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
             msg = (
                 "error in BinaryLensWithShear.point_source_magnification()\n"
                 "input:\n")
-            params = [s, q, self.source_x, self.source_y, self.convergence_K, self.shear_G.real,
+            params = [s, q, self._source_x, self._source_y, self.convergence_K, self.shear_G.real,
                       self.shear_G.imag, self.vbbl_on, _vbbl_wrapped]
             msg += " ".join([str(p) for p in params])
             msg += "\noutput: {:}".format(magnification)
             raise ValueError(msg)
 
         return magnification
-
-    @property
-    def source_x(self):
-        if self._source_x is None:
-            self._source_x = float(self.trajectory.x)
-
-        return self._source_x
