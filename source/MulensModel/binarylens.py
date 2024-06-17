@@ -41,50 +41,22 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
             :py:class:`~MulensModel.modelparameters.ModelParameters`
 
     """
-    # JCY Note: Maybe the above comment means that there should be a parent
-    # class called "MagnificationObject" that has only the basic init (with
-    # trajectory) + get_magnification.
-
     def __init__(self, **kwargs):
         super().__init__(trajectory=kwargs['trajectory'])
         self._solver = _solver
         self._source_x = None
         self._source_y = None
 
-    def get_magnification(self):
-        """
-        Calculate the magnification
-
-        Parameters : None
-
-        Returns :
-            magnification: *float* or *np.ndarray*
-                The magnification for each point
-                specified by `u` in :py:attr:`~trajectory`.
-        """
-        raise NotImplementedError(
-            'This is a placeholder class. Use the child classes.')
-
-    def get_d_A_d_params(self, parameters):
-        """
-        Derivative calculations Not Implemented for BinaryLenses
-        """
-        raise NotImplementedError(
-            'Derivative calculations Not Implemented for BinaryLenses')
-
-    def get_d_u_d_params(self, parameters):
-        """
-        Derivative calculations Not Implemented for BinaryLenses
-        """
-        raise NotImplementedError(
-            'Derivative calculations Not Implemented for BinaryLenses')
-
-    def get_d_A_d_u(self):
-        """
-        Derivative calculations Not Implemented for BinaryLenses
-        """
-        raise NotImplementedError(
-            'Derivative calculations Not Implemented for BinaryLenses')
+#    def get_magnification(self):
+#        """
+#        Calculate the magnification
+#
+#        Parameters : None
+#
+#        Returns :
+#            magnification: *float* or *np.ndarray*
+#                The magnification for each point in :py:attr:`~trajectory`.
+#        """
 
     @property
     def source_x(self):
@@ -101,10 +73,6 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
 
         return self._source_x
 
-    @source_x.setter
-    def source_x(self, value):
-        self._source_x = value
-
     @property
     def source_y(self):
         """
@@ -117,10 +85,6 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
             self._source_y = float(self.trajectory.y)
 
         return self._source_y
-
-    @source_y.setter
-    def source_y(self, value):
-        self._source_y = value
 
 
 class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
