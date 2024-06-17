@@ -632,10 +632,32 @@ class TestFiniteSourceLDYoo04Magnification(
 
 class TestFiniteSourceLDYoo04DirectMagnification(
     TestFiniteSourceLDYoo04Magnification):
-    # This test is very slow. Should it be REMOVED???
 
     def setUp(self):
         TestFiniteSourceLDYoo04Magnification.setUp(self)
+
+    def _set_trajectories(self):
+        # Take only N_MAX indices from within t_0 +- 3*t_star to reduce runtime
+        n_max = 10
+
+        index_1 = self.sfit_files['63'].t > (
+                self.parameters.t_0 - 3. * self.parameters.t_star)
+        index_2 = self.sfit_files['63'].t < (
+                self.parameters.t_0 + 3. * self.parameters.t_star)
+        index = index_1 & index_2
+
+        for i, nob_indices in enumerate(self.sfit_files['63'].sfit_nob_indices):
+            new_nob_indices = nob_indices & index
+            if np.sum(new_nob_indices) > n_max:
+                n_skip = np.floor(np.sum(new_nob_indices) / n_max).astype(int)
+                mask = np.zeros(len(nob_indices), dtype=bool)
+                mask[::n_skip] = True
+                new_nob_indices = new_nob_indices & mask
+
+            for f_sixty in ['61', '62', '63']:
+                self.sfit_files[f_sixty].sfit_nob_indices[i] = new_nob_indices
+
+        TestFiniteSourceLDYoo04Magnification._set_trajectories(self)
 
     def _set_mag_objs(self):
         for (trajectory, gamma) in zip(self.trajectories, self.gammas):
