@@ -147,13 +147,16 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
 
         self.gammas = self.sfit_files['51'].a[4:5]  # Cludgy and inflexible.
         self.trajectories = []
+        self._set_trajectories()
+
+        self.mag_objs = []
+        self._set_mag_objs()
+
+    def _set_trajectories(self):
         for nob_indices in self.sfit_files['63'].sfit_nob_indices:
             trajectory = mm.Trajectory(
                 self.sfit_files['63'].t[nob_indices], self.parameters)
             self.trajectories.append(trajectory)
-
-        self.mag_objs = []
-        self._set_mag_objs()
 
     def _set_mag_objs(self):
         for trajectory in self.trajectories:
