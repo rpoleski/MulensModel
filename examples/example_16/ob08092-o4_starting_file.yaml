@@ -1,0 +1,15 @@
+photometry_files:
+    data/OB08092/phot_ob08092_O4.dat
+starting_parameters:
+    file: ob08092-o4_starting_file_input.txt
+    parameters: t_0 u_0 t_E
+min_values:
+    t_E: 0.
+fitting_parameters:
+    n_steps: 5000
+plots:
+    trajectory:
+        file: ob08092-o4_trajectory2.png
+        time range: 2455360 2455385
+    trace:
+        file: ob08092-o4_trace2.png

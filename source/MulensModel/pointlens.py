@@ -23,18 +23,10 @@ class PointLens(object):
             'variety of classes with inheritance.')
 
 
-class PointSourcePointLensMagnification(object):
+class _PointLensMagnification(object):
     """
-    Equations for calculating point-source--point-lens magnification and
-    its derivatives.
-
-    Arguments :
-        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
-            Including trajectory.parameters =
-            :py:class:`~MulensModel.modelparameters.ModelParameters`
-
+    Abstract class for point lens magnification calculations.
     """
-
     def __init__(self, trajectory=None):
         if not isinstance(trajectory, mm.Trajectory):
             raise TypeError(
@@ -61,8 +53,7 @@ class PointSourcePointLensMagnification(object):
                 The point-source--point-lens magnification for each point
                 specified by `u`.
         """
-        self._pspl_magnification = \
-            (self.u_2 + 2.) / np.sqrt(self.u_2 * (self.u_2 + 4.))
+        self._pspl_magnification = (self.u_2 + 2.) / np.sqrt(self.u_2 * (self.u_2 + 4.))
 
         return self._pspl_magnification
 
@@ -77,8 +68,7 @@ class PointSourcePointLensMagnification(object):
                 The magnification for each point
                 specified by `u` in :py:attr:`~trajectory`.
         """
-        self._magnification = self.get_pspl_magnification()
-        return self._magnification
+        raise NotImplementedError("Method not implemented in abstract class")
 
     def get_d_A_d_params(self, parameters):
         """
@@ -166,6 +156,12 @@ class PointSourcePointLensMagnification(object):
             dA_du: *np.ndarray*
                 Derivative dA/du evaluated at each epoch.
         """
+        raise NotImplementedError("Method not implemented in abstract class")
+
+    def _get_d_A_d_u_PSPL(self):
+        """
+        Calculate dA/du assuming PSPL.
+        """
         d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
         return d_A_d_u
 
@@ -220,8 +216,45 @@ class PointSourcePointLensMagnification(object):
         return self._u_2
 
 
-class FiniteSourceUniformGould94Magnification(
-        PointSourcePointLensMagnification):
+class PointSourcePointLensMagnification(_PointLensMagnification):
+    """
+    Equations for calculating point-source--point-lens magnification and
+    its derivatives.
+
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+    """
+    def get_magnification(self):
+        """
+        Calculate the magnification
+
+        Parameters : None
+
+        Returns :
+            magnification: *float* or *np.ndarray*
+                The magnification for each point
+                specified by `u` in :py:attr:`~trajectory`.
+        """
+        self._magnification = self.get_pspl_magnification()
+        return self._magnification
+
+    def get_d_A_d_u(self):
+        """
+        Calculate dA/du for PSPL point-source--point-lens model.
+
+        No parameters.
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du evaluated at each epoch.
+        """
+        return self._get_d_A_d_u_PSPL()
+
+
+class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
     """
     Equations for calculating finite-source--point-lens magnification and
     its derivatives following the `Gould 1994 ApJ, 421L, 71
@@ -240,7 +273,7 @@ class FiniteSourceUniformGould94Magnification(
     """
 
     def __init__(self, direct=False, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self.direct = direct
         self._B0B1_data = mm.B0B1Utils()
@@ -248,6 +281,18 @@ class FiniteSourceUniformGould94Magnification(
         self._z = None
         self._b0 = None
         self._db0 = None
+
+    def get_d_A_d_u(self):
+        """
+        Calculate dA/du for PSPL point-source--point-lens model.
+
+        No parameters.
+
+        Returns :
+            dA_du: *np.ndarray*
+                Derivative dA/du evaluated at each epoch.
+        """
+        return self._get_d_A_d_u_PSPL()
 
     def get_magnification(self):
         """
@@ -307,9 +352,8 @@ class FiniteSourceUniformGould94Magnification(
         = Factor due to rho for multiplying derivatives due to non-rho
         parameters.
         """
-        factor = self.pspl_magnification * self.db0
-        factor /= self.trajectory.parameters.rho
-        factor += self.get_d_A_d_u() * self.b0
+        factor = self.pspl_magnification * self.db0 / self.trajectory.parameters.rho
+        factor += self._get_d_A_d_u_PSPL() * self.b0
 
         return factor
 
@@ -329,8 +373,7 @@ class FiniteSourceUniformGould94Magnification(
                 evaluated at each epoch.
         """
 
-        d_u_d_params = PointSourcePointLensMagnification.get_d_u_d_params(
-            self, parameters)
+        d_u_d_params = super().get_d_u_d_params(parameters)
 
         factor = self._get_fspl_deriv_factor()
 
@@ -355,10 +398,8 @@ class FiniteSourceUniformGould94Magnification(
                 Derivative dA/drho evaluated at each epoch.
 
         """
-        d_A_d_rho = np.ones(len(self.trajectory.times))
-        d_A_d_rho *= self.pspl_magnification
-        d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
-        d_A_d_rho *= self.db0
+        d_A_d_rho = self.pspl_magnification
+        d_A_d_rho *= -self.u_ * self.db0 / self.trajectory.parameters.rho**2
 
         return d_A_d_rho
 
@@ -442,7 +483,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
     """
 
     def __init__(self, gamma=None, **kwargs):
-        FiniteSourceUniformGould94Magnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._gamma = gamma
         self._b1 = None
@@ -466,8 +507,8 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
             magnification: *float*, *np.array*
                 The finite-source source magnification for each epoch.
 
-         """
-        FiniteSourceUniformGould94Magnification.get_magnification(self)
+        """
+        super().get_magnification()
         self._magnification -= self.pspl_magnification * self.b1 * self._gamma
 
         return self._magnification
@@ -478,9 +519,8 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         = Factor due to rho for multiplying derivatives due to
         non-rho parameters.
         """
-        factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1)
-        factor /= self.trajectory.parameters.rho
-        factor += self.get_d_A_d_u() * (self.b0 - self._gamma * self.b1)
+        factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1) / self.trajectory.parameters.rho
+        factor += self._get_d_A_d_u_PSPL() * (self.b0 - self._gamma * self.b1)
 
         return factor
 
@@ -496,10 +536,8 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
                 Derivative dA/drho evaluated at each epoch.
 
         """
-        d_A_d_rho = np.ones(len(self.trajectory.times))
-        d_A_d_rho *= self.pspl_magnification
+        d_A_d_rho = self.pspl_magnification * (self.db0 - self._gamma * self.db1)
         d_A_d_rho *= -self.u_ / self.trajectory.parameters.rho**2
-        d_A_d_rho *= (self.db0 - self._gamma * self.db1)
         return d_A_d_rho
 
     def _B_1_function(self, mask=None):
@@ -521,8 +559,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
 
         def function(r, theta):
             r_2 = r * r
-            val = (1. - r_2) / (
-                r_2 + function.arg_2 + r * function.arg_3 * cos(theta))
+            val = (1. - r_2) / (r_2 + function.arg_2 + r * function.arg_3 * cos(theta))
             return r * sqrt(val)
 
         def lim_0(x): return 0
@@ -594,8 +631,7 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         return self._gamma
 
 
-class FiniteSourceUniformWittMao94Magnification(
-        PointSourcePointLensMagnification):
+class FiniteSourceUniformWittMao94Magnification(_PointLensMagnification):
     """
     Calculate magnification for the point lens and *uniform* source.
     This approach works well for small and large
@@ -613,7 +649,7 @@ class FiniteSourceUniformWittMao94Magnification(
     """
 
     def __init__(self, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._ellip_data = mm.EllipUtils()
 
@@ -729,8 +765,7 @@ class FiniteSourceUniformWittMao94Magnification(
             'Derivative calculations Not Implemented for WittMao94')
 
 
-class FiniteSourceLDWittMao94Magnification(
-        FiniteSourceUniformWittMao94Magnification):
+class FiniteSourceLDWittMao94Magnification(FiniteSourceUniformWittMao94Magnification):
     """
     Calculate magnification for the point lens and *finite source with
     limb-darkening*. This approach works well for small and large
@@ -761,7 +796,7 @@ class FiniteSourceLDWittMao94Magnification(
     """
 
     def __init__(self, gamma=None, **kwargs):
-        FiniteSourceUniformWittMao94Magnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._gamma = gamma
         self.n_annuli = 30  # This value could be tested better.
@@ -776,10 +811,7 @@ class FiniteSourceLDWittMao94Magnification(
                 The finite-source source magnification for each epoch.
 
         """
-        out = [
-            self._get_magnification_WM94_B18(u_)
-            for u_ in self.u_]
-
+        out = [self._get_magnification_WM94_B18(u_) for u_ in self.u_]
         self._magnification = np.array(out)
         return self._magnification
 
@@ -793,14 +825,13 @@ class FiniteSourceLDWittMao94Magnification(
         r2 = annuli**2
 
         magnification = np.zeros(n_annuli)
-        for (i, a) in enumerate(annuli):
+        for (i, a) in enumerate(annuli * self.trajectory.parameters.rho):
             if i == 0:
                 continue
-            magnification[i] = self._get_magnification_WM94(
-                u=u, rho=a * self.trajectory.parameters.rho)
 
-        cumulative_profile = (self.gamma + (1. - self.gamma) * r2 -
-                              self.gamma * (1. - r2)**1.5)
+            magnification[i] = self._get_magnification_WM94(u=u, rho=a)
+
+        cumulative_profile = self.gamma + (1. - self.gamma) * r2 - self.gamma * (1. - r2)**1.5
         d_cumulative_profile = cumulative_profile[1:] - cumulative_profile[:-1]
         d_r2 = r2[1:] - r2[:-1]
         temp = magnification * r2
@@ -819,7 +850,7 @@ class FiniteSourceLDWittMao94Magnification(
         return self._gamma
 
 
-class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
+class FiniteSourceUniformLee09Magnification(_PointLensMagnification):
     """
     Calculate magnification for the point lens and *uniform* finite source.
     This approach works well for small and large sources
@@ -839,7 +870,7 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
     """
 
     def __init__(self, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.n = 100
 
     def get_magnification(self):
@@ -892,7 +923,6 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
 
         if u <= rho:
             ucos = u * np.cos(theta)
-
             return ucos + np.sqrt(rho * rho - u * u + ucos**2)
         else:
             out = np.zeros_like(theta)
@@ -905,10 +935,8 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
 
     def _f_Lee09(self, theta, u, theta_max=None):
         """
-        Calculates equation in text between Eq. 7 and 8 from
-        Lee et al. 2009.
+        Calculates equation in text between Eq. 7 and 8 from Lee et al. 2009.
         """
-
         u_1_ = self._u_1_Lee09(theta, u, theta_max)
         u_2_ = self._u_2_Lee09(theta, u, theta_max)
 
@@ -928,8 +956,7 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
             raise ValueError('internal error - odd number expected')
 
         theta_max = np.arcsin(rho / u)
-        out = (u + rho) * sqrt((u + rho)**2 + 4.) - \
-            (u - rho) * sqrt((u - rho)**2 + 4.)
+        out = (u + rho) * sqrt((u + rho)**2 + 4.) - (u - rho) * sqrt((u - rho)**2 + 4.)
         vector_1 = np.arange(1., (n / 2 - 1.) + 1)
         vector_2 = np.arange(1., n / 2 + 1)
         arg_1 = 2. * vector_1 * theta_max / n
@@ -949,8 +976,7 @@ class FiniteSourceUniformLee09Magnification(PointSourcePointLensMagnification):
 
         if n % 2 != 0:
             raise ValueError('internal error - odd number expected')
-        out = (u + rho) * sqrt((u + rho)**2 + 4.) - \
-            (u - rho) * sqrt((u - rho)**2 + 4.)
+        out = (u + rho) * sqrt((u + rho)**2 + 4.) - (u - rho) * sqrt((u - rho)**2 + 4.)
         vector_1 = np.arange(1., (n - 1.) + 1)
         vector_2 = np.arange(1., n + 1)
         arg_1 = vector_1 * np.pi / n
@@ -985,7 +1011,7 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
     """
 
     def __init__(self, gamma=None, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._gamma = gamma
         self.n_theta = 90
@@ -1035,14 +1061,13 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
 
         theta = np.linspace(0, theta_max - theta_sub, n_theta)
         integrand_values = np.zeros_like(theta)
-        u_1 = self._u_1_Lee09(theta, u, theta_max)
-        u_1 += u_1_min
+        u_1 = self._u_1_Lee09(theta, u, theta_max) + u_1_min
         u_2 = self._u_2_Lee09(theta, u, theta_max)
 
         size = (len(theta), n_u)
         temp = np.zeros(size)
         temp2 = (np.zeros(size).T + np.cos(theta)).T
-        for (i, (theta_, u_1_, u_2_)) in enumerate(zip(theta, u_1, u_2)):
+        for (i, (u_1_, u_2_)) in enumerate(zip(u_1, u_2)):
             temp[i] = np.linspace(u_1_, u_2_, n_u)
 
         integrand = self._integrand_Lee09_v2(temp, u, temp2)

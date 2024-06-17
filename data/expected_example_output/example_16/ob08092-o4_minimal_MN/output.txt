@@ -1,0 +1,26 @@
+No base for MultiNest output provided.
+  analysing data from /tmp/tmpg1mttuf7_MM_ex16_pyMN/.txt
+Fitted parameters:
+t_0 : 2455379.57355 +0.04378 -0.04495
+u_0 : 0.52433 +0.02391 -0.02398
+t_E : 17.90894 +0.52632 -0.47939
+Fitted fluxes (source and blending):
+flux_s_1 : 1671.28632 +120.60924 -115.99948
+flux_b_1 : 20.43578 +115.86532 -120.43846
+Best model:
+chi2: 427.2156
+t_0 u_0 t_E
+2455379.568547126 0.5244644239705211 17.91612897795413
+Fluxes:
+1671.6530468064864 20.140017295923236
+ *****************************************************
+ MultiNest v3.10
+ Copyright Farhan Feroz & Mike Hobson
+ Release Jul 2015
+
+ no. of live points =  400
+ dimensionality =    3
+ *****************************************************
+ ln(ev)=  -218.65915689734203      +/-   9.4899546309243146E-002
+ Total Likelihood Evaluations:         4372
+ Sampling finished. Exiting MultiNest

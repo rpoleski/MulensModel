@@ -7,8 +7,10 @@ from MulensModel.binarylensimports import (
     _vbbl_binary_mag_dark, _vbbl_binary_mag_finite, _vbbl_binary_mag_point,
     _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 
-import MulensModel as mm
-from MulensModel.pointlens import PointSourcePointLensMagnification
+from MulensModel.pointlens import _PointLensMagnification
+from MulensModel.trajectory import Trajectory
+from MulensModel.utils import Utils
+from MulensModel.version import __version__ as mm_version
 
 
 class BinaryLens(object):
@@ -25,7 +27,7 @@ class BinaryLens(object):
             'variety of classes with inheritance.')
 
 
-class BinaryLensPointSourceMagnification(PointSourcePointLensMagnification):
+class BinaryLensPointSourceMagnification(_PointLensMagnification):
     """
     Equations for calculating point-source--binary-lens magnification.
     This is a placeholder class to establish the basic methods and attributes
@@ -44,7 +46,7 @@ class BinaryLensPointSourceMagnification(PointSourcePointLensMagnification):
     # trajectory) + get_magnification.
 
     def __init__(self, **kwargs):
-        PointSourcePointLensMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._solver = _solver
         self._source_x = None
         self._source_y = None
@@ -135,7 +137,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
     """
 
     def __init__(self, **kwargs):
-        BinaryLensPointSourceMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
         self.mass_1 = 1. / (1. + q)
@@ -197,7 +199,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         zeta = self._zeta
         zeta_conj = zeta.conjugate()
 
-        c_sum = mm.Utils.complex_fsum
+        c_sum = Utils.complex_fsum
 
         z1 = self._position_z1
 
@@ -325,7 +327,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
                 txt += ("\n\nYou try to calculate magnification at huge " +
                         "distance from the source and this is causing an " +
                         "error.")
-            txt += "\nMulensModel version: {:}".format(mm.__version__)
+            txt += "\nMulensModel version: {:}".format(mm_version)
 
             raise ValueError(txt)
 
@@ -372,7 +374,7 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
     """
 
     def __init__(self, **kwargs):
-        BinaryLensPointSourceMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def get_magnification(self):
 
@@ -438,7 +440,7 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
     """
 
     def __init__(self, gamma=None, **kwargs):
-        BinaryLensPointSourceVBBLMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.gamma = gamma
         self._check_rho()
 
@@ -473,8 +475,7 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
             y = self.source_y + dy[i] * radius
             # These values need to be passed to the magnification calculation...
             # out.append(self.point_source_magnification())
-            temp_trajectory = mm.Trajectory(
-                parameters=self.trajectory.parameters, x=x, y=y)
+            temp_trajectory = Trajectory(parameters=self.trajectory.parameters, x=x, y=y)
             ps = BinaryLensPointSourceVBBLMagnification(
                 trajectory=temp_trajectory)
             out.append(ps.get_magnification())
@@ -568,7 +569,7 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
     """
 
     def __init__(self, all_approximations=False, **kwargs):
-        BinaryLensQuadrupoleMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.all_approximations = all_approximations
 
     def get_magnification(self):
@@ -612,8 +613,7 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         for (i, dxval) in enumerate(dx):
             x = self.source_x + dxval * shift
             y = self.source_y + dy[i] * shift
-            temp_trajectory = mm.Trajectory(
-                parameters=self.trajectory.parameters, x=x, y=y)
+            temp_trajectory = Trajectory(parameters=self.trajectory.parameters, x=x, y=y)
             ps = BinaryLensPointSourceVBBLMagnification(
                 trajectory=temp_trajectory)
             out.append(ps.get_magnification())
@@ -653,7 +653,7 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
     """
 
     def __init__(self, u_limb_darkening=None, accuracy=0.001, **kwargs):
-        BinaryLensHexadecapoleMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
@@ -705,7 +705,7 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
             raise ValueError('Only one limb darkening parameters can be set' +
                              ' in BinaryLens.vbbl_magnification()')
         elif self.gamma is not None:
-            out = float(mm.Utils.gamma_to_u(self.gamma))
+            out = float(Utils.gamma_to_u(self.gamma))
         elif u_limb_darkening is not None:
             out = float(u_limb_darkening)
         else:
@@ -762,7 +762,7 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
     """
 
     def __init__(self, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
-        BinaryLensHexadecapoleMagnification.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         # Note that this accuracy is not guaranteed.
         if accuracy <= 0.:
@@ -780,7 +780,7 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
         elif self.gamma is not None:
             self.gamma = float(self.gamma)
         elif u_limb_darkening is not None:
-            self.gamma = float(mm.Utils.u_to_gamma(u_limb_darkening))
+            self.gamma = float(Utils.u_to_gamma(u_limb_darkening))
         else:
             self.gamma = float(0.0)
 
