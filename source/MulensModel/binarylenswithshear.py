@@ -352,7 +352,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
     def _get_polynomial_roots(self):
         """roots of the polynomial"""
         polynomial_input = [
-            self.mass_1, self.mass_2, self.separation, self.convergence_K,
+            self._mass_1, self._mass_2, self._separation, self.convergence_K,
             self.shear_G, self.source_x, self.source_y]
 
         if polynomial_input == self._last_polynomial_input:
@@ -391,8 +391,8 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         roots = self._get_polynomial_roots()
 
         roots_conj = np.conjugate(roots)
-        component2 = self.mass_1 / (roots_conj - self._position_z1)
-        component3 = self.mass_2 / (roots_conj - self._position_z2)
+        component2 = self._mass_1 / (roots_conj - self._position_z1)
+        component3 = self._mass_2 / (roots_conj - self._position_z2)
         solutions = (self._zeta + self.shear_G * roots_conj +
                      component2 + component3) / (1 - self.convergence_K)
 
@@ -419,8 +419,8 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                    "epochs when the source is very far from the lens. Note " +
                    "that it's different from 'point_source' method.")
             txt = msg.format(
-                len(out), repr(self.mass_1), repr(self.mass_2),
-                repr(self.separation), repr(self.source_x), repr(self.source_y),
+                len(out), repr(self._mass_1), repr(self._mass_2),
+                repr(self._separation), repr(self.source_x), repr(self.source_y),
                 self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
@@ -431,8 +431,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                     "Skowron_and_Gould_12 method is selected in automated " +
                     "way if VBBL is imported properly.")
             distance = sqrt(self.source_x**2 + self.source_y**2)
-            if (self.mass_2 > 1.e-6 * self.mass_1 and
-                    (distance < 15. or distance < 2. * self.separation)):
+            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * self._separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
                         "authors and provide the above error message.")
             elif distance > 200.:
@@ -451,8 +450,8 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         """determinants of lens equation Jacobian for verified roots"""
         roots_ok_bar = np.conjugate(self._verify_polynomial_roots())
         # Variable X_bar is conjugate of variable X.
-        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
-        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
+        add_1 = self._mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self._mass_2 / (self._position_z2 - roots_ok_bar)**2
         derivative = add_1 + add_2 - self.shear_G
 
         return (1. - self.convergence_K)**2 - (derivative *
@@ -583,8 +582,8 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
     """
 
     def get_magnification(self):
-        s = float(self.separation)
-        q = float(self.mass_2 / self.mass_1)
+        s = float(self._separation)
+        q = float(self._mass_2 / self._mass_1)
 
         magnification = _vbbl_binary_mag_point_shear(
             s, q, self.source_x, self.source_y, self.convergence_K,
