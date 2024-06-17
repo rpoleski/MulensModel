@@ -7,7 +7,7 @@ from MulensModel.binarylensimports import (
     _vbbl_binary_mag_dark, _vbbl_binary_mag_finite, _vbbl_binary_mag_point,
     _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 
-from MulensModel.pointlens import _PointLensMagnification
+from MulensModel.pointlens import _AbstractMagnification
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils
 from MulensModel.version import __version__ as mm_version
@@ -27,7 +27,7 @@ class BinaryLens(object):
             'variety of classes with inheritance.')
 
 
-class BinaryLensPointSourceMagnification(_PointLensMagnification):
+class BinaryLensPointSourceMagnification(_AbstractMagnification):
     """
     Equations for calculating point-source--binary-lens magnification.
     This is a placeholder class to establish the basic methods and attributes
@@ -46,7 +46,7 @@ class BinaryLensPointSourceMagnification(_PointLensMagnification):
     # trajectory) + get_magnification.
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(trajectory=kwargs['trajectory'])
         self._solver = _solver
         self._source_x = None
         self._source_y = None
