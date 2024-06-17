@@ -43,20 +43,28 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
     """
     def __init__(self, **kwargs):
         super().__init__(trajectory=kwargs['trajectory'])
+        self._q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
         self._solver = _solver
+
         self._source_x = float(self.trajectory.x)
         self._source_y = float(self.trajectory.y)
 
-#    def get_magnification(self):
-#        """
-#        Calculate the magnification
-#
-#        Parameters : None
-#
-#        Returns :
-#            magnification: *float* or *np.ndarray*
-#                The magnification for each point in :py:attr:`~trajectory`.
-#        """
+    def get_magnification(self):
+        """
+        Calculate the magnification
+
+        Parameters : None
+
+        Returns :
+            magnification: *np.ndarray*
+                The magnification for each point in :py:attr:`~trajectory`.
+        """
+        out = []
+        for (x, y, kwargs_) in zip(self._source_x, self._source_y, self._zip_kwargs):
+            out.append(self._get_1_magnification(x, y, **kwargs_))
+
+        self._magnification = np.array(out)
+        return self._magnification
 
 
 class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
@@ -75,20 +83,19 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
-        self._mass_1 = 1. / (1. + q)
-        self._mass_2 = q / (1. + q)
-        self._separation = float(self.trajectory.parameters.s)
-        self._total_mass = None
-        self._mass_difference = None
+        self._mass_1 = 1. / (1. + self._q)
+        self._mass_2 = self._q / (1. + self._q)
+        self._total_mass = 0.5 * (self._mass_1 + self._mass_2)  # This is total_mass in WM95 paper.
+        self._mass_difference = 0.5 * (self._mass_2 - self._mass_1)
+        self._position_z2 = 0. + 0.j
+
         self._position_z1 = None
-        self._position_z2 = None
+        self._separation = float(self.trajectory.parameters.s)
+        x_shift = -self._separation / (1. + self._q)
+        self._source_x = float(self.trajectory.x + x_shift)
 
         self._last_polynomial_input = None
         self._polynomial_roots = None
-
-        x_shift = -self._separation / (1. + q)
-        self._source_x = float(self.trajectory.x + x_shift)
 
     def get_magnification(self):
 
@@ -99,12 +106,6 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             magnification: *float*
                 Point source magnification.
         """
-        # JCY: I think this is wrong:
-        # The origin of the coordinate system is at the center of mass and
-        # both masses are on X axis with higher mass at negative X; this
-        # means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-        # the lower mass is at (s/(1+q), 0).
-
         poly_roots = self._verify_polynomial_roots()
         roots_ok_bar = np.conjugate(poly_roots)
         # Variable X_bar is conjugate of variable X.
@@ -120,17 +121,11 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
 
     def _calculate_variables(self):
         """calculates values of constants needed for polynomial coefficients"""
-        self._total_mass = 0.5 * (self._mass_1 + self._mass_2)
-        # This is total_mass in WM95 paper.
-
-        self._mass_difference = 0.5 * (self._mass_2 - self._mass_1)
         self._zeta = self._source_x + self._source_y * 1.j
         self._position_z1 = -self._separation + 0.j
-        self._position_z2 = 0. + 0.j
 
-    def _get_polynomial(self, ):
+    def _get_polynomial(self):
         """calculate coefficients of the polynomial in planet frame"""
-        # Calculate constants
         self._calculate_variables()
         total_m = self._total_mass
         m_diff = self._mass_difference
@@ -323,8 +318,7 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
         """
         Calculate point source magnification using VBBL fully
         """
-        args = [self.trajectory.parameters.s, self.trajectory.parameters.q,
-                self._source_x, self._source_y]
+        args = [self.trajectory.parameters.s, self._q, self._source_x, self._source_y]
 
         return _vbbl_binary_mag_point(*[float(arg) for arg in args])
 
@@ -595,10 +589,8 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
                 The magnification for each point
                 specified by `u` in :py:attr:`~trajectory`.
         """
-        args = [
-            self.trajectory.parameters.s, self.trajectory.parameters.q,
-            self._source_x, self._source_y, self.trajectory.parameters.rho,
-            self._accuracy]
+        args = [self.trajectory.parameters.s, self._q, self._source_x, self._source_y,
+                self.trajectory.parameters.rho, self._accuracy]
 
         if self._u_limb_darkening is not None:
             args += [self._u_limb_darkening]
@@ -710,7 +702,7 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
                 specified by `u` in :py:attr:`~trajectory`.
         """
         magnification = _adaptive_contouring_linear(
-            self.trajectory.parameters.s, self.trajectory.parameters.q,
+            self.trajectory.parameters.s, self._q,
             self._source_x, self._source_y, self.trajectory.parameters.rho,
             self._gamma, self._accuracy, self._ld_accuracy)
 
