@@ -46,6 +46,8 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
         self._q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
         self._solver = _solver
 
+        # All 3 below are changing with time, so they should be treated properly.
+        self._separations = None
         self._source_x = float(self.trajectory.x)
         self._source_y = float(self.trajectory.y)
 
@@ -60,8 +62,9 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
                 The magnification for each point in :py:attr:`~trajectory`.
         """
         out = []
-        for (x, y, kwargs_) in zip(self._source_x, self._source_y, self._zip_kwargs):
-            out.append(self._get_1_magnification(x, y, **kwargs_))
+        zip_args = [self._source_x, self._source_y, self._separations, self._zip_kwargs]
+        for (x, y, separation, kwargs_) in zip(*zip_args):
+            out.append(self._get_1_magnification(x, y, separation, **kwargs_))
 
         self._magnification = np.array(out)
         return self._magnification
