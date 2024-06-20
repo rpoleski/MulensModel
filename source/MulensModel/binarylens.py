@@ -61,10 +61,16 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
             magnification: *np.ndarray*
                 The magnification for each point in :py:attr:`~trajectory`.
         """
+        zip_args = [self._source_x, self._source_y, self._separations]
+
         out = []
-        zip_args = [self._source_x, self._source_y, self._separations, self._zip_kwargs]
-        for (x, y, separation, kwargs_) in zip(*zip_args):
-            out.append(self._get_1_magnification(x, y, separation, **kwargs_))
+        if self._zip_kwargs is None:
+            for (x, y, separation) in zip(*zip_args):
+                out.append(self._get_1_magnification(x, y, separation))
+        else:
+            zip_args += [self._zip_kwargs]
+            for (x, y, separation, kwargs_) in zip(*zip_args):
+                out.append(self._get_1_magnification(x, y, separation, **kwargs_))
 
         self._magnification = np.array(out)
         return self._magnification
@@ -290,13 +296,21 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._separations = None
-        self._source_x = float(self.trajectory.x)
-        self._source_y = float(self.trajectory.y)
+        self._source_x = self.trajectory.x
+        self._source_y = self.trajectory.y
+        self._separations = self.trajectory.parameters.get_s(self.trajectory.times)
+        if isinstance(self._separations, float):
+            self._separations = self._separations * np.ones(len(self._source_x))
+        self._zip_kwargs = None
 
-    def get_magnification(self):
-
+    def _get_1_magnification(self, x, y, separation):
         """
+        Calculate 1 magnification using VBBL.
+        """
+        return _vbbl_binary_mag_point(float(separation), self._q, float(x), float(y))
+
+"""
+    def get_magnification(self):
         Calculate point source magnification for given position. The
         origin of the coordinate system is at the center of mass and
         both masses are on X axis with higher mass at negative X; this
@@ -306,7 +320,7 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
         Returns :
             magnification: *float*
                 Point source magnification.
-        """
+
         repeat = False
         warnings.warn(
             '_point_source_magnification_VBBL is not implemented correctly!' +
@@ -326,12 +340,12 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
         return magnification
 
     def _point_source_magnification_VBBL(self):
-        """
         Calculate point source magnification using VBBL fully
-        """
+
         args = [self.trajectory.parameters.s, self._q, self._source_x, self._source_y]
 
         return _vbbl_binary_mag_point(*[float(arg) for arg in args])
+"""
 
 
 class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
