@@ -1285,24 +1285,19 @@ class ModelParameters(object):
     @property
     def alpha(self):
         """
-        *astropy.Quantity*
+        *float*
 
         The angle of the source trajectory relative to the binary lens
         axis (or primary-secondary axis). Measured counterclockwise,
         i.e., according to convention advocated by
-        `Skowron et al. 2011 (ApJ, 738, 87)
-        <https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract>`_,
-        but shifted by 180 deg.  May be
-        set as a *float* --> assumes "deg" is the default unit.
-        Regardless of input value, returns value in degrees.
+        `Skowron et al. 2011 (ApJ, 738, 87) <https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract>`_,
+        but shifted by 180 deg.
         """
         if self._type['Cassan08']:
             self._get_standard_parameters_from_Cassan08()
-            return self._standard_parameters['alpha'] * u.deg
+            return self._standard_parameters['alpha']
 
-        if not isinstance(self.parameters['alpha'], u.Quantity):
-            self.parameters['alpha'] = self.parameters['alpha'] * u.deg
-        return self.parameters['alpha'].to(u.deg)
+        return self.parameters['alpha']
 
     @alpha.setter
     def alpha(self, new_alpha):
@@ -1614,46 +1609,29 @@ class ModelParameters(object):
     @property
     def ds_dt(self):
         """
-        *astropy.Quantity*
+        *float*
 
-        Change rate of separation :py:attr:`~s` in 1/year. Can be set as
-        *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
-        Regardless of input value, returns value in 1/year.
+        Change rate of separation :py:attr:`~s` in 1/year.
         """
-        if not isinstance(self.parameters['ds_dt'], u.Quantity):
-            self.parameters['ds_dt'] = self.parameters['ds_dt'] / u.yr
-
-        return self.parameters['ds_dt'].to(1 / u.yr)
+        return self.parameters['ds_dt']
 
     @ds_dt.setter
     def ds_dt(self, new_ds_dt):
-        if isinstance(new_ds_dt, u.Quantity):
-            self.parameters['ds_dt'] = new_ds_dt
-        else:
-            self.parameters['ds_dt'] = new_ds_dt / u.yr
+        self.parameters['ds_dt'] = new_ds_dt
         self._update_sources('ds_dt', new_ds_dt)
 
     @property
     def dalpha_dt(self):
         """
-        *astropy.Quantity*
+        *float*
 
-        Change rate of angle :py:attr:`~alpha` in deg/year. Can be set as
-        *AstroPy.Quantity* or as *float* (deg/year is assumed default unit).
-        Regardless of input value, returns value in deg/year.
+        Change rate of angle :py:attr:`~alpha` in deg/year. 
         """
-        if not isinstance(self.parameters['dalpha_dt'], u.Quantity):
-            self.parameters['dalpha_dt'] = (self.parameters['dalpha_dt'] *
-                                            u.deg / u.yr)
-
-        return self.parameters['dalpha_dt'].to(u.deg / u.yr)
+        return self.parameters['dalpha_dt']
 
     @dalpha_dt.setter
     def dalpha_dt(self, new_dalpha_dt):
-        if isinstance(new_dalpha_dt, u.Quantity):
-            self.parameters['dalpha_dt'] = new_dalpha_dt
-        else:
-            self.parameters['dalpha_dt'] = new_dalpha_dt * u.deg / u.yr
+        self.parameters['dalpha_dt'] = new_dalpha_dt
         self._update_sources('dalpha_dt', new_dalpha_dt)
 
     @property
@@ -2081,7 +2059,7 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        s_of_t = (self.s + self.ds_dt * (epoch - self.t_0_kep) * u.d).value
+        s_of_t = self.s + self.ds_dt * (epoch - self.t_0_kep) / 365.25
 
         return s_of_t
 
@@ -2095,7 +2073,7 @@ class ModelParameters(object):
                 The time(s) at which to calculate :py:attr:`~alpha`.
 
         Returns :
-            separation: *astropy.Quantity*
+            angle: *float*
                 Value(s) of angle for given epochs in degrees
 
         """
@@ -2105,15 +2083,14 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        alpha_of_t = (self.alpha + self.dalpha_dt *
-                      (epoch - self.t_0_kep) * u.d)
+        alpha_of_t = self.alpha + self.dalpha_dt * (epoch - self.t_0_kep) / 365.25
 
-        return alpha_of_t.to(u.deg)
+        return alpha_of_t
 
     @property
     def gamma_parallel(self):
         """
-        *astropy.Quantity*
+        *float*
 
         Parallel component of instantaneous velocity of the secondary
         relative to the primary in 1/year.
@@ -2125,14 +2102,14 @@ class ModelParameters(object):
     @property
     def gamma_perp(self):
         """
-        *astropy.Quantity*
+        *float*
 
         Perpendicular component of instantaneous velocity of the secondary
         relative to the primary. It is perpendicular to the primary-secondary
         axis. It has sign opposite to :py:attr:`~dalpha_dt`
         and is in rad/yr, not deg/yr. Cannot be set.
         """
-        return -self.dalpha_dt.to(u.rad / u.yr)
+        return -self.dalpha_dt * (np.pi / 180.)
 
     @property
     def gamma(self):
@@ -2142,8 +2119,7 @@ class ModelParameters(object):
         Instantaneous velocity of the secondary relative to the primary in
         1/year. Cannot be set.
         """
-        gamma_perp = (self.gamma_perp / u.rad).to(1 / u.yr)
-        return (self.gamma_parallel**2 + gamma_perp**2)**0.5
+        return (self.gamma_parallel**2 + self.gamma_perp**2)**0.5
 
     def is_finite_source(self):
         """

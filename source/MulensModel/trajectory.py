@@ -199,12 +199,9 @@ class Trajectory(object):
             vector_x = vector_tau
             vector_y = vector_u
         elif n_lenses == 2 or (n_lenses == 1 and is_mass_sheet):
-            if self.parameters.is_static():
-                sin_alpha = np.sin(self.parameters.alpha).value
-                cos_alpha = np.cos(self.parameters.alpha).value
-            else:
-                sin_alpha = np.sin(self.parameters.get_alpha(self.times)).value
-                cos_alpha = np.cos(self.parameters.get_alpha(self.times)).value
+            alpha = self.parameters.get_alpha(self.times) * (np.pi / 180)
+            sin_alpha = np.sin(alpha)
+            cos_alpha = np.cos(alpha)
 
             vector_x = vector_tau * cos_alpha - vector_u * sin_alpha
             vector_y = vector_tau * sin_alpha + vector_u * cos_alpha
