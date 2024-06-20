@@ -47,9 +47,9 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
         self._solver = _solver
 
         # All 3 below are changing with time, so they should be treated properly.
-        self._separations = None
-        self._source_x = float(self.trajectory.x)
-        self._source_y = float(self.trajectory.y)
+        #self._separations = None
+        #self._source_x = float(self.trajectory.x)
+        #self._source_y = float(self.trajectory.y)
 
     def get_magnification(self):
         """
@@ -85,6 +85,10 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self._separations = None
+        self._source_x = float(self.trajectory.x)
+        self._source_y = float(self.trajectory.y)
 
         self._mass_1 = 1. / (1. + self._q)
         self._mass_2 = self._q / (1. + self._q)
@@ -285,6 +289,10 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self._separations = None
+        self._source_x = float(self.trajectory.x)
+        self._source_y = float(self.trajectory.y)
 
     def get_magnification(self):
 
