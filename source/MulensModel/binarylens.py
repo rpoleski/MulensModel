@@ -281,6 +281,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             return np.array(out)
 
 
+# XXX - the line below is not currently true, i.e., it has to be coded - see commented get_magnification() below.
 # This is the primary PointSource Calculation
 class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification):
     """
@@ -310,6 +311,8 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
         return _vbbl_binary_mag_point(float(separation), self._q, float(x), float(y))
 
 """
+XXX - left commented because of the call to BinaryLensPointSourceWM95Magnification that is not currently run.
+
     def get_magnification(self):
         Calculate point source magnification for given position. The
         origin of the coordinate system is at the center of mass and
@@ -549,7 +552,26 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         return 0.25 * fsum(out) - self.point_source_magnification
 
 
-class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
+class _LimbDarkeningForMagnification(object):
+    # XXX
+    def _set_LD_coeffs(self, u_limb_darkening, gamma):
+        """
+        Set both u and gamma LD coeffs based on info provided
+        """
+        if u_limb_darkening is None and gamma is None:
+            self._u_limb_darkening = None
+            self._gamma = None
+        elif gamma is not None and u_limb_darkening is not None:
+            raise ValueError('Only one limb darkening parameter can be set for magnification calculations')
+        elif gamma is None:
+            self._u_limb_darkening = float(u_limb_darkening)
+            self._gamma = Utils.u_to_gamma(self._u_limb_darkening)
+        else:
+            self._gamma = float(gamma)
+            self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
+
+
+class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
     """
     Binary lens finite source magnification calculated using VBBL
     library that implements advanced contour integration algorithm
@@ -569,7 +591,7 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
         gamma: *float*, optional
             Linear limb-darkening coefficient in gamma convention.
 
-        u_limb_darkening: *float*
+        u_limb_darkening: *float*, optional
             Linear limb-darkening coefficient in u convention.
             Note that either *gamma* or *u_limb_darkening* can be
             set.  If neither of them is provided then limb
@@ -580,64 +602,35 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
 
     """
 
-    def __init__(self, u_limb_darkening=None, accuracy=0.001, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.001, **kwargs):
         super().__init__(**kwargs)
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
+
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
                 "\n{:} was  provided".format(accuracy))
+        self._accuracy = float(accuracy)
 
         if not _vbbl_wrapped:
             raise ValueError('VBBL was not imported properly')
 
-        self._u_limb_darkening = self._get_u(u_limb_darkening)
         if self._u_limb_darkening is None:
             self._vbbl_function = _vbbl_binary_mag_finite
         else:
             self._vbbl_function = _vbbl_binary_mag_dark
 
-        if accuracy <= 0.:
-            raise ValueError(
-                "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
-                "\n{:} was  provided".format(accuracy))
-        else:
-            self._accuracy = float(accuracy)
+        self._rho = float(self.trajectory.parameters.rho)
 
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
         """
-        Calculate the magnification
-
-        Parameters : None
-
-        Returns :
-            magnification: *float* or *np.ndarray*
-                The magnification for each point
-                specified by `u` in :py:attr:`~trajectory`.
+        Calculate 1 magnification using VBBL.
         """
-        args = [self.trajectory.parameters.s, self._q, self._source_x, self._source_y,
-                self.trajectory.parameters.rho, self._accuracy]
-
+        args = [float(separation), self._q, float(x), float(y), self._rho, self._accuracy]
         if self._u_limb_darkening is not None:
             args += [self._u_limb_darkening]
 
         return self._vbbl_function(*args)
-
-    def _get_u(self, u_limb_darkening):
-        """
-        Check if one one parameter is defined, extract the u value,
-        and make sure it's a float.
-        """
-        if self._gamma is not None and u_limb_darkening is not None:
-            raise ValueError('Only one limb darkening parameters can be set' +
-                             ' in BinaryLens.vbbl_magnification()')
-        elif self._gamma is not None:
-            out = float(Utils.gamma_to_u(self._gamma))
-        elif u_limb_darkening is not None:
-            out = float(u_limb_darkening)
-        else:
-            out = None
-
-        return out
 
 
 class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnification):
