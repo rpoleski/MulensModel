@@ -79,8 +79,7 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
 class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification following
-    the `Witt & Mao 1995, ApJL, 447, L105
-    <https://ui.adsabs.harvard.edu/abs/1995ApJ...447L.105W/abstract>`_
+    the `Witt & Mao 1995, ApJL, 447, L105 <https://ui.adsabs.harvard.edu/abs/1995ApJ...447L.105W/abstract>`_
     prescription assuming a POINT source.
 
     Arguments :
@@ -103,6 +102,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         self._position_z2 = 0. + 0.j
 
         self._position_z1 = None
+        # XXX - 3 lines below - see also above
         self._separation = float(self.trajectory.parameters.s)
         x_shift = -self._separation / (1. + self._q)
         self._source_x = float(self.trajectory.x + x_shift)
