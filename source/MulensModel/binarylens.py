@@ -411,8 +411,7 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
             # These values need to be passed to the magnification calculation...
             # out.append(self.point_source_magnification())
             temp_trajectory = Trajectory(parameters=self.trajectory.parameters, x=x, y=y)
-            ps = BinaryLensPointSourceVBBLMagnification(
-                trajectory=temp_trajectory)
+            ps = BinaryLensPointSourceVBBLMagnification(trajectory=temp_trajectory)
             out.append(ps.get_magnification())
 
         print('out', out)
@@ -641,7 +640,8 @@ class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbD
         return self._vbbl_function(*args)
 
 
-class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnification, _LimbDarkeningForMagnification):
+# XXX - strange inheritance below; should be change to BinaryLensPointSourceMagnification when self._source_x etc. are moved
+class BinaryLensAdaptiveContouringMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
     """
     Binary lens finite source magnification calculated using
     Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
@@ -690,8 +690,7 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
 
     def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
         super().__init__(**kwargs)
-        self._source_x = float(-self.trajectory.x)
-        self._source_y = float(-self.trajectory.y)
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
 
         # Note that this accuracy is not guaranteed.
         if accuracy <= 0.:
@@ -702,25 +701,18 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
 
-        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
-
+        self._rho = float(self.trajectory.parameters.rho)
         self._accuracy = float(accuracy)
         self._ld_accuracy = float(ld_accuracy)
 
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
         """
-        Calculate the magnification
-
-        Parameters : None
-
-        Returns :
-            magnification: *float* or *np.ndarray*
-                The magnification for each point
-                specified by `u` in :py:attr:`~trajectory`.
+        Calculate 1 magnification using AC.
         """
-        magnification = _adaptive_contouring_linear(
-            self.trajectory.parameters.s, self._q,
-            self._source_x, self._source_y, self.trajectory.parameters.rho,
-            self._gamma, self._accuracy, self._ld_accuracy)
+        # XXX transformation done below has to be moved:
+        x *= -1
+        y *= -1
 
-        return magnification
+        args = [float(separation), self._q, float(x), float(y), self._rho, self._gamma, self._accuracy, self._ld_accuracy]
+        return _adaptive_contouring_linear(*args)
+
