@@ -310,6 +310,7 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
         """
         return _vbbl_binary_mag_point(float(separation), self._q, float(x), float(y))
 
+
 """
 XXX - left commented because of the call to BinaryLensPointSourceWM95Magnification that is not currently run.
 
@@ -554,15 +555,22 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
 
 class _LimbDarkeningForMagnification(object):
     # XXX
-    def _set_LD_coeffs(self, u_limb_darkening, gamma):
+    def _set_LD_coeffs(self, u_limb_darkening, gamma, default_gamma=None):
         """
-        Set both u and gamma LD coeffs based on info provided
+        Set both u and gamma LD coeffs based on info provided.
+
+        default_gamma should be None or 0.
         """
-        if u_limb_darkening is None and gamma is None:
-            self._u_limb_darkening = None
-            self._gamma = None
-        elif gamma is not None and u_limb_darkening is not None:
+        if gamma is not None and u_limb_darkening is not None:
             raise ValueError('Only one limb darkening parameter can be set for magnification calculations')
+        elif u_limb_darkening is None and gamma is None:
+            if default_gamma is None:
+                self._gamma = None
+                self._u_limb_darkening = None
+            else:
+                self._gamma = default_gamma
+                self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
+
         elif gamma is None:
             self._u_limb_darkening = float(u_limb_darkening)
             self._gamma = Utils.u_to_gamma(self._u_limb_darkening)
@@ -633,7 +641,7 @@ class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbD
         return self._vbbl_function(*args)
 
 
-class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnification):
+class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnification, _LimbDarkeningForMagnification):
     """
     Binary lens finite source magnification calculated using
     Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
@@ -680,7 +688,7 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
 
     """
 
-    def __init__(self, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
         super().__init__(**kwargs)
         self._source_x = float(-self.trajectory.x)
         self._source_y = float(-self.trajectory.y)
@@ -694,16 +702,7 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
 
-        if self._gamma is not None and u_limb_darkening is not None:
-            raise ValueError(
-                'Only one limb darkening parameter can be set' +
-                ' in BinaryLens.adaptive_contouring_magnification()')
-        elif self._gamma is not None:
-            self._gamma = float(self._gamma)
-        elif u_limb_darkening is not None:
-            self._gamma = float(Utils.u_to_gamma(u_limb_darkening))
-        else:
-            self._gamma = float(0.0)
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
 
         self._accuracy = float(accuracy)
         self._ld_accuracy = float(ld_accuracy)
