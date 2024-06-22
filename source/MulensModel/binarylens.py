@@ -76,6 +76,32 @@ class BinaryLensPointSourceMagnification(_AbstractMagnification):
         return self._magnification
 
 
+class _LimbDarkeningForMagnification(object):
+    # XXX
+    def _set_LD_coeffs(self, u_limb_darkening, gamma, default_gamma=None):
+        """
+        Set both u and gamma LD coeffs based on info provided.
+
+        default_gamma should be None or 0.
+        """
+        if gamma is not None and u_limb_darkening is not None:
+            raise ValueError('Only one limb darkening parameter can be set for magnification calculations')
+        elif u_limb_darkening is None and gamma is None:
+            if default_gamma is None:
+                self._gamma = None
+                self._u_limb_darkening = None
+            else:
+                self._gamma = default_gamma
+                self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
+
+        elif gamma is None:
+            self._u_limb_darkening = float(u_limb_darkening)
+            self._gamma = Utils.u_to_gamma(self._u_limb_darkening)
+        else:
+            self._gamma = float(gamma)
+            self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
+
+
 class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification following
@@ -357,7 +383,7 @@ XXX - left commented because of the call to BinaryLensPointSourceWM95Magnificati
 """
 
 
-class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
+class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
     """
     Magnification in quadrupole approximation of the
     binary-lens/finite-source event - based on `Gould 2008 ApJ
@@ -379,15 +405,15 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
 
     """
 
-    def __init__(self, gamma=None, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, **kwargs):
         super().__init__(**kwargs)
-        self._gamma = gamma
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
         self._check_rho()
 
         self._point_source_magnification = None
         self._quadupole_magnification = None
 
-    def _check_rho(self):
+    def _check_rho(self): # XXX move to inherited class?
         """
         Check if rho is float and positive.
         """
@@ -555,32 +581,6 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
             out.append(ps.get_magnification())
 
         return 0.25 * fsum(out) - self.point_source_magnification
-
-
-class _LimbDarkeningForMagnification(object):
-    # XXX
-    def _set_LD_coeffs(self, u_limb_darkening, gamma, default_gamma=None):
-        """
-        Set both u and gamma LD coeffs based on info provided.
-
-        default_gamma should be None or 0.
-        """
-        if gamma is not None and u_limb_darkening is not None:
-            raise ValueError('Only one limb darkening parameter can be set for magnification calculations')
-        elif u_limb_darkening is None and gamma is None:
-            if default_gamma is None:
-                self._gamma = None
-                self._u_limb_darkening = None
-            else:
-                self._gamma = default_gamma
-                self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
-
-        elif gamma is None:
-            self._u_limb_darkening = float(u_limb_darkening)
-            self._gamma = Utils.u_to_gamma(self._u_limb_darkening)
-        else:
-            self._gamma = float(gamma)
-            self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
 
 
 class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
