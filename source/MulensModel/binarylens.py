@@ -193,9 +193,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         """roots of the polynomial"""
         # ***Casting to float speeds-up code for np.float input.***
 
-        polynomial_input = [self._mass_1, self._mass_2, self._separation,
-                            self._source_x, self._source_y]
-
+        polynomial_input = [self._mass_1, self._mass_2, self._separation, self._zeta]
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
 
