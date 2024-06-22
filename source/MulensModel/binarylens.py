@@ -385,10 +385,8 @@ XXX - left commented because of the call to BinaryLensPointSourceWM95Magnificati
 
 class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
     """
-    Magnification in quadrupole approximation of the
-    binary-lens/finite-source event - based on `Gould 2008 ApJ
-    681, 1593
-    <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
+    Magnification in quadrupole approximation of the binary-lens/finite-source event - based on
+    `Gould 2008 ApJ 681, 1593 <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
 
     The origin of the coordinate system is at the center of mass and
     both masses are on X axis with higher mass at negative X; this
@@ -408,6 +406,7 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
     def __init__(self, gamma=None, u_limb_darkening=None, **kwargs):
         super().__init__(**kwargs)
         self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
+        self._rho = float(self.trajectory.parameters.rho)
         self._check_rho()
 
         self._point_source_magnification = None
@@ -417,17 +416,10 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
         """
         Check if rho is float and positive.
         """
-        rho = self.trajectory.parameters.rho
-        if rho is None:
-            raise TypeError(
-                'rho must be positive float, but None was provided')
-        if not isinstance(rho, float):
-            raise TypeError(
-                'rho must be positive float, but ' + str(rho) +
-                str(type(rho)) + ' was provided')
-        if rho < 0:
-            raise ValueError(
-                'rho must be positive, got: {:}'.format(rho))
+        if self._rho is None:
+            raise TypeError('rho must be positive float, but None was provided')
+        if self._rho < 0:
+            raise ValueError('rho must be positive, got: {:}'.format(self._rho))
 
     def _get_magnification_w_plus(self, radius):
         """Evaluates Gould (2008) eq. 7"""
@@ -460,9 +452,8 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
                 specified by `u` in :py:attr:`~trajectory`.
         """
         # In this function, variables named a_* depict magnification.
-        rho = self.trajectory.parameters.rho
-        self._a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * rho)
-        self._a_rho_plus = self._get_magnification_w_plus(radius=rho)
+        self._a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * self._rho)
+        self._a_rho_plus = self._get_magnification_w_plus(radius=self._rho)
         print('a_rho_half', self._a_rho_half_plus)
         print('a_rho', self._a_rho_plus)
 
@@ -474,8 +465,7 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
         print('gamma', self._gamma)
 
         # Gould 2008 eq. 6 (part 1/2):
-        self._quadupole_magnification = (
-            self.point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma))
+        self._quadupole_magnification = self.point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma)
 
         # At this point is quadrupole approximation is finished
         return self._quadupole_magnification
@@ -510,13 +500,10 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
 
 class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
     """
-    Magnification in hexadecapole approximation of the
-    binary-lens/finite-source event - based on `Gould 2008 ApJ
-    681, 1593
-    <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
+    Magnification in hexadecapole approximation of the binary-lens/finite-source event - based on
+    `Gould 2008 ApJ 681, 1593 <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
 
-    For coordinate system convention see
-    :py:class:`BinaryLensQuadrupoleMagnification`
+    For coordinate system convention see :py:class:`BinaryLensQuadrupoleMagnification`
 
     Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
@@ -526,11 +513,9 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         gamma: *float*
             Linear limb-darkening coefficient in gamma convention.
 
-
         all_approximations: *boolean*, optional
             If *True, return hexadecapole, quadrupole, and point source
             approximations. Default is *False*.
-
     """
 
     def __init__(self, all_approximations=False, **kwargs):
