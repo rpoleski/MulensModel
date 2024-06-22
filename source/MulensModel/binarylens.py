@@ -139,7 +139,6 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         self._last_polynomial_input = None
         self._polynomial_roots = None
 
-#    def get_magnification(self):
     def _get_1_magnification(self, x, y, separation):
 
         """
@@ -149,8 +148,6 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             magnification: *float*
                 Point source magnification.
         """
-        #self._source_x = float(x - separation / (1. + self._q))
-        #self._source_y = float(y)
         x = float(x - separation / (1. + self._q))
         y = float(y)
         self._separation = float(separation) # XXX
@@ -230,7 +227,6 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             self._polynomial_roots = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
             args = polynomial.real.tolist() + polynomial.imag.tolist()
-            print(args)
             try:
                 out = _vbbl_SG12_5(*args)
             except ValueError as err:
@@ -421,26 +417,19 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
         if self._rho < 0:
             raise ValueError('rho must be positive, got: {:}'.format(self._rho))
 
-    def _get_magnification_w_plus(self, radius):
+    def _get_magnification_w_plus(self, radius, x, y, separation):
         """Evaluates Gould (2008) eq. 7"""
-
         dx = [1., 0., -1., 0.]
         dy = [0., 1., 0., -1.]
         out = []
-        for (i, dxval) in enumerate(dx):
-            # Does this use the correct X, Y origin? Should it be traj.x instead?
-            x = self._source_x + dxval * radius
-            y = self._source_y + dy[i] * radius
-            # These values need to be passed to the magnification calculation...
-            # out.append(self.point_source_magnification())
-            temp_trajectory = Trajectory(parameters=self.trajectory.parameters, x=x, y=y)
-            ps = BinaryLensPointSourceVBBLMagnification(trajectory=temp_trajectory)
-            out.append(ps.get_magnification())
+        for (dx_, dy_) in zip(dx, dy):
+            xx = x + dx_ * radius
+            yy = y + dy_ * radius
+            out.append(super()._get_1_magnification(x=xx, y=yy, separation=separation))
 
-        print('out', out)
-        return 0.25 * fsum(out) - self.point_source_magnification
+        return 0.25 * fsum(out) - self._point_source_magnification
 
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
         """
         Calculate the magnification
 
@@ -452,50 +441,21 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
                 specified by `u` in :py:attr:`~trajectory`.
         """
         # In this function, variables named a_* depict magnification.
-        self._a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * self._rho)
-        self._a_rho_plus = self._get_magnification_w_plus(radius=self._rho)
-        print('a_rho_half', self._a_rho_half_plus)
-        print('a_rho', self._a_rho_plus)
+        self._point_source_magnification = super()._get_1_magnification(x=x, y=y, separation=separation)
+        self._a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * self._rho, x=x, y=y, separation=separation)
+        self._a_rho_plus = self._get_magnification_w_plus(radius=self._rho, x=x, y=y, separation=separation)
 
         # This is Gould 2008 eq. 9:
         self._a_2_rho_square = (16. * self._a_rho_half_plus - self._a_rho_plus) / 3.
 
-        print('a_center', self.point_source_magnification)
-        print('a2', self._a_2_rho_square)
-        print('gamma', self._gamma)
-
         # Gould 2008 eq. 6 (part 1/2):
-        self._quadupole_magnification = self.point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma)
+        self._quadrupole_magnification = self._point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma)
 
-        # At this point is quadrupole approximation is finished
-        return self._quadupole_magnification
+        return self._quadrupole_magnification
 
-    @property
-    def point_source_magnification(self):
-        """
-        *float*
-
-        Magnification for a point source from
-        :py:func:`~BinaryLensPointSourceVBBLMagnification.get_magnification()`
-        """
-        if self._point_source_magnification is None:
-            self._point_source_magnification = \
-                BinaryLensPointSourceVBBLMagnification.get_magnification(self)
-
-        return self._point_source_magnification
-
-    @property
-    def quadrupole_magnification(self):
-        """
-        *float*
-
-        Magnification from the quadrupole approximation
-        """
-
-        if self._quadupole_magnification is None:
-            self.get_magnification()
-
-        return self._quadupole_magnification
+# XXX - do we want to keep that?
+#    @property
+#    def quadrupole_magnification(self):
 
 
 class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
@@ -522,14 +482,11 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         super().__init__(**kwargs)
         self._all_approximations = all_approximations
 
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
         """
         Calculate the magnification
 
-        Parameters : None
-
         Returns :
-
             magnification: *float* or *sequence* of three *floats*
                 Hexadecapole approximation (*float*) by default.
                 If :py:attr:`all_approximations` is *True*, returns
@@ -537,9 +494,9 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
                 (*sequence* of three *floats*)
         """
         # In this function, variables named a_* depict magnification.
-        a_quadrupole = BinaryLensQuadrupoleMagnification.get_magnification(self)
+        a_quadrupole = super()._get_1_magnification(x=x, y=y, separation=separation)
 
-        a_rho_times = self._get_magnification_w_times()
+        a_rho_times = self._get_magnification_w_times(x=x, y=y, separation=separation)
 
         # This is Gould (2008) eq. 9:
         a_4_rho_power4 = 0.5 * (self._a_rho_plus + a_rho_times) - self._a_2_rho_square
@@ -548,24 +505,23 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         a_hexadecapole = a_quadrupole + a_add
 
         if self._all_approximations:
-            return (a_hexadecapole, self.quadrupole_magnification, self.point_source_magnification)
+            return (a_hexadecapole, self._quadrupole_magnification, self._point_source_magnification)
         else:
             return a_hexadecapole
 
-    def _get_magnification_w_times(self):
+    def _get_magnification_w_times(self, x, y, separation):
         """Evaluates Gould (2008) eq. 8"""
-        shift = self.trajectory.parameters.rho / sqrt(2.)
+        shift = self._rho / sqrt(2.)
         dx = [1., -1., -1., 1.]
         dy = [1., 1., -1., -1.]
         out = []
-        for (i, dxval) in enumerate(dx):
-            x = self._source_x + dxval * shift
-            y = self._source_y + dy[i] * shift
-            temp_trajectory = Trajectory(parameters=self.trajectory.parameters, x=x, y=y)
-            ps = BinaryLensPointSourceVBBLMagnification(trajectory=temp_trajectory)
-            out.append(ps.get_magnification())
+        for (dx_, dy_) in zip(dx, dy):
+            xx = x + dx_ * shift
+            yy = y + dy_ * shift
+            # XXX - I don't like this kind of "inheritance"; probably there should be _get_point_source() method in VBBL
+            out.append(BinaryLensPointSourceVBBLMagnification._get_1_magnification(self, x=xx, y=yy, separation=separation))
 
-        return 0.25 * fsum(out) - self.point_source_magnification
+        return 0.25 * fsum(out) - self._point_source_magnification
 
 
 class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
