@@ -91,9 +91,12 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._separations = None
-        self._source_x = float(self.trajectory.x)
-        self._source_y = float(self.trajectory.y)
+        self._source_x = self.trajectory.x
+        self._source_y = self.trajectory.y
+        self._separations = self.trajectory.parameters.get_s(self.trajectory.times)
+        if isinstance(self._separations, float):
+            self._separations = self._separations * np.ones(len(self._source_x))
+        self._zip_kwargs = None
 
         self._mass_1 = 1. / (1. + self._q)
         self._mass_2 = self._q / (1. + self._q)
@@ -103,14 +106,15 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
 
         self._position_z1 = None
         # XXX - 3 lines below - see also above
-        self._separation = float(self.trajectory.parameters.s)
-        x_shift = -self._separation / (1. + self._q)
-        self._source_x = float(self.trajectory.x + x_shift)
+        #self._separation = float(self.trajectory.parameters.s)
+        #x_shift = -self._separation / (1. + self._q)
+        #self._source_x = float(self.trajectory.x + x_shift)
 
         self._last_polynomial_input = None
         self._polynomial_roots = None
 
-    def get_magnification(self):
+#    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
 
         """
         Calculate point-source--binary-lens magnification.
@@ -119,6 +123,15 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             magnification: *float*
                 Point source magnification.
         """
+        #self._source_x = float(x - separation / (1. + self._q))
+        #self._source_y = float(y)
+        x = float(x - separation / (1. + self._q))
+        y = float(y)
+        self._separation = float(separation) # XXX
+
+        self._zeta = x + y * 1.j
+        self._position_z1 = -separation + 0.j
+
         poly_roots = self._verify_polynomial_roots()
         roots_ok_bar = np.conjugate(poly_roots)
         # Variable X_bar is conjugate of variable X.
@@ -132,14 +145,8 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
 
         return magnification
 
-    def _calculate_variables(self):
-        """calculates values of constants needed for polynomial coefficients"""
-        self._zeta = self._source_x + self._source_y * 1.j
-        self._position_z1 = -self._separation + 0.j
-
     def _get_polynomial(self):
         """calculate coefficients of the polynomial in planet frame"""
-        self._calculate_variables()
         total_m = self._total_mass
         m_diff = self._mass_difference
         zeta = self._zeta
@@ -715,4 +722,3 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensPointSourceVBBLMagnifi
 
         args = [float(separation), self._q, float(x), float(y), self._rho, self._gamma, self._accuracy, self._ld_accuracy]
         return _adaptive_contouring_linear(*args)
-
