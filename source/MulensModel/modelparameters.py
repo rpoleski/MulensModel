@@ -1305,12 +1305,14 @@ class ModelParameters(object):
             raise ValueError('alpha cannot be set for model using ' +
                              'Cassan (2008) parameterization')
 
-        if isinstance(new_alpha, u.Quantity):
-            self.parameters['alpha'] = new_alpha
-        else:
-            self.parameters['alpha'] = new_alpha * u.deg
+        self.parameters['alpha'] = new_alpha
+# XXX only float input
+#        if isinstance(new_alpha, u.Quantity): 
+#            self.parameters['alpha'] = new_alpha
+#        else:
+#            self.parameters['alpha'] = new_alpha * u.deg
         self._warn_if_angle_outside_reasonable_range(
-            self.parameters['alpha'].to(u.deg).value, 'alpha')
+            self.parameters['alpha'], 'alpha')
         self._update_sources('alpha', new_alpha)
 
     def _warn_if_angle_outside_reasonable_range(self, value, name):
