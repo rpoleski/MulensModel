@@ -392,8 +392,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         roots_conj = np.conjugate(roots)
         component2 = self._mass_1 / (roots_conj - self._position_z1)
         component3 = self._mass_2 / (roots_conj - self._position_z2)
-        solutions = (self._zeta + self.shear_G * roots_conj +
-                     component2 + component3) / (1 - self.convergence_K)
+        solutions = (self._zeta + self.shear_G * roots_conj + component2 + component3) / (1 - self.convergence_K)
 
         out = []
         distances = []
@@ -448,11 +447,9 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
     def _get_jacobian_determinant(self):
         """determinants of lens equation Jacobian for verified roots"""
         roots_ok_bar = np.conjugate(self._verify_polynomial_roots())
-        # Variable X_bar is conjugate of variable X.
         add_1 = self._mass_1 / (self._position_z1 - roots_ok_bar)**2
         add_2 = self._mass_2 / (self._position_z2 - roots_ok_bar)**2
         derivative = add_1 + add_2 - self.shear_G
-
         return (1. - self.convergence_K)**2 - derivative * np.conjugate(derivative)
 
 

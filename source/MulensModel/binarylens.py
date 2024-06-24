@@ -155,18 +155,19 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         self._zeta = x + y * 1.j
         self._position_z1 = -separation + 0.j
 
-        poly_roots = self._verify_polynomial_roots()
-        roots_ok_bar = np.conjugate(poly_roots)
-        # Variable X_bar is conjugate of variable X.
-        add_1 = self._mass_1 / (self._position_z1 - roots_ok_bar)**2
-        add_2 = self._mass_2 / (self._position_z2 - roots_ok_bar)**2
-        derivative = add_1 + add_2
-
-        jacobian_determinant = 1. - derivative * np.conjugate(derivative)
+        jacobian_determinant = self._get_jacobian_determinant()
         signed_magnification = 1. / jacobian_determinant
         magnification = fsum(abs(signed_magnification))
 
         return magnification
+
+    def _get_jacobian_determinant(self):
+        """determinants of lens equation Jacobian for verified roots"""
+        roots_ok_bar = np.conjugate(self._verify_polynomial_roots())
+        add_1 = self._mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self._mass_2 / (self._position_z2 - roots_ok_bar)**2
+        derivative = add_1 + add_2
+        return 1. - derivative * np.conjugate(derivative)
 
     def _get_polynomial(self):
         """calculate coefficients of the polynomial in planet frame"""
