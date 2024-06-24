@@ -394,6 +394,31 @@ class TestFiniteSourceUniformGould94Magnification(
 
         return fspl_factor_b0
 
+    def test_get_d_u_d_params(self):
+        super().test_get_d_u_d_params()
+
+        param = 'rho'
+        for mag_obj in self.mag_objs:
+            du_dparam = mag_obj.get_d_u_d_params(param)
+            np.testing.assert_allclose(du_dparam[param], 0., rtol=0.015)
+
+    def test_get_d_A_d_u(self):
+        for (nob_indices, mag_obj, gamma) in zip(
+                self.sfit_files['62'].sfit_nob_indices, self.mag_objs,
+        self.gammas):
+
+            dA_du = mag_obj.get_d_A_d_u()
+
+            _sfit_A_PSPL = ((self.sfit_files['63'].amp[nob_indices] -
+                            gamma * self.sfit_files['63'].b1) /
+                           self.sfit_files['63'].b0)
+            _b1_deriv = (self.sfit_files['63'].b1[nob_indices] *
+                         self.sfit_files['62'].dAdu[nob_indices] +
+                         self.sfit_files['61'].db1 * _sfit_A_PSPL)
+            sfit_dA_du = self.sfit_files['62'].dAdu[nob_indices] - gamma * _b1_deriv
+
+            np.testing.assert_allclose(dA_du, sfit_dA_du, rtol=0.015)
+
     def test_get_d_A_d_params(self):
         """
         df/dparams = fs * dA/dparams (FSPL)
