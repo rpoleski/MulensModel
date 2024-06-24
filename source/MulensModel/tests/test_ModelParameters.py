@@ -772,18 +772,21 @@ def test_xallarap_n_sources():
     assert model_4.n_sources == 1
 
 
-def test_2S1L_xallarap_individual_source_parameters():
+def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     """
     Make sure that parameters of both sources are properly set.
-    Most importantly, xi_u is shifted by 180 deg and xi_a is scaled by
-    q_source.
+    Most importantly, xi_u is shifted by 180 deg and xi_a is scaled by q_source.
     """
     q_source = 1.23456
     parameters_1st = {**xallarap_parameters}
+    parameters_1st['xi_argument_of_latitude_reference'] = xi_u
 
     parameters_2nd = {**parameters_1st}
     parameters_2nd['xi_semimajor_axis'] /= q_source
-    parameters_2nd['xi_argument_of_latitude_reference'] += 180.
+    if xi_u < 180:
+        parameters_2nd['xi_argument_of_latitude_reference'] += 180.
+    else:
+        parameters_2nd['xi_argument_of_latitude_reference'] -= 180.
 
     parameters = {'q_source': q_source, **parameters_1st}
     model = mm.ModelParameters(parameters)
@@ -794,6 +797,20 @@ def test_2S1L_xallarap_individual_source_parameters():
 
     assert check_1st == parameters_1st
     assert check_2nd == parameters_2nd
+
+
+def test_2S1L_xallarap_individual_source_parameters_1():
+    """
+    Make sure xi_u is increased by 180 for small input.
+    """
+    _test_2S1L_xallarap_individual_source_parameters(xi_u=8.642)
+
+
+def test_2S1L_xallarap_individual_source_parameters_2():
+    """
+    Make sure xi_u is increased by 180 for large input.
+    """
+    _test_2S1L_xallarap_individual_source_parameters(xi_u=234.567)
 
 
 tested_keys_3 = tested_keys_2 + ['q_source']
