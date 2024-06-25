@@ -398,19 +398,23 @@ class TestFiniteSourceUniformGould94Magnification(
         super().test_get_d_u_d_params()
 
     def test_get_d_A_d_u(self):
+        """
+        sfit returns: FSPL:
+            61 dA/drho
+            62 df/dparams, dAdu
+        """
         for (nob_indices, mag_obj, gamma) in zip(
                 self.sfit_files['62'].sfit_nob_indices, self.mag_objs,
         self.gammas):
 
             dA_du = mag_obj.get_d_A_d_u()
 
-            _sfit_A_PSPL = ((self.sfit_files['63'].amp[nob_indices] -
-                            gamma * self.sfit_files['63'].b1[nob_indices]) /
-                           self.sfit_files['63'].b0[nob_indices])
             _b1_deriv = (self.sfit_files['63'].b1[nob_indices] *
                          self.sfit_files['62'].dAdu[nob_indices] +
-                         self.sfit_files['61'].db1[nob_indices] * _sfit_A_PSPL)
-            sfit_dA_du = self.sfit_files['62'].dAdu[nob_indices] - gamma * _b1_deriv
+                         self.sfit_files['61'].db1[nob_indices] *
+                         self.sfit_files['63'].amp[nob_indices])
+            sfit_dA_du = self.sfit_files['63'].b0[nob_indices] * self.sfit_files['62'].dAdu[nob_indices]
+            gamma * _b1_deriv
 
             np.testing.assert_allclose(dA_du, sfit_dA_du, rtol=0.015)
 
@@ -588,6 +592,9 @@ class TestFiniteSourceLDYoo04Magnification(
                 mag_obj.magnification[mag_test_indices],
                 self.sfit_files['61'].mag[nob_indices][mag_test_indices],
                 rtol=0.005)
+
+    def test_get_d_A_d_u(self):
+        assert 1 == 2
 
     def test_get_d_A_d_params(self):
         """
