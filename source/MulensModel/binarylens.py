@@ -7,7 +7,7 @@ from MulensModel.binarylensimports import (
     _vbbl_binary_mag_dark, _vbbl_binary_mag_finite, _vbbl_binary_mag_point,
     _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 
-from MulensModel.pointlens import _PointLensMagnification
+from MulensModel.pointlens import _AbstractMagnification
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils
 from MulensModel.version import __version__ as mm_version
@@ -27,7 +27,7 @@ class BinaryLens(object):
             'variety of classes with inheritance.')
 
 
-class BinaryLensPointSourceMagnification(_PointLensMagnification):
+class BinaryLensPointSourceMagnification(_AbstractMagnification):
     """
     Equations for calculating point-source--binary-lens magnification.
     This is a placeholder class to establish the basic methods and attributes
@@ -41,15 +41,15 @@ class BinaryLensPointSourceMagnification(_PointLensMagnification):
             :py:class:`~MulensModel.modelparameters.ModelParameters`
 
     """
-    # JCY Note: Maybe the above comment means that there should be a parent
-    # class called "MagnificationObject" that has only the basic init (with
-    # trajectory) + get_magnification.
-
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(trajectory=kwargs['trajectory'])
+        self._q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
         self._solver = _solver
-        self._source_x = None
-        self._source_y = None
+
+        # All 3 below are changing with time, so they should be treated properly.
+        #self._separations = None
+        #self._source_x = float(self.trajectory.x)
+        #self._source_y = float(self.trajectory.y)
 
     def get_magnification(self):
         """
@@ -58,76 +58,54 @@ class BinaryLensPointSourceMagnification(_PointLensMagnification):
         Parameters : None
 
         Returns :
-            magnification: *float* or *np.ndarray*
-                The magnification for each point
-                specified by `u` in :py:attr:`~trajectory`.
+            magnification: *np.ndarray*
+                The magnification for each point in :py:attr:`~trajectory`.
         """
-        raise NotImplementedError(
-            'This is a placeholder class. Use the child classes.')
+        zip_args = [self._source_x, self._source_y, self._separations]
 
-    def get_d_A_d_params(self, parameters):
+        out = []
+        if self._zip_kwargs is None:
+            for (x, y, separation) in zip(*zip_args):
+                out.append(self._get_1_magnification(x, y, separation))
+        else:
+            zip_args += [self._zip_kwargs]
+            for (x, y, separation, kwargs_) in zip(*zip_args):
+                out.append(self._get_1_magnification(x, y, separation, **kwargs_))
+
+        self._magnification = np.array(out)
+        return self._magnification
+
+
+class _LimbDarkeningForMagnification(object):
+    # XXX
+    def _set_LD_coeffs(self, u_limb_darkening, gamma, default_gamma=None):
         """
-        Derivative calculations Not Implemented for BinaryLenses
+        Set both u and gamma LD coeffs based on info provided.
+
+        default_gamma should be None or 0.
         """
-        raise NotImplementedError(
-            'Derivative calculations Not Implemented for BinaryLenses')
+        if gamma is not None and u_limb_darkening is not None:
+            raise ValueError('Only one limb darkening parameter can be set for magnification calculations')
+        elif u_limb_darkening is None and gamma is None:
+            if default_gamma is None:
+                self._gamma = None
+                self._u_limb_darkening = None
+            else:
+                self._gamma = default_gamma
+                self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
 
-    def get_d_u_d_params(self, parameters):
-        """
-        Derivative calculations Not Implemented for BinaryLenses
-        """
-        raise NotImplementedError(
-            'Derivative calculations Not Implemented for BinaryLenses')
-
-    def get_d_A_d_u(self):
-        """
-        Derivative calculations Not Implemented for BinaryLenses
-        """
-        raise NotImplementedError(
-            'Derivative calculations Not Implemented for BinaryLenses')
-
-    @property
-    def source_x(self):
-        """
-        *float*(*np.array*)
-
-        The X position of the source in the reference frame used for the
-        magnification calculation.
-        """
-        if self._source_x is None:
-            print('traj.x', self.trajectory.x)
-            print('type', type(self.trajectory.x))
-            self._source_x = float(self.trajectory.x)
-
-        return self._source_x
-
-    @source_x.setter
-    def source_x(self, value):
-        self._source_x = value
-
-    @property
-    def source_y(self):
-        """
-        *float*(*np.array*)
-
-        The Y position of the source in the reference frame used for the
-        magnification calculation.
-        """
-        if self._source_y is None:
-            self._source_y = float(self.trajectory.y)
-
-        return self._source_y
-
-    @source_y.setter
-    def source_y(self, value):
-        self._source_y = value
+        elif gamma is None:
+            self._u_limb_darkening = float(u_limb_darkening)
+            self._gamma = Utils.u_to_gamma(self._u_limb_darkening)
+        else:
+            self._gamma = float(gamma)
+            self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
 
 
 class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification following
-    the `Witt & Mao 1995, ApJL, 447, L105
-    <https://ui.adsabs.harvard.edu/abs/1995ApJ...447L.105W/abstract>`_
+    the `Witt & Mao 1995, ApJL, 447, L105 <https://ui.adsabs.harvard.edu/abs/1995ApJ...447L.105W/abstract>`_
     prescription assuming a POINT source.
 
     Arguments :
@@ -139,19 +117,29 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
-        self.mass_1 = 1. / (1. + q)
-        self.mass_2 = q / (1. + q)
-        self.separation = float(self.trajectory.parameters.s)
-        self._total_mass = None
-        self._mass_difference = None
+        self._source_x = self.trajectory.x
+        self._source_y = self.trajectory.y
+        self._separations = self.trajectory.parameters.get_s(self.trajectory.times)
+        if isinstance(self._separations, float):
+            self._separations = self._separations * np.ones(len(self._source_x))
+        self._zip_kwargs = None
+
+        self._mass_1 = 1. / (1. + self._q)
+        self._mass_2 = self._q / (1. + self._q)
+        self._total_mass = 0.5 * (self._mass_1 + self._mass_2)  # This is total_mass in WM95 paper.
+        self._mass_difference = 0.5 * (self._mass_2 - self._mass_1)
+        self._position_z2 = 0. + 0.j
+
         self._position_z1 = None
-        self._position_z2 = None
+        # XXX - 3 lines below - see also above
+        #self._separation = float(self.trajectory.parameters.s)
+        #x_shift = -self._separation / (1. + self._q)
+        #self._source_x = float(self.trajectory.x + x_shift)
 
         self._last_polynomial_input = None
         self._polynomial_roots = None
 
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
 
         """
         Calculate point-source--binary-lens magnification.
@@ -160,40 +148,29 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             magnification: *float*
                 Point source magnification.
         """
-        # JCY: I think this is wrong:
-        # The origin of the coordinate system is at the center of mass and
-        # both masses are on X axis with higher mass at negative X; this
-        # means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-        # the lower mass is at (s/(1+q), 0).
+        x = float(x - separation / (1. + self._q))
+        y = float(y)
+        self._separation = float(separation) # XXX
 
-        poly_roots = self._verify_polynomial_roots()
-        roots_ok_bar = np.conjugate(poly_roots)
-        # Variable X_bar is conjugate of variable X.
-        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
-        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
-        derivative = add_1 + add_2
+        self._zeta = x + y * 1.j
+        self._position_z1 = -separation + 0.j
 
-        jacobian_determinant = 1. - derivative * np.conjugate(derivative)
+        jacobian_determinant = self._get_jacobian_determinant()
         signed_magnification = 1. / jacobian_determinant
         magnification = fsum(abs(signed_magnification))
 
         return magnification
 
-    def _calculate_variables(self):
-        """calculates values of constants needed for polynomial coefficients"""
-        self._total_mass = 0.5 * (self.mass_1 + self.mass_2)
-        # This is total_mass in WM95 paper.
+    def _get_jacobian_determinant(self):
+        """determinants of lens equation Jacobian for verified roots"""
+        roots_ok_bar = np.conjugate(self._verify_polynomial_roots())
+        add_1 = self._mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self._mass_2 / (self._position_z2 - roots_ok_bar)**2
+        derivative = add_1 + add_2
+        return 1. - derivative * np.conjugate(derivative)
 
-        self._mass_difference = 0.5 * (self.mass_2 - self.mass_1)
-
-        self._zeta = self.source_x + self.source_y * 1.j
-        self._position_z1 = -self.separation + 0.j
-        self._position_z2 = 0. + 0.j
-
-    def _get_polynomial(self, ):
+    def _get_polynomial(self):
         """calculate coefficients of the polynomial in planet frame"""
-        # Calculate constants
-        self._calculate_variables()
         total_m = self._total_mass
         m_diff = self._mass_difference
         zeta = self._zeta
@@ -240,9 +217,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         """roots of the polynomial"""
         # ***Casting to float speeds-up code for np.float input.***
 
-        polynomial_input = [self.mass_1, self.mass_2, self.separation,
-                            self.source_x, self.source_y]
-
+        polynomial_input = [self._mass_1, self._mass_2, self._separation, self._zeta]
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
 
@@ -253,7 +228,6 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
             self._polynomial_roots = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
             args = polynomial.real.tolist() + polynomial.imag.tolist()
-            print(args)
             try:
                 out = _vbbl_SG12_5(*args)
             except ValueError as err:
@@ -279,8 +253,8 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         # self._position_z1.imag = 0 and same for z2.
         roots_conj = np.conjugate(roots)
         solutions = (self._zeta +
-                     self.mass_1 / (roots_conj - self._position_z1) +
-                     self.mass_2 / (roots_conj - self._position_z2))
+                     self._mass_1 / (roots_conj - self._position_z1) +
+                     self._mass_2 / (roots_conj - self._position_z2))
         # This backs-up the lens equation.
 
         out = []
@@ -306,9 +280,9 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
                    "epochs when the source is very far from the lens. Note " +
                    "that it's different from 'point_source' method.")
             txt = msg.format(
-                len(out), repr(self.mass_1), repr(self.mass_2),
-                repr(self.separation), repr(self.source_x),
-                repr(self.source_y),
+                len(out), repr(self._mass_1), repr(self._mass_2),
+                repr(self._separation), repr(self._source_x),
+                repr(self._source_y),
                 self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
@@ -318,15 +292,13 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
                         "numpy.polynomial.polynomial.polyroots(). " +
                         "Skowron_and_Gould_12 method is selected in automated " +
                         "way if VBBL is imported properly.")
-            distance = sqrt(self.source_x**2 + self.source_y**2)
-            if (self.mass_2 > 1.e-6 * self.mass_1 and
-                    (distance < 15. or distance < 2. * self.separation)):
+            distance = sqrt(self._source_x**2 + self._source_y**2)
+            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * self._separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
                         "authors and provide the above error message.")
             elif distance > 200.:
                 txt += ("\n\nYou try to calculate magnification at huge " +
-                        "distance from the source and this is causing an " +
-                        "error.")
+                        "distance from the source and this is causing an error.")
             txt += "\nMulensModel version: {:}".format(mm_version)
 
             raise ValueError(txt)
@@ -336,31 +308,8 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
         else:
             return np.array(out)
 
-    @property
-    def source_x(self):
-        """
-        *float*(*np.array*)
 
-        The X position of the source relative to [INSERT CORRECT REFERENCE
-        FRAME].
-        """
-        # We need to add this because in order to shift to correct frame.
-        # x_shift = -self.mass_1 / (self.mass_1 + self.mass_2)
-        #
-        # Is this correct?
-        # WM95 frame appears to be with origin = s/2,
-        # so dx = s(0.5 - q/1+q)) != -1 / (1+q) ?
-        if self._source_x is None:
-            x_shift = -1. / (1. + self.trajectory.parameters.q)
-            x_shift *= self.separation
-            print('traj.x', self.trajectory.x)
-            print('type(traj.x)', type(self.trajectory.x))
-            print('x_shift', x_shift)
-            self._source_x = float(self.trajectory.x + x_shift)
-
-        return self._source_x
-
-
+# XXX - the line below is not currently true, i.e., it has to be coded - see commented get_magnification() below.
 # This is the primary PointSource Calculation
 class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification):
     """
@@ -376,9 +325,24 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def get_magnification(self):
+        self._source_x = self.trajectory.x
+        self._source_y = self.trajectory.y
+        self._separations = self.trajectory.parameters.get_s(self.trajectory.times)
+        if isinstance(self._separations, float):
+            self._separations = self._separations * np.ones(len(self._source_x))
+        self._zip_kwargs = None
 
+    def _get_1_magnification(self, x, y, separation):
         """
+        Calculate 1 magnification using VBBL.
+        """
+        return _vbbl_binary_mag_point(float(separation), self._q, float(x), float(y))
+
+
+"""
+XXX - left commented because of the call to BinaryLensPointSourceWM95Magnification that is not currently run.
+
+    def get_magnification(self):
         Calculate point source magnification for given position. The
         origin of the coordinate system is at the center of mass and
         both masses are on X axis with higher mass at negative X; this
@@ -388,7 +352,7 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
         Returns :
             magnification: *float*
                 Point source magnification.
-        """
+
         repeat = False
         warnings.warn(
             '_point_source_magnification_VBBL is not implemented correctly!' +
@@ -408,21 +372,18 @@ class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification)
         return magnification
 
     def _point_source_magnification_VBBL(self):
-        """
         Calculate point source magnification using VBBL fully
-        """
-        args = [self.trajectory.parameters.s, self.trajectory.parameters.q,
-                self.source_x, self.source_y]
+
+        args = [self.trajectory.parameters.s, self._q, self._source_x, self._source_y]
 
         return _vbbl_binary_mag_point(*[float(arg) for arg in args])
+"""
 
 
-class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
+class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
     """
-    Magnification in quadrupole approximation of the
-    binary-lens/finite-source event - based on `Gould 2008 ApJ
-    681, 1593
-    <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
+    Magnification in quadrupole approximation of the binary-lens/finite-source event - based on
+    `Gould 2008 ApJ 681, 1593 <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
 
     The origin of the coordinate system is at the center of mass and
     both masses are on X axis with higher mass at negative X; this
@@ -439,51 +400,37 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
 
     """
 
-    def __init__(self, gamma=None, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, **kwargs):
         super().__init__(**kwargs)
-        self.gamma = gamma
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
+        self._rho = float(self.trajectory.parameters.rho)
         self._check_rho()
 
         self._point_source_magnification = None
         self._quadupole_magnification = None
 
-    def _check_rho(self):
+    def _check_rho(self): # XXX move to inherited class?
         """
         Check if rho is float and positive.
         """
-        rho = self.trajectory.parameters.rho
-        if rho is None:
-            raise TypeError(
-                'rho must be positive float, but None was provided')
-        if not isinstance(rho, float):
-            raise TypeError(
-                'rho must be positive float, but ' + str(rho) +
-                str(type(rho)) + ' was provided')
-        if rho < 0:
-            raise ValueError(
-                'rho must be positive, got: {:}'.format(rho))
+        if self._rho is None:
+            raise TypeError('rho must be positive float, but None was provided')
+        if self._rho < 0:
+            raise ValueError('rho must be positive, got: {:}'.format(self._rho))
 
-    def _get_magnification_w_plus(self, radius):
+    def _get_magnification_w_plus(self, radius, x, y, separation):
         """Evaluates Gould (2008) eq. 7"""
-
         dx = [1., 0., -1., 0.]
         dy = [0., 1., 0., -1.]
         out = []
-        for (i, dxval) in enumerate(dx):
-            # Does this use the correct X, Y origin? Should it be traj.x instead?
-            x = self.source_x + dxval * radius
-            y = self.source_y + dy[i] * radius
-            # These values need to be passed to the magnification calculation...
-            # out.append(self.point_source_magnification())
-            temp_trajectory = Trajectory(parameters=self.trajectory.parameters, x=x, y=y)
-            ps = BinaryLensPointSourceVBBLMagnification(
-                trajectory=temp_trajectory)
-            out.append(ps.get_magnification())
+        for (dx_, dy_) in zip(dx, dy):
+            xx = x + dx_ * radius
+            yy = y + dy_ * radius
+            out.append(super()._get_1_magnification(x=xx, y=yy, separation=separation))
 
-        print('out', out)
-        return 0.25 * fsum(out) - self.point_source_magnification
+        return 0.25 * fsum(out) - self._point_source_magnification
 
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
         """
         Calculate the magnification
 
@@ -495,63 +442,29 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification):
                 specified by `u` in :py:attr:`~trajectory`.
         """
         # In this function, variables named a_* depict magnification.
-        rho = self.trajectory.parameters.rho
-        self.a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * rho)
-        self.a_rho_plus = self._get_magnification_w_plus(radius=rho)
-        print('a_rho_half', self.a_rho_half_plus)
-        print('a_rho', self.a_rho_plus)
+        self._point_source_magnification = super()._get_1_magnification(x=x, y=y, separation=separation)
+        self._a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * self._rho, x=x, y=y, separation=separation)
+        self._a_rho_plus = self._get_magnification_w_plus(radius=self._rho, x=x, y=y, separation=separation)
 
         # This is Gould 2008 eq. 9:
-        self.a_2_rho_square = (16. * self.a_rho_half_plus - self.a_rho_plus) / 3.
-
-        print('a_center', self.point_source_magnification)
-        print('a2', self.a_2_rho_square)
-        print('gamma', self.gamma)
+        self._a_2_rho_square = (16. * self._a_rho_half_plus - self._a_rho_plus) / 3.
 
         # Gould 2008 eq. 6 (part 1/2):
-        self._quadupole_magnification = (
-            self.point_source_magnification + self.a_2_rho_square * (1. - 0.2 * self.gamma))
+        self._quadrupole_magnification = self._point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma)
 
-        # At this point is quadrupole approximation is finished
-        return self._quadupole_magnification
+        return self._quadrupole_magnification
 
-    @property
-    def point_source_magnification(self):
-        """
-        *float*
-
-        Magnification for a point source from
-        :py:func:`~BinaryLensPointSourceVBBLMagnification.get_magnification()`
-        """
-        if self._point_source_magnification is None:
-            self._point_source_magnification = \
-                BinaryLensPointSourceVBBLMagnification.get_magnification(self)
-
-        return self._point_source_magnification
-
-    @property
-    def quadrupole_magnification(self):
-        """
-        *float*
-
-        Magnification from the quadrupole approximation
-        """
-
-        if self._quadupole_magnification is None:
-            self.get_magnification()
-
-        return self._quadupole_magnification
+# XXX - do we want to keep that?
+#    @property
+#    def quadrupole_magnification(self):
 
 
 class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
     """
-    Magnification in hexadecapole approximation of the
-    binary-lens/finite-source event - based on `Gould 2008 ApJ
-    681, 1593
-    <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
+    Magnification in hexadecapole approximation of the binary-lens/finite-source event - based on
+    `Gould 2008 ApJ 681, 1593 <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
 
-    For coordinate system convention see
-    :py:class:`BinaryLensQuadrupoleMagnification`
+    For coordinate system convention see :py:class:`BinaryLensQuadrupoleMagnification`
 
     Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
@@ -561,25 +474,20 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         gamma: *float*
             Linear limb-darkening coefficient in gamma convention.
 
-
         all_approximations: *boolean*, optional
             If *True, return hexadecapole, quadrupole, and point source
             approximations. Default is *False*.
-
     """
 
     def __init__(self, all_approximations=False, **kwargs):
         super().__init__(**kwargs)
-        self.all_approximations = all_approximations
+        self._all_approximations = all_approximations
 
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
         """
         Calculate the magnification
 
-        Parameters : None
-
         Returns :
-
             magnification: *float* or *sequence* of three *floats*
                 Hexadecapole approximation (*float*) by default.
                 If :py:attr:`all_approximations` is *True*, returns
@@ -587,41 +495,37 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
                 (*sequence* of three *floats*)
         """
         # In this function, variables named a_* depict magnification.
-        a_quadrupole = BinaryLensQuadrupoleMagnification.get_magnification(self)
+        a_quadrupole = super()._get_1_magnification(x=x, y=y, separation=separation)
 
-        a_rho_times = self._get_magnification_w_times()
+        a_rho_times = self._get_magnification_w_times(x=x, y=y, separation=separation)
 
         # This is Gould (2008) eq. 9:
-        a_4_rho_power4 = (0.5 * (self.a_rho_plus + a_rho_times) -
-                          self.a_2_rho_square)
+        a_4_rho_power4 = 0.5 * (self._a_rho_plus + a_rho_times) - self._a_2_rho_square
         # This is Gould (2008) eq. 6 (part 2/2):
-        a_add = a_4_rho_power4 * (1. - 11. * self.gamma / 35.)
+        a_add = a_4_rho_power4 * (1. - 11. * self._gamma / 35.)
         a_hexadecapole = a_quadrupole + a_add
 
-        if self.all_approximations:
-            return (a_hexadecapole, self.quadrupole_magnification,
-                    self.point_source_magnification)
+        if self._all_approximations:
+            return (a_hexadecapole, self._quadrupole_magnification, self._point_source_magnification)
         else:
             return a_hexadecapole
 
-    def _get_magnification_w_times(self):
+    def _get_magnification_w_times(self, x, y, separation):
         """Evaluates Gould (2008) eq. 8"""
-        shift = self.trajectory.parameters.rho / sqrt(2.)
+        shift = self._rho / sqrt(2.)
         dx = [1., -1., -1., 1.]
         dy = [1., 1., -1., -1.]
         out = []
-        for (i, dxval) in enumerate(dx):
-            x = self.source_x + dxval * shift
-            y = self.source_y + dy[i] * shift
-            temp_trajectory = Trajectory(parameters=self.trajectory.parameters, x=x, y=y)
-            ps = BinaryLensPointSourceVBBLMagnification(
-                trajectory=temp_trajectory)
-            out.append(ps.get_magnification())
+        for (dx_, dy_) in zip(dx, dy):
+            xx = x + dx_ * shift
+            yy = y + dy_ * shift
+            # XXX - I don't like this kind of "inheritance"; probably there should be _get_point_source() method in VBBL
+            out.append(BinaryLensPointSourceVBBLMagnification._get_1_magnification(self, x=xx, y=yy, separation=separation))
 
-        return 0.25 * fsum(out) - self.point_source_magnification
+        return 0.25 * fsum(out) - self._point_source_magnification
 
 
-class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
+class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
     """
     Binary lens finite source magnification calculated using VBBL
     library that implements advanced contour integration algorithm
@@ -641,7 +545,7 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
         gamma: *float*, optional
             Linear limb-darkening coefficient in gamma convention.
 
-        u_limb_darkening: *float*
+        u_limb_darkening: *float*, optional
             Linear limb-darkening coefficient in u convention.
             Note that either *gamma* or *u_limb_darkening* can be
             set.  If neither of them is provided then limb
@@ -652,69 +556,39 @@ class BinaryLensVBBLMagnification(BinaryLensHexadecapoleMagnification):
 
     """
 
-    def __init__(self, u_limb_darkening=None, accuracy=0.001, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.001, **kwargs):
         super().__init__(**kwargs)
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
+
         if accuracy <= 0.:
             raise ValueError(
                 "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
                 "\n{:} was  provided".format(accuracy))
+        self._accuracy = float(accuracy)
 
         if not _vbbl_wrapped:
             raise ValueError('VBBL was not imported properly')
 
-        self.u_limb_darkening = self._get_u(u_limb_darkening)
-        if self.u_limb_darkening is None:
+        if self._u_limb_darkening is None:
             self._vbbl_function = _vbbl_binary_mag_finite
         else:
             self._vbbl_function = _vbbl_binary_mag_dark
 
-        if accuracy <= 0.:
-            raise ValueError(
-                "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
-                "\n{:} was  provided".format(accuracy))
-        else:
-            self.accuracy = float(accuracy)
+        self._rho = float(self.trajectory.parameters.rho)
 
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
         """
-        Calculate the magnification
-
-        Parameters : None
-
-        Returns :
-            magnification: *float* or *np.ndarray*
-                The magnification for each point
-                specified by `u` in :py:attr:`~trajectory`.
+        Calculate 1 magnification using VBBL.
         """
-        args = [
-            self.trajectory.parameters.s, self.trajectory.parameters.q,
-            self.source_x, self.source_y, self.trajectory.parameters.rho,
-            self.accuracy]
-
-        if self.u_limb_darkening is not None:
-            args += [self.u_limb_darkening]
+        args = [float(separation), self._q, float(x), float(y), self._rho, self._accuracy]
+        if self._u_limb_darkening is not None:
+            args += [self._u_limb_darkening]
 
         return self._vbbl_function(*args)
 
-    def _get_u(self, u_limb_darkening):
-        """
-        Check if one one parameter is defined, extract the u value,
-        and make sure it's a float.
-        """
-        if self.gamma is not None and u_limb_darkening is not None:
-            raise ValueError('Only one limb darkening parameters can be set' +
-                             ' in BinaryLens.vbbl_magnification()')
-        elif self.gamma is not None:
-            out = float(Utils.gamma_to_u(self.gamma))
-        elif u_limb_darkening is not None:
-            out = float(u_limb_darkening)
-        else:
-            out = None
 
-        return out
-
-
-class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnification):
+# XXX - strange inheritance below; should be change to BinaryLensPointSourceMagnification when self._source_x etc. are moved
+class BinaryLensAdaptiveContouringMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
     """
     Binary lens finite source magnification calculated using
     Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
@@ -761,8 +635,9 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
 
     """
 
-    def __init__(self, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
         super().__init__(**kwargs)
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
 
         # Note that this accuracy is not guaranteed.
         if accuracy <= 0.:
@@ -773,62 +648,17 @@ class BinaryLensAdaptiveContouringMagnification(BinaryLensHexadecapoleMagnificat
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
 
-        if self.gamma is not None and u_limb_darkening is not None:
-            raise ValueError(
-                'Only one limb darkening parameter can be set' +
-                ' in BinaryLens.adaptive_contouring_magnification()')
-        elif self.gamma is not None:
-            self.gamma = float(self.gamma)
-        elif u_limb_darkening is not None:
-            self.gamma = float(Utils.u_to_gamma(u_limb_darkening))
-        else:
-            self.gamma = float(0.0)
+        self._rho = float(self.trajectory.parameters.rho)
+        self._accuracy = float(accuracy)
+        self._ld_accuracy = float(ld_accuracy)
 
-        self.accuracy = float(accuracy)
-        self.ld_accuracy = float(ld_accuracy)
-
-    def get_magnification(self):
+    def _get_1_magnification(self, x, y, separation):
         """
-        Calculate the magnification
-
-        Parameters : None
-
-        Returns :
-            magnification: *float* or *np.ndarray*
-                The magnification for each point
-                specified by `u` in :py:attr:`~trajectory`.
+        Calculate 1 magnification using AC.
         """
-        magnification = _adaptive_contouring_linear(
-            self.trajectory.parameters.s, self.trajectory.parameters.q,
-            self.source_x, self.source_y, self.trajectory.parameters.rho,
-            self.gamma, self.accuracy, self.ld_accuracy)
+        # XXX transformation done below has to be moved:
+        x *= -1
+        y *= -1
 
-        return magnification
-
-    @property
-    def source_x(self):
-        """
-        *float*(*np.array*)
-
-        The X position of the source in AdaptiveContouring convention: X -> -X
-        """
-        # AdaptiveContouring uses different coordinates conventions,
-        # so we have to transform the coordinates below.
-        if self._source_x is None:
-            self._source_x = float(-self.trajectory.x)
-
-        return self._source_x
-
-    @property
-    def source_y(self):
-        """
-        *float*(*np.array*)
-
-        The Y position of the source in AdaptiveContouring convention: Y -> -Y
-        """
-        # AdaptiveContouring uses different coordinates conventions,
-        # so we have to transform the coordinates below.
-        if self._source_y is None:
-            self._source_y = float(-self.trajectory.y)
-
-        return self._source_y
+        args = [float(separation), self._q, float(x), float(y), self._rho, self._gamma, self._accuracy, self._ld_accuracy]
+        return _adaptive_contouring_linear(*args)

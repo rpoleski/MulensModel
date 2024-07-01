@@ -49,13 +49,12 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
     """
 
     def __init__(self, convergence_K=None, shear_G=None, **kwargs):
-        BinaryLensPointSourceWM95Magnification.__init__(self, **kwargs)
-        self.convergence_K = convergence_K
-        self.shear_G = shear_G
+        super().__init__(**kwargs)
+        self.convergence_K = float(convergence_K)
+        self.shear_G = float(shear_G.real) + float(shear_G.imag) * 1.j
 
     def _get_polynomial(self):
         """calculate coefficients of the polynomial in planet frame"""
-        self._calculate_variables()
         total_m = self._total_mass
         total_m_pow2 = total_m * total_m
         total_m_pow3 = total_m * total_m_pow2
@@ -352,8 +351,8 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
     def _get_polynomial_roots(self):
         """roots of the polynomial"""
         polynomial_input = [
-            self.mass_1, self.mass_2, self.separation, self.convergence_K,
-            self.shear_G, self.source_x, self.source_y]
+            self._mass_1, self._mass_2, self._separation, self.convergence_K,
+            self.shear_G, self._source_x, self._source_y]
 
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
@@ -391,10 +390,9 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         roots = self._get_polynomial_roots()
 
         roots_conj = np.conjugate(roots)
-        component2 = self.mass_1 / (roots_conj - self._position_z1)
-        component3 = self.mass_2 / (roots_conj - self._position_z2)
-        solutions = (self._zeta + self.shear_G * roots_conj +
-                     component2 + component3) / (1 - self.convergence_K)
+        component2 = self._mass_1 / (roots_conj - self._position_z1)
+        component3 = self._mass_2 / (roots_conj - self._position_z2)
+        solutions = (self._zeta + self.shear_G * roots_conj + component2 + component3) / (1 - self.convergence_K)
 
         out = []
         distances = []
@@ -419,8 +417,8 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                    "epochs when the source is very far from the lens. Note " +
                    "that it's different from 'point_source' method.")
             txt = msg.format(
-                len(out), repr(self.mass_1), repr(self.mass_2),
-                repr(self.separation), repr(self.source_x), repr(self.source_y),
+                len(out), repr(self._mass_1), repr(self._mass_2),
+                repr(self._separation), repr(self._source_x), repr(self._source_y),
                 self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
@@ -430,9 +428,8 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                     "numpy.polynomial.polynomial.polyroots(). " +
                     "Skowron_and_Gould_12 method is selected in automated " +
                     "way if VBBL is imported properly.")
-            distance = sqrt(self.source_x**2 + self.source_y**2)
-            if (self.mass_2 > 1.e-6 * self.mass_1 and
-                    (distance < 15. or distance < 2. * self.separation)):
+            distance = sqrt(self._source_x**2 + self._source_y**2)
+            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * self._separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
                         "authors and provide the above error message.")
             elif distance > 200.:
@@ -450,13 +447,10 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
     def _get_jacobian_determinant(self):
         """determinants of lens equation Jacobian for verified roots"""
         roots_ok_bar = np.conjugate(self._verify_polynomial_roots())
-        # Variable X_bar is conjugate of variable X.
-        add_1 = self.mass_1 / (self._position_z1 - roots_ok_bar)**2
-        add_2 = self.mass_2 / (self._position_z2 - roots_ok_bar)**2
+        add_1 = self._mass_1 / (self._position_z1 - roots_ok_bar)**2
+        add_2 = self._mass_2 / (self._position_z2 - roots_ok_bar)**2
         derivative = add_1 + add_2 - self.shear_G
-
-        return (1. - self.convergence_K)**2 - (derivative *
-                                               np.conjugate(derivative))
+        return (1. - self.convergence_K)**2 - derivative * np.conjugate(derivative)
 
 
 class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPointSourceWithShearWM95Magnification):
@@ -473,7 +467,6 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPoint
         """
         calculate coefficients of the polynomial in geometric center frame
         """
-        self._calculate_variables()
         total_m = self._total_mass
         total_m_pow2 = total_m * total_m
 
@@ -581,31 +574,21 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
     make sure you know what you're doing before you start using this
     possibility.
     """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-    def get_magnification(self):
-        s = float(self.separation)
-        q = float(self.mass_2 / self.mass_1)
+    def _get_1_magnification(self, x, y, separation):
 
         magnification = _vbbl_binary_mag_point_shear(
-            s, q, self.source_x, self.source_y, self.convergence_K,
-            self.shear_G.real,
-            self.shear_G.imag)
+            float(separation), self._q, float(x), float(y), self.convergence_K,
+            self.shear_G.real, self.shear_G.imag)
 
         if magnification < 1.:
-            msg = (
-                "error in BinaryLensWithShear.point_source_magnification()\n"
-                "input:\n")
-            params = [s, q, self.source_x, self.source_y, self.convergence_K, self.shear_G.real,
-                      self.shear_G.imag, self.vbbl_on, _vbbl_wrapped]
+            msg = "error in BinaryLensWithShear.point_source_magnification()\ninput:\n"
+            params = [separation, self._q, x, y, self.convergence_K, self.shear_G.real, self.shear_G.imag,
+                      self.vbbl_on, _vbbl_wrapped]
             msg += " ".join([str(p) for p in params])
             msg += "\noutput: {:}".format(magnification)
             raise ValueError(msg)
 
         return magnification
-
-    @property
-    def source_x(self):
-        if self._source_x is None:
-            self._source_x = float(self.trajectory.x)
-
-        return self._source_x

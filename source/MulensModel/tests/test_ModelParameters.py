@@ -285,22 +285,22 @@ def test_orbital_motion_1():
     assert static.get_s(epoch_1) == static.get_s(epoch_3)
     assert static.get_s(epoch_1) == dict_static['s']
     assert static.get_alpha(epoch_1) == static.get_alpha(epoch_3)
-    assert static.get_alpha(epoch_1) == dict_static['alpha'] * u.deg
+    assert static.get_alpha(epoch_1) == dict_static['alpha']
 
     # Test get_s() and get_alpha() for orbital motion case.
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_1).value, 29.5)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_2).value, 30.)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_3).value, 30.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 29.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 30.)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_3), 30.5)
     np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
     np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
     np.testing.assert_almost_equal(motion.get_s(epoch_3), 1.2395)
 
     # Test arguments as list or array.
     np.testing.assert_almost_equal(
-        motion.get_alpha([epoch_1, epoch_2, epoch_3]).value,
+        motion.get_alpha([epoch_1, epoch_2, epoch_3]),
         [29.5, 30., 30.5])
     np.testing.assert_almost_equal(
-        motion.get_alpha(np.array([epoch_1, epoch_2, epoch_3])).value,
+        motion.get_alpha(np.array([epoch_1, epoch_2, epoch_3])),
         [29.5, 30., 30.5])
     np.testing.assert_almost_equal(
         motion.get_s([epoch_1, epoch_2, epoch_3]),
@@ -309,13 +309,7 @@ def test_orbital_motion_1():
         motion.get_s(np.array([epoch_1, epoch_2, epoch_3])),
         [1.2295, 1.2345, 1.2395])
 
-    # Test get_alpha() units.
-    assert static.get_alpha(epoch_1).unit == u.deg
-    assert static.get_alpha(epoch_2).unit == u.deg
-    assert motion.get_alpha(epoch_1).unit == u.deg
-    assert motion.get_alpha(epoch_2).unit == u.deg
-
-    assert motion.alpha == 30. * u.deg
+    assert motion.alpha == 30.
     assert motion.s == 1.2345
 
 
@@ -337,14 +331,14 @@ def test_t_0_kep():
     epoch_2 = dict_static['t_0']
 
     # Test motion.
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_1).value, 29.5)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_2).value, 30.)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 29.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 30.)
     np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
     np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
 
     # Test motion_2.
-    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_1).value, 30.)
-    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_2).value, 30.5)
+    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_1), 30.)
+    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_2), 30.5)
     np.testing.assert_almost_equal(motion_2.get_s(epoch_1), 1.2345)
     np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
 
@@ -356,15 +350,9 @@ def test_orbital_motion_gammas():
                    'alpha': 12.345, 'dalpha_dt': 50.}
     params = mm.ModelParameters(dict_params)
 
-    # Test values.
-    np.testing.assert_almost_equal(params.gamma_parallel.value, 0.333333333)
-    np.testing.assert_almost_equal(params.gamma_perp.value, -0.872664626)
-    np.testing.assert_almost_equal(params.gamma.value, 0.934159869)
-
-    # Test units.
-    assert params.gamma_parallel.unit == 1. / u.year
-    assert params.gamma_perp.unit == u.rad / u.year
-    assert params.gamma.unit == 1. / u.year
+    np.testing.assert_almost_equal(params.gamma_parallel, 0.333333333)
+    np.testing.assert_almost_equal(params.gamma_perp, -0.872664626)
+    np.testing.assert_almost_equal(params.gamma, 0.934159869)
 
 
 def test_binary_source():
@@ -778,18 +766,21 @@ def test_xallarap_n_sources():
     assert model_4.n_sources == 1
 
 
-def test_2S1L_xallarap_individual_source_parameters():
+def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     """
     Make sure that parameters of both sources are properly set.
-    Most importantly, xi_u is shifted by 180 deg and xi_a is scaled by
-    q_source.
+    Most importantly, xi_u is shifted by 180 deg and xi_a is scaled by q_source.
     """
     q_source = 1.23456
     parameters_1st = {**xallarap_parameters}
+    parameters_1st['xi_argument_of_latitude_reference'] = xi_u
 
     parameters_2nd = {**parameters_1st}
     parameters_2nd['xi_semimajor_axis'] /= q_source
-    parameters_2nd['xi_argument_of_latitude_reference'] += 180.
+    if xi_u < 180:
+        parameters_2nd['xi_argument_of_latitude_reference'] += 180.
+    else:
+        parameters_2nd['xi_argument_of_latitude_reference'] -= 180.
 
     parameters = {'q_source': q_source, **parameters_1st}
     model = mm.ModelParameters(parameters)
@@ -800,6 +791,20 @@ def test_2S1L_xallarap_individual_source_parameters():
 
     assert check_1st == parameters_1st
     assert check_2nd == parameters_2nd
+
+
+def test_2S1L_xallarap_individual_source_parameters_1():
+    """
+    Make sure xi_u is increased by 180 for small input.
+    """
+    _test_2S1L_xallarap_individual_source_parameters(xi_u=8.642)
+
+
+def test_2S1L_xallarap_individual_source_parameters_2():
+    """
+    Make sure xi_u is increased by 180 for large input.
+    """
+    _test_2S1L_xallarap_individual_source_parameters(xi_u=234.567)
 
 
 tested_keys_3 = tested_keys_2 + ['q_source']
