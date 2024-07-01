@@ -46,10 +46,12 @@ class _BinaryLensPointSourceMagnification(_AbstractMagnification):
         self._q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
         self._solver = _solver
 
-        # All 3 below are changing with time, so they should be treated properly.
-        #self._separations = None
-        #self._source_x = float(self.trajectory.x)
-        #self._source_y = float(self.trajectory.y)
+        self._source_x = self.trajectory.x
+        self._source_y = self.trajectory.y
+        self._separations = self.trajectory.parameters.get_s(self.trajectory.times)
+        if isinstance(self._separations, float):
+            self._separations = self._separations * np.ones(len(self._source_x))
+        self._zip_kwargs = None
 
     def get_magnification(self):
         """
@@ -117,13 +119,6 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._source_x = self.trajectory.x
-        self._source_y = self.trajectory.y
-        self._separations = self.trajectory.parameters.get_s(self.trajectory.times)
-        if isinstance(self._separations, float):
-            self._separations = self._separations * np.ones(len(self._source_x))
-        self._zip_kwargs = None
-
         self._mass_1 = 1. / (1. + self._q)
         self._mass_2 = self._q / (1. + self._q)
         self._total_mass = 0.5 * (self._mass_1 + self._mass_2)  # This is total_mass in WM95 paper.
@@ -131,10 +126,6 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         self._position_z2 = 0. + 0.j
 
         self._position_z1 = None
-        # XXX - 3 lines below - see also above
-        #self._separation = float(self.trajectory.parameters.s)
-        #x_shift = -self._separation / (1. + self._q)
-        #self._source_x = float(self.trajectory.x + x_shift)
 
         self._last_polynomial_input = None
         self._polynomial_roots = None
@@ -321,16 +312,6 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
             Including trajectory.parameters =
             :py:class:`~MulensModel.modelparameters.ModelParameters`
     """
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self._source_x = self.trajectory.x
-        self._source_y = self.trajectory.y
-        self._separations = self.trajectory.parameters.get_s(self.trajectory.times)
-        if isinstance(self._separations, float):
-            self._separations = self._separations * np.ones(len(self._source_x))
-        self._zip_kwargs = None
 
     def _get_1_magnification(self, x, y, separation):
         """
@@ -587,8 +568,7 @@ class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbD
         return self._vbbl_function(*args)
 
 
-# XXX - strange inheritance below; should be change to BinaryLensPointSourceMagnification when self._source_x etc. are moved
-class BinaryLensAdaptiveContouringMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
+class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification):
     """
     Binary lens finite source magnification calculated using
     Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
