@@ -593,8 +593,23 @@ class TestFiniteSourceLDYoo04Magnification(
                 self.sfit_files['61'].mag[nob_indices][mag_test_indices],
                 rtol=0.005)
 
+    def test_get_d_u_d_params(self):
+        super().test_get_d_u_d_params()
+
     def test_get_d_A_d_u(self):
-        assert 1 == 2
+        """
+        Straight up reported in fort.62.
+        """
+        for (nob_indices, mag_test_indices, mag_obj) in zip(
+                self.sfit_files['62'].sfit_nob_indices,
+                self.indices_mag_test, self.mag_objs):
+
+            dA_du = mag_obj.get_d_A_d_u()
+            sfit_dA_du = self.sfit_files['62'].data['dAdu'][nob_indices]
+
+            np.testing.assert_allclose(
+                dA_du[mag_test_indices],
+                sfit_dA_du[mag_test_indices], rtol=0.015)
 
     def test_get_d_A_d_params(self):
         """
