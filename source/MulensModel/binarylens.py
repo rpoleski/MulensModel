@@ -27,7 +27,7 @@ class BinaryLens(object):
             'variety of classes with inheritance.')
 
 
-class BinaryLensPointSourceMagnification(_AbstractMagnification):
+class _BinaryLensPointSourceMagnification(_AbstractMagnification):
     """
     Equations for calculating point-source--binary-lens magnification.
     This is a placeholder class to establish the basic methods and attributes
@@ -102,7 +102,7 @@ class _LimbDarkeningForMagnification(object):
             self._u_limb_darkening = Utils.gamma_to_u(self._gamma)
 
 
-class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification):
+class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification following
     the `Witt & Mao 1995, ApJL, 447, L105 <https://ui.adsabs.harvard.edu/abs/1995ApJ...447L.105W/abstract>`_
@@ -311,7 +311,7 @@ class BinaryLensPointSourceWM95Magnification(BinaryLensPointSourceMagnification)
 
 # XXX - the line below is not currently true, i.e., it has to be coded - see commented get_magnification() below.
 # This is the primary PointSource Calculation
-class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceMagnification):
+class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification using
     VBBL for point sources.
