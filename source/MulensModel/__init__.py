@@ -1,7 +1,6 @@
 from os import path
 
-from MulensModel.binarylens import BinaryLensPointSourceMagnification, \
-    BinaryLensPointSourceWM95Magnification,\
+from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification,\
     BinaryLensPointSourceVBBLMagnification, \
     BinaryLensQuadrupoleMagnification, BinaryLensHexadecapoleMagnification, \
     BinaryLensVBBLMagnification, BinaryLensAdaptiveContouringMagnification
