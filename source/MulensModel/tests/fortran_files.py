@@ -79,7 +79,7 @@ class FortranSFitFile62(FortranSFitFile61):
     'dfdu0' = fs * dA_FSPL / du0
     'dfdtE' = fs * dA_FSPL / dtE
     'dfdrho' = fs * dA_FSPL / drho
-    'dAdu' = dA/du
+    'dAdu' = dA_PSPL/du
     'df'
     'res'
     'sig2'
