@@ -328,7 +328,26 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
         return _vbbl_binary_mag_point(separation, self._q, x, y)
 
 
-class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
+class _FiniteSource(object):
+    """
+    Abstract class for setting and checking rho value.
+    """
+    def _set_and_check_rho(self):
+        """
+        Check if rho is float and positive.
+        """
+        rho = self.trajectory.parameters.rho
+        if rho is None:
+            raise TypeError('rho must be positive float, but None was provided')
+
+        if rho < 0:
+            raise ValueError('rho must be positive, got: {:}'.format(self._rho))
+
+        self._rho = float(rho)
+
+
+class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification,
+                                        _FiniteSource):
     """
     Magnification in quadrupole approximation of the binary-lens/finite-source event - based on
     `Gould 2008 ApJ 681, 1593 <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
@@ -351,20 +370,10 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
     def __init__(self, gamma=None, u_limb_darkening=None, **kwargs):
         super().__init__(**kwargs)
         self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
-        self._rho = float(self.trajectory.parameters.rho)
-        self._check_rho()
+        self._set_and_check_rho()
 
         self._point_source_magnification = None
         self._quadupole_magnification = None
-
-    def _check_rho(self):  # XXX move to inherited class?
-        """
-        Check if rho is float and positive.
-        """
-        if self._rho is None:
-            raise TypeError('rho must be positive float, but None was provided')
-        if self._rho < 0:
-            raise ValueError('rho must be positive, got: {:}'.format(self._rho))
 
     def _get_magnification_w_plus(self, radius, x, y, separation):
         """Evaluates Gould (2008) eq. 7"""
@@ -471,7 +480,8 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         return 0.25 * fsum(out) - self._point_source_magnification
 
 
-class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
+class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification,
+                                  _FiniteSource):
     """
     Binary lens finite source magnification calculated using VBBL
     library that implements advanced contour integration algorithm
@@ -505,6 +515,7 @@ class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbD
     def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.001, **kwargs):
         super().__init__(**kwargs)
         self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
+        self._set_and_check_rho()
 
         if accuracy <= 0.:
             raise ValueError(
@@ -520,8 +531,6 @@ class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbD
         else:
             self._vbbl_function = _vbbl_binary_mag_dark
 
-        self._rho = float(self.trajectory.parameters.rho)
-
     def _get_1_magnification(self, x, y, separation):
         """
         Calculate 1 magnification using VBBL.
@@ -533,7 +542,8 @@ class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbD
         return self._vbbl_function(*args)
 
 
-class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification):
+class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification,
+                                                _FiniteSource):
     """
     Binary lens finite source magnification calculated using
     Adaptive Contouring method by `Dominik 2007 MNRAS, 377, 1679
@@ -583,6 +593,7 @@ class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnificat
     def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.1, ld_accuracy=0.001, **kwargs):
         super().__init__(**kwargs)
         self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma, default_gamma=0.)
+        self._set_and_check_rho()
 
         # Note that this accuracy is not guaranteed.
         if accuracy <= 0.:
@@ -593,7 +604,6 @@ class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnificat
         if not _adaptive_contouring_wrapped:
             raise ValueError('Adaptive Contouring was not imported properly')
 
-        self._rho = float(self.trajectory.parameters.rho)
         self._accuracy = float(accuracy)
         self._ld_accuracy = float(ld_accuracy)
 
