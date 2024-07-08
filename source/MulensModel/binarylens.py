@@ -79,7 +79,9 @@ class _BinaryLensPointSourceMagnification(_AbstractMagnification):
 
 
 class _LimbDarkeningForMagnification(object):
-    # XXX
+    """
+    Abstract class for passing information on limb darkening coefficients for magnification calculations
+    """
     def _set_LD_coeffs(self, u_limb_darkening, gamma, default_gamma=None):
         """
         Set both u and gamma LD coeffs based on info provided.
@@ -318,47 +320,6 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
         Calculate 1 magnification using VBBL.
         """
         return _vbbl_binary_mag_point(float(separation), self._q, float(x), float(y))
-
-
-"""
-XXX - left commented because of the call to BinaryLensPointSourceWM95Magnification that is not currently run.
-
-    def get_magnification(self):
-        Calculate point source magnification for given position. The
-        origin of the coordinate system is at the center of mass and
-        both masses are on X axis with higher mass at negative X; this
-        means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-        the lower mass is at (s/(1+q), 0).
-
-        Returns :
-            magnification: *float*
-                Point source magnification.
-
-        repeat = False
-        warnings.warn(
-            '_point_source_magnification_VBBL is not implemented correctly!' +
-            'but the try/except just bypasses it!')
-        # magnification = self._point_source_magnification_VBBL()
-        try:
-            magnification = self._point_source_magnification_VBBL()
-        except Exception as err:
-            print('VBBL PS calc has failed:', str(err))
-            repeat = True
-
-        if repeat or magnification < 1.:
-            wm95 = BinaryLensPointSourceWM95Magnification(
-                trajectory=self.trajectory)
-            magnification = wm95.get_magnification()
-
-        return magnification
-
-    def _point_source_magnification_VBBL(self):
-        Calculate point source magnification using VBBL fully
-
-        args = [self.trajectory.parameters.s, self._q, self._source_x, self._source_y]
-
-        return _vbbl_binary_mag_point(*[float(arg) for arg in args])
-"""
 
 
 class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
