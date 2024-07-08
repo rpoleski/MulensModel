@@ -39,7 +39,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.37.1'
+__version__ = '0.37.2'
 
 
 class UlensModelFit(object):
@@ -480,7 +480,7 @@ class UlensModelFit(object):
             xi_inclination='\\xi_i',
             xi_argument_of_latitude_reference='\\xi_u',
             xi_eccentricity='\\xi_e',
-            xi_omega_periapsis='\\xi_{\\omege}',
+            xi_omega_periapsis='\\xi_{\\omega}',
         )
         self._latex_conversion_other = dict()
 
