@@ -143,7 +143,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         """
         x = float(x - separation / (1. + self._q))
         y = float(y)
-        self._separation = float(separation) # XXX
+        self._separation = float(separation)  # XXX
 
         self._zeta = x + y * 1.j
         self._position_z1 = -separation + 0.j
@@ -314,12 +314,18 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
             Including trajectory.parameters =
             :py:class:`~MulensModel.modelparameters.ModelParameters`
     """
-
     def _get_1_magnification(self, x, y, separation):
         """
         Calculate 1 magnification using VBBL.
         """
-        return _vbbl_binary_mag_point(float(separation), self._q, float(x), float(y))
+        return self._get_1_magnification_point_source(float(x), float(y), float(separation))
+
+    def _get_1_magnification_point_source(self, x, y, separation):
+        """
+        Call VBBL to get 1 magnification for point source.
+        This function is also called by child classes.
+        """
+        return _vbbl_binary_mag_point(separation, self._q, x, y)
 
 
 class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification):
@@ -351,7 +357,7 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
         self._point_source_magnification = None
         self._quadupole_magnification = None
 
-    def _check_rho(self): # XXX move to inherited class?
+    def _check_rho(self):  # XXX move to inherited class?
         """
         Check if rho is float and positive.
         """
@@ -368,7 +374,7 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
         for (dx_, dy_) in zip(dx, dy):
             xx = x + dx_ * radius
             yy = y + dy_ * radius
-            out.append(super()._get_1_magnification(x=xx, y=yy, separation=separation))
+            out.append(self._get_1_magnification_point_source(x=xx, y=yy, separation=separation))
 
         return 0.25 * fsum(out) - self._point_source_magnification
 
@@ -383,8 +389,11 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
                 The magnification for each point
                 specified by `u` in :py:attr:`~trajectory`.
         """
-        # In this function, variables named a_* depict magnification.
-        self._point_source_magnification = super()._get_1_magnification(x=x, y=y, separation=separation)
+        # In this function, variables named self._a_* depict magnification.
+        separation = float(separation)
+        x = float(x)
+        y = float(y)
+        self._point_source_magnification = self._get_1_magnification_point_source(x=x, y=y, separation=separation)
         self._a_rho_half_plus = self._get_magnification_w_plus(radius=0.5 * self._rho, x=x, y=y, separation=separation)
         self._a_rho_plus = self._get_magnification_w_plus(radius=self._rho, x=x, y=y, separation=separation)
 
@@ -461,8 +470,7 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         for (dx_, dy_) in zip(dx, dy):
             xx = x + dx_ * shift
             yy = y + dy_ * shift
-            # XXX - I don't like this kind of "inheritance"; probably there should be _get_point_source() method in VBBL
-            out.append(BinaryLensPointSourceVBBLMagnification._get_1_magnification(self, x=xx, y=yy, separation=separation))
+            out.append(self._get_1_magnification_point_source(x=float(xx), y=float(yy), separation=separation))
 
         return 0.25 * fsum(out) - self._point_source_magnification
 
