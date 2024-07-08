@@ -405,10 +405,6 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
 
         return self._quadrupole_magnification
 
-# XXX - do we want to keep that?
-#    @property
-#    def quadrupole_magnification(self):
-
 
 class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
     """
