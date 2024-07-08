@@ -39,7 +39,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.37.2'
+__version__ = '0.37.3'
 
 
 class UlensModelFit(object):
@@ -456,7 +456,7 @@ class UlensModelFit(object):
             'dalpha_dt x_caustic_in x_caustic_out t_caustic_in ' +
             't_caustic_out xi_period xi_semimajor_axis xi_Omega_node ' +
             'xi_inclination xi_argument_of_latitude_reference ' +
-            'xi_eccentricity xi_omega_periapsis')
+            'xi_eccentricity xi_omega_periapsis q_source')
         self._all_MM_parameters = parameters_str.split()
         self._fixed_only_MM_parameters = ['t_0_par', 't_0_xi']
         self._other_parameters = []
@@ -481,6 +481,7 @@ class UlensModelFit(object):
             xi_argument_of_latitude_reference='\\xi_u',
             xi_eccentricity='\\xi_e',
             xi_omega_periapsis='\\xi_{\\omega}',
+            q_source='q_{\\rm source}',
         )
         self._latex_conversion_other = dict()
 
@@ -3245,17 +3246,22 @@ class UlensModelFit(object):
             return (t_1, t_2)
 
         if self._model.n_sources == 1:
-            t_1 = self._model.parameters.t_0 - tau * self._model.parameters.t_E
-            t_2 = self._model.parameters.t_0 + tau * self._model.parameters.t_E
+            t_1 = self._model.parameters.t_0
+            t_2 = self._model.parameters.t_0
         elif self._model.n_sources == 2:
-            t_1 = self._model.parameters.t_0_1
-            t_2 = self._model.parameters.t_0_2
-            if t_1 > t_2:
-                (t_1, t_2) = (t_2, t_1)
-            t_1 -= tau * self._model.parameters.t_E
-            t_2 += tau * self._model.parameters.t_E
+            if self._model.parameters.is_xallarap:
+                t_1 = self._model.parameters.t_0
+                t_2 = self._model.parameters.t_0
+            else:
+                t_1 = self._model.parameters.t_0_1
+                t_2 = self._model.parameters.t_0_2
+                if t_1 > t_2:
+                    (t_1, t_2) = (t_2, t_1)
         else:
             raise ValueError('internal issue: ' + str(self._model.n_sources))
+
+        t_1 -= tau * self._model.parameters.t_E
+        t_2 += tau * self._model.parameters.t_E
 
         return (t_1, t_2)
 
