@@ -88,24 +88,7 @@ class Trajectory(object):
             m = 'parameters is a required and must be a ModelParameters object'
             raise TypeError(m)
 
-        # Set parallax values
-        self.parallax = {'earth_orbital': False,
-                         'satellite': False,
-                         'topocentric': False}
-        if parallax is not None:
-            for (key, value) in parallax.items():
-                self.parallax[key] = value
-
-        if coords is None or isinstance(coords, Coordinates):
-            self.coords = coords
-        else:
-            self.coords = Coordinates(coords)
-        self.satellite_skycoord = satellite_skycoord
-        if earth_coords is not None:
-            raise NotImplementedError(
-                "The earth_coords needed for " +
-                "topocentric parallax is not implemented yet")
-        self._earth_coords = None
+        self._set_parallax_and_coords(parallax, coords, satellite_skycoord, earth_coords)
 
         if times is None:
             if (x is None) and (y is None):
@@ -116,6 +99,24 @@ class Trajectory(object):
         else:
             self._times = np.atleast_1d(times)
             self._get_xy()
+
+    def _set_parallax_and_coords(self, parallax, coords, satellite_skycoord, earth_coords):
+        """
+        Set parallax and coordinates parameters
+        """
+        self.parallax = {'earth_orbital': False, 'satellite': False, 'topocentric': False}
+        if parallax is not None:
+            for (key, value) in parallax.items():
+                self.parallax[key] = value
+
+        if coords is None or isinstance(coords, Coordinates):
+            self.coords = coords
+        else:
+            self.coords = Coordinates(coords)
+        self.satellite_skycoord = satellite_skycoord
+        if earth_coords is not None:
+            raise NotImplementedError("The earth_coords needed for topocentric parallax is not implemented yet")
+        self._earth_coords = None
 
     @property
     def x(self):
