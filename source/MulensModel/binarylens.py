@@ -8,7 +8,6 @@ from MulensModel.binarylensimports import (
     _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
 
 from MulensModel.pointlens import _AbstractMagnification
-from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils
 from MulensModel.version import __version__ as mm_version
 
@@ -143,7 +142,6 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         """
         x = float(x - separation / (1. + self._q))
         y = float(y)
-        self._separation = float(separation)  # XXX
 
         self._zeta = x + y * 1.j
         self._position_z1 = -separation + 0.j
@@ -210,7 +208,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         """roots of the polynomial"""
         # ***Casting to float speeds-up code for np.float input.***
 
-        polynomial_input = [self._mass_1, self._mass_2, self._separation, self._zeta]
+        polynomial_input = [self._mass_1, self._mass_2, self._position_z1, self._zeta]
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
 
@@ -265,6 +263,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         # If the lens equation is solved correctly, there should be
         # either 3 or 5 solutions (corresponding to 3 or 5 images)
         if len(out) not in [3, 5]:
+            separation = -self._position_z1.real
             msg = ("Wrong number of solutions to the lens equation of binary" +
                    " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
                    "(m1, m2, s, source_x, source_y, solver) are:\n" +
@@ -273,10 +272,8 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
                    "epochs when the source is very far from the lens. Note " +
                    "that it's different from 'point_source' method.")
             txt = msg.format(
-                len(out), repr(self._mass_1), repr(self._mass_2),
-                repr(self._separation), repr(self._source_x),
-                repr(self._source_y),
-                self._solver)
+                len(out), repr(self._mass_1), repr(self._mass_2), repr(separation),
+                repr(self._source_x), repr(self._source_y), self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
                 txt += (
@@ -286,7 +283,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
                         "Skowron_and_Gould_12 method is selected in automated " +
                         "way if VBBL is imported properly.")
             distance = sqrt(self._source_x**2 + self._source_y**2)
-            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * self._separation):
+            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
                         "authors and provide the above error message.")
             elif distance > 200.:
