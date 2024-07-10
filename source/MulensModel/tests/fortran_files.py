@@ -40,7 +40,7 @@ class FortranSFitFile61(object):
     'k' = data point #
     't' = time
     'dfdrho' = fs * dA_FSPL / drho
-    'mag'
+    'mag' = FSPL magnification (A * (B0 - gamma * B1)
     'db0' = db0/dz
     'db1' = db1/dz
     """
@@ -80,9 +80,9 @@ class FortranSFitFile62(FortranSFitFile61):
     'dfdtE' = fs * dA_FSPL / dtE
     'dfdrho' = fs * dA_FSPL / drho
     'dAdu' = dA_PSPL/du
-    'df'
-    'res'
-    'sig2'
+    'df' =
+    'res' = residuals (flux)
+    'sig2' = errors^2
     """
 
     def __init__(self, filename='fort.62', dir_=None):
