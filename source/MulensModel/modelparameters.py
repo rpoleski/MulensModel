@@ -32,7 +32,8 @@ _valid_parameters = {
     'lens orbital motion': ['dalpha_dt, ds_dt', '(for orbital motion)'],
     'lens orbital motion opt': [
         't_0_kep',
-        'may also be specified for orbital motion models. Defaults to t_0.']}
+        'may also be specified for orbital motion models. Defaults to t_0.'],
+    'full keplerian motion': ['s_z, ds_z_dt', '(for full keplerian motion)']}
 
 
 def _get_effect_strings(*args):
@@ -361,7 +362,8 @@ class ModelParameters(object):
         sets self._type property, which indicates what type of a model we have
         """
         types = ['finite source', 'parallax', 'Cassan08',
-                 'lens 2-parameter orbital motion', 'mass sheet', 'xallarap']
+                 'lens 2-parameter orbital motion', 'full keplerian motion',
+                 'mass sheet', 'xallarap']
         out = {type_: False for type_ in types}
 
         temp = {
@@ -370,6 +372,7 @@ class ModelParameters(object):
             'Cassan08':
                 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
+            'full keplerian motion': 's_z ds_z_dt',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
                          'xi_Omega_node xi_argument_of_latitude_reference '
@@ -412,19 +415,19 @@ class ModelParameters(object):
         # Make sure that there are no unwanted keys
         allowed_keys = set((
             't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
-            's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
-            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
+            's q alpha dalpha_dt ds_dt s_z ds_z_dt t_0_kep convergence_K '
+            'shear_G t_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
             'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
             'xi_argument_of_latitude_reference xi_eccentricity '
             'xi_omega_periapsis t_0_xi q_source').split())
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
-            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel']
+            derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel', 'gamma_z']
             if set(keys).intersection(derived_1):
-                msg = ('You cannot set gamma, gamma_perp, ' +
-                       'or gamma_parallel. These are derived parameters. ' +
-                       'You can set ds_dt and dalpha_dt instead.\n')
+                msg = ('You cannot set gamma, gamma_perp, gamma_parallel' +
+                       'or gamma_z. These are derived parameters. You can' +
+                       ' set ds_dt, dalpha_dt, s_z and ds_z_dt instead.\n')
             else:
                 msg = ""
             msg += 'Unrecognized parameters: {:}'.format(difference)
@@ -552,7 +555,8 @@ class ModelParameters(object):
         if 'pi_E_E' in keys or 'pi_E_N' in keys:
             keys |= {'t_0_par'}
 
-        if 'ds_dt' in keys or 'dalpha_dt' in keys:
+        orbital_motion_keys = ('ds_dt', 'dalpha_dt', 's_z', 'ds_z_dt')
+        if any(key in keys for key in orbital_motion_keys):
             keys |= {'t_0_kep'}
 
         if self.is_xallarap:
@@ -586,6 +590,9 @@ class ModelParameters(object):
             'dalpha_dt': {
                 'width': 18, 'precision': 5, 'unit': 'deg/yr',
                 'name': 'dalpha/dt'},
+            's_z': {'width': 11, 'precision': 5},
+            'ds_z_dt': {'width': 18, 'precision': 5, 'unit': '/yr',
+                        'name': 'ds_z/dt'},
             't_0_kep': {'width': 13, 'precision': 5, 'unit': 'HJD'},
             'x_caustic_in': {'width': 13, 'precision': 7},
             'x_caustic_out': {'width': 13, 'precision': 7},
@@ -631,7 +638,8 @@ class ModelParameters(object):
             't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
             'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
             'pi_E_N', 'pi_E_E', 't_0_par', 's', 'q', 'alpha',
-            'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt', 't_0_kep',
+            'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt', 's_z',
+            'ds_z_dt', 't_0_kep',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
             'xi_period', 'xi_semimajor_axis', 'xi_inclination',
             'xi_Omega_node', 'xi_argument_of_latitude_reference',
@@ -786,6 +794,18 @@ class ModelParameters(object):
                     'Lens orbital motion requires both ds_dt and dalpha_dt.' +
                     '\nNote that you can set either of them to 0.')
         # If orbital motion is defined, then reference epoch has to be set.
+            if 't_0' not in keys and 't_0_kep' not in keys:
+                raise KeyError(
+                    'Orbital motion requires reference epoch, ' +
+                    'i.e., t_0 or t_0_kep')
+
+        # If s_z or ds_z_dt is defined, ds_dt and dalpha_dt must be defined
+        if ('s_z' in keys) or ('ds_z_dt' in keys):
+            if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
+                raise KeyError(
+                    'Full Keplerian motion (s_z and/or ds_z_dt) requires' +
+                    'both ds_dt and dalpha_dt.' +
+                    '\nNote that you can set either of them to 0.')
             if 't_0' not in keys and 't_0_kep' not in keys:
                 raise KeyError(
                     'Orbital motion requires reference epoch, ' +
