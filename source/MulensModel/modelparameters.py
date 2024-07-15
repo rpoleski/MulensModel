@@ -1572,6 +1572,47 @@ class ModelParameters(object):
         self._update_sources('dalpha_dt', new_dalpha_dt)
 
     @property
+    def s_z(self):
+        """
+        *float*
+
+        instantaneous position in the direction perpendicular to the plane
+        of the sky at time t_0_kep.
+        """
+        return self.parameters['s_z']
+
+    @s_z.setter
+    def s_z(self, new_s_z):
+        if new_s_z < 0.:
+            raise ValueError('Position perpendicular to the plane of the sky'
+                             ' cannot be negative:', new_s_z)
+
+        self.parameters['s_z'] = new_s_z
+        self._update_sources('s_z', new_s_z)
+
+    @property
+    def ds_z_dt(self):
+        """
+        *astropy.Quantity*
+
+        Change rate of separation :py:attr:`~s_z` in 1/year. Can be set as
+        *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
+        Regardless of input value, returns value in 1/year.
+        """
+        if not isinstance(self.parameters['ds_z_dt'], u.Quantity):
+            self.parameters['ds_z_dt'] = self.parameters['ds_z_dt'] / u.yr
+
+        return self.parameters['ds_z_dt'].to(1 / u.yr)
+
+    @ds_z_dt.setter
+    def ds_z_dt(self, new_ds_z_dt):
+        if isinstance(new_ds_z_dt, u.Quantity):
+            self.parameters['ds_z_dt'] = new_ds_z_dt
+        else:
+            self.parameters['ds_z_dt'] = new_ds_z_dt / u.yr
+        self._update_sources('ds_z_dt', new_ds_z_dt)
+
+    @property
     def t_0_kep(self):
         """
         *float*
@@ -1988,13 +2029,14 @@ class ModelParameters(object):
                 Value(s) of separation for given epochs.
 
         """
-        if 'ds_dt' not in self.parameters.keys():
+        if 'ds_dt' not in self.parameters.keys():  # Raphael: missing here?
             return self.s
 
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
         s_of_t = (self.s + self.ds_dt * (epoch - self.t_0_kep) * u.d).value
+        # Raphael: missing here?
 
         return s_of_t
 
@@ -2047,6 +2089,8 @@ class ModelParameters(object):
         """
         return -self.dalpha_dt.to(u.rad / u.yr)
 
+    # Raphael: add 'def gamma_z(self)' here?
+
     @property
     def gamma(self):
         """
@@ -2079,6 +2123,8 @@ class ModelParameters(object):
 
         """
         return not self._type['lens 2-parameter orbital motion']
+
+    # Raphael: add a function 'def is_keplerian(self)' here?
 
     @property
     def n_lenses(self):
