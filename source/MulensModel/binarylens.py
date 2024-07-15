@@ -140,6 +140,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
             magnification: *float*
                 Point source magnification.
         """
+        # XXX transformation done below has to be moved:
         x = float(x - separation / (1. + self._q))
         y = float(y)
 
