@@ -33,7 +33,12 @@ _valid_parameters = {
     'lens orbital motion opt': [
         't_0_kep',
         'may also be specified for orbital motion models. Defaults to t_0.'],
-    'full keplerian motion': ['s_z, ds_z_dt', '(for full keplerian motion)']}
+    'full keplerian motion': [
+        's_z OR ds_z_dt, dalpha_dt, ds_dt',
+        '(for full keplerian motion)'],
+    'full keplerian motion opt': [
+        't_0_kep',
+        'may also be specified for full keplerian motion . Defaults to t_0.']}
 
 
 def _get_effect_strings(*args):
@@ -98,6 +103,14 @@ def _get_effect_strings(*args):
         optional.append('lens orbital motion')
         optional.append('lens orbital motion opt')
 
+    if args[0].lower() == 'full keplerian motion':
+        basic = 'full keplerian motion'
+        optional.append('full keplerian motion opt')
+
+    if len(args[0]) == 4 and args[0][2:4].lower() == 'bl':
+        optional.append('full keplerian motion')
+        optional.append('full keplerian motion opt')
+
     return {
         'basic': basic, 'additional': additional, 'alternate': alternate,
         'optional': optional}
@@ -149,12 +162,15 @@ def _print_all():
     _print_parameters(
         '---------\nlens orbital motion: ',
         _get_effect_strings('lens orbital motion'))
+    _print_parameters(
+        '---------\nfull keplerian motion: ',
+        _get_effect_strings('full keplerian motion'))
     print('-----------------')
     print('All Options: (call using which_parameters([option]) )')
     print('-----------------')
     print("Model types: 'PSPL', 'FSPL', 'PSBL', 'FSBL'")
     print("Effects: 'point lens', 'binary lens', 'finite source', " +
-          "'parallax', 'lens orbital motion'")
+          "'parallax', 'lens orbital motion', 'full keplerian motion'")
 
 
 def which_parameters(*args):
@@ -169,7 +185,7 @@ def which_parameters(*args):
         Model types: 'PSPL', 'FSPL', 'PSBL', 'FSBL'
 
         Effects: 'point lens', 'binary lens', 'finite source',
-        'parallax', 'lens orbital motion'
+        'parallax', 'lens orbital motion', 'full keplerian motion'
     """
     warnings.warn(
         "Warning: function which_parameters() does not show binary source " +
@@ -351,11 +367,11 @@ class ModelParameters(object):
                 'the Model: {:}'.format(common))
 
     def _count_lenses(self, keys):
-        """How many lenses there are?"""
+        """How many lenses are there?"""
         self._n_lenses = 1
         if 's' in keys or 'q' in keys:
             self._n_lenses = 2
-        # Both standard and Cassen08 parameterizations require s and q
+        # Both standard and Cassan08 parameterizations require s and q
 
     def _set_type(self, keys):
         """
@@ -372,7 +388,7 @@ class ModelParameters(object):
             'Cassan08':
                 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
-            'full keplerian motion': 's_z ds_z_dt',
+            'full keplerian motion': 's_z ds_z_dt dalpha_dt ds_dt',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
                          'xi_Omega_node xi_argument_of_latitude_reference '
@@ -399,6 +415,10 @@ class ModelParameters(object):
         if self._type['lens 2-parameter orbital motion'] and n_lenses == 1:
             raise KeyError('Orbital motion of the lens requires two lens '
                            'components but only one was provided.')
+        # Full Keplerian motion requires binary lens:
+        if self._type['full keplerian motion'] and n_lenses == 1:
+            raise KeyError('Full Keplerian motion of the lens requires two '
+                           'lens components but only one was provided.')
 
         self._check_types_for_Cassan08()
 
@@ -446,7 +466,8 @@ class ModelParameters(object):
         if not self._type['Cassan08']:
             return
 
-        types = ['parallax', 'xallarap', 'lens 2-parameter orbital motion']
+        types = ['parallax', 'xallarap', 'lens 2-parameter orbital motion',
+                 'full keplerian motion']
         for type_ in types:
             if self._type[type_]:
                 raise NotImplementedError(
@@ -511,6 +532,7 @@ class ModelParameters(object):
         """A nice way to represent a ModelParameters object as a string"""
         out = self._get_main_parameters_to_print()
 
+        # Raphael: resume looking all functions from here...
         if self.is_xallarap:
             fmt = "\nxallarap reference position: ({:.4f}, {:.4f})"
             if self.n_sources == 1:
@@ -800,10 +822,13 @@ class ModelParameters(object):
                     'i.e., t_0 or t_0_kep')
 
         # If s_z or ds_z_dt is defined, ds_dt and dalpha_dt must be defined
+        if ('s_z' in keys) and ('ds_z_dt' in keys):
+            raise KeyError('Full Keplerian motion requires either s_z or ' +
+                           'ds_z_dt, not both.')
         if ('s_z' in keys) or ('ds_z_dt' in keys):
             if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
                 raise KeyError(
-                    'Full Keplerian motion (s_z and/or ds_z_dt) requires' +
+                    'Full Keplerian motion (s_z or ds_z_dt) requires ' +
                     'both ds_dt and dalpha_dt.' +
                     '\nNote that you can set either of them to 0.')
             if 't_0' not in keys and 't_0_kep' not in keys:
