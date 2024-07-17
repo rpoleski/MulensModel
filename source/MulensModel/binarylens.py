@@ -478,8 +478,7 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         return 0.25 * fsum(out) - self._point_source_magnification
 
 
-class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification,
-                                  _FiniteSource):
+class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification,_FiniteSource):
     """
     Binary lens finite source magnification calculated using VBBL
     library that implements advanced contour integration algorithm
