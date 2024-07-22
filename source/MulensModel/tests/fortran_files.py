@@ -80,7 +80,7 @@ class FortranSFitFile62(FortranSFitFile61):
     'dfdtE' = fs * dA_FSPL / dtE
     'dfdrho' = fs * dA_FSPL / drho
     'dAdu' = dA_PSPL/du
-    'df' =
+    'df' = fs*(damp*(b0-gamma*b1)+amp*(db0-gamma*db1)/rho)
     'res' = residuals (flux)
     'sig2' = errors^2
     """
