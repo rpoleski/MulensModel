@@ -349,6 +349,27 @@ def test_t_0_kep():
     np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
 
 
+class test_Keplerian(unittest.TestCase):
+
+    def test_keplerian_motion_input(self):
+        """basic tests of orbital motion"""
+
+        dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
+                       's': 1.2345, 'q': 0.01234, 'alpha': 30., 'rho': 0.001}
+        dict_keplerian_1 = dict_static.copy()
+        dict_keplerian_2 = dict_static.copy()
+        dict_keplerian_1.update({'dalpha_dt': 10., 'ds_dt': 0.1, 's_z': 0.05})
+        dict_keplerian_2.update({'dalpha_dt': 10., 'ds_dt': 0.1,
+                                 'ds_z_dt': 1.9})
+
+        with self.assertRaises(KeyError):
+            mm.ModelParameters({**dict_keplerian_1, 'ds_z_dt': 1.9})
+            mm.ModelParameters({**dict_keplerian_2, 's_z': 0.05})
+
+        keplerian = mm.ModelParameters(dict_keplerian_1)
+        assert not keplerian.is_static()
+
+
 def test_orbital_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
     dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00,

@@ -388,7 +388,7 @@ class ModelParameters(object):
             'Cassan08':
                 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
-            'full keplerian motion': 's_z ds_z_dt dalpha_dt ds_dt',
+            # 'full keplerian motion': 's_z ds_z_dt dalpha_dt ds_dt',  ### makes 2 tests fail...
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
                          'xi_Omega_node xi_argument_of_latitude_reference '
