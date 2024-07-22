@@ -400,8 +400,7 @@ class MagnificationCurve(object):
 
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
-                    mm.binarylens.BinaryLensPointSourceWM95Magnification(
-                        trajectory=trajectory)
+                    mm.binarylens.BinaryLensPointSourceMagnification(trajectory=trajectory)
             elif method.lower() == 'quadrupole':
                 self._magnification_objects[method] = \
                     mm.binarylens.BinaryLensQuadrupoleMagnification(

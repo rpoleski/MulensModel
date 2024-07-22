@@ -140,6 +140,12 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
             magnification: *float*
                 Point source magnification.
         """
+        return self._get_1_magnification_point_source(x, y, separation)
+
+    def _get_1_magnification_point_source(self, x, y, separation):
+        """
+        Calculate point-source--binary-lens magnification.
+        """
         # XXX transformation done below has to be moved:
         x = float(x - separation / (1. + self._q))
         y = float(y)
@@ -300,8 +306,6 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
             return np.array(out)
 
 
-# XXX - the line below is not currently true, i.e., it has to be coded - see commented get_magnification() below.
-# This is the primary PointSource Calculation
 class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification using
@@ -326,6 +330,38 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
         return _vbbl_binary_mag_point(separation, self._q, x, y)
 
 
+class BinaryLensPointSourceMagnification(_BinaryLensPointSourceMagnification):
+    """
+    Optimal class for calculation of point-source binary-lens magnification:
+    it first tries VBBL and then switches to Witt & Mao 1995 if the former fails.
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._first = BinaryLensPointSourceVBBLMagnification(**kwargs)
+        self._second = BinaryLensPointSourceWM95Magnification(**kwargs)
+
+    def _get_1_magnification(self, x, y, separation):
+        """
+        Calculate 1 magnification value
+        """
+        return self._get_1_magnification_point_source(float(x), float(y), float(separation))
+
+    def _get_1_magnification_point_source(self, x, y, separation):
+        """
+        First try VBBL then WM95 to get magnification
+        """
+        repeat = False
+        try:
+            out = self._first._get_1_magnification_point_source(x, y, separation)
+        except Exception:
+            repeat = True
+
+        if repeat or out < 1.:
+            out = self._second._get_1_magnification_point_source(x, y, separation)
+
+        return out
+
+
 class _FiniteSource(object):
     """
     Abstract class for setting and checking rho value.
@@ -344,7 +380,7 @@ class _FiniteSource(object):
         self._rho = float(rho)
 
 
-class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification,
+class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification,
                                         _FiniteSource):
     """
     Magnification in quadrupole approximation of the binary-lens/finite-source event - based on
