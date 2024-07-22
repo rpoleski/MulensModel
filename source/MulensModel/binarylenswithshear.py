@@ -350,9 +350,8 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
 
     def _get_polynomial_roots(self):
         """roots of the polynomial"""
-        polynomial_input = [
-            self._mass_1, self._mass_2, self._separation, self.convergence_K,
-            self.shear_G, self._source_x, self._source_y]
+        polynomial_input = [self._mass_1, self._mass_2, self._position_z1.real,
+                            self.convergence_K, self.shear_G, self._source_x, self._source_y]
 
         if polynomial_input == self._last_polynomial_input:
             return self._polynomial_roots
@@ -409,6 +408,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         # If the lens equation is solved correctly, there should be
         # either 3 or 5 solutions (corresponding to 3 or 5 images)
         if len(out) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
+            separation = -self._position_z1.real
             msg = ("Wrong number of solutions to the lens equation of binary" +
                    " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
                    "(m1, m2, s, source_x, source_y, solver) are:\n" +
@@ -417,9 +417,8 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                    "epochs when the source is very far from the lens. Note " +
                    "that it's different from 'point_source' method.")
             txt = msg.format(
-                len(out), repr(self._mass_1), repr(self._mass_2),
-                repr(self._separation), repr(self._source_x), repr(self._source_y),
-                self._solver)
+                len(out), repr(self._mass_1), repr(self._mass_2), repr(separation),
+                repr(self._source_x), repr(self._source_y), self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
                 txt += (
@@ -429,7 +428,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                     "Skowron_and_Gould_12 method is selected in automated " +
                     "way if VBBL is imported properly.")
             distance = sqrt(self._source_x**2 + self._source_y**2)
-            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * self._separation):
+            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
                         "authors and provide the above error message.")
             elif distance > 200.:
