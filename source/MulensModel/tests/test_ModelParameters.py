@@ -351,23 +351,42 @@ def test_t_0_kep():
 
 class test_Keplerian(unittest.TestCase):
 
-    def test_keplerian_motion_input(self):
-        """basic tests of orbital motion"""
-
+    def setup_keplerian(self, dict_to_add):
+        """
+        Setup dictionary for keplerian tests...
+        """
         dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
                        's': 1.2345, 'q': 0.01234, 'alpha': 30., 'rho': 0.001}
-        dict_keplerian_1 = dict_static.copy()
-        dict_keplerian_2 = dict_static.copy()
-        dict_keplerian_1.update({'dalpha_dt': 10., 'ds_dt': 0.1, 's_z': 0.05})
-        dict_keplerian_2.update({'dalpha_dt': 10., 'ds_dt': 0.1,
-                                 'ds_z_dt': 1.9})
 
-        with self.assertRaises(KeyError):
-            mm.ModelParameters({**dict_keplerian_1, 'ds_z_dt': 1.9})
-            mm.ModelParameters({**dict_keplerian_2, 's_z': 0.05})
+        return {**dict_static, **dict_to_add}
 
-        keplerian = mm.ModelParameters(dict_keplerian_1)
+    def test_keplerian_motion_right_input(self):
+        """add explanation in all..."""
+        dict_1 = self.setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.})
+        keplerian = mm.ModelParameters({**dict_1, 's_z': 0.1})
+        keplerian = mm.ModelParameters({**dict_1, 'ds_z_dt': 1.9})
+
         assert not keplerian.is_static()
+
+    def test_keplerian_both_inputs(self):
+        """add explanation in all..."""
+        dict_2 = self.setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.,
+                                       's_z': 0.1, 'ds_z_dt': 1.9})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_2)
+
+    def test_keplerian_no_ds_dt(self):
+        """add explanation in all..."""
+        dict_3 = self.setup_keplerian({'dalpha_dt': 10., 's_z': 0.1,
+                                       'ds_z_dt': 1.9})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_3)
+
+    def test_keplerian_only_z(self):
+        """add explanation in all..."""
+        dict_4 = self.setup_keplerian({'s_z': 0.1, 'ds_z_dt': 1.9})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_4)
 
 
 def test_orbital_motion_gammas():
