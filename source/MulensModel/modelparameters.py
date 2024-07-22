@@ -388,7 +388,7 @@ class ModelParameters(object):
             'Cassan08':
                 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
-            # 'full keplerian motion': 's_z ds_z_dt dalpha_dt ds_dt',  ### makes 2 tests fail...
+            'full keplerian motion': 's_z ds_z_dt',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
                          'xi_Omega_node xi_argument_of_latitude_reference '
@@ -1031,6 +1031,18 @@ class ModelParameters(object):
             self._standard_parameters = (
                 self._uniform_caustic.get_standard_parameters(**kwargs))
 
+    def _get_s_z_or_ds_z_dt(self):
+        """
+        Calculates s_z or ds_z_dt when the other is given.
+        """
+        conv_factor = -self.parameters['ds_dt'] * self.parameters['s']
+        if 's_z' in self.parameters:
+            self.parameters['ds_z_dt'] = conv_factor / self.parameters['s_z']
+        elif 'ds_z_dt' in self.parameters:
+            self.parameters['s_z'] = conv_factor / self.parameters['d_s_z_dt']
+        else:
+            raise KeyError('Both s_z and ds_z_dt were already assigned.')
+
     @property
     def t_0(self):
         """
@@ -1604,6 +1616,7 @@ class ModelParameters(object):
         instantaneous position in the direction perpendicular to the plane
         of the sky at time t_0_kep.
         """
+        self._get_s_z_or_ds_z_dt()
         return self.parameters['s_z']
 
     @s_z.setter
@@ -1626,6 +1639,7 @@ class ModelParameters(object):
         """
         if not isinstance(self.parameters['ds_z_dt'], u.Quantity):
             self.parameters['ds_z_dt'] = self.parameters['ds_z_dt'] / u.yr
+        self._get_s_z_or_ds_z_dt()
 
         return self.parameters['ds_z_dt'].to(1 / u.yr)
 
