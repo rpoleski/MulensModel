@@ -444,7 +444,8 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceMagnification, _Lim
         self._a_2_rho_square = (16. * self._a_rho_half_plus - self._a_rho_plus) / 3.
 
         # Gould 2008 eq. 6 (part 1/2):
-        self._quadrupole_magnification = self._point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma)
+        self._quadrupole_magnification = (
+            self._point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma))
 
         return self._quadrupole_magnification
 
@@ -514,7 +515,7 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         return 0.25 * fsum(out) - self._point_source_magnification
 
 
-class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification,_FiniteSource):
+class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification, _FiniteSource):
     """
     Binary lens finite source magnification calculated using VBBL
     library that implements advanced contour integration algorithm
@@ -648,5 +649,6 @@ class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnificat
         x *= -1
         y *= -1
 
-        args = [float(separation), self._q, float(x), float(y), self._rho, self._gamma, self._accuracy, self._ld_accuracy]
+        args = [float(separation), self._q, float(x), float(y),
+                self._rho, self._gamma, self._accuracy, self._ld_accuracy]
         return _adaptive_contouring_linear(*args)
