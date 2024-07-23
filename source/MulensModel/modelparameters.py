@@ -1621,10 +1621,6 @@ class ModelParameters(object):
 
     @s_z.setter
     def s_z(self, new_s_z):
-        if new_s_z < 0.:
-            raise ValueError('Position perpendicular to the plane of the sky'
-                             ' cannot be negative:', new_s_z)
-
         self.parameters['s_z'] = new_s_z
         self._update_sources('s_z', new_s_z)
 
@@ -2128,7 +2124,19 @@ class ModelParameters(object):
         """
         return -self.dalpha_dt.to(u.rad / u.yr)
 
-    # Raphael: add 'def gamma_z(self)' here?
+    @property
+    def gamma_z(self):
+        """
+        *astropy.Quantity*
+
+        Perpendicular component of instantaneous velocity of the secondary
+        relative to the primary. It is perpendicular to the plane of the sky
+        at time t_0_kep.
+        Equals :py:attr:`~ds_z_dt`/:py:attr:`~s`. Cannot be set.
+        """
+        return self.ds_z_dt / self.s
+
+    # Raphael: define orbital elements here... omega, i, etc.
 
     @property
     def gamma(self):
@@ -2139,7 +2147,7 @@ class ModelParameters(object):
         1/year. Cannot be set.
         """
         gamma_perp = (self.gamma_perp / u.rad).to(1 / u.yr)
-        return (self.gamma_parallel**2 + gamma_perp**2)**0.5
+        return (self.gamma_parallel**2 + gamma_perp**2 + self.gamma_z**2)**0.5
 
     def is_finite_source(self):
         """
