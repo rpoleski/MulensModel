@@ -368,17 +368,6 @@ class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
                                          np.arcsin(1. / value))[0]
         return out
 
-    def _get_fspl_deriv_factor(self):
-        """
-        Finite-source modification to derivatives of other parameters.
-        = Factor due to rho for multiplying derivatives due to non-rho
-        parameters.
-        """
-        factor = self.pspl_magnification * self.db0 / self.trajectory.parameters.rho
-        factor += self._get_d_A_d_u_PSPL() * self.b0
-
-        return factor
-
     def get_d_A_d_params(self, parameters):
         """
         Return the gradient of the magnification with respect to the
@@ -397,14 +386,14 @@ class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
 
         d_u_d_params = super().get_d_u_d_params(parameters)
 
-        factor = self._get_fspl_deriv_factor()
+        d_A_d_u = self.get_d_A_d_u()
 
         d_A_d_params = {}
         for key in parameters:
             if key == 'rho':
                 d_A_d_params[key] = self.get_d_A_d_rho()
             else:
-                d_A_d_params[key] = d_u_d_params[key] * factor
+                d_A_d_params[key] = d_u_d_params[key] * d_A_d_u
 
         return d_A_d_params
 
@@ -535,16 +524,16 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
 
         return self._magnification
 
-    def _get_fspl_deriv_factor(self):
+    def get_d_A_d_u(self):
         """
         Finite-source modification to derivatives of other parameters.
         = Factor due to rho for multiplying derivatives due to
         non-rho parameters.
         """
-        factor = self.pspl_magnification * (self.db0 - self._gamma * self.db1) / self.trajectory.parameters.rho
-        factor += self._get_d_A_d_u_PSPL() * (self.b0 - self._gamma * self.b1)
+        d_A_d_u = self.pspl_magnification * (self.db0 - self._gamma * self.db1) / self.trajectory.parameters.rho
+        d_A_d_u += self._get_d_A_d_u_PSPL() * (self.b0 - self._gamma * self.b1)
 
-        return factor
+        return d_A_d_u
 
     def get_d_A_d_rho(self):
         """

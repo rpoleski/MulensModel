@@ -647,13 +647,13 @@ class TestFiniteSourceLDYoo04Magnification(
         """
         Straight up reported in fort.62.
         """
-        for (nob_indices, mag_test_indices, mag_obj) in zip(
+        for (nob_indices, source_flux, mag_test_indices, mag_obj) in zip(
                 self.sfit_files['62'].sfit_nob_indices,
+                self.sfit_files['51'].source_fluxes,
                 self.indices_mag_test, self.mag_objs):
 
             dA_du = mag_obj.get_d_A_d_u()
-            sfit_dA_du = self.sfit_files['62'].data['dAdu'][nob_indices]
-
+            sfit_dA_du = self.sfit_files['62'].df[nob_indices] / source_flux
             np.testing.assert_allclose(
                 dA_du[mag_test_indices],
                 sfit_dA_du[mag_test_indices], rtol=0.015)
@@ -753,6 +753,10 @@ class TestFiniteSourceLDYoo04DirectMagnification(
             mag_obj = mm.FiniteSourceLDYoo04Magnification(
                 trajectory=trajectory, gamma=gamma, direct=True)
             self.mag_objs.append(mag_obj)
+
+    def test_get_d_A_d_u(self):
+        # derivatives of B_0 not implemented for direct method.
+        pass
 
     def test_db0(self):
         for mag_obj in self.mag_objs:
