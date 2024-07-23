@@ -194,7 +194,6 @@ class _PointLensMagnification(_AbstractMagnification):
         """
         Calculate dA/du assuming PSPL.
         """
-        print('Accessing _get_d_A_d_u_PSPL')
         d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
         return d_A_d_u
 

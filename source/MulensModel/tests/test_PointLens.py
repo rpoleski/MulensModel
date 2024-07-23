@@ -415,77 +415,18 @@ class TestFiniteSourceUniformGould94Magnification(
          = dAdu_US - dA*gamma*b1 - A*gamma*db1/rho
         """
         rho = self.sfit_files['51'].a[3]
-        print('test rho', rho)
 
         for (nob_indices, mag_test_indices, mag_obj, gamma) in zip(
                 self.sfit_files['62'].sfit_nob_indices,
                 self.indices_mag_test, self.mag_objs,
                 self.gammas):
-            print('mag obj', mag_obj)
-
             dA_du = mag_obj.get_d_A_d_u()[mag_test_indices]
-
-            #part_1 = mag_obj._get_d_A_d_u_PSPL() * mag_obj.b0
 
             sfit_dA_du_US = (self.sfit_files['63'].b0[nob_indices][mag_test_indices] *
                              self.sfit_files['62'].dAdu[nob_indices][mag_test_indices])
-
-            #plt.figure()
-            #plt.scatter(self.sfit_files['63'].x[nob_indices] / rho, (sfit_dA_du_US - part_1)/sfit_dA_du_US)
-            #plt.minorticks_on()
-            #plt.ylabel('delta dA*b0')
-            #plt.xlabel('z(t)')
-            #
-            #plt.figure()
-            #plt.scatter(
-            #    self.sfit_files['63'].x[nob_indices] / rho,
-            #    (self.sfit_files['62'].dAdu[nob_indices] - mag_obj._get_d_A_d_u_PSPL()) / self.sfit_files['62'].dAdu[nob_indices])
-            #plt.minorticks_on()
-            #plt.ylabel('delta dA')
-            #plt.xlabel('z(t)')
-            #
-            #plt.figure()
-            #plt.scatter(
-            #    self.sfit_files['63'].x[nob_indices] / rho,
-            #    (self.sfit_files['61'].db0[nob_indices] - mag_obj.db0) / mag_obj.db0)
-            #plt.minorticks_on()
-            #plt.ylabel('delta db0')
-            #plt.xlabel('z(t)')
-            #
-            #plt.figure()
-            #plt.scatter(
-            #    self.sfit_files['63'].x[nob_indices] / rho,
-            #    self.sfit_files['61'].db0[nob_indices], color='black', label='sfit')
-            #plt.scatter(mag_obj.u_ / rho, mag_obj.db0, color='red', label='MM')
-            #plt.legend()
-            #plt.minorticks_on()
-            #plt.ylabel('db0')
-            #plt.xlabel('z(t)')
-
-
-            #
             sfit_dA_du_US += (self.sfit_files['63'].amp[nob_indices][mag_test_indices] *
                               self.sfit_files['61'].db0[nob_indices][mag_test_indices] /
                               rho)
-
-            #plt.figure()
-            #plt.scatter(
-            #    self.sfit_files['63'].x[nob_indices] / rho,
-            #    (sfit_dA_du_US - dA_du) / dA_du)
-            #plt.minorticks_on()
-            #plt.ylabel('delta dAdu')
-            #plt.xlabel('z(t)')
-            #plt.show()
-
-            #_b1_deriv = (self.sfit_files['63'].b1[nob_indices] *
-            #             self.sfit_files['62'].dAdu[nob_indices] +
-            #             self.sfit_files['61'].db1[nob_indices] *
-            #             self.sfit_files['63'].amp[nob_indices])
-            #sfit_dA_du = self.sfit_files['63'].b0[nob_indices] * self.sfit_files['62'].dAdu[nob_indices]
-            #sfit_dA_du_US = self.sfit_files['62'].dAdu[nob_indices]
-            #sfit_dA_du_US += gamma * self.sfit_files['62'].dAdu[nob_indices] * self.sfit_files['63'].b1[nob_indices]
-            #sfit_dA_du_US += gamma * self.sfit_files['63'].amp[nob_indices] * self.sfit_files['61'].db1[nob_indices] / rho
-
             np.testing.assert_allclose(dA_du, sfit_dA_du_US, rtol=0.015)
 
     def test_get_d_A_d_u_2(self):
@@ -509,9 +450,7 @@ class TestFiniteSourceUniformGould94Magnification(
              mag_obj) in zip(
             self.sfit_files['62'].sfit_nob_indices,
             self.sfit_files['51'].source_fluxes,
-            self.gammas,
-            self.indices_mag_test,
-            self.mag_objs):
+            self.gammas, self.indices_mag_test, self.mag_objs):
 
             dA_du = mag_obj.get_d_A_d_u()[mag_test_indices]
 
