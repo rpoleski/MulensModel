@@ -579,6 +579,10 @@ class TestFiniteSourceUniformGould94DirectMagnification(
                 trajectory=trajectory, direct=True)
             self.mag_objs.append(mag_obj)
 
+    def test_get_d_A_d_u(self):
+        # derivatives of B_0 not implemented for direct method.
+        pass
+
     def test_db0(self):
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):

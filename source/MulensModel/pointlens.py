@@ -311,7 +311,6 @@ class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
                 Derivative dA/du evaluated at each epoch.
         """
         # dAdu_US = dA_PS(u) * b0(z) + A_PS(u) * db0(z) / rho
-        print('PL rho', self.trajectory.parameters.rho)
         d_A_d_u = self._get_d_A_d_u_PSPL() * self.b0
         d_A_d_u += self.pspl_magnification * self.db0 / self.trajectory.parameters.rho
 
