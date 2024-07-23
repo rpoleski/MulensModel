@@ -194,6 +194,7 @@ class _PointLensMagnification(_AbstractMagnification):
         """
         Calculate dA/du assuming PSPL.
         """
+        print('Accessing _get_d_A_d_u_PSPL')
         d_A_d_u = -8. / (self.u_2 * (self.u_2 + 4) * np.sqrt(self.u_2 + 4))
         return d_A_d_u
 
@@ -302,7 +303,7 @@ class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
 
     def get_d_A_d_u(self):
         """
-        Calculate dA/du for PSPL point-source--point-lens model.
+        Calculate dA/du for USPL uniform-source--point-lens model.
 
         No parameters.
 
@@ -310,7 +311,12 @@ class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
             dA_du: *np.ndarray*
                 Derivative dA/du evaluated at each epoch.
         """
-        return self._get_d_A_d_u_PSPL()
+        # dAdu_US = dA_PS(u) * b0(z) + A_PS(u) * db0(z) / rho
+        print('PL rho', self.trajectory.parameters.rho)
+        d_A_d_u = self._get_d_A_d_u_PSPL() * self.b0
+        d_A_d_u += self.pspl_magnification * self.db0 / self.trajectory.parameters.rho
+
+        return d_A_d_u
 
     def get_magnification(self):
         """
