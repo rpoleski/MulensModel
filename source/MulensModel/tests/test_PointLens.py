@@ -399,9 +399,10 @@ class TestFiniteSourceUniformGould94Magnification(
         super().test_get_d_u_d_params()
 
     def test_get_d_A_d_u(self):
-        pass
+        self._get_d_A_d_u_1()
+        self._get_d_A_d_u_2()
 
-    def test_get_d_A_d_u_1(self):
+    def _get_d_A_d_u_1(self):
         """
         sfit returns: FSPL:
             61 dA/drho
@@ -429,7 +430,7 @@ class TestFiniteSourceUniformGould94Magnification(
                               rho)
             np.testing.assert_allclose(dA_du, sfit_dA_du_US, rtol=0.015)
 
-    def test_get_d_A_d_u_2(self):
+    def _get_d_A_d_u_2(self):
         """
         sfit returns: FSPL:
             61 dA/drho
