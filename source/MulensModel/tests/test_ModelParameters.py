@@ -395,6 +395,84 @@ def test_keplerian_motion_ds_z_dt_only():
     assert not keplerian.is_static()
 
 
+def test_circular_motion_setting_s_z():
+    """
+    Check if s_z is properly set.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 's_z': 0.1})
+    model = mm.ModelParameters(params)
+    assert model.s_z == 0.1
+
+
+def test_circular_motion_setting_ds_z_dt():
+    """
+    Check if ds_z_dt is properly set.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 0.1})
+    model = mm.ModelParameters(params)
+    assert model.ds_z_dt == 0.1 / u.yr
+
+
+def test_calculation_ds_z_dt_for_circular_motion_1():
+    """
+    Set s_z for circular motion and test if ds_z_dt is calculated properly.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 's_z': 0.1})
+    model = mm.ModelParameters(params)
+    np.testing.assert_almost_equal(model.ds_z_dt.value, -2.469)
+
+
+def test_calculation_s_z_for_circular_motion_1():
+    """
+    Set ds_z_dt for circular motion and test if s_z is calculated properly.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 0.1})
+    model = mm.ModelParameters(params)
+    np.testing.assert_almost_equal(model.s_z, -2.469)
+
+
+def test_calculation_ds_z_dt_for_circular_motion_2():
+    """
+    Set s_z for circular motion and test if ds_z_dt is calculated properly.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 's_z': 0.01})
+    model = mm.ModelParameters(params)
+    model.s_z = 0.1
+    np.testing.assert_almost_equal(model.ds_z_dt.value, -2.469)
+
+
+def test_calculation_s_z_for_circular_motion_2():
+    """
+    Set ds_z_dt for circular motion and test if s_z is calculated properly.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 1.0})
+    model = mm.ModelParameters(params)
+    model.ds_z_dt = 0.1
+    np.testing.assert_almost_equal(model.s_z, -2.469)
+
+
+def test_access_to_ds_z_dt():
+    """
+    Make sure that accessing ds_z_dt doesn't change s_z.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 's_z': 0.01})
+    model = mm.ModelParameters(params)
+    model.s_z = 0.1
+    model.ds_z_dt
+    assert model.s_z == 0.1
+
+
+def test_access_to_s_z():
+    """
+    Make sure that accessing s_z doesn't change ds_z_dt.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 0.01})
+    model = mm.ModelParameters(params)
+    model.ds_z_dt = 0.1
+    model.s_z
+    assert model.ds_z_dt.value == 0.1
+
+
 def test_orbital_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
     dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00,
