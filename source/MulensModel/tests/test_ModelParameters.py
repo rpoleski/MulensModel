@@ -349,50 +349,50 @@ def test_t_0_kep():
     np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
 
 
+def setup_keplerian(dict_to_add):
+    """
+    Setup dictionary for tests of circular keplerian motion
+    """
+    dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
+                   's': 1.2345, 'q': 0.01234, 'alpha': 30., 'rho': 0.001}
+
+    return {**dict_static, **dict_to_add}
+
+
 class test_Keplerian(unittest.TestCase):
-
-    def setup_keplerian(self, dict_to_add):
-        """
-        Setup dictionary for tests of circular keplerian motion
-        """
-        dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
-                       's': 1.2345, 'q': 0.01234, 'alpha': 30., 'rho': 0.001}
-
-        return {**dict_static, **dict_to_add}
-
-    def test_keplerian_motion_s_z_only(self):
-        """tests if only s_z is given"""
-        dict_1 = self.setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.,
-                                       's_z': 0.1})
-        keplerian = mm.ModelParameters(dict_1)
-        assert not keplerian.is_static()
-
-    def test_keplerian_motion_ds_z_dt_only(self):
-        """tests if only ds_z_dt is given"""
-        dict_1 = self.setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.,
-                                       'ds_z_dt': 1.9})
-        keplerian = mm.ModelParameters(dict_1)
-        assert not keplerian.is_static()
-
     def test_keplerian_both_inputs(self):
         """s_z and ds_z_dt are given with ds_dt and dalpha_dt"""
-        dict_2 = self.setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.,
-                                       's_z': 0.1, 'ds_z_dt': 1.9})
+        dict_2 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.,
+                                  's_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_2)
 
     def test_keplerian_no_ds_dt(self):
         """fails if s_z and ds_z_dt are given with dalpha_dt"""
-        dict_3 = self.setup_keplerian({'dalpha_dt': 10., 's_z': 0.1,
-                                       'ds_z_dt': 1.9})
+        dict_3 = setup_keplerian({'dalpha_dt': 10., 's_z': 0.1,
+                                  'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_3)
 
     def test_keplerian_only_z(self):
         """fails if s_z and ds_z_dt are given only"""
-        dict_4 = self.setup_keplerian({'s_z': 0.1, 'ds_z_dt': 1.9})
+        dict_4 = setup_keplerian({'s_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_4)
+
+
+def test_keplerian_motion_s_z_only():
+    """tests if only s_z is given"""
+    dict_1 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 's_z': 0.1})
+    keplerian = mm.ModelParameters(dict_1)
+    assert not keplerian.is_static()
+
+
+def test_keplerian_motion_ds_z_dt_only():
+    """tests if only ds_z_dt is given"""
+    dict_1 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 'ds_z_dt': 1.9})
+    keplerian = mm.ModelParameters(dict_1)
+    assert not keplerian.is_static()
 
 
 def test_orbital_motion_gammas():
