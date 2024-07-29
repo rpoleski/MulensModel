@@ -1036,10 +1036,15 @@ class ModelParameters(object):
         Calculates s_z or ds_z_dt when the other is given.
         """
         conv_factor = -self.parameters['ds_dt'] * self.parameters['s']
+
         if 's_z' in self.parameters:
             self.parameters['ds_z_dt'] = conv_factor / self.parameters['s_z']
         elif 'ds_z_dt' in self.parameters:
-            self.parameters['s_z'] = conv_factor / self.parameters['d_s_z_dt']
+            if isinstance(self.parameters['ds_z_dt'], u.Quantity):
+                ds_z_dt_value = self.parameters['ds_z_dt'].value
+            else:
+                ds_z_dt_value = self.parameters['ds_z_dt']
+            self.parameters['s_z'] = conv_factor / ds_z_dt_value
         else:
             raise KeyError('Both s_z and ds_z_dt were already assigned.')
 
@@ -1633,9 +1638,9 @@ class ModelParameters(object):
         *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
         Regardless of input value, returns value in 1/year.
         """
+        self._get_s_z_or_ds_z_dt()
         if not isinstance(self.parameters['ds_z_dt'], u.Quantity):
             self.parameters['ds_z_dt'] = self.parameters['ds_z_dt'] / u.yr
-        self._get_s_z_or_ds_z_dt()
 
         return self.parameters['ds_z_dt'].to(1 / u.yr)
 
