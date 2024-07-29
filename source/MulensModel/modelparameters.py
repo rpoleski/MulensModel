@@ -278,7 +278,6 @@ class ModelParameters(object):
         properties NOT of self, but self._source_X_parameters,
         which both are of the same type as self.
         """
-        print('_update_sources_xallarap_reference()')
         delta_1 = self._source_1_parameters._get_xallarap_position()
         self._source_1_parameters._xallarap_reference_position = delta_1
         self._source_2_parameters._xallarap_reference_position = delta_1
