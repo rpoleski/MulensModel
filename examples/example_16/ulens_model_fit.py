@@ -39,7 +39,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.37.3'
+__version__ = '0.38.0'
 
 
 class UlensModelFit(object):
@@ -267,6 +267,13 @@ class UlensModelFit(object):
               https://ui.adsabs.harvard.edu/abs/2017Natur.548..183M/abstract
               Mroz et al. 2020 -
               https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
+
+            ``'posterior parsing'`` - additional settings that allow
+            modyfing posterior after it's calculated. Possile values:
+
+                ``'abs': [...]`` - calculate absolute values for parameters
+                from given list. It's useful for e.g. ``'u_0'`` for
+                free-floating planet events.
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
@@ -1118,6 +1125,15 @@ class UlensModelFit(object):
             for key in ['t_0', 't_0_1', 't_0_2']:
                 conversion[key] = '\\Delta ' + conversion[key]
 
+        if self._fit_constraints is not None:
+            if 'posterior parsing' in self._fit_constraints:
+                if 'abs' in self._fit_constraints['posterior parsing']:
+                    settings = self._fit_constraints['posterior parsing']['abs']
+                    if not isinstance(settings, list):
+                        raise ValueError("Error: fit_constraints -> posterior parsing -> abs - list expected")
+                    for key in self._fit_constraints['posterior parsing']['abs']:
+                        conversion[key] = "|" + conversion[key] + "|"
+
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
 
@@ -1457,6 +1473,23 @@ class UlensModelFit(object):
             self._set_default_fit_constraints()
             return
 
+        self._check_fit_constraints()
+        self._parse_fit_constraints_keys()
+        self._parse_fit_constraints_fluxes()
+        self._parse_fit_constraints_posterior()
+
+        if 'prior' in self._fit_constraints:
+            self._parse_fit_constraints_prior()
+
+    def _check_fit_constraints(self):
+        """
+        Run checks on self._fit_constraints
+        """
+        if self._fit_constraints is not None and self._fit_method == 'MultiNest':
+            raise NotImplementedError(
+                "Currently no fit_constraints are implemented for MultiNest "
+                "fit. Please contact Radek Poleski with a specific request.")
+
         if isinstance(self._fit_constraints, list):
             raise TypeError(
                 "In version 0.5.0 we've changed type of 'fit_constraints' " +
@@ -1464,26 +1497,16 @@ class UlensModelFit(object):
                 "the code. Most probably what you need is:\n" +
                 "fit_constraints = {'no_negative_blending_flux': True}")
 
-        self._parse_fit_constraints_keys()
-        self._parse_fit_constraints_fluxes()
-
-        if 'prior' in self._fit_constraints:
-            self._parse_fit_constraints_prior()
-
     def _parse_fit_constraints_keys(self):
         """
         Validate the keys in the provided fit_constraints.
         """
         allowed_keys_flux = {
             "no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
+        allowed_keys_color = {'color', 'color source 1', 'color source 2'}
+        allowed_keys = {*allowed_keys_flux, *allowed_keys_color,
+                        "prior", "posterior parsing"}
 
-        allowed_keys_color = {'color',
-                              'color source 1',
-                              'color source 2', }
-
-        allowed_keys = {*allowed_keys_flux,
-                        *allowed_keys_color,
-                        "prior"}
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
             raise ValueError('unrecognized constraint: {:}'.format(
@@ -1500,9 +1523,9 @@ class UlensModelFit(object):
     def _set_default_fit_constraints(self):
         """
         Set default fitting constraints if none are provided.
-
         """
         self._fit_constraints = {"no_negative_blending_flux": False}
+        self._parse_posterior_abs = list()
 
     def _check_color_constraints_conflict(self, allowed_keys_color):
         """
@@ -1632,6 +1655,32 @@ class UlensModelFit(object):
 
         if len(priors) > 0:
             self._priors = priors
+
+    def _parse_fit_constraints_posterior(self):
+        """
+        Parse constraints on what is done with posterior.
+        """
+        if 'posterior parsing' not in self._fit_constraints:
+            return
+
+        if self._fit_method != "EMCEE":
+            raise ValueError('Input in "posterior parsing" is allowed only for EMCEE')
+
+        allowed_keys = {"abs"}
+        settings = self._fit_constraints['posterior parsing']
+        unknown = set(settings.keys()) - allowed_keys
+        if len(unknown) > 0:
+            raise KeyError(
+                "Unrecognized key in fit_constraints -> 'posterior parsing': " +
+                str(unknown))
+
+        if 'abs' in settings:
+            self._parse_posterior_abs = settings['abs']
+            for parameter in self._parse_posterior_abs:
+                if parameter not in self._fit_parameters:
+                    raise ValueError(
+                        "Error - you can calculate absolute value only of "
+                        "a parameter which is fitted, not: " + parameter)
 
     def _get_no_of_dataset(self, label):
         """
@@ -2625,6 +2674,10 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters['n_burn']
         self._samples = self._sampler.chain[:, n_burn:, :]
+        for parameter in self._parse_posterior_abs:
+            index = self._fit_parameters.index(parameter)
+            self._samples[:, :, index] = np.fabs(self._samples[:, :, index])
+
         n_fit = self._n_fit_parameters
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))
         if 'trace' not in self._plots:
@@ -2672,6 +2725,8 @@ class UlensModelFit(object):
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}\n"
                 if yaml:
                     format_ = "{:} : [{:.7f}, +{:.7f}, -{:.7f}]\n"
+            if parameter in self._parse_posterior_abs:
+                parameter = "|{:}|".format(parameter)
             text += (begin + format_).format(parameter, *results_)
         return text[:-1]
 

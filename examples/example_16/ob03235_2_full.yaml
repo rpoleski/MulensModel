@@ -47,14 +47,16 @@ fit_constraints:
     #Alternative for binary source models: 
     #color source 1 :  gauss  0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
     #and/or 
-    #color source 2 :  gauss 0.3 0.01  "OGLE I-band" "OB03235_MOA.txt" 
-        
+    #color source 2 :  gauss 0.3 0.01  "OGLE I-band" "OB03235_MOA.txt"
     prior:
         t_E: Mroz et al. 2017
         # Other possibility:
         # t_E: Mroz et al. 2020
         pi_E_N: gauss 0.00 0.15
         pi_E_E: gauss 0.00 0.15
+    posterior parsing:
+        abs: [u_0]
+        # After running EMCEE, calculate absolute values of parameters from that list.
 min_values:
     t_0: 2452840.
     u_0: 0.
