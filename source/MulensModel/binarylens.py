@@ -140,10 +140,15 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
             magnification: *float*
                 Point source magnification.
         """
-        x = float(x - separation / (1. + self._q))
-        y = float(y)
+        return self._get_1_magnification_point_source(x, y, separation)
 
-        self._zeta = x + y * 1.j
+    def _get_1_magnification_point_source(self, x, y, separation):
+        """
+        Calculate point-source--binary-lens magnification.
+        """
+        (x, y) = self._change_frame(x, y, separation)
+
+        self._zeta = float(x) + float(y) * 1.j
         self._position_z1 = -separation + 0.j
 
         jacobian_determinant = self._get_jacobian_determinant()
@@ -151,6 +156,14 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         magnification = fsum(abs(signed_magnification))
 
         return magnification
+
+    def _change_frame(self, x, y, separation):
+        """
+        Change frame in which source position is provided:
+        from the center of mass to the secondary mass.
+        """
+        x_new = x - separation / (1. + self._q)
+        return (x_new, y)
 
     def _get_jacobian_determinant(self):
         """determinants of lens equation Jacobian for verified roots"""
@@ -299,8 +312,6 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
             return np.array(out)
 
 
-# XXX - the line below is not currently true, i.e., it has to be coded - see commented get_magnification() below.
-# This is the primary PointSource Calculation
 class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification using
@@ -325,6 +336,38 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
         return _vbbl_binary_mag_point(separation, self._q, x, y)
 
 
+class BinaryLensPointSourceMagnification(_BinaryLensPointSourceMagnification):
+    """
+    Optimal class for calculation of point-source binary-lens magnification:
+    it first tries VBBL and then switches to Witt & Mao 1995 if the former fails.
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._first = BinaryLensPointSourceVBBLMagnification(**kwargs)
+        self._second = BinaryLensPointSourceWM95Magnification(**kwargs)
+
+    def _get_1_magnification(self, x, y, separation):
+        """
+        Calculate 1 magnification value
+        """
+        return self._get_1_magnification_point_source(float(x), float(y), float(separation))
+
+    def _get_1_magnification_point_source(self, x, y, separation):
+        """
+        First try VBBL then WM95 to get magnification
+        """
+        repeat = False
+        try:
+            out = self._first._get_1_magnification_point_source(x, y, separation)
+        except Exception:
+            repeat = True
+
+        if repeat or out < 1.:
+            out = self._second._get_1_magnification_point_source(x, y, separation)
+
+        return out
+
+
 class _FiniteSource(object):
     """
     Abstract class for setting and checking rho value.
@@ -343,7 +386,7 @@ class _FiniteSource(object):
         self._rho = float(rho)
 
 
-class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification,
+class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification,
                                         _FiniteSource):
     """
     Magnification in quadrupole approximation of the binary-lens/finite-source event - based on
@@ -407,7 +450,8 @@ class BinaryLensQuadrupoleMagnification(BinaryLensPointSourceVBBLMagnification, 
         self._a_2_rho_square = (16. * self._a_rho_half_plus - self._a_rho_plus) / 3.
 
         # Gould 2008 eq. 6 (part 1/2):
-        self._quadrupole_magnification = self._point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma)
+        self._quadrupole_magnification = (
+            self._point_source_magnification + self._a_2_rho_square * (1. - 0.2 * self._gamma))
 
         return self._quadrupole_magnification
 
@@ -477,8 +521,7 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         return 0.25 * fsum(out) - self._point_source_magnification
 
 
-class BinaryLensVBBLMagnification(BinaryLensPointSourceVBBLMagnification, _LimbDarkeningForMagnification,
-                                  _FiniteSource):
+class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification, _FiniteSource):
     """
     Binary lens finite source magnification calculated using VBBL
     library that implements advanced contour integration algorithm
@@ -608,9 +651,14 @@ class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnificat
         """
         Calculate 1 magnification using AC.
         """
-        # XXX transformation done below has to be moved:
-        x *= -1
-        y *= -1
-
-        args = [float(separation), self._q, float(x), float(y), self._rho, self._gamma, self._accuracy, self._ld_accuracy]
+        (x, y) = self._change_frame(x, y, separation)
+        args = [float(separation), self._q, float(x), float(y),
+                self._rho, self._gamma, self._accuracy, self._ld_accuracy]
         return _adaptive_contouring_linear(*args)
+
+    def _change_frame(self, x, y, separation):
+        """
+        Change frame in which source position is provided:
+        mirror in X (i.e., secondary mass has negative X) and mirror in Y.
+        """
+        return (-x, -y)

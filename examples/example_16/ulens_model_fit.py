@@ -39,7 +39,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.37.3'
+__version__ = '0.37.4'
 
 
 class UlensModelFit(object):
@@ -3203,15 +3203,14 @@ class UlensModelFit(object):
         plot_size_ratio = 5
         hspace = 0
         tau = 1.5
-        remove_245 = True
         default_model = {'color': 'black', 'linewidth': 1.0, 'zorder': np.inf}
 
         kwargs_grid = {
             'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1],
             'hspace': hspace}
-        kwargs = {'subtract_2450000': remove_245}
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
+        (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
 
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
@@ -3223,11 +3222,6 @@ class UlensModelFit(object):
                 u = self._model_parameters[key][self._datasets[0].bandpass]
                 kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
 
-        if kwargs['subtract_2450000']:
-            xlim = [t_1-2450000., t_2-2450000.]
-        else:
-            xlim = [t_1, t_2]
-
         kwargs_axes_1 = dict(
             axis='both', direction='in', bottom=True, top=True, left=True,
             right=True, labelbottom=False)
@@ -3235,6 +3229,20 @@ class UlensModelFit(object):
 
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
                 kwargs_axes_1, kwargs_axes_2)
+
+    def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
+        """
+        Should we subtract 2450000 or 2460000?
+        """
+        mean = (t_1 + t_2) / 2.
+        if mean < 2460000.:
+            kwargs = {'subtract_2450000': True, 'subtract_2460000': False}
+            xlim = [t_1-2450000., t_2-2450000.]
+        else:
+            kwargs = {'subtract_2450000': False, 'subtract_2460000': True}
+            xlim = [t_1-2460000., t_2-2460000.]
+
+        return (kwargs, xlim)
 
     def _get_time_limits_for_plot(self, tau, plot_type):
         """
