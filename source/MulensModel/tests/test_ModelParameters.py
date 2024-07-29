@@ -386,6 +386,7 @@ def test_keplerian_motion_s_z_only():
     dict_1 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 's_z': 0.1})
     keplerian = mm.ModelParameters(dict_1)
     assert not keplerian.is_static()
+    assert keplerian.is_keplerian()
 
 
 def test_keplerian_motion_ds_z_dt_only():
@@ -393,6 +394,7 @@ def test_keplerian_motion_ds_z_dt_only():
     dict_1 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 'ds_z_dt': 1.9})
     keplerian = mm.ModelParameters(dict_1)
     assert not keplerian.is_static()
+    assert keplerian.is_keplerian()
 
 
 def test_circular_motion_setting_s_z():
@@ -473,24 +475,45 @@ def test_access_to_s_z():
     assert model.ds_z_dt.value == 0.1
 
 
+def setup_orbital_motion_gammas(dict_to_add):
+    """
+    Setup dictionary for tests of gammas in orbital motion
+    """
+    dict_pars = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00, 's': 1.5,
+                 'q': 0.987, 'alpha': 12.345}
+
+    return {**dict_pars, **dict_to_add}
+
+
 def test_orbital_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
-    dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00,
-                   's': 1.5, 'ds_dt': 0.5, 'q': 0.987,
-                   'alpha': 12.345, 'dalpha_dt': 50., 's_z': 0.5}
-    params = mm.ModelParameters(dict_params)
+
+    dict_pars = setup_orbital_motion_gammas({'ds_dt': 0.5, 'dalpha_dt': 50.})
+    params = mm.ModelParameters(dict_pars)
 
     # Test values.
     np.testing.assert_almost_equal(params.gamma_parallel.value, 0.333333333)
     np.testing.assert_almost_equal(params.gamma_perp.value, -0.872664626)
-    np.testing.assert_almost_equal(params.gamma_z.value, -1.)
-    np.testing.assert_almost_equal(params.gamma.value, 1.368449729)
+    np.testing.assert_almost_equal(params.gamma.value, 0.934159869)
 
     # Test units.
     assert params.gamma_parallel.unit == 1. / u.year
     assert params.gamma_perp.unit == u.rad / u.year
-    assert params.gamma_z.unit == 1 / u.year
     assert params.gamma.unit == 1. / u.year
+
+
+def test_orbital_motion_gamma_z():
+    """test .gamma_z .gamma"""
+    dict_pars = setup_orbital_motion_gammas({'ds_dt': 0.5, 'dalpha_dt': 50.,
+                                             's_z': 0.5})
+    params = mm.ModelParameters(dict_pars)
+
+    # Test values.
+    np.testing.assert_almost_equal(params.gamma_z.value, -1.)
+    np.testing.assert_almost_equal(params.gamma.value, 1.368449729)
+
+    # Test units.
+    assert params.gamma_z.unit == 1 / u.year
 
 
 def test_binary_source():

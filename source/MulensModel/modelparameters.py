@@ -2141,7 +2141,17 @@ class ModelParameters(object):
         """
         return self.ds_z_dt / self.s
 
-    # Raphael: define orbital elements here... omega, i, etc.
+    # Raphael: define orbital elements here? epsilon, Omega, i, etc.
+
+    # @property
+    # def epsilon(self):
+    #     """
+    #     float*
+
+    #     mean (or eccentric) anomaly ...
+    #     """
+    #     denominator = np.sin(self.lens_i) * np.(self.s**2 + self.s_z**2)
+    #     return np.arcsin(self.s_z / (denominator))
 
     @property
     def gamma(self):
@@ -2152,6 +2162,10 @@ class ModelParameters(object):
         1/year. Cannot be set.
         """
         gamma_perp = (self.gamma_perp / u.rad).to(1 / u.yr)
+
+        if not self.is_keplerian():
+            return (self.gamma_parallel**2 + gamma_perp**2)**0.5
+
         return (self.gamma_parallel**2 + gamma_perp**2 + self.gamma_z**2)**0.5
 
     def is_finite_source(self):
@@ -2176,7 +2190,16 @@ class ModelParameters(object):
         """
         return not self._type['lens 2-parameter orbital motion']
 
-    # Raphael: add a function 'def is_keplerian(self)' here?
+    def is_keplerian(self):
+        """
+        Checks if model includes orbital motion of the lenses (circular or
+        full keplerian motion), i.e., whether s_z or ds_z_dt are set.
+
+        Returns :
+            is_keplerian: *boolean*
+                *True* if *s_z* or *ds_z_dt* are set.
+        """
+        return self._type['full keplerian motion']
 
     @property
     def n_lenses(self):
