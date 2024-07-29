@@ -24,15 +24,16 @@ for i, source in zip(range(1, 5), [source_1, source_2, source_3, source_4]):
 
     models.append(mm.Model(single_source_model_params))
 
-print(model_params)
+print('dict model_params:\n', model_params)
 
 model = mm.Model(model_params)
-print(model)
+print('model.__repr__:\n', model)
 
 model.plot_lc(source_flux=source_fluxes, label='1L4S Model')
 for i, single_model, source_flux in zip(range(1, 5), models, source_fluxes):
     single_model.plot_lc(
         source_flux=source_flux, label='Source {0}'.format(i))
 
+plt.title('1L4S model + Individual Components')
 plt.legend()
 plt.show()
