@@ -670,16 +670,31 @@ class ModelParameters(object):
         """
         define the default order of parameters
         """
-        ordered_keys = [
-            't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
-            'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
+        basic_keys = ['t_0', 'u_0', 't_E', 'rho', 't_star']
+        additional_keys = [
             'pi_E_N', 'pi_E_E', 't_0_par', 's', 'q', 'alpha',
             'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt', 't_0_kep',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
             'xi_period', 'xi_semimajor_axis', 'xi_inclination',
             'xi_Omega_node', 'xi_argument_of_latitude_reference',
             'xi_eccentricity', 'xi_omega_periapsis', 'q_source', 't_0_xi'
-        ]
+            ]
+
+        ordered_keys = []
+        if self.n_sources > 1:
+            for param_head in basic_keys:
+                if param_head == 't_E':
+                    ordered_keys.append(param_head)
+                else:
+                    for i in range(self.n_sources):
+                        ordered_keys.append('{0}_{1}'.format(param_head, i + 1))
+
+        else:
+            ordered_keys = basic_keys
+
+        for key in additional_keys:
+            ordered_keys.append(key)
+
         return ordered_keys
 
     def _get_values_for_repr(self, form, key):
