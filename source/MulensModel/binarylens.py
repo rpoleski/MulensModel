@@ -146,11 +146,9 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         """
         Calculate point-source--binary-lens magnification.
         """
-        # XXX transformation done below has to be moved:
-        x = float(x - separation / (1. + self._q))
-        y = float(y)
+        (x, y) = self._change_frame(x, y, separation)
 
-        self._zeta = x + y * 1.j
+        self._zeta = float(x) + float(y) * 1.j
         self._position_z1 = -separation + 0.j
 
         jacobian_determinant = self._get_jacobian_determinant()
@@ -158,6 +156,14 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         magnification = fsum(abs(signed_magnification))
 
         return magnification
+
+    def _change_frame(self, x, y, separation):
+        """
+        Change frame in which source position is provided:
+        from the center of mass to the secondary mass.
+        """
+        x_new = x - separation / (1. + self._q)
+        return (x_new, y)
 
     def _get_jacobian_determinant(self):
         """determinants of lens equation Jacobian for verified roots"""
@@ -645,10 +651,14 @@ class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnificat
         """
         Calculate 1 magnification using AC.
         """
-        # XXX transformation done below has to be moved:
-        x *= -1
-        y *= -1
-
+        (x, y) = self._change_frame(x, y, separation)
         args = [float(separation), self._q, float(x), float(y),
                 self._rho, self._gamma, self._accuracy, self._ld_accuracy]
         return _adaptive_contouring_linear(*args)
+
+    def _change_frame(self, x, y, separation):
+        """
+        Change frame in which source position is provided:
+        mirror in X (i.e., secondary mass has negative X) and mirror in Y.
+        """
+        return (-x, -y)
