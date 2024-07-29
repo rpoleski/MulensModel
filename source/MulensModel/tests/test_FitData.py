@@ -1066,14 +1066,14 @@ def test_bad_data_w_ephemerides():
     """
     Test that satellite_skycoords is correctly masked when there are bad data.
     """
-    pass
+    raise NotImplementedError()
 
 
 def test_multiple_sources():
     """
     Test that we can fit fluxes for N sources.
     """
-    pass
+    raise NotImplementedError()
 
 
 

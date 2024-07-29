@@ -1014,3 +1014,11 @@ class Test1L3SModelErrors(unittest.TestCase):
                       't_E': 9}
         with self.assertRaises(KeyError):
             model_params = mm.ModelParameters(parameters)
+
+    def test_1L3S_xallarap(self):
+        """
+        This test should probably fail, but is it possible to implement this behavior as in OGLE-2015-BLG-1459L?
+
+        https://ui.adsabs.harvard.edu/abs/2018AJ....155..259H/abstract
+        """
+        raise NotImplementedError()
