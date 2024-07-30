@@ -475,6 +475,18 @@ def test_access_to_s_z():
     assert model.ds_z_dt.value == 0.1
 
 
+def test_access_to_s_z_2():
+    """
+    Make sure that accessing s_z doesn't fix it
+    (i.e., it changes when ds_z_dt changes).
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 0.01})
+    model = mm.ModelParameters(params)
+    np.testing.assert_almost_equal(model.s_z, -24.69)
+    model.ds_z_dt = 0.1
+    np.testing.assert_almost_equal(model.s_z, -2.469)
+
+
 def setup_orbital_motion_gammas(dict_to_add):
     """
     Setup dictionary for tests of gammas in orbital motion
