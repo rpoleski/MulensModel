@@ -2185,19 +2185,19 @@ class ModelParameters(object):
 
         Returns :
             is_static: *boolean*
-                *True* if *dalpha_dt* or *ds_dt* are set.
+                *True* if :py:attr:`~dalpha_dt` or :py:attr:`~ds_dt` are set.
 
         """
         return not self._type['lens 2-parameter orbital motion']
 
     def is_keplerian(self):
         """
-        Checks if model includes orbital motion of the lenses (circular or
-        full keplerian motion), i.e., whether s_z or ds_z_dt are set.
+        Checks if model includes keplerian orbital motion of the lenses,
+        which can be either circular or elliptical.
 
         Returns :
             is_keplerian: *boolean*
-                *True* if *s_z* or *ds_z_dt* are set.
+                *True* if :py:attr:`~s_z` or :py:attr:`~ds_z_dt` are set.
         """
         return self._type['full keplerian motion']
 
