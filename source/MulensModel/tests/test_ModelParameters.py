@@ -381,6 +381,16 @@ class test_Keplerian(unittest.TestCase):
             mm.ModelParameters(dict_4)
 
 
+def test_is_not_keplerian():
+    """
+    Make sure that is_keplerian() works properly for static model.
+    """
+    params_static = setup_keplerian({})
+    model_static = mm.ModelParameters(params_static)
+    assert model_static.is_static()
+    assert not model_static.is_keplerian()
+
+
 def test_keplerian_motion_s_z_only():
     """tests if only s_z is given"""
     dict_1 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 's_z': 0.1})
@@ -936,7 +946,7 @@ def test_xallarap_n_sources():
 def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     """
     Make sure that parameters of both sources are properly set.
-    Most importantly, xi_u is shifted by 180 deg and xi_a is scaled by q_source.
+    Most importantly, xi_u is shifted by 180deg and xi_a is scaled by q_source.
     """
     q_source = 1.23456
     parameters_1st = {**xallarap_parameters}
