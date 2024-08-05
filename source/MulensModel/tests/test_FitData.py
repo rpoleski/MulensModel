@@ -1,3 +1,5 @@
+import ast
+
 import numpy as np
 from numpy.testing import assert_almost_equal as almost
 from numpy.testing import assert_allclose
@@ -1067,13 +1069,69 @@ def test_bad_data_w_ephemerides():
     raise NotImplementedError()
 
 
-def test_multiple_sources():
+def _read_OB151489_file(model_type):
+    def parse_header(file_path):
+        header_info = {}
+        params = {}
+        param_heads = ['t_0', 'u_0', 'rho']
+        with open(file_path) as file_:
+            for line in file_.readlines():
+                if '# Source ' in line:
+                    n = line[9:10]
+                    source_params = ast.literal_eval(line[11:].strip())
+                    for key, value in source_params.items():
+                        if key in param_heads:
+                            params['{0}_{1}'.format(key, n)] = value
+                        elif key not in params.keys():
+                            params[key] = value
+                elif '# source:' in line:
+                    fluxes = line[9:].split()
+                    header_info['source fluxes'] = [float(flux) for flux in fluxes]
+                elif '# blend:' in line:
+                    header_info['blend flux'] = float(line[8:])
+                elif '# mag_methods:' in line:
+                    header_info['mag_methods'] = ast.literal_eval(line[15:].strip())
+                elif 'Date,' in line:
+                    header_info['phot_fmt'] = line.split(',')[1].strip().lower()
+
+        header_info['params'] = params
+        return header_info
+
+    filename = 'OB151489_simulated_data_{0}.dat'.format(model_type)
+    file_path = join(dir_2, filename)
+    header_info = parse_header(file_path)
+    # Remove later:
+    for key, value in header_info.items():
+        print(key, value)
+
+    data = mm.MulensData(
+        file_name=file_path, phot_fmt=header_info['phot_fmt'],)
+
+    model = mm.Model(header_info['params'])
+    model.set_magnification_methods(header_info['mag_methods'])
+
+    return data, model, header_info
+
+
+def test_multiple_source():
     """
     Test that we can fit fluxes for N sources.
     """
-    raise NotImplementedError()
+    for model_type in ['1L3S', '2L2S']:
+        n_sources = int(model_type[2:3])
+        data, model, header_info = _read_OB151489_file('1L3S')
+        # Remove debugging print statements later.
+        print(data)
+        print(model)
 
-
+        fit = mm.FitData(dataset=data, model=model)
+        fit.fit_fluxes()
+        np.testing.assert_almost_equal(
+            fit.blend_flux, header_info['blend flux'], decimal=3)
+        for i in range(n_sources):
+            np.testing.assert_almost_equal(
+                fit.source_fluxes[i], header_info['source fluxes'][i],
+                decimal=3)
 
 # Tests to add:
 #
