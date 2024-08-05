@@ -915,6 +915,49 @@ class TestGetTrajectory(unittest.TestCase):
         np.testing.assert_equal(traj_2_1L2S.x, traj_2_1L1S.x)
         np.testing.assert_equal(traj_2_1L2S.y, traj_2_1L1S.y)
 
+
+def test_N_sources():
+    """
+    Parameters correspond to OB151459: Hwang et al. 2018, AJ, 155, 259
+    Data are simulated without noise.
+    Fluxes in paper were in the 18th magnitude system. MM works with
+    MAG_ZEROPOINT=22, so these magnitudes have an offset relative to the
+    original event.
+    Table 3: Static 1L3S Model
+    """
+    t_E = 4.921
+    source_1_params = {'t_E': t_E, 't_0': 7199.946, 'u_0': 0.065}
+    source_2_params = {'t_E': t_E, 't_0': 7200.193, 'u_0': 2.638e-3, 'rho': 4.503e-3}
+    source_3_params = {'t_E': t_E, 't_0': 7200.202, 'u_0': 0.281e-3, 'rho': 0.631e-3}
+
+    mag_methods = [7200.1, 'finite_source_uniform_Gould94', 7200.3]
+
+    model_1 = mm.Model(source_1_params)
+    model_2 = mm.Model(source_2_params)
+    model_2.set_magnification_methods(mag_methods)
+    model_3 = mm.Model(source_3_params)
+    model_3.set_magnification_methods(mag_methods)
+
+    times = [7199.946, 7200., 7200.193, 7200.202]
+    magnifications = np.vstack((
+        model_1.get_magnification(times),
+        model_2.get_magnification(times),
+        model_3.get_magnification(times)))
+    print(magnifications) # Remove after debugging
+
+    model_params = {'t_E': t_E}
+    for i, source_params in enumerate(
+            [source_1_params, source_2_params, source_3_params]):
+        for key, value in source_params.items():
+            if key != 't_E':
+                model_params['{0}_{1}'.format(key, i+1)] = value
+
+    model = mm.Model(model_params)
+    print(model.get_magnification(times))  # Remove after debugging
+    np.testing.assert_almost_equal(
+        model.get_magnification(times), magnifications, decimal=4
+    )
+
 # Tests to Add:
 #
 # test set_times:
