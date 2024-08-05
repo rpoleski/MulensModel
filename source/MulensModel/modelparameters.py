@@ -1031,9 +1031,9 @@ class ModelParameters(object):
             self._standard_parameters = (
                 self._uniform_caustic.get_standard_parameters(**kwargs))
 
-    def _get_s_z_or_ds_z_dt(self):
+    def _create_s_z_or_ds_z_dt(self):
         """
-        Calculates s_z or ds_z_dt when the other is given.
+        Creates s_z or ds_z_dt instance when the other is given.
         """
         conv_factor = -self.parameters['ds_dt'] * self.parameters['s']
 
@@ -1046,7 +1046,23 @@ class ModelParameters(object):
                 ds_z_dt_value = self.parameters['ds_z_dt']
             self.parameters['s_z'] = conv_factor / ds_z_dt_value
         else:
-            raise KeyError('Both s_z and ds_z_dt were already assigned.')
+            raise KeyError('Neither s_z or ds_z_dt were defined.')
+
+    def _update_s_z_or_ds_z_dt(self, parameter, value):
+        """
+        Updates s_z or ds_z_dt when the other is changed.
+        """
+        conv_factor = -self.parameters['ds_dt'] * self.parameters['s']
+
+        if parameter == 's_z':
+            self.parameters['s_z'] = value
+            self.parameters['ds_z_dt'] = (conv_factor / value) / u.yr
+        elif parameter == 'ds_z_dt':
+            value = value.value if isinstance(value, u.Quantity) else value
+            self.parameters['ds_z_dt'] = value / u.yr
+            self.parameters['s_z'] = conv_factor / value
+        else:
+            raise KeyError('Updated parameter must be s_z or ds_z_dt.')
 
     @property
     def t_0(self):
@@ -1621,12 +1637,12 @@ class ModelParameters(object):
         instantaneous position in the direction perpendicular to the plane
         of the sky at time t_0_kep.
         """
-        self._get_s_z_or_ds_z_dt()
+        self._create_s_z_or_ds_z_dt()
         return self.parameters['s_z']
 
     @s_z.setter
     def s_z(self, new_s_z):
-        self.parameters['s_z'] = new_s_z
+        self._update_s_z_or_ds_z_dt('s_z', new_s_z)
         self._update_sources('s_z', new_s_z)
 
     @property
@@ -1638,7 +1654,7 @@ class ModelParameters(object):
         *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
         Regardless of input value, returns value in 1/year.
         """
-        self._get_s_z_or_ds_z_dt()
+        self._create_s_z_or_ds_z_dt()
         if not isinstance(self.parameters['ds_z_dt'], u.Quantity):
             self.parameters['ds_z_dt'] = self.parameters['ds_z_dt'] / u.yr
 
@@ -1646,10 +1662,7 @@ class ModelParameters(object):
 
     @ds_z_dt.setter
     def ds_z_dt(self, new_ds_z_dt):
-        if isinstance(new_ds_z_dt, u.Quantity):
-            self.parameters['ds_z_dt'] = new_ds_z_dt
-        else:
-            self.parameters['ds_z_dt'] = new_ds_z_dt / u.yr
+        self._update_s_z_or_ds_z_dt('ds_z_dt', new_ds_z_dt)
         self._update_sources('ds_z_dt', new_ds_z_dt)
 
     @property
