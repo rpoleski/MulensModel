@@ -947,6 +947,7 @@ class TestNSources(unittest.TestCase):
         self.model_2.set_magnification_methods(self.mag_methods)
         self.model_3 = mm.Model(self.source_3_params)
         self.model_3.set_magnification_methods(self.mag_methods)
+        self.models = [self.model_1, self.model_2, self.model_3]
 
         self.times = [7199.946, 7200., 7200.193, 7200.202]
 
@@ -999,6 +1000,13 @@ class TestNSources(unittest.TestCase):
             mm.Utils.get_mag_from_flux(model_fluxes), self.flux, decimal=4
         )
 
+    def test_get_magnification_curves(self):
+        mag_curves = self.model.get_magnification_curves(self.times, None, None)
+        for mag_curve, model in zip(mag_curves, self.models):
+            np.testing.assert_almost_equal(
+                mag_curve.get_magnification(), model.get_magnification(self.times), decimal=6
+            )
+
     def test_set_times(self):
         times = self.model.set_times()
         np.testing.assert_almost_equal(
@@ -1007,7 +1015,6 @@ class TestNSources(unittest.TestCase):
         np.testing.assert_almost_equal(
             7199.946 + 1.5 * self.t_E, times[-1], decimal=4
         )
-
 
 def test_N_sources_gamma():
     """
