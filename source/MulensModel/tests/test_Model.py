@@ -970,6 +970,8 @@ class TestNSources(unittest.TestCase):
                     self.model_params['{0}_{1}'.format(key, i+1)] = value
 
         self.model = mm.Model(self.model_params)
+        self.model.set_magnification_methods(self.mag_methods, 2)
+        self.model.set_magnification_methods(self.mag_methods, 3)
 
     def test_get_magnification(self):
         print(self.model.get_magnification(self.times))  # Remove after debugging
