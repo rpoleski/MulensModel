@@ -933,6 +933,13 @@ class TestNSources(unittest.TestCase):
         self.source_2_params = {'t_E': self.t_E, 't_0': 7200.193, 'u_0': 2.638e-3, 'rho': 4.503e-3}
         self.source_3_params = {'t_E': self.t_E, 't_0': 7200.202, 'u_0': 0.281e-3, 'rho': 0.631e-3}
 
+        self.flux_ratios = {'q_2': 0.014, 'q_3': 0.006}
+        self.source_flux_1 = 0.056
+        self.source_flux_2 = self.source_flux_1 * self.flux_ratios['q_2']
+        self.source_flux_3 = self.source_flux_1 * self.flux_ratios['q_3']
+        self.source_fluxes = [self.source_flux_1, self.source_flux_2, self.source_flux_3]
+        self.blend_flux = 0.100
+
         self.mag_methods = [7200.1, 'finite_source_uniform_Gould94', 7200.3]
 
         self.model_1 = mm.Model(self.source_1_params)
@@ -942,11 +949,17 @@ class TestNSources(unittest.TestCase):
         self.model_3.set_magnification_methods(self.mag_methods)
 
         self.times = [7199.946, 7200., 7200.193, 7200.202]
-        magnifications = np.vstack((
+
+        self.magnifications = np.vstack((
             self.model_1.get_magnification(self.times),
             self.model_2.get_magnification(self.times),
             self.model_3.get_magnification(self.times)))
-        print(magnifications) # Remove after debugging
+        print(self.magnifications)  # Remove after debugging
+
+        self.flux =  self.source_flux_1 * self.model_1.get_magnification(self.times)
+        self.flux += self.source_flux_2 * self.model_2.get_magnification(self.times)
+        self.flux += self.source_flux_3 * self.model_3.get_magnification(self.times)
+        self.flux += self.blend_flux
 
         self.model_params = {'t_E': self.t_E}
         for i, source_params in enumerate(
@@ -969,8 +982,9 @@ class TestNSources(unittest.TestCase):
             magnification: *numpy.ndarray*
                 Magnification values for each epoch.
         """
+        model_fluxes = self.model.get_lc(self.times, source_flux=self.source_fluxes, blend_flux=self.blend_flux)
         np.testing.assert_almost_equal(
-            self.model.get_lc(self.times), self.magnifications, decimal=4
+            mm.Utils.get_mag_from_flux(model_fluxes), self.flux, decimal=4
         )
 
     def test_set_times(self):
