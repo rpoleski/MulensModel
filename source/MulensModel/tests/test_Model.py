@@ -963,6 +963,32 @@ class TestNSources(unittest.TestCase):
             self.model.get_magnification(self.times), self.magnifications, decimal=4
         )
 
+    def test_get_lc(self):
+        """
+        Returns :
+            magnification: *numpy.ndarray*
+                Magnification values for each epoch.
+        """
+        np.testing.assert_almost_equal(
+            self.model.get_lc(self.times), self.magnifications, decimal=4
+        )
+
+    def test_set_times(self):
+        times = self.model.set_times()
+        np.testing.assert_almost_equal(
+            7199.946 - 1.5 * self.t_E, times[0], decimal=4
+        )
+        np.testing.assert_almost_equal(
+            7199.946 + 1.5 * self.t_E, times[-1], decimal=4
+        )
+
+
+def test_N_sources_gamma():
+    """
+    Test a model with gammas for different sources.
+    """
+    raise NotImplementedError()
+
 # Tests to Add:
 #
 # test set_times:
