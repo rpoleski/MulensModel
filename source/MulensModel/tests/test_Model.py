@@ -1025,12 +1025,6 @@ def test_N_sources_gamma():
     raise NotImplementedError()
 
 
-def test_N_sources_methods():
-    """
-    test a model with finite source effects in very different places for the different sources.
-    """
-    raise NotImplementedError()
-
 # Tests to Add:
 #
 # test set_times:

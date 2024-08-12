@@ -1402,7 +1402,11 @@ class Model(object):
         mag_curves = []
 
         for i in range(self.n_sources):
-            methods = self._methods.get(i + 1, None)
+            if isinstance(self._methods, dict):
+                methods = self._methods.get(i + 1, None)
+            else:
+                methods = self._methods
+
             mag_curve = MagnificationCurve(
                  parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i+1)), **kwargs)
             mag_curve.set_magnification_methods(methods, self._default_magnification_method)
