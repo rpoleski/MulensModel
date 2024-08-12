@@ -36,4 +36,9 @@ for i, single_model, source_flux in zip(range(1, 5), models, source_fluxes):
 
 plt.title('1L4S model + Individual Components')
 plt.legend()
+
+plt.figure()
+plt.gca().set_aspect('equal')
+model.plot_trajectory()
+
 plt.show()
