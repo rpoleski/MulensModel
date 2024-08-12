@@ -1012,10 +1012,10 @@ class TestNSources(unittest.TestCase):
     def test_set_times(self):
         times = self.model.set_times()
         np.testing.assert_almost_equal(
-            7199.946 - 1.5 * self.t_E, times[0], decimal=4
+            self.source_1_params['t_0'] - 1.5 * self.t_E, times[0], decimal=4
         )
         np.testing.assert_almost_equal(
-            7199.946 + 1.5 * self.t_E, times[-1], decimal=4
+            self.source_3_params['t_0'] + 1.5 * self.t_E, times[-1], decimal=4
         )
 
 def test_N_sources_gamma():

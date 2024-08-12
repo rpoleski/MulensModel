@@ -813,8 +813,11 @@ class Model(object):
                 t_0 = self.parameters.t_0
             else:
                 # Update for N_Sources = arbitrary
-                t_0 = min(self.parameters.source_1_parameters.t_0,
-                          self.parameters.source_2_parameters.t_0)
+                #t_0 = min(self.parameters.source_1_parameters.t_0,
+                #          self.parameters.source_2_parameters.t_0)
+                t_0 = np.min(
+                    [self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).t_0
+                     for i in range(self.n_sources)])
 
             t_start = t_0 - (n_tE * self.parameters.t_E)
 
@@ -823,8 +826,11 @@ class Model(object):
                 t_0 = self.parameters.t_0
             else:
                 # Update for N_Sources = arbitrary
-                t_0 = max(self.parameters.source_1_parameters.t_0,
-                          self.parameters.source_2_parameters.t_0)
+                #t_0 = max(self.parameters.source_1_parameters.t_0,
+                #          self.parameters.source_2_parameters.t_0)
+                t_0 = np.max(
+                    [self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).t_0
+                     for i in range(self.n_sources)])
 
             t_stop = t_0 + (n_tE * self.parameters.t_E)
 
