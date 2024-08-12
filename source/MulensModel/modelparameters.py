@@ -957,22 +957,6 @@ class ModelParameters(object):
             if parameter in self.parameters:
                 self._warn_if_angle_outside_reasonable_range(
                     self.parameters[parameter], parameter)
-        self._set_keplerian_parameters(parameters)
-
-    def _set_keplerian_parameters(self, parameters):
-        """
-        Set auxiliary parameters for s_z and ds_z_dt with the value given in
-        parameters or None. They are used in the property functions.
-        """
-        self._s_z = parameters.get('s_z')
-        if self._s_z is not None:
-            self._ds_z_dt = self._get_s_z_or_ds_z_dt(s_z=self._s_z)
-        else:
-            self._ds_z_dt = parameters.get('ds_z_dt')
-            if self._ds_z_dt is not None:
-                if not isinstance(self._ds_z_dt, u.Quantity):
-                    self._ds_z_dt = self._ds_z_dt / u.yr
-                self._s_z = self._get_s_z_or_ds_z_dt(ds_z_dt=self._ds_z_dt)
 
     def _update_sources(self, parameter, value):
         """
@@ -1635,17 +1619,14 @@ class ModelParameters(object):
         instantaneous position in the direction perpendicular to the plane
         of the sky at time t_0_kep.
         """
-        value = self.parameters.get('s_z', self._s_z)
-        if value is not None:
-            self._ds_z_dt = self._get_s_z_or_ds_z_dt(s_z=value)
-
-        return value
+        if 's_z' in self.parameters:
+            return self.parameters['s_z']
+        else:
+            return self._get_s_z_or_ds_z_dt(ds_z_dt=self.parameters['ds_z_dt'])
 
     @s_z.setter
     def s_z(self, new_s_z):
-        self._s_z = new_s_z
         self.parameters['s_z'] = new_s_z
-        self._ds_z_dt = self._get_s_z_or_ds_z_dt(s_z=new_s_z)
         self._update_sources('s_z', new_s_z)
 
     @property
@@ -1657,20 +1638,19 @@ class ModelParameters(object):
         *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
         Regardless of input value, returns value in 1/year.
         """
-        value = self.parameters.get('ds_z_dt', self._ds_z_dt)
-        if value is None:
-            return value
+        if 'ds_z_dt' in self.parameters:
+            value = self.parameters['ds_z_dt']
+        else:
+            value = self._get_s_z_or_ds_z_dt(s_z=self.parameters['s_z'])
+
         if not isinstance(value, u.Quantity):
             value = value / u.yr
-        self._s_z = self._get_s_z_or_ds_z_dt(ds_z_dt=value)
 
         return value.to(1 / u.yr)
 
     @ds_z_dt.setter
     def ds_z_dt(self, new_ds_z_dt):
-        self._ds_z_dt = new_ds_z_dt
         self.parameters['ds_z_dt'] = new_ds_z_dt
-        self._s_z = self._get_s_z_or_ds_z_dt(ds_z_dt=new_ds_z_dt)
         self._update_sources('ds_z_dt', new_ds_z_dt)
 
     @property
@@ -2162,8 +2142,7 @@ class ModelParameters(object):
         """
         if not self.is_keplerian():
             return None
-        if self.ds_z_dt is None:
-            self._ds_z_dt = self._get_s_z_or_ds_z_dt(s_z=self.s_z)
+
         return self.ds_z_dt / self.s
 
     # Raphael: define orbital elements here? epsilon, Omega, i, etc.
