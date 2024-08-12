@@ -797,6 +797,7 @@ class Model(object):
                 raise ValueError(
                     'Model.set_times() - you cannot set t_range and either ' +
                     't_start or t_stop')
+            
             t_start = t_range[0]
             t_stop = t_range[1]
 
@@ -808,7 +809,9 @@ class Model(object):
                 # Update for N_Sources = arbitrary
                 t_0 = min(self.parameters.source_1_parameters.t_0,
                           self.parameters.source_2_parameters.t_0)
+
             t_start = t_0 - (n_tE * self.parameters.t_E)
+
         if t_stop is None:
             if self.n_sources == 1:
                 t_0 = self.parameters.t_0
@@ -816,17 +819,20 @@ class Model(object):
                 # Update for N_Sources = arbitrary
                 t_0 = max(self.parameters.source_1_parameters.t_0,
                           self.parameters.source_2_parameters.t_0)
+
             t_stop = t_0 + (n_tE * self.parameters.t_E)
 
         if dt is None:
             if n_epochs is None:
                 n_epochs = 1000
+
             n_epochs -= 1
             dt = (t_stop - t_start) / float(n_epochs)
 
-        out = np.arange(t_start, t_stop+dt, dt)
+        out = np.arange(t_start, t_stop + dt, dt)
         if out[-1] > t_stop:  # This may happen due to rounding errors.
             out = out[:-1]
+
         return out
 
     def set_magnification_methods(self, methods, source=None):
