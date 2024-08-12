@@ -158,9 +158,9 @@ class Model(object):
         if self.n_sources > 1 and source_flux_ratio is None:
             # Update for N_Sources = arbitrary
             raise ValueError(
-                'For binary source model you have to provide ' +
+                'For multi-source model you have to provide ' +
                 'source_flux_ratio. Note that plotted magnification will ' +
-                'be the effective magnification of the two sources.')
+                'be the effective magnification of the sources.')
 
         self._check_gamma_for_2_sources(gamma)  # Update for N_Sources = arbitrary
 
@@ -591,14 +591,15 @@ class Model(object):
             self._plot_single_trajectory(
                 times, self.parameters, satellite_skycoord,
                 arrow, arrow_kwargs, **kwargs)
-        elif self.n_sources == 2:
+        elif self.n_sources >= 2:
             # Update for N_Sources = arbitrary
-            self._plot_single_trajectory(
-                times, self.parameters.source_1_parameters,
-                satellite_skycoord, arrow, arrow_kwargs, **kwargs)
-            self._plot_single_trajectory(
-                times, self.parameters.source_2_parameters,
-                satellite_skycoord, arrow, arrow_kwargs, **kwargs)
+            for i in range(self.n_sources):
+                self._plot_single_trajectory(
+                    times, self.parameters.__getattr__('source_{0}_parameters'.format(i+1)),
+                    satellite_skycoord, arrow, arrow_kwargs, **kwargs)
+            #self._plot_single_trajectory(
+            #    times, self.parameters.source_2_parameters,
+            #    satellite_skycoord, arrow, arrow_kwargs, **kwargs)
         else:
             # Update for N_Sources = arbitrary
             raise ValueError(
@@ -687,14 +688,15 @@ class Model(object):
         if self.n_sources == 1:
             trajectory = Trajectory(parameters=self.parameters, **kwargs_)
             self._plot_source_for_trajectory(trajectory, **kwargs)
-        elif self.n_sources == 2:
+        elif self.n_sources >= 2:
             # Update for N_Sources = arbitrary
-            trajectory = Trajectory(
-                parameters=self.parameters.source_1_parameters, **kwargs_)
-            self._plot_source_for_trajectory(trajectory, **kwargs)
-            trajectory = Trajectory(
-                parameters=self.parameters.source_2_parameters, **kwargs_)
-            self._plot_source_for_trajectory(trajectory, **kwargs)
+            for i in range(self.n_sources):
+                trajectory = Trajectory(
+                    parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i+1)), **kwargs_)
+                self._plot_source_for_trajectory(trajectory, **kwargs)
+            #trajectory = Trajectory(
+            #    parameters=self.parameters.source_2_parameters, **kwargs_)
+            #self._plot_source_for_trajectory(trajectory, **kwargs)
         else:
             raise ValueError('Wrong number of sources!')
 
@@ -751,7 +753,7 @@ class Model(object):
                 See also :py:func:`get_satellite_coords()`
 
         Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object. If
-            n_sources > 1, returns a tuple of
+            n_sources > 1, returns a *list* of
             `:py:class:`~MulensModel.trajectory.Trajectory`s
 
         """
@@ -765,11 +767,18 @@ class Model(object):
             return Trajectory(parameters=self.parameters, **kwargs_)
         elif self.n_sources == 2:
             # Update for N_Sources = arbitrary
-            trajectory_1 = Trajectory(
-                parameters=self.parameters.source_1_parameters, **kwargs_)
-            trajectory_2 = Trajectory(
-                parameters=self.parameters.source_2_parameters, **kwargs_)
-            return (trajectory_1, trajectory_2)
+            trajectories = []
+            for i in range(self.n_sources):
+                trajectory = Trajectory(
+                    parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i + 1)), **kwargs_)
+                trajectories.append(trajectory)
+                
+            #    trajectory_1 = Trajectory(
+            #    parameters=self.parameters.source_1_parameters, **kwargs_)
+            #trajectory_2 = Trajectory(
+            #    parameters=self.parameters.source_2_parameters, **kwargs_)
+            #return (trajectory_1, trajectory_2)
+            return trajectories
         else:
             raise NotImplementedError(
                 "only 1 or 2 sources allowed here at this point")
@@ -781,9 +790,9 @@ class Model(object):
         Return a list of times. If no keywords are specified, default
         is 1000 epochs from [:math:`t_0 - 1.5 * t_E`, :math:`t_0 + 1.5 * t_E`]
         range.
-        For binary source models, respectively, smaller and larger of
-        `t_0_1`/`t_0_2` values are used.
-        # Update for N_Sources = arbitrary
+
+        For multi-source models, respectively, minimum and maximum of
+        `t_0_N` values are used.
 
         Parameters (all optional):
             t_range: [*list*, *tuple*]
@@ -1221,10 +1230,10 @@ class Model(object):
                 :py:func:`set_limb_coeff_u()`. Only ONE of 'gamma' or
                 'bandpass' may be specified.
 
-            source_flux_ratio: *float*
-                If the model has two sources, source_flux_ratio is the ratio of
-                source_flux_2 / source_flux_1
-                # Update for N_Sources = arbitrary
+            source_flux_ratio: *float*, *list*
+                If the model has 2 sources, source_flux_ratio is the ratio of
+                source_flux_2 / source_flux_1. For N sources, source_flux_ratio a list
+                 of the ratios of source_flux_i / source_flux_1 where i = 2, N.
 
             separate: *boolean*, optional
                 For binary source models, return magnification of each source
@@ -1290,15 +1299,13 @@ class Model(object):
                     time, satellite_skycoord, gamma)
 
         elif self.n_sources >= 2:
-            # Update for N_Sources = arbitrary
             magnification = self._magnification_N_sources(
                 time, satellite_skycoord, gamma, source_flux_ratio,
                 separate)
-        #else:
-        #    # Update for N_Sources = arbitrary
-        #    raise ValueError(
-        #        'Only 1 or 2 sources is implemented. Number of sources: ' +
-        #        '{:}'.format(self.n_sources))
+        else:
+            raise ValueError(
+                'Invalid number of sources: ' +
+                '{:}'.format(self.n_sources))
 
         if np.sum(np.isnan(magnification)) > 0:
             fmt = ("EPOCHS:\n{:}\nMODEL:\n{:}Something went wrong with " +
