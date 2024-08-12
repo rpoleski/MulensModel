@@ -976,13 +976,25 @@ class TestNSources(unittest.TestCase):
             self.model.get_magnification(self.times), self.magnifications, decimal=4
         )
 
-    def test_get_lc(self):
+    def test_get_lc_1(self):
         """
         Returns :
             magnification: *numpy.ndarray*
                 Magnification values for each epoch.
         """
         model_fluxes = self.model.get_lc(self.times, source_flux=self.source_fluxes, blend_flux=self.blend_flux)
+        np.testing.assert_almost_equal(
+            mm.Utils.get_mag_from_flux(model_fluxes), self.flux, decimal=4
+        )
+
+    def test_get_lc_2(self):
+        """
+        Returns :
+            magnification: *numpy.ndarray*
+                Magnification values for each epoch.
+        """
+        model_fluxes = self.model.get_lc(
+            self.times, source_flux=self.source_flux_1, source_flux_ratio=self.flux_ratios, blend_flux=self.blend_flux)
         np.testing.assert_almost_equal(
             mm.Utils.get_mag_from_flux(model_fluxes), self.flux, decimal=4
         )
