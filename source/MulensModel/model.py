@@ -797,7 +797,7 @@ class Model(object):
                 raise ValueError(
                     'Model.set_times() - you cannot set t_range and either ' +
                     't_start or t_stop')
-            
+
             t_start = t_range[0]
             t_stop = t_range[1]
 
