@@ -867,9 +867,9 @@ class Model(object):
         """
         if not isinstance(methods, list):
             raise TypeError('Parameter methods has to be a list.')
-        if source not in [None, 1, 2]:
-            raise ValueError('In Model.set_magnification_methods() ' +
-                             'the parameter source, has to be 1, 2 or None.')
+        if (not isinstance(source, (int))) and (source is not None):
+            raise ValueError("In Model.set_magnification_methods() " +
+                             "the parameter 'source' has to be *int* or None.")
 
         self._check_methods(methods, source)
 
@@ -891,6 +891,7 @@ class Model(object):
 
             if self._methods is None:
                 self._methods = {}
+
             self._methods[source] = methods
 
     def _check_methods(self, methods, source):
