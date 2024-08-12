@@ -151,12 +151,13 @@ class Model(object):
 
         """
         if self.n_sources > 1 and source_flux_ratio is None:
+            # Update for N_Sources = arbitrary
             raise ValueError(
                 'For binary source model you have to provide ' +
                 'source_flux_ratio. Note that plotted magnification will ' +
                 'be the effective magnification of the two sources.')
 
-        self._check_gamma_for_2_sources(gamma)
+        self._check_gamma_for_2_sources(gamma)  # Update for N_Sources = arbitrary
 
         if times is None:
             times = self.set_times(
@@ -231,7 +232,7 @@ class Model(object):
         (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_2_sources(gamma)
+        self._check_gamma_for_2_sources(gamma)  # Update for N_Sources = arbitrary
 
         magnitudes = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -240,6 +241,7 @@ class Model(object):
 
         return magnitudes
 
+    # Update for N_Sources = arbitrary
     def _check_gamma_for_2_sources(self, gamma):
         """
         Check if the user tries to use limb darkening for binary source model
@@ -268,6 +270,7 @@ class Model(object):
         if source_flux is None:
             raise ValueError("You must provide a value for source_flux.")
         elif (isinstance(source_flux, float) and self.n_sources > 1):
+            # Update for N_Sources = arbitrary
             if source_flux_ratio is None:
                 raise ValueError(
                     "Either source_flux should be a list or " +
@@ -305,6 +308,7 @@ class Model(object):
             magnification = self.get_magnification(times, gamma=gamma)
             flux = source_flux * magnification + blend_flux
         else:
+            # Update for N_Sources = arbitrary
             magnification = self.get_magnification(times, separate=True)
             flux = None
             for i in range(self.n_sources):
@@ -377,7 +381,7 @@ class Model(object):
         (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_2_sources(gamma)
+        self._check_gamma_for_2_sources(gamma)  # Update for N_Sources = arbitrary
 
         (times, mag_or_flux) = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -578,6 +582,7 @@ class Model(object):
                 times, self.parameters, satellite_skycoord,
                 arrow, arrow_kwargs, **kwargs)
         elif self.n_sources == 2:
+            # Update for N_Sources = arbitrary
             self._plot_single_trajectory(
                 times, self.parameters.source_1_parameters,
                 satellite_skycoord, arrow, arrow_kwargs, **kwargs)
@@ -585,6 +590,7 @@ class Model(object):
                 times, self.parameters.source_2_parameters,
                 satellite_skycoord, arrow, arrow_kwargs, **kwargs)
         else:
+            # Update for N_Sources = arbitrary
             raise ValueError(
                 'Wrong number of sources: {:}'.format(self.n_sources))
 
@@ -672,6 +678,7 @@ class Model(object):
             trajectory = Trajectory(parameters=self.parameters, **kwargs_)
             self._plot_source_for_trajectory(trajectory, **kwargs)
         elif self.n_sources == 2:
+            # Update for N_Sources = arbitrary
             trajectory = Trajectory(
                 parameters=self.parameters.source_1_parameters, **kwargs_)
             self._plot_source_for_trajectory(trajectory, **kwargs)
@@ -747,6 +754,7 @@ class Model(object):
         if self.n_sources == 1:
             return Trajectory(parameters=self.parameters, **kwargs_)
         elif self.n_sources == 2:
+            # Update for N_Sources = arbitrary
             trajectory_1 = Trajectory(
                 parameters=self.parameters.source_1_parameters, **kwargs_)
             trajectory_2 = Trajectory(
@@ -765,6 +773,7 @@ class Model(object):
         range.
         For binary source models, respectively, smaller and larger of
         `t_0_1`/`t_0_2` values are used.
+        # Update for N_Sources = arbitrary
 
         Parameters (all optional):
             t_range: [*list*, *tuple*]
@@ -796,6 +805,7 @@ class Model(object):
             if self.n_sources == 1:
                 t_0 = self.parameters.t_0
             else:
+                # Update for N_Sources = arbitrary
                 t_0 = min(self.parameters.source_1_parameters.t_0,
                           self.parameters.source_2_parameters.t_0)
             t_start = t_0 - (n_tE * self.parameters.t_E)
@@ -803,6 +813,7 @@ class Model(object):
             if self.n_sources == 1:
                 t_0 = self.parameters.t_0
             else:
+                # Update for N_Sources = arbitrary
                 t_0 = max(self.parameters.source_1_parameters.t_0,
                           self.parameters.source_2_parameters.t_0)
             t_stop = t_0 + (n_tE * self.parameters.t_E)
@@ -887,6 +898,7 @@ class Model(object):
             if not self.parameters.is_finite_source():
                 raise ValueError(fmt.format("", difference))
         elif self.n_sources == 2:
+            # Update for N_Sources = arbitrary
             if source in [1, None]:
                 if not self.parameters.source_1_parameters.is_finite_source():
                     raise ValueError(fmt.format("no. 1", difference))
@@ -1185,6 +1197,7 @@ class Model(object):
             source_flux_ratio: *float*
                 If the model has two sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1
+                # Update for N_Sources = arbitrary
 
             separate: *boolean*, optional
                 For binary source models, return magnification of each source
@@ -1204,8 +1217,9 @@ class Model(object):
                         source_flux_ratio))
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_2_sources(gamma)
+        self._check_gamma_for_2_sources(gamma)  # Update for N_Sources = arbitrary
 
+        # Update for N_Sources = arbitrary
         if self.n_sources > 1:
             if (source_flux_ratio is None) and (separate is False):
                 raise ValueError(
@@ -1244,10 +1258,12 @@ class Model(object):
                     time, satellite_skycoord, gamma)
 
         elif self.n_sources == 2:
+            # Update for N_Sources = arbitrary
             magnification = self._magnification_2_sources(
                 time, satellite_skycoord, gamma, source_flux_ratio,
                 separate)
         else:
+            # Update for N_Sources = arbitrary
             raise ValueError(
                 'Only 1 or 2 sources is implemented. Number of sources: ' +
                 '{:}'.format(self.n_sources))
@@ -1304,6 +1320,7 @@ class Model(object):
 
         return magnification_curve.get_magnification()
 
+    # Update for N_Sources = arbitrary
     def _magnification_2_sources(
             self, time, satellite_skycoord, gamma, source_flux_ratio,
             separate):
@@ -1330,6 +1347,7 @@ class Model(object):
             magnification /= (1. + source_flux_ratio)
             return magnification
 
+    # Update for N_Sources = arbitrary
     def get_magnification_curves(self, time, satellite_skycoord, gamma):
         """
         Create a tuple of
@@ -1381,6 +1399,7 @@ class Model(object):
 
         return (self._magnification_curve_1, self._magnification_curve_2)
 
+    # Update for N_Sources = arbitrary
     def _separate_magnifications(self, time, satellite_skycoord, gamma):
         """
         Calculate magnification separately for each source.
