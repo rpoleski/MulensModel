@@ -224,8 +224,8 @@ class Model(object):
                 see :py:func:`get_magnification()`
 
         Returns :
-            magnification: *numpy.ndarray*
-                Magnification values for each epoch.
+            magnitudes: *numpy.ndarray*
+                Magnitude values for each epoch.
         """
         fluxes = self._parse_fluxes_for_get_lc(
             source_flux, source_flux_ratio, blend_flux)
