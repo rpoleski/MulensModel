@@ -538,6 +538,25 @@ def test_orbital_motion_gamma_z():
     assert params.gamma_z.unit == 1 / u.year
 
 
+def test_lens_orbital_parameters_circular_1():
+    """
+    Check if parameters of face-on circular orbital motion
+    are properly calculated.
+    """
+    dict_params = setup_orbital_motion_gammas(
+        {'dalpha_dt': 36., 'ds_dt': 0., 's_z': 0.})
+    dict_params['alpha'] = 90.
+
+    parameters = mm.ModelParameters(dict_params)
+
+    np.testing.assert_almost_equal(parameters.lens_period, 10.*u.yr)
+# Below - to be finished by Radek:
+#    np.testing.assert_almost_equal(parameters.lens_semimajor_axis, 
+    np.testing.assert_almost_equal(parameters.lens_inclination, 0.)
+#    np.testing.assert_almost_equal(parameters.lens_Omega_node, 
+#    np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 
+
+
 def test_binary_source():
     """
     Test if binary source parameters are properly set and changed
