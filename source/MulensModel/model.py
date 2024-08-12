@@ -1256,9 +1256,6 @@ class Model(object):
                 else:
                     separate = False
 
-        else:
-            separate = False
-
         magnification = self._get_magnification(
             time, satellite_skycoord, gamma, source_flux_ratio, separate)
 
@@ -1280,7 +1277,7 @@ class Model(object):
                     'Model.get_magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
                     'models, not {:}'.format(source_flux_ratio))
-            elif separate:
+            elif separate is not None:
                 raise ValueError(
                     'Model.get_magnification() parameter separate ' +
                     'cannot be True for single source models')
