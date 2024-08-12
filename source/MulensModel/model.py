@@ -1194,7 +1194,7 @@ class Model(object):
 
     def get_magnification(self, time, satellite_skycoord=None, gamma=None,
                           bandpass=None, source_flux_ratio=None,
-                          separate=False):
+                          separate=None):
         """
         Calculate the model magnification for the given time(s).
 
@@ -1249,6 +1249,15 @@ class Model(object):
                     ' separate=True. \n' +
                     'separate: {0}\n'.format(separate) +
                     'source_flux_ratio: {0}'.format(source_flux_ratio))
+
+            if separate is None:
+                if source_flux_ratio is None:
+                    separate = True
+                else:
+                    separate = False
+
+        else:
+            separate = False
 
         magnification = self._get_magnification(
             time, satellite_skycoord, gamma, source_flux_ratio, separate)
