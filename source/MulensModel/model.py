@@ -69,6 +69,8 @@ class Model(object):
     limb-darkening coefficients.
     """
 
+    _N_source_attr = ['_magnification_curve']
+
     def __init__(
             self, parameters=None, coords=None, ra=None, dec=None,
             ephemerides_file=None):
@@ -124,6 +126,9 @@ class Model(object):
                 self._limb_darkening_coeffs)
 
         return out
+
+    def __getattr__(self, item):
+        return object.__getattribute__(self, item)
 
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
@@ -310,6 +315,7 @@ class Model(object):
         else:
             # Update for N_Sources = arbitrary
             magnification = self.get_magnification(times, separate=True)
+            print(len(magnification), len(source_flux))
             flux = None
             for i in range(self.n_sources):
                 if flux is None:
@@ -1225,11 +1231,10 @@ class Model(object):
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
         self._check_gamma_for_2_sources(gamma)  # Update for N_Sources = arbitrary
 
-        # Update for N_Sources = arbitrary
         if self.n_sources > 1:
             if (source_flux_ratio is None) and (separate is False):
                 raise ValueError(
-                    'For 2 sources either source_flux_ratio should be set or' +
+                    'For N sources either source_flux_ratio should be set or' +
                     ' separate=True. \n' +
                     'separate: {0}\n'.format(separate) +
                     'source_flux_ratio: {0}'.format(source_flux_ratio))
@@ -1381,7 +1386,7 @@ class Model(object):
                 0 which means no limb darkening effect.
 
         Return:
-            *tuple* of
+            *list* of
             py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
 
         """
@@ -1389,41 +1394,60 @@ class Model(object):
                   'coords': self._coords,
                   'satellite_skycoord': satellite_skycoord, 'gamma': gamma}
 
-        if isinstance(self._methods, dict):
-            methods_1 = self._methods.get(1, None)
-            methods_2 = self._methods.get(2, None)
-        else:
-            methods_1 = self._methods
-            methods_2 = self._methods
+        mag_curves = []
 
-        self._magnification_curve_1 = MagnificationCurve(
-            parameters=self.parameters.source_1_parameters, **kwargs)
-        self._magnification_curve_1.set_magnification_methods(
-            methods_1, self._default_magnification_method)
-        self._magnification_curve_1.set_magnification_methods_parameters(
-            self._methods_parameters)
+        for i in range(self.n_sources):
+            methods = self._methods.get(i + 1, None)
+            mag_curve = MagnificationCurve(
+                 parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i+1)), **kwargs)
+            mag_curve.set_magnification_methods(methods, self._default_magnification_method)
+            mag_curve.set_magnification_methods_parameters(self._methods_parameters)
+            mag_curves.append(mag_curve)
 
-        self._magnification_curve_2 = MagnificationCurve(
-            parameters=self.parameters.source_2_parameters, **kwargs)
-        self._magnification_curve_2.set_magnification_methods(
-            methods_2, self._default_magnification_method)
-        self._magnification_curve_2.set_magnification_methods_parameters(
-            self._methods_parameters)
-
-        return (self._magnification_curve_1, self._magnification_curve_2)
+        return mag_curves
+        #if isinstance(self._methods, dict):
+        #    methods_1 = self._methods.get(1, None)
+        #    methods_2 = self._methods.get(2, None)
+        #else:
+        #    methods_1 = self._methods
+        #    methods_2 = self._methods
+        #
+        #self._magnification_curve_1 = MagnificationCurve(
+        #    parameters=self.parameters.source_1_parameters, **kwargs)
+        #self._magnification_curve_1.set_magnification_methods(
+        #    methods_1, self._default_magnification_method)
+        #self._magnification_curve_1.set_magnification_methods_parameters(
+        #    self._methods_parameters)
+        #
+        #self._magnification_curve_2 = MagnificationCurve(
+        #    parameters=self.parameters.source_2_parameters, **kwargs)
+        #self._magnification_curve_2.set_magnification_methods(
+        #    methods_2, self._default_magnification_method)
+        #self._magnification_curve_2.set_magnification_methods_parameters(
+        #    self._methods_parameters)
+        #
+        #return (self._magnification_curve_1, self._magnification_curve_2)
 
     # Update for N_Sources = arbitrary
     def _separate_magnifications(self, time, satellite_skycoord, gamma):
         """
         Calculate magnification separately for each source.
         """
-        (self._magnification_curve_1,
-         self._magnification_curve_2) = self.get_magnification_curves(
-            time, satellite_skycoord, gamma)
-        mag_1 = self._magnification_curve_1.get_magnification()
-        mag_2 = self._magnification_curve_2.get_magnification()
+        #(self._magnification_curve_1,
+        # self._magnification_curve_2) = self.get_magnification_curves(
+        #    time, satellite_skycoord, gamma)
+        #mag_1 = self._magnification_curve_1.get_magnification()
+        #mag_2 = self._magnification_curve_2.get_magnification()
+        #
+        #return (mag_1, mag_2)
+        mags = []
+        mag_curves = self.get_magnification_curves(time, satellite_skycoord, gamma)
+        for i in range(self.n_sources):
+            self.__setattr__('_magnification_curve_{0}'.format(i + 1), mag_curves[i])
+            mag = self.__getattr__('_magnification_curve_{0}'.format(i + 1)).get_magnification()
+            mags.append(mag)
 
-        return (mag_1, mag_2)
+        return mags
 
     @property
     def caustics(self):
