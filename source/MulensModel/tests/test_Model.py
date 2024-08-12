@@ -997,7 +997,8 @@ class TestNSources(unittest.TestCase):
                 Magnification values for each epoch.
         """
         model_mags = self.model.get_lc(
-            self.times, source_flux=self.source_flux_1, source_flux_ratio=self.flux_ratios, blend_flux=self.blend_flux)
+            self.times, source_flux=self.source_flux_1,
+            source_flux_ratio=[self.flux_ratios['q_2'], self.flux_ratios['q_3']], blend_flux=self.blend_flux)
         np.testing.assert_almost_equal(
             model_mags, mm.Utils.get_mag_from_flux(self.flux), decimal=4
         )

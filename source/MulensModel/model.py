@@ -275,7 +275,6 @@ class Model(object):
         if source_flux is None:
             raise ValueError("You must provide a value for source_flux.")
         elif (isinstance(source_flux, float) and self.n_sources > 1):
-            # Update for N_Sources = arbitrary
             if source_flux_ratio is None:
                 raise ValueError(
                     "Either source_flux should be a list or " +
@@ -284,8 +283,13 @@ class Model(object):
                     "n_sources = {0}\n".format(self.n_sources) +
                     "source_flux_ratio = {0}".format(source_flux_ratio))
             else:
+                print(source_flux_ratio)
+                if isinstance(source_flux_ratio, (float)):
+                    source_flux_ratio = [source_flux_ratio]
+
                 source_flux = [source_flux]
-                source_flux.append(source_flux[0] * source_flux_ratio)
+                for i in range(0, self.n_sources-1):
+                    source_flux.append(source_flux[0] * source_flux_ratio[i])
 
         if blend_flux is None:
             warnings.warn(
