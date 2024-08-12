@@ -1263,16 +1263,16 @@ class Model(object):
                 magnification = self._magnification_1_source(
                     time, satellite_skycoord, gamma)
 
-        elif self.n_sources == 2:
+        elif self.n_sources >= 2:
             # Update for N_Sources = arbitrary
-            magnification = self._magnification_2_sources(
+            magnification = self._magnification_N_sources(
                 time, satellite_skycoord, gamma, source_flux_ratio,
                 separate)
-        else:
-            # Update for N_Sources = arbitrary
-            raise ValueError(
-                'Only 1 or 2 sources is implemented. Number of sources: ' +
-                '{:}'.format(self.n_sources))
+        #else:
+        #    # Update for N_Sources = arbitrary
+        #    raise ValueError(
+        #        'Only 1 or 2 sources is implemented. Number of sources: ' +
+        #        '{:}'.format(self.n_sources))
 
         if np.sum(np.isnan(magnification)) > 0:
             fmt = ("EPOCHS:\n{:}\nMODEL:\n{:}Something went wrong with " +
@@ -1327,14 +1327,14 @@ class Model(object):
         return magnification_curve.get_magnification()
 
     # Update for N_Sources = arbitrary
-    def _magnification_2_sources(
+    def _magnification_N_sources(
             self, time, satellite_skycoord, gamma, source_flux_ratio,
             separate):
         """
         calculate model magnification for given times for model with
         two sources
 
-        source_flux_ratio: *float*
+        source_flux_ratio: *float* or *list*
         separate: *bool*
         """
         if separate and (source_flux_ratio is not None):
@@ -1343,14 +1343,21 @@ class Model(object):
                 " parameters in Model.get_magnification(). This doesn't " +
                 'make sense')
 
-        (mag_1, mag_2) = self._separate_magnifications(
+        mags = self._separate_magnifications(
             time, satellite_skycoord, gamma)
 
         if separate:
-            return (mag_1, mag_2)
+            return mags
         else:
-            magnification = mag_1 + mag_2 * source_flux_ratio
-            magnification /= (1. + source_flux_ratio)
+            # Defining source_flux_ratios as relative to source_1 (rather than total flux).
+            if isinstance(source_flux_ratio, (float)):
+                source_flux_ratio = [source_flux_ratio]
+
+            magnification = mags[0]
+            for mag, flux_ratio in zip(mags[1:], source_flux_ratio):
+                magnification += mag * flux_ratio
+
+            magnification /= (1. + np.sum(source_flux_ratio))  # Is this correct? --> magnification as fraction of total.
             return magnification
 
     # Update for N_Sources = arbitrary
