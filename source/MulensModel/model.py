@@ -910,16 +910,20 @@ class Model(object):
         if self.n_sources == 1:
             if not self.parameters.is_finite_source():
                 raise ValueError(fmt.format("", difference))
-        elif self.n_sources == 2:
-            # Update for N_Sources = arbitrary
-            if source in [1, None]:
-                if not self.parameters.source_1_parameters.is_finite_source():
-                    raise ValueError(fmt.format("no. 1", difference))
-            if source in [2, None]:
-                if not self.parameters.source_2_parameters.is_finite_source():
-                    raise ValueError(fmt.format("no. 2", difference))
-        else:
-            raise ValueError('internal error - too many sources')
+        elif self.n_sources >= 2:
+            for i in range(self.n_sources):
+                if source in [i+1, None]:
+                    if not self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).is_finite_source():
+                        raise ValueError(fmt.format("no. {0}".format(i+1), difference))
+
+        #    if source in [1, None]:
+        #        if not self.parameters.source_1_parameters.is_finite_source():
+        #            raise ValueError(fmt.format("no. 1", difference))
+        #    if source in [2, None]:
+        #        if not self.parameters.source_2_parameters.is_finite_source():
+        #            raise ValueError(fmt.format("no. 2", difference))
+        #else:
+        #    raise ValueError('internal error - too many sources')
 
     def get_magnification_methods(self, source=None):
         """
