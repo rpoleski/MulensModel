@@ -308,9 +308,12 @@ class ModelParameters(object):
             for source_param in ModelParameters._all_source_params_head:
                 if item[0:len(source_param)] == source_param:
                     source_num = item.split('_')[-1]
-                    return self.__getattr__(
-                        '_source_{0}_parameters'.format(
-                            source_num)).__getattribute__(source_param)
+                    try:
+                        return self.__getattr__(
+                            '_source_{0}_parameters'.format(
+                                source_num)).__getattribute__(source_param)
+                    except AttributeError:
+                        return object.__getattribute__(self, item)
 
             if (len(item) > 6) and item[0:7] == 'source_':
                 return object.__getattribute__(self, '_{0}'.format(item))
@@ -1523,9 +1526,9 @@ class ModelParameters(object):
         """
         if 't_0_par' not in self.parameters.keys():
             if 't_0' in self.parameters.keys():
-                return self.parameters['t_0']
+                return self.t_0
             elif self.n_sources > 1:
-                return self.parameters.parameters.t_0_1
+                return self.t_0_1
             else:
                 raise KeyError('No valid value of t_0 for setting t_0_par', self.parameters)
 
