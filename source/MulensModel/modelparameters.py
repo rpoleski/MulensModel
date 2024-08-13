@@ -1515,13 +1515,20 @@ class ModelParameters(object):
         *float*
 
         The reference time for the calculation of parallax. If not set
-        explicitly, then it is assumed t_0_par = t_0.
+        explicitly, then it is assumed t_0_par = t_0. If there are multiple sources,
+        t_0_1 is used.
 
         Note that this is a reference value and not the fitting parameter.
         It is best to fix it at the begin of calculations.
         """
         if 't_0_par' not in self.parameters.keys():
-            return self.parameters['t_0']
+            if 't_0' in self.parameters.keys():
+                return self.parameters['t_0']
+            elif self.n_sources > 1:
+                return self.parameters.parameters.t_0_1
+            else:
+                raise KeyError('No valid value of t_0 for setting t_0_par', self.parameters)
+
         else:
             return self.parameters['t_0_par']
 
