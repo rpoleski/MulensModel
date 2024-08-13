@@ -44,7 +44,7 @@ q_F_2L2S = 0.181
 source_flux_1_2L2S = 0.061
 source_flux_2_2L2S = source_flux_1_2L2S * q_F_2L2S
 blend_flux_2L2S = 0.095
-source_fluxes_2L2S = [source_flux_1_1L3S, source_flux_2_2L2S]
+source_fluxes_2L2S = [source_flux_1_2L2S, source_flux_2_2L2S]
 
 mag_methods_2L2S = [7200.1, 'VBBL', 7200.3]
 
