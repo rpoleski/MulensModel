@@ -1119,11 +1119,7 @@ class Test2L2S(unittest.TestCase):
         header_info['params'] = params
         return header_info
 
-    def test_multiple_source(self):
-        """
-        Test that we can fit fluxes for N sources.
-        """
-        fit = mm.FitData(dataset=self.data, model=self.model)
+    def _test_fitted_fluxes(self, fit):
         fit.fit_fluxes()
         np.testing.assert_almost_equal(
             fit.blend_flux, self.header_info['blend flux'], decimal=3)
@@ -1132,16 +1128,25 @@ class Test2L2S(unittest.TestCase):
                 fit.source_fluxes[i], self.header_info['source fluxes'][i],
                 decimal=3)
 
+    def test_multiple_source(self):
+        """
+        Test that we can fit fluxes for N sources.
+        """
+        self._test_fitted_fluxes(mm.FitData(dataset=self.data, model=self.model))
+
     def test_fix_source_flux(self):
         raise NotImplementedError()
 
     def test_fix_source_flux_ratio(self):
-        # Need to add both permutations: all, some, for 1L3S
+        # Need to add all permutations: all, some, for 1L3S
         raise NotImplementedError()
 
     def test_fix_blend_flux(self):
         # Might as well...
-        raise NotImplementedError()
+        blend_flux = self.header_info['blend flux']
+        self._test_fitted_fluxes(
+            mm.FitData(dataset=self.data, model=self.model, fix_blend_flux=blend_flux)
+        )
 
 
 class Test1L3S(Test2L2S):
