@@ -1069,8 +1069,30 @@ def test_bad_data_w_ephemerides():
     raise NotImplementedError()
 
 
-def _read_OB151489_file(model_type):
-    def parse_header(file_path):
+class Test2L2S(unittest.TestCase):
+
+    def setUp(self):
+        self.model_type = '2L2S'
+        self._setup()
+
+    def _setup(self):
+        filename = 'OB151489_simulated_data_{0}.dat'.format(self.model_type)
+        file_path = join(dir_2, filename)
+        self.header_info = self.parse_header(file_path)
+        # Remove later:
+        for key, value in self.header_info.items():
+            print(key, value)
+
+        self.data = mm.MulensData(
+            file_name=file_path, phot_fmt=self.header_info['phot_fmt'],)
+
+        self.model = mm.Model(self.header_info['params'])
+        for param in self.header_info['params']:
+            if 'rho' in param:
+                num = param.split('_')[-1]
+                self.model.set_magnification_methods(self.header_info['mag_methods'], int(num))
+
+    def parse_header(self, file_path):
         header_info = {}
         params = {}
         param_heads = ['t_0', 'u_0', 'rho']
@@ -1097,44 +1119,41 @@ def _read_OB151489_file(model_type):
         header_info['params'] = params
         return header_info
 
-    filename = 'OB151489_simulated_data_{0}.dat'.format(model_type)
-    file_path = join(dir_2, filename)
-    header_info = parse_header(file_path)
-    # Remove later:
-    for key, value in header_info.items():
-        print(key, value)
-
-    data = mm.MulensData(
-        file_name=file_path, phot_fmt=header_info['phot_fmt'],)
-
-    model = mm.Model(header_info['params'])
-    for param in header_info['params']:
-        if 'rho' in param:
-            num = param.split('_')[-1]
-            model.set_magnification_methods(header_info['mag_methods'], int(num))
-
-    return data, model, header_info
-
-
-def test_multiple_source():
-    """
-    Test that we can fit fluxes for N sources.
-    """
-    for model_type in ['1L3S', '2L2S']:
-        n_sources = int(model_type[2:3])
-        data, model, header_info = _read_OB151489_file('1L3S')
-        # Remove debugging print statements later.
-        print(data)
-        print(model)
-
-        fit = mm.FitData(dataset=data, model=model)
+    def test_multiple_source(self):
+        """
+        Test that we can fit fluxes for N sources.
+        """
+        fit = mm.FitData(dataset=self.data, model=self.model)
         fit.fit_fluxes()
         np.testing.assert_almost_equal(
-            fit.blend_flux, header_info['blend flux'], decimal=3)
-        for i in range(n_sources):
+            fit.blend_flux, self.header_info['blend flux'], decimal=3)
+        for i in range(self.model.n_sources):
             np.testing.assert_almost_equal(
-                fit.source_fluxes[i], header_info['source fluxes'][i],
+                fit.source_fluxes[i], self.header_info['source fluxes'][i],
                 decimal=3)
+
+    def test_fix_source_flux(self):
+        raise NotImplementedError()
+
+    def test_fix_source_flux_ratio(self):
+        # Need to add both permutations: all, some, for 1L3S
+        raise NotImplementedError()
+
+    def test_fix_blend_flux(self):
+        # Might as well...
+        raise NotImplementedError()
+
+
+class Test1L3S(Test2L2S):
+
+    def setUp(self):
+        self.model_type = '1L3S'
+        self._setup()
+
+    def test_fix_source_flux_ratio(self):
+        # Need to add both permutations: all, some, for 1L3S
+        raise NotImplementedError()
+
 
 # Tests to add:
 #
