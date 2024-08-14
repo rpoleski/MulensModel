@@ -93,6 +93,9 @@ class FitData(object):
         self._data_magnification_curve_1 = None
         self._data_magnification_curve_2 = None
 
+    def __getattr__(self, item):
+        return object.__getattribute__(self, item)
+
     def _check_for_flux_ratio_errors(self):
         """
         If combination of settings and models are invalid, raise exceptions.
@@ -147,15 +150,19 @@ class FitData(object):
             self._data_magnification_curve = \
                 self._model.get_magnification_curve(
                     time=self._dataset.time[select], **magnification_kwargs)
-        elif self._model.n_sources == 2:
-            # Does this need to be updated for multiple sources?
-            (self._data_magnification_curve_1,
-             self._data_magnification_curve_2) = \
-                self._model.get_magnification_curves(
-                    time=self._dataset.time[select], **magnification_kwargs)
-            self._data_magnification_curves = (
-                self._data_magnification_curve_1,
-                self._data_magnification_curve_2)
+        elif self._model.n_sources >= 2:
+            # Does this need to be updated for multiple sources? Yes.
+            #(self._data_magnification_curve_1,
+            # self._data_magnification_curve_2) = \
+            #    self._model.get_magnification_curves(
+            #        time=self._dataset.time[select], **magnification_kwargs)
+            #self._data_magnification_curves = (
+            #    self._data_magnification_curve_1,
+            #    self._data_magnification_curve_2)
+            self._data_magnification_curves = self._model.get_magnification_curves(
+                        time=self._dataset.time[select], **magnification_kwargs)
+            for i in range(self._model.n_sources):
+                self.__setattr__('_data_magnification_curve_{0}'.format(i+1), self._data_magnification_curves[i])
 
     def _calculate_magnifications(self, bad=True):
         """
