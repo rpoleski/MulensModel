@@ -165,9 +165,13 @@ class FitData(object):
 
         if self._model.n_sources == 1:
             mag_matrix = self._data_magnification_curve.get_magnification()
-        elif self._model.n_sources == 2:
-            mag_matrix = (self._data_magnification_curve_1.get_magnification(),
-                          self._data_magnification_curve_2.get_magnification())
+        elif self._model.n_sources >= 2:
+            mag_matrix = []
+            for i in range(self._model.n_sources):
+                mag_matrix.append(
+                    self.__getattr__('_data_magnification_curve_{0}'.format(i+1)).get_magnification())
+            #mag_matrix = (self._data_magnification_curve_1.get_magnification(),
+            #              self._data_magnification_curve_2.get_magnification())
         else:
             msg = ("{0} ".format(self._model.n_sources) +
                    "sources used. Function model.get_magnification can " +
@@ -794,6 +798,7 @@ class FitData(object):
         If *None*, you need to run :py:func:`~fit_fluxes()` or
         :py:func:`~update()` to execute the linear fit.
         """
+        # Update for multiple sources.
         if self._model.n_sources != 2:
             msg = ("source_flux is defined only for models" +
                    " with TWO sources, you have" +
