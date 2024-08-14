@@ -1108,7 +1108,10 @@ def _read_OB151489_file(model_type):
         file_name=file_path, phot_fmt=header_info['phot_fmt'],)
 
     model = mm.Model(header_info['params'])
-    model.set_magnification_methods(header_info['mag_methods'])
+    for param in header_info['params']:
+        if 'rho' in param:
+            num = param.split('_')[-1]
+            model.set_magnification_methods(header_info['mag_methods'], int(num))
 
     return data, model, header_info
 
