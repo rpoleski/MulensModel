@@ -1135,7 +1135,34 @@ class Test2L2S(unittest.TestCase):
         self._test_fitted_fluxes(mm.FitData(dataset=self.data, model=self.model))
 
     def test_fix_source_flux(self):
-        raise NotImplementedError()
+        # Each source separately
+        for i, flux in enumerate(self.header_info['source fluxes']):
+            fix_source_flux = [False for i in range(len(self.header_info['source fluxes']))]
+            fix_source_flux[i] = flux
+            print(fix_source_flux)
+            self._test_fitted_fluxes(mm.FitData(dataset=self.data, model=self.model, fix_source_flux=fix_source_flux))
+
+        # All sources
+        self._test_fitted_fluxes(
+            mm.FitData(dataset=self.data, model=self.model, fix_source_flux=self.header_info['source fluxes']))
+
+    def test_fix_source_flux_arbitrary(self):
+        fix_source_flux = [0.04, 0.01, 0.005]
+        fit = mm.FitData(
+            dataset=self.data, model=self.model,
+            fix_source_flux=fix_source_flux[0:self.model.n_sources])
+
+        fit.fit_fluxes()
+        for i in range(self.model.n_sources):
+            np.testing.assert_almost_equal(
+                fit.source_fluxes[i], fix_source_flux[i])
+
+    def test_fix_source_flux_bad(self):
+        fix_source_flux = [0.04, 0.01, 0.005, 16., 27.]
+        with self.assertRaises(ValueError):
+            fit = mm.FitData(
+                dataset=self.data, model=self.model,
+                fix_source_flux=fix_source_flux)
 
     def test_fix_source_flux_ratio(self):
         # Need to add all permutations: all, some, for 1L3S
