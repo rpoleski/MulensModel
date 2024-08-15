@@ -1079,9 +1079,6 @@ class Test2L2S(unittest.TestCase):
         filename = 'OB151489_simulated_data_{0}.dat'.format(self.model_type)
         file_path = join(dir_2, filename)
         self.header_info = self.parse_header(file_path)
-        # Remove later:
-        for key, value in self.header_info.items():
-            print(key, value)
 
         self.data = mm.MulensData(
             file_name=file_path, phot_fmt=self.header_info['phot_fmt'],)
@@ -1121,7 +1118,6 @@ class Test2L2S(unittest.TestCase):
 
     def _test_fitted_fluxes(self, fit):
         fit.fit_fluxes()
-        print('fitted fluxes', fit.source_fluxes)
         np.testing.assert_almost_equal(
             fit.blend_flux, self.header_info['blend flux'], decimal=3)
         for i in range(self.model.n_sources):
@@ -1140,7 +1136,6 @@ class Test2L2S(unittest.TestCase):
         for i, flux in enumerate(self.header_info['source fluxes']):
             fix_source_flux = [False for i in range(len(self.header_info['source fluxes']))]
             fix_source_flux[i] = flux
-            print(fix_source_flux)
             self._test_fitted_fluxes(mm.FitData(dataset=self.data, model=self.model, fix_source_flux=fix_source_flux))
 
         # All sources
@@ -1167,7 +1162,6 @@ class Test2L2S(unittest.TestCase):
 
     def test_fix_source_flux_ratio(self):
         source_flux_ratio = self.header_info['source fluxes'][1] / self.header_info['source fluxes'][0]
-        print('input', source_flux_ratio)
         self._test_fitted_fluxes(
             mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratio)
         )
@@ -1192,7 +1186,6 @@ class Test2L2S(unittest.TestCase):
             dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratios[0:self.model.n_sources-1])
         fit.fit_fluxes()
         for i in range(1, self.model.n_sources):
-            print(fit.source_fluxes)
             flux_ratio = fit.source_fluxes[i] / fit.source_fluxes[0]
             np.testing.assert_almost_equal(
                 flux_ratio, source_flux_ratios[i - 1], decimal=3)
@@ -1212,7 +1205,6 @@ class Test1L3S(Test2L2S):
         for i, flux in enumerate(source_flux_ratios):
             fix_source_flux_ratio = [False for i in range(len(source_flux_ratios))]
             fix_source_flux_ratio[i] = flux
-            print('input', fix_source_flux_ratio)
             self._test_fitted_fluxes(
                 mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=fix_source_flux_ratio))
 
