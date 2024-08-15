@@ -64,7 +64,7 @@ class FitData(object):
 
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
-        self.fix_source_flux_ratio = fix_source_flux_ratio
+        self.fix_source_flux_ratio = self._set_fix_source_flux_ratio(fix_source_flux_ratio)
         self.fix_source_flux = self._set_fix_source_flux(fix_source_flux)
 
         # parameters fluxes of various sources
@@ -104,17 +104,37 @@ class FitData(object):
                "(or False).")
         raise ValueError(msg)
 
+    def _set_fix_source_flux_ratio(self, fix_source_flux_ratio):
+        if fix_source_flux_ratio is False:
+            return fix_source_flux_ratio
+        else:
+            if isinstance(fix_source_flux_ratio, list):
+                if len(fix_source_flux_ratio) == (self._model.n_sources - 1):
+                    if isinstance(fix_source_flux_ratio, np.ndarray):
+                        return fix_source_flux_ratio
+                    else:
+                        return np.array(fix_source_flux_ratio)
+
+            elif isinstance(fix_source_flux_ratio, (float, int)) and (self._model.n_sources == 2):
+                return np.array([fix_source_flux_ratio])
+
+
+        msg = ("you have {0}".format(self._model.n_sources) +
+               " sources. Thus, fix_source_flux_ratio should be a list of" +
+               "length {0}".format(self._model.n_sources - 1) +
+               "(or False).")
+        raise ValueError(msg)
+
     def _check_for_flux_ratio_errors(self):
         """
         If combination of settings and models are invalid, raise exceptions.
         """
 
         if self.fix_source_flux_ratio is not False:
-            if self._model.n_sources != 2:
-                msg = ('fix_source_flux_ratio only valid for models with 2' +
-                       'sources. n_sources = {0}'.format(
-                           self._model.n_sources))
-                raise ValueError(msg)
+            if self._model.n_sources == 1:
+                raise ValueError('fix_source_flux_ratio is not defined for only 1 source!')
+            elif len(self.fix_source_flux_ratio) != self._model.n_sources-1:
+                raise ValueError('fix_source_flux_ratio should be a *list* of len={0}'.format(self._model.n_sources - 1))
             elif self.fix_source_flux is not False:
                 msg = ('fix_source_flux_ratio + fixed_source_flux not ' +
                        'implemented. Fix the fluxes for each source ' +
