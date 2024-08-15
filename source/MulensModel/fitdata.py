@@ -65,17 +65,7 @@ class FitData(object):
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
         self.fix_source_flux_ratio = fix_source_flux_ratio
-        if isinstance(fix_source_flux, list) or (fix_source_flux is False):
-            self.fix_source_flux = fix_source_flux
-        else:
-            if self._model.n_sources == 1:
-                self.fix_source_flux = [fix_source_flux]
-            else:
-                msg = ("you have {0}".format(self._model.n_sources) +
-                       " sources. Thus, fix_source_flux should be a list of" +
-                       "length {0}".format(self._model.n_sources) +
-                       "(or False).")
-                raise ValueError(msg)
+        self.fix_source_flux = self._set_fix_source_flux(fix_source_flux)
 
         # parameters fluxes of various sources
         self._source_fluxes = None
@@ -95,6 +85,24 @@ class FitData(object):
 
     def __getattr__(self, item):
         return object.__getattribute__(self, item)
+
+    def _set_fix_source_flux(self, fix_source_flux):
+        if fix_source_flux is False:
+            return fix_source_flux
+        else:
+            if isinstance(fix_source_flux, list):
+                if len(fix_source_flux) == self._model.n_sources:
+                    return fix_source_flux
+
+            elif isinstance(fix_source_flux, (float, int)) and (self._model.n_sources == 1):
+                return [fix_source_flux]
+
+
+        msg = ("you have {0}".format(self._model.n_sources) +
+               " sources. Thus, fix_source_flux should be a list of" +
+               "length {0}".format(self._model.n_sources) +
+               "(or False).")
+        raise ValueError(msg)
 
     def _check_for_flux_ratio_errors(self):
         """
