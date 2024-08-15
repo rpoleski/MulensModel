@@ -1363,7 +1363,7 @@ class Model(object):
 
     def get_magnification_curves(self, time, satellite_skycoord, gamma):
         """
-        Create a tuple of
+        Create a *list* of
         :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
         objects for multiple sources, given a set of times.
 
