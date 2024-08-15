@@ -1162,9 +1162,9 @@ class Test2L2S(unittest.TestCase):
 
     def test_fix_source_flux_ratio(self):
         source_flux_ratio = self.header_info['source fluxes'][1] / self.header_info['source fluxes'][0]
-        self._test_fitted_fluxes(
-            mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratio)
-        )
+        fit = mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratio)
+        self._test_fitted_fluxes(fit)
+        np.testing.assert_almost_equal(fit.source_flux_ratio, source_flux_ratio)
 
     def test_fix_source_flux_ratio_bad(self):
         fix_source_flux_ratio = [0.04, 0.01, 0.005, 16., 27.]
@@ -1172,13 +1172,6 @@ class Test2L2S(unittest.TestCase):
             fit = mm.FitData(
                 dataset=self.data, model=self.model,
                 fix_source_flux=fix_source_flux_ratio)
-
-    def test_fix_blend_flux(self):
-        # Might as well...
-        blend_flux = self.header_info['blend flux']
-        self._test_fitted_fluxes(
-            mm.FitData(dataset=self.data, model=self.model, fix_blend_flux=blend_flux)
-        )
 
     def test_fix_source_flux_ratio_arbitrary(self):
         source_flux_ratios = [0.01, 0.005]
@@ -1189,6 +1182,14 @@ class Test2L2S(unittest.TestCase):
             flux_ratio = fit.source_fluxes[i] / fit.source_fluxes[0]
             np.testing.assert_almost_equal(
                 flux_ratio, source_flux_ratios[i - 1], decimal=3)
+            np.testing.assert_almost_equal(fit.source_flux_ratio[i], flux_ratio)
+
+    def test_fix_blend_flux(self):
+        # Might as well...
+        blend_flux = self.header_info['blend flux']
+        self._test_fitted_fluxes(
+            mm.FitData(dataset=self.data, model=self.model, fix_blend_flux=blend_flux)
+        )
 
 
 class Test1L3S(Test2L2S):
@@ -1205,12 +1206,13 @@ class Test1L3S(Test2L2S):
         for i, flux in enumerate(source_flux_ratios):
             fix_source_flux_ratio = [False for i in range(len(source_flux_ratios))]
             fix_source_flux_ratio[i] = flux
-            self._test_fitted_fluxes(
-                mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=fix_source_flux_ratio))
+            fit = mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=fix_source_flux_ratio)
+            self._test_fitted_fluxes(fit)
+            np.testing.assert_almost_equal(fit.source_flux_ratio[i], flux)
 
-        self._test_fitted_fluxes(
-            mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratios)
-        )
+        fit = mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratios)
+        self._test_fitted_fluxes(fit)
+        np.testing.assert_almost_equal(fit.source_flux_ratio, source_flux_ratios)
 
 
 
