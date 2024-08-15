@@ -283,7 +283,6 @@ class Model(object):
                     "n_sources = {0}\n".format(self.n_sources) +
                     "source_flux_ratio = {0}".format(source_flux_ratio))
             else:
-                print(source_flux_ratio)
                 if isinstance(source_flux_ratio, (float)):
                     source_flux_ratio = [source_flux_ratio]
 
@@ -319,7 +318,6 @@ class Model(object):
         else:
             # Update for N_Sources = arbitrary
             magnification = self.get_magnification(times, separate=True)
-            print(len(magnification), len(source_flux))
             flux = None
             for i in range(self.n_sources):
                 if flux is None:
@@ -592,16 +590,11 @@ class Model(object):
                 times, self.parameters, satellite_skycoord,
                 arrow, arrow_kwargs, **kwargs)
         elif self.n_sources >= 2:
-            # Update for N_Sources = arbitrary
             for i in range(self.n_sources):
                 self._plot_single_trajectory(
                     times, self.parameters.__getattr__('source_{0}_parameters'.format(i+1)),
                     satellite_skycoord, arrow, arrow_kwargs, **kwargs)
-            #self._plot_single_trajectory(
-            #    times, self.parameters.source_2_parameters,
-            #    satellite_skycoord, arrow, arrow_kwargs, **kwargs)
         else:
-            # Update for N_Sources = arbitrary
             raise ValueError(
                 'Wrong number of sources: {:}'.format(self.n_sources))
 
@@ -689,14 +682,11 @@ class Model(object):
             trajectory = Trajectory(parameters=self.parameters, **kwargs_)
             self._plot_source_for_trajectory(trajectory, **kwargs)
         elif self.n_sources >= 2:
-            # Update for N_Sources = arbitrary
             for i in range(self.n_sources):
                 trajectory = Trajectory(
                     parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i+1)), **kwargs_)
                 self._plot_source_for_trajectory(trajectory, **kwargs)
-            #trajectory = Trajectory(
-            #    parameters=self.parameters.source_2_parameters, **kwargs_)
-            #self._plot_source_for_trajectory(trajectory, **kwargs)
+
         else:
             raise ValueError('Wrong number of sources!')
 
@@ -766,18 +756,12 @@ class Model(object):
         if self.n_sources == 1:
             return Trajectory(parameters=self.parameters, **kwargs_)
         elif self.n_sources == 2:
-            # Update for N_Sources = arbitrary
             trajectories = []
             for i in range(self.n_sources):
                 trajectory = Trajectory(
                     parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i + 1)), **kwargs_)
                 trajectories.append(trajectory)
-                
-            #    trajectory_1 = Trajectory(
-            #    parameters=self.parameters.source_1_parameters, **kwargs_)
-            #trajectory_2 = Trajectory(
-            #    parameters=self.parameters.source_2_parameters, **kwargs_)
-            #return (trajectory_1, trajectory_2)
+
             return trajectories
         else:
             raise NotImplementedError(
@@ -825,9 +809,6 @@ class Model(object):
             if self.n_sources == 1:
                 t_0 = self.parameters.t_0
             else:
-                # Update for N_Sources = arbitrary
-                #t_0 = min(self.parameters.source_1_parameters.t_0,
-                #          self.parameters.source_2_parameters.t_0)
                 t_0 = np.min(
                     [self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).t_0
                      for i in range(self.n_sources)])
@@ -838,9 +819,6 @@ class Model(object):
             if self.n_sources == 1:
                 t_0 = self.parameters.t_0
             else:
-                # Update for N_Sources = arbitrary
-                #t_0 = max(self.parameters.source_1_parameters.t_0,
-                #          self.parameters.source_2_parameters.t_0)
                 t_0 = np.max(
                     [self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).t_0
                      for i in range(self.n_sources)])
@@ -934,15 +912,6 @@ class Model(object):
                 if source in [i+1, None]:
                     if not self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).is_finite_source():
                         raise ValueError(fmt.format("no. {0}".format(i+1), difference))
-
-        #    if source in [1, None]:
-        #        if not self.parameters.source_1_parameters.is_finite_source():
-        #            raise ValueError(fmt.format("no. 1", difference))
-        #    if source in [2, None]:
-        #        if not self.parameters.source_2_parameters.is_finite_source():
-        #            raise ValueError(fmt.format("no. 2", difference))
-        #else:
-        #    raise ValueError('internal error - too many sources')
 
     def get_magnification_methods(self, source=None):
         """
@@ -1359,7 +1328,6 @@ class Model(object):
 
         return magnification_curve.get_magnification()
 
-    # Update for N_Sources = arbitrary
     def _magnification_N_sources(
             self, time, satellite_skycoord, gamma, source_flux_ratio,
             separate):
@@ -1393,7 +1361,6 @@ class Model(object):
             magnification /= (1. + np.sum(source_flux_ratio))  # Is this correct? --> magnification as fraction of total.
             return magnification
 
-    # Update for N_Sources = arbitrary
     def get_magnification_curves(self, time, satellite_skycoord, gamma):
         """
         Create a tuple of
@@ -1437,41 +1404,11 @@ class Model(object):
             mag_curves.append(mag_curve)
 
         return mag_curves
-        #if isinstance(self._methods, dict):
-        #    methods_1 = self._methods.get(1, None)
-        #    methods_2 = self._methods.get(2, None)
-        #else:
-        #    methods_1 = self._methods
-        #    methods_2 = self._methods
-        #
-        #self._magnification_curve_1 = MagnificationCurve(
-        #    parameters=self.parameters.source_1_parameters, **kwargs)
-        #self._magnification_curve_1.set_magnification_methods(
-        #    methods_1, self._default_magnification_method)
-        #self._magnification_curve_1.set_magnification_methods_parameters(
-        #    self._methods_parameters)
-        #
-        #self._magnification_curve_2 = MagnificationCurve(
-        #    parameters=self.parameters.source_2_parameters, **kwargs)
-        #self._magnification_curve_2.set_magnification_methods(
-        #    methods_2, self._default_magnification_method)
-        #self._magnification_curve_2.set_magnification_methods_parameters(
-        #    self._methods_parameters)
-        #
-        #return (self._magnification_curve_1, self._magnification_curve_2)
 
-    # Update for N_Sources = arbitrary
     def _separate_magnifications(self, time, satellite_skycoord, gamma):
         """
         Calculate magnification separately for each source.
         """
-        #(self._magnification_curve_1,
-        # self._magnification_curve_2) = self.get_magnification_curves(
-        #    time, satellite_skycoord, gamma)
-        #mag_1 = self._magnification_curve_1.get_magnification()
-        #mag_2 = self._magnification_curve_2.get_magnification()
-        #
-        #return (mag_1, mag_2)
         mags = []
         mag_curves = self.get_magnification_curves(time, satellite_skycoord, gamma)
         for i in range(self.n_sources):
