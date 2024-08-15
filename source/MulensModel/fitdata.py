@@ -230,7 +230,19 @@ class FitData(object):
                         source][self._dataset.good] = mag_matrix[source]
 
     def _get_xy_qflux(self):
-        """ Apply a fixed flux ratio. """
+        """
+        Apply a fixed flux ratio.
+        flux = sum_i(f_i * A_i) + f_b
+             = f_1 * [ A_1 + sum_i>1(q_i * A_i)] + f_b
+        """
+        # Original:
+        # y = self._dataset.flux[self._dataset.good]
+        # x = np.array(
+        #     self._data_magnification[0][self._dataset.good] +
+        #     self.fix_source_flux_ratio *
+        #     self._data_magnification[1][self._dataset.good])
+        # self.n_fluxes = 1
+
         y = self._dataset.flux[self._dataset.good]
         x = np.array(
             self._data_magnification[0][self._dataset.good])
@@ -238,12 +250,15 @@ class FitData(object):
         for i in range(1, self._model.n_sources):
             if self.fix_source_flux_ratio[i-1] is False:
                 x = np.vstack(
-                    (x, self.fix_source_flux_ratio[i-1] * self._data_magnification[i][
-                        self._dataset.good]))
+                    (x, self._data_magnification[i][self._dataset.good]))
                 self.n_fluxes += 1
             else:
-                y -= (self.fix_source_flux_ratio[i-1] *
-                      self._data_magnification[i][self._dataset.good])
+                if len(x.shape) == 1:
+                    x += (self.fix_source_flux_ratio[i-1] *
+                         self._data_magnification[i][self._dataset.good])
+                else:
+                    x[:, 0] += (self.fix_source_flux_ratio[i-1] *
+                         self._data_magnification[i][self._dataset.good])
 
         return (x, y)
 
@@ -401,7 +416,14 @@ class FitData(object):
                         source_fluxes.append(self.fix_source_flux[i])
 
         else:
-            source_fluxes = np.hstack((results[0], results[0]*self.fix_source_flux_ratio))
+            source_fluxes = results[0]
+            j = 1
+            for i in range(1, self._model.n_sources):
+                if self.fix_source_flux_ratio[i-1] is False:
+                    source_fluxes = np.hstack((source_fluxes, results[j]))
+                    j += 1
+                else:
+                    source_fluxes = np.hstack((source_fluxes, results[0]*self.fix_source_flux_ratio[i-1]))
 
         self._source_fluxes = np.array(source_fluxes)
 

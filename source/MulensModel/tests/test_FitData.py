@@ -1121,6 +1121,7 @@ class Test2L2S(unittest.TestCase):
 
     def _test_fitted_fluxes(self, fit):
         fit.fit_fluxes()
+        print('fitted fluxes', fit.source_fluxes)
         np.testing.assert_almost_equal(
             fit.blend_flux, self.header_info['blend flux'], decimal=3)
         for i in range(self.model.n_sources):
@@ -1166,6 +1167,7 @@ class Test2L2S(unittest.TestCase):
 
     def test_fix_source_flux_ratio(self):
         source_flux_ratio = self.header_info['source fluxes'][1] / self.header_info['source fluxes'][0]
+        print('input', source_flux_ratio)
         self._test_fitted_fluxes(
             mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratio)
         )
@@ -1210,7 +1212,7 @@ class Test1L3S(Test2L2S):
         for i, flux in enumerate(source_flux_ratios):
             fix_source_flux_ratio = [False for i in range(len(source_flux_ratios))]
             fix_source_flux_ratio[i] = flux
-            print(fix_source_flux_ratio)
+            print('input', fix_source_flux_ratio)
             self._test_fitted_fluxes(
                 mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=fix_source_flux_ratio))
 
