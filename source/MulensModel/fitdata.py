@@ -233,10 +233,17 @@ class FitData(object):
         """ Apply a fixed flux ratio. """
         y = self._dataset.flux[self._dataset.good]
         x = np.array(
-            self._data_magnification[0][self._dataset.good] +
-            self.fix_source_flux_ratio *
-            self._data_magnification[1][self._dataset.good])
+            self._data_magnification[0][self._dataset.good])
         self.n_fluxes = 1
+        for i in range(1, self._model.n_sources):
+            if self.fix_source_flux_ratio[i-1] is False:
+                x = np.vstack(
+                    (x, self.fix_source_flux_ratio[i-1] * self._data_magnification[i][
+                        self._dataset.good]))
+                self.n_fluxes += 1
+            else:
+                y -= (self.fix_source_flux_ratio[i-1] *
+                      self._data_magnification[i][self._dataset.good])
 
         return (x, y)
 
@@ -394,7 +401,7 @@ class FitData(object):
                         source_fluxes.append(self.fix_source_flux[i])
 
         else:
-            source_fluxes = [results[0], results[0]*self.fix_source_flux_ratio]
+            source_fluxes = np.hstack((results[0], results[0]*self.fix_source_flux_ratio))
 
         self._source_fluxes = np.array(source_fluxes)
 

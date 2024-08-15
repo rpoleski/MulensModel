@@ -1190,6 +1190,7 @@ class Test2L2S(unittest.TestCase):
             dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratios[0:self.model.n_sources-1])
         fit.fit_fluxes()
         for i in range(1, self.model.n_sources):
+            print(fit.source_fluxes)
             flux_ratio = fit.source_fluxes[i] / fit.source_fluxes[0]
             np.testing.assert_almost_equal(
                 flux_ratio, source_flux_ratios[i - 1], decimal=3)
