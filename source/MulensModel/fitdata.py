@@ -65,6 +65,7 @@ class FitData(object):
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
         self.fix_source_flux_ratio = self._set_fix_source_flux_ratio(fix_source_flux_ratio)
+        print('setup', self.fix_source_flux_ratio)
         self.fix_source_flux = self._set_fix_source_flux(fix_source_flux)
 
         # parameters fluxes of various sources
@@ -110,10 +111,11 @@ class FitData(object):
         else:
             if isinstance(fix_source_flux_ratio, list):
                 if len(fix_source_flux_ratio) == (self._model.n_sources - 1):
-                    if isinstance(fix_source_flux_ratio, np.ndarray):
-                        return fix_source_flux_ratio
-                    else:
-                        return np.array(fix_source_flux_ratio)
+                    return fix_source_flux_ratio
+                    #if isinstance(fix_source_flux_ratio, np.ndarray):
+                    #    return fix_source_flux_ratio
+                    #else:
+                    #    return np.array(fix_source_flux_ratio)
 
             elif isinstance(fix_source_flux_ratio, (float, int)) and (self._model.n_sources == 2):
                 return np.array([fix_source_flux_ratio])
@@ -242,6 +244,7 @@ class FitData(object):
         #     self.fix_source_flux_ratio *
         #     self._data_magnification[1][self._dataset.good])
         # self.n_fluxes = 1
+        print('xy_flux', self.fix_source_flux_ratio)
 
         y = self._dataset.flux[self._dataset.good]
         x = np.array(
@@ -257,7 +260,10 @@ class FitData(object):
                     x += (self.fix_source_flux_ratio[i-1] *
                          self._data_magnification[i][self._dataset.good])
                 else:
-                    x[:, 0] += (self.fix_source_flux_ratio[i-1] *
+                    print(x.shape, x[:, 0].shape)
+                    print(self._data_magnification[i][self._dataset.good].shape)
+                    print(self.fix_source_flux_ratio[i-1])
+                    x[0, :] += (self.fix_source_flux_ratio[i-1] *
                          self._data_magnification[i][self._dataset.good])
 
         return (x, y)
@@ -416,6 +422,7 @@ class FitData(object):
                         source_fluxes.append(self.fix_source_flux[i])
 
         else:
+            print('fit results', results)
             source_fluxes = results[0]
             j = 1
             for i in range(1, self._model.n_sources):
