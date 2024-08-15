@@ -856,17 +856,30 @@ class FitData(object):
         :py:func:`~update()` to execute the linear fit.
         """
         # Update for multiple sources.
-        if self._model.n_sources != 2:
+        #if self._model.n_sources != 2:
+        #    msg = ("source_flux is defined only for models" +
+        #           " with TWO sources, you have" +
+        #           " {0}".format(self._model.n_sources) +
+        #           " sources.")
+        #    raise NameError(msg)
+        #
+        #if self.fix_source_flux_ratio:
+        #    return self.fix_source_flux_ratio
+        #else:
+        #    return self.source_fluxes[1] / self.source_fluxes[0]
+        if self._model.n_sources == 1:
             msg = ("source_flux is defined only for models" +
-                   " with TWO sources, you have" +
-                   " {0}".format(self._model.n_sources) +
-                   " sources.")
+                   " with multiple sources; you have 1 source.")
             raise NameError(msg)
-
-        if self.fix_source_flux_ratio:
-            return self.fix_source_flux_ratio
         else:
-            return self.source_fluxes[1] / self.source_fluxes[0]
+            source_flux_ratios = []
+            for i in range(1, self._model.n_sources):
+                if (self.fix_source_flux_ratio is False) or (self.fix_source_flux_ratio[i-1] is False):
+                    source_flux_ratios.append(self.source_fluxes[i] / self.source_fluxes[0])
+                else:
+                    source_flux_ratios.append(self.fix_source_flux_ratio[i-1])
+
+            return source_flux_ratios
 
     @property
     def dataset(self):

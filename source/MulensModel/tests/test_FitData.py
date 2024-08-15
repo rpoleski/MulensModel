@@ -1164,7 +1164,7 @@ class Test2L2S(unittest.TestCase):
         source_flux_ratio = self.header_info['source fluxes'][1] / self.header_info['source fluxes'][0]
         fit = mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratio)
         self._test_fitted_fluxes(fit)
-        np.testing.assert_almost_equal(fit.source_flux_ratio, source_flux_ratio)
+        np.testing.assert_almost_equal(fit.source_flux_ratio, [source_flux_ratio])
 
     def test_fix_source_flux_ratio_bad(self):
         fix_source_flux_ratio = [0.04, 0.01, 0.005, 16., 27.]
@@ -1182,7 +1182,7 @@ class Test2L2S(unittest.TestCase):
             flux_ratio = fit.source_fluxes[i] / fit.source_fluxes[0]
             np.testing.assert_almost_equal(
                 flux_ratio, source_flux_ratios[i - 1], decimal=3)
-            np.testing.assert_almost_equal(fit.source_flux_ratio[i], flux_ratio)
+            np.testing.assert_almost_equal(fit.source_flux_ratio[i-1], flux_ratio)
 
     def test_fix_blend_flux(self):
         # Might as well...
