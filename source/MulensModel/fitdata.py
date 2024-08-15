@@ -111,10 +111,6 @@ class FitData(object):
             if isinstance(fix_source_flux_ratio, list):
                 if len(fix_source_flux_ratio) == (self._model.n_sources - 1):
                     return fix_source_flux_ratio
-                    #if isinstance(fix_source_flux_ratio, np.ndarray):
-                    #    return fix_source_flux_ratio
-                    #else:
-                    #    return np.array(fix_source_flux_ratio)
 
             elif isinstance(fix_source_flux_ratio, (float, int)) and (self._model.n_sources == 2):
                 return np.array([fix_source_flux_ratio])
@@ -180,14 +176,6 @@ class FitData(object):
                 self._model.get_magnification_curve(
                     time=self._dataset.time[select], **magnification_kwargs)
         elif self._model.n_sources >= 2:
-            # Does this need to be updated for multiple sources? Yes.
-            #(self._data_magnification_curve_1,
-            # self._data_magnification_curve_2) = \
-            #    self._model.get_magnification_curves(
-            #        time=self._dataset.time[select], **magnification_kwargs)
-            #self._data_magnification_curves = (
-            #    self._data_magnification_curve_1,
-            #    self._data_magnification_curve_2)
             self._data_magnification_curves = self._model.get_magnification_curves(
                         time=self._dataset.time[select], **magnification_kwargs)
             for i in range(self._model.n_sources):
@@ -206,8 +194,7 @@ class FitData(object):
             for i in range(self._model.n_sources):
                 mag_matrix.append(
                     self.__getattr__('_data_magnification_curve_{0}'.format(i+1)).get_magnification())
-            #mag_matrix = (self._data_magnification_curve_1.get_magnification(),
-            #              self._data_magnification_curve_2.get_magnification())
+
         else:
             msg = ("{0} ".format(self._model.n_sources) +
                    "sources used. Function model.get_magnification can " +
@@ -855,18 +842,6 @@ class FitData(object):
         If *None*, you need to run :py:func:`~fit_fluxes()` or
         :py:func:`~update()` to execute the linear fit.
         """
-        # Update for multiple sources.
-        #if self._model.n_sources != 2:
-        #    msg = ("source_flux is defined only for models" +
-        #           " with TWO sources, you have" +
-        #           " {0}".format(self._model.n_sources) +
-        #           " sources.")
-        #    raise NameError(msg)
-        #
-        #if self.fix_source_flux_ratio:
-        #    return self.fix_source_flux_ratio
-        #else:
-        #    return self.source_fluxes[1] / self.source_fluxes[0]
         if self._model.n_sources == 1:
             msg = ("source_flux is defined only for models" +
                    " with multiple sources; you have 1 source.")
