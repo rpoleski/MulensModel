@@ -1344,8 +1344,7 @@ class Model(object):
                 " parameters in Model.get_magnification(). This doesn't " +
                 'make sense')
 
-        mags = self._separate_magnifications(
-            time, satellite_skycoord, gamma)
+        mags = self._separate_magnifications(time, satellite_skycoord, gamma)
 
         if separate:
             return mags
@@ -1355,10 +1354,10 @@ class Model(object):
                 source_flux_ratio = [source_flux_ratio]
 
             magnification = mags[0]
-            for mag, flux_ratio in zip(mags[1:], source_flux_ratio):
+            for (mag, flux_ratio) in zip(mags[1:], source_flux_ratio):
                 magnification += mag * flux_ratio
 
-            magnification /= (1. + np.sum(source_flux_ratio))  # Is this correct? --> magnification as fraction of total.
+            magnification /= (1. + np.sum(source_flux_ratio))
             return magnification
 
     def get_magnification_curves(self, time, satellite_skycoord, gamma):
