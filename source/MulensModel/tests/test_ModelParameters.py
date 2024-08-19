@@ -463,6 +463,19 @@ def test_calculation_s_z_for_circular_motion_2():
     np.testing.assert_almost_equal(model.s_z, -2.469)
 
 
+def test_calculation_s_z_for_circular_motion_3():
+    """
+    Set ds_z_dt for circular motion and test if s_z is calculated properly.
+    This time access gamma_parallel in the meantime.
+    This test was failing at some point.
+    """
+    dict_params = setup_orbital_motion_gammas(
+        {'dalpha_dt': 10, 'ds_dt': 0., 'ds_z_dt': 10*2**-0.5*(np.pi/180.)})
+    model = mm.ModelParameters(dict_params)
+    model.gamma_parallel
+    np.testing.assert_almost_equal(model.s_z, 0.)
+
+
 def test_access_to_ds_z_dt():
     """
     Make sure that accessing ds_z_dt doesn't change s_z.

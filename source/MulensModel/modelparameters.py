@@ -1575,10 +1575,12 @@ class ModelParameters(object):
         *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
         Regardless of input value, returns value in 1/year.
         """
-        if not isinstance(self.parameters['ds_dt'], u.Quantity):
-            self.parameters['ds_dt'] = self.parameters['ds_dt'] / u.yr
+        if isinstance(self.parameters['ds_dt'], u.Quantity):
+            out = self.parameters['ds_dt']
+        else:
+            out = self.parameters['ds_dt'] / u.yr
 
-        return self.parameters['ds_dt'].to(1 / u.yr)
+        return out.to(1 / u.yr)
 
     @ds_dt.setter
     def ds_dt(self, new_ds_dt):
