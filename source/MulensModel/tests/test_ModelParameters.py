@@ -557,18 +557,15 @@ def test_lens_orbital_parameters_circular_1():
     are properly calculated.
     """
     dict_params = setup_orbital_motion_gammas(
-        {'dalpha_dt': 36., 'ds_dt': 0., 's_z': 0.})
+        {'dalpha_dt': 36./2**.5, 'ds_dt': 0., 'ds_z_dt': -36./2**.5*(np.pi/180.)*1.5})
     dict_params['alpha'] = 90.
 
     parameters = mm.ModelParameters(dict_params)
 
-    np.testing.assert_almost_equal(parameters.lens_period, 10.*u.yr)
-# Below - to be finished by Radek:
-#    np.testing.assert_almost_equal(parameters.lens_semimajor_axis, 
-    np.testing.assert_almost_equal(parameters.lens_inclination, 0.)
-#    np.testing.assert_almost_equal(parameters.lens_Omega_node, 
-#    np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 
-
+    np.testing.assert_almost_equal(parameters.lens_semimajor_axis, 1.5)
+    np.testing.assert_almost_equal(parameters.lens_inclination, 45.)
+    np.testing.assert_almost_equal(parameters.lens_Omega_node, 0.)
+    np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 90.)
 
 def test_binary_source():
     """
