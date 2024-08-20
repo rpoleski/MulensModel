@@ -1,5 +1,6 @@
 photometry_files:
     data/OB08092/phot_ob08092_O4.dat
+fit_method: UltraNest  # options: EMCEE, MultiNest, UltraNest (... dynesty)
 prior_limits:
     t_0: [2455379.4, 2455379.76]
     u_0: [0.46, 0.65]
