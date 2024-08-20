@@ -428,6 +428,10 @@ class ModelParameters(object):
                     'You defined alpha for single lens model '
                     'without external mass sheet. This is not allowed.')
 
+        if self._type['full keplerian motion']:
+            self._lens_keplerian_last_input = None
+            self._lens_keplerian = dict()
+
     def _check_valid_combination_1_source(self, keys):
         """
         Check that the user hasn't over-defined the ModelParameters.
@@ -2147,18 +2151,6 @@ class ModelParameters(object):
 
         return self.ds_z_dt / self.s
 
-    # Raphael: define orbital elements here? epsilon, Omega, i, etc.
-
-    # @property
-    # def epsilon(self):
-    #     """
-    #     float*
-
-    #     mean (or eccentric) anomaly ...
-    #     """
-    #     denominator = np.sin(self.lens_i) * np.(self.s**2 + self.s_z**2)
-    #     return np.arcsin(self.s_z / (denominator))
-
     @property
     def gamma(self):
         """
@@ -2173,6 +2165,72 @@ class ModelParameters(object):
             return (self.gamma_parallel**2 + gamma_perp**2)**0.5
 
         return (self.gamma_parallel**2 + gamma_perp**2 + self.gamma_z**2)**0.5
+
+    def _set_lens_keplerian_orbit(self):
+        """
+        XXX
+        """
+        position = [self.s, 0, self.s_z]
+        velocity = [self.gamma_parallel.value, self.gamma_perp.value, self.gamma_z.value]
+        new_input = [*position, *velocity]
+        if new_input == self._lens_keplerian_last_input:
+            return
+
+        self._lens_keplerian_last_input = new_input 
+
+        position = np.array(position)
+        velocity = self.s * np.array(velocity)
+
+        a = np.sqrt(np.sum(position**2))
+        self._lens_keplerian['semimajor_axis'] = a
+        self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2))
+        h = np.cross(position, velocity)
+        cos_i = h[2] / np.sqrt(np.sum(h**2))
+        self._lens_keplerian['inclination'] = np.arccos(cos_i) * 180 / np.pi
+        cos_Omega = -h[1] / np.sqrt(h[0]**2+h[1]**2)
+        sin_Omega = h[0] / np.sqrt(h[0]**2+h[1]**2)
+        self._lens_keplerian['Omega'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
+        
+
+    @property
+    def lens_semimajor_axis(self):
+        """
+        XXX
+        """
+        self._set_lens_keplerian_orbit()
+        return self._lens_keplerian['semimajor_axis']
+
+    @property
+    def lens_period(self):
+        """
+        XXX
+        """
+        self._set_lens_keplerian_orbit()
+        return self._lens_keplerian['period']
+
+    @property
+    def lens_inclination(self):
+        """
+        XXX
+        """
+        self._set_lens_keplerian_orbit()
+        return self._lens_keplerian['inclination']
+
+    @property
+    def lens_Omega_node(self):
+        """
+        XXX
+        """
+        self._set_lens_keplerian_orbit()
+        return self._lens_keplerian['Omega']
+
+    @property
+    def lens_argument_of_latitude_reference(self):
+        """
+        XXX
+        """
+        self._set_lens_keplerian_orbit()
+        return None
 
     def is_finite_source(self):
         """
