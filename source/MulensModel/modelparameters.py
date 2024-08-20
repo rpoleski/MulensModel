@@ -2195,7 +2195,9 @@ class ModelParameters(object):
     @property
     def lens_semimajor_axis(self):
         """
-        XXX
+        *float*
+
+        Semi-major axis of the binary lens orbit in units of theta_E.
         """
         self._set_lens_keplerian_orbit()
         return self._lens_keplerian['semimajor_axis']
