@@ -184,7 +184,7 @@ class UlensModelFit(object):
 
         fitting_parameters: *dict*
             Parameters of the fit function. They depend on the method used -
-            we discuss EMCEE and pyMultiNest below.
+            we discuss EMCEE, pyMultiNest and UltraNest below.
 
             First - EMCEE. The required parameter is ``n_steps``.
             You can also specify ``n_burn`` and ``n_walkers``. The ``n_burn``
@@ -218,7 +218,7 @@ class UlensModelFit(object):
             the posterior to be detected and reported separately?
 
             ``n_live_points`` (*int*) - number of live points, default value
-            is 400.
+            is 400. Also valid for UltraNest.
 
             ``sampling efficiency`` (*float*) - requested sampling efficiency.
             MultiNest documentation suggests 0.8 (default value) for parameter
@@ -235,13 +235,15 @@ class UlensModelFit(object):
             are saved.
 
             ``derived parameter names`` (*str*) - names of additional derived
-            parameters created by transform... Continue here!
+            parameters created by transform. In microlensing, they are usually
+            the source(s) and blending fluxes. If not given, they are ignored
+            in the transform function.
 
             ``show_status`` (*bool*) - whether to show integration progress
-            as a status line or not
+            as a status line or not. Default is *True*.
 
-            ``n_live_points`` (*int*) - number of live points, default value
-            is 400.
+            ``n_live_points`` (*int*) - minimum number of live points
+            throughout the run. Default value is 400.
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
@@ -1474,7 +1476,7 @@ class UlensModelFit(object):
         Set minimum and maximum values of the prior space
         """
         if self._fit_method == 'EMCEE':
-            self._set_prior_limits_EMCEE()  # Raphael: never happens?
+            self._set_prior_limits_EMCEE()
         elif self._fit_method in ['MultiNest', 'UltraNest']:
             self._set_prior_limits_MultiNest()
         else:
@@ -1531,7 +1533,7 @@ class UlensModelFit(object):
         max_values = []
         for parameter in self._fit_parameters:
             if parameter not in self._prior_limits:
-                raise ValueError("interal issue")
+                raise ValueError("internal issue")
             values = self._prior_limits[parameter]
             if isinstance(values, str):
                 values = values.split()
@@ -1560,13 +1562,7 @@ class UlensModelFit(object):
         """
         Parse the fitting constraints that are not simple limits on parameters
         """
-        if self._fit_method in ['MultiNest', 'UltraNest']:
-            if self._fit_constraints is not None:
-                raise NotImplementedError(
-                    "Currently no fit_constraints are implemented for "
-                    "MultiNest fit. Please contact Radek Poleski with "
-                    "a specific request.")
-
+        self._check_fit_constraints()
         self._prior_t_E = None
         self._priors = None
 
@@ -1574,7 +1570,6 @@ class UlensModelFit(object):
             self._set_default_fit_constraints()
             return
 
-        self._check_fit_constraints()
         self._parse_fit_constraints_keys()
         self._parse_fit_constraints_fluxes()
         self._parse_fit_constraints_posterior()
@@ -1587,15 +1582,15 @@ class UlensModelFit(object):
         Run checks on self._fit_constraints
         """
         lst_check = ['MultiNest', 'UltraNest']
-        if self._fit_constraints is not None and self._fit_method == lst_check:
-            raise NotImplementedError(
-                "Currently no fit_constraints are implemented for MultiNest "
-                "fit. Please contact Radek Poleski with a specific request.")
+        if self._fit_constraints is not None and self._fit_method in lst_check:
+            msg = "Currently no fit_constraints are implemented for {:} " + \
+                  "fit. Please contact Radek Poleski with a specific request."
+            raise NotImplementedError(msg.format(self._fit_method))
 
         if isinstance(self._fit_constraints, list):
             raise TypeError(
                 "In version 0.5.0 we've changed type of 'fit_constraints' " +
-                "from list to dict. Please correct you input and re-run " +
+                "from list to dict. Please correct your input and re-run " +
                 "the code. Most probably what you need is:\n" +
                 "fit_constraints = {'no_negative_blending_flux': True}")
 
