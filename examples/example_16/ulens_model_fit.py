@@ -563,8 +563,8 @@ class UlensModelFit(object):
                     "EMCEE fitting method requires starting_parameters.")
         elif self._fit_method in ["MultiNest", "UltraNest"]:
             if self._prior_limits is None:
-                raise ValueError(
-                    "pyMultiNest fitting method requires prior_limits.")
+                msg = "{:} fitting method requires prior_limits."
+                raise ValueError(msg.format(self._fit_method))
         else:
             raise ValueError("Invalid fitting method was inserted.")
 
@@ -955,8 +955,8 @@ class UlensModelFit(object):
         """
         if self._fit_method in ["MultiNest", "UltraNest"]:
             if self._min_values is not None or self._max_values is not None:
-                raise ValueError("In {:} fitting you cannot set min_values "
-                                 "or max_values".format(self._fit_method))
+                msg = "In {:} fitting you cannot set min_values or max_values"
+                raise ValueError(msg.format(self._fit_method))
 
     def _parse_methods(self, methods):
         """
@@ -1459,12 +1459,12 @@ class UlensModelFit(object):
         value = settings.pop("log directory")
         if value is not None:
             if path.exists(value) and path.isdir(value):
-                self._un_log_dir = value
+                self._log_dir_UltraNest = value
             else:
                 raise ValueError("log directory value in fitting_parameters"
                                  "does not exist.")
         value = settings.pop("derived parameter names", "")
-        self._un_derived_params_names = value.split()
+        self._derived_params_UltraNest = value.split()
 
         keys = {"n_live_points": "min_num_live_points"}
         same_keys = ["show_status"]
@@ -2542,19 +2542,19 @@ class UlensModelFit(object):
         """
         Prepare UltraNest fit, declaring sampler instance
         """
-        if self._return_fluxes and len(self._un_derived_params_names) == 0:
-            self._un_derived_params_names = ["source_flux", "blending_flux"]
+        if self._return_fluxes and len(self._derived_params_UltraNest) == 0:
+            self._derived_params_UltraNest = ["source_flux", "blending_flux"]
             if self._n_fluxes > 2:
-                self._un_derived_params_names[0] += "_1"
+                self._derived_params_UltraNest[0] += "_1"
                 for i in range(2, self._n_fluxes):
                     name = "source_flux_{:}".format(i)
-                    self._un_derived_params_names.insert(i-1, name)
+                    self._derived_params_UltraNest.insert(i-1, name)
 
         self._sampler = ultranest.ReactiveNestedSampler(
             self._fit_parameters,
-            self._ln_like, transform=self._transform_unit_cube_un,
-            derived_param_names=self._un_derived_params_names,
-            log_dir=self._un_log_dir
+            self._ln_like, transform=self._transform_unit_cube_UltraNest,
+            derived_param_names=self._derived_params_UltraNest,
+            log_dir=self._log_dir_UltraNest
         )
 
     def _transform_unit_cube(self, cube, n_dims, n_params):
@@ -2593,28 +2593,6 @@ class UlensModelFit(object):
                 cube[i] = fluxes[i-n_dims]
             self._last_fluxes = fluxes
 
-    def _transform_unit_cube_un(self, cube):
-        """
-        Transform UltraNest unit cube to microlensing parameters.
-
-        Based on _transform_unit_cube() for MultiNest method and tutorials
-        from UltraNest documentation:
-        https://johannesbuchner.github.io/UltraNest/example-sine-line.html
-        """
-        n_dims = self._n_fit_parameters
-        n_params = n_dims + self._n_fluxes * self._return_fluxes
-        cube_out = self._min_values + cube[:n_dims] * self._range_values
-
-        # Check with Radek: are "x_caustic_in" lines needed here?
-
-        if self._return_fluxes:
-            fluxes = self._get_fluxes()
-            for i in range(n_dims, n_params):
-                cube_out = np.append(cube_out, fluxes[i-n_dims])
-            self._last_fluxes = fluxes
-
-        return cube_out
-
     def _ln_like_MN(self, theta, n_dim, n_params, lnew):
         """
         Calculate likelihood and save if its best model.
@@ -2641,6 +2619,28 @@ class UlensModelFit(object):
             ln_like = ln_max
 
         return ln_like
+
+    def _transform_unit_cube_UltraNest(self, cube):
+        """
+        Transform UltraNest unit cube to microlensing parameters.
+
+        Based on _transform_unit_cube() for MultiNest method and tutorials
+        from UltraNest documentation:
+        https://johannesbuchner.github.io/UltraNest/example-sine-line.html
+        """
+        n_dims = self._n_fit_parameters
+        n_params = n_dims + self._n_fluxes * self._return_fluxes
+        cube_out = self._min_values + cube[:n_dims] * self._range_values
+
+        # Check with Radek: are "x_caustic_in" lines needed here?
+
+        if self._return_fluxes:
+            fluxes = self._get_fluxes()
+            for i in range(n_dims, n_params):
+                cube_out = np.append(cube_out, fluxes[i-n_dims])
+            self._last_fluxes = fluxes
+
+        return cube_out
 
     def _run_fit(self):
         """
@@ -2671,7 +2671,7 @@ class UlensModelFit(object):
         """
         Run Ultranest fit
         """
-        self._un_result = self._sampler.run(**self._kwargs_UltraNest)
+        self._result_UltraNest = self._sampler.run(**self._kwargs_UltraNest)
 
     def _finish_fit(self):
         """
@@ -2752,14 +2752,15 @@ class UlensModelFit(object):
             # Raphael: continue from here...
 
             # self._sampler.print_results()
-            result = self._un_result['maximum_likelihood']['point']
-            stdev = self._un_result['posterior']['stdev']
+            result = self._result_UltraNest['maximum_likelihood']['point']
+            stdev = self._result_UltraNest['posterior']['stdev']
+            log_like = self._result_UltraNest['maximum_likelihood']['logl']
             print("\n--\nUltraNest results:")
-            for (i, param) in enumerate(self._un_result['paramnames']):
+            for (i, param) in enumerate(self._result_UltraNest['paramnames']):
                 print(param, ' =', result[i], ' +/-', stdev[i])
-            print('logl =', self._un_result['maximum_likelihood']['logl'])
-            print('logz =', self._un_result['logz'], '+/-',
-                  self._un_result['logzerr'])
+            print('logl =', log_like)
+            print('logz =', self._result_UltraNest['logz'], '+/-',
+                  self._result_UltraNest['logzerr'])
         else:
             raise ValueError('internal bug')
 
