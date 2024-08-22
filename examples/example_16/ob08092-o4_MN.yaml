@@ -19,5 +19,11 @@ fitting_parameters:
 plots:
     best model:
         file: out_ob08092_O4_MN_model.png
+        second Y scale:
+            magnifications: optimal
     triangle:
         file: out_ob08092_O4_MN_triangle.png
+        shift t_0: False
+other_output:
+    yaml output:
+        file name: ob03235_2_all_results_UN.yaml

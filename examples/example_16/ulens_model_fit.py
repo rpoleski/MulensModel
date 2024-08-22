@@ -2749,18 +2749,7 @@ class UlensModelFit(object):
         elif self._fit_method == "MultiNest":
             self._parse_results_MultiNest()
         elif self._fit_method == "UltraNest":
-            # Raphael: continue from here...
-
-            # self._sampler.print_results()
-            result = self._result_UltraNest['maximum_likelihood']['point']
-            stdev = self._result_UltraNest['posterior']['stdev']
-            log_like = self._result_UltraNest['maximum_likelihood']['logl']
-            print("\n--\nUltraNest results:")
-            for (i, param) in enumerate(self._result_UltraNest['paramnames']):
-                print(param, ' =', result[i], ' +/-', stdev[i])
-            print('logl =', log_like)
-            print('logz =', self._result_UltraNest['logz'], '+/-',
-                  self._result_UltraNest['logzerr'])
+            self._parse_results_UltraNest()
         else:
             raise ValueError('internal bug')
 
@@ -2857,7 +2846,7 @@ class UlensModelFit(object):
 
         if self._fit_method == "EMCEE":
             results = self._get_weighted_percentile(data)
-        elif self._fit_method == "MultiNest":
+        elif self._fit_method in ["MultiNest", "UltraNest"]:
             if mode is None:
                 weights = self._samples_flat_weights
             else:
@@ -2906,7 +2895,7 @@ class UlensModelFit(object):
 
         if self._fit_method == "EMCEE":
             results = self._get_weighted_percentile(data)
-        elif self._fit_method == "MultiNest":
+        elif self._fit_method in ["MultiNest", "UltraNest"]:
             if mode is None:
                 weights = self._samples_flat_weights
             else:
@@ -3220,12 +3209,44 @@ class UlensModelFit(object):
 
     def _get_fluxes_to_print_MultiNest(self):
         """
-        prepare values to be printed for EMCEE fitting
+        prepare flux values to be printed for MultiNest and Ultranest fitting
         """
-        index = 2 + self._n_fit_parameters
-        data = self._analyzer_data[:, index:]
+        if self._fit_method == "MultiNest":
+            index = 2 + self._n_fit_parameters
+            data = self._analyzer_data
+        elif self._fit_method == "UltraNest":
+            index = self._n_fit_parameters
+            data = self._result_UltraNest['weighted_samples']['points']
 
-        return data
+        return data[:, index:]
+
+    def _parse_results_UltraNest(self):
+        """
+        Parse results of UltraNest fitting.
+        Functions that print and save EMCEE results are also called here.
+        """
+        # re-weighted posterior samples
+        # self._samples_flat = self._result_UltraNest['samples'][:, :-2]
+        # weighted samples from the posterior
+        weighted_samples = self._result_UltraNest['weighted_samples']
+        self._samples_flat = weighted_samples['points'][:, :-2]
+        self._samples_flat_weights = weighted_samples['weights']
+        self._sampler.print_results()
+
+        max_like = self._result_UltraNest['maximum_likelihood']
+        self._best_model_ln_prob = max_like['logl']
+        self._best_model_theta = max_like['point'][:self._n_fit_parameters]
+        self._best_model_fluxes = max_like['point'][self._n_fit_parameters:]
+        self._parse_results_MultiNest_singlemode()
+
+        self._shift_t_0_in_samples()
+        self._print_best_model()
+        if self._yaml_results:
+            self._print_yaml_best_model()
+            ln_ev = self._result_UltraNest['logz_single']
+            ln_ev_err = self._result_UltraNest['logzerr_single']
+            lns = "  ln_ev: [{:.5f}, +{:.5f}, -{:.5f}]"
+            print(lns.format(ln_ev, ln_ev_err, ln_ev_err), **self._yaml_kwargs)
 
     def _write_residuals(self):
         """
