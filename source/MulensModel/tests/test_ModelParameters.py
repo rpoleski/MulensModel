@@ -137,6 +137,57 @@ def test_repr_t_0_kep():
     assert (out_1 + out_2) == str(params)
 
 
+class TestT0X(unittest.TestCase):
+    """
+    Test that t_0_par and t_0_kep are correctly set even if not provided.
+    """
+    def setUp(self):
+        t_0 = 2456145.
+        u_0 = 0.01
+        t_E = 62.63
+        s = 1.0
+        q = 0.003
+        alpha = 30.
+        self.params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
+             'ds_dt': 0.47, 'dalpha_dt': 3.14, 'pi_E_E': 0.1, 'pi_E_N': -0.2}
+
+    def test_basic(self):
+        model_params = mm.ModelParameters(self.params)
+        np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'])
+        np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'])
+
+    def test_N_sources(self):
+        params = self.params.copy()
+        params['t_0_1'] = self.params['t_0'] - 1.
+        params['u_0_1'] = self.params['u_0'] * 2
+        params['t_0_2'] = self.params['t_0'] + 1.
+        params['u_0_2'] = 0.1
+        params.pop('t_0')
+        params.pop('u_0')
+
+        assert 't_0' not in params.keys()
+        assert 'u_0' not in params.keys()
+
+        model_params = mm.ModelParameters(params)
+
+        np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] - 1.)
+        np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] - 1.)
+
+    def test_t_0_par_set(self):
+        params = self.params.copy()
+        params['t_0_par'] = self.params['t_0'] + 3.
+        model_params = mm.ModelParameters(params)
+        np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] + 3.)
+        np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] + 3.)
+
+    def test_t_0_kep_set(self):
+        params = self.params.copy()
+        params['t_0_kep'] = self.params['t_0'] + 5.
+        model_params = mm.ModelParameters(params)
+        np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] + 5.)
+        np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] + 5.)
+
+
 def test_positive_t_E():
     """
     Check if t_E is positive when t_eff is given, even if u_0 is negative.
