@@ -176,6 +176,10 @@ class TestT0X(unittest.TestCase):
     def test_t_0_par_set(self):
         params = self.params.copy()
         params['t_0_par'] = self.params['t_0'] + 3.
+
+        assert 't_0_par' in params.keys()
+        assert 't_0_kep' not in params.keys()
+
         model_params = mm.ModelParameters(params)
         np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] + 3.)
         np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] + 3.)
@@ -183,7 +187,13 @@ class TestT0X(unittest.TestCase):
     def test_t_0_kep_set(self):
         params = self.params.copy()
         params['t_0_kep'] = self.params['t_0'] + 5.
+
+        assert 't_0_par' not in params.keys()
+        assert 't_0_kep' in params.keys()
+
+        print(params)
         model_params = mm.ModelParameters(params)
+        print(model_params)
         np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] + 5.)
         np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] + 5.)
 

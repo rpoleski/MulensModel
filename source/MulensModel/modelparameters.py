@@ -1525,12 +1525,14 @@ class ModelParameters(object):
         It is best to fix it at the begin of calculations.
         """
         if 't_0_par' not in self.parameters.keys():
-            if 't_0' in self.parameters.keys():
+            if 't_0_kep' in self.parameters.keys():
+                return self.parameters['t_0_kep']
+            elif 't_0' in self.parameters.keys():
                 return self.parameters['t_0']
             elif self.n_sources > 1:
                 return self.t_0_1
             else:
-                raise KeyError('No valid value of t_0 for setting t_0_par', self.parameters)
+                raise KeyError('No valid value for setting t_0_par', self.parameters)
 
         else:
             return self.parameters['t_0_par']
@@ -1674,7 +1676,9 @@ class ModelParameters(object):
         It is best to fix it at the begin of calculations.
         """
         if 't_0_kep' not in self.parameters.keys():
-            if 't_0' in self.parameters.keys():
+            if 't_0_par' in self.parameters.keys():
+                return self.parameters['t_0_par']
+            elif 't_0' in self.parameters.keys():
                 return self.parameters['t_0']
             elif self.n_sources > 1:
                 return self.t_0_1
