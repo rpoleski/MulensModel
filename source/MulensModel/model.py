@@ -156,13 +156,12 @@ class Model(object):
 
         """
         if self.n_sources > 1 and source_flux_ratio is None:
-            # Update for N_Sources = arbitrary
             raise ValueError(
                 'For multi-source model you have to provide ' +
                 'source_flux_ratio. Note that plotted magnification will ' +
                 'be the effective magnification of the sources.')
 
-        self._check_gamma_for_N_sources(gamma)  # Update for N_Sources = arbitrary
+        self._check_gamma_for_N_sources(gamma)
 
         if times is None:
             times = self.set_times(
@@ -237,7 +236,7 @@ class Model(object):
         (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_N_sources(gamma)  # Update for N_Sources = arbitrary
+        self._check_gamma_for_N_sources(gamma)
 
         magnitudes = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -246,7 +245,6 @@ class Model(object):
 
         return magnitudes
 
-    # Update for N_Sources = arbitrary
     def _check_gamma_for_N_sources(self, gamma):
         """
         Check if the user tries to use limb darkening for binary source model
@@ -319,7 +317,6 @@ class Model(object):
             magnification = self.get_magnification(times, gamma=gamma)
             flux = source_flux * magnification + blend_flux
         else:
-            # Update for N_Sources = arbitrary
             magnification = self.get_magnification(times, separate=True)
             flux = None
             for i in range(self.n_sources):
@@ -392,7 +389,7 @@ class Model(object):
         (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_N_sources(gamma)  # Update for N_Sources = arbitrary
+        self._check_gamma_for_N_sources(gamma)
 
         (times, mag_or_flux) = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -1225,7 +1222,7 @@ class Model(object):
                         source_flux_ratio))
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_N_sources(gamma)  # Update for N_Sources = arbitrary
+        self._check_gamma_for_N_sources(gamma)
 
         if self.n_sources > 1:
             if (source_flux_ratio is None) and (separate is False):
