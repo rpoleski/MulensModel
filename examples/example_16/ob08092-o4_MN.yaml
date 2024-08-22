@@ -12,7 +12,7 @@ fitting_parameters:
     # evidence tolerance: 0.5
     # UltraNest only (log directory, derived parameter names, show_status)
     log directory: ultranest_outputs/
-    # derived parameter names: source_flux blending_flux
+    derived parameter names: source_flux blending_flux
     show_status: True
     # `n_live_points` can be used in MultiNest and UltraNest
     n_live_points: 1000

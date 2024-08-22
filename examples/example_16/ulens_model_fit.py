@@ -1637,7 +1637,7 @@ class UlensModelFit(object):
                     str(used_keys.intersection(allowed_keys_color)-{'color'}))
 
     def _parse_fit_constraints_fluxes(self):
-        """msg +=
+        """
         Process each constraint fit_constraints.
         """
         for key, value in self._fit_constraints.items():
@@ -1723,10 +1723,8 @@ class UlensModelFit(object):
         priors = dict()
         for (key, value) in self._fit_constraints['prior'].items():
             if key == 't_E':
-                if value == "Mroz et al. 2017":
-                    self._prior_t_E = 'Mroz+17'
-                elif value == "Mroz et al. 2020":
-                    self._prior_t_E = 'Mroz+20'
+                if value in ["Mroz et al. 2017", "Mroz et al. 2020"]:
+                    self._prior_t_E = value.replace(" et al. 20", "+")
                 else:
                     raise ValueError("Unrecognized t_E prior: " + value)
                 self._read_prior_t_E_data()
@@ -1761,15 +1759,15 @@ class UlensModelFit(object):
             return
 
         if self._fit_method != "EMCEE":
-            raise ValueError('Input in "posterior parsing" is allowed only for EMCEE')
+            raise ValueError('Input in "posterior parsing" is allowed only'
+                             ' for EMCEE')
 
         allowed_keys = {"abs"}
         settings = self._fit_constraints['posterior parsing']
         unknown = set(settings.keys()) - allowed_keys
         if len(unknown) > 0:
-            raise KeyError(
-                "Unrecognized key in fit_constraints -> 'posterior parsing': " +
-                str(unknown))
+            msg = "Unrecognized key in fit_constraints -> 'posterior parsing':"
+            raise KeyError(msg + ' ' + str(unknown))
 
         if 'abs' in settings:
             self._parse_posterior_abs = settings['abs']
@@ -2542,8 +2540,16 @@ class UlensModelFit(object):
 
     def _setup_fit_UltraNest(self):
         """
-        Setup UltraNest fit -- Raphael
+        Prepare UltraNest fit, declaring sampler instance
         """
+        if self._return_fluxes and len(self._un_derived_params_names) == 0:
+            self._un_derived_params_names = ["source_flux", "blending_flux"]
+            if self._n_fluxes > 2:
+                self._un_derived_params_names[0] += "_1"
+                for i in range(2, self._n_fluxes):
+                    name = "source_flux_{:}".format(i)
+                    self._un_derived_params_names.insert(i-1, name)
+
         self._sampler = ultranest.ReactiveNestedSampler(
             self._fit_parameters,
             self._ln_like, transform=self._transform_unit_cube_un,
@@ -2587,34 +2593,29 @@ class UlensModelFit(object):
                 cube[i] = fluxes[i-n_dims]
             self._last_fluxes = fluxes
 
-    def _transform_unit_cube_un(self, cube, n_dims=3, n_params=3):
+    def _transform_unit_cube_un(self, cube):
         """
         Transform UltraNest unit cube to microlensing parameters.
 
-        [...]
+        Based on _transform_unit_cube() for MultiNest method and tutorials
+        from UltraNest documentation:
+        https://johannesbuchner.github.io/UltraNest/example-sine-line.html
         """
+        n_dims = self._n_fit_parameters
+        n_params = n_dims + self._n_fluxes * self._return_fluxes
         cube_out = self._min_values + cube[:n_dims] * self._range_values
 
-        # Raphael, check: are "x_caustic_in" lines needed here?
+        # Check with Radek: are "x_caustic_in" lines needed here?
 
-        # if hasattr(self, '_last_theta'):
-        #     self._prev_last_theta = self._last_theta.copy()
-        # else:
-        #     self._prev_last_theta = cube_out
-        # self._last_ln_like = self._ln_like(cube_out)
-        # self._last_theta = cube_out
-
-        # Raphael, check: are self._return_fluxes lines needed here?
         if self._return_fluxes:
             fluxes = self._get_fluxes()
             for i in range(n_dims, n_params):
-                cube[i] = fluxes[i-n_dims]
+                cube_out = np.append(cube_out, fluxes[i-n_dims])
             self._last_fluxes = fluxes
 
         return cube_out
 
     def _ln_like_MN(self, theta, n_dim, n_params, lnew):
-        # def _ln_like_MN(self, theta, n_dim=3, n_params=3, lnew=-1.e300):
         """
         Calculate likelihood and save if its best model.
         This is used for MultiNest fitting.
@@ -2748,6 +2749,8 @@ class UlensModelFit(object):
         elif self._fit_method == "MultiNest":
             self._parse_results_MultiNest()
         elif self._fit_method == "UltraNest":
+            # Raphael: continue from here...
+
             # self._sampler.print_results()
             result = self._un_result['maximum_likelihood']['point']
             stdev = self._un_result['posterior']['stdev']
