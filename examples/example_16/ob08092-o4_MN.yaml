@@ -1,29 +1,21 @@
 photometry_files:
     data/OB08092/phot_ob08092_O4.dat
-fit_method: UltraNest  # options: EMCEE, MultiNest, UltraNest (... dynesty)
+fit_method: MultiNest
 prior_limits:
     t_0: [2455379.4, 2455379.76]
     u_0: [0.3, 0.65]
     t_E: 16. 19.6
 fitting_parameters:
-    # MultiNest only (basename, multimodal, evidence tolerance)
     basename: out_ob08092_O4_MN-
     multimodal: True
+    # Default settings of other parameters:
     # evidence tolerance: 0.5
-    # UltraNest only (log directory, derived parameter names, show_status)
-    log directory: ultranest_outputs/
-    derived parameter names: source_flux blending_flux
-    show_status: True
-    # `n_live_points` can be used in MultiNest and UltraNest
     n_live_points: 1000
 plots:
     best model:
         file: out_ob08092_O4_MN_model.png
-        second Y scale:
-            magnifications: optimal
     triangle:
         file: out_ob08092_O4_MN_triangle.png
-        shift t_0: False
 other_output:
     yaml output:
-        file name: ob03235_2_all_results_UN.yaml
+        file name: ob08092_O4_MN_all_results.yaml

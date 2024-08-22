@@ -2629,7 +2629,7 @@ class UlensModelFit(object):
         https://johannesbuchner.github.io/UltraNest/example-sine-line.html
         """
         n_dims = self._n_fit_parameters
-        n_params = n_dims + self._n_fluxes * self._return_fluxes
+        n_params = n_dims + self._n_fluxes_per_dataset * self._return_fluxes
         cube_out = self._min_values + cube[:n_dims] * self._range_values
 
         # Check with Radek: are "x_caustic_in" lines needed here?
