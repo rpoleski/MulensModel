@@ -1456,13 +1456,14 @@ class UlensModelFit(object):
 
         self._check_required_and_allowed_parameters(required, allowed)
         self._check_parameters_types(settings, bools, ints, floats, strings)
-        value = settings.pop("log directory")
-        if value is not None:
-            if path.exists(value) and path.isdir(value):
-                self._log_dir_UltraNest = value
-            else:
+        self._log_dir_UltraNest = settings.pop("log directory", None)
+        if self._log_dir_UltraNest is not None:
+            if not path.exists(self._log_dir_UltraNest):
                 raise ValueError("log directory value in fitting_parameters"
                                  "does not exist.")
+            elif not path.isdir(self._log_dir_UltraNest):
+                raise ValueError("log directory value in fitting_parameters"
+                                 "exists, but it is a file.")
         value = settings.pop("derived parameter names", "")
         self._derived_params_UltraNest = value.split()
 
@@ -2671,6 +2672,9 @@ class UlensModelFit(object):
         """
         Run Ultranest fit
         """
+        self._kwargs_UltraNest['dlogz'] = 100.  # 0.5... 100. took 15min
+        self._kwargs_UltraNest['dKL'] = 100.  # 0.5
+        self._kwargs_UltraNest['frac_remain'] = 0.005
         self._result_UltraNest = self._sampler.run(**self._kwargs_UltraNest)
 
     def _finish_fit(self):
@@ -3229,7 +3233,8 @@ class UlensModelFit(object):
         # self._samples_flat = self._result_UltraNest['samples'][:, :-2]
         # weighted samples from the posterior
         weighted_samples = self._result_UltraNest['weighted_samples']
-        self._samples_flat = weighted_samples['points'][:, :-2]
+        index = self._n_fit_parameters
+        self._samples_flat = weighted_samples['points'][:, :index]
         self._samples_flat_weights = weighted_samples['weights']
         self._sampler.print_results()
 
