@@ -242,8 +242,21 @@ class UlensModelFit(object):
             ``show_status`` (*bool*) - whether to show integration progress
             as a status line or not. Default is *True*.
 
-            ``n_live_points`` (*int*) - minimum number of live points
+            ``min_num_live_points`` (*int*) - minimum number of live points
             throughout the run. Default value is 400.
+
+            ``dlogz`` (*float*) - Target evidence uncertainty, in order to
+            obtain a logz error below a threshold. Default value is 0.5.
+            It can be increased to allow `min_num_live_points` values below:
+            sqrt(iterations) / dlogz = sqrt(1000) / 0.5 ~ 64.
+
+            ``frac_remain`` (*float*) - Integrate until this fraction of the
+            integral is left in the remainder. Numbers smaller than 0.01
+            ensure that peaks are discovered, higher numbers can be set if
+            the posterior is simple. Default value is 0.01.
+
+            ``max_num_improvement_loops`` (*int*) - Limit the number of times
+            the algorithm is repeated to improve. Default value is -1.
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
@@ -1360,7 +1373,8 @@ class UlensModelFit(object):
         allowed = strings + bools + ints + floats
 
         only_UltraNest = ['log directory', 'derived parameter names',
-                          'show status']
+                          'show status', 'dlogz', 'frac_remain',
+                          'max_num_improvement_loops']
         for item in only_UltraNest:
             settings.pop(item, None)
 
@@ -1434,7 +1448,7 @@ class UlensModelFit(object):
 
     def _parse_fitting_parameters_UltraNest(self):
         """
-        make sure MultiNest fitting parameters are properly defined
+        Make sure UltraNest fitting parameters are properly defined
         """
         self._kwargs_UltraNest = dict()
         self._kwargs_UltraNest['viz_callback'] = False
@@ -1445,9 +1459,11 @@ class UlensModelFit(object):
 
         required = []
         bools = ['show_status']
-        ints = ['n_live_points']
+        ints = ['min_num_live_points', 'max_num_improvement_loops']
+        if 'n_live_points' in settings:
+            ints[0] = 'n_live_points'
         strings = ['log directory', 'derived parameter names']
-        floats = []
+        floats = ['dlogz', 'frac_remain']
         allowed = strings + bools + ints + floats
 
         only_MultiNest = ['basename', 'multimodal', 'evidence tolerance']
@@ -1468,7 +1484,8 @@ class UlensModelFit(object):
         self._derived_params_UltraNest = value.split()
 
         keys = {"n_live_points": "min_num_live_points"}
-        same_keys = ["show_status"]
+        same_keys = ["min_num_live_points", 'max_num_improvement_loops',
+                     "show_status", "dlogz", "frac_remain"]
         keys = {**keys, **{key: key for key in same_keys}}
         self._set_dict_safely(self._kwargs_UltraNest, settings, keys)
 
@@ -2672,9 +2689,10 @@ class UlensModelFit(object):
         """
         Run Ultranest fit
         """
-        self._kwargs_UltraNest['dlogz'] = 100.  # 0.5... 100. took 15min
-        self._kwargs_UltraNest['dKL'] = 100.  # 0.5
-        self._kwargs_UltraNest['frac_remain'] = 0.005
+        min_n_live = self._kwargs_UltraNest['min_num_live_points']
+        cluster_n_live = 40 if min_n_live >= 40 else min_n_live
+        self._kwargs_UltraNest['cluster_num_live_points'] = cluster_n_live
+
         self._result_UltraNest = self._sampler.run(**self._kwargs_UltraNest)
 
     def _finish_fit(self):

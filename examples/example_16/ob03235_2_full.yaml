@@ -6,7 +6,12 @@ photometry_files:
 # For files with time starting with 245...:
 #    - {..., add_2450000: False}
 fit_method: EMCEE
-# Method options: EMCEE (default), MultiNest, UltraNest
+# Options: EMCEE, MultiNest, UltraNest.
+# If not given, EMCEE is used if starting_parameters are given or MultiNest
+# if prior_limits are given.
+# If MultiNest/UltraNest is selected: starting_parameters, fit_constraints,
+# min_values and max_value cannot be provided. The trace plot cannot be
+# generated as well.
 model:
     methods: 2452800. point_source 2452833. VBBL 2452845. point_source 2452860.
     default method: point_source_point_lens
@@ -78,12 +83,27 @@ max_values:
     s: 2.
     alpha: 360.
 fitting_parameters:
+    ## EMCEE only
     n_walkers: 20
     n_steps: 4
     n_burn:  2
     progress: True
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
+    ## MultiNest only (basename, multimodal, evidence tolerance)
+    # basename: out_ob08092_O4_MN-
+    # multimodal: True
+    # # evidence tolerance: 0.5
+    ## UltraNest only (log directory, derived parameter names, show_status,
+    ## dlogz, frac_remain, max_num_improvement_loops)
+    # log directory: ultranest_outputs/
+    # derived parameter names: source_flux blending_flux
+    # show_status: True
+    # dlogz: 2.
+    # frac_remain: 0.5
+    # max_num_improvement_loops: 0
+    ## Both for MultiNest and UltraNest (number of live points)
+    # n_live_points: 20
 plots:
     best model:
         # You can skip the line below - the light curve will be plotted on screen.
