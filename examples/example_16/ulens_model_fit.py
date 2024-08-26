@@ -2558,7 +2558,10 @@ class UlensModelFit(object):
 
     def _setup_fit_UltraNest(self):
         """
-        Prepare UltraNest fit, declaring sampler instance
+        Prepare UltraNest fit, declaring sampler instance.
+        If the names of the derived parameters are not given, the source
+        and blending fluxes are assigned, with the former containing _1
+        and _2 in case of multiple sources.
         """
         if self._return_fluxes and len(self._derived_params_UltraNest) == 0:
             self._derived_params_UltraNest = ["source_flux", "blending_flux"]
@@ -2650,7 +2653,7 @@ class UlensModelFit(object):
         n_params = n_dims + self._n_fluxes_per_dataset * self._return_fluxes
         cube_out = self._min_values + cube[:n_dims] * self._range_values
 
-        # Check with Radek: are "x_caustic_in" lines needed here?
+        # Check: are "x_caustic_in" lines needed as in line 2597?
 
         if self._return_fluxes:
             fluxes = self._get_fluxes()
@@ -3247,9 +3250,9 @@ class UlensModelFit(object):
         Parse results of UltraNest fitting.
         Functions that print and save EMCEE results are also called here.
         """
-        # re-weighted posterior samples
+        # re-weighted posterior samples:
         # self._samples_flat = self._result_UltraNest['samples'][:, :-2]
-        # weighted samples from the posterior
+        # weighted samples from the posterior:
         weighted_samples = self._result_UltraNest['weighted_samples']
         index = self._n_fit_parameters
         self._samples_flat = weighted_samples['points'][:, :index]
