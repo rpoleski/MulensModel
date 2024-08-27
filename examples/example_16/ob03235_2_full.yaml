@@ -90,12 +90,12 @@ fitting_parameters:
     progress: True
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
-    ## MultiNest only (basename, multimodal, evidence tolerance)
+    ## MultiNest only (basename, multimodal, evidence tolerance=0.5)
     # basename: out_ob08092_O4_MN-
     # multimodal: True
-    # # evidence tolerance: 0.5
+    # evidence tolerance: 0.5
     ## UltraNest only (log directory, derived parameter names, show_status,
-    ## dlogz, frac_remain, max_num_improvement_loops)
+    ## dlogz=0.5, frac_remain=0.01, max_num_improvement_loops=-1)
     # log directory: ultranest_outputs/
     # derived parameter names: source_flux blending_flux
     # show_status: True

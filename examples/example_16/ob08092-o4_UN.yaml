@@ -15,7 +15,7 @@ fitting_parameters:
     # UltraNest may increase n_live_points if it is too low to achieve the
     # logz accuracy (default=0.5). It can be avoided increasing dlogz:
     dlogz: 2.
-    # The parameters below can reduce runtime (default is -1 and 0.01)
+    # The parameters below can reduce runtime (default is 0.01 and -1)
     # frac_remain: 0.5
     # max_num_improvement_loops: 0
 plots:
