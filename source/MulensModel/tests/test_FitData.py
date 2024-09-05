@@ -1066,7 +1066,18 @@ def test_bad_data_w_ephemerides():
     """
     Test that satellite_skycoords is correctly masked when there are bad data.
     """
-    raise NotImplementedError()
+    model_with_par = create_0939_parallax_model()
+
+    # Load Spitzer data and answers
+    data_Spitzer = mm.MulensData(
+        file_name=SAMPLE_FILE_03, ephemerides_file=SAMPLE_FILE_03_EPH)
+    bad = np.zeros(len(data_Spitzer.time), dtype=bool)
+    bad[-10:] = True
+    data_Spitzer.bad = bad
+
+    my_fit = mm.FitData(dataset=data_Spitzer, model=model_with_par)
+    magnification = my_fit.get_data_magnification(bad=False)
+    np.testing.assert_almost_equal(magnification[-10:], 0.)
 
 
 class Test2L2S(unittest.TestCase):
