@@ -961,6 +961,10 @@ class Test1L3SModels(unittest.TestCase):
             assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).t_0 == self.t_0[i])
 
+        np.testing.assert_almost_equal(self.model.t_0_1, self.t_0[0])
+        np.testing.assert_almost_equal(self.model.t_0_2, self.t_0[1])
+        np.testing.assert_almost_equal(self.model.t_0_3, self.t_0[2])
+
     def test_basic_1L3S_u_0(self):
         """
         Test that we can access attributes of Triple source models.
@@ -972,6 +976,10 @@ class Test1L3SModels(unittest.TestCase):
         for i in range(3):
             assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).u_0 == self.u_0[i])
+
+        np.testing.assert_almost_equal(self.model.u_0_1, self.u_0[0])
+        np.testing.assert_almost_equal(self.model.u_0_2, self.u_0[1])
+        np.testing.assert_almost_equal(self.model.u_0_3, self.u_0[2])
 
     def test_basic_1L3S_rho(self):
         """
@@ -985,6 +993,10 @@ class Test1L3SModels(unittest.TestCase):
             assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).rho == self.rho[i])
 
+        np.testing.assert_almost_equal(self.model.rho_1, self.rho[0])
+        np.testing.assert_almost_equal(self.model.rho_2, self.rho[1])
+        np.testing.assert_almost_equal(self.model.rho_3, self.rho[2])
+
     def test_basic_1L3S_t_star(self):
         """
         Test that we can access attributes of Triple source models.
@@ -996,6 +1008,10 @@ class Test1L3SModels(unittest.TestCase):
         for i in range(1, 3):
             assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).t_star == self.t_star[i])
+
+        np.testing.assert_almost_equal(self.model.t_star_1, self.t_star[0])
+        np.testing.assert_almost_equal(self.model.t_star_2, self.t_star[1])
+        np.testing.assert_almost_equal(self.model.t_star_3, self.t_star[2])
 
     def test_teff2u0(self):
         teff = np.array(self.u_0) * self.t_E
