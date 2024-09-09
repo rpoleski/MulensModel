@@ -743,9 +743,9 @@ class ModelParameters(object):
                         'Your parameters: {0}'.format(keys))
 
             for i in range(self.n_sources):
-                if 'u_0_{0}'.format(i + 1) not in keys:
+                if ('u_0_{0}'.format(i + 1) not in keys) and ('t_eff_{0}'.format(i + 1) not in keys):
                     raise KeyError(
-                        'u_0_{0} is missing from parameters.'.format(i+1) +
+                        'Either u_0_{0} or t_eff_{0} must be specified.'.format(i+1) +
                         'Your parameters: {0}'.format(keys))
 
     def _check_for_extra_source_parameters(self, keys):

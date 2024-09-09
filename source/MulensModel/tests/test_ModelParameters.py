@@ -1005,10 +1005,9 @@ class Test1L3SModels(unittest.TestCase):
             params['t_eff_{0}'.format(i+1)] = teff[i]
 
         params['t_E'] = self.t_E
-        print(params)
         model = mm.ModelParameters(params)
         for i in range(3):
-            u_0 = model.__getattribute__('u_0_{0}'.format(i+1))
+            u_0 = model.__getattr__('u_0_{0}'.format(i+1))
             np.testing.assert_almost_equal(u_0, self.u_0[i])
 
 
