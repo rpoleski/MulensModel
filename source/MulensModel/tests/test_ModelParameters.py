@@ -1010,6 +1010,10 @@ class Test1L3SModels(unittest.TestCase):
             u_0 = model.__getattr__('u_0_{0}'.format(i+1))
             np.testing.assert_almost_equal(u_0, self.u_0[i])
 
+        np.testing.assert_almost_equal(model.u_0_1, self.u_0[0])
+        np.testing.assert_almost_equal(model.u_0_2, self.u_0[1])
+        np.testing.assert_almost_equal(model.u_0_3, self.u_0[2])
+
 
 class Test1LNSModels(unittest.TestCase):
 
