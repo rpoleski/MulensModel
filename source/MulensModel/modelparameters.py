@@ -332,12 +332,14 @@ class ModelParameters(object):
 
         self._n_sources = 1
         for key in keys:
-            # Check max number of sources based on u_0
-            # (t_0 is potentially confused with t_0_par, etc).
-            if (len(key) > 3) & (key[0:3] == 'u_0'):
+            # Check max number of sources based on highest integer label
+            if '_' in key:
                 n = key.split('_')[-1]
-                if int(n) > self._n_sources:
-                    self._n_sources = int(n)
+                try:
+                    if int(n) > self._n_sources:
+                        self._n_sources = int(n)
+                except ValueError:
+                    pass
 
         if 'q_source' in keys:
             self._n_sources = 2

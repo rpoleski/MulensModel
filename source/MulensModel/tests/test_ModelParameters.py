@@ -997,6 +997,20 @@ class Test1L3SModels(unittest.TestCase):
             assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).t_star == self.t_star[i])
 
+    def test_teff2u0(self):
+        teff = np.array(self.u_0) * self.t_E
+        params = {}
+        for i in range(3):
+            params['t_0_{0}'.format(i+1)] = self.t_0[i]
+            params['t_eff_{0}'.format(i+1)] = teff[i]
+
+        params['t_E'] = self.t_E
+        print(params)
+        model = mm.ModelParameters(params)
+        for i in range(3):
+            u_0 = model.__getattribute__('u_0_{0}'.format(i+1))
+            np.testing.assert_almost_equal(u_0, self.u_0[i])
+
 
 class Test1LNSModels(unittest.TestCase):
 
