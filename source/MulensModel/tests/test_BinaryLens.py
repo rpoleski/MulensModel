@@ -117,7 +117,7 @@ def make_trajectory(pos, params):
 
     t0 = 0
     tE = 1
-    alpha = 0.
+    alpha = 180.
     ulens_params = {
         't_0': t0, 'u_0': u0, 't_E': tE,
         's': params['s'], 'q': params['q'], 'alpha': alpha}
