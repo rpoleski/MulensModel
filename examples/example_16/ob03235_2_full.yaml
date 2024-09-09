@@ -7,8 +7,8 @@ photometry_files:
 #    - {..., add_2450000: False}
 fit_method: EMCEE
 # Options: EMCEE, MultiNest, UltraNest.
-# If not given, EMCEE is used if starting_parameters are given or MultiNest
-# if prior_limits are given.
+# If not given, EMCEE is used if starting_parameters are given; if prior_limits
+# are given, MultiNest or UltraNest is used depending on fitting_parameters.
 # If MultiNest/UltraNest is selected: starting_parameters, fit_constraints,
 # min_values and max_value cannot be provided. The trace plot cannot be
 # generated as well.

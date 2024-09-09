@@ -77,8 +77,9 @@ class UlensModelFit(object):
             Method of fitting. Currently accepted values are ``EMCEE``,
             ``MultiNest``, and ``UltraNest``. If not provided, the script
             will guess it based on other parameters: ``EMCEE`` is selected
-            if ``starting_parameters`` are provided and ``MultiNest`` is
-            selected if ``prior_limits`` are provided.
+            if ``starting_parameters`` are provided. If ``prior_limits`` are
+            provided, either ``MultiNest`` or ``UltraNest`` will be selected
+            depending on the ``fitting_parameters``.
 
             Webpage of each method:
             - EMCEE: https://emcee.readthedocs.io/en/stable/
@@ -124,8 +125,7 @@ class UlensModelFit(object):
 
         prior_limits: *dict*
             Upper and lower limits of parameters.
-            It only applies to pyMultiNest and UltraNest fitting. However,
-            if fit_method is not given, pyMultiNest will be applied.
+            It only applies to pyMultiNest and UltraNest fitting.
 
             Keys are MulensModel parameters and values are lists of two floats
             each (alternatively a string giving 2 floats can be provided - see
@@ -381,15 +381,15 @@ class UlensModelFit(object):
     """
 
     def __init__(
-            self, photometry_files, fit_method=None,
+            self, photometry_files,
             starting_parameters=None, prior_limits=None, model=None,
             fixed_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
-            fit_constraints=None, plots=None, other_output=None
+            fit_constraints=None, plots=None, other_output=None,
+            fit_method=None
     ):
         self._check_MM_version()
         self._photometry_files = photometry_files
-        self._fit_method = fit_method
         self._starting_parameters_input = starting_parameters
         self._prior_limits = prior_limits
         self._model_parameters = model
@@ -400,6 +400,7 @@ class UlensModelFit(object):
         self._fit_constraints = fit_constraints
         self._plots = plots
         self._other_output = other_output
+        self._fit_method = fit_method
 
         self._which_task()
         self._set_default_parameters()
@@ -407,6 +408,7 @@ class UlensModelFit(object):
             if self._fit_method is None:
                 self._guess_fitting_method()
             else:
+                self._fit_method = self._fit_method.lower()
                 self._check_fitting_method()
             self._check_starting_parameters_type()
             self._set_fit_parameters_unsorted()
@@ -558,7 +560,7 @@ class UlensModelFit(object):
                     "which makes impossible to choose the fitting method. "
                     "These settings indicate EMCEE and pyMultiNest "
                     "respectively, and cannot be both set.")
-            method = "MultiNest"  # UltraNest is also supported
+            method = self._guess_MultiNest_or_UltraNest()
         if method is None:
             raise ValueError(
                 "No fitting method chosen. You can chose either 'EMCEE' or "
@@ -566,15 +568,38 @@ class UlensModelFit(object):
                 "starting_parameters or prior_limits, respectively.")
         self._fit_method = method
 
+    def _guess_MultiNest_or_UltraNest(self):
+        """
+        Guess fit_method between MultiNest or UltraNest, based on the
+        provided fitting_parameters.
+        """
+        args_MultiNest = ['basename', 'multimodal', 'evidence tolerance',
+                          'n_live_points']
+        if all([key in args_MultiNest for key in self._fitting_parameters]):
+            return "MultiNest"
+
+        args_UltraNest = ['log directory', 'derived parameter names',
+                          'show_status', 'dlogz', 'frac_remain',
+                          'max_num_improvement_loops', 'n_live_points']
+        if all([key in args_UltraNest for key in self._fitting_parameters]):
+            return "UltraNest"
+
+        raise ValueError(
+            "Cannot guess fitting method. Provide more parameters in "
+            "fitting_parameters.")
+
     def _check_fitting_method(self):
         """
         Check if fitting method is consistent with the settings.
         """
-        if self._fit_method == "EMCEE":
+        if self._fit_method == "emcee":
+            self._fit_method = "EMCEE"
             if self._starting_parameters_input is None:
                 raise ValueError(
                     "EMCEE fitting method requires starting_parameters.")
-        elif self._fit_method in ["MultiNest", "UltraNest"]:
+        elif self._fit_method in ["multinest", "ultranest"]:
+            self._fit_method = self._fit_method.capitalize()
+            self._fit_method = self._fit_method.replace("nest", "Nest")
             if self._prior_limits is None:
                 msg = "{:} fitting method requires prior_limits."
                 raise ValueError(msg.format(self._fit_method))
@@ -643,8 +668,8 @@ class UlensModelFit(object):
                 required_packages.add('emcee')
             elif self._fit_method == "MultiNest":
                 required_packages.add('pymultinest')
-            elif self._fit_method == "Ultranest":
-                required_packages.add('cython')
+            elif self._fit_method == "UltraNest":
+                required_packages.add('ultranest')
 
             if self._plots is not None and 'triangle' in self._plots:
                 required_packages.add('corner')
@@ -1373,7 +1398,7 @@ class UlensModelFit(object):
         allowed = strings + bools + ints + floats
 
         only_UltraNest = ['log directory', 'derived parameter names',
-                          'show status', 'dlogz', 'frac_remain',
+                          'show_status', 'dlogz', 'frac_remain',
                           'max_num_improvement_loops']
         for item in only_UltraNest:
             settings.pop(item, None)
@@ -2692,7 +2717,7 @@ class UlensModelFit(object):
         """
         Run Ultranest fit
         """
-        min_n_live = self._kwargs_UltraNest['min_num_live_points']
+        min_n_live = self._kwargs_UltraNest.get("min_num_live_points", 400)
         cluster_n_live = 40 if min_n_live >= 40 else min_n_live
         self._kwargs_UltraNest['cluster_num_live_points'] = cluster_n_live
 
