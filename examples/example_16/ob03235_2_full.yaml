@@ -43,6 +43,17 @@ starting_parameters:
     #   file: ob08092-o4_starting_file_input.txt
     #   parameters: t_0 u_0 t_E
     # See also ob08092-o4_starting_file.yaml
+# prior_limits:
+#     t_0: [2452847.5, 2452848.5]
+#     u_0: [0.08, 0.18]
+#     t_E: 58.7 64.7
+#     rho: [0.0004, 0.0018]
+#     pi_E_N: [-0.05, 0.05]
+#     pi_E_E: [-0.05, 0.05]
+#     s: [1.077, 1.125]
+#     q: [0.001, 0.02]
+#     alpha: [219.4, 229.4]
+#     # Only MultiNest and UltraNest, cannot be given with starting_parameters
 fit_constraints:
     negative_blending_flux_sigma_mag: 20.  
     #one can specify for which dataset soft constrain on blending flux should be applied: sigma dataset_label(s)
@@ -94,10 +105,10 @@ fitting_parameters:
     # basename: out_ob08092_O4_MN-
     # multimodal: True
     # evidence tolerance: 0.5
-    ## UltraNest only (log directory, derived parameter names, show_status,
+    ## UltraNest only (log directory, derived param names, show_status,
     ## dlogz=0.5, frac_remain=0.01, max_num_improvement_loops=-1)
     # log directory: ultranest_outputs/
-    # derived parameter names: source_flux blending_flux
+    # derived param names: flux_s_1 flux_b_1
     # show_status: True
     # dlogz: 2.
     # frac_remain: 0.5

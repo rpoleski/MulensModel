@@ -234,7 +234,7 @@ class UlensModelFit(object):
             there is a check if directory exists. If not given, no outputs
             are saved.
 
-            ``derived parameter names`` (*str*) - names of additional derived
+            ``derived param names`` (*str*) - names of additional derived
             parameters created by transform. In microlensing, they are usually
             the source(s) and blending fluxes. If not given, they are ignored
             in the transform function.
@@ -578,7 +578,7 @@ class UlensModelFit(object):
         if all([key in args_MultiNest for key in self._fitting_parameters]):
             return "MultiNest"
 
-        args_UltraNest = ['log directory', 'derived parameter names',
+        args_UltraNest = ['log directory', 'derived param names',
                           'show_status', 'dlogz', 'frac_remain',
                           'max_num_improvement_loops', 'n_live_points']
         if all([key in args_UltraNest for key in self._fitting_parameters]):
@@ -1397,12 +1397,6 @@ class UlensModelFit(object):
         floats = ['sampling efficiency', 'evidence tolerance']
         allowed = strings + bools + ints + floats
 
-        only_UltraNest = ['log directory', 'derived parameter names',
-                          'show_status', 'dlogz', 'frac_remain',
-                          'max_num_improvement_loops']
-        for item in only_UltraNest:
-            settings.pop(item, None)
-
         self._check_required_and_allowed_parameters(required, allowed)
         self._check_parameters_types(settings, bools, ints, floats, strings)
 
@@ -1478,7 +1472,7 @@ class UlensModelFit(object):
         self._kwargs_UltraNest = dict()
         self._kwargs_UltraNest['viz_callback'] = False
 
-        settings = self._fitting_parameters
+        settings = self._fitting_parameters.copy()
         if settings is None:
             settings = dict()
 
@@ -1487,13 +1481,9 @@ class UlensModelFit(object):
         ints = ['min_num_live_points', 'max_num_improvement_loops']
         if 'n_live_points' in settings:
             ints[0] = 'n_live_points'
-        strings = ['log directory', 'derived parameter names']
+        strings = ['log directory', 'derived param names']
         floats = ['dlogz', 'frac_remain']
         allowed = strings + bools + ints + floats
-
-        only_MultiNest = ['basename', 'multimodal', 'evidence tolerance']
-        for item in only_MultiNest:
-            settings.pop(item, None)
 
         self._check_required_and_allowed_parameters(required, allowed)
         self._check_parameters_types(settings, bools, ints, floats, strings)
@@ -1505,8 +1495,8 @@ class UlensModelFit(object):
             elif not path.isdir(self._log_dir_UltraNest):
                 raise ValueError("log directory value in fitting_parameters"
                                  "exists, but it is a file.")
-        value = settings.pop("derived parameter names", "")
-        self._derived_params_UltraNest = value.split()
+        value = settings.pop("derived param names", "")
+        self._derived_param_names_UltraNest = value.split()
 
         keys = {"n_live_points": "min_num_live_points"}
         same_keys = ["min_num_live_points", 'max_num_improvement_loops',
@@ -2585,21 +2575,19 @@ class UlensModelFit(object):
         """
         Prepare UltraNest fit, declaring sampler instance.
         If the names of the derived parameters are not given, the source
-        and blending fluxes are assigned, with the former containing _1
-        and _2 in case of multiple sources.
+        and blending fluxes are assigned, with indexes depending on the
+        number of sources (s1, s2) and datasets (_1, _2).
         """
-        if self._return_fluxes and len(self._derived_params_UltraNest) == 0:
-            self._derived_params_UltraNest = ["source_flux", "blending_flux"]
-            if self._n_fluxes > 2:
-                self._derived_params_UltraNest[0] += "_1"
-                for i in range(2, self._n_fluxes):
-                    name = "source_flux_{:}".format(i)
-                    self._derived_params_UltraNest.insert(i-1, name)
+        if self._return_fluxes:
+            if len(self._derived_param_names_UltraNest) == 0:
+                if self._flux_names is None:
+                    self._flux_names = self._get_fluxes_names_to_print()
+                self._derived_param_names_UltraNest = self._flux_names
 
         self._sampler = ultranest.ReactiveNestedSampler(
             self._fit_parameters,
             self._ln_like, transform=self._transform_unit_cube_UltraNest,
-            derived_param_names=self._derived_params_UltraNest,
+            derived_param_names=self._derived_param_names_UltraNest,
             log_dir=self._log_dir_UltraNest
         )
 
@@ -2678,7 +2666,7 @@ class UlensModelFit(object):
         n_params = n_dims + self._n_fluxes_per_dataset * self._return_fluxes
         cube_out = self._min_values + cube[:n_dims] * self._range_values
 
-        # Check: are "x_caustic_in" lines needed as in line 2597?
+        # TBD: add "x_caustic_in" checks as in line 2610...
 
         if self._return_fluxes:
             fluxes = self._get_fluxes()
