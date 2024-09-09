@@ -205,11 +205,11 @@ class Trajectory(object):
             vector_y = vector_u
         elif n_lenses == 2 or (n_lenses == 1 and is_mass_sheet):
             alpha = self.parameters.get_alpha(self._times) * (np.pi / 180)
-            sin_alpha = np.sin(alpha + np.pi)
-            cos_alpha = np.cos(alpha + np.pi)
+            sin_alpha = np.sin(alpha)
+            cos_alpha = np.cos(alpha)
 
-            vector_x = vector_tau * cos_alpha - vector_u * sin_alpha
-            vector_y = vector_tau * sin_alpha + vector_u * cos_alpha
+            vector_x = -vector_tau * cos_alpha + vector_u * sin_alpha
+            vector_y = -vector_tau * sin_alpha - vector_u * cos_alpha
             # The above equations use alpha in counterclockwise
             # convention, i.e., the same as proposed by Skowron et
             # al. (2011), but shifted by 180 deg.
