@@ -17,7 +17,7 @@ from MulensModel import Model, SatelliteSkyCoord, MODULE_PATH
 # Define model parameters.
 params = {'t_0': 2456900, 'u_0': 0.2, 't_E': 50.}
 params_pi_E = {'pi_E_N': 0.35, 'pi_E_E': 0.5}
-params_planet = {'rho': 0.002, 's': 1.5, 'q': 0.001, 'alpha': 348.1}
+params_planet = {'rho': 0.002, 's': 1.5, 'q': 0.001, 'alpha': 168.1}
 ra_dec = '18:00:00.00 -28:30:00.0'
 
 # Set models and satellite settings.
