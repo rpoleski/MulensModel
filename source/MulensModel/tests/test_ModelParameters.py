@@ -1277,3 +1277,132 @@ class TestParallax3Sources(unittest.TestCase):
         params = mm.ModelParameters(self.static_params)
         with self.assertRaises(KeyError):
             params.pi_E_E = self.dummy_value
+
+class TestSetters2Sources(unittest.TestCase):
+
+    def setUp(self):
+        self.t_0_1 = 0.0
+        self.u_0_1 = 0.1
+        self.t_0_2 = 5.0
+        self.u_0_2 = 0.01
+
+        self.t_E = 30
+        self.t_eff_1 = self.u_0_1 * self.t_E
+        self.t_eff_2 = self.u_0_2 * self.t_E
+
+        self.rho_1 = 0.001
+        self.rho_2 = 0.0003
+        self.t_star_1 = self.rho_1 * self.t_E
+        self.t_star_2 = self.rho_2 * self.t_E
+
+        self.dummy_value = 13.
+
+    def test_set_t_0_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        params.t_0_2 = self.dummy_value
+        assert params.t_0_2 == self.dummy_value
+        assert params._source_2_parameters.t_0 == self.dummy_value
+
+    def test_set_u_0_1_error(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 't_eff_1': self.t_eff_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.u_0_1 = self.dummy_value
+
+    def test_set_u_0_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        params.u_0_2 = self.dummy_value
+        assert params.u_0_2 == self.dummy_value
+        assert params._source_2_parameters.u_0 == self.dummy_value
+
+    def test_set_u_0_2_error(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 't_eff_2': self.t_eff_2, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.u_0_2 = self.dummy_value
+            
+    def test_set_rho_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 'rho_1': self.rho_1, 
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
+        params.rho_1 = self.dummy_value
+        assert params.rho_1 == self.dummy_value
+        assert params._source_1_parameters.rho == self.dummy_value
+        
+    def test_set_rho_1_error_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.rho_1 = self.dummy_value
+
+    def test_set_rho_1_error_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 'rho_1': self.rho_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.rho_1 = -self.dummy_value
+
+    def test_set_rho_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 'rho_1': self.rho_1, 
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
+        params.rho_2 = self.dummy_value
+        assert params.rho_2 == self.dummy_value
+        assert params._source_2_parameters.rho == self.dummy_value
+        
+    def test_set_rho_2_error_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.rho_2 = self.dummy_value
+            
+    def test_set_rho_2_error_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 'rho_1': self.rho_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.rho_2 = -self.dummy_value
+
+    def test_set_t_star_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_star_1': self.t_star_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
+        params.t_star_1 = self.dummy_value
+        assert params.t_star_1 == self.dummy_value
+        assert params._source_1_parameters.t_star == self.dummy_value
+
+    def test_set_t_star_1_error_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.t_star_1 = self.dummy_value
+
+    def test_set_t_star_1_error_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_star_1': self.t_star_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.t_star_1 = -self.dummy_value
+
+    def test_set_t_star_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_star_1': self.t_star_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
+        params.t_star_2 = self.dummy_value
+        assert params.t_star_2 == self.dummy_value
+        assert params._source_2_parameters.t_star == self.dummy_value
+
+    def test_set_t_star_2_error_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.t_star_2 = self.dummy_value
+
+    def test_set_t_star_2_error_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_star_1': self.t_star_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.t_star_2 = -self.dummy_value
