@@ -1995,7 +1995,12 @@ class ModelParameters(object):
             return (self._source_1_parameters.t_star /
                     self._source_1_parameters.t_E)
         else:
-            return None
+            print('fails')
+            print(self.parameters.keys())
+            raise AttributeError('rho_1 is not defined for these parameters')
+            #raise AttributeError(
+            #    'rho_1 is not defined for these parameters') #: {0}'.format(
+                 #self.parameters.keys()))
 
     @rho_1.setter
     def rho_1(self, new_rho_1):
