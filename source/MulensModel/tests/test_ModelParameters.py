@@ -1121,3 +1121,159 @@ class Test1L3SModelErrors(unittest.TestCase):
         https://ui.adsabs.harvard.edu/abs/2018AJ....155..259H/abstract
         """
         raise NotImplementedError()
+
+
+class TestSetters(unittest.TestCase):
+
+    def setUp(self):
+        self.t_0 = 0.0
+        self.u_0 = 0.1
+        self.t_E = 30
+        self.t_eff = self.u_0 * self.t_E
+        self.rho = 0.001
+        self.t_star = self.rho * self.t_E
+
+        self.q = 0.0001
+        self.s = 0.9
+        self.alpha = 270.
+
+        self.pi_E_N = 0.5
+        self.pi_E_E = -0.3
+        self.pi_E = [self.pi_E_N, self.pi_E_E]
+
+        self.dummy_value = 13.
+
+    def test_set_u0(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        params.u_0 = self.dummy_value
+        assert params.u_0 == self.dummy_value
+
+    def test_set_u0_error(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 't_eff': self.t_eff, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.u_0 = self.dummy_value
+
+    def test_set_t_star_error_1(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'rho': self.rho})
+        with self.assertRaises(KeyError):
+            params.t_star = self.dummy_value
+
+    def test_set_t_star_error_2(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 't_star': self.t_star})
+        with self.assertRaises(ValueError):
+            params.t_star = -self.dummy_value
+
+    def test_set_t_eff(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 't_eff': self.t_eff, 't_E': self.t_E})
+        params.t_eff = self.dummy_value
+        assert params.t_eff == self.dummy_value
+
+    def test_set_t_eff_error(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.t_eff = self.dummy_value
+
+    def test_set_t_E_error_1(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.t_E = None
+
+    def test_set_t_E_error_2(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.t_E = -self.dummy_value
+
+    def test_set_t_E_error_3(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_eff': self.t_eff})
+        with self.assertRaises(KeyError):
+            params.t_E = self.dummy_value
+
+    def test_set_rho(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'rho': self.rho})
+        params.rho = self.dummy_value
+        assert params.rho == self.dummy_value
+
+    def test_set_rho_error_1(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'rho': self.rho})
+        with self.assertRaises(ValueError):
+            params.rho = -self.dummy_value
+
+    def test_set_rho_error_2(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.rho = self.dummy_value
+
+    def test_set_q(self):
+        params = mm.ModelParameters(
+            {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 's': self.s, 'q': self.q, 'alpha': self.alpha})
+        params.q = self.dummy_value
+        assert params.q == self.dummy_value
+
+    def test_set_q_error(self):
+        params = mm.ModelParameters(
+            {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 's': self.s, 'q': self.q, 'alpha': self.alpha})
+        with self.assertRaises(ValueError):
+            params.q = -self.dummy_value
+
+    def test_set_pi_E_1(self):
+        params = mm.ModelParameters(
+            {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'pi_E': self.pi_E})
+        params.pi_E = [self.dummy_value, -self.dummy_value]
+        assert params.pi_E_N == self.dummy_value
+        assert params.pi_E_E == -self.dummy_value
+
+    def test_set_pi_E_2(self):
+        params = mm.ModelParameters(
+            {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E})
+        params.pi_E = [self.dummy_value, -self.dummy_value]
+        assert params.pi_E_N == self.dummy_value
+        assert params.pi_E_E == -self.dummy_value
+
+    def test_set_pi_E_error(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(KeyError):
+            params.pi_E = [self.dummy_value, -self.dummy_value]
+
+
+class TestParallax3Sources(unittest.TestCase):
+
+    def setUp(self):
+        self.pi_E_N = 0.5
+        self.pi_E_E = -0.3
+        self.static_params = {'t_0_1': 0, 'u_0_1': 1,
+            't_0_2': 5, 'u_0_2': 0.01,
+            't_0_3': 2, 'u_0_3': 0.3,
+            't_E': 9}
+        self.parallax_params = {'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E}
+
+        self.dummy_value = 13.
+
+    def test_initialized_correctly(self):
+        params = mm.ModelParameters({**self.static_params, **self.parallax_params})
+        for i in range(3):
+            assert params.__getattr__('source_{0}_parameters'.format(i+1)).pi_E_N == self.pi_E_N
+            assert params.__getattr__('source_{0}_parameters'.format(i+1)).pi_E_E == self.pi_E_E
+
+    def test_set_pi_E_N(self):
+        params = mm.ModelParameters({**self.static_params, 'pi_E': [self.pi_E_N, self.pi_E_E]})
+        params.pi_E_N = self.dummy_value
+        for i in range(3):
+            assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_N == self.dummy_value
+            assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_E == self.pi_E_E
+
+    def test_set_pi_E_N_error(self):
+        params = mm.ModelParameters(self.static_params)
+        with self.assertRaises(KeyError):
+            params.pi_E_N = self.dummy_value
+
+    def test_set_pi_E_E(self):
+        params = mm.ModelParameters({**self.static_params, 'pi_E': [self.pi_E_N, self.pi_E_E]})
+        params.pi_E_E = self.dummy_value
+        for i in range(3):
+            assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_N == self.pi_E_N
+            assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_E == self.dummy_value
+
+    def test_set_pi_E_E_error(self):
+        params = mm.ModelParameters(self.static_params)
+        with self.assertRaises(KeyError):
+            params.pi_E_E = self.dummy_value
