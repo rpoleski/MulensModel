@@ -31,7 +31,7 @@ starting_parameters:
     pi_E_E: gauss 0.00 0.01
     q: log-uniform 0.001 0.01
     s: uniform 1.09 1.11
-    alpha: gauss 224.0 1.0
+    alpha: gauss 44.0 1.0
     # It is also possible to provide a file with starting points e.g.:
     #   file: ob08092-o4_starting_file_input.txt
     #   parameters: t_0 u_0 t_E
