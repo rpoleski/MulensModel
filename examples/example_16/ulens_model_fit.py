@@ -234,7 +234,7 @@ class UlensModelFit(object):
             there is a check if directory exists. If not given, no outputs
             are saved.
 
-            ``derived param names`` (*str*) - names of additional derived
+            ``derived parameters names`` (*str*) - names of additional derived
             parameters created by transform. In microlensing, they are usually
             the source(s) and blending fluxes. If not given, they are ignored
             in the transform function.
@@ -578,7 +578,7 @@ class UlensModelFit(object):
         if all([key in args_MultiNest for key in self._fitting_parameters]):
             return "MultiNest"
 
-        args_UltraNest = ['log directory', 'derived param names',
+        args_UltraNest = ['log directory', 'derived parameters names',
                           'show_status', 'dlogz', 'frac_remain',
                           'max_num_improvement_loops', 'n_live_points']
         if all([key in args_UltraNest for key in self._fitting_parameters]):
@@ -1481,7 +1481,7 @@ class UlensModelFit(object):
         ints = ['min_num_live_points', 'max_num_improvement_loops']
         if 'n_live_points' in settings:
             ints[0] = 'n_live_points'
-        strings = ['log directory', 'derived param names']
+        strings = ['log directory', 'derived parameters names']
         floats = ['dlogz', 'frac_remain']
         allowed = strings + bools + ints + floats
 
@@ -1495,7 +1495,7 @@ class UlensModelFit(object):
             elif not path.isdir(self._log_dir_UltraNest):
                 raise ValueError("log directory value in fitting_parameters"
                                  "exists, but it is a file.")
-        value = settings.pop("derived param names", "")
+        value = settings.pop("derived parameters names", "")
         self._derived_param_names_UltraNest = value.split()
 
         keys = {"n_live_points": "min_num_live_points"}
