@@ -10,7 +10,7 @@ import MulensModel as mm
 
 
 # Define lens model and source parameters
-alpha = 180
+alpha = 0
 K = 0.1
 G = complex(0.1, -0.05)
 t_0 = 300
