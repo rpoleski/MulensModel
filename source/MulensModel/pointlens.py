@@ -7,6 +7,54 @@ from scipy.special import ellipk, ellipe
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
 import MulensModel as mm
+from MulensModel.binarylensimports import _vbbl_FSPL
+#from MulensModel.binarylens import _LimbDarkeningForMagnification, _FiniteSource
+
+
+class _FiniteSourceX(object):
+    """
+    Abstract class for setting and checking rho value.
+    """
+    def _set_and_check_rho(self):
+        """
+        Check if rho is float and positive.
+        """
+        rho = self.trajectory.parameters.rho
+        if rho is None:
+            raise TypeError('rho must be positive float, but None was provided')
+
+        if rho < 0:
+            raise ValueError('rho must be positive, got: {:}'.format(self._rho))
+
+        self._rho = float(rho)
+
+
+class _LimbDarkeningForMagnificationX(object):
+    """
+    Abstract class for passing information on limb darkening coefficients for magnification calculations
+    """
+    def _set_LD_coeffs(self, u_limb_darkening, gamma, default_gamma=None):
+        """
+        Set both u and gamma LD coeffs based on info provided.
+
+        default_gamma should be None or 0.
+        """
+        if gamma is not None and u_limb_darkening is not None:
+            raise ValueError('Only one limb darkening parameter can be set for magnification calculations')
+        elif u_limb_darkening is None and gamma is None:
+            if default_gamma is None:
+                self._gamma = None
+                self._u_limb_darkening = None
+            else:
+                self._gamma = default_gamma
+                self._u_limb_darkening = mm.Utils.gamma_to_u(self._gamma)
+
+        elif gamma is None:
+            self._u_limb_darkening = float(u_limb_darkening)
+            self._gamma = mm.Utils.u_to_gamma(self._u_limb_darkening)
+        else:
+            self._gamma = float(gamma)
+            self._u_limb_darkening = mm.Utils.gamma_to_u(self._gamma)
 
 
 class PointLens(object):
@@ -1141,3 +1189,32 @@ class FiniteSourceLDLee09Magnification(FiniteSourceUniformLee09Magnification):
         Limb-darkening gamma coefficient.
         """
         return self._gamma
+
+
+class PointLensVBBLMagnification(_PointLensMagnification, _LimbDarkeningForMagnificationX, _FiniteSourceX):
+    """
+    XXX
+    """
+    def __init__(self, trajectory, gamma=None, u_limb_darkening=None, accuracy=0.0001):
+        print(gamma, u_limb_darkening, "XXX")
+        super().__init__(trajectory=trajectory)
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
+        print(self._u_limb_darkening)
+        self._set_and_check_rho()
+        if accuracy <= 0.:
+            raise ValueError(
+                "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
+                "\n{:} was  provided".format(accuracy))
+        self._accuracy = float(accuracy)
+
+    def get_magnification(self):
+        """
+        XXX
+        """
+        mag = np.zeros_like(self.u_)
+
+        for i in range(len(self.u_)):
+            mag[i] = _vbbl_FSPL(float(self.u_[i]), self._rho, self._u_limb_darkening, self._accuracy)
+
+        self._magnification = mag
+        return self._magnification

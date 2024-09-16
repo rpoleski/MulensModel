@@ -60,6 +60,7 @@ def _import_compiled_VBBL():
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagFinite, 6)
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagPoint, 4)
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagPointShear, 7)
+    _set_in_out(vbbl.VBBinaryLensing_ESPLMagDark, 4)
 
     vbbl.VBBL_SG12_5.argtypes = 12 * [ctypes.c_double]
     vbbl.VBBL_SG12_5.restype = np.ctypeslib.ndpointer(
@@ -74,7 +75,7 @@ def _import_compiled_VBBL():
             vbbl.VBBinaryLensing_BinaryMagFinite,
             vbbl.VBBinaryLensing_BinaryMagPoint,
             vbbl.VBBinaryLensing_BinaryMagPointShear,
-            vbbl.VBBL_SG12_5, vbbl.VBBL_SG12_9)
+            vbbl.VBBL_SG12_5, vbbl.VBBL_SG12_9, vbbl.VBBinaryLensing_ESPLMagDark)
 
 
 def _import_compiled_AdaptiveContouring():
@@ -108,7 +109,7 @@ else:
     _vbbl_binary_mag_point_shear = out[4]
     _vbbl_SG12_5 = out[5]
     _vbbl_SG12_9 = out[6]
-
+    _vbbl_FSPL = out[7]
 
 if not _vbbl_wrapped:
     _solver = 'numpy'

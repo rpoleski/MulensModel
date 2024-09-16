@@ -145,6 +145,25 @@ def test_Lee09_and_WittMao94():
     np.testing.assert_almost_equal(expected_1, results_3, decimal=3)
 
 
+def test_FSPL_VBBL():
+    t_vec = np.array([3.5, 2., 1., 0.5, 0.])
+    expected_1 = np.array([1.01110609638, 1.07461016241, 1.57232954942,
+                           2.21990790526, 2.39458814753])
+
+    params_1 = mm.ModelParameters(
+        {'t_0': 0., 'u_0': 0.1, 't_E': 1., 'rho': 1.})
+    mag_curve_1 = mm.MagnificationCurve(times=t_vec, parameters=params_1,
+                                        gamma=0.5)
+    methods_1 = [-5., 'finite_source_LD_VBBL', 5.]
+    mag_curve_1.set_magnification_methods(methods_1, 'point_source')
+    results_1 = mag_curve_1.get_point_lens_magnification()
+
+    expected_0 = np.array([1.01084060513, 1.06962639343, 1.42451408166,
+                           2.02334097551, 2.13919086656]) 
+    np.testing.assert_almost_equal(expected_0, results_1)
+#    np.testing.assert_almost_equal(expected_1, results_1) #, decimal=3)
+
+
 def test_PSPL_for_binary():
     """
     test PSPL model used in a model that is defined as binary

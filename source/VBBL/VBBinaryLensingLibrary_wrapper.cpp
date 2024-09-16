@@ -3,6 +3,20 @@
 #include "VBBinaryLensingLibrary.h"
 
 extern "C" {
+  double VBBinaryLensing_ESPLMagDark(double u, double RSv, double a1, double tolerance) {
+    static VBBinaryLensing VBBL;
+
+    VBBL.Tol = tolerance;
+
+    VBBL.LoadESPLTable("ESPL.tbl");
+
+    return VBBL.ESPLMagDark(u, RSv, a1);
+  }
+}
+// double VBBinaryLensing::ESPLMagDark(double u, double RSv, double a1) {
+
+
+extern "C" {
   double VBBinaryLensing_BinaryMagDark(double a, double q, double y1, double y2, double RSv, double tolerance, double a1) {
     static VBBinaryLensing VBBL;
 

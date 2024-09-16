@@ -271,6 +271,10 @@ class MagnificationCurve(object):
                 self._magnification_objects[method] = \
                     mm.pointlens.FiniteSourceLDLee09Magnification(
                         trajectory=trajectory, gamma=self._gamma)
+            elif method.lower() == 'finite_source_LD_VBBL'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.PointLensVBBLMagnification(
+                        trajectory=trajectory, gamma=self._gamma)
             else:
                 msg = 'Unknown method specified for single lens: {:}'
                 raise ValueError(msg.format(method))
