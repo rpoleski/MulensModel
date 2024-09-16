@@ -14,7 +14,7 @@ u_0_2 = 0.2
 rho_1 = 0.01
 t_star_2 = 0.45
 
-common = {'t_E': 25., 's': 1.1, 'q': 0.1, 'alpha': 10.}
+common = {'t_E': 25., 's': 1.1, 'q': 0.1, 'alpha': 190.}
 parameters = {'t_0_1': t_0_1, 't_0_2': t_0_2, 'u_0_1': u_0_1, 'u_0_2': u_0_2,
               'rho_1': rho_1, 't_star_2': t_star_2, **common}
 parameters_1 = {'t_0': t_0_1, 'u_0': u_0_1, 'rho': rho_1, **common}

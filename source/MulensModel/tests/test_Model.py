@@ -17,9 +17,9 @@ def test_n_lenses():
     """check n_lenses property"""
     model_1 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.})
     model_2 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
-                        "s": 1.1234, "q": 0.123, 'alpha': 12.34})
+                        "s": 1.1234, "q": 0.123, 'alpha': 192.34})
     model_3 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
-                        "s": 1.1234, "q": 0.123, 'alpha': 12.34,
+                        "s": 1.1234, "q": 0.123, 'alpha': 192.34,
                         'convergence_K': 0.04, 'shear_G': complex(0.1, -0.05)})
     assert model_1.n_lenses == 1
     assert model_2.n_lenses == 2
@@ -173,7 +173,7 @@ def test_t_E():
 
 # Binary Lens tests
 # Binary lens parameters:
-alpha = 229.58
+alpha = 49.58
 s = 1.3500
 q = 0.00578
 # Other parameters
@@ -182,8 +182,8 @@ rho = 0.01
 
 # Adjust t_0, u_0 from primary to CM
 shift_x = -s * q / (1. + q)
-delta_t_0 = -t_E * shift_x * np.cos(alpha * np.pi / 180.)
-delta_u_0 = -shift_x * np.sin(alpha * np.pi / 180.)
+delta_t_0 = -t_E * shift_x * np.cos(alpha * np.pi / 180. + np.pi)
+delta_u_0 = -shift_x * np.sin(alpha * np.pi / 180. + np.pi)
 t_0 = 2456141.593 + delta_t_0
 u_0 = 0.5425 + delta_u_0
 
@@ -480,7 +480,7 @@ def test_update_single_lens_with_shear_caustic():
     shear_G = complex(-0.1, -0.2)
 
     model = mm.Model(mm.ModelParameters({
-        't_0': 0., 'u_0': 1., 't_E': 2., 'alpha': 3.,
+        't_0': 0., 'u_0': 1., 't_E': 2., 'alpha': 183.,
         'convergence_K': 0., 'shear_G': complex(0, 0)}))
     model.parameters.convergence_K = convergence_K
     model.parameters.shear_G = shear_G
@@ -495,7 +495,7 @@ def test_magnifications_for_orbital_motion():
     magnification methods calculations
     """
     dict_static = {'t_0': 100., 'u_0': 0.1, 't_E': 100., 'q': 0.99,
-                   's': 1.1, 'alpha': 10.}
+                   's': 1.1, 'alpha': 190.}
     dict_motion = dict_static.copy()
     dict_motion.update({'ds_dt': -2, 'dalpha_dt': -300.})
     static = mm.Model(dict_static)
@@ -506,7 +506,7 @@ def test_magnifications_for_orbital_motion():
 
     t_2 = 130.
     static.parameters.s = 0.93572895
-    static.parameters.alpha = 345.359342916
+    static.parameters.alpha = 165.359342916
     almost(static.get_magnification(t_2), motion.get_magnification(t_2))
 
 

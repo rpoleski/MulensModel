@@ -203,8 +203,8 @@ class UniformCausticSampling(object):
         """
         check if caustic crosses the line defined by 2 points
         """
-        cos_a = math.cos(alpha * np.pi / 180.)
-        sin_a = math.sin(alpha * np.pi / 180.)
+        cos_a = math.cos(alpha * np.pi / 180. + np.pi)
+        sin_a = math.sin(alpha * np.pi / 180. + np.pi)
 
         x_1 = zetas[:-1].real
         y_1 = zetas[:-1].imag
@@ -408,8 +408,11 @@ class UniformCausticSampling(object):
             if diff_real < 0.:
                 alpha += np.pi
         alpha *= 180. / np.pi
+        alpha += 180.
         if alpha < 0.:
             alpha += 360.
+        if alpha > 360.:
+            alpha -= 360.
         t_E = (t_caustic_out - t_caustic_in) / abs(zeta_out - zeta_in)
         t_0 = ((zeta_out + zeta_in) / (zeta_out - zeta_in)).real
         t_0 *= 0.5 * (t_caustic_in - t_caustic_out)

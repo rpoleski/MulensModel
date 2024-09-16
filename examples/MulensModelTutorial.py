@@ -17,7 +17,7 @@ my_pspl_model = MulensModel.Model(
 # Or a model with 2-bodies:
 my_1S2L_model = MulensModel.Model(
     {'t_0': 2452848.06, 'u_0': 0.133, 't_E': 61.5, 'rho': 0.00096, 
-     'q': 0.0039, 's': 1.120, 'alpha': 223.8})
+     'q': 0.0039, 's': 1.120, 'alpha': 43.8})
 # Since rho is set, define a time range and method to apply 
 # finite source effects:
 my_1S2L_model.set_magnification_methods(

@@ -58,7 +58,7 @@ moa_data = mm.MulensData(
 planet_datasets = [ogle_data, moa_data]
 planet_model = mm.Model(
     {'t_0': 2452848.06, 'u_0': 0.133, 't_E': 61.5, 'rho': 0.00096,
-     'q': 0.0039, 's': 1.120, 'alpha': 223.8})
+     'q': 0.0039, 's': 1.120, 'alpha': 43.8})
 planet_model.set_magnification_methods([2452833., 'VBBL', 2452845.])
 planet_event = mm.Event(
     datasets=planet_datasets, model=planet_model)

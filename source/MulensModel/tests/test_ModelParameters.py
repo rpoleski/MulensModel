@@ -27,10 +27,10 @@ class TestModelParameters(unittest.TestCase):
             mm.ModelParameters({'t_0': 'abc', 'u_0': 1, 't_E': 10.})
         with self.assertRaises(TypeError):
             mm.ModelParameters({'t_0': 123., 'u_0': 1, 't_E': 10.,
-                                'shear_G': 0.1, 'alpha': 123.})
+                                'shear_G': 0.1, 'alpha': 303.})
         with self.assertRaises(ValueError):
             mm.ModelParameters({'t_0': 123., 'u_0': 1, 't_E': 10., 's': 1.2,
-                               'alpha': 34.56, 'q': -0.5})
+                               'alpha': 214.56, 'q': -0.5})
 
     def test_init_for_2_sources(self):
         """
@@ -221,7 +221,7 @@ def test_q_gt_1_is_good():
     t_E = 12.
     s = 1.65
     q = 0.25
-    alpha = 339.0
+    alpha = 159.0
     rho = 0.001
 
     planet = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
@@ -253,7 +253,7 @@ def test_q_gt_1_is_smooth():
     t_E = 12.
     s = 2.18
     q = 0.99
-    alpha = 310.
+    alpha = 130.
     rho = 0.001
     planet = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
                        'alpha': alpha, 'rho': rho})
@@ -328,7 +328,7 @@ def test_update():
 def test_orbital_motion_1():
     """basic tests of orbital motion"""
     dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
-                   's': 1.2345, 'q': 0.01234, 'alpha': 30.}
+                   's': 1.2345, 'q': 0.01234, 'alpha': 210.}
     dict_motion = dict_static.copy()
     dict_motion.update({'dalpha_dt': 10., 'ds_dt': 0.1})
     static = mm.ModelParameters(dict_static)
@@ -349,9 +349,9 @@ def test_orbital_motion_1():
     assert static.get_alpha(epoch_1) == dict_static['alpha']
 
     # Test get_s() and get_alpha() for orbital motion case.
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 29.5)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 30.)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_3), 30.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 209.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 210.)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_3), 210.5)
     np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
     np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
     np.testing.assert_almost_equal(motion.get_s(epoch_3), 1.2395)
@@ -359,10 +359,10 @@ def test_orbital_motion_1():
     # Test arguments as list or array.
     np.testing.assert_almost_equal(
         motion.get_alpha([epoch_1, epoch_2, epoch_3]),
-        [29.5, 30., 30.5])
+        [209.5, 210., 210.5])
     np.testing.assert_almost_equal(
         motion.get_alpha(np.array([epoch_1, epoch_2, epoch_3])),
-        [29.5, 30., 30.5])
+        [209.5, 210., 210.5])
     np.testing.assert_almost_equal(
         motion.get_s([epoch_1, epoch_2, epoch_3]),
         [1.2295, 1.2345, 1.2395])
@@ -370,14 +370,14 @@ def test_orbital_motion_1():
         motion.get_s(np.array([epoch_1, epoch_2, epoch_3])),
         [1.2295, 1.2345, 1.2395])
 
-    assert motion.alpha == 30.
+    assert motion.alpha == 210.
     assert motion.s == 1.2345
 
 
 def test_t_0_kep():
     """test reference epoch for orbital motion"""
     dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
-                   's': 1.2345, 'q': 0.01234, 'alpha': 30.}
+                   's': 1.2345, 'q': 0.01234, 'alpha': 210.}
     dict_motion = dict_static.copy()
     dict_motion.update({'dalpha_dt': 10., 'ds_dt': 0.1})
     dict_motion_2 = dict_motion.copy()
@@ -392,14 +392,14 @@ def test_t_0_kep():
     epoch_2 = dict_static['t_0']
 
     # Test motion.
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 29.5)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 30.)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 209.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 210.)
     np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
     np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
 
     # Test motion_2.
-    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_1), 30.)
-    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_2), 30.5)
+    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_1), 210.)
+    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_2), 210.5)
     np.testing.assert_almost_equal(motion_2.get_s(epoch_1), 1.2345)
     np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
 
@@ -408,7 +408,7 @@ def test_orbital_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
     dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00,
                    's': 1.5, 'ds_dt': 0.5, 'q': 0.987,
-                   'alpha': 12.345, 'dalpha_dt': 50.}
+                   'alpha': 192.345, 'dalpha_dt': 50.}
     params = mm.ModelParameters(dict_params)
 
     np.testing.assert_almost_equal(params.gamma_parallel, 0.333333333)
@@ -455,7 +455,7 @@ def test_n_lenses():
     """
     p_1 = mm.ModelParameters({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
     p_2 = mm.ModelParameters({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001,
-                              's': 10, 'q': 0.5, 'alpha': 100.})
+                              's': 10, 'q': 0.5, 'alpha': 280.})
     p_3 = mm.ModelParameters({'x_caustic_in': 0.1, 'x_caustic_out': 0.15,
                               't_caustic_in': 1000, 't_caustic_out': 2000.,
                               's': 1, 'q': 0.8})
@@ -473,7 +473,7 @@ def test_single_lens_convergence_K_shear_G():
     t_E = 62.63*u.day
     convergence_K = 0.1
     shear_G = complex(0.1, 0.2)
-    alpha = 20.
+    alpha = 200.
     params = mm.ModelParameters({
         't_0': t_0, 'u_0': u_0, 't_E': t_E, 'convergence_K': convergence_K,
         'shear_G': shear_G, 'alpha': alpha})
@@ -515,10 +515,10 @@ def test_single_lens_with_mass_sheet():
     K = -0.1
 
     _ = mm.ModelParameters({**basic})
-    _ = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': 123.})
+    _ = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': 303.})
     _ = mm.ModelParameters({**basic, 'convergence_K': K})
     _ = mm.ModelParameters(
-        {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': 123.})
+        {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': 303.})
 
 
 class TestParameters(unittest.TestCase):
@@ -529,7 +529,7 @@ class TestParameters(unittest.TestCase):
         basic = {'t_0': 1000., 'u_0': 0.1, 't_E': 20.}
         G = complex(-0.1, -0.2)
         K = -0.1
-        alpha = 123.
+        alpha = 303.
 
         # Cases with missing one of PSPL parameters:
         dict_K = {'convergence_K': K}

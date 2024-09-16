@@ -10,7 +10,7 @@ import MulensModel as mm
 
 
 standard_parameters = {
-    't_0': 300., 'u_0': 0.25, 't_E': 500, 's': 1., 'q': 0.4, 'alpha': 0.}
+    't_0': 300., 'u_0': 0.25, 't_E': 500, 's': 1., 'q': 0.4, 'alpha': 180.}
 mass_sheet = {'convergence_K': 0.0, 'shear_G': complex(0.0, -0.2)}
 
 shear_model = mm.model.Model({**mass_sheet, **standard_parameters})
