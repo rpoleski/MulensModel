@@ -105,10 +105,10 @@ fitting_parameters:
     # basename: out_ob08092_O4_MN-
     # multimodal: True
     # evidence tolerance: 0.5
-    ## UltraNest only (log directory, derived param names, show_status,
+    ## UltraNest only (log directory, derived parameter names, show_status,
     ## dlogz=0.5, frac_remain=0.01, max_num_improvement_loops=-1)
     # log directory: ultranest_outputs/
-    # derived param names: flux_s_1 flux_b_1
+    # derived parameter names: flux_s_1 flux_b_1
     # show_status: True
     # dlogz: 2.
     # frac_remain: 0.5

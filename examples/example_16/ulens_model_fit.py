@@ -234,7 +234,7 @@ class UlensModelFit(object):
             there is a check if directory exists. If not given, no outputs
             are saved.
 
-            ``derived parameters names`` (*str*) - names of additional derived
+            ``derived parameter names`` (*str*) - names of additional derived
             parameters created by transform. In microlensing, they are usually
             the source(s) and blending fluxes. If not given, they are ignored
             in the transform function.
@@ -578,7 +578,7 @@ class UlensModelFit(object):
         if all([key in args_MultiNest for key in self._fitting_parameters]):
             return "MultiNest"
 
-        args_UltraNest = ['log directory', 'derived parameters names',
+        args_UltraNest = ['log directory', 'derived parameter names',
                           'show_status', 'dlogz', 'frac_remain',
                           'max_num_improvement_loops', 'n_live_points']
         if all([key in args_UltraNest for key in self._fitting_parameters]):
@@ -1481,7 +1481,7 @@ class UlensModelFit(object):
         ints = ['min_num_live_points', 'max_num_improvement_loops']
         if 'n_live_points' in settings:
             ints[0] = 'n_live_points'
-        strings = ['log directory', 'derived parameters names']
+        strings = ['log directory', 'derived parameter names']
         floats = ['dlogz', 'frac_remain']
         allowed = strings + bools + ints + floats
 
@@ -1495,7 +1495,7 @@ class UlensModelFit(object):
             elif not path.isdir(self._log_dir_UltraNest):
                 raise ValueError("log directory value in fitting_parameters"
                                  "exists, but it is a file.")
-        value = settings.pop("derived parameters names", "")
+        value = settings.pop("derived parameter names", "")
         self._derived_param_names_UltraNest = value.split()
 
         keys = {"n_live_points": "min_num_live_points"}
@@ -2584,28 +2584,34 @@ class UlensModelFit(object):
                     self._flux_names = self._get_fluxes_names_to_print()
                 self._derived_param_names_UltraNest = self._flux_names
 
+        n_dims = self._n_fit_parameters
+        n_params = n_dims + self._n_fluxes_per_dataset * self._return_fluxes
+        t_kwargs = {'n_dims': n_dims, 'n_params': n_params}
         self._sampler = ultranest.ReactiveNestedSampler(
-            self._fit_parameters,
-            self._ln_like, transform=self._transform_unit_cube_UltraNest,
+            self._fit_parameters, self._ln_like,
+            transform=lambda cube: self._transform_unit_cube(cube, **t_kwargs),
             derived_param_names=self._derived_param_names_UltraNest,
             log_dir=self._log_dir_UltraNest
         )
 
     def _transform_unit_cube(self, cube, n_dims, n_params):
         """
-        Transform MulitNest unit cube to microlensing parameters.
+        Transform MultiNest/UltraNest unit cube to microlensing parameters.
 
-        Based on SafePrior() in
+        MultiNest: based on SafePrior() in
         https://github.com/JohannesBuchner/PyMultiNest/blob/master/
         pymultinest/solve.py
+        UltraNest: based on the above and UltraNest documentation
+        https://johannesbuchner.github.io/UltraNest/example-sine-line.html
 
         NOTE: We call self._ln_like() here (and remember the result)
         because in MultiNest you can add fluxes only in "prior" function,
         not in likelihood function.
         """
         cube_out = self._min_values + cube[:n_dims] * self._range_values
-        for i in range(n_dims):
-            cube[i] = cube_out[i]
+        if self._fit_method == "MultiNest":
+            for i in range(n_dims):
+                cube[i] = cube_out[i]
 
         if "x_caustic_in" in self._model.parameters.parameters:
             self._set_model_parameters(cube_out)
@@ -2613,19 +2619,25 @@ class UlensModelFit(object):
                 self._last_ln_like = -1.e300
                 self._last_theta = cube_out
                 if self._return_fluxes:
-                    for i in range(n_dims, n_params):
-                        cube[i] = 0.
                     self._last_fluxes = np.zeros(n_params - n_dims)
-                return
+                    if self._fit_method == "MultiNest":
+                        for i in range(n_dims, n_params):
+                            cube[i] = 0.
+                        return
+                    cube_out = np.append(cube_out, self._last_fluxes)
+                    return cube_out
 
         self._last_ln_like = self._ln_like(cube_out)
         self._last_theta = cube_out
 
         if self._return_fluxes:
             fluxes = self._get_fluxes()
+            self._last_fluxes = fluxes
+            if self._fit_method == "UltraNest":
+                cube_out = np.append(cube_out, fluxes)
+                return cube_out
             for i in range(n_dims, n_params):
                 cube[i] = fluxes[i-n_dims]
-            self._last_fluxes = fluxes
 
     def _ln_like_MN(self, theta, n_dim, n_params, lnew):
         """
@@ -2653,28 +2665,6 @@ class UlensModelFit(object):
             ln_like = ln_max
 
         return ln_like
-
-    def _transform_unit_cube_UltraNest(self, cube):
-        """
-        Transform UltraNest unit cube to microlensing parameters.
-
-        Based on _transform_unit_cube() for MultiNest method and tutorials
-        from UltraNest documentation:
-        https://johannesbuchner.github.io/UltraNest/example-sine-line.html
-        """
-        n_dims = self._n_fit_parameters
-        n_params = n_dims + self._n_fluxes_per_dataset * self._return_fluxes
-        cube_out = self._min_values + cube[:n_dims] * self._range_values
-
-        # TBD: add "x_caustic_in" checks as in line 2610...
-
-        if self._return_fluxes:
-            fluxes = self._get_fluxes()
-            for i in range(n_dims, n_params):
-                cube_out = np.append(cube_out, fluxes[i-n_dims])
-            self._last_fluxes = fluxes
-
-        return cube_out
 
     def _run_fit(self):
         """

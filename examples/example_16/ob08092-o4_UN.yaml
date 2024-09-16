@@ -7,7 +7,7 @@ prior_limits:
     t_E: 16. 19.6
 fitting_parameters:
     log directory: ultranest_outputs/
-    derived param names: flux_s_1 flux_b_1
+    derived parameter names: flux_s_1 flux_b_1
     show_status: True
     n_live_points: 1000
     # `n_live_points` can also be named `min_num_live_points`
