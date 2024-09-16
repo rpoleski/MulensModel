@@ -159,9 +159,9 @@ def test_FSPL_VBBL():
     results_1 = mag_curve_1.get_point_lens_magnification()
 
     expected_0 = np.array([1.01084060513, 1.06962639343, 1.42451408166,
-                           2.02334097551, 2.13919086656]) 
-    np.testing.assert_almost_equal(expected_0, results_1)
-#    np.testing.assert_almost_equal(expected_1, results_1) #, decimal=3)
+                           2.02334097551, 2.13919086656])
+#    np.testing.assert_almost_equal(expected_0, results_1)
+    np.testing.assert_almost_equal(expected_1, results_1) #, decimal=3)
 
 
 def test_PSPL_for_binary():
