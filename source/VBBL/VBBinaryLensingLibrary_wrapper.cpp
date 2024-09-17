@@ -7,13 +7,13 @@ extern "C" {
     static VBBinaryLensing VBBL;
 
     VBBL.Tol = tolerance;
+    VBBL.a1 = a1;
 
-    VBBL.LoadESPLTable("ESPL.tbl");
+    VBBL.LoadESPLTable("ESPL.tbl"); // THIS HAS TO BE CORRECTED
 
     return VBBL.ESPLMagDark(u, RSv, a1);
   }
 }
-// double VBBinaryLensing::ESPLMagDark(double u, double RSv, double a1) {
 
 
 extern "C" {
