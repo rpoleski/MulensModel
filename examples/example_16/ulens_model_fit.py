@@ -1595,7 +1595,6 @@ class UlensModelFit(object):
         """
         Parse the fitting constraints that are not simple limits on parameters
         """
-        self._check_fit_constraints()
         self._prior_t_E = None
         self._priors = None
 
@@ -1603,6 +1602,7 @@ class UlensModelFit(object):
             self._set_default_fit_constraints()
             return
 
+        self._check_fit_constraints()
         self._parse_fit_constraints_keys()
         self._parse_fit_constraints_fluxes()
         self._parse_fit_constraints_posterior()
@@ -1614,11 +1614,22 @@ class UlensModelFit(object):
         """
         Run checks on self._fit_constraints
         """
-        lst_check = ['MultiNest', 'UltraNest']
-        if self._fit_constraints is not None and self._fit_method in lst_check:
-            msg = "Currently no fit_constraints are implemented for {:} " + \
-                  "fit. Please contact Radek Poleski with a specific request."
-            raise NotImplementedError(msg.format(self._fit_method))
+        if self._fit_method == 'MultiNest':
+            raise NotImplementedError(
+                "Currently no fit_constraints are implemented for MultiNest "
+                "fit. Please contact Radek Poleski with a specific request.")
+
+        if self._fit_method == 'UltraNest':
+            allowed_keys = {'negative_blending_flux_sigma_mag', 'prior'}
+            used_keys = set(self._fit_constraints.keys())
+            if not used_keys.issubset(allowed_keys):
+                raise NotImplementedError(
+                    "The supported fit_constraints options for UltraNest are"
+                    " `negative_blending_flux_sigma_mag` and `prior`.")
+            if 'prior' in used_keys:
+                if set(self._fit_constraints['prior'].keys()) != {'t_E'}:
+                    raise ValueError(
+                        "Only `t_E` is allowed in fit_constraints['prior'].")
 
         if isinstance(self._fit_constraints, list):
             raise TypeError(
@@ -2233,9 +2244,12 @@ class UlensModelFit(object):
 
         NOTE: we're using np.log(), i.e., natural logarithms.
         """
-        ln_prior = self._ln_prior(theta)
-        if not np.isfinite(ln_prior):
-            return self._return_ln_prob(-np.inf)
+        if self._fit_method == "EMCEE":
+            ln_prior = self._ln_prior(theta)
+            if not np.isfinite(ln_prior):
+                return self._return_ln_prob(-np.inf)
+        elif self._fit_method == "UltraNest":
+            ln_prior = self._ln_prior_t_E() if self._prior_t_E else 0.
 
         ln_like = self._ln_like(theta)
         if not np.isfinite(ln_like):
@@ -2251,9 +2265,11 @@ class UlensModelFit(object):
 
         ln_prob += ln_prior_flux
 
-        self._update_best_model_EMCEE(ln_prob, theta, fluxes)
+        if self._fit_method == "EMCEE":
+            self._update_best_model_EMCEE(ln_prob, theta, fluxes)
+            return self._return_ln_prob(ln_prob, fluxes)
 
-        return self._return_ln_prob(ln_prob, fluxes)
+        return ln_prob
 
     def _return_ln_prob(self, value, fluxes=None):
         """
@@ -2487,7 +2503,8 @@ class UlensModelFit(object):
                 return outside
 
         inside += self._apply_negative_blending_flux_sigma_mag_prior(fluxes)
-        inside += self._apply_color_prior(fluxes)
+        if self._fit_method == "EMCEE":
+            inside += self._apply_color_prior(fluxes)
 
         return inside
 
@@ -2588,7 +2605,7 @@ class UlensModelFit(object):
         n_params = n_dims + self._n_fluxes_per_dataset * self._return_fluxes
         t_kwargs = {'n_dims': n_dims, 'n_params': n_params}
         self._sampler = ultranest.ReactiveNestedSampler(
-            self._fit_parameters, self._ln_like,
+            self._fit_parameters, self._ln_prob,
             transform=lambda cube: self._transform_unit_cube(cube, **t_kwargs),
             derived_param_names=self._derived_param_names_UltraNest,
             log_dir=self._log_dir_UltraNest

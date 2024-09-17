@@ -5,6 +5,10 @@ prior_limits:
     t_0: [2455379.4, 2455379.76]
     u_0: [0.3, 0.65]
     t_E: 16. 19.6
+fit_constraints:
+    negative_blending_flux_sigma_mag: 20.
+    prior:
+        t_E: Mroz et al. 2020
 fitting_parameters:
     log directory: ultranest_outputs/
     derived parameter names: flux_s_1 flux_b_1
