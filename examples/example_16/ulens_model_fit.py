@@ -1800,6 +1800,7 @@ class UlensModelFit(object):
         Parse constraints on what is done with posterior.
         """
         if 'posterior parsing' not in self._fit_constraints:
+            self._parse_posterior_abs = list()
             return
 
         if self._fit_method != "EMCEE":
