@@ -1372,11 +1372,9 @@ class UlensModelFit(object):
         if 'n_walkers' in self._fitting_parameters:
             self._n_walkers = self._fitting_parameters['n_walkers']
         else:
-            if self._starting_parameters_type == 'file':
-                self._n_walkers = None
-            elif self._starting_parameters_type == 'draw':
+            if self._starting_parameters_type == 'draw':
                 self._n_walkers = 4 * self._n_fit_parameters
-            else:
+            elif self._starting_parameters_type != 'file':
                 raise ValueError(
                     'Unexpected: ' + self._starting_parameters_type)
 

@@ -7,11 +7,12 @@ photometry_files:
 #    - {..., add_2450000: False}
 fit_method: EMCEE
 # Options: EMCEE, MultiNest, UltraNest.
-# If not given, EMCEE is used if starting_parameters are given; if prior_limits
-# are given, MultiNest or UltraNest is used depending on fitting_parameters.
-# If MultiNest/UltraNest is selected: starting_parameters, fit_constraints,
-# min_values and max_value cannot be provided. The trace plot cannot be
-# generated as well.
+# If fit_method is not given, EMCEE is used if starting_parameters are given;
+# and MultiNest or UltraNest is used if prior_limits are given, depending on
+# the combination of fitting_parameters.
+# If MultiNest/UltraNest is used, this file cannot have starting_parameters,
+# fit_constraints (except negative_blending_flux_sigma_mag and prior->t_E for
+# UltraNest), min_values, max_values and plots->trace.
 model:
     methods: 2452800. point_source 2452833. VBBL 2452845. point_source 2452860.
     default method: point_source_point_lens
@@ -108,7 +109,7 @@ fitting_parameters:
     ## UltraNest only (log directory, derived parameter names, show_status,
     ## dlogz=0.5, frac_remain=0.01, max_num_improvement_loops=-1)
     # log directory: ultranest_outputs/
-    # derived parameter names: flux_s_1 flux_b_1
+    # derived parameter names: flux_s_1 flux_b_1 flux_s_2 flux_b_2
     # show_status: True
     # dlogz: 2.
     # frac_remain: 0.5
