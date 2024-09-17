@@ -706,7 +706,6 @@ class UlensModelFit(object):
         self._check_ulens_model_parameters()
         self._get_parameters_ordered()
         self._get_parameters_latex()
-        self._parse_fitting_parameters()
         self._set_prior_limits()
         self._parse_fit_constraints()
         if self._fit_method == "EMCEE":
@@ -714,6 +713,7 @@ class UlensModelFit(object):
 
         self._check_fixed_parameters()
         self._make_model_and_event()
+        self._parse_fitting_parameters()
         if self._fit_method == "EMCEE":
             self._get_starting_parameters()
 
@@ -1488,6 +1488,22 @@ class UlensModelFit(object):
         self._check_required_and_allowed_parameters(required, allowed)
         self._check_parameters_types(settings, bools, ints, floats, strings)
         self._log_dir_UltraNest = settings.pop("log directory", None)
+        value = settings.pop("derived parameter names", "")
+        self._derived_param_names_UltraNest = value.split()
+        self._check_dir_and_parameter_names_Ultranest()
+
+        keys = {"n_live_points": "min_num_live_points"}
+        same_keys = ["min_num_live_points", 'max_num_improvement_loops',
+                     "show_status", "dlogz", "frac_remain"]
+        keys = {**keys, **{key: key for key in same_keys}}
+        self._set_dict_safely(self._kwargs_UltraNest, settings, keys)
+
+    def _check_dir_and_parameter_names_Ultranest(self):
+        """
+        Checks if the path to `log directory` exists and is a directory,
+        and also if the number of `derived parameter names` matches the
+        number of derived fluxes.
+        """
         if self._log_dir_UltraNest is not None:
             if not path.exists(self._log_dir_UltraNest):
                 raise ValueError("log directory value in fitting_parameters"
@@ -1495,14 +1511,12 @@ class UlensModelFit(object):
             elif not path.isdir(self._log_dir_UltraNest):
                 raise ValueError("log directory value in fitting_parameters"
                                  "exists, but it is a file.")
-        value = settings.pop("derived parameter names", "")
-        self._derived_param_names_UltraNest = value.split()
 
-        keys = {"n_live_points": "min_num_live_points"}
-        same_keys = ["min_num_live_points", 'max_num_improvement_loops',
-                     "show_status", "dlogz", "frac_remain"]
-        keys = {**keys, **{key: key for key in same_keys}}
-        self._set_dict_safely(self._kwargs_UltraNest, settings, keys)
+        n_datasets = len(self._datasets)
+        n_fluxes = self._n_fluxes_per_dataset
+        if len(self._derived_param_names_UltraNest) != n_datasets * n_fluxes:
+            raise ValueError("The number of `derived parameter names` must "
+                             "match the number of derived fluxes.")
 
     def _set_prior_limits(self):
         """
