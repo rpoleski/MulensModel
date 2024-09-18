@@ -77,7 +77,7 @@ VBBinaryLensing::VBBinaryLensing() {
 	LDtab = rCLDtab = CLDtab=0;
 	Mag0 = 0;
 	NPcrit = 200;
-	ESPLoff = true;
+	ESPLoff = false; // RP true;
 	multidark = false;
     astrometry=false;
 }
@@ -1328,6 +1328,44 @@ void VBBinaryLensing::LoadESPLTable(char *filename){
 		fread(ESPLoutastro, sizeof(double), __rsize * __zsize, f);
 		fclose(f);
 		ESPLoff=false;
+
+// RP
+/*
+		int i, j;
+		printf("double ESPLin[%d][%d] = {\n", __rsize, __zsize);
+		for (j=0; j<__rsize; j++) {
+			printf("{");
+			for (i=0; i<__zsize; i++)
+				printf("%.21e, ", ESPLin[j][i]);
+			printf("},\n");
+		}
+		printf("};\n\n");
+		printf("double ESPLout[%d][%d] = {\n", __rsize, __zsize);
+		for (j=0; j<__rsize; j++) {
+			printf("{");
+			for (i=0; i<__zsize; i++)
+				printf("%.21e, ", ESPLout[j][i]);
+			printf("},\n");
+		}
+		printf("};\n\n");
+		printf("double ESPLinastro[%d][%d] = {\n", __rsize, __zsize);
+		for (j=0; j<__rsize; j++) {
+			printf("{");
+			for (i=0; i<__zsize; i++)
+				printf("%.21e, ", ESPLinastro[j][i]);
+			printf("},\n");
+		}
+		printf("};\n\n");
+		printf("double ESPLoutastro[%d][%d] = {\n", __rsize, __zsize);
+		for (j=0; j<__rsize; j++) {
+			printf("{");
+			for (i=0; i<__zsize; i++)
+				printf("%.21e, ", ESPLoutastro[j][i]);
+			printf("},\n");
+		}
+		printf("};\n\n");
+*/
+		
 	}else{
 		printf("\nESPL table not found !");
 	}

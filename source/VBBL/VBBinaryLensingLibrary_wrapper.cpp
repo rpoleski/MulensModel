@@ -9,7 +9,7 @@ extern "C" {
     VBBL.Tol = tolerance;
     VBBL.a1 = a1;
 
-    VBBL.LoadESPLTable("ESPL.tbl"); // THIS HAS TO BE CORRECTED
+    //VBBL.LoadESPLTable("ESPL.tbl"); // we don't do it, because the table is hard-coded in .h file
 
     return VBBL.ESPLMagDark(u, RSv, a1);
   }
