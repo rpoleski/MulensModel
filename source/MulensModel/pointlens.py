@@ -1196,10 +1196,8 @@ class PointLensVBBLMagnification(_PointLensMagnification, _LimbDarkeningForMagni
     XXX
     """
     def __init__(self, trajectory, gamma=None, u_limb_darkening=None, accuracy=0.0001):
-        print(gamma, u_limb_darkening, "XXX")
         super().__init__(trajectory=trajectory)
         self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
-        print(self._u_limb_darkening)
         self._set_and_check_rho()
         if accuracy <= 0.:
             raise ValueError(
