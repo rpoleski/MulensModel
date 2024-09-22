@@ -1,0 +1,35 @@
+photometry_files:
+    data/OB08092/phot_ob08092_O4.dat
+fit_method: UltraNest
+prior_limits:
+    t_0: [2455379.4, 2455379.76]
+    u_0: [0.3, 0.65]
+    t_E: 16. 19.6
+fit_constraints:
+    negative_blending_flux_sigma_mag: 20.
+    prior:
+        t_E: Mroz et al. 2020
+fitting_parameters:
+    log directory: outputs_ultranest/
+    derived parameter names: flux_s_1 flux_b_1
+    show_status: True
+    n_live_points: 1000
+    # `n_live_points` can also be named `min_num_live_points`
+    # If it is smaller than 40, `cluster_num_live_points` is also reduced.
+    # UltraNest may increase n_live_points if it is too low to achieve the
+    # logz accuracy (default=0.5). It can be avoided increasing dlogz:
+    dlogz: 2.
+    # The parameters below can reduce runtime (default is 0.01 and -1)
+    # frac_remain: 0.5
+    # max_num_improvement_loops: 0
+plots:
+    best model:
+        file: out_ob08092_O4_UN_model.png
+        second Y scale:
+            magnifications: optimal
+    triangle:
+        file: out_ob08092_O4_UN_triangle.png
+        shift t_0: False
+other_output:
+    yaml output:
+        file name: ob08092_O4_UN_all_results.yaml

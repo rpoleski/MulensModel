@@ -1,5 +1,7 @@
 photometry_files:
     data/OB08092/phot_ob08092_O4.dat
+fit_method: MultiNest
+# fit_method options if prior_limits are given: MultiNest and UltraNest
 prior_limits:
     t_0: [2455379.4, 2455379.76]
     u_0: [0.46, 0.65]
