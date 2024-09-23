@@ -55,12 +55,12 @@ def test_init_parameters():
     """
     t_0 = 6141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63  # *u.day
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     np.testing.assert_almost_equal(params.t_0, t_0)
     np.testing.assert_almost_equal(params.u_0, u_0)
-    np.testing.assert_almost_equal(params.t_E, t_E.value)
+    np.testing.assert_almost_equal(params.t_E, t_E)  # .value)
 
 
 def test_repr_parameters():
@@ -69,7 +69,7 @@ def test_repr_parameters():
     """
     t_0 = 2456141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63  # *u.day
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     out_1 = "    t_0 (HJD)       u_0    t_E (d) \n"
@@ -280,7 +280,7 @@ def test_rho_t_e_t_star():
     t_0 = 2450000.
     u_0 = 0.1
     t_E_1 = 20.
-    t_E_2 = t_E_1 * u.day
+    t_E_2 = t_E_1  # * u.day
     rho = 0.001
     t_star_1 = t_E_1 * rho
     t_star_2 = t_E_2 * rho
@@ -303,7 +303,7 @@ class test(unittest.TestCase):
     def test_too_much_rho_t_e_t_star(self):
         t_0 = 2450000.
         u_0 = 0.1
-        t_E = 20. * u.day
+        t_E = 20.  # * u.day
         rho = 0.001
         t_star = t_E * rho
         with self.assertRaises(KeyError):
@@ -318,7 +318,7 @@ def test_update():
     """
     t_0 = 2456141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63  # *u.day
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     params.as_dict().update({'rho': 0.001})
 
@@ -470,7 +470,7 @@ def test_single_lens_convergence_K_shear_G():
     """
     t_0 = 6141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63  # *u.day
     convergence_K = 0.1
     shear_G = complex(0.1, 0.2)
     alpha = 200.
@@ -480,7 +480,7 @@ def test_single_lens_convergence_K_shear_G():
 
     np.testing.assert_almost_equal(params.t_0, t_0)
     np.testing.assert_almost_equal(params.u_0, u_0)
-    np.testing.assert_almost_equal(params.t_E, t_E.value)
+    np.testing.assert_almost_equal(params.t_E, t_E)  # .value)
     np.testing.assert_almost_equal(params.convergence_K, convergence_K)
     np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
 
@@ -846,9 +846,9 @@ def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     parameters = {'q_source': q_source, **parameters_1st}
     model = mm.ModelParameters(parameters)
     check_1st = model.source_1_parameters.as_dict()
-    check_1st['t_E'] = check_1st['t_E'].value
+    check_1st['t_E'] = check_1st['t_E']  # .value
     check_2nd = model.source_2_parameters.as_dict()
-    check_2nd['t_E'] = check_2nd['t_E'].value
+    check_2nd['t_E'] = check_2nd['t_E']  # .value
 
     assert check_1st == parameters_1st
     assert check_2nd == parameters_2nd
