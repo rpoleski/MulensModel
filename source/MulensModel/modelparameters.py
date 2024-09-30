@@ -1,4 +1,3 @@
-from astropy import units as u
 import numpy as np
 import warnings
 
@@ -941,8 +940,7 @@ class ModelParameters(object):
         for (key, value) in parameters.items():
             if key == 'pi_E':
                 continue
-            check = (not np.isscalar(value) or isinstance(value, str))
-            if not isinstance(value, u.Quantity) and check:
+            if not np.isscalar(value) or isinstance(value, str):
                 msg = "{:} must be a scalar: {:}, {:}"
                 raise TypeError(msg.format(key, value, type(value)))
 
@@ -1254,11 +1252,6 @@ class ModelParameters(object):
                              'Cassan (2008) parameterization')
 
         self.parameters['alpha'] = new_alpha
-# XXX only float input
-#        if isinstance(new_alpha, u.Quantity):
-#            self.parameters['alpha'] = new_alpha
-#        else:
-#            self.parameters['alpha'] = new_alpha * u.deg
         self._warn_if_angle_outside_reasonable_range(
             self.parameters['alpha'], 'alpha')
         self._update_sources('alpha', new_alpha)
@@ -1269,8 +1262,6 @@ class ModelParameters(object):
         """
         min_ = -360.
         max_ = 540.
-        if isinstance(value, u.Quantity):
-            value = value.to(u.deg).value
         if value < min_ or value > max_:
             fmt = "Strange value of angle {:}: {:}"
             warnings.warn(fmt.format(name, value), RuntimeWarning)
