@@ -172,7 +172,7 @@ def test_event_get_chi2_4():
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
 
     ev = mm.Event()
-    params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E * u.day}
+    params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E}
     mod = mm.Model(params)
     ev.model = mod
     ev.datasets = [data]
@@ -181,7 +181,7 @@ def test_event_get_chi2_4():
 
     ev.model.parameters.parameters['t_0'] += 1.
     ev.model.parameters.parameters['u_0'] += 0.1
-    ev.model.parameters.parameters['t_E'] += 1. * u.day
+    ev.model.parameters.parameters['t_E'] += 1.
     chi2_2 = ev.get_chi2()
 
     assert chi2_2 > chi2_1
