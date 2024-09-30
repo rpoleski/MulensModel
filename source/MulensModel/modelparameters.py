@@ -668,9 +668,6 @@ class ModelParameters(object):
             full_name += " ({:})".format(form['unit'])
 
         value = getattr(self, key)
-        # if isinstance(value, u.Quantity):
-        #     value = value.value
-
         return (full_name, value)
 
     def _get_formats_for_repr(self, form, full_name):
@@ -978,10 +975,6 @@ class ModelParameters(object):
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
 
-        # for parameter in ['t_E', 't_star', 't_eff', 't_star_1', 't_star_2']:
-        #     if parameter in self.parameters:
-        #         self._set_time_quantity(parameter, self.parameters[parameter])
-
         angle_parameters = [
             'alpha', 'xi_Omega_node', 'xi_inclination',
             'xi_argument_of_latitude_reference', 'xi_omega_periapsis']
@@ -1021,24 +1014,6 @@ class ModelParameters(object):
                 setattr(self._source_2_parameters, parameter, value)
 
             self._update_sources_xallarap_reference()
-
-    def _set_time_quantity(self, key, new_time):
-        """
-        Save a variable with units of time (e.g. t_E, t_star,
-        t_eff). If units are not given, assume days.
-        """
-        # if isinstance(new_time, u.Quantity):
-        #     self.parameters[key] = new_time
-        # else:
-        #     self.parameters[key] = new_time * u.day
-        self.parameters[key] = new_time
-
-    def _check_time_quantity(self, key):
-        """
-        Make sure that value for give key has quantity, add it if missing.
-        """
-        if not isinstance(self.parameters[key], u.Quantity):
-            self._set_time_quantity(key, self.parameters[key])
 
     def _get_uniform_caustic_sampling(self):
         """
@@ -1108,8 +1083,7 @@ class ModelParameters(object):
             try:
                 u_0_quantity = (
                     self.parameters['t_eff'] / self.parameters['t_E'])
-                return (u_0_quantity + 0.)  # .value
-                # Adding 0 ensures the units are simplified.
+                return u_0_quantity
             except KeyError:
                 raise AttributeError(
                     'u_0 is not defined for these parameters: {0}'.format(
@@ -1137,14 +1111,11 @@ class ModelParameters(object):
         *astropy.Quantity*, but always returns *float* in units of days.
         """
         if 't_star' in self.parameters.keys():
-            # self._check_time_quantity('t_star')
-            return self.parameters['t_star']  # .to(u.day).value
+            return self.parameters['t_star']
         elif ('rho' in self.parameters.keys() and self._type['Cassan08']):
             return self.rho * self.t_E
         else:
             try:
-                # return (self.parameters['t_E'].to(u.day).value *
-                #         self.parameters['rho'])
                 return (self.parameters['t_E'] * self.parameters['rho'])
             except KeyError:
                 raise AttributeError(
@@ -1154,7 +1125,6 @@ class ModelParameters(object):
     @t_star.setter
     def t_star(self, new_t_star):
         if 't_star' in self.parameters.keys():
-            # self._set_time_quantity('t_star', new_t_star)
             self.parameters['t_star'] = new_t_star
             self._update_sources('t_star', new_t_star)
         else:
@@ -1175,12 +1145,9 @@ class ModelParameters(object):
         *astropy.Quantity*, but always returns *float* in units of days.
         """
         if 't_eff' in self.parameters.keys():
-            # self._check_time_quantity('t_eff')
-            return self.parameters['t_eff']  # .to(u.day).value
+            return self.parameters['t_eff']
         else:
             try:
-                # return (self.parameters['t_E'].to(u.day).value *
-                #         self.parameters['u_0'])
                 return (self.parameters['t_E'] * self.parameters['u_0'])
             except KeyError:
                 raise AttributeError(
@@ -1190,7 +1157,6 @@ class ModelParameters(object):
     @t_eff.setter
     def t_eff(self, new_t_eff):
         if 't_eff' in self.parameters.keys():
-            # self._set_time_quantity('t_eff', new_t_eff)
             self.parameters['t_eff'] = new_t_eff
             self._update_sources('t_eff', new_t_eff)
         else:
@@ -1209,8 +1175,7 @@ class ModelParameters(object):
             self._get_standard_parameters_from_Cassan08()
             return self._standard_parameters['t_E']
         if 't_E' in self.parameters.keys():
-            # self._check_time_quantity('t_E')
-            return self.parameters['t_E']  # .to(u.day).value
+            return self.parameters['t_E']
         elif ('t_star' in self.parameters.keys() and
               'rho' in self.parameters.keys()):
             return self.t_star / self.rho
@@ -1233,7 +1198,6 @@ class ModelParameters(object):
             raise ValueError('Einstein timescale cannot be negative:', new_t_E)
 
         if 't_E' in self.parameters.keys():
-            # self._set_time_quantity('t_E', new_t_E)
             self.parameters['t_E'] = new_t_E
             self._update_sources('t_E', new_t_E)
         else:
@@ -1291,7 +1255,7 @@ class ModelParameters(object):
 
         self.parameters['alpha'] = new_alpha
 # XXX only float input
-#        if isinstance(new_alpha, u.Quantity): 
+#        if isinstance(new_alpha, u.Quantity):
 #            self.parameters['alpha'] = new_alpha
 #        else:
 #            self.parameters['alpha'] = new_alpha * u.deg
@@ -1620,7 +1584,7 @@ class ModelParameters(object):
         """
         *float*
 
-        Change rate of angle :py:attr:`~alpha` in deg/year. 
+        Change rate of angle :py:attr:`~alpha` in deg/year.
         """
         return self.parameters['dalpha_dt']
 
@@ -1928,13 +1892,12 @@ class ModelParameters(object):
         *astropy.Quantity*, but always returns *float* in units of days.
         """
         if 't_star_1' in self.parameters.keys():
-            # self._check_time_quantity('t_star_1')
-            return self.parameters['t_star_1']  # .to(u.day).value
+            return self.parameters['t_star_1']
         else:
             try:
-                t_E = self._source_1_parameters.parameters['t_E']  # .to(u.day)
+                t_E = self._source_1_parameters.parameters['t_E']
                 rho = self._source_1_parameters.parameters['rho']
-                return t_E * rho  # .value * rho
+                return t_E * rho
             except KeyError:
                 raise AttributeError(
                     't_star_1 is not defined for these parameters: {0}'.format(
@@ -1943,7 +1906,6 @@ class ModelParameters(object):
     @t_star_1.setter
     def t_star_1(self, new_t_star_1):
         if 't_star_1' in self.parameters.keys():
-            # self._set_time_quantity('t_star_1', new_t_star_1)
             self.parameters['t_star_1'] = new_t_star_1
             self._source_1_parameters.t_star = new_t_star_1
         else:
@@ -1964,13 +1926,12 @@ class ModelParameters(object):
         *astropy.Quantity*, but always returns *float* in units of days.
         """
         if 't_star_2' in self.parameters.keys():
-            # self._check_time_quantity('t_star_2')
-            return self.parameters['t_star_2']  # .to(u.day).value
+            return self.parameters['t_star_2']
         else:
             try:
-                t_E = self._source_2_parameters.parameters['t_E']  # .to(u.day)
+                t_E = self._source_2_parameters.parameters['t_E']
                 rho = self._source_2_parameters.parameters['rho']
-                return t_E * rho  # .value * rho
+                return t_E * rho
             except KeyError:
                 raise AttributeError(
                     't_star_2 is not defined for these parameters: {0}'.format(
@@ -1979,7 +1940,6 @@ class ModelParameters(object):
     @t_star_2.setter
     def t_star_2(self, new_t_star_2):
         if 't_star_2' in self.parameters.keys():
-            # self._set_time_quantity('t_star_2', new_t_star_2)
             self.parameters['t_star_2'] = new_t_star_2
             self._source_2_parameters.t_star = new_t_star_2
         else:
@@ -2006,9 +1966,9 @@ class ModelParameters(object):
             print('fails')
             print(self.parameters.keys())
             raise AttributeError('rho_1 is not defined for these parameters')
-            #raise AttributeError(
-            #    'rho_1 is not defined for these parameters') #: {0}'.format(
-                 #self.parameters.keys()))
+            # raise AttributeError(
+            #     'rho_1 is not defined for these parameters') #: {0}'.format(
+            #     self.parameters.keys()))
 
     @rho_1.setter
     def rho_1(self, new_rho_1):
