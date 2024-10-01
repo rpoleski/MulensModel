@@ -1103,10 +1103,7 @@ class ModelParameters(object):
         """
         *float*
 
-        t_star = rho * t_E = source radius crossing time
-
-        "day" is the default unit. Can be set as *float* or
-        *astropy.Quantity*, but always returns *float* in units of days.
+        t_star = rho * t_E = source radius crossing time in days
         """
         if 't_star' in self.parameters.keys():
             return self.parameters['t_star']
@@ -1137,10 +1134,7 @@ class ModelParameters(object):
         """
         *float*
 
-        t_eff = u_0 * t_E = effective timescale
-
-        "day" is the default unit. Can be set as *float* or
-        *astropy.Quantity*, but always returns *float* in units of days.
+        t_eff = u_0 * t_E = effective timescale in days
         """
         if 't_eff' in self.parameters.keys():
             return self.parameters['t_eff']
@@ -1165,9 +1159,7 @@ class ModelParameters(object):
         """
         *float*
 
-        The Einstein timescale. "day" is the default unit. Can be set as
-        *float* or *astropy.Quantity*, but always returns *float* in units of
-        days.
+        The Einstein timescale in days.
         """
         if self._type['Cassan08']:
             self._get_standard_parameters_from_Cassan08()
@@ -1877,10 +1869,7 @@ class ModelParameters(object):
         """
         *float*
 
-        t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time
-
-        "day" is the default unit. Can be set as *float* or
-        *astropy.Quantity*, but always returns *float* in units of days.
+        t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time in days
         """
         if 't_star_1' in self.parameters.keys():
             return self.parameters['t_star_1']
@@ -1911,10 +1900,7 @@ class ModelParameters(object):
         """
         *float*
 
-        t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time
-
-        "day" is the default unit. Can be set as *float* or
-        *astropy.Quantity*, but always returns *float* in units of days.
+        t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time in days.
         """
         if 't_star_2' in self.parameters.keys():
             return self.parameters['t_star_2']
