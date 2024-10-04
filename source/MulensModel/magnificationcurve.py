@@ -500,7 +500,6 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
-        # JCY: Is this still needed?
         if self.parameters.is_finite_source():
             self._check_for_finite_source_method()
 

@@ -146,13 +146,7 @@ class ModelParameters(object):
     def _count_sources(self, keys):
         """
         How many luminous sources are there?
-        We're also checking for ill-defined xallarap with
-        *_1 and *_2 binary source parameters.
         """
-        # JCY: Because the above describes two separate checks, this is
-        # probably two separate functions.
-        # Also, how does this extend to the multi-source case?
-
         self._n_sources = 1
         for key in keys:
             # Check max number of sources based on highest integer label
@@ -165,6 +159,9 @@ class ModelParameters(object):
                     pass
 
         if 'q_source' in keys:
+            if self._n_sources != 1:
+                if self._n_sources != 2 and ('rho_2' in keys or 't_star_2' in keys):
+                    raise RuntimeError('wrong set of parametes: ' + str(keys))
             self._n_sources = 2
 
     def _count_lenses(self, keys):
@@ -1566,8 +1563,6 @@ class ModelParameters(object):
         The time of minimum projected separation between the source no. 2
         and the lens center of mass.
         """
-        # JCY: SHOULD THIS (AND OTHER _N) PARAMETERS BE REFACTORED TO ACCESS
-        # THE _SOURCE_N_PARAMETERS OBJECTS?
         return self.parameters['t_0_2']
 
     @t_0_2.setter
