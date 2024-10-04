@@ -102,7 +102,7 @@ def test_annual_parallax_calculation():
     true_with_par = np.array([7.12376832, 10.0386009, 7.13323363, 7.13323363])
 
     model_with_par = mm.Model(
-        {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
+        {'t_0': t_0, 'u_0': 0.1, 't_E': 10., 'pi_E_N': 0.3, 'pi_E_E': 0.5},
         coords='17:57:05 -30:22:59')
     model_with_par.parallax(satellite=False, earth_orbital=True,
                             topocentric=False)
@@ -138,7 +138,7 @@ class test(unittest.TestCase):
         one component of parallax is True
         """
         model_no_par = mm.Model(
-            {'t_0': 2457479.5, 'u_0': 0.1, 't_E': 10., 'pi_E': (0.3, 0.5)},
+            {'t_0': 2457479.5, 'u_0': 0.1, 't_E': 10., 'pi_E_N': 0.3, 'pi_E_E': 0.5},
             coords='17:57:05 -30:22:59')
         model_no_par.parallax(
             satellite=False, earth_orbital=False, topocentric=False)
@@ -275,10 +275,10 @@ def test_satellite_parallax_magnification():
     pi_E_E = 0.234
 
     ground_model = mm.Model(
-        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E_N': pi_E_N, 'pi_E_E': pi_E_E},
         coords='17:47:12.25 -21:22:58.2')
     space_model = mm.Model(
-        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E': [pi_E_N, pi_E_E]},
+        {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'pi_E_N': pi_E_N, 'pi_E_E': pi_E_E},
         ra='17:47:12.25', dec='-21:22:58.2',
         ephemerides_file=SAMPLE_FILE_03_EPH)
 

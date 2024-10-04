@@ -187,7 +187,7 @@ class Trajectory(object):
         vector_tau = (self._times - self.parameters.t_0) / self.parameters.t_E
         vector_u = self.parameters.u_0 * np.ones(self._times.size)
 
-        if self.parameters.pi_E is not None:
+        if 'pi_E_N' in self.parameters.parameters:
             shifts = self._get_shifts_parallax()
             vector_tau += shifts[0]
             vector_u += shifts[1]

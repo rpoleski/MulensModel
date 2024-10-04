@@ -1212,17 +1212,11 @@ class TestSetters(unittest.TestCase):
         with self.assertRaises(ValueError):
             params.q = -self.dummy_value
 
-    def test_set_pi_E_1(self):
-        params = mm.ModelParameters(
-            {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'pi_E': self.pi_E})
-        params.pi_E = [self.dummy_value, -self.dummy_value]
-        assert params.pi_E_N == self.dummy_value
-        assert params.pi_E_E == -self.dummy_value
-
-    def test_set_pi_E_2(self):
+    def test_set_pi_E(self):
         params = mm.ModelParameters(
             {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E})
-        params.pi_E = [self.dummy_value, -self.dummy_value]
+        params.pi_E_N = self.dummy_value
+        params.pi_E_E = -self.dummy_value
         assert params.pi_E_N == self.dummy_value
         assert params.pi_E_E == -self.dummy_value
 
@@ -1252,7 +1246,7 @@ class TestParallax3Sources(unittest.TestCase):
             assert params.__getattr__('source_{0}_parameters'.format(i+1)).pi_E_E == self.pi_E_E
 
     def test_set_pi_E_N(self):
-        params = mm.ModelParameters({**self.static_params, 'pi_E': [self.pi_E_N, self.pi_E_E]})
+        params = mm.ModelParameters({**self.static_params, 'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E})
         params.pi_E_N = self.dummy_value
         for i in range(3):
             assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_N == self.dummy_value
@@ -1264,7 +1258,7 @@ class TestParallax3Sources(unittest.TestCase):
             params.pi_E_N = self.dummy_value
 
     def test_set_pi_E_E(self):
-        params = mm.ModelParameters({**self.static_params, 'pi_E': [self.pi_E_N, self.pi_E_E]})
+        params = mm.ModelParameters({**self.static_params, 'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E})
         params.pi_E_E = self.dummy_value
         for i in range(3):
             assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_N == self.pi_E_N

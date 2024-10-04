@@ -360,9 +360,8 @@ class ModelParameters(object):
 
         temp = {
             'finite source': 'rho t_star rho_1 rho_2 t_star_1 t_star_2',
-            'parallax': 'pi_E_N pi_E_E pi_E',
-            'Cassan08':
-                'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
+            'parallax': 'pi_E_N pi_E_E',
+            'Cassan08': 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
@@ -405,7 +404,7 @@ class ModelParameters(object):
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set((
-            't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
+            't_0 u_0 t_E t_eff rho t_star pi_E_N pi_E_E t_0_par '
             's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
             't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
@@ -547,9 +546,6 @@ class ModelParameters(object):
         get all the keys that will be printed
         """
         keys = set(self.parameters.keys())
-        if 'pi_E' in keys:
-            keys.remove('pi_E')
-            keys |= {'pi_E_E', 'pi_E_N'}
 
         if 'pi_E_E' in keys or 'pi_E_N' in keys:
             keys |= {'t_0_par'}
@@ -803,13 +799,6 @@ class ModelParameters(object):
         """
         Here we check parallax parameters for non-Cassan08 parameterization.
         """
-        # 1# mode
-        # Parallax is either pi_E or (pi_E_N, pi_E_E)
-        if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
-            raise KeyError(
-                'Parallax may be defined EITHER by pi_E OR by ' +
-                '(pi_E_N and pi_E_E).')
-
         # If parallax is defined, then both components must be set:
         if ('pi_E_N' in keys) != ('pi_E_E' in keys):
             raise KeyError(
@@ -820,7 +809,7 @@ class ModelParameters(object):
             raise KeyError('t_0_par makes sense only when parallax is defined')
 
         # Parallax needs reference epoch:
-        if 'pi_E' in keys or 'pi_E_N' in keys:
+        if 'pi_E_N' in keys:
             if 't_0' not in keys and 't_0_par' not in keys:
                 raise KeyError(
                     'Parallax is defined, hence either t_0 or t_0_par has ' +
@@ -925,7 +914,7 @@ class ModelParameters(object):
         Prevent user from setting negative (unphysical) values for
         t_E, t_star, rho etc. Shear_G should be complex.
 
-        Also, check that all values are scalars (except pi_E vector).
+        Also, check that all values are scalars.
         """
         full_names = {
             't_E': 'Einstein timescale', 't_star': 'Source crossing time',
@@ -938,8 +927,6 @@ class ModelParameters(object):
                     raise ValueError(fmt.format(full, parameters[name]))
 
         for (key, value) in parameters.items():
-            if key == 'pi_E':
-                continue
             if not np.isscalar(value) or isinstance(value, str):
                 msg = "{:} must be a scalar: {:}, {:}"
                 raise TypeError(msg.format(key, value, type(value)))
@@ -1330,44 +1317,6 @@ class ModelParameters(object):
         self._update_sources('s', new_s)
 
     @property
-    def pi_E(self):
-        """
-        *list of floats*
-
-        The microlensing parallax vector. Must be set as a vector/list
-        (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
-        pi_E_mag
-        """
-        if 'pi_E' in self.parameters.keys():
-            return self.parameters['pi_E']
-        elif ('pi_E_N' in self.parameters.keys() and
-              'pi_E_E' in self.parameters.keys()):
-            return [self.parameters['pi_E_N'], self.parameters['pi_E_E']]
-        else:
-            return None
-
-    @pi_E.setter
-    def pi_E(self, new_pi_E):
-        if isinstance(new_pi_E, np.ndarray):
-            new_pi_E = new_pi_E.flatten()
-
-        if 'pi_E' in self.parameters.keys():
-            if len(new_pi_E) == 2:
-                self.parameters['pi_E'] = new_pi_E
-                self._update_sources('pi_E', new_pi_E)
-            else:
-                raise TypeError('pi_E is a 2D vector. It must have length 2.')
-
-        elif ('pi_E_N' in self.parameters.keys() and
-              'pi_E_E' in self.parameters.keys()):
-            self.parameters['pi_E_N'] = new_pi_E[0]
-            self.parameters['pi_E_E'] = new_pi_E[1]
-            self._update_sources('pi_E_N', new_pi_E[0])
-            self._update_sources('pi_E_E', new_pi_E[1])
-        else:
-            raise KeyError('pi_E is not a parameter of this model.')
-
-    @property
     def pi_E_N(self):
         """
         *float*
@@ -1386,11 +1335,6 @@ class ModelParameters(object):
         if 'pi_E_N' in self.parameters.keys():
             self.parameters['pi_E_N'] = new_value
             self._update_sources('pi_E_N', new_value)
-        elif 'pi_E' in self.parameters.keys():
-            self.parameters['pi_E'][0] = new_value
-            if self.n_sources != 1:
-                self._source_1_parameters.parameters['pi_E'][0] = new_value
-                self._source_2_parameters.parameters['pi_E'][0] = new_value
         else:
             raise KeyError('pi_E_N is not a parameter of this model.')
 
@@ -1403,8 +1347,6 @@ class ModelParameters(object):
         """
         if 'pi_E_E' in self.parameters.keys():
             return self.parameters['pi_E_E']
-        elif 'pi_E' in self.parameters.keys():
-            return self.parameters['pi_E'][1]
         else:
             raise KeyError('pi_E_N not defined for this model')
 
@@ -1413,13 +1355,21 @@ class ModelParameters(object):
         if 'pi_E_E' in self.parameters.keys():
             self.parameters['pi_E_E'] = new_value
             self._update_sources('pi_E_E', new_value)
-        elif 'pi_E' in self.parameters.keys():
-            self.parameters['pi_E'][1] = new_value
-            if self.n_sources != 1:
-                self._source_1_parameters.parameters['pi_E'][1] = new_value
-                self._source_2_parameters.parameters['pi_E'][1] = new_value
         else:
             raise KeyError('pi_E_E is not a parameter of this model.')
+
+    @property
+    def pi_E(self):
+        """
+        Not defined.
+
+        It was used in previous versions. Use :py:attr:`~pi_E_N` and :py:attr:`~pi_E_E` instead.
+        """
+        raise KeyError('pi_E is not defined. Use pi_E_N and pi_E_E instead')
+
+    @pi_E.setter
+    def pi_E(self, new_value):
+        raise KeyError('pi_E is not defined. Use pi_E_N and pi_E_E instead')
 
     @property
     def t_0_par(self):
@@ -1458,11 +1408,7 @@ class ModelParameters(object):
 
         The magnitude of the microlensing parallax vector.
         """
-        if 'pi_E' in self.parameters.keys():
-            pi_E_N = self.parameters['pi_E'][0]
-            pi_E_E = self.parameters['pi_E'][1]
-        elif ('pi_E_N' in self.parameters.keys() and
-              'pi_E_E' in self.parameters.keys()):
+        if 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
             pi_E_N = self.parameters['pi_E_N']
             pi_E_E = self.parameters['pi_E_E']
         else:

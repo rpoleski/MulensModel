@@ -97,6 +97,16 @@ def test_model_methods():
     model.set_magnification_methods([9, "point_source", 11])
 
 
+class TestModelParallaxPIE(unittest.TestCase):
+    def test_parallax_pi_E(self):
+        """
+        Make sure error is raised for API used in v1 and v2.
+        """
+        params = {'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'pi_E': (0.5, 0.6)}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(params)
+
+
 def test_model_parallax_definition():
     """Update parameters in an existing model"""
     model_2 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
@@ -106,11 +116,6 @@ def test_model_parallax_definition():
     model_2.parameters.pi_E_E = 0.4
     assert model_2.parameters.pi_E_N == 0.3
     assert model_2.parameters.pi_E_E == 0.4
-
-    model_3 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
-                        'pi_E': (0.5, 0.6)})
-    assert model_3.parameters.pi_E_N == 0.5
-    assert model_3.parameters.pi_E_E == 0.6
 
     model_4 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
                         'pi_E_N': 0.7, 'pi_E_E': 0.8})
