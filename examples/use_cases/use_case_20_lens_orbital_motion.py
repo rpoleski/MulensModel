@@ -2,7 +2,6 @@
 Use case presenting binary lens orbital motion models. Also comparison
 with static binary model is provided.
 """
-from astropy import units as u
 import matplotlib.pyplot as plt
 
 import MulensModel as mm
@@ -11,15 +10,15 @@ import MulensModel as mm
 # point lens parameters:
 t_0 = 2457123.456
 u_0 = 0.0345
-t_E = 30.00 * u.day
+t_E = 30.00
 rho = 0.00345
 
 # binary lens parameters:
 q = 0.123
-alpha_0 = 12.345 * u.deg
-dalpha_dt = 50. * u.deg / u.year
+alpha_0 = 12.345
+dalpha_dt = 50.
 s_0 = 1.5
-ds_dt = 0.5 / u.year
+ds_dt = 0.5
 params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': rho, 'q': q,
           'alpha': alpha_0, 's': s_0}
 
@@ -51,7 +50,7 @@ print('{0} == {1}?'.format(model_static.parameters.get_s(t_0+dt), s_0))
 print('test orbital motion alpha')
 print(
     '{0} == {1}?'.format(
-        model_orb.parameters.get_alpha(t_0-dt), 7.345 * u.deg))
+        model_orb.parameters.get_alpha(t_0-dt), 7.345))
 # In analogy to s, similar methods for alpha will work.
 
 # Make sure that you know what kind of model you deal with:
@@ -64,13 +63,13 @@ print('Orb Mot: {0} == {1}?'.format(model_orb_2.is_static(), False))
 print('Check projected velocity (gamma)')
 print(
     '{0} == {1}?'.format(
-        model_orb.parameters.gamma_parallel, 0.3333333 / u.year))
+        model_orb.parameters.gamma_parallel, 0.3333333))
 print(
     '{0} == {1}?'.format(
-        model_orb.parameters.gamma_perp,  -0.87266 / u.year))
+        model_orb.parameters.gamma_perp,  -0.87266))
 # or # -0.87266 u.rad/u.year (the minus sign comes from the definition in
 # Skowron et al. 2011).
-print('{0} == {1}?'.format(model_orb.parameters.gamma, 0.9346 / u.year))
+print('{0} == {1}?'.format(model_orb.parameters.gamma, 0.9346))
 
 # Make a nice plot:
 plt.figure()
