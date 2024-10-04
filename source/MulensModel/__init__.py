@@ -17,7 +17,7 @@ from MulensModel.horizons import Horizons
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.model import Model
-from MulensModel.modelparameters import ModelParameters, which_parameters
+from MulensModel.modelparameters import ModelParameters
 from MulensModel.mulensdata import MulensData
 from MulensModel.mulensobjects import Lens, Source, MulensSystem
 from MulensModel import orbits
@@ -37,7 +37,7 @@ __all__ = ['mulensobjects', 'MODULE_PATH', 'DATA_PATH', 'BinaryLens',
            'BinaryLensWithShear', 'Caustics', 'CausticsPointWithShear',
            'CausticsWithShear', 'Coordinates', 'Event', 'FitData', 'Horizons',
            'LimbDarkeningCoeffs', 'MagnificationCurve', 'Model',
-           'ModelParameters', 'which_parameters', 'MulensData', 'Lens',
+           'ModelParameters', 'MulensData', 'Lens',
            'Source', 'MulensSystem', 'orbits', 'PointLens',
            'get_pspl_magnification', 'PointLensWithShear',
            'PointLensFiniteSource', 'SatelliteSkyCoord', 'Trajectory',
