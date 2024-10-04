@@ -399,7 +399,7 @@ class Event(object):
         kwargs_residuals = {'phot_fmt': 'scaled', 'bad': False,
                             'source_flux': fluxes[0], 'blend_flux': fluxes[1]}
         if show_bad:
-            kwargs_residuals['bad']: True
+            kwargs_residuals['bad'] = True
 
         # Plot residuals
         t_min = np.min(self._datasets[0].time)
