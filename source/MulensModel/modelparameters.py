@@ -988,19 +988,16 @@ class ModelParameters(object):
         """
         if self.n_sources == 1:
             return
-        else:
-            for i in range(self.n_sources):
-                try:
-                    self.__getattr__(
-                        '_source_{0}_parameters'.format(i+1)).__getattr__(
-                        parameter)
-                    self.__getattr__(
-                        '_source_{0}_parameters'.format(i + 1)).__setattr__(
-                        parameter, value)
-                except KeyError:
-                    continue
 
-        if (self.is_xallarap) and (self.n_sources > 1):
+        for i in range(self.n_sources):
+            source = self.__getattr__('_source_{0}_parameters'.format(i+1))
+            try:
+                source.__getattr__(parameter)
+                source.__setattr__(parameter, value)
+            except KeyError:
+                continue
+
+        if self.is_xallarap:
             if parameter == 'q_source':
                 value_ = self.parameters['xi_semimajor_axis'] / value
                 setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
