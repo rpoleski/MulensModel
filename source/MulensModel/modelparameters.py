@@ -1013,7 +1013,7 @@ class ModelParameters(object):
         elif ('t_star' in self.parameters.keys() and self._type['Cassan08']):
             return self.t_star / self.t_E
         else:
-            return None
+            raise AttributeError("rho is not defined and cannot be calculated")
 
     @rho.setter
     def rho(self, new_rho):
