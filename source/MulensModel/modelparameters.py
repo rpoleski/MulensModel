@@ -1730,7 +1730,9 @@ class ModelParameters(object):
             return (self._source_2_parameters.t_star /
                     self._source_2_parameters.t_E)
         else:
-            return None
+            raise AttributeError(
+                'rho_2 is not defined for these parameters: {0}'.format(
+                    self.parameters.keys()))
 
     @rho_2.setter
     def rho_2(self, new_rho_2):
