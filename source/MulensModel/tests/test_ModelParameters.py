@@ -991,10 +991,8 @@ class Test1L3SModels(unittest.TestCase):
             assert (self.model_params.__getattr__(
                 'source_{0}_parameters'.format(i+1)).rho == self.rho[i])
 
-        # JCY: don't understand why this test doesn't work, because it does throw an Attribute Error.
-        # with np.testing.assert_raises(AttributeError):
-        #    print(self.model_params.rho_1)
-
+        with np.testing.assert_raises(AttributeError):
+            print(self.model_params.rho_1)
         np.testing.assert_almost_equal(self.model_params.rho_2, self.rho[1])
         np.testing.assert_almost_equal(self.model_params.rho_3, self.rho[2])
 

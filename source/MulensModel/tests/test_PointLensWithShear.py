@@ -1,5 +1,4 @@
 import numpy as np
-import unittest
 
 import MulensModel as mm
 
@@ -20,7 +19,7 @@ def test_get_ps_with_shear_magnification_1():
     point_lens = mm.PointSourcePointLensWithShearMagnification(
         trajectory=trajectory)
     # Set trajectory to be a single point
-    #test_pspl_shear = point_lens.get_point_source_magnification(trajectory)
+    # test_pspl_shear = point_lens.get_point_source_magnification(trajectory)
     test_pspl_shear = point_lens.get_magnification()
     np.testing.assert_almost_equal(test_pspl_shear[0], 5.556327, decimal=5)
 
@@ -37,7 +36,7 @@ def configure():
 
     parameters = mm.ModelParameters({
         't_0': t_0, 'u_0': u_0, 't_E': t_E, 'convergence_K': convergence_K})
-    #point_lens = mm.PointLensWithShear(parameters=parameters)
+    # point_lens = mm.PointLensWithShear(parameters=parameters)
     trajectory = mm.Trajectory(t_vec, parameters)
     point_lens = mm.PointSourcePointLensWithShearMagnification(
         trajectory=trajectory)

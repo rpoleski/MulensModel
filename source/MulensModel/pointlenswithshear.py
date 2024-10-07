@@ -29,8 +29,9 @@ class PointSourcePointLensWithShearMagnification(_PointLensMagnification):
                 The point-source--point-lens magnification for each point
                 specified by `trajectory`.
         """
-        shear_G = self.trajectory.parameters.shear_G
-        if shear_G is None:
+        try:
+            shear_G = self.trajectory.parameters.shear_G
+        except AttributeError:
             shear_G = 0.
         convergence_K = self.trajectory.parameters.convergence_K
 
