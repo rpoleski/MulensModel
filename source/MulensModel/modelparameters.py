@@ -125,22 +125,13 @@ class ModelParameters(object):
         return orbit.get_reference_plane_position([t_0_xi])
 
     def __getattr__(self, item):
-        if self.n_sources <= 2:
-            return object.__getattribute__(self, item)
+        end = item.split('_')[-1]
+        if end.isnumeric() and int(end) > 0:
+            head = item[:-len(end)-1]
+            return self.__getattr__('_source_{:}_parameters'.format(end)).__getattribute__(head)
+        elif item.startswith("source_") and item.endswith("_parameters"):
+            return object.__getattribute__(self, "_" + item)
         else:
-            for source_param in ModelParameters._all_source_params_head:
-                if item[0:len(source_param)] == source_param:
-                    source_num = item.split('_')[-1]
-                    try:
-                        return self.__getattr__(
-                            '_source_{0}_parameters'.format(
-                                source_num)).__getattribute__(source_param)
-                    except AttributeError:
-                        return object.__getattribute__(self, item)
-
-            if (len(item) > 6) and item[0:7] == 'source_':
-                return object.__getattribute__(self, '_{0}'.format(item))
-
             return object.__getattribute__(self, item)
 
     def _count_sources(self, keys):
