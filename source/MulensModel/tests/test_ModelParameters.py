@@ -1116,7 +1116,13 @@ class Test1L3SModelErrors(unittest.TestCase):
 
         https://ui.adsabs.harvard.edu/abs/2018AJ....155..259H/abstract
         """
-        raise NotImplementedError()
+        parameters = {**xallarap_parameters, 't_0_3': 123.456}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(parameters)
+
+        parameters = {**xallarap_parameters, 'u_0_3': 0.456}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(parameters)
 
 
 class TestSetters(unittest.TestCase):
