@@ -960,7 +960,6 @@ class TestNSources(unittest.TestCase):
             self.model_1.get_magnification(self.times),
             self.model_2.get_magnification(self.times),
             self.model_3.get_magnification(self.times)))
-        print(self.magnifications)  # Remove after debugging
 
         self.flux =  self.source_flux_1 * self.model_1.get_magnification(self.times)
         self.flux += self.source_flux_2 * self.model_2.get_magnification(self.times)
@@ -979,10 +978,7 @@ class TestNSources(unittest.TestCase):
         self.model.set_magnification_methods(self.mag_methods, 3)
 
     def test_get_magnification(self):
-        print(self.model.get_magnification(self.times))  # Remove after debugging
-        np.testing.assert_almost_equal(
-            self.model.get_magnification(self.times), self.magnifications, decimal=4
-        )
+        np.testing.assert_almost_equal(self.model.get_magnification(self.times), self.magnifications, decimal=4)
 
     def test_get_lc_1(self):
         """
@@ -991,9 +987,7 @@ class TestNSources(unittest.TestCase):
                 Magnification values for each epoch.
         """
         model_mags = self.model.get_lc(self.times, source_flux=self.source_fluxes, blend_flux=self.blend_flux)
-        np.testing.assert_almost_equal(
-            model_mags, mm.Utils.get_mag_from_flux(self.flux), decimal=4
-        )
+        np.testing.assert_almost_equal(model_mags, mm.Utils.get_mag_from_flux(self.flux), decimal=4)
 
     def test_get_lc_2(self):
         """

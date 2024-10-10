@@ -190,9 +190,7 @@ class TestT0X(unittest.TestCase):
         assert 't_0_par' not in params.keys()
         assert 't_0_kep' in params.keys()
 
-        print(params)
         model_params = mm.ModelParameters(params)
-        print(model_params)
         np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] + 5.)
         np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] + 5.)
 
@@ -992,7 +990,7 @@ class Test1L3SModels(unittest.TestCase):
                 'source_{0}_parameters'.format(i+1)).rho == self.rho[i])
 
         with np.testing.assert_raises(AttributeError):
-            print(self.model_params.rho_1)
+            self.model_params.rho_1
 
         np.testing.assert_almost_equal(self.model_params.rho_2, self.rho[1])
         np.testing.assert_almost_equal(self.model_params.rho_3, self.rho[2])
@@ -1045,7 +1043,6 @@ class Test1LNSModels(unittest.TestCase):
             parameters['t_0_{0}'.format(i + 1)] = 2. + i
             parameters['u_0_{0}'.format(i + 1)] = 1. / (i + 1)
 
-        print(parameters)
         model_params = mm.ModelParameters(parameters)
         assert model_params.n_sources == n_sources
 
