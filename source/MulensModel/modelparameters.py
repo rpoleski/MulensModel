@@ -122,14 +122,27 @@ class ModelParameters(object):
         return orbit.get_reference_plane_position([t_0_xi])
 
     def __getattr__(self, item):
-        end = item.split('_')[-1]
-        if end.isnumeric() and int(end) > 0:
-            head = item[:-len(end)-1]
+        (head, end) = self._split_parameter_name(item)
+        if end is not None:
             return self.__getattr__('_source_{:}_parameters'.format(end)).__getattribute__(head)
         elif item.startswith("source_") and item.endswith("_parameters"):
             return object.__getattribute__(self, "_" + item)
         else:
             return object.__getattribute__(self, item)
+
+    def _split_parameter_name(self, parameter):
+        """
+        Split ABC_DEF_n into ABC_DEF (str) and n (int). For parameters like t_0 or rho, n is None.
+        """
+        end = parameter.split('_')[-1]
+        if end.isnumeric() and int(end) > 0:
+            head = parameter[:-len(end)-1]
+            end = int(end)
+        else:
+            head = parameter
+            end = None
+
+        return (head, end)
 
     def _count_sources(self, keys):
         """
@@ -683,8 +696,7 @@ class ModelParameters(object):
         check if orbit is properly defined; prefix is added to
         checked orbit parameters
         """
-        required = ('period semimajor_axis inclination '
-                    'Omega_node argument_of_latitude_reference').split()
+        required = ('period semimajor_axis inclination Omega_node argument_of_latitude_reference').split()
         required = [prefix + req for req in required]
         for parameter in required:
             if parameter not in keys:
