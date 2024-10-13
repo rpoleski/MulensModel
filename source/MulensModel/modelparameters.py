@@ -73,10 +73,10 @@ class ModelParameters(object):
 
             source_params = self._divide_parameters(parameters)
             for i, params_i in enumerate(source_params):
+            # This try/except block forces checks from ._init_1_source()
+            # to be run on each source parameters separately.
                 try:
-                    self.__setattr__(
-                        '_source_{0}_parameters'.format(i + 1),
-                        ModelParameters(params_i))
+                    self.__setattr__('_source_{0}_parameters'.format(i + 1), ModelParameters(params_i))
                 except Exception:
                     print("ERROR IN INITIALIZING SOURCE {0}".format(i + 1))
                     raise
@@ -89,9 +89,6 @@ class ModelParameters(object):
             raise ValueError(msg.format(parameters))
 
         self._set_parameters(parameters)
-
-        # The try/except blocks above force checks from ._init_1_source()
-        # to be run on each source parameters separately.
 
     def _update_sources_xallarap_reference(self):
         """
@@ -1693,12 +1690,8 @@ class ModelParameters(object):
             return (self._source_1_parameters.t_star /
                     self._source_1_parameters.t_E)
         else:
-            print('fails')
-            print(self.parameters.keys())
-            raise AttributeError('rho_1 is not defined for these parameters')
-            # raise AttributeError(
-            #     'rho_1 is not defined for these parameters') #: {0}'.format(
-            #     self.parameters.keys()))
+            fmt = 'rho_1 is not defined for these parameters: {:}'
+            raise AttributeError(fmt.format(self.parameters.keys()))
 
     @rho_1.setter
     def rho_1(self, new_rho_1):

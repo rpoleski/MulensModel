@@ -429,8 +429,10 @@ class MagnificationCurve(object):
                 raise ValueError(msg.format(method))
 
     def _set_binary_lens_w_shear_magnification_objects(self):
-        """ For binary lens + shear models, create a *dict* of magnification
-        objects corresponding to the user-specified magnification methods."""
+        """
+        For binary lens + shear models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods.
+        """
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
             trajectory = self._setup_trajectory(selection)
