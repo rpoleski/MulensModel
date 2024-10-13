@@ -859,13 +859,10 @@ class ModelParameters(object):
             return self.parameters['u_0']
         else:
             try:
-                u_0_quantity = (
-                    self.parameters['t_eff'] / self.parameters['t_E'])
+                u_0_quantity = self.parameters['t_eff'] / self.parameters['t_E']
                 return u_0_quantity
             except KeyError:
-                raise AttributeError(
-                    'u_0 is not defined for these parameters: {0}'.format(
-                        self.parameters.keys()))
+                raise AttributeError('u_0 is not defined for these parameters: {0}'.format(self.parameters.keys()))
 
     @u_0.setter
     def u_0(self, new_u_0):
