@@ -37,16 +37,13 @@ class ModelParameters(object):
     # parameters that may be defined for a given source
     _primary_source_params_head = ['t_0', 'u_0']
     _finite_source_params_head = ['rho', 't_star']
-    _all_source_params_head = np.hstack(
-        (_primary_source_params_head, _finite_source_params_head))
+    _all_source_params_head = np.hstack((_primary_source_params_head, _finite_source_params_head))
     _t_0_ref_types = ['par', 'kep', 'xi']
 
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
-            raise TypeError(
-                'ModelParameters must be initialized with dict ' +
-                "as a parameter\ne.g., ModelParameters({'t_0': " +
-                "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
+            raise TypeError('ModelParameters must be initialized with dict as a parameter\ne.g., '
+                            "ModelParameters({'t_0': 2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
         self._count_sources(parameters.keys())
         self._count_lenses(parameters.keys())
@@ -150,14 +147,10 @@ class ModelParameters(object):
         """
         self._n_sources = 1
         for key in keys:
-            # Check max number of sources based on highest integer label
-            if '_' in key:
-                n = key.split('_')[-1]
-                try:
-                    if int(n) > self._n_sources:
-                        self._n_sources = int(n)
-                except ValueError:
-                    pass
+            n = self._split_parameter_name(key)[1]
+            if n is not None:
+                if n > self._n_sources:
+                    self._n_sources = n
 
         if 'q_source' in keys:
             if self._n_sources != 1:
@@ -279,32 +272,21 @@ class ModelParameters(object):
 
         source_parameters = []
         for i in range(self.n_sources):
-            params_i = {}
-            num = '{0}'.format(i+1)
+            params_i = dict()
             for (key, value) in parameters.items():
                 if key in skipped_parameters:
                     continue
-                else:
-                    key_num = key.split('_')[-1]
-                    try:
-                        if int(key_num) == 0:
-                            # source parameter, general = t_0, u_0
-                            params_i[key] = value
-                        elif int(key_num) == i + 1:
-                            # source parameter, specific
-                            #   = t_0_X, u_0_X, rho_X, t_star_X
-                            params_i[key[0:-len(num) - 1]] = value
-                        else:
-                            continue
-                    except ValueError:
-                        # global parameter = tE, piE, xiE, etc.
-                        params_i[key] = value
+
+                (head, end) = self._split_parameter_name(key)
+                if end is None:
+                    params_i[key] = value
+                elif end == i + 1:
+                    params_i[head] = value
 
             source_parameters.append(params_i)
 
         if self.n_sources == 2 and self._type['xallarap']:
-            self._set_changed_parameters_2nd_source(
-                parameters['q_source'], source_parameters[1])
+            self._set_changed_parameters_2nd_source(parameters['q_source'], source_parameters[1])
 
         return source_parameters
 
@@ -432,7 +414,7 @@ class ModelParameters(object):
         # Add multiple source parameters with the same settings.
         if self.n_sources > 1:
             for i in range(self.n_sources):
-                for param_head in ModelParameters._all_source_params_head:
+                for param_head in self._all_source_params_head:
                     form = formats[param_head]
                     key = '{0}_{1}'.format(param_head, i+1)
                     formats[key] = {'width': form['width'],
@@ -514,16 +496,12 @@ class ModelParameters(object):
                 # conflict between t_0 and t_0_1
                 for i in range(self.n_sources):
                     if '{0}_{1}'.format(parameter, i+1) in keys:
-                        raise KeyError(
-                            'You cannot set both {:} and {:}'.format(
-                                parameter, '{0}_{1}'.format(parameter, i+1)))
+                        msg = 'You cannot set both {:} and {:}'
+                        raise KeyError(msg.format(parameter, '{0}_{1}'.format(parameter, i+1)))
 
         for parameter in self._finite_source_params_head:
             if parameter in keys:
-                raise KeyError(
-                    'You must specify which source {0} goes with'.format(
-                        parameter)
-                )
+                raise KeyError('You must specify which source {0} goes with'.format(parameter))
 
         if self.is_xallarap:
             self._check_for_parameters_incompatible_with_xallarap(keys)
@@ -532,13 +510,10 @@ class ModelParameters(object):
         """
         Check for additional source parameters with xallarap (bad).
         """
-
         for parameter in keys:
             try:
                 key_num = parameter.split('_')[-1]
-                if ((int(key_num) > 1) and
-                    (parameter[0:-len(key_num) - 1] in
-                     self._primary_source_params_head)):
+                if ((int(key_num) > 1) and (parameter[0:-len(key_num) - 1] in self._primary_source_params_head)):
                     msg = 'xallarap parameters cannot be mixed with {:}'
                     raise NotImplementedError(msg.format(parameter))
 
