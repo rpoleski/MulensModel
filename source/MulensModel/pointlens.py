@@ -147,8 +147,7 @@ class _PointLensMagnification(_AbstractMagnification):
         d_u_d_y = self.trajectory.y / self.u_
         dt = self.trajectory.times - as_dict['t_0']
 
-        # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
-        # gradient depends on which ones are defined.
+        # Exactly 2 out of (u_0, t_E, t_eff) must be defined and gradient depends on which ones are defined.
         t_E = self.trajectory.parameters.t_E
         t_eff = self.trajectory.parameters.t_eff
         if 't_eff' not in as_dict:
@@ -287,9 +286,7 @@ class FiniteSourceUniformGould94Magnification(_PointLensMagnification):
         direct: *bool*
             Use direct calculation (slow) instead of interpolation. Default is
             False.
-
     """
-
     def __init__(self, direct=False, **kwargs):
         super().__init__(**kwargs)
 

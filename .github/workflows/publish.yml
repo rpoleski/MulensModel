@@ -82,13 +82,13 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Download sdist artifacts to dist/
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: sdist
         path: dist/
 
     - name: Download wheelhouse artifacts to dist/
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: wheelhouse
         path: dist/

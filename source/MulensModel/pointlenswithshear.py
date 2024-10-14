@@ -89,29 +89,3 @@ class PointSourcePointLensWithShearMagnification(_PointLensMagnification):
                 error += "{:} {:} {:}\n".format(x, y, mag)
 
         raise ValueError(error)
-
-    # def get_point_lens_finite_source_magnification(self, *args, **kwargs):
-    #     """Not implemented for Chang-Refsdal"""
-    #     raise NotImplementedError("not implemented for Chang-Refsdal")
-    #
-    # def get_point_lens_limb_darkening_magnification(self, *args, **kwargs):
-    #     """Not implemented for Chang-Refsdal"""
-    #     raise NotImplementedError("not implemented for Chang-Refsdal")
-    #
-    # def get_point_lens_uniform_integrated_magnification(self, *args, **kwargs):
-    #     """Not implemented for Chang-Refsdal"""
-    #     raise NotImplementedError("not implemented for Chang-Refsdal")
-    #
-    # def get_point_lens_LD_integrated_magnification(self, *args, **kwargs):
-    #     """Not implemented for Chang-Refsdal"""
-    #     raise NotImplementedError("not implemented for Chang-Refsdal")
-    #
-    # def get_point_lens_large_finite_source_magnification(self, *args,
-    #                                                      **kwargs):
-    #     """Not implemented for Chang-Refsdal"""
-    #     raise NotImplementedError("not implemented for Chang-Refsdal")
-    #
-    # def get_point_lens_large_LD_integrated_magnification(self, *args,
-    #                                                      **kwargs):
-    #     """Not implemented for Chang-Refsdal"""
-    #     raise NotImplementedError("not implemented for Chang-Refsdal")

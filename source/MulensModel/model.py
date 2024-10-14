@@ -865,25 +865,21 @@ class Model(object):
         if not isinstance(methods, list):
             raise TypeError('Parameter methods has to be a list.')
         if (not isinstance(source, (int))) and (source is not None):
-            raise ValueError("In Model.set_magnification_methods() " +
-                             "the parameter 'source' has to be *int* or None.")
+            raise ValueError("In Model.set_magnification_methods() the parameter 'source' has to be *int* or None.")
 
         self._check_methods(methods, source)
 
         if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
-                raise ValueError('You cannot set methods for all sources ' +
-                                 'after setting them for a single source')
+                raise ValueError('You cannot set methods for all sources after setting them for a single source')
 
             self._methods = methods
         else:
             if isinstance(self._methods, list):
-                raise ValueError('You cannot set methods for a single ' +
-                                 'source after setting them for all sources.')
+                raise ValueError('You cannot set methods for a single source after setting them for all sources.')
 
             if source > self.n_sources:
-                msg = ('Cannot set methods for source {:} for model with ' +
-                       'only {:} sources.')
+                msg = ('Cannot set methods for source {:} for model with only {:} sources.')
                 raise ValueError(msg.format(source, self.n_sources))
 
             if self._methods is None:
@@ -1272,14 +1268,11 @@ class Model(object):
                 time, satellite_skycoord, gamma, source_flux_ratio,
                 separate)
         else:
-            raise ValueError(
-                'Invalid number of sources: ' +
-                '{:}'.format(self.n_sources))
+            raise ValueError('Invalid number of sources: {:}'.format(self.n_sources))
 
         if np.sum(np.isnan(magnification)) > 0:
-            fmt = ("EPOCHS:\n{:}\nMODEL:\n{:}Something went wrong with " +
-                   "calculating of magnification for the above model. " +
-                   "For all above epochs magnifications are NaN.")
+            fmt = ("EPOCHS:\n{:}\nMODEL:\n{:}Something went wrong with calculating of magnification for " +
+                   "the above model. For all above epochs magnifications are NaN.")
             msg = fmt.format(time[np.isnan(magnification)], self.__repr__())
             raise ValueError(msg)
         return magnification
