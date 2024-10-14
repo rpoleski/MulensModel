@@ -18,8 +18,6 @@ def test_get_ps_with_shear_magnification_1():
     trajectory = mm.Trajectory(t_vec, parameters)
     point_lens = mm.PointSourcePointLensWithShearMagnification(
         trajectory=trajectory)
-    # Set trajectory to be a single point
-    # test_pspl_shear = point_lens.get_point_source_magnification(trajectory)
     test_pspl_shear = point_lens.get_magnification()
     np.testing.assert_almost_equal(test_pspl_shear[0], 5.556327, decimal=5)
 

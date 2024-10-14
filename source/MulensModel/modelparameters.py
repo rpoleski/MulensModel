@@ -70,8 +70,8 @@ class ModelParameters(object):
 
             source_params = self._divide_parameters(parameters)
             for i, params_i in enumerate(source_params):
-            # This try/except block forces checks from ._init_1_source()
-            # to be run on each source parameters separately.
+                # This try/except block forces checks from ._init_1_source()
+                # to be run on each source parameters separately.
                 try:
                     self.__setattr__('_source_{0}_parameters'.format(i + 1), ModelParameters(params_i))
                 except Exception:
@@ -332,18 +332,27 @@ class ModelParameters(object):
         formats = self._get_formats_dict_for_repr()
         ordered_keys = self._get_ordered_keys_for_repr()
 
-        variables = ''
-        values = ''
+        variables = [''] * (self._n_sources + 1)
+        values = [''] * (self._n_sources + 1)
         for key in ordered_keys:
             if key not in keys:
                 continue
+            index = self._split_parameter_name(key)[1]
+            index = 0 if index is None else index
             (full_name, value) = self._get_values_for_repr(formats[key], key)
             (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key],
                                                         full_name)
-            variables += fmt_1.format(full_name)
-            values += fmt_2.format(value)
+            variables[index] += fmt_1.format(full_name)
+            values[index] += fmt_2.format(value)
 
-        return '{0}\n{1}'.format(variables, values)
+        print_msg = ''
+        for (i, var) in enumerate(variables):
+            if var and values[i]:
+                print_msg += f"{var}\n{values[i]}".format(var, values[i])
+            if i < self.n_sources and variables[i+1]:
+                print_msg += "\n"
+
+        return print_msg
 
     def _get_keys_for_repr(self):
         """
