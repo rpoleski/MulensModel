@@ -340,15 +340,14 @@ class ModelParameters(object):
             index = self._split_parameter_name(key)[1]
             index = 0 if index is None else index
             (full_name, value) = self._get_values_for_repr(formats[key], key)
-            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key],
-                                                        full_name)
+            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key], full_name)
             variables[index] += fmt_1.format(full_name)
             values[index] += fmt_2.format(value)
 
         print_msg = ''
-        for (i, var) in enumerate(variables):
-            if var and values[i]:
-                print_msg += f"{var}\n{values[i]}".format(var, values[i])
+        for (i, variable) in enumerate(variables):
+            if variable and values[i]:
+                print_msg += "{:}\n{:}".format(variable, values[i])
             if i < self.n_sources and variables[i+1]:
                 print_msg += "\n"
 
